@@ -1,0 +1,26 @@
+var structchess__move__command__t =
+[
+    [ "action", "structchess__move__command__t.html#a986bcd6a356246b9596b900827707501", null ],
+    [ "custom_increment", "structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d", null ],
+    [ "custom_minutes", "structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75", null ],
+    [ "dropped_mask_high", "structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0", null ],
+    [ "dropped_mask_low", "structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52", null ],
+    [ "fen", "structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5", null ],
+    [ "fen_new_game", "structchess__move__command__t.html#a31349911e64af0b0ff96a75780706072", null ],
+    [ "from_notation", "structchess__move__command__t.html#a51b8eb6617ef0642c722008827f2d3d1", null ],
+    [ "is_demo_mode", "structchess__move__command__t.html#a43bd07ae3571e5c911bb94292a4cf6b3", null ],
+    [ "is_white_turn", "structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a", null ],
+    [ "lifted_mask_high", "structchess__move__command__t.html#a951e580b1ae60115a385e99910230daf", null ],
+    [ "lifted_mask_low", "structchess__move__command__t.html#a6e2b8d22a99ff32dbe292ac2d5633242", null ],
+    [ "matrix_guard", "structchess__move__command__t.html#a7fb01c69b7f644c685f0b03711ad7650", null ],
+    [ "player", "structchess__move__command__t.html#a431384d6ef7f4db67d9a0946a7211ef1", null ],
+    [ "promotion_choice", "structchess__move__command__t.html#ae6e4449e8345fed34c9c685eba9f1363", null ],
+    [ "promotion_from_remote", "structchess__move__command__t.html#ab5aa48985555b2421f0774b8515dd856", null ],
+    [ "response_queue", "structchess__move__command__t.html#a750e92bc6c9a40c005e3e48947dd10b5", null ],
+    [ "time_control_type", "structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263", null ],
+    [ "timer_config", "structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e", null ],
+    [ "timer_data", "structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a", null ],
+    [ "timer_state", "structchess__move__command__t.html#a2a4ad0dafa8f00451bbf16ecd53173fd", null ],
+    [ "to_notation", "structchess__move__command__t.html#a3396c5f2d92b68852cb9fcf6e79500fc", null ],
+    [ "type", "structchess__move__command__t.html#a87f810beeb0b0322d2b99c87d5a7c91c", null ]
+];

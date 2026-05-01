@@ -1,0 +1,13 @@
+<map id="chess_types.h" name="chess_types.h">
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="293,5,407,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="302,33,101,80,99,75,301,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="111,79,261,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="325,33,226,76,224,71,323,28"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="285,79,415,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="353,31,353,65,347,65,347,31"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="439,79,522,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="372,28,449,70,446,74,370,33"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="547,79,617,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="388,28,534,73,533,78,386,33"/>
+</map>

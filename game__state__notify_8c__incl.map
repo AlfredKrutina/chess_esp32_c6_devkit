@@ -1,0 +1,5 @@
+<map id="game_state_notify.c" name="game_state_notify.c">
+<area shape="rect" id="Node000001" title="Výchozí slabá implementace (bez závislosti na web_server)." alt="" coords="6,5,158,31"/>
+<area shape="rect" id="Node000002" href="$game__state__notify_8h.html" title="Tenký hook z game_task — notifikace změny stavu (WebSocket push apod.)." alt="" coords="5,79,159,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,31,85,65,79,65,79,31"/>
+</map>

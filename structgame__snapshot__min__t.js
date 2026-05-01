@@ -1,0 +1,25 @@
+var structgame__snapshot__min__t =
+[
+    [ "black_king_moved", "structgame__snapshot__min__t.html#a8074b42301d8a149d8bd8eabaeab4f74", null ],
+    [ "black_rook_a_moved", "structgame__snapshot__min__t.html#ae232f6be2bf07fa29487babbbfe379dd", null ],
+    [ "black_rook_h_moved", "structgame__snapshot__min__t.html#a7534ccba436b1aa44e5aa1b79e99af8e", null ],
+    [ "board", "structgame__snapshot__min__t.html#a39094568b145716a19f9587717ece73c", null ],
+    [ "crc32", "structgame__snapshot__min__t.html#a167a42ebc13e789366b7197db67c6194", null ],
+    [ "current_player", "structgame__snapshot__min__t.html#a86c0b603fb21aa88bf13a605fbc40608", null ],
+    [ "en_passant_available", "structgame__snapshot__min__t.html#ac78da5dd8968bb3b16a8cd936a1cf743", null ],
+    [ "en_passant_target_col", "structgame__snapshot__min__t.html#a70a95e448e79255b327cef85d324ef98", null ],
+    [ "en_passant_target_row", "structgame__snapshot__min__t.html#afe0e64deba77729601c8900430d0ea85", null ],
+    [ "en_passant_victim_col", "structgame__snapshot__min__t.html#a9f9a152a461ba6db69e736026803ade5", null ],
+    [ "en_passant_victim_row", "structgame__snapshot__min__t.html#a0316164db17d5eb4a076c15b320bd2b1", null ],
+    [ "format", "structgame__snapshot__min__t.html#aacd89658dcbcc72e005f0b51b7d7ed60", null ],
+    [ "game_state", "structgame__snapshot__min__t.html#aa2517d88a26cf3487be30f74f714ae32", null ],
+    [ "move_count", "structgame__snapshot__min__t.html#a1a0e7ecd105f16151fad24993c8e830e", null ],
+    [ "promotion_col", "structgame__snapshot__min__t.html#a1ac295e1e65b3517cadf57e0c4030490", null ],
+    [ "promotion_pending", "structgame__snapshot__min__t.html#ae7ab93fe5c7f5f652cb859d73095aeab", null ],
+    [ "promotion_player", "structgame__snapshot__min__t.html#a5c997007c5a1f0533e8a0e91fb0cc91d", null ],
+    [ "promotion_row", "structgame__snapshot__min__t.html#a84c1c7fe22da7613b53b1645d211b725", null ],
+    [ "version", "structgame__snapshot__min__t.html#aa102f7397d3118a377565512d01d6d3a", null ],
+    [ "white_king_moved", "structgame__snapshot__min__t.html#a83933d23bb1100dd4a710064255cd176", null ],
+    [ "white_rook_a_moved", "structgame__snapshot__min__t.html#a82c1c5ae78f12b48098ebe3a2be8f913", null ],
+    [ "white_rook_h_moved", "structgame__snapshot__min__t.html#abd4e416a81bd674a5527385859e2aa08", null ]
+];

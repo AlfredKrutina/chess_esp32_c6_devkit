@@ -1,0 +1,15 @@
+<map id="animation_task" name="animation_task">
+<area shape="rect" id="node1" href="dir_2c8c9ab3b152afb528f35b2c32a919e8.html" title="led_task" alt="" coords="181,136,259,161"/>
+<area shape="rect" id="node2" href="dir_5c6c08d104c204cc3ac851f4559ad479.html" title="freertos_chess" alt="" coords="116,209,233,235"/>
+<area shape="poly" id="edge1" href="dir_000000_000034.html" alt="" coords="120,86,190,127,187,131,117,90"/>
+<area shape="rect" id="edge1-headlabel" href="dir_000000_000034.html" title="1" alt="" coords="184,112,193,127"/>
+<area shape="poly" id="edge2" href="dir_000000_000006.html" alt="" coords="161,78,191,84,222,95,250,111,273,135,280,154,273,173,256,193,234,206,231,202,252,189,268,171,275,154,268,137,247,116,219,100,189,89,160,83"/>
+<area shape="rect" id="edge2-headlabel" href="dir_000000_000006.html" title="3" alt="" coords="235,203,244,217"/>
+<area shape="rect" id="node4" href="dir_d0954016f3b51aa8e12d79ad9b090aaa.html" title="include" alt="" coords="76,136,145,161"/>
+<area shape="poly" id="edge3" href="dir_000000_000011.html" alt="" coords="103,88,109,122,104,123,98,89"/>
+<area shape="rect" id="edge3-headlabel" href="dir_000000_000011.html" title="1" alt="" coords="109,109,119,124"/>
+<area shape="poly" id="edge4" href="dir_000011_000006.html" alt="" coords="123,160,157,197,153,201,119,163"/>
+<area shape="rect" id="edge4-headlabel" href="dir_000011_000006.html" title="1" alt="" coords="154,183,163,197"/>
+<area shape="rect" id="clust2" href="dir_41295a85b1295fc0ebd5beaf3e0347d1.html" alt="" coords="27,52,171,172"/>
+<area shape="rect" id="clust1" href="dir_409f97388efe006bc3438b95e9edef48.html" title="components" alt="" coords="16,16,296,245"/>
+</map>

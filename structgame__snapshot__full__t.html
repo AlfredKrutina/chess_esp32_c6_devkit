@@ -1,0 +1,633 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace struktury game_snapshot_full_t</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('structgame__snapshot__full__t.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-attribs">Datové položky</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace struktury game_snapshot_full_t</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="dynheader">
+Diagram pro game_snapshot_full_t:</div>
+<div class="dyncontent">
+<div class="center"><img src="structgame__snapshot__full__t__coll__graph.png" border="0" usemap="#agame__snapshot__full__t_coll__map" alt="Collaboration graph"/></div>
+<map name="agame__snapshot__full__t_coll__map" id="agame__snapshot__full__t_coll__map">
+<area shape="rect" title=" " alt="" coords="5,93,171,119"/>
+<area shape="rect" href="structchess__move__t.html" title="Zakladni struktura sachoveho tahu." alt="" coords="31,5,145,31"/>
+<area shape="poly" title=" " alt="" coords="91,45,91,93,85,93,85,45"/>
+</map>
+<center><span class="legend">[<a target="top" href="graph_legend.html">vysvětlivky</a>]</span></center></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Datové položky</h2></td></tr>
+<tr class="memitem:a2265cc98926cf6504e8886cfb82c8e79" id="r_a2265cc98926cf6504e8886cfb82c8e79"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a2265cc98926cf6504e8886cfb82c8e79">version</a></td></tr>
+<tr class="separator:a2265cc98926cf6504e8886cfb82c8e79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc727d75f8232cec904a110beaa33711" id="r_abc727d75f8232cec904a110beaa33711"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#abc727d75f8232cec904a110beaa33711">crc32</a></td></tr>
+<tr class="separator:abc727d75f8232cec904a110beaa33711"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c49e1149fbcbb5300824f26bd7616e7" id="r_a5c49e1149fbcbb5300824f26bd7616e7"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a5c49e1149fbcbb5300824f26bd7616e7">format</a></td></tr>
+<tr class="separator:a5c49e1149fbcbb5300824f26bd7616e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4e07100ac0c7462b97ff36f17efe033" id="r_ac4e07100ac0c7462b97ff36f17efe033"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#ac4e07100ac0c7462b97ff36f17efe033">board</a> [64]</td></tr>
+<tr class="separator:ac4e07100ac0c7462b97ff36f17efe033"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1932bccb4bedb2a45f446151d769d22" id="r_ae1932bccb4bedb2a45f446151d769d22"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#ae1932bccb4bedb2a45f446151d769d22">current_player</a></td></tr>
+<tr class="separator:ae1932bccb4bedb2a45f446151d769d22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d7471e86098c0bcb678d934528ab885" id="r_a0d7471e86098c0bcb678d934528ab885"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a0d7471e86098c0bcb678d934528ab885">game_state</a></td></tr>
+<tr class="separator:a0d7471e86098c0bcb678d934528ab885"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9e924c4833ee998f340075c06159cd9" id="r_ad9e924c4833ee998f340075c06159cd9"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#ad9e924c4833ee998f340075c06159cd9">move_count</a></td></tr>
+<tr class="separator:ad9e924c4833ee998f340075c06159cd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfeda68e998998fae010d7cdf1173bb6" id="r_adfeda68e998998fae010d7cdf1173bb6"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#adfeda68e998998fae010d7cdf1173bb6">white_king_moved</a></td></tr>
+<tr class="separator:adfeda68e998998fae010d7cdf1173bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3c8addda8c39cd948b204025eeb170e" id="r_ac3c8addda8c39cd948b204025eeb170e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#ac3c8addda8c39cd948b204025eeb170e">white_rook_a_moved</a></td></tr>
+<tr class="separator:ac3c8addda8c39cd948b204025eeb170e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab20c6d172153fabef6dc55285be04bf" id="r_aab20c6d172153fabef6dc55285be04bf"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#aab20c6d172153fabef6dc55285be04bf">white_rook_h_moved</a></td></tr>
+<tr class="separator:aab20c6d172153fabef6dc55285be04bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafbb44e7ce0001d45b8096f98c0322d2" id="r_aafbb44e7ce0001d45b8096f98c0322d2"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#aafbb44e7ce0001d45b8096f98c0322d2">black_king_moved</a></td></tr>
+<tr class="separator:aafbb44e7ce0001d45b8096f98c0322d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b9af42571bc819783700f749f34f89b" id="r_a9b9af42571bc819783700f749f34f89b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a9b9af42571bc819783700f749f34f89b">black_rook_a_moved</a></td></tr>
+<tr class="separator:a9b9af42571bc819783700f749f34f89b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca18ad00a3158ea3c49e3bcd4172f345" id="r_aca18ad00a3158ea3c49e3bcd4172f345"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#aca18ad00a3158ea3c49e3bcd4172f345">black_rook_h_moved</a></td></tr>
+<tr class="separator:aca18ad00a3158ea3c49e3bcd4172f345"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94eb7482be49d5d0484dc5d1b9136400" id="r_a94eb7482be49d5d0484dc5d1b9136400"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a94eb7482be49d5d0484dc5d1b9136400">en_passant_available</a></td></tr>
+<tr class="separator:a94eb7482be49d5d0484dc5d1b9136400"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32cdf989578954ba4440fcbb927a0a9e" id="r_a32cdf989578954ba4440fcbb927a0a9e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a32cdf989578954ba4440fcbb927a0a9e">en_passant_target_row</a></td></tr>
+<tr class="separator:a32cdf989578954ba4440fcbb927a0a9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdaf1d3563ca2df87b3de5c1ba2d8c87" id="r_acdaf1d3563ca2df87b3de5c1ba2d8c87"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#acdaf1d3563ca2df87b3de5c1ba2d8c87">en_passant_target_col</a></td></tr>
+<tr class="separator:acdaf1d3563ca2df87b3de5c1ba2d8c87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43369fff93f8341d49affdfa38f4562f" id="r_a43369fff93f8341d49affdfa38f4562f"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a43369fff93f8341d49affdfa38f4562f">en_passant_victim_row</a></td></tr>
+<tr class="separator:a43369fff93f8341d49affdfa38f4562f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a15957d444453177f8e874283f9a401a3" id="r_a15957d444453177f8e874283f9a401a3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a15957d444453177f8e874283f9a401a3">en_passant_victim_col</a></td></tr>
+<tr class="separator:a15957d444453177f8e874283f9a401a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c4cf6e2385d433b0c496a2df9473e04" id="r_a1c4cf6e2385d433b0c496a2df9473e04"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a1c4cf6e2385d433b0c496a2df9473e04">promotion_pending</a></td></tr>
+<tr class="separator:a1c4cf6e2385d433b0c496a2df9473e04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9c746979010a3d1bcbbd2e08f5c2485" id="r_aa9c746979010a3d1bcbbd2e08f5c2485"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#aa9c746979010a3d1bcbbd2e08f5c2485">promotion_row</a></td></tr>
+<tr class="separator:aa9c746979010a3d1bcbbd2e08f5c2485"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7704f2d8e31c6cc86e70d18656ec69c7" id="r_a7704f2d8e31c6cc86e70d18656ec69c7"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a7704f2d8e31c6cc86e70d18656ec69c7">promotion_col</a></td></tr>
+<tr class="separator:a7704f2d8e31c6cc86e70d18656ec69c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8179148a1ec70bab65750c4c579438cf" id="r_a8179148a1ec70bab65750c4c579438cf"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a8179148a1ec70bab65750c4c579438cf">promotion_player</a></td></tr>
+<tr class="separator:a8179148a1ec70bab65750c4c579438cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7cda126e07e3a4215981fc0dfec81e4" id="r_ad7cda126e07e3a4215981fc0dfec81e4"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#ad7cda126e07e3a4215981fc0dfec81e4">white_time_total</a></td></tr>
+<tr class="separator:ad7cda126e07e3a4215981fc0dfec81e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2e9e32ed1a1bd1bc3068855998debfd" id="r_af2e9e32ed1a1bd1bc3068855998debfd"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#af2e9e32ed1a1bd1bc3068855998debfd">black_time_total</a></td></tr>
+<tr class="separator:af2e9e32ed1a1bd1bc3068855998debfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbb9e1cb93f609897de27bc1cb60f3ca" id="r_adbb9e1cb93f609897de27bc1cb60f3ca"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#adbb9e1cb93f609897de27bc1cb60f3ca">white_remaining_ms</a></td></tr>
+<tr class="separator:adbb9e1cb93f609897de27bc1cb60f3ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdd4cff970021e936086d0f46a4168a5" id="r_abdd4cff970021e936086d0f46a4168a5"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#abdd4cff970021e936086d0f46a4168a5">black_remaining_ms</a></td></tr>
+<tr class="separator:abdd4cff970021e936086d0f46a4168a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac62c9c464344c088936ec4503bd1419d" id="r_ac62c9c464344c088936ec4503bd1419d"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#ac62c9c464344c088936ec4503bd1419d">history_count</a></td></tr>
+<tr class="separator:ac62c9c464344c088936ec4503bd1419d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a03efa67a99731947e32a4461b6d7a161" id="r_a03efa67a99731947e32a4461b6d7a161"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structchess__move__t.html">chess_move_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__snapshot__full__t.html#a03efa67a99731947e32a4461b6d7a161">history</a> [40]</td></tr>
+<tr class="separator:a03efa67a99731947e32a4461b6d7a161"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock">
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00347">347</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace položek</h2>
+<a id="aafbb44e7ce0001d45b8096f98c0322d2" name="aafbb44e7ce0001d45b8096f98c0322d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aafbb44e7ce0001d45b8096f98c0322d2">&#9670;&#160;</a></span>black_king_moved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::black_king_moved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00358">358</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abdd4cff970021e936086d0f46a4168a5" name="abdd4cff970021e936086d0f46a4168a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abdd4cff970021e936086d0f46a4168a5">&#9670;&#160;</a></span>black_remaining_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::black_remaining_ms</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00373">373</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9b9af42571bc819783700f749f34f89b" name="a9b9af42571bc819783700f749f34f89b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b9af42571bc819783700f749f34f89b">&#9670;&#160;</a></span>black_rook_a_moved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::black_rook_a_moved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00359">359</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aca18ad00a3158ea3c49e3bcd4172f345" name="aca18ad00a3158ea3c49e3bcd4172f345"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca18ad00a3158ea3c49e3bcd4172f345">&#9670;&#160;</a></span>black_rook_h_moved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::black_rook_h_moved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00360">360</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af2e9e32ed1a1bd1bc3068855998debfd" name="af2e9e32ed1a1bd1bc3068855998debfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2e9e32ed1a1bd1bc3068855998debfd">&#9670;&#160;</a></span>black_time_total</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::black_time_total</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00371">371</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac4e07100ac0c7462b97ff36f17efe033" name="ac4e07100ac0c7462b97ff36f17efe033"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4e07100ac0c7462b97ff36f17efe033">&#9670;&#160;</a></span>board</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::board[64]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00351">351</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abc727d75f8232cec904a110beaa33711" name="abc727d75f8232cec904a110beaa33711"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc727d75f8232cec904a110beaa33711">&#9670;&#160;</a></span>crc32</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::crc32</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00349">349</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae1932bccb4bedb2a45f446151d769d22" name="ae1932bccb4bedb2a45f446151d769d22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1932bccb4bedb2a45f446151d769d22">&#9670;&#160;</a></span>current_player</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::current_player</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00352">352</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a94eb7482be49d5d0484dc5d1b9136400" name="a94eb7482be49d5d0484dc5d1b9136400"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94eb7482be49d5d0484dc5d1b9136400">&#9670;&#160;</a></span>en_passant_available</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::en_passant_available</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00361">361</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acdaf1d3563ca2df87b3de5c1ba2d8c87" name="acdaf1d3563ca2df87b3de5c1ba2d8c87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acdaf1d3563ca2df87b3de5c1ba2d8c87">&#9670;&#160;</a></span>en_passant_target_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::en_passant_target_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00363">363</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a32cdf989578954ba4440fcbb927a0a9e" name="a32cdf989578954ba4440fcbb927a0a9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32cdf989578954ba4440fcbb927a0a9e">&#9670;&#160;</a></span>en_passant_target_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::en_passant_target_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00362">362</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a15957d444453177f8e874283f9a401a3" name="a15957d444453177f8e874283f9a401a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15957d444453177f8e874283f9a401a3">&#9670;&#160;</a></span>en_passant_victim_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::en_passant_victim_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00365">365</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a43369fff93f8341d49affdfa38f4562f" name="a43369fff93f8341d49affdfa38f4562f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a43369fff93f8341d49affdfa38f4562f">&#9670;&#160;</a></span>en_passant_victim_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::en_passant_victim_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00364">364</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5c49e1149fbcbb5300824f26bd7616e7" name="a5c49e1149fbcbb5300824f26bd7616e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c49e1149fbcbb5300824f26bd7616e7">&#9670;&#160;</a></span>format</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::format</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00350">350</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0d7471e86098c0bcb678d934528ab885" name="a0d7471e86098c0bcb678d934528ab885"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d7471e86098c0bcb678d934528ab885">&#9670;&#160;</a></span>game_state</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::game_state</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00353">353</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a03efa67a99731947e32a4461b6d7a161" name="a03efa67a99731947e32a4461b6d7a161"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a03efa67a99731947e32a4461b6d7a161">&#9670;&#160;</a></span>history</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__move__t.html">chess_move_t</a> game_snapshot_full_t::history[40]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00375">375</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac62c9c464344c088936ec4503bd1419d" name="ac62c9c464344c088936ec4503bd1419d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac62c9c464344c088936ec4503bd1419d">&#9670;&#160;</a></span>history_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::history_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00374">374</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad9e924c4833ee998f340075c06159cd9" name="ad9e924c4833ee998f340075c06159cd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9e924c4833ee998f340075c06159cd9">&#9670;&#160;</a></span>move_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::move_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00354">354</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7704f2d8e31c6cc86e70d18656ec69c7" name="a7704f2d8e31c6cc86e70d18656ec69c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7704f2d8e31c6cc86e70d18656ec69c7">&#9670;&#160;</a></span>promotion_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::promotion_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00368">368</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1c4cf6e2385d433b0c496a2df9473e04" name="a1c4cf6e2385d433b0c496a2df9473e04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c4cf6e2385d433b0c496a2df9473e04">&#9670;&#160;</a></span>promotion_pending</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::promotion_pending</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00366">366</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8179148a1ec70bab65750c4c579438cf" name="a8179148a1ec70bab65750c4c579438cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8179148a1ec70bab65750c4c579438cf">&#9670;&#160;</a></span>promotion_player</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::promotion_player</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00369">369</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa9c746979010a3d1bcbbd2e08f5c2485" name="aa9c746979010a3d1bcbbd2e08f5c2485"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9c746979010a3d1bcbbd2e08f5c2485">&#9670;&#160;</a></span>promotion_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::promotion_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00367">367</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2265cc98926cf6504e8886cfb82c8e79" name="a2265cc98926cf6504e8886cfb82c8e79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2265cc98926cf6504e8886cfb82c8e79">&#9670;&#160;</a></span>version</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::version</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00348">348</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adfeda68e998998fae010d7cdf1173bb6" name="adfeda68e998998fae010d7cdf1173bb6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfeda68e998998fae010d7cdf1173bb6">&#9670;&#160;</a></span>white_king_moved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::white_king_moved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00355">355</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adbb9e1cb93f609897de27bc1cb60f3ca" name="adbb9e1cb93f609897de27bc1cb60f3ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbb9e1cb93f609897de27bc1cb60f3ca">&#9670;&#160;</a></span>white_remaining_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::white_remaining_ms</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00372">372</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac3c8addda8c39cd948b204025eeb170e" name="ac3c8addda8c39cd948b204025eeb170e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3c8addda8c39cd948b204025eeb170e">&#9670;&#160;</a></span>white_rook_a_moved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::white_rook_a_moved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00356">356</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aab20c6d172153fabef6dc55285be04bf" name="aab20c6d172153fabef6dc55285be04bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab20c6d172153fabef6dc55285be04bf">&#9670;&#160;</a></span>white_rook_h_moved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_snapshot_full_t::white_rook_h_moved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00357">357</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad7cda126e07e3a4215981fc0dfec81e4" name="ad7cda126e07e3a4215981fc0dfec81e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7cda126e07e3a4215981fc0dfec81e4">&#9670;&#160;</a></span>white_time_total</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_snapshot_full_t::white_time_total</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l00370">370</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<hr/>Dokumentace pro tuto strukturu byla vygenerována z následujícího souboru:<ul>
+<li><a class="el" href="game__task_8c_source.html">game_task.c</a></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="structgame__snapshot__full__t.html">game_snapshot_full_t</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

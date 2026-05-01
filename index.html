@@ -1,0 +1,890 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: CZECHMATE v2.5</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('index.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">CZECHMATE v2.5 </div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="md_README"></a> **Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (<code>flutter_czechmate/</code>).** Nativní Xcode projekt <code>CZECHMATE/</code> je jen lokálně (není v gitu).</p>
+<p><em>Šachmat, udělaný v Česku</em></p>
+<p><b>Dokumentace v repu:</b> Jednotný rozcestník — **`docs/README.md`** (doporučené pořadí čtení, inventář všech textů a diagramů, limity vs zdroják).</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md89"></a>
+🎓 O projektu</h1>
+<p><b>CZECHMATE</b> - to je název našeho projektu. Hra se slovem "checkmate" (šachmat) a "Czech" (český), protože je to šachový systém udělaný v Česku. Původní nápad byl "CZECHMADE", ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.</p>
+<p>Tento projekt představuje náš největší a nejkomplexnější projekt, na kterém jsme pracovali. Je to šachový systém postavený na ESP32-C6 mikrokontroléru, který kombinuje hardware, software, embedded systémy, webové technologie a samozřejmě šachovou logiku. Když jsme začínali, netušili jsme, kolik se toho naučíme a kolik výzev nás čeká.</p>
+<p>Projekt vznikal postupně - od jednoduché myšlenky "udělat šachy s LED" až po komplexní systém s FreeRTOS multitaskingem, webovým serverem, fyzickou detekcí figurek a kompletní implementací všech šachových pravidel. Každá část projektu nás něco naučila - od základů embedded programování přes real-time systémy až po webové technologie.</p>
+<p><b>Spolupráce:</b> Projekt je výsledkem týmové práce - Matěj se zaměřil na hardware design, zapojení a fyzickou realizaci šachovnice, zatímco já jsem pracoval na software, firmware a šachové logice.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md91"></a>
+📋 Přehled projektu</h1>
+<p>CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fyzické šachovnici s automatickou detekcí figurek pomocí Reed Switch matice. Systém obsahuje 73 WS2812B LED diod (64 na šachovnici + 9 na tlačítkách), které poskytují vizuální feedback pro každý tah. Kromě fyzické hry je možné hrát i přes webové rozhraní nebo UART konzoli.</p>
+<h2><a class="anchor" id="autotoc_md92"></a>
+🎯 Hlavní funkce</h2>
+<ul>
+<li><b>Fyzická šachovnice</b> - 8x8 Reed Switch matice pro automatickou detekci figurek</li>
+<li><b>LED osvětlení</b> - 64 LED na šachovnici + 9 LED na tlačítkách pro vizuální feedback</li>
+<li>**Flutter aplikace (<code>flutter_czechmate/</code>)** - Multiplatformní klient (Dart/Flutter): BLE (<code>flutter_blue_plus</code>), HTTP a WebSocket pro spojení s deskou a webem.</li>
+<li><b>Mobilní aplikace</b> — primárně <b>Flutter</b> (<code>flutter_czechmate/</code>) pro Android / iOS / desktop. Případná nativní iOS appka ve složce <code>CZECHMATE/</code> drž lokálně (mimo tento repozitář).</li>
+<li><b>Kompletní šachová logika</b> - Všechna pravidla včetně rošády, en passant, promoce, šach, mat</li>
+<li><b>Webové rozhraní</b> - HTTP server pro vzdálenou hru přes prohlížeč s real-time aktualizací</li>
+<li><b>UART konzole</b> - Textové příkazy pro ovládání, ladění a testování</li>
+<li><b>LED animace</b> - Vizuální feedback pro tahy, šach, mat, remízu a konec hry (sjednocená vítězná animace)</li>
+<li><b>FreeRTOS multitasking</b> - Paralelní tasky (LED, matice, hra, web, BLE, MQTT, časovače); samostatný **<code>animation_task</code> je vypnutý** — LED animace běží v **<code>led_task</code>** přes **<code>unified_animation_manager</code>** / **<code>game_led_animations</code>** (komponenta <code>animation_task/</code> zůstává v repu kvůli API, FreeRTOS task se ve <code><a class="el" href="main_8c.html" title="ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace.">main.c</a></code> nevytváří).</li>
+<li><b>Integrace s Home Assistant</b> - MQTT světlo přes <code>ha_light_task</code> (dynamické LED scény řízené z HA)</li>
+<li><b>Automatický start nové hry</b> - Pokud jsou všechny figurky fyzicky v počáteční pozici po ~2 sekundách, spustí se nová hra</li>
+<li><b>Hra proti Botovi (Stockfish)</b> - Možnost hrát proti AI enginu s nastavitelnou obtížností (ELO) a volbou strany</li>
+<li><b>Výukový režim a Nápověda</b> - Integrovaná nápověda tahů s vysvětlením, hodnocení kvality tahů a systém odměn za dobré tahy</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md94"></a>
+🛠️ Hardware</h1>
+<p><em>Hardware design a realizace: Matěj Jager</em></p>
+<h2><a class="anchor" id="autotoc_md95"></a>
+Komponenty</h2>
+<p>Projekt používá následující hardware komponenty, které Matěj pečlivě navrhl a zapojil:</p>
+<ul>
+<li><b>ESP32-C6 DevKit</b> - Hlavní mikrokontrolér s WiFi a Bluetooth</li>
+<li><b>73x WS2812B LED</b> - 64 LED na šachovnici + 9 LED na tlačítkách</li>
+<li><b>8x8 Reed Switch Matrix</b> - Pro detekci fyzických figurek na šachovnici (64 Reed Switchů)</li>
+<li><b>4x Promotion tlačítka</b> - Pro výběr figury při promoci pěšce (Queen, Rook, Bishop, Knight)</li>
+<li><b>1x Reset tlačítko</b> - Pro reset hry</li>
+<li><b>USB Serial JTAG</b> - Pro konzoli, programování a ladění</li>
+<li><b>Externí 5V/5A zdroj</b> - Pro napájení LED pásu (WS2812B potřebují hodně proudu)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md96"></a>
+GPIO mapování</h2>
+<p>Jedna z prvních výzev bylo správně namapovat všechny GPIO piny. ESP32-C6 má omezený počet bezpečných pinů, takže Matěj musel pečlivě naplánovat, co kam připojit, a já jsem musel zajistit, aby software toto mapování respektoval:</p>
+<div class="fragment"><div class="line">LED Data:        GPIO7  (WS2812B - bezpečný pin pro RMT)</div>
+<div class="line">Matrix Rows:     GPIO10,11,18,19,20,21,22,23 (8 výstupů)</div>
+<div class="line">Matrix Columns: GPIO0,1,2,3,6,4,16,17 (8 vstupů s pull-up)</div>
+<div class="line">Status LED:      GPIO5  (samostatný pin pro status - GPIO8 je boot strapping pin)</div>
+<div class="line">Reset Button:    GPIO15 (samostatný pin s pull-up)</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md97"></a>
+Time-Multiplexing</h2>
+<p>Protože ESP32-C6 má omezený počet GPIO pinů, museli jsme použít time-multiplexing pro sdílení pinů mezi maticí a tlačítky. Matěj navrhl hardware zapojení s diodami, které umožňují sdílení pinů, a já jsem implementoval software časování. To byla jedna z technicky nejnáročnějších částí projektu:</p>
+<p><b>25ms cyklus:</b></p><ul>
+<li><b>0-20ms</b>: Matrix skenování (8x8 reed switchů) - detekce figurek</li>
+<li><b>20-25ms</b>: Tlačítkové skenování (9 tlačítek) - ovládání</li>
+<li>LED aktualizace probíhá nezávisle mimo multiplexing cyklus</li>
+</ul>
+<p>Toto řešení mi umožnilo použít stejné piny pro matici i tlačítka, což bylo kritické pro úsporu GPIO pinů.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md99"></a>
+🏗️ Architektura</h1>
+<h2><a class="anchor" id="autotoc_md100"></a>
+FreeRTOS Tasky</h2>
+<p>Systém používá FreeRTOS pro multitasking. To byla pro mě úplně nová oblast - před tím jsem programoval hlavně sekvenční kód. Naučil jsem se, jak správně navrhnout tasky, jak používat fronty pro komunikaci a jak synchronizovat přístup ke sdíleným zdrojům pomocí mutexů.</p>
+<p>Systém má několik hlavních FreeRTOS tasků s různými prioritami:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Task / runtime   </th><th class="markdownTableHeadNone">Priorita   </th><th class="markdownTableHeadNone">Popis   </th><th class="markdownTableHeadNone">Stack Size    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>led_task</code>   </td><td class="markdownTableBodyNone">7   </td><td class="markdownTableBodyNone">WS2812B LED, batch commit, animace (<code>unified_animation_manager</code>)   </td><td class="markdownTableBodyNone">8KB    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>matrix_task</code>   </td><td class="markdownTableBodyNone">6   </td><td class="markdownTableBodyNone">Sken 8×8 matice + time-multiplex s tlačítky   </td><td class="markdownTableBodyNone">4KB    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>button_task</code>   </td><td class="markdownTableBodyNone">5   </td><td class="markdownTableBodyNone">Tlačítka (promoce, reset, …)   </td><td class="markdownTableBodyNone">3KB    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>game_task</code>   </td><td class="markdownTableBodyNone">4   </td><td class="markdownTableBodyNone">Šachová logika a stav hry   </td><td class="markdownTableBodyNone">6KB    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>uart_task</code>   </td><td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">USB Serial JTAG konzole (po boot animaci resume)   </td><td class="markdownTableBodyNone">5KB    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>web_server_task</code>   </td><td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">HTTP server, REST, volitelně WebSocket <code>/ws</code> (<code>CONFIG_HTTPD_WS_SUPPORT</code>)   </td><td class="markdownTableBodyNone">20KB    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>ha_light_task</code>   </td><td class="markdownTableBodyNone">3   </td><td class="markdownTableBodyNone">MQTT Home Assistant (RGB light)   </td><td class="markdownTableBodyNone">8KB    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>test_task</code>   </td><td class="markdownTableBodyNone">1   </td><td class="markdownTableBodyNone">Automatické testy (jen pokud <code>CONFIG_CHESS_ENABLE_TEST_TASK</code>)   </td><td class="markdownTableBodyNone">4KB    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>NimBLE host</b>   </td><td class="markdownTableBodyNone">(ESP-IDF)   </td><td class="markdownTableBodyNone">GATT pro mobilní klienty — startuje se <code><a class="el" href="ble__task_8c.html#a673bf35c9275637c2030e5e6676564a8">ble_task_init()</a></code> → <code>nimble_port_freertos_init</code>, <b>není</b> samostatný <code>xTaskCreate("ble_task")</code> v <code><a class="el" href="main_8c.html" title="ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace.">main.c</a></code>   </td><td class="markdownTableBodyNone">(řídí stack NimBLE)   </td></tr>
+</table>
+<p><b>Proč jsou priority takto nastavené?</b></p>
+<p>To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-time detekci pohybu figurek. <b>Game task</b> má prioritu <b>4</b> (stav hry a tahy). <b>UART, web server i HA light task</b> mají prioritu <b>3</b> (I/O a síť); přenosové BLE běží v <b>NimBLE host tasku</b> z ESP-IDF (viz <code>ble_task_init</code>), ne jako řádek v tabulce výše. <b>Test task</b> má prioritu <b>1</b> a zapíná se jen v menuconfig.</p>
+<p><b>Poznámka k animacím:</b> Dřívější samostatný FreeRTOS task <code>animation_task</code> (priorita 3) je <b>vypnutý</b>; animace jsou integrované do pipeline LED tasku a sdílených modulů výše — menší režie tasků a konzistentnější timing s RMT.</p>
+<h2><a class="anchor" id="autotoc_md101"></a>
+Komunikace mezi tasky</h2>
+<p>Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komunikace mezi tasky:</p>
+<ul>
+<li><b>FreeRTOS Queues</b> - Pro asynchronní komunikaci mezi tasky (velikosti viz <code>GAME_QUEUE_SIZE</code> atd. v <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.">freertos_chess.h</a></code>)<ul>
+<li><code>game_command_queue</code> - Příkazy pro <code>game_task</code> (<b>24</b> zpráv typu <code><a class="el" href="structchess__move__command__t.html" title="Struktura prikazu pro sachovy tah pres UART.">chess_move_command_t</a></code>)</li>
+<li><code>button_event_queue</code> - Eventy z tlačítek (5 zpráv)</li>
+<li>LED se ovládají přímými voláními (fronta byla odstraněna pro lepší výkon)</li>
+</ul>
+</li>
+<li><b>Mutexes</b> - Pro thread-safe přístup ke sdíleným zdrojům<ul>
+<li><code>uart_mutex</code> - Ochrana UART výstupu</li>
+<li><code>led_unified_mutex</code> - Ochrana LED bufferu / batch commit v <code>led_task</code></li>
+</ul>
+</li>
+<li><b>Timers</b> - Pro periodické úlohy</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md102"></a>
+Diagramy firmware</h2>
+<p>Kompletní přehled (tabulky <b>priorit, stacků, front</b>, obrázky SVG, mutexy, správné pořadí **<code>main_system_init</code> → <code>ble_task_init</code> → <code>create_system_tasks</code>**, BLE přes <code>web_server_ble_command_dispatch</code>): **`docs/diagrams/README.md`**.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Náhled   </th><th class="markdownTableHeadNone">Popis    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">![tasks](docs/diagrams/tasks_architecture.svg)   </td><td class="markdownTableBodyNone">Pořadí <code>xTaskCreate</code> + runtime fronty    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">![boot](docs/diagrams/boot_sequence.svg)   </td><td class="markdownTableBodyNone"><code>main_system_init</code> včetně BLE před tasky    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">![queues](docs/diagrams/queues_flow.svg)   </td><td class="markdownTableBodyNone">Matrix / UART / web → <code>game_command_queue</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">![led](docs/diagrams/led_pipeline.svg)   </td><td class="markdownTableBodyNone">LED batch / mutex (zjednodušení)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">![flutter](docs/diagrams/client_app_layers.svg)   </td><td class="markdownTableBodyNone">Flutter: features → Riverpod → služby   </td></tr>
+</table>
+<p>Další SVG ve **`docs/diagrams/README.md`**: smyčka každého tasku, přehled aplikací (firmware / Flutter / volitelný nativní klient), rozšířená mapa <code>flutter_czechmate/lib/</code>, pipeline šachové logiky (<code>game_is_valid_move</code>, generování legálních tahů, <code>game_execute_move</code>, <code>game_process_commands</code>), plus <b>toky rošády, promoce, en passantu, braní, bootu z NVS, **matrix guard</b>, <b>error recovery</b>, <b>rezignace králem</b>, <b>undo</b>.</p>
+<p>Zdroje: <a href="docs/diagrams/sources/"><code>docs/diagrams/sources/*.mmd</code></a> → <code>./scripts/render_docs.sh</code> vygeneruje SVG/PNG.</p>
+<p>Nápady na další grafy (lokální poznámky, <b>není v gitu</b>): soubor <code>docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md</code> — vzor začátku `docs/diagrams/DIAGRAM_BACKLOG.local.example.md`.</p>
+<div class="fragment"><div class="line">%%{init: {&#39;theme&#39;:&#39;dark&#39;,&#39;themeVariables&#39;:{&#39;clusterBkg&#39;:&#39;#0f172a&#39;,&#39;lineColor&#39;:&#39;#94a3b8&#39;,&#39;primaryTextColor&#39;:&#39;#f1f5f9&#39;,&#39;titleColor&#39;:&#39;#f8fafc&#39;}}}%%</div>
+<div class="line">flowchart LR</div>
+<div class="line">  subgraph IN[&quot;Vstupy&quot;]</div>
+<div class="line">    MT[matrix]:::t</div>
+<div class="line">    BTN[button]:::t</div>
+<div class="line">    SER[uart]:::t</div>
+<div class="line">    WEB[web]:::t</div>
+<div class="line">    BLE[BLE dispatch]:::b</div>
+<div class="line">  end</div>
+<div class="line">  GQ[(game_command_queue)]:::q</div>
+<div class="line">  BQ[(button_event_queue)]:::q</div>
+<div class="line">  GT[game_task]:::g</div>
+<div class="line">  MT --&gt; GQ</div>
+<div class="line">  SER --&gt; GQ</div>
+<div class="line">  WEB --&gt; GQ</div>
+<div class="line">  BLE --&gt; GQ</div>
+<div class="line">  BTN --&gt; BQ</div>
+<div class="line">  GQ --&gt; GT</div>
+<div class="line">  BQ --&gt; GT</div>
+<div class="line">  GT --&gt; URQ[(uart_response_queue)]:::q --&gt; SER</div>
+<div class="line"> </div>
+<div class="line">  classDef t fill:#14532d,stroke:#4ade80,stroke-width:2px,color:#bbf7d0</div>
+<div class="line">  classDef b fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#e0e7ff</div>
+<div class="line">  classDef q fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa</div>
+<div class="line">  classDef g fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe</div>
+</div><!-- fragment --><p>*(BLE příkazy nejdou přímo z jedné řádkové funkce na frontu — používají sdílený dispatch ve web vrstvě; viz <code>docs/diagrams/README.md</code>.)*</p>
+<h2><a class="anchor" id="autotoc_md103"></a>
+Struktura komponent</h2>
+<p>Projekt je rozdělen do logických komponent, každá má svou vlastní složku:</p>
+<div class="fragment"><div class="line">components/</div>
+<div class="line">├── freertos_chess/              # Základní FreeRTOS infrastruktura</div>
+<div class="line">│   ├── freertos_chess.c         # Inicializace, fronty, mutexy</div>
+<div class="line">│   ├── led_mapping.c            # Mapování LED pozic</div>
+<div class="line">│   ├── shared_buffer_pool.c     # Sdílené buffery</div>
+<div class="line">│   └── streaming_output.c      # Streamování výstupu</div>
+<div class="line">│</div>
+<div class="line">├── game_task/                   # Šachová logika a pravidla</div>
+<div class="line">│   ├── game_task.c              # Hlavní šachová logika (11k+ řádků)</div>
+<div class="line">│   ├── game_led_direct.c        # Přímé LED funkce</div>
+<div class="line">│   └── demo_mode_helpers.c      # Pomocné funkce pro demo mód</div>
+<div class="line">│</div>
+<div class="line">├── ble_task/                    # Bluetooth LE komunikace</div>
+<div class="line">│   └── ble_nimble_impl.c        # NimBLE GATT server pro iOS app</div>
+<div class="line">│</div>
+<div class="line">├── matrix_task/                 # Skenování 8x8 matice</div>
+<div class="line">│   └── matrix_task.c             # Reed switch skenování</div>
+<div class="line">│</div>
+<div class="line">├── led_task/                    # WS2812B LED ovládání</div>
+<div class="line">│   └── led_task.c                # LED hardware interface</div>
+<div class="line">│</div>
+<div class="line">├── button_task/                 # Zpracování tlačítek</div>
+<div class="line">│   └── button_task.c            # Button event handling</div>
+<div class="line">│</div>
+<div class="line">├── uart_task/                   # UART konzole</div>
+<div class="line">│   └── uart_task.c              # Textové příkazy</div>
+<div class="line">│</div>
+<div class="line">├── web_server_task/             # HTTP web server</div>
+<div class="line">│   ├── web_server_task.c        # HTTP server implementace + embed JS</div>
+<div class="line">│   └── chess_app.js             # Zdroj embedded JavaScriptu (nekompiluje se)</div>
+<div class="line">│</div>
+<div class="line">├── animation_task/              # Legacy API / typy (FreeRTOS task nevytváří se)</div>
+<div class="line">│   └── animation_task.c</div>
+<div class="line">│</div>
+<div class="line">├── unified_animation_manager/   # Unified animation system (běžící cesta)</div>
+<div class="line">│   └── unified_animation_manager.c</div>
+<div class="line">│</div>
+<div class="line">├── led_state_manager/           # Správa LED stavů</div>
+<div class="line">│   └── led_state_manager.c</div>
+<div class="line">│</div>
+<div class="line">├── game_led_animations/         # Vysokoúrovňové animace (tahy, endgame, změna hráče)</div>
+<div class="line">│   └── game_led_animations.c</div>
+<div class="line">│</div>
+<div class="line">├── config_manager/              # Správa konfigurace</div>
+<div class="line">│   └── config_manager.c</div>
+<div class="line">│</div>
+<div class="line">├── timer_system/                # Timer utilities</div>
+<div class="line">│   └── timer_system.c</div>
+<div class="line">│</div>
+<div class="line">├── ha_light_task/               # MQTT/HA integrace pro světlo</div>
+<div class="line">│   └── ha_light_task.c</div>
+<div class="line">│</div>
+<div class="line">├── promotion_button_task/       # (Nepoužívá se, sdruženo do button_task)</div>
+<div class="line">│   └── promotion_button_task.c</div>
+<div class="line">│</div>
+<div class="line">├── reset_button_task/           # (Nepoužívá se, sdruženo do button_task)</div>
+<div class="line">│   └── reset_button_task.c</div>
+<div class="line">│</div>
+<div class="line">└── visual_error_system/         # Vizuální error handling</div>
+<div class="line">    └── visual_error_system.c</div>
+</div><!-- fragment --><hr  />
+<h1><a class="anchor" id="autotoc_md105"></a>
+🚀 Instalace a Build</h1>
+<h2><a class="anchor" id="autotoc_md106"></a>
+Požadavky</h2>
+<ul>
+<li><b>ESP-IDF</b> v5.1 nebo novější</li>
+<li><b>Python 3.8+</b></li>
+<li><b>CMake 3.16+</b></li>
+<li><b>ESP32-C6 DevKit</b> nebo kompatibilní hardware</li>
+<li><b>USB kabel</b> pro programování</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md107"></a>
+Build proces</h2>
+<div class="fragment"><div class="line"># 1. Nastavit ESP-IDF prostředí</div>
+<div class="line">. $IDF_PATH/export.sh</div>
+<div class="line"> </div>
+<div class="line"># 2. Konfigurovat projekt</div>
+<div class="line">idf.py menuconfig</div>
+<div class="line"> </div>
+<div class="line"># 3. Sestavit projekt</div>
+<div class="line">idf.py build</div>
+<div class="line"> </div>
+<div class="line"># 4. Nahrát do ESP32-C6</div>
+<div class="line">idf.py -p /dev/ttyUSB0 flash</div>
+<div class="line"> </div>
+<div class="line"># 5. Monitorovat výstup</div>
+<div class="line">idf.py -p /dev/ttyUSB0 monitor</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md108"></a>
+Konfigurace</h2>
+<p>Hlavní konfigurační možnosti v <code>menuconfig</code>:</p>
+<ul>
+<li><b>WiFi SSID/Password</b> - Pro web server</li>
+<li><b>LED brightness</b> - Jas LED diod (0-255)</li>
+<li><b>Matrix scan rate</b> - Rychlost skenování matice (ms)</li>
+<li><b>Debug level</b> - Úroveň logování (ERROR, WARN, INFO, DEBUG, VERBOSE)</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md109"></a>
+Home Assistant / MQTT integrace</h3>
+<p>Integrace s Home Assistant je řešená přes komponentu <code>ha_light_task</code> jako <b>MQTT RGB light</b>:</p>
+<ul>
+<li>MQTT broker výchozí host: <code>homeassistant.local</code> (TCP port <code>1883</code>), lze změnit v NVS.</li>
+<li>Konfigurace MQTT (host, port, username, password) se ukládá do NVS namespace <code>mqtt_config</code> (<code>broker_host</code>, <code>broker_port</code>, <code>broker_username</code>, <code>broker_password</code>).</li>
+<li>Po úspěšném připojení k MQTT klient publikuje <b>Home Assistant auto-discovery</b>:<ul>
+<li>discovery topic ve tvaru <code>homeassistant/light/esp32_chess_light_&lt;MAC&gt;/config</code></li>
+<li>entita typu <code>light</code> se jménem <code>CzechMate</code></li>
+<li>JSON schema, podpora <code>brightness</code>, <code>rgb</code> color mode a efektů (<code>rainbow</code>, <code>pulse</code>, <code>static</code>).</li>
+</ul>
+</li>
+<li>Používané MQTT topicy:<ul>
+<li><code>HA_TOPIC_LIGHT_COMMAND</code> – příkazy z HA (zapnutí/vypnutí, barva, jas, efekt)</li>
+<li><code>HA_TOPIC_LIGHT_STATE</code> – publikovaný stav světla (on/off, jas, RGB, efekt)</li>
+<li><code>HA_TOPIC_LIGHT_AVAILABILITY</code> – dostupnost (<code>online</code> / <code>offline</code>)</li>
+</ul>
+</li>
+</ul>
+<p>Režimy provozu:</p>
+<ul>
+<li><b>GAME MODE</b> – výchozí režim, LED zobrazují stav šachovnice a herní animace.</li>
+<li><b>HA MODE (Lampa)</b> – všechny LED se chovají jako jedno RGB světlo. Může být řízeno z Home Assistant (MQTT) nebo přímo z webu bez připojení k WiFi (viz níže).</li>
+<li>Přepínání zpět do GAME MODE proběhne automaticky při detekci aktivity (pohyb figurky, tah přes web/UART), nebo ručně tlačítkem „Šachovnice“ v Nastavení.</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md111"></a>
+📖 Použití</h1>
+<h2><a class="anchor" id="autotoc_md112"></a>
+UART Konzole</h2>
+<p>Připojte se přes USB Serial JTAG (115200 baud) a použijte textové příkazy:</p>
+<div class="fragment"><div class="line">help                    - Zobrazit nápovědu se všemi příkazy</div>
+<div class="line">move e2e4              - Provede tah (notace: e2e4, e2-e4, nebo e2 e4)</div>
+<div class="line">reset                  - Resetovat hru na výchozí pozici</div>
+<div class="line">status                 - Zobrazit aktuální stav hry</div>
+<div class="line">board                  - Zobrazit šachovnici v ASCII</div>
+<div class="line">test                   - Spustit testovací funkce</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md113"></a>
+Webové rozhraní</h2>
+<p>Po připojení k WiFi se systém automaticky spustí jako HTTP server. Najděte IP adresu v UART konzoli a otevřete v prohlížeči:</p>
+<div class="fragment"><div class="line">http://&lt;IP_ADDRESS&gt;/</div>
+</div><!-- fragment --><p>Webové rozhraní umožňuje:</p><ul>
+<li><b>Zobrazení šachovnice</b> - Real-time aktualizace</li>
+<li><b>Provedení tahů</b> - Kliknutím na figurky</li>
+<li><b>Zobrazení historie</b> - Všechny provedené tahy</li>
+<li><b>Reset hry</b> - Tlačítko pro restart</li>
+<li><b>Sandbox mód</b> - Zkoušení tahů bez ovlivnění hry</li>
+<li><b>Review mód</b> - Procházení historie tahů</li>
+<li><b>Integrace s Home Assistant a stav systému</b> - Web vrstvu doplňuje MQTT integrace (<code>ha_light_task</code>) pro ovládání RGB světla z Home Assistant.</li>
+<li><b>Stav hry, error stavy a konec hry</b> - Jsou zobrazovány konzistentně na webu i na fyzických LED (zvednutá figurka, nevalidní tah, error recovery).</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md114"></a>
+Flutter klient (&lt;tt&gt;flutter_czechmate/&lt;/tt&gt;)</h2>
+<ul>
+<li><b>Stack:</b> Flutter 3.x, Riverpod, <code>flutter_blue_plus</code> (BLE), HTTP, WebSocket, balíček <code>chess</code>, integrace Stockfish/API dle nastavení.</li>
+<li><b>Účel:</b> Jedna codebase pro Android / iOS / desktop; spojení s deskou (BLE a/nebo HTTP/WebSocket k webové vrstvě ESP32).</li>
+<li><b>Mobilní rozšíření (stav repa):</b> mimo jiné podpora <b>Live Activities</b> (iOS), <b>Wear OS</b> modul a chess clock notifikace na Androidu — viz zdroje v <code>flutter_czechmate/ios/</code> a <code>flutter_czechmate/android/wear/</code>.</li>
+<li><b>Build:</b> z kořene <code>cd flutter_czechmate &amp;&amp; flutter pub get &amp;&amp; flutter run</code> (vyžaduje Flutter SDK).</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md115"></a>
+⚙️ Nastavení a Přizpůsobení (Web UI)</h2>
+<p>Webové rozhraní obsahuje záložku <b>Nastavení</b>, kde můžete konfigurovat:</p>
+<ul>
+<li><b>Režim zobrazení (Zařízení):</b> Přepínač <b>Šachovnice</b> / <b>Lampa</b>. V režimu Lampa se celá deska chová jako jedno RGB světlo – ovládání je dostupné i bez připojení k domácí WiFi (stačí AP šachovnice). Barva (R, G, B) a zapnutí/vypnutí se nastavují v sekci Zařízení; poslední stav se ukládá do NVS a obnoví po restartu. Stav je synchronizován s Home Assistant (pokud je MQTT připojen).</li>
+<li><b>Jas LED:</b> Jeden globální slider (0–100 %) platí pro šachovnici i pro režim Lampa.</li>
+<li><b>Obtížnost Bota:</b> Nastavení ELO síly pro hru proti počítači (Level 1-8).</li>
+<li><b>Zhodnocení tahů:</b> Zapnutí/vypnutí automatické analýzy tahů po každém tahu.</li>
+<li><b>Výukový přehled:</b> Zobrazení panelu s počtem zbývajících nápověd a průměrnou kvalitou hry.</li>
+<li><b>WiFi Manager:</b> Připojení k domácí WiFi síti (skenování, zadání hesla).</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md116"></a>
+🤖 Hra proti Botovi a Výuka (Novinka v2.5)</h2>
+<p>Webové rozhraní nově integruje <b>Stockfish engine</b> (přes chess-api.com) pro pokročilé funkce:</p>
+<h3><a class="anchor" id="autotoc_md117"></a>
+Hra proti Botovi</h3>
+<ul>
+<li><b>Nastavitelná síla (ELO):</b> Od začátečníka po velmistra.</li>
+<li><b>Fyzická interakce:</b> Botův tah je zobrazen na šachovnici pomocí LED navigace (odkud-kam). Hráč musí fyzicky provést tah za bota.</li>
+<li><b>Volba strany:</b> Můžete hrát za bílé i černé.</li>
+</ul>
+<h3><a class="anchor" id="autotoc_md118"></a>
+Nápověda a Analýza (Hint System)</h3>
+<ul>
+<li><b>Tlačítko Nápověda:</b> Zobrazí nejlepší tah doporučený Stockfishem.</li>
+<li><b>Vysvětlení tahu:</b> Stručné vysvětlení, proč je tah dobrý (např. "Získáš výhodu", "Mat za 3 tahy").</li>
+<li><b>Hodnocení tahů:</b> Po každém tahu systém (volitelně) zhodnotí vaši hru slovně i barevně:<ul>
+<li>🟢 <b>Best / Good</b> - Výborný nebo dobrý tah.</li>
+<li>🟡 <b>Inaccuracy</b> - Menší nepřesnost.</li>
+<li>🟠 <b>Mistake</b> - Chyba, zhoršení pozice.</li>
+<li>🔴 <b>Blunder</b> - Hrubá chyba (např. ztráta figury).</li>
+</ul>
+</li>
+<li><b>Výukový systém:</b> Počet nápověd může být omezen. Za dobré tahy ("Best" nebo "Good") a sebrání figur získává hráč nápovědy navíc jako odměnu.</li>
+<li><b>Statistiky:</b> Sledování průměrné kvality tahů pro oba hráče (hodnocení 1.0 - 5.0).</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md119"></a>
+Fyzická hra</h2>
+<ol type="1">
+<li><b>Umístěte figurky</b> na šachovnici do výchozí pozice</li>
+<li><b>Systém automaticky detekuje</b> pozice pomocí Reed Switch matice</li>
+<li><b>Zvedněte figurku</b> - LED se rozsvítí na aktuální pozici</li>
+<li><b>Položte na novou pozici</b> - Systém validuje a provede tah</li>
+<li><b>LED animace</b> zobrazí validitu tahu:<ul>
+<li>Zelená = platný tah</li>
+<li>Červená = neplatný tah</li>
+<li>Modrá = šach</li>
+<li>Červená blikání = mat</li>
+</ul>
+</li>
+<li><b>Automatický start nové hry</b> - pokud po skončení hry ručně vrátíte všechny figurky do počáteční pozice (řady 0,1,6,7 obsazené, 2–5 prázdné) a tato pozice je stabilní ~2 s, systém spustí novou hru sám</li>
+</ol>
+<hr  />
+<h1><a class="anchor" id="autotoc_md121"></a>
+🎓 Co jsme se naučili</h1>
+<p>Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, znali jsme jen základy. Teď rozumíme:</p>
+<h2><a class="anchor" id="autotoc_md122"></a>
+Embedded programování</h2>
+<ul>
+<li><b>FreeRTOS</b> - Real-time operační systém pro embedded zařízení</li>
+<li><b>GPIO management</b> - Správné použití pinů, pull-up/pull-down, multiplexing</li>
+<li><b>Interrupt handling</b> - Práce s hardware přerušeními</li>
+<li><b>Memory management</b> - Stack vs heap, optimalizace paměti</li>
+<li><b>Watchdog timers</b> - Ochrana před zaseknutím systému</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md123"></a>
+Šachová logika</h2>
+<ul>
+<li><b>Chess rules</b> - Všechna pravidla včetně těch složitých (en passant, rošáda, promoce)</li>
+<li><b>Move validation</b> - Jak správně validovat tahy</li>
+<li><b>Check detection</b> - Detekce šachu a matu</li>
+<li><b>Board representation</b> - Efektivní reprezentace šachovnice v paměti</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md124"></a>
+Webové technologie</h2>
+<ul>
+<li><b>HTTP server</b> - Implementace HTTP serveru na embedded zařízení</li>
+<li><b>WebSocket</b> - Endpoint <code>/ws</code> pokud je v buildu zapnuté <code>CONFIG_HTTPD_WS_SUPPORT</code> (jinak polling přes REST)</li>
+<li><b>JavaScript</b> - Embedded JavaScript pro webové rozhraní</li>
+<li><b>REST API</b> - API pro komunikaci s webovým rozhraním</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md125"></a>
+Software architektura</h2>
+<ul>
+<li><b>Modular design</b> - Rozdělení kódu do logických modulů</li>
+<li><b>Task communication</b> - Komunikace mezi paralelními tasky</li>
+<li><b>Error handling</b> - Správné ošetření chyb</li>
+<li><b>Code organization</b> - Jak organizovat velký projekt</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md126"></a>
+Hardware</h2>
+<ul>
+<li><b>Reed switches</b> - Jak fungují a jak je použít</li>
+<li><b>WS2812B LED</b> - Adresovatelné LED diody, protokol, timing</li>
+<li><b>Time-multiplexing</b> - Sdílení pinů mezi komponentami</li>
+<li><b>Power management</b> - Optimalizace spotřeby</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md127"></a>
+Debugging</h2>
+<ul>
+<li><b>UART logging</b> - Logování pro debugging</li>
+<li><b>LED debugging</b> - Vizuální indikace chyb</li>
+<li><b>System monitoring</b> - Sledování stavu systému</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md129"></a>
+🐛 Výzvy, které jsme řešili</h1>
+<h2><a class="anchor" id="autotoc_md130"></a>
+Hardware výzvy (Matěj)</h2>
+<p>Matěj řešil především hardware problémy:</p>
+<p><b>Reed Switch zapojení:</b> Jedna z největších výzev bylo správně zapojit 64 Reed Switchů do matice. Každý switch musel být připojený mezi správný row a column pin, a všechny musely být spolehlivě připojené.</p>
+<p><b>Time-multiplexing s diodami:</b> Navrhl zapojení s diodami 1N4148, které umožňují sdílení pinů mezi maticí a tlačítky. To vyžadovalo pečlivé plánování a testování, aby se zajistilo, že diody správně izolují signály.</p>
+<p><b>Napájení LED:</b> 73 WS2812B LED potřebují hodně proudu (až 4.5A při plném jasu). Matěj musel zajistit externí 5V zdroj a správné zapojení GND, aby nedocházelo k problémům s napájením.</p>
+<p><b>Fyzická realizace:</b> Nejenže navrhl zapojení, ale také fyzicky realizoval šachovnici - umístil Reed Switchy, zapojil LED, vytvořil PCB nebo použil breadboard, a zajistil, aby vše fungovalo spolehlivě.</p>
+<h2><a class="anchor" id="autotoc_md131"></a>
+Software výzvy (Alfred)</h2>
+<h2><a class="anchor" id="autotoc_md132"></a>
+1. Time-Multiplexing GPIO pinů</h2>
+<p><b>Problém:</b> ESP32-C6 má omezený počet GPIO pinů, ale potřebujeme 8 výstupů pro matici řádků, 8 vstupů pro sloupce, a ještě 4 tlačítka pro promoci.</p>
+<p><b>Hardware řešení (Matěj):</b> Matěj navrhl zapojení s diodami 1N4148, které umožňují sdílení pinů. Každé tlačítko je připojené přes diody ke všem řádkům matice, což umožňuje detekci tlačítka během button scan fáze.</p>
+<p><b>Software řešení (Alfred):</b> Implementoval jsem time-multiplexing - během 25ms cyklu se střídá skenování matice a tlačítek (viz sekce Time-Multiplexing výše). To bylo technicky náročné, protože jsem musel zajistit, aby se stavy neovlivňovaly a aby diody správně izolovaly signály.</p>
+<h2><a class="anchor" id="autotoc_md133"></a>
+2. Šachová logika</h2>
+<p><b>Problém:</b> Implementovat všechna šachová pravidla správně. En passant, rošáda, promoce - to všechno má spoustu edge cases.</p>
+<p><b>Řešení:</b> Strávil jsem hodiny studiem šachových pravidel a implementací každého pravidla zvlášť. Musel jsem opravit spoustu bugů - například en passant validace byla velmi složitá. Matěj mi pomáhal testovat edge cases na fyzické šachovnici.</p>
+<h2><a class="anchor" id="autotoc_md134"></a>
+3. FreeRTOS multitasking</h2>
+<p><b>Problém:</b> Když jsem začínal, nevěděl jsem, jak správně navrhnout tasky a jejich komunikaci. Měl jsem race conditions, deadlocky, a systém se občas zasekl.</p>
+<p><b>Řešení:</b> Naučil jsem se správně používat fronty, mutexy a semafory. Musel jsem přepracovat architekturu několikrát, než jsem to dostal správně. Matěj mi pomáhal testovat na hardwaru a identifikovat problémy s timingem.</p>
+<h2><a class="anchor" id="autotoc_md135"></a>
+4. LED animace</h2>
+<p><b>Problém:</b> WS2812B LED vyžadují přesný timing. Když jsem aktualizoval LED příliš často, animace trhaly. Když příliš zřídka, byly pomalé. Navíc Matěj měl problémy s napájením - 73 LED potřebují hodně proudu.</p>
+<p><b>Hardware řešení (Matěj):</b> Matěj zajistil externí 5V/5A zdroj a správné zapojení GND, aby nedocházelo k problémům s napájením.</p>
+<p><b>Software řešení (Alfred):</b> Implementoval jsem unified animation manager, který spravuje všechny animace centralizovaně a zajišťuje plynulý chod.</p>
+<h2><a class="anchor" id="autotoc_md136"></a>
+5. Webový server</h2>
+<p><b>Problém:</b> Implementovat HTTP server na embedded zařízení s omezenou pamětí bylo výzvou. Musel jsem optimalizovat každý byte.</p>
+<p><b>Řešení:</b> Použil jsem embedded HTTP server z ESP-IDF a optimalizoval jsem JavaScript kód. Také jsem implementoval kompresi a caching. Matěj testoval webové rozhraní na různých zařízeních a pomáhal identifikovat problémy s responsivitou.</p>
+<h2><a class="anchor" id="autotoc_md137"></a>
+6. Debugging</h2>
+<p><b>Problém:</b> Když něco nefungovalo, bylo těžké zjistit proč. UART logy pomáhaly, ale někdy to nestačilo. Navíc když hardware nefungoval správně, bylo těžké zjistit, jestli je problém v softwaru nebo hardwaru.</p>
+<p><b>Hardware debugging (Matěj):</b> Matěj používal multimetr a osciloskop pro testování signálů a identifikaci problémů s hardware.</p>
+<p><b>Software debugging (Alfred):</b> Implementoval jsem vizuální error systém - když dojde k chybě, LED se rozsvítí červeně na konkrétní pozici, což nám pomohlo rychle identifikovat problém. Také jsme implementovali detailní UART logy pro každou komponentu.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md139"></a>
+Dokumentace</h1>
+<ul>
+<li><b>docs/README.md</b> — <b>start zde</b>: pořadí čtení, tabulka všech dokumentů, build diagramů a Doxygen</li>
+<li><b>docs/diagrams/README.md</b> — SVG/Mermaid: boot, fronty, mutexy, <b>smyčky tasků</b>, šachová logika, Flutter vrstvy</li>
+<li><b>docs/flutter/README.md</b> — Flutter klient, BLE/HTTP, struktura <code>lib/</code></li>
+<li><b>docs/reference/README.md</b> — index referenčních textů:<ul>
+<li>KOMUNIKACE_MEZI_TASKY.md — detail komunikace tasků (doplněk k diagramům)</li>
+<li>coordinates_system.md — souřadnice a notace</li>
+<li>WEB_UI_DEPLOY.md — embed web UI do firmware</li>
+<li>CZECHMATE_INTEGRATION_CHECKLIST.md — REST/WS/BLE checklist</li>
+</ul>
+</li>
+</ul>
+<p>Dále Doxygen z C zdrojáků:</p>
+<h2><a class="anchor" id="autotoc_md140"></a>
+HTML dokumentace (doporučeno)</h2>
+<p>Interaktivní dokumentace s vyhledáváním a navigací:</p>
+<p><b>Lokální zobrazení:</b> </p><div class="fragment"><div class="line">./generate_docs.sh</div>
+<div class="line">open docs/doxygen/html/index.html  # Otevře dokumentaci v prohlížeči</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md141"></a>
+RTF dokumentace (jeden soubor)</h2>
+<p>Kompletní dokumentace v jednom souboru pro Microsoft Word:</p>
+<div class="fragment"><div class="line">./generate_docs.sh</div>
+<div class="line">open docs/doxygen/rtf/refman.rtf</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md142"></a>
+PDF dokumentace</h2>
+<p>Pro tisk a sdílení:</p>
+<div class="fragment"><div class="line">./generate_docs.sh</div>
+<div class="line">./create_pdf_simple.sh</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md143"></a>
+Mermaid Sequence Diagramy</h2>
+<p>Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.</p>
+<p>Přehled diagramů (README) — tasky, boot, fronty, matice, BLE/web v jedné stránce <br  />
+ <a href="docs/diagrams/diagrams_mermaid.html">Mermaid — sekvenční diagramy (HTML)</a> — knihovna sekvencí z <code>mermaid_diagrams.txt</code> <br  />
+ Architektura tasků — stejný graf jako v README + tabulka front · SVG/PNG z **<code>./scripts/render_docs.sh</code>** / CI (<a href=".github/workflows/docs-diagrams.yml"><code>docs-diagrams.yml</code></a>)</p>
+<p><b>Reference texty:</b> <a href="docs/reference/">docs/reference/</a>. V <code>.gitignore</code> zůstávají mimo remote např. <code>context/</code>, <code>docs/planning/</code>, <code>docs/archive/</code> — lokální poznámky.</p>
+<h2><a class="anchor" id="autotoc_md144"></a>
+GitHub Pages (veřejná dokumentace)</h2>
+<p>Po pushi na <code>main</code> workflow <a href=".github/workflows/gh-pages.yml">.github/workflows/gh-pages.yml</a> v CI vygeneruje Doxygen HTML, doplní Mermaid stránku a nasadí výsledek na větev **<code>gh-pages</code>** (složka <code>gh-pages-ready/</code> v repu slouží jen jako **<code>.nojekyll</code> + README**, ne kompletní site).</p>
+<ol type="1">
+<li>V repozitáři na GitHubu: <b>Settings → Pages → Build and deployment → Source:</b> <b>Deploy from a branch</b> → Branch <b>gh-pages</b>, folder **/ (root)** → Save. <br  />
+</li>
+<li>Po minutě běží web na <code><a href="https://">https://</a>&lt;uživatel&gt;.github.io/&lt;název-repa&gt;/</code> (úvodní stránka Doxygen: <code>index.html</code> na větvi <code>gh-pages</code>, Mermaid: <code>diagrams_mermaid.html</code> tamtéž).</li>
+</ol>
+<hr  />
+<h1><a class="anchor" id="autotoc_md146"></a>
+📁 Struktura projektu</h1>
+<div class="fragment"><div class="line">chess_esp32_c6_devkit/</div>
+<div class="line">├── main/                          # Hlavní aplikace</div>
+<div class="line">│   ├── main.c                     # Startup, inicializace, task creation</div>
+<div class="line">│   └── CMakeLists.txt</div>
+<div class="line">│</div>
+<div class="line">├── components/                     # FreeRTOS komponenty</div>
+<div class="line">│   ├── freertos_chess/            # Základní infrastruktura</div>
+<div class="line">│   ├── game_task/                 # Šachová logika (největší komponenta)</div>
+<div class="line">│   ├── matrix_task/               # Matrix skenování</div>
+<div class="line">│   ├── led_task/                  # LED ovládání</div>
+<div class="line">│   ├── button_task/               # Button handling</div>
+<div class="line">│   ├── uart_task/                 # UART konzole</div>
+<div class="line">│   ├── web_server_task/           # HTTP web server</div>
+<div class="line">│   ├── animation_task/            # Legacy animace (task v main vypnutý)</div>
+<div class="line">│   ├── game_led_animations/       # Animace tahů / konců her</div>
+<div class="line">│   ├── unified_animation_manager/ # Společný systém animací</div>
+<div class="line">│   ├── led_state_manager/         # Správa barev/stavů LED</div>
+<div class="line">│   ├── timer_system/              # Časovače a chess clock</div>
+<div class="line">│   ├── ha_light_task/             # MQTT/HA integrace</div>
+<div class="line">│   ├── promotion_button_task/     # Tlačítka pro promoci</div>
+<div class="line">│   ├── reset_button_task/         # Reset tlačítko</div>
+<div class="line">│   └── ...                        # Další pomocné komponenty</div>
+<div class="line">│</div>
+<div class="line">├── docs/                          # Mapa repa + firmware diagramy + Flutter popis</div>
+<div class="line">│   ├── README.md                  # Přehled celého projektu (Firmware + Flutter)</div>
+<div class="line">│   ├── flutter/README.md          # Flutter appka, diagramy, lib/</div>
+<div class="line">│   ├── reference/                 # WEB_UI_DEPLOY, komunikace tasků, souřadnice</div>
+<div class="line">│   ├── diagrams/                # Firmware diagramy (Mermaid, SVG, HTML)</div>
+<div class="line">│   └── doxygen/                 # Doxygen výstup — generuj lokálně (viz docs/.gitignore)</div>
+<div class="line">│</div>
+<div class="line">├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)</div>
+<div class="line">├── managed_components/            # IDF Component Manager (generovaný, v .gitignore)</div>
+<div class="line">├── gh-pages-ready/                # Jen .nojekyll + README; HTML Pages staví CI</div>
+<div class="line">├── flutter_czechmate/             # Flutter klient (BLE / HTTP / WS)</div>
+<div class="line">├── CZECHMATE/                     # Xcode projekt — .gitignore (jen lokálně)</div>
+<div class="line">├── context/                       # AI podklady — .gitignore (není v remote)</div>
+<div class="line">├── CMakeLists.txt                 # Build konfigurace</div>
+<div class="line">├── Doxyfile                       # Doxygen konfigurace</div>
+<div class="line">├── generate_docs.sh              # Skript pro generování dokumentace</div>
+<div class="line">├── create_pdf_simple.sh          # Skript pro vytvoření PDF</div>
+<div class="line">└── README.md                      # Tento soubor</div>
+</div><!-- fragment --><hr  />
+<h1><a class="anchor" id="autotoc_md148"></a>
+🔧 Vývoj</h1>
+<h2><a class="anchor" id="autotoc_md149"></a>
+Debug mód</h2>
+<p>Pro zapnutí debug módu upravte <code><a class="el" href="CMakeLists_8txt.html">CMakeLists.txt</a></code> nebo použijte <code>menuconfig</code>:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#define CHESS_DEBUG_MODE 1</span></div>
+</div><!-- fragment --><p>V <code>menuconfig</code>: </p><div class="fragment"><div class="line">Component config → Chess System → Enable debug mode</div>
+</div><!-- fragment --><p>Debug mód zobrazuje:</p><ul>
+<li>Detailní logy všech operací</li>
+<li>Stav všech tasků</li>
+<li>Memory usage</li>
+<li>Performance metriky</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md150"></a>
+Testování</h2>
+<p>Systém obsahuje testovací funkce:</p>
+<div class="fragment"><div class="line"># Spustit test task</div>
+<div class="line">idf.py -p /dev/ttyUSB0 monitor</div>
+<div class="line"># V konzoli: test</div>
+</div><!-- fragment --><hr  />
+<h1><a class="anchor" id="autotoc_md152"></a>
+🐛 Známé problémy a omezení</h1>
+<ul>
+<li><b>RTF dokumentace</b> může být velká (~10MB) - doporučujeme použít HTML nebo PDF</li>
+<li><b>Legacy puzzle systém</b> byl odstraněn (zachována kompatibilita pro budoucí použití)</li>
+<li><b>WiFi reconnect</b> - při ztrátě WiFi připojení je potřeba restart</li>
+<li><b>Memory usage</b> - při dlouhých hrách může dojít k fragmentaci heap paměti (řešeno pomocí watchdog)</li>
+<li><b>Reed Switch spolehlivost</b> - některé Reed Switchy mohou být méně spolehlivé po čase (hardware problém)</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md154"></a>
+🔧 Troubleshooting</h1>
+<h2><a class="anchor" id="autotoc_md155"></a>
+Hardware problémy</h2>
+<p><b>LED nesvítí:</b></p><ul>
+<li>Zkontrolujte napájení - WS2812B potřebují externí 5V zdroj</li>
+<li>Zkontrolujte GND - musí být společná pro ESP32 i LED</li>
+<li>Zkontrolujte GPIO7 - musí být správně připojený k DIN LED pásu</li>
+</ul>
+<p><b>Matrix nedetekuje figurky:</b></p><ul>
+<li>Zkontrolujte Reed Switchy - každý musí být správně zapojený</li>
+<li>Zkontrolujte pull-up rezistory na column pinech (10kΩ)</li>
+<li>Zkontrolujte, že row piny jsou správně připojené</li>
+</ul>
+<p><b>Tlačítka nefungují:</b></p><ul>
+<li>Zkontrolujte diody - každé tlačítko musí mít diody ke všem row pinům</li>
+<li>Zkontrolujte, že diody jsou správně orientované (anode k rows)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md156"></a>
+Software problémy</h2>
+<p><b>Systém se zasekne:</b></p><ul>
+<li>Zkontrolujte watchdog - měl by resetovat systém po 5 sekundách</li>
+<li>Zkontrolujte UART logy - mohou ukázat, kde se systém zasekl</li>
+<li>Zkontrolujte stack size tasků - možná je některý task přetížený</li>
+</ul>
+<p><b>Šachová logika nefunguje správně:</b></p><ul>
+<li>Zkontrolujte UART logy - zobrazují se všechny tahy</li>
+<li>Použijte <code>board</code> příkaz v UART konzoli pro zobrazení aktuálního stavu</li>
+<li>Zkontrolujte, že figurky jsou správně detekované maticí</li>
+</ul>
+<p><b>Webové rozhraní nefunguje:</b></p><ul>
+<li>Zkontrolujte WiFi připojení - IP adresa by měla být v UART logu</li>
+<li>Zkontrolujte, že web server task běží (priorita 3)</li>
+<li>Zkontrolujte firewall - možná blokuje připojení</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md158"></a>
+❓ FAQ (Často kladené otázky)</h1>
+<p><b>Q: Jak dlouho trval vývoj?</b> <br  />
+ A: Projekt vznikal postupně několik měsíců - od prvních nápadů až po finální verzi.</p>
+<p><b>Q: Co bylo nejtěžší?</b> <br  />
+ A: Pro Matěje to bylo hardware zapojení s time-multiplexingem. Pro mě to byla šachová logika - implementovat všechna pravidla správně bylo velmi náročné.</p>
+<p><b>Q: Jaké jsou plány do budoucna?</b> <br  />
+ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom chtěli přidat Chess AI a vylepšit webové rozhraní.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md160"></a>
+📝 Historie verzí</h1>
+<h2><a class="anchor" id="autotoc_md161"></a>
+v2.5.1 / firmware (aktuální stav repa, 2026-04)</h2>
+<ul>
+<li>✅ <b>Flutter klient</b> <code>flutter_czechmate/</code> (BLE, HTTP, WebSocket; iOS Live Activities / Wear OS v portu)</li>
+<li>✅ <b>Vypnutý FreeRTOS <code>animation_task</code></b> — animace přes <code>led_task</code> + <code>unified_animation_manager</code> / <code>game_led_animations</code></li>
+<li>✅ <b>Menší stacky</b> u LED/matrix/game/uart oproti starším README tabulkám — hodnoty z <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.">freertos_chess.h</a></code></li>
+<li>✅ MQTT / Home Assistant (<code>ha_light_task</code>, priorita 3, stack 8KB)</li>
+<li>✅ <b>BLE:</b> NimBLE přes <code><a class="el" href="ble__task_8c.html#a673bf35c9275637c2030e5e6676564a8">ble_task_init()</a></code> (host task od ESP-IDF, ne vlastní jméno tasku v tabulce výše)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md162"></a>
+v2.5.0</h2>
+<ul>
+<li>✅ <b>Hra proti Botovi</b> (Stockfish integrace)</li>
+<li>✅ <b>Chytrá nápověda</b> a analýza tahů</li>
+<li>✅ <b>Výukový systém</b> s odměnami</li>
+<li>✅ Vylepšené webové rozhraní (nové nastavení, statistiky)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md163"></a>
+v2.4.0</h2>
+<ul>
+<li>✅ Kompletní šachová logika včetně všech pravidel</li>
+<li>✅ Webové rozhraní s real-time aktualizací</li>
+<li>✅ LED animace pro všechny stavy hry</li>
+<li>✅ FreeRTOS multitasking (počet tasků se měnil; <code>animation_task</code> později vypnut)</li>
+<li>✅ Time-multiplexing GPIO pinů</li>
+<li>✅ Kompletní Doxygen dokumentace</li>
+<li>✅ Unified animation manager</li>
+<li>✅ Vizuální error systém</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md164"></a>
+v2.3.0</h2>
+<ul>
+<li>Základní šachová logika</li>
+<li>LED osvětlení</li>
+<li>Matrix skenování</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md165"></a>
+v2.0.0</h2>
+<ul>
+<li>První funkční verze</li>
+<li>Základní tahy</li>
+<li>LED feedback</li>
+</ul>
+<p><b>Poznámka:</b> V této historii verzí není uvedeno mnoho backupů a špatných slepých uliček, které vznikly během vývoje. Reálně existuje přes 15 verzí programu a nespočet commitů.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md167"></a>
+🤝 Jak jsme spolupracovali</h1>
+<p>Tento projekt byl výsledkem spolupráce mezi hardware a software částí. Matěj navrhl hardware a já jsem napsal software. Pracovali jsme na svých částech a pravidelně jsme se setkávali pro testování a koordinaci.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md169"></a>
+🔮 Budoucí vylepšení</h1>
+<p>Máme spoustu nápadů, co bychom chtěli přidat:</p>
+<ul>
+<li><b>Move history</b> - Ukládání historie her do flash paměti (trvalé úložiště)</li>
+<li><b>Offline AI</b> - Vlastní engine na MCU je náročný; reálnější je spoléhat na API z telefonu</li>
+<li><b>Statistics</b> - Pokročilejší statistiky her</li>
+<li><b>Opening book</b> - Databáze zahájení</li>
+<li><b>Endgame database</b> - Databáze koncovek</li>
+<li><b>WebSocket</b> - Rozšířit použití <code>/ws</code> ve všech klientech (firmware už umí za podmínky <code>CONFIG_HTTPD_WS_SUPPORT</code>)</li>
+<li><b>Voice commands</b> - Hlasové ovládání (možná trochu sci-fi, ale proč ne?)</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md171"></a>
+👥 Autoři</h1>
+<h2><a class="anchor" id="autotoc_md172"></a>
+Alfred Krutina - Software &amp; Firmware</h2>
+<p><b>Role:</b> Software development, firmware, šachová logika, webový server, dokumentace</p>
+<p>Zodpovídal jsem za celý software stack - od FreeRTOS tasků přes šachovou logiku až po webové rozhraní. Strávil jsem stovky hodin programováním, debugováním a vylepšováním. Každá část projektu mě něco naučila - od základů embedded programování přes real-time systémy až po webové technologie.</p>
+<p><b>Hlavní příspěvky:</b></p><ul>
+<li>FreeRTOS architektura a task management</li>
+<li>Kompletní šachová logika včetně všech pravidel</li>
+<li>Webový server a embedded JavaScript</li>
+<li>LED animace a unified animation manager</li>
+<li>UART konzole a debugging systém</li>
+<li>Kompletní Doxygen dokumentace</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md173"></a>
+Matěj Jager - Hardware</h2>
+<p><b>Role:</b> Hardware design, zapojení, fyzická realizace, testování</p>
+<p>Matěj navrhl a realizoval celý hardware - od Reed Switch matice přes LED zapojení až po time-multiplexing s diodami. Bez jeho pečlivé práce na hardwaru by software neměl na čem běžet. Matěj také testoval všechny funkce na fyzickém hardwaru a pomáhal identifikovat problémy s timingem a napájením.</p>
+<p><b>Hlavní příspěvky:</b></p><ul>
+<li>Hardware design a zapojení</li>
+<li>Reed Switch matice (8x8 = 64 switchů)</li>
+<li>Time-multiplexing s diodami pro tlačítka</li>
+<li>Napájecí systém pro WS2812B LED</li>
+<li>Fyzická realizace šachovnice</li>
+<li>Hardware debugging a testování</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md174"></a>
+Spolupráce</h2>
+<p>Tento projekt je výsledkem spolupráce - Matěj navrhl hardware a já jsem napsal software. Pracovali jsme na svých částech a pravidelně jsme se setkávali pro testování a koordinaci.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md176"></a>
+📄 Licence</h1>
+<p>Tento projekt je soukromý projekt pro osobní použití a vzdělávací účely.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md178"></a>
+🔗 Užitečné odkazy</h1>
+<ul>
+<li><a href="https://docs.espressif.com/projects/esp-idf/">ESP-IDF Dokumentace</a> - Oficiální dokumentace ESP-IDF</li>
+<li><a href="https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf">ESP32-C6 Datasheet</a> - Technický datasheet</li>
+<li><a href="https://www.freertos.org/Documentation/RTOS_book.html">FreeRTOS Dokumentace</a> - FreeRTOS příručka</li>
+<li><a href="https://www.fide.com/FIDE/handbook/LawsOfChess.pdf">Chess Rules</a> - Oficiální šachová pravidla FIDE</li>
+</ul>
+<hr  />
+<h1><a class="anchor" id="autotoc_md180"></a>
+🙏 Poděkování</h1>
+<p>Tento projekt by nevznikl bez pomoci a podpory mnoha lidí:</p>
+<h2><a class="anchor" id="autotoc_md181"></a>
+Učitelé</h2>
+<p>Děkujeme našim učitelům za to, že nás naučili základy programování a elektroniky a ukázali nám, jak tyto znalosti použít v praxi. Bez jejich pomoci bychom tento projekt nedokázali vytvořit.</p>
+<h2><a class="anchor" id="autotoc_md182"></a>
+ESP-IDF tým</h2>
+<p>Děkuji týmu ESP-IDF za výborný framework a dokumentaci. ESP-IDF je neuvěřitelně dobře navržený a dokumentovaný, což mi velmi usnadnilo práci.</p>
+<h2><a class="anchor" id="autotoc_md183"></a>
+Shawn Hymel (YouTube)</h2>
+<p>Děkuji Shawn Hymel za jeho YouTube kanál, ze kterého jsem se naučil ESP-IDF, FreeRTOS a mnoho dalších embedded programovacích technik. Jeho tutoriály byly neocenitelné při učení se embedded systémům.</p>
+<ul>
+<li><a href="https://youtu.be/j1ve8mYjUoU?si=iETnCguVFkBee_yP">Wi-Fi tutoriál</a> - Tutoriál o Wi-Fi pro ESP32, který jsem použil při implementaci webového serveru</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md184"></a>
+Perplexity AI</h2>
+<p>Děkuji Perplexity AI za pomoc při hledání nápadů a návrhů pro firmware a software architekturu. Používal jsem ho jako nástroj pro inspiraci a prozkoumávání různých přístupů k řešení problémů během vývoje.</p>
+<h2><a class="anchor" id="autotoc_md185"></a>
+FreeRTOS</h2>
+<p>Děkuji za FreeRTOS - robustní a dobře zdokumentovaný real-time operační systém, který je zdarma a open-source.</p>
+<h2><a class="anchor" id="autotoc_md186"></a>
+Komunita ESP32</h2>
+<p>Děkuji celé komunitě ESP32 za pomoc na fórech, za sdílení zkušeností a za všechny ty skvělé projekty, které mě inspirovaly.</p>
+<h2><a class="anchor" id="autotoc_md187"></a>
+Open Source komunita</h2>
+<p>Děkuji všem, kteří vytvářejí open source nástroje a knihovny, které jsem mohl použít v tomto projektu.</p>
+<hr  />
+<h1><a class="anchor" id="autotoc_md189"></a>
+💭 Závěrečné myšlenky</h1>
+<p>Když jsme začínali tento projekt, netušili jsme, kolik se toho naučíme. Od základů programování v C přes embedded systémy, real-time programování, webové technologie, hardware design až po šachovou logiku - každá část projektu byla výzvou a každá nás něco naučila.</p>
+<p>Nejvíc nás bavilo, když jsme viděli, jak se všechny části skládají dohromady - když jsme poprvé viděli, jak LED reagují na pohyb figurek, když jsme poprvé zahráli kompletní hru přes webové rozhraní, nebo když jsme poprvé viděli, jak systém správně detekuje šach a mat.</p>
+<p>Tento projekt nám ukázal, že vytváření něčeho komplexního není jen o programování nebo hardwaru - je to o řešení problémů, o učení se novým věcem, o trpělivosti a vytrvalosti. A hlavně - je to zábava, když pracujete na něčem, co vás baví, a když máte skvělého spolupracovníka.</p>
+<p><b>Co jsme se naučili o spolupráci:</b></p>
+<ul>
+<li>Komunikace je klíčová - když jsme něco nechápali, vždy jsme se zeptali</li>
+<li>Respektování odbornosti - Matěj rozuměl hardwaru, já softwaru, a vzájemně jsme si důvěřovali</li>
+<li>Trpělivost - někdy to nefungovalo a museli jsme to zkusit znovu</li>
+<li>Týmová práce - projekt by nevznikl bez obou z nás</li>
+</ul>
+<p><b>AI jako nástroj pro učení:</b></p>
+<p>Během vývoje tohoto projektu jsem aktivně používal AI nástroje (jako Perplexity AI) pro hledání nápadů a inspirace. Vnímám to jako přirozenou evoluci programování - podobně jako byl přechod z assembleru na C, nebo z C na Python v některých oblastech, tak nyní přichází AI jako další úroveň abstrakce.</p>
+<p>Pro mě jako začátečníka v embedded programování a ESP32 bylo AI neocenitelným nástrojem, který mi zrychlil učící proces a ukázal mi možnosti a přístupy, o kterých jsem předtím nevěděl. Pokud si tento nástroj neosvojím a nebudu ho aktivně prozkoumávat, budu pozadu oproti budoucí konkurenci.</p>
+<p>Nepovažuji za problém používat AI i v ročníkové práci, pokud všemu rozumím a dokážu to vysvětlit. AI mi pomohlo najít správný směr a v některých případech jsem použil funkce, které AI navrhlo - pokud fungovaly a rozuměl jsem jim, nechal jsem je v projektu. Je to nástroj, který zrychluje učení a otevírá nové možnosti, ale stále je to jen nástroj - bez vlastního porozumění a schopnosti kriticky myslet by byl k ničemu.</p>
+<p>Pokud máte jakékoli otázky nebo připomínky k projektu, neváhejte se ozvat. Rádi se podělíme o zkušenosti a možná se i něco naučíme od vás.</p>
+<hr  />
+<p><b>Poznámka:</b> Tento projekt je aktivně vyvíjen. Pro nejnovější informace, bug reporty a technické detaily se podívejte do <a href="docs/">docs/</a> složky.</p>
+<p><b>Verze dokumentace:</b> 2.5.1 (README) <b>Poslední aktualizace:</b> 2026-04-30</p>
+<hr  />
+<p><b>Poznámka:</b> Tento projekt je aktivně vyvíjen. Pro nejnovější informace se podívejte do <a href="docs/">docs/</a> složky. </p>
+</div></div><!-- PageDoc -->
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

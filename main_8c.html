@@ -1,0 +1,1650 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru main.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('main_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Datové struktury</a> &#124;
+<a href="#define-members">Definice maker</a> &#124;
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru main.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="button__task_8h_source.html">button_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
+<code>#include &quot;sdkconfig.h&quot;</code><br />
+<code>#include &quot;esp_console.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_sleep.h&quot;</code><br />
+<code>#include &quot;esp_system.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &quot;freertos/timers.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task_8h_source.html">led_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="matrix__task_8h_source.html">matrix_task.h</a>&quot;</code><br />
+<code>#include &quot;nvs_flash.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="uart__task_8h_source.html">uart_task.h</a>&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+<code>#include &quot;<a class="el" href="ble__task_8h_source.html">ble_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="uart__commands__extended_8h_source.html">uart_commands_extended.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="web__server__task_8h_source.html">web_server_task.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro main.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="main_8c__incl.png" border="0" usemap="#amain_8c" alt=""/></div>
+<map name="amain_8c" id="amain_8c">
+<area shape="rect" title="ESP32&#45;C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace." alt="" coords="2584,5,2651,31"/>
+<area shape="rect" href="button__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Button Task Hlavicka." alt="" coords="1660,79,1770,104"/>
+<area shape="poly" title=" " alt="" coords="2584,25,1784,87,1784,82,2584,19"/>
+<area shape="rect" title=" " alt="" coords="1778,233,1895,258"/>
+<area shape="poly" title=" " alt="" coords="2584,23,2477,31,2322,52,2234,69,2144,91,2054,120,1969,154,1910,190,1862,226,1858,222,1907,185,1967,150,2053,114,2142,86,2233,64,2321,47,2477,26,2584,18"/>
+<area shape="rect" title=" " alt="" coords="210,313,340,339"/>
+<area shape="poly" title=" " alt="" coords="2584,22,2110,28,1323,47,913,64,545,87,389,101,259,117,160,135,97,154,57,176,24,202,13,217,9,231,10,247,20,264,30,273,46,282,91,296,197,315,196,320,89,301,44,286,27,277,15,267,5,249,3,231,9,214,20,199,54,172,95,150,159,129,259,112,389,96,544,82,912,59,1323,42,2110,23,2584,17"/>
+<area shape="rect" title=" " alt="" coords="1413,233,1550,258"/>
+<area shape="poly" title=" " alt="" coords="2584,23,2130,41,1852,58,1736,69,1649,81,1576,89,1515,92,1489,98,1464,108,1440,126,1416,153,1411,162,1411,171,1418,190,1433,207,1453,223,1449,227,1430,211,1413,192,1405,172,1406,161,1411,151,1436,122,1461,104,1487,93,1515,87,1575,83,1648,76,1735,64,1852,53,2130,36,2584,18"/>
+<area shape="rect" title=" " alt="" coords="2426,233,2556,258"/>
+<area shape="poly" title=" " alt="" coords="2585,27,2485,46,2439,62,2422,71,2412,80,2403,98,2401,116,2405,136,2414,155,2440,192,2469,221,2465,225,2436,195,2409,158,2400,137,2396,117,2398,96,2407,77,2419,66,2437,57,2484,41,2584,21"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="1221,152,1350,177"/>
+<area shape="poly" title=" " alt="" coords="2584,22,2331,25,1949,33,1754,41,1581,51,1447,64,1400,72,1371,81,1350,93,1331,109,1303,142,1299,139,1328,105,1347,89,1369,76,1399,67,1446,59,1581,46,1754,35,1949,28,2331,19,2584,17"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="791,233,906,258"/>
+<area shape="poly" title=" " alt="" coords="2584,22,2247,27,1720,38,1222,56,1052,68,999,74,972,81,933,110,901,148,877,187,860,221,856,218,872,185,897,145,929,106,970,76,998,69,1052,62,1222,51,1720,33,2246,22,2584,17"/>
+<area shape="rect" title=" " alt="" coords="3031,79,3127,104"/>
+<area shape="poly" title=" " alt="" coords="2651,21,3017,76,3017,81,2651,26"/>
+<area shape="rect" title=" " alt="" coords="3151,79,3266,104"/>
+<area shape="poly" title=" " alt="" coords="2651,20,2853,41,3138,76,3137,81,2852,46,2651,25"/>
+<area shape="rect" title=" " alt="" coords="3290,79,3374,104"/>
+<area shape="poly" title=" " alt="" coords="2651,18,2907,36,3088,53,3277,76,3276,81,3087,58,2906,41,2651,24"/>
+<area shape="rect" title=" " alt="" coords="3399,79,3498,104"/>
+<area shape="poly" title=" " alt="" coords="2651,18,2948,35,3162,52,3386,76,3385,81,3162,57,2948,40,2651,23"/>
+<area shape="rect" title=" " alt="" coords="3522,79,3634,104"/>
+<area shape="poly" title=" " alt="" coords="2651,18,2995,34,3246,51,3508,76,3507,81,3246,56,2995,39,2651,23"/>
+<area shape="rect" title=" " alt="" coords="3658,79,3780,104"/>
+<area shape="poly" title=" " alt="" coords="2651,17,3046,32,3339,50,3644,76,3644,81,3338,55,3045,38,2651,23"/>
+<area shape="rect" title=" " alt="" coords="3804,79,3903,104"/>
+<area shape="poly" title=" " alt="" coords="2651,17,2824,19,3101,27,3439,45,3616,58,3791,76,3790,81,3616,64,3439,50,3101,32,2824,24,2651,22"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Game Task Hlavicka." alt="" coords="1980,152,2087,177"/>
+<area shape="poly" title=" " alt="" coords="2585,28,2471,50,2330,81,2196,117,2084,150,2082,145,2195,112,2329,76,2470,45,2584,23"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="2573,79,2662,104"/>
+<area shape="poly" title=" " alt="" coords="2620,31,2620,65,2615,65,2615,31"/>
+<area shape="rect" href="matrix__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Matrix Task Hlavicka." alt="" coords="2436,79,2548,104"/>
+<area shape="poly" title=" " alt="" coords="2599,33,2526,74,2523,69,2596,28"/>
+<area shape="rect" title=" " alt="" coords="3928,79,4022,104"/>
+<area shape="poly" title=" " alt="" coords="2651,16,2839,17,3147,24,3522,42,3719,57,3914,76,3913,81,3719,62,3522,47,3147,29,2839,23,2651,22"/>
+<area shape="rect" href="uart__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; UART Task Hlavicka." alt="" coords="469,152,564,177"/>
+<area shape="poly" title=" " alt="" coords="2584,22,2215,26,1623,36,1040,53,825,66,749,73,699,81,657,94,616,111,547,147,545,142,613,107,655,89,698,76,748,68,824,61,1040,48,1623,30,2215,21,2584,17"/>
+<area shape="rect" title=" " alt="" coords="4047,79,4114,104"/>
+<area shape="poly" title=" " alt="" coords="2651,17,3297,32,3715,50,3894,62,4034,76,4033,82,3894,67,3715,55,3297,38,2651,22"/>
+<area shape="rect" title=" " alt="" coords="4138,79,4209,104"/>
+<area shape="poly" title=" " alt="" coords="2651,17,3338,32,3784,50,3976,62,4125,76,4124,82,3975,67,3784,55,3338,37,2651,22"/>
+<area shape="rect" title=" " alt="" coords="4233,79,4304,104"/>
+<area shape="poly" title=" " alt="" coords="2651,17,2932,21,3381,31,3857,48,4062,61,4220,76,4219,81,4061,66,3857,54,3381,36,2932,26,2651,22"/>
+<area shape="rect" href="ble__task_8h.html" title="BLE rozhraní CZECHMATE — NimBLE GATT při CONFIG_BT_ENABLED." alt="" coords="2917,79,3006,104"/>
+<area shape="poly" title=" " alt="" coords="2652,24,2904,75,2903,81,2651,29"/>
+<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="2530,152,2708,177"/>
+<area shape="poly" title=" " alt="" coords="2584,24,2526,31,2464,46,2440,56,2424,69,2419,84,2426,103,2444,121,2466,136,2517,154,2515,159,2464,140,2441,125,2422,105,2413,84,2420,66,2437,52,2463,41,2525,26,2584,19"/>
+<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="984,79,1105,104"/>
+<area shape="poly" title=" " alt="" coords="2584,24,1294,81,1119,89,1119,84,1293,76,2584,18"/>
+<area shape="rect" href="uart__commands__extended_8h.html" title="ESP32&#45;C6 Chess System &#45; Header pro rozsirene UART prikazy." alt="" coords="2686,79,2893,104"/>
+<area shape="poly" title=" " alt="" coords="2646,28,2750,71,2748,76,2644,33"/>
+<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Web Server Task Hlavicka." alt="" coords="711,79,855,104"/>
+<area shape="poly" title=" " alt="" coords="2584,22,2338,24,1920,31,1406,49,1137,63,874,81,869,82,868,76,873,76,1137,58,1406,44,1920,26,2338,18,2584,17"/>
+<area shape="rect" title=" " alt="" coords="701,313,852,339"/>
+<area shape="poly" title=" " alt="" coords="1714,105,1703,139,1682,184,1651,230,1631,251,1608,268,1566,281,1493,292,1288,309,1057,320,865,326,865,320,1057,314,1288,304,1493,287,1565,276,1606,263,1627,247,1647,227,1677,181,1698,137,1709,103"/>
+<area shape="poly" title=" " alt="" coords="1726,102,1820,220,1816,223,1722,106"/>
+<area shape="poly" title=" " alt="" coords="1707,106,1631,197,1590,243,1563,268,1505,278,1388,287,1039,304,354,325,353,320,1039,299,1388,282,1505,272,1560,263,1586,240,1627,194,1703,103"/>
+<area shape="poly" title=" " alt="" coords="1675,107,1624,126,1571,154,1531,188,1500,223,1496,220,1528,184,1568,150,1622,121,1673,102"/>
+<area shape="poly" title=" " alt="" coords="1771,93,2052,113,2203,129,2266,139,2313,149,2382,181,2460,223,2458,228,2380,186,2311,155,2265,144,2203,134,2051,118,1770,98"/>
+<area shape="rect" title=" " alt="" coords="2120,313,2201,339"/>
+<area shape="poly" title=" " alt="" coords="1719,104,1736,189,1751,235,1767,263,1792,278,1827,290,1919,307,2019,317,2106,321,2106,326,2019,322,1918,312,1826,295,1789,283,1764,267,1746,237,1731,190,1714,105"/>
+<area shape="poly" title=" " alt="" coords="1660,104,1364,153,1363,148,1659,99"/>
+<area shape="rect" title=" " alt="" coords="1376,313,1459,339"/>
+<area shape="poly" title=" " alt="" coords="1717,105,1715,137,1706,181,1689,227,1676,249,1659,267,1616,296,1567,315,1518,324,1473,328,1472,323,1517,319,1566,310,1614,292,1656,263,1672,245,1684,225,1701,179,1709,136,1712,104"/>
+<area shape="rect" title=" " alt="" coords="2328,313,2398,339"/>
+<area shape="poly" title=" " alt="" coords="1771,95,1902,110,2066,136,2148,153,2221,173,2281,197,2323,223,2338,241,2348,260,2361,299,2356,300,2344,262,2333,244,2320,227,2279,201,2219,178,2146,158,2066,141,1901,115,1770,100"/>
+<area shape="poly" title=" " alt="" coords="1221,172,1101,179,962,190,842,207,802,216,781,227,771,243,768,262,771,300,766,300,762,262,766,241,777,223,800,211,841,201,962,185,1100,173,1220,166"/>
+<area shape="poly" title=" " alt="" coords="1351,173,1765,231,1764,236,1350,178"/>
+<area shape="poly" title=" " alt="" coords="1221,174,1015,195,761,228,526,272,337,313,336,308,525,266,760,223,1015,189,1220,169"/>
+<area shape="poly" title=" " alt="" coords="1315,175,1441,225,1439,230,1313,180"/>
+<area shape="poly" title=" " alt="" coords="1351,170,1414,175,1652,190,1838,199,2262,223,2412,234,2412,240,2261,228,1837,204,1652,195,1413,180,1350,175"/>
+<area shape="poly" title=" " alt="" coords="1292,177,1315,221,1334,244,1357,263,1401,276,1477,287,1692,304,1926,315,2106,321,2106,326,1926,320,1692,309,1477,292,1400,281,1355,268,1330,248,1311,224,1288,179"/>
+<area shape="poly" title=" " alt="" coords="1222,180,920,234,919,229,1222,175"/>
+<area shape="poly" title=" " alt="" coords="1240,180,1203,198,1186,211,1173,227,1166,246,1173,264,1185,274,1203,283,1252,298,1363,317,1362,322,1250,303,1201,288,1182,278,1169,267,1161,246,1169,224,1182,207,1200,193,1238,175"/>
+<area shape="poly" title=" " alt="" coords="1301,176,1358,223,1378,246,1387,255,1401,263,1476,284,1573,298,1683,306,1802,308,2034,308,2214,311,2314,318,2314,323,2213,316,2034,313,1802,314,1683,311,1572,303,1475,290,1399,268,1384,259,1375,250,1354,227,1298,180"/>
+<area shape="rect" title=" " alt="" coords="1183,233,1287,258"/>
+<area shape="poly" title=" " alt="" coords="1280,179,1252,222,1248,220,1276,176"/>
+<area shape="poly" title=" " alt="" coords="840,260,798,305,794,301,836,256"/>
+<area shape="poly" title=" " alt="" coords="791,257,354,317,353,311,790,252"/>
+<area shape="poly" title=" " alt="" coords="889,255,925,263,1034,275,1178,285,1525,303,2106,321,2106,326,1525,308,1178,291,1033,280,924,268,888,261"/>
+<area shape="poly" title=" " alt="" coords="891,255,925,263,1047,282,1168,298,1363,318,1362,323,1168,303,1046,288,924,268,890,261"/>
+<area shape="poly" title=" " alt="" coords="906,254,975,263,1163,278,1323,287,1594,294,1865,297,2214,311,2314,318,2314,323,2213,316,1865,302,1594,299,1322,293,1163,283,975,268,906,259"/>
+<area shape="poly" title=" " alt="" coords="2030,179,2002,224,1979,249,1952,268,1902,277,1798,286,1490,303,865,325,865,319,1489,297,1798,281,1901,272,1950,263,1976,245,1998,221,2026,176"/>
+<area shape="poly" title=" " alt="" coords="2006,180,1879,230,1877,225,2004,175"/>
+<area shape="poly" title=" " alt="" coords="2018,180,1953,227,1932,250,1923,259,1908,268,1843,274,1694,282,1237,299,354,325,353,320,1237,294,1694,277,1843,269,1906,263,1920,255,1928,246,1949,223,2014,176"/>
+<area shape="poly" title=" " alt="" coords="1981,176,1564,235,1564,230,1980,171"/>
+<area shape="poly" title=" " alt="" coords="2087,172,2413,228,2412,233,2086,178"/>
+<area shape="poly" title=" " alt="" coords="2088,170,2190,189,2235,204,2252,213,2264,224,2272,245,2264,267,2241,292,2212,310,2209,305,2238,288,2259,264,2266,245,2259,227,2249,218,2233,209,2189,194,2087,175"/>
+<area shape="poly" title=" " alt="" coords="1980,172,920,242,919,237,1980,167"/>
+<area shape="poly" title=" " alt="" coords="2036,178,2030,222,2020,247,2003,267,1974,280,1922,290,1774,307,1608,318,1473,325,1472,320,1607,313,1773,301,1921,285,1972,274,2000,263,2016,244,2025,220,2031,177"/>
+<area shape="poly" title=" " alt="" coords="2087,166,2132,172,2183,182,2235,199,2284,223,2306,240,2325,260,2352,300,2348,303,2321,263,2302,244,2281,228,2233,204,2182,187,2131,177,2087,171"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Timer System komponenta." alt="" coords="2071,225,2250,265"/>
+<area shape="poly" title=" " alt="" coords="2054,175,2119,216,2116,220,2051,180"/>
+<area shape="poly" title=" " alt="" coords="2163,266,2163,299,2158,299,2158,266"/>
+<area shape="poly" title=" " alt="" coords="2071,265,2053,268,1724,304,1472,324,1472,318,1723,298,2052,263,2070,260"/>
+<area shape="poly" title=" " alt="" coords="2210,263,2321,306,2319,311,2208,268"/>
+<area shape="poly" title=" " alt="" coords="2663,99,2709,118,2732,132,2750,150,2771,180,2783,209,2782,238,2764,268,2694,279,2540,295,2215,323,2214,318,2540,289,2694,274,2761,263,2777,237,2778,210,2766,182,2746,154,2728,136,2707,122,2661,104"/>
+<area shape="poly" title=" " alt="" coords="2573,105,2561,107,2387,125,2239,135,1988,141,1736,142,1588,146,1414,155,1364,158,1364,153,1413,149,1588,140,1736,136,1988,136,2239,130,2386,119,2560,101,2572,100"/>
+<area shape="poly" title=" " alt="" coords="2658,102,2693,120,2710,134,2723,151,2728,166,2730,182,2724,216,2708,246,2687,268,2667,274,2629,281,2509,292,2149,309,1755,321,1473,326,1473,321,1755,315,2149,304,2508,286,2628,275,2666,269,2684,263,2703,243,2719,214,2725,182,2723,167,2718,153,2706,138,2690,125,2655,107"/>
+<area shape="poly" title=" " alt="" coords="2663,99,2918,150,2923,164,2919,178,2902,230,2889,249,2866,268,2829,284,2779,297,2652,315,2519,324,2412,327,2412,322,2519,318,2652,310,2778,292,2827,279,2863,263,2885,245,2898,227,2914,177,2917,164,2914,154,2662,104"/>
+<area shape="poly" title=" " alt="" coords="2549,101,2654,126,2698,139,2722,150,2744,179,2756,208,2754,238,2736,268,2670,279,2525,294,2215,323,2214,317,2524,289,2670,274,2733,263,2749,236,2751,209,2740,181,2719,154,2696,144,2653,131,2548,107"/>
+<area shape="poly" title=" " alt="" coords="2436,98,2012,118,1414,155,1364,159,1364,153,1413,149,2011,113,2436,92"/>
+<area shape="poly" title=" " alt="" coords="2496,104,2504,138,2520,176,2532,190,2546,198,2559,208,2571,224,2578,246,2577,257,2570,267,2553,275,2520,282,2413,294,2090,311,1733,322,1473,327,1472,321,1733,316,2090,306,2412,288,2519,277,2551,270,2566,263,2572,255,2573,247,2566,227,2556,211,2543,203,2529,194,2515,179,2499,139,2491,105"/>
+<area shape="poly" title=" " alt="" coords="2549,100,2714,129,2816,150,2842,177,2856,206,2856,237,2850,252,2839,267,2817,279,2776,289,2658,306,2412,325,2412,319,2657,301,2775,284,2815,274,2836,263,2846,250,2851,236,2851,208,2837,180,2814,154,2713,134,2548,105"/>
+<area shape="poly" title=" " alt="" coords="469,170,380,175,285,191,247,203,223,219,217,228,216,238,219,250,229,263,250,275,291,285,413,301,557,312,687,319,687,324,557,317,413,306,290,290,248,280,225,267,215,253,210,239,212,226,219,215,245,198,284,185,379,170,469,164"/>
+<area shape="poly" title=" " alt="" coords="468,170,394,174,308,184,232,201,203,213,185,227,179,236,178,244,185,264,205,288,232,305,229,309,202,292,181,267,173,245,174,234,181,224,201,208,230,196,307,179,393,169,468,165"/>
+<area shape="poly" title=" " alt="" coords="540,175,642,220,710,244,779,263,864,273,1008,282,1402,300,2106,321,2106,326,1402,305,1008,288,864,278,778,268,708,249,640,225,538,180"/>
+<area shape="poly" title=" " alt="" coords="564,175,787,227,786,232,563,180"/>
+<area shape="poly" title=" " alt="" coords="523,177,544,221,562,244,584,263,629,276,709,288,932,305,1176,316,1362,321,1362,326,1176,321,932,310,708,293,628,281,582,268,558,248,539,224,518,179"/>
+<area shape="poly" title=" " alt="" coords="564,169,722,190,918,223,997,244,1032,254,1077,263,1248,284,1394,297,1523,302,1643,303,1893,301,2040,303,2214,311,2314,318,2314,323,2213,316,2040,308,1893,306,1643,308,1523,307,1394,302,1248,290,1076,268,1030,259,996,249,917,228,721,195,564,174"/>
+<area shape="rect" href="uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="239,233,412,258"/>
+<area shape="poly" title=" " alt="" coords="490,180,367,230,365,225,487,175"/>
+<area shape="poly" title=" " alt="" coords="413,252,532,263,1013,297,1363,319,1362,324,1013,302,532,268,412,258"/>
+<area shape="poly" title=" " alt="" coords="2958,105,2940,139,2910,184,2869,231,2845,251,2818,268,2740,278,2570,293,2215,323,2215,318,2569,288,2739,272,2817,263,2842,247,2866,227,2906,181,2936,136,2954,103"/>
+<area shape="poly" title=" " alt="" coords="2988,102,3016,122,3030,135,3040,151,3046,173,3042,193,3032,212,3017,229,2984,254,2960,268,2914,284,2851,297,2697,315,2537,324,2412,327,2412,322,2537,319,2696,310,2850,292,2912,279,2958,263,2981,250,3014,225,3027,209,3037,192,3040,173,3035,153,3025,138,3013,126,2985,106"/>
+<area shape="rect" title=" " alt="" coords="1426,152,1500,177"/>
+<area shape="poly" title=" " alt="" coords="2917,105,2906,107,2775,119,2603,129,2190,147,1514,165,1514,160,2189,141,2602,124,2775,113,2905,101,2916,100"/>
+<area shape="poly" title=" " alt="" coords="2619,179,2605,223,2591,248,2569,268,2500,277,2337,286,1838,303,866,326,866,320,1838,297,2337,280,2499,271,2567,263,2586,245,2600,221,2614,177"/>
+<area shape="poly" title=" " alt="" coords="2601,180,2523,228,2520,223,2599,175"/>
+<area shape="poly" title=" " alt="" coords="2654,175,2688,194,2704,208,2716,224,2724,246,2722,257,2715,267,2694,275,2648,283,2509,299,2215,323,2215,318,2509,294,2647,278,2692,270,2712,263,2717,255,2719,246,2711,227,2700,211,2685,198,2652,180"/>
+<area shape="poly" title=" " alt="" coords="2634,176,2651,195,2667,218,2674,244,2672,256,2665,267,2646,276,2610,283,2493,295,2141,313,1752,323,1473,327,1473,321,1752,317,2141,307,2492,290,2609,278,2644,271,2661,263,2667,254,2669,244,2662,221,2647,198,2630,180"/>
+<area shape="poly" title=" " alt="" coords="2695,175,2750,188,2798,207,2815,219,2826,233,2827,249,2817,267,2796,279,2757,288,2646,305,2412,324,2412,319,2645,300,2756,283,2794,274,2813,263,2822,248,2821,235,2812,223,2796,211,2748,193,2694,180"/>
+<area shape="poly" title=" " alt="" coords="984,98,915,104,841,114,776,131,753,141,737,154,727,171,723,189,723,209,727,229,743,268,762,301,757,303,738,271,722,231,718,210,718,189,722,169,733,150,750,137,775,126,840,109,915,99,983,93"/>
+<area shape="poly" title=" " alt="" coords="984,100,784,117,525,145,400,163,293,183,213,204,188,216,173,227,166,245,173,264,195,288,224,306,221,310,192,293,169,267,161,245,169,224,185,211,212,199,292,177,400,158,524,140,783,112,983,94"/>
+<area shape="poly" title=" " alt="" coords="1045,104,1041,137,1042,181,1053,226,1063,246,1078,263,1093,269,1123,275,1224,286,1525,303,1860,315,2106,321,2105,326,1860,320,1525,308,1223,291,1122,280,1091,274,1075,268,1059,249,1048,228,1037,181,1036,137,1040,104"/>
+<area shape="poly" title=" " alt="" coords="1084,101,1234,145,1232,151,1082,107"/>
+<area shape="poly" title=" " alt="" coords="994,107,910,131,866,147,825,166,792,188,771,211,766,224,766,236,771,250,781,263,791,271,810,277,866,289,1030,307,1214,317,1362,321,1362,326,1214,322,1030,312,865,295,808,283,789,275,777,267,766,252,761,237,761,223,766,209,788,184,822,162,864,142,909,125,993,101"/>
+<area shape="poly" title=" " alt="" coords="1051,103,1066,137,1091,182,1127,227,1148,247,1172,263,1199,272,1241,280,1361,292,1515,300,1687,305,2016,308,2214,311,2314,318,2314,323,2213,316,2016,313,1687,310,1515,305,1360,298,1240,285,1197,277,1170,268,1145,251,1123,231,1087,185,1061,139,1046,105"/>
+<area shape="poly" title=" " alt="" coords="2797,103,2807,135,2814,179,2812,226,2805,248,2791,268,2717,279,2555,295,2215,323,2214,318,2555,290,2717,274,2788,263,2800,245,2807,225,2809,179,2802,136,2792,105"/>
+<area shape="poly" title=" " alt="" coords="2876,101,2962,120,2997,134,3020,150,3025,164,3020,178,2997,214,2972,236,2941,252,2901,268,2859,280,2803,291,2666,308,2412,325,2412,320,2666,302,2802,286,2858,275,2899,263,2939,247,2969,232,2993,211,3015,176,3019,164,3015,154,2995,139,2961,126,2875,107"/>
+<area shape="poly" title=" " alt="" coords="2763,106,2660,149,2658,144,2761,102"/>
+<area shape="poly" title=" " alt="" coords="711,94,534,99,433,107,337,121,256,143,225,156,202,173,188,191,184,212,191,236,210,263,233,275,275,285,403,302,553,313,687,319,687,324,552,318,402,307,274,291,231,280,206,267,186,238,178,212,183,189,198,169,223,152,254,138,336,116,432,102,534,93,711,89"/>
+<area shape="poly" title=" " alt="" coords="711,95,542,101,439,108,333,120,233,137,144,159,107,173,75,189,50,207,33,227,25,248,29,265,44,280,67,292,129,309,197,318,196,323,128,314,65,297,41,284,25,268,20,248,29,224,47,203,72,185,105,169,143,154,232,131,333,115,438,103,541,96,711,90"/>
+<area shape="poly" title=" " alt="" coords="797,102,836,136,895,182,967,227,1006,247,1046,263,1112,275,1224,285,1535,302,2106,321,2105,326,1534,308,1224,290,1111,280,1045,268,1004,252,964,232,892,186,832,140,793,106"/>
+<area shape="poly" title=" " alt="" coords="855,100,1207,150,1207,155,855,105"/>
+<area shape="poly" title=" " alt="" coords="778,105,762,137,748,180,744,202,744,225,749,245,761,263,772,271,791,278,849,290,1020,307,1210,317,1363,321,1363,327,1210,322,1019,313,849,295,790,283,769,276,757,267,744,247,739,225,738,202,742,178,757,135,774,103"/>
+<area shape="poly" title=" " alt="" coords="855,97,1362,149,1412,155,1411,160,1361,155,855,103"/>
+</map>
+</div>
+</div>
+<p><a href="main_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structboot__counter__state__t.html">boot_counter_state_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Struktura pro uložení stavu boot counteru.  <a href="structboot__counter__state__t.html#details">...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:ad4a869c863d9c4d93fb8de252ae71f01" id="r_ad4a869c863d9c4d93fb8de252ae71f01"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ad4a869c863d9c4d93fb8de252ae71f01">BOOT_COUNTER_NAMESPACE</a>&#160;&#160;&#160;&quot;boot_counter&quot;</td></tr>
+<tr class="memdesc:ad4a869c863d9c4d93fb8de252ae71f01"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS namespace pro boot counter.  <br /></td></tr>
+<tr class="separator:ad4a869c863d9c4d93fb8de252ae71f01"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac96612531640942c3377f5a6ec3b36b3" id="r_ac96612531640942c3377f5a6ec3b36b3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ac96612531640942c3377f5a6ec3b36b3">BOOT_COUNTER_KEY</a>&#160;&#160;&#160;&quot;count&quot;</td></tr>
+<tr class="memdesc:ac96612531640942c3377f5a6ec3b36b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klíč pro počítadlo bootů  <br /></td></tr>
+<tr class="separator:ac96612531640942c3377f5a6ec3b36b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd33883537eb21985239203da13e48c6" id="r_afd33883537eb21985239203da13e48c6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#afd33883537eb21985239203da13e48c6">BOOT_COUNTER_TIME_KEY</a>&#160;&#160;&#160;&quot;last_time&quot;</td></tr>
+<tr class="memdesc:afd33883537eb21985239203da13e48c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klíč pro timestamp posledního bootu.  <br /></td></tr>
+<tr class="separator:afd33883537eb21985239203da13e48c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a984382ac84d6f6a967feb33bbf5dd3e1" id="r_a984382ac84d6f6a967feb33bbf5dd3e1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a984382ac84d6f6a967feb33bbf5dd3e1">BOOT_CYCLES_LIMIT</a>&#160;&#160;&#160;10</td></tr>
+<tr class="memdesc:a984382ac84d6f6a967feb33bbf5dd3e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Počet bootů před deep sleep (10)  <br /></td></tr>
+<tr class="separator:a984382ac84d6f6a967feb33bbf5dd3e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cb58a2662d3d54f7747c5881abd8ccc" id="r_a4cb58a2662d3d54f7747c5881abd8ccc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a4cb58a2662d3d54f7747c5881abd8ccc">BOOT_CYCLES_WINDOW_MS</a>&#160;&#160;&#160;30000</td></tr>
+<tr class="memdesc:a4cb58a2662d3d54f7747c5881abd8ccc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Časové okno pro počítání bootů (30 sekund)  <br /></td></tr>
+<tr class="separator:a4cb58a2662d3d54f7747c5881abd8ccc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:abb182517d44ccd021b3dac9355989c7b" id="r_abb182517d44ccd021b3dac9355989c7b"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#abb182517d44ccd021b3dac9355989c7b">reset_reason_to_str</a> (esp_reset_reason_t reason)</td></tr>
+<tr class="separator:abb182517d44ccd021b3dac9355989c7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3fca9fb2d696ec2aaa263256ec6c073" id="r_ae3fca9fb2d696ec2aaa263256ec6c073"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ae3fca9fb2d696ec2aaa263256ec6c073">boot_counter_load</a> (<a class="el" href="structboot__counter__state__t.html">boot_counter_state_t</a> *<a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>)</td></tr>
+<tr class="memdesc:ae3fca9fb2d696ec2aaa263256ec6c073"><td class="mdescLeft">&#160;</td><td class="mdescRight">Načte stav boot counteru z NVS.  <br /></td></tr>
+<tr class="separator:ae3fca9fb2d696ec2aaa263256ec6c073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab596fa04589408fe59b85ff9253bc3a6" id="r_ab596fa04589408fe59b85ff9253bc3a6"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ab596fa04589408fe59b85ff9253bc3a6">boot_counter_save</a> (const <a class="el" href="structboot__counter__state__t.html">boot_counter_state_t</a> *<a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>)</td></tr>
+<tr class="memdesc:ab596fa04589408fe59b85ff9253bc3a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uloží stav boot counteru do NVS.  <br /></td></tr>
+<tr class="separator:ab596fa04589408fe59b85ff9253bc3a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ebcac756c64cb6902b6d0f210e17f03" id="r_a1ebcac756c64cb6902b6d0f210e17f03"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a1ebcac756c64cb6902b6d0f210e17f03">boot_counter_check_and_update</a> (void)</td></tr>
+<tr class="memdesc:a1ebcac756c64cb6902b6d0f210e17f03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuje boot counter a kontroluje zda by se mělo jít do deep sleep.  <br /></td></tr>
+<tr class="separator:a1ebcac756c64cb6902b6d0f210e17f03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11e43690889c3c3c5a6f549220df8a1d" id="r_a11e43690889c3c3c5a6f549220df8a1d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a11e43690889c3c3c5a6f549220df8a1d">boot_counter_reset</a> (void)</td></tr>
+<tr class="memdesc:a11e43690889c3c3c5a6f549220df8a1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuje boot counter (volat po úspěšném startu)  <br /></td></tr>
+<tr class="separator:a11e43690889c3c3c5a6f549220df8a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4894ad0ac4d99cffa56d58649a1850fb" id="r_a4894ad0ac4d99cffa56d58649a1850fb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb">show_boot_animation_and_board</a> (void)</td></tr>
+<tr class="memdesc:a4894ad0ac4d99cffa56d58649a1850fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Centralizovana boot animace: ASCII logo, progress bar, LED krok, fade-out.  <br /></td></tr>
+<tr class="separator:a4894ad0ac4d99cffa56d58649a1850fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16454398c460e4d7161a90c808248ec2" id="r_a16454398c460e4d7161a90c808248ec2"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a16454398c460e4d7161a90c808248ec2">main_task_wdt_reset_safe</a> (void)</td></tr>
+<tr class="memdesc:a16454398c460e4d7161a90c808248ec2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND.  <br /></td></tr>
+<tr class="separator:a16454398c460e4d7161a90c808248ec2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a768b8bf362b42a4e04ac58639035a938" id="r_a768b8bf362b42a4e04ac58639035a938"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a768b8bf362b42a4e04ac58639035a938">demo_report_activity</a> (void)</td></tr>
+<tr class="memdesc:a768b8bf362b42a4e04ac58639035a938"><td class="mdescLeft">&#160;</td><td class="mdescRight">Report activity on the board (interrupt demo mode) Called from matrix_task when any change is detected.  <br /></td></tr>
+<tr class="separator:a768b8bf362b42a4e04ac58639035a938"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae27993c1756124d9fa6e8af4958409ef" id="r_ae27993c1756124d9fa6e8af4958409ef"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ae27993c1756124d9fa6e8af4958409ef">main_system_init</a> (void)</td></tr>
+<tr class="memdesc:ae27993c1756124d9fa6e8af4958409ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje hlavni systemove komponenty aplikace.  <br /></td></tr>
+<tr class="separator:ae27993c1756124d9fa6e8af4958409ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf3129796410e265806bde4edacf4d85" id="r_acf3129796410e265806bde4edacf4d85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#acf3129796410e265806bde4edacf4d85">initialize_chess_game</a> (void)</td></tr>
+<tr class="memdesc:acf3129796410e265806bde4edacf4d85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED, tlacitka.  <br /></td></tr>
+<tr class="separator:acf3129796410e265806bde4edacf4d85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e05201e522856e3cd984bade768be7e" id="r_a6e05201e522856e3cd984bade768be7e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a6e05201e522856e3cd984bade768be7e">toggle_demo_mode</a> (bool enabled)</td></tr>
+<tr class="memdesc:a6e05201e522856e3cd984bade768be7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepina demo mod zapnuto/vypnuto.  <br /></td></tr>
+<tr class="separator:a6e05201e522856e3cd984bade768be7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad190bb08e29e63b6f04a3715dae88706" id="r_ad190bb08e29e63b6f04a3715dae88706"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ad190bb08e29e63b6f04a3715dae88706">is_demo_mode_enabled</a> (void)</td></tr>
+<tr class="memdesc:ad190bb08e29e63b6f04a3715dae88706"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get demo mode status.  <br /></td></tr>
+<tr class="separator:ad190bb08e29e63b6f04a3715dae88706"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a570c98f23cd91c36ce62964733732cdf" id="r_a570c98f23cd91c36ce62964733732cdf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a570c98f23cd91c36ce62964733732cdf">set_demo_speed_ms</a> (uint32_t speed_ms)</td></tr>
+<tr class="memdesc:a570c98f23cd91c36ce62964733732cdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set demo mode speed.  <br /></td></tr>
+<tr class="separator:a570c98f23cd91c36ce62964733732cdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47be0f08c5acbba3a901be7d65e4cb8a" id="r_a47be0f08c5acbba3a901be7d65e4cb8a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a47be0f08c5acbba3a901be7d65e4cb8a">execute_demo_move</a> (void)</td></tr>
+<tr class="memdesc:a47be0f08c5acbba3a901be7d65e4cb8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vykona jeden demo tah.  <br /></td></tr>
+<tr class="separator:a47be0f08c5acbba3a901be7d65e4cb8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae52825df5837e0f8f5e814f48cafb722" id="r_ae52825df5837e0f8f5e814f48cafb722"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ae52825df5837e0f8f5e814f48cafb722">init_console</a> (void)</td></tr>
+<tr class="memdesc:ae52825df5837e0f8f5e814f48cafb722"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializace NVS (pro konfiguraci), konzole a UART / USB Serial JTAG.  <br /></td></tr>
+<tr class="separator:ae52825df5837e0f8f5e814f48cafb722"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dbcd7c01e5197da615bb4fe6c5b29b0" id="r_a2dbcd7c01e5197da615bb4fe6c5b29b0"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a2dbcd7c01e5197da615bb4fe6c5b29b0">create_system_tasks</a> (void)</td></tr>
+<tr class="memdesc:a2dbcd7c01e5197da615bb4fe6c5b29b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vytvori vsechny systemove tasky.  <br /></td></tr>
+<tr class="separator:a2dbcd7c01e5197da615bb4fe6c5b29b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a630544a7f0a2cc40d8a7fefab7e2fe70" id="r_a630544a7f0a2cc40d8a7fefab7e2fe70"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70">app_main</a> (void)</td></tr>
+<tr class="memdesc:a630544a7f0a2cc40d8a7fefab7e2fe70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hlavni funkce aplikace.  <br /></td></tr>
+<tr class="separator:a630544a7f0a2cc40d8a7fefab7e2fe70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;MAIN&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8eca84d3e2c7c0adf364819e74b1bd9b" id="r_a8eca84d3e2c7c0adf364819e74b1bd9b"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a8eca84d3e2c7c0adf364819e74b1bd9b">uart_mutex</a> = NULL</td></tr>
+<tr class="memdesc:a8eca84d3e2c7c0adf364819e74b1bd9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Globalni UART mutex pro cisty vystup.  <br /></td></tr>
+<tr class="separator:a8eca84d3e2c7c0adf364819e74b1bd9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cf81c896b094e20ff5752ee1133a8f2" id="r_a6cf81c896b094e20ff5752ee1133a8f2"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a6cf81c896b094e20ff5752ee1133a8f2">led_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a6cf81c896b094e20ff5752ee1133a8f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro LED task.  <br /></td></tr>
+<tr class="separator:a6cf81c896b094e20ff5752ee1133a8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9de1b87e0b6692c90f1c5cfd9e13d444" id="r_a9de1b87e0b6692c90f1c5cfd9e13d444"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a9de1b87e0b6692c90f1c5cfd9e13d444">matrix_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a9de1b87e0b6692c90f1c5cfd9e13d444"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Matrix task.  <br /></td></tr>
+<tr class="separator:a9de1b87e0b6692c90f1c5cfd9e13d444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba5c2db71f9fa5cd9f3e506e91ffe6d3" id="r_aba5c2db71f9fa5cd9f3e506e91ffe6d3"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aba5c2db71f9fa5cd9f3e506e91ffe6d3">button_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:aba5c2db71f9fa5cd9f3e506e91ffe6d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Button task.  <br /></td></tr>
+<tr class="separator:aba5c2db71f9fa5cd9f3e506e91ffe6d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e4967ac70f1e8a89b2fea62027a968c" id="r_a4e4967ac70f1e8a89b2fea62027a968c"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a4e4967ac70f1e8a89b2fea62027a968c">uart_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a4e4967ac70f1e8a89b2fea62027a968c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro UART task.  <br /></td></tr>
+<tr class="separator:a4e4967ac70f1e8a89b2fea62027a968c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb49a688d90460dc48f7e0b976ace62d" id="r_acb49a688d90460dc48f7e0b976ace62d"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#acb49a688d90460dc48f7e0b976ace62d">game_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:acb49a688d90460dc48f7e0b976ace62d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Game task.  <br /></td></tr>
+<tr class="separator:acb49a688d90460dc48f7e0b976ace62d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a20898222a990efbce3e4239f2d9aee" id="r_a2a20898222a990efbce3e4239f2d9aee"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a2a20898222a990efbce3e4239f2d9aee">animation_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a2a20898222a990efbce3e4239f2d9aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Animation task (NULL pokud je task vypnuty v create_system_tasks)  <br /></td></tr>
+<tr class="separator:a2a20898222a990efbce3e4239f2d9aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abafefd1ba465b609ca39fd6fc502095b" id="r_abafefd1ba465b609ca39fd6fc502095b"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#abafefd1ba465b609ca39fd6fc502095b">test_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:abafefd1ba465b609ca39fd6fc502095b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Test task.  <br /></td></tr>
+<tr class="separator:abafefd1ba465b609ca39fd6fc502095b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36e9302901a63037025cd7970fa8adbe" id="r_a36e9302901a63037025cd7970fa8adbe"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a36e9302901a63037025cd7970fa8adbe">web_server_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a36e9302901a63037025cd7970fa8adbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Web Server task.  <br /></td></tr>
+<tr class="separator:a36e9302901a63037025cd7970fa8adbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c597bf4c3d1fff34c3ef12254f0efc4" id="r_a5c597bf4c3d1fff34c3ef12254f0efc4"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a5c597bf4c3d1fff34c3ef12254f0efc4">ha_light_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a5c597bf4c3d1fff34c3ef12254f0efc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro HA Light task.  <br /></td></tr>
+<tr class="separator:a5c597bf4c3d1fff34c3ef12254f0efc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb8dd1b563b914d04c90f377454ad032" id="r_aeb8dd1b563b914d04c90f377454ad032"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aeb8dd1b563b914d04c90f377454ad032">reset_button_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:aeb8dd1b563b914d04c90f377454ad032"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Reset Button task.  <br /></td></tr>
+<tr class="separator:aeb8dd1b563b914d04c90f377454ad032"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cf065fd2e74d6ad91b3da384a96c60b" id="r_a2cf065fd2e74d6ad91b3da384a96c60b"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a2cf065fd2e74d6ad91b3da384a96c60b">promotion_button_task_handle</a> = NULL</td></tr>
+<tr class="memdesc:a2cf065fd2e74d6ad91b3da384a96c60b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Promotion Button task.  <br /></td></tr>
+<tr class="separator:a2cf065fd2e74d6ad91b3da384a96c60b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af252e203098e091d068b85d637b1083d" id="r_af252e203098e091d068b85d637b1083d"><td class="memItemLeft" align="right" valign="top">static volatile bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#af252e203098e091d068b85d637b1083d">demo_mode_enabled</a> = false</td></tr>
+<tr class="memdesc:af252e203098e091d068b85d637b1083d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Konfigurace demo modu - je demo mod zapnuty.  <br /></td></tr>
+<tr class="separator:af252e203098e091d068b85d637b1083d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa999d9fce86efd55be4fb1bce525e69e" id="r_aa999d9fce86efd55be4fb1bce525e69e"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aa999d9fce86efd55be4fb1bce525e69e">current_demo_delay_ms</a> = 3000</td></tr>
+<tr class="memdesc:aa999d9fce86efd55be4fb1bce525e69e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpozdeni mezi demo tahy v milisekundach - dynamicky meneno.  <br /></td></tr>
+<tr class="separator:aa999d9fce86efd55be4fb1bce525e69e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc98f8280521aceb9893120eba837382" id="r_acc98f8280521aceb9893120eba837382"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a> []</td></tr>
+<tr class="memdesc:acc98f8280521aceb9893120eba837382"><td class="mdescLeft">&#160;</td><td class="mdescRight">Demo game 1: Scholar's Mate - White wins in 4 moves (fast checkmate)  <br /></td></tr>
+<tr class="separator:acc98f8280521aceb9893120eba837382"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22d3cef2fa6060633fc71190b5d6df3b" id="r_a22d3cef2fa6060633fc71190b5d6df3b"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b">DEMO_GAME_OPERA</a> []</td></tr>
+<tr class="memdesc:a22d3cef2fa6060633fc71190b5d6df3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Demo game 4: Opera Game - Morphy's Masterpiece (Paris 1858, White wins)  <br /></td></tr>
+<tr class="separator:a22d3cef2fa6060633fc71190b5d6df3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2614434acc93da191dda0a8a445e651" id="r_ac2614434acc93da191dda0a8a445e651"><td class="memItemLeft" align="right" valign="top">static const char **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#ac2614434acc93da191dda0a8a445e651">DEMO_GAMES</a> [] = {<a class="el" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a>, <a class="el" href="main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b">DEMO_GAME_OPERA</a>}</td></tr>
+<tr class="memdesc:ac2614434acc93da191dda0a8a445e651"><td class="mdescLeft">&#160;</td><td class="mdescRight">Array of all demo games.  <br /></td></tr>
+<tr class="separator:ac2614434acc93da191dda0a8a445e651"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcaca94aeee21681707035e985a0c843" id="r_abcaca94aeee21681707035e985a0c843"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#abcaca94aeee21681707035e985a0c843">DEMO_GAME_LENGTHS</a> []</td></tr>
+<tr class="memdesc:abcaca94aeee21681707035e985a0c843"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of moves in each demo game.  <br /></td></tr>
+<tr class="separator:abcaca94aeee21681707035e985a0c843"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a167e2d80b3314581d6120d1b2e48ee51" id="r_a167e2d80b3314581d6120d1b2e48ee51"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a167e2d80b3314581d6120d1b2e48ee51">DEMO_GAME_NAMES</a> []</td></tr>
+<tr class="memdesc:a167e2d80b3314581d6120d1b2e48ee51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game type names for logging.  <br /></td></tr>
+<tr class="separator:a167e2d80b3314581d6120d1b2e48ee51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66025d47b9e143dea05d41ea2a76d46b" id="r_a66025d47b9e143dea05d41ea2a76d46b"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a66025d47b9e143dea05d41ea2a76d46b">DEMO_GAMES_COUNT</a> = sizeof(<a class="el" href="main_8c.html#ac2614434acc93da191dda0a8a445e651">DEMO_GAMES</a>) / sizeof(<a class="el" href="main_8c.html#ac2614434acc93da191dda0a8a445e651">DEMO_GAMES</a>[0])</td></tr>
+<tr class="memdesc:a66025d47b9e143dea05d41ea2a76d46b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total number of demo games.  <br /></td></tr>
+<tr class="separator:a66025d47b9e143dea05d41ea2a76d46b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19159754c1693faa54833d370834e343" id="r_a19159754c1693faa54833d370834e343"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a19159754c1693faa54833d370834e343">current_demo_game</a> = 0</td></tr>
+<tr class="memdesc:a19159754c1693faa54833d370834e343"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current demo game being played (0-2)  <br /></td></tr>
+<tr class="separator:a19159754c1693faa54833d370834e343"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebfac3059b619dc182e9ad6011fe1c7b" id="r_aebfac3059b619dc182e9ad6011fe1c7b"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#aebfac3059b619dc182e9ad6011fe1c7b">demo_move_index</a> = 0</td></tr>
+<tr class="memdesc:aebfac3059b619dc182e9ad6011fe1c7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current move index within the current game.  <br /></td></tr>
+<tr class="separator:aebfac3059b619dc182e9ad6011fe1c7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cd35e669cb2fd803a99504ba0da1aaa" id="r_a9cd35e669cb2fd803a99504ba0da1aaa"><td class="memItemLeft" align="right" valign="top">static const char **&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a9cd35e669cb2fd803a99504ba0da1aaa">current_demo_moves</a> = <a class="el" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a></td></tr>
+<tr class="memdesc:a9cd35e669cb2fd803a99504ba0da1aaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current game's move array (pointer to active game)  <br /></td></tr>
+<tr class="separator:a9cd35e669cb2fd803a99504ba0da1aaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4973ab5b9a06d7ed486bc100be691f42" id="r_a4973ab5b9a06d7ed486bc100be691f42"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="main_8c.html#a4973ab5b9a06d7ed486bc100be691f42">demo_moves_count</a></td></tr>
+<tr class="memdesc:a4973ab5b9a06d7ed486bc100be691f42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Current game's move count.  <br /></td></tr>
+<tr class="separator:a4973ab5b9a06d7ed486bc100be691f42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace. </p>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
+<p>Tento soubor spousti <a class="el" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Hlavni funkce aplikace.">app_main()</a>, vytvori FreeRTOS fronty a mutexy, nastavi WDT a spusti systemove tasky (LED, matrix, button, game, UART, web, test). Animation task je vypnuty (LED animace v led_task). Po kratsim cekani probiha centralizovana boot animace; nasleduje <a class="el" href="main_8c.html#acf3129796410e265806bde4edacf4d85" title="Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED, tlacitka.">initialize_chess_game()</a>, ktere respektuje obnovu ulozene hry z NVS v game_task.</p>
+<h2><a class="anchor" id="ss_queues"></a>
+Fronty</h2>
+<ul>
+<li>game_command_queue: prikazy pro game_task (UART, matrix, web).</li>
+<li>button_event_queue: udalosti z tlacitek (ISR -&gt; button_task).</li>
+</ul>
+<h2><a class="anchor" id="ss_priorities"></a>
+Priority (orientacne)</h2>
+<p>led_task (7) &gt; matrix_task (6) &gt; button_task (5) &gt; game_task (4) &gt; uart / web (3) &gt; test_task (1) &gt; IDLE (0).</p>
+<h2><a class="anchor" id="ss_boot_nvs"></a>
+Boot a NVS</h2>
+<p><a class="el" href="game__task_8c.html#ab26d022ec766e04addd46d9b6da9768a" title="Spusti game task.">game_task_start()</a> drive nez skonci boot animace: inicializuje desku, pripadne nacte snapshot z NVS nebo spusti novou hru podle boot trackeru. Po fade-out vola main <a class="el" href="main_8c.html#acf3129796410e265806bde4edacf4d85" title="Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED, tlacitka.">initialize_chess_game()</a>: pokud uz je stav nacteny z NVS nebo uz bezela nucena nova hra, neposila se GAME_CMD_NEW_GAME (jinak by se prepisla obnova). Pri obnove bez matrix guard se doplni LED pres <a class="el" href="game__task_8c.html#a8b7aa3018c0775246c6fe867f3ae6af1" title="Force refresh of LED state based on current game status Called when switching back from HA mode or ot...">game_refresh_leds()</a>.</p>
+<dl class="section warning"><dt>Pozor</dt><dd>Fronty musi existovat pred xTaskCreate. Kontroluj navratove hodnoty xQueueCreate a xTaskCreate. </dd></dl>
+
+<p class="definition">Definice v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace definic maker</h2>
+<a id="ac96612531640942c3377f5a6ec3b36b3" name="ac96612531640942c3377f5a6ec3b36b3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac96612531640942c3377f5a6ec3b36b3">&#9670;&#160;</a></span>BOOT_COUNTER_KEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BOOT_COUNTER_KEY&#160;&#160;&#160;&quot;count&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klíč pro počítadlo bootů </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00117">117</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ad4a869c863d9c4d93fb8de252ae71f01" name="ad4a869c863d9c4d93fb8de252ae71f01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad4a869c863d9c4d93fb8de252ae71f01">&#9670;&#160;</a></span>BOOT_COUNTER_NAMESPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BOOT_COUNTER_NAMESPACE&#160;&#160;&#160;&quot;boot_counter&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS namespace pro boot counter. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00115">115</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="afd33883537eb21985239203da13e48c6" name="afd33883537eb21985239203da13e48c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd33883537eb21985239203da13e48c6">&#9670;&#160;</a></span>BOOT_COUNTER_TIME_KEY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BOOT_COUNTER_TIME_KEY&#160;&#160;&#160;&quot;last_time&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klíč pro timestamp posledního bootu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00119">119</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a984382ac84d6f6a967feb33bbf5dd3e1" name="a984382ac84d6f6a967feb33bbf5dd3e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a984382ac84d6f6a967feb33bbf5dd3e1">&#9670;&#160;</a></span>BOOT_CYCLES_LIMIT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BOOT_CYCLES_LIMIT&#160;&#160;&#160;10</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Počet bootů před deep sleep (10) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00121">121</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a4cb58a2662d3d54f7747c5881abd8ccc" name="a4cb58a2662d3d54f7747c5881abd8ccc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4cb58a2662d3d54f7747c5881abd8ccc">&#9670;&#160;</a></span>BOOT_CYCLES_WINDOW_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define BOOT_CYCLES_WINDOW_MS&#160;&#160;&#160;30000</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Časové okno pro počítání bootů (30 sekund) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00123">123</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a630544a7f0a2cc40d8a7fefab7e2fe70" name="a630544a7f0a2cc40d8a7fefab7e2fe70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a630544a7f0a2cc40d8a7fefab7e2fe70">&#9670;&#160;</a></span>app_main()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void app_main </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hlavni funkce aplikace. </p>
+<p>Tato funkce je hlavnim vstupnim bodem aplikace. Inicializuje system, vytvori tasky a spusti hlavni smycku aplikace. Obsahuje error handling a safe mode pro pripady chyb.</p>
+<p>Funkce je volana jako prvni po spusteni ESP32. Inicializuje Task Watchdog Timer, vytvori vsechny systemove tasky a spusti hlavni smycku aplikace. Obsahuje error handling a safe mode pro pripady chyb pri inicializaci.</p>
+<p>Hlavni smycka:</p><ul>
+<li>Resetuje watchdog timer</li>
+<li>Loguje system status kazdych 60 sekund</li>
+<li>Zpracovava demo mod pokud je zapnuty</li>
+<li>Ceka 1 sekundu mezi iteracemi </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l01380">1380</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a1ebcac756c64cb6902b6d0f210e17f03" name="a1ebcac756c64cb6902b6d0f210e17f03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ebcac756c64cb6902b6d0f210e17f03">&#9670;&#160;</a></span>boot_counter_check_and_update()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool boot_counter_check_and_update </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Aktualizuje boot counter a kontroluje zda by se mělo jít do deep sleep. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud by se mělo jít do deep sleep (překročen limit bootů) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00199">199</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3fca9fb2d696ec2aaa263256ec6c073" name="ae3fca9fb2d696ec2aaa263256ec6c073"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3fca9fb2d696ec2aaa263256ec6c073">&#9670;&#160;</a></span>boot_counter_load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t boot_counter_load </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structboot__counter__state__t.html">boot_counter_state_t</a> *&#160;</td>
+          <td class="paramname"><em>state</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Načte stav boot counteru z NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">state</td><td>Ukazatel na strukturu pro načtení stavu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00138">138</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a11e43690889c3c3c5a6f549220df8a1d" name="a11e43690889c3c3c5a6f549220df8a1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a11e43690889c3c3c5a6f549220df8a1d">&#9670;&#160;</a></span>boot_counter_reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void boot_counter_reset </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Resetuje boot counter (volat po úspěšném startu) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00236">236</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ab596fa04589408fe59b85ff9253bc3a6" name="ab596fa04589408fe59b85ff9253bc3a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab596fa04589408fe59b85ff9253bc3a6">&#9670;&#160;</a></span>boot_counter_save()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t boot_counter_save </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structboot__counter__state__t.html">boot_counter_state_t</a> *&#160;</td>
+          <td class="paramname"><em>state</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Uloží stav boot counteru do NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">state</td><td>Ukazatel na strukturu se stavem k uložení </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00171">171</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a2dbcd7c01e5197da615bb4fe6c5b29b0" name="a2dbcd7c01e5197da615bb4fe6c5b29b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2dbcd7c01e5197da615bb4fe6c5b29b0">&#9670;&#160;</a></span>create_system_tasks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t create_system_tasks </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vytvori vsechny systemove tasky. </p>
+<p>Tato funkce vytvori vsechny FreeRTOS tasky potrebne pro chod systemu. Kazdy task ma svoji prioritu a velikost stacku. Po vytvoreni tasku se zobrazi boot animace a inicializuje se sachova hra.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
+<p>Funkce vytvori hlavni tasky:</p><ul>
+<li>LED task: ovladani LED pasku</li>
+<li>Matrix task: skenovani 8x8 matice</li>
+<li>Button task: ovladani tlacitek</li>
+<li>UART task: komunikace pres UART</li>
+<li>Game task: logika sachove hry</li>
+<li>Test task: testovani systemu (volitelne menuconfig)</li>
+<li>Web server task: web rozhrani (Animation task vypnut — viz DISABLED blok v create_system_tasks.)</li>
+</ul>
+<p>Po vytvoreni vsech tasku se zobrazi boot animace a inicializuje hra. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00879">879</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a768b8bf362b42a4e04ac58639035a938" name="a768b8bf362b42a4e04ac58639035a938"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a768b8bf362b42a4e04ac58639035a938">&#9670;&#160;</a></span>demo_report_activity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void demo_report_activity </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Report activity on the board (interrupt demo mode) Called from matrix_task when any change is detected. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00624">624</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a47be0f08c5acbba3a901be7d65e4cb8a" name="a47be0f08c5acbba3a901be7d65e4cb8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47be0f08c5acbba3a901be7d65e4cb8a">&#9670;&#160;</a></span>execute_demo_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void execute_demo_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vykona jeden demo tah. </p>
+<p>Tato funkce vykona jeden tah z preddefinovane sekvence demo tahu. Tahy jsou ulozeny v poli DEMO_MOVES a jsou hrany postupne. Po dokonceni vsech tahu se sekvence resetuje.</p>
+<p>Funkce vezme aktualni tah z pole DEMO_MOVES a posle ho do game tasku. Tahy jsou ve formatu "e2e4" (z pozice e2 na pozici e4). Po dokonceni vsech tahu se index resetuje na 0. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00663">663</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ae52825df5837e0f8f5e814f48cafb722" name="ae52825df5837e0f8f5e814f48cafb722"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae52825df5837e0f8f5e814f48cafb722">&#9670;&#160;</a></span>init_console()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void init_console </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Inicializace NVS (pro konfiguraci), konzole a UART / USB Serial JTAG. </p>
+<p>NVS flash pro ulozeni konfigurace; esp_console pro prikazy; bez externiho UART. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00828">828</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="acf3129796410e265806bde4edacf4d85" name="acf3129796410e265806bde4edacf4d85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf3129796410e265806bde4edacf4d85">&#9670;&#160;</a></span>initialize_chess_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void initialize_chess_game </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED, tlacitka. </p>
+<p>Volat az po <a class="el" href="main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb" title="Centralizovana boot animace: ASCII logo, progress bar, LED krok, fade-out.">show_boot_animation_and_board()</a> (flag <a class="el" href="led__task_8h.html#a006a24ec8e7f302c4a6f8481675803d1" title="Zjisti zda probiha boot animace.">led_is_booting()</a> je uz false). <a class="el" href="game__task_8c.html#ab26d022ec766e04addd46d9b6da9768a" title="Spusti game task.">game_task_start()</a> drive nastavil desku a pripadne nacetl NVS snapshot nebo <a class="el" href="game__task_8c.html#a57e990b9360540c1ba82ea3d5a32cf44" title="Spusti novou hru.">game_start_new_game()</a> podle boot trackeru.</p>
+<ul>
+<li><code>nvs_restored:</code> neposilat GAME_CMD_NEW_GAME; stav pochazi z NVS. Po fade-out zavolat <a class="el" href="game__task_8c.html#a8b7aa3018c0775246c6fe867f3ae6af1" title="Force refresh of LED state based on current game status Called when switching back from HA mode or ot...">game_refresh_leds()</a> jen kdyz neni aktivni matrix guard (ochrana LED pri nesouladu matice s ulozenou pozici).</li>
+<li><code>boot_already_new:</code> boot tracker uz spustil novou hru v game_task; neposilat duplicitni GAME_CMD_NEW_GAME.</li>
+<li>Jinak poslat GAME_CMD_NEW_GAME pro plny reset jako drive (zadny platny snapshot).</li>
+</ul>
+<p>Vzdy vola <a class="el" href="led__task_8h.html#a31b820a4bfe33d0cf54a107c339d6d07" title="Aktualizuj dostupnost tlacitek podle stavu hry.">led_update_button_availability_from_game()</a>.</p>
+<dl class="section note"><dt>Poznámka</dt><dd>game_active po obnove NVS nastavuje <a class="el" href="game__task_8c.html#a89d78dc8723fe9da9b6b1fa77090542f">game_load_snapshot_from_nvs()</a>; drive to delal az prikaz NEW_GAME z teto funkce.</dd></dl>
+<dl class="section see"><dt>Viz také</dt><dd><a class="el" href="game__task_8c.html#a2a5a68b3e99926a5c96f3a6eeef64c3b" title="true pokud game_load_snapshot_from_nvs() v game_task_start uspesne nacetl hru.">game_was_snapshot_loaded_on_boot()</a> </dd>
+<dd>
+<a class="el" href="game__task_8c.html#af1e09878bd4592f7f46ae5713f17fc6f" title="Boot tracker vynutil novou hru (napr.">game_was_boot_new_game_triggered()</a> </dd>
+<dd>
+<a class="el" href="game__task_8c.html#a4dda4c9252b0fdb9c9d54ac421c00cb8" title="Matrix guard: aktivni pauza pri nesouladu matice s logickou deskou.">game_is_matrix_guard_active()</a> </dd>
+<dd>
+<a class="el" href="game__task_8c.html#a8b7aa3018c0775246c6fe867f3ae6af1" title="Force refresh of LED state based on current game status Called when switching back from HA mode or ot...">game_refresh_leds()</a> </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00534">534</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ad190bb08e29e63b6f04a3715dae88706" name="ad190bb08e29e63b6f04a3715dae88706"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad190bb08e29e63b6f04a3715dae88706">&#9670;&#160;</a></span>is_demo_mode_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool is_demo_mode_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get demo mode status. </p>
+<p>Checks if demo mode is currently active.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true if enabled, false otherwise </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00636">636</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ae27993c1756124d9fa6e8af4958409ef" name="ae27993c1756124d9fa6e8af4958409ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae27993c1756124d9fa6e8af4958409ef">&#9670;&#160;</a></span>main_system_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t main_system_init </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuje hlavni systemove komponenty aplikace. </p>
+<p>Tato funkce inicializuje vsechny systemove komponenty potrebne pro chod sachoveho systemu. Vytvari mutexy, inicializuje FreeRTOS chess komponentu, spousti timery a overuje dostupnost vsech front.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_FAIL pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00391">391</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a16454398c460e4d7161a90c808248ec2" name="a16454398c460e4d7161a90c808248ec2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16454398c460e4d7161a90c808248ec2">&#9670;&#160;</a></span>main_task_wdt_reset_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t main_task_wdt_reset_safe </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bezpecny reset WDT s logovanim WARNING misto ERROR pro ESP_ERR_NOT_FOUND. </p>
+<p>Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany (WARNING pouze) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00262">262</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="abb182517d44ccd021b3dac9355989c7b" name="abb182517d44ccd021b3dac9355989c7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb182517d44ccd021b3dac9355989c7b">&#9670;&#160;</a></span>reset_reason_to_str()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static const char * reset_reason_to_str </td>
+          <td>(</td>
+          <td class="paramtype">esp_reset_reason_t&#160;</td>
+          <td class="paramname"><em>reason</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00081">81</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a570c98f23cd91c36ce62964733732cdf" name="a570c98f23cd91c36ce62964733732cdf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a570c98f23cd91c36ce62964733732cdf">&#9670;&#160;</a></span>set_demo_speed_ms()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void set_demo_speed_ms </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>speed_ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set demo mode speed. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">speed_ms</td><td>Delay between moves in milliseconds </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00642">642</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a4894ad0ac4d99cffa56d58649a1850fb" name="a4894ad0ac4d99cffa56d58649a1850fb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4894ad0ac4d99cffa56d58649a1850fb">&#9670;&#160;</a></span>show_boot_animation_and_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void show_boot_animation_and_board </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Centralizovana boot animace: ASCII logo, progress bar, LED krok, fade-out. </p>
+<p>Volat az po vytvoreni tasku. Behem smycky vola <a class="el" href="led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc" title="LED boot animation step - rozsviti LED podle progress.">led_boot_animation_step()</a> a WDT reset v main; na konci <a class="el" href="led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9" title="LED boot animation fade out - postupne ztlumi vsechny LED na 0.">led_boot_animation_fade_out()</a> vycisti desku a nastavi led_booting_active = false. Nasleduje <a class="el" href="main_8c.html#acf3129796410e265806bde4edacf4d85" title="Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED, tlacitka.">initialize_chess_game()</a>.</p>
+<dl class="section note"><dt>Poznámka</dt><dd>game_task behem <a class="el" href="led__task_8h.html#a006a24ec8e7f302c4a6f8481675803d1" title="Zjisti zda probiha boot animace.">led_is_booting()</a> nezpracovava tahy (viz game_task_start). </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l01096">1096</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a6e05201e522856e3cd984bade768be7e" name="a6e05201e522856e3cd984bade768be7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e05201e522856e3cd984bade768be7e">&#9670;&#160;</a></span>toggle_demo_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void toggle_demo_mode </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>enabled</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Prepina demo mod zapnuto/vypnuto. </p>
+<p>Tato funkce umoznuje zapnout nebo vypnout demo mod, ktery automaticky hraje preddefinovane tahy. Uzivatel muze zapnout demo mod prikazem "DEMO ON" a vypnout prikazem "DEMO OFF".</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">enabled</td><td>true pro zapnuti, false pro vypnuti</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Demo mod umoznuje automaticke hrani preddefinovanych tahu. Kdyz je zapnuty, system automaticky hraje tahy z pole DEMO_MOVES. Kdyz je vypnuty, uzivatel muze hrat manualne. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00589">589</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a2a20898222a990efbce3e4239f2d9aee" name="a2a20898222a990efbce3e4239f2d9aee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a20898222a990efbce3e4239f2d9aee">&#9670;&#160;</a></span>animation_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t animation_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Animation task (NULL pokud je task vypnuty v create_system_tasks) </p>
+<p>Handle pro Animation task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00293">293</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="aba5c2db71f9fa5cd9f3e506e91ffe6d3" name="aba5c2db71f9fa5cd9f3e506e91ffe6d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba5c2db71f9fa5cd9f3e506e91ffe6d3">&#9670;&#160;</a></span>button_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t button_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Button task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00287">287</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="aa999d9fce86efd55be4fb1bce525e69e" name="aa999d9fce86efd55be4fb1bce525e69e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa999d9fce86efd55be4fb1bce525e69e">&#9670;&#160;</a></span>current_demo_delay_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t current_demo_delay_ms = 3000</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Zpozdeni mezi demo tahy v milisekundach - dynamicky meneno. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00310">310</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a19159754c1693faa54833d370834e343" name="a19159754c1693faa54833d370834e343"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19159754c1693faa54833d370834e343">&#9670;&#160;</a></span>current_demo_game</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int current_demo_game = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Current demo game being played (0-2) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00366">366</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a9cd35e669cb2fd803a99504ba0da1aaa" name="a9cd35e669cb2fd803a99504ba0da1aaa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cd35e669cb2fd803a99504ba0da1aaa">&#9670;&#160;</a></span>current_demo_moves</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char** current_demo_moves = <a class="el" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Current game's move array (pointer to active game) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00372">372</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="abcaca94aeee21681707035e985a0c843" name="abcaca94aeee21681707035e985a0c843"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abcaca94aeee21681707035e985a0c843">&#9670;&#160;</a></span>DEMO_GAME_LENGTHS</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const int DEMO_GAME_LENGTHS[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    <span class="keyword">sizeof</span>(<a class="code hl_variable" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a>) / <span class="keyword">sizeof</span>(<a class="code hl_variable" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a>[0]),</div>
+<div class="line">    <span class="keyword">sizeof</span>(<a class="code hl_variable" href="main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b">DEMO_GAME_OPERA</a>) / <span class="keyword">sizeof</span>(<a class="code hl_variable" href="main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b">DEMO_GAME_OPERA</a>[0])}</div>
+<div class="ttc" id="amain_8c_html_a22d3cef2fa6060633fc71190b5d6df3b"><div class="ttname"><a href="main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b">DEMO_GAME_OPERA</a></div><div class="ttdeci">static const char * DEMO_GAME_OPERA[]</div><div class="ttdoc">Demo game 4: Opera Game - Morphy's Masterpiece (Paris 1858, White wins)</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00330">main.c:330</a></div></div>
+<div class="ttc" id="amain_8c_html_acc98f8280521aceb9893120eba837382"><div class="ttname"><a href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a></div><div class="ttdeci">static const char * DEMO_GAME_WHITE_WIN[]</div><div class="ttdoc">Demo game 1: Scholar's Mate - White wins in 4 moves (fast checkmate)</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00317">main.c:317</a></div></div>
+</div><!-- fragment -->
+<p>Number of moves in each demo game. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00354">354</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a167e2d80b3314581d6120d1b2e48ee51" name="a167e2d80b3314581d6120d1b2e48ee51"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a167e2d80b3314581d6120d1b2e48ee51">&#9670;&#160;</a></span>DEMO_GAME_NAMES</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* DEMO_GAME_NAMES[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;Scholar&#39;s Mate (White Wins)&quot;</span>,</div>
+<div class="line">                                        <span class="stringliteral">&quot;Opera Game (Morphy 1858)&quot;</span>}</div>
+</div><!-- fragment -->
+<p>Game type names for logging. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00359">359</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a22d3cef2fa6060633fc71190b5d6df3b" name="a22d3cef2fa6060633fc71190b5d6df3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22d3cef2fa6060633fc71190b5d6df3b">&#9670;&#160;</a></span>DEMO_GAME_OPERA</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* DEMO_GAME_OPERA[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    <span class="stringliteral">&quot;e2e4&quot;</span>, <span class="stringliteral">&quot;e7e5&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;g1f3&quot;</span>, <span class="stringliteral">&quot;d7d6&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;d2d4&quot;</span>, <span class="stringliteral">&quot;c8g4&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;d4e5&quot;</span>, <span class="stringliteral">&quot;g4f3&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;d1f3&quot;</span>, <span class="stringliteral">&quot;d6e5&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;f1c4&quot;</span>, <span class="stringliteral">&quot;g8f6&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;f3b3&quot;</span>, <span class="stringliteral">&quot;d8e7&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;b1c3&quot;</span>, <span class="stringliteral">&quot;c7c6&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;c1g5&quot;</span>, <span class="stringliteral">&quot;b7b5&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;c3b5&quot;</span>, <span class="stringliteral">&quot;c6b5&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;c4b5&quot;</span>, <span class="stringliteral">&quot;b8d7&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;e1c1&quot;</span>, <span class="stringliteral">&quot;a8d8&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;d1d7&quot;</span>, <span class="stringliteral">&quot;d8d7&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;h1d1&quot;</span>, <span class="stringliteral">&quot;e7e6&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;b5d7&quot;</span>, <span class="stringliteral">&quot;f6d7&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;b3b8&quot;</span>, <span class="stringliteral">&quot;d7b8&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;d1d8&quot;</span>          </div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p>Demo game 4: Opera Game - Morphy's Masterpiece (Paris 1858, White wins) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00330">330</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="acc98f8280521aceb9893120eba837382" name="acc98f8280521aceb9893120eba837382"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc98f8280521aceb9893120eba837382">&#9670;&#160;</a></span>DEMO_GAME_WHITE_WIN</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* DEMO_GAME_WHITE_WIN[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    <span class="stringliteral">&quot;e2e4&quot;</span>, <span class="stringliteral">&quot;e7e5&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;f1c4&quot;</span>, <span class="stringliteral">&quot;b8c6&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;d1h5&quot;</span>, <span class="stringliteral">&quot;g8f6&quot;</span>, </div>
+<div class="line">    <span class="stringliteral">&quot;h5f7&quot;</span>          </div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p>Demo game 1: Scholar's Mate - White wins in 4 moves (fast checkmate) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00317">317</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="ac2614434acc93da191dda0a8a445e651" name="ac2614434acc93da191dda0a8a445e651"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2614434acc93da191dda0a8a445e651">&#9670;&#160;</a></span>DEMO_GAMES</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char** DEMO_GAMES[] = {<a class="el" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a>, <a class="el" href="main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b">DEMO_GAME_OPERA</a>}</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Array of all demo games. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00351">351</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a66025d47b9e143dea05d41ea2a76d46b" name="a66025d47b9e143dea05d41ea2a76d46b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66025d47b9e143dea05d41ea2a76d46b">&#9670;&#160;</a></span>DEMO_GAMES_COUNT</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const int DEMO_GAMES_COUNT = sizeof(<a class="el" href="main_8c.html#ac2614434acc93da191dda0a8a445e651">DEMO_GAMES</a>) / sizeof(<a class="el" href="main_8c.html#ac2614434acc93da191dda0a8a445e651">DEMO_GAMES</a>[0])</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Total number of demo games. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00363">363</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="af252e203098e091d068b85d637b1083d" name="af252e203098e091d068b85d637b1083d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af252e203098e091d068b85d637b1083d">&#9670;&#160;</a></span>demo_mode_enabled</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">volatile bool demo_mode_enabled = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Konfigurace demo modu - je demo mod zapnuty. </p>
+<p>Konfigurace demo modu - je demo mod zapnuty </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00308">308</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="aebfac3059b619dc182e9ad6011fe1c7b" name="aebfac3059b619dc182e9ad6011fe1c7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aebfac3059b619dc182e9ad6011fe1c7b">&#9670;&#160;</a></span>demo_move_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int demo_move_index = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Current move index within the current game. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00369">369</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a4973ab5b9a06d7ed486bc100be691f42" name="a4973ab5b9a06d7ed486bc100be691f42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4973ab5b9a06d7ed486bc100be691f42">&#9670;&#160;</a></span>demo_moves_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int demo_moves_count</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="keyword">sizeof</span>(<a class="code hl_variable" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a>) / <span class="keyword">sizeof</span>(<a class="code hl_variable" href="main_8c.html#acc98f8280521aceb9893120eba837382">DEMO_GAME_WHITE_WIN</a>[0])</div>
+</div><!-- fragment -->
+<p>Current game's move count. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00375">375</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="acb49a688d90460dc48f7e0b976ace62d" name="acb49a688d90460dc48f7e0b976ace62d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb49a688d90460dc48f7e0b976ace62d">&#9670;&#160;</a></span>game_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t game_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Game task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00291">291</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a5c597bf4c3d1fff34c3ef12254f0efc4" name="a5c597bf4c3d1fff34c3ef12254f0efc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c597bf4c3d1fff34c3ef12254f0efc4">&#9670;&#160;</a></span>ha_light_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t ha_light_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro HA Light task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00300">300</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a6cf81c896b094e20ff5752ee1133a8f2" name="a6cf81c896b094e20ff5752ee1133a8f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cf81c896b094e20ff5752ee1133a8f2">&#9670;&#160;</a></span>led_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t led_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro LED task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00283">283</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a9de1b87e0b6692c90f1c5cfd9e13d444" name="a9de1b87e0b6692c90f1c5cfd9e13d444"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9de1b87e0b6692c90f1c5cfd9e13d444">&#9670;&#160;</a></span>matrix_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t matrix_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Matrix task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00285">285</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a2cf065fd2e74d6ad91b3da384a96c60b" name="a2cf065fd2e74d6ad91b3da384a96c60b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cf065fd2e74d6ad91b3da384a96c60b">&#9670;&#160;</a></span>promotion_button_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t promotion_button_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Promotion Button task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00304">304</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="aeb8dd1b563b914d04c90f377454ad032" name="aeb8dd1b563b914d04c90f377454ad032"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb8dd1b563b914d04c90f377454ad032">&#9670;&#160;</a></span>reset_button_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t reset_button_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Reset Button task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00302">302</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;MAIN&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00108">108</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="abafefd1ba465b609ca39fd6fc502095b" name="abafefd1ba465b609ca39fd6fc502095b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abafefd1ba465b609ca39fd6fc502095b">&#9670;&#160;</a></span>test_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t test_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Test task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00295">295</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a8eca84d3e2c7c0adf364819e74b1bd9b" name="a8eca84d3e2c7c0adf364819e74b1bd9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8eca84d3e2c7c0adf364819e74b1bd9b">&#9670;&#160;</a></span>uart_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t uart_mutex = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Globalni UART mutex pro cisty vystup. </p>
+<p>Mutex pro UART operace (ochrana UART vystupu) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00280">280</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a4e4967ac70f1e8a89b2fea62027a968c" name="a4e4967ac70f1e8a89b2fea62027a968c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e4967ac70f1e8a89b2fea62027a968c">&#9670;&#160;</a></span>uart_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t uart_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro UART task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00289">289</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+<a id="a36e9302901a63037025cd7970fa8adbe" name="a36e9302901a63037025cd7970fa8adbe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36e9302901a63037025cd7970fa8adbe">&#9670;&#160;</a></span>web_server_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t web_server_task_handle = NULL</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Handle pro Web Server task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00298">298</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_5c982d53a68cdbcd421152b4020263a9.html">main</a></li><li class="navelem"><a class="el" href="main_8c.html">main.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

@@ -1,0 +1,1337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru chess_piece_http.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('chess__piece__http_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Datové struktury</a> &#124;
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru chess_piece_http.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>GET /static/piece/[name].png — PNG figurky (embed), stejné jako v iOS Assets.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="chess__piece__http_8h_source.html">chess_piece_http.h</a>&quot;</code><br />
+<code>#include &quot;esp_http_server.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro chess_piece_http.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="chess__piece__http_8c__incl.png" border="0" usemap="#achess__piece__http_8c" alt=""/></div>
+<map name="achess__piece__http_8c" id="achess__piece__http_8c">
+<area shape="rect" title="GET /static/piece/[name].png — PNG figurky (embed), stejné jako v iOS Assets." alt="" coords="157,5,302,31"/>
+<area shape="rect" href="chess__piece__http_8h.html" title=" " alt="" coords="5,79,152,104"/>
+<area shape="poly" title=" " alt="" coords="206,33,117,75,115,70,204,28"/>
+<area shape="rect" title=" " alt="" coords="121,152,258,177"/>
+<area shape="poly" title=" " alt="" coords="229,32,199,139,194,138,223,30"/>
+<area shape="rect" title=" " alt="" coords="227,79,311,104"/>
+<area shape="poly" title=" " alt="" coords="238,30,258,65,254,68,234,32"/>
+<area shape="rect" title=" " alt="" coords="335,79,406,104"/>
+<area shape="poly" title=" " alt="" coords="253,28,337,70,334,75,251,33"/>
+<area shape="rect" title=" " alt="" coords="15,152,97,177"/>
+<area shape="poly" title=" " alt="" coords="77,105,66,140,61,138,72,104"/>
+<area shape="poly" title=" " alt="" coords="98,102,161,142,158,147,95,106"/>
+</map>
+</div>
+</div>
+<p><a href="chess__piece__http_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structpiece__blob__t.html">piece_blob_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a700a7c90d32e3c5d8bb66c7b836dd238" id="r_a700a7c90d32e3c5d8bb66c7b836dd238"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteKing_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a700a7c90d32e3c5d8bb66c7b836dd238">asm</a> (&quot;_binary_PieceWhiteKing_png_start&quot;)</td></tr>
+<tr class="separator:a700a7c90d32e3c5d8bb66c7b836dd238"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0c8e6b055768569832b5c07f8c64b9e" id="r_ab0c8e6b055768569832b5c07f8c64b9e"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteKing_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ab0c8e6b055768569832b5c07f8c64b9e">asm</a> (&quot;_binary_PieceWhiteKing_png_end&quot;)</td></tr>
+<tr class="separator:ab0c8e6b055768569832b5c07f8c64b9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39316f47df11b1ce26ca4d3801a8749a" id="r_a39316f47df11b1ce26ca4d3801a8749a"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteQueen_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a39316f47df11b1ce26ca4d3801a8749a">asm</a> (&quot;_binary_PieceWhiteQueen_png_start&quot;)</td></tr>
+<tr class="separator:a39316f47df11b1ce26ca4d3801a8749a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41275cb3c5b28cc6494c425c337a1020" id="r_a41275cb3c5b28cc6494c425c337a1020"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteQueen_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a41275cb3c5b28cc6494c425c337a1020">asm</a> (&quot;_binary_PieceWhiteQueen_png_end&quot;)</td></tr>
+<tr class="separator:a41275cb3c5b28cc6494c425c337a1020"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cd949aaac3324fa2a76e0834cfa0b45" id="r_a2cd949aaac3324fa2a76e0834cfa0b45"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteRook_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a2cd949aaac3324fa2a76e0834cfa0b45">asm</a> (&quot;_binary_PieceWhiteRook_png_start&quot;)</td></tr>
+<tr class="separator:a2cd949aaac3324fa2a76e0834cfa0b45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a551d22a4854fe197443d25655004a5c5" id="r_a551d22a4854fe197443d25655004a5c5"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteRook_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a551d22a4854fe197443d25655004a5c5">asm</a> (&quot;_binary_PieceWhiteRook_png_end&quot;)</td></tr>
+<tr class="separator:a551d22a4854fe197443d25655004a5c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8362dc6fd1fd7bff4365c1370ae516d" id="r_af8362dc6fd1fd7bff4365c1370ae516d"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteBishop_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#af8362dc6fd1fd7bff4365c1370ae516d">asm</a> (&quot;_binary_PieceWhiteBishop_png_start&quot;)</td></tr>
+<tr class="separator:af8362dc6fd1fd7bff4365c1370ae516d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53070a4fe5bccfc72abd6c475e512557" id="r_a53070a4fe5bccfc72abd6c475e512557"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteBishop_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a53070a4fe5bccfc72abd6c475e512557">asm</a> (&quot;_binary_PieceWhiteBishop_png_end&quot;)</td></tr>
+<tr class="separator:a53070a4fe5bccfc72abd6c475e512557"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3d78b8088aa4243db051f9e02ddc42b" id="r_af3d78b8088aa4243db051f9e02ddc42b"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteKnight_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#af3d78b8088aa4243db051f9e02ddc42b">asm</a> (&quot;_binary_PieceWhiteKnight_png_start&quot;)</td></tr>
+<tr class="separator:af3d78b8088aa4243db051f9e02ddc42b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae101807f2e2f861e40ec62727e1de7f8" id="r_ae101807f2e2f861e40ec62727e1de7f8"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhiteKnight_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ae101807f2e2f861e40ec62727e1de7f8">asm</a> (&quot;_binary_PieceWhiteKnight_png_end&quot;)</td></tr>
+<tr class="separator:ae101807f2e2f861e40ec62727e1de7f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a902cf7a586af685088a5fbf836a54cfd" id="r_a902cf7a586af685088a5fbf836a54cfd"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhitePawn_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a902cf7a586af685088a5fbf836a54cfd">asm</a> (&quot;_binary_PieceWhitePawn_png_start&quot;)</td></tr>
+<tr class="separator:a902cf7a586af685088a5fbf836a54cfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10fa5f45df541421baff5fe8af194c1f" id="r_a10fa5f45df541421baff5fe8af194c1f"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceWhitePawn_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a10fa5f45df541421baff5fe8af194c1f">asm</a> (&quot;_binary_PieceWhitePawn_png_end&quot;)</td></tr>
+<tr class="separator:a10fa5f45df541421baff5fe8af194c1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa9badd67de19b3284d8cef21503a970" id="r_afa9badd67de19b3284d8cef21503a970"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackKing_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#afa9badd67de19b3284d8cef21503a970">asm</a> (&quot;_binary_PieceBlackKing_png_start&quot;)</td></tr>
+<tr class="separator:afa9badd67de19b3284d8cef21503a970"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa91869183dff6bcf68642520459be18f" id="r_aa91869183dff6bcf68642520459be18f"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackKing_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#aa91869183dff6bcf68642520459be18f">asm</a> (&quot;_binary_PieceBlackKing_png_end&quot;)</td></tr>
+<tr class="separator:aa91869183dff6bcf68642520459be18f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0eb64ac544e92008ddbaf9c50d3a255" id="r_ac0eb64ac544e92008ddbaf9c50d3a255"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackQueen_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ac0eb64ac544e92008ddbaf9c50d3a255">asm</a> (&quot;_binary_PieceBlackQueen_png_start&quot;)</td></tr>
+<tr class="separator:ac0eb64ac544e92008ddbaf9c50d3a255"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a655ef8da691e42a7a5aaa05ada9278ec" id="r_a655ef8da691e42a7a5aaa05ada9278ec"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackQueen_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a655ef8da691e42a7a5aaa05ada9278ec">asm</a> (&quot;_binary_PieceBlackQueen_png_end&quot;)</td></tr>
+<tr class="separator:a655ef8da691e42a7a5aaa05ada9278ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac404ce95eb88529d3b191c0e97e523c9" id="r_ac404ce95eb88529d3b191c0e97e523c9"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackRook_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ac404ce95eb88529d3b191c0e97e523c9">asm</a> (&quot;_binary_PieceBlackRook_png_start&quot;)</td></tr>
+<tr class="separator:ac404ce95eb88529d3b191c0e97e523c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39243f6fde41f5b3b2357b87ca1d2dab" id="r_a39243f6fde41f5b3b2357b87ca1d2dab"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackRook_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a39243f6fde41f5b3b2357b87ca1d2dab">asm</a> (&quot;_binary_PieceBlackRook_png_end&quot;)</td></tr>
+<tr class="separator:a39243f6fde41f5b3b2357b87ca1d2dab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a487c06c155dfbd65ccc9261a74d534e0" id="r_a487c06c155dfbd65ccc9261a74d534e0"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackBishop_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a487c06c155dfbd65ccc9261a74d534e0">asm</a> (&quot;_binary_PieceBlackBishop_png_start&quot;)</td></tr>
+<tr class="separator:a487c06c155dfbd65ccc9261a74d534e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a483a0b1fa3600cbaadc9a899b18f6735" id="r_a483a0b1fa3600cbaadc9a899b18f6735"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackBishop_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a483a0b1fa3600cbaadc9a899b18f6735">asm</a> (&quot;_binary_PieceBlackBishop_png_end&quot;)</td></tr>
+<tr class="separator:a483a0b1fa3600cbaadc9a899b18f6735"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a057e9215f5573efb338e7a7f365aa3a0" id="r_a057e9215f5573efb338e7a7f365aa3a0"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackKnight_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a057e9215f5573efb338e7a7f365aa3a0">asm</a> (&quot;_binary_PieceBlackKnight_png_start&quot;)</td></tr>
+<tr class="separator:a057e9215f5573efb338e7a7f365aa3a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa34813e83ebd95ff58425174ce9e473e" id="r_aa34813e83ebd95ff58425174ce9e473e"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackKnight_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#aa34813e83ebd95ff58425174ce9e473e">asm</a> (&quot;_binary_PieceBlackKnight_png_end&quot;)</td></tr>
+<tr class="separator:aa34813e83ebd95ff58425174ce9e473e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63b86652b01866e3e483a4f4455ae522" id="r_a63b86652b01866e3e483a4f4455ae522"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackPawn_png_start[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a63b86652b01866e3e483a4f4455ae522">asm</a> (&quot;_binary_PieceBlackPawn_png_start&quot;)</td></tr>
+<tr class="separator:a63b86652b01866e3e483a4f4455ae522"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86f44174de6daae59ec20ac948d6357f" id="r_a86f44174de6daae59ec20ac948d6357f"><td class="memItemLeft" align="right" valign="top">const char _binary_PieceBlackPawn_png_end[]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a86f44174de6daae59ec20ac948d6357f">asm</a> (&quot;_binary_PieceBlackPawn_png_end&quot;)</td></tr>
+<tr class="separator:a86f44174de6daae59ec20ac948d6357f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b95c406311591eb35bf298ea32bfd8e" id="r_a7b95c406311591eb35bf298ea32bfd8e"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a7b95c406311591eb35bf298ea32bfd8e">http_send_piece_blob</a> (httpd_req_t *req)</td></tr>
+<tr class="separator:a7b95c406311591eb35bf298ea32bfd8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a968f29b4bf421a4de808360c02044741" id="r_a968f29b4bf421a4de808360c02044741"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a968f29b4bf421a4de808360c02044741">chess_piece_register_http_uris</a> (httpd_handle_t hd)</td></tr>
+<tr class="memdesc:a968f29b4bf421a4de808360c02044741"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registruje GET /static/piece/Piece*.png (12 souborů z embed).  <br /></td></tr>
+<tr class="separator:a968f29b4bf421a4de808360c02044741"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a3c450755e960ed96a1a2c65f15d75f5e" id="r_a3c450755e960ed96a1a2c65f15d75f5e"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a3c450755e960ed96a1a2c65f15d75f5e">TAG_PIECE</a> [] = &quot;piece_png&quot;</td></tr>
+<tr class="separator:a3c450755e960ed96a1a2c65f15d75f5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8fd29b6f1033dd0b66fe864d1a9e0a5" id="r_ad8fd29b6f1033dd0b66fe864d1a9e0a5"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ad8fd29b6f1033dd0b66fe864d1a9e0a5">blob_PieceWhiteKing</a></td></tr>
+<tr class="separator:ad8fd29b6f1033dd0b66fe864d1a9e0a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5290735090d366e51ac05abd294037ab" id="r_a5290735090d366e51ac05abd294037ab"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a5290735090d366e51ac05abd294037ab">blob_PieceWhiteQueen</a></td></tr>
+<tr class="separator:a5290735090d366e51ac05abd294037ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47e65c2e75639d975a3b93efeac839f5" id="r_a47e65c2e75639d975a3b93efeac839f5"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a47e65c2e75639d975a3b93efeac839f5">blob_PieceWhiteRook</a></td></tr>
+<tr class="separator:a47e65c2e75639d975a3b93efeac839f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a316b06307fbaa0ce545894c9cef31532" id="r_a316b06307fbaa0ce545894c9cef31532"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a316b06307fbaa0ce545894c9cef31532">blob_PieceWhiteBishop</a></td></tr>
+<tr class="separator:a316b06307fbaa0ce545894c9cef31532"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8bd30c59580d219aec2e70f86a1e017" id="r_aa8bd30c59580d219aec2e70f86a1e017"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#aa8bd30c59580d219aec2e70f86a1e017">blob_PieceWhiteKnight</a></td></tr>
+<tr class="separator:aa8bd30c59580d219aec2e70f86a1e017"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0caf2b6a39101f3c33b3be4356182043" id="r_a0caf2b6a39101f3c33b3be4356182043"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a0caf2b6a39101f3c33b3be4356182043">blob_PieceWhitePawn</a></td></tr>
+<tr class="separator:a0caf2b6a39101f3c33b3be4356182043"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5940d99f41a7eb1a60fdbeec31229ed" id="r_ae5940d99f41a7eb1a60fdbeec31229ed"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ae5940d99f41a7eb1a60fdbeec31229ed">blob_PieceBlackKing</a></td></tr>
+<tr class="separator:ae5940d99f41a7eb1a60fdbeec31229ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae75a0817ced8d0bfd0ec4756d264cea5" id="r_ae75a0817ced8d0bfd0ec4756d264cea5"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#ae75a0817ced8d0bfd0ec4756d264cea5">blob_PieceBlackQueen</a></td></tr>
+<tr class="separator:ae75a0817ced8d0bfd0ec4756d264cea5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef45f362b6a175757fde162ce3cd8c4c" id="r_aef45f362b6a175757fde162ce3cd8c4c"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#aef45f362b6a175757fde162ce3cd8c4c">blob_PieceBlackRook</a></td></tr>
+<tr class="separator:aef45f362b6a175757fde162ce3cd8c4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2fdf959def61b0dd5efd1ca4cba57422" id="r_a2fdf959def61b0dd5efd1ca4cba57422"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a2fdf959def61b0dd5efd1ca4cba57422">blob_PieceBlackBishop</a></td></tr>
+<tr class="separator:a2fdf959def61b0dd5efd1ca4cba57422"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b2f4b2550bd6d90850ea72bcadbd81a" id="r_a8b2f4b2550bd6d90850ea72bcadbd81a"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a8b2f4b2550bd6d90850ea72bcadbd81a">blob_PieceBlackKnight</a></td></tr>
+<tr class="separator:a8b2f4b2550bd6d90850ea72bcadbd81a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46971ba21d6e6ec17a2a9fab958f8c9c" id="r_a46971ba21d6e6ec17a2a9fab958f8c9c"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a46971ba21d6e6ec17a2a9fab958f8c9c">blob_PieceBlackPawn</a></td></tr>
+<tr class="separator:a46971ba21d6e6ec17a2a9fab958f8c9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a40d435088cfe9d1c4ce06fa394c53d" id="r_a5a40d435088cfe9d1c4ce06fa394c53d"><td class="memItemLeft" >struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5bf6dc80728970d41d0eced97512284b" id="r_a5bf6dc80728970d41d0eced97512284b"><td class="memItemLeft" >&#160;&#160;&#160;const char *&#160;&#160;&#160;<a class="el" href="chess__piece__http_8c.html#a69ec24fb2d0a5f5e532deb9adaab81d6">uri</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a5bf6dc80728970d41d0eced97512284b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54f2989bfd29d29c68904fe1ebf56507" id="r_a54f2989bfd29d29c68904fe1ebf56507"><td class="memItemLeft" >&#160;&#160;&#160;const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> *&#160;&#160;&#160;<a class="el" href="chess__piece__http_8c.html#a504f8efb084ac13319593fe3fa7f9e7e">blob</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a54f2989bfd29d29c68904fe1ebf56507"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a40d435088cfe9d1c4ce06fa394c53d" id="r_a5a40d435088cfe9d1c4ce06fa394c53d"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__piece__http_8c.html#a5a40d435088cfe9d1c4ce06fa394c53d">s_piece_routes</a> []&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a5a40d435088cfe9d1c4ce06fa394c53d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>GET /static/piece/[name].png — PNG figurky (embed), stejné jako v iOS Assets. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a483a0b1fa3600cbaadc9a899b18f6735" name="a483a0b1fa3600cbaadc9a899b18f6735"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a483a0b1fa3600cbaadc9a899b18f6735">&#9670;&#160;</a></span>asm() <span class="overload">[1/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackBishop_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackBishop_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a487c06c155dfbd65ccc9261a74d534e0" name="a487c06c155dfbd65ccc9261a74d534e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a487c06c155dfbd65ccc9261a74d534e0">&#9670;&#160;</a></span>asm() <span class="overload">[2/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackBishop_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackBishop_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa91869183dff6bcf68642520459be18f" name="aa91869183dff6bcf68642520459be18f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa91869183dff6bcf68642520459be18f">&#9670;&#160;</a></span>asm() <span class="overload">[3/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackKing_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackKing_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="afa9badd67de19b3284d8cef21503a970" name="afa9badd67de19b3284d8cef21503a970"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa9badd67de19b3284d8cef21503a970">&#9670;&#160;</a></span>asm() <span class="overload">[4/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackKing_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackKing_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="aa34813e83ebd95ff58425174ce9e473e" name="aa34813e83ebd95ff58425174ce9e473e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa34813e83ebd95ff58425174ce9e473e">&#9670;&#160;</a></span>asm() <span class="overload">[5/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackKnight_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackKnight_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a057e9215f5573efb338e7a7f365aa3a0" name="a057e9215f5573efb338e7a7f365aa3a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a057e9215f5573efb338e7a7f365aa3a0">&#9670;&#160;</a></span>asm() <span class="overload">[6/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackKnight_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackKnight_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a86f44174de6daae59ec20ac948d6357f" name="a86f44174de6daae59ec20ac948d6357f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86f44174de6daae59ec20ac948d6357f">&#9670;&#160;</a></span>asm() <span class="overload">[7/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackPawn_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackPawn_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a63b86652b01866e3e483a4f4455ae522" name="a63b86652b01866e3e483a4f4455ae522"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63b86652b01866e3e483a4f4455ae522">&#9670;&#160;</a></span>asm() <span class="overload">[8/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackPawn_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackPawn_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a655ef8da691e42a7a5aaa05ada9278ec" name="a655ef8da691e42a7a5aaa05ada9278ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a655ef8da691e42a7a5aaa05ada9278ec">&#9670;&#160;</a></span>asm() <span class="overload">[9/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackQueen_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackQueen_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac0eb64ac544e92008ddbaf9c50d3a255" name="ac0eb64ac544e92008ddbaf9c50d3a255"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0eb64ac544e92008ddbaf9c50d3a255">&#9670;&#160;</a></span>asm() <span class="overload">[10/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackQueen_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackQueen_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a39243f6fde41f5b3b2357b87ca1d2dab" name="a39243f6fde41f5b3b2357b87ca1d2dab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39243f6fde41f5b3b2357b87ca1d2dab">&#9670;&#160;</a></span>asm() <span class="overload">[11/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackRook_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackRook_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ac404ce95eb88529d3b191c0e97e523c9" name="ac404ce95eb88529d3b191c0e97e523c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac404ce95eb88529d3b191c0e97e523c9">&#9670;&#160;</a></span>asm() <span class="overload">[12/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceBlackRook_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceBlackRook_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a53070a4fe5bccfc72abd6c475e512557" name="a53070a4fe5bccfc72abd6c475e512557"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53070a4fe5bccfc72abd6c475e512557">&#9670;&#160;</a></span>asm() <span class="overload">[13/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteBishop_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteBishop_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af8362dc6fd1fd7bff4365c1370ae516d" name="af8362dc6fd1fd7bff4365c1370ae516d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af8362dc6fd1fd7bff4365c1370ae516d">&#9670;&#160;</a></span>asm() <span class="overload">[14/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteBishop_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteBishop_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab0c8e6b055768569832b5c07f8c64b9e" name="ab0c8e6b055768569832b5c07f8c64b9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0c8e6b055768569832b5c07f8c64b9e">&#9670;&#160;</a></span>asm() <span class="overload">[15/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteKing_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteKing_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a700a7c90d32e3c5d8bb66c7b836dd238" name="a700a7c90d32e3c5d8bb66c7b836dd238"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a700a7c90d32e3c5d8bb66c7b836dd238">&#9670;&#160;</a></span>asm() <span class="overload">[16/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteKing_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteKing_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae101807f2e2f861e40ec62727e1de7f8" name="ae101807f2e2f861e40ec62727e1de7f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae101807f2e2f861e40ec62727e1de7f8">&#9670;&#160;</a></span>asm() <span class="overload">[17/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteKnight_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteKnight_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af3d78b8088aa4243db051f9e02ddc42b" name="af3d78b8088aa4243db051f9e02ddc42b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3d78b8088aa4243db051f9e02ddc42b">&#9670;&#160;</a></span>asm() <span class="overload">[18/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteKnight_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteKnight_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a10fa5f45df541421baff5fe8af194c1f" name="a10fa5f45df541421baff5fe8af194c1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10fa5f45df541421baff5fe8af194c1f">&#9670;&#160;</a></span>asm() <span class="overload">[19/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhitePawn_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhitePawn_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a902cf7a586af685088a5fbf836a54cfd" name="a902cf7a586af685088a5fbf836a54cfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a902cf7a586af685088a5fbf836a54cfd">&#9670;&#160;</a></span>asm() <span class="overload">[20/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhitePawn_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhitePawn_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a41275cb3c5b28cc6494c425c337a1020" name="a41275cb3c5b28cc6494c425c337a1020"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41275cb3c5b28cc6494c425c337a1020">&#9670;&#160;</a></span>asm() <span class="overload">[21/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteQueen_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteQueen_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a39316f47df11b1ce26ca4d3801a8749a" name="a39316f47df11b1ce26ca4d3801a8749a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39316f47df11b1ce26ca4d3801a8749a">&#9670;&#160;</a></span>asm() <span class="overload">[22/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteQueen_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteQueen_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a551d22a4854fe197443d25655004a5c5" name="a551d22a4854fe197443d25655004a5c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a551d22a4854fe197443d25655004a5c5">&#9670;&#160;</a></span>asm() <span class="overload">[23/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteRook_png_end[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteRook_png_end&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a2cd949aaac3324fa2a76e0834cfa0b45" name="a2cd949aaac3324fa2a76e0834cfa0b45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2cd949aaac3324fa2a76e0834cfa0b45">&#9670;&#160;</a></span>asm() <span class="overload">[24/24]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char _binary_PieceWhiteRook_png_start[] asm </td>
+          <td>(</td>
+          <td class="paramtype">&quot;_binary_PieceWhiteRook_png_start&quot;&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a968f29b4bf421a4de808360c02044741" name="a968f29b4bf421a4de808360c02044741"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a968f29b4bf421a4de808360c02044741">&#9670;&#160;</a></span>chess_piece_register_http_uris()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t chess_piece_register_http_uris </td>
+          <td>(</td>
+          <td class="paramtype">httpd_handle_t&#160;</td>
+          <td class="paramname"><em>hd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Registruje GET /static/piece/Piece*.png (12 souborů z embed). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00135">135</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a7b95c406311591eb35bf298ea32bfd8e" name="a7b95c406311591eb35bf298ea32bfd8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b95c406311591eb35bf298ea32bfd8e">&#9670;&#160;</a></span>http_send_piece_blob()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t http_send_piece_blob </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *&#160;</td>
+          <td class="paramname"><em>req</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00068">68</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a504f8efb084ac13319593fe3fa7f9e7e" name="a504f8efb084ac13319593fe3fa7f9e7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a504f8efb084ac13319593fe3fa7f9e7e">&#9670;&#160;</a></span>blob</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a>* blob</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00119">119</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a2fdf959def61b0dd5efd1ca4cba57422" name="a2fdf959def61b0dd5efd1ca4cba57422"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2fdf959def61b0dd5efd1ca4cba57422">&#9670;&#160;</a></span>blob_PieceBlackBishop</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceBlackBishop</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceBlackBishop_png_start,</div>
+<div class="line">    _binary_PieceBlackBishop_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00107">107</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="ae5940d99f41a7eb1a60fdbeec31229ed" name="ae5940d99f41a7eb1a60fdbeec31229ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5940d99f41a7eb1a60fdbeec31229ed">&#9670;&#160;</a></span>blob_PieceBlackKing</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceBlackKing</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceBlackKing_png_start,</div>
+<div class="line">    _binary_PieceBlackKing_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00098">98</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a8b2f4b2550bd6d90850ea72bcadbd81a" name="a8b2f4b2550bd6d90850ea72bcadbd81a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b2f4b2550bd6d90850ea72bcadbd81a">&#9670;&#160;</a></span>blob_PieceBlackKnight</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceBlackKnight</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceBlackKnight_png_start,</div>
+<div class="line">    _binary_PieceBlackKnight_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00110">110</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a46971ba21d6e6ec17a2a9fab958f8c9c" name="a46971ba21d6e6ec17a2a9fab958f8c9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46971ba21d6e6ec17a2a9fab958f8c9c">&#9670;&#160;</a></span>blob_PieceBlackPawn</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceBlackPawn</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceBlackPawn_png_start,</div>
+<div class="line">    _binary_PieceBlackPawn_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00113">113</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="ae75a0817ced8d0bfd0ec4756d264cea5" name="ae75a0817ced8d0bfd0ec4756d264cea5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae75a0817ced8d0bfd0ec4756d264cea5">&#9670;&#160;</a></span>blob_PieceBlackQueen</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceBlackQueen</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceBlackQueen_png_start,</div>
+<div class="line">    _binary_PieceBlackQueen_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00101">101</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="aef45f362b6a175757fde162ce3cd8c4c" name="aef45f362b6a175757fde162ce3cd8c4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef45f362b6a175757fde162ce3cd8c4c">&#9670;&#160;</a></span>blob_PieceBlackRook</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceBlackRook</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceBlackRook_png_start,</div>
+<div class="line">    _binary_PieceBlackRook_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00104">104</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a316b06307fbaa0ce545894c9cef31532" name="a316b06307fbaa0ce545894c9cef31532"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a316b06307fbaa0ce545894c9cef31532">&#9670;&#160;</a></span>blob_PieceWhiteBishop</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceWhiteBishop</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceWhiteBishop_png_start,</div>
+<div class="line">    _binary_PieceWhiteBishop_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00089">89</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="ad8fd29b6f1033dd0b66fe864d1a9e0a5" name="ad8fd29b6f1033dd0b66fe864d1a9e0a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8fd29b6f1033dd0b66fe864d1a9e0a5">&#9670;&#160;</a></span>blob_PieceWhiteKing</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceWhiteKing</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceWhiteKing_png_start,</div>
+<div class="line">    _binary_PieceWhiteKing_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00080">80</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="aa8bd30c59580d219aec2e70f86a1e017" name="aa8bd30c59580d219aec2e70f86a1e017"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8bd30c59580d219aec2e70f86a1e017">&#9670;&#160;</a></span>blob_PieceWhiteKnight</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceWhiteKnight</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceWhiteKnight_png_start,</div>
+<div class="line">    _binary_PieceWhiteKnight_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00092">92</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a0caf2b6a39101f3c33b3be4356182043" name="a0caf2b6a39101f3c33b3be4356182043"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0caf2b6a39101f3c33b3be4356182043">&#9670;&#160;</a></span>blob_PieceWhitePawn</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceWhitePawn</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceWhitePawn_png_start,</div>
+<div class="line">    _binary_PieceWhitePawn_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00095">95</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a5290735090d366e51ac05abd294037ab" name="a5290735090d366e51ac05abd294037ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5290735090d366e51ac05abd294037ab">&#9670;&#160;</a></span>blob_PieceWhiteQueen</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceWhiteQueen</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceWhiteQueen_png_start,</div>
+<div class="line">    _binary_PieceWhiteQueen_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00083">83</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a47e65c2e75639d975a3b93efeac839f5" name="a47e65c2e75639d975a3b93efeac839f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47e65c2e75639d975a3b93efeac839f5">&#9670;&#160;</a></span>blob_PieceWhiteRook</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structpiece__blob__t.html">piece_blob_t</a> blob_PieceWhiteRook</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    _binary_PieceWhiteRook_png_start,</div>
+<div class="line">    _binary_PieceWhiteRook_png_end}</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00086">86</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a40d435088cfe9d1c4ce06fa394c53d" name="a5a40d435088cfe9d1c4ce06fa394c53d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a40d435088cfe9d1c4ce06fa394c53d">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const struct  { ... }  s_piece_routes[]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceWhiteKing.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#ad8fd29b6f1033dd0b66fe864d1a9e0a5">blob_PieceWhiteKing</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceWhiteQueen.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a5290735090d366e51ac05abd294037ab">blob_PieceWhiteQueen</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceWhiteRook.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a47e65c2e75639d975a3b93efeac839f5">blob_PieceWhiteRook</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceWhiteBishop.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a316b06307fbaa0ce545894c9cef31532">blob_PieceWhiteBishop</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceWhiteKnight.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#aa8bd30c59580d219aec2e70f86a1e017">blob_PieceWhiteKnight</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceWhitePawn.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a0caf2b6a39101f3c33b3be4356182043">blob_PieceWhitePawn</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceBlackKing.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#ae5940d99f41a7eb1a60fdbeec31229ed">blob_PieceBlackKing</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceBlackQueen.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#ae75a0817ced8d0bfd0ec4756d264cea5">blob_PieceBlackQueen</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceBlackRook.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#aef45f362b6a175757fde162ce3cd8c4c">blob_PieceBlackRook</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceBlackBishop.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a2fdf959def61b0dd5efd1ca4cba57422">blob_PieceBlackBishop</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceBlackKnight.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a8b2f4b2550bd6d90850ea72bcadbd81a">blob_PieceBlackKnight</a>},</div>
+<div class="line">    {<span class="stringliteral">&quot;/static/piece/PieceBlackPawn.png&quot;</span>, &amp;<a class="code hl_variable" href="chess__piece__http_8c.html#a46971ba21d6e6ec17a2a9fab958f8c9c">blob_PieceBlackPawn</a>},</div>
+<div class="line">}</div>
+<div class="ttc" id="achess__piece__http_8c_html_a0caf2b6a39101f3c33b3be4356182043"><div class="ttname"><a href="chess__piece__http_8c.html#a0caf2b6a39101f3c33b3be4356182043">blob_PieceWhitePawn</a></div><div class="ttdeci">static const piece_blob_t blob_PieceWhitePawn</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00095">chess_piece_http.c:95</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_a2fdf959def61b0dd5efd1ca4cba57422"><div class="ttname"><a href="chess__piece__http_8c.html#a2fdf959def61b0dd5efd1ca4cba57422">blob_PieceBlackBishop</a></div><div class="ttdeci">static const piece_blob_t blob_PieceBlackBishop</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00107">chess_piece_http.c:107</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_a316b06307fbaa0ce545894c9cef31532"><div class="ttname"><a href="chess__piece__http_8c.html#a316b06307fbaa0ce545894c9cef31532">blob_PieceWhiteBishop</a></div><div class="ttdeci">static const piece_blob_t blob_PieceWhiteBishop</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00089">chess_piece_http.c:89</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_a46971ba21d6e6ec17a2a9fab958f8c9c"><div class="ttname"><a href="chess__piece__http_8c.html#a46971ba21d6e6ec17a2a9fab958f8c9c">blob_PieceBlackPawn</a></div><div class="ttdeci">static const piece_blob_t blob_PieceBlackPawn</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00113">chess_piece_http.c:113</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_a47e65c2e75639d975a3b93efeac839f5"><div class="ttname"><a href="chess__piece__http_8c.html#a47e65c2e75639d975a3b93efeac839f5">blob_PieceWhiteRook</a></div><div class="ttdeci">static const piece_blob_t blob_PieceWhiteRook</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00086">chess_piece_http.c:86</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_a5290735090d366e51ac05abd294037ab"><div class="ttname"><a href="chess__piece__http_8c.html#a5290735090d366e51ac05abd294037ab">blob_PieceWhiteQueen</a></div><div class="ttdeci">static const piece_blob_t blob_PieceWhiteQueen</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00083">chess_piece_http.c:83</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_a8b2f4b2550bd6d90850ea72bcadbd81a"><div class="ttname"><a href="chess__piece__http_8c.html#a8b2f4b2550bd6d90850ea72bcadbd81a">blob_PieceBlackKnight</a></div><div class="ttdeci">static const piece_blob_t blob_PieceBlackKnight</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00110">chess_piece_http.c:110</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_aa8bd30c59580d219aec2e70f86a1e017"><div class="ttname"><a href="chess__piece__http_8c.html#aa8bd30c59580d219aec2e70f86a1e017">blob_PieceWhiteKnight</a></div><div class="ttdeci">static const piece_blob_t blob_PieceWhiteKnight</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00092">chess_piece_http.c:92</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_ad8fd29b6f1033dd0b66fe864d1a9e0a5"><div class="ttname"><a href="chess__piece__http_8c.html#ad8fd29b6f1033dd0b66fe864d1a9e0a5">blob_PieceWhiteKing</a></div><div class="ttdeci">static const piece_blob_t blob_PieceWhiteKing</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00080">chess_piece_http.c:80</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_ae5940d99f41a7eb1a60fdbeec31229ed"><div class="ttname"><a href="chess__piece__http_8c.html#ae5940d99f41a7eb1a60fdbeec31229ed">blob_PieceBlackKing</a></div><div class="ttdeci">static const piece_blob_t blob_PieceBlackKing</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00098">chess_piece_http.c:98</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_ae75a0817ced8d0bfd0ec4756d264cea5"><div class="ttname"><a href="chess__piece__http_8c.html#ae75a0817ced8d0bfd0ec4756d264cea5">blob_PieceBlackQueen</a></div><div class="ttdeci">static const piece_blob_t blob_PieceBlackQueen</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00101">chess_piece_http.c:101</a></div></div>
+<div class="ttc" id="achess__piece__http_8c_html_aef45f362b6a175757fde162ce3cd8c4c"><div class="ttname"><a href="chess__piece__http_8c.html#aef45f362b6a175757fde162ce3cd8c4c">blob_PieceBlackRook</a></div><div class="ttdeci">static const piece_blob_t blob_PieceBlackRook</div><div class="ttdef"><b>Definition</b> <a href="chess__piece__http_8c_source.html#l00104">chess_piece_http.c:104</a></div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a3c450755e960ed96a1a2c65f15d75f5e" name="a3c450755e960ed96a1a2c65f15d75f5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c450755e960ed96a1a2c65f15d75f5e">&#9670;&#160;</a></span>TAG_PIECE</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char TAG_PIECE[] = &quot;piece_png&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00011">11</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+<a id="a69ec24fb2d0a5f5e532deb9adaab81d6" name="a69ec24fb2d0a5f5e532deb9adaab81d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69ec24fb2d0a5f5e532deb9adaab81d6">&#9670;&#160;</a></span>uri</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* uri</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__piece__http_8c_source.html#l00118">118</a> v souboru <a class="el" href="chess__piece__http_8c_source.html">chess_piece_http.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_17f9138bad1f9d2ff44cddc9da54d444.html">web_server_task</a></li><li class="navelem"><a class="el" href="chess__piece__http_8c.html">chess_piece_http.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

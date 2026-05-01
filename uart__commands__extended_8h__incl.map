@@ -1,0 +1,17 @@
+<map id="uart_commands_extended.h" name="uart_commands_extended.h">
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System &#45; Header pro rozsirene UART prikazy." alt="" coords="248,5,455,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,152,87,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="328,33,84,148,81,144,326,28"/>
+<area shape="rect" id="Node000003" href="$game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="262,79,441,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="354,31,354,65,349,65,349,31"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="548,152,619,177"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="373,28,454,76,556,142,553,147,451,81,370,33"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="303,107,101,153,100,148,302,101"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,261,177"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="326,106,227,149,224,144,324,102"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="286,152,417,177"/>
+<area shape="poly" id="edge5_Node000003_Node000005" title=" " alt="" coords="354,104,354,138,349,138,349,104"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="389,101,536,146,534,151,388,107"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="441,152,523,177"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="374,102,450,143,448,148,371,106"/>
+</map>

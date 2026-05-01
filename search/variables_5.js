@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['fade_5fframe_0',['fade_frame',['../animation__task_8c.html#afc4dd0f46762995c1147511282c4cb2d',1,'animation_task.c']]],
+  ['failed_5fcount_1',['failed_count',['../structtest__suite__t.html#ada7927aa2f5abc47a2eb6d0ba47a79b8',1,'test_suite_t']]],
+  ['fen_2',['fen',['../structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5',1,'chess_move_command_t::fen'],['../structgame__puzzle__definition__t.html#ae4735316e9b2d1fde3079a1f59229d82',1,'game_puzzle_definition_t::fen']]],
+  ['fen_5fnew_5fgame_3',['fen_new_game',['../structchess__move__command__t.html#a31349911e64af0b0ff96a75780706072',1,'chess_move_command_t']]],
+  ['fifty_5fmove_5fcounter_4',['fifty_move_counter',['../game__task_8c.html#aa37fa03c5c45c9a925b4b41ac3cdd4f2',1,'game_task.c']]],
+  ['file_5',['file',['../structshared__buffer__t.html#a903ad299c13da39f391e809d65e0b6a9',1,'shared_buffer_t']]],
+  ['first_5fboot_5fepoch_5fs_6',['first_boot_epoch_s',['../structgame__boot__tracker__t.html#ab826b11dd0e445dcde14b7ec4215ff54',1,'game_boot_tracker_t']]],
+  ['flash_5fcount_7',['flash_count',['../structerror__system__config__t.html#ab9332345cfa6e3584a5e148399845955',1,'error_system_config_t']]],
+  ['flash_5fduration_5fms_8',['flash_duration_ms',['../structerror__system__config__t.html#aac1d5a5146938b908431709b41a5d2eb',1,'error_system_config_t']]],
+  ['format_9',['format',['../structgame__snapshot__full__t.html#a5c49e1149fbcbb5300824f26bd7616e7',1,'game_snapshot_full_t::format'],['../structgame__snapshot__min__t.html#aacd89658dcbcc72e005f0b51b7d7ed60',1,'game_snapshot_min_t::format']]],
+  ['frame_10',['frame',['../structwave__animation__state__t.html#a14d86f2ce0c27cbaf849141fdaaf53f6',1,'wave_animation_state_t::frame'],['../structsubtle__animation__state__t.html#abb3851357c569eed9dadb3d1930d62e2',1,'subtle_animation_state_t::frame']]],
+  ['frame_5fdrops_11',['frame_drops',['../structled__health__stats__t.html#a77bac0504651661760667dab1de0b5dc',1,'led_health_stats_t']]],
+  ['frame_5fduration_5fms_12',['frame_duration_ms',['../structanimation__task__t.html#a9302e023c296097ae10d831469dc25f7',1,'animation_task_t::frame_duration_ms'],['../structled__animation__state__t.html#a10114c4e3964d053486143e4d1b848dc',1,'led_animation_state_t::frame_duration_ms']]],
+  ['frame_5fid_13',['frame_id',['../structled__frame__buffer__t.html#ad59373747e464a6f577533997ee29925',1,'led_frame_buffer_t']]],
+  ['frame_5finterval_14',['frame_interval',['../structanimation__task__t.html#ac770e95f6dafd7507d61a359cdc53ce8',1,'animation_task_t']]],
+  ['freertos_5finitialized_15',['freertos_initialized',['../freertos__chess_8c.html#a32091f1b25b0412e3f75b7fb3dff4b90',1,'freertos_chess.c']]],
+  ['from_5fcol_16',['from_col',['../structmatrix__event__t.html#a74960ff8c206f3c997800987d93f0ab0',1,'matrix_event_t::from_col'],['../structmove__suggestion__t.html#a5805172608c1e85601ee674644b69fe7',1,'move_suggestion_t::from_col'],['../structanimation__state__struct.html#a7d7b84971c84f2be81d1d16b8ed861a4',1,'animation_state_struct::from_col'],['../structchess__move__extended__t.html#a8ff4fcb8d2a94dfbc8f099a4815534c8',1,'chess_move_extended_t::from_col'],['../structchess__move__t.html#a3b8bdb363c16e1f221da6c3e80d9aa70',1,'chess_move_t::from_col']]],
+  ['from_5fled_17',['from_led',['../structanimation__state__struct.html#abb19daa0d3794443fa78e3eb363ed314',1,'animation_state_struct']]],
+  ['from_5fnotation_18',['from_notation',['../structchess__move__command__t.html#a51b8eb6617ef0642c722008827f2d3d1',1,'chess_move_command_t']]],
+  ['from_5frow_19',['from_row',['../structchess__move__t.html#a87e6934d4b28fea1a59c341d6cbe9eb7',1,'chess_move_t::from_row'],['../structchess__move__extended__t.html#a7e73820058cbbef9a1cfa47dfd1e5f9e',1,'chess_move_extended_t::from_row'],['../structmatrix__event__t.html#a2f644f5eb6efda19f98cf82398d63f1f',1,'matrix_event_t::from_row'],['../structmove__suggestion__t.html#a940eca031248f8df49031c483af30f13',1,'move_suggestion_t::from_row'],['../structanimation__state__struct.html#a7cde404deed44276640c337ff89c9a94',1,'animation_state_struct::from_row']]],
+  ['from_5fsquare_20',['from_square',['../structmatrix__event__t.html#a2f07c2c41a4eb95ffb933402aa485de6',1,'matrix_event_t']]]
+];

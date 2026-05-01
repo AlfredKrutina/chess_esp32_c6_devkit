@@ -1,0 +1,26 @@
+var searchData=
+[
+  ['g_0',['g',['../structha__light__command__t.html#aeeac8fb7ff95f15de4646510227f73d6',1,'ha_light_command_t::g'],['../structled__pixel__t.html#aacb643b10ce86ae94cbecf21bc9b9b4c',1,'led_pixel_t::g'],['../structled__color__t.html#acb23349611560c14c762d951a03a732c',1,'led_color_t::g'],['../structanimation__state__struct.html#a44d6d80720ab776fc0e69bcc89af7998',1,'animation_state_struct::g'],['../structrgb__color__t.html#ae73935f5f2386b4c62fd24a8ec6d5512',1,'rgb_color_t::g'],['../ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60',1,'g:&#160;ha_light_task.c']]],
+  ['g_5fcolors_5fenabled_1',['g_colors_enabled',['../game__colors_8h.html#a922aae80bb2a95e80fc13e4badd82b2a',1,'game_colors.h']]],
+  ['game_5factive_2',['game_active',['../game__task_8c.html#ab2f53c552730de70a774cd254de77ff1',1,'game_task.c']]],
+  ['game_5fcommand_5fqueue_3',['game_command_queue',['../freertos__chess_8h.html#a4ed770cbe46604586e494bae84b62304',1,'game_command_queue:&#160;freertos_chess.c'],['../web__server__task_8c.html#a4ed770cbe46604586e494bae84b62304',1,'game_command_queue:&#160;freertos_chess.c'],['../uart__task_8c.html#a4ed770cbe46604586e494bae84b62304',1,'game_command_queue:&#160;freertos_chess.c'],['../ha__light__task_8c.html#a4ed770cbe46604586e494bae84b62304',1,'game_command_queue:&#160;freertos_chess.c'],['../freertos__chess_8c.html#a4ed770cbe46604586e494bae84b62304',1,'game_command_queue:&#160;freertos_chess.c']]],
+  ['game_5fmutex_4',['game_mutex',['../freertos__chess_8h.html#af5298ceb88597b4b25328ac7e1af7ff0',1,'game_mutex:&#160;freertos_chess.c'],['../freertos__chess_8c.html#af5298ceb88597b4b25328ac7e1af7ff0',1,'game_mutex:&#160;freertos_chess.c']]],
+  ['game_5fpaused_5',['game_paused',['../structchess__timer__t.html#ac4990048c62805c9cec772b9d7005abe',1,'chess_timer_t']]],
+  ['game_5fpuzzles_6',['game_puzzles',['../game__task_8c.html#ad18d693b607bddd95e3222583bd3e80d',1,'game_task.c']]],
+  ['game_5fresult_7',['game_result',['../game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f',1,'game_task.c']]],
+  ['game_5fsaved_8',['game_saved',['../game__task_8c.html#a1f70b0c8dbc0c485ab51c2892c75b959',1,'game_task.c']]],
+  ['game_5fstart_5ftime_9',['game_start_time',['../game__task_8c.html#ad42240bf8319b29277fbf734cb427aa5',1,'game_task.c']]],
+  ['game_5fstate_10',['game_state',['../structgame__snapshot__min__t.html#aa2517d88a26cf3487be30f74f714ae32',1,'game_snapshot_min_t::game_state'],['../structgame__snapshot__full__t.html#a0d7471e86098c0bcb678d934528ab885',1,'game_snapshot_full_t::game_state']]],
+  ['game_5fstate_5frevision_11',['game_state_revision',['../game__task_8c.html#accfcbb601fc4fa9c1880dd7849a3f72f',1,'game_task.c']]],
+  ['game_5fstatus_5fqueue_12',['game_status_queue',['../freertos__chess_8c.html#a6dfc9956f36db9a85a34268c6e14b059',1,'game_status_queue:&#160;freertos_chess.c'],['../freertos__chess_8h.html#a6dfc9956f36db9a85a34268c6e14b059',1,'game_status_queue:&#160;freertos_chess.c']]],
+  ['game_5ftask_5fhandle_13',['game_task_handle',['../main_8c.html#acb49a688d90460dc48f7e0b976ace62d',1,'game_task_handle:&#160;main.c'],['../freertos__chess_8h.html#acb49a688d90460dc48f7e0b976ace62d',1,'game_task_handle:&#160;main.c'],['../uart__task_8c.html#acb49a688d90460dc48f7e0b976ace62d',1,'game_task_handle:&#160;main.c']]],
+  ['global_5fbrightness_14',['global_brightness',['../led__state__manager_8c.html#ac96aaee8c56d42372878aa20a24362c1',1,'global_brightness:&#160;led_state_manager.c'],['../led__task_8c.html#ac96aaee8c56d42372878aa20a24362c1',1,'global_brightness:&#160;led_task.c']]],
+  ['green_15',['green',['../structled__command__t.html#ac0ef067ae80b28a440ca65558ff3a9e0',1,'led_command_t']]],
+  ['guidance_5fanimation_5fid_16',['guidance_animation_id',['../structcastling__led__state__t.html#a6a52813b439afa5496bd6351ba351954',1,'castling_led_state_t']]],
+  ['guidance_5fduration_5fms_17',['guidance_duration_ms',['../structerror__system__config__t.html#a84028f31dbc291ebeaeb4616fa3618e9',1,'error_system_config_t']]],
+  ['guidance_5fled_5fcount_18',['guidance_led_count',['../structerror__guidance__t.html#a939552c50553b9eb9aff6d0a86af9d8b',1,'error_guidance_t']]],
+  ['guidance_5fled_5fpositions_19',['guidance_led_positions',['../structerror__guidance__t.html#a9b8f41cb28f4f557077f038ee332930c',1,'error_guidance_t']]],
+  ['guidance_5fspeed_20',['guidance_speed',['../structcastling__led__config__t.html#a6c699c147c9888fb2919a2fb790277a9',1,'castling_led_config_t']]],
+  ['guided_5fcapture_5fhints_5fenabled_21',['guided_capture_hints_enabled',['../structsystem__config__t.html#aecf08a48b9e87f61d6aba81ddd5054e1',1,'system_config_t::guided_capture_hints_enabled'],['../game__task_8c.html#adeabaf6edd631dd9a5aa5370286b7485',1,'guided_capture_hints_enabled:&#160;game_task.c']]],
+  ['guided_5fcapture_5fstate_22',['guided_capture_state',['../game__task_8c.html#a1dde824f085a5aeb5d38891ebd71496b',1,'game_task.c']]]
+];

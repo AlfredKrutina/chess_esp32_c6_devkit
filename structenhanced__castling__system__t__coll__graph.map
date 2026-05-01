@@ -1,0 +1,7 @@
+<map id="enhanced_castling_system_t" name="enhanced_castling_system_t">
+<area shape="rect" id="Node000001" title="Hlavni struktura enhanced castling systemu." alt="" coords="63,93,274,119"/>
+<area shape="rect" id="Node000002" href="$structcastling__positions__t.html" title="Struktura pozic pri rosade." alt="" coords="5,5,156,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,38,158,91,155,95,100,42"/>
+<area shape="rect" id="Node000003" href="$structcastling__led__state__t.html" title="LED stav pro rosadu." alt="" coords="181,5,333,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,42,183,95,179,91,233,38"/>
+</map>

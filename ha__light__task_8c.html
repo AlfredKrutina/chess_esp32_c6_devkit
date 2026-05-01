@@ -1,0 +1,2305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru ha_light_task.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('ha__light__task_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Definice maker</a> &#124;
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru ha_light_task.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>HA Light Task - Home Assistant RGB Light Integration via MQTT.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>&quot;</code><br />
+<code>#include &quot;cJSON.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
+<code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &quot;esp_event.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_mac.h&quot;</code><br />
+<code>#include &quot;esp_netif.h&quot;</code><br />
+<code>#include &quot;esp_system.h&quot;</code><br />
+<code>#include &quot;esp_task_wdt.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;esp_wifi.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task_8h_source.html">led_task.h</a>&quot;</code><br />
+<code>#include &quot;mqtt_client.h&quot;</code><br />
+<code>#include &quot;nvs.h&quot;</code><br />
+<code>#include &quot;nvs_flash.h&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro ha_light_task.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="ha__light__task_8c__incl.png" border="0" usemap="#aha__light__task_8c" alt=""/></div>
+<map name="aha__light__task_8c" id="aha__light__task_8c">
+<area shape="rect" title="HA Light Task &#45; Home Assistant RGB Light Integration via MQTT." alt="" coords="1017,5,1137,31"/>
+<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="207,79,328,104"/>
+<area shape="poly" title=" " alt="" coords="1017,26,728,46,348,81,342,82,341,77,347,76,728,41,1016,20"/>
+<area shape="rect" title=" " alt="" coords="432,313,513,339"/>
+<area shape="poly" title=" " alt="" coords="1016,21,812,21,545,28,416,35,304,46,221,61,193,70,177,81,159,91,136,95,115,99,99,106,95,112,94,120,104,148,135,195,193,263,223,276,282,290,419,314,418,319,281,296,221,281,190,267,131,198,99,150,89,120,90,110,96,102,113,94,135,90,157,86,174,76,191,65,219,56,304,41,416,30,545,22,812,16,1016,16"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="275,152,404,177"/>
+<area shape="poly" title=" " alt="" coords="1016,24,669,44,495,60,434,70,399,81,384,93,370,108,351,141,347,138,366,105,380,89,397,76,433,65,495,55,668,38,1016,19"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="415,233,530,258"/>
+<area shape="poly" title=" " alt="" coords="1016,21,816,22,556,28,430,36,321,47,240,61,213,71,197,81,187,94,182,106,182,118,186,129,204,151,235,171,273,189,317,204,402,227,401,232,315,209,271,194,232,176,201,155,181,132,177,119,177,105,183,91,194,77,211,66,238,56,320,41,430,30,556,23,816,17,1016,16"/>
+<area shape="rect" title=" " alt="" coords="605,233,743,258"/>
+<area shape="poly" title=" " alt="" coords="1016,23,869,28,688,38,528,55,474,67,445,81,432,104,435,126,450,147,476,167,509,185,546,201,618,226,616,231,544,206,507,190,473,172,447,151,430,128,427,103,441,77,472,62,527,50,687,32,868,22,1016,18"/>
+<area shape="rect" title=" " alt="" coords="455,79,528,104"/>
+<area shape="poly" title=" " alt="" coords="1017,26,811,45,679,61,542,81,542,76,678,56,810,40,1016,21"/>
+<area shape="rect" title=" " alt="" coords="553,79,654,104"/>
+<area shape="poly" title=" " alt="" coords="1017,30,668,81,667,76,1016,25"/>
+<area shape="rect" title=" " alt="" coords="679,79,763,104"/>
+<area shape="poly" title=" " alt="" coords="1018,33,777,81,776,76,1017,28"/>
+<area shape="rect" title=" " alt="" coords="787,79,879,104"/>
+<area shape="poly" title=" " alt="" coords="1038,33,886,77,884,72,1037,28"/>
+<area shape="rect" title=" " alt="" coords="903,79,997,104"/>
+<area shape="poly" title=" " alt="" coords="1058,33,984,74,981,69,1055,28"/>
+<area shape="rect" title=" " alt="" coords="1021,79,1133,104"/>
+<area shape="poly" title=" " alt="" coords="1079,31,1079,65,1074,65,1074,31"/>
+<area shape="rect" title=" " alt="" coords="1157,79,1279,104"/>
+<area shape="poly" title=" " alt="" coords="1101,28,1184,70,1182,75,1098,33"/>
+<area shape="rect" title=" " alt="" coords="1303,79,1402,104"/>
+<area shape="poly" title=" " alt="" coords="1122,28,1295,73,1294,78,1120,33"/>
+<area shape="rect" title=" " alt="" coords="1427,79,1513,104"/>
+<area shape="poly" title=" " alt="" coords="1138,27,1414,76,1413,81,1137,32"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Game Task Hlavicka." alt="" coords="1023,152,1130,177"/>
+<area shape="poly" title=" " alt="" coords="1137,18,1262,25,1402,39,1462,50,1507,64,1523,72,1532,82,1534,94,1528,106,1499,126,1458,139,1408,146,1353,150,1243,151,1160,155,1144,157,1143,152,1159,149,1243,146,1353,144,1407,141,1457,133,1497,121,1524,102,1529,93,1528,85,1520,77,1505,69,1461,55,1401,45,1261,30,1137,24"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="1589,79,1679,104"/>
+<area shape="poly" title=" " alt="" coords="1137,23,1330,44,1570,76,1576,77,1576,82,1570,81,1330,50,1137,28"/>
+<area shape="rect" title=" " alt="" coords="1703,79,1811,104"/>
+<area shape="poly" title=" " alt="" coords="1137,21,1375,41,1689,76,1688,81,1374,46,1137,26"/>
+<area shape="rect" title=" " alt="" coords="1835,79,1892,104"/>
+<area shape="poly" title=" " alt="" coords="1137,17,1260,21,1429,31,1622,48,1822,76,1821,81,1622,53,1428,36,1260,27,1137,23"/>
+<area shape="rect" title=" " alt="" coords="1916,79,2011,104"/>
+<area shape="poly" title=" " alt="" coords="1137,19,1460,35,1678,52,1902,76,1902,81,1677,57,1460,40,1137,24"/>
+<area shape="rect" title=" " alt="" coords="2035,79,2102,104"/>
+<area shape="poly" title=" " alt="" coords="1137,17,1290,19,1507,27,1761,45,1892,59,2022,76,2021,81,1891,64,1760,50,1507,33,1290,24,1137,22"/>
+<area shape="rect" title=" " alt="" coords="2127,79,2197,104"/>
+<area shape="poly" title=" " alt="" coords="1137,16,1303,18,1542,26,1823,44,1969,58,2113,76,2113,82,1969,64,1823,49,1542,31,1303,24,1137,22"/>
+<area shape="poly" title=" " alt="" coords="259,106,236,136,212,178,204,200,201,223,203,244,213,263,240,276,293,290,419,313,418,319,292,295,238,281,209,267,198,246,195,223,199,199,207,176,231,133,255,102"/>
+<area shape="rect" title=" " alt="" coords="5,313,156,339"/>
+<area shape="poly" title=" " alt="" coords="207,104,151,122,123,136,98,154,76,179,64,203,61,231,65,265,74,300,69,301,59,266,56,231,59,202,71,176,95,150,120,131,149,117,206,99"/>
+<area shape="rect" title=" " alt="" coords="245,313,375,339"/>
+<area shape="poly" title=" " alt="" coords="226,107,178,125,132,154,101,180,78,207,72,220,70,234,73,248,81,264,104,280,141,293,232,312,231,317,139,298,101,284,77,267,68,250,64,234,67,219,74,204,97,176,128,150,176,121,224,102"/>
+<area shape="rect" title=" " alt="" coords="1326,313,1409,339"/>
+<area shape="poly" title=" " alt="" coords="328,94,1142,149,1188,154,1230,155,1303,155,1337,160,1368,171,1399,191,1430,224,1435,234,1437,246,1430,268,1414,289,1396,306,1392,303,1410,285,1425,266,1431,245,1430,236,1425,227,1396,195,1366,176,1335,165,1303,160,1230,160,1188,160,1142,155,328,99"/>
+<area shape="rect" title=" " alt="" coords="1523,313,1593,339"/>
+<area shape="poly" title=" " alt="" coords="328,94,443,101,678,111,861,113,1043,122,1150,133,1276,149,1324,154,1368,154,1445,153,1480,157,1514,169,1547,190,1579,224,1587,243,1587,263,1575,302,1570,300,1582,262,1582,244,1574,227,1543,194,1512,173,1479,162,1445,158,1368,159,1324,159,1275,155,1149,138,1043,127,861,119,678,116,443,107,328,99"/>
+<area shape="poly" title=" " alt="" coords="281,102,320,140,316,144,277,106"/>
+<area shape="poly" title=" " alt="" coords="294,180,256,198,240,211,227,227,220,246,227,264,251,275,301,289,419,313,418,318,299,294,249,280,223,267,214,246,222,224,236,207,253,193,291,175"/>
+<area shape="poly" title=" " alt="" coords="284,180,226,198,169,228,128,265,97,304,93,300,124,261,166,223,224,193,283,175"/>
+<area shape="poly" title=" " alt="" coords="275,175,224,193,201,207,183,227,176,245,183,264,208,289,241,306,239,311,205,294,178,267,171,245,178,224,198,203,222,188,274,170"/>
+<area shape="poly" title=" " alt="" coords="400,175,470,194,543,223,559,234,569,244,580,254,595,263,657,280,740,293,945,311,1153,319,1312,322,1312,327,1153,325,944,316,740,298,656,285,593,268,576,259,566,248,556,238,541,228,468,199,398,180"/>
+<area shape="poly" title=" " alt="" coords="404,165,951,184,1240,201,1345,212,1407,223,1445,239,1481,260,1537,302,1534,306,1478,264,1442,244,1405,228,1344,217,1240,207,951,190,404,170"/>
+<area shape="poly" title=" " alt="" coords="360,175,443,223,440,228,358,180"/>
+<area shape="rect" title=" " alt="" coords="237,233,341,258"/>
+<area shape="poly" title=" " alt="" coords="334,179,306,222,301,220,330,176"/>
+<area shape="poly" title=" " alt="" coords="389,175,613,227,611,232,387,180"/>
+<area shape="rect" title=" " alt="" coords="922,233,1039,258"/>
+<area shape="poly" title=" " alt="" coords="405,167,629,185,770,201,910,223,929,227,928,232,910,228,769,206,629,190,404,172"/>
+<area shape="rect" title=" " alt="" coords="767,233,898,258"/>
+<area shape="poly" title=" " alt="" coords="404,171,565,191,756,223,776,227,775,232,755,228,564,197,404,176"/>
+<area shape="poly" title=" " alt="" coords="475,258,475,299,470,299,470,258"/>
+<area shape="poly" title=" " alt="" coords="429,261,397,268,161,314,160,308,396,263,428,255"/>
+<area shape="poly" title=" " alt="" coords="450,260,347,310,345,305,448,256"/>
+<area shape="poly" title=" " alt="" coords="514,255,549,263,770,290,988,308,1177,317,1312,321,1312,327,1177,323,987,313,769,296,548,268,513,261"/>
+<area shape="poly" title=" " alt="" coords="531,254,594,263,826,283,1007,292,1188,298,1421,311,1509,318,1509,323,1420,316,1188,303,1007,297,826,288,594,268,530,259"/>
+<area shape="poly" title=" " alt="" coords="1087,176,1097,195,1105,219,1107,245,1097,267,1067,282,1011,294,851,311,672,322,527,326,527,321,671,316,851,306,1010,289,1065,277,1093,263,1102,244,1100,220,1092,197,1082,179"/>
+<area shape="poly" title=" " alt="" coords="1023,169,884,173,703,183,528,200,457,213,404,228,389,236,380,247,369,257,354,268,308,286,261,300,170,318,169,313,259,295,307,281,351,263,366,253,376,243,386,232,402,223,456,208,528,195,703,178,883,168,1023,164"/>
+<area shape="poly" title=" " alt="" coords="1080,178,1077,222,1069,247,1053,267,1037,276,1012,283,940,294,742,307,421,316,389,319,388,314,421,311,742,301,940,288,1011,278,1035,271,1050,263,1064,244,1072,221,1075,177"/>
+<area shape="poly" title=" " alt="" coords="1130,165,1204,170,1287,180,1361,197,1389,209,1408,224,1416,244,1413,265,1403,286,1390,304,1385,301,1398,283,1408,264,1411,244,1404,227,1386,213,1359,202,1286,185,1204,175,1130,170"/>
+<area shape="poly" title=" " alt="" coords="1131,166,1375,186,1491,202,1531,212,1553,223,1564,241,1569,261,1567,300,1562,300,1564,262,1559,243,1550,227,1529,217,1490,207,1374,191,1130,172"/>
+<area shape="poly" title=" " alt="" coords="1023,175,594,228,544,235,543,230,594,223,1023,169"/>
+<area shape="poly" title=" " alt="" coords="1024,178,756,228,736,232,735,227,755,223,1023,173"/>
+<area shape="poly" title=" " alt="" coords="1064,180,1007,226,1004,222,1061,175"/>
+<area shape="poly" title=" " alt="" coords="1042,180,882,231,881,226,1040,175"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Timer System komponenta." alt="" coords="1215,225,1394,265"/>
+<area shape="poly" title=" " alt="" coords="1111,175,1238,218,1236,223,1109,180"/>
+<area shape="poly" title=" " alt="" coords="1216,265,1197,268,1004,289,814,306,527,325,527,319,814,300,1004,284,1196,263,1215,260"/>
+<area shape="poly" title=" " alt="" coords="1322,264,1351,301,1347,304,1318,267"/>
+<area shape="poly" title=" " alt="" coords="1366,263,1510,307,1508,312,1365,268"/>
+<area shape="poly" title=" " alt="" coords="1591,107,1420,155,1312,189,1204,228,1162,249,1144,259,1119,268,1067,279,998,289,832,305,527,325,527,319,831,300,997,283,1066,274,1117,263,1142,254,1160,245,1202,223,1310,184,1418,150,1589,101"/>
+<area shape="poly" title=" " alt="" coords="1630,106,1583,180,1546,226,1502,267,1462,293,1420,311,1417,306,1459,288,1499,263,1542,222,1579,177,1625,103"/>
+<area shape="poly" title=" " alt="" coords="1657,102,1684,122,1706,151,1719,182,1724,210,1721,237,1706,267,1686,288,1661,304,1634,315,1608,321,1606,316,1632,309,1658,299,1682,284,1701,264,1716,236,1719,210,1714,184,1701,153,1680,126,1654,106"/>
+<area shape="poly" title=" " alt="" coords="1589,101,1526,107,1204,128,887,145,418,164,418,158,887,140,1204,123,1526,101,1589,95"/>
+</map>
+</div>
+</div>
+<p><a href="ha__light__task_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a2b3dde16d2d855a807f4df41c9cf7748" id="r_a2b3dde16d2d855a807f4df41c9cf7748"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a2b3dde16d2d855a807f4df41c9cf7748">HA_MQTT_MIN_FREE_HEAP_BYTES</a>&#160;&#160;&#160;(18 * 1024)</td></tr>
+<tr class="memdesc:a2b3dde16d2d855a807f4df41c9cf7748"><td class="mdescLeft">&#160;</td><td class="mdescRight">Min.  <br /></td></tr>
+<tr class="separator:a2b3dde16d2d855a807f4df41c9cf7748"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38376f5a11ecbe426778c8b7048e57a6" id="r_a38376f5a11ecbe426778c8b7048e57a6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a38376f5a11ecbe426778c8b7048e57a6">HA_MQTT_STOP_HEAP_BYTES</a>&#160;&#160;&#160;(10 * 1024)</td></tr>
+<tr class="memdesc:a38376f5a11ecbe426778c8b7048e57a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pod tímto prahem ukončíme MQTT klienta (uvolní sockety / úlohy) — prevence errno 11 / RST.  <br /></td></tr>
+<tr class="separator:a38376f5a11ecbe426778c8b7048e57a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a296a7bbb8593405108b39d1ab6c0ecc6" id="r_a296a7bbb8593405108b39d1ab6c0ecc6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a296a7bbb8593405108b39d1ab6c0ecc6">MQTT_NVS_NAMESPACE</a>&#160;&#160;&#160;&quot;mqtt_config&quot;</td></tr>
+<tr class="separator:a296a7bbb8593405108b39d1ab6c0ecc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a081583a2a1790d8fb1b2617f75e28001" id="r_a081583a2a1790d8fb1b2617f75e28001"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a081583a2a1790d8fb1b2617f75e28001">MQTT_NVS_KEY_HOST</a>&#160;&#160;&#160;&quot;broker_host&quot;</td></tr>
+<tr class="separator:a081583a2a1790d8fb1b2617f75e28001"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86093592f3d60d17d74e7fb27193ea3a" id="r_a86093592f3d60d17d74e7fb27193ea3a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a86093592f3d60d17d74e7fb27193ea3a">MQTT_NVS_KEY_PORT</a>&#160;&#160;&#160;&quot;broker_port&quot;</td></tr>
+<tr class="separator:a86093592f3d60d17d74e7fb27193ea3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeeff4bcf4d1d0b27a9da374befe7bc8d" id="r_aeeff4bcf4d1d0b27a9da374befe7bc8d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aeeff4bcf4d1d0b27a9da374befe7bc8d">MQTT_NVS_KEY_USERNAME</a>&#160;&#160;&#160;&quot;broker_username&quot;</td></tr>
+<tr class="separator:aeeff4bcf4d1d0b27a9da374befe7bc8d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab809ff3bf1caf2065817bd285c78889d" id="r_ab809ff3bf1caf2065817bd285c78889d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ab809ff3bf1caf2065817bd285c78889d">MQTT_NVS_KEY_PASSWORD</a>&#160;&#160;&#160;&quot;broker_password&quot;</td></tr>
+<tr class="separator:ab809ff3bf1caf2065817bd285c78889d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a135ce56f6bd050c86c6a4b765de6e6e2" id="r_a135ce56f6bd050c86c6a4b765de6e6e2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a135ce56f6bd050c86c6a4b765de6e6e2">LAMP_NVS_NAMESPACE</a>&#160;&#160;&#160;&quot;lamp_cfg&quot;</td></tr>
+<tr class="separator:a135ce56f6bd050c86c6a4b765de6e6e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65e94ad9222fb7dc6c36d94348719fa5" id="r_a65e94ad9222fb7dc6c36d94348719fa5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a65e94ad9222fb7dc6c36d94348719fa5">LAMP_NVS_KEY_STATE</a>&#160;&#160;&#160;&quot;state&quot;</td></tr>
+<tr class="separator:a65e94ad9222fb7dc6c36d94348719fa5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a679ffc58fbca48fef29728668920eca5" id="r_a679ffc58fbca48fef29728668920eca5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a679ffc58fbca48fef29728668920eca5">LAMP_NVS_KEY_R</a>&#160;&#160;&#160;&quot;r&quot;</td></tr>
+<tr class="separator:a679ffc58fbca48fef29728668920eca5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2afae5456aa17362f4089f28182d696" id="r_ab2afae5456aa17362f4089f28182d696"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ab2afae5456aa17362f4089f28182d696">LAMP_NVS_KEY_G</a>&#160;&#160;&#160;&quot;g&quot;</td></tr>
+<tr class="separator:ab2afae5456aa17362f4089f28182d696"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada993b0feac98bded7661560e40e3a12" id="r_ada993b0feac98bded7661560e40e3a12"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ada993b0feac98bded7661560e40e3a12">LAMP_NVS_KEY_B</a>&#160;&#160;&#160;&quot;b&quot;</td></tr>
+<tr class="separator:ada993b0feac98bded7661560e40e3a12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a911937abc730a55b7fa782a318b9d302" id="r_a911937abc730a55b7fa782a318b9d302"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a911937abc730a55b7fa782a318b9d302">LAMP_NVS_KEY_AUTO_TIMEOUT_SEC</a>&#160;&#160;&#160;&quot;auto_sec&quot;</td></tr>
+<tr class="separator:a911937abc730a55b7fa782a318b9d302"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfb9dc6d5f195f20cd60d52ca9111f20" id="r_abfb9dc6d5f195f20cd60d52ca9111f20"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#abfb9dc6d5f195f20cd60d52ca9111f20">HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC</a>&#160;&#160;&#160;5</td></tr>
+<tr class="separator:abfb9dc6d5f195f20cd60d52ca9111f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3dd6fff60186c0ce8a3f8f6d26a5c140" id="r_a3dd6fff60186c0ce8a3f8f6d26a5c140"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a3dd6fff60186c0ce8a3f8f6d26a5c140">HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC</a>&#160;&#160;&#160;7200</td></tr>
+<tr class="separator:a3dd6fff60186c0ce8a3f8f6d26a5c140"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7258c3c6cecd3447982a3952e87713bd" id="r_a7258c3c6cecd3447982a3952e87713bd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a7258c3c6cecd3447982a3952e87713bd">HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC</a>&#160;&#160;&#160;300</td></tr>
+<tr class="separator:a7258c3c6cecd3447982a3952e87713bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52bd6fcbbfadb261cdd62abc295f4dd5" id="r_a52bd6fcbbfadb261cdd62abc295f4dd5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a52bd6fcbbfadb261cdd62abc295f4dd5">MQTT_DEFAULT_HOST</a>&#160;&#160;&#160;&quot;homeassistant.local&quot;</td></tr>
+<tr class="separator:a52bd6fcbbfadb261cdd62abc295f4dd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47dbba2fb767e8362864895e3ce87a36" id="r_a47dbba2fb767e8362864895e3ce87a36"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a47dbba2fb767e8362864895e3ce87a36">MQTT_DEFAULT_PORT</a>&#160;&#160;&#160;1883</td></tr>
+<tr class="separator:a47dbba2fb767e8362864895e3ce87a36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67a711e15478d8d8ba7aa984947f1cd8" id="r_a67a711e15478d8d8ba7aa984947f1cd8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a67a711e15478d8d8ba7aa984947f1cd8">MQTT_DEFAULT_USERNAME</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
+<tr class="separator:a67a711e15478d8d8ba7aa984947f1cd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38f208acaf4f9f771cf7e707488f8c29" id="r_a38f208acaf4f9f771cf7e707488f8c29"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a38f208acaf4f9f771cf7e707488f8c29">MQTT_DEFAULT_PASSWORD</a>&#160;&#160;&#160;&quot;&quot;</td></tr>
+<tr class="separator:a38f208acaf4f9f771cf7e707488f8c29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a5a6bb92dacbf05bc953f9d712c939ed4" id="r_a5a6bb92dacbf05bc953f9d712c939ed4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a5a6bb92dacbf05bc953f9d712c939ed4">ha_light_check_activity_timeout</a> (void)</td></tr>
+<tr class="memdesc:a5a6bb92dacbf05bc953f9d712c939ed4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kontroluje zda byl prekrocen 5 minutovy timeout.  <br /></td></tr>
+<tr class="separator:a5a6bb92dacbf05bc953f9d712c939ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff8e250ad01ba14909377eaea2f0dce6" id="r_aff8e250ad01ba14909377eaea2f0dce6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aff8e250ad01ba14909377eaea2f0dce6">ha_light_switch_to_ha_mode</a> (void)</td></tr>
+<tr class="memdesc:aff8e250ad01ba14909377eaea2f0dce6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepne do HA modu.  <br /></td></tr>
+<tr class="separator:aff8e250ad01ba14909377eaea2f0dce6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33c86dd0c42ba70448023639e56096f0" id="r_a33c86dd0c42ba70448023639e56096f0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a33c86dd0c42ba70448023639e56096f0">ha_light_switch_to_game_mode</a> (void)</td></tr>
+<tr class="memdesc:a33c86dd0c42ba70448023639e56096f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepne do herniho modu.  <br /></td></tr>
+<tr class="separator:a33c86dd0c42ba70448023639e56096f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1819a1e1ebc04fa6179f55ee77454506" id="r_a1819a1e1ebc04fa6179f55ee77454506"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a1819a1e1ebc04fa6179f55ee77454506">ha_light_monitor_game_activity</a> (void)</td></tr>
+<tr class="memdesc:a1819a1e1ebc04fa6179f55ee77454506"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monitoruje aktivitu hry a resetuje timer.  <br /></td></tr>
+<tr class="separator:a1819a1e1ebc04fa6179f55ee77454506"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a687dd5b61866fa4896abac67db3944d9" id="r_a687dd5b61866fa4896abac67db3944d9"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a687dd5b61866fa4896abac67db3944d9">ha_light_check_wifi_sta_connected</a> (void)</td></tr>
+<tr class="memdesc:a687dd5b61866fa4896abac67db3944d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zkontroluj zda je WiFi STA pripojeno.  <br /></td></tr>
+<tr class="separator:a687dd5b61866fa4896abac67db3944d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab445707e64ef5877d69ff4443c54bfd5" id="r_ab445707e64ef5877d69ff4443c54bfd5"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ab445707e64ef5877d69ff4443c54bfd5">ha_light_init_mqtt</a> (void)</td></tr>
+<tr class="memdesc:ab445707e64ef5877d69ff4443c54bfd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje MQTT klienta.  <br /></td></tr>
+<tr class="separator:ab445707e64ef5877d69ff4443c54bfd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa50395cd97ca2238e5b5a64d0583d07" id="r_aaa50395cd97ca2238e5b5a64d0583d07"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aaa50395cd97ca2238e5b5a64d0583d07">ha_light_mqtt_event_handler</a> (void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)</td></tr>
+<tr class="memdesc:aaa50395cd97ca2238e5b5a64d0583d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">MQTT event handler.  <br /></td></tr>
+<tr class="separator:aaa50395cd97ca2238e5b5a64d0583d07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae13c9a71f7715bc11cf0c8dc511d7b33" id="r_ae13c9a71f7715bc11cf0c8dc511d7b33"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ae13c9a71f7715bc11cf0c8dc511d7b33">ha_light_handle_mqtt_command</a> (const char *topic, const char *data, int data_len)</td></tr>
+<tr class="memdesc:ae13c9a71f7715bc11cf0c8dc511d7b33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuje MQTT prikaz.  <br /></td></tr>
+<tr class="separator:ae13c9a71f7715bc11cf0c8dc511d7b33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab17c9e100295b75e1b76d897d08a805b" id="r_ab17c9e100295b75e1b76d897d08a805b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ab17c9e100295b75e1b76d897d08a805b">ha_light_publish_state</a> (void)</td></tr>
+<tr class="memdesc:ab17c9e100295b75e1b76d897d08a805b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publikuje stav do MQTT.  <br /></td></tr>
+<tr class="separator:ab17c9e100295b75e1b76d897d08a805b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb7ba9a4d951c7dbc4a72d64e81bdbd0" id="r_afb7ba9a4d951c7dbc4a72d64e81bdbd0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#afb7ba9a4d951c7dbc4a72d64e81bdbd0">lamp_nvs_load</a> (void)</td></tr>
+<tr class="separator:afb7ba9a4d951c7dbc4a72d64e81bdbd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99e2c17ed7924c49fde1870dca213dc2" id="r_a99e2c17ed7924c49fde1870dca213dc2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a99e2c17ed7924c49fde1870dca213dc2">lamp_nvs_save</a> (void)</td></tr>
+<tr class="separator:a99e2c17ed7924c49fde1870dca213dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a220eb7a6a15e1c82a39c3128aeffa19f" id="r_a220eb7a6a15e1c82a39c3128aeffa19f"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a220eb7a6a15e1c82a39c3128aeffa19f">ha_light_task_wdt_reset_safe</a> (void)</td></tr>
+<tr class="memdesc:a220eb7a6a15e1c82a39c3128aeffa19f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bezpecny reset WDT.  <br /></td></tr>
+<tr class="separator:a220eb7a6a15e1c82a39c3128aeffa19f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4ede6db32474aa8aa601b4b1b1a3108" id="r_aa4ede6db32474aa8aa601b4b1b1a3108"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aa4ede6db32474aa8aa601b4b1b1a3108">ha_light_wdt_feed_if_own_task</a> (void)</td></tr>
+<tr class="separator:aa4ede6db32474aa8aa601b4b1b1a3108"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2c48fb0be8e0af2ec8f26872bea2721" id="r_af2c48fb0be8e0af2ec8f26872bea2721"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#af2c48fb0be8e0af2ec8f26872bea2721">ha_light_report_activity</a> (const char *activity_type)</td></tr>
+<tr class="memdesc:af2c48fb0be8e0af2ec8f26872bea2721"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zprava o aktivity hry (volano z jinych tasku)  <br /></td></tr>
+<tr class="separator:af2c48fb0be8e0af2ec8f26872bea2721"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad61c60d5f24e8689c8607c69c989b761" id="r_ad61c60d5f24e8689c8607c69c989b761"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ad61c60d5f24e8689c8607c69c989b761">mqtt_load_config_from_nvs</a> (char *<a class="el" href="ha__light__task_8c.html#a471a823d17bf7081fd4ebf84741f6758">host</a>, size_t host_len, uint16_t *<a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">port</a>, char *<a class="el" href="ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018">username</a>, size_t username_len, char *<a class="el" href="ha__light__task_8c.html#ae3a23efe266762659e03567d6afc26dd">password</a>, size_t password_len)</td></tr>
+<tr class="memdesc:ad61c60d5f24e8689c8607c69c989b761"><td class="mdescLeft">&#160;</td><td class="mdescRight">Načte MQTT konfiguraci z NVS.  <br /></td></tr>
+<tr class="separator:ad61c60d5f24e8689c8607c69c989b761"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad116a346513e475c7ffe3e5137a18d0d" id="r_ad116a346513e475c7ffe3e5137a18d0d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ad116a346513e475c7ffe3e5137a18d0d">mqtt_save_config_to_nvs</a> (const char *<a class="el" href="ha__light__task_8c.html#a471a823d17bf7081fd4ebf84741f6758">host</a>, uint16_t <a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">port</a>, const char *<a class="el" href="ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018">username</a>, const char *<a class="el" href="ha__light__task_8c.html#ae3a23efe266762659e03567d6afc26dd">password</a>)</td></tr>
+<tr class="memdesc:ad116a346513e475c7ffe3e5137a18d0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Uloží MQTT konfiguraci do NVS.  <br /></td></tr>
+<tr class="separator:ad116a346513e475c7ffe3e5137a18d0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f43fcd5e5a6b5aa88a40bfbf987d381" id="r_a0f43fcd5e5a6b5aa88a40bfbf987d381"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a0f43fcd5e5a6b5aa88a40bfbf987d381">ha_light_publish_discovery</a> (void)</td></tr>
+<tr class="memdesc:a0f43fcd5e5a6b5aa88a40bfbf987d381"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish Home Assistant Auto-Discovery configuration.  <br /></td></tr>
+<tr class="separator:a0f43fcd5e5a6b5aa88a40bfbf987d381"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af54ee77cebff3b3c12301819b1082ce4" id="r_af54ee77cebff3b3c12301819b1082ce4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#af54ee77cebff3b3c12301819b1082ce4">mqtt_ensure_config_loaded</a> (void)</td></tr>
+<tr class="memdesc:af54ee77cebff3b3c12301819b1082ce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Načte MQTT konfiguraci z NVS (pokud ještě nebyla načtena)  <br /></td></tr>
+<tr class="separator:af54ee77cebff3b3c12301819b1082ce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea2779681f229198caf4b5a11265736c" id="r_aea2779681f229198caf4b5a11265736c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aea2779681f229198caf4b5a11265736c">lamp_nvs_save_auto_timeout</a> (void)</td></tr>
+<tr class="separator:aea2779681f229198caf4b5a11265736c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a745b4de0bfe0480fe88c73e3d23170eb" id="r_a745b4de0bfe0480fe88c73e3d23170eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a745b4de0bfe0480fe88c73e3d23170eb">ha_light_get_mode</a> (void)</td></tr>
+<tr class="memdesc:a745b4de0bfe0480fe88c73e3d23170eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej aktualni rezim.  <br /></td></tr>
+<tr class="separator:a745b4de0bfe0480fe88c73e3d23170eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a464f2831be9eaf47703188907a36c486" id="r_a464f2831be9eaf47703188907a36c486"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a464f2831be9eaf47703188907a36c486">ha_light_get_activity_timeout_sec</a> (void)</td></tr>
+<tr class="memdesc:a464f2831be9eaf47703188907a36c486"><td class="mdescLeft">&#160;</td><td class="mdescRight">Doba (v sekundach) po ktere se pri necinosti prepne do rezimu lampa (5..7200).  <br /></td></tr>
+<tr class="separator:a464f2831be9eaf47703188907a36c486"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93c1bbd6a8b8933ab773fbb97b35bb1e" id="r_a93c1bbd6a8b8933ab773fbb97b35bb1e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a93c1bbd6a8b8933ab773fbb97b35bb1e">ha_light_set_activity_timeout_sec</a> (uint32_t sec)</td></tr>
+<tr class="memdesc:a93c1bbd6a8b8933ab773fbb97b35bb1e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastavi a ulozi do NVS; sec se omezí na 5..7200.  <br /></td></tr>
+<tr class="separator:a93c1bbd6a8b8933ab773fbb97b35bb1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaac44baa4c83b066d88d4a6b49c7105" id="r_afaac44baa4c83b066d88d4a6b49c7105"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#afaac44baa4c83b066d88d4a6b49c7105">ha_light_get_state</a> (uint8_t *<a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t *<a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t *<a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>, uint8_t *<a class="el" href="ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4">brightness</a>, bool *<a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>)</td></tr>
+<tr class="memdesc:afaac44baa4c83b066d88d4a6b49c7105"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej aktualni stav lampy (thread-safe pro HTTP handler)  <br /></td></tr>
+<tr class="separator:afaac44baa4c83b066d88d4a6b49c7105"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a202ec2f125d3ba5225e410fd37f40e33" id="r_a202ec2f125d3ba5225e410fd37f40e33"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a202ec2f125d3ba5225e410fd37f40e33">ha_light_request_web_lamp</a> (bool <a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>)</td></tr>
+<tr class="memdesc:a202ec2f125d3ba5225e410fd37f40e33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pozadavek na nastaveni lampy z webu.  <br /></td></tr>
+<tr class="separator:a202ec2f125d3ba5225e410fd37f40e33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fc50519ca67911865aa6f8afc0a939f" id="r_a0fc50519ca67911865aa6f8afc0a939f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a0fc50519ca67911865aa6f8afc0a939f">ha_light_is_available</a> (void)</td></tr>
+<tr class="memdesc:a0fc50519ca67911865aa6f8afc0a939f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zjisti zda je HA rezim dostupny (WiFi STA pripojeno)  <br /></td></tr>
+<tr class="separator:a0fc50519ca67911865aa6f8afc0a939f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0564ec8bd0c8c4e490ed84e22246df81" id="r_a0564ec8bd0c8c4e490ed84e22246df81"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a0564ec8bd0c8c4e490ed84e22246df81">mqtt_get_config</a> (char *<a class="el" href="ha__light__task_8c.html#a471a823d17bf7081fd4ebf84741f6758">host</a>, size_t host_len, uint16_t *<a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">port</a>, char *<a class="el" href="ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018">username</a>, size_t username_len, char *<a class="el" href="ha__light__task_8c.html#ae3a23efe266762659e03567d6afc26dd">password</a>, size_t password_len)</td></tr>
+<tr class="memdesc:a0564ec8bd0c8c4e490ed84e22246df81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Získá MQTT konfiguraci (načte z NVS pokud ještě nebyla načtena)  <br /></td></tr>
+<tr class="separator:a0564ec8bd0c8c4e490ed84e22246df81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f38fb48c581f40707dbed343cedb07c" id="r_a7f38fb48c581f40707dbed343cedb07c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a7f38fb48c581f40707dbed343cedb07c">ha_light_is_mqtt_connected</a> (void)</td></tr>
+<tr class="memdesc:a7f38fb48c581f40707dbed343cedb07c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zjisti zda je MQTT klient pripojen.  <br /></td></tr>
+<tr class="separator:a7f38fb48c581f40707dbed343cedb07c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa92358f60e1043bee0865be41fb1b2c" id="r_aaa92358f60e1043bee0865be41fb1b2c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aaa92358f60e1043bee0865be41fb1b2c">ha_light_reinit_mqtt</a> (void)</td></tr>
+<tr class="memdesc:aaa92358f60e1043bee0865be41fb1b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Odpoji a reinicializuje MQTT klienta s aktualni konfiguraci z NVS.  <br /></td></tr>
+<tr class="separator:aaa92358f60e1043bee0865be41fb1b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adeb86d27a08d24abfd9a912c9c89a729" id="r_adeb86d27a08d24abfd9a912c9c89a729"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#adeb86d27a08d24abfd9a912c9c89a729">ha_light_task_start</a> (void *pvParameters)</td></tr>
+<tr class="memdesc:adeb86d27a08d24abfd9a912c9c89a729"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hlavni funkce HA Light tasku.  <br /></td></tr>
+<tr class="separator:adeb86d27a08d24abfd9a912c9c89a729"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;HA_LIGHT_TASK&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35141cb45623cb3b7b4d96da35ed1831" id="r_a35141cb45623cb3b7b4d96da35ed1831"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a35141cb45623cb3b7b4d96da35ed1831">task_running</a> = false</td></tr>
+<tr class="separator:a35141cb45623cb3b7b4d96da35ed1831"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f970625bbaaf55b63054a651a0329fd" id="r_a6f970625bbaaf55b63054a651a0329fd"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a6f970625bbaaf55b63054a651a0329fd">current_mode</a> = <a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb">HA_MODE_GAME</a></td></tr>
+<tr class="separator:a6f970625bbaaf55b63054a651a0329fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56c40f3908f512205289d2a231403fc9" id="r_a56c40f3908f512205289d2a231403fc9"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a56c40f3908f512205289d2a231403fc9">activity_timeout_auto_sec</a></td></tr>
+<tr class="separator:a56c40f3908f512205289d2a231403fc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a841339184f4dba27c769216e9b7e8a6f" id="r_a841339184f4dba27c769216e9b7e8a6f"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a841339184f4dba27c769216e9b7e8a6f">last_activity_time_ms</a> = 0</td></tr>
+<tr class="separator:a841339184f4dba27c769216e9b7e8a6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a738f5dc6c12f15f0149e08de59f48064" id="r_a738f5dc6c12f15f0149e08de59f48064"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a738f5dc6c12f15f0149e08de59f48064">sta_connected</a> = false</td></tr>
+<tr class="separator:a738f5dc6c12f15f0149e08de59f48064"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9332f302ae79b5195a71d791a9ccecd" id="r_ad9332f302ae79b5195a71d791a9ccecd"><td class="memItemLeft" align="right" valign="top">static esp_mqtt_client_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ad9332f302ae79b5195a71d791a9ccecd">mqtt_client</a> = NULL</td></tr>
+<tr class="separator:ad9332f302ae79b5195a71d791a9ccecd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a99fbef218ac40fc0b77e18f0e9a708" id="r_a6a99fbef218ac40fc0b77e18f0e9a708"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a6a99fbef218ac40fc0b77e18f0e9a708">mqtt_connected</a> = false</td></tr>
+<tr class="separator:a6a99fbef218ac40fc0b77e18f0e9a708"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d84062ea99f6447275f690b28c01ce5" id="r_a9d84062ea99f6447275f690b28c01ce5"><td class="memItemLeft" >struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5078a9eaaa73477b7be2c3967ca5389" id="r_ab5078a9eaaa73477b7be2c3967ca5389"><td class="memItemLeft" >&#160;&#160;&#160;bool&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:ab5078a9eaaa73477b7be2c3967ca5389"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b71b260f6998cd51ddadc0c2a01551d" id="r_a2b71b260f6998cd51ddadc0c2a01551d"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4">brightness</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a2b71b260f6998cd51ddadc0c2a01551d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23cc89451aa09a90d657f378aabf2778" id="r_a23cc89451aa09a90d657f378aabf2778"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a23cc89451aa09a90d657f378aabf2778"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2cadba384ea5e9ef6e18b794e26eacc0" id="r_a2cadba384ea5e9ef6e18b794e26eacc0"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a2cadba384ea5e9ef6e18b794e26eacc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae90b0951c6125fb75dd0e9d7b2b13856" id="r_ae90b0951c6125fb75dd0e9d7b2b13856"><td class="memItemLeft" >&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:ae90b0951c6125fb75dd0e9d7b2b13856"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43f52feb93ea00a4c8fb651e70056c52" id="r_a43f52feb93ea00a4c8fb651e70056c52"><td class="memItemLeft" >&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#af7b0cb88246dfc40187f86c43e8d18f0">effect</a> [32]&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a43f52feb93ea00a4c8fb651e70056c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d84062ea99f6447275f690b28c01ce5" id="r_a9d84062ea99f6447275f690b28c01ce5"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a9d84062ea99f6447275f690b28c01ce5">ha_light_state</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a9d84062ea99f6447275f690b28c01ce5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6f42d47cc62f51438081fb73f4932d8" id="r_aa6f42d47cc62f51438081fb73f4932d8"><td class="memItemLeft" >struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a428a4023e9f4ee3b96e228f786c83f7c" id="r_a428a4023e9f4ee3b96e228f786c83f7c"><td class="memItemLeft" >&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a471a823d17bf7081fd4ebf84741f6758">host</a> [128]&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a428a4023e9f4ee3b96e228f786c83f7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08fff0c7a73df281003e5107e42a8897" id="r_a08fff0c7a73df281003e5107e42a8897"><td class="memItemLeft" >&#160;&#160;&#160;uint16_t&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">port</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a08fff0c7a73df281003e5107e42a8897"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97a6114d9174956071d72b38e099d5df" id="r_a97a6114d9174956071d72b38e099d5df"><td class="memItemLeft" >&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018">username</a> [64]&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a97a6114d9174956071d72b38e099d5df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e32672664f49d3993d130aaddb32e2d" id="r_a2e32672664f49d3993d130aaddb32e2d"><td class="memItemLeft" >&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#ae3a23efe266762659e03567d6afc26dd">password</a> [64]&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a2e32672664f49d3993d130aaddb32e2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a385f8faecd294d0b8a0f67a0e44c58a4" id="r_a385f8faecd294d0b8a0f67a0e44c58a4"><td class="memItemLeft" >&#160;&#160;&#160;bool&#160;&#160;&#160;<a class="el" href="ha__light__task_8c.html#a992c70a16169035bc9e2e8f9953d91ed">loaded</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a385f8faecd294d0b8a0f67a0e44c58a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6f42d47cc62f51438081fb73f4932d8" id="r_aa6f42d47cc62f51438081fb73f4932d8"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aa6f42d47cc62f51438081fb73f4932d8">mqtt_config</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:aa6f42d47cc62f51438081fb73f4932d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ed770cbe46604586e494bae84b62304" id="r_a4ed770cbe46604586e494bae84b62304"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a4ed770cbe46604586e494bae84b62304">game_command_queue</a></td></tr>
+<tr class="memdesc:a4ed770cbe46604586e494bae84b62304"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fronta pro game prikazy (new game, move, status)  <br /></td></tr>
+<tr class="separator:a4ed770cbe46604586e494bae84b62304"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b93ff1badbca8962927cb6fd837463e" id="r_a1b93ff1badbca8962927cb6fd837463e"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a1b93ff1badbca8962927cb6fd837463e">matrix_event_queue</a></td></tr>
+<tr class="memdesc:a1b93ff1badbca8962927cb6fd837463e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fronta pro matrix udalosti (piece lifted/placed)  <br /></td></tr>
+<tr class="separator:a1b93ff1badbca8962927cb6fd837463e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa3c4fd245d700def50f8fbe578ca1c4" id="r_afa3c4fd245d700def50f8fbe578ca1c4"><td class="memItemLeft" align="right" valign="top">static QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#afa3c4fd245d700def50f8fbe578ca1c4">ha_light_cmd_queue</a> = NULL</td></tr>
+<tr class="separator:afa3c4fd245d700def50f8fbe578ca1c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c0b6855acdc00ce519483a2a761faaf" id="r_a4c0b6855acdc00ce519483a2a761faaf"><td class="memItemLeft" align="right" valign="top">static SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a4c0b6855acdc00ce519483a2a761faaf">ha_light_state_mutex</a> = NULL</td></tr>
+<tr class="separator:a4c0b6855acdc00ce519483a2a761faaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6db1357d47c9403ad18f69b4004d21d5" id="r_a6db1357d47c9403ad18f69b4004d21d5"><td class="memItemLeft" align="right" valign="top">static TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a6db1357d47c9403ad18f69b4004d21d5">s_ha_light_task_hdl</a></td></tr>
+<tr class="memdesc:a6db1357d47c9403ad18f69b4004d21d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle hlavní smyčky — esp_task_wdt_reset jen z ha_light_task (ne z MQTT).  <br /></td></tr>
+<tr class="separator:a6db1357d47c9403ad18f69b4004d21d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>HA Light Task - Home Assistant RGB Light Integration via MQTT. </p>
+<h1><a class="anchor" id="autotoc_md25"></a>
+@details</h1>
+<h1><a class="anchor" id="autotoc_md26"></a>
+CO TENTO SOUBOR DELA?</h1>
+<p>Tento task integruje sachovnici jako RGB svetlo do Home Assistant pres MQTT. Po pripojeni na WiFi STA se board automaticky prepne do HA modu po 5 minutach necinosti. V HA modu se vsechny LED desky chovaji jako jedno RGB svetlo.</p>
+<p>Rezimy:</p><ul>
+<li>GAME MODE: LED zobrazuji sachovnici (vychozi)</li>
+<li>HA MODE: Vsech 64 LED jako RGB svetlo ovladane pres HA (po 5 min necinosti)</li>
+</ul>
+<p>Automaticke prepinani:</p><ul>
+<li>GAME -&gt; HA: Po 5 minutach bez aktivity (pohyb figurky nebo herni prikaz)</li>
+<li>HA -&gt; GAME: Okamzite pri detekci pohybu figurky (PICKUP/DROP)</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>1.0 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-01-XX </dd></dl>
+
+<p class="definition">Definice v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace definic maker</h2>
+<a id="a7258c3c6cecd3447982a3952e87713bd" name="a7258c3c6cecd3447982a3952e87713bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7258c3c6cecd3447982a3952e87713bd">&#9670;&#160;</a></span>HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC&#160;&#160;&#160;300</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00079">79</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3dd6fff60186c0ce8a3f8f6d26a5c140" name="a3dd6fff60186c0ce8a3f8f6d26a5c140"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3dd6fff60186c0ce8a3f8f6d26a5c140">&#9670;&#160;</a></span>HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC&#160;&#160;&#160;7200</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00078">78</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abfb9dc6d5f195f20cd60d52ca9111f20" name="abfb9dc6d5f195f20cd60d52ca9111f20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abfb9dc6d5f195f20cd60d52ca9111f20">&#9670;&#160;</a></span>HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC&#160;&#160;&#160;5</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00077">77</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2b3dde16d2d855a807f4df41c9cf7748" name="a2b3dde16d2d855a807f4df41c9cf7748"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b3dde16d2d855a807f4df41c9cf7748">&#9670;&#160;</a></span>HA_MQTT_MIN_FREE_HEAP_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_MIN_FREE_HEAP_BYTES&#160;&#160;&#160;(18 * 1024)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Min. </p>
+<p>volný heap před esp_mqtt_client_start (interní úloha + zásobník). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00052">52</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a38376f5a11ecbe426778c8b7048e57a6" name="a38376f5a11ecbe426778c8b7048e57a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38376f5a11ecbe426778c8b7048e57a6">&#9670;&#160;</a></span>HA_MQTT_STOP_HEAP_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_STOP_HEAP_BYTES&#160;&#160;&#160;(10 * 1024)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pod tímto prahem ukončíme MQTT klienta (uvolní sockety / úlohy) — prevence errno 11 / RST. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00055">55</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a911937abc730a55b7fa782a318b9d302" name="a911937abc730a55b7fa782a318b9d302"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a911937abc730a55b7fa782a318b9d302">&#9670;&#160;</a></span>LAMP_NVS_KEY_AUTO_TIMEOUT_SEC</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LAMP_NVS_KEY_AUTO_TIMEOUT_SEC&#160;&#160;&#160;&quot;auto_sec&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00074">74</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ada993b0feac98bded7661560e40e3a12" name="ada993b0feac98bded7661560e40e3a12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada993b0feac98bded7661560e40e3a12">&#9670;&#160;</a></span>LAMP_NVS_KEY_B</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LAMP_NVS_KEY_B&#160;&#160;&#160;&quot;b&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00073">73</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab2afae5456aa17362f4089f28182d696" name="ab2afae5456aa17362f4089f28182d696"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2afae5456aa17362f4089f28182d696">&#9670;&#160;</a></span>LAMP_NVS_KEY_G</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LAMP_NVS_KEY_G&#160;&#160;&#160;&quot;g&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00072">72</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a679ffc58fbca48fef29728668920eca5" name="a679ffc58fbca48fef29728668920eca5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a679ffc58fbca48fef29728668920eca5">&#9670;&#160;</a></span>LAMP_NVS_KEY_R</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LAMP_NVS_KEY_R&#160;&#160;&#160;&quot;r&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00071">71</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a65e94ad9222fb7dc6c36d94348719fa5" name="a65e94ad9222fb7dc6c36d94348719fa5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65e94ad9222fb7dc6c36d94348719fa5">&#9670;&#160;</a></span>LAMP_NVS_KEY_STATE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LAMP_NVS_KEY_STATE&#160;&#160;&#160;&quot;state&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00070">70</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a135ce56f6bd050c86c6a4b765de6e6e2" name="a135ce56f6bd050c86c6a4b765de6e6e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a135ce56f6bd050c86c6a4b765de6e6e2">&#9670;&#160;</a></span>LAMP_NVS_NAMESPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define LAMP_NVS_NAMESPACE&#160;&#160;&#160;&quot;lamp_cfg&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00069">69</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a52bd6fcbbfadb261cdd62abc295f4dd5" name="a52bd6fcbbfadb261cdd62abc295f4dd5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52bd6fcbbfadb261cdd62abc295f4dd5">&#9670;&#160;</a></span>MQTT_DEFAULT_HOST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_DEFAULT_HOST&#160;&#160;&#160;&quot;homeassistant.local&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00082">82</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a38f208acaf4f9f771cf7e707488f8c29" name="a38f208acaf4f9f771cf7e707488f8c29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38f208acaf4f9f771cf7e707488f8c29">&#9670;&#160;</a></span>MQTT_DEFAULT_PASSWORD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_DEFAULT_PASSWORD&#160;&#160;&#160;&quot;&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00085">85</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a47dbba2fb767e8362864895e3ce87a36" name="a47dbba2fb767e8362864895e3ce87a36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47dbba2fb767e8362864895e3ce87a36">&#9670;&#160;</a></span>MQTT_DEFAULT_PORT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_DEFAULT_PORT&#160;&#160;&#160;1883</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00083">83</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a67a711e15478d8d8ba7aa984947f1cd8" name="a67a711e15478d8d8ba7aa984947f1cd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67a711e15478d8d8ba7aa984947f1cd8">&#9670;&#160;</a></span>MQTT_DEFAULT_USERNAME</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_DEFAULT_USERNAME&#160;&#160;&#160;&quot;&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00084">84</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a081583a2a1790d8fb1b2617f75e28001" name="a081583a2a1790d8fb1b2617f75e28001"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a081583a2a1790d8fb1b2617f75e28001">&#9670;&#160;</a></span>MQTT_NVS_KEY_HOST</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_NVS_KEY_HOST&#160;&#160;&#160;&quot;broker_host&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00063">63</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab809ff3bf1caf2065817bd285c78889d" name="ab809ff3bf1caf2065817bd285c78889d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab809ff3bf1caf2065817bd285c78889d">&#9670;&#160;</a></span>MQTT_NVS_KEY_PASSWORD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_NVS_KEY_PASSWORD&#160;&#160;&#160;&quot;broker_password&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00066">66</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a86093592f3d60d17d74e7fb27193ea3a" name="a86093592f3d60d17d74e7fb27193ea3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a86093592f3d60d17d74e7fb27193ea3a">&#9670;&#160;</a></span>MQTT_NVS_KEY_PORT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_NVS_KEY_PORT&#160;&#160;&#160;&quot;broker_port&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00064">64</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aeeff4bcf4d1d0b27a9da374befe7bc8d" name="aeeff4bcf4d1d0b27a9da374befe7bc8d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeeff4bcf4d1d0b27a9da374befe7bc8d">&#9670;&#160;</a></span>MQTT_NVS_KEY_USERNAME</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_NVS_KEY_USERNAME&#160;&#160;&#160;&quot;broker_username&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00065">65</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a296a7bbb8593405108b39d1ab6c0ecc6" name="a296a7bbb8593405108b39d1ab6c0ecc6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a296a7bbb8593405108b39d1ab6c0ecc6">&#9670;&#160;</a></span>MQTT_NVS_NAMESPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MQTT_NVS_NAMESPACE&#160;&#160;&#160;&quot;mqtt_config&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00062">62</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a5a6bb92dacbf05bc953f9d712c939ed4" name="a5a6bb92dacbf05bc953f9d712c939ed4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a6bb92dacbf05bc953f9d712c939ed4">&#9670;&#160;</a></span>ha_light_check_activity_timeout()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_check_activity_timeout </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Kontroluje zda byl prekrocen 5 minutovy timeout. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00273">273</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a687dd5b61866fa4896abac67db3944d9" name="a687dd5b61866fa4896abac67db3944d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a687dd5b61866fa4896abac67db3944d9">&#9670;&#160;</a></span>ha_light_check_wifi_sta_connected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool ha_light_check_wifi_sta_connected </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Zkontroluj zda je WiFi STA pripojeno. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je STA pripojeno a ma IP, false jinak </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00200">200</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a464f2831be9eaf47703188907a36c486" name="a464f2831be9eaf47703188907a36c486"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a464f2831be9eaf47703188907a36c486">&#9670;&#160;</a></span>ha_light_get_activity_timeout_sec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t ha_light_get_activity_timeout_sec </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Doba (v sekundach) po ktere se pri necinosti prepne do rezimu lampa (5..7200). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01093">1093</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a745b4de0bfe0480fe88c73e3d23170eb" name="a745b4de0bfe0480fe88c73e3d23170eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a745b4de0bfe0480fe88c73e3d23170eb">&#9670;&#160;</a></span>ha_light_get_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a> ha_light_get_mode </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej aktualni rezim. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ha_mode_t Aktualni rezim (GAME nebo HA) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01091">1091</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afaac44baa4c83b066d88d4a6b49c7105" name="afaac44baa4c83b066d88d4a6b49c7105"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afaac44baa4c83b066d88d4a6b49c7105">&#9670;&#160;</a></span>ha_light_get_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ha_light_get_state </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>brightness</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool *&#160;</td>
+          <td class="paramname"><em>state</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej aktualni stav lampy (thread-safe pro HTTP handler) </p>
+<p>Ziskej aktualni stav lampy (barva, zapnuti) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01114">1114</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae13c9a71f7715bc11cf0c8dc511d7b33" name="ae13c9a71f7715bc11cf0c8dc511d7b33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae13c9a71f7715bc11cf0c8dc511d7b33">&#9670;&#160;</a></span>ha_light_handle_mqtt_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_handle_mqtt_command </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>topic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>data_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Zpracuje MQTT prikaz. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00699">699</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab445707e64ef5877d69ff4443c54bfd5" name="ab445707e64ef5877d69ff4443c54bfd5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab445707e64ef5877d69ff4443c54bfd5">&#9670;&#160;</a></span>ha_light_init_mqtt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t ha_light_init_mqtt </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Inicializuje MQTT klienta. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00930">930</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0fc50519ca67911865aa6f8afc0a939f" name="a0fc50519ca67911865aa6f8afc0a939f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fc50519ca67911865aa6f8afc0a939f">&#9670;&#160;</a></span>ha_light_is_available()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ha_light_is_available </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zjisti zda je HA rezim dostupny (WiFi STA pripojeno) </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je WiFi STA pripojeno, false jinak </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01168">1168</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f38fb48c581f40707dbed343cedb07c" name="a7f38fb48c581f40707dbed343cedb07c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f38fb48c581f40707dbed343cedb07c">&#9670;&#160;</a></span>ha_light_is_mqtt_connected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ha_light_is_mqtt_connected </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zjisti zda je MQTT klient pripojen. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je MQTT pripojen, false jinak </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01199">1199</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1819a1e1ebc04fa6179f55ee77454506" name="a1819a1e1ebc04fa6179f55ee77454506"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1819a1e1ebc04fa6179f55ee77454506">&#9670;&#160;</a></span>ha_light_monitor_game_activity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_monitor_game_activity </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Monitoruje aktivitu hry a resetuje timer. </p>
+<p>Tato funkce se spoléhá na <a class="el" href="ha__light__task_8c.html#af2c48fb0be8e0af2ec8f26872bea2721" title="Zprava o aktivity hry (volano z jinych tasku)">ha_light_report_activity()</a> volané z jiných tasků. Samotné monitorování front zde neděláme, abychom nekonzumovali příkazy. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00230">230</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aaa50395cd97ca2238e5b5a64d0583d07" name="aaa50395cd97ca2238e5b5a64d0583d07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa50395cd97ca2238e5b5a64d0583d07">&#9670;&#160;</a></span>ha_light_mqtt_event_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_mqtt_event_handler </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>handler_args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">esp_event_base_t&#160;</td>
+          <td class="paramname"><em>base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>event_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>event_data</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>MQTT event handler. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00641">641</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0f43fcd5e5a6b5aa88a40bfbf987d381" name="a0f43fcd5e5a6b5aa88a40bfbf987d381"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f43fcd5e5a6b5aa88a40bfbf987d381">&#9670;&#160;</a></span>ha_light_publish_discovery()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_publish_discovery </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Publish Home Assistant Auto-Discovery configuration. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00567">567</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab17c9e100295b75e1b76d897d08a805b" name="ab17c9e100295b75e1b76d897d08a805b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab17c9e100295b75e1b76d897d08a805b">&#9670;&#160;</a></span>ha_light_publish_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_publish_state </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Publikuje stav do MQTT. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00825">825</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aaa92358f60e1043bee0865be41fb1b2c" name="aaa92358f60e1043bee0865be41fb1b2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa92358f60e1043bee0865be41fb1b2c">&#9670;&#160;</a></span>ha_light_reinit_mqtt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t ha_light_reinit_mqtt </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Odpoji a reinicializuje MQTT klienta s aktualni konfiguraci z NVS. </p>
+<p>Odpojí a reinicializuje MQTT klienta s aktuální konfigurací z NVS.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01206">1206</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af2c48fb0be8e0af2ec8f26872bea2721" name="af2c48fb0be8e0af2ec8f26872bea2721"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2c48fb0be8e0af2ec8f26872bea2721">&#9670;&#160;</a></span>ha_light_report_activity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ha_light_report_activity </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>activity_type</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zprava o aktivity hry (volano z jinych tasku) </p>
+<p>Zprava o aktivity hry (pro resetovani 5min timeru) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00240">240</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a202ec2f125d3ba5225e410fd37f40e33" name="a202ec2f125d3ba5225e410fd37f40e33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a202ec2f125d3ba5225e410fd37f40e33">&#9670;&#160;</a></span>ha_light_request_web_lamp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ha_light_request_web_lamp </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>state</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pozadavek na nastaveni lampy z webu. </p>
+<p>Pozadavek na nastaveni lampy z webu (režim Lampa, barva, zapnuti)</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud prikaz odeslan do fronty, false pokud fronta NULL nebo plna </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01151">1151</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a93c1bbd6a8b8933ab773fbb97b35bb1e" name="a93c1bbd6a8b8933ab773fbb97b35bb1e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93c1bbd6a8b8933ab773fbb97b35bb1e">&#9670;&#160;</a></span>ha_light_set_activity_timeout_sec()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t ha_light_set_activity_timeout_sec </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>sec</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastavi a ulozi do NVS; sec se omezí na 5..7200. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01097">1097</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a33c86dd0c42ba70448023639e56096f0" name="a33c86dd0c42ba70448023639e56096f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33c86dd0c42ba70448023639e56096f0">&#9670;&#160;</a></span>ha_light_switch_to_game_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_switch_to_game_mode </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Prepne do herniho modu. </p>
+<p>Obnovi sachovnici (led_show_chess_board). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00353">353</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aff8e250ad01ba14909377eaea2f0dce6" name="aff8e250ad01ba14909377eaea2f0dce6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff8e250ad01ba14909377eaea2f0dce6">&#9670;&#160;</a></span>ha_light_switch_to_ha_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_switch_to_ha_mode </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Prepne do HA modu. </p>
+<p>Vsech 64 LED desky se nastavi na barvu z ha_light_state. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00311">311</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adeb86d27a08d24abfd9a912c9c89a729" name="adeb86d27a08d24abfd9a912c9c89a729"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adeb86d27a08d24abfd9a912c9c89a729">&#9670;&#160;</a></span>ha_light_task_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ha_light_task_start </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>pvParameters</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hlavni funkce HA Light tasku. </p>
+<p>Spusti HA Light task. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01243">1243</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a220eb7a6a15e1c82a39c3128aeffa19f" name="a220eb7a6a15e1c82a39c3128aeffa19f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a220eb7a6a15e1c82a39c3128aeffa19f">&#9670;&#160;</a></span>ha_light_task_wdt_reset_safe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t ha_light_task_wdt_reset_safe </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Bezpecny reset WDT. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00168">168</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa4ede6db32474aa8aa601b4b1b1a3108" name="aa4ede6db32474aa8aa601b4b1b1a3108"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4ede6db32474aa8aa601b4b1b1a3108">&#9670;&#160;</a></span>ha_light_wdt_feed_if_own_task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_light_wdt_feed_if_own_task </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00184">184</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afb7ba9a4d951c7dbc4a72d64e81bdbd0" name="afb7ba9a4d951c7dbc4a72d64e81bdbd0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb7ba9a4d951c7dbc4a72d64e81bdbd0">&#9670;&#160;</a></span>lamp_nvs_load()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void lamp_nvs_load </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01009">1009</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a99e2c17ed7924c49fde1870dca213dc2" name="a99e2c17ed7924c49fde1870dca213dc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99e2c17ed7924c49fde1870dca213dc2">&#9670;&#160;</a></span>lamp_nvs_save()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void lamp_nvs_save </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01040">1040</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aea2779681f229198caf4b5a11265736c" name="aea2779681f229198caf4b5a11265736c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aea2779681f229198caf4b5a11265736c">&#9670;&#160;</a></span>lamp_nvs_save_auto_timeout()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void lamp_nvs_save_auto_timeout </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01074">1074</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af54ee77cebff3b3c12301819b1082ce4" name="af54ee77cebff3b3c12301819b1082ce4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af54ee77cebff3b3c12301819b1082ce4">&#9670;&#160;</a></span>mqtt_ensure_config_loaded()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void mqtt_ensure_config_loaded </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Načte MQTT konfiguraci z NVS (pokud ještě nebyla načtena) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00893">893</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0564ec8bd0c8c4e490ed84e22246df81" name="a0564ec8bd0c8c4e490ed84e22246df81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0564ec8bd0c8c4e490ed84e22246df81">&#9670;&#160;</a></span>mqtt_get_config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t mqtt_get_config </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>host</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>host_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>username</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>username_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>password_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Získá MQTT konfiguraci (načte z NVS pokud ještě nebyla načtena) </p>
+<p>Ziska MQTT konfiguraci (nacte z NVS pokud jeste nebyla nactena) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l01173">1173</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad61c60d5f24e8689c8607c69c989b761" name="ad61c60d5f24e8689c8607c69c989b761"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad61c60d5f24e8689c8607c69c989b761">&#9670;&#160;</a></span>mqtt_load_config_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t mqtt_load_config_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>host</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>host_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>username</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>username_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>password</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>password_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Načte MQTT konfiguraci z NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">host</td><td>Buffer pro broker host (min 128 bytes) </td></tr>
+    <tr><td class="paramname">host_len</td><td>Velikost host bufferu </td></tr>
+    <tr><td class="paramname">port</td><td>Ukazatel na port (1-65535) </td></tr>
+    <tr><td class="paramname">username</td><td>Buffer pro username (min 64 bytes, může být prázdné) </td></tr>
+    <tr><td class="paramname">username_len</td><td>Velikost username bufferu </td></tr>
+    <tr><td class="paramname">password</td><td>Buffer pro password (min 64 bytes, může být prázdné) </td></tr>
+    <tr><td class="paramname">password_len</td><td>Velikost password bufferu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, ESP_ERR_NOT_FOUND pokud není v NVS (vrátí defaults) </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00392">392</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad116a346513e475c7ffe3e5137a18d0d" name="ad116a346513e475c7ffe3e5137a18d0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad116a346513e475c7ffe3e5137a18d0d">&#9670;&#160;</a></span>mqtt_save_config_to_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t mqtt_save_config_to_nvs </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>host</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>username</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>password</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Uloží MQTT konfiguraci do NVS. </p>
+<p>Ulozi MQTT konfiguraci do NVS.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">host</td><td>Broker hostname/IP </td></tr>
+    <tr><td class="paramname">port</td><td>Broker port (1-65535) </td></tr>
+    <tr><td class="paramname">username</td><td>MQTT username (NULL nebo prázdné = bez auth) </td></tr>
+    <tr><td class="paramname">password</td><td>MQTT password (NULL nebo prázdné = bez auth) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, chybový kód při chybě </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00471">471</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a56c40f3908f512205289d2a231403fc9" name="a56c40f3908f512205289d2a231403fc9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56c40f3908f512205289d2a231403fc9">&#9670;&#160;</a></span>activity_timeout_auto_sec</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t activity_timeout_auto_sec</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">     300</div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00097">97</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4313c9563516f94387762ab05763456b" name="a4313c9563516f94387762ab05763456b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4313c9563516f94387762ab05763456b">&#9670;&#160;</a></span>b</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t b</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00112">112</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a837c871f200f8c3d19d0c7f2e031ffc4" name="a837c871f200f8c3d19d0c7f2e031ffc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a837c871f200f8c3d19d0c7f2e031ffc4">&#9670;&#160;</a></span>brightness</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t brightness</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00111">111</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6f970625bbaaf55b63054a651a0329fd" name="a6f970625bbaaf55b63054a651a0329fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f970625bbaaf55b63054a651a0329fd">&#9670;&#160;</a></span>current_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a> current_mode = <a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588a51024b9ef0b703bb96a18c6971dd1fcb">HA_MODE_GAME</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00093">93</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af7b0cb88246dfc40187f86c43e8d18f0" name="af7b0cb88246dfc40187f86c43e8d18f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7b0cb88246dfc40187f86c43e8d18f0">&#9670;&#160;</a></span>effect</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char effect[32]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00113">113</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1673907d4d89d763bb7b94ec1eeb7b60" name="a1673907d4d89d763bb7b94ec1eeb7b60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1673907d4d89d763bb7b94ec1eeb7b60">&#9670;&#160;</a></span>g</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t g</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00112">112</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4ed770cbe46604586e494bae84b62304" name="a4ed770cbe46604586e494bae84b62304"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ed770cbe46604586e494bae84b62304">&#9670;&#160;</a></span>game_command_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t game_command_queue</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fronta pro game prikazy (new game, move, status) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00091">91</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="afa3c4fd245d700def50f8fbe578ca1c4" name="afa3c4fd245d700def50f8fbe578ca1c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afa3c4fd245d700def50f8fbe578ca1c4">&#9670;&#160;</a></span>ha_light_cmd_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t ha_light_cmd_queue = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00139">139</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9d84062ea99f6447275f690b28c01ce5" name="a9d84062ea99f6447275f690b28c01ce5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d84062ea99f6447275f690b28c01ce5">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  ha_light_state</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {.state = <span class="keyword">true</span>,</div>
+<div class="line">                    .brightness = 255,</div>
+<div class="line">                    .r = 255,</div>
+<div class="line">                    .g = 255,</div>
+<div class="line">                    .b = 255,</div>
+<div class="line">                    .effect = <span class="stringliteral">&quot;solid&quot;</span>}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a4c0b6855acdc00ce519483a2a761faaf" name="a4c0b6855acdc00ce519483a2a761faaf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c0b6855acdc00ce519483a2a761faaf">&#9670;&#160;</a></span>ha_light_state_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t ha_light_state_mutex = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00143">143</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a471a823d17bf7081fd4ebf84741f6758" name="a471a823d17bf7081fd4ebf84741f6758"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a471a823d17bf7081fd4ebf84741f6758">&#9670;&#160;</a></span>host</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char host[128]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00123">123</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a841339184f4dba27c769216e9b7e8a6f" name="a841339184f4dba27c769216e9b7e8a6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a841339184f4dba27c769216e9b7e8a6f">&#9670;&#160;</a></span>last_activity_time_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t last_activity_time_ms = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00099">99</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a992c70a16169035bc9e2e8f9953d91ed" name="a992c70a16169035bc9e2e8f9953d91ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a992c70a16169035bc9e2e8f9953d91ed">&#9670;&#160;</a></span>loaded</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool loaded</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00127">127</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1b93ff1badbca8962927cb6fd837463e" name="a1b93ff1badbca8962927cb6fd837463e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b93ff1badbca8962927cb6fd837463e">&#9670;&#160;</a></span>matrix_event_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t matrix_event_queue</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Fronta pro matrix udalosti (piece lifted/placed) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00078">78</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="ad9332f302ae79b5195a71d791a9ccecd" name="ad9332f302ae79b5195a71d791a9ccecd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9332f302ae79b5195a71d791a9ccecd">&#9670;&#160;</a></span>mqtt_client</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_mqtt_client_handle_t mqtt_client = NULL</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00105">105</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa6f42d47cc62f51438081fb73f4932d8" name="aa6f42d47cc62f51438081fb73f4932d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6f42d47cc62f51438081fb73f4932d8">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  mqtt_config</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= {.host =  <span class="stringliteral">&quot;homeassistant.local&quot;</span> ,</div>
+<div class="line">                 .port =  1883 ,</div>
+<div class="line">                 .username =  <span class="stringliteral">&quot;&quot;</span> ,</div>
+<div class="line">                 .password =  <span class="stringliteral">&quot;&quot;</span> ,</div>
+<div class="line">                 .loaded = <span class="keyword">false</span>}</div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a6a99fbef218ac40fc0b77e18f0e9a708" name="a6a99fbef218ac40fc0b77e18f0e9a708"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a99fbef218ac40fc0b77e18f0e9a708">&#9670;&#160;</a></span>mqtt_connected</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool mqtt_connected = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00106">106</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3a23efe266762659e03567d6afc26dd" name="ae3a23efe266762659e03567d6afc26dd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3a23efe266762659e03567d6afc26dd">&#9670;&#160;</a></span>password</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char password[64]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00126">126</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8e0798404bf2cf5dabb84c5ba9a4f236" name="a8e0798404bf2cf5dabb84c5ba9a4f236"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e0798404bf2cf5dabb84c5ba9a4f236">&#9670;&#160;</a></span>port</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t port</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00124">124</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a4c5c6ceb8ed33456261fa907136e0c3a" name="a4c5c6ceb8ed33456261fa907136e0c3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c5c6ceb8ed33456261fa907136e0c3a">&#9670;&#160;</a></span>r</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t r</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00112">112</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6db1357d47c9403ad18f69b4004d21d5" name="a6db1357d47c9403ad18f69b4004d21d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6db1357d47c9403ad18f69b4004d21d5">&#9670;&#160;</a></span>s_ha_light_task_hdl</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t s_ha_light_task_hdl</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handle hlavní smyčky — esp_task_wdt_reset jen z ha_light_task (ne z MQTT). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00182">182</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a738f5dc6c12f15f0149e08de59f48064" name="a738f5dc6c12f15f0149e08de59f48064"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a738f5dc6c12f15f0149e08de59f48064">&#9670;&#160;</a></span>sta_connected</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool sta_connected = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00102">102</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab30ba07e2a0bd07a15e45a92c32db9c5" name="ab30ba07e2a0bd07a15e45a92c32db9c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab30ba07e2a0bd07a15e45a92c32db9c5">&#9670;&#160;</a></span>state</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool state</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00110">110</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;HA_LIGHT_TASK&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00049">49</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35141cb45623cb3b7b4d96da35ed1831" name="a35141cb45623cb3b7b4d96da35ed1831"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35141cb45623cb3b7b4d96da35ed1831">&#9670;&#160;</a></span>task_running</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool task_running = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00092">92</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acfea5fbe8295640a1489399ceeb6c018" name="acfea5fbe8295640a1489399ceeb6c018"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfea5fbe8295640a1489399ceeb6c018">&#9670;&#160;</a></span>username</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char username[64]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ha__light__task_8c_source.html#l00125">125</a> v souboru <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_b118a6ff7afa3dc10b5f01379f4510ce.html">ha_light_task</a></li><li class="navelem"><a class="el" href="ha__light__task_8c.html">ha_light_task.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

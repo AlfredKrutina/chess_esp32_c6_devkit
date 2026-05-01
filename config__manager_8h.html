@@ -1,0 +1,859 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru config_manager.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('config__manager_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Definice maker</a> &#124;
+<a href="#func-members">Funkce</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru config_manager.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>ESP32-C6 Chess System v2.4 - Config Manager Hlavicka.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro config_manager.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__manager_8h__incl.png" border="0" usemap="#aconfig__manager_8h" alt=""/></div>
+<map name="aconfig__manager_8h" id="aconfig__manager_8h">
+<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Config Manager Hlavicka." alt="" coords="313,5,451,31"/>
+<area shape="rect" title=" " alt="" coords="5,225,87,251"/>
+<area shape="poly" title=" " alt="" coords="328,33,271,49,206,74,141,108,111,130,84,154,65,182,54,213,49,211,60,180,80,150,108,126,138,104,204,69,269,44,326,28"/>
+<area shape="rect" title=" " alt="" coords="471,79,555,104"/>
+<area shape="poly" title=" " alt="" coords="404,28,481,70,478,74,402,33"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="317,79,447,104"/>
+<area shape="poly" title=" " alt="" coords="385,31,385,65,379,65,379,31"/>
+<area shape="poly" title=" " alt="" coords="317,98,271,104,219,114,167,131,118,154,85,183,61,215,57,212,81,180,115,150,165,126,218,109,270,99,317,93"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="771,152,886,177"/>
+<area shape="poly" title=" " alt="" coords="447,100,758,149,758,154,446,105"/>
+<area shape="rect" title=" " alt="" coords="209,225,360,251"/>
+<area shape="poly" title=" " alt="" coords="317,101,207,120,159,135,142,144,131,154,125,165,124,175,129,184,139,193,169,208,206,220,204,225,167,213,136,197,125,188,119,176,119,164,127,150,139,139,157,130,206,115,316,96"/>
+<area shape="rect" title=" " alt="" coords="557,225,687,251"/>
+<area shape="poly" title=" " alt="" coords="317,100,256,109,200,124,180,134,168,146,165,159,175,175,191,185,224,194,321,209,543,229,543,234,321,214,223,199,189,190,171,179,160,160,163,143,177,130,198,119,255,104,316,95"/>
+<area shape="rect" title=" " alt="" coords="798,225,881,251"/>
+<area shape="poly" title=" " alt="" coords="447,100,458,101,559,104,690,103,756,105,816,113,865,127,885,137,900,150,907,168,901,187,887,204,870,219,866,215,883,201,896,184,902,168,896,154,882,142,863,132,815,118,755,111,690,108,559,109,458,107,447,105"/>
+<area shape="rect" title=" " alt="" coords="927,225,997,251"/>
+<area shape="poly" title=" " alt="" coords="447,100,458,101,561,106,695,108,763,112,826,119,880,131,921,150,935,163,946,178,959,211,954,213,941,181,931,166,918,154,878,136,825,124,763,117,695,114,561,111,458,107,447,105"/>
+<area shape="rect" title=" " alt="" coords="185,152,289,177"/>
+<area shape="poly" title=" " alt="" coords="360,106,274,148,271,144,357,102"/>
+<area shape="rect" title=" " alt="" coords="313,152,451,177"/>
+<area shape="poly" title=" " alt="" coords="385,104,385,138,379,138,379,104"/>
+<area shape="rect" title=" " alt="" coords="475,152,593,177"/>
+<area shape="poly" title=" " alt="" coords="408,102,498,144,496,149,405,106"/>
+<area shape="rect" title=" " alt="" coords="617,152,747,177"/>
+<area shape="poly" title=" " alt="" coords="431,101,621,146,620,151,430,107"/>
+<area shape="poly" title=" " alt="" coords="772,178,760,180,101,235,100,230,759,175,771,173"/>
+<area shape="poly" title=" " alt="" coords="772,178,760,180,374,229,373,224,759,175,771,173"/>
+<area shape="poly" title=" " alt="" coords="796,180,669,223,668,218,795,175"/>
+<area shape="poly" title=" " alt="" coords="833,177,838,211,833,212,828,178"/>
+<area shape="poly" title=" " alt="" coords="851,175,929,216,927,221,849,180"/>
+</map>
+</div>
+</div>
+<p><a href="config__manager_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:aa0028fc365e89e240fa5fbf5fd10dc80" id="r_aa0028fc365e89e240fa5fbf5fd10dc80"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aa0028fc365e89e240fa5fbf5fd10dc80">CONFIG_DEFAULT_VERBOSE_MODE</a>&#160;&#160;&#160;false</td></tr>
+<tr class="memdesc:aa0028fc365e89e240fa5fbf5fd10dc80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi verbose mode (vypnuto)  <br /></td></tr>
+<tr class="separator:aa0028fc365e89e240fa5fbf5fd10dc80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28d3ba84ebd4728150a80005d7011e52" id="r_a28d3ba84ebd4728150a80005d7011e52"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a28d3ba84ebd4728150a80005d7011e52">CONFIG_DEFAULT_QUIET_MODE</a>&#160;&#160;&#160;false</td></tr>
+<tr class="memdesc:a28d3ba84ebd4728150a80005d7011e52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi quiet mode (vypnuto)  <br /></td></tr>
+<tr class="separator:a28d3ba84ebd4728150a80005d7011e52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1a68f8dad797265d45abe06a259b45f" id="r_ae1a68f8dad797265d45abe06a259b45f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#ae1a68f8dad797265d45abe06a259b45f">CONFIG_DEFAULT_LOG_LEVEL</a>&#160;&#160;&#160;ESP_LOG_ERROR</td></tr>
+<tr class="memdesc:ae1a68f8dad797265d45abe06a259b45f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi log level (pouze chyby)  <br /></td></tr>
+<tr class="separator:ae1a68f8dad797265d45abe06a259b45f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a738c632d7567c38a428c149e9b60c78c" id="r_a738c632d7567c38a428c149e9b60c78c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a738c632d7567c38a428c149e9b60c78c">CONFIG_DEFAULT_COMMAND_TIMEOUT</a>&#160;&#160;&#160;5000</td></tr>
+<tr class="memdesc:a738c632d7567c38a428c149e9b60c78c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi timeout prikazu (5 sekund)  <br /></td></tr>
+<tr class="separator:a738c632d7567c38a428c149e9b60c78c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47c2b95d1d8288422494efa813aac56d" id="r_a47c2b95d1d8288422494efa813aac56d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a47c2b95d1d8288422494efa813aac56d">CONFIG_DEFAULT_ECHO_ENABLED</a>&#160;&#160;&#160;true</td></tr>
+<tr class="memdesc:a47c2b95d1d8288422494efa813aac56d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi echo (zapnuto)  <br /></td></tr>
+<tr class="separator:a47c2b95d1d8288422494efa813aac56d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab761ad48a054d663ba21852111fdc330" id="r_ab761ad48a054d663ba21852111fdc330"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#ab761ad48a054d663ba21852111fdc330">CONFIG_DEFAULT_BRIGHTNESS</a>&#160;&#160;&#160;50</td></tr>
+<tr class="memdesc:ab761ad48a054d663ba21852111fdc330"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vychozi jas (50%)  <br /></td></tr>
+<tr class="separator:ab761ad48a054d663ba21852111fdc330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ec1858d742e64d0c66dfd9631302d11" id="r_a3ec1858d742e64d0c66dfd9631302d11"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a3ec1858d742e64d0c66dfd9631302d11">CONFIG_NVS_NAMESPACE</a>&#160;&#160;&#160;&quot;chess_config&quot;</td></tr>
+<tr class="memdesc:a3ec1858d742e64d0c66dfd9631302d11"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS namespace pro sachovou konfiguraci.  <br /></td></tr>
+<tr class="separator:a3ec1858d742e64d0c66dfd9631302d11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1465441aad59c8e924e7d848436e88c8" id="r_a1465441aad59c8e924e7d848436e88c8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a1465441aad59c8e924e7d848436e88c8">CONFIG_NVS_KEY_VERBOSE</a>&#160;&#160;&#160;&quot;verbose&quot;</td></tr>
+<tr class="memdesc:a1465441aad59c8e924e7d848436e88c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro verbose mode.  <br /></td></tr>
+<tr class="separator:a1465441aad59c8e924e7d848436e88c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2b5da40b2f1c4930562a5d61ce8b408" id="r_ae2b5da40b2f1c4930562a5d61ce8b408"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#ae2b5da40b2f1c4930562a5d61ce8b408">CONFIG_NVS_KEY_QUIET</a>&#160;&#160;&#160;&quot;quiet&quot;</td></tr>
+<tr class="memdesc:ae2b5da40b2f1c4930562a5d61ce8b408"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro quiet mode.  <br /></td></tr>
+<tr class="separator:ae2b5da40b2f1c4930562a5d61ce8b408"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3351759d56cb033763497863590ced96" id="r_a3351759d56cb033763497863590ced96"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a3351759d56cb033763497863590ced96">CONFIG_NVS_KEY_LOG_LEVEL</a>&#160;&#160;&#160;&quot;log_level&quot;</td></tr>
+<tr class="memdesc:a3351759d56cb033763497863590ced96"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro log level.  <br /></td></tr>
+<tr class="separator:a3351759d56cb033763497863590ced96"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e5a923fe1f235adbf87c70147123bdc" id="r_a5e5a923fe1f235adbf87c70147123bdc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a5e5a923fe1f235adbf87c70147123bdc">CONFIG_NVS_KEY_TIMEOUT</a>&#160;&#160;&#160;&quot;timeout&quot;</td></tr>
+<tr class="memdesc:a5e5a923fe1f235adbf87c70147123bdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro timeout.  <br /></td></tr>
+<tr class="separator:a5e5a923fe1f235adbf87c70147123bdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ee245346700426e01e61948da5a9f8e" id="r_a2ee245346700426e01e61948da5a9f8e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a2ee245346700426e01e61948da5a9f8e">CONFIG_NVS_KEY_ECHO</a>&#160;&#160;&#160;&quot;echo&quot;</td></tr>
+<tr class="memdesc:a2ee245346700426e01e61948da5a9f8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro echo.  <br /></td></tr>
+<tr class="separator:a2ee245346700426e01e61948da5a9f8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bb567a5bd367abf7442aec292621481" id="r_a1bb567a5bd367abf7442aec292621481"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a1bb567a5bd367abf7442aec292621481">CONFIG_NVS_KEY_BRIGHTNESS</a>&#160;&#160;&#160;&quot;brightness&quot;</td></tr>
+<tr class="memdesc:a1bb567a5bd367abf7442aec292621481"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro jas.  <br /></td></tr>
+<tr class="separator:a1bb567a5bd367abf7442aec292621481"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7136ade0342038b48a2369926811182b" id="r_a7136ade0342038b48a2369926811182b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a7136ade0342038b48a2369926811182b">CONFIG_NVS_KEY_GUIDED_HINT</a>&#160;&#160;&#160;&quot;guided_hint&quot;</td></tr>
+<tr class="memdesc:a7136ade0342038b48a2369926811182b"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro guided capture LED napovedu.  <br /></td></tr>
+<tr class="separator:a7136ade0342038b48a2369926811182b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c78490f77ab1d69c73370111b4e540c" id="r_a1c78490f77ab1d69c73370111b4e540c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a1c78490f77ab1d69c73370111b4e540c">CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL</a>&#160;&#160;&#160;&quot;g_snap_full&quot;</td></tr>
+<tr class="memdesc:a1c78490f77ab1d69c73370111b4e540c"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro plny snapshot hry.  <br /></td></tr>
+<tr class="separator:a1c78490f77ab1d69c73370111b4e540c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a47c7d5af6d43a6aa46a13ebf392fcc3a" id="r_a47c7d5af6d43a6aa46a13ebf392fcc3a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a47c7d5af6d43a6aa46a13ebf392fcc3a">CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN</a>&#160;&#160;&#160;&quot;g_snap_min&quot;</td></tr>
+<tr class="memdesc:a47c7d5af6d43a6aa46a13ebf392fcc3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro fallback snapshot hry.  <br /></td></tr>
+<tr class="separator:a47c7d5af6d43a6aa46a13ebf392fcc3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab4af7f40409b93d0b746f2d59f6272c" id="r_aab4af7f40409b93d0b746f2d59f6272c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aab4af7f40409b93d0b746f2d59f6272c">CONFIG_NVS_KEY_BOOT_TRACKER</a>&#160;&#160;&#160;&quot;g_boot_trk&quot;</td></tr>
+<tr class="memdesc:aab4af7f40409b93d0b746f2d59f6272c"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro boot tracker.  <br /></td></tr>
+<tr class="separator:aab4af7f40409b93d0b746f2d59f6272c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b395a4628a4d013914588f789e88cec" id="r_a0b395a4628a4d013914588f789e88cec"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a0b395a4628a4d013914588f789e88cec">CONFIG_NVS_KEY_START_POS_CHECK</a>&#160;&#160;&#160;&quot;start_pos_chk&quot;</td></tr>
+<tr class="memdesc:a0b395a4628a4d013914588f789e88cec"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro hlídání počáteční pozice.  <br /></td></tr>
+<tr class="separator:a0b395a4628a4d013914588f789e88cec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a1556a5e46704a83988a2b86b205d95" id="r_a7a1556a5e46704a83988a2b86b205d95"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a7a1556a5e46704a83988a2b86b205d95">CONFIG_NVS_KEY_UI_PREFS</a>&#160;&#160;&#160;&quot;ui_prefs_v1&quot;</td></tr>
+<tr class="memdesc:a7a1556a5e46704a83988a2b86b205d95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Web UI preference (UTF-8 JSON: {"version":1,"prefs":{...}})  <br /></td></tr>
+<tr class="separator:a7a1556a5e46704a83988a2b86b205d95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff6c6cb291f9c6f723df0ca1196ca745" id="r_aff6c6cb291f9c6f723df0ca1196ca745"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a>&#160;&#160;&#160;3072</td></tr>
+<tr class="memdesc:aff6c6cb291f9c6f723df0ca1196ca745"><td class="mdescLeft">&#160;</td><td class="mdescRight">Max velikost JSON pro ui_prefs (NVS blob)  <br /></td></tr>
+<tr class="separator:aff6c6cb291f9c6f723df0ca1196ca745"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:ad744426452d0ddd581a96e82f2369853" id="r_ad744426452d0ddd581a96e82f2369853"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#ad744426452d0ddd581a96e82f2369853">config_manager_init</a> (void)</td></tr>
+<tr class="memdesc:ad744426452d0ddd581a96e82f2369853"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje config manager.  <br /></td></tr>
+<tr class="separator:ad744426452d0ddd581a96e82f2369853"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3afd4faf59e0c9b138456675661de9e" id="r_ae3afd4faf59e0c9b138456675661de9e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#ae3afd4faf59e0c9b138456675661de9e">config_reset_to_defaults</a> (void)</td></tr>
+<tr class="memdesc:ae3afd4faf59e0c9b138456675661de9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj konfiguraci na vychozi hodnoty.  <br /></td></tr>
+<tr class="separator:ae3afd4faf59e0c9b138456675661de9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ba1745f97042165032c102c1957290b" id="r_a2ba1745f97042165032c102c1957290b"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a2ba1745f97042165032c102c1957290b">config_save_blob_to_nvs</a> (const char *key, const void *data, size_t len)</td></tr>
+<tr class="memdesc:a2ba1745f97042165032c102c1957290b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ulozi binarni blob do NVS pod danym klicem.  <br /></td></tr>
+<tr class="separator:a2ba1745f97042165032c102c1957290b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec173cc4386c2247aae898a09e3035fa" id="r_aec173cc4386c2247aae898a09e3035fa"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aec173cc4386c2247aae898a09e3035fa">config_save_ui_prefs_json</a> (const char *json, size_t len)</td></tr>
+<tr class="memdesc:aec173cc4386c2247aae898a09e3035fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ulozi web UI JSON do NVS (jednoducha validace tvaru).  <br /></td></tr>
+<tr class="separator:aec173cc4386c2247aae898a09e3035fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc3adbe5159f66435ab716dc74026f9b" id="r_adc3adbe5159f66435ab716dc74026f9b"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#adc3adbe5159f66435ab716dc74026f9b">config_load_ui_prefs_json</a> (char *out_buf, size_t out_buf_size, size_t *out_len)</td></tr>
+<tr class="memdesc:adc3adbe5159f66435ab716dc74026f9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nacte web UI JSON z NVS do bufferu (null terminator pokud misto).  <br /></td></tr>
+<tr class="separator:adc3adbe5159f66435ab716dc74026f9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2384ec2b6d40470fce3f919e0aa3ae86" id="r_a2384ec2b6d40470fce3f919e0aa3ae86"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a2384ec2b6d40470fce3f919e0aa3ae86">config_ui_prefs_get_chess_hint_limit</a> (void)</td></tr>
+<tr class="memdesc:a2384ec2b6d40470fce3f919e0aa3ae86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vrátí chessHintLimit z uloženého UI prefs JSON (0–99, 0 = neomezeno / chybí klíč).  <br /></td></tr>
+<tr class="separator:a2384ec2b6d40470fce3f919e0aa3ae86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa686528527fc11f58962e83e0b12683e" id="r_aa686528527fc11f58962e83e0b12683e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aa686528527fc11f58962e83e0b12683e">config_load_blob_from_nvs</a> (const char *key, void *data, size_t *len)</td></tr>
+<tr class="memdesc:aa686528527fc11f58962e83e0b12683e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nacte binarni blob z NVS pod danym klicem.  <br /></td></tr>
+<tr class="separator:aa686528527fc11f58962e83e0b12683e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ababa7ac95bd8941407fd857d511e4173" id="r_ababa7ac95bd8941407fd857d511e4173"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#ababa7ac95bd8941407fd857d511e4173">config_erase_key_from_nvs</a> (const char *key)</td></tr>
+<tr class="memdesc:ababa7ac95bd8941407fd857d511e4173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Smaze hodnotu pod danym klicem z NVS.  <br /></td></tr>
+<tr class="separator:ababa7ac95bd8941407fd857d511e4173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>ESP32-C6 Chess System v2.4 - Config Manager Hlavicka. </p>
+<p>Tato hlavicka definuje rozhrani pro spravu konfigurace:</p><ul>
+<li>Struktura systemove konfigurace</li>
+<li>Funkce pro spravu konfigurace</li>
+<li>Chybove kody a konstanty</li>
+</ul>
+<dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
+<p>Config Manager spravuje systemovou konfiguraci ulozeno v NVS flash. Umoznuje nacitat, ukladat a aplikovat nastaveni systemu (verbose mode, quiet mode, log level, timeout, echo). </p>
+
+<p class="definition">Definice v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+</div><h2 class="groupheader">Dokumentace definic maker</h2>
+<a id="ab761ad48a054d663ba21852111fdc330" name="ab761ad48a054d663ba21852111fdc330"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab761ad48a054d663ba21852111fdc330">&#9670;&#160;</a></span>CONFIG_DEFAULT_BRIGHTNESS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_DEFAULT_BRIGHTNESS&#160;&#160;&#160;50</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi jas (50%) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00086">86</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a738c632d7567c38a428c149e9b60c78c" name="a738c632d7567c38a428c149e9b60c78c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a738c632d7567c38a428c149e9b60c78c">&#9670;&#160;</a></span>CONFIG_DEFAULT_COMMAND_TIMEOUT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_DEFAULT_COMMAND_TIMEOUT&#160;&#160;&#160;5000</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi timeout prikazu (5 sekund) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00082">82</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a47c2b95d1d8288422494efa813aac56d" name="a47c2b95d1d8288422494efa813aac56d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47c2b95d1d8288422494efa813aac56d">&#9670;&#160;</a></span>CONFIG_DEFAULT_ECHO_ENABLED</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_DEFAULT_ECHO_ENABLED&#160;&#160;&#160;true</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi echo (zapnuto) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00084">84</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ae1a68f8dad797265d45abe06a259b45f" name="ae1a68f8dad797265d45abe06a259b45f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1a68f8dad797265d45abe06a259b45f">&#9670;&#160;</a></span>CONFIG_DEFAULT_LOG_LEVEL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_DEFAULT_LOG_LEVEL&#160;&#160;&#160;ESP_LOG_ERROR</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi log level (pouze chyby) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00080">80</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a28d3ba84ebd4728150a80005d7011e52" name="a28d3ba84ebd4728150a80005d7011e52"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28d3ba84ebd4728150a80005d7011e52">&#9670;&#160;</a></span>CONFIG_DEFAULT_QUIET_MODE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_DEFAULT_QUIET_MODE&#160;&#160;&#160;false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi quiet mode (vypnuto) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00078">78</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="aa0028fc365e89e240fa5fbf5fd10dc80" name="aa0028fc365e89e240fa5fbf5fd10dc80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0028fc365e89e240fa5fbf5fd10dc80">&#9670;&#160;</a></span>CONFIG_DEFAULT_VERBOSE_MODE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_DEFAULT_VERBOSE_MODE&#160;&#160;&#160;false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vychozi verbose mode (vypnuto) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00076">76</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="aab4af7f40409b93d0b746f2d59f6272c" name="aab4af7f40409b93d0b746f2d59f6272c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab4af7f40409b93d0b746f2d59f6272c">&#9670;&#160;</a></span>CONFIG_NVS_KEY_BOOT_TRACKER</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_BOOT_TRACKER&#160;&#160;&#160;&quot;g_boot_trk&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro boot tracker. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00110">110</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a1bb567a5bd367abf7442aec292621481" name="a1bb567a5bd367abf7442aec292621481"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bb567a5bd367abf7442aec292621481">&#9670;&#160;</a></span>CONFIG_NVS_KEY_BRIGHTNESS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_BRIGHTNESS&#160;&#160;&#160;&quot;brightness&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro jas. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00102">102</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a2ee245346700426e01e61948da5a9f8e" name="a2ee245346700426e01e61948da5a9f8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ee245346700426e01e61948da5a9f8e">&#9670;&#160;</a></span>CONFIG_NVS_KEY_ECHO</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_ECHO&#160;&#160;&#160;&quot;echo&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro echo. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00100">100</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a1c78490f77ab1d69c73370111b4e540c" name="a1c78490f77ab1d69c73370111b4e540c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c78490f77ab1d69c73370111b4e540c">&#9670;&#160;</a></span>CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL&#160;&#160;&#160;&quot;g_snap_full&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro plny snapshot hry. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00106">106</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a47c7d5af6d43a6aa46a13ebf392fcc3a" name="a47c7d5af6d43a6aa46a13ebf392fcc3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a47c7d5af6d43a6aa46a13ebf392fcc3a">&#9670;&#160;</a></span>CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN&#160;&#160;&#160;&quot;g_snap_min&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro fallback snapshot hry. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00108">108</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a7136ade0342038b48a2369926811182b" name="a7136ade0342038b48a2369926811182b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7136ade0342038b48a2369926811182b">&#9670;&#160;</a></span>CONFIG_NVS_KEY_GUIDED_HINT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_GUIDED_HINT&#160;&#160;&#160;&quot;guided_hint&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro guided capture LED napovedu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00104">104</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a3351759d56cb033763497863590ced96" name="a3351759d56cb033763497863590ced96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3351759d56cb033763497863590ced96">&#9670;&#160;</a></span>CONFIG_NVS_KEY_LOG_LEVEL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_LOG_LEVEL&#160;&#160;&#160;&quot;log_level&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro log level. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00096">96</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="ae2b5da40b2f1c4930562a5d61ce8b408" name="ae2b5da40b2f1c4930562a5d61ce8b408"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2b5da40b2f1c4930562a5d61ce8b408">&#9670;&#160;</a></span>CONFIG_NVS_KEY_QUIET</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_QUIET&#160;&#160;&#160;&quot;quiet&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro quiet mode. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00094">94</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a0b395a4628a4d013914588f789e88cec" name="a0b395a4628a4d013914588f789e88cec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b395a4628a4d013914588f789e88cec">&#9670;&#160;</a></span>CONFIG_NVS_KEY_START_POS_CHECK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_START_POS_CHECK&#160;&#160;&#160;&quot;start_pos_chk&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro hlídání počáteční pozice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00112">112</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a5e5a923fe1f235adbf87c70147123bdc" name="a5e5a923fe1f235adbf87c70147123bdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e5a923fe1f235adbf87c70147123bdc">&#9670;&#160;</a></span>CONFIG_NVS_KEY_TIMEOUT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_TIMEOUT&#160;&#160;&#160;&quot;timeout&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro timeout. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00098">98</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a7a1556a5e46704a83988a2b86b205d95" name="a7a1556a5e46704a83988a2b86b205d95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a1556a5e46704a83988a2b86b205d95">&#9670;&#160;</a></span>CONFIG_NVS_KEY_UI_PREFS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_UI_PREFS&#160;&#160;&#160;&quot;ui_prefs_v1&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Web UI preference (UTF-8 JSON: {"version":1,"prefs":{...}}) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00114">114</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a1465441aad59c8e924e7d848436e88c8" name="a1465441aad59c8e924e7d848436e88c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1465441aad59c8e924e7d848436e88c8">&#9670;&#160;</a></span>CONFIG_NVS_KEY_VERBOSE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_VERBOSE&#160;&#160;&#160;&quot;verbose&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS klic pro verbose mode. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00092">92</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="a3ec1858d742e64d0c66dfd9631302d11" name="a3ec1858d742e64d0c66dfd9631302d11"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3ec1858d742e64d0c66dfd9631302d11">&#9670;&#160;</a></span>CONFIG_NVS_NAMESPACE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_NAMESPACE&#160;&#160;&#160;&quot;chess_config&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>NVS namespace pro sachovou konfiguraci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00090">90</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<a id="aff6c6cb291f9c6f723df0ca1196ca745" name="aff6c6cb291f9c6f723df0ca1196ca745"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff6c6cb291f9c6f723df0ca1196ca745">&#9670;&#160;</a></span>CONFIG_UI_PREFS_MAX_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_UI_PREFS_MAX_BYTES&#160;&#160;&#160;3072</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Max velikost JSON pro ui_prefs (NVS blob) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8h_source.html#l00116">116</a> v souboru <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="ababa7ac95bd8941407fd857d511e4173" name="ababa7ac95bd8941407fd857d511e4173"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ababa7ac95bd8941407fd857d511e4173">&#9670;&#160;</a></span>config_erase_key_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_erase_key_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Smaze hodnotu pod danym klicem z NVS. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00342">342</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="aa686528527fc11f58962e83e0b12683e" name="aa686528527fc11f58962e83e0b12683e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa686528527fc11f58962e83e0b12683e">&#9670;&#160;</a></span>config_load_blob_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_load_blob_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nacte binarni blob z NVS pod danym klicem. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00326">326</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="adc3adbe5159f66435ab716dc74026f9b" name="adc3adbe5159f66435ab716dc74026f9b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc3adbe5159f66435ab716dc74026f9b">&#9670;&#160;</a></span>config_load_ui_prefs_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_load_ui_prefs_json </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>out_buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>out_buf_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>out_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nacte web UI JSON z NVS do bufferu (null terminator pokud misto). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00384">384</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="ad744426452d0ddd581a96e82f2369853" name="ad744426452d0ddd581a96e82f2369853"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad744426452d0ddd581a96e82f2369853">&#9670;&#160;</a></span>config_manager_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_manager_init </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuje config manager. </p>
+<p>Inicializuje NVS flash pro ukladani konfigurace. NVS flash je jiz inicializovan v <a class="el" href="main_8c.html" title="ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS spoluprace.">main.c</a> <a class="el" href="main_8c.html#ae52825df5837e0f8f5e814f48cafb722" title="Inicializace NVS (pro konfiguraci), konzole a UART / USB Serial JTAG.">init_console()</a>, takze tato funkce pouze overi dostupnost.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00045">45</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3afd4faf59e0c9b138456675661de9e" name="ae3afd4faf59e0c9b138456675661de9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3afd4faf59e0c9b138456675661de9e">&#9670;&#160;</a></span>config_reset_to_defaults()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_reset_to_defaults </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuj konfiguraci na vychozi hodnoty. </p>
+<p>Obnovi vychozi nastaveni systemu a ulozi je do NVS flash. Pote aplikuje vychozi nastaveni na system.</p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00285">285</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="a2ba1745f97042165032c102c1957290b" name="a2ba1745f97042165032c102c1957290b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ba1745f97042165032c102c1957290b">&#9670;&#160;</a></span>config_save_blob_to_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_save_blob_to_nvs </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const void *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ulozi binarni blob do NVS pod danym klicem. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00306">306</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="aec173cc4386c2247aae898a09e3035fa" name="aec173cc4386c2247aae898a09e3035fa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec173cc4386c2247aae898a09e3035fa">&#9670;&#160;</a></span>config_save_ui_prefs_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t config_save_ui_prefs_json </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ulozi web UI JSON do NVS (jednoducha validace tvaru). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00361">361</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="a2384ec2b6d40470fce3f919e0aa3ae86" name="a2384ec2b6d40470fce3f919e0aa3ae86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2384ec2b6d40470fce3f919e0aa3ae86">&#9670;&#160;</a></span>config_ui_prefs_get_chess_hint_limit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int config_ui_prefs_get_chess_hint_limit </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vrátí chessHintLimit z uloženého UI prefs JSON (0–99, 0 = neomezeno / chybí klíč). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="config__manager_8c_source.html#l00401">401</a> v souboru <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_8da852bb64bdd94ab698cdb4daee3f25.html">config_manager</a></li><li class="navelem"><a class="el" href="dir_0d86bd69b7bd52e460c6d68e5d6c8d5e.html">include</a></li><li class="navelem"><a class="el" href="config__manager_8h.html">config_manager.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

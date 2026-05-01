@@ -1,0 +1,33 @@
+<map id="config_manager.h" name="config_manager.h">
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Config Manager Hlavicka." alt="" coords="313,5,451,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,225,87,251"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="328,33,271,49,206,74,141,108,111,130,84,154,65,182,54,213,49,211,60,180,80,150,108,126,138,104,204,69,269,44,326,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="471,79,555,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="404,28,481,70,478,74,402,33"/>
+<area shape="rect" id="Node000004" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="317,79,447,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="385,31,385,65,379,65,379,31"/>
+<area shape="poly" id="edge11_Node000004_Node000002" title=" " alt="" coords="317,98,271,104,219,114,167,131,118,154,85,183,61,215,57,212,81,180,115,150,165,126,218,109,270,99,317,93"/>
+<area shape="rect" id="Node000005" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="771,152,886,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="447,100,758,149,758,154,446,105"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="209,225,360,251"/>
+<area shape="poly" id="edge12_Node000004_Node000006" title=" " alt="" coords="317,101,207,120,159,135,142,144,131,154,125,165,124,175,129,184,139,193,169,208,206,220,204,225,167,213,136,197,125,188,119,176,119,164,127,150,139,139,157,130,206,115,316,96"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="557,225,687,251"/>
+<area shape="poly" id="edge13_Node000004_Node000007" title=" " alt="" coords="317,100,256,109,200,124,180,134,168,146,165,159,175,175,191,185,224,194,321,209,543,229,543,234,321,214,223,199,189,190,171,179,160,160,163,143,177,130,198,119,255,104,316,95"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="798,225,881,251"/>
+<area shape="poly" id="edge17_Node000004_Node000008" title=" " alt="" coords="447,100,458,101,559,104,690,103,756,105,816,113,865,127,885,137,900,150,907,168,901,187,887,204,870,219,866,215,883,201,896,184,902,168,896,154,882,142,863,132,815,118,755,111,690,108,559,109,458,107,447,105"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="927,225,997,251"/>
+<area shape="poly" id="edge18_Node000004_Node000009" title=" " alt="" coords="447,100,458,101,561,106,695,108,763,112,826,119,880,131,921,150,935,163,946,178,959,211,954,213,941,181,931,166,918,154,878,136,825,124,763,117,695,114,561,111,458,107,447,105"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="185,152,289,177"/>
+<area shape="poly" id="edge10_Node000004_Node000010" title=" " alt="" coords="360,106,274,148,271,144,357,102"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="313,152,451,177"/>
+<area shape="poly" id="edge14_Node000004_Node000011" title=" " alt="" coords="385,104,385,138,379,138,379,104"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="475,152,593,177"/>
+<area shape="poly" id="edge15_Node000004_Node000012" title=" " alt="" coords="408,102,498,144,496,149,405,106"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="617,152,747,177"/>
+<area shape="poly" id="edge16_Node000004_Node000013" title=" " alt="" coords="431,101,621,146,620,151,430,107"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="772,178,760,180,101,235,100,230,759,175,771,173"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="772,178,760,180,374,229,373,224,759,175,771,173"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="796,180,669,223,668,218,795,175"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="833,177,838,211,833,212,828,178"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="851,175,929,216,927,221,849,180"/>
+</map>

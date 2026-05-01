@@ -1,0 +1,5 @@
+<map id="chess_timer_t" name="chess_timer_t">
+<area shape="rect" id="Node000001" title="Stav casoveho systemu." alt="" coords="30,93,143,119"/>
+<area shape="rect" id="Node000002" href="$structtime__control__config__t.html" title="Konfigurace casove kontroly." alt="" coords="5,5,168,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,45,89,93,84,93,84,45"/>
+</map>

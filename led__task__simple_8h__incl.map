@@ -1,0 +1,13 @@
+<map id="led_task_simple.h" name="led_task_simple.h">
+<area shape="rect" id="Node000001" title="Jednoduchy LED system &#45; Bezpecne rozhrani z vice vlaken." alt="" coords="275,5,415,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="297,33,100,80,99,75,296,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="111,79,261,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="320,33,225,75,223,71,318,28"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="286,79,403,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="347,31,347,65,342,65,342,31"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="427,79,497,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="365,28,432,69,430,74,362,33"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="522,79,605,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="381,28,516,72,514,77,379,33"/>
+</map>
