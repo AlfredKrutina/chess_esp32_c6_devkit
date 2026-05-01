@@ -255,167 +255,200 @@ $(document).ready(function(){initNavTree('ota__update_8c_source.html',''); initR
 <div class="foldopen" id="foldopen00147" data-start="{" data-end="}">
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno"><a class="line" href="ota__update_8c.html#a0c9759d58918d46e54533d6fe0fa8d9e">  147</a></span><span class="keyword">static</span> esp_err_t <a class="code hl_function" href="ota__update_8c.html#a0c9759d58918d46e54533d6fe0fa8d9e">http_get_firmware</a>(httpd_req_t *req) {</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  <span class="keyword">const</span> esp_app_desc_t *app = esp_app_get_description();</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *ota_sup = <a class="code hl_function" href="ota__update_8c.html#aceed68bb1fd9f3a1f915cd6ec2cb9e2e">ota_partition_layout_ok</a>() ? <span class="stringliteral">&quot;true&quot;</span> : <span class="stringliteral">&quot;false&quot;</span>;</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  <span class="keywordtype">char</span> buf[384];</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>  <span class="keywordtype">int</span> n = snprintf(buf, <span class="keyword">sizeof</span>(buf),</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>                   <span class="stringliteral">&quot;{\&quot;version\&quot;:\&quot;%s\&quot;,\&quot;project_name\&quot;:\&quot;%s\&quot;,&quot;</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>                   <span class="stringliteral">&quot;\&quot;idf\&quot;:\&quot;%s\&quot;,\&quot;ota_supported\&quot;:%s}&quot;</span>,</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>                   app-&gt;version, app-&gt;project_name,</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>                   esp_get_idf_version(), ota_sup);</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>  <span class="keywordflow">if</span> (n &lt;= 0 || n &gt;= (<span class="keywordtype">int</span>)<span class="keyword">sizeof</span>(buf)) {</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, -1);</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  }</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  httpd_resp_send(req, buf, n);</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>}</div>
-</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="foldopen" id="foldopen00166" data-start="{" data-end="}">
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno"><a class="line" href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">  166</a></span><span class="keyword">static</span> esp_err_t <a class="code hl_function" href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">http_get_ota_status</a>(httpd_req_t *req) {</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  <span class="keywordtype">char</span> buf[256];</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  <a class="code hl_enumeration" href="ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109">ota_ui_state_t</a> st = <a class="code hl_variable" href="ota__update_8c.html#a3116d1eebaa6fd0a9e436bef617b09dd">s_state</a>;</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  <span class="keywordtype">int</span> pct = <a class="code hl_variable" href="ota__update_8c.html#adaf1d7e749e5012e41a2bf15c2a10f22">s_percent</a>;</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *err = <a class="code hl_variable" href="ota__update_8c.html#a6c45acac8b5b8a20ea25215c526058f7">s_last_err</a>;</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keywordtype">int</span> n = snprintf(</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>      buf, <span class="keyword">sizeof</span>(buf),</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>      <span class="stringliteral">&quot;{\&quot;state\&quot;:\&quot;%s\&quot;,\&quot;percent\&quot;:%d,\&quot;message\&quot;:\&quot;%s\&quot;}&quot;</span>,</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>      <a class="code hl_function" href="ota__update_8c.html#a3d28aefbbfd33953b5a3588a7790f5c4">ota_state_json_str</a>(st), pct, err);</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  <span class="keywordflow">if</span> (n &lt;= 0 || n &gt;= (<span class="keywordtype">int</span>)<span class="keyword">sizeof</span>(buf)) {</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, -1);</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  }</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  <span class="keywordflow">if</span> (app == NULL) {</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  }</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>  cJSON *root = cJSON_CreateObject();</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  <span class="keywordflow">if</span> (root == NULL) {</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  }</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>  cJSON_AddStringToObject(root, <span class="stringliteral">&quot;version&quot;</span>, app-&gt;version);</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  cJSON_AddStringToObject(root, <span class="stringliteral">&quot;project_name&quot;</span>, app-&gt;project_name);</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  cJSON_AddStringToObject(root, <span class="stringliteral">&quot;idf&quot;</span>, esp_get_idf_version());</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  cJSON_AddItemToObject(</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>      root, <span class="stringliteral">&quot;ota_supported&quot;</span>,</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>      cJSON_CreateBool(<a class="code hl_function" href="ota__update_8c.html#aceed68bb1fd9f3a1f915cd6ec2cb9e2e">ota_partition_layout_ok</a>() ? 1 : 0));</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keywordtype">char</span> *printed = cJSON_PrintUnformatted(root);</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>  cJSON_Delete(root);</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  <span class="keywordflow">if</span> (printed == NULL) {</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>  }</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  httpd_resp_send(req, buf, n);</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>}</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  (void)httpd_resp_send(req, printed, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  free(printed);</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>}</div>
 </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
-<div class="foldopen" id="foldopen00185" data-start="{" data-end="}">
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno"><a class="line" href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">  185</a></span><span class="keyword">static</span> esp_err_t <a class="code hl_function" href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">http_post_ota</a>(httpd_req_t *req) {</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  <span class="keywordtype">char</span> body[520];</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  <span class="keywordtype">int</span> rlen = httpd_req_recv(req, body, <span class="keyword">sizeof</span>(body) - 1);</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  <span class="keywordflow">if</span> (rlen &lt;= 0) {</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;400 Bad Request&quot;</span>);</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;empty_body\&quot;}&quot;</span>, -1);</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>  }</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  body[rlen] = <span class="charliteral">&#39;\0&#39;</span>;</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  cJSON *root = cJSON_Parse(body);</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keywordflow">if</span> (root == NULL) {</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;400 Bad Request&quot;</span>);</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;bad_json\&quot;}&quot;</span>, -1);</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>  }</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  cJSON *ju = cJSON_GetObjectItemCaseSensitive(root, <span class="stringliteral">&quot;url&quot;</span>);</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *url =</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>      (cJSON_IsString(ju) &amp;&amp; ju-&gt;valuestring != NULL) ? ju-&gt;valuestring : NULL;</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>  esp_err_t q = <a class="code hl_function" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a>(url);</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>  cJSON_Delete(root);</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  <span class="keywordflow">if</span> (q == ESP_OK) {</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;202 Accepted&quot;</span>);</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:true,\&quot;accepted\&quot;:true}&quot;</span>, -1);</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  }</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  <span class="keywordflow">if</span> (q == ESP_ERR_INVALID_STATE) {</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;409 Conflict&quot;</span>);</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    httpd_resp_send(req,</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                    <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;busy_or_no_wifi_sta\&quot;}&quot;</span>, -1);</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  }</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keywordflow">if</span> (q == ESP_ERR_INVALID_ARG) {</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
+<div class="foldopen" id="foldopen00186" data-start="{" data-end="}">
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno"><a class="line" href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">  186</a></span><span class="keyword">static</span> esp_err_t <a class="code hl_function" href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">http_get_ota_status</a>(httpd_req_t *req) {</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>  <a class="code hl_enumeration" href="ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109">ota_ui_state_t</a> st = <a class="code hl_variable" href="ota__update_8c.html#a3116d1eebaa6fd0a9e436bef617b09dd">s_state</a>;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  <span class="keywordtype">int</span> pct = <a class="code hl_variable" href="ota__update_8c.html#adaf1d7e749e5012e41a2bf15c2a10f22">s_percent</a>;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *err = <a class="code hl_variable" href="ota__update_8c.html#a6c45acac8b5b8a20ea25215c526058f7">s_last_err</a>;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>  cJSON *root = cJSON_CreateObject();</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>  <span class="keywordflow">if</span> (root == NULL) {</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  }</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>  cJSON_AddStringToObject(root, <span class="stringliteral">&quot;state&quot;</span>, <a class="code hl_function" href="ota__update_8c.html#a3d28aefbbfd33953b5a3588a7790f5c4">ota_state_json_str</a>(st));</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>  cJSON_AddNumberToObject(root, <span class="stringliteral">&quot;percent&quot;</span>, pct);</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>  cJSON_AddStringToObject(root, <span class="stringliteral">&quot;message&quot;</span>, (err != NULL) ? err : <span class="stringliteral">&quot;&quot;</span>);</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  <span class="keywordtype">char</span> *printed = cJSON_PrintUnformatted(root);</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  cJSON_Delete(root);</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  <span class="keywordflow">if</span> (printed == NULL) {</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{}&quot;</span>, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  }</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>  httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  (void)httpd_resp_send(req, printed, HTTPD_RESP_USE_STRLEN);</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  free(printed);</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>}</div>
+</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="foldopen" id="foldopen00218" data-start="{" data-end="}">
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno"><a class="line" href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">  218</a></span><span class="keyword">static</span> esp_err_t <a class="code hl_function" href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">http_post_ota</a>(httpd_req_t *req) {</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="keywordtype">char</span> body[520];</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  <span class="keywordtype">int</span> rlen = httpd_req_recv(req, body, <span class="keyword">sizeof</span>(body) - 1);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keywordflow">if</span> (rlen &lt;= 0) {</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;400 Bad Request&quot;</span>);</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;need_https_url\&quot;}&quot;</span>, -1);</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  }</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  <span class="keywordflow">if</span> (q == ESP_ERR_NOT_SUPPORTED) {</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;503 Service Unavailable&quot;</span>);</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    httpd_resp_send(</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>        req,</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>        <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;ota_requires_ota0_ota1_partitions\&quot;}&quot;</span>, -1);</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>  }</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>  httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;ota_queue_failed\&quot;}&quot;</span>, -1);</div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  <span class="keywordflow">return</span> ESP_OK;</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>}</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;empty_body\&quot;}&quot;</span>, -1);</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  }</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  body[rlen] = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>  cJSON *root = cJSON_Parse(body);</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>  <span class="keywordflow">if</span> (root == NULL) {</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;400 Bad Request&quot;</span>);</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;bad_json\&quot;}&quot;</span>, -1);</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  }</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>  cJSON *ju = cJSON_GetObjectItemCaseSensitive(root, <span class="stringliteral">&quot;url&quot;</span>);</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *url =</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>      (cJSON_IsString(ju) &amp;&amp; ju-&gt;valuestring != NULL) ? ju-&gt;valuestring : NULL;</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>  esp_err_t q = <a class="code hl_function" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a>(url);</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>  cJSON_Delete(root);</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  httpd_resp_set_type(req, <span class="stringliteral">&quot;application/json&quot;</span>);</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>  <span class="keywordflow">if</span> (q == ESP_OK) {</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;202 Accepted&quot;</span>);</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:true,\&quot;accepted\&quot;:true}&quot;</span>, -1);</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  }</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>  <span class="keywordflow">if</span> (q == ESP_ERR_INVALID_STATE) {</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;409 Conflict&quot;</span>);</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    httpd_resp_send(req,</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>                    <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;busy_or_no_wifi_sta\&quot;}&quot;</span>, -1);</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  }</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>  <span class="keywordflow">if</span> (q == ESP_ERR_INVALID_ARG) {</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;400 Bad Request&quot;</span>);</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;need_https_url\&quot;}&quot;</span>, -1);</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  }</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>  <span class="keywordflow">if</span> (q == ESP_ERR_NOT_SUPPORTED) {</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    httpd_resp_set_status(req, <span class="stringliteral">&quot;503 Service Unavailable&quot;</span>);</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    httpd_resp_send(</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>        req,</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>        <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;ota_requires_ota0_ota1_partitions\&quot;}&quot;</span>, -1);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  }</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  httpd_resp_set_status(req, <span class="stringliteral">&quot;500 Internal Server Error&quot;</span>);</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>  httpd_resp_send(req, <span class="stringliteral">&quot;{\&quot;ok\&quot;:false,\&quot;error\&quot;:\&quot;ota_queue_failed\&quot;}&quot;</span>, -1);</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>}</div>
 </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
-<div class="foldopen" id="foldopen00238" data-start="{" data-end="}">
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="ota__update_8h.html#a57e750c4543449d8c7a301dc489cc1b9">  238</a></span>esp_err_t <a class="code hl_function" href="ota__update_8c.html#a57e750c4543449d8c7a301dc489cc1b9">ota_update_register_http_handlers</a>(httpd_handle_t hd) {</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a> == NULL) {</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a> = xSemaphoreCreateBinary();</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a> == NULL) {</div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>      <span class="keywordflow">return</span> ESP_ERR_NO_MEM;</div>
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>    }</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    xSemaphoreGive(<a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a>);</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>  }</div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>  <span class="keywordflow">if</span> (!<a class="code hl_function" href="ota__update_8c.html#aceed68bb1fd9f3a1f915cd6ec2cb9e2e">ota_partition_layout_ok</a>()) {</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>    ESP_LOGW(<a class="code hl_variable" href="ota__update_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>             <span class="stringliteral">&quot;HTTPS OTA nedostupné: v tabulce oddílů chybí ota_0+ota_1 (např. 4 MB factory layout)&quot;</span>);</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>  }</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>  httpd_uri_t get_fw = {.uri = <span class="stringliteral">&quot;/api/system/firmware&quot;</span>,</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>                        .method = HTTP_GET,</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>                        .handler = <a class="code hl_function" href="ota__update_8c.html#a0c9759d58918d46e54533d6fe0fa8d9e">http_get_firmware</a>,</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>                        .user_ctx = NULL};</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>  httpd_uri_t get_st = {.uri = <span class="stringliteral">&quot;/api/system/ota/status&quot;</span>,</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>                        .method = HTTP_GET,</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>                        .handler = <a class="code hl_function" href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">http_get_ota_status</a>,</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>                        .user_ctx = NULL};</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>  httpd_uri_t post_ota = {.uri = <span class="stringliteral">&quot;/api/system/ota&quot;</span>,</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>                          .method = HTTP_POST,</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>                          .handler = <a class="code hl_function" href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">http_post_ota</a>,</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>                          .user_ctx = NULL};</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  esp_err_t e = httpd_register_uri_handler(hd, &amp;get_fw);</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>  <span class="keywordflow">if</span> (e != ESP_OK) {</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keywordflow">return</span> e;</div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  }</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>  e = httpd_register_uri_handler(hd, &amp;get_st);</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  <span class="keywordflow">if</span> (e != ESP_OK) {</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <span class="keywordflow">return</span> e;</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  }</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>  <span class="keywordflow">return</span> httpd_register_uri_handler(hd, &amp;post_ota);</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>}</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
+<div class="foldopen" id="foldopen00271" data-start="{" data-end="}">
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno"><a class="line" href="ota__update_8h.html#a57e750c4543449d8c7a301dc489cc1b9">  271</a></span>esp_err_t <a class="code hl_function" href="ota__update_8c.html#a57e750c4543449d8c7a301dc489cc1b9">ota_update_register_http_handlers</a>(httpd_handle_t hd) {</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a> == NULL) {</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a> = xSemaphoreCreateBinary();</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a> == NULL) {</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>      <span class="keywordflow">return</span> ESP_ERR_NO_MEM;</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    }</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    xSemaphoreGive(<a class="code hl_variable" href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a>);</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>  }</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span> </div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>  <span class="keywordflow">if</span> (!<a class="code hl_function" href="ota__update_8c.html#aceed68bb1fd9f3a1f915cd6ec2cb9e2e">ota_partition_layout_ok</a>()) {</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    ESP_LOGW(<a class="code hl_variable" href="ota__update_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>             <span class="stringliteral">&quot;HTTPS OTA nedostupné: v tabulce oddílů chybí ota_0+ota_1 (např. 4 MB factory layout)&quot;</span>);</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>  }</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>  httpd_uri_t get_fw = {.uri = <span class="stringliteral">&quot;/api/system/firmware&quot;</span>,</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>                        .method = HTTP_GET,</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>                        .handler = <a class="code hl_function" href="ota__update_8c.html#a0c9759d58918d46e54533d6fe0fa8d9e">http_get_firmware</a>,</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                        .user_ctx = NULL};</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>  httpd_uri_t get_st = {.uri = <span class="stringliteral">&quot;/api/system/ota/status&quot;</span>,</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>                        .method = HTTP_GET,</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>                        .handler = <a class="code hl_function" href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">http_get_ota_status</a>,</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>                        .user_ctx = NULL};</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>  httpd_uri_t post_ota = {.uri = <span class="stringliteral">&quot;/api/system/ota&quot;</span>,</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>                          .method = HTTP_POST,</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>                          .handler = <a class="code hl_function" href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">http_post_ota</a>,</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>                          .user_ctx = NULL};</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>  esp_err_t e = httpd_register_uri_handler(hd, &amp;get_fw);</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>  <span class="keywordflow">if</span> (e != ESP_OK) {</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>    <span class="keywordflow">return</span> e;</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>  }</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>  e = httpd_register_uri_handler(hd, &amp;get_st);</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>  <span class="keywordflow">if</span> (e != ESP_OK) {</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>    <span class="keywordflow">return</span> e;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>  }</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>  <span class="keywordflow">return</span> httpd_register_uri_handler(hd, &amp;post_ota);</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>}</div>
 </div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno"><a class="line" href="ota__update_8h.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">  276</a></span>esp_err_t <a class="code hl_function" href="ota__update_8c.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">ota_update_try_start_url</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *url) { <span class="keywordflow">return</span> <a class="code hl_function" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a>(url); }</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span> </div>
-<div class="foldopen" id="foldopen00278" data-start="{" data-end="}">
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno"><a class="line" href="ota__update_8h.html#a061bf2fb7f3c766384c5042f5ad04c9f">  278</a></span>esp_err_t <a class="code hl_function" href="ota__update_8c.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update_ble_try_dispatch</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *json_buf) {</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>  <span class="keywordflow">if</span> (json_buf == NULL) {</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>    <span class="keywordflow">return</span> ESP_ERR_INVALID_ARG;</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>  }</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>  cJSON *root = cJSON_Parse(json_buf);</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>  <span class="keywordflow">if</span> (root == NULL) {</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <span class="keywordflow">return</span> ESP_FAIL;</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>  }</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>  cJSON *jc = cJSON_GetObjectItemCaseSensitive(root, <span class="stringliteral">&quot;cmd&quot;</span>);</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *cmd =</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>      (cJSON_IsString(jc) &amp;&amp; jc-&gt;valuestring != NULL) ? jc-&gt;valuestring : <span class="stringliteral">&quot;&quot;</span>;</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>  <span class="keywordflow">if</span> (strcmp(cmd, <span class="stringliteral">&quot;ota_start&quot;</span>) != 0) {</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    cJSON_Delete(root);</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <span class="keywordflow">return</span> ESP_ERR_NOT_FOUND;</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>  }</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>  cJSON *ju = cJSON_GetObjectItemCaseSensitive(root, <span class="stringliteral">&quot;url&quot;</span>);</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *url =</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>      (cJSON_IsString(ju) &amp;&amp; ju-&gt;valuestring != NULL) ? ju-&gt;valuestring : NULL;</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>  esp_err_t err = <a class="code hl_function" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a>(url);</div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>  cJSON_Delete(root);</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>  <span class="keywordflow">return</span> err;</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>}</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span> </div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno"><a class="line" href="ota__update_8h.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">  309</a></span>esp_err_t <a class="code hl_function" href="ota__update_8c.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">ota_update_try_start_url</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *url) { <span class="keywordflow">return</span> <a class="code hl_function" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a>(url); }</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="foldopen" id="foldopen00311" data-start="{" data-end="}">
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno"><a class="line" href="ota__update_8h.html#a061bf2fb7f3c766384c5042f5ad04c9f">  311</a></span>esp_err_t <a class="code hl_function" href="ota__update_8c.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update_ble_try_dispatch</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *json_buf) {</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>  <span class="keywordflow">if</span> (json_buf == NULL) {</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>    <span class="keywordflow">return</span> ESP_ERR_INVALID_ARG;</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>  }</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>  cJSON *root = cJSON_Parse(json_buf);</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>  <span class="keywordflow">if</span> (root == NULL) {</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <span class="keywordflow">return</span> ESP_FAIL;</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>  }</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>  cJSON *jc = cJSON_GetObjectItemCaseSensitive(root, <span class="stringliteral">&quot;cmd&quot;</span>);</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *cmd =</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>      (cJSON_IsString(jc) &amp;&amp; jc-&gt;valuestring != NULL) ? jc-&gt;valuestring : <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>  <span class="keywordflow">if</span> (strcmp(cmd, <span class="stringliteral">&quot;ota_start&quot;</span>) != 0) {</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    cJSON_Delete(root);</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="keywordflow">return</span> ESP_ERR_NOT_FOUND;</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>  }</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>  cJSON *ju = cJSON_GetObjectItemCaseSensitive(root, <span class="stringliteral">&quot;url&quot;</span>);</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *url =</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>      (cJSON_IsString(ju) &amp;&amp; ju-&gt;valuestring != NULL) ? ju-&gt;valuestring : NULL;</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>  esp_err_t err = <a class="code hl_function" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a>(url);</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  cJSON_Delete(root);</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  <span class="keywordflow">return</span> err;</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>}</div>
 </div>
-<div class="ttc" id="aota__update_8c_html_a061bf2fb7f3c766384c5042f5ad04c9f"><div class="ttname"><a href="ota__update_8c.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update_ble_try_dispatch</a></div><div class="ttdeci">esp_err_t ota_update_ble_try_dispatch(const char *json_buf)</div><div class="ttdoc">BLE JSON {&quot;cmd&quot;:&quot;ota_start&quot;,&quot;url&quot;:&quot;https://…&quot;}.</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00278">ota_update.c:278</a></div></div>
+<div class="ttc" id="aota__update_8c_html_a061bf2fb7f3c766384c5042f5ad04c9f"><div class="ttname"><a href="ota__update_8c.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update_ble_try_dispatch</a></div><div class="ttdeci">esp_err_t ota_update_ble_try_dispatch(const char *json_buf)</div><div class="ttdoc">BLE JSON {&quot;cmd&quot;:&quot;ota_start&quot;,&quot;url&quot;:&quot;https://…&quot;}.</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00311">ota_update.c:311</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a0c9759d58918d46e54533d6fe0fa8d9e"><div class="ttname"><a href="ota__update_8c.html#a0c9759d58918d46e54533d6fe0fa8d9e">http_get_firmware</a></div><div class="ttdeci">static esp_err_t http_get_firmware(httpd_req_t *req)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00147">ota_update.c:147</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a3116d1eebaa6fd0a9e436bef617b09dd"><div class="ttname"><a href="ota__update_8c.html#a3116d1eebaa6fd0a9e436bef617b09dd">s_state</a></div><div class="ttdeci">static volatile ota_ui_state_t s_state</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00035">ota_update.c:35</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a3356efdfe078bb7aa213228c34f8d109"><div class="ttname"><a href="ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109">ota_ui_state_t</a></div><div class="ttdeci">ota_ui_state_t</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00027">ota_update.c:27</a></div></div>
@@ -425,20 +458,20 @@ $(document).ready(function(){initNavTree('ota__update_8c_source.html',''); initR
 <div class="ttc" id="aota__update_8c_html_a3356efdfe078bb7aa213228c34f8d109ab1639cb0a30d63e6250a08c360e9b7d5"><div class="ttname"><a href="ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109ab1639cb0a30d63e6250a08c360e9b7d5">OTA_UI_IDLE</a></div><div class="ttdeci">@ OTA_UI_IDLE</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00028">ota_update.c:28</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a358ec5eaf388844ee8bdccc783e01812"><div class="ttname"><a href="ota__update_8c.html#a358ec5eaf388844ee8bdccc783e01812">ota_worker_task</a></div><div class="ttdeci">static void ota_worker_task(void *arg)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00068">ota_update.c:68</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a3d28aefbbfd33953b5a3588a7790f5c4"><div class="ttname"><a href="ota__update_8c.html#a3d28aefbbfd33953b5a3588a7790f5c4">ota_state_json_str</a></div><div class="ttdeci">static const char * ota_state_json_str(ota_ui_state_t st)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00048">ota_update.c:48</a></div></div>
-<div class="ttc" id="aota__update_8c_html_a57e750c4543449d8c7a301dc489cc1b9"><div class="ttname"><a href="ota__update_8c.html#a57e750c4543449d8c7a301dc489cc1b9">ota_update_register_http_handlers</a></div><div class="ttdeci">esp_err_t ota_update_register_http_handlers(httpd_handle_t hd)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00238">ota_update.c:238</a></div></div>
+<div class="ttc" id="aota__update_8c_html_a57e750c4543449d8c7a301dc489cc1b9"><div class="ttname"><a href="ota__update_8c.html#a57e750c4543449d8c7a301dc489cc1b9">ota_update_register_http_handlers</a></div><div class="ttdeci">esp_err_t ota_update_register_http_handlers(httpd_handle_t hd)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00271">ota_update.c:271</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="ota__update_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00025">ota_update.c:25</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a6c45acac8b5b8a20ea25215c526058f7"><div class="ttname"><a href="ota__update_8c.html#a6c45acac8b5b8a20ea25215c526058f7">s_last_err</a></div><div class="ttdeci">static char s_last_err[128]</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00037">ota_update.c:37</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a88aefe37dfb5e72176b027c6db30ef65"><div class="ttname"><a href="ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65">s_ota_sem</a></div><div class="ttdeci">static SemaphoreHandle_t s_ota_sem</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00034">ota_update.c:34</a></div></div>
-<div class="ttc" id="aota__update_8c_html_a95a6f50250efdbc39829370fa6871fbb"><div class="ttname"><a href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">http_get_ota_status</a></div><div class="ttdeci">static esp_err_t http_get_ota_status(httpd_req_t *req)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00166">ota_update.c:166</a></div></div>
+<div class="ttc" id="aota__update_8c_html_a95a6f50250efdbc39829370fa6871fbb"><div class="ttname"><a href="ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb">http_get_ota_status</a></div><div class="ttdeci">static esp_err_t http_get_ota_status(httpd_req_t *req)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00186">ota_update.c:186</a></div></div>
 <div class="ttc" id="aota__update_8c_html_ab2c4040e268b96ccf80ab04c1b062422"><div class="ttname"><a href="ota__update_8c.html#ab2c4040e268b96ccf80ab04c1b062422">url_ok_https</a></div><div class="ttdeci">static bool url_ok_https(const char *url)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00061">ota_update.c:61</a></div></div>
-<div class="ttc" id="aota__update_8c_html_ac2c90b08ffa7e5e21ab74f0f9feb652c"><div class="ttname"><a href="ota__update_8c.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">ota_update_try_start_url</a></div><div class="ttdeci">esp_err_t ota_update_try_start_url(const char *url)</div><div class="ttdoc">Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL.</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00276">ota_update.c:276</a></div></div>
+<div class="ttc" id="aota__update_8c_html_ac2c90b08ffa7e5e21ab74f0f9feb652c"><div class="ttname"><a href="ota__update_8c.html#ac2c90b08ffa7e5e21ab74f0f9feb652c">ota_update_try_start_url</a></div><div class="ttdeci">esp_err_t ota_update_try_start_url(const char *url)</div><div class="ttdoc">Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL.</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00309">ota_update.c:309</a></div></div>
 <div class="ttc" id="aota__update_8c_html_aceed68bb1fd9f3a1f915cd6ec2cb9e2e"><div class="ttname"><a href="ota__update_8c.html#aceed68bb1fd9f3a1f915cd6ec2cb9e2e">ota_partition_layout_ok</a></div><div class="ttdeci">static bool ota_partition_layout_ok(void)</div><div class="ttdoc">Standardní HTTPS OTA potřebuje ota_0 i ota_1 (factory-only tabulka na 4 MB flash → vypnuto).</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00040">ota_update.c:40</a></div></div>
 <div class="ttc" id="aota__update_8c_html_adaf1d7e749e5012e41a2bf15c2a10f22"><div class="ttname"><a href="ota__update_8c.html#adaf1d7e749e5012e41a2bf15c2a10f22">s_percent</a></div><div class="ttdeci">static volatile int s_percent</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00036">ota_update.c:36</a></div></div>
-<div class="ttc" id="aota__update_8c_html_ae98d65b10a350c82817417d57c87443c"><div class="ttname"><a href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">http_post_ota</a></div><div class="ttdeci">static esp_err_t http_post_ota(httpd_req_t *req)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00185">ota_update.c:185</a></div></div>
+<div class="ttc" id="aota__update_8c_html_ae98d65b10a350c82817417d57c87443c"><div class="ttname"><a href="ota__update_8c.html#ae98d65b10a350c82817417d57c87443c">http_post_ota</a></div><div class="ttdeci">static esp_err_t http_post_ota(httpd_req_t *req)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00218">ota_update.c:218</a></div></div>
 <div class="ttc" id="aota__update_8c_html_af8ad2ce4fadfc32cfe70311ccd91d158"><div class="ttname"><a href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a></div><div class="ttdeci">static esp_err_t schedule_ota(const char *url)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00115">ota_update.c:115</a></div></div>
 <div class="ttc" id="aota__update_8h_html"><div class="ttname"><a href="ota__update_8h.html">ota_update.h</a></div><div class="ttdoc">HTTPS OTA — ESP si stáhne .bin z URL (telefon jen pošle odkaz).</div></div>
 <div class="ttc" id="aweb__server__task_8h_html"><div class="ttname"><a href="web__server__task_8h.html">web_server_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Web Server Task Hlavicka.</div></div>
-<div class="ttc" id="aweb__server__task_8h_html_a96cbfc09f923b4548a4bb4c63f70237f"><div class="ttname"><a href="web__server__task_8h.html#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a></div><div class="ttdeci">bool wifi_is_sta_connected(void)</div><div class="ttdoc">Zjisti zda je STA pripojeno.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00717">web_server_task.c:717</a></div></div>
+<div class="ttc" id="aweb__server__task_8h_html_a96cbfc09f923b4548a4bb4c63f70237f"><div class="ttname"><a href="web__server__task_8h.html#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a></div><div class="ttdeci">bool wifi_is_sta_connected(void)</div><div class="ttdoc">Zjisti zda je STA pripojeno.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00733">web_server_task.c:733</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
