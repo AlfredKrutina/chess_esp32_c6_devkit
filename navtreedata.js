@@ -53,22 +53,22 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "animation__task_8c.html",
-"chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280",
-"dir_27a0c766b97c45b6deeaa7a8c2e2ed8a.html",
-"freertos__chess_8h.html#a5f1958b9037083cf953f250fe1f364a5",
-"game__state__notify_8c.html",
-"game__task_8c.html#a8351a9f9e065e3dfbfe3bdd50cb60d4a",
-"game__task_8h.html#a58b489e87078e33ccf75b35d892bb4fe",
-"ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5",
-"led__task_8c.html#a0256c8c9fa0cc7b33ef3d2ceb0abb010",
-"main_8c.html#acb49a688d90460dc48f7e0b976ace62d",
-"structanimation__config__t.html",
-"structgame__snapshot__full__t.html",
-"structtest__suite__t.html#a9d512ba9e5bd1fb560c6ec96fa6ba528",
-"uart__cli__panel_8h.html",
-"uart__task_8c.html#af34a40710b1a30f20f8be55971986884",
-"visual__error__system_8h.html#abdd724f673b0a1e0a44c562e25861fcf",
-"web__server__task_8h.html#ad3bda523e632b9d3152cdd73fe9d8d4c"
+"chess__types_8h.html#a24aceb1224555fd605ab85c9b0842357",
+"dir_17f9138bad1f9d2ff44cddc9da54d444.html",
+"freertos__chess_8h.html#a5c56175a56a0013ce45265301301e937",
+"game__led__direct_8h.html#af337fa678e02039015341d7fa45e3ccc",
+"game__task_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49",
+"game__task_8h.html#a54c0942839659e43c97af3b1c7aca7e9",
+"ha__light__task_8c.html#ab17c9e100295b75e1b76d897d08a805b",
+"led__task_8c.html",
+"main_8c.html#ac2614434acc93da191dda0a8a445e651",
+"streaming__output_8h.html#a936645e3895fd2cd3cda93e2b9302a4d",
+"structfirework__t.html#a37330f2a3b0e7da717cfccb0912b8cfd",
+"structstreaming__output__t.html#a977a9f506e1525f07917df0db54ddf4f",
+"timer__system_8h.html#acc36d1000e481c6d6062135a9f115d40",
+"uart__task_8c.html#ad4eba791e9c70bcdc5084bda677d813e",
+"visual__error__system_8h.html#a1cf2e6ca0a08364ccdf0656c212380daa50b4433db1a1a2fddea20bb8b7493f16",
+"web__server__task_8h.html#a2fb41e5bc5236e57873eb55f1eadb51c"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';

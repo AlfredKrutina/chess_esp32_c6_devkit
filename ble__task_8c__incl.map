@@ -1,13 +1,15 @@
 <map id="ble_task.c" name="ble_task.c">
-<area shape="rect" id="Node000001" title="BLE vrstva — NimBLE při CONFIG_BT_ENABLED (viz ble_nimble_impl.c)." alt="" coords="159,5,247,31"/>
-<area shape="rect" id="Node000002" href="$ble__task_8h.html" title="BLE rozhraní CZECHMATE — NimBLE GATT při CONFIG_BT_ENABLED." alt="" coords="104,79,193,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,33,168,69,164,66,192,29"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="217,79,301,104"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="215,29,244,66,240,69,210,33"/>
+<area shape="rect" id="Node000001" title="BLE vrstva — NimBLE při CONFIG_BT_ENABLED (viz ble_nimble_impl.c)." alt="" coords="214,5,302,31"/>
+<area shape="rect" id="Node000002" href="$ble__task_8h.html" title="BLE rozhraní CZECHMATE — NimBLE GATT při CONFIG_BT_ENABLED." alt="" coords="159,79,248,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="251,33,223,69,218,66,247,29"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="272,79,356,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="269,29,299,66,294,69,265,33"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="134,106,76,146,73,142,131,102"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,186,177"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="151,104,151,138,146,138,146,104"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="211,152,281,177"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="166,102,220,141,217,146,163,106"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="179,106,85,149,83,144,177,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,194,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="197,106,171,142,167,139,193,103"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="218,152,293,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="214,103,241,139,237,142,210,106"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="317,152,388,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="228,102,317,144,315,148,226,106"/>
 </map>

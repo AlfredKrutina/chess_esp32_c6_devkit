@@ -1,5 +1,7 @@
 var NAVTREEINDEX3 =
 {
+"freertos__chess_8h.html#a5c56175a56a0013ce45265301301e937":[3,0,0,5,0,1,38],
+"freertos__chess_8h.html#a5e46e8f15b9ba2ac3ac0935d11a778fc":[3,0,0,5,0,1,28],
 "freertos__chess_8h.html#a5f1958b9037083cf953f250fe1f364a5":[3,0,0,5,0,1,95],
 "freertos__chess_8h.html#a5f55b07707df2f2cf371f707207ed508":[3,0,0,5,0,1,23],
 "freertos__chess_8h.html#a5f70e9694a3ea89ce6c9c4396843a3b2":[3,0,0,5,0,1,47],
@@ -247,7 +249,5 @@ var NAVTREEINDEX3 =
 "game__led__direct_8h.html#a8b43b89b88ce59ea25698ac5a8280bf2":[3,0,0,8,0,1,0],
 "game__led__direct_8h.html#aa112414da6cba72225e1b2958c958fa3":[3,0,0,8,0,1,1],
 "game__led__direct_8h.html#aad4c6f489504e1aace2045420bcec3d1":[3,0,0,8,0,1,6],
-"game__led__direct_8h.html#aea44edb838b9522e00dfd55da1856986":[3,0,0,8,0,1,3],
-"game__led__direct_8h.html#af337fa678e02039015341d7fa45e3ccc":[3,0,0,8,0,1,9],
-"game__led__direct_8h_source.html":[3,0,0,8,0,1]
+"game__led__direct_8h.html#aea44edb838b9522e00dfd55da1856986":[3,0,0,8,0,1,3]
 };

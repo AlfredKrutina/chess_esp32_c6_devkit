@@ -158,14 +158,15 @@ var searchData=
   ['unified_5fanimation_5fcreate_155',['unified_animation_create',['../unified__animation__manager_8h.html#a94483a3f8c95cb093d2a278b8cde1c9e',1,'unified_animation_create(animation_type_t type, animation_priority_t priority):&#160;unified_animation_manager.c'],['../unified__animation__manager_8c.html#a94483a3f8c95cb093d2a278b8cde1c9e',1,'unified_animation_create(animation_type_t type, animation_priority_t priority):&#160;unified_animation_manager.c']]],
   ['unified_5fanimation_5fmanager_2ec_156',['unified_animation_manager.c',['../unified__animation__manager_8c.html',1,'']]],
   ['unified_5fanimation_5fmanager_2eh_157',['unified_animation_manager.h',['../unified__animation__manager_8h.html',1,'']]],
-  ['unified_5fanimation_5fstop_158',['unified_animation_stop',['../unified__animation__manager_8h.html#a11b526f2f45df5e367c9ec63500c7fc1',1,'unified_animation_stop(uint32_t anim_id):&#160;unified_animation_manager.c'],['../unified__animation__manager_8c.html#a11b526f2f45df5e367c9ec63500c7fc1',1,'unified_animation_stop(uint32_t anim_id):&#160;unified_animation_manager.c']]],
+  ['unified_5fanimation_5fstop_158',['unified_animation_stop',['../unified__animation__manager_8c.html#a11b526f2f45df5e367c9ec63500c7fc1',1,'unified_animation_stop(uint32_t anim_id):&#160;unified_animation_manager.c'],['../unified__animation__manager_8h.html#a11b526f2f45df5e367c9ec63500c7fc1',1,'unified_animation_stop(uint32_t anim_id):&#160;unified_animation_manager.c']]],
   ['unified_5fanimation_5fstop_5fall_159',['unified_animation_stop_all',['../unified__animation__manager_8h.html#a00e3ed0913caba4f42ed8749b9e41d6f',1,'unified_animation_stop_all(void):&#160;unified_animation_manager.c'],['../unified__animation__manager_8c.html#a00e3ed0913caba4f42ed8749b9e41d6f',1,'unified_animation_stop_all(void):&#160;unified_animation_manager.c']]],
-  ['update_5ffrequency_5fhz_160',['update_frequency_hz',['../structled__manager__config__t.html#aeb8bda8e64d5460b28a2f12f3b59d33f',1,'led_manager_config_t::update_frequency_hz'],['../structanimation__config__t.html#aedd96ef71c0b884f50fcb1a69e0ee024',1,'animation_config_t::update_frequency_hz']]],
+  ['update_5ffrequency_5fhz_160',['update_frequency_hz',['../structanimation__config__t.html#aedd96ef71c0b884f50fcb1a69e0ee024',1,'animation_config_t::update_frequency_hz'],['../structled__manager__config__t.html#aeb8bda8e64d5460b28a2f12f3b59d33f',1,'led_manager_config_t::update_frequency_hz']]],
   ['update_5ffunc_161',['update_func',['../structanimation__state__struct.html#ab1a5f1afbbdb0e1a7cf3eb90ddc29206',1,'animation_state_struct']]],
   ['uri_162',['uri',['../chess__piece__http_8c.html#a69ec24fb2d0a5f5e532deb9adaab81d6',1,'chess_piece_http.c']]],
-  ['url_5fok_5fhttps_163',['url_ok_https',['../ota__update_8c.html#ab2c4040e268b96ccf80ab04c1b062422',1,'ota_update.c']]],
-  ['usage_164',['usage',['../structuart__command__t.html#af54b176c77095097bdde582f4d1cbc26',1,'uart_command_t']]],
-  ['user_5fconfirmed_165',['user_confirmed',['../structactive__error__t.html#ace7dcdd59cad912bc07b3fc6c4fdb007',1,'active_error_t']]],
-  ['user_5fmessage_166',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]],
-  ['username_167',['username',['../ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018',1,'ha_light_task.c']]]
+  ['url_5fis_5fhttp_163',['url_is_http',['../ota__update_8c.html#a88acbd3d46c17168c091474faddfccce',1,'ota_update.c']]],
+  ['url_5fis_5fhttps_164',['url_is_https',['../ota__update_8c.html#a83cac12df33215375d8151d0675b866b',1,'ota_update.c']]],
+  ['usage_165',['usage',['../structuart__command__t.html#af54b176c77095097bdde582f4d1cbc26',1,'uart_command_t']]],
+  ['user_5fconfirmed_166',['user_confirmed',['../structactive__error__t.html#ace7dcdd59cad912bc07b3fc6c4fdb007',1,'active_error_t']]],
+  ['user_5fmessage_167',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]],
+  ['username_168',['username',['../ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018',1,'ha_light_task.c']]]
 ];
