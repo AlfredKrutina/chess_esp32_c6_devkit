@@ -1,0 +1,28 @@
+Sestavení (z tohoto adresáře):
+  make
+
+Velikost Flash (schéma používá STM32C031F4 = 16 KiB → povinné):
+  make FLASH_KB=16
+
+32 KiB (např. STM32C031F6 / C6 na Nucleu):
+  make
+  nebo explicitně: make FLASH_KB=32
+
+7bit I2C adresa segmentu (výchozí 0x30 = segment 0):
+  make HALL_I2C_OWNADDR7BIT=0x31
+
+HW mapování (KiCad matrix / TSSOP20, viz Inc/board_matrix_pins.h):
+  I2C1: PB6=SCL, PB7=SDA (pin 20 / 1 u FxP podle DS STM32C031).
+  U37: PA0=COM1 (ADC_IN0), PA6=E.
+  U38: PA1=COM2 (ADC_IN1), PA7=E.
+  Adresa muxů: PA2=S0 … PA5=S3 (CD74HC4067). E aktivní LOW.
+
+STM32CubeC0 musí mít stažené submoduly:
+  cd ../STM32CubeC0 && git submodule update --init --recursive
+
+Homebrew arm-none-eabi-gcc je bez newlib — projekt používá toolchain_include/ a vlastní link bez libc.
+
+Binárka: build/stm32_hall_c031.bin
+
+Zkopírovat do ESP oddílu stm32_fw (pro auto-flash z ESP):
+  make copy-embedded

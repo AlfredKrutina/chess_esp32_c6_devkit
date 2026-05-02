@@ -136,13 +136,6 @@ class AppLocalizationsCs extends AppLocalizations {
       'Bluetooth GATT není připojené — znovu připoj desku z karty Hra nebo z Objevování desky.';
 
   @override
-  String get errWifiProvNeedsBle =>
-      'Nejdřív se přes Bluetooth připoj k desce, pak pošli údaje k Wi‑Fi.';
-
-  @override
-  String get errWifiSsidEmpty => 'Zadej název Wi‑Fi sítě (SSID).';
-
-  @override
   String get errOtaMock => 'OTA není dostupná u demo desky.';
 
   @override
@@ -1688,53 +1681,6 @@ class AppLocalizationsCs extends AppLocalizations {
       'Odeslání přes Bluetooth dokončeno — deska se může restartovat.';
 
   @override
-  String get firmwareWifiBleProvisionTitle => 'Wi‑Fi desky (přes Bluetooth)';
-
-  @override
-  String get firmwareWifiBleProvisionSubtitle =>
-      'Pošle SSID a heslo na desku (NVS) a spustí režim STA. Po připojení deska hlásí IP a SSID — pokud sedí s Wi‑Fi telefonu, „Poslat na desku“ použije HTTP v LAN; jinak se firmware nahraje jen přes Bluetooth.';
-
-  @override
-  String get firmwareWifiBleSsidLabel => 'Název Wi‑Fi (SSID)';
-
-  @override
-  String get firmwareWifiBlePasswordLabel =>
-      'Heslo Wi‑Fi (prázdné u otevřené sítě)';
-
-  @override
-  String get firmwareWifiBleUsePhoneSsidButton =>
-      'Použít název Wi‑Fi z telefonu';
-
-  @override
-  String get firmwareWifiBleSendCredentials =>
-      'Poslat přihlašovací údaje na desku';
-
-  @override
-  String get firmwareWifiBleProvStartedSnack =>
-      'Zapisuji Wi‑Fi na desku — připojení může trvat i minutu. Sleduj řádek stavu níže.';
-
-  @override
-  String get firmwareBleStaWaiting =>
-      'STA desky: zatím nepřipojeno (čekám na Wi‑Fi…).';
-
-  @override
-  String firmwareBleStaOk(String ssid, String ip) {
-    return 'STA desky: $ssid · $ip';
-  }
-
-  @override
-  String get firmwareOtaPhoneNotOnLan =>
-      'Telefon nemá vhodnou IPv4 na hotspotu desky (192.168.4.x) ani ve stejné /24 LAN podsíti jako IP STA desky — uprav síť, nebo použij „Poslat přes Bluetooth“. Názvy SSID se mohou lišit (např. 5 GHz vs 2,4 GHz).';
-
-  @override
-  String get firmwareOtaNoLanRouteUseBle =>
-      'Žádná cesta k desce po LAN (nejsi na hotspotu desky a nemáš IPv4 ve stejné podsíti jako STA IP desky) — firmware se nahraje přes Bluetooth.';
-
-  @override
-  String get firmwareOtaNoLanRouteNeedBle =>
-      'Nahraj firmware přes Bluetooth, nebo přes hotspot desky, nebo připoj telefon ke stejné domácí síti jako deska (stejná /24 jako STA IP z BLE). Text SSID se nemusí shodovat (např. telefon na 5 GHz, deska na 2,4 GHz).';
-
-  @override
   String get firmwareOtaSlotsDisabledHint =>
       'Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu).';
 
@@ -1761,29 +1707,6 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareTileTitleDefault => 'Firmware (bezdrátově)';
-
-  @override
-  String firmwareTileTitleGitBle(String ver) {
-    return 'Firmware z Gitu ($ver) — přes Bluetooth';
-  }
-
-  @override
-  String get firmwareTileSubtitleBleGitOnly =>
-      'Manifest načten z Gitu. Stáhni .bin do telefonu a při připojení přes Bluetooth nahraj na desku — Wi‑Fi na desce nepotřebuješ.';
-
-  @override
-  String get firmwareBleHttpOptionalHint =>
-      'HTTP URL desky je volitelná: Kontrola načte manifest z Gitu i přes mobilní data. Po stažení .bin můžeš přeflashovat přes Bluetooth bez známé IP desky.';
-
-  @override
-  String get firmwareBleGitUnknownBoardVersion =>
-      'Verzi desky přes HTTP neznáme (jen BLE). I tak můžeš stáhnout z Gitu a přeflashovat přes Bluetooth.';
-
-  @override
-  String get firmwareSendViaBlePrimary => 'Přeflashovat přes Bluetooth';
-
-  @override
-  String get firmwareSendToBoardHttpAlt => 'Odeslat přes HTTP telefonu (Wi‑Fi)';
 
   @override
   String get firmwareTileSubtitleIdle =>
@@ -1843,7 +1766,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String firmwareFooterTransportHint(String transport) {
-    return 'Spojení: $transport. Kontrola načte manifest z Gitu přes internet; .bin stáhni zde, pak nahraj přes hotspot/LAN HTTP nebo Bluetooth při navázaném GATT. HTTPS OTA vyžaduje STA na desce.';
+    return 'Spojení: $transport. HTTPS OTA vyžaduje STA; OTA přes hotspot HTTP funguje na 192.168.4.x; uložený .bin lze nahrát i přes Bluetooth, pokud je navázané GATT.';
   }
 
   @override
@@ -1857,6 +1780,80 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareTransportLabelMock => 'simulace';
+
+  @override
+  String get errWifiSsidEmpty => 'Zadej název Wi‑Fi sítě (SSID).';
+
+  @override
+  String get errWifiProvNeedsBle =>
+      'Pro nastavení Wi‑Fi na desce se připoj přes Bluetooth.';
+
+  @override
+  String get firmwareWifiBleProvStartedSnack =>
+      'Údaje Wi‑Fi odeslány — sleduj stav na desce.';
+
+  @override
+  String get firmwareOtaNoLanRouteUseBle =>
+      'Telefon není ve stejné síti jako deska. Nahraj firmware přes Bluetooth, nebo se připoj k síti desky.';
+
+  @override
+  String get firmwareOtaNoLanRouteNeedBle =>
+      'Nejdřív se připoj přes Bluetooth — bez přístupu do LAN aplikace obrázek pošle přes BLE.';
+
+  @override
+  String get firmwareOtaPhoneNotOnLan =>
+      'Telefon zřejmě není v síti desky. Připoj se k hotspotu desky nebo k Wi‑Fi, kde má deska IP.';
+
+  @override
+  String firmwareTileTitleGitBle(String ver) {
+    return 'Firmware — sestavení z GitHubu ($ver)';
+  }
+
+  @override
+  String get firmwareTileSubtitleBleGitOnly =>
+      'Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.';
+
+  @override
+  String get firmwareWifiBleProvisionTitle => 'Wi‑Fi na desce (přes Bluetooth)';
+
+  @override
+  String get firmwareWifiBleProvisionSubtitle =>
+      'Pošli SSID a heslo přes BLE, aby se deska připojila k tvé síti jako klient (STA).';
+
+  @override
+  String get firmwareWifiBleSsidLabel => 'Název Wi‑Fi (SSID)';
+
+  @override
+  String get firmwareWifiBlePasswordLabel => 'Heslo Wi‑Fi';
+
+  @override
+  String get firmwareWifiBleUsePhoneSsidButton =>
+      'Použít název Wi‑Fi z tohoto telefonu';
+
+  @override
+  String get firmwareWifiBleSendCredentials => 'Odeslat údaje na desku';
+
+  @override
+  String firmwareBleStaOk(String ssid, String ip) {
+    return 'STA: $ssid · $ip';
+  }
+
+  @override
+  String get firmwareBleStaWaiting => 'Čekám na připojení desky k Wi‑Fi…';
+
+  @override
+  String get firmwareBleHttpOptionalHint =>
+      'HTTP adresa desky je volitelná — aktualizaci zvládneš přes Bluetooth i bez Wi‑Fi na desce.';
+
+  @override
+  String get firmwareBleGitUnknownBoardVersion =>
+      'Verze desky přes HTTP neznámá — stáhni do aplikace a preferuj nahrání přes Bluetooth.';
+
+  @override
+  String get firmwareSendViaBlePrimary => 'Odeslat přes Bluetooth (doporučeno)';
+
+  @override
+  String get firmwareSendToBoardHttpAlt => 'Odeslat přes HTTP desky (hotspot)';
 
   @override
   String get analysisAppBarTitle => 'Analýza';
@@ -2841,6 +2838,17 @@ class AppLocalizationsCs extends AppLocalizations {
       'Zatím žádné položky — použij tlačítko výše nebo „Přidat“ z denního puzzlu.';
 
   @override
+  String get puzzleLibraryRemoveTitle => 'Odstranit z knihovny?';
+
+  @override
+  String puzzleLibraryRemoveBody(String title) {
+    return 'Odstranit „$title“ z knihovny puzzlů? Tento krok nelze vrátit.';
+  }
+
+  @override
+  String get puzzleLibraryRemoveConfirm => 'Odstranit';
+
+  @override
   String get puzzleLoadDaily => 'Načíst denní puzzle';
 
   @override
@@ -3004,6 +3012,13 @@ class AppLocalizationsCs extends AppLocalizations {
   String get gameRemoteWrongTurnHud => 'Nejsi na tahu';
 
   @override
+  String get gameRemoteGameFinished => 'Tato partie už skončila.';
+
+  @override
+  String get gameRemotePositionError =>
+      'Z aktuálních dat desky nejde tah ověřit.';
+
+  @override
   String get gamePromotionPickTitle => 'Promoce — vyber figuru';
 
   @override
@@ -3027,6 +3042,9 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get moveHistoryEmpty => 'Historie tahů zatím prázdná';
+
+  @override
+  String get moveHistoryCurrentPosition => 'Živá pozice — aktuální partie';
 
   @override
   String moveHistoryPieceSubtitle(String piece) {
@@ -3095,6 +3113,69 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsNavAppTour => 'Průvodce aplikací (úvod)';
+
+  @override
+  String get onboardingYourNameTitle => 'Jak ti máme říkat?';
+
+  @override
+  String get onboardingYourNameSubtitle =>
+      'Toto jméno se ukáže v profilu a ve sdílených přehledech.';
+
+  @override
+  String get onboardingNameHint => 'Tvoje jméno';
+
+  @override
+  String get onboardingPermissionsTitle => 'Povolit přístup';
+
+  @override
+  String get onboardingPermissionsSubtitle =>
+      'Všechno jde povolit postupně — aplikace funguje nejlépe, když přístup povolíš.';
+
+  @override
+  String get onboardingPermPhotosTitle => 'Fotky';
+
+  @override
+  String get onboardingPermPhotosBody => 'Profilová fotka z galerie.';
+
+  @override
+  String get onboardingPermPhotosAllow => 'Povolit fotky';
+
+  @override
+  String get onboardingPermBleTitle => 'Bluetooth';
+
+  @override
+  String get onboardingPermBleBody => 'Najít desku CzechMate a připojit se.';
+
+  @override
+  String get onboardingPermBleAllow => 'Povolit Bluetooth';
+
+  @override
+  String get onboardingPermWifiTitle => 'Wi‑Fi';
+
+  @override
+  String get onboardingPermWifiBodyAndroid =>
+      'Aplikace si může přečíst název aktuální sítě pro doplnění Wi‑Fi nastavení (na Androidu 13+ bez přístupu k poloze).';
+
+  @override
+  String get onboardingPermWifiBodyIos =>
+      'K síti desky se připojíš v Nastavení při párování — tady nic dalšího nepotřebuješ.';
+
+  @override
+  String get onboardingPermWifiAllow => 'Povolit přístup k Wi‑Fi';
+
+  @override
+  String get onboardingPermGrantedShort => 'Povoleno';
+
+  @override
+  String get onboardingPermDeniedSnack =>
+      'To později změníš v nastavení systému.';
+
+  @override
+  String get onboardingOpenSettings => 'Otevřít nastavení';
+
+  @override
+  String get onboardingPermissionsDesktopBody =>
+      'Bluetooth a síť se vyřeší, až v aplikaci připojíš desku.';
 
   @override
   String get settingsNavChessPuzzles => 'Šachové puzzle';

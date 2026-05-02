@@ -320,18 +320,6 @@ abstract class AppLocalizations {
   /// **'Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.'**
   String get errOtaBleGatt;
 
-  /// No description provided for @errWifiProvNeedsBle.
-  ///
-  /// In en, this message translates to:
-  /// **'Connect to the board over Bluetooth first, then send Wi‑Fi credentials.'**
-  String get errWifiProvNeedsBle;
-
-  /// No description provided for @errWifiSsidEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a Wi‑Fi network name (SSID).'**
-  String get errWifiSsidEmpty;
-
   /// No description provided for @errOtaMock.
   ///
   /// In en, this message translates to:
@@ -3099,78 +3087,6 @@ abstract class AppLocalizations {
   /// **'Bluetooth upload finished — the board may reboot.'**
   String get firmwareBleUploadDoneSnack;
 
-  /// No description provided for @firmwareWifiBleProvisionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Board Wi‑Fi (via Bluetooth)'**
-  String get firmwareWifiBleProvisionTitle;
-
-  /// No description provided for @firmwareWifiBleProvisionSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Sends SSID and password to the board (NVS) and starts station mode. When connected, the board reports IP and SSID — if it matches this phone’s Wi‑Fi, “Send to board” uses HTTP on your LAN; otherwise firmware uploads over Bluetooth only.'**
-  String get firmwareWifiBleProvisionSubtitle;
-
-  /// No description provided for @firmwareWifiBleSsidLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Wi‑Fi name (SSID)'**
-  String get firmwareWifiBleSsidLabel;
-
-  /// No description provided for @firmwareWifiBlePasswordLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Wi‑Fi password (leave empty on open networks)'**
-  String get firmwareWifiBlePasswordLabel;
-
-  /// No description provided for @firmwareWifiBleUsePhoneSsidButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Use this phone’s Wi‑Fi name'**
-  String get firmwareWifiBleUsePhoneSsidButton;
-
-  /// No description provided for @firmwareWifiBleSendCredentials.
-  ///
-  /// In en, this message translates to:
-  /// **'Send credentials to board'**
-  String get firmwareWifiBleSendCredentials;
-
-  /// No description provided for @firmwareWifiBleProvStartedSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'Wi‑Fi provisioning started — connection can take up to a minute. Watch the status line below.'**
-  String get firmwareWifiBleProvStartedSnack;
-
-  /// No description provided for @firmwareBleStaWaiting.
-  ///
-  /// In en, this message translates to:
-  /// **'Board STA: not connected yet (waiting for Wi‑Fi…).'**
-  String get firmwareBleStaWaiting;
-
-  /// No description provided for @firmwareBleStaOk.
-  ///
-  /// In en, this message translates to:
-  /// **'Board STA: {ssid} · {ip}'**
-  String firmwareBleStaOk(String ssid, String ip);
-
-  /// No description provided for @firmwareOtaPhoneNotOnLan.
-  ///
-  /// In en, this message translates to:
-  /// **'This phone has no suitable IPv4 on the board hotspot (192.168.4.x) or on the same /24 LAN subnet as the board STA IP — fix the network, or use “Send via Bluetooth”. SSID names may differ (e.g. 5 GHz vs 2.4 GHz).'**
-  String get firmwareOtaPhoneNotOnLan;
-
-  /// No description provided for @firmwareOtaNoLanRouteUseBle.
-  ///
-  /// In en, this message translates to:
-  /// **'No LAN path to the board (not on the board hotspot and no IPv4 on the same subnet as the board STA IP) — uploading firmware over Bluetooth.'**
-  String get firmwareOtaNoLanRouteUseBle;
-
-  /// No description provided for @firmwareOtaNoLanRouteNeedBle.
-  ///
-  /// In en, this message translates to:
-  /// **'Use Bluetooth to upload firmware, or connect via the board hotspot, or put this phone on the same home LAN as the board (same /24 as the STA IP from BLE). The SSID text does not need to match (e.g. phone on 5 GHz, board on 2.4 GHz).'**
-  String get firmwareOtaNoLanRouteNeedBle;
-
   /// No description provided for @firmwareOtaSlotsDisabledHint.
   ///
   /// In en, this message translates to:
@@ -3212,42 +3128,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Firmware (over-the-air)'**
   String get firmwareTileTitleDefault;
-
-  /// No description provided for @firmwareTileTitleGitBle.
-  ///
-  /// In en, this message translates to:
-  /// **'Firmware from Git ({ver}) — flash via Bluetooth'**
-  String firmwareTileTitleGitBle(String ver);
-
-  /// No description provided for @firmwareTileSubtitleBleGitOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Manifest loaded from Git. Download the .bin on this phone, then flash over Bluetooth while connected — no board Wi‑Fi needed.'**
-  String get firmwareTileSubtitleBleGitOnly;
-
-  /// No description provided for @firmwareBleHttpOptionalHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Board HTTP URL is optional: Check loads the Git manifest over the internet. After downloading the .bin, you can flash over Bluetooth without knowing the board IP.'**
-  String get firmwareBleHttpOptionalHint;
-
-  /// No description provided for @firmwareBleGitUnknownBoardVersion.
-  ///
-  /// In en, this message translates to:
-  /// **'Board version over HTTP is unknown (BLE-only path). You can still download from Git and flash via Bluetooth.'**
-  String get firmwareBleGitUnknownBoardVersion;
-
-  /// No description provided for @firmwareSendViaBlePrimary.
-  ///
-  /// In en, this message translates to:
-  /// **'Flash via Bluetooth'**
-  String get firmwareSendViaBlePrimary;
-
-  /// No description provided for @firmwareSendToBoardHttpAlt.
-  ///
-  /// In en, this message translates to:
-  /// **'Send via phone HTTP (Wi‑Fi)'**
-  String get firmwareSendToBoardHttpAlt;
 
   /// No description provided for @firmwareTileSubtitleIdle.
   ///
@@ -3336,7 +3216,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareFooterTransportHint.
   ///
   /// In en, this message translates to:
-  /// **'Connection: {transport}. Check loads the Git manifest over the internet; download the .bin here, then upload via hotspot/LAN HTTP or Bluetooth when GATT is connected. HTTPS OTA needs board STA.'**
+  /// **'Connection: {transport}. HTTPS OTA needs STA; hotspot HTTP OTA works on 192.168.4.x; cached .bin can also upload over Bluetooth when GATT is connected.'**
   String firmwareFooterTransportHint(String transport);
 
   /// No description provided for @firmwareTransportLabelNone.
@@ -3362,6 +3242,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'mock'**
   String get firmwareTransportLabelMock;
+
+  /// No description provided for @errWifiSsidEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Wi‑Fi network name (SSID).'**
+  String get errWifiSsidEmpty;
+
+  /// No description provided for @errWifiProvNeedsBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via Bluetooth to provision Wi‑Fi on the board.'**
+  String get errWifiProvNeedsBle;
+
+  /// No description provided for @firmwareWifiBleProvStartedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi credentials sent — watch the board status.'**
+  String get firmwareWifiBleProvStartedSnack;
+
+  /// No description provided for @firmwareOtaNoLanRouteUseBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.'**
+  String get firmwareOtaNoLanRouteUseBle;
+
+  /// No description provided for @firmwareOtaNoLanRouteNeedBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via Bluetooth first — without LAN access the app will send the image over BLE.'**
+  String get firmwareOtaNoLanRouteNeedBle;
+
+  /// No description provided for @firmwareOtaPhoneNotOnLan.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.'**
+  String get firmwareOtaPhoneNotOnLan;
+
+  /// No description provided for @firmwareTileTitleGitBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware — GitHub build ({ver})'**
+  String firmwareTileTitleGitBle(String ver);
+
+  /// No description provided for @firmwareTileSubtitleBleGitOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.'**
+  String get firmwareTileSubtitleBleGitOnly;
+
+  /// No description provided for @firmwareWifiBleProvisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi on the board (via Bluetooth)'**
+  String get firmwareWifiBleProvisionTitle;
+
+  /// No description provided for @firmwareWifiBleProvisionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send SSID and password over BLE so the board can join your network as a client (STA).'**
+  String get firmwareWifiBleProvisionSubtitle;
+
+  /// No description provided for @firmwareWifiBleSsidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi name (SSID)'**
+  String get firmwareWifiBleSsidLabel;
+
+  /// No description provided for @firmwareWifiBlePasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi password'**
+  String get firmwareWifiBlePasswordLabel;
+
+  /// No description provided for @firmwareWifiBleUsePhoneSsidButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this phone’s Wi‑Fi name'**
+  String get firmwareWifiBleUsePhoneSsidButton;
+
+  /// No description provided for @firmwareWifiBleSendCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Send credentials to board'**
+  String get firmwareWifiBleSendCredentials;
+
+  /// No description provided for @firmwareBleStaOk.
+  ///
+  /// In en, this message translates to:
+  /// **'STA: {ssid} · {ip}'**
+  String firmwareBleStaOk(String ssid, String ip);
+
+  /// No description provided for @firmwareBleStaWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the board to connect to Wi‑Fi…'**
+  String get firmwareBleStaWaiting;
+
+  /// No description provided for @firmwareBleHttpOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Board HTTP URL is optional — you can update over Bluetooth without Wi‑Fi on the board.'**
+  String get firmwareBleHttpOptionalHint;
+
+  /// No description provided for @firmwareBleGitUnknownBoardVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Board version unknown over HTTP — download to the app and prefer Bluetooth upload.'**
+  String get firmwareBleGitUnknownBoardVersion;
+
+  /// No description provided for @firmwareSendViaBlePrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Send via Bluetooth (recommended)'**
+  String get firmwareSendViaBlePrimary;
+
+  /// No description provided for @firmwareSendToBoardHttpAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Send via board HTTP (hotspot)'**
+  String get firmwareSendToBoardHttpAlt;
 
   /// No description provided for @analysisAppBarTitle.
   ///
@@ -5147,6 +5147,24 @@ abstract class AppLocalizations {
   /// **'No items yet — use the form above or Add from the daily puzzle.'**
   String get puzzleLibraryEmptyHint;
 
+  /// No description provided for @puzzleLibraryRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from library?'**
+  String get puzzleLibraryRemoveTitle;
+
+  /// No description provided for @puzzleLibraryRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove “{title}” from your puzzle library? This cannot be undone.'**
+  String puzzleLibraryRemoveBody(String title);
+
+  /// No description provided for @puzzleLibraryRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get puzzleLibraryRemoveConfirm;
+
   /// No description provided for @puzzleLoadDaily.
   ///
   /// In en, this message translates to:
@@ -5447,6 +5465,18 @@ abstract class AppLocalizations {
   /// **'Not your turn'**
   String get gameRemoteWrongTurnHud;
 
+  /// No description provided for @gameRemoteGameFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'This game is already over.'**
+  String get gameRemoteGameFinished;
+
+  /// No description provided for @gameRemotePositionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not validate the move from the current board data.'**
+  String get gameRemotePositionError;
+
   /// No description provided for @gamePromotionPickTitle.
   ///
   /// In en, this message translates to:
@@ -5494,6 +5524,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Move history is empty yet.'**
   String get moveHistoryEmpty;
+
+  /// No description provided for @moveHistoryCurrentPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Live position — current game'**
+  String get moveHistoryCurrentPosition;
 
   /// No description provided for @moveHistoryPieceSubtitle.
   ///
@@ -5620,6 +5656,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'App tour (onboarding)'**
   String get settingsNavAppTour;
+
+  /// No description provided for @onboardingYourNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What should we call you?'**
+  String get onboardingYourNameTitle;
+
+  /// No description provided for @onboardingYourNameSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This name appears in your profile and shared summaries.'**
+  String get onboardingYourNameSubtitle;
+
+  /// No description provided for @onboardingNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get onboardingNameHint;
+
+  /// No description provided for @onboardingPermissionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow access'**
+  String get onboardingPermissionsTitle;
+
+  /// No description provided for @onboardingPermissionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You can turn features on gradually — the app works best when these are allowed.'**
+  String get onboardingPermissionsSubtitle;
+
+  /// No description provided for @onboardingPermPhotosTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get onboardingPermPhotosTitle;
+
+  /// No description provided for @onboardingPermPhotosBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a profile picture from your gallery.'**
+  String get onboardingPermPhotosBody;
+
+  /// No description provided for @onboardingPermPhotosAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow photos'**
+  String get onboardingPermPhotosAllow;
+
+  /// No description provided for @onboardingPermBleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth'**
+  String get onboardingPermBleTitle;
+
+  /// No description provided for @onboardingPermBleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Find and connect to your CzechMate board.'**
+  String get onboardingPermBleBody;
+
+  /// No description provided for @onboardingPermBleAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth'**
+  String get onboardingPermBleAllow;
+
+  /// No description provided for @onboardingPermWifiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi'**
+  String get onboardingPermWifiTitle;
+
+  /// No description provided for @onboardingPermWifiBodyAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Lets the app read your current network name to pre-fill Wi‑Fi setup (no rough location on Android 13+).'**
+  String get onboardingPermWifiBodyAndroid;
+
+  /// No description provided for @onboardingPermWifiBodyIos.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ll join the board’s network in Settings when connecting — no extra step here.'**
+  String get onboardingPermWifiBodyIos;
+
+  /// No description provided for @onboardingPermWifiAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Wi‑Fi access'**
+  String get onboardingPermWifiAllow;
+
+  /// No description provided for @onboardingPermGrantedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get onboardingPermGrantedShort;
+
+  /// No description provided for @onboardingPermDeniedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change this later in system Settings.'**
+  String get onboardingPermDeniedSnack;
+
+  /// No description provided for @onboardingOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get onboardingOpenSettings;
+
+  /// No description provided for @onboardingPermissionsDesktopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth and network are handled when you connect to the board from the app.'**
+  String get onboardingPermissionsDesktopBody;
 
   /// No description provided for @settingsNavChessPuzzles.
   ///

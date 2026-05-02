@@ -73,15 +73,30 @@ CONFIG_COMPILER_OPTIMIZATION_DEBUG=y
 CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_ENABLE=y
 CONFIG_COMPILER_STACK_CHECK_MODE_NONE=y
 
-# Build Configuration — 16 MB flash + dual OTA (HTTP/BLE OTA při velké binárce).
-# Modul s jen 4 MB flash → menuconfig: 4 MB + partitions.csv (factory) nebo partitions_4mb_dual_ota.csv (jen malý firmware).
+# Build Configuration — výchozí 4 MB flash + partitions.csv (factory, max místo pro app).
+# Modul s větším flash → menuconfig + partitions_16mb_dual_ota.csv (dual OTA při velké binárce).
 CONFIG_APP_RETRIEVE_LEN_ELF_SHA=16
 CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
 CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
-# CONFIG_ESPTOOLPY_FLASHSIZE_4MB is not set
-CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+# CONFIG_ESPTOOLPY_FLASHSIZE_16MB is not set
 
 # Partition Table Configuration
 # CONFIG_PARTITION_TABLE_SINGLE_APP is not set
 CONFIG_PARTITION_TABLE_CUSTOM=y
-CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions_16mb_dual_ota.csv"
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# Šachovnice — čtení 128 Hall kanálů (4× plošňák × 32 vzorků) přes I2C ze STM.
+# Po přidání / změně těchto řádků: idf.py fullclean reconfigure build.
+# CONFIG_CHESS_MATRIX_INPUT_GPIO_REED is not set
+CONFIG_CHESS_MATRIX_INPUT_I2C_HALL=y
+CONFIG_CHESS_HALL_SEGMENT_COUNT=4
+
+# STM32C0 — ROM bootloader přes I2C; po bootu ESP auto-nahrání z oddílu stm32_fw (viz partitions.csv).
+# V menuconfig nastav NRST (a volitelně BOOT0) pro každý segment. Jen segmenty s NRST ≠ -1 se programují.
+# STM bin při výrobě: esptool.py write_flash 0x380000 stm32_app.bin
+CONFIG_CHESS_STM32_I2C_BL_ENABLE=y
+CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0=18
+# Tovární STM: ROM I2C bootloader jen po BOOT0=VDD při resetu. Zapoj volný ESP GPIO → BOOT0
+# (MCU PA14/BOOT0 u C031FxP) a odkomentuj např. řádek níže; nebo AUTO_USE_BOOT0=n + jumper na stole.
+# CONFIG_CHESS_STM32_BL_BOOT0_GPIO=19

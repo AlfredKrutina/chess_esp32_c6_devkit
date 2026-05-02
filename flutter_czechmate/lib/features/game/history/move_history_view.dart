@@ -13,9 +13,11 @@ class MoveHistoryView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final ui = ref.watch(gameUiNotifierProvider);
-    final raw =
-        ref.watch(boardSessionNotifierProvider).snapshot?.history.moves;
-    final moves = raw == null ? <GameHistoryMove>[] : List<GameHistoryMove>.of(raw);
+    final session = ref.watch(boardSessionNotifierProvider);
+    final snap = session.snapshot;
+    final raw = snap?.history.moves;
+    final moves =
+        raw == null ? <GameHistoryMove>[] : List<GameHistoryMove>.of(raw);
     if (moves.isEmpty) {
       return Card(
         child: Padding(
@@ -24,32 +26,50 @@ class MoveHistoryView extends ConsumerWidget {
         ),
       );
     }
+    final notifier = ref.read(gameUiNotifierProvider.notifier);
     return Card(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 220),
         child: ListView.builder(
           padding: const EdgeInsets.all(8),
-          itemCount: moves.length,
-          itemBuilder: (context, i) {
-            final m = moves[i];
+          itemCount: moves.length + 1,
+          itemBuilder: (context, listIndex) {
+            if (listIndex == 0) {
+              return ListTile(
+                dense: true,
+                leading: Icon(
+                  Icons.radio_button_checked,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(l10n.moveHistoryCurrentPosition),
+                selected:
+                    !ui.sandboxMode && ui.historyReviewMoveIndex == null,
+                enabled: !ui.sandboxMode,
+                onTap: ui.sandboxMode
+                    ? null
+                    : () => notifier.setHistoryReviewIndex(null, snap),
+              );
+            }
+            final chronologicalIndex = moves.length - listIndex;
+            final m = moves[chronologicalIndex];
             final label = m.san ?? '${m.from ?? '?'}→${m.to ?? '?'}';
+            final moveNo = chronologicalIndex + 1;
             return ListTile(
               dense: true,
               enabled: !ui.sandboxMode,
-              selected:
-                  !ui.sandboxMode && ui.historyReviewMoveIndex == i,
-              title: Text('${i + 1}. $label'),
+              selected: !ui.sandboxMode &&
+                  ui.historyReviewMoveIndex == chronologicalIndex,
+              title: Text('$moveNo. $label'),
               subtitle: m.piece != null
                   ? Text(l10n.moveHistoryPieceSubtitle(m.piece!))
                   : null,
               onTap: ui.sandboxMode
                   ? null
-                  : () {
-                      ref.read(gameUiNotifierProvider.notifier).setHistoryReviewIndex(
-                            i,
-                            ref.read(boardSessionNotifierProvider).snapshot,
-                          );
-                    },
+                  : () => notifier.setHistoryReviewIndex(
+                        chronologicalIndex,
+                        snap,
+                      ),
             );
           },
         ),

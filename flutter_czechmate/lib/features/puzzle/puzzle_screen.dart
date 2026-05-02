@@ -680,8 +680,40 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline),
+                          tooltip: l10n.puzzleLibraryRemoveConfirm,
                           onPressed: () async {
-                            final next = [...items]..removeAt(i);
+                            final removeId = it.id;
+                            final ok = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) {
+                                final cs = Theme.of(ctx).colorScheme;
+                                return AlertDialog(
+                                  title: Text(l10n.puzzleLibraryRemoveTitle),
+                                  content: Text(
+                                    l10n.puzzleLibraryRemoveBody(it.title),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(false),
+                                      child: Text(l10n.commonCancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: cs.error,
+                                      ),
+                                      child: Text(l10n.puzzleLibraryRemoveConfirm),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                            if (ok != true || !context.mounted) return;
+                            final next = _library(prefs)
+                                .where((x) => x.id != removeId)
+                                .toList();
                             await _saveLibrary(prefs, next);
                           },
                         ),

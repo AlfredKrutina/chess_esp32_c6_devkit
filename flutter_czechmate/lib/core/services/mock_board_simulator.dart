@@ -168,6 +168,40 @@ class MockRemoteMoveResult {
   final BoardTimerState? timer;
 }
 
+/// Důvod zamítnutí tahu z aplikace (stejná pravidla jako [mockApplyRemoteMove]).
+enum RemoteMoveReject {
+  finished,
+  badFen,
+  wrongTurn,
+  illegal,
+}
+
+/// Ověření legality tahu proti [snap] před odesláním na desku (BLE nevrací 400).
+RemoteMoveReject? validateRemoteMoveLegality({
+  required GameSnapshot snap,
+  required String from,
+  required String to,
+  String? promotion,
+}) {
+  if (snap.status.isGameFinished) return RemoteMoveReject.finished;
+
+  final fen = fenFromSnapshot(snap);
+  final chess = ch.Chess();
+  if (!chess.load(fen)) return RemoteMoveReject.badFen;
+
+  final f = from.trim().toLowerCase();
+  final t = to.trim().toLowerCase();
+  final whiteToMove = snap.status.currentPlayer.toLowerCase().startsWith('w');
+  if ((chess.turn == ch.Color.WHITE) != whiteToMove) {
+    return RemoteMoveReject.wrongTurn;
+  }
+
+  final moves = chess.generate_moves();
+  final moveObj = _pickLegalMove(moves, f, t, promotion);
+  if (moveObj == null) return RemoteMoveReject.illegal;
+  return null;
+}
+
 ch.Move? _pickLegalMove(
   List<ch.Move> moves,
   String from,
@@ -225,47 +259,53 @@ MockRemoteMoveResult mockApplyRemoteMove({
   required String to,
   String? promotion,
 }) {
-  if (snap.status.isGameFinished) {
-    throw BoardApiException(
-      'Game already finished',
-      statusCode: 400,
-      detail: 'Game already finished',
-    );
+  final reject = validateRemoteMoveLegality(
+    snap: snap,
+    from: from,
+    to: to,
+    promotion: promotion,
+  );
+  if (reject != null) {
+    switch (reject) {
+      case RemoteMoveReject.finished:
+        throw BoardApiException(
+          'Game already finished',
+          statusCode: 400,
+          detail: 'Game already finished',
+        );
+      case RemoteMoveReject.badFen:
+        throw BoardApiException(
+          'Invalid position',
+          statusCode: 400,
+          detail: 'Invalid position',
+        );
+      case RemoteMoveReject.wrongTurn:
+        throw BoardApiException(
+          'Side to move mismatch',
+          statusCode: 400,
+          detail: 'Side to move mismatch',
+        );
+      case RemoteMoveReject.illegal:
+        throw BoardApiException(
+          'Illegal move',
+          statusCode: 400,
+          detail: 'Illegal move',
+        );
+    }
   }
 
   final fen = fenFromSnapshot(snap);
   final chess = ch.Chess();
-  if (!chess.load(fen)) {
-    throw BoardApiException(
-      'Invalid position',
-      statusCode: 400,
-      detail: 'Invalid position',
-    );
-  }
-
-  final whiteToMove = snap.status.currentPlayer.toLowerCase().startsWith('w');
-  if ((chess.turn == ch.Color.WHITE) != whiteToMove) {
-    throw BoardApiException(
-      'Side to move mismatch',
-      statusCode: 400,
-      detail: 'Side to move mismatch',
-    );
-  }
-
+  chess.load(fen);
+  final f = from.trim().toLowerCase();
+  final t = to.trim().toLowerCase();
   final moves = chess.generate_moves();
-  final moveObj = _pickLegalMove(moves, from, to, promotion);
-  if (moveObj == null) {
-    throw BoardApiException(
-      'Illegal move',
-      statusCode: 400,
-      detail: 'Illegal move',
-    );
-  }
-
+  final moveObj = _pickLegalMove(moves, f, t, promotion)!;
   final san = chess.move_to_san(moveObj);
   chess.make_move(moveObj);
 
-  final moverWasWhite = whiteToMove;
+  final moverWasWhite =
+      snap.status.currentPlayer.toLowerCase().startsWith('w');
   final finishedMate = chess.in_checkmate;
   final finishedStale = chess.in_stalemate;
   final finishedDraw = chess.in_draw && !finishedMate && !finishedStale;

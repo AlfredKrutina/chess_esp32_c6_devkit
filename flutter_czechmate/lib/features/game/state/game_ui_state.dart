@@ -19,9 +19,9 @@ class GameUiState {
     this.moveAnimationsEnabled = true,
     // Phase 3.3 — transient board message (auto-dismiss 4s)
     this.transientBoardMessage,
-    // Phase 3.3 — invalid move flash pair
-    this.invalidFlashFrom,
-    this.invalidFlashTo,
+    // Remote invalid destination: červené pulzování na cílovém poli (aplikace / API chyba).
+    this.invalidDestinationPulseSquare,
+    this.invalidDestinationPulseLit = false,
     // Hint overlay on board
     this.hintFrom,
     this.hintTo,
@@ -57,8 +57,8 @@ class GameUiState {
   final double boardZoomStorage;
   final bool moveAnimationsEnabled;
   final String? transientBoardMessage;
-  final String? invalidFlashFrom;
-  final String? invalidFlashTo;
+  final String? invalidDestinationPulseSquare;
+  final bool invalidDestinationPulseLit;
   final String? hintFrom;
   final String? hintTo;
   final String layoutMode;
@@ -90,8 +90,8 @@ class GameUiState {
     double? boardZoomStorage,
     bool? moveAnimationsEnabled,
     String? transientBoardMessage,
-    String? invalidFlashFrom,
-    String? invalidFlashTo,
+    String? invalidDestinationPulseSquare,
+    bool? invalidDestinationPulseLit,
     String? hintFrom,
     String? hintTo,
     String? layoutMode,
@@ -114,7 +114,7 @@ class GameUiState {
     bool clearMessage = false,
     bool clearHistoryIndex = false,
     bool clearTransient = false,
-    bool clearInvalidFlash = false,
+    bool clearInvalidDestinationPulse = false,
     bool clearHint = false,
   }) {
     return GameUiState(
@@ -145,11 +145,12 @@ class GameUiState {
       transientBoardMessage: clearTransient
           ? null
           : (transientBoardMessage ?? this.transientBoardMessage),
-      invalidFlashFrom: clearInvalidFlash
+      invalidDestinationPulseSquare: clearInvalidDestinationPulse
           ? null
-          : (invalidFlashFrom ?? this.invalidFlashFrom),
-      invalidFlashTo:
-          clearInvalidFlash ? null : (invalidFlashTo ?? this.invalidFlashTo),
+          : (invalidDestinationPulseSquare ?? this.invalidDestinationPulseSquare),
+      invalidDestinationPulseLit: clearInvalidDestinationPulse
+          ? false
+          : (invalidDestinationPulseLit ?? this.invalidDestinationPulseLit),
       hintFrom: clearHint ? null : (hintFrom ?? this.hintFrom),
       hintTo: clearHint ? null : (hintTo ?? this.hintTo),
       layoutMode: layoutMode ?? this.layoutMode,

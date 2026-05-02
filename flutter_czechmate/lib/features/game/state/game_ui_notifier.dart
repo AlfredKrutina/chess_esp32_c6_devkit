@@ -9,6 +9,7 @@ import '../../../core/models/game_snapshot.dart';
 import '../../../core/models/puzzle_challenge_state.dart';
 import '../../../core/utils/puzzle_uci.dart';
 import '../../../core/services/board_api_exception.dart';
+import '../../../core/services/mock_board_simulator.dart';
 import '../../../core/utils/fen_board_parser.dart';
 import '../../../core/utils/fen_from_board.dart';
 import '../../connection/board_session_notifier.dart';
@@ -68,7 +69,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       appStringsForPrefs(_ref.read(prefsRepositoryProvider));
 
   Timer? _transientTimer;
-  Timer? _flashTimer;
+  Timer? _invalidDestinationPulseTimer;
   Timer? _hintTimer;
   Timer? _puzzleTintTimer;
   ch.Chess? _sandboxChess;
@@ -79,7 +80,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   @override
   void dispose() {
     _transientTimer?.cancel();
-    _flashTimer?.cancel();
+    _invalidDestinationPulseTimer?.cancel();
     _hintTimer?.cancel();
     _puzzleTintTimer?.cancel();
     super.dispose();
@@ -144,12 +145,36 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     });
   }
 
-  void _flashInvalidMove(String? from, String? to) {
-    _flashTimer?.cancel();
-    state = state.copyWith(invalidFlashFrom: from, invalidFlashTo: to);
-    _flashTimer = Timer(const Duration(milliseconds: 600), () {
-      state = state.copyWith(clearInvalidFlash: true);
+  void _startInvalidDestinationPulse(String square) {
+    _invalidDestinationPulseTimer?.cancel();
+    var ticks = 0;
+    state = state.copyWith(
+      invalidDestinationPulseSquare: square.trim().toLowerCase(),
+      invalidDestinationPulseLit: true,
+    );
+    _invalidDestinationPulseTimer =
+        Timer.periodic(const Duration(milliseconds: 300), (t) {
+      ticks++;
+      final on = ticks.isOdd;
+      state = state.copyWith(invalidDestinationPulseLit: on);
+      if (ticks >= 10) {
+        t.cancel();
+        state = state.copyWith(clearInvalidDestinationPulse: true);
+      }
     });
+  }
+
+  String _messageForRemoteReject(RemoteMoveReject r) {
+    switch (r) {
+      case RemoteMoveReject.finished:
+        return _l10n.gameRemoteGameFinished;
+      case RemoteMoveReject.badFen:
+        return _l10n.gameRemotePositionError;
+      case RemoteMoveReject.wrongTurn:
+        return _l10n.gameRemoteWrongTurnSnack;
+      case RemoteMoveReject.illegal:
+        return _l10n.gameSandboxIllegalMove;
+    }
   }
 
   void showHintOverlay(String from, String to) {
@@ -412,14 +437,16 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   }
 
   void setHistoryReviewIndex(int? index, GameSnapshot? snap) {
+    _remoteFrom = null;
     if (index == null ||
         snap == null ||
         index < 0 ||
         index >= snap.history.moves.length) {
-      state = state.copyWith(clearHistoryIndex: true);
+      state = state.copyWith(clearHistoryIndex: true, clearSelection: true);
       return;
     }
-    state = state.copyWith(historyReviewMoveIndex: index, clearSelection: true);
+    state =
+        state.copyWith(historyReviewMoveIndex: index, clearSelection: true);
   }
 
   void _loadSandbox(GameSnapshot snap) {
@@ -586,7 +613,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       state = state.copyWith(clearHint: true);
     }
     if (state.historyReviewMoveIndex != null && !state.sandboxMode) {
-      state = state.copyWith(clearHistoryIndex: true);
+      _remoteFrom = null;
+      state = state.copyWith(clearHistoryIndex: true, clearSelection: true);
+      return;
     }
     if (state.sandboxMode) {
       _sandboxTap(algebraic, snack);
@@ -653,6 +682,24 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     }
 
     try {
+      final snapPre = sess.snapshot;
+      if (snapPre != null) {
+        final moveReject = validateRemoteMoveLegality(
+          snap: snapPre,
+          from: from,
+          to: to,
+          promotion: pieceLower,
+        );
+        if (moveReject != null) {
+          _moveFeedback(invalid: true);
+          final msg = _messageForRemoteReject(moveReject);
+          showTransientBoardMessage(msg);
+          snack(msg);
+          _startInvalidDestinationPulse(to);
+          state = state.copyWith(clearPromotion: true);
+          return;
+        }
+      }
       await _ref.read(boardSessionNotifierProvider.notifier).postRemoteMove(
             from,
             to,
@@ -670,6 +717,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         final msg = e.detail ?? _l10n.gameSandboxIllegalMove;
         showTransientBoardMessage(msg);
         snack(msg);
+        _startInvalidDestinationPulse(to);
       } else {
         snack('$e');
       }
@@ -802,6 +850,20 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       );
       return;
     }
+    if (snap != null) {
+      final moveReject =
+          validateRemoteMoveLegality(snap: snap, from: from, to: to);
+      if (moveReject != null) {
+        _remoteFrom = null;
+        state = state.copyWith(clearSelection: true);
+        _moveFeedback(invalid: true);
+        final msg = _messageForRemoteReject(moveReject);
+        showTransientBoardMessage(msg);
+        snack(msg);
+        _startInvalidDestinationPulse(to);
+        return;
+      }
+    }
     _remoteFrom = null;
     state = state.copyWith(clearSelection: true);
     try {
@@ -812,7 +874,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     } catch (e) {
       if (e is BoardApiException && e.statusCode == 400) {
         _moveFeedback(invalid: true);
-        _flashInvalidMove(from, to);
+        _startInvalidDestinationPulse(to);
         final msg = e.detail ?? _l10n.gameSandboxIllegalMove;
         showTransientBoardMessage(msg);
         snack(msg);

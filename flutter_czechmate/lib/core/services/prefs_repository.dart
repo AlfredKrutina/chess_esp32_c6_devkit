@@ -484,6 +484,13 @@ class PrefsRepository {
           ? _p.getString(keyProfileDisplayName)!.trim()
           : 'Player';
 
+  /// Uložené jméno z profilu, nebo `null` když uživatel nic nezadal (UI pak použije výchozí „Player“).
+  String? get profileDisplayNameStoredOrNull {
+    final s = _p.getString(keyProfileDisplayName)?.trim();
+    if (s == null || s.isEmpty) return null;
+    return s;
+  }
+
   Future<void> setProfileDisplayName(String value) async {
     final t = value.trim();
     if (t.isEmpty) {

@@ -344,6 +344,40 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("firmwareTransportLabelWifi", "wifi", "Wi‑Fi"),
     ("firmwareTransportLabelBle", "ble", "Bluetooth"),
     ("firmwareTransportLabelMock", "mock", "simulace"),
+    ("errWifiSsidEmpty", "Enter a Wi‑Fi network name (SSID).", "Zadej název Wi‑Fi sítě (SSID)."),
+    ("errWifiProvNeedsBle", "Connect via Bluetooth to provision Wi‑Fi on the board.", "Pro nastavení Wi‑Fi na desce se připoj přes Bluetooth."),
+    ("firmwareWifiBleProvStartedSnack", "Wi‑Fi credentials sent — watch the board status.", "Údaje Wi‑Fi odeslány — sleduj stav na desce."),
+    ("firmwareOtaNoLanRouteUseBle",
+     "Your phone isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.",
+     "Telefon není ve stejné síti jako deska. Nahraj firmware přes Bluetooth, nebo se připoj k síti desky."),
+    ("firmwareOtaNoLanRouteNeedBle",
+     "Connect via Bluetooth first — without LAN access the app will send the image over BLE.",
+     "Nejdřív se připoj přes Bluetooth — bez přístupu do LAN aplikace obrázek pošle přes BLE."),
+    ("firmwareOtaPhoneNotOnLan",
+     "This phone doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.",
+     "Telefon zřejmě není v síti desky. Připoj se k hotspotu desky nebo k Wi‑Fi, kde má deska IP."),
+    ("firmwareTileTitleGitBle", "Firmware — GitHub build ({ver})", "Firmware — sestavení z GitHubu ({ver})"),
+    ("firmwareTileSubtitleBleGitOnly",
+     "Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.",
+     "Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky."),
+    ("firmwareWifiBleProvisionTitle", "Wi‑Fi on the board (via Bluetooth)", "Wi‑Fi na desce (přes Bluetooth)"),
+    ("firmwareWifiBleProvisionSubtitle",
+     "Send SSID and password over BLE so the board can join your network as a client (STA).",
+     "Pošli SSID a heslo přes BLE, aby se deska připojila k tvé síti jako klient (STA)."),
+    ("firmwareWifiBleSsidLabel", "Wi‑Fi name (SSID)", "Název Wi‑Fi (SSID)"),
+    ("firmwareWifiBlePasswordLabel", "Wi‑Fi password", "Heslo Wi‑Fi"),
+    ("firmwareWifiBleUsePhoneSsidButton", "Use this phone’s Wi‑Fi name", "Použít název Wi‑Fi z tohoto telefonu"),
+    ("firmwareWifiBleSendCredentials", "Send credentials to board", "Odeslat údaje na desku"),
+    ("firmwareBleStaOk", "STA: {ssid} · {ip}", "STA: {ssid} · {ip}"),
+    ("firmwareBleStaWaiting", "Waiting for the board to connect to Wi‑Fi…", "Čekám na připojení desky k Wi‑Fi…"),
+    ("firmwareBleHttpOptionalHint",
+     "Board HTTP URL is optional — you can update over Bluetooth without Wi‑Fi on the board.",
+     "HTTP adresa desky je volitelná — aktualizaci zvládneš přes Bluetooth i bez Wi‑Fi na desce."),
+    ("firmwareBleGitUnknownBoardVersion",
+     "Board version unknown over HTTP — download to the app and prefer Bluetooth upload.",
+     "Verze desky přes HTTP neznámá — stáhni do aplikace a preferuj nahrání přes Bluetooth."),
+    ("firmwareSendViaBlePrimary", "Send via Bluetooth (recommended)", "Odeslat přes Bluetooth (doporučeno)"),
+    ("firmwareSendToBoardHttpAlt", "Send via board HTTP (hotspot)", "Odeslat přes HTTP desky (hotspot)"),
     # —— Firmware daily prompt extras —— (reuse commonCancel where possible)
     # —— Analysis screen ——
     ("analysisAppBarTitle", "Analysis", "Analýza"),
@@ -664,6 +698,9 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("puzzleBackLiveTooltip", "Back to live game", "Zpět na živou partii"),
     ("puzzlePoolEmptySnack", "No positions in this pool mode — switch to Mixed or add library items.", "Žádné pozice v tomto režimu fondu — přepni na Mix nebo přidej knihovnu."),
     ("puzzleLibraryEmptyHint", "No items yet — use the form above or Add from the daily puzzle.", "Zatím žádné položky — použij tlačítko výše nebo „Přidat“ z denního puzzlu."),
+    ("puzzleLibraryRemoveTitle", "Remove from library?", "Odstranit z knihovny?"),
+    ("puzzleLibraryRemoveBody", "Remove “{title}” from your puzzle library? This cannot be undone.", "Odstranit „{title}“ z knihovny puzzlů? Tento krok nelze vrátit."),
+    ("puzzleLibraryRemoveConfirm", "Remove", "Odstranit"),
     ("puzzleLoadDaily", "Load daily puzzle", "Načíst denní puzzle"),
     ("puzzleRefreshDaily", "Refresh daily puzzle", "Obnovit denní úlohu"),
     ("puzzleAlreadyInLibrary", "Already in library", "Už je v knihovně"),
@@ -716,6 +753,8 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("gameRemoteEmptySquareHud", "Empty square", "Prázdné pole"),
     ("gameRemoteWrongTurnSnack", "Pick a piece of the side that is on move.", "Vyber figurku barvy, která je zrovna na tahu."),
     ("gameRemoteWrongTurnHud", "Not your turn", "Nejsi na tahu"),
+    ("gameRemoteGameFinished", "This game is already over.", "Tato partie už skončila."),
+    ("gameRemotePositionError", "Could not validate the move from the current board data.", "Z aktuálních dat desky nejde tah ověřit."),
     ("gamePromotionPickTitle", "Promotion — choose a piece", "Promoce — vyber figuru"),
     ("gamePromotionQueen", "Queen", "Dáma"),
     ("gamePromotionRook", "Rook", "Věž"),
@@ -724,6 +763,7 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("gamePromotionFailedSnack", "Promotion failed", "Promoce se nepodařila"),
     ("semanticsChessBoard", "Chessboard, eight by eight squares. Tap to select squares.", "Šachovnice, osm krát osm polí. Klepnutím vybírej pole."),
     ("moveHistoryEmpty", "Move history is empty yet.", "Historie tahů zatím prázdná"),
+    ("moveHistoryCurrentPosition", "Live position — current game", "Živá pozice — aktuální partie"),
     ("moveHistoryPieceSubtitle", "Piece: {piece}", "Figura: {piece}"),
     # —— Bundled puzzles (titles) ——
     ("bundledPuzzleMateQg8Title", "Queen mate", "Mat dámou"),
@@ -747,6 +787,26 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("settingsTileModulesTitle", "Modules & learning", "Moduly a učení"),
     ("settingsTileModulesSubtitle", "Tour, puzzles, profile, progress, help", "Úvod, puzzle, profil, pokrok, nápověda"),
     ("settingsNavAppTour", "App tour (onboarding)", "Průvodce aplikací (úvod)"),
+    # —— Onboarding (jméno + oprávnění) ——
+    ("onboardingYourNameTitle", "What should we call you?", "Jak ti máme říkat?"),
+    ("onboardingYourNameSubtitle", "This name appears in your profile and shared summaries.", "Toto jméno se ukáže v profilu a ve sdílených přehledech."),
+    ("onboardingNameHint", "Your name", "Tvoje jméno"),
+    ("onboardingPermissionsTitle", "Allow access", "Povolit přístup"),
+    ("onboardingPermissionsSubtitle", "You can turn features on gradually — the app works best when these are allowed.", "Všechno jde povolit postupně — aplikace funguje nejlépe, když přístup povolíš."),
+    ("onboardingPermPhotosTitle", "Photos", "Fotky"),
+    ("onboardingPermPhotosBody", "Pick a profile picture from your gallery.", "Profilová fotka z galerie."),
+    ("onboardingPermPhotosAllow", "Allow photos", "Povolit fotky"),
+    ("onboardingPermBleTitle", "Bluetooth", "Bluetooth"),
+    ("onboardingPermBleBody", "Find and connect to your CzechMate board.", "Najít desku CzechMate a připojit se."),
+    ("onboardingPermBleAllow", "Allow Bluetooth", "Povolit Bluetooth"),
+    ("onboardingPermWifiTitle", "Wi‑Fi", "Wi‑Fi"),
+    ("onboardingPermWifiBodyAndroid", "Lets the app read your current network name to pre-fill Wi‑Fi setup (no rough location on Android 13+).", "Aplikace si může přečíst název aktuální sítě pro doplnění Wi‑Fi nastavení (na Androidu 13+ bez přístupu k poloze)."),
+    ("onboardingPermWifiBodyIos", "You’ll join the board’s network in Settings when connecting — no extra step here.", "K síti desky se připojíš v Nastavení při párování — tady nic dalšího nepotřebuješ."),
+    ("onboardingPermWifiAllow", "Allow Wi‑Fi access", "Povolit přístup k Wi‑Fi"),
+    ("onboardingPermGrantedShort", "Allowed", "Povoleno"),
+    ("onboardingPermDeniedSnack", "You can change this later in system Settings.", "To později změníš v nastavení systému."),
+    ("onboardingOpenSettings", "Open Settings", "Otevřít nastavení"),
+    ("onboardingPermissionsDesktopBody", "Bluetooth and network are handled when you connect to the board from the app.", "Bluetooth a síť se vyřeší, až v aplikaci připojíš desku."),
     ("settingsNavChessPuzzles", "Chess puzzles", "Šachové puzzle"),
     ("settingsNavProfileElo", "Profile & puzzle Elo", "Profil a puzzle Elo"),
     ("settingsNavProgress", "Progress (learning & stats)", "Pokrok (učení a statistiky)"),
@@ -898,6 +958,8 @@ EXTRA_PLACEHOLDER_META["firmwareNewVersionChip"] = {"placeholders": {"ver": {"ty
 EXTRA_PLACEHOLDER_META["firmwareCachedInAppLine"] = {"placeholders": {"ver": {"type": "String"}, "mb": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareDownloadFailedLine"] = {"placeholders": {"error": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareTileTitleUpdateAvailable"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["firmwareTileTitleGitBle"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["firmwareBleStaOk"] = {"placeholders": {"ssid": {"type": "String"}, "ip": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareBoardHttpVersionLine"] = {"placeholders": {"ver": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareManifestVersionLine"] = {"placeholders": {"ver": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareWifiStaConnected"] = {"placeholders": {"ip": {"type": "String"}}}
@@ -909,6 +971,7 @@ EXTRA_PLACEHOLDER_META["coachErrorSomethingWrong"] = {"placeholders": {"error": 
 EXTRA_PLACEHOLDER_META["newGameErrorSnack"] = {"placeholders": {"error": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["newGameCustomSummary"] = {"placeholders": {"min": {"type": "int"}, "inc": {"type": "int"}}}
 EXTRA_PLACEHOLDER_META["puzzleGoPlayPuzzle"] = {"placeholders": {"title": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["puzzleLibraryRemoveBody"] = {"placeholders": {"title": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["puzzleTrainingPoolStats"] = {"placeholders": {"poolN": {"type": "int"}, "sessions": {"type": "int"}}}
 EXTRA_PLACEHOLDER_META["lampStudioRgbLine"] = {"placeholders": {"r": {"type": "int"}, "g": {"type": "int"}, "b": {"type": "int"}}}
 EXTRA_PLACEHOLDER_META["setupWizardStepProgress"] = {"placeholders": {"current": {"type": "int"}, "total": {"type": "int"}}}

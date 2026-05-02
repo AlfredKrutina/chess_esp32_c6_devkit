@@ -103,7 +103,12 @@
  * @see game_task.c - Prijima detkovane tahy
  */
 
+#include "sdkconfig.h"
 #include "matrix_task.h"
+#include "hall_i2c_matrix.h"
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+#include "stm32_i2c_bl.h"
+#endif
 #include "game_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "chess_types.h"
@@ -247,6 +252,11 @@ static void matrix_scan_row_internal(uint8_t row) {
   if (row >= 8)
     return;
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  (void)row;
+  return;
+#else
+
   // IMPROVED: Přepni všechny řádky na INPUT před aktivací aktuálního řádku
   // Toto je bezpečnější než jen nastavení HIGH, protože zabraňuje konfliktům
   // při přepínání mezi řádky (jako v referenčním kódu)
@@ -333,6 +343,7 @@ static void matrix_scan_row_internal(uint8_t row) {
 
   // Malé čekání před dalším řádkem pro stabilizaci
   esp_rom_delay_us(20); // 20us delay (reduced from 2ms)
+#endif
 }
 
 // Public function - scans row WITH mutex protection
@@ -364,11 +375,18 @@ void matrix_scan_all(void) {
   // CRITICAL: Protect matrix state with mutex for change detection
   if (matrix_mutex != NULL) {
     if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
-      // Scan each row (use internal function since we already hold mutex)
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      if (simulation_mode) {
+        memcpy(matrix_state, simulation_patterns[current_pattern],
+               sizeof(matrix_state));
+      } else {
+        hall_i2c_matrix_fill_state(matrix_state);
+      }
+#else
       for (int row = 0; row < 8; row++) {
-        // NOTE: Don't call WDT reset in timer callback context
         matrix_scan_row_internal(row);
       }
+#endif
 
       // Detect changes
       for (int i = 0; i < 64; i++) {
@@ -405,9 +423,18 @@ void matrix_scan_all(void) {
     }
   } else {
     // Fallback if mutex not available
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    if (simulation_mode) {
+      memcpy(matrix_state, simulation_patterns[current_pattern],
+             sizeof(matrix_state));
+    } else {
+      hall_i2c_matrix_fill_state(matrix_state);
+    }
+#else
     for (int row = 0; row < 8; row++) {
       matrix_scan_row_internal(row);
     }
+#endif
 
     for (int i = 0; i < 64; i++) {
       if (matrix_state[i] != matrix_previous[i]) {
@@ -979,12 +1006,13 @@ void matrix_abort_ambiguous_guard_baseline(void) {
  * column piny mohou byt bezpecne cteny pro button detection.
  */
 void matrix_release_pins(void) {
-  // Set all row pins to HIGH (inactive/released state)
-  // This allows button task to read column pins without interference
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  (void)0;
+#else
   for (int row = 0; row < 8; row++) {
-    gpio_set_level(matrix_row_pins[row], 1); // HIGH = inactive
+    gpio_set_level(matrix_row_pins[row], 1);
   }
-
+#endif
   ESP_LOGD(TAG, "Matrix pins released for button scan");
 }
 
@@ -1011,13 +1039,16 @@ void matrix_acquire_pins(void) {
  * @return true pokud jsou vsechny row piny HIGH (uvolnene)
  */
 bool matrix_pins_released(void) {
-  // Check if all row pins are HIGH (released)
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  return true;
+#else
   for (int row = 0; row < 8; row++) {
     if (gpio_get_level(matrix_row_pins[row]) == 0) {
-      return false; // At least one pin is LOW (active)
+      return false;
     }
   }
-  return true; // All pins are HIGH (released)
+  return true;
+#endif
 }
 
 // ============================================================================
@@ -1026,6 +1057,21 @@ bool matrix_pins_released(void) {
 
 void matrix_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Matrix task started successfully");
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  esp_err_t hi = hall_i2c_matrix_init();
+  if (hi != ESP_OK) {
+    ESP_LOGE(TAG, "Hall I2C init failed: %s — matrix reads budou prázdné",
+             esp_err_to_name(hi));
+  }
+#endif
+
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+  ESP_LOGI(TAG,
+           "STM32 I2C bootloader: po I2C init spouštím případný auto-flash "
+           "(logy STM32_I2C_BL / STM32_AUTO)");
+  stm32_i2c_bl_maybe_auto_flash_on_boot();
+#endif
 
   // CRITICAL: Register with TWDT from within task
   esp_err_t wdt_ret = esp_task_wdt_add(NULL);

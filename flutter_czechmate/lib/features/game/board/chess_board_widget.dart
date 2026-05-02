@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/board_styles.dart';
+import '../../../core/models/game_snapshot.dart';
 import '../../../core/localization/context_l10n.dart';
 import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/board_algebraic.dart';
@@ -76,11 +77,47 @@ void _openPromotionSheet(
   );
 }
 
-class ChessBoardWidget extends ConsumerWidget {
+class ChessBoardWidget extends ConsumerStatefulWidget {
   const ChessBoardWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChessBoardWidget> createState() => _ChessBoardWidgetState();
+}
+
+class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _invalidRecoveryPulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _invalidRecoveryPulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
+  @override
+  void dispose() {
+    _invalidRecoveryPulse.dispose();
+    super.dispose();
+  }
+
+  void _syncInvalidRecoveryAnimation(bool serverInvalid) {
+    if (serverInvalid) {
+      if (!_invalidRecoveryPulse.isAnimating) {
+        _invalidRecoveryPulse.repeat(reverse: true);
+      }
+    } else {
+      if (_invalidRecoveryPulse.isAnimating) {
+        _invalidRecoveryPulse.stop();
+      }
+      _invalidRecoveryPulse.reset();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final session = ref.watch(boardSessionNotifierProvider);
     final ui = ref.watch(gameUiNotifierProvider);
     final snap = session.snapshot;
@@ -91,10 +128,28 @@ class ChessBoardWidget extends ConsumerWidget {
     final piecesKey =
         '${ui.sandboxMode}_${snap?.history.moves.length}_${_boardPlacementSig(cells)}';
     final flipped = ui.boardFlipped;
-    final last = snap?.history.moves.isNotEmpty == true
-        ? snap!.history.moves.last
-        : null;
+    final moves = snap?.history.moves;
+    final GameHistoryMove? lastMoveHighlight;
+    if (!ui.sandboxMode &&
+        ui.historyReviewMoveIndex != null &&
+        moves != null &&
+        moves.isNotEmpty) {
+      final i = ui.historyReviewMoveIndex!;
+      if (i >= 0 && i < moves.length) {
+        lastMoveHighlight = moves[i];
+      } else {
+        lastMoveHighlight = null;
+      }
+    } else if (moves != null && moves.isNotEmpty) {
+      lastMoveHighlight = moves.last;
+    } else {
+      lastMoveHighlight = null;
+    }
     final err = snap?.status.errorState;
+    final serverInvalid = err?.active == true &&
+        err?.invalidPos != null &&
+        err!.invalidPos!.length >= 2;
+    _syncInvalidRecoveryAnimation(serverInvalid);
     void snack(String m) {
       showGlassSnackBar(context, m);
     }
@@ -138,24 +193,34 @@ class ChessBoardWidget extends ConsumerWidget {
                             _openPromotionSheet(ctx, ref, snack);
                           }
                         },
-                        child: CustomPaint(
-                          size: Size(side, side),
-                          painter: _BoardPainter(
-                            board: cells,
-                            flipped: flipped,
-                            lastFrom: last?.from,
-                            lastTo: last?.to,
-                            invalidSquare:
-                                err?.active == true ? err?.invalidPos : null,
-                            originalSquare:
-                                err?.active == true ? err?.originalPos : null,
-                            invalidFlashFrom: ui.invalidFlashFrom,
-                            invalidFlashTo: ui.invalidFlashTo,
-                            hintFrom: ui.hintFrom,
-                            hintTo: ui.hintTo,
-                            selected: ui.selectedSquare,
-                            themeColors: themeColors,
-                          ),
+                        child: AnimatedBuilder(
+                          animation: _invalidRecoveryPulse,
+                          builder: (context, _) {
+                            final pulseT =
+                                serverInvalid ? _invalidRecoveryPulse.value : 0.0;
+                            return CustomPaint(
+                              size: Size(side, side),
+                              painter: _BoardPainter(
+                                board: cells,
+                                flipped: flipped,
+                                lastFrom: lastMoveHighlight?.from,
+                                lastTo: lastMoveHighlight?.to,
+                                serverInvalidSquare:
+                                    serverInvalid ? err.invalidPos : null,
+                                serverInvalidPulseT: pulseT,
+                                originalSquare:
+                                    serverInvalid ? err.originalPos : null,
+                                clientInvalidSquare:
+                                    ui.invalidDestinationPulseSquare,
+                                clientInvalidLit:
+                                    ui.invalidDestinationPulseLit,
+                                hintFrom: ui.hintFrom,
+                                hintTo: ui.hintTo,
+                                selected: ui.selectedSquare,
+                                themeColors: themeColors,
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
@@ -214,10 +279,11 @@ class _BoardPainter extends CustomPainter {
     required this.flipped,
     this.lastFrom,
     this.lastTo,
-    this.invalidSquare,
+    this.serverInvalidSquare,
+    this.serverInvalidPulseT = 0,
     this.originalSquare,
-    this.invalidFlashFrom,
-    this.invalidFlashTo,
+    this.clientInvalidSquare,
+    this.clientInvalidLit = false,
     this.hintFrom,
     this.hintTo,
     this.selected,
@@ -228,10 +294,14 @@ class _BoardPainter extends CustomPainter {
   final bool flipped;
   final String? lastFrom;
   final String? lastTo;
-  final String? invalidSquare;
+  /// Pole s neplatně postavenou figurkou (snapshot `error_state`).
+  final String? serverInvalidSquare;
+  /// 0–1 z [AnimationController] — červené „pod“ polem.
+  final double serverInvalidPulseT;
   final String? originalSquare;
-  final String? invalidFlashFrom;
-  final String? invalidFlashTo;
+  /// Lokální zpětná vazba po zamítnutém tahu z aplikace.
+  final String? clientInvalidSquare;
+  final bool clientInvalidLit;
   final String? hintFrom;
   final String? hintTo;
   final String? selected;
@@ -252,12 +322,24 @@ class _BoardPainter extends CustomPainter {
         );
       }
     }
-    _markSquare(canvas, sq, invalidSquare, themeColors.error);
     _markSquare(canvas, sq, originalSquare, themeColors.selected);
     _markSquare(canvas, sq, lastFrom, themeColors.lastMove);
     _markSquare(canvas, sq, lastTo, themeColors.lastMove);
-    _markSquare(canvas, sq, invalidFlashFrom, const Color(0x88FFAB00));
-    _markSquare(canvas, sq, invalidFlashTo, const Color(0x88FFAB00));
+    final serverPulseAlpha =
+        0.28 + 0.62 * serverInvalidPulseT.clamp(0.0, 1.0);
+    _markSquare(
+      canvas,
+      sq,
+      serverInvalidSquare,
+      themeColors.error.withValues(alpha: serverPulseAlpha),
+    );
+    final clientAlpha = clientInvalidLit ? 0.86 : 0.2;
+    _markSquare(
+      canvas,
+      sq,
+      clientInvalidSquare,
+      const Color(0xFFE53935).withValues(alpha: clientAlpha),
+    );
     _markSquare(canvas, sq, hintFrom, const Color(0x99FFD54F));
     _markSquare(canvas, sq, hintTo, const Color(0x9976FF7A));
     _markSquare(canvas, sq, selected, themeColors.selected);
@@ -279,11 +361,12 @@ class _BoardPainter extends CustomPainter {
         oldDelegate.flipped != flipped ||
         oldDelegate.lastFrom != lastFrom ||
         oldDelegate.lastTo != lastTo ||
-        oldDelegate.invalidSquare != invalidSquare ||
+        oldDelegate.serverInvalidSquare != serverInvalidSquare ||
+        oldDelegate.serverInvalidPulseT != serverInvalidPulseT ||
         oldDelegate.originalSquare != originalSquare ||
         oldDelegate.selected != selected ||
-        oldDelegate.invalidFlashFrom != invalidFlashFrom ||
-        oldDelegate.invalidFlashTo != invalidFlashTo ||
+        oldDelegate.clientInvalidSquare != clientInvalidSquare ||
+        oldDelegate.clientInvalidLit != clientInvalidLit ||
         oldDelegate.hintFrom != hintFrom ||
         oldDelegate.hintTo != hintTo ||
         oldDelegate.themeColors != themeColors;
@@ -477,10 +560,11 @@ class FenBoardPreview extends ConsumerWidget {
                     flipped: flipped,
                     lastFrom: highlightFrom,
                     lastTo: highlightTo,
-                    invalidSquare: null,
+                    serverInvalidSquare: null,
+                    serverInvalidPulseT: 0,
                     originalSquare: null,
-                    invalidFlashFrom: null,
-                    invalidFlashTo: null,
+                    clientInvalidSquare: null,
+                    clientInvalidLit: false,
                     hintFrom: null,
                     hintTo: null,
                     selected: null,

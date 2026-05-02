@@ -7,7 +7,11 @@
 # partitions_16mb_dual_ota.csv + CONFIG_ESPTOOLPY_FLASHSIZE_16MB.
 #
 # Bez ota_0 + ota_1 deska neumožní ESP OTA stream (jen UART/USB flash).
+#
+# stm32_fw: surový STM32 .bin pro automatické I2C flash z ESP (viz CHESS_STM32_BL_AUTO_*).
+# Zápis na čip: esptool.py write_flash 0x380000 stm32_app.bin  (offset podle tabulky).
 # Name,   Type, SubType, Offset,  Size, Flags
 nvs,      data, nvs,     0x9000,  0x6000,
 phy_init, data, phy,     0xf000,  0x1000,
-factory,  app,  factory, 0x10000, 0x3F0000,
+factory,  app,  factory, 0x10000, 0x370000,
+stm32_fw, data, 0x99,    0x380000, 0x80000,

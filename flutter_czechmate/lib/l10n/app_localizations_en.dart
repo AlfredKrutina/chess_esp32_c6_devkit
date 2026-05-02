@@ -135,13 +135,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.';
 
   @override
-  String get errWifiProvNeedsBle =>
-      'Connect to the board over Bluetooth first, then send Wi‑Fi credentials.';
-
-  @override
-  String get errWifiSsidEmpty => 'Enter a Wi‑Fi network name (SSID).';
-
-  @override
   String get errOtaMock => 'OTA is not available with the mock board.';
 
   @override
@@ -1687,51 +1680,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Bluetooth upload finished — the board may reboot.';
 
   @override
-  String get firmwareWifiBleProvisionTitle => 'Board Wi‑Fi (via Bluetooth)';
-
-  @override
-  String get firmwareWifiBleProvisionSubtitle =>
-      'Sends SSID and password to the board (NVS) and starts station mode. When connected, the board reports IP and SSID — if it matches this phone’s Wi‑Fi, “Send to board” uses HTTP on your LAN; otherwise firmware uploads over Bluetooth only.';
-
-  @override
-  String get firmwareWifiBleSsidLabel => 'Wi‑Fi name (SSID)';
-
-  @override
-  String get firmwareWifiBlePasswordLabel =>
-      'Wi‑Fi password (leave empty on open networks)';
-
-  @override
-  String get firmwareWifiBleUsePhoneSsidButton => 'Use this phone’s Wi‑Fi name';
-
-  @override
-  String get firmwareWifiBleSendCredentials => 'Send credentials to board';
-
-  @override
-  String get firmwareWifiBleProvStartedSnack =>
-      'Wi‑Fi provisioning started — connection can take up to a minute. Watch the status line below.';
-
-  @override
-  String get firmwareBleStaWaiting =>
-      'Board STA: not connected yet (waiting for Wi‑Fi…).';
-
-  @override
-  String firmwareBleStaOk(String ssid, String ip) {
-    return 'Board STA: $ssid · $ip';
-  }
-
-  @override
-  String get firmwareOtaPhoneNotOnLan =>
-      'This phone has no suitable IPv4 on the board hotspot (192.168.4.x) or on the same /24 LAN subnet as the board STA IP — fix the network, or use “Send via Bluetooth”. SSID names may differ (e.g. 5 GHz vs 2.4 GHz).';
-
-  @override
-  String get firmwareOtaNoLanRouteUseBle =>
-      'No LAN path to the board (not on the board hotspot and no IPv4 on the same subnet as the board STA IP) — uploading firmware over Bluetooth.';
-
-  @override
-  String get firmwareOtaNoLanRouteNeedBle =>
-      'Use Bluetooth to upload firmware, or connect via the board hotspot, or put this phone on the same home LAN as the board (same /24 as the STA IP from BLE). The SSID text does not need to match (e.g. phone on 5 GHz, board on 2.4 GHz).';
-
-  @override
   String get firmwareOtaSlotsDisabledHint =>
       'This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).';
 
@@ -1758,29 +1706,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareTileTitleDefault => 'Firmware (over-the-air)';
-
-  @override
-  String firmwareTileTitleGitBle(String ver) {
-    return 'Firmware from Git ($ver) — flash via Bluetooth';
-  }
-
-  @override
-  String get firmwareTileSubtitleBleGitOnly =>
-      'Manifest loaded from Git. Download the .bin on this phone, then flash over Bluetooth while connected — no board Wi‑Fi needed.';
-
-  @override
-  String get firmwareBleHttpOptionalHint =>
-      'Board HTTP URL is optional: Check loads the Git manifest over the internet. After downloading the .bin, you can flash over Bluetooth without knowing the board IP.';
-
-  @override
-  String get firmwareBleGitUnknownBoardVersion =>
-      'Board version over HTTP is unknown (BLE-only path). You can still download from Git and flash via Bluetooth.';
-
-  @override
-  String get firmwareSendViaBlePrimary => 'Flash via Bluetooth';
-
-  @override
-  String get firmwareSendToBoardHttpAlt => 'Send via phone HTTP (Wi‑Fi)';
 
   @override
   String get firmwareTileSubtitleIdle =>
@@ -1840,7 +1765,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String firmwareFooterTransportHint(String transport) {
-    return 'Connection: $transport. Check loads the Git manifest over the internet; download the .bin here, then upload via hotspot/LAN HTTP or Bluetooth when GATT is connected. HTTPS OTA needs board STA.';
+    return 'Connection: $transport. HTTPS OTA needs STA; hotspot HTTP OTA works on 192.168.4.x; cached .bin can also upload over Bluetooth when GATT is connected.';
   }
 
   @override
@@ -1854,6 +1779,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareTransportLabelMock => 'mock';
+
+  @override
+  String get errWifiSsidEmpty => 'Enter a Wi‑Fi network name (SSID).';
+
+  @override
+  String get errWifiProvNeedsBle =>
+      'Connect via Bluetooth to provision Wi‑Fi on the board.';
+
+  @override
+  String get firmwareWifiBleProvStartedSnack =>
+      'Wi‑Fi credentials sent — watch the board status.';
+
+  @override
+  String get firmwareOtaNoLanRouteUseBle =>
+      'Your phone isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.';
+
+  @override
+  String get firmwareOtaNoLanRouteNeedBle =>
+      'Connect via Bluetooth first — without LAN access the app will send the image over BLE.';
+
+  @override
+  String get firmwareOtaPhoneNotOnLan =>
+      'This phone doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.';
+
+  @override
+  String firmwareTileTitleGitBle(String ver) {
+    return 'Firmware — GitHub build ($ver)';
+  }
+
+  @override
+  String get firmwareTileSubtitleBleGitOnly =>
+      'Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.';
+
+  @override
+  String get firmwareWifiBleProvisionTitle =>
+      'Wi‑Fi on the board (via Bluetooth)';
+
+  @override
+  String get firmwareWifiBleProvisionSubtitle =>
+      'Send SSID and password over BLE so the board can join your network as a client (STA).';
+
+  @override
+  String get firmwareWifiBleSsidLabel => 'Wi‑Fi name (SSID)';
+
+  @override
+  String get firmwareWifiBlePasswordLabel => 'Wi‑Fi password';
+
+  @override
+  String get firmwareWifiBleUsePhoneSsidButton => 'Use this phone’s Wi‑Fi name';
+
+  @override
+  String get firmwareWifiBleSendCredentials => 'Send credentials to board';
+
+  @override
+  String firmwareBleStaOk(String ssid, String ip) {
+    return 'STA: $ssid · $ip';
+  }
+
+  @override
+  String get firmwareBleStaWaiting =>
+      'Waiting for the board to connect to Wi‑Fi…';
+
+  @override
+  String get firmwareBleHttpOptionalHint =>
+      'Board HTTP URL is optional — you can update over Bluetooth without Wi‑Fi on the board.';
+
+  @override
+  String get firmwareBleGitUnknownBoardVersion =>
+      'Board version unknown over HTTP — download to the app and prefer Bluetooth upload.';
+
+  @override
+  String get firmwareSendViaBlePrimary => 'Send via Bluetooth (recommended)';
+
+  @override
+  String get firmwareSendToBoardHttpAlt => 'Send via board HTTP (hotspot)';
 
   @override
   String get analysisAppBarTitle => 'Analysis';
@@ -2833,6 +2833,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'No items yet — use the form above or Add from the daily puzzle.';
 
   @override
+  String get puzzleLibraryRemoveTitle => 'Remove from library?';
+
+  @override
+  String puzzleLibraryRemoveBody(String title) {
+    return 'Remove “$title” from your puzzle library? This cannot be undone.';
+  }
+
+  @override
+  String get puzzleLibraryRemoveConfirm => 'Remove';
+
+  @override
   String get puzzleLoadDaily => 'Load daily puzzle';
 
   @override
@@ -2998,6 +3009,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameRemoteWrongTurnHud => 'Not your turn';
 
   @override
+  String get gameRemoteGameFinished => 'This game is already over.';
+
+  @override
+  String get gameRemotePositionError =>
+      'Could not validate the move from the current board data.';
+
+  @override
   String get gamePromotionPickTitle => 'Promotion — choose a piece';
 
   @override
@@ -3021,6 +3039,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moveHistoryEmpty => 'Move history is empty yet.';
+
+  @override
+  String get moveHistoryCurrentPosition => 'Live position — current game';
 
   @override
   String moveHistoryPieceSubtitle(String piece) {
@@ -3088,6 +3109,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsNavAppTour => 'App tour (onboarding)';
+
+  @override
+  String get onboardingYourNameTitle => 'What should we call you?';
+
+  @override
+  String get onboardingYourNameSubtitle =>
+      'This name appears in your profile and shared summaries.';
+
+  @override
+  String get onboardingNameHint => 'Your name';
+
+  @override
+  String get onboardingPermissionsTitle => 'Allow access';
+
+  @override
+  String get onboardingPermissionsSubtitle =>
+      'You can turn features on gradually — the app works best when these are allowed.';
+
+  @override
+  String get onboardingPermPhotosTitle => 'Photos';
+
+  @override
+  String get onboardingPermPhotosBody =>
+      'Pick a profile picture from your gallery.';
+
+  @override
+  String get onboardingPermPhotosAllow => 'Allow photos';
+
+  @override
+  String get onboardingPermBleTitle => 'Bluetooth';
+
+  @override
+  String get onboardingPermBleBody =>
+      'Find and connect to your CzechMate board.';
+
+  @override
+  String get onboardingPermBleAllow => 'Allow Bluetooth';
+
+  @override
+  String get onboardingPermWifiTitle => 'Wi‑Fi';
+
+  @override
+  String get onboardingPermWifiBodyAndroid =>
+      'Lets the app read your current network name to pre-fill Wi‑Fi setup (no rough location on Android 13+).';
+
+  @override
+  String get onboardingPermWifiBodyIos =>
+      'You’ll join the board’s network in Settings when connecting — no extra step here.';
+
+  @override
+  String get onboardingPermWifiAllow => 'Allow Wi‑Fi access';
+
+  @override
+  String get onboardingPermGrantedShort => 'Allowed';
+
+  @override
+  String get onboardingPermDeniedSnack =>
+      'You can change this later in system Settings.';
+
+  @override
+  String get onboardingOpenSettings => 'Open Settings';
+
+  @override
+  String get onboardingPermissionsDesktopBody =>
+      'Bluetooth and network are handled when you connect to the board from the app.';
 
   @override
   String get settingsNavChessPuzzles => 'Chess puzzles';

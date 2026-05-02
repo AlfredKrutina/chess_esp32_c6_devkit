@@ -4,6 +4,11 @@
  */
 #include "uart_cli_panel.h"
 
+#include "sdkconfig.h"
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+#include "stm32_i2c_bl.h"
+#endif
+
 #include "ota_update.h"
 #include "web_server_task.h"
 
@@ -19,6 +24,7 @@
 #include <ctype.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 
@@ -202,6 +208,165 @@ static void cli_ble_json(const char *json_line) {
   }
 }
 
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+static size_t cli_hex_to_bin(const char *hex, uint8_t *out, size_t out_max) {
+  size_t len = strlen(hex);
+  if (len < 2 || (len % 2) != 0) {
+    return 0;
+  }
+  size_t n = len / 2;
+  if (n > out_max) {
+    return 0;
+  }
+  for (size_t i = 0; i < n; i++) {
+    unsigned v = 0;
+    if (sscanf(hex + 2 * i, "%2x", &v) != 1) {
+      return 0;
+    }
+    out[i] = (uint8_t)v;
+  }
+  return n;
+}
+
+static command_result_t cli_stm32_bl_tail(const char *tail) {
+  const char *p = skip_leading_ws(tail);
+  char verb[24];
+  if (sscanf(p, "%23s", verb) != 1) {
+    uart_send_error("CLI STM32 HELP | PROBE | ERASE | WRITE | FLASH_PART");
+    return CMD_ERROR_INVALID_SYNTAX;
+  }
+
+  if (!strcasecmp(verb, "HELP") || !strcasecmp(verb, "?")) {
+    uart_send_line("STM32 I2C ROM bootloader (AN4221, addr z menuconfig)");
+    uart_send_line("  CLI STM32 PROBE <seg> [BOOT]");
+    uart_send_line("  CLI STM32 ERASE <seg> [BOOT]   (mass erase 0xFFFF)");
+    uart_send_line(
+        "  CLI STM32 WRITE <seg> <addr_hex> <data_hex>   (max 256 B)");
+    uart_send_line(
+        "  CLI STM32 FLASH_PART <seg> <partition_label> [BOOT]");
+    uart_send_line(
+        "NRST/BOOT0 GPIO + sdílený I2C s Hall viz menuconfig STM32 BL.");
+    return CMD_SUCCESS;
+  }
+
+  esp_err_t ie = stm32_i2c_bl_init();
+  if (ie != ESP_OK) {
+    uart_send_formatted("stm32_i2c_bl_init: %s", esp_err_to_name(ie));
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+
+  if (!strcasecmp(verb, "PROBE")) {
+    unsigned seg = 0;
+    char bflag[8] = "";
+    int n = sscanf(p, "%*s %u %7s", &seg, bflag);
+    if (n < 1 || seg > 3) {
+      uart_send_error("CLI STM32 PROBE <seg> [BOOT]");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    bool boot = (n >= 2 && !strcasecmp(bflag, "BOOT"));
+    uint16_t pid = 0;
+    esp_err_t e = stm32_i2c_bl_cmd_get_id((uint8_t)seg, boot, &pid);
+    if (e != ESP_OK) {
+      uart_send_formatted("GET_ID: %s", esp_err_to_name(e));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_formatted("segment %u  PID=0x%04X", seg, (unsigned)pid);
+    return CMD_SUCCESS;
+  }
+
+  if (!strcasecmp(verb, "ERASE")) {
+    unsigned seg = 0;
+    char bflag[8] = "";
+    int n = sscanf(p, "%*s %u %7s", &seg, bflag);
+    if (n < 1 || seg > 3) {
+      uart_send_error("CLI STM32 ERASE <seg> [BOOT]");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    bool boot = (n >= 2 && !strcasecmp(bflag, "BOOT"));
+    esp_err_t e = stm32_i2c_bl_erase_all((uint8_t)seg, boot);
+    if (e != ESP_OK) {
+      uart_send_formatted("ERASE: %s", esp_err_to_name(e));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_success("Mass erase dokončen (nebo částečný OK)");
+    return CMD_SUCCESS;
+  }
+
+  if (!strcasecmp(verb, "WRITE")) {
+    unsigned seg = 0;
+    uint32_t addr = 0;
+    char hexbuf[520];
+    if (sscanf(p, "%*s %u %" SCNx32 " %519s", &seg, &addr, hexbuf) != 3 ||
+        seg > 3) {
+      uart_send_error("CLI STM32 WRITE <seg> <addr_hex> <data_hex>");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    uint8_t raw[256];
+    size_t ln = cli_hex_to_bin(hexbuf, raw, sizeof(raw));
+    if (ln == 0) {
+      uart_send_error("špatná hex data (sudý počet znaků, max 512 hex znaků)");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    esp_err_t e =
+        stm32_i2c_bl_write_memory((uint8_t)seg, false, addr, raw, ln);
+    if (e != ESP_OK) {
+      uart_send_formatted("WRITE: %s", esp_err_to_name(e));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_success("WRITE OK");
+    return CMD_SUCCESS;
+  }
+
+  if (!strcasecmp(verb, "FLASH_PART")) {
+    unsigned seg = 0;
+    char label[32];
+    char bflag[8] = "";
+    int n = sscanf(p, "%*s %u %31s %7s", &seg, label, bflag);
+    bool boot = (n == 3 && !strcasecmp(bflag, "BOOT"));
+    if (n < 2 || seg > 3) {
+      uart_send_error("CLI STM32 FLASH_PART <seg> <label> [BOOT]");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    const esp_partition_t *part =
+        esp_partition_find_first(ESP_PARTITION_TYPE_ANY,
+                                 ESP_PARTITION_SUBTYPE_ANY, label);
+    if (!part) {
+      uart_send_formatted("oddíl '%s' nenalezen", label);
+      return CMD_ERROR_INVALID_PARAMETER;
+    }
+    size_t psz = part->size;
+    if (psz > 512 * 1024) {
+      uart_send_error("oddíl příliš velký (>512 KiB) — bezpečnostní limit");
+      return CMD_ERROR_INVALID_PARAMETER;
+    }
+    uint8_t *buf = (uint8_t *)malloc(psz);
+    if (!buf) {
+      uart_send_error("malloc bin buffer");
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    esp_err_t le =
+        esp_partition_read(part, 0, buf, part->size);
+    if (le != ESP_OK) {
+      free(buf);
+      uart_send_formatted("read partition: %s", esp_err_to_name(le));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    esp_err_t fe = stm32_i2c_bl_flash_binary((uint8_t)seg, boot,
+                                             0x08000000, buf, psz);
+    free(buf);
+    if (fe != ESP_OK) {
+      uart_send_formatted("FLASH_PART: %s", esp_err_to_name(fe));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_success("FLASH_PART hotovo");
+    return CMD_SUCCESS;
+  }
+
+  uart_send_error("neznámý STM32 příkaz — CLI STM32 HELP");
+  return CMD_ERROR_INVALID_SYNTAX;
+}
+#endif
+
 static void cli_snapshot(void) {
   char *json = NULL;
   size_t len = 0;
@@ -238,6 +403,9 @@ void uart_cli_print_help(void) {
   uart_send_line("  CLI BLE {\"cmd\":\"…\"}   (jako CZECHMATE GATT)");
   uart_send_line("  CLI SNAP              (game snapshot JSON)");
   uart_send_line("  CLI RESET             (esp_restart)");
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+  uart_send_line("  CLI STM32 HELP        (STM32 ROM bootloader přes I2C)");
+#endif
 }
 
 command_result_t uart_cmd_cli(const char *args) {
@@ -333,6 +501,15 @@ command_result_t uart_cmd_cli(const char *args) {
   if (!strcasecmp(cmd, "SNAP") || !strcasecmp(cmd, "SNAPSHOT")) {
     cli_snapshot();
     return CMD_SUCCESS;
+  }
+  if (!strcasecmp(cmd, "STM32")) {
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+    return cli_stm32_bl_tail(tail);
+#else
+    uart_send_error(
+        "CLI STM32 — zapni CHESS_STM32_I2C_BL_ENABLE v menuconfig");
+    return CMD_ERROR_INVALID_SYNTAX;
+#endif
   }
   if (!strcasecmp(cmd, "RESET")) {
     uart_send_line("Restart…");

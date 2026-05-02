@@ -228,13 +228,15 @@ esp_err_t chess_gpio_init(void) {
   if (ret != ESP_OK)
     return ret;
 
-  // Validate matrix row pins
+#ifndef CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  // Validate matrix row pins (reed multiplex); u I2C Hall jsou řádkové piny
+  // neobsazené nebo SDA/SCL.
   for (int i = 0; i < 8; i++) {
-    // GPIO validation - no WDT reset needed during init
     ret = validate_gpio_pin(matrix_row_pins[i], "MATRIX_ROW");
     if (ret != ESP_OK)
       return ret;
   }
+#endif
 
   // Validate matrix column pins
   for (int i = 0; i < 8; i++) {
@@ -253,11 +255,9 @@ esp_err_t chess_gpio_init(void) {
 
   // GPIO configuration - no WDT reset needed during init
 
-  // Configure matrix row pins as outputs
+#ifndef CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  // Configure matrix row pins as outputs (reed multiplex)
   for (int i = 0; i < 8; i++) {
-    // GPIO config - no WDT reset needed during init
-
-    // Bitová maska s explicitním přetypováním
     uint32_t pin_number = (uint32_t)matrix_row_pins[i];
     uint64_t pin_mask = (1ULL << pin_number);
 
@@ -275,13 +275,15 @@ esp_err_t chess_gpio_init(void) {
     if (ret != ESP_OK) {
       ESP_LOGE(TAG, "Failed to configure matrix row pin %d (GPIO%d): %s", i,
                pin_number, esp_err_to_name(ret));
-      return ret; // Return error instead of continuing
+      return ret;
     } else {
-      gpio_set_level(matrix_row_pins[i],
-                     1); // Set all rows HIGH initially (inactive state)
+      gpio_set_level(matrix_row_pins[i], 1);
       ESP_LOGI(TAG, "gpio_set_level done for GPIO%d", pin_number);
     }
   }
+#else
+  ESP_LOGI(TAG, "Matrix row GPIO skipped (CONFIG_CHESS_MATRIX_INPUT_I2C_HALL)");
+#endif
 
   // Configure matrix column pins as inputs with pull-up
   ESP_LOGI(TAG, "DEBUG: Starting matrix column configuration loop");

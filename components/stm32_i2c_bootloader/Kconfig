@@ -1,0 +1,148 @@
+menu "STM32 I2C ROM bootloader host (AN4221)"
+
+    config CHESS_STM32_I2C_BL_ENABLE
+        bool "Povolit ESP jako I2C master pro STM32 ROM bootloader"
+        default n
+        help
+            Implementace příkazů podle ST AN4221 (kompatibilní s AN2606 — vstup do bootloaderu).
+            Vyžaduje správné BOOT0/NRST zapojení a I2C slave adresu z AN2606 pro daný MCU.
+
+    config CHESS_STM32_BL_SHARE_I2C_HALL
+        bool "Sdílet I2C sběrnici s Hall maticí"
+        depends on CHESS_STM32_I2C_BL_ENABLE && CHESS_MATRIX_INPUT_I2C_HALL
+        default y
+        help
+            Použije stejný port/SDA/SCL jako CHESS_HALL_I2C_* (driver už nainstaluje hall_i2c_matrix_init).
+
+    config CHESS_STM32_BL_I2C_PORT_NUM
+        int "I2C port (když nesdílíš s Hall)"
+        depends on CHESS_STM32_I2C_BL_ENABLE && !CHESS_STM32_BL_SHARE_I2C_HALL
+        range 0 1
+        default 0
+
+    config CHESS_STM32_BL_I2C_SDA_GPIO
+        int "SDA GPIO (když nesdílíš s Hall)"
+        depends on CHESS_STM32_I2C_BL_ENABLE && !CHESS_STM32_BL_SHARE_I2C_HALL
+        range 0 30
+        default 10
+
+    config CHESS_STM32_BL_I2C_SCL_GPIO
+        int "SCL GPIO (když nesdílíš s Hall)"
+        depends on CHESS_STM32_I2C_BL_ENABLE && !CHESS_STM32_BL_SHARE_I2C_HALL
+        range 0 30
+        default 11
+
+    config CHESS_STM32_BL_I2C_FREQ_HZ
+        int "I2C clock Hz (vlastní sběrnice)"
+        depends on CHESS_STM32_I2C_BL_ENABLE && !CHESS_STM32_BL_SHARE_I2C_HALL
+        range 100000 400000
+        default 100000
+        help
+            Pro bootloader často bezpečnější 100 kHz než 400 kHz.
+
+    config CHESS_STM32_BL_TARGET_ADDR7
+        hex "STM32 bootloader 7bit I2C adresa (AN2606)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        default 0x53
+        help
+            Pro STM32C0xx často 0x53 — ověř v AN2606 pro přesný typ pouzdra.
+
+    config CHESS_STM32_BL_INTER_FRAME_MS
+        int "Mezera mezi I2C rámci jednoho příkazu (ms, AN2606 timeout)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range 1 200
+        default 50
+
+    config CHESS_STM32_BL_NRST_GPIO_SEG0
+        int "NRST segment 0 (-1 = nepoužito)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range -1 30
+        default 18
+        help
+            Výchozí 18 = test (ESP GPIO18 → STM NRST). Na finální desce uprav.
+
+    config CHESS_STM32_BL_NRST_GPIO_SEG1
+        int "NRST segment 1 (-1 = nepoužito)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range -1 30
+        default -1
+
+    config CHESS_STM32_BL_NRST_GPIO_SEG2
+        int "NRST segment 2 (-1 = nepoužito)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range -1 30
+        default -1
+
+    config CHESS_STM32_BL_NRST_GPIO_SEG3
+        int "NRST segment 3 (-1 = nepoužito)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range -1 30
+        default -1
+
+    config CHESS_STM32_BL_BOOT0_GPIO
+        int "BOOT0 (-1 = nepoužito, vstup do ROM bootloaderu)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range -1 30
+        default -1
+
+    config CHESS_STM32_BL_FLASH_PAGE_SIZE
+        int "Velikost flash stránky STM (pro mazání po stránkách)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range 128 8192
+        default 2048
+
+    config CHESS_STM32_BL_ERASE_ACK_MS
+        int "Timeout na dokončení mazání (ACK), ms"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range 500 60000
+        default 8000
+
+    config CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        bool "Po bootu ESP automaticky nahrát STM z flash oddílu (tovární desky)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        default y
+        help
+            Po startu (po inicializaci I2C) přečte oddíl stm32_fw a přes AN4221 nahraje
+            každý segment, u kterého je v menu nastavený NRST GPIO (ostatní přeskočí).
+            Pro jeden testovací STM nastav jen NRST u segmentu 0.
+
+    config CHESS_STM32_BL_AUTO_PARTITION_LABEL
+        string "Název oddílu se STM32 .bin na ESP"
+        depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        default "stm32_fw"
+
+    config CHESS_STM32_BL_AUTO_FLASH_BASE
+        hex "Cílová adresa na STM (začátek flash)"
+        depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        default 0x08000000
+
+    config CHESS_STM32_BL_AUTO_USE_BOOT0
+        bool "Při auto-flash držet BOOT0 pro vstup do ROM bootloaderu"
+        depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        default y
+        help
+            Pro tovární nebo prázdný flash musí STM při resetu nabootovat do system memory
+            (ST ROM I2C bootloader, adresa z AN2606). K tomu obvykle patří BOOT0=VDD a pulz NRST.
+            Zapni tuto volbu a nastav CHESS_STM32_BL_BOOT0_GPIO na pin ESP spojený s MCU BOOT0.
+            Je-li BOOT0 jen k zemi přes rezistor a GPIO není zapojené, auto-flash na „prázdný“ čip
+            nebude fungovat.
+
+    config CHESS_STM32_BL_AUTO_FLASH_SKIP_IF_UNCHANGED
+        bool "Přeskočit auto-flash pokud se obsah oddílu nezměnil (NVS CRC)"
+        depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        default y
+        help
+            Po úplném smazání flash ESP (chip erase) je NVS prázdná → flash proběhne znovu.
+
+    config CHESS_STM32_BL_AUTO_FLASH_FORCE
+        bool "Ignorovat NVS a vždy provést auto-flash"
+        depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        default n
+
+    config CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES
+        int "Max délka image z oddílu (0 = jen oříznout koncové 0xFF)"
+        depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        range 0 524288
+        default 0
+
+endmenu

@@ -1,0 +1,98 @@
+menu "Chess matrix input"
+
+    choice CHESS_MATRIX_INPUT
+        prompt "Matrix sensing backend"
+        default CHESS_MATRIX_INPUT_GPIO_REED
+        help
+            GPIO reed: klasický multiplex řádků/sloupců.
+            I2C Hall: čtení surových kanálů ze 4× STM32 (32× uint16 / segment),
+            kanály 2k a 2k+1 = jedno pole.
+
+        config CHESS_MATRIX_INPUT_GPIO_REED
+            bool "GPIO reed matrix (multiplex rows/cols)"
+
+        config CHESS_MATRIX_INPUT_I2C_HALL
+            bool "I2C Hall segments (STM32)"
+    endchoice
+
+    menu "I2C Hall (STM32)"
+        depends on CHESS_MATRIX_INPUT_I2C_HALL
+
+        config CHESS_HALL_I2C_PORT_NUM
+            int "I2C controller (0 = I2C_NUM_0)"
+            range 0 1
+            default 0
+
+        config CHESS_HALL_I2C_SDA_GPIO
+            int "SDA GPIO"
+            range 0 30
+            default 10
+
+        config CHESS_HALL_I2C_SCL_GPIO
+            int "SCL GPIO"
+            range 0 30
+            default 11
+
+        config CHESS_HALL_I2C_FREQ_HZ
+            int "I2C clock (Hz)"
+            range 100000 1000000
+            default 400000
+
+        config CHESS_HALL_REG_START
+            hex "I2C pointer před čtením 64 B (viz hall_i2c_spec.h)"
+            default 0x00
+
+        config CHESS_HALL_SEG0_ADDR
+            hex "Segment 0 (RESET u ESP) — 7bit adresa"
+            default 0x30
+
+        config CHESS_HALL_SEG1_ADDR
+            hex "Segment 1 — 7bit adresa"
+            default 0x31
+
+        config CHESS_HALL_SEG2_ADDR
+            hex "Segment 2 — 7bit adresa"
+            default 0x32
+
+        config CHESS_HALL_SEG3_ADDR
+            hex "Segment 3 — 7bit adresa"
+            default 0x33
+
+        config CHESS_HALL_SEGMENT_COUNT
+            int "Počet aktivních segmentů (dotazovat jen 0 … N-1)"
+            range 1 4
+            default 4
+            help
+                Na testovací desce se zapojeným jedním STM32 nastavte 1 —
+                ESP nebude opakovaně volat prázdné I2C adresy a sériovka zůstane čitelná.
+
+        choice CHESS_HALL_DETECT_MODE
+            prompt "Odvození obsazenosti z páru Hall kanálů"
+            default CHESS_HALL_DETECT_DIFF
+            help
+                DIFF: |r0 - r1| >= práh (typické pro diferenciální uspořádání).
+                MAX: max(r0,r1) >= práh.
+
+            config CHESS_HALL_DETECT_DIFF
+                bool "Absolutní rozdíl (|r0 - r1|)"
+
+            config CHESS_HALL_DETECT_MAX
+                bool "Maximum (max r0, r1)"
+        endchoice
+
+        config CHESS_HALL_PAIR_DIFF_THRESHOLD
+            int "Práh |r0 - r1| (režim DIFF)"
+            depends on CHESS_HALL_DETECT_DIFF
+            default 120
+
+        config CHESS_HALL_MAX_THRESHOLD
+            int "Práh max(r0,r1) (režim MAX)"
+            depends on CHESS_HALL_DETECT_MAX
+            default 2200
+
+        config CHESS_HALL_LOG_INTERVAL_SCANS
+            int "Logovat souhrn každých N skenů (0 = vypnuto)"
+            default 0
+    endmenu
+
+endmenu

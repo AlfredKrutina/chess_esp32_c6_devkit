@@ -37,8 +37,6 @@
   "errOtaHttps": "OTA URL musí začínat https:// (internet) nebo http:// (např. telefon na hotspotu desky).",
   "errOtaBleTransport": "Nahrání firmwaru přes Bluetooth vyžaduje aktivní Bluetooth spojení (připoj přes Bluetooth, ne jen přes Wi‑Fi).",
   "errOtaBleGatt": "Bluetooth GATT není připojené — znovu připoj desku z karty Hra nebo z Objevování desky.",
-  "errWifiProvNeedsBle": "Nejdřív se přes Bluetooth připoj k desce, pak pošli údaje k Wi‑Fi.",
-  "errWifiSsidEmpty": "Zadej název Wi‑Fi sítě (SSID).",
   "errOtaMock": "OTA není dostupná u demo desky.",
   "errOtaConnectFirst": "Připoj desku přes Wi‑Fi nebo Bluetooth a pak zkus aktualizaci znovu.",
   "errHintsNeedConnection": "Nápovědní LED vyžadují připojení desky. Nejprve Bluetooth nebo Wi‑Fi.",
@@ -857,28 +855,6 @@
   "firmwareSendViaBle": "Odeslat přes Bluetooth",
   "firmwareSendViaBleBody": "Celý obraz firmwaru se přenese jen přes Bluetooth (nepotřebuješ hotspot desky ani STA). Drž telefon blízko desky, dokud spojení neskončí — deska se restartuje.",
   "firmwareBleUploadDoneSnack": "Odeslání přes Bluetooth dokončeno — deska se může restartovat.",
-  "firmwareWifiBleProvisionTitle": "Wi‑Fi desky (přes Bluetooth)",
-  "firmwareWifiBleProvisionSubtitle": "Pošle SSID a heslo na desku (NVS) a spustí režim STA. Po připojení deska hlásí IP a SSID — pokud sedí s Wi‑Fi telefonu, „Poslat na desku“ použije HTTP v LAN; jinak se firmware nahraje jen přes Bluetooth.",
-  "firmwareWifiBleSsidLabel": "Název Wi‑Fi (SSID)",
-  "firmwareWifiBlePasswordLabel": "Heslo Wi‑Fi (prázdné u otevřené sítě)",
-  "firmwareWifiBleUsePhoneSsidButton": "Použít název Wi‑Fi z telefonu",
-  "firmwareWifiBleSendCredentials": "Poslat přihlašovací údaje na desku",
-  "firmwareWifiBleProvStartedSnack": "Zapisuji Wi‑Fi na desku — připojení může trvat i minutu. Sleduj řádek stavu níže.",
-  "firmwareBleStaWaiting": "STA desky: zatím nepřipojeno (čekám na Wi‑Fi…).",
-  "firmwareBleStaOk": "STA desky: {ssid} · {ip}",
-  "@firmwareBleStaOk": {
-    "placeholders": {
-      "ssid": {
-        "type": "String"
-      },
-      "ip": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareOtaPhoneNotOnLan": "Telefon nemá vhodnou IPv4 na hotspotu desky (192.168.4.x) ani ve stejné /24 LAN podsíti jako IP STA desky — uprav síť, nebo použij „Poslat přes Bluetooth“. Názvy SSID se mohou lišit (např. 5 GHz vs 2,4 GHz).",
-  "firmwareOtaNoLanRouteUseBle": "Žádná cesta k desce po LAN (nejsi na hotspotu desky a nemáš IPv4 ve stejné podsíti jako STA IP desky) — firmware se nahraje přes Bluetooth.",
-  "firmwareOtaNoLanRouteNeedBle": "Nahraj firmware přes Bluetooth, nebo přes hotspot desky, nebo připoj telefon ke stejné domácí síti jako deska (stejná /24 jako STA IP z BLE). Text SSID se nemusí shodovat (např. telefon na 5 GHz, deska na 2,4 GHz).",
   "firmwareOtaSlotsDisabledHint": "Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu).",
   "firmwareBoardHttpMissingDetail": "Chybí HTTP adresa desky (např. http://192.168.4.1). V nastavení ulož výchozí URL desky. Samotné Bluetooth IP neposkytuje.",
   "firmwareHttpsLinkExplainBody": "Ty jen pošleš odkaz HTTPS — celý soubor .bin stáhne ESP. Deska musí být připojená k Wi‑Fi jako klient (STA). Příkaz ke startu můžeš poslat přes HTTP na Wi‑Fi nebo přes Bluetooth; průběh se čte přes HTTP na IP desky.",
@@ -893,19 +869,6 @@
     }
   },
   "firmwareTileTitleDefault": "Firmware (bezdrátově)",
-  "firmwareTileTitleGitBle": "Firmware z Gitu ({ver}) — přes Bluetooth",
-  "@firmwareTileTitleGitBle": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareTileSubtitleBleGitOnly": "Manifest načten z Gitu. Stáhni .bin do telefonu a při připojení přes Bluetooth nahraj na desku — Wi‑Fi na desce nepotřebuješ.",
-  "firmwareBleHttpOptionalHint": "HTTP URL desky je volitelná: Kontrola načte manifest z Gitu i přes mobilní data. Po stažení .bin můžeš přeflashovat přes Bluetooth bez známé IP desky.",
-  "firmwareBleGitUnknownBoardVersion": "Verzi desky přes HTTP neznáme (jen BLE). I tak můžeš stáhnout z Gitu a přeflashovat přes Bluetooth.",
-  "firmwareSendViaBlePrimary": "Přeflashovat přes Bluetooth",
-  "firmwareSendToBoardHttpAlt": "Odeslat přes HTTP telefonu (Wi‑Fi)",
   "firmwareTileSubtitleIdle": "Manifest a Kontrola. Na hotspotu použij Stáhnout / Odeslat, nebo HTTPS, pokud má deska klienta STA.",
   "firmwareRemindersOnShort": "připomínky zapnuté",
   "firmwareRemindersOffShort": "připomínky vypnuté",
@@ -955,7 +918,7 @@
       }
     }
   },
-  "firmwareFooterTransportHint": "Spojení: {transport}. Kontrola načte manifest z Gitu přes internet; .bin stáhni zde, pak nahraj přes hotspot/LAN HTTP nebo Bluetooth při navázaném GATT. HTTPS OTA vyžaduje STA na desce.",
+  "firmwareFooterTransportHint": "Spojení: {transport}. HTTPS OTA vyžaduje STA; OTA přes hotspot HTTP funguje na 192.168.4.x; uložený .bin lze nahrát i přes Bluetooth, pokud je navázané GATT.",
   "@firmwareFooterTransportHint": {
     "placeholders": {
       "transport": {
@@ -967,6 +930,43 @@
   "firmwareTransportLabelWifi": "Wi‑Fi",
   "firmwareTransportLabelBle": "Bluetooth",
   "firmwareTransportLabelMock": "simulace",
+  "errWifiSsidEmpty": "Zadej název Wi‑Fi sítě (SSID).",
+  "errWifiProvNeedsBle": "Pro nastavení Wi‑Fi na desce se připoj přes Bluetooth.",
+  "firmwareWifiBleProvStartedSnack": "Údaje Wi‑Fi odeslány — sleduj stav na desce.",
+  "firmwareOtaNoLanRouteUseBle": "Telefon není ve stejné síti jako deska. Nahraj firmware přes Bluetooth, nebo se připoj k síti desky.",
+  "firmwareOtaNoLanRouteNeedBle": "Nejdřív se připoj přes Bluetooth — bez přístupu do LAN aplikace obrázek pošle přes BLE.",
+  "firmwareOtaPhoneNotOnLan": "Telefon zřejmě není v síti desky. Připoj se k hotspotu desky nebo k Wi‑Fi, kde má deska IP.",
+  "firmwareTileTitleGitBle": "Firmware — sestavení z GitHubu ({ver})",
+  "@firmwareTileTitleGitBle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileSubtitleBleGitOnly": "Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.",
+  "firmwareWifiBleProvisionTitle": "Wi‑Fi na desce (přes Bluetooth)",
+  "firmwareWifiBleProvisionSubtitle": "Pošli SSID a heslo přes BLE, aby se deska připojila k tvé síti jako klient (STA).",
+  "firmwareWifiBleSsidLabel": "Název Wi‑Fi (SSID)",
+  "firmwareWifiBlePasswordLabel": "Heslo Wi‑Fi",
+  "firmwareWifiBleUsePhoneSsidButton": "Použít název Wi‑Fi z tohoto telefonu",
+  "firmwareWifiBleSendCredentials": "Odeslat údaje na desku",
+  "firmwareBleStaOk": "STA: {ssid} · {ip}",
+  "@firmwareBleStaOk": {
+    "placeholders": {
+      "ssid": {
+        "type": "String"
+      },
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareBleStaWaiting": "Čekám na připojení desky k Wi‑Fi…",
+  "firmwareBleHttpOptionalHint": "HTTP adresa desky je volitelná — aktualizaci zvládneš přes Bluetooth i bez Wi‑Fi na desce.",
+  "firmwareBleGitUnknownBoardVersion": "Verze desky přes HTTP neznámá — stáhni do aplikace a preferuj nahrání přes Bluetooth.",
+  "firmwareSendViaBlePrimary": "Odeslat přes Bluetooth (doporučeno)",
+  "firmwareSendToBoardHttpAlt": "Odeslat přes HTTP desky (hotspot)",
   "analysisAppBarTitle": "Analýza",
   "analysisGameProgress": "Průběh partie",
   "analysisGameProgressBody": "Půltahy z připojené desky.",
@@ -1457,6 +1457,16 @@
   "puzzleBackLiveTooltip": "Zpět na živou partii",
   "puzzlePoolEmptySnack": "Žádné pozice v tomto režimu fondu — přepni na Mix nebo přidej knihovnu.",
   "puzzleLibraryEmptyHint": "Zatím žádné položky — použij tlačítko výše nebo „Přidat“ z denního puzzlu.",
+  "puzzleLibraryRemoveTitle": "Odstranit z knihovny?",
+  "puzzleLibraryRemoveBody": "Odstranit „{title}“ z knihovny puzzlů? Tento krok nelze vrátit.",
+  "@puzzleLibraryRemoveBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "puzzleLibraryRemoveConfirm": "Odstranit",
   "puzzleLoadDaily": "Načíst denní puzzle",
   "puzzleRefreshDaily": "Obnovit denní úlohu",
   "puzzleAlreadyInLibrary": "Už je v knihovně",
@@ -1551,6 +1561,8 @@
   "gameRemoteEmptySquareHud": "Prázdné pole",
   "gameRemoteWrongTurnSnack": "Vyber figurku barvy, která je zrovna na tahu.",
   "gameRemoteWrongTurnHud": "Nejsi na tahu",
+  "gameRemoteGameFinished": "Tato partie už skončila.",
+  "gameRemotePositionError": "Z aktuálních dat desky nejde tah ověřit.",
   "gamePromotionPickTitle": "Promoce — vyber figuru",
   "gamePromotionQueen": "Dáma",
   "gamePromotionRook": "Věž",
@@ -1559,6 +1571,7 @@
   "gamePromotionFailedSnack": "Promoce se nepodařila",
   "semanticsChessBoard": "Šachovnice, osm krát osm polí. Klepnutím vybírej pole.",
   "moveHistoryEmpty": "Historie tahů zatím prázdná",
+  "moveHistoryCurrentPosition": "Živá pozice — aktuální partie",
   "moveHistoryPieceSubtitle": "Figura: {piece}",
   "@moveHistoryPieceSubtitle": {
     "placeholders": {
@@ -1587,6 +1600,25 @@
   "settingsTileModulesTitle": "Moduly a učení",
   "settingsTileModulesSubtitle": "Úvod, puzzle, profil, pokrok, nápověda",
   "settingsNavAppTour": "Průvodce aplikací (úvod)",
+  "onboardingYourNameTitle": "Jak ti máme říkat?",
+  "onboardingYourNameSubtitle": "Toto jméno se ukáže v profilu a ve sdílených přehledech.",
+  "onboardingNameHint": "Tvoje jméno",
+  "onboardingPermissionsTitle": "Povolit přístup",
+  "onboardingPermissionsSubtitle": "Všechno jde povolit postupně — aplikace funguje nejlépe, když přístup povolíš.",
+  "onboardingPermPhotosTitle": "Fotky",
+  "onboardingPermPhotosBody": "Profilová fotka z galerie.",
+  "onboardingPermPhotosAllow": "Povolit fotky",
+  "onboardingPermBleTitle": "Bluetooth",
+  "onboardingPermBleBody": "Najít desku CzechMate a připojit se.",
+  "onboardingPermBleAllow": "Povolit Bluetooth",
+  "onboardingPermWifiTitle": "Wi‑Fi",
+  "onboardingPermWifiBodyAndroid": "Aplikace si může přečíst název aktuální sítě pro doplnění Wi‑Fi nastavení (na Androidu 13+ bez přístupu k poloze).",
+  "onboardingPermWifiBodyIos": "K síti desky se připojíš v Nastavení při párování — tady nic dalšího nepotřebuješ.",
+  "onboardingPermWifiAllow": "Povolit přístup k Wi‑Fi",
+  "onboardingPermGrantedShort": "Povoleno",
+  "onboardingPermDeniedSnack": "To později změníš v nastavení systému.",
+  "onboardingOpenSettings": "Otevřít nastavení",
+  "onboardingPermissionsDesktopBody": "Bluetooth a síť se vyřeší, až v aplikaci připojíš desku.",
   "settingsNavChessPuzzles": "Šachové puzzle",
   "settingsNavProfileElo": "Profil a puzzle Elo",
   "settingsNavProgress": "Pokrok (učení a statistiky)",

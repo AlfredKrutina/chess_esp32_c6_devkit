@@ -37,8 +37,6 @@
   "errOtaHttps": "OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).",
   "errOtaBleTransport": "Firmware upload over Bluetooth requires an active Bluetooth session (connect via Bluetooth, not Wi‑Fi‑only).",
   "errOtaBleGatt": "Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.",
-  "errWifiProvNeedsBle": "Connect to the board over Bluetooth first, then send Wi‑Fi credentials.",
-  "errWifiSsidEmpty": "Enter a Wi‑Fi network name (SSID).",
   "errOtaMock": "OTA is not available with the mock board.",
   "errOtaConnectFirst": "Connect the board over Wi‑Fi or Bluetooth, then try the update again.",
   "errHintsNeedConnection": "Hint LEDs require a board connection. Pair via Bluetooth or connect Wi‑Fi first.",
@@ -857,28 +855,6 @@
   "firmwareSendViaBle": "Send via Bluetooth",
   "firmwareSendViaBleBody": "The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.",
   "firmwareBleUploadDoneSnack": "Bluetooth upload finished — the board may reboot.",
-  "firmwareWifiBleProvisionTitle": "Board Wi‑Fi (via Bluetooth)",
-  "firmwareWifiBleProvisionSubtitle": "Sends SSID and password to the board (NVS) and starts station mode. When connected, the board reports IP and SSID — if it matches this phone’s Wi‑Fi, “Send to board” uses HTTP on your LAN; otherwise firmware uploads over Bluetooth only.",
-  "firmwareWifiBleSsidLabel": "Wi‑Fi name (SSID)",
-  "firmwareWifiBlePasswordLabel": "Wi‑Fi password (leave empty on open networks)",
-  "firmwareWifiBleUsePhoneSsidButton": "Use this phone’s Wi‑Fi name",
-  "firmwareWifiBleSendCredentials": "Send credentials to board",
-  "firmwareWifiBleProvStartedSnack": "Wi‑Fi provisioning started — connection can take up to a minute. Watch the status line below.",
-  "firmwareBleStaWaiting": "Board STA: not connected yet (waiting for Wi‑Fi…).",
-  "firmwareBleStaOk": "Board STA: {ssid} · {ip}",
-  "@firmwareBleStaOk": {
-    "placeholders": {
-      "ssid": {
-        "type": "String"
-      },
-      "ip": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareOtaPhoneNotOnLan": "This phone has no suitable IPv4 on the board hotspot (192.168.4.x) or on the same /24 LAN subnet as the board STA IP — fix the network, or use “Send via Bluetooth”. SSID names may differ (e.g. 5 GHz vs 2.4 GHz).",
-  "firmwareOtaNoLanRouteUseBle": "No LAN path to the board (not on the board hotspot and no IPv4 on the same subnet as the board STA IP) — uploading firmware over Bluetooth.",
-  "firmwareOtaNoLanRouteNeedBle": "Use Bluetooth to upload firmware, or connect via the board hotspot, or put this phone on the same home LAN as the board (same /24 as the STA IP from BLE). The SSID text does not need to match (e.g. phone on 5 GHz, board on 2.4 GHz).",
   "firmwareOtaSlotsDisabledHint": "This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).",
   "firmwareBoardHttpMissingDetail": "Board HTTP address is missing (e.g. http://192.168.4.1). Set Default board URL in settings. Bluetooth alone does not provide an IP.",
   "firmwareHttpsLinkExplainBody": "You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.",
@@ -893,19 +869,6 @@
     }
   },
   "firmwareTileTitleDefault": "Firmware (over-the-air)",
-  "firmwareTileTitleGitBle": "Firmware from Git ({ver}) — flash via Bluetooth",
-  "@firmwareTileTitleGitBle": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareTileSubtitleBleGitOnly": "Manifest loaded from Git. Download the .bin on this phone, then flash over Bluetooth while connected — no board Wi‑Fi needed.",
-  "firmwareBleHttpOptionalHint": "Board HTTP URL is optional: Check loads the Git manifest over the internet. After downloading the .bin, you can flash over Bluetooth without knowing the board IP.",
-  "firmwareBleGitUnknownBoardVersion": "Board version over HTTP is unknown (BLE-only path). You can still download from Git and flash via Bluetooth.",
-  "firmwareSendViaBlePrimary": "Flash via Bluetooth",
-  "firmwareSendToBoardHttpAlt": "Send via phone HTTP (Wi‑Fi)",
   "firmwareTileSubtitleIdle": "Manifest + Check. Use Download / Send on hotspot, or HTTPS if the board has STA.",
   "firmwareRemindersOnShort": "reminders on",
   "firmwareRemindersOffShort": "reminders off",
@@ -955,7 +918,7 @@
       }
     }
   },
-  "firmwareFooterTransportHint": "Connection: {transport}. Check loads the Git manifest over the internet; download the .bin here, then upload via hotspot/LAN HTTP or Bluetooth when GATT is connected. HTTPS OTA needs board STA.",
+  "firmwareFooterTransportHint": "Connection: {transport}. HTTPS OTA needs STA; hotspot HTTP OTA works on 192.168.4.x; cached .bin can also upload over Bluetooth when GATT is connected.",
   "@firmwareFooterTransportHint": {
     "placeholders": {
       "transport": {
@@ -967,6 +930,43 @@
   "firmwareTransportLabelWifi": "wifi",
   "firmwareTransportLabelBle": "ble",
   "firmwareTransportLabelMock": "mock",
+  "errWifiSsidEmpty": "Enter a Wi‑Fi network name (SSID).",
+  "errWifiProvNeedsBle": "Connect via Bluetooth to provision Wi‑Fi on the board.",
+  "firmwareWifiBleProvStartedSnack": "Wi‑Fi credentials sent — watch the board status.",
+  "firmwareOtaNoLanRouteUseBle": "Your phone isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.",
+  "firmwareOtaNoLanRouteNeedBle": "Connect via Bluetooth first — without LAN access the app will send the image over BLE.",
+  "firmwareOtaPhoneNotOnLan": "This phone doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.",
+  "firmwareTileTitleGitBle": "Firmware — GitHub build ({ver})",
+  "@firmwareTileTitleGitBle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileSubtitleBleGitOnly": "Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.",
+  "firmwareWifiBleProvisionTitle": "Wi‑Fi on the board (via Bluetooth)",
+  "firmwareWifiBleProvisionSubtitle": "Send SSID and password over BLE so the board can join your network as a client (STA).",
+  "firmwareWifiBleSsidLabel": "Wi‑Fi name (SSID)",
+  "firmwareWifiBlePasswordLabel": "Wi‑Fi password",
+  "firmwareWifiBleUsePhoneSsidButton": "Use this phone’s Wi‑Fi name",
+  "firmwareWifiBleSendCredentials": "Send credentials to board",
+  "firmwareBleStaOk": "STA: {ssid} · {ip}",
+  "@firmwareBleStaOk": {
+    "placeholders": {
+      "ssid": {
+        "type": "String"
+      },
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareBleStaWaiting": "Waiting for the board to connect to Wi‑Fi…",
+  "firmwareBleHttpOptionalHint": "Board HTTP URL is optional — you can update over Bluetooth without Wi‑Fi on the board.",
+  "firmwareBleGitUnknownBoardVersion": "Board version unknown over HTTP — download to the app and prefer Bluetooth upload.",
+  "firmwareSendViaBlePrimary": "Send via Bluetooth (recommended)",
+  "firmwareSendToBoardHttpAlt": "Send via board HTTP (hotspot)",
   "analysisAppBarTitle": "Analysis",
   "analysisGameProgress": "Game in progress",
   "analysisGameProgressBody": "Half-moves from the connected board.",
@@ -1457,6 +1457,16 @@
   "puzzleBackLiveTooltip": "Back to live game",
   "puzzlePoolEmptySnack": "No positions in this pool mode — switch to Mixed or add library items.",
   "puzzleLibraryEmptyHint": "No items yet — use the form above or Add from the daily puzzle.",
+  "puzzleLibraryRemoveTitle": "Remove from library?",
+  "puzzleLibraryRemoveBody": "Remove “{title}” from your puzzle library? This cannot be undone.",
+  "@puzzleLibraryRemoveBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "puzzleLibraryRemoveConfirm": "Remove",
   "puzzleLoadDaily": "Load daily puzzle",
   "puzzleRefreshDaily": "Refresh daily puzzle",
   "puzzleAlreadyInLibrary": "Already in library",
@@ -1551,6 +1561,8 @@
   "gameRemoteEmptySquareHud": "Empty square",
   "gameRemoteWrongTurnSnack": "Pick a piece of the side that is on move.",
   "gameRemoteWrongTurnHud": "Not your turn",
+  "gameRemoteGameFinished": "This game is already over.",
+  "gameRemotePositionError": "Could not validate the move from the current board data.",
   "gamePromotionPickTitle": "Promotion — choose a piece",
   "gamePromotionQueen": "Queen",
   "gamePromotionRook": "Rook",
@@ -1559,6 +1571,7 @@
   "gamePromotionFailedSnack": "Promotion failed",
   "semanticsChessBoard": "Chessboard, eight by eight squares. Tap to select squares.",
   "moveHistoryEmpty": "Move history is empty yet.",
+  "moveHistoryCurrentPosition": "Live position — current game",
   "moveHistoryPieceSubtitle": "Piece: {piece}",
   "@moveHistoryPieceSubtitle": {
     "placeholders": {
@@ -1587,6 +1600,25 @@
   "settingsTileModulesTitle": "Modules & learning",
   "settingsTileModulesSubtitle": "Tour, puzzles, profile, progress, help",
   "settingsNavAppTour": "App tour (onboarding)",
+  "onboardingYourNameTitle": "What should we call you?",
+  "onboardingYourNameSubtitle": "This name appears in your profile and shared summaries.",
+  "onboardingNameHint": "Your name",
+  "onboardingPermissionsTitle": "Allow access",
+  "onboardingPermissionsSubtitle": "You can turn features on gradually — the app works best when these are allowed.",
+  "onboardingPermPhotosTitle": "Photos",
+  "onboardingPermPhotosBody": "Pick a profile picture from your gallery.",
+  "onboardingPermPhotosAllow": "Allow photos",
+  "onboardingPermBleTitle": "Bluetooth",
+  "onboardingPermBleBody": "Find and connect to your CzechMate board.",
+  "onboardingPermBleAllow": "Allow Bluetooth",
+  "onboardingPermWifiTitle": "Wi‑Fi",
+  "onboardingPermWifiBodyAndroid": "Lets the app read your current network name to pre-fill Wi‑Fi setup (no rough location on Android 13+).",
+  "onboardingPermWifiBodyIos": "You’ll join the board’s network in Settings when connecting — no extra step here.",
+  "onboardingPermWifiAllow": "Allow Wi‑Fi access",
+  "onboardingPermGrantedShort": "Allowed",
+  "onboardingPermDeniedSnack": "You can change this later in system Settings.",
+  "onboardingOpenSettings": "Open Settings",
+  "onboardingPermissionsDesktopBody": "Bluetooth and network are handled when you connect to the board from the app.",
   "settingsNavChessPuzzles": "Chess puzzles",
   "settingsNavProfileElo": "Profile & puzzle Elo",
   "settingsNavProgress": "Progress (learning & stats)",

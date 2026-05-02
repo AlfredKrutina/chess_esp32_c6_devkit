@@ -41,6 +41,7 @@ set(EXTRA_COMPONENT_DIRS
     components/visual_error_system
     components/game_hooks
     components/ble_task
+    components/stm32_i2c_bootloader
 )
 
 # Project-wide compile definitions
