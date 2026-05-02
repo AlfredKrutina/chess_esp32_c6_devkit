@@ -1,5 +1,7 @@
 var NAVTREEINDEX6 =
 {
+"game__task_8h.html#a528221cd8d3c2dd6de0732883230033a":[3,0,0,8,0,2,97],
+"game__task_8h.html#a530c17b05f532aeaaa64d8bdb77ca665":[3,0,0,8,0,2,123],
 "game__task_8h.html#a54c0942839659e43c97af3b1c7aca7e9":[3,0,0,8,0,2,118],
 "game__task_8h.html#a57e990b9360540c1ba82ea3d5a32cf44":[3,0,0,8,0,2,108],
 "game__task_8h.html#a58b489e87078e33ccf75b35d892bb4fe":[3,0,0,8,0,2,36],
@@ -133,8 +135,8 @@ var NAVTREEINDEX6 =
 "globals_eval_u.html":[3,1,5,13],
 "globals_eval_w.html":[3,1,5,14],
 "globals_f.html":[3,1,0,6],
-"globals_func.html":[3,1,1],
 "globals_func.html":[3,1,1,0],
+"globals_func.html":[3,1,1],
 "globals_func_a.html":[3,1,1,1],
 "globals_func_b.html":[3,1,1,2],
 "globals_func_c.html":[3,1,1,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "ha__light__task_8c.html#a99e2c17ed7924c49fde1870dca213dc2":[3,0,0,9,1,43],
 "ha__light__task_8c.html#a9d84062ea99f6447275f690b28c01ce5":[3,0,0,9,1,57],
 "ha__light__task_8c.html#aa4ede6db32474aa8aa601b4b1b1a3108":[3,0,0,9,1,41],
-"ha__light__task_8c.html#aa6f42d47cc62f51438081fb73f4932d8":[3,0,0,9,1,64],
-"ha__light__task_8c.html#aaa50395cd97ca2238e5b5a64d0583d07":[3,0,0,9,1,30],
-"ha__light__task_8c.html#aaa92358f60e1043bee0865be41fb1b2c":[3,0,0,9,1,33]
+"ha__light__task_8c.html#aa6f42d47cc62f51438081fb73f4932d8":[3,0,0,9,1,64]
 };

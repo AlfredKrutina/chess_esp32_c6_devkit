@@ -24,8 +24,15 @@ var searchData=
   ['ha_5ftopic_5flight_5favailability_21',['HA_TOPIC_LIGHT_AVAILABILITY',['../ha__light__task_8h.html#ac2d5de1749d4171f82324a7276f6fb14',1,'ha_light_task.h']]],
   ['ha_5ftopic_5flight_5fcommand_22',['HA_TOPIC_LIGHT_COMMAND',['../ha__light__task_8h.html#a8252c914f758fbce0485c28d94e84b0c',1,'ha_light_task.h']]],
   ['ha_5ftopic_5flight_5fstate_23',['HA_TOPIC_LIGHT_STATE',['../ha__light__task_8h.html#ac8d834caaa63c1dfab5bfbdaf442f78f',1,'ha_light_task.h']]],
-  ['http_5fserver_5fmax_5fclients_24',['HTTP_SERVER_MAX_CLIENTS',['../web__server__task_8c.html#a8fed04375198615d8723433210c7861a',1,'web_server_task.c']]],
-  ['http_5fserver_5fmax_5fheaders_25',['HTTP_SERVER_MAX_HEADERS',['../web__server__task_8c.html#aa471f425e7c4a8154dd0a6aef7b1c151',1,'web_server_task.c']]],
-  ['http_5fserver_5fmax_5furi_5flen_26',['HTTP_SERVER_MAX_URI_LEN',['../web__server__task_8c.html#ac6dafba2315f7dd8ef7954d67c1c58ef',1,'web_server_task.c']]],
-  ['http_5fserver_5fport_27',['HTTP_SERVER_PORT',['../web__server__task_8c.html#a4f905ddd4da1a3e205a8935f4babb25b',1,'web_server_task.c']]]
+  ['hall_5fi2c_5ffields_5fper_5fsegment_24',['HALL_I2C_FIELDS_PER_SEGMENT',['../hall__i2c__spec_8h.html#aebb15ef88fb8f35535fe5486c51103c0',1,'hall_i2c_spec.h']]],
+  ['hall_5fi2c_5fpayload_5fbytes_25',['HALL_I2C_PAYLOAD_BYTES',['../hall__i2c__spec_8h.html#a8c545818e09cbb5d504cf48276abe049',1,'hall_i2c_spec.h']]],
+  ['hall_5fi2c_5fprotocol_5fversion_26',['HALL_I2C_PROTOCOL_VERSION',['../hall__i2c__spec_8h.html#a940e47a07cf20b5c47e5973914c32793',1,'hall_i2c_spec.h']]],
+  ['hall_5fi2c_5freg_5fpointer_5fproto_5fver_27',['HALL_I2C_REG_POINTER_PROTO_VER',['../hall__i2c__spec_8h.html#ae9e095585f711b1d3a3adbf684a54462',1,'hall_i2c_spec.h']]],
+  ['hall_5fi2c_5freg_5fpointer_5fraw_28',['HALL_I2C_REG_POINTER_RAW',['../hall__i2c__spec_8h.html#ae13aec30f2dbcef32cd194241844864f',1,'hall_i2c_spec.h']]],
+  ['hall_5fi2c_5fsensors_5fper_5ffield_29',['HALL_I2C_SENSORS_PER_FIELD',['../hall__i2c__spec_8h.html#a51d0b053b1593e7625b72ac9f51e8a2b',1,'hall_i2c_spec.h']]],
+  ['hall_5fi2c_5fuint16_5fper_5fsegment_30',['HALL_I2C_UINT16_PER_SEGMENT',['../hall__i2c__spec_8h.html#a03f03f77ad9c15de1fe49d03665a5c7c',1,'hall_i2c_spec.h']]],
+  ['http_5fserver_5fmax_5fclients_31',['HTTP_SERVER_MAX_CLIENTS',['../web__server__task_8c.html#a8fed04375198615d8723433210c7861a',1,'web_server_task.c']]],
+  ['http_5fserver_5fmax_5fheaders_32',['HTTP_SERVER_MAX_HEADERS',['../web__server__task_8c.html#aa471f425e7c4a8154dd0a6aef7b1c151',1,'web_server_task.c']]],
+  ['http_5fserver_5fmax_5furi_5flen_33',['HTTP_SERVER_MAX_URI_LEN',['../web__server__task_8c.html#ac6dafba2315f7dd8ef7954d67c1c58ef',1,'web_server_task.c']]],
+  ['http_5fserver_5fport_34',['HTTP_SERVER_PORT',['../web__server__task_8c.html#a4f905ddd4da1a3e205a8935f4babb25b',1,'web_server_task.c']]]
 ];

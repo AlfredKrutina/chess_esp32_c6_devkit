@@ -15,6 +15,7 @@ var dir_409f97388efe006bc3438b95e9edef48 =
     [ "matrix_task", "dir_e77e2685ff47a55cd9b2c8ffde70c90d.html", "dir_e77e2685ff47a55cd9b2c8ffde70c90d" ],
     [ "promotion_button_task", "dir_ab6b3e4c64325f478abea97ff504e20e.html", "dir_ab6b3e4c64325f478abea97ff504e20e" ],
     [ "reset_button_task", "dir_d81a3c6208ed0beed325ac804e7f20d3.html", "dir_d81a3c6208ed0beed325ac804e7f20d3" ],
+    [ "stm32_i2c_bootloader", "dir_022ed2760b172bf32bd08a0c3e63c881.html", "dir_022ed2760b172bf32bd08a0c3e63c881" ],
     [ "test_task", "dir_1991cc6dea0a63cfb4490c20aac875c0.html", "dir_1991cc6dea0a63cfb4490c20aac875c0" ],
     [ "timer_system", "dir_37ff961cb22580004e48f495a430ad7c.html", "dir_37ff961cb22580004e48f495a430ad7c" ],
     [ "uart_commands_extended", "dir_01cfb48b9a719d4c3c7a5fd96745a96a.html", "dir_01cfb48b9a719d4c3c7a5fd96745a96a" ],

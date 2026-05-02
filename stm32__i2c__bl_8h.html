@@ -1,0 +1,470 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru stm32_i2c_bl.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   </div>
+   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('stm32__i2c__bl_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru stm32_i2c_bl.h</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stddef.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro stm32_i2c_bl.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="stm32__i2c__bl_8h__incl.png" border="0" usemap="#astm32__i2c__bl_8h" alt=""/></div>
+<map name="astm32__i2c__bl_8h" id="astm32__i2c__bl_8h">
+<area shape="rect" title=" " alt="" coords="143,5,263,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,87,104"/>
+<area shape="poly" title=" " alt="" coords="179,33,85,75,83,71,177,28"/>
+<area shape="rect" title=" " alt="" coords="111,79,194,104"/>
+<area shape="poly" title=" " alt="" coords="197,33,171,69,167,66,193,29"/>
+<area shape="rect" title=" " alt="" coords="218,79,293,104"/>
+<area shape="poly" title=" " alt="" coords="214,29,241,66,237,69,210,33"/>
+<area shape="rect" title=" " alt="" coords="317,79,388,104"/>
+<area shape="poly" title=" " alt="" coords="228,28,317,70,315,75,226,33"/>
+</map>
+</div>
+</div>
+<p><a href="stm32__i2c__bl_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a669106fbaf22820b54c0d1d71cef52b7" id="r_a669106fbaf22820b54c0d1d71cef52b7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a669106fbaf22820b54c0d1d71cef52b7">stm32_i2c_bl_init</a> (void)</td></tr>
+<tr class="memdesc:a669106fbaf22820b54c0d1d71cef52b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializace: GPIO NRST/BOOT0, případně I2C driver (pokud nesdílíš sběrnici s Hall).  <br /></td></tr>
+<tr class="separator:a669106fbaf22820b54c0d1d71cef52b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e619febfa74a5acef7dc60a4651de97" id="r_a2e619febfa74a5acef7dc60a4651de97"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a2e619febfa74a5acef7dc60a4651de97">stm32_i2c_bl_select_target</a> (uint8_t segment_0_to_3, bool boot0_enter_bootloader)</td></tr>
+<tr class="memdesc:a2e619febfa74a5acef7dc60a4651de97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jen jeden STM má NRST uvolněný (HIGH), ostatní drženy v resetu (LOW).  <br /></td></tr>
+<tr class="separator:a2e619febfa74a5acef7dc60a4651de97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad22002579c3a306a2eb80955c59c1dfb" id="r_ad22002579c3a306a2eb80955c59c1dfb"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#ad22002579c3a306a2eb80955c59c1dfb">stm32_i2c_bl_release_all_run_app</a> (void)</td></tr>
+<tr class="memdesc:ad22002579c3a306a2eb80955c59c1dfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">BOOT0 LOW (pokud zapojeno), všechny NRST HIGH — běh aplikace (základní stav).  <br /></td></tr>
+<tr class="separator:ad22002579c3a306a2eb80955c59c1dfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0026bc691ada5dcd2de54640461bd51c" id="r_a0026bc691ada5dcd2de54640461bd51c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a0026bc691ada5dcd2de54640461bd51c">stm32_i2c_bl_cmd_get_id</a> (uint8_t segment_0_to_3, bool boot0_enter, uint16_t *pid_out)</td></tr>
+<tr class="separator:a0026bc691ada5dcd2de54640461bd51c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04ab45776e4c80e9e6975033eb57ed82" id="r_a04ab45776e4c80e9e6975033eb57ed82"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a04ab45776e4c80e9e6975033eb57ed82">stm32_i2c_bl_erase_all</a> (uint8_t segment_0_to_3, bool boot0_enter)</td></tr>
+<tr class="memdesc:a04ab45776e4c80e9e6975033eb57ed82"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hromadné smazání flash (special erase 0xFFFF), pokud MCU podporuje — viz AN4221.  <br /></td></tr>
+<tr class="separator:a04ab45776e4c80e9e6975033eb57ed82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27aa1a886b20647cac459b95a4d2e078" id="r_a27aa1a886b20647cac459b95a4d2e078"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a27aa1a886b20647cac459b95a4d2e078">stm32_i2c_bl_write_memory</a> (uint8_t segment_0_to_3, bool boot0_enter, uint32_t addr, const uint8_t *data, size_t len)</td></tr>
+<tr class="memdesc:a27aa1a886b20647cac459b95a4d2e078"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zápis do flash/RAM podle ROM bootloaderu (max 256 B na volání).  <br /></td></tr>
+<tr class="separator:a27aa1a886b20647cac459b95a4d2e078"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b74c1477d595ac11560d4403fb0a4af" id="r_a1b74c1477d595ac11560d4403fb0a4af"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a1b74c1477d595ac11560d4403fb0a4af">stm32_i2c_bl_go</a> (uint8_t segment_0_to_3, bool boot0_enter, uint32_t addr)</td></tr>
+<tr class="memdesc:a1b74c1477d595ac11560d4403fb0a4af"><td class="mdescLeft">&#160;</td><td class="mdescRight">GO příkaz — skok na uživatelský vektor (addr typicky 0x08000000).  <br /></td></tr>
+<tr class="separator:a1b74c1477d595ac11560d4403fb0a4af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66f9abb4c32ec23814cc72ba874612da" id="r_a66f9abb4c32ec23814cc72ba874612da"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a66f9abb4c32ec23814cc72ba874612da">stm32_i2c_bl_flash_binary</a> (uint8_t segment_0_to_3, bool boot0_enter, uint32_t flash_base, const uint8_t *bin, size_t bin_len)</td></tr>
+<tr class="memdesc:a66f9abb4c32ec23814cc72ba874612da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pomocná rutina: smaže celý čip (pokud lze) a nahraje binárku od flash_base.  <br /></td></tr>
+<tr class="separator:a66f9abb4c32ec23814cc72ba874612da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a0d0482fa89c05c6066d2330c17c3a8" id="r_a2a0d0482fa89c05c6066d2330c17c3a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8h.html#a2a0d0482fa89c05c6066d2330c17c3a8">stm32_i2c_bl_maybe_auto_flash_on_boot</a> (void)</td></tr>
+<tr class="memdesc:a2a0d0482fa89c05c6066d2330c17c3a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jednorázově po bootu: pokud je CHESS_STM32_BL_AUTO_FLASH_ON_BOOT, nahraje STM z oddílu.  <br /></td></tr>
+<tr class="separator:a2a0d0482fa89c05c6066d2330c17c3a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a0026bc691ada5dcd2de54640461bd51c" name="a0026bc691ada5dcd2de54640461bd51c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0026bc691ada5dcd2de54640461bd51c">&#9670;&#160;</a></span>stm32_i2c_bl_cmd_get_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_cmd_get_id </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>segment_0_to_3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>boot0_enter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t *&#160;</td>
+          <td class="paramname"><em>pid_out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00627">627</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a04ab45776e4c80e9e6975033eb57ed82" name="a04ab45776e4c80e9e6975033eb57ed82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04ab45776e4c80e9e6975033eb57ed82">&#9670;&#160;</a></span>stm32_i2c_bl_erase_all()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_erase_all </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>segment_0_to_3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>boot0_enter</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hromadné smazání flash (special erase 0xFFFF), pokud MCU podporuje — viz AN4221. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00635">635</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a66f9abb4c32ec23814cc72ba874612da" name="a66f9abb4c32ec23814cc72ba874612da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66f9abb4c32ec23814cc72ba874612da">&#9670;&#160;</a></span>stm32_i2c_bl_flash_binary()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_flash_binary </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>segment_0_to_3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>boot0_enter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>flash_base</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>bin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>bin_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pomocná rutina: smaže celý čip (pokud lze) a nahraje binárku od flash_base. </p>
+<p>flash_base obvykle 0x08000000. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00660">660</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a1b74c1477d595ac11560d4403fb0a4af" name="a1b74c1477d595ac11560d4403fb0a4af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b74c1477d595ac11560d4403fb0a4af">&#9670;&#160;</a></span>stm32_i2c_bl_go()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_go </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>segment_0_to_3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>boot0_enter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>addr</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GO příkaz — skok na uživatelský vektor (addr typicky 0x08000000). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00652">652</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a669106fbaf22820b54c0d1d71cef52b7" name="a669106fbaf22820b54c0d1d71cef52b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a669106fbaf22820b54c0d1d71cef52b7">&#9670;&#160;</a></span>stm32_i2c_bl_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_init </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializace: GPIO NRST/BOOT0, případně I2C driver (pokud nesdílíš sběrnici s Hall). </p>
+<p>Při sdílení s Hall musí být dříve zavolán <a class="el" href="hall__i2c__matrix_8c.html#a7fe369cc1c3663b67df0e78d78e14e85">hall_i2c_matrix_init()</a>. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00614">614</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a0d0482fa89c05c6066d2330c17c3a8" name="a2a0d0482fa89c05c6066d2330c17c3a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a0d0482fa89c05c6066d2330c17c3a8">&#9670;&#160;</a></span>stm32_i2c_bl_maybe_auto_flash_on_boot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void stm32_i2c_bl_maybe_auto_flash_on_boot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Jednorázově po bootu: pokud je CHESS_STM32_BL_AUTO_FLASH_ON_BOOT, nahraje STM z oddílu. </p>
+<p>Volat po inicializaci sdíleného I2C (např. hned po hall_i2c_matrix_init). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00726">726</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="ad22002579c3a306a2eb80955c59c1dfb" name="ad22002579c3a306a2eb80955c59c1dfb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad22002579c3a306a2eb80955c59c1dfb">&#9670;&#160;</a></span>stm32_i2c_bl_release_all_run_app()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_release_all_run_app </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>BOOT0 LOW (pokud zapojeno), všechny NRST HIGH — běh aplikace (základní stav). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00623">623</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a2e619febfa74a5acef7dc60a4651de97" name="a2e619febfa74a5acef7dc60a4651de97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e619febfa74a5acef7dc60a4651de97">&#9670;&#160;</a></span>stm32_i2c_bl_select_target()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_select_target </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>segment_0_to_3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>boot0_enter_bootloader</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Jen jeden STM má NRST uvolněný (HIGH), ostatní drženy v resetu (LOW). </p>
+<p>boot0_enter=1 nastaví BOOT0 HIGH před uvolněním. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00616">616</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a27aa1a886b20647cac459b95a4d2e078" name="a27aa1a886b20647cac459b95a4d2e078"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27aa1a886b20647cac459b95a4d2e078">&#9670;&#160;</a></span>stm32_i2c_bl_write_memory()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t stm32_i2c_bl_write_memory </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>segment_0_to_3</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>boot0_enter</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>addr</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zápis do flash/RAM podle ROM bootloaderu (max 256 B na volání). </p>
+<p>addr: např. 0x08000000 pro začátek flash. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="stm32__i2c__bl_8c_source.html#l00641">641</a> v souboru <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_022ed2760b172bf32bd08a0c3e63c881.html">stm32_i2c_bootloader</a></li><li class="navelem"><a class="el" href="dir_de1c74e43d6cd6b860bbca7c3f3703bc.html">include</a></li><li class="navelem"><a class="el" href="stm32__i2c__bl_8h.html">stm32_i2c_bl.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>
