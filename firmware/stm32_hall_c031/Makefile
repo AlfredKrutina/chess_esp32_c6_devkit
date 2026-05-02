@@ -20,6 +20,8 @@ LDSCRIPT := $(if $(filter 16,$(FLASH_KB)),STM32C031_FLASH_16K.ld,STM32C031C6TX_F
 HALL_I2C_OWNADDR7BIT ?= 0x30
 # NUCLEO-C031C6: USER (PC13) → LD4 (PA5). Oddělené od Czechmate (PA5 = mux).
 BOARD_NUCLEO_C031 ?= 0
+# Demo: stejný I²C Hall protokol, syntetická data (bez ADC/mux). Viz make demo-embedded.
+BOARD_HALL_I2C_DEMO ?= 0
 
 STUB_INC := $(abspath toolchain_include)
 
@@ -36,6 +38,9 @@ DEFS := -DSTM32C031xx -DUSE_FULL_LL_DRIVER \
 	-DHALL_I2C_OWNADDR7BIT=$(HALL_I2C_OWNADDR7BIT)
 ifneq ($(BOARD_NUCLEO_C031),0)
 DEFS += -DBOARD_NUCLEO_C031
+endif
+ifneq ($(BOARD_HALL_I2C_DEMO),0)
+DEFS += -DBOARD_HALL_I2C_DEMO
 endif
 
 CFLAGS := $(CPU) $(DEFS) $(INCLUDES) -Og -g \
@@ -71,7 +76,7 @@ OBJS := \
 	$(BUILD_DIR)/sysmem_local.o \
 	$(BUILD_DIR)/startup_stm32c031c6tx.o
 
-.PHONY: all clean bin size copy-embedded
+.PHONY: all clean bin size copy-embedded demo-embedded
 
 all: $(ELF) bin size
 
@@ -80,6 +85,10 @@ bin: $(BIN)
 # Volitelně překopírovat firmware pro ESP oddíl stm32_fw (kořen repozitáře ../../embedded/).
 copy-embedded: $(BIN)
 	cp $(BIN) ../../embedded/stm32_fw_embedded.bin
+
+# Demo binárka do oddílu stm32_fw — vyžaduje arm-none-eabi-gcc + STM32CubeC0 (viz README_STM32_FW.txt).
+demo-embedded:
+	$(MAKE) BOARD_HALL_I2C_DEMO=1 BOARD_NUCLEO_C031=0 clean all copy-embedded
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)

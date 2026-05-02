@@ -57,6 +57,7 @@
 #include "led_task.h"
 #include "matrix_task.h"
 #include "nvs_flash.h"
+#include "stm32_i2c_bl.h"
 #if CONFIG_CHESS_ENABLE_TEST_TASK
 #include "test_task.h"
 #endif
@@ -874,7 +875,8 @@ static void init_console(void) {
  * - Web server task: web rozhrani
  * (Animation task vypnut — viz DISABLED blok v create_system_tasks.)
  *
- * Po vytvoreni vsech tasku se zobrazi boot animace a inicializuje hra.
+ * Po vytvoreni tasku se u auto-flash STM32 synchronne pocka na dokonceni flash
+ * v matrix_task (pred WiFi/web), pak boot animace a inicializace hry.
  */
 esp_err_t create_system_tasks(void) {
   ESP_LOGI(TAG, "Creating system tasks...");
@@ -895,6 +897,12 @@ esp_err_t create_system_tasks(void) {
            "with TWDT",
            LED_TASK_STACK_SIZE / 1024);
 
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+  /* Semafor před matrix_task — main počká hned po matrix_task (viz níže), ne až po WiFi,
+   * jinak web_server_task zaplaví sériovku a sdílené I²C zbytečně soupeří s bootloaderem. */
+  stm32_i2c_bl_boot_flash_sync_prepare();
+#endif
+
   // Create Matrix task
   result = xTaskCreate((TaskFunction_t)matrix_task_start, "matrix_task",
                        MATRIX_TASK_STACK_SIZE, NULL, MATRIX_TASK_PRIORITY,
@@ -910,6 +918,17 @@ esp_err_t create_system_tasks(void) {
            "✓ Matrix task created successfully (%dKB stack) - will "
            "self-register with TWDT",
            MATRIX_TASK_STACK_SIZE / 1024);
+
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+  ESP_LOGI(TAG,
+           "[staging] Čekám na dokončení STM32 auto-flash (hned po matrix_task, "
+           "před ostatní tasky / WiFi)…");
+  stm32_i2c_bl_boot_flash_sync_wait(pdMS_TO_TICKS(120000));
+  ESP_LOGI(TAG,
+           "[staging] STM32 auto-flash pokus dokončen (sync s matrix_task) — "
+           "úspěch/chyba viz STM32_AUTO / STM32_I2C_BL výše; pokračuji tasky a boot "
+           "animace");
+#endif
 
   // Create Button task
   result = xTaskCreate((TaskFunction_t)button_task_start, "button_task",

@@ -14,6 +14,15 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         help
             Použije stejný port/SDA/SCL jako CHESS_HALL_I2C_* (driver už nainstaluje hall_i2c_matrix_init).
 
+    config CHESS_STM32_BL_SHARED_I2C_FREQ_HZ
+        int "I2C clock Hz (sdílená sběrnice s Hall)"
+        depends on CHESS_STM32_I2C_BL_ENABLE && CHESS_STM32_BL_SHARE_I2C_HALL
+        range 50000 400000
+        default 100000
+        help
+            Po hall_i2c_matrix_init() znovu nastaví rychlost v stm32_i2c_bl_init() (i2c_param_config).
+            ROM bootloader na STM obvykle snáší 100 kHz lépe než 400 kHz; Hall čipy zpravidla 100 kHz zvládnou.
+
     config CHESS_STM32_BL_I2C_PORT_NUM
         int "I2C port (když nesdílíš s Hall)"
         depends on CHESS_STM32_I2C_BL_ENABLE && !CHESS_STM32_BL_SHARE_I2C_HALL
@@ -43,15 +52,24 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
     config CHESS_STM32_BL_TARGET_ADDR7
         hex "STM32 bootloader 7bit I2C adresa (AN2606)"
         depends on CHESS_STM32_I2C_BL_ENABLE
-        default 0x53
+        default 0x63
         help
-            Pro STM32C0xx často 0x53 — ověř v AN2606 pro přesný typ pouzdra.
+            STM32C031xx: Table 12 v AN2606 — target 7-bit 0b1100011x → 0x63 (ne 0x53).
+            STM32C011xx: Table 10 — 0b1100100x → 0x64. Jiné řady viz AN2606.
 
     config CHESS_STM32_BL_INTER_FRAME_MS
         int "Mezera mezi I2C rámci jednoho příkazu (ms, AN2606 timeout)"
         depends on CHESS_STM32_I2C_BL_ENABLE
         range 1 200
         default 50
+
+    config CHESS_STM32_BL_POST_NRST_DELAY_MS
+        int "Čekání po uvolnění NRST před I2C příkazy (ms)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range 20 500
+        default 150
+        help
+            ROM bootloader potřebuje čas po náběhu. Při ESP_FAIL na GET_ID zkus zvýšit (např. 200).
 
     config CHESS_STM32_BL_NRST_GPIO_SEG0
         int "NRST segment 0 (-1 = nepoužito)"
@@ -60,6 +78,8 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         default 15
         help
             Výchozí 15 (deska Czechmate / test). Nesmí kolidovat s BOOT0_ESP ani I2C GPIO.
+            Pokud je stejný jako vstup „reset hry“ (BUTTON_RESET v freertos_chess.h), firmware
+            přestane ten pin používat jako tlačítko — NRST řídí výhradně bootloader.
 
     config CHESS_STM32_BL_NRST_GPIO_SEG1
         int "NRST segment 1 (-1 = nepoužito)"
@@ -84,6 +104,11 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         depends on CHESS_STM32_I2C_BL_ENABLE
         range -1 30
         default -1
+        help
+            GPIO ESP k pinu BOOT0 STM. -1 když BOOT0 ovládáš jen hardwarově.
+            Je-li BOOT0 trvale na 3,3 V a ještě k tomu drát z ESP, pin „LOW“ z ESP může střídat s VDD
+            (zbytečné zatížení) — odpoj GPIO od BOOT0 nebo nastav -1 a vypni AUTO_USE_BOOT0, pokud
+            už je boot vždy do system memory.
 
     config CHESS_STM32_BL_FLASH_PAGE_SIZE
         int "Velikost flash stránky STM (pro mazání po stránkách)"

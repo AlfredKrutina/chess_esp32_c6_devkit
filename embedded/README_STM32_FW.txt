@@ -11,4 +11,8 @@ Nahrazení firmwaru STM32:
   cp /cesta/k/tvemu_firmware.bin embedded/stm32_fw_embedded.bin
   idf.py flash
 
+Demo (syntetická Hall data přes I²C, stejný protokol jako produkce — bez ADC/muxů na STM):
+  cd firmware/stm32_hall_c031 && make demo-embedded
+  → zkopíruje build/stm32_hall_c031.bin do embedded/stm32_fw_embedded.bin ; pak idf.py flash
+
 Velikost oddílu je 0x80000 (512 KiB); bin může být kratší — zbytek typicky 0xFF.

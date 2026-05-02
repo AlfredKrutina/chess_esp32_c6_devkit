@@ -26,6 +26,7 @@
 #ifndef FREERTOS_CHESS_H
 #define FREERTOS_CHESS_H
 
+#include "sdkconfig.h"
 #include "chess_types.h"
 #include "driver/gpio.h"
 #include "esp_err.h"
@@ -108,6 +109,30 @@ extern "C" {
  * ROM messages, bezpecny pro button) */
 #define BUTTON_RESET                                                           \
   GPIO_NUM_15 // Reset button (GPIO27 neni dostupny na LaskaKit desce)
+
+/**
+ * Pin je zároveň výstupem NRST pro stm32_i2c_bootloader — nesmí se konfigurovat
+ * jako vstup reset tlačítka ani číst v button_task (jinak falešné stisky během
+ * flashování a rozbitý NRST).
+ */
+static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE
+  if (gpio_num < 0) {
+    return false;
+  }
+  return (CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0 >= 0 &&
+          gpio_num == CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0) ||
+         (CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG1 >= 0 &&
+          gpio_num == CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG1) ||
+         (CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG2 >= 0 &&
+          gpio_num == CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG2) ||
+         (CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG3 >= 0 &&
+          gpio_num == CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG3);
+#else
+  (void)gpio_num;
+  return false;
+#endif
+}
 
 // Definice tlacitek (time-multiplexed se sloupci matice)
 /** @brief Tlacitko pro promoci na damu (sdileno s MATRIX_COL_0) */

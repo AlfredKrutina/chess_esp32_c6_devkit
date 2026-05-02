@@ -247,9 +247,11 @@ esp_err_t chess_gpio_init(void) {
   }
 
   // Validate reset button pin
-  ret = validate_gpio_pin(BUTTON_RESET, "BUTTON_RESET");
-  if (ret != ESP_OK)
-    return ret;
+  if (!chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
+    ret = validate_gpio_pin(BUTTON_RESET, "BUTTON_RESET");
+    if (ret != ESP_OK)
+      return ret;
+  }
 
   ESP_LOGI(TAG, "✓ GPIO safety checks passed");
 
@@ -401,32 +403,31 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "Status LED configured successfully");
   }
 
-  // Configure reset button pin
-  // WDT reset removed during initialization  // Reset před reset button config
-
-  // Správná bitová maska s explicitním castem
   uint32_t reset_button_pin = (uint32_t)BUTTON_RESET;
-  uint64_t reset_button_mask = (1ULL << reset_button_pin);
-
-  ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%d, mask=0x%llx)...",
-           reset_button_pin, reset_button_mask);
-
-  // Reset před gpio_config()
-  // WDT reset removed during initialization
-
-  gpio_config_t reset_button_conf = {.pin_bit_mask = reset_button_mask,
-                                     .mode = GPIO_MODE_INPUT,
-                                     .pull_up_en = GPIO_PULLUP_ENABLE,
-                                     .pull_down_en = GPIO_PULLDOWN_DISABLE,
-                                     .intr_type = GPIO_INTR_DISABLE};
-  ret = gpio_config(&reset_button_conf);
-  ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
-
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to configure reset button pin (GPIO%d): %s",
-             reset_button_pin, esp_err_to_name(ret));
-    return ret; // Return error instead of continuing
+  if (chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
+    ESP_LOGW(TAG,
+             "RESET_BUTTON GPIO%u je STM32 NRST (stm32_i2c_bootloader) — "
+             "vstup tlačítka se nekonfiguruje (NRST řídí výhradně bootloader)",
+             (unsigned)reset_button_pin);
   } else {
+    uint64_t reset_button_mask = (1ULL << reset_button_pin);
+
+    ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%d, mask=0x%llx)...",
+             reset_button_pin, reset_button_mask);
+
+    gpio_config_t reset_button_conf = {.pin_bit_mask = reset_button_mask,
+                                       .mode = GPIO_MODE_INPUT,
+                                       .pull_up_en = GPIO_PULLUP_ENABLE,
+                                       .pull_down_en = GPIO_PULLDOWN_DISABLE,
+                                       .intr_type = GPIO_INTR_DISABLE};
+    ret = gpio_config(&reset_button_conf);
+    ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
+
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to configure reset button pin (GPIO%d): %s",
+               reset_button_pin, esp_err_to_name(ret));
+      return ret;
+    }
     ESP_LOGI(TAG, "Reset button configured successfully");
   }
 

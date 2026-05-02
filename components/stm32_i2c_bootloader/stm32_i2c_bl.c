@@ -4,6 +4,7 @@
 #include "esp_check.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
 #include "sdkconfig.h"
 #include <inttypes.h>
@@ -187,6 +188,21 @@ static esp_err_t bl_write_memory_payload(uint32_t addr, const uint8_t *data,
   return err;
 }
 
+/** Po i2c_param_config / install — výslovně zapne interní pull-up na nožičkách sběrnice. */
+static void bl_apply_bus_pullups(int sda_gpio, int scl_gpio) {
+  if (sda_gpio < 0 || scl_gpio < 0) {
+    return;
+  }
+  esp_err_t e1 =
+      gpio_set_pull_mode((gpio_num_t)sda_gpio, GPIO_PULLUP_ONLY);
+  esp_err_t e2 =
+      gpio_set_pull_mode((gpio_num_t)scl_gpio, GPIO_PULLUP_ONLY);
+  if (e1 != ESP_OK || e2 != ESP_OK) {
+    ESP_LOGW(TAG, "I2C pull-up SDA=%d SCL=%d: %s / %s", sda_gpio, scl_gpio,
+             esp_err_to_name(e1), esp_err_to_name(e2));
+  }
+}
+
 static void bl_configure_nrst_pin(int pin, bool output_high) {
   if (pin < 0) {
     return;
@@ -220,6 +236,8 @@ esp_err_t stm32_i2c_bl_init(void) {
     ESP_LOGE(TAG, "i2c_driver_install: %s", esp_err_to_name(er));
     return er;
   }
+  bl_apply_bus_pullups(CONFIG_CHESS_STM32_BL_I2C_SDA_GPIO,
+                       CONFIG_CHESS_STM32_BL_I2C_SCL_GPIO);
 #else
   {
     i2c_config_t cfg = {
@@ -228,7 +246,7 @@ esp_err_t stm32_i2c_bl_init(void) {
         .scl_io_num = CONFIG_CHESS_HALL_I2C_SCL_GPIO,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = CONFIG_CHESS_HALL_I2C_FREQ_HZ,
+        .master.clk_speed = CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
         .clk_flags = 0,
     };
     esp_err_t er = i2c_param_config(bl_port(), &cfg);
@@ -236,10 +254,13 @@ esp_err_t stm32_i2c_bl_init(void) {
       ESP_LOGE(TAG, "shared I2C param: %s", esp_err_to_name(er));
       return er;
     }
+    bl_apply_bus_pullups(CONFIG_CHESS_HALL_I2C_SDA_GPIO,
+                         CONFIG_CHESS_HALL_I2C_SCL_GPIO);
     /* Driver drží hall_i2c_matrix_init(); druhý i2c_driver_install vrací ESP_FAIL. */
     ESP_LOGI(TAG,
-             "STM32 BL sdílí Hall I2C port %d (driver už nainstalovaný)",
-             (int)bl_port());
+             "STM32 BL sdílí Hall I2C port %d @ %d Hz (Hall init použil %d Hz)",
+             (int)bl_port(), CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
+             CONFIG_CHESS_HALL_I2C_FREQ_HZ);
   }
 #endif
 
@@ -285,6 +306,35 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
     ESP_LOGI(TAG, "[select] BOOT0=%s", boot0_enter_bootloader ? "HIGH" : "LOW");
   }
 
+  /*
+   * STM vzorkuje BOOT0 při náběžné hře NRST. Pokud byl NRST už HIGH z init a jen
+   * přepneme BOOT0, čip neprojde resetem — zůstane v uživatelském bootu (u prázdného
+   * flash často „mrtvý“ stav, žádný I²C ROM bootloader). Nutný pulz NRST.
+   *
+   * Když AUTO_USE_BOOT0=n (BOOT0 jen hardwarově na VDD), boot0_enter_bootloader je z
+   * volajícího false, ale pulz NRST pořád potřebujeme — jinak nový čip z obchodu
+   * nikdy nevstoupí do system memory.
+   */
+#if CONFIG_CHESS_STM32_BL_AUTO_USE_BOOT0
+  const bool pulse_nrst = boot0_enter_bootloader;
+#else
+  const bool pulse_nrst = true;
+#endif
+  if (pulse_nrst) {
+    vTaskDelay(pdMS_TO_TICKS(5));
+    for (unsigned s = 0; s < 4; s++) {
+      int p = NRST_CFG(s);
+      if (p < 0) {
+        continue;
+      }
+      gpio_set_level((gpio_num_t)p, 0);
+    }
+    ESP_LOGI(TAG,
+             "[select] NRST všech segmentů LOW (reset pulz; BOOT0=%s), 30 ms",
+             boot0_enter_bootloader ? "HIGH (ESP)" : "HW/chování AUTO_USE_BOOT0=n");
+    vTaskDelay(pdMS_TO_TICKS(30));
+  }
+
   for (unsigned s = 0; s < 4; s++) {
     int p = NRST_CFG(s);
     if (p < 0) {
@@ -293,11 +343,13 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
     bool release = (s == segment_0_to_3);
     gpio_set_level((gpio_num_t)p, release ? 1 : 0);
     ESP_LOGI(TAG, "[select] seg%u GPIO%d → %s", s, p,
-             release ? "HIGH (běh)" : "LOW (reset)");
+             release ? "HIGH (uvolnění resetu)" : "LOW (reset držet)");
   }
 
-  vTaskDelay(pdMS_TO_TICKS(80));
-  ESP_LOGI(TAG, "[select] aktivní segment %u, čekání 80 ms", segment_0_to_3);
+  vTaskDelay(pdMS_TO_TICKS(CONFIG_CHESS_STM32_BL_POST_NRST_DELAY_MS));
+  ESP_LOGI(TAG,
+           "[select] aktivní segment %u, čekání %d ms po uvolnění NRST",
+           segment_0_to_3, CONFIG_CHESS_STM32_BL_POST_NRST_DELAY_MS);
   return ESP_OK;
 }
 
@@ -499,6 +551,50 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
   if (err != ESP_OK) {
     bl_resume_scan(scan_was);
     return err;
+  }
+
+  ESP_LOGI(TAG, "[flash_bin] GET_ID (0x02) — kontrola ROM I²C bootloaderu…");
+  err = bl_send_command_byte_pair(0x02);
+  if (err == ESP_FAIL) {
+    ESP_LOGW(TAG,
+             "[flash_bin] GET_ID 1. pokus NACK/ESP_FAIL — čekám 120 ms a opakuji…");
+    vTaskDelay(pdMS_TO_TICKS(120));
+    err = bl_send_command_byte_pair(0x02);
+  }
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG,
+             "[flash_bin] GET_ID write selhal (%s) na 7-bit 0x%02x — typicky NACK: STM "
+             "není v system memory nebo špatná sběrnice. Zkontroluj: kontinuitu ESP "
+             "SDA/SCL (GPIO Hall) ↔ STM PB7/PB6, společnou zem, BOOT0 při NRST↑, NRST "
+             "polaritu; jiný čip než C031 → adresa v AN2606 (C011=0x64).",
+             esp_err_to_name(err), (unsigned)bl_addr7());
+    goto restore;
+  }
+  bl_inter_frame();
+  {
+    uint8_t gid[5];
+    memset(gid, 0, sizeof(gid));
+    err = bl_i2c_read(gid, sizeof(gid), 400);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG, "[flash_bin] GET_ID read: %s", esp_err_to_name(err));
+      goto restore;
+    }
+    ESP_LOGI(TAG,
+             "[flash_bin] GET_ID raw: %02X %02X %02X %02X %02X",
+             gid[0], gid[1], gid[2], gid[3], gid[4]);
+    if (gid[0] != STM32_ACK) {
+      ESP_LOGE(TAG,
+               "[flash_bin] GET_ID: první bajt 0x%02x (oček. ACK 0x79) — špatný "
+               "protokol nebo jiné zařízení na sběrnici",
+               gid[0]);
+      err = ESP_ERR_INVALID_RESPONSE;
+      goto restore;
+    }
+    uint16_t pid =
+        (uint16_t)(((uint16_t)gid[2] << 8) | (uint16_t)gid[3]);
+    ESP_LOGI(TAG,
+             "[flash_bin] PID=0x%04X — pokračuji mass erase (0x44)",
+             (unsigned)pid);
   }
 
   err = bl_send_command_byte_pair(0x44);
@@ -723,6 +819,43 @@ static esp_err_t auto_part_crc32(const esp_partition_t *part, size_t len,
 
 #endif /* BL_ENABLE && AUTO_FLASH_ON_BOOT */
 
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+static SemaphoreHandle_t s_boot_flash_done_sem;
+
+void stm32_i2c_bl_boot_flash_sync_prepare(void) {
+  if (s_boot_flash_done_sem != NULL) {
+    return;
+  }
+  s_boot_flash_done_sem = xSemaphoreCreateBinary();
+  if (s_boot_flash_done_sem == NULL) {
+    ESP_LOGE(TAG, "boot_flash_sync: xSemaphoreCreateBinary failed");
+  }
+}
+
+static void stm32_i2c_bl_boot_flash_sync_signal_done(void) {
+  if (s_boot_flash_done_sem != NULL) {
+    (void)xSemaphoreGive(s_boot_flash_done_sem);
+  }
+}
+
+void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks) {
+  if (s_boot_flash_done_sem == NULL) {
+    return;
+  }
+  if (xSemaphoreTake(s_boot_flash_done_sem, timeout_ticks) != pdTRUE) {
+    ESP_LOGW(TAG,
+             "boot_flash_sync: timeout — STM32 auto-flash nedokončeno v čase "
+             "(zkontroluj I²C / NRST / BOOT0)");
+  }
+}
+#else
+void stm32_i2c_bl_boot_flash_sync_prepare(void) {}
+
+void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks) {
+  (void)timeout_ticks;
+}
+#endif
+
 void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
   static const char *TAG_A = "STM32_AUTO";
@@ -730,7 +863,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   esp_err_t ie = stm32_i2c_bl_init();
   if (ie != ESP_OK) {
     ESP_LOGE(TAG_A, "stm32_i2c_bl_init: %s", esp_err_to_name(ie));
-    return;
+    goto out;
   }
 
   ESP_LOGI(TAG_A, "=== auto-flash on boot (oddíl '%s') ===",
@@ -745,7 +878,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
              "neosloví bootloader na adrese 0x%02x. Nastav v menuconfig BOOT0 GPIO a zapoj "
              "jej na pin BOOT0 MCU (nebo vypni AUTO_USE_BOOT0 a drž BOOT0 ručně jumperem).",
              (unsigned)CONFIG_CHESS_STM32_BL_TARGET_ADDR7);
-    return;
+    goto out;
   }
 #endif
 
@@ -755,7 +888,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   if (part == NULL) {
     ESP_LOGW(TAG_A, "oddíl '%s' nenalezen — auto-flash přeskočen",
              CONFIG_CHESS_STM32_BL_AUTO_PARTITION_LABEL);
-    return;
+    goto out;
   }
 
   ESP_LOGI(TAG_A, "oddíl: offset=0x%08" PRIx32 " size=%" PRIu32 " B",
@@ -765,13 +898,13 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   esp_err_t tre = auto_part_effective_bytes(part, &eff);
   if (tre != ESP_OK) {
     ESP_LOGE(TAG_A, "ořez konce oddílu: %s", esp_err_to_name(tre));
-    return;
+    goto out;
   }
 
   if (eff < 32) {
     ESP_LOGW(TAG_A, "image z oddílu je prázdná nebo jen 0xFF (eff=%u B)",
              (unsigned)eff);
-    return;
+    goto out;
   }
 
   if (CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES > 0 &&
@@ -783,7 +916,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   esp_err_t cre = auto_part_crc32(part, eff, &crc);
   if (cre != ESP_OK) {
     ESP_LOGE(TAG_A, "CRC z oddílu: %s", esp_err_to_name(cre));
-    return;
+    goto out;
   }
 
   ESP_LOGI(TAG_A,
@@ -808,7 +941,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
                  "auto-flash přeskočen (stejný obsah CRC=0x%08" PRIx32
                  ", %" PRIu32 " B)",
                  crc, (uint32_t)eff);
-        return;
+        goto out;
       }
     }
   }
@@ -862,6 +995,9 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
       ESP_LOGI(TAG_A, "NVS: uložen CRC+délka (další boot přeskočí při stejném obsahu)");
     }
   }
+
+out:
+  stm32_i2c_bl_boot_flash_sync_signal_done();
 
 #endif /* AUTO_FLASH_ON_BOOT && BL */
 }

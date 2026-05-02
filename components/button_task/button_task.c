@@ -263,8 +263,11 @@ void button_scan_all(void) {
     bool current_state = false;
 
     if (i == 8) {
-      // Reset button (GPIO15) - active low
-      current_state = (gpio_get_level(BUTTON_RESET) == 0);
+      if (chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
+        current_state = false;
+      } else {
+        current_state = (gpio_get_level(BUTTON_RESET) == 0);
+      }
 
     } else if (i >= 0 && i <= 3) {
       // Promotion buttons (0-3): MATRIX_COL_0-3

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "esp_err.h"
+#include "freertos/FreeRTOS.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -49,6 +50,15 @@ esp_err_t stm32_i2c_bl_flash_binary(uint8_t segment_0_to_3, bool boot0_enter,
  * Volat po inicializaci sdíleného I2C (např. hned po hall_i2c_matrix_init).
  */
 void stm32_i2c_bl_maybe_auto_flash_on_boot(void);
+
+/**
+ * Hlavní vlákno: volat před xTaskCreate(matrix_task), pokud je zapnutý auto-flash na bootu.
+ * Zajistí, že boot_flash_sync_wait() počká na dokončení maybe_auto_flash v matrix_task.
+ */
+void stm32_i2c_bl_boot_flash_sync_prepare(void);
+
+/** Hlavní vlákno: počkat na signal_done z matrix_task (timeout v tickách FreeRTOS). */
+void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks);
 
 #ifdef __cplusplus
 }

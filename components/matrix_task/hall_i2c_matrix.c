@@ -19,6 +19,21 @@ static bool s_i2c_ready;
 /** Bit i = segment i už dostal jednorázové ESP_LOGW při selhání čtení (reset při úspěchu). */
 static uint8_t s_read_fail_warned_mask;
 
+/** Explicitní interní pull-up na pinech sběrnice (doplňuje i2c_config_t). */
+static void hall_i2c_apply_bus_pullups(void) {
+  gpio_num_t sda = (gpio_num_t)CONFIG_CHESS_HALL_I2C_SDA_GPIO;
+  gpio_num_t scl = (gpio_num_t)CONFIG_CHESS_HALL_I2C_SCL_GPIO;
+  esp_err_t e1 = gpio_set_pull_mode(sda, GPIO_PULLUP_ONLY);
+  esp_err_t e2 = gpio_set_pull_mode(scl, GPIO_PULLUP_ONLY);
+  if (e1 != ESP_OK || e2 != ESP_OK) {
+    ESP_LOGW(TAG, "pull-up SDA/SCL: %s / %s", esp_err_to_name(e1),
+             esp_err_to_name(e2));
+  } else {
+    ESP_LOGI(TAG, "SDA=%d SCL=%d: GPIO_PULLUP_ONLY (ESP interní)", (int)sda,
+             (int)scl);
+  }
+}
+
 /** Mapování: segment 0 = DESKA u ESP (a–d × řady 1–4), dál po CCW jako čtvrtky šachovnice. */
 static uint8_t hall_map_segment_field_to_square(unsigned seg, unsigned field) {
   unsigned lr = field / 4;
@@ -89,6 +104,8 @@ esp_err_t hall_i2c_matrix_init(void) {
     ESP_LOGE(TAG, "i2c_driver_install: %s", esp_err_to_name(err));
     return err;
   }
+
+  hall_i2c_apply_bus_pullups();
 
   s_i2c_ready = true;
   ESP_LOGI(TAG,

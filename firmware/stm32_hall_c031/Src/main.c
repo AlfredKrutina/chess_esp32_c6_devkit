@@ -14,11 +14,11 @@ volatile uint8_t g_hall_payload_ver[HALL_I2C_PAYLOAD_BYTES];
 volatile const uint8_t *volatile g_hall_active_tx;
 
 static void MX_I2C1_Init(void);
-#ifndef BOARD_NUCLEO_C031
+#if !defined(BOARD_NUCLEO_C031) && !defined(BOARD_HALL_I2C_DEMO)
 static void MX_MATRIX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void Matrix_ADC_Activate(void);
-#else
+#elif defined(BOARD_NUCLEO_C031)
 static void MX_Nucleo_UserIo_Init(void);
 #endif
 
@@ -26,7 +26,7 @@ static void MX_Nucleo_UserIo_Init(void);
 #define ADC_DELAY_CALIB_ENABLE_CPU_CYCLES                                              \
   ((uint32_t)(LL_ADC_DELAY_CALIB_ENABLE_ADC_CYCLES * 32U))
 
-#ifndef BOARD_NUCLEO_C031
+#if !defined(BOARD_NUCLEO_C031) && !defined(BOARD_HALL_I2C_DEMO)
 
 static void Matrix_GPIO_SetMuxAddress(unsigned ch) {
   uint32_t odr = LL_GPIO_ReadOutputPort(MATRIX_ADC_COM1_PORT);
@@ -173,7 +173,7 @@ static void Matrix_ADC_Activate(void) {
   }
 }
 
-#else /* BOARD_NUCLEO_C031 */
+#elif defined(BOARD_NUCLEO_C031)
 
 static void MX_Nucleo_UserIo_Init(void) {
   LL_GPIO_InitTypeDef g = {0};
@@ -195,7 +195,7 @@ static void MX_Nucleo_UserIo_Init(void) {
   LL_GPIO_Init(BOARD_NUCLEO_USER_GPIO_PORT, &g);
 }
 
-#endif /* BOARD_NUCLEO_C031 */
+#endif /* matrix / Nucleo */
 
 static void MX_I2C1_Init(void) {
   LL_GPIO_InitTypeDef gpio = {0};
@@ -266,7 +266,34 @@ void SystemClock_Config(void) {
 }
 
 void Hall_RefreshPayload(void) {
-#ifndef BOARD_NUCLEO_C031
+#if defined(BOARD_HALL_I2C_DEMO)
+  /*
+   * I²C stejné jako produkční Hall slave — bez ADC/muxů.
+   * Generuje vzorky tak, aby ESP (CHESS_HALL_PAIR_DIFF_THRESHOLD ~120) viděl
+   * měnící se „obsazenost“ polí: |s0−s1| buď 0 nebo 350.
+   */
+  static uint32_t s_demo_ctr;
+  uint8_t packed[HALL_I2C_PAYLOAD_BYTES];
+
+  s_demo_ctr++;
+  unsigned phase = (unsigned)(s_demo_ctr >> 16);
+
+  for (unsigned field = 0U; field < HALL_I2C_FIELDS_PER_SEGMENT; field++) {
+    uint16_t s0 =
+        (uint16_t)(400U + field * 20U + (phase & 0x3FU));
+    unsigned occ_patt = ((field + phase) % 3U) != 0U;
+    uint16_t s1 = occ_patt ? (uint16_t)(s0 + 350U) : s0;
+
+    hall_i2c_spec_write_le16(&packed[field * 4U + 0U], s0);
+    hall_i2c_spec_write_le16(&packed[field * 4U + 2U], s1);
+  }
+
+  __disable_irq();
+  for (unsigned i = 0U; i < sizeof packed; i++) {
+    g_hall_payload_raw[i] = packed[i];
+  }
+  __enable_irq();
+#elif !defined(BOARD_NUCLEO_C031)
   uint16_t samples[HALL_I2C_UINT16_PER_SEGMENT];
   uint8_t packed[HALL_I2C_PAYLOAD_BYTES];
 
@@ -293,7 +320,7 @@ void Hall_RefreshPayload(void) {
     g_hall_payload_raw[i] = packed[i];
   }
   __enable_irq();
-#else
+#else /* BOARD_NUCLEO_C031 */
   uint8_t packed[HALL_I2C_PAYLOAD_BYTES];
   memset(packed, 0, sizeof packed);
   __disable_irq();
@@ -310,7 +337,9 @@ int main(void) {
 
   SystemClock_Config();
 
-#ifndef BOARD_NUCLEO_C031
+#if defined(BOARD_HALL_I2C_DEMO)
+  /* PB6/PB7 I2C — žádný mux/ADC. */
+#elif !defined(BOARD_NUCLEO_C031)
   MX_MATRIX_GPIO_Init();
   MX_ADC1_Init();
   Matrix_ADC_Activate();

@@ -2,7 +2,7 @@
  * Zapojení podle KiCad „matrix“ (STM32C031Fx TSSOP20, Czechmate).
  *
  * Ověřeno proti DS STM32C031 — Figure 3 TSSOP20: pin 1 = PB7 (I2C1_SDA),
- * pin 20 = PB6 (I2C1_SCL). Bootloader ST také uvádí I2C na PB6/PB7.
+ * pin 20 = PB6 (I2C1_SCL). ROM bootloader I2C1 na PB6/PB7 — AN2606 Table 12 (C031): 7-bit 0x63.
  *
  * CD74HC4067: E = HIGH vypne všechny spínače; E = LOW povolí adresu na S0–S3.
  */
