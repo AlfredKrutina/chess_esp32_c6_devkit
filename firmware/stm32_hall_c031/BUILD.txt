@@ -1,6 +1,9 @@
 Sestavení (z tohoto adresáře):
   make
 
+NUCLEO-C031C6 (USER B1 → zelená LD4 u MCU; LD1 u USB je ST-LINK, neřídí STM32):
+  make BOARD_NUCLEO_C031=1
+
 Velikost Flash (schéma používá STM32C031F4 = 16 KiB → povinné):
   make FLASH_KB=16
 

@@ -57,9 +57,9 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         int "NRST segment 0 (-1 = nepoužito)"
         depends on CHESS_STM32_I2C_BL_ENABLE
         range -1 30
-        default 18
+        default 15
         help
-            Výchozí 18 = test (ESP GPIO18 → STM NRST). Na finální desce uprav.
+            Výchozí 15 (deska Czechmate / test). Nesmí kolidovat s BOOT0_ESP ani I2C GPIO.
 
     config CHESS_STM32_BL_NRST_GPIO_SEG1
         int "NRST segment 1 (-1 = nepoužito)"

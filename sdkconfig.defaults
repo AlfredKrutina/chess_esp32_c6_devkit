@@ -96,7 +96,7 @@ CONFIG_CHESS_HALL_SEGMENT_COUNT=4
 # V menuconfig nastav NRST (a volitelně BOOT0) pro každý segment. Jen segmenty s NRST ≠ -1 se programují.
 # STM bin při výrobě: esptool.py write_flash 0x380000 stm32_app.bin
 CONFIG_CHESS_STM32_I2C_BL_ENABLE=y
-CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0=18
-# Tovární STM: ROM I2C bootloader jen po BOOT0=VDD při resetu. Zapoj volný ESP GPIO → BOOT0
-# (MCU PA14/BOOT0 u C031FxP) a odkomentuj např. řádek níže; nebo AUTO_USE_BOOT0=n + jumper na stole.
-# CONFIG_CHESS_STM32_BL_BOOT0_GPIO=19
+# NRST segmentu 0 → RESET_STM prvního STM (KiCad test: IO15).
+CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0=15
+# BOOT0_ESP ze schématu MCU (ESP GPIO18 → všechny STM BOOT0 / PA14).
+CONFIG_CHESS_STM32_BL_BOOT0_GPIO=18

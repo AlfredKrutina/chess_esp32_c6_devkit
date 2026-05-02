@@ -1,6 +1,9 @@
 #include "main.h"
 
 #include "board_matrix_pins.h"
+#ifdef BOARD_NUCLEO_C031
+#include "board_nucleo_c031.h"
+#endif
 
 #include <string.h>
 
@@ -11,13 +14,19 @@ volatile uint8_t g_hall_payload_ver[HALL_I2C_PAYLOAD_BYTES];
 volatile const uint8_t *volatile g_hall_active_tx;
 
 static void MX_I2C1_Init(void);
+#ifndef BOARD_NUCLEO_C031
 static void MX_MATRIX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void Matrix_ADC_Activate(void);
+#else
+static void MX_Nucleo_UserIo_Init(void);
+#endif
 
 /* Konzervativní prodleva mezi kalibrací a ENABLE (ST příklad ×32 pro async). */
 #define ADC_DELAY_CALIB_ENABLE_CPU_CYCLES                                              \
   ((uint32_t)(LL_ADC_DELAY_CALIB_ENABLE_ADC_CYCLES * 32U))
+
+#ifndef BOARD_NUCLEO_C031
 
 static void Matrix_GPIO_SetMuxAddress(unsigned ch) {
   uint32_t odr = LL_GPIO_ReadOutputPort(MATRIX_ADC_COM1_PORT);
@@ -164,6 +173,30 @@ static void Matrix_ADC_Activate(void) {
   }
 }
 
+#else /* BOARD_NUCLEO_C031 */
+
+static void MX_Nucleo_UserIo_Init(void) {
+  LL_GPIO_InitTypeDef g = {0};
+
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
+
+  g.Pin = BOARD_NUCLEO_LD4_PIN;
+  g.Mode = LL_GPIO_MODE_OUTPUT;
+  g.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  g.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  g.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(BOARD_NUCLEO_LD4_GPIO_PORT, &g);
+  LL_GPIO_ResetOutputPin(BOARD_NUCLEO_LD4_GPIO_PORT, BOARD_NUCLEO_LD4_PIN);
+
+  g.Pin = BOARD_NUCLEO_USER_PIN;
+  g.Mode = LL_GPIO_MODE_INPUT;
+  g.Pull = LL_GPIO_PULL_UP;
+  LL_GPIO_Init(BOARD_NUCLEO_USER_GPIO_PORT, &g);
+}
+
+#endif /* BOARD_NUCLEO_C031 */
+
 static void MX_I2C1_Init(void) {
   LL_GPIO_InitTypeDef gpio = {0};
   LL_I2C_InitTypeDef i2c = {0};
@@ -233,6 +266,7 @@ void SystemClock_Config(void) {
 }
 
 void Hall_RefreshPayload(void) {
+#ifndef BOARD_NUCLEO_C031
   uint16_t samples[HALL_I2C_UINT16_PER_SEGMENT];
   uint8_t packed[HALL_I2C_PAYLOAD_BYTES];
 
@@ -259,6 +293,15 @@ void Hall_RefreshPayload(void) {
     g_hall_payload_raw[i] = packed[i];
   }
   __enable_irq();
+#else
+  uint8_t packed[HALL_I2C_PAYLOAD_BYTES];
+  memset(packed, 0, sizeof packed);
+  __disable_irq();
+  for (unsigned i = 0U; i < sizeof packed; i++) {
+    g_hall_payload_raw[i] = packed[i];
+  }
+  __enable_irq();
+#endif
 }
 
 int main(void) {
@@ -267,9 +310,13 @@ int main(void) {
 
   SystemClock_Config();
 
+#ifndef BOARD_NUCLEO_C031
   MX_MATRIX_GPIO_Init();
   MX_ADC1_Init();
   Matrix_ADC_Activate();
+#else
+  MX_Nucleo_UserIo_Init();
+#endif
   MX_I2C1_Init();
 
   memset((void *)g_hall_payload_ver, 0, sizeof(g_hall_payload_ver));
@@ -279,6 +326,22 @@ int main(void) {
   Hall_RefreshPayload();
 
   for (;;) {
+#ifdef BOARD_NUCLEO_C031
+    {
+      static uint8_t prev_down;
+      uint32_t up = LL_GPIO_IsInputPinSet(BOARD_NUCLEO_USER_GPIO_PORT,
+                                          BOARD_NUCLEO_USER_PIN);
+      uint32_t down = (up == 0U);
+      static uint8_t latched;
+      if (down != 0U && prev_down == 0U) {
+        latched = 1U;
+      }
+      prev_down = (uint8_t)down;
+      if (latched != 0U) {
+        LL_GPIO_SetOutputPin(BOARD_NUCLEO_LD4_GPIO_PORT, BOARD_NUCLEO_LD4_PIN);
+      }
+    }
+#endif
     Hall_RefreshPayload();
   }
 }

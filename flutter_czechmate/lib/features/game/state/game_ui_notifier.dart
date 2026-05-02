@@ -152,12 +152,13 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       invalidDestinationPulseSquare: square.trim().toLowerCase(),
       invalidDestinationPulseLit: true,
     );
+    // Krátká zpětná vazba (~0,8 s) — dřív 10×300 ms působilo zbytečně dlouho.
     _invalidDestinationPulseTimer =
-        Timer.periodic(const Duration(milliseconds: 300), (t) {
+        Timer.periodic(const Duration(milliseconds: 200), (t) {
       ticks++;
       final on = ticks.isOdd;
       state = state.copyWith(invalidDestinationPulseLit: on);
-      if (ticks >= 10) {
+      if (ticks >= 4) {
         t.cancel();
         state = state.copyWith(clearInvalidDestinationPulse: true);
       }

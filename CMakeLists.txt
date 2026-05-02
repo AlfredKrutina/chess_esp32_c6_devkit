@@ -15,6 +15,11 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 # Set project name and version
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 
+# Oddíl stm32_fw: při `idf.py flash` zapíše STM32 .bin (ESP pak může STM přes I2C ROM BL nabootstrakovat).
+if(EXISTS "${CMAKE_SOURCE_DIR}/embedded/stm32_fw_embedded.bin")
+  esptool_py_flash_to_partition(flash stm32_fw "${CMAKE_SOURCE_DIR}/embedded/stm32_fw_embedded.bin")
+endif()
+
 # CHIP/Matter C++: benign -Wtype-limits on EndpointId vs FIXED_ENDPOINT_COUNT (third-party connectedhomeip).
 idf_build_set_property(CXX_COMPILE_OPTIONS "-Wno-type-limits" APPEND)
 
