@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -25,9 +25,13 @@ bool _uuidMatch(Guid a, Guid b) =>
 
 bool _isRetryableGattWrite(Object e) {
   if (e is FlutterBluePlusException) {
-    if (e.code == 14) return true;
+    // 14: Linux ATT retry; 15: iOS CBATTErrorInsufficientEncryption (wait for SMP).
+    if (e.code == 14 || e.code == 15) return true;
     final d = e.description?.toUpperCase() ?? '';
-    return d.contains('UNLIKELY') || d.contains('BUSY');
+    return d.contains('UNLIKELY') ||
+        d.contains('BUSY') ||
+        d.contains('INSUFFICIENT ENCRYPTION') ||
+        d.contains('ENCRYPTION IS INSUFFICIENT');
   }
   return false;
 }
@@ -40,6 +44,7 @@ class BleCzechmateClient {
   BluetoothCharacteristic? _networkChar;
   StreamSubscription<List<int>>? _valueSub;
   StreamSubscription<List<int>>? _ackSub;
+  StreamSubscription<List<int>>? _netSub;
   StreamSubscription<BluetoothConnectionState>? _connSub;
   final _assembler = _BleChunkAssembler();
 
@@ -48,9 +53,11 @@ class BleCzechmateClient {
   Future<void> disconnect() async {
     await _valueSub?.cancel();
     await _ackSub?.cancel();
+    await _netSub?.cancel();
     await _connSub?.cancel();
     _valueSub = null;
     _ackSub = null;
+    _netSub = null;
     _connSub = null;
     _snapChar = null;
     _cmdChar = null;
@@ -62,10 +69,12 @@ class BleCzechmateClient {
     _assembler.reset();
   }
 
+  /// [onNetworkNotify] — firmware posílá notify na network char při změně STA/IP (`ble_task_push_network_info`).
   Future<void> connect(
     BluetoothDevice device, {
     required void Function(GameSnapshot snap) onSnapshot,
     required void Function(Object error) onError,
+    void Function(List<int> raw)? onNetworkNotify,
   }) async {
     await disconnect();
     _device = device;
@@ -76,6 +85,13 @@ class BleCzechmateClient {
       }
     });
     final services = await device.discoverServices();
+    try {
+      await device.requestMtu(517);
+    } catch (_) {}
+    /* iOS: peripheral po CONNECT zahajuje SMP; krátká pauza před prvním zápisem sníží „encryption insufficient“. */
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await Future<void>.delayed(const Duration(milliseconds: 600));
+    }
     BluetoothCharacteristic? snapChar;
     BluetoothCharacteristic? ackChar;
     for (final svc in services) {
@@ -110,6 +126,38 @@ class BleCzechmateClient {
       _ackSub = ackChar.onValueReceived.listen((raw) {
         // Here we could handle cmd_ack logic (not strictly required if we just blindly send over BLE)
       });
+    }
+    final netChar = _networkChar;
+    if (netChar != null &&
+        onNetworkNotify != null &&
+        (netChar.properties.notify || netChar.properties.indicate)) {
+      await netChar.setNotifyValue(true);
+      _netSub = netChar.onValueReceived.listen(
+        onNetworkNotify,
+        onError: onError,
+      );
+    }
+  }
+
+  static BleNetworkInfo? tryParseNetworkJson(List<int> raw) {
+    try {
+      if (raw.isEmpty) return null;
+      final parsed = jsonDecode(utf8.decode(raw));
+      if (parsed is! Map<String, dynamic>) return null;
+      final staIp = (parsed['sta_ip'] as String?)?.trim();
+      final apIp = (parsed['ap_ip'] as String?)?.trim();
+      final staSsid = (parsed['sta_ssid'] as String?)?.trim();
+      final staConnected = parsed['sta_connected'] == true;
+      final online = parsed['online'] == true;
+      return BleNetworkInfo(
+        staIp: (staIp == null || staIp.isEmpty) ? null : staIp,
+        apIp: (apIp == null || apIp.isEmpty) ? null : apIp,
+        staSsid: (staSsid == null || staSsid.isEmpty) ? null : staSsid,
+        staConnected: staConnected,
+        online: online,
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -226,10 +274,112 @@ class BleCzechmateClient {
     await _writeCmd({'cmd': 'ota_start', 'url': httpsFirmwareUrl.trim()});
   }
 
+  /// Zahájení stream OTA přes BLE (`ota_ble_begin`); po ní chunky s magic `OB`.
+  Future<void> postOtaBleBegin(int sizeBytes) async {
+    await _writeCmd({'cmd': 'ota_ble_begin', 'size': sizeBytes});
+  }
+
+  Future<void> postOtaBleAbort() async {
+    await _writeCmd({'cmd': 'ota_ble_abort'});
+  }
+
+  /// Nahraje celý `.bin` přes GATT CMD — bez Wi‑Fi (chunky `OB` + firmware bytes).
+  Future<void> uploadFirmwareBle(
+    File bin, {
+    void Function(int pct)? onProgress,
+  }) async {
+    final len = await bin.length();
+    if (len < 32 * 1024) {
+      throw StateError('Firmware file too small');
+    }
+    final d = _device;
+    final cmd = _cmdChar;
+    if (cmd == null || d == null || !d.isConnected) {
+      throw StateError('BLE cmd characteristic not ready');
+    }
+    try {
+      await d.requestMtu(517);
+    } catch (_) {}
+    await Future<void>.delayed(const Duration(milliseconds: 80));
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await Future<void>.delayed(const Duration(milliseconds: 450));
+    }
+    final mtu = d.mtuNow;
+    final payloadMax = (mtu >= 40 ? mtu - 15 : 20).clamp(20, 500);
+    final chunkTotal = (len + payloadMax - 1) ~/ payloadMax;
+    if (chunkTotal > 65535) {
+      throw StateError('Firmware too large for BLE chunk protocol');
+    }
+
+    await postOtaBleBegin(len);
+    RandomAccessFile? raf;
+    try {
+      raf = await bin.open();
+      var offset = 0;
+      var idx = 0;
+      while (offset < len) {
+        final take =
+            payloadMax < len - offset ? payloadMax : len - offset;
+        final chunk = await raf.read(take);
+        if (chunk.length != take) {
+          throw StateError('Unexpected EOF reading firmware');
+        }
+        final pkt = Uint8List(6 + chunk.length);
+        pkt[0] = 0x4f;
+        pkt[1] = 0x42;
+        pkt[2] = idx & 0xff;
+        pkt[3] = (idx >> 8) & 0xff;
+        pkt[4] = chunkTotal & 0xff;
+        pkt[5] = (chunkTotal >> 8) & 0xff;
+        pkt.setRange(6, 6 + chunk.length, chunk);
+
+        for (var attempt = 0; attempt < 8; attempt++) {
+          try {
+            await cmd.write(pkt, withoutResponse: false);
+            break;
+          } catch (e) {
+            final slowEnc = e is FlutterBluePlusException && e.code == 15;
+            if (!_isRetryableGattWrite(e) || attempt == 7) rethrow;
+            await Future<void>.delayed(
+              Duration(
+                milliseconds: (slowEnc ? 220 : 60) + attempt * 90,
+              ),
+            );
+          }
+        }
+
+        offset += take;
+        idx++;
+        onProgress?.call((offset * 100 ~/ len).clamp(0, 99));
+        await Future<void>.delayed(
+          Duration(
+            milliseconds: defaultTargetPlatform == TargetPlatform.iOS ? 12 : 4,
+          ),
+        );
+      }
+    } catch (e) {
+      try {
+        await postOtaBleAbort();
+      } catch (_) {}
+      rethrow;
+    } finally {
+      await raf?.close();
+    }
+  }
+
   /// Parita `POST /api/settings/lamp` (`auto_lamp_timeout_sec`).
   Future<void> postAutoLampTimeout(int seconds) async {
     final v = seconds.clamp(5, 7200);
     await _writeCmd({'cmd': 'settings_auto_lamp_timeout', 'seconds': v});
+  }
+
+  /// Uloží STA SSID/heslo do NVS na desce a spojí Wi‑Fi (`wifi_ble_prov` task).
+  Future<void> postWifiStaConfig(String ssid, String password) async {
+    await _writeCmd({
+      'cmd': 'wifi_sta_config',
+      'ssid': ssid.trim(),
+      'password': password,
+    });
   }
 
   /// BLE ekvivalent iOS `fetchNetworkInfo` (sta_ip/ap_ip/online).
@@ -252,17 +402,7 @@ class BleCzechmateClient {
     if (c == null) return null;
     try {
       final raw = await c.read();
-      if (raw.isEmpty) return null;
-      final parsed = jsonDecode(utf8.decode(raw));
-      if (parsed is! Map<String, dynamic>) return null;
-      final staIp = (parsed['sta_ip'] as String?)?.trim();
-      final apIp = (parsed['ap_ip'] as String?)?.trim();
-      final online = parsed['online'] == true;
-      return BleNetworkInfo(
-        staIp: (staIp == null || staIp.isEmpty) ? null : staIp,
-        apIp: (apIp == null || apIp.isEmpty) ? null : apIp,
-        online: online,
-      );
+      return tryParseNetworkJson(raw);
     } catch (_) {
       return null;
     }
@@ -274,10 +414,15 @@ class BleNetworkInfo {
     required this.staIp,
     required this.apIp,
     required this.online,
+    this.staSsid,
+    this.staConnected = false,
   });
 
   final String? staIp;
   final String? apIp;
+  /// SSID sítě, na kterou je deska připojená jako STA (z firmware JSON).
+  final String? staSsid;
+  final bool staConnected;
   final bool online;
 }
 

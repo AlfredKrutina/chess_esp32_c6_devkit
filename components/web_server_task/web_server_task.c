@@ -460,8 +460,8 @@ esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  if (password_len == 0 || password_len > 64) {
-    ESP_LOGE(TAG, "Invalid password length: %zu (must be 1-64)", password_len);
+  if (password_len > 64) {
+    ESP_LOGE(TAG, "Invalid password length: %zu (must be 0-64)", password_len);
     return ESP_ERR_INVALID_ARG;
   }
 
@@ -2764,11 +2764,43 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       return ota_err;
     }
     if (ota_err == ESP_ERR_INVALID_ARG) {
-      ESP_LOGW(TAG, "BLE ota_start: bad url (need https://)");
+      ESP_LOGW(TAG, "BLE ota_start: bad url (need http:// or https://)");
       return ota_err;
     }
     ESP_LOGE(TAG, "BLE ota_start failed: %s", esp_err_to_name(ota_err));
     return ota_err;
+  }
+  if (strcmp(cmd, "ota_ble_begin") == 0) {
+    esp_err_t e = ota_update_ble_begin_from_json(buf);
+    if (e == ESP_OK) {
+      ESP_LOGI(TAG, "BLE ota_ble_begin accepted");
+      return ESP_OK;
+    }
+    if (e == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "BLE ota_ble_begin: busy or semaphore timeout");
+      return e;
+    }
+    if (e == ESP_ERR_INVALID_ARG || e == ESP_ERR_INVALID_SIZE) {
+      ESP_LOGW(TAG, "BLE ota_ble_begin: invalid size or JSON");
+      return e;
+    }
+    if (e == ESP_ERR_NOT_SUPPORTED) {
+      ESP_LOGW(TAG, "BLE ota_ble_begin: no OTA partitions");
+      return e;
+    }
+    if (e == ESP_ERR_NOT_FOUND) {
+      return ESP_ERR_NOT_FOUND;
+    }
+    ESP_LOGE(TAG, "BLE ota_ble_begin failed: %s", esp_err_to_name(e));
+    return e;
+  }
+  if (strcmp(cmd, "ota_ble_abort") == 0) {
+    esp_err_t e = ota_update_ble_abort();
+    if (e == ESP_OK) {
+      return ESP_OK;
+    }
+    ESP_LOGW(TAG, "BLE ota_ble_abort: %s", esp_err_to_name(e));
+    return e;
   }
   if (strcmp(cmd, "factory_reset") == 0) {
     if (!json_body_has_factory_confirm(buf)) {
@@ -3579,6 +3611,9 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
 
 static void czechmate_push_ble_snapshot(void) {
   (void)web_server_task_wdt_reset_safe();
+  if (!ble_task_should_push_snapshot()) {
+    return;
+  }
   size_t len = 0;
   if (build_snapshot_json(&len) != ESP_OK) {
     return;

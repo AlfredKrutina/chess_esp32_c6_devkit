@@ -22,6 +22,7 @@ class FirmwareOtaRunner {
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
     if (baseUrl == null || baseUrl.isEmpty) {
       return 'Board HTTP URL is missing (AP or STA IP). '
@@ -37,14 +38,17 @@ class FirmwareOtaRunner {
       }
     } catch (_) {}
 
-    try {
-      final w = await api.fetchWiFiStatus(baseUrl);
-      if (!w.staConnected) {
-        return 'Connect the board to Wi‑Fi as a station (STA) so it can download '
-            'the firmware from the internet over HTTPS.';
+    final remoteHttps = binUrl.trim().toLowerCase().startsWith('https://');
+    if (remoteHttps) {
+      try {
+        final w = await api.fetchWiFiStatus(baseUrl);
+        if (!w.staConnected) {
+          return 'Connect the board to Wi‑Fi as a station (STA) so it can download '
+              'the firmware from the internet over HTTPS.';
+        }
+      } catch (e) {
+        return 'Could not verify Wi‑Fi: $e';
       }
-    } catch (e) {
-      return 'Could not verify Wi‑Fi: $e';
     }
 
     try {

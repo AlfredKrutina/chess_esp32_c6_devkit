@@ -374,7 +374,16 @@ class GameShareExportCanvas extends StatelessWidget {
     if (!options.showBranding) return const SizedBox.shrink();
     return Row(
       children: [
-        Icon(Icons.grid_view_rounded, size: 20, color: theme.accent),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: Image.asset(
+            'assets/app_icon.png',
+            width: 22,
+            height: 22,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+          ),
+        ),
         const SizedBox(width: 8),
         Text(
           brandingLabel,

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "esp_err.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -13,6 +14,12 @@ extern "C" {
 #endif
 
 void ble_task_init(void);
+
+/**
+ * True, pokud je BLE link aktivní a centrál má zapnuté notify na snapshot CCC.
+ * Jinak je push snapshot no-op — web server nemusí každé 3 s skládat JSON jen „do prázdna“.
+ */
+bool ble_task_should_push_snapshot(void);
 
 /**
  * Odešle JSON snapshot připojenému centrálu (chunkovaně, hlavička CM).

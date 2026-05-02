@@ -34,7 +34,11 @@
   "errDemoNoSnapshot": "Demo board has no snapshot.",
   "errConnectBeforeMoves": "Connect to the board over Wi‑Fi or Bluetooth before sending moves from the app.",
   "errSetupNeedsConnection": "Setup wizard requires an active board connection (Wi‑Fi or Bluetooth).",
-  "errOtaHttps": "OTA requires an HTTPS URL to the .bin file.",
+  "errOtaHttps": "OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).",
+  "errOtaBleTransport": "Firmware upload over Bluetooth requires an active Bluetooth session (connect via Bluetooth, not Wi‑Fi‑only).",
+  "errOtaBleGatt": "Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.",
+  "errWifiProvNeedsBle": "Connect to the board over Bluetooth first, then send Wi‑Fi credentials.",
+  "errWifiSsidEmpty": "Enter a Wi‑Fi network name (SSID).",
   "errOtaMock": "OTA is not available with the mock board.",
   "errOtaConnectFirst": "Connect the board over Wi‑Fi or Bluetooth, then try the update again.",
   "errHintsNeedConnection": "Hint LEDs require a board connection. Pair via Bluetooth or connect Wi‑Fi first.",
@@ -193,7 +197,21 @@
   "reportExportAspectStory": "Story 9:16",
   "reportExportAspectLandscape": "Landscape 16:9",
   "reportExportTransparentBg": "Transparent background",
-  "reportExportTransparentHint": "PNG alpha — works best on colored or photo backgrounds in Stories.",
+  "reportExportTransparentHint": "Only the outer frame uses alpha; board squares and charts stay on solid panels.",
+  "reportChartPaletteTitle": "Chart colors",
+  "reportChartPaletteSubtitle": "Bold presets for eval and timing charts — also used in Analysis.",
+  "reportChartPaletteTheme": "Match app",
+  "reportChartPaletteNeon": "Neon",
+  "reportChartPaletteSunset": "Sunset",
+  "reportChartPaletteOcean": "Ocean",
+  "reportChartPaletteCustom": "Custom",
+  "reportChartPaletteEditCustom": "Edit custom colors",
+  "reportChartPaletteCustomTitle": "Chart colors",
+  "reportChartPaletteEvalLine": "Evaluation line",
+  "reportChartPaletteCumulative": "Elapsed time",
+  "reportChartPaletteBarWhite": "White’s bars",
+  "reportChartPaletteBarBlack": "Black’s bars",
+  "reportChartPaletteDone": "Done",
   "reportExportShowBranding": "Show CzechMate header",
   "reportExportShowStats": "Show time & move stats",
   "reportExportShowFinalBoard": "Show final position",
@@ -808,6 +826,147 @@
   "firmwareConfirmUpdateTitle": "Confirm update",
   "firmwareConfirmUpdateBody": "Start firmware update on the board?",
   "firmwareStartingOtaSnack": "Starting OTA on the board…",
+  "firmwareDownloadToApp": "Download to app",
+  "firmwareSendToBoard": "Send to board",
+  "firmwareTwoStepOtaHint": "Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from your phone over HTTP (no Wi‑Fi STA on the board).",
+  "firmwareCachedInAppLine": "Saved in app: v{ver} (~{mb} MB)",
+  "@firmwareCachedInAppLine": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      },
+      "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDownloadSavedSnack": "Firmware saved in the app.",
+  "firmwareDownloadFailedLine": "Download failed: {error}",
+  "@firmwareDownloadFailedLine": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareJoinHotspotForUpload": "Connect to the board Wi‑Fi hotspot first — your phone needs a 192.168.4.x address.",
+  "firmwareNoCachedFirmware": "Download the firmware to the app first.",
+  "firmwareSendToBoardTitle": "Upload from this phone?",
+  "firmwareSendToBoardBody": "The board will download the .bin over HTTP from your phone. Stay on the hotspot and keep this screen open until finished.",
+  "firmwareOneStepHttpsOta": "Or: board downloads via HTTPS (needs STA)",
+  "firmwareSendViaBle": "Send via Bluetooth",
+  "firmwareSendViaBleBody": "The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.",
+  "firmwareBleUploadDoneSnack": "Bluetooth upload finished — the board may reboot.",
+  "firmwareWifiBleProvisionTitle": "Board Wi‑Fi (via Bluetooth)",
+  "firmwareWifiBleProvisionSubtitle": "Sends SSID and password to the board (NVS) and starts station mode. When connected, the board reports IP and SSID — if it matches this phone’s Wi‑Fi, “Send to board” uses HTTP on your LAN; otherwise firmware uploads over Bluetooth only.",
+  "firmwareWifiBleSsidLabel": "Wi‑Fi name (SSID)",
+  "firmwareWifiBlePasswordLabel": "Wi‑Fi password (leave empty on open networks)",
+  "firmwareWifiBleUsePhoneSsidButton": "Use this phone’s Wi‑Fi name",
+  "firmwareWifiBleSendCredentials": "Send credentials to board",
+  "firmwareWifiBleProvStartedSnack": "Wi‑Fi provisioning started — connection can take up to a minute. Watch the status line below.",
+  "firmwareBleStaWaiting": "Board STA: not connected yet (waiting for Wi‑Fi…).",
+  "firmwareBleStaOk": "Board STA: {ssid} · {ip}",
+  "@firmwareBleStaOk": {
+    "placeholders": {
+      "ssid": {
+        "type": "String"
+      },
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaPhoneNotOnLan": "This phone has no suitable IPv4 on the board hotspot (192.168.4.x) or on the same /24 LAN subnet as the board STA IP — fix the network, or use “Send via Bluetooth”. SSID names may differ (e.g. 5 GHz vs 2.4 GHz).",
+  "firmwareOtaNoLanRouteUseBle": "No LAN path to the board (not on the board hotspot and no IPv4 on the same subnet as the board STA IP) — uploading firmware over Bluetooth.",
+  "firmwareOtaNoLanRouteNeedBle": "Use Bluetooth to upload firmware, or connect via the board hotspot, or put this phone on the same home LAN as the board (same /24 as the STA IP from BLE). The SSID text does not need to match (e.g. phone on 5 GHz, board on 2.4 GHz).",
+  "firmwareOtaSlotsDisabledHint": "This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).",
+  "firmwareBoardHttpMissingDetail": "Board HTTP address is missing (e.g. http://192.168.4.1). Set Default board URL in settings. Bluetooth alone does not provide an IP.",
+  "firmwareHttpsLinkExplainBody": "You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.",
+  "firmwareSettingsSecondConfirmBody": "The board will write firmware and reboot. Do not cut power or lose Wi‑Fi while downloading. Continue?",
+  "firmwareOtaFinishedMaybeRebootSnack": "OTA finished or connection dropped — the board may reboot.",
+  "firmwareTileTitleUpdateAvailable": "Firmware — update available ({ver})",
+  "@firmwareTileTitleUpdateAvailable": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileTitleDefault": "Firmware (over-the-air)",
+  "firmwareTileTitleGitBle": "Firmware from Git ({ver}) — flash via Bluetooth",
+  "@firmwareTileTitleGitBle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileSubtitleBleGitOnly": "Manifest loaded from Git. Download the .bin on this phone, then flash over Bluetooth while connected — no board Wi‑Fi needed.",
+  "firmwareBleHttpOptionalHint": "Board HTTP URL is optional: Check loads the Git manifest over the internet. After downloading the .bin, you can flash over Bluetooth without knowing the board IP.",
+  "firmwareBleGitUnknownBoardVersion": "Board version over HTTP is unknown (BLE-only path). You can still download from Git and flash via Bluetooth.",
+  "firmwareSendViaBlePrimary": "Flash via Bluetooth",
+  "firmwareSendToBoardHttpAlt": "Send via phone HTTP (Wi‑Fi)",
+  "firmwareTileSubtitleIdle": "Manifest + Check. Use Download / Send on hotspot, or HTTPS if the board has STA.",
+  "firmwareRemindersOnShort": "reminders on",
+  "firmwareRemindersOffShort": "reminders off",
+  "firmwareDailyRemindersSubtitleLong": "If a newer version is on the server, ask again each day until you update or turn reminders off.",
+  "firmwareManifestUrlLabel": "Manifest URL (version.json)",
+  "firmwareManifestUrlHint": "https://…/version.json",
+  "firmwareManifestUrlHelper": "Default URL is filled automatically. Clear the field and Save to use the built-in manifest only.",
+  "firmwareBoardHttpVersionLine": "Board (HTTP): {ver}",
+  "@firmwareBoardHttpVersionLine": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareManifestVersionLine": "Manifest: {ver}",
+  "@firmwareManifestVersionLine": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareWifiStaConnected": "connected ({ip})",
+  "@firmwareWifiStaConnected": {
+    "placeholders": {
+      "ip": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareWifiStaNotConnected": "not connected",
+  "firmwareWifiStaLine": "Wi‑Fi STA: {status}",
+  "@firmwareWifiStaLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareNeedDefaultBoardUrlHint": "Set and save Default board URL (AP or STA IP) to read the board version.",
+  "firmwareOtaPercentLine": "OTA {percent} %",
+  "@firmwareOtaPercentLine": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "firmwareFooterTransportHint": "Connection: {transport}. Check loads the Git manifest over the internet; download the .bin here, then upload via hotspot/LAN HTTP or Bluetooth when GATT is connected. HTTPS OTA needs board STA.",
+  "@firmwareFooterTransportHint": {
+    "placeholders": {
+      "transport": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTransportLabelNone": "none",
+  "firmwareTransportLabelWifi": "wifi",
+  "firmwareTransportLabelBle": "ble",
+  "firmwareTransportLabelMock": "mock",
   "analysisAppBarTitle": "Analysis",
   "analysisGameProgress": "Game in progress",
   "analysisGameProgressBody": "Half-moves from the connected board.",

@@ -49,7 +49,7 @@ class NetworkErrorFormatter {
         if (e.statusCode != null) {
           return 'HTTP ${e.statusCode}${e.detail != null ? ': ${e.detail}' : ''}.';
         }
-        return e.message ?? 'Unknown network error.';
+        return e.message;
     }
   }
 }

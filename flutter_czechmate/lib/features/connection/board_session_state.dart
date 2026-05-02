@@ -22,6 +22,9 @@ class BoardSessionState {
     this.pollFailureCount = 0,
     this.wsMessageCount = 0,
     this.lastSuccessfulPoll,
+    this.bleStaIp,
+    this.bleStaSsid,
+    this.bleStaConnected = false,
   });
 
   final BoardTransport transport;
@@ -43,6 +46,11 @@ class BoardSessionState {
   final int pollFailureCount;
   final int wsMessageCount;
   final DateTime? lastSuccessfulPoll;
+
+  /// Poslední STA metadata z BLE network char (notify/read).
+  final String? bleStaIp;
+  final String? bleStaSsid;
+  final bool bleStaConnected;
 
   bool get hasLiveBoard => snapshot != null;
 
@@ -71,6 +79,10 @@ class BoardSessionState {
     int? wsMessageCount,
     DateTime? lastSuccessfulPoll,
     bool clearLastPoll = false,
+    String? bleStaIp,
+    String? bleStaSsid,
+    bool? bleStaConnected,
+    bool clearBleNetwork = false,
   }) {
     return BoardSessionState(
       transport: transport ?? this.transport,
@@ -97,6 +109,11 @@ class BoardSessionState {
       lastSuccessfulPoll: clearLastPoll
           ? null
           : (lastSuccessfulPoll ?? this.lastSuccessfulPoll),
+      bleStaIp: clearBleNetwork ? null : (bleStaIp ?? this.bleStaIp),
+      bleStaSsid: clearBleNetwork ? null : (bleStaSsid ?? this.bleStaSsid),
+      bleStaConnected: clearBleNetwork
+          ? false
+          : (bleStaConnected ?? this.bleStaConnected),
     );
   }
 }

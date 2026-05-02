@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -121,25 +122,22 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return true;
   }
 
-  /// Saves `http://<sta_ip>` or `http://<ap_ip>` from BLE so HTTP features work while staying on BLE transport.
+  /// Uloží jen `http://<sta_ip>` když má deska platnou STA (`online` ve firmware = STA s IP).
+  ///
+  /// `ap_ip` (192.168.4.1) sem neukládáme: telefon na domácí WiFi by pak dostal stejnou URL jako při hotspotu
+  /// a HTTP/WS na 192.168.4.1 timeoutuje. Hotspot řeš výslovně (discovery „Board hotspot“ / ruční URL).
   Future<void> _persistBoardHttpUrlFromBle(BleNetworkInfo? info) async {
     if (info == null) return;
+    if (info.online != true) return;
     final sta = info.staIp;
-    final ap = info.apIp;
-    String? ip;
-    if (sta != null && _looksLikeIPv4(sta)) {
-      ip = sta;
-    } else if (ap != null && _looksLikeIPv4(ap)) {
-      ip = ap;
-    }
-    if (ip == null) return;
-    final url = normalizeBoardHttpBaseUrl('http://$ip');
+    if (sta == null || !_looksLikeIPv4(sta)) return;
+    final url = normalizeBoardHttpBaseUrl('http://$sta');
     if (url == null) return;
     final prev = _prefs.lastBoardBaseUrl?.trim();
     if (prev == url) return;
     await _prefs.setLastBoardBaseUrl(url);
     if (AppEnvironment.staging) {
-      debugPrint('[staging] Cached board HTTP URL from BLE network char: $url');
+      debugPrint('[staging] Cached board HTTP URL from BLE (STA online): $url');
     }
   }
 
@@ -161,8 +159,27 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await connectWifi(url, webSocket: _prefs.useWebSocket);
   }
 
+  void _applyBleNetworkToState(BleNetworkInfo? info) {
+    if (info == null) {
+      return;
+    }
+    state = state.copyWith(
+      bleStaIp: info.staIp,
+      bleStaSsid: info.staSsid,
+      bleStaConnected: info.staConnected,
+    );
+  }
+
   Future<void> _syncBleNetworkMetadata() async {
     final info = await _ble.fetchNetworkInfo();
+    _applyBleNetworkToState(info);
+    await _persistBoardHttpUrlFromBle(info);
+    await _maybeAutoSwitchBleToWifi(info);
+  }
+
+  Future<void> _onBleNetworkPayload(List<int> raw) async {
+    final info = BleCzechmateClient.tryParseNetworkJson(raw);
+    _applyBleNetworkToState(info);
     await _persistBoardHttpUrlFromBle(info);
     await _maybeAutoSwitchBleToWifi(info);
   }
@@ -185,6 +202,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         timer: timer,
         busy: false,
         bleGattConnected: false,
+        clearBleNetwork: true,
         clearError: true,
         lastIfNoneMatch: snap.etagTag,
       );
@@ -214,6 +232,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       transportStartedAt: DateTime.now(),
       busy: true,
       bleGattConnected: false,
+      clearBleNetwork: true,
       clearError: true,
     );
     try {
@@ -228,6 +247,10 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
           normalized,
           onSnapshot: (s) => _applySnapshot(s, normalized),
           onError: (e) {
+            state = state.copyWith(
+              lastError: e,
+              webSocketActive: false,
+            );
             if (AppEnvironment.staging) {
               debugPrint('[staging] WS error: $e');
             }
@@ -247,6 +270,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         lastError: e,
         transport: BoardTransport.none,
         bleGattConnected: false,
+        clearBleNetwork: true,
         clearSnapshot: true,
         clearSnapshotReceivedAt: true,
         clearTransportStartedAt: true,
@@ -270,8 +294,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.connect(
         device,
         onSnapshot: (s) => _applySnapshot(s, ''),
-        onError: (e) =>
-            state = state.copyWith(lastError: e, bleGattConnected: false),
+        onError: (e) => state = state.copyWith(
+              lastError: e,
+              bleGattConnected: false,
+              clearBleNetwork: true,
+            ),
+        onNetworkNotify: (raw) => unawaited(_onBleNetworkPayload(raw)),
       );
       await _prefs.setLastBleRemoteId(device.remoteId.str);
       await _prefs.setLastBleDisplayName(label ?? device.platformName);
@@ -285,6 +313,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         lastError: e,
         transport: BoardTransport.none,
         bleGattConnected: false,
+        clearBleNetwork: true,
         clearSnapshot: true,
         clearSnapshotReceivedAt: true,
         clearTransportStartedAt: true,
@@ -761,10 +790,39 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     throw StateError(_strings.errSetupNeedsConnection);
   }
 
+  /// Uloží SSID/heslo do NVS na desce a spustí STA připojení (výsledek přijde přes network notify).
+  Future<void> provisionStaWifiOverBle({
+    required String ssid,
+    required String password,
+  }) async {
+    final s = ssid.trim();
+    if (s.isEmpty) {
+      throw StateError(_strings.errWifiSsidEmpty);
+    }
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      throw StateError(_strings.errWifiProvNeedsBle);
+    }
+    await _ble.postWifiStaConfig(s, password);
+  }
+
+  /// Stream `.bin` přes BLE (bez hotspotu / STA). Telefon musí mít soubor stažený v apce.
+  Future<void> uploadFirmwareOtaBle(
+    File binFile, {
+    void Function(int pct)? onProgress,
+  }) async {
+    if (state.transport != BoardTransport.ble) {
+      throw StateError(_strings.errOtaBleTransport);
+    }
+    if (!state.bleGattConnected) {
+      throw StateError(_strings.errOtaBleGatt);
+    }
+    await _ble.uploadFirmwareBle(binFile, onProgress: onProgress);
+  }
+
   /// OTA: app forwards an HTTPS `.bin` URL only; the ESP downloads it (STA required).
-  Future<void> requestFirmwareOta(String httpsFirmwareUrl) async {
-    final u = httpsFirmwareUrl.trim();
-    if (!u.startsWith('https://')) {
+  Future<void> requestFirmwareOta(String firmwareUrl) async {
+    final u = firmwareUrl.trim();
+    if (!u.startsWith('https://') && !u.startsWith('http://')) {
       throw StateError(_strings.errOtaHttps);
     }
     if (state.transport == BoardTransport.mock) {

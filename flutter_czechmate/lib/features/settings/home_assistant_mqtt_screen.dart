@@ -65,6 +65,7 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
   }
 

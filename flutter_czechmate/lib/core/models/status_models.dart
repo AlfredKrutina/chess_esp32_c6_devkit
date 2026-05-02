@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class BoardTimerHTTPState {
   final int whiteTimeMs;
   final int blackTimeMs;

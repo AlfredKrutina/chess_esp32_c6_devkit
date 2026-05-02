@@ -37,6 +37,20 @@ class FirmwareAvailState {
     return compareSemverLoose(m.version, b!) > 0;
   }
 
+  /// Manifest z Gitu je platný a buď je novější než deska, nebo verzi desky neznáme (jen BLE / bez HTTP).
+  bool get showBleGitFirmwareActions {
+    final m = manifest;
+    if (m == null ||
+        m.version.trim().isEmpty ||
+        m.url.trim().isEmpty) {
+      return false;
+    }
+    if (updateAvailable) {
+      return true;
+    }
+    return !hasBoardVersion;
+  }
+
   FirmwareAvailState copyWith({
     bool? loading,
     FirmwareManifest? manifest,
@@ -70,7 +84,16 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
   FirmwareAvailState build() => const FirmwareAvailState();
 
   /// [manifestUrlOverride] — např. text z pole v nastavení ještě před uložením do prefs.
-  Future<void> refresh({String? manifestUrlOverride}) async {
+  ///
+  /// [skipBoardHttpFetch] — jen manifest z Gitu (mobil má internet, deska jen BLE bez známé HTTP URL).
+  ///
+  /// [afterBleOtaAssumeBoardMatchesManifest] — po úspěšném BLE stream OTA: znovu načte manifest, ale desku
+  /// nečte přes HTTP (restart/spojení); verzi desky nastaví na verzi z manifestu (nahrál se ten bin).
+  Future<void> refresh({
+    String? manifestUrlOverride,
+    bool skipBoardHttpFetch = false,
+    bool afterBleOtaAssumeBoardMatchesManifest = false,
+  }) async {
     final prefs = ref.read(prefsRepositoryProvider);
     if (prefs.useMockBoard) {
       state = const FirmwareAvailState();
@@ -86,6 +109,7 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
 
     state = state.copyWith(loading: true, clearError: true);
@@ -109,7 +133,9 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
     String? bv;
     bool? otaSup;
     String? err;
-    if (boardHttp != null && boardHttp.isNotEmpty) {
+    if (!skipBoardHttpFetch &&
+        boardHttp != null &&
+        boardHttp.isNotEmpty) {
       try {
         final info = await api.fetchBoardFirmwareInfo(boardHttp);
         bv = info.version;
@@ -119,11 +145,29 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
       }
     }
 
+    final String? boardVerOut;
+    final bool? otaSupOut;
+    if (!skipBoardHttpFetch &&
+        boardHttp != null &&
+        boardHttp.isNotEmpty) {
+      boardVerOut = bv;
+      otaSupOut = otaSup;
+    } else if (skipBoardHttpFetch && afterBleOtaAssumeBoardMatchesManifest) {
+      boardVerOut = manifest.version;
+      otaSupOut = state.boardOtaSupported;
+    } else if (skipBoardHttpFetch) {
+      boardVerOut = state.boardVersion;
+      otaSupOut = state.boardOtaSupported;
+    } else {
+      boardVerOut = bv;
+      otaSupOut = otaSup;
+    }
+
     state = FirmwareAvailState(
       loading: false,
       manifest: manifest,
-      boardVersion: bv,
-      boardOtaSupported: otaSup,
+      boardVersion: boardVerOut,
+      boardOtaSupported: otaSupOut,
       error: err,
     );
   }

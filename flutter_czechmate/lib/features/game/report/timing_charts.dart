@@ -9,11 +9,15 @@ class CumulativePlayedTimeChart extends StatelessWidget {
     required this.points,
     required this.accent,
     this.height = 200,
+    this.backgroundColor,
+    this.axisColor,
   });
 
   final List<GameEndCumulativePoint> points;
   final Color accent;
   final double height;
+  final Color? backgroundColor;
+  final Color? axisColor;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +25,12 @@ class CumulativePlayedTimeChart extends StatelessWidget {
     return SizedBox(
       height: height,
       child: CustomPaint(
-        painter: _CumulativePainter(points: points, accent: accent),
+        painter: _CumulativePainter(
+          points: points,
+          accent: accent,
+          backgroundColor: backgroundColor,
+          axisColor: axisColor ?? Colors.grey.withValues(alpha: 0.35),
+        ),
         child: const SizedBox.expand(),
       ),
     );
@@ -29,13 +38,30 @@ class CumulativePlayedTimeChart extends StatelessWidget {
 }
 
 class _CumulativePainter extends CustomPainter {
-  _CumulativePainter({required this.points, required this.accent});
+  _CumulativePainter({
+    required this.points,
+    required this.accent,
+    required this.backgroundColor,
+    required this.axisColor,
+  });
 
   final List<GameEndCumulativePoint> points;
   final Color accent;
+  final Color? backgroundColor;
+  final Color axisColor;
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (backgroundColor != null) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          const Radius.circular(10),
+        ),
+        Paint()..color = backgroundColor!,
+      );
+    }
+
     const padL = 40.0;
     const padR = 8.0;
     const padT = 12.0;
@@ -82,11 +108,22 @@ class _CumulativePainter extends CustomPainter {
         ..strokeWidth = 2.5
         ..strokeCap = StrokeCap.round,
     );
+
+    canvas.drawLine(
+      Offset(padL, padT + h),
+      Offset(padL + w, padT + h),
+      Paint()
+        ..color = axisColor
+        ..strokeWidth = 1,
+    );
   }
 
   @override
   bool shouldRepaint(covariant _CumulativePainter oldDelegate) =>
-      oldDelegate.points != points || oldDelegate.accent != accent;
+      oldDelegate.points != points ||
+      oldDelegate.accent != accent ||
+      oldDelegate.backgroundColor != backgroundColor ||
+      oldDelegate.axisColor != axisColor;
 }
 
 /// Sloupce času na tah (s) — horizontální scroll jako na iOS.
@@ -98,6 +135,7 @@ class TimePerMoveBarChart extends StatelessWidget {
     required this.blackColor,
     this.outerHeight = 220,
     this.plotHeight = 200,
+    this.backgroundColor,
   });
 
   final List<GameEndThinkPlyPoint> points;
@@ -105,6 +143,7 @@ class TimePerMoveBarChart extends StatelessWidget {
   final Color blackColor;
   final double outerHeight;
   final double plotHeight;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +168,7 @@ class TimePerMoveBarChart extends StatelessWidget {
               gap: gap,
               whiteColor: whiteColor,
               blackColor: blackColor,
+              backgroundColor: backgroundColor,
             ),
             child: const SizedBox.expand(),
           ),
@@ -146,6 +186,7 @@ class _BarPainter extends CustomPainter {
     required this.gap,
     required this.whiteColor,
     required this.blackColor,
+    required this.backgroundColor,
   });
 
   final List<GameEndThinkPlyPoint> points;
@@ -154,9 +195,20 @@ class _BarPainter extends CustomPainter {
   final double gap;
   final Color whiteColor;
   final Color blackColor;
+  final Color? backgroundColor;
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (backgroundColor != null) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          const Radius.circular(10),
+        ),
+        Paint()..color = backgroundColor!,
+      );
+    }
+
     const padL = 32.0;
     const padB = 24.0;
     final h = size.height - padB;
@@ -166,7 +218,8 @@ class _BarPainter extends CustomPainter {
       final bh = h * (sec / maxSeconds);
       final x = padL + i * (barW + gap);
       final y = h - bh;
-      final paint = Paint()..color = p.isWhite ? whiteColor.withValues(alpha: 0.75) : blackColor.withValues(alpha: 0.55);
+      final paint = Paint()
+        ..color = p.isWhite ? whiteColor.withValues(alpha: 0.92) : blackColor.withValues(alpha: 0.88);
       canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.fromLTWH(x, y, barW, bh), const Radius.circular(2)),
         paint,
@@ -176,5 +229,9 @@ class _BarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BarPainter oldDelegate) =>
-      oldDelegate.points != points || oldDelegate.maxSeconds != maxSeconds;
+      oldDelegate.points != points ||
+      oldDelegate.maxSeconds != maxSeconds ||
+      oldDelegate.whiteColor != whiteColor ||
+      oldDelegate.blackColor != blackColor ||
+      oldDelegate.backgroundColor != backgroundColor;
 }

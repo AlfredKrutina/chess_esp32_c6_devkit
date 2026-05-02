@@ -215,6 +215,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
     final moveEval = ref.watch(moveEvalNotifierProvider);
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
+    final chartPalette = ref.read(prefsRepositoryProvider).resolvedChartPalette(cs);
 
     _syncFenFromSession(snap);
 
@@ -331,7 +332,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                         style: Theme.of(context).textTheme.bodySmall,
                       )
                     else ...[
-                      EvalLineChart(points: chartPoints),
+                      EvalLineChart(
+                        points: chartPoints,
+                        accentColor: chartPalette.evalLine,
+                      ),
                       TextButton(
                         onPressed: () => ref
                             .read(moveEvalNotifierProvider.notifier)

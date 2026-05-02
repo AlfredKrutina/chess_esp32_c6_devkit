@@ -16,6 +16,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../app_providers.dart';
 import '../../../core/analysis/move_evaluation.dart';
+import '../../../core/models/chart_palette.dart';
 import '../../../core/models/game_end_report_model.dart';
 import '../../../core/models/game_snapshot.dart';
 import '../../../l10n/app_localizations.dart';
@@ -33,6 +34,7 @@ import 'export_frame_capture.dart';
 import 'game_export_block_id.dart';
 import 'game_export_options.dart';
 import 'game_recap_gif_export.dart';
+import 'chart_palette_sheet.dart';
 import 'game_share_export_canvas.dart';
 import 'timing_charts.dart';
 
@@ -95,6 +97,46 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     }
   }
 
+  String _chartPresetLabel(AppLocalizations l10n, ChartPalettePreset p) {
+    return switch (p) {
+      ChartPalettePreset.theme => l10n.reportChartPaletteTheme,
+      ChartPalettePreset.neon => l10n.reportChartPaletteNeon,
+      ChartPalettePreset.sunset => l10n.reportChartPaletteSunset,
+      ChartPalettePreset.ocean => l10n.reportChartPaletteOcean,
+      ChartPalettePreset.custom => l10n.reportChartPaletteCustom,
+    };
+  }
+
+  Future<void> _applyChartPalette(AppLocalizations l10n, ChartPalettePreset preset) async {
+    final prefs = ref.read(prefsRepositoryProvider);
+    await prefs.setChartPalettePreset(preset);
+    if (!mounted) return;
+    if (preset == ChartPalettePreset.custom) {
+      final next = await showChartPaletteCustomizeSheet(
+        context,
+        initial: prefs.chartPaletteCustom ?? ChartPaletteColors.neon,
+        l10n: l10n,
+      );
+      if (next != null && mounted) {
+        await prefs.setChartPaletteCustom(next);
+      }
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _editCustomChartPalette(AppLocalizations l10n) async {
+    final prefs = ref.read(prefsRepositoryProvider);
+    final next = await showChartPaletteCustomizeSheet(
+      context,
+      initial: prefs.chartPaletteCustom ?? ChartPaletteColors.neon,
+      l10n: l10n,
+    );
+    if (next != null && mounted) {
+      await prefs.setChartPaletteCustom(next);
+      setState(() {});
+    }
+  }
+
   String _exportBlockLabel(AppLocalizations l10n, GameExportBlockId id) {
     return switch (id) {
       GameExportBlockId.recap => l10n.reportExportBlockRecap,
@@ -122,7 +164,11 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
   }) {
     return GameShareExportCanvas(
       options: opts.copyWith(blockOrder: _blockOrder),
-      theme: GameShareExportTheme.adaptive(context, transparent: opts.transparentBackground),
+      theme: GameShareExportTheme.forExport(
+        context,
+        transparentExport: opts.transparentBackground,
+        palette: ref.read(prefsRepositoryProvider).resolvedChartPalette(Theme.of(context).colorScheme),
+      ),
       model: model,
       boardCells: boardCellsOverride ?? boardFromSnapshot(snapshot),
       resultHeadline: _resultText(l10n, model.result),
@@ -454,6 +500,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     final clock = snapshot.clock;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final chartPalette = ref.read(prefsRepositoryProvider).resolvedChartPalette(cs);
+    final chartPresetNow = ref.read(prefsRepositoryProvider).chartPalettePreset;
 
     Widget evalSection({required double chartHeight}) {
       return Column(
@@ -472,7 +520,11 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
               style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
-            EvalLineChart(points: evalPoints, height: chartHeight),
+            EvalLineChart(
+              points: evalPoints,
+              height: chartHeight,
+              accentColor: chartPalette.evalLine,
+            ),
           ],
         ],
       );
@@ -509,7 +561,10 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                       style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: 10),
-                    CumulativePlayedTimeChart(points: cumulative, accent: cs.primary),
+                    CumulativePlayedTimeChart(
+                      points: cumulative,
+                      accent: chartPalette.cumulative,
+                    ),
                     Text(
                       l10n.reportHalfMoveAxis,
                       style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
@@ -535,18 +590,18 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                     const SizedBox(height: 10),
                     TimePerMoveBarChart(
                       points: think,
-                      whiteColor: cs.primary,
-                      blackColor: Colors.purple,
+                      whiteColor: chartPalette.barWhite,
+                      blackColor: chartPalette.barBlack,
                     ),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 20,
                       children: [
                         _LegendDot(
-                            color: cs.primary.withValues(alpha: 0.75),
+                            color: chartPalette.barWhite.withValues(alpha: 0.92),
                             label: l10n.colorWhite),
                         _LegendDot(
-                            color: Colors.purple.withValues(alpha: 0.55),
+                            color: chartPalette.barBlack.withValues(alpha: 0.88),
                             label: l10n.colorBlack),
                       ],
                     ),
@@ -681,6 +736,41 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
               onChanged: (v) =>
                   setState(() => _exportOpts = _exportOpts.copyWith(transparentBackground: v)),
             ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.reportChartPaletteTitle,
+              style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.reportChartPaletteSubtitle,
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final p in ChartPalettePreset.values)
+                  ChoiceChip(
+                    label: Text(_chartPresetLabel(l10n, p)),
+                    selected: chartPresetNow == p,
+                    onSelected: (sel) async {
+                      if (!sel) return;
+                      await _applyChartPalette(l10n, p);
+                    },
+                  ),
+              ],
+            ),
+            if (chartPresetNow == ChartPalettePreset.custom)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () => _editCustomChartPalette(l10n),
+                  icon: const Icon(Icons.palette_outlined, size: 18),
+                  label: Text(l10n.reportChartPaletteEditCustom),
+                ),
+              ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.reportExportShowBranding),

@@ -1,7 +1,12 @@
-# ESP32-C6 devkit s 4 MiB flash (skutečná velikost zjištěná při bootu).
-# Jeden slot factory — HTTPS OTA (dva sloty) by sem s ~2.3 MiB firmware nevešlo.
-# Větší modul + OTA: použij partitions_16mb_dual_ota.csv a CONFIG_ESPTOOLPY_FLASHSIZE_16MB.
-# Po změně tabulky: celý flash (bootloader + partition table + app).
+# ESP32-C6 — 4 MiB flash: výchozí jeden factory oddíl (max místo pro app).
+#
+# Současná velikost firmwaru (~0x23a200) se na 4 MiB NEVEJDE do dvou OTA slotů
+# (nutné 2× binárka + zarovnání 64 KiB — max ~0x1F0000 na slot). Dual OTA na 4 MiB
+# použij jen po výrazném zmenšení buildu → viz partitions_4mb_dual_ota.csv.
+# Pro plnou HTTP/BLE OTA při této velikosti: modul s ≥ ~8 MiB flash a např.
+# partitions_16mb_dual_ota.csv + CONFIG_ESPTOOLPY_FLASHSIZE_16MB.
+#
+# Bez ota_0 + ota_1 deska neumožní ESP OTA stream (jen UART/USB flash).
 # Name,   Type, SubType, Offset,  Size, Flags
 nvs,      data, nvs,     0x9000,  0x6000,
 phy_init, data, phy,     0xf000,  0x1000,

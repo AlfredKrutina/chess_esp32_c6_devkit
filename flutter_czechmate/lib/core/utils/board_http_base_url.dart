@@ -15,13 +15,20 @@ String? normalizeBoardHttpBaseUrl(String? raw) {
   return u;
 }
 
-/// Wi‑Fi transport má přednost; jinak poslední uložená URL (STA IP z předchozí session).
+/// Wi‑Fi transport má přednost; jinak poslední uložená URL (STA IP z předchozí session);
+/// nakonec fallback z BLE notify (`sta_ip`), pokud je session aktualizovaná z GATT.
 String? resolveBoardHttpBaseUrl({
   required bool wifiTransportActive,
   required String? sessionWifiBaseUrl,
   required String? prefsLastBoardBaseUrl,
+  String? bleStaIp,
 }) {
   final wifi = normalizeBoardHttpBaseUrl(sessionWifiBaseUrl);
   if (wifiTransportActive && wifi != null) return wifi;
-  return normalizeBoardHttpBaseUrl(prefsLastBoardBaseUrl);
+  final fromPrefs = normalizeBoardHttpBaseUrl(prefsLastBoardBaseUrl);
+  if (fromPrefs != null) return fromPrefs;
+  if (bleStaIp != null && bleStaIp.trim().isNotEmpty) {
+    return normalizeBoardHttpBaseUrl('http://${bleStaIp.trim()}');
+  }
+  return null;
 }

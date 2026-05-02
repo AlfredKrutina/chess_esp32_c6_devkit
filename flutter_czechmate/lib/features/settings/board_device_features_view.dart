@@ -65,6 +65,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
@@ -100,6 +101,7 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
     if (baseUrl == null || baseUrl.isEmpty) return;
     setState(() => _isLoading = true);
@@ -453,6 +455,7 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
     if (u == null || u.isEmpty) return;
     try {
@@ -473,6 +476,7 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+      bleStaIp: session.bleStaIp,
     );
     if (u == null || u.isEmpty) return;
     setState(() => _busy = true);
@@ -564,6 +568,7 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: widget.baseUrlGetter(),
+      bleStaIp: session.bleStaIp,
     );
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
@@ -660,6 +665,7 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
       wifiTransportActive: session.transport == BoardTransport.wifi,
       sessionWifiBaseUrl: session.wifiBaseUrl,
       prefsLastBoardBaseUrl: widget.baseUrlGetter(),
+      bleStaIp: session.bleStaIp,
     );
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {

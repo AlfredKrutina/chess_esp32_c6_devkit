@@ -16,6 +16,8 @@
 #include "host/ble_gatt.h"
 #include "host/ble_hs.h"
 #include "host/ble_hs_mbuf.h"
+#include "host/ble_sm.h"
+#include "host/ble_store.h"
 #include "host/ble_uuid.h"
 #include "nimble/nimble_npl.h"
 #include "nimble/nimble_port.h"
@@ -23,6 +25,8 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include "esp_task_wdt.h"
+#include "game_state_notify.h"
+#include "ota_update.h"
 #include "web_server_task.h"
 #include <assert.h>
 #include <string.h>
@@ -269,6 +273,33 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
        * nesmí zahodit samotný CMD (ověřovat při ladění MTU a zatížení desky).
        */
       uint16_t om_len = OS_MBUF_PKTLEN(ctxt->om);
+      uint8_t tmp[768];
+      uint16_t n = om_len > sizeof(tmp) ? (uint16_t)sizeof(tmp) : om_len;
+      if (n > 0) {
+        os_mbuf_copydata(ctxt->om, 0, n, tmp);
+      }
+      /* Raw firmware chunky: magic OB + idx/total + payload (nezapisovat do JSON bufferu). */
+      if (n >= 7 && tmp[0] == 'O' && tmp[1] == 'B') {
+        esp_err_t derr = ota_update_ble_feed_chunk(tmp, n);
+        static const char ack_chunk_ok[] =
+            "{\"cmd\":\"ota_ble_chunk\",\"ok\":true}";
+        static const char ack_chunk_bad[] =
+            "{\"cmd\":\"ota_ble_chunk\",\"ok\":false}";
+        ble_task_notify_command_result(derr,
+                                       derr == ESP_OK ? ack_chunk_ok : ack_chunk_bad);
+        if (derr == ESP_OK || derr == ESP_ERR_NOT_SUPPORTED) {
+          return 0;
+        }
+        if (derr == ESP_ERR_INVALID_STATE) {
+          ESP_LOGW(TAG, "OTA BLE chunk blocked: %s", esp_err_to_name(derr));
+          return BLE_ATT_ERR_INSUFFICIENT_AUTHOR;
+        }
+        if (derr == ESP_ERR_INVALID_ARG || derr == ESP_ERR_INVALID_SIZE) {
+          return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+        }
+        ESP_LOGW(TAG, "OTA BLE chunk: %s", esp_err_to_name(derr));
+        return BLE_ATT_ERR_UNLIKELY;
+      }
       /* Musí být v souladu s web_server_ble_command_dispatch (větší JSON: timer/virtual). */
       if (om_len >= sizeof(s_ble_cmd_copy)) {
         om_len = (uint16_t)(sizeof(s_ble_cmd_copy) - 1);
@@ -511,11 +542,48 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
         }
       }
 #endif
+#if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+      /* iOS: dlouhé ATT write (OTA chunky OB) často vyžadují aktivní link encryption
+       * (CBATTErrorInsufficientEncryption = 15). Zahájíme SMP hned po CONNECT. */
+      {
+        int src = ble_gap_security_initiate(event->connect.conn_handle);
+        if (src != 0) {
+          ESP_LOGW(TAG,
+                   "ble_gap_security_initiate rc=%d — bez šifrování mohou selhat velké zápisy",
+                   src);
+        }
+      }
+#endif
     } else {
       s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
       czechmate_gap_restart_advertising();
     }
     return 0;
+#if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+  case BLE_GAP_EVENT_ENC_CHANGE:
+    ESP_LOGI(TAG,
+             "GAP enc_change status=%d handle=%u",
+             (int)event->enc_change.status,
+             (unsigned)event->enc_change.conn_handle);
+    return 0;
+  case BLE_GAP_EVENT_REPEAT_PAIRING: {
+    struct ble_gap_conn_desc desc;
+    int rc = ble_gap_conn_find(event->repeat_pairing.conn_handle, &desc);
+    if (rc == 0) {
+      ble_store_util_delete_peer(&desc.peer_id_addr);
+    }
+    return BLE_GAP_REPEAT_PAIRING_RETRY;
+  }
+  case BLE_GAP_EVENT_PASSKEY_ACTION: {
+    struct ble_sm_io io = {.action = event->passkey.params.action};
+    int rc = ble_sm_inject_io(event->passkey.conn_handle, &io);
+    if (rc != 0) {
+      ESP_LOGW(TAG, "ble_sm_inject_io action=%u rc=%d",
+               (unsigned)event->passkey.params.action, rc);
+    }
+    return 0;
+  }
+#endif
   case BLE_GAP_EVENT_DISCONNECT:
     s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
     s_snap_notify_enabled = false;
@@ -539,6 +607,9 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     if (event->subscribe.attr_handle == g_snap_val_handle) {
       s_snap_notify_enabled = event->subscribe.cur_notify;
       ESP_LOGI(TAG, "snapshot notify=%d", (int)s_snap_notify_enabled);
+      if (s_snap_notify_enabled) {
+        czechmate_on_game_state_changed();
+      }
     }
     if (event->subscribe.attr_handle == g_net_val_handle) {
       s_net_notify_enabled = event->subscribe.cur_notify;
@@ -622,6 +693,13 @@ void ble_nimble_stack_init(void) {
   ESP_LOGD(TAG,
            "[STAGING] ble_nimble_stack_init: nimble_port_init + freertos host");
   ESP_ERROR_CHECK(nimble_port_init());
+#if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+  /* Just Works + bonding — centrál (iOS) pak používá šifrovaný ATT pro dlouhé zápisy. */
+  ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_NO_IO;
+  ble_hs_cfg.sm_bonding = 1;
+  ble_hs_cfg.sm_sc = 1;
+  ble_hs_cfg.sm_mitm = 0;
+#endif
   ble_hs_cfg.sync_cb = ble_on_sync;
   czechmate_gatt_register_before_host_start();
   nimble_port_freertos_init(ble_host_task);
@@ -678,6 +756,10 @@ void ble_task_push_network_info(void) {
  * Payload = min(zbývá, ble_att_mtu − 3 − 4).
  */
 #define SNAPSHOT_NOTIFY_CHUNK_CAP 508
+
+bool ble_task_should_push_snapshot(void) {
+  return s_conn_handle != BLE_HS_CONN_HANDLE_NONE && s_snap_notify_enabled;
+}
 
 void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
   if (data == NULL || len == 0 || g_snap_val_handle == 0) {
@@ -757,6 +839,7 @@ void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
 #else /* !CONFIG_BT_ENABLED */
 
 void ble_nimble_stack_init(void) {}
+bool ble_task_should_push_snapshot(void) { return false; }
 void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
   (void)data;
   (void)len;

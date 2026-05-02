@@ -123,7 +123,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Setup wizard requires an active board connection (Wi‑Fi or Bluetooth).';
 
   @override
-  String get errOtaHttps => 'OTA requires an HTTPS URL to the .bin file.';
+  String get errOtaHttps =>
+      'OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).';
+
+  @override
+  String get errOtaBleTransport =>
+      'Firmware upload over Bluetooth requires an active Bluetooth session (connect via Bluetooth, not Wi‑Fi‑only).';
+
+  @override
+  String get errOtaBleGatt =>
+      'Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.';
+
+  @override
+  String get errWifiProvNeedsBle =>
+      'Connect to the board over Bluetooth first, then send Wi‑Fi credentials.';
+
+  @override
+  String get errWifiSsidEmpty => 'Enter a Wi‑Fi network name (SSID).';
 
   @override
   String get errOtaMock => 'OTA is not available with the mock board.';
@@ -377,7 +393,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportExportTransparentHint =>
-      'PNG alpha — works best on colored or photo backgrounds in Stories.';
+      'Only the outer frame uses alpha; board squares and charts stay on solid panels.';
+
+  @override
+  String get reportChartPaletteTitle => 'Chart colors';
+
+  @override
+  String get reportChartPaletteSubtitle =>
+      'Bold presets for eval and timing charts — also used in Analysis.';
+
+  @override
+  String get reportChartPaletteTheme => 'Match app';
+
+  @override
+  String get reportChartPaletteNeon => 'Neon';
+
+  @override
+  String get reportChartPaletteSunset => 'Sunset';
+
+  @override
+  String get reportChartPaletteOcean => 'Ocean';
+
+  @override
+  String get reportChartPaletteCustom => 'Custom';
+
+  @override
+  String get reportChartPaletteEditCustom => 'Edit custom colors';
+
+  @override
+  String get reportChartPaletteCustomTitle => 'Chart colors';
+
+  @override
+  String get reportChartPaletteEvalLine => 'Evaluation line';
+
+  @override
+  String get reportChartPaletteCumulative => 'Elapsed time';
+
+  @override
+  String get reportChartPaletteBarWhite => 'White’s bars';
+
+  @override
+  String get reportChartPaletteBarBlack => 'Black’s bars';
+
+  @override
+  String get reportChartPaletteDone => 'Done';
 
   @override
   String get reportExportShowBranding => 'Show CzechMate header';
@@ -1573,6 +1632,228 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareStartingOtaSnack => 'Starting OTA on the board…';
+
+  @override
+  String get firmwareDownloadToApp => 'Download to app';
+
+  @override
+  String get firmwareSendToBoard => 'Send to board';
+
+  @override
+  String get firmwareTwoStepOtaHint =>
+      'Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from your phone over HTTP (no Wi‑Fi STA on the board).';
+
+  @override
+  String firmwareCachedInAppLine(String ver, String mb) {
+    return 'Saved in app: v$ver (~$mb MB)';
+  }
+
+  @override
+  String get firmwareDownloadSavedSnack => 'Firmware saved in the app.';
+
+  @override
+  String firmwareDownloadFailedLine(String error) {
+    return 'Download failed: $error';
+  }
+
+  @override
+  String get firmwareJoinHotspotForUpload =>
+      'Connect to the board Wi‑Fi hotspot first — your phone needs a 192.168.4.x address.';
+
+  @override
+  String get firmwareNoCachedFirmware =>
+      'Download the firmware to the app first.';
+
+  @override
+  String get firmwareSendToBoardTitle => 'Upload from this phone?';
+
+  @override
+  String get firmwareSendToBoardBody =>
+      'The board will download the .bin over HTTP from your phone. Stay on the hotspot and keep this screen open until finished.';
+
+  @override
+  String get firmwareOneStepHttpsOta =>
+      'Or: board downloads via HTTPS (needs STA)';
+
+  @override
+  String get firmwareSendViaBle => 'Send via Bluetooth';
+
+  @override
+  String get firmwareSendViaBleBody =>
+      'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.';
+
+  @override
+  String get firmwareBleUploadDoneSnack =>
+      'Bluetooth upload finished — the board may reboot.';
+
+  @override
+  String get firmwareWifiBleProvisionTitle => 'Board Wi‑Fi (via Bluetooth)';
+
+  @override
+  String get firmwareWifiBleProvisionSubtitle =>
+      'Sends SSID and password to the board (NVS) and starts station mode. When connected, the board reports IP and SSID — if it matches this phone’s Wi‑Fi, “Send to board” uses HTTP on your LAN; otherwise firmware uploads over Bluetooth only.';
+
+  @override
+  String get firmwareWifiBleSsidLabel => 'Wi‑Fi name (SSID)';
+
+  @override
+  String get firmwareWifiBlePasswordLabel =>
+      'Wi‑Fi password (leave empty on open networks)';
+
+  @override
+  String get firmwareWifiBleUsePhoneSsidButton => 'Use this phone’s Wi‑Fi name';
+
+  @override
+  String get firmwareWifiBleSendCredentials => 'Send credentials to board';
+
+  @override
+  String get firmwareWifiBleProvStartedSnack =>
+      'Wi‑Fi provisioning started — connection can take up to a minute. Watch the status line below.';
+
+  @override
+  String get firmwareBleStaWaiting =>
+      'Board STA: not connected yet (waiting for Wi‑Fi…).';
+
+  @override
+  String firmwareBleStaOk(String ssid, String ip) {
+    return 'Board STA: $ssid · $ip';
+  }
+
+  @override
+  String get firmwareOtaPhoneNotOnLan =>
+      'This phone has no suitable IPv4 on the board hotspot (192.168.4.x) or on the same /24 LAN subnet as the board STA IP — fix the network, or use “Send via Bluetooth”. SSID names may differ (e.g. 5 GHz vs 2.4 GHz).';
+
+  @override
+  String get firmwareOtaNoLanRouteUseBle =>
+      'No LAN path to the board (not on the board hotspot and no IPv4 on the same subnet as the board STA IP) — uploading firmware over Bluetooth.';
+
+  @override
+  String get firmwareOtaNoLanRouteNeedBle =>
+      'Use Bluetooth to upload firmware, or connect via the board hotspot, or put this phone on the same home LAN as the board (same /24 as the STA IP from BLE). The SSID text does not need to match (e.g. phone on 5 GHz, board on 2.4 GHz).';
+
+  @override
+  String get firmwareOtaSlotsDisabledHint =>
+      'This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).';
+
+  @override
+  String get firmwareBoardHttpMissingDetail =>
+      'Board HTTP address is missing (e.g. http://192.168.4.1). Set Default board URL in settings. Bluetooth alone does not provide an IP.';
+
+  @override
+  String get firmwareHttpsLinkExplainBody =>
+      'You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.';
+
+  @override
+  String get firmwareSettingsSecondConfirmBody =>
+      'The board will write firmware and reboot. Do not cut power or lose Wi‑Fi while downloading. Continue?';
+
+  @override
+  String get firmwareOtaFinishedMaybeRebootSnack =>
+      'OTA finished or connection dropped — the board may reboot.';
+
+  @override
+  String firmwareTileTitleUpdateAvailable(String ver) {
+    return 'Firmware — update available ($ver)';
+  }
+
+  @override
+  String get firmwareTileTitleDefault => 'Firmware (over-the-air)';
+
+  @override
+  String firmwareTileTitleGitBle(String ver) {
+    return 'Firmware from Git ($ver) — flash via Bluetooth';
+  }
+
+  @override
+  String get firmwareTileSubtitleBleGitOnly =>
+      'Manifest loaded from Git. Download the .bin on this phone, then flash over Bluetooth while connected — no board Wi‑Fi needed.';
+
+  @override
+  String get firmwareBleHttpOptionalHint =>
+      'Board HTTP URL is optional: Check loads the Git manifest over the internet. After downloading the .bin, you can flash over Bluetooth without knowing the board IP.';
+
+  @override
+  String get firmwareBleGitUnknownBoardVersion =>
+      'Board version over HTTP is unknown (BLE-only path). You can still download from Git and flash via Bluetooth.';
+
+  @override
+  String get firmwareSendViaBlePrimary => 'Flash via Bluetooth';
+
+  @override
+  String get firmwareSendToBoardHttpAlt => 'Send via phone HTTP (Wi‑Fi)';
+
+  @override
+  String get firmwareTileSubtitleIdle =>
+      'Manifest + Check. Use Download / Send on hotspot, or HTTPS if the board has STA.';
+
+  @override
+  String get firmwareRemindersOnShort => 'reminders on';
+
+  @override
+  String get firmwareRemindersOffShort => 'reminders off';
+
+  @override
+  String get firmwareDailyRemindersSubtitleLong =>
+      'If a newer version is on the server, ask again each day until you update or turn reminders off.';
+
+  @override
+  String get firmwareManifestUrlLabel => 'Manifest URL (version.json)';
+
+  @override
+  String get firmwareManifestUrlHint => 'https://…/version.json';
+
+  @override
+  String get firmwareManifestUrlHelper =>
+      'Default URL is filled automatically. Clear the field and Save to use the built-in manifest only.';
+
+  @override
+  String firmwareBoardHttpVersionLine(String ver) {
+    return 'Board (HTTP): $ver';
+  }
+
+  @override
+  String firmwareManifestVersionLine(String ver) {
+    return 'Manifest: $ver';
+  }
+
+  @override
+  String firmwareWifiStaConnected(String ip) {
+    return 'connected ($ip)';
+  }
+
+  @override
+  String get firmwareWifiStaNotConnected => 'not connected';
+
+  @override
+  String firmwareWifiStaLine(String status) {
+    return 'Wi‑Fi STA: $status';
+  }
+
+  @override
+  String get firmwareNeedDefaultBoardUrlHint =>
+      'Set and save Default board URL (AP or STA IP) to read the board version.';
+
+  @override
+  String firmwareOtaPercentLine(int percent) {
+    return 'OTA $percent %';
+  }
+
+  @override
+  String firmwareFooterTransportHint(String transport) {
+    return 'Connection: $transport. Check loads the Git manifest over the internet; download the .bin here, then upload via hotspot/LAN HTTP or Bluetooth when GATT is connected. HTTPS OTA needs board STA.';
+  }
+
+  @override
+  String get firmwareTransportLabelNone => 'none';
+
+  @override
+  String get firmwareTransportLabelWifi => 'wifi';
+
+  @override
+  String get firmwareTransportLabelBle => 'ble';
+
+  @override
+  String get firmwareTransportLabelMock => 'mock';
 
   @override
   String get analysisAppBarTitle => 'Analysis';

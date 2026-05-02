@@ -12,6 +12,24 @@ String normalizeFirmwareManifestUrl(String raw) {
   while (s.endsWith('/')) {
     s = s.substring(0, s.length - 1);
   }
+
+  /// Manifest musí být JSON (`version.json`). Častá chyba: vložení odkazu na `.bin`
+  /// z gh-pages — ten soubor je firmware, ne manifest (Unicode preview pak vypadá jako „čárky“).
+  final rawGh = Uri.tryParse(s);
+  if (rawGh != null &&
+      rawGh.scheme == 'https' &&
+      rawGh.host.toLowerCase() == 'raw.githubusercontent.com') {
+    final segs = rawGh.pathSegments.where((e) => e.isNotEmpty).toList();
+    if (segs.length >= 3) {
+      final last = segs.last.toLowerCase();
+      if (last.endsWith('.bin')) {
+        final user = segs[0];
+        final repo = segs[1];
+        return 'https://raw.githubusercontent.com/$user/$repo/main/firmware/version.json';
+      }
+    }
+  }
+
   final uri = Uri.tryParse(s);
   if (uri == null || uri.host.isEmpty || uri.scheme != 'https') return s;
 

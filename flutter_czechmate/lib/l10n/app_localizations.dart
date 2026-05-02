@@ -305,8 +305,32 @@ abstract class AppLocalizations {
   /// No description provided for @errOtaHttps.
   ///
   /// In en, this message translates to:
-  /// **'OTA requires an HTTPS URL to the .bin file.'**
+  /// **'OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).'**
   String get errOtaHttps;
+
+  /// No description provided for @errOtaBleTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware upload over Bluetooth requires an active Bluetooth session (connect via Bluetooth, not Wi‑Fi‑only).'**
+  String get errOtaBleTransport;
+
+  /// No description provided for @errOtaBleGatt.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.'**
+  String get errOtaBleGatt;
+
+  /// No description provided for @errWifiProvNeedsBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the board over Bluetooth first, then send Wi‑Fi credentials.'**
+  String get errWifiProvNeedsBle;
+
+  /// No description provided for @errWifiSsidEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Wi‑Fi network name (SSID).'**
+  String get errWifiSsidEmpty;
 
   /// No description provided for @errOtaMock.
   ///
@@ -731,8 +755,92 @@ abstract class AppLocalizations {
   /// No description provided for @reportExportTransparentHint.
   ///
   /// In en, this message translates to:
-  /// **'PNG alpha — works best on colored or photo backgrounds in Stories.'**
+  /// **'Only the outer frame uses alpha; board squares and charts stay on solid panels.'**
   String get reportExportTransparentHint;
+
+  /// No description provided for @reportChartPaletteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart colors'**
+  String get reportChartPaletteTitle;
+
+  /// No description provided for @reportChartPaletteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold presets for eval and timing charts — also used in Analysis.'**
+  String get reportChartPaletteSubtitle;
+
+  /// No description provided for @reportChartPaletteTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Match app'**
+  String get reportChartPaletteTheme;
+
+  /// No description provided for @reportChartPaletteNeon.
+  ///
+  /// In en, this message translates to:
+  /// **'Neon'**
+  String get reportChartPaletteNeon;
+
+  /// No description provided for @reportChartPaletteSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunset'**
+  String get reportChartPaletteSunset;
+
+  /// No description provided for @reportChartPaletteOcean.
+  ///
+  /// In en, this message translates to:
+  /// **'Ocean'**
+  String get reportChartPaletteOcean;
+
+  /// No description provided for @reportChartPaletteCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get reportChartPaletteCustom;
+
+  /// No description provided for @reportChartPaletteEditCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit custom colors'**
+  String get reportChartPaletteEditCustom;
+
+  /// No description provided for @reportChartPaletteCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart colors'**
+  String get reportChartPaletteCustomTitle;
+
+  /// No description provided for @reportChartPaletteEvalLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation line'**
+  String get reportChartPaletteEvalLine;
+
+  /// No description provided for @reportChartPaletteCumulative.
+  ///
+  /// In en, this message translates to:
+  /// **'Elapsed time'**
+  String get reportChartPaletteCumulative;
+
+  /// No description provided for @reportChartPaletteBarWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White’s bars'**
+  String get reportChartPaletteBarWhite;
+
+  /// No description provided for @reportChartPaletteBarBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black’s bars'**
+  String get reportChartPaletteBarBlack;
+
+  /// No description provided for @reportChartPaletteDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get reportChartPaletteDone;
 
   /// No description provided for @reportExportShowBranding.
   ///
@@ -2906,6 +3014,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Starting OTA on the board…'**
   String get firmwareStartingOtaSnack;
+
+  /// No description provided for @firmwareDownloadToApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Download to app'**
+  String get firmwareDownloadToApp;
+
+  /// No description provided for @firmwareSendToBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to board'**
+  String get firmwareSendToBoard;
+
+  /// No description provided for @firmwareTwoStepOtaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from your phone over HTTP (no Wi‑Fi STA on the board).'**
+  String get firmwareTwoStepOtaHint;
+
+  /// No description provided for @firmwareCachedInAppLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved in app: v{ver} (~{mb} MB)'**
+  String firmwareCachedInAppLine(String ver, String mb);
+
+  /// No description provided for @firmwareDownloadSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware saved in the app.'**
+  String get firmwareDownloadSavedSnack;
+
+  /// No description provided for @firmwareDownloadFailedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed: {error}'**
+  String firmwareDownloadFailedLine(String error);
+
+  /// No description provided for @firmwareJoinHotspotForUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the board Wi‑Fi hotspot first — your phone needs a 192.168.4.x address.'**
+  String get firmwareJoinHotspotForUpload;
+
+  /// No description provided for @firmwareNoCachedFirmware.
+  ///
+  /// In en, this message translates to:
+  /// **'Download the firmware to the app first.'**
+  String get firmwareNoCachedFirmware;
+
+  /// No description provided for @firmwareSendToBoardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload from this phone?'**
+  String get firmwareSendToBoardTitle;
+
+  /// No description provided for @firmwareSendToBoardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The board will download the .bin over HTTP from your phone. Stay on the hotspot and keep this screen open until finished.'**
+  String get firmwareSendToBoardBody;
+
+  /// No description provided for @firmwareOneStepHttpsOta.
+  ///
+  /// In en, this message translates to:
+  /// **'Or: board downloads via HTTPS (needs STA)'**
+  String get firmwareOneStepHttpsOta;
+
+  /// No description provided for @firmwareSendViaBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send via Bluetooth'**
+  String get firmwareSendViaBle;
+
+  /// No description provided for @firmwareSendViaBleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.'**
+  String get firmwareSendViaBleBody;
+
+  /// No description provided for @firmwareBleUploadDoneSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth upload finished — the board may reboot.'**
+  String get firmwareBleUploadDoneSnack;
+
+  /// No description provided for @firmwareWifiBleProvisionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board Wi‑Fi (via Bluetooth)'**
+  String get firmwareWifiBleProvisionTitle;
+
+  /// No description provided for @firmwareWifiBleProvisionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends SSID and password to the board (NVS) and starts station mode. When connected, the board reports IP and SSID — if it matches this phone’s Wi‑Fi, “Send to board” uses HTTP on your LAN; otherwise firmware uploads over Bluetooth only.'**
+  String get firmwareWifiBleProvisionSubtitle;
+
+  /// No description provided for @firmwareWifiBleSsidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi name (SSID)'**
+  String get firmwareWifiBleSsidLabel;
+
+  /// No description provided for @firmwareWifiBlePasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi password (leave empty on open networks)'**
+  String get firmwareWifiBlePasswordLabel;
+
+  /// No description provided for @firmwareWifiBleUsePhoneSsidButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this phone’s Wi‑Fi name'**
+  String get firmwareWifiBleUsePhoneSsidButton;
+
+  /// No description provided for @firmwareWifiBleSendCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Send credentials to board'**
+  String get firmwareWifiBleSendCredentials;
+
+  /// No description provided for @firmwareWifiBleProvStartedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi provisioning started — connection can take up to a minute. Watch the status line below.'**
+  String get firmwareWifiBleProvStartedSnack;
+
+  /// No description provided for @firmwareBleStaWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Board STA: not connected yet (waiting for Wi‑Fi…).'**
+  String get firmwareBleStaWaiting;
+
+  /// No description provided for @firmwareBleStaOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Board STA: {ssid} · {ip}'**
+  String firmwareBleStaOk(String ssid, String ip);
+
+  /// No description provided for @firmwareOtaPhoneNotOnLan.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no suitable IPv4 on the board hotspot (192.168.4.x) or on the same /24 LAN subnet as the board STA IP — fix the network, or use “Send via Bluetooth”. SSID names may differ (e.g. 5 GHz vs 2.4 GHz).'**
+  String get firmwareOtaPhoneNotOnLan;
+
+  /// No description provided for @firmwareOtaNoLanRouteUseBle.
+  ///
+  /// In en, this message translates to:
+  /// **'No LAN path to the board (not on the board hotspot and no IPv4 on the same subnet as the board STA IP) — uploading firmware over Bluetooth.'**
+  String get firmwareOtaNoLanRouteUseBle;
+
+  /// No description provided for @firmwareOtaNoLanRouteNeedBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Bluetooth to upload firmware, or connect via the board hotspot, or put this phone on the same home LAN as the board (same /24 as the STA IP from BLE). The SSID text does not need to match (e.g. phone on 5 GHz, board on 2.4 GHz).'**
+  String get firmwareOtaNoLanRouteNeedBle;
+
+  /// No description provided for @firmwareOtaSlotsDisabledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).'**
+  String get firmwareOtaSlotsDisabledHint;
+
+  /// No description provided for @firmwareBoardHttpMissingDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Board HTTP address is missing (e.g. http://192.168.4.1). Set Default board URL in settings. Bluetooth alone does not provide an IP.'**
+  String get firmwareBoardHttpMissingDetail;
+
+  /// No description provided for @firmwareHttpsLinkExplainBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.'**
+  String get firmwareHttpsLinkExplainBody;
+
+  /// No description provided for @firmwareSettingsSecondConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The board will write firmware and reboot. Do not cut power or lose Wi‑Fi while downloading. Continue?'**
+  String get firmwareSettingsSecondConfirmBody;
+
+  /// No description provided for @firmwareOtaFinishedMaybeRebootSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'OTA finished or connection dropped — the board may reboot.'**
+  String get firmwareOtaFinishedMaybeRebootSnack;
+
+  /// No description provided for @firmwareTileTitleUpdateAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware — update available ({ver})'**
+  String firmwareTileTitleUpdateAvailable(String ver);
+
+  /// No description provided for @firmwareTileTitleDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware (over-the-air)'**
+  String get firmwareTileTitleDefault;
+
+  /// No description provided for @firmwareTileTitleGitBle.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware from Git ({ver}) — flash via Bluetooth'**
+  String firmwareTileTitleGitBle(String ver);
+
+  /// No description provided for @firmwareTileSubtitleBleGitOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest loaded from Git. Download the .bin on this phone, then flash over Bluetooth while connected — no board Wi‑Fi needed.'**
+  String get firmwareTileSubtitleBleGitOnly;
+
+  /// No description provided for @firmwareBleHttpOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Board HTTP URL is optional: Check loads the Git manifest over the internet. After downloading the .bin, you can flash over Bluetooth without knowing the board IP.'**
+  String get firmwareBleHttpOptionalHint;
+
+  /// No description provided for @firmwareBleGitUnknownBoardVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Board version over HTTP is unknown (BLE-only path). You can still download from Git and flash via Bluetooth.'**
+  String get firmwareBleGitUnknownBoardVersion;
+
+  /// No description provided for @firmwareSendViaBlePrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Flash via Bluetooth'**
+  String get firmwareSendViaBlePrimary;
+
+  /// No description provided for @firmwareSendToBoardHttpAlt.
+  ///
+  /// In en, this message translates to:
+  /// **'Send via phone HTTP (Wi‑Fi)'**
+  String get firmwareSendToBoardHttpAlt;
+
+  /// No description provided for @firmwareTileSubtitleIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest + Check. Use Download / Send on hotspot, or HTTPS if the board has STA.'**
+  String get firmwareTileSubtitleIdle;
+
+  /// No description provided for @firmwareRemindersOnShort.
+  ///
+  /// In en, this message translates to:
+  /// **'reminders on'**
+  String get firmwareRemindersOnShort;
+
+  /// No description provided for @firmwareRemindersOffShort.
+  ///
+  /// In en, this message translates to:
+  /// **'reminders off'**
+  String get firmwareRemindersOffShort;
+
+  /// No description provided for @firmwareDailyRemindersSubtitleLong.
+  ///
+  /// In en, this message translates to:
+  /// **'If a newer version is on the server, ask again each day until you update or turn reminders off.'**
+  String get firmwareDailyRemindersSubtitleLong;
+
+  /// No description provided for @firmwareManifestUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest URL (version.json)'**
+  String get firmwareManifestUrlLabel;
+
+  /// No description provided for @firmwareManifestUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://…/version.json'**
+  String get firmwareManifestUrlHint;
+
+  /// No description provided for @firmwareManifestUrlHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Default URL is filled automatically. Clear the field and Save to use the built-in manifest only.'**
+  String get firmwareManifestUrlHelper;
+
+  /// No description provided for @firmwareBoardHttpVersionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Board (HTTP): {ver}'**
+  String firmwareBoardHttpVersionLine(String ver);
+
+  /// No description provided for @firmwareManifestVersionLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest: {ver}'**
+  String firmwareManifestVersionLine(String ver);
+
+  /// No description provided for @firmwareWifiStaConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'connected ({ip})'**
+  String firmwareWifiStaConnected(String ip);
+
+  /// No description provided for @firmwareWifiStaNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'not connected'**
+  String get firmwareWifiStaNotConnected;
+
+  /// No description provided for @firmwareWifiStaLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi STA: {status}'**
+  String firmwareWifiStaLine(String status);
+
+  /// No description provided for @firmwareNeedDefaultBoardUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Set and save Default board URL (AP or STA IP) to read the board version.'**
+  String get firmwareNeedDefaultBoardUrlHint;
+
+  /// No description provided for @firmwareOtaPercentLine.
+  ///
+  /// In en, this message translates to:
+  /// **'OTA {percent} %'**
+  String firmwareOtaPercentLine(int percent);
+
+  /// No description provided for @firmwareFooterTransportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection: {transport}. Check loads the Git manifest over the internet; download the .bin here, then upload via hotspot/LAN HTTP or Bluetooth when GATT is connected. HTTPS OTA needs board STA.'**
+  String firmwareFooterTransportHint(String transport);
+
+  /// No description provided for @firmwareTransportLabelNone.
+  ///
+  /// In en, this message translates to:
+  /// **'none'**
+  String get firmwareTransportLabelNone;
+
+  /// No description provided for @firmwareTransportLabelWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'wifi'**
+  String get firmwareTransportLabelWifi;
+
+  /// No description provided for @firmwareTransportLabelBle.
+  ///
+  /// In en, this message translates to:
+  /// **'ble'**
+  String get firmwareTransportLabelBle;
+
+  /// No description provided for @firmwareTransportLabelMock.
+  ///
+  /// In en, this message translates to:
+  /// **'mock'**
+  String get firmwareTransportLabelMock;
 
   /// No description provided for @analysisAppBarTitle.
   ///

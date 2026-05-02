@@ -140,6 +140,18 @@ dynamic _jsonDecodeLenient(String text) {
 Map<String, dynamic> decodeHttpJsonMap(List<int> bodyBytes) {
   try {
     final inflated = decompressHttpBodyIfNeeded(bodyBytes);
+    // ESP-IDF app image magic at offset 0 — typical when manifest URL mistakenly points at .bin.
+    if (inflated.length > 32 &&
+        inflated[0] == 0xE9 &&
+        !_looksLikePlainJson(inflated)) {
+      throw BoardApiException(
+        'Invalid JSON response',
+        statusCode: 0,
+        detail:
+            'Body looks like ESP firmware (.bin), not JSON. '
+            'Manifest URL must be firmware/version.json; the .bin link belongs inside that JSON only.',
+      );
+    }
     final textRaw = _utf8TextLenient(_stripUtf8Bom(inflated));
     final text = _normalizeJsonText(textRaw);
 
