@@ -23,6 +23,14 @@ final Guid commandAckCharacteristicGuid =
 bool _uuidMatch(Guid a, Guid b) =>
     a.toString().toLowerCase() == b.toString().toLowerCase();
 
+bool _isBleTransportDropped(Object e) {
+  final msg = '$e'.toLowerCase();
+  if (e is FlutterBluePlusException && e.code == 6) return true;
+  return msg.contains('disconnect') ||
+      msg.contains('not connected') ||
+      msg.contains('gone');
+}
+
 bool _isRetryableGattWrite(Object e) {
   if (e is FlutterBluePlusException) {
     // 14: Linux ATT retry
@@ -45,6 +53,7 @@ class BleCzechmateClient {
   BluetoothDevice? _device;
   BluetoothCharacteristic? _snapChar;
   BluetoothCharacteristic? _cmdChar;
+  BluetoothCharacteristic? _ackChar;
   BluetoothCharacteristic? _networkChar;
   StreamSubscription<List<int>>? _valueSub;
   StreamSubscription<List<int>>? _ackSub;
@@ -65,6 +74,7 @@ class BleCzechmateClient {
     _connSub = null;
     _snapChar = null;
     _cmdChar = null;
+    _ackChar = null;
     _networkChar = null;
     if (_device != null && _device!.isConnected) {
       await _device!.disconnect();
@@ -107,6 +117,7 @@ class BleCzechmateClient {
         if (_uuidMatch(c.uuid, commandAckCharacteristicGuid)) ackChar = c;
       }
     }
+    _ackChar = ackChar;
     if (snapChar == null) {
       await disconnect();
       throw StateError('Missing GATT snapshot characteristic');
@@ -184,17 +195,20 @@ class BleCzechmateClient {
     final services = await d.discoverServices();
     BluetoothCharacteristic? cmdChar;
     BluetoothCharacteristic? netChar;
+    BluetoothCharacteristic? ackChar;
     for (final svc in services) {
       if (!_uuidMatch(svc.uuid, czechmateServiceGuid)) continue;
       for (final c in svc.characteristics) {
         if (_uuidMatch(c.uuid, commandCharacteristicGuid)) cmdChar = c;
         if (_uuidMatch(c.uuid, networkCharacteristicGuid)) netChar = c;
+        if (_uuidMatch(c.uuid, commandAckCharacteristicGuid)) ackChar = c;
       }
     }
     if (cmdChar == null) {
       throw StateError('BLE command characteristic not found');
     }
     _cmdChar = cmdChar;
+    _ackChar = ackChar;
     if (netChar != null) {
       _networkChar = netChar;
     }
@@ -338,10 +352,61 @@ class BleCzechmateClient {
     await _writeCmd({'cmd': 'ota_ble_abort'});
   }
 
+  Future<void> _waitUntilBleConnected(Duration timeout) async {
+    final d = _device;
+    if (d == null) {
+      throw StateError('BLE device not set');
+    }
+    if (d.isConnected) return;
+    await d.connectionState
+        .where((s) => s == BluetoothConnectionState.connected)
+        .first
+        .timeout(timeout);
+  }
+
+  /// Stav pozastaveného / aktivního BLE stream OTA na desce (`ota_ble_status`).
+  Future<OtaBleStatus?> fetchOtaBleStatus() async {
+    await ensureGattReadyForCommands();
+    final ack = _ackChar;
+    if (ack == null) return null;
+    await ack.setNotifyValue(true);
+    final completer = Completer<OtaBleStatus?>();
+    late final StreamSubscription<List<int>> sub;
+    sub = ack.onValueReceived.listen(
+      (raw) {
+        try {
+          final dynamic parsed = jsonDecode(utf8.decode(raw));
+          if (parsed is! Map) return;
+          final map = Map<String, dynamic>.from(parsed);
+          if (map['cmd'] != 'ota_ble_status') return;
+          if (!completer.isCompleted) {
+            completer.complete(OtaBleStatus.fromJson(map));
+          }
+        } catch (_) {}
+      },
+      onError: (_) {
+        if (!completer.isCompleted) completer.complete(null);
+      },
+    );
+    try {
+      await _writeCmd({'cmd': 'ota_ble_status'});
+      return await completer.future.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () => null,
+      );
+    } finally {
+      await sub.cancel();
+    }
+  }
+
   /// Nahraje celý `.bin` přes GATT CMD — bez Wi‑Fi (chunky `OB` + firmware bytes).
+  ///
+  /// Při výpadku Bluetooth deska session pozastaví (až 24 h); po znovupřipojení
+  /// pokračuje ze stejného chunk indexu. [onPhase]: `paused_waiting_reconnect`, `resumed`.
   Future<void> uploadFirmwareBle(
     File bin, {
     void Function(int pct)? onProgress,
+    void Function(String phase)? onPhase,
   }) async {
     final len = await bin.length();
     if (len < 32 * 1024) {
@@ -355,94 +420,129 @@ class BleCzechmateClient {
     try {
       await d.requestMtu(517);
     } catch (_) {}
-    await Future<void>.delayed(const Duration(milliseconds: 80));
+    await Future<void>.delayed(const Duration(milliseconds: 60));
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      await Future<void>.delayed(const Duration(milliseconds: 450));
-      /* Malý zápis JSON na CMD dokončí ATT autorizaci před velkými OB pakety. */
+      await Future<void>.delayed(const Duration(milliseconds: 400));
       try {
         await _writeCmd({'cmd': 'ping'});
-      } catch (_) {
-        /* Retry níže u ota_ble_begin — ping jen „probudí“ SMP když už běží. */
-      }
-      await Future<void>.delayed(const Duration(milliseconds: 320));
+      } catch (_) {}
+      await Future<void>.delayed(const Duration(milliseconds: 280));
     }
     final mtu = d.mtuNow;
-    var payloadMax = (mtu >= 40 ? mtu - 15 : 20).clamp(20, 500);
-    /* iOS: jedna ATT Write hodnota typicky ≤ MTU−3; větší OB pakety bez Prepare Write
-     * často končí na code 8 / 15. Držíme konzervativní strop (viz NimBLE snapshot chunky). */
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      payloadMax = payloadMax.clamp(20, 244);
-    }
+    final int payloadMax = defaultTargetPlatform == TargetPlatform.iOS
+        ? ((mtu >= 40 ? mtu - 15 : 20).clamp(20, 500).clamp(20, 244)).toInt()
+        : ((mtu >= 40 ? mtu - 15 : 20).clamp(20, 500)).toInt();
     final chunkTotal = (len + payloadMax - 1) ~/ payloadMax;
     if (chunkTotal > 65535) {
       throw StateError('Firmware too large for BLE chunk protocol');
     }
 
-    await postOtaBleBegin(len);
+    const resumeTimeout = Duration(hours: 24);
+    var transferBegun = false;
+    final chunkGapMs = defaultTargetPlatform == TargetPlatform.iOS ? 10 : 0;
+
+    Future<void> negotiateMtuLight() async {
+      try {
+        await d.requestMtu(517);
+      } catch (_) {}
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
+      }
+    }
+
     RandomAccessFile? raf;
     try {
       raf = await bin.open();
       var offset = 0;
       var idx = 0;
-      while (offset < len) {
-        final take =
-            payloadMax < len - offset ? payloadMax : len - offset;
-        final chunk = await raf.read(take);
-        if (chunk.length != take) {
-          throw StateError('Unexpected EOF reading firmware');
-        }
-        final pkt = Uint8List(6 + chunk.length);
-        pkt[0] = 0x4f;
-        pkt[1] = 0x42;
-        pkt[2] = idx & 0xff;
-        pkt[3] = (idx >> 8) & 0xff;
-        pkt[4] = chunkTotal & 0xff;
-        pkt[5] = (chunkTotal >> 8) & 0xff;
-        pkt.setRange(6, 6 + chunk.length, chunk);
 
-        for (var attempt = 0; attempt < 12; attempt++) {
-          final wc = _cmdChar;
-          if (wc == null) {
-            throw StateError('BLE cmd characteristic not ready');
+      while (offset < len) {
+        try {
+          if (!transferBegun) {
+            await postOtaBleBegin(len);
+            transferBegun = true;
           }
-          try {
-            await wc.write(pkt, withoutResponse: false);
-            break;
-          } catch (e) {
-            final fbp = e is FlutterBluePlusException ? e : null;
-            if (fbp?.code == 6 && attempt < 11) {
-              try {
-                await ensureGattReadyForCommands();
-              } catch (_) {}
-              await Future<void>.delayed(
-                Duration(milliseconds: 220 + attempt * 90),
-              );
-              continue;
+
+          while (offset < len) {
+            final take =
+                payloadMax < len - offset ? payloadMax : len - offset;
+            final chunk = await raf.read(take);
+            if (chunk.length != take) {
+              throw StateError('Unexpected EOF reading firmware');
             }
-            final slowSmp = fbp != null && (fbp.code == 8 || fbp.code == 15);
-            if (!_isRetryableGattWrite(e) || attempt == 11) rethrow;
-            await Future<void>.delayed(
-              Duration(
-                milliseconds: (slowSmp ? 280 : 60) + attempt * 100,
-              ),
+            final pkt = Uint8List(6 + chunk.length);
+            pkt[0] = 0x4f;
+            pkt[1] = 0x42;
+            pkt[2] = idx & 0xff;
+            pkt[3] = (idx >> 8) & 0xff;
+            pkt[4] = chunkTotal & 0xff;
+            pkt[5] = (chunkTotal >> 8) & 0xff;
+            pkt.setRange(6, 6 + chunk.length, chunk);
+
+            for (var attempt = 0; attempt < 12; attempt++) {
+              final wc = _cmdChar;
+              if (wc == null) {
+                throw StateError('BLE cmd characteristic not ready');
+              }
+              try {
+                await wc.write(pkt, withoutResponse: false);
+                break;
+              } catch (e) {
+                final fbp = e is FlutterBluePlusException ? e : null;
+                if (fbp?.code == 6 && attempt < 11) {
+                  try {
+                    await ensureGattReadyForCommands();
+                  } catch (_) {}
+                  await Future<void>.delayed(
+                    Duration(milliseconds: 200 + attempt * 80),
+                  );
+                  continue;
+                }
+                final slowSmp =
+                    fbp != null && (fbp.code == 8 || fbp.code == 15);
+                if (!_isRetryableGattWrite(e) || attempt == 11) rethrow;
+                await Future<void>.delayed(
+                  Duration(
+                    milliseconds: (slowSmp ? 240 : 40) + attempt * 90,
+                  ),
+                );
+              }
+            }
+
+            offset += take;
+            idx++;
+            onProgress?.call((offset * 100 ~/ len).clamp(0, 99));
+            if (chunkGapMs > 0) {
+              await Future<void>.delayed(Duration(milliseconds: chunkGapMs));
+            }
+          }
+        } catch (e) {
+          if (!transferBegun || !_isBleTransportDropped(e)) {
+            try {
+              await postOtaBleAbort();
+            } catch (_) {}
+            rethrow;
+          }
+          onPhase?.call('paused_waiting_reconnect');
+          await _waitUntilBleConnected(resumeTimeout);
+          await negotiateMtuLight();
+          await ensureGattReadyForCommands();
+          final st = await fetchOtaBleStatus();
+          if (st == null || !st.session || !st.paused) {
+            try {
+              await postOtaBleAbort();
+            } catch (_) {}
+            throw StateError(
+              'BLE OTA: deska nepozastavila session (vypršení 24 h nebo abort).',
             );
           }
+          offset = st.bytes;
+          idx = st.nextChunk;
+          await raf.setPosition(offset);
+          onPhase?.call('resumed');
         }
-
-        offset += take;
-        idx++;
-        onProgress?.call((offset * 100 ~/ len).clamp(0, 99));
-        await Future<void>.delayed(
-          Duration(
-            milliseconds: defaultTargetPlatform == TargetPlatform.iOS ? 22 : 4,
-          ),
-        );
       }
-    } catch (e) {
-      try {
-        await postOtaBleAbort();
-      } catch (_) {}
-      rethrow;
     } finally {
       await raf?.close();
     }
@@ -488,6 +588,39 @@ class BleCzechmateClient {
       return null;
     }
   }
+}
+
+/// Odpověď na `ota_ble_status` (cmd_ack JSON z desky).
+class OtaBleStatus {
+  const OtaBleStatus({
+    required this.session,
+    required this.paused,
+    required this.activeRx,
+    required this.bytes,
+    required this.total,
+    required this.nextChunk,
+    required this.percent,
+  });
+
+  factory OtaBleStatus.fromJson(Map<String, dynamic> m) {
+    return OtaBleStatus(
+      session: m['session'] == true,
+      paused: m['paused'] == true,
+      activeRx: m['active_rx'] == true,
+      bytes: (m['bytes'] as num?)?.toInt() ?? 0,
+      total: (m['total'] as num?)?.toInt() ?? 0,
+      nextChunk: (m['next_chunk'] as num?)?.toInt() ?? 0,
+      percent: (m['percent'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  final bool session;
+  final bool paused;
+  final bool activeRx;
+  final int bytes;
+  final int total;
+  final int nextChunk;
+  final int percent;
 }
 
 class BleNetworkInfo {

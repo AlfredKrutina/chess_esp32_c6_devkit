@@ -3557,6 +3557,88 @@ void led_enhanced_castling_clear(void) {
 }
 
 // ============================================================================
+// OTA PROGRESS LED (HTTPS / HTTP / BLE stream update)
+// ============================================================================
+
+void led_ota_progress_ui(uint8_t progress_percent) {
+  if (!led_initialized || simulation_mode || led_is_booting()) {
+    return;
+  }
+  if (!led_component_enabled) {
+    return;
+  }
+  if (progress_percent > 100) {
+    progress_percent = 100;
+  }
+
+  uint32_t t = xTaskGetTickCount();
+  uint32_t pulse = 96U + (uint32_t)((t * 3U) % 48U);
+
+  int filled = ((int)progress_percent * CHESS_LED_COUNT_BOARD) / 100;
+  if (progress_percent > 0 && filled == 0) {
+    filled = 1;
+  }
+
+  if (filled == 0) {
+    uint32_t phase = (t / 6U) % 14U;
+    if (phase > 7U) {
+      phase = 14U - phase;
+    }
+    int sweep_led = (int)phase;
+    for (int i = 0; i < CHESS_LED_COUNT_BOARD; i++) {
+      if (i == sweep_led) {
+        led_set_pixel_internal((uint8_t)i, (uint8_t)pulse,
+                               (uint8_t)(pulse / 2U), 0);
+      } else if (i < 8) {
+        led_set_pixel_internal((uint8_t)i, 0, 4, 18);
+      } else {
+        led_set_pixel_internal((uint8_t)i, 0, 2, 12);
+      }
+    }
+  } else {
+    int head = filled - 1;
+    uint32_t chase = (uint32_t)((t / 5U) % (uint32_t)filled);
+    for (int i = 0; i < CHESS_LED_COUNT_BOARD; i++) {
+      if (i < filled) {
+        int dist = i - head;
+        if (dist < 0) {
+          dist = -dist;
+        }
+        uint32_t dim =
+            40U + (pulse * (uint32_t)(8 - min(dist, 7))) / 40U;
+        if ((uint32_t)i == chase) {
+          led_set_pixel_internal((uint8_t)i, 255, 230, 80);
+        } else {
+          led_set_pixel_internal(
+              (uint8_t)i, (uint8_t)(dim + 60U), (uint8_t)(dim / 4U), 0);
+        }
+      } else {
+        led_set_pixel_internal((uint8_t)i, 0, 4, 22);
+      }
+    }
+  }
+
+  uint32_t bphase = (t / 12U) % (uint32_t)CHESS_LED_COUNT_BUTTONS;
+  for (int b = 0; b < CHESS_LED_COUNT_BUTTONS; b++) {
+    uint8_t li = led_get_button_led_index((uint8_t)b);
+    if ((uint32_t)b == bphase) {
+      led_set_pixel_internal(li, 0, (uint8_t)pulse, 200);
+    } else {
+      led_set_pixel_internal(li, 0, 12, 40);
+    }
+  }
+
+  led_force_immediate_update();
+}
+
+void led_ota_restore_board_after_update_abort(void) {
+  if (!led_initialized || simulation_mode || led_is_booting()) {
+    return;
+  }
+  led_show_chess_board();
+}
+
+// ============================================================================
 // BOOT ANIMATION LED FUNCTIONS
 // ============================================================================
 

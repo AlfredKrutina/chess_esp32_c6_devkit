@@ -3087,6 +3087,36 @@ abstract class AppLocalizations {
   /// **'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.'**
   String get firmwareSendViaBleBody;
 
+  /// No description provided for @firmwareBleOtaKeepForegroundWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Important: keep this screen open with the phone awake for the fastest transfer. If Bluetooth disconnects, reconnect within 24 hours — the board pauses and the app resumes from the same progress. The app disables auto‑sleep during transfer (iOS may still throttle Bluetooth in background).'**
+  String get firmwareBleOtaKeepForegroundWarning;
+
+  /// No description provided for @firmwareOtaHttpMayLeaveAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'While the board downloads the firmware, you can leave the app — the ESP does the work. The progress bar may not update until you return; the board still reboots when finished.'**
+  String get firmwareOtaHttpMayLeaveAppHint;
+
+  /// No description provided for @firmwareBleOtaReturnedFromBackgroundSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You left the app during Bluetooth firmware transfer — the update may have stalled or failed. If progress stopped, try again and keep CzechMate in the foreground.'**
+  String get firmwareBleOtaReturnedFromBackgroundSnack;
+
+  /// No description provided for @firmwareBleOtaPausedReconnectDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware transfer paused — Bluetooth disconnected. Reconnect to the board within 24 hours; the upload will continue automatically.'**
+  String get firmwareBleOtaPausedReconnectDetail;
+
+  /// No description provided for @firmwareBleOtaResumedTransferDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth reconnected — continuing firmware transfer.'**
+  String get firmwareBleOtaResumedTransferDetail;
+
   /// No description provided for @firmwareBleUploadDoneSnack.
   ///
   /// In en, this message translates to:

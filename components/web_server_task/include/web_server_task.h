@@ -369,6 +369,9 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
  */
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len);
 
+/** True pokud dispatch už odeslal vlastní cmd_ack (např. ota_ble_status). */
+bool web_server_ble_dispatch_custom_ack_was_sent(void);
+
 /**
  * @brief Vytáhne řetězec z pole "cmd" z BLE JSON (pro potvrzovací notify).
  * @return true pokud byl cmd nalezen a zkopírován do cmd_out

@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
@@ -913,6 +914,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> uploadFirmwareOtaBle(
     File binFile, {
     void Function(int pct)? onProgress,
+    void Function(String phase)? onBleOtaPhase,
   }) async {
     if (state.transport != BoardTransport.ble) {
       throw StateError(_strings.errOtaBleTransport);
@@ -920,8 +922,13 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (!state.bleGattConnected) {
       throw StateError(_strings.errOtaBleGatt);
     }
+    await WakelockPlus.enable();
     try {
-      await _ble.uploadFirmwareBle(binFile, onProgress: onProgress);
+      await _ble.uploadFirmwareBle(
+        binFile,
+        onProgress: onProgress,
+        onPhase: onBleOtaPhase,
+      );
     } catch (e) {
       final msg = '$e';
       final lostLink = (e is FlutterBluePlusException && e.code == 6) ||
@@ -930,6 +937,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         state = state.copyWith(bleGattConnected: false);
       }
       rethrow;
+    } finally {
+      await WakelockPlus.disable();
     }
   }
 

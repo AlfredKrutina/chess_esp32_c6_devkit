@@ -415,6 +415,19 @@ void led_boot_animation_step(uint8_t progress_percent);
  */
 void led_boot_animation_fade_out(void);
 
+/**
+ * @brief Zobrazení průběhu OTA na LED (deska + tlačítka).
+ *
+ * Volat z libovolného tasku; neblokuje. Doporučené omezení frekvence (~200 ms)
+ * volá ota_update (throttling).
+ *
+ * @param progress_percent 0–100; při 0 bez známého pokroku zobrazí „neurčitý“ režim.
+ */
+void led_ota_progress_ui(uint8_t progress_percent);
+
+/** Obnovit šachovnici po zrušení / chybě OTA (např. BLE abort). */
+void led_ota_restore_board_after_update_abort(void);
+
 #ifdef __cplusplus
 }
 #endif

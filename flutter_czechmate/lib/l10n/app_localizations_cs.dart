@@ -1681,6 +1681,26 @@ class AppLocalizationsCs extends AppLocalizations {
       'Celý obraz firmwaru se přenese jen přes Bluetooth (nepotřebuješ hotspot desky ani STA). Drž telefon blízko desky, dokud spojení neskončí — deska se restartuje.';
 
   @override
+  String get firmwareBleOtaKeepForegroundWarning =>
+      'Důležité: nech obrazovku zapnutou kvůli rychlosti přenosu. Když spadne Bluetooth, znovu připoj do 24 h — deska přenos pozastaví a aplikace pokračuje od stejného místa. Aplikace na čas vypne uspávání displeje (iOS může Bluetooth na pozadí omezit).';
+
+  @override
+  String get firmwareOtaHttpMayLeaveAppHint =>
+      'Když už deska firmware stahuje, aplikaci můžeš minimalizovat — stahuje ESP. Ukazatel průběhu se nemusí obnovovat, dokud se nevrátíš; deska se po dokončení stejně restartuje.';
+
+  @override
+  String get firmwareBleOtaReturnedFromBackgroundSnack =>
+      'Během přenosu firmwaru přes Bluetooth jsi aplikaci opustil — aktualizace mohla zamrznout nebo selhat. Pokud se průběh zastavil, zkus to znovu a nech CzechMate popředí.';
+
+  @override
+  String get firmwareBleOtaPausedReconnectDetail =>
+      'Přenos firmwaru pozastaven — spadlo Bluetooth. Znovu připoj telefon k desce do 24 h; nahrávání pak pokračuje samo.';
+
+  @override
+  String get firmwareBleOtaResumedTransferDetail =>
+      'Bluetooth znovu spojen — pokračuji v přenosu firmwaru.';
+
+  @override
   String get firmwareBleUploadDoneSnack =>
       'Odeslání přes Bluetooth dokončeno — deska se může restartovat.';
 

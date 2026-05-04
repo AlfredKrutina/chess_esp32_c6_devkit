@@ -32,6 +32,7 @@ idf_component_register(
         game_task
         game_hooks
         ble_task
+        led_task
         mdns
         esp_https_ota
         app_update

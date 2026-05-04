@@ -2745,7 +2745,14 @@ static esp_err_t factory_reset_schedule(void) {
   return ESP_OK;
 }
 
+static bool s_ble_dispatch_custom_ack_sent;
+
+bool web_server_ble_dispatch_custom_ack_was_sent(void) {
+  return s_ble_dispatch_custom_ack_sent;
+}
+
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
+  s_ble_dispatch_custom_ack_sent = false;
   if (json == NULL || json_len == 0) {
     return ESP_ERR_INVALID_ARG;
   }
@@ -2813,6 +2820,17 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     }
     ESP_LOGW(TAG, "BLE ota_ble_abort: %s", esp_err_to_name(e));
     return e;
+  }
+  if (strcmp(cmd, "ota_ble_status") == 0) {
+    char status_ack[400];
+    esp_err_t er =
+        ota_update_ble_build_status_ack_json(status_ack, sizeof(status_ack));
+    if (er != ESP_OK) {
+      return er;
+    }
+    ble_task_notify_cmd_ack_json(status_ack);
+    s_ble_dispatch_custom_ack_sent = true;
+    return ESP_OK;
   }
   if (strcmp(cmd, "factory_reset") == 0) {
     if (!json_body_has_factory_confirm(buf)) {

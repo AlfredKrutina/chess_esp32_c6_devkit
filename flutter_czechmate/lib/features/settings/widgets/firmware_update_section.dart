@@ -28,7 +28,8 @@ class FirmwareUpdateSection extends ConsumerStatefulWidget {
       _FirmwareUpdateSectionState();
 }
 
-class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
+class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
+    with WidgetsBindingObserver {
   late final TextEditingController _manifestCtrl;
   late final TextEditingController _wifiSsidCtrl;
   late final TextEditingController _wifiPwdCtrl;
@@ -38,6 +39,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
   String? _detail;
   bool _otaBusy = false;
   int _otaPercent = 0;
+  /// BLE stream OTA (`uploadFirmwareOtaBle`) — při přechodu do pozadí upozorníme po návratu.
+  bool _bleStreamOtaWatchBackground = false;
+  bool _pendingBleBackgroundNotice = false;
   File? _cachedOtaFile;
   String? _cachedOtaVersion;
   bool _downloadBusy = false;
@@ -58,6 +62,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _manifestCtrl = TextEditingController();
     _wifiSsidCtrl = TextEditingController();
     _wifiPwdCtrl = TextEditingController();
@@ -87,10 +92,38 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _manifestCtrl.dispose();
     _wifiSsidCtrl.dispose();
     _wifiPwdCtrl.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (!_bleStreamOtaWatchBackground || !_otaBusy) {
+      return;
+    }
+    switch (state) {
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        _pendingBleBackgroundNotice = true;
+        break;
+      case AppLifecycleState.resumed:
+        if (_pendingBleBackgroundNotice && mounted) {
+          _pendingBleBackgroundNotice = false;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(context.l10n.firmwareBleOtaReturnedFromBackgroundSnack),
+            ),
+          );
+        }
+        break;
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   String? _resolvedBoardHttpUrl(BoardSessionState session) {
@@ -217,6 +250,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
                 ],
                 const SizedBox(height: 12),
                 Text(l10n.firmwareHttpsLinkExplainBody),
+                const SizedBox(height: 12),
+                Text(l10n.firmwareOtaHttpMayLeaveAppHint),
               ],
             ),
           ),
@@ -444,7 +479,22 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(context.l10n.firmwareSendViaBle),
-        content: Text(context.l10n.firmwareSendViaBleBody),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(context.l10n.firmwareSendViaBleBody),
+              const SizedBox(height: 12),
+              Text(
+                context.l10n.firmwareBleOtaKeepForegroundWarning,
+                style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+            ],
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -479,6 +529,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
       _otaBusy = true;
       _otaPercent = 0;
       _detail = null;
+      _bleStreamOtaWatchBackground = true;
+      _pendingBleBackgroundNotice = false;
     });
     var bleStreamOtaSucceeded = false;
     try {
@@ -487,6 +539,18 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
             onProgress: (p) {
               if (mounted) {
                 setState(() => _otaPercent = p);
+              }
+            },
+            onBleOtaPhase: (phase) {
+              if (!mounted) return;
+              if (phase == 'paused_waiting_reconnect') {
+                setState(() {
+                  _detail = context.l10n.firmwareBleOtaPausedReconnectDetail;
+                });
+              } else if (phase == 'resumed') {
+                setState(() {
+                  _detail = context.l10n.firmwareBleOtaResumedTransferDetail;
+                });
               }
             },
           );
@@ -506,7 +570,11 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } finally {
       if (mounted) {
-        setState(() => _otaBusy = false);
+        setState(() {
+          _otaBusy = false;
+          _bleStreamOtaWatchBackground = false;
+          _pendingBleBackgroundNotice = false;
+        });
       }
     }
     if (bleStreamOtaSucceeded) {

@@ -43,6 +43,9 @@ void ble_task_format_status(char *buf, size_t cap);
  */
 void ble_task_notify_command_result(esp_err_t err, const char *json_body);
 
+/** Celý JSON pro cmd_ack notify (max ~400 B UTF-8). Použití jen z web_server BLE dispatch. */
+void ble_task_notify_cmd_ack_json(const char *json_utf8);
+
 #ifdef __cplusplus
 }
 #endif

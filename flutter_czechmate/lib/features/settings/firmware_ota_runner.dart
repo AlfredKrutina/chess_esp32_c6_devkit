@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../app_providers.dart';
 import '../../core/utils/board_http_base_url.dart';
@@ -56,15 +57,20 @@ class FirmwareOtaRunner {
       }
     }
 
+    await WakelockPlus.enable();
     try {
-      await ref
-          .read(boardSessionNotifierProvider.notifier)
-          .requestFirmwareOta(binUrl, httpBoardBaseUrl: baseUrl);
-    } catch (e) {
-      return '$e';
-    }
+      try {
+        await ref
+            .read(boardSessionNotifierProvider.notifier)
+            .requestFirmwareOta(binUrl, httpBoardBaseUrl: baseUrl);
+      } catch (e) {
+        return '$e';
+      }
 
-    return _pollOta(ref, baseUrl, onProgress);
+      return await _pollOta(ref, baseUrl, onProgress);
+    } finally {
+      await WakelockPlus.disable();
+    }
   }
 
   static Future<String?> _pollOta(

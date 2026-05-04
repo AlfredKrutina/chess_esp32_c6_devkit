@@ -111,6 +111,30 @@ static void ble_sanitize_cmd_token(const char *src, char *dst, size_t dst_cap) {
   dst[j] = '\0';
 }
 
+void ble_task_notify_cmd_ack_json(const char *json_utf8) {
+  if (json_utf8 == NULL) {
+    return;
+  }
+  if (g_cmd_ack_val_handle == 0 ||
+      s_conn_handle == BLE_HS_CONN_HANDLE_NONE || !s_cmd_ack_notify_enabled) {
+    ESP_LOGD(TAG, "cmd_ack_json skipped (no conn/sub)");
+    return;
+  }
+  size_t len = strlen(json_utf8);
+  if (len > 400) {
+    len = 400;
+  }
+  struct os_mbuf *om = ble_hs_mbuf_from_flat(json_utf8, (uint16_t)len);
+  if (om == NULL) {
+    ESP_LOGW(TAG, "cmd_ack_json: mbuf alloc failed");
+    return;
+  }
+  int rc = ble_gatts_notify_custom(s_conn_handle, g_cmd_ack_val_handle, om);
+  if (rc != 0) {
+    ESP_LOGW(TAG, "cmd_ack_json: notify_custom rc=%d", rc);
+  }
+}
+
 void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
   char cmd_safe[48] = {0};
   if (json_body != NULL) {
@@ -310,7 +334,9 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       s_ble_cmd_copy[om_len] = '\0';
       esp_err_t derr =
           web_server_ble_command_dispatch(s_ble_cmd_copy, om_len);
-      ble_task_notify_command_result(derr, s_ble_cmd_copy);
+      if (!web_server_ble_dispatch_custom_ack_was_sent()) {
+        ble_task_notify_command_result(derr, s_ble_cmd_copy);
+      }
       if (derr == ESP_OK || derr == ESP_ERR_NOT_SUPPORTED) {
         ESP_LOGD(TAG,
                  "[STAGING] CMD dispatch %s (%u B) — ATT write response OK",
@@ -760,7 +786,13 @@ void ble_task_push_network_info(void) {
 #define SNAPSHOT_NOTIFY_CHUNK_CAP 508
 
 bool ble_task_should_push_snapshot(void) {
-  return s_conn_handle != BLE_HS_CONN_HANDLE_NONE && s_snap_notify_enabled;
+  if (s_conn_handle == BLE_HS_CONN_HANDLE_NONE || !s_snap_notify_enabled) {
+    return false;
+  }
+  if (ota_update_ble_is_rx_active()) {
+    return false;
+  }
+  return true;
 }
 
 void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
@@ -852,6 +884,8 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
   (void)err;
   (void)json_body;
 }
+
+void ble_task_notify_cmd_ack_json(const char *json_utf8) { (void)json_utf8; }
 
 void ble_task_format_status(char *buf, size_t cap) {
   if (buf && cap) {

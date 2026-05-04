@@ -21,12 +21,42 @@
 #include "esp_log.h"
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
+#include "esp_timer.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 
+#include "led_task.h"
+
 static const char *TAG = "ota_update";
+
+
+static int s_ota_led_last_pct = -1;
+static TickType_t s_ota_led_last_tick;
+
+static void ota_ui_led_reset_throttle(void) {
+  s_ota_led_last_pct = -1;
+  s_ota_led_last_tick = 0;
+}
+
+static void ota_ui_led_pulse(int percent) {
+  TickType_t now = xTaskGetTickCount();
+  bool pct_changed = (percent != s_ota_led_last_pct);
+  if (!pct_changed && (now - s_ota_led_last_tick) < pdMS_TO_TICKS(200)) {
+    return;
+  }
+  s_ota_led_last_pct = percent;
+  s_ota_led_last_tick = now;
+  int p = percent;
+  if (p < 0) {
+    p = 0;
+  }
+  if (p > 100) {
+    p = 100;
+  }
+  led_ota_progress_ui((uint8_t)p);
+}
 
 typedef enum {
   OTA_UI_IDLE = 0,
@@ -43,6 +73,7 @@ static char s_last_err[128];
 typedef enum {
   BLE_OTA_IDLE = 0,
   BLE_OTA_RX,
+  BLE_OTA_SUSPENDED, /**< Link lost; esp_ota handle držíme, návrat do RX při dalším chunku */
 } ble_ota_rx_state_t;
 
 static ble_ota_rx_state_t s_ble_ota_rx = BLE_OTA_IDLE;
@@ -54,8 +85,40 @@ static uint16_t s_ble_ota_next_idx;
 static uint16_t s_ble_ota_chunk_total_expect;
 static bool s_ble_ota_have_chunk_meta;
 
+static esp_timer_handle_t s_ble_ota_suspend_timer;
+
+/** Po 24 h bez spojení zruší session (uvolní semafor + esp_ota_abort). */
+#define BLE_OTA_SUSPEND_TIMEOUT_US (24ULL * 3600ULL * 1000000ULL)
+
 #define BLE_OTA_MAGIC0 ((uint8_t)'O')
 #define BLE_OTA_MAGIC1 ((uint8_t)'B')
+
+static void ble_ota_suspend_timer_cancel(void) {
+  if (s_ble_ota_suspend_timer != NULL) {
+    esp_timer_stop(s_ble_ota_suspend_timer);
+  }
+}
+
+static void ble_ota_suspend_timer_cb(void *arg) {
+  (void)arg;
+  if (s_ble_ota_rx == BLE_OTA_SUSPENDED) {
+    ESP_LOGW(TAG, "BLE OTA: suspend timeout (24h) — abort");
+    (void)ota_update_ble_abort();
+  }
+}
+
+static void ble_ota_suspend_timer_arm(void) {
+  if (s_ble_ota_suspend_timer == NULL) {
+    const esp_timer_create_args_t targs = {.callback = ble_ota_suspend_timer_cb,
+                                           .name = "ble_ota_suspend"};
+    if (esp_timer_create(&targs, &s_ble_ota_suspend_timer) != ESP_OK) {
+      ESP_LOGE(TAG, "BLE OTA: suspend timer create failed");
+      return;
+    }
+  }
+  esp_timer_stop(s_ble_ota_suspend_timer);
+  esp_timer_start_once(s_ble_ota_suspend_timer, BLE_OTA_SUSPEND_TIMEOUT_US);
+}
 
 static esp_err_t ota_ensure_sem_initialized(void) {
   if (s_ota_sem != NULL) {
@@ -70,6 +133,7 @@ static esp_err_t ota_ensure_sem_initialized(void) {
 }
 
 static esp_err_t ble_ota_fail_unlock(const char *reason_tag) {
+  ble_ota_suspend_timer_cancel();
   if (s_ble_ota_handle != 0) {
     esp_ota_abort(s_ble_ota_handle);
     s_ble_ota_handle = 0;
@@ -83,11 +147,13 @@ static esp_err_t ble_ota_fail_unlock(const char *reason_tag) {
   s_state = OTA_UI_ERROR;
   snprintf(s_last_err, sizeof(s_last_err), "%s", reason_tag);
   ESP_LOGE(TAG, "BLE stream OTA aborted: %s", reason_tag);
+  led_ota_restore_board_after_update_abort();
   xSemaphoreGive(s_ota_sem);
   return ESP_FAIL;
 }
 
 static esp_err_t ble_ota_finalize_and_restart(void) {
+  ble_ota_suspend_timer_cancel();
   esp_err_t err = esp_ota_end(s_ble_ota_handle);
   s_ble_ota_handle = 0;
   if (err != ESP_OK) {
@@ -102,6 +168,8 @@ static esp_err_t ble_ota_finalize_and_restart(void) {
   s_ble_ota_have_chunk_meta = false;
   s_percent = 100;
   s_state = OTA_UI_DONE;
+  ota_ui_led_reset_throttle();
+  ota_ui_led_pulse(100);
 #if CHESS_DEBUG_MODE
   ESP_LOGI(TAG, "[STAGING] BLE stream OTA OK, restart");
 #endif
@@ -144,6 +212,8 @@ static bool url_is_http(const char *url) {
 
 static void ota_https_worker_task(void *arg) {
   char *url = (char *)arg;
+  esp_https_ota_handle_t https_ota_handle = NULL;
+
   if (url == NULL) {
     xSemaphoreGive(s_ota_sem);
     vTaskDelete(NULL);
@@ -153,6 +223,8 @@ static void ota_https_worker_task(void *arg) {
   s_last_err[0] = '\0';
   s_state = OTA_UI_DOWNLOADING;
   s_percent = 0;
+  ota_ui_led_reset_throttle();
+  led_ota_progress_ui(0);
 
   esp_http_client_config_t http_cfg = {
       .url = url,
@@ -169,12 +241,52 @@ static void ota_https_worker_task(void *arg) {
   ESP_LOGI(TAG, "[STAGING] OTA start url=%s", url);
 #endif
 
-  esp_err_t err = esp_https_ota(&ota_cfg);
+  esp_err_t err = esp_https_ota_begin(&ota_cfg, &https_ota_handle);
+  if (err != ESP_OK) {
+    snprintf(s_last_err, sizeof(s_last_err), "%s", esp_err_to_name(err));
+    s_state = OTA_UI_ERROR;
+    ESP_LOGE(TAG, "OTA begin failed: %s", esp_err_to_name(err));
+    led_ota_restore_board_after_update_abort();
+    free(url);
+    xSemaphoreGive(s_ota_sem);
+    vTaskDelete(NULL);
+    return;
+  }
+
+  while (1) {
+    err = esp_https_ota_perform(https_ota_handle);
+    if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS) {
+      break;
+    }
+    int img_sz = esp_https_ota_get_image_size(https_ota_handle);
+    int rd = esp_https_ota_get_image_len_read(https_ota_handle);
+    int p = 0;
+    if (img_sz > 0) {
+      p = (int)(((int64_t)rd * 100LL) / (int64_t)img_sz);
+      if (p > 99) {
+        p = 99;
+      }
+    }
+    s_percent = p;
+    ota_ui_led_pulse(p);
+  }
+
+  if (err == ESP_OK) {
+    err = esp_https_ota_finish(https_ota_handle);
+    https_ota_handle = NULL;
+  } else {
+    esp_https_ota_abort(https_ota_handle);
+    https_ota_handle = NULL;
+  }
+
   free(url);
+  url = NULL;
 
   if (err == ESP_OK) {
     s_percent = 100;
     s_state = OTA_UI_DONE;
+    ota_ui_led_reset_throttle();
+    ota_ui_led_pulse(100);
 #if CHESS_DEBUG_MODE
     ESP_LOGI(TAG, "[STAGING] OTA OK, restart");
 #endif
@@ -185,6 +297,7 @@ static void ota_https_worker_task(void *arg) {
   s_state = OTA_UI_ERROR;
   snprintf(s_last_err, sizeof(s_last_err), "%s", esp_err_to_name(err));
   ESP_LOGE(TAG, "OTA failed: %s", esp_err_to_name(err));
+  led_ota_restore_board_after_update_abort();
   xSemaphoreGive(s_ota_sem);
   vTaskDelete(NULL);
 }
@@ -209,6 +322,8 @@ static void ota_http_worker_task(void *arg) {
   s_last_err[0] = '\0';
   s_state = OTA_UI_DOWNLOADING;
   s_percent = 0;
+  ota_ui_led_reset_throttle();
+  led_ota_progress_ui(0);
 
 #if CHESS_DEBUG_MODE
   ESP_LOGI(TAG, "[STAGING] HTTP OTA start url=%s", url);
@@ -278,6 +393,7 @@ static void ota_http_worker_task(void *arg) {
       }
       s_percent = p;
     }
+    ota_ui_led_pulse(s_percent);
   }
 
   err = esp_ota_end(ota_handle);
@@ -302,6 +418,8 @@ static void ota_http_worker_task(void *arg) {
 
   s_percent = 100;
   s_state = OTA_UI_DONE;
+  ota_ui_led_reset_throttle();
+  ota_ui_led_pulse(100);
 #if CHESS_DEBUG_MODE
   ESP_LOGI(TAG, "[STAGING] HTTP OTA OK, restart");
 #endif
@@ -325,6 +443,7 @@ http_fail:
     snprintf(s_last_err, sizeof(s_last_err), "%s", esp_err_to_name(err));
   }
   ESP_LOGE(TAG, "HTTP OTA failed: %s", s_last_err);
+  led_ota_restore_board_after_update_abort();
   xSemaphoreGive(s_ota_sem);
   vTaskDelete(NULL);
 }
@@ -538,7 +657,7 @@ esp_err_t ota_update_ble_begin_from_json(const char *json_buf) {
   if (!ota_partition_layout_ok()) {
     return ESP_ERR_NOT_SUPPORTED;
   }
-  if (s_ble_ota_rx == BLE_OTA_RX) {
+  if (s_ble_ota_rx != BLE_OTA_IDLE) {
     return ESP_ERR_INVALID_STATE;
   }
 
@@ -596,6 +715,8 @@ esp_err_t ota_update_ble_begin_from_json(const char *json_buf) {
   s_ble_ota_rx = BLE_OTA_RX;
   s_state = OTA_UI_DOWNLOADING;
   s_percent = 0;
+  ota_ui_led_reset_throttle();
+  led_ota_progress_ui(0);
 #if CHESS_DEBUG_MODE
   ESP_LOGI(TAG, "[STAGING] BLE stream OTA begin size=%u label=%s", (unsigned)total,
            p->label);
@@ -604,9 +725,10 @@ esp_err_t ota_update_ble_begin_from_json(const char *json_buf) {
 }
 
 esp_err_t ota_update_ble_abort(void) {
-  if (s_ble_ota_rx != BLE_OTA_RX) {
+  if (s_ble_ota_rx != BLE_OTA_RX && s_ble_ota_rx != BLE_OTA_SUSPENDED) {
     return ESP_ERR_INVALID_STATE;
   }
+  ble_ota_suspend_timer_cancel();
   if (s_ble_ota_handle != 0) {
     esp_ota_abort(s_ble_ota_handle);
     s_ble_ota_handle = 0;
@@ -620,6 +742,7 @@ esp_err_t ota_update_ble_abort(void) {
   s_state = OTA_UI_IDLE;
   s_percent = 0;
   s_last_err[0] = '\0';
+  led_ota_restore_board_after_update_abort();
   xSemaphoreGive(s_ota_sem);
   return ESP_OK;
 }
@@ -628,9 +751,48 @@ void ota_update_ble_on_disconnect(void) {
   if (s_ble_ota_rx != BLE_OTA_RX) {
     return;
   }
+  s_ble_ota_rx = BLE_OTA_SUSPENDED;
+  ble_ota_suspend_timer_arm();
   ESP_LOGW(TAG,
-           "BLE disconnected during stream OTA — aborting session (unlock sem)");
-  (void)ota_update_ble_abort();
+           "BLE OTA: disconnected — session paused (same image within 24h)");
+}
+
+bool ota_update_ble_is_rx_active(void) {
+  return (s_ble_ota_rx == BLE_OTA_RX && s_ble_ota_handle != 0);
+}
+
+esp_err_t ota_update_ble_build_status_ack_json(char *buf, size_t cap) {
+  if (buf == NULL || cap < 200) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  bool session = (s_ble_ota_rx != BLE_OTA_IDLE && s_ble_ota_handle != 0);
+  if (!session) {
+    snprintf(buf, cap,
+             "{\"channel\":\"cmd_ack\",\"ok\":true,\"code\":\"ok\","
+             "\"cmd\":\"ota_ble_status\",\"session\":false,"
+             "\"paused\":false,\"active_rx\":false,"
+             "\"bytes\":0,\"total\":0,\"next_chunk\":0,\"percent\":0,\"esp\":0}");
+    return ESP_OK;
+  }
+  bool paused = (s_ble_ota_rx == BLE_OTA_SUSPENDED);
+  bool active_rx = (s_ble_ota_rx == BLE_OTA_RX);
+  int pct = s_percent;
+  if (pct < 0) {
+    pct = 0;
+  }
+  if (pct > 100) {
+    pct = 100;
+  }
+  snprintf(buf, cap,
+           "{\"channel\":\"cmd_ack\",\"ok\":true,\"code\":\"ok\","
+           "\"cmd\":\"ota_ble_status\",\"session\":true,"
+           "\"paused\":%s,\"active_rx\":%s,"
+           "\"bytes\":%u,\"total\":%u,\"next_chunk\":%u,\"percent\":%d,"
+           "\"esp\":0}",
+           paused ? "true" : "false", active_rx ? "true" : "false",
+           (unsigned)s_ble_ota_rcvd, (unsigned)s_ble_ota_total,
+           (unsigned)s_ble_ota_next_idx, pct);
+  return ESP_OK;
 }
 
 esp_err_t ota_update_ble_feed_chunk(const uint8_t *data, size_t len) {
@@ -639,6 +801,10 @@ esp_err_t ota_update_ble_feed_chunk(const uint8_t *data, size_t len) {
   }
   if (data[0] != BLE_OTA_MAGIC0 || data[1] != BLE_OTA_MAGIC1) {
     return ESP_ERR_INVALID_ARG;
+  }
+  if (s_ble_ota_rx == BLE_OTA_SUSPENDED) {
+    s_ble_ota_rx = BLE_OTA_RX;
+    ble_ota_suspend_timer_cancel();
   }
   if (s_ble_ota_rx != BLE_OTA_RX || s_ble_ota_handle == 0) {
     return ESP_ERR_INVALID_STATE;
@@ -686,6 +852,7 @@ esp_err_t ota_update_ble_feed_chunk(const uint8_t *data, size_t len) {
     pcent = 99;
   }
   s_percent = pcent;
+  ota_ui_led_pulse(pcent);
 
   if (s_ble_ota_rcvd == s_ble_ota_total) {
     if (chunk_idx != chunk_total - 1) {

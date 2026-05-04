@@ -42,6 +42,18 @@ void ota_update_ble_on_disconnect(void);
  */
 esp_err_t ota_update_ble_feed_chunk(const uint8_t *data, size_t len);
 
+/**
+ * @brief Probíhá aktivní příjem BLE OTA chunků (ne paused).
+ * Pro potlačení snapshot notify / vedlejší zátěže během přenosu.
+ */
+bool ota_update_ble_is_rx_active(void);
+
+/**
+ * @brief JSON pro cmd_ack notify (≤ ~380 B): channel/cmd_ack + ota_ble_status pole.
+ * @return ESP_OK nebo ESP_ERR_INVALID_STATE při malém bufferu.
+ */
+esp_err_t ota_update_ble_build_status_ack_json(char *buf, size_t cap);
+
 /** Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL. */
 esp_err_t ota_update_try_start_url(const char *url);
 
