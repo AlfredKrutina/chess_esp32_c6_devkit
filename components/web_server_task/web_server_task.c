@@ -911,6 +911,7 @@ static void wifi_select_ap_ssid_by_scan(void) {
 
   /* Rozptyl soubezneho startu vice desek (sniz sanci stejneho volneho slotu). */
   vTaskDelay(pdMS_TO_TICKS(50 + (esp_random() % 450)));
+  (void)web_server_task_wdt_reset_safe();
 
   wifi_scan_config_t scan_cfg = {0};
   scan_cfg.show_hidden = true;
@@ -2463,7 +2464,11 @@ static void snapshot_build_mutex_take(void) {
   if (snapshot_build_mutex == NULL) {
     snapshot_build_mutex = xSemaphoreCreateMutex();
   }
-  (void)xSemaphoreTake(snapshot_build_mutex, portMAX_DELAY);
+  /* portMAX_DELAY zde zablokoval web_server_task na mutexu (HTTP httpd drží build)
+   * → bez esp_task_wdt_reset() TWDT timeout (~10 s). Čekáme po krocích + reset. */
+  while (xSemaphoreTake(snapshot_build_mutex, pdMS_TO_TICKS(400)) != pdTRUE) {
+    (void)web_server_task_wdt_reset_safe();
+  }
 }
 
 static void snapshot_build_mutex_give(void) {
@@ -2479,11 +2484,13 @@ static char s_clock_json_build_scratch[TIMER_HTTP_JSON_MAX];
 static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
                                                size_t *out_len) {
   snapshot_build_mutex_take();
+  (void)web_server_task_wdt_reset_safe();
   esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
   if (ret != ESP_OK) {
     snapshot_build_mutex_give();
     return ret;
   }
+  (void)web_server_task_wdt_reset_safe();
   size_t L = strlen(json_buffer);
   if (L < 4 || json_buffer[0] != '{' || json_buffer[L - 1] != '}') {
     snapshot_build_mutex_give();
@@ -2504,6 +2511,7 @@ static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
     snapshot_build_mutex_give();
     return ret;
   }
+  (void)web_server_task_wdt_reset_safe();
 #ifndef NDEBUG
   ESP_LOGI(TAG,
            "[STAGING] build_snapshot: status raw len=%zu / cap=%zu",
@@ -2527,6 +2535,7 @@ static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
     snapshot_build_mutex_give();
     return ret;
   }
+  (void)web_server_task_wdt_reset_safe();
   n = snprintf(out + pos, cap - pos, ",\"history\":%s", json_buffer);
   if (n < 0 || (size_t)n >= cap - pos) {
     snapshot_build_mutex_give();
@@ -2539,6 +2548,7 @@ static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
     snapshot_build_mutex_give();
     return ret;
   }
+  (void)web_server_task_wdt_reset_safe();
   n = snprintf(out + pos, cap - pos, ",\"captured\":%s", json_buffer);
   if (n < 0 || (size_t)n >= cap - pos) {
     snapshot_build_mutex_give();
@@ -2785,7 +2795,8 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       return e;
     }
     if (e == ESP_ERR_NOT_SUPPORTED) {
-      ESP_LOGW(TAG, "BLE ota_ble_begin: no OTA partitions");
+      ESP_LOGD(TAG,
+               "BLE ota_ble_begin: no OTA slots (factory-only partition table)");
       return e;
     }
     if (e == ESP_ERR_NOT_FOUND) {
@@ -3774,6 +3785,7 @@ static void ws_broadcast_snapshot(void) {
   if (!ws_has_clients()) {
     return;
   }
+  (void)web_server_task_wdt_reset_safe();
   size_t len = 0;
   if (build_snapshot_json(&len) != ESP_OK) {
     ESP_LOGD(TAG, "WS broadcast: build_snapshot_json failed");

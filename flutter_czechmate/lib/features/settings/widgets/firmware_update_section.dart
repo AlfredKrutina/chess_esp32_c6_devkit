@@ -337,7 +337,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
             normalizeBoardHttpBaseUrl('http://${session.bleStaIp!.trim()}');
       }
     }
-    if ((baseUrl == null || baseUrl.isEmpty) && onApSubnet) {
+    /* Na subnetu AP je HTTP API desky vždy na 192.168.4.1:80 — přepsat špatnou URL
+     * ze session/prefs (např. omylem stejný port jako HttpServer telefonu). */
+    if (onApSubnet) {
       baseUrl = normalizeBoardHttpBaseUrl('http://192.168.4.1');
     }
 
@@ -386,6 +388,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection> {
       final err = await FirmwareOtaRunner.execute(
         ref: ref,
         binUrl: binding.otaUrl,
+        boardHttpBaseUrlOverride: baseUrl,
         onProgress: (p) {
           if (mounted) {
             setState(() => _otaPercent = p);

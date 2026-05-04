@@ -1,3 +1,17 @@
+/// ESP výchozí AP má gateway [192.168.4.1] na portu 80.
+/// Do prefs se někdy omylem uloží stejný host s portem z lokálního HTTP serveru telefonu
+/// (např. `:52340`) → `Connection refused` při `POST /api/system/ota`.
+String? normalizeEspApGatewayBaseUrl(String? url) {
+  if (url == null || url.trim().isEmpty) return null;
+  final u = Uri.tryParse(url.trim());
+  if (u == null || u.host.isEmpty) return url.trim();
+  if (u.host == '192.168.4.1' && u.hasPort && u.port != 80) {
+    final sch = u.scheme.isEmpty ? 'http' : u.scheme;
+    return '$sch://${u.host}';
+  }
+  return url.trim();
+}
+
 /// Normalizace základní URL HTTP rozhraní šachovnice (ESP).
 /// Zabraňuje relativním URI bez hostitele (`api/game/snapshot`).
 String? normalizeBoardHttpBaseUrl(String? raw) {
@@ -12,7 +26,7 @@ String? normalizeBoardHttpBaseUrl(String? raw) {
   }
   final parsed = Uri.parse(u);
   if (parsed.host.isEmpty) return null;
-  return u;
+  return normalizeEspApGatewayBaseUrl(u) ?? u;
 }
 
 /// Wi‑Fi transport má přednost; jinak poslední uložená URL (STA IP z předchozí session);

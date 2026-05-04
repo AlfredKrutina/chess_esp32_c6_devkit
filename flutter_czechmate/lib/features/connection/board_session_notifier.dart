@@ -44,6 +44,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Timer? _pollTimer;
   Timer? _mockClockTimer;
   DateTime? _mockLastTickAt;
+  Timer? _bleHandoffTimer;
+  bool _bleHandoffPollInFlight = false;
+  int _bleHandoffPollCount = 0;
   final SnapshotWebSocketClient _ws = SnapshotWebSocketClient();
   final BleCzechmateClient _ble = BleCzechmateClient();
 
@@ -53,9 +56,66 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   @override
   void dispose() {
     _stopMockClock();
+    _stopBleHandoffTimer();
     _stopWifiTransport();
     unawaited(_ble.disconnect());
     super.dispose();
+  }
+
+  void _stopBleHandoffTimer() {
+    _bleHandoffTimer?.cancel();
+    _bleHandoffTimer = null;
+    _bleHandoffPollInFlight = false;
+    _bleHandoffPollCount = 0;
+  }
+
+  /// Telefon má IPv4 na subnetu AP desky (typicky `192.168.4.x` při hotspotu).
+  Future<bool> _phoneIpv4OnBoardApSubnet() async {
+    try {
+      for (final iface in await NetworkInterface.list()) {
+        for (final addr in iface.addresses) {
+          if (addr.type == InternetAddressType.IPv4 &&
+              addr.address.startsWith('192.168.4.')) {
+            return true;
+          }
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  void _startBleHandoffRetry() {
+    _stopBleHandoffTimer();
+    if (_prefs.preferBluetoothOnly || _prefs.connectionMode == 'ble_only') {
+      return;
+    }
+    _bleHandoffPollCount = 0;
+    _bleHandoffTimer =
+        Timer.periodic(const Duration(milliseconds: 2500), (_) {
+      unawaited(_bleHandoffPollTick());
+    });
+  }
+
+  Future<void> _bleHandoffPollTick() async {
+    if (_bleHandoffPollInFlight) return;
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      _stopBleHandoffTimer();
+      return;
+    }
+    _bleHandoffPollCount++;
+    if (_bleHandoffPollCount > 28) {
+      _stopBleHandoffTimer();
+      return;
+    }
+    _bleHandoffPollInFlight = true;
+    try {
+      await _syncBleNetworkMetadata();
+    } finally {
+      _bleHandoffPollInFlight = false;
+    }
+    if (state.transport == BoardTransport.wifi) {
+      _stopBleHandoffTimer();
+    }
   }
 
   Future<void> tryResumeFromPrefs() async {
@@ -122,41 +182,77 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return true;
   }
 
-  /// Uloží jen `http://<sta_ip>` když má deska platnou STA (`online` ve firmware = STA s IP).
-  ///
-  /// `ap_ip` (192.168.4.1) sem neukládáme: telefon na domácí WiFi by pak dostal stejnou URL jako při hotspotu
-  /// a HTTP/WS na 192.168.4.1 timeoutuje. Hotspot řeš výslovně (discovery „Board hotspot“ / ruční URL).
+  /// Uloží `http://<sta_ip>` při online STA, nebo `http://<ap_ip>` jen když je telefon na subnetu AP
+  /// (jinak by domácí Wi‑Fi uložila 192.168.4.1 a HTTP by timeoutovalo).
   Future<void> _persistBoardHttpUrlFromBle(BleNetworkInfo? info) async {
     if (info == null) return;
-    if (info.online != true) return;
-    final sta = info.staIp;
-    if (sta == null || !_looksLikeIPv4(sta)) return;
-    final url = normalizeBoardHttpBaseUrl('http://$sta');
+
+    String? raw;
+    if (info.online == true) {
+      final sta = info.staIp;
+      if (sta != null && _looksLikeIPv4(sta)) {
+        raw = 'http://$sta';
+      }
+    }
+    if (raw == null) {
+      final ap = info.apIp?.trim();
+      if (ap != null &&
+          _looksLikeIPv4(ap) &&
+          await _phoneIpv4OnBoardApSubnet()) {
+        raw = 'http://$ap';
+      }
+    }
+    if (raw == null) return;
+
+    final url = normalizeBoardHttpBaseUrl(raw);
     if (url == null) return;
     final prev = _prefs.lastBoardBaseUrl?.trim();
     if (prev == url) return;
     await _prefs.setLastBoardBaseUrl(url);
     if (AppEnvironment.staging) {
-      debugPrint('[staging] Cached board HTTP URL from BLE (STA online): $url');
+      debugPrint('[staging] Cached board HTTP URL from BLE: $url');
     }
   }
 
-  Future<void> _maybeAutoSwitchBleToWifi(BleNetworkInfo? info) async {
-    final mode = _prefs.connectionMode;
-    if (_prefs.preferBluetoothOnly || mode == 'ble_only') return;
-    final staIp = info?.staIp;
-    if (info == null ||
-        info.online != true ||
-        staIp == null ||
-        !_looksLikeIPv4(staIp)) {
+  Future<void> _tryBleToWifiHandoff(BleNetworkInfo? info) async {
+    if (_prefs.preferBluetoothOnly || _prefs.connectionMode == 'ble_only') {
       return;
     }
-    if (!await _phoneHasWifiInterface()) return;
-    final url = 'http://$staIp';
-    if (AppEnvironment.staging) {
-      debugPrint('[staging] BLE→Wi‑Fi handoff: $url');
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      return;
     }
-    await connectWifi(url, webSocket: _prefs.useWebSocket);
+    if (state.busy) return;
+    if (info == null) return;
+
+    String? rawUrl;
+    if (info.online == true) {
+      final staIp = info.staIp;
+      if (staIp != null && _looksLikeIPv4(staIp)) {
+        if (!await _phoneHasWifiInterface()) return;
+        rawUrl = 'http://$staIp';
+      }
+    }
+    if (rawUrl == null) {
+      final ap = info.apIp?.trim();
+      if (ap != null &&
+          _looksLikeIPv4(ap) &&
+          await _phoneIpv4OnBoardApSubnet()) {
+        rawUrl = 'http://$ap';
+      }
+    }
+    if (rawUrl == null) return;
+
+    final normalized = normalizeBoardHttpBaseUrl(rawUrl);
+    if (normalized == null) return;
+    if (state.transport == BoardTransport.wifi &&
+        state.wifiBaseUrl == normalized) {
+      return;
+    }
+
+    if (AppEnvironment.staging) {
+      debugPrint('[staging] BLE→Wi‑Fi handoff: $normalized');
+    }
+    await connectWifi(normalized, webSocket: _prefs.useWebSocket);
   }
 
   void _applyBleNetworkToState(BleNetworkInfo? info) {
@@ -174,17 +270,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     final info = await _ble.fetchNetworkInfo();
     _applyBleNetworkToState(info);
     await _persistBoardHttpUrlFromBle(info);
-    await _maybeAutoSwitchBleToWifi(info);
+    await _tryBleToWifiHandoff(info);
   }
 
   Future<void> _onBleNetworkPayload(List<int> raw) async {
     final info = BleCzechmateClient.tryParseNetworkJson(raw);
     _applyBleNetworkToState(info);
     await _persistBoardHttpUrlFromBle(info);
-    await _maybeAutoSwitchBleToWifi(info);
+    await _tryBleToWifiHandoff(info);
   }
 
   Future<void> connectMock() async {
+    _stopBleHandoffTimer();
     _stopWifiTransport();
     await _ble.disconnect();
     state = state.copyWith(busy: true, transport: BoardTransport.mock);
@@ -214,6 +311,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   Future<void> connectWifi(String baseUrl, {bool? webSocket}) async {
     final useWs = webSocket ?? _prefs.useWebSocket;
+    _stopBleHandoffTimer();
     _stopWifiTransport();
     await _ble.disconnect();
     final normalized = normalizeBoardHttpBaseUrl(baseUrl);
@@ -280,6 +378,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> connectBle(BluetoothDevice device, {String? label}) async {
+    _stopBleHandoffTimer();
     _stopWifiTransport();
     await _ble.disconnect();
     state = state.copyWith(
@@ -307,7 +406,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _prefs.setLastBoardLinkKind('bluetooth');
       state = state.copyWith(busy: false, bleGattConnected: true);
       await _syncBleNetworkMetadata();
+      _startBleHandoffRetry();
     } catch (e) {
+      _stopBleHandoffTimer();
       state = state.copyWith(
         busy: false,
         lastError: e,
@@ -819,8 +920,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await _ble.uploadFirmwareBle(binFile, onProgress: onProgress);
   }
 
-  /// OTA: app forwards an HTTPS `.bin` URL only; the ESP downloads it (STA required).
-  Future<void> requestFirmwareOta(String firmwareUrl) async {
+  /// OTA: HTTPS URL (STA na internetu) nebo `http://…` na LAN (telefon na hotspotu).
+  ///
+  /// [httpBoardBaseUrl] — musí být základ URL desky (`http://192.168.4.1`), stejný jako
+  /// pro `fetchBoardFirmwareInfo`; přepíše `wifiBaseUrl` session, pokud je předán.
+  Future<void> requestFirmwareOta(String firmwareUrl,
+      {String? httpBoardBaseUrl}) async {
     final u = firmwareUrl.trim();
     if (!u.startsWith('https://') && !u.startsWith('http://')) {
       throw StateError(_strings.errOtaHttps);
@@ -828,8 +933,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (state.transport == BoardTransport.mock) {
       throw StateError(_strings.errOtaMock);
     }
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _api.postBoardOtaStart(state.wifiBaseUrl!, url: u);
+    if (state.transport == BoardTransport.wifi) {
+      final boardBase = normalizeBoardHttpBaseUrl(httpBoardBaseUrl ?? state.wifiBaseUrl);
+      if (boardBase == null || boardBase.isEmpty) {
+        throw StateError(_strings.errOtaConnectFirst);
+      }
+      await _api.postBoardOtaStart(boardBase, url: u);
       return;
     }
     if (state.transport == BoardTransport.ble) {

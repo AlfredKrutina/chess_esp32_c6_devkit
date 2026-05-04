@@ -11,19 +11,24 @@ import '../connection/board_session_state.dart';
 /// Start command can be sent over Wi‑Fi HTTP or BLE; progress is read over HTTP.
 class FirmwareOtaRunner {
   /// `null` = success (or connection lost after reboot). Otherwise an error message.
+  ///
+  /// [boardHttpBaseUrlOverride] — např. `http://192.168.4.1` na hotspotu; když chybí,
+  /// použije se session/prefs. Musí sedět s `POST /api/system/ota` (transport Wi‑Fi).
   static Future<String?> execute({
     required WidgetRef ref,
     required String binUrl,
     required void Function(int percent) onProgress,
+    String? boardHttpBaseUrlOverride,
   }) async {
     final session = ref.read(boardSessionNotifierProvider);
     final prefs = ref.read(prefsRepositoryProvider);
-    final baseUrl = resolveBoardHttpBaseUrl(
-      wifiTransportActive: session.transport == BoardTransport.wifi,
-      sessionWifiBaseUrl: session.wifiBaseUrl,
-      prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
-      bleStaIp: session.bleStaIp,
-    );
+    final baseUrl = normalizeBoardHttpBaseUrl(boardHttpBaseUrlOverride) ??
+        resolveBoardHttpBaseUrl(
+          wifiTransportActive: session.transport == BoardTransport.wifi,
+          sessionWifiBaseUrl: session.wifiBaseUrl,
+          prefsLastBoardBaseUrl: prefs.lastBoardBaseUrl,
+          bleStaIp: session.bleStaIp,
+        );
     if (baseUrl == null || baseUrl.isEmpty) {
       return 'Board HTTP URL is missing (AP or STA IP). '
           'Save it under Default board URL — BLE alone is not enough for status.';
@@ -52,7 +57,9 @@ class FirmwareOtaRunner {
     }
 
     try {
-      await ref.read(boardSessionNotifierProvider.notifier).requestFirmwareOta(binUrl);
+      await ref
+          .read(boardSessionNotifierProvider.notifier)
+          .requestFirmwareOta(binUrl, httpBoardBaseUrl: baseUrl);
     } catch (e) {
       return '$e';
     }

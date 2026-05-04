@@ -25,13 +25,17 @@ bool _uuidMatch(Guid a, Guid b) =>
 
 bool _isRetryableGattWrite(Object e) {
   if (e is FlutterBluePlusException) {
-    // 14: Linux ATT retry; 15: iOS CBATTErrorInsufficientEncryption (wait for SMP).
-    if (e.code == 14 || e.code == 15) return true;
+    // 14: Linux ATT retry
+    // 15: iOS CBATTErrorInsufficientEncryption — počkat na SMP
+    // 8:  iOS CBATTErrorInsufficientAuthorization — často dokud nedoběhne šifrování / bonding
+    if (e.code == 8 || e.code == 14 || e.code == 15) return true;
     final d = e.description?.toUpperCase() ?? '';
     return d.contains('UNLIKELY') ||
         d.contains('BUSY') ||
         d.contains('INSUFFICIENT ENCRYPTION') ||
-        d.contains('ENCRYPTION IS INSUFFICIENT');
+        d.contains('ENCRYPTION IS INSUFFICIENT') ||
+        d.contains('AUTHORIZATION IS INSUFFICIENT') ||
+        d.contains('INSUFFICIENT AUTHORIZATION');
   }
   return false;
 }
@@ -166,7 +170,8 @@ class BleCzechmateClient {
     final jsonString = jsonEncode(cmd);
     final bytes = utf8.encode(jsonString);
     Object? lastError;
-    for (var attempt = 0; attempt < 4; attempt++) {
+    final maxAttempts = defaultTargetPlatform == TargetPlatform.iOS ? 8 : 4;
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
       try {
         await _cmdChar!.write(bytes, withoutResponse: false);
         if (attempt > 0 && AppEnvironment.staging) {
@@ -175,8 +180,13 @@ class BleCzechmateClient {
         return;
       } catch (e) {
         lastError = e;
-        if (!_isRetryableGattWrite(e) || attempt == 3) rethrow;
-        await Future<void>.delayed(Duration(milliseconds: 60 + attempt * 100));
+        if (!_isRetryableGattWrite(e) || attempt == maxAttempts - 1) rethrow;
+        /* iOS 8/15: SMP často potřebuje delší prodlevu než malý JSON MOVE. */
+        final baseMs =
+            defaultTargetPlatform == TargetPlatform.iOS ? 180 : 60;
+        await Future<void>.delayed(
+          Duration(milliseconds: baseMs + attempt * 120),
+        );
       }
     }
     throw lastError ?? StateError('BLE write failed');
@@ -303,9 +313,21 @@ class BleCzechmateClient {
     await Future<void>.delayed(const Duration(milliseconds: 80));
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await Future<void>.delayed(const Duration(milliseconds: 450));
+      /* Malý zápis JSON na CMD dokončí ATT autorizaci před velkými OB pakety. */
+      try {
+        await _writeCmd({'cmd': 'ping'});
+      } catch (_) {
+        /* Retry níže u ota_ble_begin — ping jen „probudí“ SMP když už běží. */
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 320));
     }
     final mtu = d.mtuNow;
-    final payloadMax = (mtu >= 40 ? mtu - 15 : 20).clamp(20, 500);
+    var payloadMax = (mtu >= 40 ? mtu - 15 : 20).clamp(20, 500);
+    /* iOS: jedna ATT Write hodnota typicky ≤ MTU−3; větší OB pakety bez Prepare Write
+     * často končí na code 8 / 15. Držíme konzervativní strop (viz NimBLE snapshot chunky). */
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      payloadMax = payloadMax.clamp(20, 244);
+    }
     final chunkTotal = (len + payloadMax - 1) ~/ payloadMax;
     if (chunkTotal > 65535) {
       throw StateError('Firmware too large for BLE chunk protocol');
@@ -333,16 +355,17 @@ class BleCzechmateClient {
         pkt[5] = (chunkTotal >> 8) & 0xff;
         pkt.setRange(6, 6 + chunk.length, chunk);
 
-        for (var attempt = 0; attempt < 8; attempt++) {
+        for (var attempt = 0; attempt < 12; attempt++) {
           try {
             await cmd.write(pkt, withoutResponse: false);
             break;
           } catch (e) {
-            final slowEnc = e is FlutterBluePlusException && e.code == 15;
-            if (!_isRetryableGattWrite(e) || attempt == 7) rethrow;
+            final fbp = e is FlutterBluePlusException ? e : null;
+            final slowSmp = fbp != null && (fbp.code == 8 || fbp.code == 15);
+            if (!_isRetryableGattWrite(e) || attempt == 11) rethrow;
             await Future<void>.delayed(
               Duration(
-                milliseconds: (slowEnc ? 220 : 60) + attempt * 90,
+                milliseconds: (slowSmp ? 280 : 60) + attempt * 100,
               ),
             );
           }
@@ -353,7 +376,7 @@ class BleCzechmateClient {
         onProgress?.call((offset * 100 ~/ len).clamp(0, 99));
         await Future<void>.delayed(
           Duration(
-            milliseconds: defaultTargetPlatform == TargetPlatform.iOS ? 12 : 4,
+            milliseconds: defaultTargetPlatform == TargetPlatform.iOS ? 22 : 4,
           ),
         );
       }
