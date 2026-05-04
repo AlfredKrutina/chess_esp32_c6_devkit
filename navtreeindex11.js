@@ -1,5 +1,10 @@
 var NAVTREEINDEX11 =
 {
+"structcommand__history__t.html#a3f60e1de0c721ff7a5f70b67639f6d8a":[2,0,17,2],
+"structcommand__history__t.html#aaa72fe8503aab11ebc8d7b697865a6ba":[2,0,17,1],
+"structcommand__history__t.html#abec7bb35589530cfa72fb075ecd4f151":[2,0,17,3],
+"structcommand__history__t.html#adb736a407c9d32340a91086b36839dce":[2,0,17,0],
+"structendgame__wave__state__t.html":[2,0,18],
 "structendgame__wave__state__t.html#a17e93286f25caf7283e221863bd27e85":[2,0,18,5],
 "structendgame__wave__state__t.html#a242e59ba36a19f566a9e8aab498406bb":[2,0,18,6],
 "structendgame__wave__state__t.html#a27d3a2de8932f03f1fd0d4e75c3b0858":[2,0,18,9],
@@ -244,10 +249,5 @@ var NAVTREEINDEX11 =
 "structmatrix__event__t.html#a2f644f5eb6efda19f98cf82398d63f1f":[2,0,43,1],
 "structmatrix__event__t.html#a74960ff8c206f3c997800987d93f0ab0":[2,0,43,0],
 "structmatrix__event__t.html#a8a605943957a1d906ebbb3180b630cf7":[2,0,43,3],
-"structmatrix__event__t.html#a995368e0b41ee11bac2b47da35499757":[2,0,43,5],
-"structmatrix__event__t.html#a9dd9d3bb07f54ed5d020900ee4b4b965":[2,0,43,6],
-"structmatrix__event__t.html#ab9ad1ee61d7f911f987a7da34798a2c7":[2,0,43,7],
-"structmatrix__event__t.html#afabbf043d2cf02d953194fc388c00ad4":[2,0,43,4],
-"structmatrix__guard__pause__state__t.html":[2,0,44],
-"structmatrix__guard__pause__state__t.html#a326398a0551e25fd41a5dc551cf3a6cd":[2,0,44,3]
+"structmatrix__event__t.html#a995368e0b41ee11bac2b47da35499757":[2,0,43,5]
 };

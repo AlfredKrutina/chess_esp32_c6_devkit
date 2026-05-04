@@ -1,5 +1,6 @@
 var NAVTREEINDEX7 =
 {
+"ha__light__task_8c.html#aa6f42d47cc62f51438081fb73f4932d8":[3,0,0,9,1,64],
 "ha__light__task_8c.html#aaa50395cd97ca2238e5b5a64d0583d07":[3,0,0,9,1,30],
 "ha__light__task_8c.html#aaa92358f60e1043bee0865be41fb1b2c":[3,0,0,9,1,33],
 "ha__light__task_8c.html#ab17c9e100295b75e1b76d897d08a805b":[3,0,0,9,1,32],
@@ -248,6 +249,5 @@ var NAVTREEINDEX7 =
 "led__state__manager_8h.html#abcecdc9fd4b3c11699c419833d88b78c":[3,0,0,10,0,0,35],
 "led__state__manager_8h.html#abd8b268dd63b496803ea4251cc68d95a":[3,0,0,10,0,0,27],
 "led__state__manager_8h.html#abe61cff6332fff6f402834c6aaf32ca7":[3,0,0,10,0,0,12],
-"led__state__manager_8h.html#acbe73463d88146c9eb0e3bb11aacf5eb":[3,0,0,10,0,0,18],
-"led__state__manager_8h.html#ad384df52caf815b47020c26a0eb98045":[3,0,0,10,0,0,29]
+"led__state__manager_8h.html#acbe73463d88146c9eb0e3bb11aacf5eb":[3,0,0,10,0,0,18]
 };

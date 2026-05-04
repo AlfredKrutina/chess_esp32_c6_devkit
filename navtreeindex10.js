@@ -1,5 +1,10 @@
 var NAVTREEINDEX10 =
 {
+"streaming__output_8c.html":[3,0,0,5,4],
+"streaming__output_8c.html#a0e07c8570098aa75ba738a5f7c361080":[3,0,0,5,4,10],
+"streaming__output_8c.html#a1435caf264b122a887df306e6b1b9d11":[3,0,0,5,4,7],
+"streaming__output_8c.html#a1952cdd16ea597f54d90ff99e53612f6":[3,0,0,5,4,11],
+"streaming__output_8c.html#a230e6d355273f51e78c3de12e22c7736":[3,0,0,5,4,12],
 "streaming__output_8c.html#a251a50a8653a9c02de813b176cfa1718":[3,0,0,5,4,15],
 "streaming__output_8c.html#a2be8864cdaed57fd8249185a4ade538f":[3,0,0,5,4,18],
 "streaming__output_8c.html#a2bf893bcdd558c5d065c5b2dba1b369c":[3,0,0,5,4,4],
@@ -244,10 +249,5 @@ var NAVTREEINDEX10 =
 "structchess__timer__t.html#ac73b4959948d7f77c5cff4d9dcd671ca":[2,0,16,12],
 "structchess__timer__t.html#ac77301ca2e97bf1a65e71ea92937a893":[2,0,16,5],
 "structchess__timer__t.html#ad20283280bacabc85f2662834c6e659b":[2,0,16,11],
-"structcommand__history__t.html":[2,0,17],
-"structcommand__history__t.html#a3f60e1de0c721ff7a5f70b67639f6d8a":[2,0,17,2],
-"structcommand__history__t.html#aaa72fe8503aab11ebc8d7b697865a6ba":[2,0,17,1],
-"structcommand__history__t.html#abec7bb35589530cfa72fb075ecd4f151":[2,0,17,3],
-"structcommand__history__t.html#adb736a407c9d32340a91086b36839dce":[2,0,17,0],
-"structendgame__wave__state__t.html":[2,0,18]
+"structcommand__history__t.html":[2,0,17]
 };

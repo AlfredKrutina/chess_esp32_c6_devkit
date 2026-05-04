@@ -1,5 +1,7 @@
 var stm32__i2c__bl_8h =
 [
+    [ "stm32_i2c_bl_boot_flash_sync_prepare", "stm32__i2c__bl_8h.html#ad75b508362e3fd1653603922ecac72c1", null ],
+    [ "stm32_i2c_bl_boot_flash_sync_wait", "stm32__i2c__bl_8h.html#a5898c2a7fcb83b26a3256be4792b9868", null ],
     [ "stm32_i2c_bl_cmd_get_id", "stm32__i2c__bl_8h.html#a0026bc691ada5dcd2de54640461bd51c", null ],
     [ "stm32_i2c_bl_erase_all", "stm32__i2c__bl_8h.html#a04ab45776e4c80e9e6975033eb57ed82", null ],
     [ "stm32_i2c_bl_flash_binary", "stm32__i2c__bl_8h.html#a66f9abb4c32ec23814cc72ba874612da", null ],

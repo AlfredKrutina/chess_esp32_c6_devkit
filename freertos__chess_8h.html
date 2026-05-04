@@ -100,7 +100,8 @@ $(document).ready(function(){initNavTree('freertos__chess_8h.html',''); initResi
 
 <p>ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.  
 <a href="#details">...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;sdkconfig.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 <code>#include &quot;driver/gpio.h&quot;</code><br />
 <code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
@@ -115,32 +116,34 @@ Graf závislostí na vkládaných souborech pro freertos_chess.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="freertos__chess_8h__incl.png" border="0" usemap="#afreertos__chess_8h" alt=""/></div>
 <map name="afreertos__chess_8h" id="afreertos__chess_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="427,5,556,31"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="263,79,378,104"/>
-<area shape="poly" title=" " alt="" coords="465,33,362,76,360,71,463,28"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="397,5,527,31"/>
+<area shape="rect" title=" " alt="" coords="38,79,134,104"/>
+<area shape="poly" title=" " alt="" coords="402,33,148,81,147,76,401,28"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="310,79,425,104"/>
+<area shape="poly" title=" " alt="" coords="448,33,395,72,392,68,445,29"/>
 <area shape="rect" title=" " alt="" coords="5,152,87,177"/>
-<area shape="poly" title=" " alt="" coords="427,32,328,51,220,81,143,114,79,147,76,143,141,109,218,76,327,46,426,26"/>
+<area shape="poly" title=" " alt="" coords="415,33,336,54,248,81,159,116,84,149,82,144,157,111,246,76,335,49,413,28"/>
 <area shape="rect" title=" " alt="" coords="111,152,261,177"/>
-<area shape="poly" title=" " alt="" coords="427,26,340,43,295,59,253,81,222,109,201,141,196,138,218,106,250,76,293,54,339,38,426,21"/>
+<area shape="poly" title=" " alt="" coords="415,33,354,52,290,81,245,112,208,144,205,140,242,108,287,76,352,47,413,28"/>
 <area shape="rect" title=" " alt="" coords="285,152,415,177"/>
-<area shape="poly" title=" " alt="" coords="482,33,373,144,369,140,478,29"/>
+<area shape="poly" title=" " alt="" coords="398,28,371,34,344,45,320,60,300,80,296,95,300,111,311,127,325,141,322,145,307,130,295,113,290,95,296,77,316,56,341,40,369,29,396,23"/>
 <area shape="rect" title=" " alt="" coords="439,152,522,177"/>
-<area shape="poly" title=" " alt="" coords="493,31,485,138,480,138,488,31"/>
+<area shape="poly" title=" " alt="" coords="466,31,480,138,475,139,461,31"/>
 <area shape="rect" title=" " alt="" coords="547,152,617,177"/>
-<area shape="poly" title=" " alt="" coords="500,30,544,103,568,139,564,142,540,105,496,32"/>
-<area shape="rect" title=" " alt="" coords="554,79,658,104"/>
-<area shape="poly" title=" " alt="" coords="511,28,577,69,574,74,508,33"/>
-<area shape="rect" title=" " alt="" coords="683,79,820,104"/>
-<area shape="poly" title=" " alt="" coords="534,28,697,72,695,78,532,33"/>
-<area shape="rect" title=" " alt="" coords="845,79,962,104"/>
-<area shape="poly" title=" " alt="" coords="557,28,831,75,830,80,556,33"/>
-<area shape="rect" title=" " alt="" coords="986,79,1117,104"/>
-<area shape="poly" title=" " alt="" coords="557,24,973,76,972,81,556,29"/>
-<area shape="poly" title=" " alt="" coords="277,107,101,152,99,147,276,101"/>
-<area shape="poly" title=" " alt="" coords="300,106,221,148,219,143,298,102"/>
-<area shape="poly" title=" " alt="" coords="328,103,342,138,338,140,323,105"/>
-<area shape="poly" title=" " alt="" coords="347,102,443,144,441,149,345,106"/>
-<area shape="poly" title=" " alt="" coords="363,101,534,148,533,153,362,107"/>
+<area shape="poly" title=" " alt="" coords="474,29,566,140,562,143,470,33"/>
+<area shape="rect" title=" " alt="" coords="550,79,654,104"/>
+<area shape="poly" title=" " alt="" coords="486,28,568,70,566,75,483,33"/>
+<area shape="rect" title=" " alt="" coords="679,79,816,104"/>
+<area shape="poly" title=" " alt="" coords="508,28,689,73,687,78,507,33"/>
+<area shape="rect" title=" " alt="" coords="841,79,958,104"/>
+<area shape="poly" title=" " alt="" coords="527,27,828,76,827,81,527,32"/>
+<area shape="rect" title=" " alt="" coords="982,79,1113,104"/>
+<area shape="poly" title=" " alt="" coords="527,24,969,76,968,81,527,29"/>
+<area shape="poly" title=" " alt="" coords="316,107,101,154,100,149,315,101"/>
+<area shape="poly" title=" " alt="" coords="339,107,229,149,227,144,337,102"/>
+<area shape="poly" title=" " alt="" coords="367,105,359,140,353,138,362,104"/>
+<area shape="poly" title=" " alt="" coords="387,102,452,142,449,147,384,106"/>
+<area shape="poly" title=" " alt="" coords="403,101,535,145,533,150,401,107"/>
 </map>
 </div>
 </div>
@@ -371,6 +374,9 @@ Definice maker</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Funkce</h2></td></tr>
+<tr class="memitem:abbbf482ffdb0974bacaae7bd0e06862c" id="r_abbbf482ffdb0974bacaae7bd0e06862c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#abbbf482ffdb0974bacaae7bd0e06862c">chess_gpio_pin_is_stm32_nrst_output</a> (int gpio_num)</td></tr>
+<tr class="memdesc:abbbf482ffdb0974bacaae7bd0e06862c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pin je zároveň výstupem NRST pro stm32_i2c_bootloader — nesmí se konfigurovat jako vstup reset tlačítka ani číst v button_task (jinak falešné stisky během flashování a rozbitý NRST).  <br /></td></tr>
+<tr class="separator:abbbf482ffdb0974bacaae7bd0e06862c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3398aa451de52fedd3ac9e5830fca76" id="r_ae3398aa451de52fedd3ac9e5830fca76"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#ae3398aa451de52fedd3ac9e5830fca76">chess_system_init</a> (void)</td></tr>
 <tr class="memdesc:ae3398aa451de52fedd3ac9e5830fca76"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje sachovy system.  <br /></td></tr>
 <tr class="separator:ae3398aa451de52fedd3ac9e5830fca76"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -590,7 +596,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost animation fronty (5 prvku, snizeno z 8 na 5, jednoduche animace) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00203">203</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00228">228</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -608,7 +614,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Animation tasku (3 - vizualni efekty) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00261">261</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00286">286</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -626,7 +632,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche animace) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00226">226</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00251">251</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -644,7 +650,7 @@ Proměnné</h2></td></tr>
 
 <p>Tlacitko pro promoci na strelce (sdileno s MATRIX_COL_2) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00118">118</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00143">143</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -662,7 +668,7 @@ Proměnné</h2></td></tr>
 
 <p>Tlacitko pro promoci na kone (sdileno s MATRIX_COL_3) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00120">120</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00145">145</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -680,7 +686,7 @@ Proměnné</h2></td></tr>
 
 <p>Tlacitko pro promoci na damu (sdileno s MATRIX_COL_0) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00114">114</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00139">139</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -698,7 +704,7 @@ Proměnné</h2></td></tr>
 
 <p>Button: udalosti z ISR (vzacne). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00188">188</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00213">213</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -716,7 +722,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro reset tlacitko (GPIO15 - vstup s pull-up, strapping pin pro ROM messages, bezpecny pro button) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00109">109</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00110">110</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -734,7 +740,7 @@ Proměnné</h2></td></tr>
 
 <p>Tlacitko pro promoci na vez (sdileno s MATRIX_COL_1) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00116">116</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00141">141</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -752,7 +758,7 @@ Proměnné</h2></td></tr>
 
 <p>Cas skenovani tlacitek v milisekundach (20-25ms) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00148">148</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00173">173</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -770,7 +776,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Button tasku (5 - uzivatelsky vstup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00255">255</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00280">280</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -786,7 +792,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00220">220</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00245">245</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -804,7 +810,7 @@ Proměnné</h2></td></tr>
 
 <p>Datum sestaveni. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00057">57</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00058">58</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -822,7 +828,7 @@ Proměnné</h2></td></tr>
 
 <p>Autor sachoveho systemu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00053">53</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00054">54</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -840,7 +846,7 @@ Proměnné</h2></td></tr>
 
 <p>Nazev sachoveho systemu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00049">49</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00050">50</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -858,7 +864,7 @@ Proměnné</h2></td></tr>
 
 <p>Verze sachoveho systemu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00051">51</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00052">52</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -876,7 +882,7 @@ Proměnné</h2></td></tr>
 
 <p>Kompletni retezec s verzi. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00055">55</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00056">56</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -894,7 +900,7 @@ Proměnné</h2></td></tr>
 
 <p>Game: rychle tahy z webu/matice (24 × <a class="el" href="structchess__move__command__t.html" title="Struktura prikazu pro sachovy tah pres UART.">chess_move_command_t</a>; dříve 50). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00192">192</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00217">217</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -912,7 +918,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Game tasku (4) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00259">259</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00284">284</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -928,7 +934,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00223">223</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00248">248</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -946,7 +952,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita HA Light tasku (3 - komunikace) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00274">274</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00299">299</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -964,7 +970,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku HA Light tasku (8KB) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00247">247</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00272">272</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -982,7 +988,7 @@ Proměnné</h2></td></tr>
 
 <p>Bezpecny timeout pro LED prikazy v milisekundach (500ms misto 10-100ms) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00162">162</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00187">187</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1000,7 +1006,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro WS2812B LED data (GPIO7) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00064">64</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00065">65</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1018,7 +1024,7 @@ Proměnné</h2></td></tr>
 
 <p>Bezpecna mezera mezi LED framy v milisekundach (200ms) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00170">170</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00195">195</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1036,7 +1042,7 @@ Proměnné</h2></td></tr>
 
 <p>Bezpecny interval LED aktualizace v milisekundach (300ms = 3.3Hz pro lidske oko) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00167">167</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00192">192</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1054,7 +1060,7 @@ Proměnné</h2></td></tr>
 
 <p>Bezpecny mutex timeout v FreeRTOS tickach. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00179">179</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00204">204</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1072,7 +1078,7 @@ Proměnné</h2></td></tr>
 
 <p>Timeout pro LED mutex v milisekundach (200ms) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00164">164</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00189">189</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1090,7 +1096,7 @@ Proměnné</h2></td></tr>
 
 <p>Bezpecny reset cas pro WS2812B v mikrosekundach (500μs = 10x vice nez minimum) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00173">173</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00198">198</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1108,7 +1114,7 @@ Proměnné</h2></td></tr>
 
 <p>Bezpecny timeout pro LED operace v FreeRTOS tickach. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00177">177</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00202">202</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1126,7 +1132,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita LED tasku (7 - nejvyssi priorita pro LED timing) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00251">251</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00276">276</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1144,7 +1150,7 @@ Proměnné</h2></td></tr>
 
 <p>LED: WS2812 + animacni logika (merit high-water mark pred snizovanim). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00217">217</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00242">242</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1162,7 +1168,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 0 matice (GPIO0 - vstup s pull-up, bezpecny pin) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00089">89</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00090">90</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1180,7 +1186,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 1 matice (GPIO1 - vstup s pull-up, bezpecny pin) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00091">91</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00092">92</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1198,7 +1204,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 2 matice (GPIO2 - vstup s pull-up, bezpecny pin) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00093">93</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00094">94</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1216,7 +1222,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 3 matice (GPIO3 - vstup s pull-up, bezpecny pin) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00095">95</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00096">96</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1234,7 +1240,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 4 matice (GPIO6 - vstup s pull-up, bezpecny pin) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00097">97</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00098">98</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1252,7 +1258,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 5 matice (GPIO4 - vstup s pull-up, bezpecny pin, zmeneno z GPIO9) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00100">100</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00101">101</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1270,7 +1276,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 6 matice (GPIO16 - vstup s pull-up) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00103">103</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00104">104</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1288,7 +1294,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro sloupec 7 matice (GPIO17 - vstup s pull-up) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00105">105</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00106">106</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1306,7 +1312,7 @@ Proměnné</h2></td></tr>
 
 <p>Matrix: udalosti pri skenovani 8x8 (dostatecna hloubka pro burst). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00186">186</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00211">211</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1324,7 +1330,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 0 matice (GPIO10 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00071">71</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00072">72</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1342,7 +1348,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 1 matice (GPIO11 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00073">73</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00074">74</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1360,7 +1366,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 2 matice (GPIO18 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00075">75</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00076">76</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1378,7 +1384,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 3 matice (GPIO19 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00077">77</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00078">78</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1396,7 +1402,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 4 matice (GPIO20 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00079">79</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00080">80</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1414,7 +1420,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 5 matice (GPIO21 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00081">81</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00082">82</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1432,7 +1438,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 6 matice (GPIO22 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00083">83</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00084">84</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1450,7 +1456,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro radek 7 matice (GPIO23 - vystup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00085">85</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00086">86</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1468,7 +1474,7 @@ Proměnné</h2></td></tr>
 
 <p>Cas skenovani matice v milisekundach (0-20ms) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00146">146</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00171">171</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1486,7 +1492,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Matrix tasku (6 - hardware vstup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00253">253</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00278">278</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1504,7 +1510,7 @@ Proměnné</h2></td></tr>
 
 <p>Matrix: sken + odezvy (<a class="el" href="structgame__response__t.html" title="Struktura game odpovedi pro UART komunikaci.">game_response_t</a>). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00219">219</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00244">244</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1522,7 +1528,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Promotion Button tasku (3 - uzivatelsky vstup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00272">272</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00297">297</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1540,7 +1546,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku Promotion Button tasku (2KB - nezmeneno) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00245">245</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00270">270</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1558,7 +1564,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Reset Button tasku (3 - uzivatelsky vstup) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00270">270</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00295">295</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1576,7 +1582,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku Reset Button tasku (2KB - nezmeneno) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00243">243</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00268">268</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1613,7 +1619,7 @@ Proměnné</h2></td></tr>
 <div class="line">    }                                                                          \</div>
 <div class="line">    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✓ Mutex created: %s&quot;</span>, name);                                \</div>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
-<div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00108">main.c:108</a></div></div>
+<div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00109">main.c:109</a></div></div>
 </div><!-- fragment -->
 <p>Bezpecne vytvoreni mutexu s kontrolou chyb. </p>
 <p>Toto makro vytvori FreeRTOS mutex a automaticky kontroluje uspesnost. Pokud mutex neni vytvoren, loguje chybu a vrati ESP_ERR_NO_MEM.</p>
@@ -1625,7 +1631,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00584">584</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00609">609</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1687,7 +1693,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00565">565</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00590">590</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1705,7 +1711,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost screen saver fronty (3 prvky, nezmeneno, jiz minimalni) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00205">205</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00230">230</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1723,7 +1729,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Screen Saver tasku (2 - pozadi) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00263">263</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00288">288</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1741,7 +1747,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku Screen Saver tasku (2KB, snizeno z 3KB, jednoduche vzory) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00230">230</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00255">255</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1759,7 +1765,7 @@ Proměnné</h2></td></tr>
 
 <p>Pin pro stavovy LED indikator (GPIO5 - bezpecny pin) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00066">66</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00067">67</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1777,7 +1783,7 @@ Proměnné</h2></td></tr>
 
 <p>Interval kontroly zdravi systemu v milisekundach. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00153">153</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00178">178</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1796,7 +1802,7 @@ Proměnné</h2></td></tr>
 <p>Test: uint8 prikazy do test_task (0–5 v test_process_commands). </p>
 <dl class="section note"><dt>Poznámka</dt><dd>LED fronty se nepouzivaji (direct LED); drive byla tato hodnota mylne pojmenovana LED_QUEUE_SIZE. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00198">198</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00223">223</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1814,7 +1820,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Test tasku (1 - pouze pro debug) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00265">265</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00290">290</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1832,7 +1838,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku Test tasku (4KB, zvyseno z 2KB pro prevenci stack overflow) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00234">234</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00259">259</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1850,7 +1856,7 @@ Proměnné</h2></td></tr>
 
 <p>Celkovy cas multiplexing cyklu v milisekundach (snizeno z 30ms) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00151">151</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00176">176</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1868,7 +1874,7 @@ Proměnné</h2></td></tr>
 
 <p>UART vystupni fronta (polozka = sizeof(uart_message_t), <a class="el" href="uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof).">uart_queue_message.h</a>). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00200">200</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00225">225</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1886,7 +1892,7 @@ Proměnné</h2></td></tr>
 
 <p>UART: prikazy/odpovedi (sizeof(game_response_t) ~ 328 B na polozku). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00190">190</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00215">215</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1904,7 +1910,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita UART tasku (3 - komunikace) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00257">257</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00282">282</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1922,7 +1928,7 @@ Proměnné</h2></td></tr>
 
 <p>UART: radka vstupu + <a class="el" href="structgame__response__t.html" title="Struktura game odpovedi pro UART komunikaci.">game_response_t</a> pri forwardu odpovedi. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00222">222</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00247">247</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1940,7 +1946,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost web server fronty (10 prvku, snizeno z 15 na 10, streaming snizuje potreby) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00208">208</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00233">233</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1958,7 +1964,7 @@ Proměnné</h2></td></tr>
 
 <p>Priorita Web Server tasku (3 - komunikace) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00268">268</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00293">293</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -1976,7 +1982,7 @@ Proměnné</h2></td></tr>
 
 <p>Velikost stacku Web Server tasku (20KB, zvyseno pro WiFi/HTTP server stabilitu + HTML handling) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00240">240</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00265">265</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -2013,7 +2019,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00865">865</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00866">866</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2037,7 +2043,7 @@ Proměnné</h2></td></tr>
 <p>Vytvori vsechny potrebne mutexy pro thread-safe pristup k datum.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00755">755</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00756">756</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2061,7 +2067,7 @@ Proměnné</h2></td></tr>
 <p>Vytvori vsechny potrebne fronty pro komunikaci mezi tasky.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00573">573</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00574">574</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2085,7 +2091,7 @@ Proměnné</h2></td></tr>
 <p>Vytvori periodicke timery pro skenovani matice, tlacitek a systemu.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00899">899</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00900">900</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2120,6 +2126,36 @@ Proměnné</h2></td></tr>
 
 </div>
 </div>
+<a id="abbbf482ffdb0974bacaae7bd0e06862c" name="abbbf482ffdb0974bacaae7bd0e06862c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbbf482ffdb0974bacaae7bd0e06862c">&#9670;&#160;</a></span>chess_gpio_pin_is_stm32_nrst_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool chess_gpio_pin_is_stm32_nrst_output </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>gpio_num</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Pin je zároveň výstupem NRST pro stm32_i2c_bootloader — nesmí se konfigurovat jako vstup reset tlačítka ani číst v button_task (jinak falešné stisky během flashování a rozbitý NRST). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8h_source.html#l00118">118</a> v souboru <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+
+</div>
+</div>
 <a id="a41db379171eabe6fccb60019e0e60549" name="a41db379171eabe6fccb60019e0e60549"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a41db379171eabe6fccb60019e0e60549">&#9670;&#160;</a></span>chess_hardware_init()</h2>
 
@@ -2140,7 +2176,7 @@ Proměnné</h2></td></tr>
 <p>Inicializuje GPIO piny, LED pasek a ostatni hardware komponenty.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00516">516</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00517">517</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2187,7 +2223,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01260">1260</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01261">1261</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2241,7 +2277,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01243">1243</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01244">1244</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2270,7 +2306,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01350">1350</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01351">1351</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2294,7 +2330,7 @@ Proměnné</h2></td></tr>
 <p>Inicializuje buffer pool a streaming output pro efektivni vyuziti pameti.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01423">1423</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01424">1424</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2318,7 +2354,7 @@ Proměnné</h2></td></tr>
 <p>Kontroluje zda vsechny tasky bezi spravne a zda nejsou zablokovane.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud vsechny tasky bezi spravne, chybovy kod pri problemu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01155">1155</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01156">1156</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2341,7 +2377,7 @@ Proměnné</h2></td></tr>
 <p>Vypise systemove informace. </p>
 <p>Vypise informace o verzi systemu, konfiguraci GPIO pinu, velikostech front a priority tasku. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01168">1168</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01169">1169</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2365,7 +2401,7 @@ Proměnné</h2></td></tr>
 <p>Spusti periodicke timery vytvorene funkci <a class="el" href="freertos__chess_8h.html#ad4a9b6f60cb5280918a47885121ea229" title="Vytvori vsechny FreeRTOS timery.">chess_create_timers()</a>.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00954">954</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00955">955</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2389,7 +2425,7 @@ Proměnné</h2></td></tr>
 <p>Tato funkce inicializuje cely sachovy system vcetne hardware, front, mutexu a timeru. Vola vsechny potrebne inicializacni funkce.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01085">1085</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01086">1086</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2430,7 +2466,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01219">1219</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01220">1220</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2459,7 +2495,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01206">1206</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01207">1207</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2484,7 +2520,7 @@ Proměnné</h2></td></tr>
 <p>Checks if demo mode is currently active.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if enabled, false otherwise </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00636">636</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00637">637</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2520,7 +2556,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00876">876</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00877">877</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2600,7 +2636,7 @@ Proměnné</h2></td></tr>
 <p>Handle pro Animation task. </p>
 <p>Handle pro Animation task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00293">293</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00294">294</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2730,7 +2766,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Button task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00287">287</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00288">288</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2834,7 +2870,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Game task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00291">291</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00292">292</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2886,7 +2922,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro LED task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00283">283</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00284">284</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3094,7 +3130,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Matrix task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00285">285</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00286">286</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3218,7 +3254,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Promotion Button task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00304">304</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00305">305</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3244,7 +3280,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Reset Button task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00302">302</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00303">303</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3424,7 +3460,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Test task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00295">295</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00296">296</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3477,7 +3513,7 @@ Proměnné</h2></td></tr>
 <p>Mutex pro UART operace (ochrana UART vystupu) </p>
 <p>Mutex pro UART operace (ochrana UART vystupu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00280">280</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00281">281</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3529,7 +3565,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro UART task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00289">289</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00290">290</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3633,7 +3669,7 @@ Proměnné</h2></td></tr>
 
 <p>Handle pro Web Server task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00298">298</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="main_8c_source.html#l00299">299</a> v souboru <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>

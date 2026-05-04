@@ -79,6 +79,7 @@ var freertos__chess_8h =
     [ "chess_create_queues", "freertos__chess_8h.html#a918837616a81eb433243f2c1e109f73a", null ],
     [ "chess_create_timers", "freertos__chess_8h.html#ad4a9b6f60cb5280918a47885121ea229", null ],
     [ "chess_gpio_init", "freertos__chess_8h.html#af8e4ec2ba6554d39c4f7c9574718efdc", null ],
+    [ "chess_gpio_pin_is_stm32_nrst_output", "freertos__chess_8h.html#abbbf482ffdb0974bacaae7bd0e06862c", null ],
     [ "chess_hardware_init", "freertos__chess_8h.html#a41db379171eabe6fccb60019e0e60549", null ],
     [ "chess_led_set_all", "freertos__chess_8h.html#aba042f04f5d5fcb5bfb8f1ea039be359", null ],
     [ "chess_led_set_pixel", "freertos__chess_8h.html#a6f66538255c01c03931e08eac42e6e8f", null ],
