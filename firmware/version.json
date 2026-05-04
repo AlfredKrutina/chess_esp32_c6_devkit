@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.1.0",
   "url": "https://raw.githubusercontent.com/alfredkrutina/chess_esp32_c6_devkit/gh-pages/firmware/esp32_chess_v24.bin",
-  "changelog": "Po flashi má deska 1.0.0 — tento manifest je o krok výš (1.0.1) pro test OTA; další verze navyšuj v mobilu / vlastním JSON."
+  "changelog": "Manifest 1.1.0 vs deska 1.0.0 → update v aplikaci. Po flashi/OTA na 1.1.0 navyš manifest (např. 1.2.0) pro další kolo."
 }
