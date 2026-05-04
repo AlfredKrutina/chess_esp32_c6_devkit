@@ -1,6 +1,6 @@
 <map id="promotion_button_task.h" name="promotion_button_task.h">
 <area shape="rect" id="Node000001" title="Promotion Button Task hlavicka pro ESP32&#45;C6 sachovy projekt." alt="" coords="417,5,603,31"/>
-<area shape="rect" id="Node000002" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="445,79,575,104"/>
+<area shape="rect" id="Node000002" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="445,79,575,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="513,31,513,65,507,65,507,31"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="5,225,87,251"/>
 <area shape="poly" id="edge18_Node000001_Node000005" title=" " alt="" coords="417,23,362,28,302,38,241,55,185,81,144,111,110,147,82,183,61,215,57,212,77,180,106,143,141,107,182,76,240,50,301,33,361,23,417,17"/>

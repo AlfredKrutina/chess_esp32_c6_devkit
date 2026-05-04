@@ -53,22 +53,22 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "animation__task_8c.html",
-"chess__types_8h.html#a24aceb1224555fd605ab85c9b0842357",
-"dir_152d5a1b526a9a9c7cf9ba0ff95f77c6.html",
-"freertos__chess_8h.html#a58d022d18b73ee9efae31b39b6fd4343",
-"game__led__direct_8h.html#aa112414da6cba72225e1b2958c958fa3",
-"game__task_8c.html#a8025d8136c027e3884d5e8cbe8ee147a",
-"game__task_8h.html#a502098cd25ad56400beb2339a1bfb84c",
-"ha__light__task_8c.html#aa6f42d47cc62f51438081fb73f4932d8",
-"led__state__manager_8h.html#ad384df52caf815b47020c26a0eb98045",
-"main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb",
-"streaming__output_8c.html",
-"structcommand__history__t.html#a3f60e1de0c721ff7a5f70b67639f6d8a",
-"structmatrix__event__t.html#a9dd9d3bb07f54ed5d020900ee4b4b965",
-"timer__system_8c.html#ab0399771af7d827987018c7153cd381b",
-"uart__task_8c.html#a91fd98a1d105024cd8e69edeaed85870",
-"unified__animation__manager_8h.html#acaa0b94777258411e3878a2e39e54ff4",
-"web__server__task_8c.html#ad9dabb68e44bc590e97031ece04d02a4"
+"chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045",
+"dir_0d86bd69b7bd52e460c6d68e5d6c8d5e.html",
+"freertos__chess_8h.html#a579e6003d89168493306bca5848f301a",
+"game__led__direct_8h.html#a65d45d8068e75012a3bf91d813a86993",
+"game__task_8c.html#a7fb22aa3cdacc593dccf7d95db908750",
+"game__task_8h.html#a4dda4c9252b0fdb9c9d54ac421c00cb8",
+"ha__light__task_8c.html#a9d84062ea99f6447275f690b28c01ce5",
+"led__state__manager_8h.html#abe61cff6332fff6f402834c6aaf32ca7",
+"main_8c.html#a22d3cef2fa6060633fc71190b5d6df3b",
+"stm32__i2c__bl_8c.html#a27aa1a886b20647cac459b95a4d2e078",
+"structchess__move__t.html#a87e6934d4b28fea1a59c341d6cbe9eb7",
+"structled__pixel__t.html#a45671018a6c9259bb3986ff7fdd75453",
+"timer__system_8c.html#a11ab1bc968801095ba83fad279c4d282",
+"uart__task_8c.html#a7f1538a5485ed6e27c22829f066d3a87",
+"unified__animation__manager_8h.html#a7e703c09ba390bb0306ced9d307690dfa640e0be580822351e16e4cd68c4351ea",
+"web__server__task_8c.html#abe969da6ebebc1b67cb06e9fc8bf3125"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';

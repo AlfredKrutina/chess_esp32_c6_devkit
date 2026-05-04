@@ -193,7 +193,7 @@ FreeRTOS Tasky</h2>
 Komunikace mezi tasky</h2>
 <p>Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komunikace mezi tasky:</p>
 <ul>
-<li><b>FreeRTOS Queues</b> - Pro asynchronní komunikaci mezi tasky (velikosti viz <code>GAME_QUEUE_SIZE</code> atd. v <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.">freertos_chess.h</a></code>)<ul>
+<li><b>FreeRTOS Queues</b> - Pro asynchronní komunikaci mezi tasky (velikosti viz <code>GAME_QUEUE_SIZE</code> atd. v <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v1.1 - Hlavni systemova hlavicka.">freertos_chess.h</a></code>)<ul>
 <li><code>game_command_queue</code> - Příkazy pro <code>game_task</code> (<b>24</b> zpráv typu <code><a class="el" href="structchess__move__command__t.html" title="Struktura prikazu pro sachovy tah pres UART.">chess_move_command_t</a></code>)</li>
 <li><code>button_event_queue</code> - Eventy z tlačítek (5 zpráv)</li>
 <li>LED se ovládají přímými voláními (fronta byla odstraněna pro lepší výkon)</li>
@@ -727,7 +727,7 @@ v2.5.1 / firmware (aktuální stav repa, 2026-04)</h2>
 <ul>
 <li>✅ <b>Flutter klient</b> <code>flutter_czechmate/</code> (BLE, HTTP, WebSocket; iOS Live Activities / Wear OS v portu)</li>
 <li>✅ <b>Vypnutý FreeRTOS <code>animation_task</code></b> — animace přes <code>led_task</code> + <code>unified_animation_manager</code> / <code>game_led_animations</code></li>
-<li>✅ <b>Menší stacky</b> u LED/matrix/game/uart oproti starším README tabulkám — hodnoty z <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka.">freertos_chess.h</a></code></li>
+<li>✅ <b>Menší stacky</b> u LED/matrix/game/uart oproti starším README tabulkám — hodnoty z <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v1.1 - Hlavni systemova hlavicka.">freertos_chess.h</a></code></li>
 <li>✅ MQTT / Home Assistant (<code>ha_light_task</code>, priorita 3, stack 8KB)</li>
 <li>✅ <b>BLE:</b> NimBLE přes <code><a class="el" href="ble__task_8c.html#a673bf35c9275637c2030e5e6676564a8">ble_task_init()</a></code> (host task od ESP-IDF, ne vlastní jméno tasku v tabulce výše)</li>
 </ul>

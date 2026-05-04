@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="Implementace Enhanced Castling Systemu." alt="" coords="603,5,813,31"/>
 <area shape="rect" id="Node000002" href="$enhanced__castling__system_8h.html" title="Enhanced Castling System pro ESP32 Sachovou Sachovnici." alt="" coords="259,79,469,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="653,33,434,78,433,73,652,28"/>
-<area shape="rect" id="Node000006" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="633,152,762,177"/>
+<area shape="rect" id="Node000006" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="633,152,762,177"/>
 <area shape="poly" id="edge28_Node000001_Node000006" title=" " alt="" coords="710,31,702,138,697,138,705,31"/>
 <area shape="rect" id="Node000015" href="$game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="117,225,296,251"/>
 <area shape="poly" id="edge29_Node000001_Node000015" title=" " alt="" coords="603,22,504,26,400,36,308,53,273,66,249,81,227,110,214,145,209,181,208,211,203,211,203,180,209,144,222,107,245,77,271,61,307,48,399,30,504,21,603,17"/>

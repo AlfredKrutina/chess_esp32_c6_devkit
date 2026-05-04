@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="904,5,993,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="932,225,1013,251"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="965,29,1016,77,1043,112,1063,151,1067,165,1063,179,1043,203,1017,221,1014,217,1039,199,1058,176,1061,165,1058,153,1039,115,1012,81,962,33"/>
-<area shape="rect" id="Node000003" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="649,79,779,104"/>
+<area shape="rect" id="Node000003" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="649,79,779,104"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="912,33,766,77,764,72,910,28"/>
 <area shape="rect" id="Node000008" title=" " alt="" coords="497,225,579,251"/>
 <area shape="poly" id="edge19_Node000001_Node000008" title=" " alt="" coords="904,25,698,41,414,69,274,87,152,107,61,130,32,142,15,154,9,165,11,175,22,184,40,193,96,208,169,218,339,230,483,234,483,239,338,236,169,224,94,213,38,198,19,189,6,178,3,165,11,150,29,137,60,125,151,102,273,81,413,63,697,35,903,20"/>

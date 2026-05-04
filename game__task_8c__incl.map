@@ -18,7 +18,7 @@
 <area shape="poly" id="edge41_Node000001_Node000012" title=" " alt="" coords="2586,29,2504,48,2459,62,2416,81,2330,152,2209,255,2206,251,2326,148,2413,76,2457,57,2502,42,2585,24"/>
 <area shape="rect" id="Node000013" href="$button__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Button Task Hlavicka." alt="" coords="2653,86,2816,126"/>
 <area shape="poly" id="edge20_Node000001_Node000013" title=" " alt="" coords="2653,29,2705,75,2701,79,2650,33"/>
-<area shape="rect" id="Node000014" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="2354,181,2483,207"/>
+<area shape="rect" id="Node000014" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="2354,181,2483,207"/>
 <area shape="poly" id="edge63_Node000001_Node000014" title=" " alt="" coords="2586,24,2551,30,2514,40,2478,56,2447,80,2434,100,2426,123,2420,168,2415,167,2421,122,2429,98,2443,77,2475,52,2512,35,2550,24,2585,19"/>
 <area shape="rect" id="Node000017" href="$streaming__output_8h.html" title="ESP32&#45;C6 Chess System &#45; Hlavicka Streaming Output Systemu." alt="" coords="805,255,985,295"/>
 <area shape="poly" id="edge42_Node000001_Node000017" title=" " alt="" coords="2586,22,2215,21,1641,26,1335,33,1045,44,796,60,608,81,554,88,506,91,421,96,384,104,349,119,315,144,281,183,275,197,277,208,288,219,307,229,364,245,440,257,622,269,791,272,791,277,621,275,440,262,363,251,305,234,285,223,273,211,269,196,276,180,311,141,346,114,382,99,420,91,505,85,554,83,608,76,795,54,1045,38,1335,27,1641,21,2215,15,2586,16"/>

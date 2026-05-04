@@ -54,6 +54,8 @@ var led__task_8c =
     [ "led_highlight_possible_moves", "led__task_8c.html#a54ef8b8e4b3a77b63a1968de1f488759", null ],
     [ "led_init_duration_system", "led__task_8c.html#a11714f15d535467c7c6011b5510197f5", null ],
     [ "led_is_booting", "led__task_8c.html#a006a24ec8e7f302c4a6f8481675803d1", null ],
+    [ "led_ota_progress_ui", "led__task_8c.html#afbf4a51f516267053afb50aa2ddbac5a", null ],
+    [ "led_ota_restore_board_after_update_abort", "led__task_8c.html#ae8169ab78113c9acb2a4ba031e1d42c5", null ],
     [ "led_player_change_animation", "led__task_8c.html#a7e000dafeeac5016d70d5d182b89c10f", null ],
     [ "led_preserve_buttons", "led__task_8c.html#a4653a6179cbaf07289307ce6c1871858", null ],
     [ "led_print_changes_only", "led__task_8c.html#a39e8c14550a437ae7b94b56d8583b27a", null ],

@@ -10,6 +10,7 @@ var web__server__task_8h =
     [ "web_lock_load_from_nvs", "web__server__task_8h.html#afd6d2236bd4fcbbe7ccbbb0e7b4a71de", null ],
     [ "web_lock_set", "web__server__task_8h.html#a325753fb6460ffaa94c0c32237c8e7e1", null ],
     [ "web_server_ble_command_dispatch", "web__server__task_8h.html#a6b5c0a5132afd9ba97895efb309daf2e", null ],
+    [ "web_server_ble_dispatch_custom_ack_was_sent", "web__server__task_8h.html#a58d5a2d96673c5a9255d3f2ac489ba91", null ],
     [ "web_server_ble_extract_cmd_for_ack", "web__server__task_8h.html#a0092162fe672360a6a28b554bee0df58", null ],
     [ "web_server_build_game_snapshot_json", "web__server__task_8h.html#af5b5cad95519a4822754d8caed31e3c9", null ],
     [ "web_server_build_game_snapshot_json_shared", "web__server__task_8h.html#a3595c3ff5038a64f10d58b22aa7961ee", null ],

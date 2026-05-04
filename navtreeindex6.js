@@ -1,5 +1,7 @@
 var NAVTREEINDEX6 =
 {
+"game__task_8h.html#a4dda4c9252b0fdb9c9d54ac421c00cb8":[3,0,0,8,0,2,62],
+"game__task_8h.html#a4ec624bee837dfc3ef8429dd6edfc961":[3,0,0,8,0,2,13],
 "game__task_8h.html#a502098cd25ad56400beb2339a1bfb84c":[3,0,0,8,0,2,83],
 "game__task_8h.html#a528221cd8d3c2dd6de0732883230033a":[3,0,0,8,0,2,97],
 "game__task_8h.html#a530c17b05f532aeaaa64d8bdb77ca665":[3,0,0,8,0,2,123],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "ha__light__task_8c.html#a911937abc730a55b7fa782a318b9d302":[3,0,0,9,1,5],
 "ha__light__task_8c.html#a93c1bbd6a8b8933ab773fbb97b35bb1e":[3,0,0,9,1,36],
 "ha__light__task_8c.html#a992c70a16169035bc9e2e8f9953d91ed":[3,0,0,9,1,61],
-"ha__light__task_8c.html#a99e2c17ed7924c49fde1870dca213dc2":[3,0,0,9,1,43],
-"ha__light__task_8c.html#a9d84062ea99f6447275f690b28c01ce5":[3,0,0,9,1,57],
-"ha__light__task_8c.html#aa4ede6db32474aa8aa601b4b1b1a3108":[3,0,0,9,1,41]
+"ha__light__task_8c.html#a99e2c17ed7924c49fde1870dca213dc2":[3,0,0,9,1,43]
 };

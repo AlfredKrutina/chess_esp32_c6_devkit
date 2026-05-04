@@ -134,7 +134,7 @@ Graf závislostí na vkládaných souborech pro led_task.c:</div>
 <area shape="rect" title="LED Task &#45; Ovladani WS2812B LED a animace." alt="" coords="1758,5,1846,31"/>
 <area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="1840,93,1930,119"/>
 <area shape="poly" title=" " alt="" coords="1815,29,1866,81,1862,85,1811,33"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="1284,189,1414,214"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="1284,189,1414,214"/>
 <area shape="poly" title=" " alt="" coords="1758,26,1649,43,1585,59,1523,81,1479,104,1438,131,1373,182,1370,177,1435,126,1477,99,1521,76,1584,54,1648,38,1757,21"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="858,277,973,302"/>
 <area shape="poly" title=" " alt="" coords="1758,26,1610,44,1518,60,1427,81,1286,127,1151,181,1034,233,952,273,950,268,1032,228,1148,176,1284,122,1425,76,1517,54,1609,38,1758,20"/>
@@ -498,6 +498,12 @@ Funkce</h2></td></tr>
 <tr class="memitem:a31b820a4bfe33d0cf54a107c339d6d07" id="r_a31b820a4bfe33d0cf54a107c339d6d07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a31b820a4bfe33d0cf54a107c339d6d07">led_update_button_availability_from_game</a> (void)</td></tr>
 <tr class="memdesc:a31b820a4bfe33d0cf54a107c339d6d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj dostupnost tlacitek podle stavu hry.  <br /></td></tr>
 <tr class="separator:a31b820a4bfe33d0cf54a107c339d6d07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afbf4a51f516267053afb50aa2ddbac5a" id="r_afbf4a51f516267053afb50aa2ddbac5a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#afbf4a51f516267053afb50aa2ddbac5a">led_ota_progress_ui</a> (uint8_t progress_percent)</td></tr>
+<tr class="memdesc:afbf4a51f516267053afb50aa2ddbac5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobrazení průběhu OTA na LED (deska + tlačítka).  <br /></td></tr>
+<tr class="separator:afbf4a51f516267053afb50aa2ddbac5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8169ab78113c9acb2a4ba031e1d42c5" id="r_ae8169ab78113c9acb2a4ba031e1d42c5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#ae8169ab78113c9acb2a4ba031e1d42c5">led_ota_restore_board_after_update_abort</a> (void)</td></tr>
+<tr class="memdesc:ae8169ab78113c9acb2a4ba031e1d42c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnovit šachovnici po zrušení / chybě OTA (např.  <br /></td></tr>
+<tr class="separator:ae8169ab78113c9acb2a4ba031e1d42c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9333c97e3a0d22851f18f91e890e3dc" id="r_ad9333c97e3a0d22851f18f91e890e3dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#ad9333c97e3a0d22851f18f91e890e3dc">led_boot_animation_step</a> (uint8_t progress_percent)</td></tr>
 <tr class="memdesc:ad9333c97e3a0d22851f18f91e890e3dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED boot animation step - rozsviti LED podle progress.  <br /></td></tr>
 <tr class="separator:ad9333c97e3a0d22851f18f91e890e3dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1159,7 +1165,7 @@ KRITICKA PRAVIDLA</h1>
 <p>LED boot animation fade out - postupne ztlumi vsechny LED na 0. </p>
 <p>Postupne ztlumi vsechny board LED z brightness 128 na 0. Pouziva se na konci boot procesu pro plynule ztlumeni. </p><dl class="section note"><dt>Poznámka</dt><dd>Funkce je bezpecna - kontroluje inicializaci a simulation mode </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03607">3607</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03689">3689</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1188,7 +1194,7 @@ KRITICKA PRAVIDLA</h1>
 </dl>
 <p>Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni postupu inicializace systemu. Rozsviti LED svetle zelenou barvou. </p><dl class="section note"><dt>Poznámka</dt><dd>Funkce je bezpecna - kontroluje inicializaci a simulation mode </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03571">3571</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03653">3653</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1920,6 +1926,58 @@ KRITICKA PRAVIDLA</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud probiha boot animace </dd></dl>
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l02447">2447</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afbf4a51f516267053afb50aa2ddbac5a" name="afbf4a51f516267053afb50aa2ddbac5a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afbf4a51f516267053afb50aa2ddbac5a">&#9670;&#160;</a></span>led_ota_progress_ui()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_ota_progress_ui </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>progress_percent</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobrazení průběhu OTA na LED (deska + tlačítka). </p>
+<p>Volat z libovolného tasku; neblokuje. Doporučené omezení frekvence (~200 ms) volá ota_update (throttling).</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">progress_percent</td><td>0–100; při 0 bez známého pokroku zobrazí „neurčitý“ režim. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03563">3563</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae8169ab78113c9acb2a4ba031e1d42c5" name="ae8169ab78113c9acb2a4ba031e1d42c5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8169ab78113c9acb2a4ba031e1d42c5">&#9670;&#160;</a></span>led_ota_restore_board_after_update_abort()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_ota_restore_board_after_update_abort </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obnovit šachovnici po zrušení / chybě OTA (např. </p>
+<p>BLE abort). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="led__task_8c_source.html#l03634">3634</a> v souboru <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>

@@ -1,5 +1,5 @@
 <map id="freertos_chess.h" name="freertos_chess.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="397,5,527,31"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="397,5,527,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="38,79,134,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="402,33,148,81,147,76,401,28"/>
 <area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="310,79,425,104"/>

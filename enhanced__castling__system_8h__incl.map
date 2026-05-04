@@ -6,7 +6,7 @@
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1056,28,1146,47,1182,60,1205,77,1220,102,1223,126,1218,151,1205,179,1186,203,1162,221,1159,216,1183,199,1201,176,1213,149,1218,126,1215,104,1201,80,1179,65,1144,52,1055,33"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="698,225,780,251"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="975,29,1011,56,1048,93,1062,115,1070,136,1070,158,1060,179,1046,187,1022,195,952,210,794,233,793,228,951,205,1021,190,1044,183,1056,176,1065,157,1065,137,1057,117,1044,97,1007,60,972,33"/>
-<area shape="rect" id="Node000005" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Hlavni systemova hlavicka." alt="" coords="469,79,598,104"/>
+<area shape="rect" id="Node000005" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="469,79,598,104"/>
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="889,33,612,80,612,74,888,28"/>
 <area shape="rect" id="Node000014" href="$game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="867,152,1046,177"/>
 <area shape="poly" id="edge21_Node000001_Node000014" title=" " alt="" coords="959,31,959,138,954,138,954,31"/>
