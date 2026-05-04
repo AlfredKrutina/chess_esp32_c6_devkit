@@ -154,13 +154,13 @@ Definice maker</h2></td></tr>
 <tr class="memitem:aa46150276ebae8e1eec4efdc53dffce4" id="r_aa46150276ebae8e1eec4efdc53dffce4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#aa46150276ebae8e1eec4efdc53dffce4">CHESS_SYSTEM_NAME</a>&#160;&#160;&#160;&quot;ESP32-C6 Chess System&quot;</td></tr>
 <tr class="memdesc:aa46150276ebae8e1eec4efdc53dffce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nazev sachoveho systemu.  <br /></td></tr>
 <tr class="separator:aa46150276ebae8e1eec4efdc53dffce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a204a7ee69d817206b7510c6ffc47643a" id="r_a204a7ee69d817206b7510c6ffc47643a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a">CHESS_SYSTEM_VERSION</a>&#160;&#160;&#160;&quot;2.4&quot;</td></tr>
+<tr class="memitem:a204a7ee69d817206b7510c6ffc47643a" id="r_a204a7ee69d817206b7510c6ffc47643a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a">CHESS_SYSTEM_VERSION</a>&#160;&#160;&#160;&quot;2.6&quot;</td></tr>
 <tr class="memdesc:a204a7ee69d817206b7510c6ffc47643a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verze sachoveho systemu.  <br /></td></tr>
 <tr class="separator:a204a7ee69d817206b7510c6ffc47643a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbda35de111776579b8d9abad085db4d" id="r_afbda35de111776579b8d9abad085db4d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#afbda35de111776579b8d9abad085db4d">CHESS_SYSTEM_AUTHOR</a>&#160;&#160;&#160;&quot;Alfred Krutina&quot;</td></tr>
 <tr class="memdesc:afbda35de111776579b8d9abad085db4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Autor sachoveho systemu.  <br /></td></tr>
 <tr class="separator:afbda35de111776579b8d9abad085db4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc0d1902b8ef5d4934f99724427e5bc4" id="r_acc0d1902b8ef5d4934f99724427e5bc4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4">CHESS_VERSION_STRING</a>&#160;&#160;&#160;&quot;ESP32-C6 Chess System v2.4&quot;</td></tr>
+<tr class="memitem:acc0d1902b8ef5d4934f99724427e5bc4" id="r_acc0d1902b8ef5d4934f99724427e5bc4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4">CHESS_VERSION_STRING</a>&#160;&#160;&#160;&quot;ESP32-C6 Chess System v2.6&quot;</td></tr>
 <tr class="memdesc:acc0d1902b8ef5d4934f99724427e5bc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kompletni retezec s verzi.  <br /></td></tr>
 <tr class="separator:acc0d1902b8ef5d4934f99724427e5bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b1a270b4e32e22a214ff3ad8e670ef7" id="r_a8b1a270b4e32e22a214ff3ad8e670ef7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a8b1a270b4e32e22a214ff3ad8e670ef7">CHESS_BUILD_DATE</a>&#160;&#160;&#160;__DATE__</td></tr>
@@ -568,8 +568,8 @@ Proměnné</h2></td></tr>
 <div class="textblock"><p>ESP32-C6 Chess System v2.4 - Hlavni systemova hlavicka. </p>
 <p>Tato hlavicka obsahuje hlavni systemove definice, konstanty a globalni promenne pro FreeRTOS sachovy system.</p>
 <dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
-<dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>2.6 </dd></dl>
+<dl class="section date"><dt>Datum</dt><dd>2026-05-04</dd></dl>
 <p>Tato hlavicka je centralni bod definic pro cely sachovy system. Obsahuje vsechny klicove konstanty, GPIO definice, queue handles, mutex handles, timer handles a systemove funkce.</p>
 <p>Hlavni funkce:</p><ul>
 <li>GPIO pin definice pro ESP32-C6</li>
@@ -857,7 +857,7 @@ Proměnné</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CHESS_SYSTEM_VERSION&#160;&#160;&#160;&quot;2.4&quot;</td>
+          <td class="memname">#define CHESS_SYSTEM_VERSION&#160;&#160;&#160;&quot;2.6&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -875,7 +875,7 @@ Proměnné</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CHESS_VERSION_STRING&#160;&#160;&#160;&quot;ESP32-C6 Chess System v2.4&quot;</td>
+          <td class="memname">#define CHESS_VERSION_STRING&#160;&#160;&#160;&quot;ESP32-C6 Chess System v2.6&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -3617,7 +3617,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro web server prikazy (HTTP requests) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00284">284</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00285">285</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3643,7 +3643,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro web server status (server state) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00283">283</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00284">284</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>

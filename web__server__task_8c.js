@@ -195,6 +195,7 @@ var web__server__task_8c =
     [ "web_server_command_queue", "web__server__task_8c.html#aaed4d7c5bc3e8140853498b965ec94e2", null ],
     [ "web_server_start_time", "web__server__task_8c.html#a78e57b763d02a6d2f0e9e96a9bd4bdc4", null ],
     [ "web_server_status_queue", "web__server__task_8c.html#aa17b405ee779d94d3b6954dd83712591", null ],
+    [ "web_server_task_handle", "web__server__task_8c.html#a36e9302901a63037025cd7970fa8adbe", null ],
     [ "wifi_ap_active", "web__server__task_8c.html#a6fd14c6866c5be5170e78061b5af1cca", null ],
     [ "wifi_ap_ssid_effective", "web__server__task_8c.html#a0f6957e2f742d1c62ad11d7b417a67ce", null ]
 ];

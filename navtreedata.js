@@ -68,7 +68,7 @@ var NAVTREEINDEX =
 "timer__system_8c.html#ab0399771af7d827987018c7153cd381b",
 "uart__task_8c.html#a91fd98a1d105024cd8e69edeaed85870",
 "unified__animation__manager_8h.html#acaa0b94777258411e3878a2e39e54ff4",
-"web__server__task_8c.html#ada7bf27261780a90d167ab1e4d0f5ba7"
+"web__server__task_8c.html#ad9dabb68e44bc590e97031ece04d02a4"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';
