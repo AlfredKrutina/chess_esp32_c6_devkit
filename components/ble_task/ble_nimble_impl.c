@@ -585,6 +585,8 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
   }
 #endif
   case BLE_GAP_EVENT_DISCONNECT:
+    /* Uvolnit probíhající BLE stream OTA — jinak visí s_ble_ota_rx + s_ota_sem. */
+    ota_update_ble_on_disconnect();
     s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
     s_snap_notify_enabled = false;
     s_net_notify_enabled = false;

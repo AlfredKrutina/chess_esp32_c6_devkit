@@ -30,6 +30,13 @@ esp_err_t ota_update_ble_begin_from_json(const char *json_buf);
 esp_err_t ota_update_ble_abort(void);
 
 /**
+ * Zavolat z GAP disconnect (NimBLE).
+ * Po výpadku linku po `ota_ble_begin` jinak zůstane RX stav + držený semafor
+ * a další `ota_ble_begin` končí na ESP_ERR_INVALID_STATE („busy“).
+ */
+void ota_update_ble_on_disconnect(void);
+
+/**
  * BLE CMD write s hlavičkou `OB` + uint16 LE chunk_idx + uint16 LE chunk_total + raw payload.
  * Po posledním bajtu podle `size` z begin provede esp_ota_end a restart.
  */

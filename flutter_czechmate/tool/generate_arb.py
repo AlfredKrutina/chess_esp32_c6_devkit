@@ -196,6 +196,7 @@ ROWS: list[tuple[str, str, str]] = [
   # Board discovery
   ("discoveryTitle", "Find board", "Najít desku"),
   ("discoveryBlePermissionAndroid", "Allow Bluetooth permissions in system settings to scan for BLE boards.", "Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat."),
+  ("discoveryBluetoothNotReady", "Bluetooth is not ready. Turn it on in Settings, wait a few seconds, then tap Find board again.", "Bluetooth není připravené. Zapni ho v nastavení, počkej pár sekund a klepni znovu na Najít desku."),
   ("discoveryBleScanFailed", "Bluetooth scan failed: {error}", "Sken Bluetooth selhal: {error}"),
   ("discoveryIntro", "Tap a board to connect. Bluetooth pairs first; the app then switches to HTTP over Wi‑Fi when it can reach the board (home LAN STA, or the board hotspot while your phone is on the same subnet, usually 192.168.4.x).", "Klepni na desku pro připojení. Nejprve Bluetooth; aplikace pak přejde na HTTP přes Wi‑Fi, jakmile je deska dostupná (STA v domácí síti, nebo hotspot desky, když je telefon ve stejném subnetu, typicky 192.168.4.x)."),
   ("transportDisconnected", "Disconnected", "Odpojeno"),

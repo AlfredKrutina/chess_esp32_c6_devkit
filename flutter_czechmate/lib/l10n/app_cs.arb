@@ -317,6 +317,7 @@
   "telemetryIcloudBody": "Data partie zůstávají na zařízení, dokud je neexportuješ nebo nezapneš synchronizaci jinde.",
   "discoveryTitle": "Najít desku",
   "discoveryBlePermissionAndroid": "Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.",
+  "discoveryBluetoothNotReady": "Bluetooth není připravené. Zapni ho v nastavení, počkej pár sekund a klepni znovu na Najít desku.",
   "discoveryBleScanFailed": "Sken Bluetooth selhal: {error}",
   "@discoveryBleScanFailed": {
     "placeholders": {

@@ -1148,6 +1148,12 @@ abstract class AppLocalizations {
   /// **'Allow Bluetooth permissions in system settings to scan for BLE boards.'**
   String get discoveryBlePermissionAndroid;
 
+  /// No description provided for @discoveryBluetoothNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is not ready. Turn it on in Settings, wait a few seconds, then tap Find board again.'**
+  String get discoveryBluetoothNotReady;
+
   /// No description provided for @discoveryBleScanFailed.
   ///
   /// In en, this message translates to:

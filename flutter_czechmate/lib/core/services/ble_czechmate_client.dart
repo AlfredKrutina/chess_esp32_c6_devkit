@@ -165,6 +165,41 @@ class BleCzechmateClient {
     }
   }
 
+  /// Obnoví GATT po výpadku linku: UI někdy drží `bleGattConnected`, ale
+  /// `device.isConnected` je false → `writeCharacteristic` hlásí fbp-code 6.
+  Future<void> ensureGattReadyForCommands() async {
+    final d = _device;
+    if (d == null) {
+      throw StateError('BLE device not set');
+    }
+    if (!d.isConnected) {
+      await d.connect(timeout: const Duration(seconds: 20));
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        await Future<void>.delayed(const Duration(milliseconds: 650));
+      }
+    }
+    try {
+      await d.requestMtu(517);
+    } catch (_) {}
+    final services = await d.discoverServices();
+    BluetoothCharacteristic? cmdChar;
+    BluetoothCharacteristic? netChar;
+    for (final svc in services) {
+      if (!_uuidMatch(svc.uuid, czechmateServiceGuid)) continue;
+      for (final c in svc.characteristics) {
+        if (_uuidMatch(c.uuid, commandCharacteristicGuid)) cmdChar = c;
+        if (_uuidMatch(c.uuid, networkCharacteristicGuid)) netChar = c;
+      }
+    }
+    if (cmdChar == null) {
+      throw StateError('BLE command characteristic not found');
+    }
+    _cmdChar = cmdChar;
+    if (netChar != null) {
+      _networkChar = netChar;
+    }
+  }
+
   Future<void> _writeCmd(Map<String, dynamic> cmd) async {
     if (_cmdChar == null) throw StateError('Not connected or missing cmdChar');
     final jsonString = jsonEncode(cmd);
@@ -180,6 +215,16 @@ class BleCzechmateClient {
         return;
       } catch (e) {
         lastError = e;
+        final fbp = e is FlutterBluePlusException ? e : null;
+        if (fbp?.code == 6 && attempt < maxAttempts - 1) {
+          try {
+            await ensureGattReadyForCommands();
+          } catch (_) {}
+          await Future<void>.delayed(
+            Duration(milliseconds: 260 + attempt * 130),
+          );
+          continue;
+        }
         if (!_isRetryableGattWrite(e) || attempt == maxAttempts - 1) rethrow;
         /* iOS 8/15: SMP často potřebuje delší prodlevu než malý JSON MOVE. */
         final baseMs =
@@ -302,9 +347,9 @@ class BleCzechmateClient {
     if (len < 32 * 1024) {
       throw StateError('Firmware file too small');
     }
+    await ensureGattReadyForCommands();
     final d = _device;
-    final cmd = _cmdChar;
-    if (cmd == null || d == null || !d.isConnected) {
+    if (d == null || _cmdChar == null) {
       throw StateError('BLE cmd characteristic not ready');
     }
     try {
@@ -356,11 +401,24 @@ class BleCzechmateClient {
         pkt.setRange(6, 6 + chunk.length, chunk);
 
         for (var attempt = 0; attempt < 12; attempt++) {
+          final wc = _cmdChar;
+          if (wc == null) {
+            throw StateError('BLE cmd characteristic not ready');
+          }
           try {
-            await cmd.write(pkt, withoutResponse: false);
+            await wc.write(pkt, withoutResponse: false);
             break;
           } catch (e) {
             final fbp = e is FlutterBluePlusException ? e : null;
+            if (fbp?.code == 6 && attempt < 11) {
+              try {
+                await ensureGattReadyForCommands();
+              } catch (_) {}
+              await Future<void>.delayed(
+                Duration(milliseconds: 220 + attempt * 90),
+              );
+              continue;
+            }
             final slowSmp = fbp != null && (fbp.code == 8 || fbp.code == 15);
             if (!_isRetryableGattWrite(e) || attempt == 11) rethrow;
             await Future<void>.delayed(

@@ -920,7 +920,17 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (!state.bleGattConnected) {
       throw StateError(_strings.errOtaBleGatt);
     }
-    await _ble.uploadFirmwareBle(binFile, onProgress: onProgress);
+    try {
+      await _ble.uploadFirmwareBle(binFile, onProgress: onProgress);
+    } catch (e) {
+      final msg = '$e';
+      final lostLink = (e is FlutterBluePlusException && e.code == 6) ||
+          msg.contains('device is not connected');
+      if (lostLink) {
+        state = state.copyWith(bleGattConnected: false);
+      }
+      rethrow;
+    }
   }
 
   /// OTA: HTTPS URL (STA na internetu) nebo `http://…` na LAN (telefon na hotspotu).

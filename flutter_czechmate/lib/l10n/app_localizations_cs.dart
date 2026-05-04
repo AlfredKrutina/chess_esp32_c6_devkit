@@ -606,6 +606,10 @@ class AppLocalizationsCs extends AppLocalizations {
       'Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.';
 
   @override
+  String get discoveryBluetoothNotReady =>
+      'Bluetooth není připravené. Zapni ho v nastavení, počkej pár sekund a klepni znovu na Najít desku.';
+
+  @override
   String discoveryBleScanFailed(String error) {
     return 'Sken Bluetooth selhal: $error';
   }

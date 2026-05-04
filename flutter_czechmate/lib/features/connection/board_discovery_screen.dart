@@ -75,8 +75,47 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     return ok;
   }
 
+  /// Po startu aplikace často chvíli trvá, než systém hlásí `BluetoothAdapterState.on`.
+  Future<bool> _ensureBluetoothPoweredOn() async {
+    try {
+      final supported = await FlutterBluePlus.isSupported;
+      if (supported == false) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.discoveryBluetoothNotReady)),
+          );
+        }
+        return false;
+      }
+    } catch (_) {}
+
+    if (!mounted) return false;
+    if (FlutterBluePlus.adapterStateNow == BluetoothAdapterState.on) {
+      return true;
+    }
+
+    try {
+      await FlutterBluePlus.adapterState
+          .where((s) => s == BluetoothAdapterState.on)
+          .timeout(const Duration(seconds: 10))
+          .first;
+    } catch (_) {
+      // Timeout nebo stream — uživatel má BT vypnutý / nepřipravené.
+    }
+
+    if (!mounted) return false;
+    if (FlutterBluePlus.adapterStateNow == BluetoothAdapterState.on) {
+      return true;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.discoveryBluetoothNotReady)),
+    );
+    return false;
+  }
+
   Future<void> _findBoardScan() async {
     if (!await _ensureAndroidBleScanPermissions()) return;
+    if (!await _ensureBluetoothPoweredOn()) return;
     await _scanSub?.cancel();
     _scanSub = null;
     _found.clear();
@@ -111,9 +150,16 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
   }
 
   Future<void> _stopBleScan() async {
-    await FlutterBluePlus.stopScan();
+    try {
+      await FlutterBluePlus.stopScan();
+    } catch (_) {
+      // Žádný probíhající scan nebo stack už ukonšuje — ignorovat.
+    }
     await _scanSub?.cancel();
     _scanSub = null;
+    if (mounted) {
+      setState(() => _scanning = false);
+    }
   }
 
   String _sessionStateLabel(BoardSessionState session, AppLocalizations l10n) {
@@ -227,6 +273,12 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
           if (_scanning) ...[
             const SizedBox(height: 8),
             const LinearProgressIndicator(),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => unawaited(_stopBleScan()),
+              icon: const Icon(Icons.stop_circle_outlined),
+              label: Text(l10n.discoveryStopScan),
+            ),
           ],
           const SizedBox(height: 20),
           Text(
@@ -448,7 +500,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                       Row(
                         children: [
                           OutlinedButton(
-                            onPressed: _stopBleScan,
+                            onPressed: () => unawaited(_stopBleScan()),
                             child: Text(l10n.discoveryStopScan),
                           ),
                         ],

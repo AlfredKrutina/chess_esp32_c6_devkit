@@ -619,8 +619,18 @@ esp_err_t ota_update_ble_abort(void) {
   s_ble_ota_total = 0;
   s_state = OTA_UI_IDLE;
   s_percent = 0;
+  s_last_err[0] = '\0';
   xSemaphoreGive(s_ota_sem);
   return ESP_OK;
+}
+
+void ota_update_ble_on_disconnect(void) {
+  if (s_ble_ota_rx != BLE_OTA_RX) {
+    return;
+  }
+  ESP_LOGW(TAG,
+           "BLE disconnected during stream OTA — aborting session (unlock sem)");
+  (void)ota_update_ble_abort();
 }
 
 esp_err_t ota_update_ble_feed_chunk(const uint8_t *data, size_t len) {

@@ -317,6 +317,7 @@
   "telemetryIcloudBody": "Game data stays on device unless you export or enable sync elsewhere.",
   "discoveryTitle": "Find board",
   "discoveryBlePermissionAndroid": "Allow Bluetooth permissions in system settings to scan for BLE boards.",
+  "discoveryBluetoothNotReady": "Bluetooth is not ready. Turn it on in Settings, wait a few seconds, then tap Find board again.",
   "discoveryBleScanFailed": "Bluetooth scan failed: {error}",
   "@discoveryBleScanFailed": {
     "placeholders": {

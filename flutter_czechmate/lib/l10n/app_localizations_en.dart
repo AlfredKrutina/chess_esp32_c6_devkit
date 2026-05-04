@@ -607,6 +607,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow Bluetooth permissions in system settings to scan for BLE boards.';
 
   @override
+  String get discoveryBluetoothNotReady =>
+      'Bluetooth is not ready. Turn it on in Settings, wait a few seconds, then tap Find board again.';
+
+  @override
   String discoveryBleScanFailed(String error) {
     return 'Bluetooth scan failed: $error';
   }
