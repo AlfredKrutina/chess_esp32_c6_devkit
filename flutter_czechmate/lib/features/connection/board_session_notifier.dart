@@ -406,7 +406,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _prefs.setLastBoardLinkKind('bluetooth');
       state = state.copyWith(busy: false, bleGattConnected: true);
       await _syncBleNetworkMetadata();
-      _startBleHandoffRetry();
+      if (state.transport == BoardTransport.ble) {
+        _startBleHandoffRetry();
+      }
     } catch (e) {
       _stopBleHandoffTimer();
       state = state.copyWith(
@@ -436,6 +438,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   void disconnect() {
     _stopMockClock();
+    _stopBleHandoffTimer();
     _stopWifiTransport();
     unawaited(_ble.disconnect());
     _pauseTimerSentForFinishedGame = false;

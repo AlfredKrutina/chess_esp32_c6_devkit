@@ -158,6 +158,8 @@
 
 // Externi deklarace fronty
 extern QueueHandle_t game_command_queue;
+/** Z main.c — porovnání s xTaskGetCurrentTaskHandle() pro TWDT reset jen v této úloze. */
+extern TaskHandle_t web_server_task_handle;
 
 // ============================================================================
 // LOKALNI PROMENNE A KONSTANTY
@@ -170,33 +172,32 @@ static const char *TAG = "WEB_SERVER_TASK";
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
- * ESP_ERR_NOT_FOUND
+ * @brief Reset TWDT jen pokud aktuální úloha je `web_server_task`.
  *
- * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
- * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * `build_snapshot_json` a mutexové čekání se volají i z workerů `httpd` (GET
+ * snapshot) – ty nejsou v TWDT; `esp_task_wdt_reset()` pak vrací ESP_ERR_NOT_FOUND
+ * a komponenta task_wdt spamuje sériovku ERROR řádky.
  *
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
- * (WARNING pouze)
- *
- * @details
- * Funkce je pouzivana pro bezpecny reset watchdog timeru behem web server
- * operaci. Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ * Vrací ESP_OK i při přeskočení (cizí úloha nebo NULL handle).
  */
 static esp_err_t web_server_task_wdt_reset_safe(void) {
-  esp_err_t ret = esp_task_wdt_reset();
+  if (web_server_task_handle == NULL) {
+    return ESP_OK;
+  }
+  if (xTaskGetCurrentTaskHandle() != web_server_task_handle) {
+    return ESP_OK;
+  }
 
+  esp_err_t ret = esp_task_wdt_reset();
   if (ret == ESP_ERR_NOT_FOUND) {
-    // Logovat jako WARNING misto ERROR - task jeste neni registrovany
-    ESP_LOGW(
-        TAG,
-        "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Povazovat za uspech pro nase ucely
-  } else if (ret != ESP_OK) {
+    ESP_LOGW(TAG,
+             "WDT reset: web_server_task not subscribed to TWDT yet (startup)");
+    return ESP_OK;
+  }
+  if (ret != ESP_OK) {
     ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
     return ret;
   }
-
   return ESP_OK;
 }
 

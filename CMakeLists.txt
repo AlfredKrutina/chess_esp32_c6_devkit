@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.16)
 
 # Project configuration
 set(PROJECT_NAME "esp32_chess_v24")
-set(PROJECT_VERSION "2.5.1")
+set(PROJECT_VERSION "2.6.0")
 
 # Include ESP-IDF build system
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
@@ -52,10 +52,10 @@ set(EXTRA_COMPONENT_DIRS
 # Project-wide compile definitions
 add_compile_definitions(
     CHESS_VERSION_MAJOR=2
-    CHESS_VERSION_MINOR=4
+    CHESS_VERSION_MINOR=6
     CHESS_VERSION_PATCH=0
-    CHESS_VERSION_STRING="v2.4.0"
-    CHESS_BUILD_DATE="2025-08-24"
+    CHESS_VERSION_STRING="v2.6.0"
+    CHESS_BUILD_DATE="2026-05-04"
 )
 
 # Compiler flags for optimization and debugging
@@ -75,7 +75,7 @@ endif()
 
 # Print configuration summary
 message(STATUS "========================================")
-message(STATUS "ESP32-C6 Chess System v2.4 Configuration")
+message(STATUS "ESP32-C6 Chess System v2.6 Configuration")
 message(STATUS "========================================")
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Version: ${PROJECT_VERSION}")
@@ -94,7 +94,7 @@ message(STATUS "========================================")
 
 # Custom build targets
 add_custom_target(info
-    COMMAND ${CMAKE_COMMAND} -E echo "ESP32-C6 Chess v2.4 Build Information:"
+    COMMAND ${CMAKE_COMMAND} -E echo "ESP32-C6 Chess v2.6 Build Information:"
     COMMAND ${CMAKE_COMMAND} -E echo "  Project: ${PROJECT_NAME}"
     COMMAND ${CMAKE_COMMAND} -E echo "  Version: ${PROJECT_VERSION}"
     COMMAND ${CMAKE_COMMAND} -E echo "  Build Type: ${CMAKE_BUILD_TYPE}"

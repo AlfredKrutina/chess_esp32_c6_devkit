@@ -6,8 +6,8 @@
  * a globalni promenne pro FreeRTOS sachovy system.
  *
  * @author Alfred Krutina
- * @version 2.4
- * @date 2025-08-24
+ * @version 2.6
+ * @date 2026-05-04
  *
  * @details
  * Tato hlavicka je centralni bod definic pro cely sachovy system.
@@ -49,11 +49,11 @@ extern "C" {
 /** @brief Nazev sachoveho systemu */
 #define CHESS_SYSTEM_NAME "ESP32-C6 Chess System"
 /** @brief Verze sachoveho systemu */
-#define CHESS_SYSTEM_VERSION "2.4"
+#define CHESS_SYSTEM_VERSION "2.6"
 /** @brief Autor sachoveho systemu */
 #define CHESS_SYSTEM_AUTHOR "Alfred Krutina"
 /** @brief Kompletni retezec s verzi */
-#define CHESS_VERSION_STRING "ESP32-C6 Chess System v2.4"
+#define CHESS_VERSION_STRING "ESP32-C6 Chess System v2.6"
 /** @brief Datum sestaveni */
 #define CHESS_BUILD_DATE __DATE__
 

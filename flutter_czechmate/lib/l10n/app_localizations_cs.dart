@@ -612,7 +612,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryIntro =>
-      'Klepni na desku v seznamu. Aplikace se přes Bluetooth spojí a podle nastavení může přejít na Wi‑Fi (STA), pokud je deska v síti dostupná a telefon má zapnuté Wi‑Fi.';
+      'Klepni na desku pro připojení. Nejprve Bluetooth; aplikace pak přejde na HTTP přes Wi‑Fi, jakmile je deska dostupná (STA v domácí síti, nebo hotspot desky, když je telefon ve stejném subnetu, typicky 192.168.4.x).';
 
   @override
   String get transportDisconnected => 'Odpojeno';
