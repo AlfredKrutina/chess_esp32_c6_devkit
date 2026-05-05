@@ -33,6 +33,7 @@ Po změně diagramů ve zdrojích spusť z kořene: `./scripts/render_docs.sh` (
 | [`docs/reference/coordinates_system.md`](reference/coordinates_system.md) | Notace a1–h8 ↔ `row`/`col`, LED indexy |
 | [`docs/reference/WEB_UI_DEPLOY.md`](reference/WEB_UI_DEPLOY.md) | Embed JS do firmware, build, Stockfish nápověda na webu |
 | [`docs/reference/CZECHMATE_INTEGRATION_CHECKLIST.md`](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE, snapshot — checklist pro klienty |
+| [`docs/reference/BLENDER_VIDEO_BRIEF.md`](reference/BLENDER_VIDEO_BRIEF.md) | Brief pro marketingová videa z Blenderu (hero, detail desky, UI mock, volitelný teaser) |
 | [`flutter_czechmate/README.md`](../flutter_czechmate/README.md) | Rychlý start Dart aplikace + odkaz sem |
 | [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona pro lokální backlog diagramů |
 
