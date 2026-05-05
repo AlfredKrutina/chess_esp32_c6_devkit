@@ -1,0 +1,146 @@
+# Android APK + macOS DMG → GitHub Releases (stažení z GitHubu bez App Store).
+#
+# Spuštění:
+#   - Actions → „Flutter app release“ → Run workflow (tag z pubspec: app-<major.minor.patch>)
+#   - nebo git tag app-1.2.3 && git push origin app-1.2.3
+#
+# Poznámky:
+#   - Android release je podepsaný debug klíčem z CI (stažení mimo Obchod Play → povolit „neznámý zdroj“).
+#   - macOS DMG není notářsky podepsaný → při prvním spuštění může být potřeba obejít Gatekeeper (klik pravým → Otevřít).
+
+name: Flutter app release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'app-*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: flutter-app-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.out.outputs.release_tag }}
+      asset_version: ${{ steps.out.outputs.asset_version }}
+      asset_safe: ${{ steps.out.outputs.asset_safe }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: out
+        run: |
+          VER=$(grep '^version:' flutter_czechmate/pubspec.yaml | awk '{print $2}')
+          SAFE=$(echo "$VER" | tr '+' '-')
+          echo "asset_version=$VER" >> "$GITHUB_OUTPUT"
+          echo "asset_safe=$SAFE" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BASE="${VER%%+*}"
+            echo "release_tag=app-$BASE" >> "$GITHUB_OUTPUT"
+          else
+            echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  android:
+    needs: meta
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_czechmate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: >-
+            tools platform-tools
+            platforms;android-35
+            build-tools;35.0.0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter build apk --release
+
+      - name: Přejmenovat APK pro release
+        working-directory: ${{ github.workspace }}
+        run: |
+          cp -f flutter_czechmate/build/app/outputs/flutter-apk/app-release.apk \
+            "czechmate-${{ needs.meta.outputs.asset_safe }}-android.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: czechmate-${{ needs.meta.outputs.asset_safe }}-android.apk
+
+  macos:
+    needs: meta
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: flutter_czechmate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      - name: CocoaPods (macOS)
+        working-directory: flutter_czechmate/macos
+        run: pod install --repo-update
+
+      - run: flutter build macos --release
+
+      - name: Složit DMG
+        working-directory: ${{ github.workspace }}
+        run: |
+          APP="flutter_czechmate/build/macos/Build/Products/Release/czechmate.app"
+          test -d "$APP"
+          DMG="czechmate-${{ needs.meta.outputs.asset_safe }}-macos.dmg"
+          hdiutil create -volname "CzechMate ${{ needs.meta.outputs.asset_version }}" \
+            -srcfolder "$APP" -ov -format UDZO -fs HFS+ "$DMG"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: czechmate-${{ needs.meta.outputs.asset_safe }}-macos.dmg
+
+  publish:
+    needs: [meta, android, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          merge-multiple: true
+          path: dist
+
+      - name: Vypsat soubory
+        run: ls -la dist/
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.meta.outputs.release_tag }}
+          name: CzechMate ${{ needs.meta.outputs.asset_version }}
+          files: dist/*
+          generate_release_notes: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
