@@ -1,8 +1,10 @@
 # Android APK + macOS DMG → GitHub Releases (stažení z GitHubu bez App Store).
 #
 # Spuštění:
-#   - Actions → „Flutter app release“ → Run workflow (tag z pubspec: app-<major.minor.patch>)
-#   - nebo git tag app-1.2.3 && git push origin app-1.2.3
+#   - Automaticky: push na main/master mění flutter_czechmate/** nebo tento workflow
+#     → release tag app-<verze>-ci<run_number> (kvůli opakovaným buildům bez kolize tagu)
+#   - Ručně: Actions → Run workflow → tag app-<verze> z pubspec
+#   - Tag: git push origin app-1.2.3 → přesný název release = tag
 #
 # Poznámky:
 #   - Android release je podepsaný debug klíčem z CI (stažení mimo Obchod Play → povolit „neznámý zdroj“).
@@ -13,8 +15,12 @@ name: Flutter app release
 on:
   workflow_dispatch:
   push:
+    branches: [main, master]
     tags:
       - 'app-*'
+    paths:
+      - 'flutter_czechmate/**'
+      - '.github/workflows/flutter-app-release.yml'
 
 permissions:
   contents: write
@@ -39,11 +45,13 @@ jobs:
           SAFE=$(echo "$VER" | tr '+' '-')
           echo "asset_version=$VER" >> "$GITHUB_OUTPUT"
           echo "asset_safe=$SAFE" >> "$GITHUB_OUTPUT"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BASE="${VER%%+*}"
+          BASE="${VER%%+*}"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "release_tag=app-$BASE" >> "$GITHUB_OUTPUT"
           else
-            echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "release_tag=app-${BASE}-ci${{ github.run_number }}" >> "$GITHUB_OUTPUT"
           fi
 
   android:

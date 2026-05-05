@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a100e">
   <title>CzechMate — inteligentní šachovnice a aplikace</title>
   <meta name="description" content="CZECHMATE: fyzická LED šachovnice s ESP32, Flutter aplikace přes Bluetooth a Wi‑Fi. Stáhni APK pro Android a DMG pro macOS.">
 
@@ -207,11 +208,17 @@
         <p class="section__label">Stažení</p>
         <h2 id="dl-title" class="section__title">Vezmi si aplikaci za minutu.</h2>
         <p class="section__intro">
-          Nejnovější sestavení z CI najdeš na GitHub Releases. Na Androidu povol instalaci z neznámého zdroje; na Macu (Apple Silicon) otevři DMG a přetáhni aplikaci.
+          APK a DMG se neukládají do gitu — vznikají až po úspěšném běhu CI workflow. Na Androidu povol instalaci z neznámého zdroje; na Macu (Apple Silicon) otevři DMG a přetáhni aplikaci.
         </p>
         <div class="download-strip">
           <h3 class="download-strip__title">Vyber platformu</h3>
           <p class="download-strip__lead">Soubory mají tvar <code>czechmate-*-android.apk</code> a <code>czechmate-*-macos.dmg</code>.</p>
+          <div class="release-callout" role="note">
+            <strong>Prázdné Releases?</strong> Po prvním pushi do <code>flutter_czechmate/</code> na <code>main</code> workflow
+            <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/actions/workflows/flutter-app-release.yml">Flutter app release</a>
+            poběží sám a vytvoří release (tag typicky <code>app-…-ci…</code>). Ruční spuštění: Actions → <em>Run workflow</em>.
+            Všechny buildy: <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases">Releases</a>.
+          </div>
           <div class="platform-grid">
             <div class="platform-card">
               <h3>Android</h3>

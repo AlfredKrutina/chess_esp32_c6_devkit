@@ -344,7 +344,7 @@ Webové rozhraní umožňuje:
 - **Účel:** Jedna codebase pro Android / iOS / desktop; spojení s deskou (BLE a/nebo HTTP/WebSocket k webové vrstvě ESP32).
 - **Mobilní rozšíření (stav repa):** mimo jiné podpora **Live Activities** (iOS), **Wear OS** modul a chess clock notifikace na Androidu — viz zdroje v `flutter_czechmate/ios/` a `flutter_czechmate/android/wear/`.
 - **Build:** z kořene `cd flutter_czechmate && flutter pub get && flutter run` (vyžaduje Flutter SDK).
-- **Instalační balíčky z CI:** [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases) — po úspěšném běhu workflow **Flutter app release** (manuálně v záložce *Actions* nebo po git tagu `app-*`) najdeš **APK (Android)** a **DMG (macOS)**. Android APK je z CI podepsaný debug klíčem (instalace mimo Obchod Play). DMG z `macos-latest` běží na **Apple Silicon** (arm64); na Intel Mac sestav lokálně `flutter build macos`.
+- **Instalační balíčky z CI:** [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases) — workflow [.github/workflows/flutter-app-release.yml](.github/workflows/flutter-app-release.yml) se po **pushi na main/master** spustí sám při změnách ve `flutter_czechmate/**` (release tag `app-<verze>-ci<číslo>`). Ruční build: stejný workflow v Actions → *Run workflow* (tag `app-<verze>` z `pubspec.yaml`). Volitelně git tag `app-*`. **APK** / **DMG** — debug podpis Androidu; DMG je **Apple Silicon** (arm64).
 
 ### ⚙️ Nastavení a Přizpůsobení (Web UI)
 
