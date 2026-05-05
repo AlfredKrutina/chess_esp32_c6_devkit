@@ -2,6 +2,8 @@
 
 **Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (`flutter_czechmate/`).** Nativní Xcode projekt `CZECHMATE/` je jen lokálně (není v gitu).
 
+**📲 CzechMate na telefonu a Macu:** [produktová stránka + stažení](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) (po deployi GitHub Pages) — Android APK a macOS DMG také přímo v **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** na webu jako *coming soon*.
+
 *Šachmat, udělaný v Česku*
 
 **Dokumentace v repu:** Jednotný rozcestník — **[`docs/README.md`](docs/README.md)** (doporučené pořadí čtení, inventář všech textů a diagramů, limity vs zdroják).

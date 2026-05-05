@@ -23,6 +23,8 @@ on:
     - 'scripts/render_docs.sh'
     - 'scripts/mermaid-puppeteer-ci.json'
     - 'gh-pages-ready/README.md'
+    - 'gh-pages-ready/downloads.html'
+    - 'gh-pages-ready/landing/**'
     - 'gh-pages-ready/.nojekyll'
     - 'firmware/**'
     - 'partitions.csv'
@@ -71,6 +73,9 @@ jobs:
           mkdir -p _site
           cp -a docs/doxygen/html/. _site/
           cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
+          cp -f gh-pages-ready/downloads.html _site/downloads.html
+          mkdir -p _site/landing
+          cp -a gh-pages-ready/landing/. _site/landing/
           cp -f gh-pages-ready/.nojekyll _site/.nojekyll
           mkdir -p _site/firmware
           cp -f firmware/version.json _site/firmware/version.json
