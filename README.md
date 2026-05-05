@@ -551,7 +551,9 @@ Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování 
 Po pushi na `main` workflow [.github/workflows/gh-pages.yml](.github/workflows/gh-pages.yml) v CI vygeneruje Doxygen HTML, doplní Mermaid stránku a nasadí výsledek na větev **`gh-pages`** (složka `gh-pages-ready/` v repu slouží jen jako **`.nojekyll` + README**, ne kompletní site).
 
 1. V repozitáři na GitHubu: **Settings → Pages → Build and deployment → Source:** **Deploy from a branch** → Branch **gh-pages**, folder **/ (root)** → Save.  
-2. Po minutě běží web na `https://<uživatel>.github.io/<název-repa>/` (úvodní stránka Doxygen: `index.html` na větvi `gh-pages`, Mermaid: `diagrams_mermaid.html` tamtéž).
+2. Po minutě běží web na `https://<uživatel>.github.io/<název-repa>/` (úvodní stránka Doxygen: `index.html` na větvi `gh-pages`, Mermaid: `diagrams_mermaid.html`, produktovka: `downloads.html` tamtéž).
+
+**Častá chyba (404 na `downloads.html`):** pokud je zdroj Pages **main** a složka **/docs**, GitHub publikuje **Jekyll** z dokumentace v repu — to **není** výstup z workflow výše. Workflow přitom může být zelený a soubory jsou na větvi **gh-pages**, ale živý web je z jiného zdroje. Oprava: přepni Pages na **gh-pages / (root)**. Jak poznáš Jekyll: v „View Page Source“ na kořeni stránky je `<meta name="generator" content="Jekyll ..."/>`.
 
 ---
 

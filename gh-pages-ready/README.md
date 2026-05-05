@@ -8,6 +8,16 @@ Do větve **`gh-pages`** se při pushi na **`main`** / **`master`** automaticky 
 
 Veřejná URL: `https://<uživatel>.github.io/<repo>/`
 
+### 404 na `downloads.html` i když CI prošel
+
+Deployment z [.github/workflows/gh-pages.yml](../.github/workflows/gh-pages.yml) zapisuje web na větev **`gh-pages`**. Pokud v **Settings → Pages** není zdroj **Branch: gh-pages** + **/(root)**, ale např. **main** + **/docs**, GitHub servuje **Jekyll** z `docs/` v main — soubor `downloads.html` tam není → **404**.
+
+1. Ověř na GitHubu **Settings → Pages → Build and deployment → Source**.  
+2. Nastav **Deploy from a branch** → **gh-pages** → **/ (root)**.  
+3. Po propagaci otestuj `https://<uživatel>.github.io/<repo>/downloads.html`.
+
+Tip: když v HTML kořene vidíš `<meta name="generator" content="Jekyll`, používáš špatný zdroj Pages.
+
 ## Ruční nasazení (bez Actions)
 
 ```bash
