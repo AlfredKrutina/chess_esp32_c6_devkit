@@ -7,13 +7,20 @@
 # Podklady pro AI / interní plány — nejsou součástí hlavní dokumentace v remote
 # (zdroj pravdy pro lidi: kořenové README.md + docs/README.md + reference/ + diagrams/)
 # =============================================================================
-/context/
+# Cursor IDE — lokální plány agentů, náhledy chatů, workspace cache (nesdílet)
+.cursor/
+
+# Složky „context“ kam dáváš soubory pro AI (kořen i např. flutter_czechmate/context/)
+**/context/
 
 /docs/archive/
 /docs/planning/
 
 # Lokální backlog / nápady na diagramy (necommitovat — dlouhý osobní seznam)
 /docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md
+
+# Volitelné osobní plány mimo docs/planning (např. export z nástroje)
+**/*.local.plan.md
 
 
 # =============================================================================
@@ -39,10 +46,13 @@ components/*/build/
 # ESP-IDF — závislosti z Component Manageru (obnovíš: idf.py build / reconfigure)
 /managed_components/
 
-# GitHub Pages: v main jen poznámky; HTML nasazuje CI z Doxygen + Mermaid
+# GitHub Pages: statické soubory pro nasazení + README; zbytek generuje CI (Doxygen/Mermaid)
 /gh-pages-ready/*
 !/gh-pages-ready/README.md
 !/gh-pages-ready/.nojekyll
+!/gh-pages-ready/downloads.html
+!/gh-pages-ready/landing/
+!/gh-pages-ready/landing/**/*
 
 # Lokální šum
 *.log

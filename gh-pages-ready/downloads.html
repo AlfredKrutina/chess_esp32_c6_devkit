@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CzechMate — inteligentní šachovnice a aplikace</title>
+  <meta name="description" content="CZECHMATE: fyzická LED šachovnice s ESP32, Flutter aplikace přes Bluetooth a Wi‑Fi. Stáhni APK pro Android a DMG pro macOS.">
+
+  <!--
+    Blender → export pro web (GitHub Pages / git):
+    - Formát: WebP (fallback PNG jen pokud nutné).
+    - Šířka hero / split obrázků: cca 1600–2400 px; komprimovat cíl ~300 KB–1 MB / obrázek.
+    - Soubory nahraj do landing/assets/: např. hero-board.webp, board-render.webp, app-mock.webp
+    - V tomto HTML nahraď src u <img> z placeholder SVG na .webp (nebo použij <picture><source type="image/webp">).
+    - Video: raději embed YouTube/Vimeo (žádné velké MP4 v gitu); alternativa jeden soubor WebM/MP4 pod ~8–15 MB.
+  -->
+
+  <meta property="og:title" content="CzechMate — šachovnice a aplikace">
+  <meta property="og:description" content="LED šachovnice, ESP32 a Flutter klient. Stažení APK a DMG z GitHub Releases.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">
+  <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="landing/landing.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CzechMate",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Android, macOS",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CZK"
+    },
+    "downloadUrl": "https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest"
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Přeskočit na obsah</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="#">CzechMate</a>
+      <nav class="nav-desktop" aria-label="Sekce stránky">
+        <a href="#produkt">Produkt</a>
+        <a href="#aplikace">Aplikace</a>
+        <a href="#led">LED a hardware</a>
+        <a href="#stazeni">Stažení</a>
+        <a href="./index.html">Dokumentace</a>
+      </nav>
+      <a class="btn btn--primary nav-cta" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
+      <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="nav-mobile" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <nav id="nav-mobile" class="nav-mobile" data-nav-mobile aria-label="Mobilní menu">
+      <a href="#produkt">Produkt</a>
+      <a href="#aplikace">Aplikace</a>
+      <a href="#led">LED a hardware</a>
+      <a href="#stazeni">Stažení</a>
+      <a href="./index.html">Dokumentace</a>
+      <a class="btn btn--primary" style="margin-top:0.5rem;text-align:center" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="hero__grid" aria-hidden="true"></div>
+      <div class="hero__content">
+        <p class="hero__eyebrow">Open source · ESP32‑C6 · Flutter</p>
+        <h1 id="hero-title">Šachy, které svítí realitou.</h1>
+        <p class="hero__lead">
+          CzechMate spojuje fyzickou šachovnici s detekcí tahů, 73 LED a výkonným firmware s aplikací pro telefon i počítač.
+          Propojení přes Bluetooth nebo síť — partie, nastavení i OTA aktualizace na dosah.
+        </p>
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
+          <a class="btn btn--ghost" href="./index.html">Technická dokumentace</a>
+        </div>
+        <p class="hero__meta">Android (APK) a macOS (DMG) z GitHub Releases · iOS a Windows připravujeme</p>
+
+        <!-- Volitelné video: nahraď placeholder kontejnerem iframe (YouTube) nebo <video> s malým WebM v landing/assets/ -->
+        <div class="hero__video-wrap" aria-hidden="true">
+          <div class="hero__video-placeholder">
+            Krátké promo video můžeš vložit sem (YouTube embed nebo malý WebM) — drž soubory v gitu lehké, viz komentář v &lt;head&gt;.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="produkt" class="section pillars" aria-labelledby="produkt-title">
+      <div class="section__inner">
+        <p class="section__label">Produkt</p>
+        <h2 id="produkt-title" class="section__title">Jeden systém. Deska, světlo, software.</h2>
+        <p class="section__intro">
+          Od Reed matice po FreeRTOS úlohy a webové API na čipu — CzechMate je navržený jako celistvá platforma pro hru i vývojáře.
+        </p>
+        <div class="pillars__grid">
+          <article class="pillar-card">
+            <div class="pillar-card__num">01</div>
+            <h3>Fyzická přesnost</h3>
+            <p>8×8 matice a logika tahů respektují reálnou pozici figurek na desce.</p>
+          </article>
+          <article class="pillar-card">
+            <div class="pillar-card__num">02</div>
+            <h3>LED jako rozhraní</h3>
+            <p>Návody na tahy, šach, mat i animace — přímo na polích a tlačítkách.</p>
+          </article>
+          <article class="pillar-card">
+            <div class="pillar-card__num">03</div>
+            <h3>Vždy připojený</h3>
+            <p>Bluetooth Low Energy pro mobil; Wi‑Fi a webový server pro prohlížeč i API.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="led" class="section" aria-labelledby="led-title">
+      <div class="section__inner">
+        <p class="section__label">LED a hardware</p>
+        <h2 id="led-title" class="section__title">Deska, která ukáže každý tah.</h2>
+        <p class="section__intro">
+          WS2812B pásek, multiplexovaná matice a ESP32‑C6 drží synchron mezi hardwarem a herní logikou v jedné desce.
+        </p>
+        <div class="split">
+          <div class="split__media">
+            <picture>
+              <source type="image/webp" srcset="landing/assets/board-render.webp">
+              <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Vizualizace šachovnice CzechMate — nahraď Blender WebP exportem">
+            </picture>
+          </div>
+          <div class="split__text">
+            <h3>Navrhni světlo, my řídíme časování</h3>
+            <p>
+              Firmware multiplexuje GPIO, obsluhuje tlačítka a streamuje stav hry. Nahraj sem Blender render (WebP) noční desky,
+              detail LED pole nebo exploded view — viz návod v komentáři v hlavičce stránky.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="aplikace" class="section" aria-labelledby="app-title">
+      <div class="section__inner">
+        <p class="section__label">Aplikace</p>
+        <h2 id="app-title" class="section__title">Flutter klient pro každodenní hru.</h2>
+        <p class="section__intro">
+          Partie, připojení k desce, firmware update a další funkce v jedné aplikaci — sdílená codebase pro Android a desktop.
+        </p>
+        <div class="split split--reverse">
+          <div class="split__media">
+            <picture>
+              <source type="image/webp" srcset="landing/assets/app-mock.webp">
+              <img src="landing/assets/app-placeholder.svg" width="960" height="720" alt="Ukázka aplikace CzechMate — nahraď mock z Blenderu nebo screenshotem">
+            </picture>
+          </div>
+          <div class="split__text">
+            <h3>Přehledná hra i servisní režim</h3>
+            <p>
+              Riverpod stav, BLE a HTTP/WebSocket pro komunikaci s deskou. Obrázek vpravo je zástupný — vlož export telefonu nebo Mac okna z Blenderu (WebP).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section features" aria-labelledby="feat-title">
+      <div class="section__inner">
+        <p class="section__label">Co uvnitř</p>
+        <h2 id="feat-title" class="section__title">Funkce, které dávají smysl hráčům i makerům.</h2>
+        <div class="features__grid">
+          <article class="feature-tile">
+            <h3>Bluetooth</h3>
+            <p>Přímé spojení s deskou přes GATT — pairing z aplikace CzechMate.</p>
+          </article>
+          <article class="feature-tile">
+            <h3>HTTP a WebSocket</h3>
+            <p>Snapshoty stavu a streamy kompatibilní s webovým rozhraním na ESP32.</p>
+          </article>
+          <article class="feature-tile">
+            <h3>Šachová pravidla</h3>
+            <p>Pravidla včetně rošády, en passant a promoce běží na čipu v <code>game_task</code>.</p>
+          </article>
+          <article class="feature-tile">
+            <h3>Web UI na desce</h3>
+            <p>Hraj z prohlížeče, když je deska v síti — stejná logika jako na LED.</p>
+          </article>
+          <article class="feature-tile">
+            <h3>OTA aktualizace</h3>
+            <p>Firmware z HTTPS nebo přes Bluetooth stream — manifest na GitHubu.</p>
+          </article>
+          <article class="feature-tile">
+            <h3>Open source</h3>
+            <p>Celý firmware i Flutter klient jsou ve veřejném repozitáři na GitHubu.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="stazeni" class="section download" aria-labelledby="dl-title">
+      <div class="section__inner">
+        <p class="section__label">Stažení</p>
+        <h2 id="dl-title" class="section__title">Vezmi si aplikaci za minutu.</h2>
+        <p class="section__intro">
+          Nejnovější sestavení z CI najdeš na GitHub Releases. Na Androidu povol instalaci z neznámého zdroje; na Macu (Apple Silicon) otevři DMG a přetáhni aplikaci.
+        </p>
+        <div class="download-strip">
+          <h3 class="download-strip__title">Vyber platformu</h3>
+          <p class="download-strip__lead">Soubory mají tvar <code>czechmate-*-android.apk</code> a <code>czechmate-*-macos.dmg</code>.</p>
+          <div class="platform-grid">
+            <div class="platform-card">
+              <h3>Android</h3>
+              <p>APK pro telefon a tablet.</p>
+              <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout APK</a>
+            </div>
+            <div class="platform-card">
+              <h3>macOS</h3>
+              <p>DMG pro Apple Silicon (arm64).</p>
+              <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout DMG</a>
+            </div>
+            <div class="platform-card platform-card--soon">
+              <span class="badge-soon">Coming soon</span>
+              <h3>iOS · iPad</h3>
+              <p>TestFlight / App Store po nastavení vývojářského účtu.</p>
+              <span class="btn btn--ghost" style="pointer-events:none;opacity:0.65">Již brzy</span>
+            </div>
+            <div class="platform-card platform-card--soon">
+              <span class="badge-soon">Coming soon</span>
+              <h3>Windows</h3>
+              <p>Instalačka z CI je v plánu.</p>
+              <span class="btn btn--ghost" style="pointer-events:none;opacity:0.65">Již brzy</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section trust" aria-labelledby="trust-title">
+      <div class="section__inner">
+        <h2 id="trust-title" class="section__title" style="text-align:center;margin-bottom:1.25rem">Postaveno v Česku · open source</h2>
+        <div class="trust__box">
+          <p>
+            Projekt vzniká komunitně; hardware a firmware doplňuje Flutter klient a dokumentace v repozitáři.
+            Chceš přispět nebo si postavit vlastní desku? Začni na GitHubu.
+          </p>
+          <a class="btn btn--ghost" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit">Otevřít GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <span>&copy; CzechMate · CZECHMATE</span>
+      <nav aria-label="Patička">
+        <a href="./index.html">Doxygen úvod</a>
+        <a href="./diagrams_mermaid.html">Diagramy</a>
+        <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Releases</a>
+        <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit">Zdrojový kód</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="landing/landing.js" defer></script>
+</body>
+</html>
