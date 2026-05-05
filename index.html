@@ -600,8 +600,9 @@ GitHub Pages (veřejná dokumentace)</h2>
 <ol type="1">
 <li>V repozitáři na GitHubu: <b>Settings → Pages → Build and deployment → Source:</b> <b>Deploy from a branch</b> → Branch <b>gh-pages</b>, folder **/ (root)** → Save. <br  />
 </li>
-<li>Po minutě běží web na <code><a href="https://">https://</a>&lt;uživatel&gt;.github.io/&lt;název-repa&gt;/</code> (úvodní stránka Doxygen: <code>index.html</code> na větvi <code>gh-pages</code>, Mermaid: <code>diagrams_mermaid.html</code> tamtéž).</li>
+<li>Po minutě běží web na <code><a href="https://">https://</a>&lt;uživatel&gt;.github.io/&lt;název-repa&gt;/</code> (úvodní stránka Doxygen: <code>index.html</code> na větvi <code>gh-pages</code>, Mermaid: <code>diagrams_mermaid.html</code>, produktovka: <code>downloads.html</code> tamtéž).</li>
 </ol>
+<p><b>Častá chyba (404 na <code>downloads.html</code>):</b> pokud je zdroj Pages <b>main</b> a složka **/docs**, GitHub publikuje <b>Jekyll</b> z dokumentace v repu — to <b>není</b> výstup z workflow výše. Workflow přitom může být zelený a soubory jsou na větvi <b>gh-pages</b>, ale živý web je z jiného zdroje. Oprava: přepni Pages na <b>gh-pages / (root)</b>. Jak poznáš Jekyll: v „View Page Source“ na kořeni stránky je <code>&lt;meta name="generator" content="Jekyll ..."/&gt;</code>.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md146"></a>
 📁 Struktura projektu</h1>
