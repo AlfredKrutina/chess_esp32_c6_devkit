@@ -6,7 +6,7 @@ Dart klient k desce CZECHMATE: **BLE** nebo **HTTP / WebSocket**. Stav drží hl
 
 Spuštění: `cd flutter_czechmate && flutter pub get && flutter run`.
 
-**APK + DMG z CI:** workflow [Flutter app release](../../.github/workflows/flutter-app-release.yml) při pushi na `main`/`master` (změny ve `flutter_czechmate/**`) automaticky buildí a publikuje na [Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases); ručně lze spustit *Run workflow* nebo tag `app-*`.
+**Distribuce:** instalátory **APK** a **DMG** jsou na [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
 
 Dlouhý lokální seznam nápadů na nové diagramy: **`docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`** (gitignored) — šablona začátku [`DIAGRAM_BACKLOG.local.example.md`](../diagrams/DIAGRAM_BACKLOG.local.example.md).
 
