@@ -5,19 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a100e">
   <title>CzechMate — šachovnice, která učí hrát lépe</title>
-  <meta name="description" content="CzechMate: fyzická LED šachovnice a aplikace pro výuku šachu — pro děti i dospělé, začátečníky i pokročilé. Stockfish, AI kouč v chatu, nápovědy na desce. APK a DMG na GitHubu.">
-
-  <!--
-    Blender → export pro web (GitHub Pages / git):
-    - Formát: WebP (fallback PNG jen pokud nutné).
-    - Šířka hero / split obrázků: cca 1600–2400 px; komprimovat cíl ~300 KB–1 MB / obrázek.
-    - Soubory nahraj do landing/assets/: např. hero-board.webp, board-render.webp, app-mock.webp
-    - V tomto HTML nahraď src u <img> z placeholder SVG na .webp (nebo použij <picture><source type="image/webp">).
-    - Video: raději embed YouTube/Vimeo (žádné velké MP4 v gitu); alternativa jeden soubor WebM/MP4 pod ~8–15 MB.
-  -->
+  <meta name="description" content="CzechMate: fyzická LED šachovnice a aplikace pro výuku šachu — pro děti i dospělé, začátečníky i pokročilé. Stockfish, AI kouč v chatu, nápovědy na desce, aktualizace desky z aplikace. APK a DMG na GitHubu.">
 
   <meta property="og:title" content="CzechMate — šachy, které učí">
-  <meta property="og:description" content="LED deska, Stockfish, AI kouč v aplikaci. Pro všechny věky a úrovně. Stáhni CzechMate pro Android a macOS.">
+  <meta property="og:description" content="LED deska, Stockfish, AI kouč v aplikaci, aktualizace desky přímo z aplikace. Pro všechny věky a úrovně. Stáhni CzechMate pro Android a macOS.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
@@ -31,7 +22,7 @@
     "name": "CzechMate",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Android, macOS",
-    "description": "Výuková šachová soustava: LED deska, Stockfish, AI kouč.",
+    "description": "Výuková šachová soustava: LED deska, Stockfish, AI kouč, aktualizace softwaru desky z aplikace.",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -83,20 +74,14 @@
         <p class="hero__lead">
           CzechMate spojuje <strong>osahatelné figurky</strong> s <strong>barevnými LED na desce</strong> a chytrou aplikací.
           Hodí se pro <strong>děti i dospělé</strong>, úplné začátečníky i hráče, kteří chtějí pilovat strategii.
-          Deska ti ukáže tahy a varování přímo na polích; aplikace doplní partii o <strong>motor Stockfish</strong>, analýzu a
+          Deska ti ukáže tahy a varování přímo na polích; aplikace rozšíří partii o <strong>motor Stockfish</strong>, analýzu a
           <strong>AI kouče v chatu</strong>, se kterým můžeš řešit plány, varianty i chyby z aktuální nebo nedávné partie.
         </p>
         <div class="hero__actions">
           <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
           <a class="btn btn--ghost" href="#deska-uci">Jak deska učí</a>
         </div>
-        <p class="hero__meta">Android (APK) a macOS (DMG) na GitHub Releases · iOS a Windows připravujeme · firmware s dokumentací je open source</p>
-
-        <div class="hero__video-wrap" aria-hidden="true">
-          <div class="hero__video-placeholder">
-            Sem případně vlož krátké výukové promo (YouTube nebo malý WebM) — viz komentář v &lt;head&gt;.
-          </div>
-        </div>
+        <p class="hero__meta">Android (APK) a macOS (DMG) na GitHub Releases · iOS a Windows připravujeme · software desky včetně dokumentace je open source</p>
       </div>
     </section>
 
@@ -107,7 +92,7 @@
         <p class="section__intro">
           Šachy jsou nejkrásnější, když je člověk vidí na šachovnici a zároveň dostane jasnou zpětnou vazbu.
           CzechMate na to myslí od začátku: <strong>fyzický kontakt s figurkami</strong>, <strong>okamžité světlo na polích</strong>
-          a <strong>digitální vrstva</strong>, kde si doplníš vysvětlení, partii proti počítači nebo rozhovor s AI trenérem.
+          a <strong>digitální vrstva</strong> s vysvětlením pravidel a pozice, partii proti počítači i rozhovorem s AI trenérem.
         </p>
         <div class="pillars__grid">
           <article class="pillar-card">
@@ -135,22 +120,22 @@
         <h2 id="deska-title" class="section__title">Světlo na polích ti ukáže, co právě potřebuješ</h2>
         <p class="section__intro">
           Deska nepozná jen pozici — umí ji <strong>interpretovat pro výuku</strong>: zvýraznit doporučený tah, upozornit na šach,
-          vést ke správnému provedení promoce nebo zopakovat animaci koncovky. Vše běží v synchronu s pravidly přímo ve firmware,
-          takže LED vždy odpovídá reálnému stavu figurek.
+          vést ke správnému provedení promoce nebo zopakovat animaci koncovky. Logika běží přímo v desce v reálném čase,
+          takže LED vždy odpovídá tomu, jak figurky skutečně stojí.
+          Software desky umíš aktualizovat <strong>bez kabelů</strong> — přímo z aplikace, z rozhraní desky v prohlížeči nebo přes Wi‑Fi.
         </p>
         <div class="split">
           <div class="split__media">
             <picture>
               <source type="image/webp" srcset="landing/assets/board-render.webp">
-              <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Vizualizace výukové šachovnice CzechMate — doplní se exportem z Blenderu (WebP)">
+              <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Výuková šachovnice CzechMate s LED podsvícením polí">
             </picture>
           </div>
           <div class="split__text">
             <h3>Od první partie po návyky mistra</h3>
             <p>
-              Kombinace <strong>reedové matice</strong> (reálná pozice) a <strong>řady LED</strong> snižuje počet „nevím, co teď“ momentů.
-              Když připojíš telefon nebo notebook, dostaneš i dlouhý kontext: historii tahů, textové nápovědy z webového rozhraní na desce nebo propojení s aplikací CzechMate.
-              Ilustraci desky můžeš později nahradit vlastním renderem z Blenderu — viz návod v hlavičce stránky.
+              Kombinace <strong>reedové matice</strong> (skutečná pozice figurek) a <strong>řady LED</strong> ti dává jasnou vizuální nápovědu přímo na šachovnici — méně tápání, víc jistoty u každého tahu.
+              Po připojení telefonu nebo počítače získáš navíc přehled partie: historii tahů, textové nápovědy z rozhraní desky v prohlížeči a stejnou pozici v aplikaci CzechMate.
             </p>
           </div>
         </div>
@@ -162,9 +147,9 @@
         <p class="section__label">Motor a protihráč</p>
         <h2 id="stockfish-title" class="section__title">Stockfish — partii si zahraješ i proti „strojovému soupeři“</h2>
         <p class="section__intro">
-          Soustava podporuje práci s šachovým enginem <strong>Stockfish</strong>: přes webové rozhraní běžící na desce (Wi‑Fi)
-          můžeš hrát proti botovi s nastavitelnou silou a sledovat návrhy tahů. V aplikaci CzechMate je napojení na analýzu pozic
-          přes kompatibilní API — motor ti pomůže najít silné pokračování nebo pochopit, kde ses odchýlil od nejlepšího tahu.
+          Soustava podporuje šachový motor <strong>Stockfish</strong>: přes rozhraní desky v prohlížeči (Wi‑Fi)
+          můžeš hrát proti počítači s nastavitelnou silou a sledovat návrhy tahů. V aplikaci CzechMate máš analýzu pozic
+          napojenou na stejný typ motoru — pomůže ti najít silné pokračování nebo pochopit, kde ses odchýlil od nejlepšího tahu.
         </p>
         <div class="pillars__grid">
           <article class="pillar-card">
@@ -180,7 +165,7 @@
           <article class="pillar-card">
             <div class="pillar-card__num pillar-card__num--badge">C</div>
             <h3>Propojení deska ↔ aplikace</h3>
-            <p>Stejná logika partie na čipu a v aplikaci znamená, že výuka na světlech a na displeji si rozumí.</p>
+            <p>Stejná logika partie na desce i v aplikaci znamená, že výuka na světlech a na displeji si rozumí.</p>
           </article>
         </div>
       </div>
@@ -189,7 +174,7 @@
     <section id="ai-kouc" class="section" aria-labelledby="kouc-title">
       <div class="section__inner">
         <p class="section__label">AI kouč v aplikaci</p>
-        <h2 id="kouc-title" class="section__title">Chat, který diskutuje strategii — ne jen vyhodí jednu šipku</h2>
+        <h2 id="kouc-title" class="section__title">Chat, který diskutuje strategii a katalizuje učící proces</h2>
         <p class="section__intro">
           V aplikaci CzechMate najdeš <strong>koučovský režim</strong>: konverzace o aktuální pozici, plánech na několik tahů dopředu,
           typických chybách začátečníků i hlubších strategických tématech. Nastavitelná je <strong>úroveň výkladu</strong> podle tvých zkušeností,
@@ -199,15 +184,15 @@
           <div class="split__media">
             <picture>
               <source type="image/webp" srcset="landing/assets/app-mock.webp">
-              <img src="landing/assets/app-placeholder.svg" width="960" height="720" alt="Ukázka AI kouče v aplikaci CzechMate — doplní se screenshotem nebo mockem">
+              <img src="landing/assets/app-placeholder.svg" width="960" height="720" alt="Obrazovka aplikace CzechMate s AI koučem a analýzou partie">
             </picture>
           </div>
           <div class="split__text">
             <h3>Vlastní AI pod tvou kontrolou</h3>
             <p>
-              Cloudové modely (např. OpenAI, Groq, Google Gemini, lokální Ollama a další) můžeš <strong>řadit do priority</strong> v nastavení aplikace —
-              používáš to, co už máš schválené ve škole, klubu nebo doma. Pokud zrovna nemáš přístup k internetu nebo klíčům,
-              aplikace nabízí <strong>záložní offline radu</strong> z vestavěných šachových tipů, aby výuka neskončila na prázdné obrazovce.
+              V nastavení si vybereš <strong>preferovaného asistenta</strong> — cloudovou službu podle tvého účtu nebo lokální řešení,
+              aby výuka odpovídala pravidlům ve škole, klubu nebo doma. Bez připojení nebo přihlášení nabízí aplikace
+              <strong>základní offline nápovědu</strong> z vestavěných šachových rad, takže výuka neskončí na prázdné obrazovce.
             </p>
           </div>
         </div>
@@ -219,33 +204,38 @@
         <p class="section__label">Aplikace CzechMate</p>
         <h2 id="app-title" class="section__title">Jeden klient pro spojení s deskou, výuku i analýzu</h2>
         <p class="section__intro">
-          Flutter aplikace pro Android a desktop (macOS) drží přehled o partii, připojení přes Bluetooth nebo síť,
-          výukové funkce a kanály pro Stockfish i AI kouče — takže nemusíš přepínat mezi půlkami řešeními.
+          Aplikace pro Android a macOS drží přehled o partii, připojení k desce přes Bluetooth nebo síť,
+          výukové funkce i prostor pro Stockfish a AI kouče — vše v jednom programu, bez skákání mezi nástroji.
+          V nastavení najdeš i <strong>aktualizaci softwaru desky</strong> podle aktuálního vydání — bez zapojování k počítači kabelem.
         </p>
         <div class="features__grid">
           <article class="feature-tile">
             <h3>Nápovědy a výukové režimy</h3>
-            <p>Orientace v partii, zvýraznění tahů na desce přes API — aplikace doplňuje to, co už vidíš na LED.</p>
+            <p>Orientace v partii a řízení zvýraznění tahů na desce — aplikace rozšiřuje to, co už vidíš na LED.</p>
           </article>
           <article class="feature-tile">
             <h3>Analýza a Stockfish</h3>
-            <p>Ocenění tahů a návrhy pokračování přes napojení na šachové API kompatibilní se Stockfish.</p>
+            <p>Ocenění tahů a návrhy pokračování díky vestavěnému napojení na motor Stockfish.</p>
           </article>
           <article class="feature-tile">
             <h3>AI kouč / chat</h3>
-            <p>Diskuze o strategii, plánech a chybách; volitelné cloudové LLM podle tvého nastavení.</p>
+            <p>Diskuze o strategii, plánech a chybách; volitelný inteligentní asistent podle tvého nastavení.</p>
           </article>
           <article class="feature-tile">
             <h3>Připojení k desce</h3>
-            <p>Bluetooth Low Energy nebo HTTP / WebSocket — stejná partie na šachovnici i na displeji.</p>
+            <p>Bluetooth nebo síť v dosahu desky — stejná partie na šachovnici i na displeji.</p>
           </article>
           <article class="feature-tile">
             <h3>Web na desce</h3>
             <p>Z prohlížeče přes Wi‑Fi — výuka i hra proti botovi tam, kde má deska síť.</p>
           </article>
           <article class="feature-tile">
+            <h3>Flash přímo z aplikace</h3>
+            <p>Nový software na desku nahraješ z aplikace CzechMate — bez programátoru a bez kabelů k čipu; přes Wi‑Fi i úplně bezdrátově. Průběh ti ukážou světla na šachovnici.</p>
+          </article>
+          <article class="feature-tile">
             <h3>Open source ekosystém</h3>
-            <p>Firmware i aplikace jsou veřejné — školy a kluby si mohou řešení přizpůsobit.</p>
+            <p>Software desky i aplikace jsou veřejné — školy a kluby si mohou řešení přizpůsobit.</p>
           </article>
         </div>
       </div>
@@ -261,7 +251,7 @@
         </p>
         <div class="download-strip">
           <h3 class="download-strip__title">Zvol platformu</h3>
-          <p class="download-strip__lead">Na stránce Releases hledej soubory ve tvaru <code>czechmate-*-android.apk</code> a <code>czechmate-*-macos.dmg</code>.</p>
+          <p class="download-strip__lead">Otevři nejnovější vydání na GitHubu a vyber soubor pro Android (koncovka <code>.apk</code>) nebo macOS (koncovka <code>.dmg</code>). Obvykle nesou v názvu označení CzechMate a verzi.</p>
           <div class="platform-grid">
             <div class="platform-card">
               <h3>Android</h3>
@@ -276,13 +266,13 @@
             <div class="platform-card platform-card--soon">
               <span class="badge-soon">Již brzy</span>
               <h3>iOS · iPad</h3>
-              <p>Šíření přes TestFlight nebo App Store po nastavení vývojářského účtu.</p>
+              <p>Vydání přes TestFlight a následně App Store, jakmile projde schválením Apple.</p>
               <span class="btn btn--ghost btn--static" aria-disabled="true">Připravujeme</span>
             </div>
             <div class="platform-card platform-card--soon">
               <span class="badge-soon">Již brzy</span>
               <h3>Windows</h3>
-              <p>Balíček z CI doplníme později.</p>
+              <p>Instalátor pro Windows přidáme, jakmile bude připravený k veřejnému stažení.</p>
               <span class="btn btn--ghost btn--static" aria-disabled="true">Připravujeme</span>
             </div>
           </div>
@@ -295,9 +285,9 @@
         <h2 id="trust-title" class="section__title section__title--center trust__heading">Postaveno v Česku · otevřený zdrojový kód</h2>
         <div class="trust__box">
           <p>
-            CzechMate vzniká jako platforma pro <strong>demokratizaci výuky šachů</strong>: hardware, firmware i aplikace jsou veřejné,
-            dokumentace pro vývojáře na GitHub Pages. Chceš přispět výukovým obsahem, překlady nebo vlastní úpravou?
-            Začni v repozitáři — technický rozcestník najdeš i v <a href="./index.html">dokumentaci</a>.
+            CzechMate buduje <strong>otevřenou výukovou platformu</strong> — hardware, software desky i aplikaci si může kdokoli stáhnout a dál upravovat.
+            Kompletní návody, zapojení a technické podklady najdeš na GitHub Pages v <a href="./index.html">dokumentaci</a>.
+            Přidej se — výukové texty, překlady i vylepšení hardwaru nebo softwaru mají smysl pro celou komunitu kolem šachů.
           </p>
           <a class="btn btn--ghost" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit">Repozitář na GitHubu</a>
         </div>
@@ -309,7 +299,7 @@
     <div class="site-footer__inner">
       <span>&copy; CzechMate · CZECHMATE</span>
       <nav aria-label="Patička">
-        <a href="./index.html">Dokumentace API (Doxygen)</a>
+        <a href="./index.html">Technická dokumentace</a>
         <a href="./diagrams_mermaid.html">Diagramy</a>
         <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Releases</a>
         <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit">Zdrojový kód</a>
