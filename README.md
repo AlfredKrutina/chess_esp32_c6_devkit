@@ -2,7 +2,7 @@
 
 **Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (`flutter_czechmate/`).** Nativní Xcode projekt `CZECHMATE/` je jen lokálně (není v gitu).
 
-**📲 CzechMate na telefonu a Macu:** [produktová stránka + stažení](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG také v **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** *coming soon*.
+**📲 CzechMate na telefonu a Macu:** [produktová stránka + stažení](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG také v **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** *coming soon*. **Představení na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
 
 *Šachmat, udělaný v Česku*
 
@@ -548,7 +548,7 @@ Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování 
 
 ### GitHub Pages (veřejná dokumentace)
 
-Veřejná dokumentace (Doxygen), Mermaid diagramy a produktová stránka se stažením aplikace jsou na **[GitHub Pages](https://alfredkrutina.github.io/chess_esp32_c6_devkit/)** — přímý odkaz na stažení: [downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html). Poznámky k nastavení nasazení pro správce repozitáře jsou v [`gh-pages-ready/README.md`](gh-pages-ready/README.md).
+Veřejná dokumentace (Doxygen), Mermaid diagramy a produktová stránka se stažením aplikace jsou na **[GitHub Pages](https://alfredkrutina.github.io/chess_esp32_c6_devkit/)** — přímý odkaz na stažení: [downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html). Představující video je na stránce i na [YouTube](https://youtu.be/_MS6OP3x6Z4). Poznámky k nastavení nasazení pro správce repozitáře jsou v [`gh-pages-ready/README.md`](gh-pages-ready/README.md).
 
 ---
 

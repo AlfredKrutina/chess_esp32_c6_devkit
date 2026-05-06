@@ -51,7 +51,8 @@ git checkout main
 Po nasazení budou všechny odkazy fungovat:
 - Hlavní stránka: `index.html`
 - Mermaid diagramy: `diagrams_mermaid.html`
-- Marketing + stažení aplikace: `downloads.html` (assety v `landing/`)
+- Marketing + stažení aplikace: `downloads.html` (assety v `landing/`, skripty `landing.js` / `landing.css`)
+- Představující video na stránce: [youtu.be/_MS6OP3x6Z4](https://youtu.be/_MS6OP3x6Z4) — na **HTTPS** se po načtení stránky vloží přehrávač (autoplay ztlumený + smyčka); při otevření `downloads.html` jako `file://` zůstane náhled + odkaz (omezení YouTube embedu).
 
 ---
 
