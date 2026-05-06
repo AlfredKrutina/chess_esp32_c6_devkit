@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a100e">
   <title>CzechMate — šachovnice, která učí hrát lépe</title>
-  <meta name="description" content="CzechMate: fyzická LED šachovnice a aplikace pro výuku šachu — pro děti i dospělé, začátečníky i pokročilé. Stockfish, AI kouč v chatu, nápovědy na desce, aktualizace desky z aplikace. APK a DMG na GitHubu.">
+  <meta name="description" content="CzechMate: fyzická LED šachovnice a aplikace pro výuku šachu — pro děti i dospělé, začátečníky i pokročilé. Partie a analýza se Stockfishem (v šachu silnějším než kterýkoli živý hráč, s nastavením síly), AI kouč, nápovědy na desce. APK a DMG na GitHubu.">
 
   <meta property="og:title" content="CzechMate — šachy, které učí">
-  <meta property="og:description" content="LED deska, Stockfish, AI kouč v aplikaci, aktualizace desky přímo z aplikace. Pro všechny věky a úrovně. Stáhni CzechMate pro Android a macOS.">
+  <meta property="og:description" content="LED deska, protihráč silnější ve šachu než mistr světa (Stockfish), AI kouč v aplikaci. Pro všechny věky a úrovně. Stáhni CzechMate pro Android a macOS.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
@@ -22,7 +22,7 @@
     "name": "CzechMate",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Android, macOS",
-    "description": "Výuková šachová soustava: LED deska, Stockfish, AI kouč, aktualizace softwaru desky z aplikace.",
+    "description": "Výuková šachová soustava: LED deska, Stockfish (protihráč silnější než lidský vrchol ve šachu), AI kouč, aktualizace softwaru desky z aplikace.",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -74,14 +74,47 @@
         <p class="hero__lead">
           CzechMate spojuje <strong>osahatelné figurky</strong> s <strong>barevnými LED na desce</strong> a chytrou aplikací.
           Hodí se pro <strong>děti i dospělé</strong>, úplné začátečníky i hráče, kteří chtějí pilovat strategii.
-          Deska ti ukáže tahy a varování přímo na polích; aplikace rozšíří partii o <strong>motor Stockfish</strong>, analýzu a
-          <strong>AI kouče v chatu</strong>, se kterým můžeš řešit plány, varianty i chyby z aktuální nebo nedávné partie.
+          Deska ti ukáže tahy a varování přímo na polích; aplikace doplní partii o <strong>motor Stockfish</strong> —
+          v čistém výpočtu tahů nepřekonatelný i pro mistra světa, s možností zvolit slabší úroveň pro klidnou výuku —
+          plus analýzu a <strong>AI kouče v chatu</strong>, se kterým můžeš řešit plány, varianty i chyby z aktuální nebo nedávné partie.
         </p>
         <div class="hero__actions">
           <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
           <a class="btn btn--ghost" href="#deska-uci">Jak deska učí</a>
         </div>
         <p class="hero__meta">Android (APK) a macOS (DMG) na GitHub Releases · iOS a Windows připravujeme · software desky včetně dokumentace je open source</p>
+
+        <div class="hero__video" role="region" aria-labelledby="hero-video-heading">
+          <p id="hero-video-heading" class="hero__video-label">Představení na videu</p>
+          <!-- Na http(s) vloží přehrávač skript (autoplay + loop, ztlumené). Z file:// zůstane náhled — Error 153. -->
+          <div class="hero__video-frame" data-youtube-id="_MS6OP3x6Z4">
+            <a
+              class="hero__video-poster"
+              href="https://youtu.be/_MS6OP3x6Z4"
+              target="_blank"
+              rel="noopener noreferrer">
+              <img
+                src="https://img.youtube.com/vi/_MS6OP3x6Z4/maxresdefault.jpg"
+                alt=""
+                width="1280"
+                height="720"
+                loading="lazy"
+                decoding="async"
+                fetchpriority="low"
+                onerror="this.onerror=null;this.src='https://img.youtube.com/vi/_MS6OP3x6Z4/hqdefault.jpg'">
+              <span class="hero__video-play" aria-hidden="true">
+                <svg viewBox="0 0 68 68" width="68" height="68" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="34" cy="34" r="34" fill="rgba(0,0,0,0.72)"/>
+                  <path d="M48 34L26 46.5V21.5L48 34Z" fill="#fff"/>
+                </svg>
+              </span>
+              <span class="hero__video-sr">Přehrát představující video CzechMate na YouTube — otevře nový panel</span>
+            </a>
+          </div>
+          <p class="hero__video-footer">
+            <a href="https://youtu.be/_MS6OP3x6Z4" target="_blank" rel="noopener noreferrer">Otevřít na YouTube</a>
+          </p>
+        </div>
       </div>
     </section>
 
@@ -92,7 +125,7 @@
         <p class="section__intro">
           Šachy jsou nejkrásnější, když je člověk vidí na šachovnici a zároveň dostane jasnou zpětnou vazbu.
           CzechMate na to myslí od začátku: <strong>fyzický kontakt s figurkami</strong>, <strong>okamžité světlo na polích</strong>
-          a <strong>digitální vrstva</strong> s vysvětlením pravidel a pozice, partii proti počítači i rozhovorem s AI trenérem.
+          a <strong>digitální vrstva</strong> s vysvětlením pravidel a pozice, partii proti soupeři silnějšímu než kterýkoli živý velmistr (s nastavením síly) i rozhovorem s AI trenérem.
         </p>
         <div class="pillars__grid">
           <article class="pillar-card">
@@ -103,7 +136,7 @@
           <article class="pillar-card">
             <div class="pillar-card__num">02</div>
             <h3>Všechny úrovně hráčů</h3>
-            <p>Začátečník vidí, kam smí táhnout a co znamená šach nebo mat. Pokročilý řeší kombinace, tahové plány a hodnocení pozice — s podporou motoru i konverzací s koučem.</p>
+            <p>Začátečník vidí, kam smí táhnout a co znamená šach nebo mat. Pokročilý řeší kombinace, tahové plány a hodnocení pozice — včetně špičkového šachového motoru a konverzací s koučem.</p>
           </article>
           <article class="pillar-card">
             <div class="pillar-card__num">03</div>
@@ -145,23 +178,23 @@
 
     <section id="stockfish" class="section pillars" aria-labelledby="stockfish-title">
       <div class="section__inner">
-        <p class="section__label">Motor a protihráč</p>
-        <h2 id="stockfish-title" class="section__title">Stockfish — partii si zahraješ i proti „strojovému soupeři“</h2>
+        <p class="section__label">Protihráč z jiné ligy</p>
+        <h2 id="stockfish-title" class="section__title">Stockfish — zahraj si proti systému chytřejšímu ve šachu než nejlepší hráč na světě</h2>
         <p class="section__intro">
-          Soustava podporuje šachový motor <strong>Stockfish</strong>: přes rozhraní desky v prohlížeči (Wi‑Fi)
-          můžeš hrát proti počítači s nastavitelnou silou a sledovat návrhy tahů. V aplikaci CzechMate máš analýzu pozic
-          napojenou na stejný typ motoru — pomůže ti najít silné pokračování nebo pochopit, kde ses odchýlil od nejlepšího tahu.
+          V CzechMate běží motor <strong>Stockfish</strong>: typ výpočtu, který dnes v čisté síle tahů převyšuje jakéhokoli živého hráče včetně mistra světa.
+          Pro učení si ale umíš nastavit slabší úroveň a hrát klidné partie s předvídatelným tempem. Partii spustíš z rozhraní desky v prohlížeči (Wi‑Fi) i z aplikace —
+          sleduješ návrhy motoru, analyzuješ pozici a vidíš rozdíl mezi svým tahem a tím, co by zvolil „nejlepší možný“ výpočet.
         </p>
         <div class="pillars__grid">
           <article class="pillar-card">
             <div class="pillar-card__num pillar-card__num--badge">A</div>
-            <h3>Partie proti počítači</h3>
-            <p>Vhodné pro trénink bez lidského partnera: zkusíš si znovu klíčové pozice a ověříš plány proti konzistentnímu soupeři.</p>
+            <h3>Partie silnější než člověk</h3>
+            <p>Trénuj proti protihráči na úrovni špičkových enginů — nad lidský vrchol ve šachu. Sílu stáhni, když chceš pomalejší tempo nebo šetrný režim pro začátečníky.</p>
           </article>
           <article class="pillar-card">
             <div class="pillar-card__num pillar-card__num--badge">B</div>
             <h3>Orientační hodnocení</h3>
-            <p>Odhad výhody v přibližných pěšcích podle motoru ti pomůže číst pozici — zvlášť ve střední hře a koncovkách.</p>
+            <p>Odhad výhody v přibližných pěšcích podle motoru, který překoná i velmistry, ti pomůže číst pozici — zvlášť ve střední hře a koncovkách.</p>
           </article>
           <article class="pillar-card">
             <div class="pillar-card__num pillar-card__num--badge">C</div>
@@ -206,7 +239,7 @@
         <h2 id="app-title" class="section__title">Jeden klient pro spojení s deskou, výuku i analýzu</h2>
         <p class="section__intro">
           Aplikace pro Android a macOS drží přehled o partii, připojení k desce přes Bluetooth nebo síť,
-          výukové funkce i prostor pro Stockfish a AI kouče — vše v jednom programu, bez skákání mezi nástroji.
+          výukové funkce, hru a analýzu se Stockfishem (v šachu silnějším než kterýkoli živý hráč, s volbou síly) i AI kouče — vše v jednom programu, bez skákání mezi nástroji.
           V nastavení najdeš i <strong>aktualizaci softwaru desky</strong> podle aktuálního vydání — bez zapojování k počítači kabelem.
         </p>
         <div class="features__grid">
@@ -216,7 +249,7 @@
           </article>
           <article class="feature-tile">
             <h3>Analýza a Stockfish</h3>
-            <p>Ocenění tahů a návrhy pokračování díky vestavěnému napojení na motor Stockfish.</p>
+            <p>Hodnocení tahů a návrhy pokračování podle motoru, který ve výpočtu převyšuje i mistra světa — přímo v aplikaci.</p>
           </article>
           <article class="feature-tile">
             <h3>AI kouč / chat</h3>
@@ -228,11 +261,11 @@
           </article>
           <article class="feature-tile">
             <h3>Web na desce</h3>
-            <p>Z prohlížeče přes Wi‑Fi — výuka i hra proti botovi tam, kde má deska síť.</p>
+            <p>Z prohlížeče přes Wi‑Fi — výuka i partie se Stockfishem tam, kde má deska síť.</p>
           </article>
           <article class="feature-tile">
             <h3>Flash přímo z aplikace</h3>
-            <p>Nový software na desku nahraješ z aplikace CzechMate — bez programátoru a bez kabelů k čipu; přes Wi‑Fi i úplně bezdrátově. Průběh ti ukážou světla na šachovnici.</p>
+            <p>Nový software na desku nahraješ z aplikace CzechMate — bez programátoru a bez kabelů k čipu; přes Wi-Fi i úplně bezdrátově. Průběh ti ukážou světla na šachovnici.</p>
           </article>
           <article class="feature-tile">
             <h3>Open source ekosystém</h3>
