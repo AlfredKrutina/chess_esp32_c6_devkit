@@ -94,7 +94,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a> **Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (<code>flutter_czechmate/</code>).** Nativní Xcode projekt <code>CZECHMATE/</code> je jen lokálně (není v gitu).</p>
-<p><b>📲 CzechMate na telefonu a Macu:</b> <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktová stránka + stažení</a> (po deployi GitHub Pages) — Android APK a macOS DMG také přímo v <b><a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">GitHub Releases</a></b>. <b>iOS / iPad</b> a <b>Windows</b> <em>coming soon</em>.</p>
+<p><b>📲 CzechMate na telefonu a Macu:</b> <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktová stránka + stažení</a> — Android APK a macOS DMG také v <b><a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">GitHub Releases</a></b>. <b>iOS / iPad</b> a <b>Windows</b> <em>coming soon</em>.</p>
 <p><em>Šachmat, udělaný v Česku</em></p>
 <p><b>Dokumentace v repu:</b> Jednotný rozcestník — **`docs/README.md`** (doporučené pořadí čtení, inventář všech textů a diagramů, limity vs zdroják).</p>
 <hr  />
@@ -411,7 +411,7 @@ Flutter klient (&lt;tt&gt;flutter_czechmate/&lt;/tt&gt;)</h2>
 <li><b>Účel:</b> Jedna codebase pro Android / iOS / desktop; spojení s deskou (BLE a/nebo HTTP/WebSocket k webové vrstvě ESP32).</li>
 <li><b>Mobilní rozšíření (stav repa):</b> mimo jiné podpora <b>Live Activities</b> (iOS), <b>Wear OS</b> modul a chess clock notifikace na Androidu — viz zdroje v <code>flutter_czechmate/ios/</code> a <code>flutter_czechmate/android/wear/</code>.</li>
 <li><b>Build:</b> z kořene <code>cd flutter_czechmate &amp;&amp; flutter pub get &amp;&amp; flutter run</code> (vyžaduje Flutter SDK).</li>
-<li><b>Instalační balíčky z CI:</b> <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases">GitHub Releases</a> — workflow <a href=".github/workflows/flutter-app-release.yml">.github/workflows/flutter-app-release.yml</a> se po <b>pushi na main/master</b> spustí sám při změnách ve <code>flutter_czechmate/**</code> (release tag <code>app-&lt;verze&gt;-ci&lt;číslo&gt;</code>). Ruční build: stejný workflow v Actions → <em>Run workflow</em> (tag <code>app-&lt;verze&gt;</code> z <code>pubspec.yaml</code>). Volitelně git tag <code>app-*</code>. <b>APK</b> / <b>DMG</b> — debug podpis Androidu; DMG je <b>Apple Silicon</b> (arm64).</li>
+<li><b>Stažení hotové aplikace:</b> <a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases">GitHub Releases</a> — <b>APK</b> (Android) a <b>DMG</b> (macOS, Apple Silicon / arm64).</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md115"></a>
 ⚙️ Nastavení a Přizpůsobení (Web UI)</h2>
@@ -592,17 +592,11 @@ Mermaid Sequence Diagramy</h2>
 <p>Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.</p>
 <p>Přehled diagramů (README) — tasky, boot, fronty, matice, BLE/web v jedné stránce <br  />
  <a href="docs/diagrams/diagrams_mermaid.html">Mermaid — sekvenční diagramy (HTML)</a> — knihovna sekvencí z <code>mermaid_diagrams.txt</code> <br  />
- Architektura tasků — stejný graf jako v README + tabulka front · SVG/PNG z **<code>./scripts/render_docs.sh</code>** / CI (<a href=".github/workflows/docs-diagrams.yml"><code>docs-diagrams.yml</code></a>)</p>
+ Architektura tasků — stejný graf jako v README + tabulka front · SVG/PNG z **<code>./scripts/render_docs.sh</code>**</p>
 <p><b>Reference texty:</b> <a href="docs/reference/">docs/reference/</a>. V <code>.gitignore</code> zůstávají mimo remote např. <code>context/</code>, <code>docs/planning/</code>, <code>docs/archive/</code> — lokální poznámky.</p>
 <h2><a class="anchor" id="autotoc_md144"></a>
 GitHub Pages (veřejná dokumentace)</h2>
-<p>Po pushi na <code>main</code> workflow <a href=".github/workflows/gh-pages.yml">.github/workflows/gh-pages.yml</a> v CI vygeneruje Doxygen HTML, doplní Mermaid stránku a nasadí výsledek na větev **<code>gh-pages</code>** (složka <code>gh-pages-ready/</code> v repu slouží jen jako **<code>.nojekyll</code> + README**, ne kompletní site).</p>
-<ol type="1">
-<li>V repozitáři na GitHubu: <b>Settings → Pages → Build and deployment → Source:</b> <b>Deploy from a branch</b> → Branch <b>gh-pages</b>, folder **/ (root)** → Save. <br  />
-</li>
-<li>Po minutě běží web na <code><a href="https://">https://</a>&lt;uživatel&gt;.github.io/&lt;název-repa&gt;/</code> (úvodní stránka Doxygen: <code>index.html</code> na větvi <code>gh-pages</code>, Mermaid: <code>diagrams_mermaid.html</code>, produktovka: <code>downloads.html</code> tamtéž).</li>
-</ol>
-<p><b>Častá chyba (404 na <code>downloads.html</code>):</b> pokud je zdroj Pages <b>main</b> a složka **/docs**, GitHub publikuje <b>Jekyll</b> z dokumentace v repu — to <b>není</b> výstup z workflow výše. Workflow přitom může být zelený a soubory jsou na větvi <b>gh-pages</b>, ale živý web je z jiného zdroje. Oprava: přepni Pages na <b>gh-pages / (root)</b>. Jak poznáš Jekyll: v „View Page Source“ na kořeni stránky je <code>&lt;meta name="generator" content="Jekyll ..."/&gt;</code>.</p>
+<p>Veřejná dokumentace (Doxygen), Mermaid diagramy a produktová stránka se stažením aplikace jsou na <b><a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/">GitHub Pages</a></b> — přímý odkaz na stažení: <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">downloads.html</a>. Poznámky k nastavení nasazení pro správce repozitáře jsou v `gh-pages-ready/README.md`.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md146"></a>
 📁 Struktura projektu</h1>
@@ -638,7 +632,7 @@ GitHub Pages (veřejná dokumentace)</h2>
 <div class="line">│</div>
 <div class="line">├── build/                         # Build výstup ESP-IDF (generovaný, v .gitignore)</div>
 <div class="line">├── managed_components/            # IDF Component Manager (generovaný, v .gitignore)</div>
-<div class="line">├── gh-pages-ready/                # Jen .nojekyll + README; HTML Pages staví CI</div>
+<div class="line">├── gh-pages-ready/                # Produktová stránka (downloads), assety landing/, .nojekyll</div>
 <div class="line">├── flutter_czechmate/             # Flutter klient (BLE / HTTP / WS)</div>
 <div class="line">├── CZECHMATE/                     # Xcode projekt — .gitignore (jen lokálně)</div>
 <div class="line">├── context/                       # AI podklady — .gitignore (není v remote)</div>
