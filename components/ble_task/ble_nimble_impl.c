@@ -304,6 +304,10 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       }
       /* Raw firmware chunky: magic OB + idx/total + payload (nezapisovat do JSON bufferu). */
       if (n >= 7 && tmp[0] == 'O' && tmp[1] == 'B') {
+        if (!ble_task_conn_is_encrypted()) {
+          ESP_LOGW(TAG, "OTA BLE chunk rejected: link not encrypted");
+          return BLE_ATT_ERR_INSUFFICIENT_AUTHOR;
+        }
         esp_err_t derr = ota_update_ble_feed_chunk(tmp, n);
         static const char ack_chunk_ok[] =
             "{\"cmd\":\"ota_ble_chunk\",\"ok\":true}";
@@ -345,6 +349,10 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       }
       if (derr == ESP_ERR_INVALID_STATE) {
         ESP_LOGW(TAG, "CMD blocked: %s", esp_err_to_name(derr));
+        return BLE_ATT_ERR_INSUFFICIENT_AUTHOR;
+      }
+      if (derr == ESP_ERR_NOT_ALLOWED) {
+        ESP_LOGW(TAG, "CMD not allowed: %s", esp_err_to_name(derr));
         return BLE_ATT_ERR_INSUFFICIENT_AUTHOR;
       }
       if (derr == ESP_ERR_NOT_FOUND) {
@@ -751,6 +759,18 @@ void ble_task_format_status(char *buf, size_t cap) {
       (unsigned)g_cmd_ack_val_handle);
 }
 
+bool ble_task_conn_is_encrypted(void) {
+  if (s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
+    return false;
+  }
+  struct ble_gap_conn_desc desc;
+  int rc = ble_gap_conn_find(s_conn_handle, &desc);
+  if (rc != 0) {
+    return false;
+  }
+  return desc.sec_state.encrypted != 0;
+}
+
 void ble_task_push_network_info(void) {
   if (g_net_val_handle == 0) {
     ESP_LOGV(TAG, "push_network: skip (net handle 0)");
@@ -873,6 +893,7 @@ void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
 #else /* !CONFIG_BT_ENABLED */
 
 void ble_nimble_stack_init(void) {}
+bool ble_task_conn_is_encrypted(void) { return false; }
 bool ble_task_should_push_snapshot(void) { return false; }
 void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
   (void)data;

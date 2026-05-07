@@ -142,6 +142,36 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connect the board over Wi‑Fi or Bluetooth, then try the update again.';
 
   @override
+  String get errOtaBoardHttpMissingDetail =>
+      'Board HTTP URL is missing (AP or STA IP). Save it under Default board URL — status polling needs it alongside Bluetooth.';
+
+  @override
+  String get errOtaNoOtaPartitions =>
+      'This board has no OTA partitions (ota_0 + ota_1). Reflash with a dual‑OTA partition layout or update via USB.';
+
+  @override
+  String get errOtaStaRequiredForHttps =>
+      'Connect the board to Wi‑Fi as a station (STA) so it can download firmware over HTTPS.';
+
+  @override
+  String errOtaWifiStatusCheckFailed(String error) {
+    return 'Could not verify Wi‑Fi status: $error';
+  }
+
+  @override
+  String get errOtaPollUnreachable =>
+      'Could not read firmware update status from the board. Check the saved board HTTP URL (e.g. http://192.168.4.1).';
+
+  @override
+  String get errOtaPollTimeout =>
+      'Timed out waiting for the firmware update to finish.';
+
+  @override
+  String errOtaBoardReported(String message) {
+    return 'Firmware update: $message';
+  }
+
+  @override
   String get errHintsNeedConnection =>
       'Hint LEDs require a board connection. Pair via Bluetooth or connect Wi‑Fi first.';
 
@@ -995,6 +1025,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSaveUrl => 'Save URL';
 
   @override
+  String get settingsBoardApiTokenLabel => 'Board API token';
+
+  @override
+  String get settingsBoardApiTokenSubtitle =>
+      '64 hex characters from UART API_TOKEN — required for admin Wi‑Fi actions and OTA when the board enforces auth.';
+
+  @override
+  String get settingsSaveBoardApiToken => 'Save token';
+
+  @override
+  String get settingsBoardApiTokenSavedSnack => 'API token saved';
+
+  @override
+  String get settingsBoardApiTokenClearedSnack => 'API token cleared';
+
+  @override
   String get settingsBleOnlyTitle => 'Bluetooth only';
 
   @override
@@ -1680,28 +1726,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.';
 
   @override
-  String get firmwareBleOtaKeepForegroundWarning =>
-      'Important: keep this screen open with the phone awake for the fastest transfer. If Bluetooth disconnects, reconnect within 24 hours — the board pauses and the app resumes from the same progress. The app disables auto‑sleep during transfer (iOS may still throttle Bluetooth in background).';
-
-  @override
-  String get firmwareOtaHttpMayLeaveAppHint =>
-      'While the board downloads the firmware, you can leave the app — the ESP does the work. The progress bar may not update until you return; the board still reboots when finished.';
+  String get firmwareBleUploadDoneSnack =>
+      'Bluetooth upload finished — the board may reboot.';
 
   @override
   String get firmwareBleOtaReturnedFromBackgroundSnack =>
-      'You left the app during Bluetooth firmware transfer — the update may have stalled or failed. If progress stopped, try again and keep CzechMate in the foreground.';
+      'You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and the phone close to the board.';
+
+  @override
+  String get firmwareOtaHttpMayLeaveAppHint =>
+      'The system may briefly switch away from this app when handling an HTTPS link — that’s OK. Open CzechMate again and watch progress via the board HTTP URL.';
+
+  @override
+  String get firmwareBleOtaKeepForegroundWarning =>
+      'Keep CzechMate in the foreground and avoid locking the phone until the Bluetooth transfer finishes.';
 
   @override
   String get firmwareBleOtaPausedReconnectDetail =>
-      'Firmware transfer paused — Bluetooth disconnected. Reconnect to the board within 24 hours; the upload will continue automatically.';
+      'Bluetooth transfer paused — reconnecting to the board…';
 
   @override
   String get firmwareBleOtaResumedTransferDetail =>
-      'Bluetooth reconnected — continuing firmware transfer.';
-
-  @override
-  String get firmwareBleUploadDoneSnack =>
-      'Bluetooth upload finished — the board may reboot.';
+      'Connection restored — continuing firmware transfer.';
 
   @override
   String get firmwareOtaSlotsDisabledHint =>

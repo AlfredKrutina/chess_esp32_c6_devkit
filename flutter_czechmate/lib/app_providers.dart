@@ -20,7 +20,10 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
 });
 
 final boardApiClientProvider = Provider<BoardApiClient>((ref) {
-  final c = BoardApiClient();
+  final prefs = ref.watch(prefsRepositoryProvider);
+  final c = BoardApiClient(
+    resolveBoardApiBearerToken: () => prefs.boardApiToken,
+  );
   ref.onDispose(c.close);
   return c;
 });

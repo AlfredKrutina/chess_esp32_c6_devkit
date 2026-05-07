@@ -13,12 +13,35 @@ import 'board_api_exception.dart';
 
 /// REST klient ESP — `ChessboardAPIClient.swift` + `ChessboardAPIClient+Extras.swift`.
 class BoardApiClient {
-  BoardApiClient({http.Client? httpClient, Duration? timeout})
-      : _client = httpClient ?? http.Client(),
+  BoardApiClient({
+    http.Client? httpClient,
+    Duration? timeout,
+    this.resolveBoardApiBearerToken,
+  })  : _client = httpClient ?? http.Client(),
         _timeout = timeout ?? const Duration(seconds: 35);
 
   final http.Client _client;
   final Duration _timeout;
+
+  /// 64 hex znaků z UART `API_TOKEN` — hlavička `Authorization: Bearer …`.
+  final String? Function()? resolveBoardApiBearerToken;
+
+  Map<String, String> _headersJson() {
+    final h = <String, String>{'Content-Type': 'application/json'};
+    final t = resolveBoardApiBearerToken?.call()?.trim();
+    if (t != null && t.isNotEmpty) {
+      h['Authorization'] = 'Bearer $t';
+    }
+    return h;
+  }
+
+  Map<String, String> _headersOptional() {
+    final t = resolveBoardApiBearerToken?.call()?.trim();
+    if (t == null || t.isEmpty) {
+      return <String, String>{};
+    }
+    return <String, String>{'Authorization': 'Bearer $t'};
+  }
 
   /// IP bez schématu (`192.168.4.1`) dává v Dartu URI bez hostitele → `resolve('api/…')` je jen cesta a HTTP spadne.
   Uri _base(String baseUrl) {
@@ -92,7 +115,7 @@ class BoardApiClient {
           })
         : jsonEncode({'type': type});
     final res = await _client
-        .post(uri, headers: _jsonHeaders, body: body)
+        .post(uri, headers: _headersJson(), body: body)
         .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
@@ -110,11 +133,13 @@ class BoardApiClient {
         ? await _client
             .post(
               uri,
-              headers: _jsonHeaders,
+              headers: _headersJson(),
               body: jsonEncode({'fen': fen}),
             )
             .timeout(_timeout)
-        : await _client.post(uri).timeout(_timeout);
+        : await _client
+            .post(uri, headers: _headersOptional())
+            .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -133,9 +158,15 @@ class BoardApiClient {
       map['promotion'] = promotion.toUpperCase();
     }
     final res = await _client
-        .post(uri, headers: _jsonHeaders, body: jsonEncode(map))
+        .post(uri, headers: _headersJson(), body: jsonEncode(map))
         .timeout(_timeout);
-    if (res.statusCode == 403) throw BoardApiException.webLocked();
+    if (res.statusCode == 403) {
+      final err = _extractJsonErrorCode(res.bodyBytes);
+      if (err == 'web_locked') throw BoardApiException.webLocked();
+      if (err == 'api_token_required') {
+        throw BoardApiException.apiTokenRequired();
+      }
+    }
     if (res.statusCode == 400) {
       final msg = _extractMessage(res.bodyBytes);
       throw BoardApiException('Illegal move', statusCode: 400, detail: msg);
@@ -154,7 +185,7 @@ class BoardApiClient {
     if (square != null) map['square'] = square.toLowerCase();
     if (choice != null) map['choice'] = choice.toUpperCase();
     final res = await _client
-        .post(uri, headers: _jsonHeaders, body: jsonEncode(map))
+        .post(uri, headers: _headersJson(), body: jsonEncode(map))
         .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
@@ -176,7 +207,7 @@ class BoardApiClient {
     final res = await _client
         .post(
           uri,
-          headers: _jsonHeaders,
+          headers: _headersJson(),
           body: jsonEncode({'ssid': ssid, 'password': password}),
         )
         .timeout(_timeout);
@@ -186,7 +217,7 @@ class BoardApiClient {
   Future<void> postHintHighlight(String baseUrl, {required String from, required String to}) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
     final body = jsonEncode({'from': from.toLowerCase(), 'to': to.toLowerCase()});
-    final res = await _client.post(uri, headers: _jsonHeaders, body: body).timeout(_timeout);
+    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -197,7 +228,7 @@ class BoardApiClient {
   Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
     final body = jsonEncode({'to': toSquare.toLowerCase()});
-    final res = await _client.post(uri, headers: _jsonHeaders, body: body).timeout(_timeout);
+    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -205,7 +236,7 @@ class BoardApiClient {
   Future<void> postSetupTutorial(String baseUrl, {required String action}) async {
     final uri = _api(baseUrl, 'api/game/setup_tutorial');
     final body = jsonEncode({'action': action});
-    final res = await _client.post(uri, headers: _jsonHeaders, body: body).timeout(_timeout);
+    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -223,7 +254,7 @@ class BoardApiClient {
   Future<void> postBrightness(String baseUrl, int percent) async {
     final uri = _api(baseUrl, 'api/settings/brightness');
     final body = jsonEncode({'brightness': percent.clamp(0, 100)});
-    final res = await _client.post(uri, headers: _jsonHeaders, body: body).timeout(_timeout);
+    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
@@ -240,7 +271,7 @@ class BoardApiClient {
     final map = <String, dynamic>{'host': host, 'port': port};
     if (username != null && username.isNotEmpty) map['username'] = username;
     if (password != null && password.isNotEmpty) map['password'] = password;
-    final res = await _client.post(uri, headers: _jsonHeaders, body: jsonEncode(map)).timeout(_timeout);
+    final res = await _client.post(uri, headers: _headersJson(), body: jsonEncode(map)).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -248,7 +279,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/system/factory_reset');
     final res = await _client.post(
        uri, 
-       headers: _jsonHeaders, 
+       headers: _headersJson(), 
        body: jsonEncode({'confirm': 'erase_all_nvs'})
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
@@ -266,7 +297,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/settings/ui');
     final res = await _client.post(
       uri,
-      headers: _jsonHeaders,
+      headers: _headersJson(),
       body: jsonEncode(payload.toJson()),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
@@ -277,7 +308,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/settings/lamp');
     final res = await _client.post(
       uri,
-      headers: _jsonHeaders,
+      headers: _headersJson(),
       body: jsonEncode({'auto_lamp_timeout_sec': seconds.clamp(5, 7200)}),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
@@ -288,7 +319,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/settings/led_guidance');
     final res = await _client.post(
       uri,
-      headers: _jsonHeaders,
+      headers: _headersJson(),
       body: jsonEncode({'led_guidance_level': level.clamp(1, 5)}),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
@@ -299,7 +330,7 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/settings/guided_hints');
     final res = await _client.post(
       uri,
-      headers: _jsonHeaders,
+      headers: _headersJson(),
       body: jsonEncode({'guided_capture_hints_enabled': enabled}),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
@@ -321,14 +352,15 @@ class BoardApiClient {
       'b': b.clamp(0, 255),
     });
     final res =
-        await _client.post(uri, headers: _jsonHeaders, body: body).timeout(_timeout);
+        await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
   /// `POST /api/light/game_mode` — LED podle herního režimu.
   Future<void> postLightGameMode(String baseUrl) async {
     final uri = _api(baseUrl, 'api/light/game_mode');
-    final res = await _client.post(uri).timeout(_timeout);
+    final res =
+        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
@@ -349,26 +381,29 @@ class BoardApiClient {
     final map = <String, dynamic>{'enabled': enabled};
     if (speedMs != null) map['speed_ms'] = speedMs;
     final res = await _client
-        .post(uri, headers: _jsonHeaders, body: jsonEncode(map))
+        .post(uri, headers: _headersJson(), body: jsonEncode(map))
         .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
   Future<void> postDemoStart(String baseUrl) async {
     final uri = _api(baseUrl, 'api/demo/start');
-    final res = await _client.post(uri).timeout(_timeout);
+    final res =
+        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
   Future<void> postWiFiDisconnect(String baseUrl) async {
     final uri = _api(baseUrl, 'api/wifi/disconnect');
-    final res = await _client.post(uri).timeout(_timeout);
+    final res =
+        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
   Future<void> postWiFiClear(String baseUrl) async {
     final uri = _api(baseUrl, 'api/wifi/clear');
-    final res = await _client.post(uri).timeout(_timeout);
+    final res =
+        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -428,14 +463,21 @@ class BoardApiClient {
     final res = await _client
         .post(
           uri,
-          headers: _jsonHeaders,
+          headers: _headersJson(),
           body: jsonEncode({'url': url}),
         )
         .timeout(_timeout);
     if (res.statusCode == 409) {
       throw BoardApiException(
-        'Cannot start OTA (already running, or board has no Wi‑Fi STA to the internet).',
+        'Cannot start OTA (another update is already in progress).',
         statusCode: 409,
+        detail: _extractMessage(res.bodyBytes),
+      );
+    }
+    if (res.statusCode == 428) {
+      throw BoardApiException(
+        'HTTPS firmware download requires the board connected to Wi‑Fi as a station.',
+        statusCode: 428,
         detail: _extractMessage(res.bodyBytes),
       );
     }
@@ -448,19 +490,46 @@ class BoardApiClient {
         detail: _extractMessage(res.bodyBytes),
       );
     }
+    if (res.statusCode == 403) {
+      final err = _extractJsonErrorCode(res.bodyBytes);
+      if (err == 'web_locked') throw BoardApiException.webLocked();
+      if (err == 'api_token_required') {
+        throw BoardApiException.apiTokenRequired();
+      }
+    }
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
-  static const _jsonHeaders = {'Content-Type': 'application/json'};
-
   Future<void> _postEmpty(String baseUrl, String path, {bool webLock = false}) async {
     final uri = _api(baseUrl, path);
-    final res = await _client.post(uri).timeout(_timeout);
+    final res =
+        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: webLock);
   }
 
+  String? _extractJsonErrorCode(List<int> body) {
+    if (body.isEmpty) return null;
+    try {
+      final obj = decodeHttpJsonMap(body);
+      final e = obj['error'];
+      if (e is String && e.trim().isNotEmpty) return e.trim();
+    } catch (_) {}
+    return null;
+  }
+
   void _validate(int code, List<int> body, {required bool treat403WebLock}) {
-    if (code == 403 && treat403WebLock) throw BoardApiException.webLocked();
+    if (code == 403) {
+      final err = _extractJsonErrorCode(body);
+      if (err == 'web_locked') {
+        throw BoardApiException.webLocked();
+      }
+      if (err == 'api_token_required') {
+        throw BoardApiException.apiTokenRequired();
+      }
+      if (treat403WebLock && err == null) {
+        throw BoardApiException.webLocked();
+      }
+    }
     if (code >= 200 && code < 300) return;
     final msg = _extractMessage(body);
     throw BoardApiException(

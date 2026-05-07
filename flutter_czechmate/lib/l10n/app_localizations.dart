@@ -332,6 +332,48 @@ abstract class AppLocalizations {
   /// **'Connect the board over Wi‑Fi or Bluetooth, then try the update again.'**
   String get errOtaConnectFirst;
 
+  /// No description provided for @errOtaBoardHttpMissingDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Board HTTP URL is missing (AP or STA IP). Save it under Default board URL — status polling needs it alongside Bluetooth.'**
+  String get errOtaBoardHttpMissingDetail;
+
+  /// No description provided for @errOtaNoOtaPartitions.
+  ///
+  /// In en, this message translates to:
+  /// **'This board has no OTA partitions (ota_0 + ota_1). Reflash with a dual‑OTA partition layout or update via USB.'**
+  String get errOtaNoOtaPartitions;
+
+  /// No description provided for @errOtaStaRequiredForHttps.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board to Wi‑Fi as a station (STA) so it can download firmware over HTTPS.'**
+  String get errOtaStaRequiredForHttps;
+
+  /// No description provided for @errOtaWifiStatusCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not verify Wi‑Fi status: {error}'**
+  String errOtaWifiStatusCheckFailed(String error);
+
+  /// No description provided for @errOtaPollUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read firmware update status from the board. Check the saved board HTTP URL (e.g. http://192.168.4.1).'**
+  String get errOtaPollUnreachable;
+
+  /// No description provided for @errOtaPollTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed out waiting for the firmware update to finish.'**
+  String get errOtaPollTimeout;
+
+  /// No description provided for @errOtaBoardReported.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware update: {message}'**
+  String errOtaBoardReported(String message);
+
   /// No description provided for @errHintsNeedConnection.
   ///
   /// In en, this message translates to:
@@ -1832,6 +1874,36 @@ abstract class AppLocalizations {
   /// **'Save URL'**
   String get settingsSaveUrl;
 
+  /// No description provided for @settingsBoardApiTokenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Board API token'**
+  String get settingsBoardApiTokenLabel;
+
+  /// No description provided for @settingsBoardApiTokenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'64 hex characters from UART API_TOKEN — required for admin Wi‑Fi actions and OTA when the board enforces auth.'**
+  String get settingsBoardApiTokenSubtitle;
+
+  /// No description provided for @settingsSaveBoardApiToken.
+  ///
+  /// In en, this message translates to:
+  /// **'Save token'**
+  String get settingsSaveBoardApiToken;
+
+  /// No description provided for @settingsBoardApiTokenSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'API token saved'**
+  String get settingsBoardApiTokenSavedSnack;
+
+  /// No description provided for @settingsBoardApiTokenClearedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'API token cleared'**
+  String get settingsBoardApiTokenClearedSnack;
+
   /// No description provided for @settingsBleOnlyTitle.
   ///
   /// In en, this message translates to:
@@ -3087,41 +3159,41 @@ abstract class AppLocalizations {
   /// **'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.'**
   String get firmwareSendViaBleBody;
 
-  /// No description provided for @firmwareBleOtaKeepForegroundWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'Important: keep this screen open with the phone awake for the fastest transfer. If Bluetooth disconnects, reconnect within 24 hours — the board pauses and the app resumes from the same progress. The app disables auto‑sleep during transfer (iOS may still throttle Bluetooth in background).'**
-  String get firmwareBleOtaKeepForegroundWarning;
-
-  /// No description provided for @firmwareOtaHttpMayLeaveAppHint.
-  ///
-  /// In en, this message translates to:
-  /// **'While the board downloads the firmware, you can leave the app — the ESP does the work. The progress bar may not update until you return; the board still reboots when finished.'**
-  String get firmwareOtaHttpMayLeaveAppHint;
-
-  /// No description provided for @firmwareBleOtaReturnedFromBackgroundSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'You left the app during Bluetooth firmware transfer — the update may have stalled or failed. If progress stopped, try again and keep CzechMate in the foreground.'**
-  String get firmwareBleOtaReturnedFromBackgroundSnack;
-
-  /// No description provided for @firmwareBleOtaPausedReconnectDetail.
-  ///
-  /// In en, this message translates to:
-  /// **'Firmware transfer paused — Bluetooth disconnected. Reconnect to the board within 24 hours; the upload will continue automatically.'**
-  String get firmwareBleOtaPausedReconnectDetail;
-
-  /// No description provided for @firmwareBleOtaResumedTransferDetail.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth reconnected — continuing firmware transfer.'**
-  String get firmwareBleOtaResumedTransferDetail;
-
   /// No description provided for @firmwareBleUploadDoneSnack.
   ///
   /// In en, this message translates to:
   /// **'Bluetooth upload finished — the board may reboot.'**
   String get firmwareBleUploadDoneSnack;
+
+  /// No description provided for @firmwareBleOtaReturnedFromBackgroundSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and the phone close to the board.'**
+  String get firmwareBleOtaReturnedFromBackgroundSnack;
+
+  /// No description provided for @firmwareOtaHttpMayLeaveAppHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The system may briefly switch away from this app when handling an HTTPS link — that’s OK. Open CzechMate again and watch progress via the board HTTP URL.'**
+  String get firmwareOtaHttpMayLeaveAppHint;
+
+  /// No description provided for @firmwareBleOtaKeepForegroundWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep CzechMate in the foreground and avoid locking the phone until the Bluetooth transfer finishes.'**
+  String get firmwareBleOtaKeepForegroundWarning;
+
+  /// No description provided for @firmwareBleOtaPausedReconnectDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth transfer paused — reconnecting to the board…'**
+  String get firmwareBleOtaPausedReconnectDetail;
+
+  /// No description provided for @firmwareBleOtaResumedTransferDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection restored — continuing firmware transfer.'**
+  String get firmwareBleOtaResumedTransferDetail;
 
   /// No description provided for @firmwareOtaSlotsDisabledHint.
   ///

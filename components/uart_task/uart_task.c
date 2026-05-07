@@ -165,6 +165,7 @@
 #include "../uart_commands_extended/include/uart_commands_extended.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "../web_server_task/include/web_server_task.h"
+#include "../web_server_task/include/board_api_auth.h"
 #include "config_manager.h"
 #include "esp_system.h"
 #include "freertos_chess.h"
@@ -1402,6 +1403,7 @@ command_result_t uart_cmd_wifi_clear(const char *args);
 // Web control UART prikazy
 command_result_t uart_cmd_web_lock(const char *args);
 command_result_t uart_cmd_web_status(const char *args);
+command_result_t uart_cmd_api_token(const char *args);
 command_result_t uart_cmd_ble(const char *args);
 
 // MQTT control UART prikazy
@@ -2858,6 +2860,12 @@ static const uart_command_t commands[] = {
      "",
      false,
      {"WEB", "WS", "", "", ""}},
+    {"API_TOKEN",
+     uart_cmd_api_token,
+     "Print or rotate HTTP admin Bearer token (64 hex chars)",
+     "API_TOKEN [ROTATE]",
+     true,
+     {"BOARD_TOKEN", "HTTP_TOKEN", "", "", ""}},
     {"BLE",
      uart_cmd_ble,
      "Bluetooth LE / GATT status (CZECHMATE)",
@@ -4126,6 +4134,56 @@ command_result_t uart_cmd_web_status(const char *args) {
   uart_send_formatted(
       "═══════════════════════════════════════════════════════════════");
 
+  return CMD_SUCCESS;
+}
+
+command_result_t uart_cmd_api_token(const char *args) {
+  SAFE_WDT_RESET();
+  const char *p = args;
+  if (p != NULL) {
+    while (*p == ' ' || *p == '\t') {
+      p++;
+    }
+  }
+  bool rotate = false;
+  if (p != NULL && p[0] != '\0') {
+    char u[12] = {0};
+    size_t i = 0;
+    while (p[i] && i < sizeof(u) - 1) {
+      char c = p[i];
+      if (c >= 'a' && c <= 'z') {
+        c = (char)(c - 'a' + 'A');
+      }
+      u[i] = c;
+      i++;
+    }
+    if (strcmp(u, "ROTATE") == 0 || strcmp(u, "NEW") == 0) {
+      rotate = true;
+    }
+  }
+
+  if (rotate) {
+    esp_err_t e = board_api_auth_rotate_token();
+    if (e != ESP_OK) {
+      uart_send_formatted("API_TOKEN ROTATE failed: %s", esp_err_to_name(e));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_formatted("New board HTTP API token:");
+  } else {
+    uart_send_formatted("Board HTTP API token — use header:");
+    uart_send_formatted("  Authorization: Bearer <hex>");
+    uart_send_formatted("Hex (64 chars):");
+  }
+
+  char hex[72];
+  if (board_api_auth_get_token_hex(hex, sizeof(hex)) != ESP_OK) {
+    uart_send_error("Token unavailable (NVS / init error)");
+    return CMD_ERROR_SYSTEM_ERROR;
+  }
+  uart_send_formatted("  %s", hex);
+  if (!rotate) {
+    uart_send_formatted("Rotate: API_TOKEN ROTATE");
+  }
   return CMD_SUCCESS;
 }
 

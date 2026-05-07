@@ -39,6 +39,27 @@
   "errOtaBleGatt": "Bluetooth GATT není připojené — znovu připoj desku z karty Hra nebo z Objevování desky.",
   "errOtaMock": "OTA není dostupná u demo desky.",
   "errOtaConnectFirst": "Připoj desku přes Wi‑Fi nebo Bluetooth a pak zkus aktualizaci znovu.",
+  "errOtaBoardHttpMissingDetail": "Chybí HTTP adresa desky (AP nebo STA IP). Ulož ji jako výchozí URL desky — sledování průběhu ji potřebuje i přes Bluetooth.",
+  "errOtaNoOtaPartitions": "Tato deska nemá OTA oddíly (ota_0 + ota_1). Přeflashuj rozložením s dual OTA nebo aktualizuj přes USB.",
+  "errOtaStaRequiredForHttps": "Připoj desku k Wi‑Fi jako stanici (STA), aby mohla stáhnout firmware přes HTTPS.",
+  "errOtaWifiStatusCheckFailed": "Nepodařilo se ověřit Wi‑Fi: {error}",
+  "@errOtaWifiStatusCheckFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtaPollUnreachable": "Nepodařilo se číst stav aktualizace z desky. Zkontroluj uloženou HTTP adresu desky (např. http://192.168.4.1).",
+  "errOtaPollTimeout": "Vypršel čas čekání na dokončení aktualizace firmwaru.",
+  "errOtaBoardReported": "Aktualizace firmwaru: {message}",
+  "@errOtaBoardReported": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "errHintsNeedConnection": "Nápovědní LED vyžadují připojení desky. Nejprve Bluetooth nebo Wi‑Fi.",
   "errNoActiveSession": "Žádné aktivní připojení k desce. Připoj ji přes Wi‑Fi nebo Bluetooth z obrazovky Objevování desky.",
   "errBrightnessNeedsBoard": "Jas vyžaduje připojenou desku (Wi‑Fi nebo Bluetooth).",
@@ -554,6 +575,11 @@
   "settingsInvalidUrlSnack": "Neplatná URL — zadej hostitele (např. 192.168.4.1 nebo http://…)",
   "settingsSavedSnack": "Uloženo",
   "settingsSaveUrl": "Uložit URL",
+  "settingsBoardApiTokenLabel": "API token desky",
+  "settingsBoardApiTokenSubtitle": "64 hex znaků z UART příkazu API_TOKEN — nutné pro admin akce přes Wi‑Fi a OTA, pokud deska vyžaduje autorizaci.",
+  "settingsSaveBoardApiToken": "Uložit token",
+  "settingsBoardApiTokenSavedSnack": "API token uložen",
+  "settingsBoardApiTokenClearedSnack": "API token smazán",
   "settingsBleOnlyTitle": "Jen Bluetooth",
   "settingsBleOnlySubtitle": "Nepřepínat na Wi‑Fi po BLE",
   "settingsWebSocketTitle": "Snímek stavu přes WebSocket",
@@ -855,12 +881,12 @@
   "firmwareOneStepHttpsOta": "Nebo: deska stáhne přes HTTPS (potřebuje klienta STA)",
   "firmwareSendViaBle": "Odeslat přes Bluetooth",
   "firmwareSendViaBleBody": "Celý obraz firmwaru se přenese jen přes Bluetooth (nepotřebuješ hotspot desky ani STA). Drž telefon blízko desky, dokud spojení neskončí — deska se restartuje.",
-  "firmwareBleOtaKeepForegroundWarning": "Důležité: nech obrazovku zapnutou kvůli rychlosti přenosu. Když spadne Bluetooth, znovu připoj do 24 h — deska přenos pozastaví a aplikace pokračuje od stejného místa. Aplikace na čas vypne uspávání displeje (iOS může Bluetooth na pozadí omezit).",
-  "firmwareOtaHttpMayLeaveAppHint": "Když už deska firmware stahuje, aplikaci můžeš minimalizovat — stahuje ESP. Ukazatel průběhu se nemusí obnovovat, dokud se nevrátíš; deska se po dokončení stejně restartuje.",
-  "firmwareBleOtaReturnedFromBackgroundSnack": "Během přenosu firmwaru přes Bluetooth jsi aplikaci opustil — aktualizace mohla zamrznout nebo selhat. Pokud se průběh zastavil, zkus to znovu a nech CzechMate popředí.",
-  "firmwareBleOtaPausedReconnectDetail": "Přenos firmwaru pozastaven — spadlo Bluetooth. Znovu připoj telefon k desce do 24 h; nahrávání pak pokračuje samo.",
-  "firmwareBleOtaResumedTransferDetail": "Bluetooth znovu spojen — pokračuji v přenosu firmwaru.",
   "firmwareBleUploadDoneSnack": "Odeslání přes Bluetooth dokončeno — deska se může restartovat.",
+  "firmwareBleOtaReturnedFromBackgroundSnack": "Vrátil(a) ses během přenosu firmwaru přes Bluetooth. Pokud se nic neděje, nech CzechMate v popředí a telefon blízko desky.",
+  "firmwareOtaHttpMayLeaveAppHint": "Systém se při práci s HTTPS odkazem může na chvíli přepnout jinam — to je v pořádku. Znovu otevři CzechMate a sleduj průběh přes HTTP adresu desky.",
+  "firmwareBleOtaKeepForegroundWarning": "Nech CzechMate v popředí a telefon nezamykaj, dokud přenos přes Bluetooth neskončí.",
+  "firmwareBleOtaPausedReconnectDetail": "Přenos přes Bluetooth pozastaven — obnovuji spojení s deskou…",
+  "firmwareBleOtaResumedTransferDetail": "Spojení obnoveno — pokračuji v přenosu firmwaru.",
   "firmwareOtaSlotsDisabledHint": "Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu).",
   "firmwareBoardHttpMissingDetail": "Chybí HTTP adresa desky (např. http://192.168.4.1). V nastavení ulož výchozí URL desky. Samotné Bluetooth IP neposkytuje.",
   "firmwareHttpsLinkExplainBody": "Ty jen pošleš odkaz HTTPS — celý soubor .bin stáhne ESP. Deska musí být připojená k Wi‑Fi jako klient (STA). Příkaz ke startu můžeš poslat přes HTTP na Wi‑Fi nebo přes Bluetooth; průběh se čte přes HTTP na IP desky.",

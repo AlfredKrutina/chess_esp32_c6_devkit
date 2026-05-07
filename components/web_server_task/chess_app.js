@@ -85,6 +85,27 @@ function pieceImgHtml(ch) {
 /** Zabrání souběhu několika fetchData na pomalé síti / přetíženém HTTPD. */
 let fetchDataInFlight = false;
 
+/**
+ * Hlavičky pro admin POST — doplní Bearer z localStorage `czechmate_api_token`
+ * (64 hex z UART `API_TOKEN`), pokud je uložen.
+ * @param {Object.<string,string>} [base] základní hlavičky (např. Content-Type)
+ */
+function boardApiAuthHeaders(base) {
+    const h = {};
+    if (base) {
+        for (const k of Object.keys(base)) {
+            h[k] = base[k];
+        }
+    }
+    try {
+        const t = localStorage.getItem('czechmate_api_token');
+        if (t && String(t).trim()) {
+            h['Authorization'] = 'Bearer ' + String(t).trim();
+        }
+    } catch (e) {}
+    return h;
+}
+
 let boardData = [];
 let statusData = {};
 /** Poslední stav puzzle ze úspěšného pollingu — zobrazení panelu při výpadku HTTP (offline). */
@@ -4305,7 +4326,7 @@ async function saveWiFiConfig() {
     try {
         const response = await fetch('/api/wifi/config', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: boardApiAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ ssid: ssid, password: password })
         });
         const data = await response.json();
@@ -4321,7 +4342,10 @@ async function saveWiFiConfig() {
 
 async function connectSTA() {
     try {
-        const response = await fetch('/api/wifi/connect', { method: 'POST' });
+        const response = await fetch('/api/wifi/connect', {
+            method: 'POST',
+            headers: boardApiAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
             alert('Připojování k WiFi...');
@@ -4336,7 +4360,10 @@ async function connectSTA() {
 
 async function disconnectSTA() {
     try {
-        const response = await fetch('/api/wifi/disconnect', { method: 'POST' });
+        const response = await fetch('/api/wifi/disconnect', {
+            method: 'POST',
+            headers: boardApiAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
             alert('Odpojeno od WiFi');
@@ -4354,7 +4381,10 @@ async function clearWiFiConfig() {
         return;
     }
     try {
-        const response = await fetch('/api/wifi/clear', { method: 'POST' });
+        const response = await fetch('/api/wifi/clear', {
+            method: 'POST',
+            headers: boardApiAuthHeaders()
+        });
         const data = await response.json();
         if (data.success) {
             alert('WiFi konfigurace smazána.');
@@ -4378,7 +4408,7 @@ async function factoryResetDevice() {
     try {
         const response = await fetch('/api/system/factory_reset', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: boardApiAuthHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({ confirm: 'erase_all_nvs' })
         });
         var data = {};

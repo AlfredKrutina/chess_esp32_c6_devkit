@@ -143,6 +143,36 @@ class AppLocalizationsCs extends AppLocalizations {
       'Připoj desku přes Wi‑Fi nebo Bluetooth a pak zkus aktualizaci znovu.';
 
   @override
+  String get errOtaBoardHttpMissingDetail =>
+      'Chybí HTTP adresa desky (AP nebo STA IP). Ulož ji jako výchozí URL desky — sledování průběhu ji potřebuje i přes Bluetooth.';
+
+  @override
+  String get errOtaNoOtaPartitions =>
+      'Tato deska nemá OTA oddíly (ota_0 + ota_1). Přeflashuj rozložením s dual OTA nebo aktualizuj přes USB.';
+
+  @override
+  String get errOtaStaRequiredForHttps =>
+      'Připoj desku k Wi‑Fi jako stanici (STA), aby mohla stáhnout firmware přes HTTPS.';
+
+  @override
+  String errOtaWifiStatusCheckFailed(String error) {
+    return 'Nepodařilo se ověřit Wi‑Fi: $error';
+  }
+
+  @override
+  String get errOtaPollUnreachable =>
+      'Nepodařilo se číst stav aktualizace z desky. Zkontroluj uloženou HTTP adresu desky (např. http://192.168.4.1).';
+
+  @override
+  String get errOtaPollTimeout =>
+      'Vypršel čas čekání na dokončení aktualizace firmwaru.';
+
+  @override
+  String errOtaBoardReported(String message) {
+    return 'Aktualizace firmwaru: $message';
+  }
+
+  @override
   String get errHintsNeedConnection =>
       'Nápovědní LED vyžadují připojení desky. Nejprve Bluetooth nebo Wi‑Fi.';
 
@@ -996,6 +1026,22 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsSaveUrl => 'Uložit URL';
 
   @override
+  String get settingsBoardApiTokenLabel => 'API token desky';
+
+  @override
+  String get settingsBoardApiTokenSubtitle =>
+      '64 hex znaků z UART příkazu API_TOKEN — nutné pro admin akce přes Wi‑Fi a OTA, pokud deska vyžaduje autorizaci.';
+
+  @override
+  String get settingsSaveBoardApiToken => 'Uložit token';
+
+  @override
+  String get settingsBoardApiTokenSavedSnack => 'API token uložen';
+
+  @override
+  String get settingsBoardApiTokenClearedSnack => 'API token smazán';
+
+  @override
   String get settingsBleOnlyTitle => 'Jen Bluetooth';
 
   @override
@@ -1681,28 +1727,28 @@ class AppLocalizationsCs extends AppLocalizations {
       'Celý obraz firmwaru se přenese jen přes Bluetooth (nepotřebuješ hotspot desky ani STA). Drž telefon blízko desky, dokud spojení neskončí — deska se restartuje.';
 
   @override
-  String get firmwareBleOtaKeepForegroundWarning =>
-      'Důležité: nech obrazovku zapnutou kvůli rychlosti přenosu. Když spadne Bluetooth, znovu připoj do 24 h — deska přenos pozastaví a aplikace pokračuje od stejného místa. Aplikace na čas vypne uspávání displeje (iOS může Bluetooth na pozadí omezit).';
-
-  @override
-  String get firmwareOtaHttpMayLeaveAppHint =>
-      'Když už deska firmware stahuje, aplikaci můžeš minimalizovat — stahuje ESP. Ukazatel průběhu se nemusí obnovovat, dokud se nevrátíš; deska se po dokončení stejně restartuje.';
+  String get firmwareBleUploadDoneSnack =>
+      'Odeslání přes Bluetooth dokončeno — deska se může restartovat.';
 
   @override
   String get firmwareBleOtaReturnedFromBackgroundSnack =>
-      'Během přenosu firmwaru přes Bluetooth jsi aplikaci opustil — aktualizace mohla zamrznout nebo selhat. Pokud se průběh zastavil, zkus to znovu a nech CzechMate popředí.';
+      'Vrátil(a) ses během přenosu firmwaru přes Bluetooth. Pokud se nic neděje, nech CzechMate v popředí a telefon blízko desky.';
+
+  @override
+  String get firmwareOtaHttpMayLeaveAppHint =>
+      'Systém se při práci s HTTPS odkazem může na chvíli přepnout jinam — to je v pořádku. Znovu otevři CzechMate a sleduj průběh přes HTTP adresu desky.';
+
+  @override
+  String get firmwareBleOtaKeepForegroundWarning =>
+      'Nech CzechMate v popředí a telefon nezamykaj, dokud přenos přes Bluetooth neskončí.';
 
   @override
   String get firmwareBleOtaPausedReconnectDetail =>
-      'Přenos firmwaru pozastaven — spadlo Bluetooth. Znovu připoj telefon k desce do 24 h; nahrávání pak pokračuje samo.';
+      'Přenos přes Bluetooth pozastaven — obnovuji spojení s deskou…';
 
   @override
   String get firmwareBleOtaResumedTransferDetail =>
-      'Bluetooth znovu spojen — pokračuji v přenosu firmwaru.';
-
-  @override
-  String get firmwareBleUploadDoneSnack =>
-      'Odeslání přes Bluetooth dokončeno — deska se může restartovat.';
+      'Spojení obnoveno — pokračuji v přenosu firmwaru.';
 
   @override
   String get firmwareOtaSlotsDisabledHint =>

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/locale_bridge.dart';
+import '../../core/services/board_api_exception.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
@@ -23,6 +25,7 @@ class FirmwareOtaRunner {
   }) async {
     final session = ref.read(boardSessionNotifierProvider);
     final prefs = ref.read(prefsRepositoryProvider);
+    final strings = appStringsForPrefs(prefs);
     final baseUrl = normalizeBoardHttpBaseUrl(boardHttpBaseUrlOverride) ??
         resolveBoardHttpBaseUrl(
           wifiTransportActive: session.transport == BoardTransport.wifi,
@@ -31,16 +34,14 @@ class FirmwareOtaRunner {
           bleStaIp: session.bleStaIp,
         );
     if (baseUrl == null || baseUrl.isEmpty) {
-      return 'Board HTTP URL is missing (AP or STA IP). '
-          'Save it under Default board URL — BLE alone is not enough for status.';
+      return strings.errOtaBoardHttpMissingDetail;
     }
 
     final api = ref.read(boardApiClientProvider);
     try {
       final fw = await api.fetchBoardFirmwareInfo(baseUrl);
       if (fw.otaSupported == false) {
-        return 'This board build has no OTA slots (ota_0 + ota_1). '
-            'Reflash with a dual-OTA partition CSV or update via USB.';
+        return strings.errOtaNoOtaPartitions;
       }
     } catch (_) {}
 
@@ -49,11 +50,10 @@ class FirmwareOtaRunner {
       try {
         final w = await api.fetchWiFiStatus(baseUrl);
         if (!w.staConnected) {
-          return 'Connect the board to Wi‑Fi as a station (STA) so it can download '
-              'the firmware from the internet over HTTPS.';
+          return strings.errOtaStaRequiredForHttps;
         }
       } catch (e) {
-        return 'Could not verify Wi‑Fi: $e';
+        return strings.errOtaWifiStatusCheckFailed('$e');
       }
     }
 
@@ -63,6 +63,15 @@ class FirmwareOtaRunner {
         await ref
             .read(boardSessionNotifierProvider.notifier)
             .requestFirmwareOta(binUrl, httpBoardBaseUrl: baseUrl);
+      } on BoardApiException catch (e) {
+        if (e.statusCode == 428) {
+          return strings.errOtaStaRequiredForHttps;
+        }
+        final d = e.detail?.trim();
+        if (d != null && d.isNotEmpty) {
+          return '${e.message} ($d)';
+        }
+        return e.message;
       } catch (e) {
         return '$e';
       }
@@ -79,23 +88,38 @@ class FirmwareOtaRunner {
     void Function(int percent) onProgress,
   ) async {
     final api = ref.read(boardApiClientProvider);
-    for (var i = 0; i < 360; i++) {
-      await Future<void>.delayed(const Duration(seconds: 1));
+    final strings = appStringsForPrefs(ref.read(prefsRepositoryProvider));
+    var sawStatusOk = false;
+    var lastWasDownloading = false;
+
+    const tickMs = 500;
+    const maxTicks = 1200;
+
+    for (var i = 0; i < maxTicks; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: tickMs));
       try {
         final s = await api.fetchBoardOtaStatus(baseUrl);
+        sawStatusOk = true;
+        lastWasDownloading = s.state == 'downloading';
         onProgress(s.percent.clamp(0, 100));
         if (s.state == 'error') {
-          return 'OTA: ${s.message}';
+          final m = s.message.trim();
+          return m.isEmpty
+              ? strings.errOtaBoardReported('error')
+              : strings.errOtaBoardReported(m);
         }
         if (s.state == 'done') {
           return null;
         }
       } catch (_) {
-        if (i > 15) {
+        if (sawStatusOk && lastWasDownloading && i >= 8) {
           return null;
+        }
+        if (!sawStatusOk && i >= 47) {
+          return strings.errOtaPollUnreachable;
         }
       }
     }
-    return 'Timed out waiting for OTA to finish.';
+    return strings.errOtaPollTimeout;
   }
 }

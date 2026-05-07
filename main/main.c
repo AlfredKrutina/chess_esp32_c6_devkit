@@ -56,6 +56,8 @@
 #include "game_task.h"
 #include "led_task.h"
 #include "matrix_task.h"
+#include "board_api_auth.h"
+#include "esp_ota_ops.h"
 #include "nvs_flash.h"
 #include "stm32_i2c_bl.h"
 #if CONFIG_CHESS_ENABLE_TEST_TASK
@@ -107,6 +109,22 @@ static const char *reset_reason_to_str(esp_reset_reason_t reason) {
 }
 
 static const char *TAG = "MAIN";
+
+static void main_mark_ota_app_valid_if_needed(void) {
+  const esp_partition_t *running = esp_ota_get_running_partition();
+  if (running == NULL) {
+    return;
+  }
+  esp_ota_img_states_t st;
+  if (esp_ota_get_state_partition(running, &st) != ESP_OK) {
+    return;
+  }
+  if (st == ESP_OTA_IMG_PENDING_VERIFY) {
+    esp_err_t e = esp_ota_mark_app_valid_cancel_rollback();
+    ESP_LOGI(TAG, "OTA: app marked valid (cancel rollback): %s",
+             esp_err_to_name(e));
+  }
+}
 
 // ============================================================================
 // BOOT CYCLE COUNTER FOR DEEP SLEEP PROTECTION
@@ -838,6 +856,11 @@ static void init_console(void) {
   }
   ESP_ERROR_CHECK(ret);
 
+  esp_err_t tok_ret = board_api_auth_init();
+  if (tok_ret != ESP_OK) {
+    ESP_LOGW(TAG, "board_api_auth_init: %s", esp_err_to_name(tok_ret));
+  }
+
   // Initialize console (USB Serial JTAG only - no UART needed)
   ESP_LOGI(TAG,
            "Using USB Serial JTAG console - no UART initialization needed");
@@ -1502,6 +1525,8 @@ void app_main(void) {
 
   // Reset boot counter - systém úspěšně nastartoval
   boot_counter_reset();
+
+  main_mark_ota_app_valid_if_needed();
 
   for (;;) {
     // CRITICAL: Reset watchdog for main task in every iteration

@@ -5,6 +5,7 @@
  */
 #include "ota_update.h"
 
+#include "board_api_auth.h"
 #include "web_server_task.h"
 
 #include <stdio.h>
@@ -392,6 +393,13 @@ static void ota_http_worker_task(void *arg) {
         p = 99;
       }
       s_percent = p;
+    } else if (update_partition != NULL && update_partition->size > 0) {
+      int p = (int)(((int64_t)received * 100LL) /
+                   (int64_t)update_partition->size);
+      if (p > 99) {
+        p = 99;
+      }
+      s_percent = p;
     }
     ota_ui_led_pulse(s_percent);
   }
@@ -457,7 +465,8 @@ static esp_err_t schedule_ota(const char *url) {
   }
   if (url_is_https(url)) {
     if (!wifi_is_sta_connected()) {
-      return ESP_ERR_INVALID_STATE;
+      /* Odděleně od „busy“ (semafor) — HTTP klient mapuje na 428. */
+      return ESP_ERR_NOT_ALLOWED;
     }
   } else if (!url_is_http(url)) {
     return ESP_ERR_INVALID_ARG;
@@ -558,7 +567,11 @@ static esp_err_t http_get_ota_status(httpd_req_t *req) {
 }
 
 static esp_err_t http_post_ota(httpd_req_t *req) {
-  char body[520];
+  if (board_api_auth_admin_http_denied(req)) {
+    return ESP_OK;
+  }
+
+  char body[1536];
   int rlen = httpd_req_recv(req, body, sizeof(body) - 1);
   if (rlen <= 0) {
     httpd_resp_set_status(req, "400 Bad Request");
@@ -589,8 +602,12 @@ static esp_err_t http_post_ota(httpd_req_t *req) {
   }
   if (q == ESP_ERR_INVALID_STATE) {
     httpd_resp_set_status(req, "409 Conflict");
-    httpd_resp_send(req,
-                    "{\"ok\":false,\"error\":\"busy_or_no_wifi_sta\"}", -1);
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"busy\"}", -1);
+    return ESP_OK;
+  }
+  if (q == ESP_ERR_NOT_ALLOWED) {
+    httpd_resp_set_status(req, "428 Precondition Required");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"https_requires_sta\"}", -1);
     return ESP_OK;
   }
   if (q == ESP_ERR_INVALID_ARG) {

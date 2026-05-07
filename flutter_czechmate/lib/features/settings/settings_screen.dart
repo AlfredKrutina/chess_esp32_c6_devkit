@@ -43,6 +43,7 @@ const _kGemmaPresetModels = [
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   late final TextEditingController _url;
+  late final TextEditingController _boardApiToken;
   late final TextEditingController _coachKey;
   late final TextEditingController _coachGeminiKey;
   late final TextEditingController _coachGemmaModelCustom;
@@ -65,6 +66,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     super.initState();
     final p = ref.read(prefsRepositoryProvider);
     _url = TextEditingController(text: p.lastBoardBaseUrl ?? '');
+    _boardApiToken = TextEditingController(text: p.boardApiToken ?? '');
     _coachKey = TextEditingController(text: p.coachApiKey ?? '');
     _coachGeminiKey = TextEditingController(text: p.coachGeminiApiKey ?? '');
     _coachPriority = List<CoachAiProviderId>.from(p.coachAiPriority);
@@ -89,6 +91,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   void dispose() {
     _url.dispose();
+    _boardApiToken.dispose();
     _coachKey.dispose();
     _coachGeminiKey.dispose();
     _coachGemmaModelCustom.dispose();
@@ -527,6 +530,42 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                   }
                                 },
                                 child: Text(l10n.settingsSaveUrl),
+                              ),
+                              const SizedBox(height: 16),
+                              TextField(
+                                controller: _boardApiToken,
+                                decoration: InputDecoration(
+                                  labelText: l10n.settingsBoardApiTokenLabel,
+                                  helperText: l10n.settingsBoardApiTokenSubtitle,
+                                  border: const OutlineInputBorder(),
+                                ),
+                                keyboardType: TextInputType.visiblePassword,
+                                autocorrect: false,
+                              ),
+                              const SizedBox(height: 10),
+                              FilledButton.tonal(
+                                onPressed: () async {
+                                  await prefs.setBoardApiToken(
+                                    _boardApiToken.text,
+                                  );
+                                  final saved = prefs.boardApiToken;
+                                  _boardApiToken.text = saved ?? '';
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          saved == null || saved.isEmpty
+                                              ? l10n
+                                                  .settingsBoardApiTokenClearedSnack
+                                              : l10n
+                                                  .settingsBoardApiTokenSavedSnack,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Text(l10n.settingsSaveBoardApiToken),
                               ),
                               SwitchListTile(
                                 contentPadding: EdgeInsets.zero,

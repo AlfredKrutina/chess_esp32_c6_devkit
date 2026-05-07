@@ -1,7 +1,8 @@
-import os
+from pathlib import Path
 
-JS_PATH = '/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/components/web_server_task/chess_app.js'
-C_PATH = '/Users/alfred/Documents/my_local_projects/free_chess_v1_mqtt_HA/components/web_server_task/web_server_task.c'
+_THIS_DIR = Path(__file__).resolve().parent
+JS_PATH = str(_THIS_DIR / 'chess_app.js')
+C_PATH = str(_THIS_DIR / 'web_server_task.c')
 
 def format_js_as_c_string(js_content):
     lines = js_content.split('\n')

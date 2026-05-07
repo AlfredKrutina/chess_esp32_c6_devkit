@@ -130,6 +130,7 @@
 // #include "../timer_system/include/timer_system.h" // UNUSED
 #include "esp_event.h"
 #include "chess_piece_http.h"
+#include "board_api_auth.h"
 #include "ota_update.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
@@ -697,14 +698,6 @@ static void wifi_ble_prov_task(void *arg) {
   const char ack_cmd[] = "{\"cmd\":\"wifi_sta_config\"}";
 
   if (m == NULL) {
-    vTaskDelete(NULL);
-    return;
-  }
-
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "BLE wifi_sta_config: blocked (web locked)");
-    ble_task_notify_command_result(ESP_ERR_INVALID_STATE, ack_cmd);
-    free(m);
     vTaskDelete(NULL);
     return;
   }
@@ -2772,13 +2765,22 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return ESP_OK;
   }
   if (strcmp(cmd, "ota_start") == 0) {
+    if (!ble_task_conn_is_encrypted()) {
+      ESP_LOGW(TAG, "BLE ota_start: encrypted link required");
+      return ESP_ERR_INVALID_STATE;
+    }
     esp_err_t ota_err = ota_update_ble_try_dispatch(buf);
     if (ota_err == ESP_OK) {
       ESP_LOGI(TAG, "BLE ota_start accepted");
       return ESP_OK;
     }
     if (ota_err == ESP_ERR_INVALID_STATE) {
-      ESP_LOGW(TAG, "BLE ota_start: busy or STA not connected");
+      ESP_LOGW(TAG, "BLE ota_start: busy (OTA already running)");
+      return ota_err;
+    }
+    if (ota_err == ESP_ERR_NOT_ALLOWED) {
+      ESP_LOGW(TAG,
+               "BLE ota_start: HTTPS URL needs Wi‑Fi STA (connect board to router)");
       return ota_err;
     }
     if (ota_err == ESP_ERR_INVALID_ARG) {
@@ -2789,6 +2791,10 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return ota_err;
   }
   if (strcmp(cmd, "ota_ble_begin") == 0) {
+    if (!ble_task_conn_is_encrypted()) {
+      ESP_LOGW(TAG, "BLE ota_ble_begin: encrypted link required");
+      return ESP_ERR_INVALID_STATE;
+    }
     esp_err_t e = ota_update_ble_begin_from_json(buf);
     if (e == ESP_OK) {
       ESP_LOGI(TAG, "BLE ota_ble_begin accepted");
@@ -2814,6 +2820,10 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return e;
   }
   if (strcmp(cmd, "ota_ble_abort") == 0) {
+    if (!ble_task_conn_is_encrypted()) {
+      ESP_LOGW(TAG, "BLE ota_ble_abort: encrypted link required");
+      return ESP_ERR_INVALID_STATE;
+    }
     esp_err_t e = ota_update_ble_abort();
     if (e == ESP_OK) {
       return ESP_OK;
@@ -2822,6 +2832,10 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return e;
   }
   if (strcmp(cmd, "ota_ble_status") == 0) {
+    if (!ble_task_conn_is_encrypted()) {
+      ESP_LOGW(TAG, "BLE ota_ble_status: encrypted link required");
+      return ESP_ERR_INVALID_STATE;
+    }
     char status_ack[400];
     esp_err_t er =
         ota_update_ble_build_status_ack_json(status_ack, sizeof(status_ack));
@@ -2833,6 +2847,10 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return ESP_OK;
   }
   if (strcmp(cmd, "factory_reset") == 0) {
+    if (!ble_task_conn_is_encrypted()) {
+      ESP_LOGW(TAG, "BLE factory_reset: encrypted link required");
+      return ESP_ERR_INVALID_STATE;
+    }
     if (!json_body_has_factory_confirm(buf)) {
       ESP_LOGW(TAG, "BLE factory_reset: missing/invalid confirm");
       return ESP_ERR_INVALID_ARG;
@@ -2841,8 +2859,8 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return factory_reset_schedule();
   }
   if (strcmp(cmd, "wifi_sta_config") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "BLE wifi_sta_config blocked (web locked)");
+    if (!ble_task_conn_is_encrypted()) {
+      ESP_LOGW(TAG, "BLE wifi_sta_config: encrypted link required");
       return ESP_ERR_INVALID_STATE;
     }
     cJSON *root = cJSON_Parse(buf);
@@ -5075,15 +5093,7 @@ static esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
 static esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/config");
 
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "WiFi config blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
+  if (board_api_auth_admin_http_denied(req)) {
     return ESP_OK;
   }
 
@@ -5219,15 +5229,7 @@ static esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
 static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/connect");
 
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "WiFi connect blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
+  if (board_api_auth_admin_http_denied(req)) {
     return ESP_OK;
   }
 
@@ -5301,15 +5303,7 @@ static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
 static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/disconnect");
 
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "WiFi disconnect blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
+  if (board_api_auth_admin_http_denied(req)) {
     return ESP_OK;
   }
 
@@ -5347,15 +5341,7 @@ static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
 static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/clear");
 
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "WiFi clear blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
+  if (board_api_auth_admin_http_denied(req)) {
     return ESP_OK;
   }
 
@@ -5392,6 +5378,10 @@ static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
  */
 static esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/system/factory_reset");
+
+  if (board_api_auth_admin_http_denied(req)) {
+    return ESP_OK;
+  }
 
   char content[160] = {0};
   int rlen = httpd_req_recv(req, content, sizeof(content) - 1);
@@ -5552,6 +5542,27 @@ static const char chess_app_js_content[] =
     "\n"
     "/** Zabrání souběhu několika fetchData na pomalé síti / přetíženém HTTPD. */\n"
     "let fetchDataInFlight = false;\n"
+    "\n"
+    "/**\n"
+    " * Hlavičky pro admin POST — doplní Bearer z localStorage `czechmate_api_token`\n"
+    " * (64 hex z UART `API_TOKEN`), pokud je uložen.\n"
+    " * @param {Object.<string,string>} [base] základní hlavičky (např. Content-Type)\n"
+    " */\n"
+    "function boardApiAuthHeaders(base) {\n"
+    "    const h = {};\n"
+    "    if (base) {\n"
+    "        for (const k of Object.keys(base)) {\n"
+    "            h[k] = base[k];\n"
+    "        }\n"
+    "    }\n"
+    "    try {\n"
+    "        const t = localStorage.getItem('czechmate_api_token');\n"
+    "        if (t && String(t).trim()) {\n"
+    "            h['Authorization'] = 'Bearer ' + String(t).trim();\n"
+    "        }\n"
+    "    } catch (e) {}\n"
+    "    return h;\n"
+    "}\n"
     "\n"
     "let boardData = [];\n"
     "let statusData = {};\n"
@@ -9773,7 +9784,7 @@ static const char chess_app_js_content[] =
     "    try {\n"
     "        const response = await fetch('/api/wifi/config', {\n"
     "            method: 'POST',\n"
-    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            headers: boardApiAuthHeaders({ 'Content-Type': 'application/json' }),\n"
     "            body: JSON.stringify({ ssid: ssid, password: password })\n"
     "        });\n"
     "        const data = await response.json();\n"
@@ -9789,7 +9800,10 @@ static const char chess_app_js_content[] =
     "\n"
     "async function connectSTA() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/connect', { method: 'POST' });\n"
+    "        const response = await fetch('/api/wifi/connect', {\n"
+    "            method: 'POST',\n"
+    "            headers: boardApiAuthHeaders()\n"
+    "        });\n"
     "        const data = await response.json();\n"
     "        if (data.success) {\n"
     "            alert('Připojování k WiFi...');\n"
@@ -9804,7 +9818,10 @@ static const char chess_app_js_content[] =
     "\n"
     "async function disconnectSTA() {\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/disconnect', { method: 'POST' });\n"
+    "        const response = await fetch('/api/wifi/disconnect', {\n"
+    "            method: 'POST',\n"
+    "            headers: boardApiAuthHeaders()\n"
+    "        });\n"
     "        const data = await response.json();\n"
     "        if (data.success) {\n"
     "            alert('Odpojeno od WiFi');\n"
@@ -9822,7 +9839,10 @@ static const char chess_app_js_content[] =
     "        return;\n"
     "    }\n"
     "    try {\n"
-    "        const response = await fetch('/api/wifi/clear', { method: 'POST' });\n"
+    "        const response = await fetch('/api/wifi/clear', {\n"
+    "            method: 'POST',\n"
+    "            headers: boardApiAuthHeaders()\n"
+    "        });\n"
     "        const data = await response.json();\n"
     "        if (data.success) {\n"
     "            alert('WiFi konfigurace smazána.');\n"
@@ -9846,7 +9866,7 @@ static const char chess_app_js_content[] =
     "    try {\n"
     "        const response = await fetch('/api/system/factory_reset', {\n"
     "            method: 'POST',\n"
-    "            headers: { 'Content-Type': 'application/json' },\n"
+    "            headers: boardApiAuthHeaders({ 'Content-Type': 'application/json' }),\n"
     "            body: JSON.stringify({ confirm: 'erase_all_nvs' })\n"
     "        });\n"
     "        var data = {};\n"
@@ -10086,7 +10106,8 @@ static const char chess_app_js_content[] =
     "    document.addEventListener('DOMContentLoaded', loadStartingPositionCheck);\n"
     "} else {\n"
     "    loadStartingPositionCheck();\n"
-    "}\n";
+    "}\n"
+    "\n";
 
 static esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
   size_t total_len = strlen(chess_app_js_content);

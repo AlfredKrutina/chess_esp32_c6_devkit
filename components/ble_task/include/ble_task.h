@@ -15,6 +15,9 @@ extern "C" {
 
 void ble_task_init(void);
 
+/** True pokud je aktivní GATT spojení se zapnutým link encryption (SMP). */
+bool ble_task_conn_is_encrypted(void);
+
 /**
  * True, pokud je BLE link aktivní a centrál má zapnuté notify na snapshot CCC.
  * Jinak je push snapshot no-op — web server nemusí každé 3 s skládat JSON jen „do prázdna“.

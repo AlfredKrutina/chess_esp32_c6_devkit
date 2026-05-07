@@ -16,6 +16,8 @@ class PrefsRepository {
   final SharedPreferences _p;
 
   static const keyBaseUrl = 'czechmate.boardBaseURL';
+  /// 64 hex znaků — Bearer pro HTTP admin na desce (UART `API_TOKEN`).
+  static const keyBoardApiToken = 'czechmate.boardApiToken';
   static const keyMock = 'czechmate.useMockBoard';
   static const keyCoachKey = 'czechmate.coachApiKey';
   static const keyCoachLlmBackend = 'czechmate.coach.llmBackend';
@@ -89,6 +91,16 @@ class PrefsRepository {
       await _p.remove(keyBaseUrl);
     } else {
       await _p.setString(keyBaseUrl, v);
+    }
+  }
+
+  String? get boardApiToken => _p.getString(keyBoardApiToken);
+  Future<void> setBoardApiToken(String? v) async {
+    final t = v?.trim();
+    if (t == null || t.isEmpty) {
+      await _p.remove(keyBoardApiToken);
+    } else {
+      await _p.setString(keyBoardApiToken, t);
     }
   }
 

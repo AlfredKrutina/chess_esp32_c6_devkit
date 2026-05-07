@@ -39,6 +39,27 @@
   "errOtaBleGatt": "Bluetooth GATT is not connected — reconnect to the board from Play / Board discovery.",
   "errOtaMock": "OTA is not available with the mock board.",
   "errOtaConnectFirst": "Connect the board over Wi‑Fi or Bluetooth, then try the update again.",
+  "errOtaBoardHttpMissingDetail": "Board HTTP URL is missing (AP or STA IP). Save it under Default board URL — status polling needs it alongside Bluetooth.",
+  "errOtaNoOtaPartitions": "This board has no OTA partitions (ota_0 + ota_1). Reflash with a dual‑OTA partition layout or update via USB.",
+  "errOtaStaRequiredForHttps": "Connect the board to Wi‑Fi as a station (STA) so it can download firmware over HTTPS.",
+  "errOtaWifiStatusCheckFailed": "Could not verify Wi‑Fi status: {error}",
+  "@errOtaWifiStatusCheckFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtaPollUnreachable": "Could not read firmware update status from the board. Check the saved board HTTP URL (e.g. http://192.168.4.1).",
+  "errOtaPollTimeout": "Timed out waiting for the firmware update to finish.",
+  "errOtaBoardReported": "Firmware update: {message}",
+  "@errOtaBoardReported": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
   "errHintsNeedConnection": "Hint LEDs require a board connection. Pair via Bluetooth or connect Wi‑Fi first.",
   "errNoActiveSession": "No active board session. Connect via Wi‑Fi or Bluetooth from Board discovery.",
   "errBrightnessNeedsBoard": "Brightness control needs a connected board (Wi‑Fi or Bluetooth).",
@@ -554,6 +575,11 @@
   "settingsInvalidUrlSnack": "Invalid URL — enter a host (e.g. 192.168.4.1 or http://…)",
   "settingsSavedSnack": "Saved",
   "settingsSaveUrl": "Save URL",
+  "settingsBoardApiTokenLabel": "Board API token",
+  "settingsBoardApiTokenSubtitle": "64 hex characters from UART API_TOKEN — required for admin Wi‑Fi actions and OTA when the board enforces auth.",
+  "settingsSaveBoardApiToken": "Save token",
+  "settingsBoardApiTokenSavedSnack": "API token saved",
+  "settingsBoardApiTokenClearedSnack": "API token cleared",
   "settingsBleOnlyTitle": "Bluetooth only",
   "settingsBleOnlySubtitle": "Don’t switch to Wi‑Fi after BLE",
   "settingsWebSocketTitle": "WebSocket snapshot",
@@ -855,12 +881,12 @@
   "firmwareOneStepHttpsOta": "Or: board downloads via HTTPS (needs STA)",
   "firmwareSendViaBle": "Send via Bluetooth",
   "firmwareSendViaBleBody": "The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.",
-  "firmwareBleOtaKeepForegroundWarning": "Important: keep this screen open with the phone awake for the fastest transfer. If Bluetooth disconnects, reconnect within 24 hours — the board pauses and the app resumes from the same progress. The app disables auto‑sleep during transfer (iOS may still throttle Bluetooth in background).",
-  "firmwareOtaHttpMayLeaveAppHint": "While the board downloads the firmware, you can leave the app — the ESP does the work. The progress bar may not update until you return; the board still reboots when finished.",
-  "firmwareBleOtaReturnedFromBackgroundSnack": "You left the app during Bluetooth firmware transfer — the update may have stalled or failed. If progress stopped, try again and keep CzechMate in the foreground.",
-  "firmwareBleOtaPausedReconnectDetail": "Firmware transfer paused — Bluetooth disconnected. Reconnect to the board within 24 hours; the upload will continue automatically.",
-  "firmwareBleOtaResumedTransferDetail": "Bluetooth reconnected — continuing firmware transfer.",
   "firmwareBleUploadDoneSnack": "Bluetooth upload finished — the board may reboot.",
+  "firmwareBleOtaReturnedFromBackgroundSnack": "You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and the phone close to the board.",
+  "firmwareOtaHttpMayLeaveAppHint": "The system may briefly switch away from this app when handling an HTTPS link — that’s OK. Open CzechMate again and watch progress via the board HTTP URL.",
+  "firmwareBleOtaKeepForegroundWarning": "Keep CzechMate in the foreground and avoid locking the phone until the Bluetooth transfer finishes.",
+  "firmwareBleOtaPausedReconnectDetail": "Bluetooth transfer paused — reconnecting to the board…",
+  "firmwareBleOtaResumedTransferDetail": "Connection restored — continuing firmware transfer.",
   "firmwareOtaSlotsDisabledHint": "This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).",
   "firmwareBoardHttpMissingDetail": "Board HTTP address is missing (e.g. http://192.168.4.1). Set Default board URL in settings. Bluetooth alone does not provide an IP.",
   "firmwareHttpsLinkExplainBody": "You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.",

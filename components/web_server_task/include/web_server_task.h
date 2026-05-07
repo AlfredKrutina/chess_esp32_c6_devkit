@@ -36,6 +36,9 @@
  * - POST /api/timer/pause - Pozastaveni timeru
  * - POST /api/timer/resume - Obnoveni timeru
  * - POST /api/timer/reset - Reset timeru
+ *
+ * Autentizace HTTP (Bearer token a web lock) — přehled URI viz
+ * @ref board_api_auth.h (board_api_auth.h).
  */
 
 #ifndef WEB_SERVER_TASK_H

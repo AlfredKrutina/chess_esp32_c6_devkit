@@ -31,6 +31,11 @@ class NetworkErrorFormatter {
       return 'The board web UI has locked HTTP/API access (403). '
           'Close the board’s web dashboard or unlock API access, then retry.';
     }
+    if (e.isApiTokenRequired) {
+      return 'The board requires an API token for this action (403). '
+          'In Settings → Saved defaults, paste the 64‑character hex token from '
+          'UART command API_TOKEN, then save.';
+    }
     switch (e.statusCode) {
       case 400:
         return 'Invalid request${e.detail != null ? ': ${e.detail}' : ''}. '
