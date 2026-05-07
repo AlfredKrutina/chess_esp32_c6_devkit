@@ -1,5 +1,6 @@
 var ble__task_8h =
 [
+    [ "ble_task_conn_is_encrypted", "ble__task_8h.html#a0cab5d9344d6f549e499d0d068171b7d", null ],
     [ "ble_task_format_status", "ble__task_8h.html#a6b4a8c3038cad15fbaa84b624d0c76db", null ],
     [ "ble_task_init", "ble__task_8h.html#a673bf35c9275637c2030e5e6676564a8", null ],
     [ "ble_task_notify_cmd_ack_json", "ble__task_8h.html#a1993d0374ca8f378da44d083d6846652", null ],

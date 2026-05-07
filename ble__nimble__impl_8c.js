@@ -1,6 +1,7 @@
 var ble__nimble__impl_8c =
 [
     [ "ble_nimble_stack_init", "ble__nimble__impl_8c.html#af8fc7a27c506d40b2942c0741d9bc86e", null ],
+    [ "ble_task_conn_is_encrypted", "ble__nimble__impl_8c.html#a0cab5d9344d6f549e499d0d068171b7d", null ],
     [ "ble_task_format_status", "ble__nimble__impl_8c.html#a6b4a8c3038cad15fbaa84b624d0c76db", null ],
     [ "ble_task_notify_cmd_ack_json", "ble__nimble__impl_8c.html#a1993d0374ca8f378da44d083d6846652", null ],
     [ "ble_task_notify_command_result", "ble__nimble__impl_8c.html#aaee353732e7076c851cae405b1efe174", null ],

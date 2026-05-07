@@ -1,7 +1,7 @@
 var searchData=
 [
   ['id_0',['id',['../structanimation__task__t.html#adb7f1e556a2073bf7ce347ee3f96cfe4',1,'animation_task_t::id'],['../structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf',1,'game_puzzle_definition_t::id'],['../structanimation__state__struct.html#a732e0dbd6e57d26471ce3f333a133f2c',1,'animation_state_struct::id'],['../structactive__error__t.html#a86b4c2d315025f29e9406e5a7eb3cfb9',1,'active_error_t::id']]],
-  ['idf_20tým_1',['ESP-IDF tým',['../index.html#autotoc_md182',1,'']]],
+  ['idf_20tým_1',['ESP-IDF tým',['../index.html#autotoc_md184',1,'']]],
   ['implementovana_2',['SACHOVCE PRAVIDLA IMPLEMENTOVANA',['../game__task_8c.html#autotoc_md18',1,'']]],
   ['in_5fprogress_3',['in_progress',['../structcastling__state__t.html#a1705abfdc6a05d4bec2293871b7b7fd1',1,'castling_state_t']]],
   ['in_5fuse_4',['in_use',['../structshared__buffer__t.html#ac84993dc918ca7386ae7b700c99039ef',1,'shared_buffer_t']]],
@@ -20,8 +20,8 @@ var searchData=
   ['input_5fbuffer_5fset_5fcursor_17',['input_buffer_set_cursor',['../uart__task_8c.html#a72e6311faaf01353872e8bc49484390c',1,'uart_task.c']]],
   ['input_5fbuffer_5ft_18',['input_buffer_t',['../structinput__buffer__t.html',1,'']]],
   ['input_5ftimeout_5fms_19',['INPUT_TIMEOUT_MS',['../uart__task_8c.html#aeac6e5795cef1c6971bde245d54de5d5',1,'uart_task.c']]],
-  ['instalace_20a_20build_20',['🚀 Instalace a Build',['../index.html#autotoc_md105',1,'']]],
-  ['integrace_21',['Home Assistant / MQTT integrace',['../index.html#autotoc_md109',1,'']]],
+  ['instalace_20a_20build_20',['🚀 Instalace a Build',['../index.html#autotoc_md107',1,'']]],
+  ['integrace_21',['Home Assistant / MQTT integrace',['../index.html#autotoc_md111',1,'']]],
   ['intensity_22',['intensity',['../structanimation__state__struct.html#a077ad0cbcd3a0f3419280fa9dd1189c9',1,'animation_state_struct']]],
   ['interpolate_5fcolor_23',['interpolate_color',['../unified__animation__manager_8c.html#a0e552d083d40a494e5bec582a329faac',1,'unified_animation_manager.c']]],
   ['interrupt_5fon_5fplacement_24',['interrupt_on_placement',['../structled__animation__state__t.html#a2e62ade81888805e7bc4e2262e1f2336',1,'led_animation_state_t']]],

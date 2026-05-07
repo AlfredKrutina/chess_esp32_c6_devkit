@@ -82,6 +82,7 @@ var uart__task_8c =
     [ "send_to_game_task", "uart__task_8c.html#a557b6aeba60814f680be2e1cc9dd8164", null ],
     [ "send_to_game_task_with_response", "uart__task_8c.html#a3e794219ce8f13265cbb99ff00780a1b", null ],
     [ "uart_check_memory_health", "uart__task_8c.html#a7221e5806cd35fd8640c4f3ef239f9cc", null ],
+    [ "uart_cmd_api_token", "uart__task_8c.html#aaf65d6d06537d23ebc4c3f37a3ab42aa", null ],
     [ "uart_cmd_benchmark", "uart__task_8c.html#a5208e133190e19aad814c5a69dbb93e5", null ],
     [ "uart_cmd_ble", "uart__task_8c.html#a9808d5b4c8bf121e754153798dfd8ffd", null ],
     [ "uart_cmd_board", "uart__task_8c.html#ae06c8535f9c7efcb9bf76c0949b0b4cc", null ],

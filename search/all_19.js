@@ -10,7 +10,7 @@ var searchData=
   ['refresh_5finput_5fdisplay_7',['refresh_input_display',['../uart__task_8c.html#ad1780c902a974c1328d45972b588d593',1,'uart_task.c']]],
   ['register_5fextended_5fuart_5fcommands_8',['register_extended_uart_commands',['../uart__commands__extended_8c.html#a91f740ce224db3050d1f85890fdbbdce',1,'register_extended_uart_commands(void):&#160;uart_commands_extended.c'],['../uart__commands__extended_8h.html#a91f740ce224db3050d1f85890fdbbdce',1,'register_extended_uart_commands(void):&#160;uart_commands_extended.c']]],
   ['release_5fshared_5fbuffer_9',['release_shared_buffer',['../shared__buffer__pool_8c.html#a2dcea7230ff8c3509b7b7adaeba9874e',1,'release_shared_buffer(char *buffer):&#160;shared_buffer_pool.c'],['../shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e',1,'release_shared_buffer(char *buffer):&#160;shared_buffer_pool.c']]],
-  ['repa_202026_2004_10',['v2.5.1 / firmware (aktuální stav repa, 2026-04)',['../index.html#autotoc_md161',1,'']]],
+  ['repa_202026_2004_10',['v2.5.1 / firmware (aktuální stav repa, 2026-04)',['../index.html#autotoc_md163',1,'']]],
   ['require_5fuser_5fconfirm_11',['require_user_confirm',['../structerror__guidance__t.html#a14400cf1fab2b94d126d753a649bf1e2',1,'error_guidance_t']]],
   ['requires_5fargs_12',['requires_args',['../structuart__command__t.html#ad2edd88434fbd2fb4eda438c08e8a953',1,'uart_command_t']]],
   ['reset_5fbutton_5fget_5fevent_5fcount_13',['reset_button_get_event_count',['../reset__button__task_8h.html#a06d02f46f762a840863c8353f7e7f506',1,'reset_button_get_event_count(void):&#160;reset_button_task.c'],['../reset__button__task_8c.html#a06d02f46f762a840863c8353f7e7f506',1,'reset_button_get_event_count(void):&#160;reset_button_task.c']]],
@@ -33,7 +33,7 @@ var searchData=
   ['resignation_5ftick_30',['resignation_tick',['../game__task_8c.html#a3bf81752bb1e6c0587cfdb9804f883be',1,'game_task.c']]],
   ['resignation_5fupdate_5fbutton_5fleds_31',['resignation_update_button_leds',['../game__task_8c.html#a6b536ba6f8bb5ebf7a76124fbb8d9b10',1,'game_task.c']]],
   ['response_5fqueue_32',['response_queue',['../structled__command__t.html#a4c27aa01b250ef21991565d3876cc24f',1,'led_command_t::response_queue'],['../structchess__move__command__t.html#a750e92bc6c9a40c005e3e48947dd10b5',1,'chess_move_command_t::response_queue']]],
-  ['rest_20api_20endpointy_33',['REST API ENDPOINTY',['../web__server__task_8c.html#autotoc_md81',1,'']]],
+  ['rest_20api_20endpointy_33',['REST API ENDPOINTY',['../web__server__task_8c.html#autotoc_md83',1,'']]],
   ['restore_5foriginal_34',['restore_original',['../structled__duration__state__t.html#a3171dae77eb54657c6c137ce3fc014fa',1,'led_duration_state_t']]],
   ['result_35',['result',['../structtest__t.html#a6148a44083a94dd182a6b2310e830b43',1,'test_t']]],
   ['result_5fblack_5fwins_36',['RESULT_BLACK_WINS',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990',1,'chess_types.h']]],
@@ -56,6 +56,6 @@ var searchData=
   ['rook_5fto_5fcol_53',['rook_to_col',['../structcastling__state__t.html#a3f6d980f0e18ee2f5df5907b82d500a0',1,'castling_state_t::rook_to_col'],['../game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f',1,'rook_to_col:&#160;game_task.c'],['../structcastling__positions__t.html#a56dd6d90404022b71164de6f9b02b88d',1,'castling_positions_t::rook_to_col']]],
   ['rook_5fto_5frow_54',['rook_to_row',['../structcastling__state__t.html#a4744be90f6da3461a00f214616844512',1,'castling_state_t::rook_to_row'],['../structcastling__positions__t.html#a327b358b5219956a1a4c1a17cadb9363',1,'castling_positions_t::rook_to_row'],['../game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0',1,'rook_to_row:&#160;game_task.c']]],
   ['row_55',['row',['../structactive__error__t.html#a3a1ae9add15aea94b873af99aeb85509',1,'active_error_t::row'],['../structchess__position__t.html#a52fc42938f588120d7427968dd5c6c5b',1,'chess_position_t::row']]],
-  ['rozhraní_56',['Webové rozhraní',['../index.html#autotoc_md113',1,'']]],
-  ['rtf_20dokumentace_20jeden_20soubor_57',['RTF dokumentace (jeden soubor)',['../index.html#autotoc_md141',1,'']]]
+  ['rozhraní_56',['Webové rozhraní',['../index.html#autotoc_md115',1,'']]],
+  ['rtf_20dokumentace_20jeden_20soubor_57',['RTF dokumentace (jeden soubor)',['../index.html#autotoc_md143',1,'']]]
 ];

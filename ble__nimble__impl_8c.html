@@ -122,6 +122,9 @@ Graf závislostí na vkládaných souborech pro ble_nimble_impl.c:</div>
 Funkce</h2></td></tr>
 <tr class="memitem:af8fc7a27c506d40b2942c0741d9bc86e" id="r_af8fc7a27c506d40b2942c0741d9bc86e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ble__nimble__impl_8c.html#af8fc7a27c506d40b2942c0741d9bc86e">ble_nimble_stack_init</a> (void)</td></tr>
 <tr class="separator:af8fc7a27c506d40b2942c0741d9bc86e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0cab5d9344d6f549e499d0d068171b7d" id="r_a0cab5d9344d6f549e499d0d068171b7d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ble__nimble__impl_8c.html#a0cab5d9344d6f549e499d0d068171b7d">ble_task_conn_is_encrypted</a> (void)</td></tr>
+<tr class="memdesc:a0cab5d9344d6f549e499d0d068171b7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">True pokud je aktivní GATT spojení se zapnutým link encryption (SMP).  <br /></td></tr>
+<tr class="separator:a0cab5d9344d6f549e499d0d068171b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2697e0c5cc513fd6cd85ff2582f26aaf" id="r_a2697e0c5cc513fd6cd85ff2582f26aaf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ble__nimble__impl_8c.html#a2697e0c5cc513fd6cd85ff2582f26aaf">ble_task_should_push_snapshot</a> (void)</td></tr>
 <tr class="memdesc:a2697e0c5cc513fd6cd85ff2582f26aaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">True, pokud je BLE link aktivní a centrál má zapnuté notify na snapshot CCC.  <br /></td></tr>
 <tr class="separator:a2697e0c5cc513fd6cd85ff2582f26aaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -162,7 +165,29 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00875">875</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00895">895</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+
+</div>
+</div>
+<a id="a0cab5d9344d6f549e499d0d068171b7d" name="a0cab5d9344d6f549e499d0d068171b7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0cab5d9344d6f549e499d0d068171b7d">&#9670;&#160;</a></span>ble_task_conn_is_encrypted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ble_task_conn_is_encrypted </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True pokud je aktivní GATT spojení se zapnutým link encryption (SMP). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00896">896</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -194,7 +219,7 @@ Funkce</h2></td></tr>
 
 <p>Jedna řádka stavu BLE (NimBLE / GATT) pro UART příkaz BLE. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00890">890</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00911">911</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -217,7 +242,7 @@ Funkce</h2></td></tr>
 <p>Celý JSON pro cmd_ack notify (max ~400 B UTF-8). </p>
 <p>Použití jen z web_server BLE dispatch. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00888">888</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00909">909</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -250,7 +275,7 @@ Funkce</h2></td></tr>
 <p>Po zpracování GATT zápisu na CMD charakteristiku odešle JSON na cmd_ack notify (pokud je centrál přihlášen k notifikacím). </p>
 <p>Viz kanál "cmd_ack" v protokolu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00883">883</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00904">904</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -273,7 +298,7 @@ Funkce</h2></td></tr>
 <p>Odešle network info (IP, SSID, online status) připojenému centrálu. </p>
 <p>Volat při změně IP adresy nebo WiFi statusu. Bez CONFIG_BT_ENABLED nebo bez BLE spojení je no-op. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00881">881</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00902">902</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -306,7 +331,7 @@ Funkce</h2></td></tr>
 <p>Odešle JSON snapshot připojenému centrálu (chunkovaně, hlavička CM). </p>
 <p>Bez CONFIG_BT_ENABLED nebo bez BLE spojení je no-op. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00877">877</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00898">898</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -329,7 +354,7 @@ Funkce</h2></td></tr>
 <p>True, pokud je BLE link aktivní a centrál má zapnuté notify na snapshot CCC. </p>
 <p>Jinak je push snapshot no-op — web server nemusí každé 3 s skládat JSON jen „do prázdna“. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00876">876</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ble__nimble__impl_8c_source.html#l00897">897</a> v souboru <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>

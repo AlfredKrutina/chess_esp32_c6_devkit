@@ -102,6 +102,7 @@ $(document).ready(function(){initNavTree('ota__update_8c.html',''); initResizabl
 <p>OTA: HTTPS z internetu (STA + CA bundle), nebo HTTP z LAN (např.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="ota__update_8h_source.html">ota_update.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="board__api__auth_8h_source.html">board_api_auth.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="web__server__task_8h_source.html">web_server_task.h</a>&quot;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
@@ -126,86 +127,92 @@ Graf závislostí na vkládaných souborech pro ota_update.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="ota__update_8c__incl.png" border="0" usemap="#aota__update_8c" alt=""/></div>
 <map name="aota__update_8c" id="aota__update_8c">
-<area shape="rect" title="OTA: HTTPS z internetu (STA + CA bundle), nebo HTTP z LAN (např." alt="" coords="1889,5,1996,31"/>
-<area shape="rect" href="ota__update_8h.html" title="OTA: HTTPS/HTTP z URL, nebo stream přes BLE (chunky na CMD char)." alt="" coords="200,79,306,104"/>
-<area shape="poly" title=" " alt="" coords="1888,24,497,81,321,89,320,84,497,76,1888,19"/>
-<area shape="rect" title=" " alt="" coords="27,152,164,177"/>
-<area shape="poly" title=" " alt="" coords="1889,22,1529,21,995,26,723,33,482,44,296,60,231,70,188,81,166,93,146,109,114,143,110,139,142,105,163,89,187,76,229,65,295,54,482,39,723,28,994,21,1529,16,1889,16"/>
-<area shape="rect" title=" " alt="" coords="192,299,263,324"/>
-<area shape="poly" title=" " alt="" coords="1889,22,1522,25,976,34,450,52,258,65,190,73,145,81,103,92,69,103,42,121,17,153,8,179,13,202,29,223,53,242,116,274,180,295,178,300,114,279,51,247,25,227,9,204,3,179,12,151,38,117,67,98,101,87,144,76,189,67,257,60,450,47,976,29,1522,20,1889,17"/>
-<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Web Server Task Hlavicka." alt="" coords="1366,79,1510,104"/>
-<area shape="poly" title=" " alt="" coords="1889,29,1524,81,1524,75,1888,24"/>
-<area shape="rect" title=" " alt="" coords="1434,299,1584,324"/>
-<area shape="poly" title=" " alt="" coords="1889,28,1822,45,1789,60,1759,81,1739,101,1727,122,1715,165,1703,209,1691,231,1671,253,1629,280,1584,297,1582,292,1627,275,1667,249,1686,228,1698,207,1710,163,1722,120,1735,98,1755,77,1786,56,1821,40,1888,23"/>
-<area shape="rect" title=" " alt="" coords="1263,225,1400,251"/>
-<area shape="poly" title=" " alt="" coords="1889,31,1790,50,1678,81,1587,115,1500,154,1366,221,1363,216,1497,149,1585,110,1676,76,1789,45,1888,25"/>
-<area shape="rect" title=" " alt="" coords="1476,225,1593,251"/>
-<area shape="poly" title=" " alt="" coords="1889,29,1804,47,1758,61,1714,81,1646,138,1558,218,1555,214,1643,134,1711,76,1756,56,1803,41,1888,23"/>
-<area shape="rect" title=" " alt="" coords="1769,79,1836,104"/>
-<area shape="poly" title=" " alt="" coords="1921,33,1838,75,1836,70,1918,28"/>
-<area shape="rect" title=" " alt="" coords="1860,79,1931,104"/>
-<area shape="poly" title=" " alt="" coords="1937,32,1913,69,1908,66,1932,30"/>
-<area shape="rect" title=" " alt="" coords="1955,79,2026,104"/>
-<area shape="poly" title=" " alt="" coords="1952,30,1977,66,1973,69,1948,33"/>
-<area shape="rect" title=" " alt="" coords="2050,79,2123,104"/>
-<area shape="poly" title=" " alt="" coords="1966,28,2052,70,2049,75,1964,33"/>
-<area shape="rect" title=" " alt="" coords="2148,79,2286,104"/>
-<area shape="poly" title=" " alt="" coords="1987,28,2160,73,2158,78,1986,33"/>
-<area shape="rect" title=" " alt="" coords="2311,79,2443,104"/>
-<area shape="poly" title=" " alt="" coords="1996,25,2298,74,2297,80,1995,31"/>
-<area shape="rect" title=" " alt="" coords="2468,79,2601,104"/>
-<area shape="poly" title=" " alt="" coords="1996,22,2454,76,2453,81,1996,28"/>
-<area shape="rect" title=" " alt="" coords="2625,79,2750,104"/>
-<area shape="poly" title=" " alt="" coords="1996,20,2257,40,2612,76,2611,81,2256,46,1996,26"/>
-<area shape="rect" title=" " alt="" coords="2775,79,2859,104"/>
-<area shape="poly" title=" " alt="" coords="1996,18,2316,33,2535,51,2761,76,2761,81,2534,56,2315,39,1996,23"/>
-<area shape="rect" title=" " alt="" coords="2884,79,2998,104"/>
-<area shape="poly" title=" " alt="" coords="1996,18,2358,35,2610,52,2870,76,2870,81,2609,57,2358,40,1996,24"/>
-<area shape="rect" title=" " alt="" coords="3023,79,3142,104"/>
-<area shape="poly" title=" " alt="" coords="1996,18,2412,33,2705,50,3009,76,3009,81,2705,55,2411,38,1996,23"/>
-<area shape="rect" title=" " alt="" coords="3166,79,3265,104"/>
-<area shape="poly" title=" " alt="" coords="1996,17,2183,19,2467,27,2804,45,2979,59,3153,76,3152,81,2979,64,2803,50,2467,32,2183,24,1996,22"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="510,79,599,104"/>
-<area shape="poly" title=" " alt="" coords="1889,25,613,90,612,84,1888,19"/>
-<area shape="rect" title=" " alt="" coords="390,299,471,324"/>
-<area shape="poly" title=" " alt="" coords="263,103,308,166,374,249,410,287,406,291,369,252,304,169,259,106"/>
-<area shape="poly" title=" " alt="" coords="229,106,135,149,132,144,226,102"/>
-<area shape="rect" title=" " alt="" coords="392,152,466,177"/>
-<area shape="poly" title=" " alt="" coords="282,102,388,144,386,149,280,106"/>
-<area shape="poly" title=" " alt="" coords="248,106,235,131,221,167,212,208,211,250,221,285,215,286,206,251,206,208,216,165,230,129,244,103"/>
-<area shape="poly" title=" " alt="" coords="1366,99,1171,111,918,135,790,152,674,173,576,198,536,212,505,228,471,256,446,289,442,285,467,253,502,223,534,207,574,193,672,168,790,146,917,129,1170,105,1366,93"/>
-<area shape="poly" title=" " alt="" coords="1366,96,1207,101,989,111,738,128,485,155,481,155,480,150,485,149,738,123,988,105,1207,95,1366,91"/>
-<area shape="rect" title=" " alt="" coords="896,299,978,324"/>
-<area shape="poly" title=" " alt="" coords="1443,104,1447,134,1447,174,1438,216,1428,236,1414,253,1396,259,1358,266,1243,282,992,308,991,302,1242,276,1357,261,1395,254,1411,248,1424,233,1433,214,1441,173,1441,134,1438,105"/>
-<area shape="poly" title=" " alt="" coords="1479,102,1523,118,1571,144,1617,178,1636,200,1651,224,1655,238,1654,250,1640,270,1614,286,1583,297,1581,292,1612,281,1636,266,1649,248,1650,238,1646,226,1632,203,1613,182,1568,148,1520,123,1477,107"/>
-<area shape="rect" title=" " alt="" coords="1110,299,1239,324"/>
-<area shape="poly" title=" " alt="" coords="1465,102,1500,120,1540,147,1578,182,1607,224,1612,239,1607,252,1589,263,1557,271,1465,287,1253,307,1253,302,1464,282,1556,266,1587,258,1603,249,1607,239,1602,227,1574,185,1536,151,1497,125,1463,106"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="868,152,998,177"/>
-<area shape="poly" title=" " alt="" coords="1366,105,1011,155,1011,150,1365,100"/>
-<area shape="poly" title=" " alt="" coords="868,170,802,175,723,185,639,202,558,228,501,258,455,292,452,288,498,254,556,223,638,197,722,180,801,170,868,165"/>
-<area shape="poly" title=" " alt="" coords="868,174,702,194,603,209,504,228,377,262,273,297,271,291,376,257,503,223,602,204,702,188,868,169"/>
-<area shape="poly" title=" " alt="" coords="910,180,888,193,868,210,856,229,855,239,858,249,876,272,899,290,896,294,872,276,853,252,850,240,851,228,864,206,884,189,907,175"/>
-<area shape="poly" title=" " alt="" coords="985,175,1175,223,1252,248,1440,293,1439,298,1251,253,1173,228,983,180"/>
-<area shape="poly" title=" " alt="" coords="998,165,1036,171,1077,181,1116,198,1151,223,1161,237,1169,253,1176,284,1170,285,1164,255,1157,240,1147,227,1114,203,1075,186,1035,176,997,170"/>
-<area shape="rect" title=" " alt="" coords="569,225,665,251"/>
-<area shape="poly" title=" " alt="" coords="883,180,679,226,678,220,881,175"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="1022,225,1137,251"/>
-<area shape="poly" title=" " alt="" coords="958,175,1045,217,1042,222,955,180"/>
-<area shape="rect" title=" " alt="" coords="689,225,793,251"/>
-<area shape="poly" title=" " alt="" coords="903,180,786,223,784,218,901,175"/>
-<area shape="poly" title=" " alt="" coords="997,175,1254,220,1253,225,996,180"/>
-<area shape="poly" title=" " alt="" coords="998,171,1462,226,1462,231,997,176"/>
-<area shape="rect" title=" " alt="" coords="868,225,998,251"/>
-<area shape="poly" title=" " alt="" coords="936,178,936,212,930,212,930,178"/>
-<area shape="poly" title=" " alt="" coords="1022,252,1011,253,714,287,485,308,484,303,714,282,1010,248,1022,246"/>
-<area shape="poly" title=" " alt="" coords="1022,252,1010,253,833,272,694,282,377,301,277,309,276,304,377,296,694,277,832,267,1010,248,1022,246"/>
-<area shape="poly" title=" " alt="" coords="1058,253,974,295,971,290,1055,248"/>
-<area shape="poly" title=" " alt="" coords="1137,246,1427,294,1426,299,1137,251"/>
-<area shape="poly" title=" " alt="" coords="1096,249,1149,288,1146,292,1093,253"/>
-<area shape="poly" title=" " alt="" coords="510,97,476,102,441,112,408,128,382,154,374,169,371,187,377,223,394,258,414,287,410,290,390,260,372,225,366,187,369,168,377,150,405,124,439,107,475,96,509,91"/>
-<area shape="poly" title=" " alt="" coords="510,102,440,120,402,135,366,154,327,185,293,222,244,289,239,285,289,218,324,182,363,150,399,130,438,115,509,97"/>
-<area shape="poly" title=" " alt="" coords="552,105,544,134,539,173,542,214,548,232,559,249,580,264,612,277,699,295,797,304,881,307,881,312,796,309,699,300,611,282,578,269,555,252,543,235,536,215,533,172,539,133,547,104"/>
-<area shape="poly" title=" " alt="" coords="600,98,859,147,858,152,599,104"/>
+<area shape="rect" title="OTA: HTTPS z internetu (STA + CA bundle), nebo HTTP z LAN (např." alt="" coords="1876,5,1983,31"/>
+<area shape="rect" href="ota__update_8h.html" title="OTA: HTTPS/HTTP z URL, nebo stream přes BLE (chunky na CMD char)." alt="" coords="274,79,380,104"/>
+<area shape="poly" title=" " alt="" coords="1876,24,554,81,394,89,394,84,554,76,1876,19"/>
+<area shape="rect" title=" " alt="" coords="81,152,218,177"/>
+<area shape="poly" title=" " alt="" coords="1876,22,1533,24,1027,31,770,38,542,49,365,63,303,72,263,81,236,94,211,110,171,144,168,140,208,105,234,89,261,76,302,66,364,58,542,44,770,33,1027,26,1533,18,1876,17"/>
+<area shape="rect" title=" " alt="" coords="1124,299,1194,324"/>
+<area shape="poly" title=" " alt="" coords="1877,31,1822,49,1795,63,1770,81,1752,102,1741,124,1732,168,1721,212,1708,233,1686,253,1646,272,1592,284,1530,291,1462,294,1330,296,1227,301,1209,304,1208,299,1227,296,1329,291,1462,289,1529,285,1592,278,1644,266,1683,248,1703,230,1716,210,1726,167,1736,122,1747,99,1767,77,1792,58,1820,44,1875,26"/>
+<area shape="rect" href="board__api__auth_8h.html" title="Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy." alt="" coords="64,79,198,104"/>
+<area shape="poly" title=" " alt="" coords="1876,22,1620,24,1213,32,723,49,468,63,218,81,213,82,212,76,218,76,467,58,722,44,1213,26,1620,19,1876,17"/>
+<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Web Server Task Hlavicka." alt="" coords="1014,79,1158,104"/>
+<area shape="poly" title=" " alt="" coords="1877,26,1172,85,1172,80,1876,21"/>
+<area shape="rect" title=" " alt="" coords="1564,299,1714,324"/>
+<area shape="poly" title=" " alt="" coords="1879,33,1833,51,1812,64,1793,80,1777,102,1767,122,1760,163,1754,206,1746,229,1731,252,1706,276,1678,295,1675,290,1702,272,1726,249,1741,226,1749,204,1755,162,1762,121,1772,99,1789,77,1809,60,1831,46,1877,28"/>
+<area shape="rect" title=" " alt="" coords="1393,225,1530,251"/>
+<area shape="poly" title=" " alt="" coords="1877,27,1777,45,1722,60,1668,81,1613,112,1561,150,1484,218,1481,214,1558,146,1610,108,1666,76,1720,55,1776,40,1876,22"/>
+<area shape="rect" title=" " alt="" coords="1555,225,1672,251"/>
+<area shape="poly" title=" " alt="" coords="1877,23,1834,28,1787,38,1740,55,1698,81,1670,111,1648,146,1632,182,1622,213,1617,211,1627,180,1643,144,1665,107,1695,77,1738,50,1786,33,1833,23,1876,18"/>
+<area shape="rect" title=" " alt="" coords="1803,79,1870,104"/>
+<area shape="poly" title=" " alt="" coords="1916,33,1864,72,1861,68,1913,29"/>
+<area shape="rect" title=" " alt="" coords="1894,79,1965,104"/>
+<area shape="poly" title=" " alt="" coords="1932,31,1932,65,1927,65,1927,31"/>
+<area shape="rect" title=" " alt="" coords="1989,79,2060,104"/>
+<area shape="poly" title=" " alt="" coords="1947,29,2000,68,1996,72,1943,33"/>
+<area shape="rect" title=" " alt="" coords="2084,79,2157,104"/>
+<area shape="poly" title=" " alt="" coords="1961,28,2077,71,2075,76,1960,33"/>
+<area shape="rect" title=" " alt="" coords="2182,79,2320,104"/>
+<area shape="poly" title=" " alt="" coords="1982,28,2187,73,2185,78,1981,33"/>
+<area shape="rect" title=" " alt="" coords="2345,79,2477,104"/>
+<area shape="poly" title=" " alt="" coords="1984,25,2332,76,2331,81,1983,30"/>
+<area shape="rect" title=" " alt="" coords="2502,79,2635,104"/>
+<area shape="poly" title=" " alt="" coords="1983,22,2200,43,2489,76,2488,81,2199,49,1983,27"/>
+<area shape="rect" title=" " alt="" coords="2659,79,2784,104"/>
+<area shape="poly" title=" " alt="" coords="1984,20,2263,40,2646,76,2646,81,2262,45,1983,25"/>
+<area shape="rect" title=" " alt="" coords="2809,79,2893,104"/>
+<area shape="poly" title=" " alt="" coords="1983,18,2322,32,2555,50,2796,76,2795,81,2554,55,2321,38,1983,23"/>
+<area shape="rect" title=" " alt="" coords="2918,79,3032,104"/>
+<area shape="poly" title=" " alt="" coords="1984,18,2364,34,2630,51,2905,76,2904,81,2629,56,2364,39,1983,23"/>
+<area shape="rect" title=" " alt="" coords="3057,79,3176,104"/>
+<area shape="poly" title=" " alt="" coords="1983,18,2417,32,2725,49,3044,76,3043,81,2724,55,2417,37,1983,23"/>
+<area shape="rect" title=" " alt="" coords="3200,79,3299,104"/>
+<area shape="poly" title=" " alt="" coords="1983,17,2178,18,2473,26,2824,44,3007,58,3187,76,3187,81,3006,63,2823,49,2472,32,2178,24,1983,22"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="566,79,656,104"/>
+<area shape="poly" title=" " alt="" coords="1876,25,670,90,670,84,1876,20"/>
+<area shape="rect" title=" " alt="" coords="292,299,373,324"/>
+<area shape="poly" title=" " alt="" coords="319,106,303,127,291,153,281,202,284,223,291,250,301,269,313,287,309,290,296,272,286,252,278,224,276,201,286,151,299,124,314,103"/>
+<area shape="poly" title=" " alt="" coords="300,106,192,149,190,144,298,102"/>
+<area shape="rect" title=" " alt="" coords="344,152,419,177"/>
+<area shape="poly" title=" " alt="" coords="338,103,367,140,363,143,334,106"/>
+<area shape="poly" title=" " alt="" coords="327,104,323,140,326,159,335,176,358,196,389,215,429,231,474,245,580,269,698,285,819,296,934,303,1110,307,1110,313,934,308,819,302,698,290,580,274,473,251,427,236,387,219,355,201,330,179,321,161,317,140,321,104"/>
+<area shape="poly" title=" " alt="" coords="91,107,55,125,39,138,27,153,14,180,8,203,12,225,26,249,43,262,67,272,134,289,210,299,278,305,278,310,209,305,133,294,65,278,40,266,22,252,7,227,3,203,9,178,22,151,35,134,52,120,89,102"/>
+<area shape="poly" title=" " alt="" coords="137,104,146,138,141,140,132,105"/>
+<area shape="poly" title=" " alt="" coords="172,101,332,146,330,152,171,107"/>
+<area shape="rect" title=" " alt="" coords="519,299,602,324"/>
+<area shape="poly" title=" " alt="" coords="113,106,93,121,75,139,66,158,66,167,71,176,99,200,144,222,200,241,264,258,396,285,506,301,505,306,395,290,263,264,199,247,142,227,96,204,66,179,61,168,61,157,71,136,90,117,110,102"/>
+<area shape="poly" title=" " alt="" coords="1014,103,880,123,728,155,627,187,530,228,371,296,369,291,527,223,626,182,726,149,879,117,1013,98"/>
+<area shape="poly" title=" " alt="" coords="1014,102,489,155,433,160,433,155,488,149,1013,97"/>
+<area shape="poly" title=" " alt="" coords="1014,104,932,118,834,142,732,178,682,201,635,228,602,257,577,289,573,285,598,253,632,223,679,196,730,173,833,137,931,113,1013,98"/>
+<area shape="poly" title=" " alt="" coords="1158,89,1246,92,1353,101,1470,119,1584,149,1657,173,1685,191,1710,224,1714,244,1706,263,1691,279,1673,293,1670,289,1687,276,1701,260,1708,243,1705,226,1681,195,1655,178,1582,155,1469,125,1353,107,1245,98,1158,95"/>
+<area shape="rect" title=" " alt="" coords="1240,299,1369,324"/>
+<area shape="poly" title=" " alt="" coords="1159,95,1293,109,1452,133,1528,150,1596,170,1650,195,1671,209,1687,224,1693,238,1687,252,1666,268,1636,281,1557,298,1467,308,1383,312,1383,307,1467,303,1557,293,1635,276,1663,264,1682,249,1687,238,1682,227,1668,213,1648,199,1594,175,1527,155,1451,138,1292,114,1158,100"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="1021,152,1150,177"/>
+<area shape="poly" title=" " alt="" coords="1088,104,1088,138,1083,138,1083,104"/>
+<area shape="poly" title=" " alt="" coords="1021,174,846,194,740,209,634,228,495,262,381,297,379,292,494,257,633,223,739,204,845,188,1021,169"/>
+<area shape="poly" title=" " alt="" coords="1152,174,1195,192,1215,206,1231,224,1236,244,1228,263,1212,279,1194,293,1191,289,1209,275,1223,260,1230,243,1226,227,1211,210,1193,196,1150,179"/>
+<area shape="poly" title=" " alt="" coords="1021,170,951,174,866,184,776,201,688,228,631,258,586,292,582,287,628,253,686,223,775,196,866,178,950,169,1021,164"/>
+<area shape="poly" title=" " alt="" coords="1124,175,1381,248,1573,293,1572,298,1380,253,1122,180"/>
+<area shape="poly" title=" " alt="" coords="1145,175,1199,193,1227,206,1252,223,1278,253,1297,285,1292,287,1274,256,1248,227,1224,211,1197,198,1143,180"/>
+<area shape="rect" title=" " alt="" coords="699,225,795,251"/>
+<area shape="poly" title=" " alt="" coords="1032,180,809,226,808,221,1031,175"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="1102,225,1216,251"/>
+<area shape="poly" title=" " alt="" coords="1100,176,1139,214,1135,218,1096,180"/>
+<area shape="rect" title=" " alt="" coords="819,225,923,251"/>
+<area shape="poly" title=" " alt="" coords="1052,180,920,223,918,218,1051,175"/>
+<area shape="poly" title=" " alt="" coords="1147,175,1388,220,1387,225,1146,180"/>
+<area shape="poly" title=" " alt="" coords="1151,171,1542,223,1541,228,1150,177"/>
+<area shape="rect" title=" " alt="" coords="947,225,1078,251"/>
+<area shape="poly" title=" " alt="" coords="1076,180,1036,218,1032,214,1072,176"/>
+<area shape="poly" title=" " alt="" coords="1102,252,1090,253,744,284,387,309,387,304,743,278,1090,248,1101,246"/>
+<area shape="poly" title=" " alt="" coords="1162,251,1162,285,1156,285,1156,251"/>
+<area shape="poly" title=" " alt="" coords="1102,252,1090,253,824,286,616,307,615,302,824,280,1089,248,1101,246"/>
+<area shape="poly" title=" " alt="" coords="1217,245,1551,294,1550,300,1216,250"/>
+<area shape="poly" title=" " alt="" coords="1184,248,1270,290,1268,295,1181,253"/>
+<area shape="poly" title=" " alt="" coords="588,106,441,177,341,227,331,255,331,285,326,285,326,254,337,224,439,172,586,102"/>
+<area shape="poly" title=" " alt="" coords="616,104,622,134,635,174,657,215,672,233,689,248,721,264,767,277,884,295,1009,304,1110,307,1110,312,1008,309,883,300,766,283,719,269,686,253,668,237,653,218,630,176,617,135,610,105"/>
+<area shape="poly" title=" " alt="" coords="605,106,573,156,557,190,544,226,544,257,552,285,547,287,539,257,539,225,552,188,568,154,600,103"/>
+<area shape="poly" title=" " alt="" coords="657,97,1008,149,1007,154,656,102"/>
 </map>
 </div>
 </div>
@@ -355,7 +362,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00093">93</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00094">94</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -371,7 +378,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00094">94</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00095">95</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -389,7 +396,7 @@ Proměnné</h2></td></tr>
 
 <p>Po 24 h bez spojení zruší session (uvolní semafor + esp_ota_abort). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00091">91</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00092">92</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -412,7 +419,7 @@ Proměnné</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00073">73</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00074">74</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -434,7 +441,7 @@ Proměnné</h2></td></tr>
 <tr><td class="fieldname"><a id="a3356efdfe078bb7aa213228c34f8d109a094d4e711e73edd642b32fd4fef07102" name="a3356efdfe078bb7aa213228c34f8d109a094d4e711e73edd642b32fd4fef07102"></a>OTA_UI_ERROR&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00061">61</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00062">62</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -463,7 +470,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00135">135</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00136">136</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -491,7 +498,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00155">155</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00156">156</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -519,7 +526,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00110">110</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00111">111</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -547,7 +554,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00096">96</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00097">97</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -575,7 +582,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00102">102</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00103">103</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -603,7 +610,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00489">489</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00498">498</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -631,7 +638,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00528">528</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00537">537</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -659,7 +666,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00560">560</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00569">569</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -687,7 +694,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00123">123</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00124">124</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -717,7 +724,7 @@ Proměnné</h2></td></tr>
 
 <p>Stahování obrazu po čistém HTTP (bez TLS) — typicky telefon jako server na AP subnetu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00308">308</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00309">309</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -745,7 +752,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00213">213</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00214">214</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -775,7 +782,7 @@ Proměnné</h2></td></tr>
 
 <p>Standardní HTTPS OTA potřebuje ota_0 i ota_1 (factory-only tabulka na 4 MB flash → vypnuto). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00182">182</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00183">183</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -803,7 +810,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00190">190</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00191">191</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -831,7 +838,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00043">43</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00044">44</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -859,7 +866,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00038">38</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00039">39</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -881,7 +888,7 @@ Proměnné</h2></td></tr>
 
 <p>Zruší probíhající BLE stream OTA (uvolní semafor). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00727">727</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00744">744</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -903,7 +910,7 @@ Proměnné</h2></td></tr>
 
 <p>BLE JSON {"cmd":"ota_ble_begin","size":&lt;bytes&gt;} před chunky <code>OB…</code>. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00650">650</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00667">667</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -936,7 +943,7 @@ Proměnné</h2></td></tr>
 <p>JSON pro cmd_ack notify (≤ ~380 B): channel/cmd_ack + ota_ble_status pole. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK nebo ESP_ERR_INVALID_STATE při malém bufferu. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00764">764</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00781">781</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -969,7 +976,7 @@ Proměnné</h2></td></tr>
 <p>BLE CMD write s hlavičkou <code>OB</code> + uint16 LE chunk_idx + uint16 LE chunk_total + raw payload. </p>
 <p>Po posledním bajtu podle <code>size</code> z begin provede esp_ota_end a restart. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00798">798</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00815">815</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -992,7 +999,7 @@ Proměnné</h2></td></tr>
 <p>Probíhá aktivní příjem BLE OTA chunků (ne paused). </p>
 <p>Pro potlačení snapshot notify / vedlejší zátěže během přenosu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00760">760</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00777">777</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1015,7 +1022,7 @@ Proměnné</h2></td></tr>
 <p>Zavolat z GAP disconnect (NimBLE). </p>
 <p>Po výpadku linku po <code>ota_ble_begin</code> jinak zůstane RX stav + držený semafor a další <code>ota_ble_begin</code> končí na ESP_ERR_INVALID_STATE („busy“). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00750">750</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00767">767</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1038,7 +1045,7 @@ Proměnné</h2></td></tr>
 <p>BLE JSON {"cmd":"ota_start","url":"https://…"}. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud příkaz byl přijat a naplánován (nebo už běží), jinak chyba. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00867">867</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00884">884</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1058,7 +1065,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00614">614</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00631">631</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1080,7 +1087,7 @@ Proměnné</h2></td></tr>
 
 <p>Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00648">648</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00665">665</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1108,7 +1115,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00451">451</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00459">459</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1136,7 +1143,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00208">208</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00209">209</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1164,7 +1171,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00203">203</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00204">204</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1189,7 +1196,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00085">85</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00086">86</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1213,7 +1220,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00080">80</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00081">81</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1237,7 +1244,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00086">86</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00087">87</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1261,7 +1268,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00084">84</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00085">85</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1285,7 +1292,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00081">81</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00082">82</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1309,7 +1316,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00083">83</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00084">84</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1333,7 +1340,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00079">79</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00080">80</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1357,7 +1364,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00088">88</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00089">89</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1381,7 +1388,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00082">82</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00083">83</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1405,7 +1412,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00071">71</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00072">72</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1429,7 +1436,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00035">35</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00036">36</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1453,7 +1460,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00036">36</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00037">37</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1477,7 +1484,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00068">68</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00069">69</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1501,7 +1508,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00070">70</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00071">71</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1525,7 +1532,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00069">69</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00070">70</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -1549,7 +1556,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00032">32</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00033">33</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
