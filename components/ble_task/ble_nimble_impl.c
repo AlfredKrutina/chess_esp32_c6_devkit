@@ -309,12 +309,15 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
           return BLE_ATT_ERR_INSUFFICIENT_AUTHOR;
         }
         esp_err_t derr = ota_update_ble_feed_chunk(tmp, n);
-        static const char ack_chunk_ok[] =
-            "{\"cmd\":\"ota_ble_chunk\",\"ok\":true}";
         static const char ack_chunk_bad[] =
             "{\"cmd\":\"ota_ble_chunk\",\"ok\":false}";
-        ble_task_notify_command_result(derr,
-                                       derr == ESP_OK ? ack_chunk_ok : ack_chunk_bad);
+        /*
+         * Úspěšný chunk: neposílat cmd_ack notify — klient OTA nečeká na ACK,
+         * jen na ATT write response; notify každý chunk zahlcuje frontu na iOS.
+         */
+        if (derr != ESP_OK) {
+          ble_task_notify_command_result(derr, ack_chunk_bad);
+        }
         if (derr == ESP_OK || derr == ESP_ERR_NOT_SUPPORTED) {
           return 0;
         }

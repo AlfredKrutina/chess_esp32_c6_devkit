@@ -8,7 +8,14 @@ cmake_minimum_required(VERSION 3.16)
 
 # Project configuration
 set(PROJECT_NAME "esp32_chess_v24")
-set(PROJECT_VERSION "1.1.1")
+# Normální release: 1.1.2. Pro OTA test z aplikace: přeflashuj desku buildem se starší
+# verzí v esp_app_desc — viz CHESS_OTA_TEST_OLD_VER níže (manifest nechte vyšší, např. 1.1.2).
+set(PROJECT_VERSION "1.1.2")
+
+# -DCHESS_OTA_TEST_OLD_VER=ON → PROJECT_VER / API hlásí 1.1.1, zbytek kódu současný (vhodné jen na stole).
+if(DEFINED CHESS_OTA_TEST_OLD_VER AND CHESS_OTA_TEST_OLD_VER)
+  set(PROJECT_VERSION "1.1.1")
+endif()
 
 # Include ESP-IDF build system
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
@@ -50,14 +57,26 @@ set(EXTRA_COMPONENT_DIRS
     components/stm32_i2c_bootloader
 )
 
-# Project-wide compile definitions
-add_compile_definitions(
+# Project-wide compile definitions (sladěno s PROJECT_VERSION / esp_app_desc).
+# CHESS_VERSION_STRING musí být bez mezer — řetězec s mezerami rozbije -D na gcc CLI.
+if(DEFINED CHESS_OTA_TEST_OLD_VER AND CHESS_OTA_TEST_OLD_VER)
+  message(STATUS "CHESS_OTA_TEST_OLD_VER=ON → simulace starší verze 1.1.1 pro OTA z aplikace")
+  add_compile_definitions(
     CHESS_VERSION_MAJOR=1
     CHESS_VERSION_MINOR=1
     CHESS_VERSION_PATCH=1
-    CHESS_VERSION_STRING="v1.1.1"
-    CHESS_BUILD_DATE="2026-05-05"
-)
+    CHESS_SYSTEM_VERSION=\"1.1.1\"
+    CHESS_VERSION_STRING=\"v1.1.1\"
+  )
+else()
+  add_compile_definitions(
+    CHESS_VERSION_MAJOR=1
+    CHESS_VERSION_MINOR=1
+    CHESS_VERSION_PATCH=2
+    CHESS_SYSTEM_VERSION=\"1.1.2\"
+    CHESS_VERSION_STRING=\"v1.1.2\"
+  )
+endif()
 
 # Compiler flags for optimization and debugging
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-unused-parameter")
@@ -76,7 +95,7 @@ endif()
 
 # Print configuration summary
 message(STATUS "========================================")
-message(STATUS "ESP32-C6 Chess System v1.1.1 Configuration")
+message(STATUS "ESP32-C6 Chess System v${PROJECT_VERSION} Configuration")
 message(STATUS "========================================")
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Version: ${PROJECT_VERSION}")
@@ -95,7 +114,7 @@ message(STATUS "========================================")
 
 # Custom build targets
 add_custom_target(info
-    COMMAND ${CMAKE_COMMAND} -E echo "ESP32-C6 Chess v1.1.1 Build Information:"
+    COMMAND ${CMAKE_COMMAND} -E echo "ESP32-C6 Chess v${PROJECT_VERSION} Build Information:"
     COMMAND ${CMAKE_COMMAND} -E echo "  Project: ${PROJECT_NAME}"
     COMMAND ${CMAKE_COMMAND} -E echo "  Version: ${PROJECT_VERSION}"
     COMMAND ${CMAKE_COMMAND} -E echo "  Build Type: ${CMAKE_BUILD_TYPE}"

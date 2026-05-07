@@ -48,12 +48,16 @@ extern "C" {
 
 /** @brief Nazev sachoveho systemu */
 #define CHESS_SYSTEM_NAME "ESP32-C6 Chess System"
-/** @brief Verze sachoveho systemu */
-#define CHESS_SYSTEM_VERSION "1.1"
+/** @brief Verze sachoveho systemu (CMake může přepsat -DCHESS_SYSTEM_VERSION=…) */
+#ifndef CHESS_SYSTEM_VERSION
+#define CHESS_SYSTEM_VERSION "1.1.2"
+#endif
 /** @brief Autor sachoveho systemu */
 #define CHESS_SYSTEM_AUTHOR "Alfred Krutina"
-/** @brief Kompletni retezec s verzi */
-#define CHESS_VERSION_STRING "ESP32-C6 Chess System v1.1"
+/** @brief Kompletni retezec s verzi (CMake může přepsat -DCHESS_VERSION_STRING=…) */
+#ifndef CHESS_VERSION_STRING
+#define CHESS_VERSION_STRING "ESP32-C6 Chess System v1.1.2"
+#endif
 /** @brief Datum sestaveni */
 #define CHESS_BUILD_DATE __DATE__
 

@@ -33,19 +33,50 @@ bool _isBleTransportDropped(Object e) {
 
 bool _isRetryableGattWrite(Object e) {
   if (e is FlutterBluePlusException) {
+    // iOS CoreBluetooth CBATTError (typické raw hodnoty):
+    // 5 insufficientAuthentication, 8 prepareQueueFull, 15 insufficientEncryption
     // 14: Linux ATT retry
-    // 15: iOS CBATTErrorInsufficientEncryption — počkat na SMP
-    // 8:  iOS CBATTErrorInsufficientAuthorization — často dokud nedoběhne šifrování / bonding
-    if (e.code == 8 || e.code == 14 || e.code == 15) return true;
+    if (e.code == 5 ||
+        e.code == 8 ||
+        e.code == 14 ||
+        e.code == 15) {
+      return true;
+    }
     final d = e.description?.toUpperCase() ?? '';
     return d.contains('UNLIKELY') ||
         d.contains('BUSY') ||
+        d.contains('PREPARE QUEUE') ||
         d.contains('INSUFFICIENT ENCRYPTION') ||
         d.contains('ENCRYPTION IS INSUFFICIENT') ||
+        d.contains('INSUFFICIENT AUTHENTICATION') ||
         d.contains('AUTHORIZATION IS INSUFFICIENT') ||
         d.contains('INSUFFICIENT AUTHORIZATION');
   }
   return false;
+}
+
+/// Diagnostika BLE OTA (iOS často code 8 = prepare queue full, ne „authentication“).
+void _logBleOtaChunkWriteFailure(
+  Object e, {
+  required int chunkIndex,
+  required int attempt,
+  required bool willRethrow,
+}) {
+  if (!AppEnvironment.staging && !(kDebugMode && willRethrow)) {
+    return;
+  }
+  final sb = StringBuffer(
+    'BLE OTA GATT write chunk=$chunkIndex attempt=${attempt + 1}'
+    '${willRethrow ? ' (giving up)' : ''}: ',
+  );
+  if (e is FlutterBluePlusException) {
+    sb.write('FBP code=${e.code} description=${e.description}; ');
+  }
+  sb.write('$e');
+  sb.write(
+    ' | ESP: hledej v UART „OTA BLE chunk rejected: link not encrypted“ → bonding/šifrování.',
+  );
+  debugPrint(sb.toString());
 }
 
 /// BLE snapshot notify + chunk skládání (`appendChunk` ve Swift).
@@ -240,7 +271,7 @@ class BleCzechmateClient {
           continue;
         }
         if (!_isRetryableGattWrite(e) || attempt == maxAttempts - 1) rethrow;
-        /* iOS 8/15: SMP často potřebuje delší prodlevu než malý JSON MOVE. */
+        /* iOS 5/15 encryption/auth; 8 prepare queue — delší prodlevy než pro krátký JSON. */
         final baseMs =
             defaultTargetPlatform == TargetPlatform.iOS ? 180 : 60;
         await Future<void>.delayed(
@@ -429,9 +460,12 @@ class BleCzechmateClient {
       await Future<void>.delayed(const Duration(milliseconds: 280));
     }
     final mtu = d.mtuNow;
+    final int rawPayloadMax =
+        (mtu >= 40 ? mtu - 15 : 20).clamp(20, 500).toInt();
+    /* iOS: menší chunky + delší mezery → méně CBATTError 8 (prepareQueueFull). */
     final int payloadMax = defaultTargetPlatform == TargetPlatform.iOS
-        ? ((mtu >= 40 ? mtu - 15 : 20).clamp(20, 500).clamp(20, 244)).toInt()
-        : ((mtu >= 40 ? mtu - 15 : 20).clamp(20, 500)).toInt();
+        ? rawPayloadMax.clamp(20, 182).toInt()
+        : rawPayloadMax;
     final chunkTotal = (len + payloadMax - 1) ~/ payloadMax;
     if (chunkTotal > 65535) {
       throw StateError('Firmware too large for BLE chunk protocol');
@@ -439,7 +473,7 @@ class BleCzechmateClient {
 
     const resumeTimeout = Duration(hours: 24);
     var transferBegun = false;
-    final chunkGapMs = defaultTargetPlatform == TargetPlatform.iOS ? 10 : 0;
+    final chunkGapMs = defaultTargetPlatform == TargetPlatform.iOS ? 48 : 0;
 
     Future<void> negotiateMtuLight() async {
       try {
@@ -462,6 +496,9 @@ class BleCzechmateClient {
           if (!transferBegun) {
             await postOtaBleBegin(len);
             transferBegun = true;
+            if (defaultTargetPlatform == TargetPlatform.iOS) {
+              await Future<void>.delayed(const Duration(milliseconds: 140));
+            }
           }
 
           while (offset < len) {
@@ -490,6 +527,14 @@ class BleCzechmateClient {
                 break;
               } catch (e) {
                 final fbp = e is FlutterBluePlusException ? e : null;
+                final willRethrow =
+                    !_isRetryableGattWrite(e) || attempt == 11;
+                _logBleOtaChunkWriteFailure(
+                  e,
+                  chunkIndex: idx,
+                  attempt: attempt,
+                  willRethrow: willRethrow,
+                );
                 if (fbp?.code == 6 && attempt < 11) {
                   try {
                     await ensureGattReadyForCommands();
@@ -499,13 +544,26 @@ class BleCzechmateClient {
                   );
                   continue;
                 }
-                final slowSmp =
-                    fbp != null && (fbp.code == 8 || fbp.code == 15);
-                if (!_isRetryableGattWrite(e) || attempt == 11) rethrow;
+                if (willRethrow) {
+                  rethrow;
+                }
+                final ios = defaultTargetPlatform == TargetPlatform.iOS;
+                final code = fbp?.code ?? -1;
+                /* 8 ≈ prepareQueueFull — delší pauza; 5/15 ≈ auth/encryption — SMP. */
+                final int baseMs;
+                final int stepMs;
+                if (code == 8) {
+                  baseMs = ios ? 480 : 140;
+                  stepMs = ios ? 200 : 100;
+                } else if (code == 15 || code == 5) {
+                  baseMs = ios ? 360 : 120;
+                  stepMs = ios ? 160 : 90;
+                } else {
+                  baseMs = ios ? 100 : 40;
+                  stepMs = ios ? 110 : 90;
+                }
                 await Future<void>.delayed(
-                  Duration(
-                    milliseconds: (slowSmp ? 240 : 40) + attempt * 90,
-                  ),
+                  Duration(milliseconds: baseMs + attempt * stepMs),
                 );
               }
             }
