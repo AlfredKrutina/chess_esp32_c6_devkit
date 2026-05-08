@@ -667,12 +667,6 @@ A: Spousta nápadů je v sekci „Budoucí vylepšení“ — osobně mě láká
 
 ---
 
-## 🤝 Jak jsme to dělali ve dvou
-
-Matěj táhl hardware a já firmware + web + šachy. Každý šlapal na své koleji a scházeli jsme se hlavně kvůli testům a tomu, aby software seděl na reálné desce.
-
----
-
 ## 🔮 Co mě ještě láká doplnit
 
 Seznam nápadů držím otevřený — pár věcí z níže už částečně žije ve Flutteru, jiné jsou spíš přání:
@@ -682,8 +676,7 @@ Seznam nápadů držím otevřený — pár věcí z níže už částečně ži
 - **Statistics** — hlubší statistiky her
 - **Opening book** — knihovna zahájení
 - **Endgame tablebases** — koncovky (ambiciózní)
-- **WebSocket** — víc využít `/ws` napříč klienty (FW už umí při `CONFIG_HTTPD_WS_SUPPORT`)
-- **Voice commands** — spíš experiment, ale baví mě představa
+- **Voice commands** — spíš experiment, ale baví mě představa např příkazu A2A4
 
 ---
 
@@ -701,21 +694,21 @@ Zodpovídal jsem za celý software stack - od FreeRTOS tasků přes šachovou lo
 - Webový server a embedded JavaScript
 - LED animace a unified animation manager
 - UART konzole a debugging systém
-- Kompletní Doxygen dokumentace
+- Kompletní dokumentace
+- Výběr komponentů a vymyšlení flow celého zařízení
 
 ### Matěj Jager - Hardware
 
-**Role:** Hardware design, zapojení, fyzická realizace, testování
+**Role:** Hardwarová fyzická realizace, testování
 
-Matěj navrhl a realizoval celý hardware - od Reed Switch matice přes LED zapojení až po time-multiplexing s diodami. Bez jeho pečlivé práce na hardwaru by software neměl na čem běžet. Matěj také testoval všechny funkce na fyzickém hardwaru a pomáhal identifikovat problémy s timingem a napájením.
+Matěj realizoval celý hardware - od Reed Switch matice přes LED zapojení až po time-multiplexing s diodami. Bez jeho pečlivé práce na hardwaru by software neměl na čem běžet. Matěj testoval všechny funkce na fyzickém hardwaru a pomáhal identifikovat problémy s timingem a napájením.
 
 **Hlavní příspěvky:**
-- Hardware design a zapojení
 - Reed Switch matice (8x8 = 64 switchů)
-- Time-multiplexing s diodami pro tlačítka
 - Napájecí systém pro WS2812B LED
 - Fyzická realizace šachovnice
 - Hardware debugging a testování
+- 3D model CZECHMATE V1
 
 
 ---
