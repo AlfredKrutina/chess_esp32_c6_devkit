@@ -1,16 +1,16 @@
-# Flutter (`flutter_czechmate/`)
+# Flutter klient (`flutter_czechmate/`)
 
 [Rozcestník celého repa](../README.md).
 
-Klient: **BLE** nebo **HTTP / WebSocket**, stav přes **Riverpod**. Partie na desce běží ve firmware [`game_task`](../../components/game_task/) — Flutter jen tahá snapshoty / API; balíček `chess` v Dartu doplňuje UI tam, kde to dává smysl, ne jako náhrada `game_task`.
+Aplikace umí **BLE** nebo **HTTP / WebSocket**, stav držím přes **Riverpod**. Partie sama o sobě žije ve firmware [`game_task`](../../components/game_task/) — klient v Dartu synchronizuje snapshoty a API; balíček `chess` používám tam, kde pomůže UI, ne jako náhradu celého `game_task`.
 
 ```bash
 cd flutter_czechmate && flutter pub get && flutter run
 ```
 
-Releases: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
+Hotové buildy: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
 
-Nápady na nové diagramy: `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` (lokální), vzor [DIAGRAM_BACKLOG.local.example.md](../diagrams/DIAGRAM_BACKLOG.local.example.md).
+Nápady na nové diagramy si píšu lokálně do `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`, vzor je [DIAGRAM_BACKLOG.local.example.md](../diagrams/DIAGRAM_BACKLOG.local.example.md).
 
 ---
 
@@ -113,17 +113,17 @@ flowchart LR
   classDef g fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
 ```
 
-JSON příkazy z BLE často končí ve `web_server_ble_command_dispatch` — stejná logika jako část web API.
+JSON z BLE často končí ve `web_server_ble_command_dispatch` — stejná logika jako část web API.
 
 ---
 
 ## OTA firmwaru ESP32
 
-[docs/ota_architecture.md](../ota_architecture.md) — HTTPS se STA, HTTP z telefonu, BLE `OB` chunky, REST, Bearer.
+[docs/ota_architecture.md](../ota_architecture.md) — HTTPS se STA, HTTP z telefonu, BLE chunky `OB`, REST, Bearer.
 
 Dart: `BoardSessionNotifier.requestFirmwareOta` / `uploadFirmwareOtaBle`, `FirmwareOtaRunner`, `FirmwarePhoneHostOta`, `BleCzechmateClient.uploadFirmwareBle`.
 
-Test postupy: [context/ota/e2e_verification_checklist.md](../../context/ota/e2e_verification_checklist.md).
+Test checklist (pokud ho mám v repu): [context/ota/e2e_verification_checklist.md](../../context/ota/e2e_verification_checklist.md).
 
 ---
 
@@ -172,4 +172,4 @@ flowchart LR
 
 [diagrams/README.md](../diagrams/README.md) — tasky, boot, LED pipeline.
 
-[flutter_czechmate/README.md](../../flutter_czechmate/README.md) — krátký start.
+[flutter_czechmate/README.md](../../flutter_czechmate/README.md) — krátký start z kořene aplikace.

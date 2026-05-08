@@ -1,48 +1,48 @@
-# Dokumentace — rozcestník
+# Dokumentace — orientace v repozitáři
 
-Kořen **[README.md](../README.md)**: HW, GPIO, přehled projektu. Složka **`docs/`**: architektura, tasky, Flutter, OTA, reference, diagramy.
-
----
-
-## Doporučené čtení
-
-1. [README.md](../README.md) — systém, hardware, tabulka tasků
-2. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachová logika
-3. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty a HW podrobněji
-4. [flutter/README.md](flutter/README.md) — struktura klienta, BLE/HTTP
-5. [ota_architecture.md](ota_architecture.md) — OTA firmwaru ESP32 (HTTPS, HTTP z telefonu, BLE)
-6. [reference/](reference/) — souřadnice, web UI, integrační checklist (tabulka níže)
-7. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`
-
-Po úpravě diagramů: `./scripts/render_docs.sh` (SVG, `diagrams_mermaid.html`).
+Úplný vstup do projektu je v **[README.md](../README.md)** (hardware, GPIO, tabulka tasků, praktické věci). Ve **`docs/`** je hlubší rozpitváno: diagramy, Flutter, OTA, reference kolem integrace.
 
 ---
 
-## Inventář
+## Typické pořadí čtení
 
-| Dokument | Obsah |
-|----------|--------|
-| [README.md](../README.md) | Projekt, HW, troubleshooting |
-| [docs/README.md](README.md) | Tento rozcestník |
-| [diagrams/README.md](diagrams/README.md) | Mermaid/SVG diagramy |
+1. [README.md](../README.md) — velký obrázek.
+2. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
+3. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji.
+4. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
+5. [ota_architecture.md](ota_architecture.md) — jak taháme firmware na desku (HTTPS, HTTP z telefonu, BLE).
+6. [reference/](reference/) — souřadnice, web UI v binárce, checklist pro klienty (viz tabulku níže).
+7. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
+
+Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_docs.sh`.
+
+---
+
+## Co kde leží (inventář)
+
+| Dokument | Účel |
+|----------|----------------|
+| [README.md](../README.md) | Projekt, HW, řešení problémů |
+| [docs/README.md](README.md) | Tenhle rozcestník |
+| [diagrams/README.md](diagrams/README.md) | Mermaid / SVG přehled |
 | [diagrams/diagrams_mermaid.html](diagrams/diagrams_mermaid.html) | Sekvence (generuje `render_docs.sh`) |
-| [diagrams/mermaid_diagrams.txt](diagrams/mermaid_diagrams.txt) | Zdroj pro HTML |
+| [diagrams/mermaid_diagrams.txt](diagrams/mermaid_diagrams.txt) | Zdroj pro sekvenční HTML |
 | [diagrams/sources/chess_flow_*.mmd](diagrams/sources/) | Šablony tahů, recovery, … |
 | [flutter/README.md](flutter/README.md) | Flutter klient |
 | [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) | Komunikace tasků |
-| [reference/coordinates_system.md](reference/coordinates_system.md) | Notace ↔ row/col, LED |
+| [reference/coordinates_system.md](reference/coordinates_system.md) | Notace ↔ řádek/sloupec, LED |
 | [reference/WEB_UI_DEPLOY.md](reference/WEB_UI_DEPLOY.md) | Embed web UI, build |
 | [reference/CZECHMATE_INTEGRATION_CHECKLIST.md](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE pro klienty |
-| [ota_architecture.md](ota_architecture.md) | OTA: kanály, API, Flutter (roadmap: OTAvo místo vlastní OTA ve FW) |
-| [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Brief pro videa |
+| [ota_architecture.md](ota_architecture.md) | OTA: kanály, API, Flutter (dlouhodobě uvažuju OTAvo místo vlastní vrstvy ve FW) |
+| [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Co potřebuju k videím z Blenderu |
 | [flutter_czechmate/README.md](../flutter_czechmate/README.md) | Spuštění aplikace |
 | [diagrams/DIAGRAM_BACKLOG.local.example.md](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona backlogu diagramů |
 
-Lokální drafty diagramů: `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` (gitignore). OTA logy a poznámky z testů: `context/ota/`.
+Lokální poznámky k diagramům si píšu do `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` (gitignore). OTA logy a poznámky z testů často do `context/ota/`.
 
 ---
 
-## Struktura repa (dokumentace)
+## Jak to sedí v repu (diagram)
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'lineColor':'#94a3b8','clusterBkg':'#0f172a','clusterBorder':'#334155','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
@@ -84,18 +84,18 @@ flowchart TB
 
 ---
 
-## Limity docs vs. zdroják
+## Co dokumentace schválně nedělá
 
-- `game_task.c` je velký — hlavní toky jsou v diagramech a Doxygenu; úplný inventář funkcí z HTML Doxygen.
-- Časové chování partie: diagramy + KOMUNIKACE + logy na desce + testy.
+- `game_task.c` je obří — celý proud řeším radši přes diagramy a Doxygen; úplný výpis funkcí je v HTML po `generate_docs.sh`.
+- Časové chování partie nejlíp sedí z kombinace diagramů, textu v KOMUNIKACE, logů z desky a testů.
 
 ---
 
-## Build
+## Typické příkazy
 
-| | Příkaz |
-|---|--------|
-| Firmware | `idf.py build` (ESP-IDF env) |
+| Co | Příkaz |
+|----|--------|
+| Firmware | `idf.py build` (v aktivovaném ESP-IDF prostředí) |
 | Flutter | `cd flutter_czechmate && flutter pub get && flutter run` |
 | Diagramy | `./scripts/render_docs.sh` |
 | Doxygen | `./generate_docs.sh` |

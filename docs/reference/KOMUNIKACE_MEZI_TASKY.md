@@ -1,19 +1,19 @@
-# Detailní popis komunikace mezi tasky a hardware - CZECHMATE v2.5.1
+# Jak spolu mluví tasky a hardware — CZECHMATE v2.5.1
 
-**Rozcestník dokumentace:** [docs/README.md](../README.md).
+**Rozcestník:** [docs/README.md](../README.md).
 
-**Diagramy:** [docs/diagrams/README.md](../diagrams/README.md). Níže je stejné téma podrobně textem.
+**Obrázky k tomu:** [docs/diagrams/README.md](../diagrams/README.md). Stejné téma je tady vypsané souvětím jako most k zdrojákům.
 
-Konstanty velikostí front a stacků: `components/freertos_chess/include/freertos_chess.h`. Pořadí a vytváření tasků: `main/main.c` (`animation_task` se **nevytváří**; BLE přes `ble_task_init()` / NimBLE host task).
+Kapacity front a stacků hledám v `components/freertos_chess/include/freertos_chess.h`. Pořadí bootu a tasků v `main/main.c` (`animation_task` se **nevytváří**; BLE přes `ble_task_init()` / NimBLE host task).
 
 ## 📋 Přehled typů komunikace
 
-Systém používá **3 hlavní typy komunikace** mezi tasky:
+Ve firmware řeším hlavně tyto směry dat:
 
-1. **Hardware → Task** - GPIO skenování, UART read
-2. **Task → Queue → Task** - Asynchronní komunikace přes FreeRTOS fronty
-3. **Task → Direct Call → Task** - Synchronní volání thread-safe funkcí (s mutexem)
-4. **Task → Hardware** - GPIO write, UART write, WS2812B protokol
+1. **Hardware → Task** — GPIO skenování, UART read
+2. **Task → Queue → Task** — asynchronně přes FreeRTOS fronty
+3. **Task → Direct Call → Task** — synchronní thread-safe funkce (mutex uvnitř)
+4. **Task → Hardware** — GPIO write, UART write, WS2812B
 
 ---
 
@@ -498,50 +498,41 @@ Terminal (PC)
 
 ---
 
-## ⚠️ Kritické body komunikace
+## ⚠️ Kde mi to občas připálí
 
 ### 1. Queue Overflow
-- **Problém:** Pokud fronta je plná, `xQueueSend` vrátí `pdFALSE` → zpráva se ztratí
-- **Řešení:** Timeout 100ms, kontrola návratové hodnoty
-- **Kritické fronty:** `game_command_queue` (24), `button_event_queue` (5)
+- Když je fronta plná, `xQueueSend` vrátí `pdFALSE` → zpráva propadne.
+- Držím timeout ~100 ms a kontroluju návratovou hodnotu.
+- Nejvíc mě bolí `game_command_queue` (24) a `button_event_queue` (5).
 
 ### 2. Mutex Deadlock
-- **Problém:** Pokud task drží mutex a je přerušen vyšší prioritou → deadlock
-- **Řešení:** Krátké timeouty, vyhýbání se `portMAX_DELAY` kde je to možné
-- **Kritické mutexy:** `game_mutex`, `led_unified_mutex`
+- Držet mutex dlouho při vyšších prioritách je recept na problém.
+- Radši kratší timeouty a `portMAX_DELAY` jen kde opravdu musím.
+- Citlivé jsou `game_mutex`, `led_unified_mutex`.
 
-### 3. Timing-Critical Operations
-- **Problém:** LED refresh nesmí být přerušen
-- **Řešení:** led_task má prioritu 7 (nejvyšší), mutex ochrana během refresh
+### 3. Timing kolem LED
+- Refresh WS2812 nesmí nestíhat.
+- `led_task` má prioritu 7 a mutex chrání refresh.
 
-### 4. Thread-Safe Functions
-- **Pravidlo:** Funkce končící `_safe()` automaticky berou mutex
-- **Příklad:** `led_set_pixel_safe()`, `game_get_status_json()`
-- **Poznámka:** Volající task **NEMUSÍ** brát mutex před voláním
+### 4. Thread-safe funkce
+- Co končí na `_safe()`, mutex si bere funkce sama (`led_set_pixel_safe()`, `game_get_status_json()`).
+- Volající task před tím mutex neřeší.
 
 ---
 
-## 🎯 Doporučení pro diagram
+## 🎯 Jak kreslím diagramy k tomuhle textu
 
-Pro vytvoření propracovaného diagramu použijte:
+1. **Šipky:**
+   - **→** fronta (async)
+   - **⇒** přímé volání (sync, thread-safe)
+   - **⇄** obousměrně (UART)
+   - **─ ─ →** jen čtení (JSON)
 
-1. **Různé typy šipek:**
-   - **→ (plná):** Queue komunikace (asynchronní)
-   - **⇒ (tučná):** Direct call (synchronní, thread-safe)
-   - **⇄ (dvojitá):** Bidirekční (UART)
-   - **─ ─ → (tečkovaná):** Read-only (JSON čtení)
+2. **Timeouty:** u front „100 ms“, u mutexů klíčové jméno (`led_unified_mutex`).
 
-2. **Označení timeoutů:**
-   - Fronty: "100ms timeout"
-   - Mutexy: "mutex: led_unified_mutex"
+3. **Kapacity:** `game_command_queue` 24 zpráv, `button_event_queue` 5.
 
-3. **Velikost front:**
-   - game_command_queue: "24 msgs"
-   - button_event_queue: "5 msgs"
-
-4. **Kritické operace:**
-   - LED refresh: "P7, timing-critical"
-   - Matrix scan: "P6, multiplex ~25ms"
+4. **Priority / čas:** LED „P7 timing“, matrix „P6 multiplex ~25 ms“.
 
 ---
 

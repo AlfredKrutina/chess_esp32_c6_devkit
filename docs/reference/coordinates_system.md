@@ -1,10 +1,10 @@
-# Systém souřadnic v CZECHMATE (v2.5.1)
+# Souřadnice na šachovnici — konvence (CZECHMATE v2.5.1)
 
-> Konvence **row/col** a funkce `convert_notation_to_coords` / `convert_coords_to_notation` ověř ve zdroji `game_task` — tento dokument popisuje standardní mapování **a1 = [0,0]**.
+> Přesný kód je ve `game_task` (`convert_notation_to_coords` / `convert_coords_to_notation`). Tady jen shrnutí konvence **row/col** ve firmware — standardně **a1 = [0,0]**.
 
-## Převod šachové notace na souřadnice
+## Z notace na pole
 
-Game_task používá funkci `convert_notation_to_coords()` pro převod šachové notace (např. "e2", "e4") na souřadnice pole.
+V `game_task` převádím např. `"e2"` / `"e4"` přes `convert_notation_to_coords()`.
 
 ### Funkce `convert_notation_to_coords()`
 
@@ -12,7 +12,7 @@ Game_task používá funkci `convert_notation_to_coords()` pro převod šachové
 bool convert_notation_to_coords(const char *notation, uint8_t *row, uint8_t *col)
 ```
 
-**Algoritmus převodu:**
+**Pravidlo převodu:**
 - **Sloupec (col)**: `col = notation[0] - 'a'`
   - a = 0, b = 1, c = 2, d = 3, e = 4, f = 5, g = 6, h = 7
 - **Řádek (row)**: `row = notation[1] - '1'`
@@ -38,7 +38,7 @@ bool convert_notation_to_coords(const char *notation, uint8_t *row, uint8_t *col
 
 ## Reprezentace šachovnice
 
-Šachovnice je reprezentována jako 2D pole `board[8][8]`, kde:
+Šachovnici držím jako `board[8][8]`, kde:
 - `board[row][col]` - typ figurky na pozici (row, col)
 - `row` - řádek (0-7), kde 0 = rank 1 (bílé figurky), 7 = rank 8 (černé figurky)
 - `col` - sloupec (0-7), kde 0 = file a, 7 = file h
@@ -78,13 +78,13 @@ bool convert_notation_to_coords(const char *notation, uint8_t *row, uint8_t *col
 
 ## Opačný převod: souřadnice → notace
 
-Funkce `convert_coords_to_notation()` provádí opačný převod:
+Zpět na notaci dělám přes `convert_coords_to_notation()`:
 
 ```c
 bool convert_coords_to_notation(uint8_t row, uint8_t col, char *notation)
 ```
 
-**Algoritmus:**
+**Vzorec:**
 - notation[0] = 'a' + col
 - notation[1] = '1' + row
 - notation[2] = '\0'
@@ -133,4 +133,4 @@ col: 0   1   2   3   4   5   6   7
 
 ---
 
-**Dokument:** referenční · **Aktualizace:** 2026-04-30
+**Naposledy jsem to sjednocoval:** 2026-04-30

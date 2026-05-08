@@ -1,23 +1,23 @@
-# Diagramy (firmware)
+# Diagramy — firmware architektura
 
-[`docs/README.md`](../README.md) — hlavní rozcestník.
+[Rozcestník všech textů](../README.md).
 
-Boot, fronty, mutexy, smyčky tasků, šachové pipeline, Flutter. Textová varianta + HW poznámky: [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md). C API: `./generate_docs.sh` → `docs/doxygen/html/`.
+Boot sekvence, fronty, mutexy, smyčky tasků, šachové pipeline a občas návaznost na Flutter — to všechno je tady graficky. Totéž téma slovy a s poznámkami k HW je v [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md). K C API slouží lokálně `./generate_docs.sh` → `docs/doxygen/html/`.
 
-Konstanty front/stacků: [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h), pořadí bootu/tasků: [`main/main.c`](../../main/main.c).
+Čísla front a stacků jsou v [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h), pořadí životního cyklu v [`main/main.c`](../../main/main.c).
 
-Lokální backlog nových grafů: `LOCAL_DIAGRAM_BACKLOG.md` (gitignore), vzor [DIAGRAM_BACKLOG.local.example.md](DIAGRAM_BACKLOG.local.example.md).
+Nápady na nové grafy si píšu do `LOCAL_DIAGRAM_BACKLOG.md` (gitignore); šablona startu je [DIAGRAM_BACKLOG.local.example.md](DIAGRAM_BACKLOG.local.example.md).
 
-SVG z této složky: `./scripts/render_docs.sh` nad [`sources/*.mmd`](sources/).
+SVG přegeneruju z kořene: `./scripts/render_docs.sh` (zdroje v [`sources/*.mmd`](sources/)).
 
 ---
 
 ## Legenda šipek
 
 - Plná šipka na frontu ≈ `xQueueSend` / `xQueueReceive`.
-- Čárkovaná = optional (`menuconfig`) nebo nepřímé volání (BLE přes web dispatch).
+- Čárkovaná = volitelné (`menuconfig`) nebo nepřímé volání (BLE přes web dispatch).
 - `main_system_init()` včetně `ble_task_init()` doběhne **před** `create_system_tasks()`.
-- `animation_task` / `matter_task` se z `main.c` nespouštějí.
+- `animation_task` / `matter_task` z `main.c` nevyužívám.
 
 ---
 
@@ -121,6 +121,8 @@ flowchart TB
 
 ## UART tam a zpět
 
+Konzole a `uart_task` jsou jako ping‑pong přes fronty — příkaz dolů, odpověď nahoru.
+
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart LR
@@ -146,6 +148,8 @@ flowchart LR
 
 ## Tlačítko → fronta → `game_task`
 
+Sekvenčně: `button_task` jen cpe události a `game_task` je v tick smyčce tahá z fronty.
+
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#38bdf8','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1','loopTextColor':'#e2e8f0'}}}%%
 sequenceDiagram
@@ -164,6 +168,8 @@ sequenceDiagram
 ---
 
 ## Matrix → tah
+
+Stejná idea jako u tlačítek: matrice posílá PICKUP/DROP a `game_task` si frontu sama vybírá.
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#38bdf8','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1','loopTextColor':'#e2e8f0'}}}%%
@@ -184,6 +190,8 @@ sequenceDiagram
 
 ## LED batch (zjednodušení)
 
+Batchování přes `led_task` je samostatná „trubka“ — detail je ve SVG, zdroj níže.
+
 ![led_pipeline.svg](led_pipeline.svg)  
 Zdroj: [`sources/led_pipeline.mmd`](sources/led_pipeline.mmd)
 
@@ -196,6 +204,8 @@ Zdroj: [`sources/led_pipeline.mmd`](sources/led_pipeline.mmd)
 ---
 
 ## Mutexy
+
+Kdo drží který mutex a kdo na něj sahá — statický obrázek plus zjednodušený flow níže.
 
 ![mutex_map.svg](mutex_map.svg)
 
@@ -224,19 +234,23 @@ flowchart TB
 
 ## Topologie vstupů
 
+Kde se fyzické věci napojují na tasky — jeden přehledový graf.
+
 ![system_topology.svg](system_topology.svg)
 
 ---
 
 ## Flutter vrstvy (stejný export co `render_docs`)
 
-Obrázek je vygenerovaný z [`sources/client_app_layers.mmd`](sources/client_app_layers.mmd) — používá ho i [`docs/flutter/README.md`](../flutter/README.md).
+Stejný export jako po `./scripts/render_docs.sh`; zdroj je [`sources/client_app_layers.mmd`](sources/client_app_layers.mmd) a stejný obrázek odkazuju i z [`docs/flutter/README.md`](../flutter/README.md).
 
 ![client_app_layers.svg](client_app_layers.svg)
 
 ---
 
 ## Aplikace a klienti
+
+Přehled celého „landscape“ — firmware vs mobil vs případný nativní klient.
 
 | Diagram | Obsah |
 |---------|--------|
@@ -247,6 +261,8 @@ Obrázek je vygenerovaný z [`sources/client_app_layers.mmd`](sources/client_app
 ---
 
 ## Flutter — mapa `lib/` (features + core)
+
+Zjednodušená mapa adresáře — hlavně kvůli orientaci, kde co hledám.
 
 | Diagram | Obsah |
 |---------|--------|
@@ -259,7 +275,7 @@ Detail vrstev UI→Riverpod→služby: [`docs/flutter/README.md`](../flutter/REA
 
 ## Taskové smyčky — jeden diagram na task z `main.c`
 
-Implementace v komponentách (`*_task_start`). BLE nemá vlastní `xTaskCreate` — host task z `ble_task_init`.
+Každý aktivní task z `main.c` má vlastní smyčkový diagram v `sources/`; implementace běží v komponentách (`*_task_start`). BLE nemá vlastní `xTaskCreate` — host task vzniká z `ble_task_init`.
 
 | Task | Soubor zdroje | Hlavní soubor kódu |
 |------|---------------|-------------------|
@@ -287,7 +303,7 @@ Implementace v komponentách (`*_task_start`). BLE nemá vlastní `xTaskCreate` 
 
 ## Šachová logika — validace, generování tahů, příkazy
 
-Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zjednodušené; přesné větve `switch` a edge cases jsou v kódu.
+Většina je v `components/game_task/game_task.c` (jeden velký modul). Grafy jsou zjednodušené — přesné větve `switch` a hraniční případy řeším v kódu.
 
 | Téma | Diagram |
 |------|---------|
@@ -307,6 +323,8 @@ Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zj
 
 ## Speciální tahy a fyzická deska (`game_task.c`)
 
+Rošáda, promoce, en passant atd. — každý má vlastní flow; tabulka níže je můj index na `.mmd` a funkce.
+
 | Téma | Diagram |
 |------|---------|
 | **Rošáda** — král první, věž dodělá ručně | [`chess_flow_castling.mmd`](sources/chess_flow_castling.mmd) · `castling_state`, `game_validate_castling` |
@@ -325,6 +343,8 @@ Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zj
 
 ## Matrix guard, recovery, rezignace, undo
 
+Behaviour kolem rozporů senzorů, návratu figurek, rezignace králem a undo — opět jedna tabulka jako rozcestník.
+
 | Téma | Diagram |
 |------|---------|
 | **Matrix guard** — rozpor senzor vs `board[]` | [`chess_flow_matrix_guard.mmd`](sources/chess_flow_matrix_guard.mmd) · `GAME_CMD_MATRIX_GUARD`, `matrix_send_guard_command` |
@@ -341,6 +361,8 @@ Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zj
 
 ## CMake komponenty bez tasku z `main.c`
 
+Komponenty, které se do image dostanou, ale aktuálně nemají vlastní task z `main.c` — pořád na ně sahá CMake / závislosti.
+
 | Složka | Poznámka |
 |--------|----------|
 | animation_task | build ano, `xTaskCreate` ne |
@@ -351,7 +373,7 @@ Vše v `components/game_task/game_task.c` (jeden velký modul). Diagramy jsou zj
 
 ## Sekvenční HTML
 
-`mermaid_diagrams.txt` → `diagrams_mermaid.html` přes `generate_mermaid_html.py` nebo `./scripts/render_docs.sh`. Dlouhý jeden diagram: `main_flow_diagram.txt`.
+Dlouhý „scroll“ všech diagramů vzniká z `mermaid_diagrams.txt` → `diagrams_mermaid.html` přes `generate_mermaid_html.py` nebo po `./scripts/render_docs.sh`. Samostatný dlouhý tok je ještě `main_flow_diagram.txt`.
 
 ---
 

@@ -1,12 +1,12 @@
 # CZECHMATE v2.5
 
-**Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (`flutter_czechmate/`).** Nativní Xcode projekt `CZECHMATE/` je jen lokálně (není v gitu).
+Ahoj — tady je **CzechMate**, náš šachový systém: fyzická deska se světly, firmware na ESP32-C6, web v prohlížeči a aplikace ve Flutteru (`flutter_czechmate/`). Nativní Xcode projekt `CZECHMATE/` si držím jen lokálně, v gitu není.
 
-**📲 CzechMate na telefonu a Macu:** [produktová stránka + stažení](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG také v **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** *coming soon*. **Představení na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
+**📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG jsou i na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** zatím připravujeme. **Krátké intro na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
 
-*Šachmat, udělaný v Česku*
+*Šachmat z Česka*
 
-**Dokumentace:** **[`docs/README.md`](docs/README.md)** — rozcestník (diagramy, Flutter, OTA, reference, Doxygen).
+**Kde co najdeš v textech:** **[`docs/README.md`](docs/README.md)** — rozcestí po diagramech, Flutteru, OTA a referencích; k C API si lokálně generuju Doxygen (viz níže).
 
 ---
 
@@ -18,39 +18,37 @@ Tento projekt představuje náš největší a nejkomplexnější projekt, na kt
 
 Projekt vznikal postupně - od jednoduché myšlenky "udělat šachy s LED" až po komplexní systém s FreeRTOS multitaskingem, webovým serverem, fyzickou detekcí figurek a kompletní implementací všech šachových pravidel. Každá část projektu nás něco naučila - od základů embedded programování přes real-time systémy až po webové technologie.
 
-**Spolupráce:** Projekt je výsledkem týmové práce - Matěj se zaměřil na hardware design, zapojení a fyzickou realizaci šachovnice, zatímco já jsem pracoval na software, firmware a šachové logice.
+**Spolupráce:** Projekt je výsledkem týmové práce — Matěj řešil hardware design a fyzickou realizaci šachovnice, já aplikaci, firmware zařízení a šachovou logiku.
 
----
+--- 
 
-## 📋 Přehled projektu
+## 📋 Co CzechMate umí (stručně)
 
-CZECHMATE je pokročilý šachový systém, který umožňuje hrát šachy na fyzické šachovnici s automatickou detekcí figurek pomocí Reed Switch matice. Systém obsahuje 73 WS2812B LED diod (64 na šachovnici + 9 na tlačítkách), které poskytují vizuální feedback pro každý tah. Kromě fyzické hry je možné hrát i přes webové rozhraní nebo UART konzoli.
+Na desce řešíme fyzickou hru: **Reed switch matice** 8×8 hlídá figurky a **73× WS2812B** (64 pole + 9 u tlačítek) dává zpětnou vazbu k tahům. Vedle toho se dá hrát a učit přes **aplikaci** (hlavně **Flutter** v `flutter_czechmate/` — Android / iOS / Mac / desktop), přes **web** v prohlížeči nebo si můžeš hrát s konzolí přes **UART** (typicky na ladění; klidně z toho někdo časem udělá vlastní rozšíření).
 
 ### 🎯 Hlavní funkce
 
-- **Fyzická šachovnice** - 8x8 Reed Switch matice pro automatickou detekci figurek
-- **LED osvětlení** - 64 LED na šachovnici + 9 LED na tlačítkách pro vizuální feedback
-- **Flutter aplikace (`flutter_czechmate/`)** - Multiplatformní klient (Dart/Flutter): BLE (`flutter_blue_plus`), HTTP a WebSocket pro spojení s deskou a webem.
-- **Mobilní aplikace** — primárně **Flutter** (`flutter_czechmate/`) pro Android / iOS / desktop. Případná nativní iOS appka ve složce `CZECHMATE/` drž lokálně (mimo tento repozitář).
-- **Kompletní šachová logika** - Všechna pravidla včetně rošády, en passant, promoce, šach, mat
-- **Webové rozhraní** - HTTP server pro vzdálenou hru přes prohlížeč s real-time aktualizací
-- **UART konzole** - Textové příkazy pro ovládání, ladění a testování
-- **LED animace** - Vizuální feedback pro tahy, šach, mat, remízu a konec hry (sjednocená vítězná animace)
-- **FreeRTOS multitasking** - Paralelní tasky (LED, matice, hra, web, BLE, MQTT, časovače); samostatný **`animation_task` je vypnutý** — LED animace běží v **`led_task`** přes **`unified_animation_manager`** / **`game_led_animations`** (komponenta `animation_task/` zůstává v repu kvůli API, FreeRTOS task se ve `main.c` nevytváří).
-- **Integrace s Home Assistant** - MQTT světlo přes `ha_light_task` (dynamické LED scény řízené z HA)
-- **Automatický start nové hry** - Pokud jsou všechny figurky fyzicky v počáteční pozici po ~2 sekundách, spustí se nová hra
-- **Hra proti Botovi (Stockfish)** - Možnost hrát proti AI enginu s nastavitelnou obtížností (ELO) a volbou strany
-- **Výukový režim a Nápověda** - Integrovaná nápověda tahů s vysvětlením, hodnocení kvality tahů a systém odměn za dobré tahy
+- **Fyzická šachovnice** — 8×8 Reed matrix, detekce figurek
+- **LED** — 64 na šachovnici + 9 u tlačítek
+- **Aplikace** — Flutter (`flutter_czechmate/`) pro Android / iOS / Mac / desktop
+- **Šachová logika** — pravidla včetně rošády, en passant, promoce, šach, mat
+- **Web** — HTTP server, stav stránky držíme aktuální (volitelně WebSocket `/ws`)
+- **UART** — textové příkazy, debug, testy
+- **Animace** — tahy, šach, mat, remíza; samostatný FreeRTOS **`animation_task` máme vypnutý** — běží to v **`led_task`** přes **`unified_animation_manager`** / **`game_led_animations`** (složka `animation_task/` v repu zůstává kvůli API, ale ve `main.c` ten task nevytváříme)
+- **Home Assistant** — MQTT „světlo“ přes `ha_light_task`
+- **Auto nová hra** — když jsou figurky v základním postavení a chvíli to drží (~2 s), spustí se nová partie
+- **Stockfish / bot** — obtížnost (ELO), volba barvy
+- **Výuka** — nápovědy, hodnocení tahů, odměny za dobré tahy
 
 ---
 
 ## 🛠️ Hardware
 
-*Hardware design a realizace: Matěj Jager*
+*realizace HW: Matěj Jager*
 
 ### Komponenty
 
-Projekt používá následující hardware komponenty, které Matěj pečlivě navrhl a zapojil:
+Na desce od Matěje reálně sedí mimo jiné:
 
 - **ESP32-C6 DevKit** - Hlavní mikrokontrolér s WiFi a Bluetooth
 - **73x WS2812B LED** - 64 LED na šachovnici + 9 LED na tlačítkách
@@ -58,18 +56,18 @@ Projekt používá následující hardware komponenty, které Matěj pečlivě n
 - **4x Promotion tlačítka** - Pro výběr figury při promoci pěšce (Queen, Rook, Bishop, Knight)
 - **1x Reset tlačítko** - Pro reset hry
 - **USB Serial JTAG** - Pro konzoli, programování a ladění
-- **Externí 5V/5A zdroj** - Pro napájení LED pásu (WS2812B potřebují hodně proudu)
+- **Externí 5V zdroj** - Pro napájení LED pásu (WS2812B potřebují hodně proudu)
 
 ### GPIO mapování
 
-Jedna z prvních výzev bylo správně namapovat všechny GPIO piny. ESP32-C6 má omezený počet bezpečných pinů, takže Matěj musel pečlivě naplánovat, co kam připojit, a já jsem musel zajistit, aby software toto mapování respektoval:
+ESP32-C6 má s pinama práci — museli jsme si vybrat bezpečné kombinace a držet je sladěné se softwarem. Aktuální mapování vypadá takhle:
 
 ```
 LED Data:        GPIO7  (WS2812B - bezpečný pin pro RMT)
 Matrix Rows:     GPIO10,11,18,19,20,21,22,23 (8 výstupů)
 Matrix Columns: GPIO0,1,2,3,6,4,16,17 (8 vstupů s pull-up)
-Status LED:      GPIO5  (samostatný pin pro status - GPIO8 je boot strapping pin)
-Reset Button:    GPIO15 (samostatný pin s pull-up)
+Status LED:      GPIO5  
+Reset Button:    GPIO15 (s pull-up)
 ```
 
 ### Time-Multiplexing
@@ -91,7 +89,7 @@ Toto řešení mi umožnilo použít stejné piny pro matici i tlačítka, což 
 
 Systém používá FreeRTOS pro multitasking. To byla pro mě úplně nová oblast - před tím jsem programoval hlavně sekvenční kód. Naučil jsem se, jak správně navrhnout tasky, jak používat fronty pro komunikaci a jak synchronizovat přístup ke sdíleným zdrojům pomocí mutexů.
 
-Systém má několik hlavních FreeRTOS tasků s různými prioritami:
+Tady jen tabulka, jak mám tasky nastavené (priorita / stack):
 
 | Task / runtime | Priorita | Popis | Stack Size |
 |----------------|----------|-------|------------|
@@ -103,24 +101,24 @@ Systém má několik hlavních FreeRTOS tasků s různými prioritami:
 | `web_server_task` | 3 | HTTP server, REST, volitelně WebSocket `/ws` (`CONFIG_HTTPD_WS_SUPPORT`) | 20KB |
 | `ha_light_task` | 3 | MQTT Home Assistant (RGB light) | 8KB |
 | `test_task` | 1 | Automatické testy (jen pokud `CONFIG_CHESS_ENABLE_TEST_TASK`) | 4KB |
-| **NimBLE host** | (ESP-IDF) | GATT pro mobilní klienty — startuje se `ble_task_init()` → `nimble_port_freertos_init`, **není** samostatný `xTaskCreate("ble_task")` v `main.c` | (řídí stack NimBLE) |
+| **NimBLE host** | (ESP-IDF) | GATT pro mobilní klienty — startuje se `ble_task_init()` → `nimble_port_freertos_init`, **není** samostatný `xTaskCreate("ble_task")` v `main.c` | (jen řídí stack NimBLE) |
 
 **Proč jsou priority takto nastavené?**
 
 To jsem se naučil tvrdě - když jsem měl špatně nastavené priority, systém se choval divně. LED task má nejvyšší prioritu (7), protože WS2812B LED vyžadují přesný timing a nesmí být přerušeny. Matrix task má prioritu 6 pro real-time detekci pohybu figurek. **Game task** má prioritu **4** (stav hry a tahy). **UART, web server i HA light task** mají prioritu **3** (I/O a síť); přenosové BLE běží v **NimBLE host tasku** z ESP-IDF (viz `ble_task_init`), ne jako řádek v tabulce výše. **Test task** má prioritu **1** a zapíná se jen v menuconfig.
 
-**Poznámka k animacím:** Dřívější samostatný FreeRTOS task `animation_task` (priorita 3) je **vypnutý**; animace jsou integrované do pipeline LED tasku a sdílených modulů výše — menší režie tasků a konzistentnější timing s RMT.
+**Poznámka k animacím:** Dřívější samostatný FreeRTOS task `animation_task` (priorita 3) je **vypnutý**; animace jsou integrované do pipeline LED tasku
 
 ### Komunikace mezi tasky
 
-Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komunikace mezi tasky:
+Mezi tasky to držíme přes fronty a mutexy — přehled kapacit je v `freertos_chess.h` (`GAME_QUEUE_SIZE` atd.):
 
-- **FreeRTOS Queues** - Pro asynchronní komunikaci mezi tasky (velikosti viz `GAME_QUEUE_SIZE` atd. v `freertos_chess.h`)
+- **FreeRTOS Queues** — asynchronní předávání zpráv
   - `game_command_queue` - Příkazy pro `game_task` (**24** zpráv typu `chess_move_command_t`)
   - `button_event_queue` - Eventy z tlačítek (5 zpráv)
   - LED se ovládají přímými voláními (fronta byla odstraněna pro lepší výkon)
 
-- **Mutexes** - Pro thread-safe přístup ke sdíleným zdrojům
+- **Mutexes** — sdílené zdroje (UART výstup, LED buffer)
   - `uart_mutex` - Ochrana UART výstupu
   - `led_unified_mutex` - Ochrana LED bufferu / batch commit v `led_task`
 
@@ -128,7 +126,7 @@ Jedna z nejdůležitějších věcí, kterou jsem se naučil, je správná komun
 
 ### Diagramy firmware
 
-Kompletní přehled (tabulky **priorit, stacků, front**, obrázky SVG, mutexy, správné pořadí **`main_system_init` → `ble_task_init` → `create_system_tasks`**, BLE přes `web_server_ble_command_dispatch`): **[`docs/diagrams/README.md`](docs/diagrams/README.md)**.
+Kompletní obrázek naráz (priority, stacky, fronty, SVG, pořadí **`main_system_init` → `ble_task_init` → `create_system_tasks`**, BLE přes `web_server_ble_command_dispatch`) je v **[`docs/diagrams/README.md`](docs/diagrams/README.md)**.
 
 | Náhled | Popis |
 |--------|--------|
@@ -142,7 +140,6 @@ Další SVG ve **[`docs/diagrams/README.md`](docs/diagrams/README.md)**: smyčka
 
 Zdroje: [`docs/diagrams/sources/*.mmd`](docs/diagrams/sources/) → `./scripts/render_docs.sh` vygeneruje SVG/PNG.
 
-Nápady na další grafy (lokální poznámky, **není v gitu**): soubor `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — vzor začátku [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](docs/diagrams/DIAGRAM_BACKLOG.local.example.md).
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
@@ -176,7 +173,7 @@ flowchart LR
 
 ### Struktura komponent
 
-Projekt je rozdělen do logických komponent, každá má svou vlastní složku:
+Ve `components/` mám rozsekáno zhruba takhle (každá složka = vlastní kus systému):
 
 ```
 components/
@@ -192,7 +189,7 @@ components/
 │   └── demo_mode_helpers.c      # Pomocné funkce pro demo mód
 │
 ├── ble_task/                    # Bluetooth LE komunikace
-│   └── ble_nimble_impl.c        # NimBLE GATT server pro iOS app
+│   └── ble_nimble_impl.c        # NimBLE GATT server pro app
 │
 ├── matrix_task/                 # Skenování 8x8 matice
 │   └── matrix_task.c             # Reed switch skenování
@@ -243,47 +240,41 @@ components/
 
 ---
 
-## 🚀 Instalace a Build
+## 🚀 Jak si firmware přeložím a nahraju
 
-### Požadavky
+### Co k tomu používám
 
-- **ESP-IDF** v5.1 nebo novější
-- **Python 3.8+**
-- **CMake 3.16+**
-- **ESP32-C6 DevKit** nebo kompatibilní hardware
-- **USB kabel** pro programování
+- **ESP-IDF** v5.1+
+- **Python 3.8+**, **CMake 3.16+**
+- **ESP32-C6 DevKit** (nebo kompatibilní desku)
+- **USB kabel**
 
-### Build proces
+### Typický postup
 
 ```bash
-# 1. Nastavit ESP-IDF prostředí
+# aktivace ESP-IDF
 . $IDF_PATH/export.sh
 
-# 2. Konfigurovat projekt
+# volitelná konfigurace
 idf.py menuconfig
 
-# 3. Sestavit projekt
+# překlad
 idf.py build
 
-# 4. Nahrát do ESP32-C6
+# flash (na Mac/Linux často ttyUSB0 / usbserial — u sebe si doplním správný port)
 idf.py -p /dev/ttyUSB0 flash
 
-# 5. Monitorovat výstup
+# sériová konzole
 idf.py -p /dev/ttyUSB0 monitor
 ```
 
-### Konfigurace
+### Menuconfig
 
-Hlavní konfigurační možnosti v `menuconfig`:
+V `menuconfig` řeším mimo jiné Wi‑Fi pro web, jas LED, rychlost skenu matice a úroveň logů (ERROR až VERBOSE).
 
-- **WiFi SSID/Password** - Pro web server
-- **LED brightness** - Jas LED diod (0-255)
-- **Matrix scan rate** - Rychlost skenování matice (ms)
-- **Debug level** - Úroveň logování (ERROR, WARN, INFO, DEBUG, VERBOSE)
+#### Home Assistant / MQTT
 
-#### Home Assistant / MQTT integrace
-
-Integrace s Home Assistant je řešená přes komponentu `ha_light_task` jako **MQTT RGB light**:
+Home Assistant vidím jako **MQTT RGB světlo** přes `ha_light_task`:
 
 - MQTT broker výchozí host: `homeassistant.local` (TCP port `1883`), lze změnit v NVS.
 - Konfigurace MQTT (host, port, username, password) se ukládá do NVS namespace `mqtt_config` (`broker_host`, `broker_port`, `broker_username`, `broker_password`).
@@ -296,19 +287,19 @@ Integrace s Home Assistant je řešená přes komponentu `ha_light_task` jako **
   - `HA_TOPIC_LIGHT_STATE` – publikovaný stav světla (on/off, jas, RGB, efekt)
   - `HA_TOPIC_LIGHT_AVAILABILITY` – dostupnost (`online` / `offline`)
 
-Režimy provozu:
+Režimy:
 
-- **GAME MODE** – výchozí režim, LED zobrazují stav šachovnice a herní animace.
-- **HA MODE (Lampa)** – všechny LED se chovají jako jedno RGB světlo. Může být řízeno z Home Assistant (MQTT) nebo přímo z webu bez připojení k WiFi (viz níže).
-- Přepínání zpět do GAME MODE proběhne automaticky při detekci aktivity (pohyb figurky, tah přes web/UART), nebo ručně tlačítkem „Šachovnice“ v Nastavení.
+- **GAME MODE** — základ: šachovnice a herní animace na LED.
+- **HA MODE (Lampa)** — celá deska jako jedno RGB; z HA přes MQTT nebo z webu i jen přes AP šachovnice.
+- Zpět do hry to často skočí samo při pohybu figurek / tahu z webu nebo UARTu, případně ručně přepínačem „Šachovnice“ v Nastavení na webu.
 
 ---
 
-## 📖 Použití
+## 📖 Jak to v praxi používám
 
-### UART Konzole
+### UART konzole
 
-Připojte se přes USB Serial JTAG (115200 baud) a použijte textové příkazy:
+USB Serial JTAG, 115200 baud — pak jdou textové příkazy jako:
 
 ```
 help                    - Zobrazit nápovědu se všemi příkazy
@@ -321,55 +312,51 @@ test                   - Spustit testovací funkce
 
 ### Webové rozhraní
 
-Po připojení k WiFi se systém automaticky spustí jako HTTP server. Najděte IP adresu v UART konzoli a otevřete v prohlížeči:
+Po Wi‑Fi mi deska nabídne HTTP server; IP hlásí UART log. V prohlížeči:
 
 ```
 http://<IP_ADDRESS>/
 ```
 
-Webové rozhraní umožňuje:
-- **Zobrazení šachovnice** - Real-time aktualizace
-- **Provedení tahů** - Kliknutím na figurky
-- **Zobrazení historie** - Všechny provedené tahy
-- **Reset hry** - Tlačítko pro restart
-- **Sandbox mód** - Zkoušení tahů bez ovlivnění hry
-- **Review mód** - Procházení historie tahů
+Na webu máme mimo jiné:
 
-- **Integrace s Home Assistant a stav systému** - Web vrstvu doplňuje MQTT integrace (`ha_light_task`) pro ovládání RGB světla z Home Assistant.
-- **Stav hry, error stavy a konec hry** - Jsou zobrazovány konzistentně na webu i na fyzických LED (zvednutá figurka, nevalidní tah, error recovery).
+- živou šachovnici, tahy klikem, historii, reset
+- sandbox a review režimy
+- MQTT / Home Assistant vedle toho (`ha_light_task`)
+- stejné herní a chybové stavy jako na LED (zvednutá figurka, špatný tah, recovery…)
 
 ### Flutter klient (`flutter_czechmate/`)
 
-- **Stack:** Flutter 3.x, Riverpod, `flutter_blue_plus` (BLE), HTTP, WebSocket, balíček `chess`, integrace Stockfish/API dle nastavení.
-- **Účel:** Jedna codebase pro Android / iOS / desktop; spojení s deskou (BLE a/nebo HTTP/WebSocket k webové vrstvě ESP32).
-- **Mobilní rozšíření (stav repa):** mimo jiné podpora **Live Activities** (iOS), **Wear OS** modul a chess clock notifikace na Androidu — viz zdroje v `flutter_czechmate/ios/` a `flutter_czechmate/android/wear/`.
-- **Build:** z kořene `cd flutter_czechmate && flutter pub get && flutter run` (vyžaduje Flutter SDK).
-- **Stažení hotové aplikace:** [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases) — **APK** (Android) a **DMG** (macOS, Apple Silicon / arm64).
+- **Stack:** Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP, WebSocket, balíček `chess`, Stockfish / API podle nastavení.
+- **Smysl:** jedna codebase pro telefony i desktop; k desce přes BLE a/nebo síť k ESP webu.
+- **Mobilní drobnosti v repu:** třeba Live Activities (iOS), Wear OS modul, notifikace chess clocku na Androidu — detaily v `flutter_czechmate/ios/` a `flutter_czechmate/android/wear/`.
+- **Lokální běh:** `cd flutter_czechmate && flutter pub get && flutter run`.
+- **Hotové buildy:** [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases) — APK a DMG (Apple Silicon / arm64).
 
-### ⚙️ Nastavení a Přizpůsobení (Web UI)
+### ⚙️ Nastavení na webu
 
-Webové rozhraní obsahuje záložku **Nastavení**, kde můžete konfigurovat:
+V záložce **Nastavení** řeším mimo jiné:
 
-- **Režim zobrazení (Zařízení):** Přepínač **Šachovnice** / **Lampa**. V režimu Lampa se celá deska chová jako jedno RGB světlo – ovládání je dostupné i bez připojení k domácí WiFi (stačí AP šachovnice). Barva (R, G, B) a zapnutí/vypnutí se nastavují v sekci Zařízení; poslední stav se ukládá do NVS a obnoví po restartu. Stav je synchronizován s Home Assistant (pokud je MQTT připojen).
-- **Jas LED:** Jeden globální slider (0–100 %) platí pro šachovnici i pro režim Lampa.
-- **Obtížnost Bota:** Nastavení ELO síly pro hru proti počítači (Level 1-8).
-- **Zhodnocení tahů:** Zapnutí/vypnutí automatické analýzy tahů po každém tahu.
-- **Výukový přehled:** Zobrazení panelu s počtem zbývajících nápověd a průměrnou kvalitou hry.
-- **WiFi Manager:** Připojení k domácí WiFi síti (skenování, zadání hesla).
+- **Šachovnice / Lampa** — v lampě je celá deska jedno RGB; funguje i jen přes hotspot desky. Barvy a on/off jdou do NVS a při MQTT i do HA.
+- **Jas LED** — jeden slider 0–100 % pro šachy i lampu.
+- **Bot / ELO** — úrovně 1–8.
+- **Zhodnocení tahů** — zapnuto/vypnuto po každém tahu.
+- **Výuka** — zbývající nápovědy, průměrná kvalita.
+- **Wi‑Fi** — sken sítí, heslo, uložení do NVS.
 
-### 🤖 Hra proti Botovi a Výuka (Novinka v2.5)
+### 🤖 Bot a výuka (cca od v2.5)
 
-Webové rozhraní nově integruje **Stockfish engine** (přes chess-api.com) pro pokročilé funkce:
+Na webu máme napojený **Stockfish** (přes chess-api.com):
 
-#### Hra proti Botovi
-- **Nastavitelná síla (ELO):** Od začátečníka po velmistra.
-- **Fyzická interakce:** Botův tah je zobrazen na šachovnici pomocí LED navigace (odkud-kam). Hráč musí fyzicky provést tah za bota.
-- **Volba strany:** Můžete hrát za bílé i černé.
+#### Hra proti botovi
+- nastavitelné ELO
+- tah bota ukážou LED (odkud → kam), figurku musíš fyzicky přesunout
+- volba barvy
 
-#### Nápověda a Analýza (Hint System)
-- **Tlačítko Nápověda:** Zobrazí nejlepší tah doporučený Stockfishem.
-- **Vysvětlení tahu:** Stručné vysvětlení, proč je tah dobrý (např. "Získáš výhodu", "Mat za 3 tahy").
-- **Hodnocení tahů:** Po každém tahu systém (volitelně) zhodnotí vaši hru slovně i barevně:
+#### Nápovědy a analýza
+- tlačítko nápovědy = návrh tahu
+- krátký komentář k návrhu
+- po tahu (volitelně) slovní + barevné hodnocení:
     - 🟢 **Best / Good** - Výborný nebo dobrý tah.
     - 🟡 **Inaccuracy** - Menší nepřesnost.
     - 🟠 **Mistake** - Chyba, zhoršení pozice.
@@ -379,11 +366,11 @@ Webové rozhraní nově integruje **Stockfish engine** (přes chess-api.com) pro
 
 ### Fyzická hra
 
-1. **Umístěte figurky** na šachovnici do výchozí pozice
-2. **Systém automaticky detekuje** pozice pomocí Reed Switch matice
-3. **Zvedněte figurku** - LED se rozsvítí na aktuální pozici
-4. **Položte na novou pozici** - Systém validuje a provede tah
-5. **LED animace** zobrazí validitu tahu:
+1. Figurky do základního postavení.
+2. Matice je přečte sama (Reed).
+3. Zvednutí figurky → LED ukáže odkud.
+4. Položení na pole → validace a zápis tahu.
+5. Barvy na LED řeknou výsledek:
    - Zelená = platný tah
    - Červená = neplatný tah
    - Modrá = šach
@@ -392,168 +379,132 @@ Webové rozhraní nově integruje **Stockfish engine** (přes chess-api.com) pro
 
 ---
 
-## 🎓 Co jsme se naučili
+## 🎓 Co jsem si z toho odnáším
 
-Tento projekt nás naučil neuvěřitelně moc věcí. Když jsme začínali, znali jsme jen základy. Teď rozumíme:
+Projekt mi rozšířil obzor hodně rychle — z čistých základů k tomuhle přehledu věcí, které už beru jako samozřejmé:
 
 ### Embedded programování
-- **FreeRTOS** - Real-time operační systém pro embedded zařízení
-- **GPIO management** - Správné použití pinů, pull-up/pull-down, multiplexing
-- **Interrupt handling** - Práce s hardware přerušeními
-- **Memory management** - Stack vs heap, optimalizace paměti
-- **Watchdog timers** - Ochrana před zaseknutím systému
+- **FreeRTOS** — RTOS pro embedded; tasky, priority, plánování
+- **GPIO** — správné použití pinů, pull-up/pull-down, multiplexing
+- **Interrupt handling** — práce s přerušeními od hardwaru
+- **Paměť** — stack vs heap, kde šetřit a kde ne
+- **Watchdog** — pojistka proti zaseknutí
 
 ### Šachová logika
-- **Chess rules** - Všechna pravidla včetně těch složitých (en passant, rošáda, promoce)
-- **Move validation** - Jak správně validovat tahy
-- **Check detection** - Detekce šachu a matu
-- **Board representation** - Efektivní reprezentace šachovnice v paměti
+- **Pravidla FIDE** — včetně en passant, rošády, promoce
+- **Validace tahů** — co kontrolovat před zápisem
+- **Šach / mat** — detekce v bitboard / stavovém modelu
+- **Reprezentace desky** — jak to držet v RAM rozumně
 
 ### Webové technologie
-- **HTTP server** - Implementace HTTP serveru na embedded zařízení
-- **WebSocket** - Endpoint `/ws` pokud je v buildu zapnuté `CONFIG_HTTPD_WS_SUPPORT` (jinak polling přes REST)
-- **JavaScript** - Embedded JavaScript pro webové rozhraní
-- **REST API** - API pro komunikaci s webovým rozhraním
+- **HTTP server** na MCU z ESP-IDF
+- **WebSocket** — endpoint `/ws` pokud je v buildu `CONFIG_HTTPD_WS_SUPPORT` (jinak REST polling)
+- **Embedded JS** ve statických stránkách v binárce
+- **REST API** — jak klient mluví s firmware
 
-### Software architektura
-- **Modular design** - Rozdělení kódu do logických modulů
-- **Task communication** - Komunikace mezi paralelními tasky
-- **Error handling** - Správné ošetření chyb
-- **Code organization** - Jak organizovat velký projekt
+### Architektura softwaru
+- **Moduly** — rozsekání do komponent podle zodpovědnosti
+- **Komunikace tasků** — fronty, mutexy, smyčky
+- **Chyby** — kde logovat, kde recovery
+- **Organizace** — jak se neztratit ve velkém C projektu
 
-### Hardware
-- **Reed switches** - Jak fungují a jak je použít
-- **WS2812B LED** - Adresovatelné LED diody, protokol, timing
-- **Time-multiplexing** - Sdílení pinů mezi komponentami
-- **Power management** - Optimalizace spotřeby
+### Hardware (co jsem pochopil vedle Matěje)
+- **Reed spínače** — jak je číst v matici
+- **WS2812B** — timing a napájení
+- **Time-multiplexing** — sdílení pinů s diodami
+- **Spotřeba** — kdy LED žerou hodně proudu
 
-### Debugging
-- **UART logging** - Logování pro debugging
-- **LED debugging** - Vizuální indikace chyb
-- **System monitoring** - Sledování stavu systému
+### Ladění
+- **UART log** — hlavní kanál pravdy
+- **LED feedback** — vizuální signály stavu
+- **Monitoring** — heap, watchdog, poslední řádky před pádem
 
 ---
 
-## 🐛 Výzvy, které jsme řešili
+## 🐛 Výzvy, které nás držely vzhůru
 
-### Hardware výzvy (Matěj)
+### Hardware
 
-Matěj řešil především hardware problémy:
+**Reed matice:** 64 spínačů do řádků a sloupců — každý musí sedět na správný pin a držet kontakt.
 
-**Reed Switch zapojení:** Jedna z největších výzev bylo správně zapojit 64 Reed Switchů do matice. Každý switch musel být připojený mezi správný row a column pin, a všechny musely být spolehlivě připojené.
+**Multiplex s diodami 1N4148:** sdílení pinů mezi maticí a tlačítky; bez izolace diodami by se signály mlátily.
 
-**Time-multiplexing s diodami:** Navrhl zapojení s diodami 1N4148, které umožňují sdílení pinů mezi maticí a tlačítky. To vyžadovalo pečlivé plánování a testování, aby se zajistilo, že diody správně izolují signály.
+**Napájení LED:** až ~4,5 A při plném jasu u 73 WS2812B — externí 5 V a společná zem s ESP musí být v pořádku.
 
-**Napájení LED:** 73 WS2812B LED potřebují hodně proudu (až 4.5A při plném jasu). Matěj musel zajistit externí 5V zdroj a správné zapojení GND, aby nedocházelo k problémům s napájením.
+**Fyzická deska:** od návrhu po zapojení na desce — bez toho by firmware neměl co číst.
 
-**Fyzická realizace:** Nejenže navrhl zapojení, ale také fyzicky realizoval šachovnici - umístil Reed Switchy, zapojil LED, vytvořil PCB nebo použil breadboard, a zajistil, aby vše fungovalo spolehlivě.
+### Software
 
-### Software výzvy (Alfred)
+### 1. Time-multiplexing GPIO
 
-### 1. Time-Multiplexing GPIO pinů
+**Co mě štvalo:** málo pinů na C6, ale potřeba 8 řádků matice, 8 sloupců a ještě tlačítka k promoci.
 
-**Problém:** ESP32-C6 má omezený počet GPIO pinů, ale potřebujeme 8 výstupů pro matici řádků, 8 vstupů pro sloupce, a ještě 4 tlačítka pro promoci.
+**HW strana:** diody ke všem řádkům, tlačítka přes ně — viz výše.
 
-**Hardware řešení (Matěj):** Matěj navrhl zapojení s diodami 1N4148, které umožňují sdílení pinů. Každé tlačítko je připojené přes diody ke všem řádkům matice, což umožňuje detekci tlačítka během button scan fáze.
-
-**Software řešení (Alfred):** Implementoval jsem time-multiplexing - během 25ms cyklu se střídá skenování matice a tlačítek (viz sekce Time-Multiplexing výše). To bylo technicky náročné, protože jsem musel zajistit, aby se stavy neovlivňovaly a aby diody správně izolovaly signály.
+**FW strana:** v ~25 ms cyklu střídám sken matice a tlačítek (detail mám v sekci o multiplexu). Hodně práce s tím, aby se stavy nepřebíjely.
 
 ### 2. Šachová logika
 
-**Problém:** Implementovat všechna šachová pravidla správně. En passant, rošáda, promoce - to všechno má spoustu edge cases.
+**Co mě štvalo:** pravidla jsou „jednoduchá“, dokud neřešíš všechny hrany případů.
 
-**Řešení:** Strávil jsem hodiny studiem šachových pravidel a implementací každého pravidla zvlášť. Musel jsem opravit spoustu bugů - například en passant validace byla velmi složitá. Matěj mi pomáhal testovat edge cases na fyzické šachovnici.
+**Jak jsem to lámal:** hodiny nad pravidly a postupné pravidlo po pravidlu; nejvíc mě potrápil en passant. Matěj mi pomáhal tahat hraniční situace na reálné desce.
 
-### 3. FreeRTOS multitasking
+### 3. FreeRTOS
 
-**Problém:** Když jsem začínal, nevěděl jsem, jak správně navrhnout tasky a jejich komunikaci. Měl jsem race conditions, deadlocky, a systém se občas zasekl.
+**Co mě štvalo:** na začátku chaos — závody, deadlocky, občas ticho bez logu.
 
-**Řešení:** Naučil jsem se správně používat fronty, mutexy a semafory. Musel jsem přepracovat architekturu několikrát, než jsem to dostal správně. Matěj mi pomáhal testovat na hardwaru a identifikovat problémy s timingem.
+**Jak jsem to lámal:** fronty, mutexy, semafory a několik přestaveb architektury, než to začalo dávat smysl.
 
 ### 4. LED animace
 
-**Problém:** WS2812B LED vyžadují přesný timing. Když jsem aktualizoval LED příliš často, animace trhaly. Když příliš zřídka, byly pomalé. Navíc Matěj měl problémy s napájením - 73 LED potřebují hodně proudu.
+**Co mě štvalo:** WS2812B jsou citlivé na timing — moc často trhání, málokdy molasses.
 
-**Hardware řešení (Matěj):** Matěj zajistil externí 5V/5A zdroj a správné zapojení GND, aby nedocházelo k problémům s napájením.
+**Co z toho je:** `unified_animation_manager` jako centrální řidič animací.
 
-**Software řešení (Alfred):** Implementoval jsem unified animation manager, který spravuje všechny animace centralizovaně a zajišťuje plynulý chod.
+### 5. Web na MCU
 
-### 5. Webový server
+**Co mě štvalo:** RAM není nafukovací; HTTP stack + JS musí být úsporné.
 
-**Problém:** Implementovat HTTP server na embedded zařízení s omezenou pamětí bylo výzvou. Musel jsem optimalizovat každý byte.
-
-**Řešení:** Použil jsem embedded HTTP server z ESP-IDF a optimalizoval jsem JavaScript kód. Také jsem implementoval kompresi a caching. Matěj testoval webové rozhraní na různých zařízeních a pomáhal identifikovat problémy s responsivitou.
+**Co z toho je:** ESP-IDF HTTP server, optimalizovaný embed JS, komprese / cache kde to dávalo smysl. Matěj testoval UI na různých zařízeních.
 
 ### 6. Debugging
 
-**Problém:** Když něco nefungovalo, bylo těžké zjistit proč. UART logy pomáhaly, ale někdy to nestačilo. Navíc když hardware nefungoval správně, bylo těžké zjistit, jestli je problém v softwaru nebo hardwaru.
+**Co mě štvalo:** někdy nebylo jasné, jestli je problém ve FW nebo v zapojení.
 
-**Hardware debugging (Matěj):** Matěj používal multimetr a osciloskop pro testování signálů a identifikaci problémů s hardware.
-
-**Software debugging (Alfred):** Implementoval jsem vizuální error systém - když dojde k chybě, LED se rozsvítí červeně na konkrétní pozici, což nám pomohlo rychle identifikovat problém. Také jsme implementovali detailní UART logy pro každou komponentu.
+**Jak jsme to řešili:** Matěj multimetrem na drátě; já rozšířený UART logging a systematické kroky v logu.
 
 ---
 
 ## Dokumentace
 
-- **[docs/README.md](docs/README.md)** — pořadí čtení, inventář, build diagramů a Doxygen
-- **[docs/diagrams/README.md](docs/diagrams/README.md)** — SVG/Mermaid: boot, fronty, mutexy, **smyčky tasků**, šachová logika, Flutter vrstvy
-- **[docs/flutter/README.md](docs/flutter/README.md)** — Flutter klient, BLE/HTTP, struktura `lib/`
-- **[docs/ota_architecture.md](docs/ota_architecture.md)** — OTA aktualizace firmwaru desky (HTTPS / HTTP / BLE), REST + Flutter vrstvy. *Plán: později OTAvo místo vlastní OTA přímo ve FW.*
-- **[docs/reference/README.md](docs/reference/README.md)** — index referenčních textů:
-  - [KOMUNIKACE_MEZI_TASKY.md](docs/reference/KOMUNIKACE_MEZI_TASKY.md) — detail komunikace tasků (doplněk k diagramům)
-  - [coordinates_system.md](docs/reference/coordinates_system.md) — souřadnice a notace
-  - [WEB_UI_DEPLOY.md](docs/reference/WEB_UI_DEPLOY.md) — embed web UI do firmware
-  - [CZECHMATE_INTEGRATION_CHECKLIST.md](docs/reference/CZECHMATE_INTEGRATION_CHECKLIST.md) — REST/WS/BLE checklist
+Co kde držím:
 
-Dále Doxygen z C zdrojáků:
+- **[docs/README.md](docs/README.md)** — rozcestník po celém repu
+- **[docs/diagrams/README.md](docs/diagrams/README.md)** — boot, fronty, mutexy, smyčky tasků, šachy, Flutter
+- **[docs/flutter/README.md](docs/flutter/README.md)** — aplikace, BLE/HTTP, `lib/`
+- **[docs/ota_architecture.md](docs/ota_architecture.md)** — jak řešíme OTA (HTTPS / HTTP / BLE), REST a Flutter; dlouhodobě uvažuju i OTAvo místo vlastní vrstvy ve FW
+- **[docs/reference/README.md](docs/reference/README.md)** — delší texty: komunikace tasků, souřadnice, web UI v binárce, checklist integrace
 
-### HTML dokumentace (doporučeno)
-
-Interaktivní dokumentace s vyhledáváním a navigací:
-
-**Lokální zobrazení:**
-```bash
-./generate_docs.sh
-open docs/doxygen/html/index.html  # Otevře dokumentaci v prohlížeči
-```
-
-
-### RTF dokumentace (jeden soubor)
-
-Kompletní dokumentace v jednom souboru pro Microsoft Word:
+**Doxygen** z C kódu — HTML si generuju:
 
 ```bash
 ./generate_docs.sh
-open docs/doxygen/rtf/refman.rtf
+open docs/doxygen/html/index.html
 ```
 
-### PDF dokumentace
+RTF / Word z toho samého skriptu (`docs/doxygen/rtf/refman.rtf`), PDF přes `./create_pdf_simple.sh` po `generate_docs.sh`.
 
-Pro tisk a sdílení:
+**Mermaid / SVG:** [docs/diagrams/README.md](docs/diagrams/README.md), sekvenční HTML [diagrams_mermaid.html](docs/diagrams/diagrams_mermaid.html), přehled tasků [tasks_architecture.md](docs/diagrams/tasks_architecture.md). Grafiky přegeneruju **`./scripts/render_docs.sh`**.
 
-```bash
-./generate_docs.sh
-./create_pdf_simple.sh
-```
+Další poznámky držím lokálně mimo git (`context/`, případně plánovací složky).
 
-### Mermaid Sequence Diagramy
+### GitHub Pages
 
-Kompletní diagramy všech flow v programu: komunikace mezi tasky, zpracování příkazů, speciální tahy, error handling a další.
-
-[Přehled diagramů (README)](docs/diagrams/README.md) — tasky, boot, fronty, matice, BLE/web v jedné stránce  
-[Mermaid — sekvenční diagramy (HTML)](docs/diagrams/diagrams_mermaid.html) — knihovna sekvencí z `mermaid_diagrams.txt`  
-[Architektura tasků](docs/diagrams/tasks_architecture.md) — stejný graf jako v README + tabulka front · SVG/PNG z **`./scripts/render_docs.sh`**
-
-**Reference texty:** [docs/reference/](docs/reference/). V `.gitignore` zůstávají mimo remote např. `context/`, `docs/planning/`, `docs/archive/` — lokální poznámky.
-
-### GitHub Pages (veřejná dokumentace)
-
-Veřejná dokumentace (Doxygen), Mermaid diagramy a produktová stránka se stažením aplikace jsou na **[GitHub Pages](https://alfredkrutina.github.io/chess_esp32_c6_devkit/)** — přímý odkaz na stažení: [downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html). Představující video je na stránce i na [YouTube](https://youtu.be/_MS6OP3x6Z4). Poznámky k nastavení nasazení pro správce repozitáře jsou v [`gh-pages-ready/README.md`](gh-pages-ready/README.md).
+Veřejně je nasazený web s dokumentací a stránkou ke stažení appky: **[GitHub Pages](https://alfredkrutina.github.io/chess_esp32_c6_devkit/)**, přímo stažení [downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html). Postup kolem Actions a 404 je v [`gh-pages-ready/README.md`](gh-pages-ready/README.md).
 
 ---
 
-## 📁 Struktura projektu
+## 📁 Jak je repozitář položený
 
 ```
 chess_esp32_c6_devkit/
@@ -596,16 +547,16 @@ chess_esp32_c6_devkit/
 ├── Doxyfile                       # Doxygen konfigurace
 ├── generate_docs.sh              # Skript pro generování dokumentace
 ├── create_pdf_simple.sh          # Skript pro vytvoření PDF
-└── README.md                      # Tento soubor
+└── README.md                      # Kořenový přehled projektu
 ```
 
 ---
 
-## 🔧 Vývoj
+## 🔧 Ladění a testy
 
 ### Debug mód
 
-Pro zapnutí debug módu upravte `CMakeLists.txt` nebo použijte `menuconfig`:
+Debug zapínám přes `menuconfig` nebo makro v buildu, např.:
 
 ```c
 #define CHESS_DEBUG_MODE 1
@@ -616,81 +567,59 @@ V `menuconfig`:
 Component config → Chess System → Enable debug mode
 ```
 
-Debug mód zobrazuje:
-- Detailní logy všech operací
-- Stav všech tasků
-- Memory usage
-- Performance metriky
+… a pak v logu vidím víc detailů o taskách, paměti atd.
 
-### Testování
+### Test task
 
-Systém obsahuje testovací funkce:
+Když mám zapnutý test task v konfiguraci, na běžícím monitoru napíšu `test` a nechám to projít svoje kolečko.
 
 ```bash
-# Spustit test task
 idf.py -p /dev/ttyUSB0 monitor
-# V konzoli: test
+# v konzoli: test
 ```
 
 ---
 
-## 🐛 Známé problémy a omezení
+## 🐛 Co víme, že občas štve
 
-- **RTF dokumentace** může být velká (~10MB) - doporučujeme použít HTML nebo PDF
-- **Legacy puzzle systém** byl odstraněn (zachována kompatibilita pro budoucí použití)
-- **WiFi reconnect** - při ztrátě WiFi připojení je potřeba restart
-- **Memory usage** - při dlouhých hrách může dojít k fragmentaci heap paměti (řešeno pomocí watchdog)
-- **Reed Switch spolehlivost** - některé Reed Switchy mohou být méně spolehlivé po čase (hardware problém)
-
----
-
-## 🔧 Troubleshooting
-
-### Hardware problémy
-
-**LED nesvítí:**
-- Zkontrolujte napájení - WS2812B potřebují externí 5V zdroj
-- Zkontrolujte GND - musí být společná pro ESP32 i LED
-- Zkontrolujte GPIO7 - musí být správně připojený k DIN LED pásu
-
-**Matrix nedetekuje figurky:**
-- Zkontrolujte Reed Switchy - každý musí být správně zapojený
-- Zkontrolujte pull-up rezistory na column pinech (10kΩ)
-- Zkontrolujte, že row piny jsou správně připojené
-
-**Tlačítka nefungují:**
-- Zkontrolujte diody - každé tlačítko musí mít diody ke všem row pinům
-- Zkontrolujte, že diody jsou správně orientované (anode k rows)
-
-### Software problémy
-
-**Systém se zasekne:**
-- Zkontrolujte watchdog - měl by resetovat systém po 5 sekundách
-- Zkontrolujte UART logy - mohou ukázat, kde se systém zasekl
-- Zkontrolujte stack size tasků - možná je některý task přetížený
-
-**Šachová logika nefunguje správně:**
-- Zkontrolujte UART logy - zobrazují se všechny tahy
-- Použijte `board` příkaz v UART konzoli pro zobrazení aktuálního stavu
-- Zkontrolujte, že figurky jsou správně detekované maticí
-
-**Webové rozhraní nefunguje:**
-- Zkontrolujte WiFi připojení - IP adresa by měla být v UART logu
-- Zkontrolujte, že web server task běží (priorita 3)
-- Zkontrolujte firewall - možná blokuje připojení
+- RTF z Doxygen umí narůst (~10 MB) — na čtení je příjemnější HTML nebo PDF.
+- Starý puzzle systém jsme vyhodili (rozhraní necháváme rozumně rozšířitelné).
+- Po pádu Wi‑Fi někdy pomůže restart desky.
+- Při hodně dlouhých sezeních hlídám heap / watchdog.
+- Reed kontakty se mohou časem chovat hůř — čistě HW věc.
 
 ---
 
-## ❓ FAQ (Často kladené otázky)
+## 🔧 Když něco nejde (co zkouším jako první)
 
-**Q: Jak dlouho trval vývoj?**  
-A: Projekt vznikal postupně několik měsíců - od prvních nápadů až po finální verzi.
+### Hardware
+
+**LED nesvítí:** napájení 5 V pro pásek, společná zem s ESP, datový GPIO7 na DIN.
+
+**Matice nic nevidí:** zapojení reedů, pull-upy na sloupcích (~10 kΩ), řádkové výstupy.
+
+**Tlačítka:** diody 1N4148 ke všem řádkům, polarita.
+
+### Software
+
+**Zamrzlo to:** watchdog by měl po chvíli resetnout — v logu hledám poslední řádek před zásekem; případně zvětším stack u podezřelého tasku.
+
+**Šachy „nedávají smysl“:** log tahů, příkaz `board` v UARTu, jestli matice sedí s realitou.
+
+**Web nejede:** jestli má deska IP v logu, jestli `web_server_task` žije, jestli mě firewall neřeže z LAN.
+
+---
+
+## ❓ FAQ (často se ptáte)
+
+**Q: Jak dlouho to trvalo?**  
+A: Rozkládalo se to do měsíců — od nápadu přes iterace až po verzi, která je teď v repu.
 
 **Q: Co bylo nejtěžší?**  
-A: Pro Matěje to bylo hardware zapojení s time-multiplexingem. Pro mě to byla šachová logika - implementovat všechna pravidla správně bylo velmi náročné.
+A: Matěje nejvíc zaměstnal hardware s multiplexem a napájením. U mě to byla šachová logika do posledního pravidla.
 
-**Q: Jaké jsou plány do budoucna?**  
-A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom chtěli přidat Chess AI a vylepšit webové rozhraní.
+**Q: Kam to chcete dál?**  
+A: Spousta nápadů je v sekci „Budoucí vylepšení“ — osobně mě láká silnější AI strana a ještě vyhlazenější web.
 
 ---
 
@@ -729,27 +658,27 @@ A: Máme spoustu nápadů - viz sekce "Budoucí vylepšení". Hlavně bychom cht
 - Základní tahy
 - LED feedback
 
-**Poznámka:** V této historii verzí není uvedeno mnoho backupů a špatných slepých uliček, které vznikly během vývoje. Reálně existuje přes 15 verzí programu a nespočet commitů.
+**Poznámka:** Tady nevidíte každý pokus a slepou uličku — reálně jsem jich měl přes patnáct „velkých“ verzí a commitů bez počtu.
 
 ---
 
-## 🤝 Jak jsme spolupracovali
+## 🤝 Jak jsme to dělali ve dvou
 
-Tento projekt byl výsledkem spolupráce mezi hardware a software částí. Matěj navrhl hardware a já jsem napsal software. Pracovali jsme na svých částech a pravidelně jsme se setkávali pro testování a koordinaci.
+Matěj táhl hardware a já firmware + web + šachy. Každý šlapal na své koleji a scházeli jsme se hlavně kvůli testům a tomu, aby software seděl na reálné desce.
 
 ---
 
-## 🔮 Budoucí vylepšení
+## 🔮 Co mě ještě láká doplnit
 
-Máme spoustu nápadů, co bychom chtěli přidat:
+Seznam nápadů držím otevřený — pár věcí z níže už částečně žije ve Flutteru, jiné jsou spíš přání:
 
-- **Move history** - Ukládání historie her do flash paměti (trvalé úložiště)
-- **Offline AI** - Vlastní engine na MCU je náročný; reálnější je spoléhat na API z telefonu
-- **Statistics** - Pokročilejší statistiky her
-- **Opening book** - Databáze zahájení
-- **Endgame database** - Databáze koncovek
-- **WebSocket** - Rozšířit použití `/ws` ve všech klientech (firmware už umí za podmínky `CONFIG_HTTPD_WS_SUPPORT`)
-- **Voice commands** - Hlasové ovládání (možná trochu sci-fi, ale proč ne?)
+- **Move history** — trvalejší historie her ve flash
+- **Offline AI** — plný engine na MCU je pro mě zbytečně těžký; smysl vidím spíš v telefonu / API
+- **Statistics** — hlubší statistiky her
+- **Opening book** — knihovna zahájení
+- **Endgame tablebases** — koncovky (ambiciózní)
+- **WebSocket** — víc využít `/ws` napříč klienty (FW už umí při `CONFIG_HTTPD_WS_SUPPORT`)
+- **Voice commands** — spíš experiment, ale baví mě představa
 
 ---
 
@@ -783,95 +712,85 @@ Matěj navrhl a realizoval celý hardware - od Reed Switch matice přes LED zapo
 - Fyzická realizace šachovnice
 - Hardware debugging a testování
 
-### Spolupráce
-
-Tento projekt je výsledkem spolupráce - Matěj navrhl hardware a já jsem napsal software. Pracovali jsme na svých částech a pravidelně jsme se setkávali pro testování a koordinaci.
 
 ---
 
 ## 📄 Licence
 
-Tento projekt je soukromý projekt pro osobní použití a vzdělávací účely.
+Kód zveřejňujeme **otevřeně a férově vůči komunitě**: rádi ukážeme přístup k problémům, architekturu a detaily implementace. Zároveň to **není klasická open-source licence** ve smyslu OSI (bez omezení použití, úprav a šíření). Jde o **zdroj dostupný veřejně** s níže uvedenými pravidly — aby bylo jasné, co od nás můžete očekávat a co ne.
+
+**Hardware:** Firmware a navazující části projektu počítají s **konkrétní deskou a zapojením, které patří autorům**. Tyto podklady **v tomto repozitáři nejsou** a **nejsou open source**. Bez výslovné domluvy nepředpokládejte právo hardware kopírovat, vyrábět ani prodávat „kompatibilní“ klon z našeho softwaru.
+
+**Software z tohoto repozitáře:** Bez **předchozího písemného souhlasu autorů** nesmí být kód ani podstatné části použity jako základ **komerčního produktu**, konkurenčního zařízení ani široce šířeného odvozeného díla. **Prohlížení, studium a pokusy „jen pro sebe“** v této filozofii vítáme — ale ne přebírání do vlastní produkce, balíčků ani produktů bez domluvy.
+
+Jsme **vstřícní k výjimkám** (škola, výzkum, nezisk, osobní zájem) — v takových případech se klidně ozvěte. Ve výchozím stavu ale platí: **transparentně sdílíme know-how, ale neudělujeme právo náš kód svévolně používat v cizích výrobcích nebo službách**; **plná a zamýšlená funkčnost je vázaná na autorův hardware**, který zde není součástí licence.
 
 ---
 
-## 🔗 Užitečné odkazy
+## 🔗 Odkazy, které mám pořád po ruce
 
-- [ESP-IDF Dokumentace](https://docs.espressif.com/projects/esp-idf/) - Oficiální dokumentace ESP-IDF
-- [ESP32-C6 Datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf) - Technický datasheet
-- [FreeRTOS Dokumentace](https://www.freertos.org/Documentation/RTOS_book.html) - FreeRTOS příručka
-- [Chess Rules](https://www.fide.com/FIDE/handbook/LawsOfChess.pdf) - Oficiální šachová pravidla FIDE
+- [ESP-IDF](https://docs.espressif.com/projects/esp-idf/)
+- [ESP32-C6 datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf)
+- [FreeRTOS dokumentace](https://www.freertos.org/Documentation/RTOS_book.html)
+- [FIDE Laws of Chess](https://www.fide.com/FIDE/handbook/LawsOfChess.pdf) — když řeším pravidla „do písmene“
 
 ---
 
 ## 🙏 Poděkování
 
-Tento projekt by nevznikl bez pomoci a podpory mnoha lidí:
+Bez lidí a nástrojů okolo bych tu desku jen tak neuhnal:
 
 ### Učitelé
 
-Děkujeme našim učitelům za to, že nás naučili základy programování a elektroniky a ukázali nám, jak tyto znalosti použít v praxi. Bez jejich pomoci bychom tento projekt nedokázali vytvořit.
+Díky pedagogům za základy programování a elektroniky — bez nich bych ani nevěděl, kde začít.
 
 ### ESP-IDF tým
 
-Děkuji týmu ESP-IDF za výborný framework a dokumentaci. ESP-IDF je neuvěřitelně dobře navržený a dokumentovaný, což mi velmi usnadnilo práci.
+Framework a dokumentace od Espressifu mi hodně šetřily čas; architektura IDF mi sedla.
 
 ### Shawn Hymel (YouTube)
 
-Děkuji Shawn Hymel za jeho YouTube kanál, ze kterého jsem se naučil ESP-IDF, FreeRTOS a mnoho dalších embedded programovacích technik. Jeho tutoriály byly neocenitelné při učení se embedded systémům.
+Od něj jsem čerpal hlavně ESP-IDF a FreeRTOS v souvislostech — embedďácký mindset.
 
-- [Wi-Fi tutoriál](https://youtu.be/j1ve8mYjUoU?si=iETnCguVFkBee_yP) - Tutoriál o Wi-Fi pro ESP32, který jsem použil při implementaci webového serveru
+- [Wi-Fi tutoriál](https://youtu.be/j1ve8mYjUoU?si=iETnCguVFkBee_yP) — tenhle odkaz jsem měl po ruce při Wi‑Fi a web serveru
 
 ### Perplexity AI
 
-Děkuji Perplexity AI za pomoc při hledání nápadů a návrhů pro firmware a software architekturu. Používal jsem ho jako nástroj pro inspiraci a prozkoumávání různých přístupů k řešení problémů během vývoje.
+Používal jsem ho jako rychlý průzkumník nápadů a architektury — inspirace, ne náhrada za vlastní rozmyšlení.
 
 ### FreeRTOS
 
-Děkuji za FreeRTOS - robustní a dobře zdokumentovaný real-time operační systém, který je zdarma a open-source.
+RTOS, který má smysl na malých MCU a je dobře popsáný.
 
-### Komunita ESP32
+### Komunita ESP32 + open source
 
-Děkuji celé komunitě ESP32 za pomoc na fórech, za sdílení zkušeností a za všechny ty skvělé projekty, které mě inspirovaly.
-
-### Open Source komunita
-
-Děkuji všem, kteří vytvářejí open source nástroje a knihovny, které jsem mohl použít v tomto projektu.
+Fóra, příklady projektů a knihovny — díky nim člověk nestojí na špičkách úplně sám.
 
 ---
 
 ## 💭 Závěrečné myšlenky
 
-Když jsme začínali tento projekt, netušili jsme, kolik se toho naučíme. Od základů programování v C přes embedded systémy, real-time programování, webové technologie, hardware design až po šachovou logiku - každá část projektu byla výzvou a každá nás něco naučila.
+Na začátku jsem netušil, jak hluboká bude cesta od „umím trochu C“ k celému stacku — embedded, RTOS, web na MCU, šachy v bitboards a vedle toho hardware, který musí držet krok.
 
-Nejvíc nás bavilo, když jsme viděli, jak se všechny části skládají dohromady - když jsme poprvé viděli, jak LED reagují na pohyb figurek, když jsme poprvé zahráli kompletní hru přes webové rozhraní, nebo když jsme poprvé viděli, jak systém správně detekuje šach a mat.
+Největší radost je vždycky moment, kdy se to spojí: LED reagují na figurku, první celá hra přes web, první správně detekovaný mat. To je odměna za hodiny logů.
 
-Tento projekt nám ukázal, že vytváření něčeho komplexního není jen o programování nebo hardwaru - je to o řešení problémů, o učení se novým věcem, o trpělivosti a vytrvalosti. A hlavně - je to zábava, když pracujete na něčem, co vás baví, a když máte skvělého spolupracovníka.
+Beru to jako reminder, že komplexní věc není jen kód — je to iterace, trpělivost a ochota přiznat, že předchozí návrh byl špatně.
 
-**Co jsme se naučili o spolupráci:**
+**Co mi zůstalo ze spolupráce s Matějem:**
 
-- Komunikace je klíčová - když jsme něco nechápali, vždy jsme se zeptali
-- Respektování odbornosti - Matěj rozuměl hardwaru, já softwaru, a vzájemně jsme si důvěřovali
-- Trpělivost - někdy to nefungovalo a museli jsme to zkusit znovu
-- Týmová práce - projekt by nevznikl bez obou z nás
+- ptám se, když něco nechápu na jeho straně drátů (a on naopak ve FW)
+- věřím jeho HW intuici a on zase mně ve stacku
+- někdy to prostě druhý den funguje lépe než první večer
 
-**AI jako nástroj pro učení:**
+**AI v tom mám jako turbo na brainstorm:**
 
-Během vývoje tohoto projektu jsem aktivně používal AI nástroje (jako Perplexity AI) pro hledání nápadů a inspirace. Vnímám to jako přirozenou evoluci programování - podobně jako byl přechod z assembleru na C, nebo z C na Python v některých oblastech, tak nyní přichází AI jako další úroveň abstrakce. 
+Perplexity a podobné nástroje jsem používal na směry a nápady. Pořád platí: pokud tomu nerozumím dost na vysvětlení, nepatří to do produkce. Když návrh dává smysl a ověřím ho v kódu, klidně ho nechám — ale kritické myšlení je pořád na mně.
 
-Pro mě jako začátečníka v embedded programování a ESP32 bylo AI neocenitelným nástrojem, který mi zrychlil učící proces a ukázal mi možnosti a přístupy, o kterých jsem předtím nevěděl. Pokud si tento nástroj neosvojím a nebudu ho aktivně prozkoumávat, budu pozadu oproti budoucí konkurenci. 
-
-Nepovažuji za problém používat AI i v ročníkové práci, pokud všemu rozumím a dokážu to vysvětlit. AI mi pomohlo najít správný směr a v některých případech jsem použil funkce, které AI navrhlo - pokud fungovaly a rozuměl jsem jim, nechal jsem je v projektu. Je to nástroj, který zrychluje učení a otevírá nové možnosti, ale stále je to jen nástroj - bez vlastního porozumění a schopnosti kriticky myslet by byl k ničemu.
-
-Pokud máte jakékoli otázky nebo připomínky k projektu, neváhejte se ozvat. Rádi se podělíme o zkušenosti a možná se i něco naučíme od vás.
+Když budete mít otázku nebo postřeh k projektu, klidně napište — rád si přečtu, co vám z toho vyšlo.
 
 ---
 
-**Poznámka:** Tento projekt je aktivně vyvíjen. Pro nejnovější informace, bug reporty a technické detaily se podívejte do [docs/](docs/) složky.
+CzechMate pořád žije a mění se — aktuálnější technické detaily doplním spíš v [docs/](docs/) než tady do nekonečna.
 
-**Verze dokumentace:** 2.5.1 (README)
-**Poslední aktualizace:** 2026-04-30
-
----
-
-**Poznámka:** Tento projekt je aktivně vyvíjen. Pro nejnovější informace se podívejte do [docs/](docs/) složky.
+**Verze tohoto README:** 2.5.1  
+**Naposledy jsem to upravoval:** 2026-04-30

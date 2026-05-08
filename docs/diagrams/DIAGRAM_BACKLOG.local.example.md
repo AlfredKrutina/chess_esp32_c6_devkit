@@ -1,25 +1,15 @@
-# Lokální backlog diagramů
+# Lokální backlog diagramů (vzor)
 
-Soubor **`LOCAL_DIAGRAM_BACKLOG.md`** je v **`.gitignore`** — do gitu nepatří (dlouhé poznámky, nápady, rozpracované seznamy).
+Soubor **`LOCAL_DIAGRAM_BACKLOG.md`** mám v **`.gitignore`** — dlouhé poznámky a rozpracované seznamy nepatří na remote.
 
-**Co udělat lokálně**
+**Jak si ho založím**
 
-1. Zkopíruj tento soubor:
+1. Zkopíruju tenhle vzor:
 
    `cp docs/diagrams/DIAGRAM_BACKLOG.local.example.md docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`
 
-2. Obsah **`LOCAL_DIAGRAM_BACKLOG.md`** si rozšiřuj sám (škola diagramů, TODO, barvy). Šablona s „skoro vším“ je v repu jen jako start — plnou verzi si drž lokálně nebo ji vygeneruj podle vlastních potřeb.
+2. Do **`LOCAL_DIAGRAM_BACKLOG.md`** si dopisuju vlastní TODO (firmware / Flutter / CI / GPIO), paletu barev, zkopírovatelné `%%{init}%%` / `classDef` a odkazy na zdrojové soubory.
 
-**Minimum v `LOCAL_DIAGRAM_BACKLOG.md`**
+Po čistém klonu si soubor stejně musím vytvořit u sebe na disku — git ho nesdílí.
 
-- TODO diagramů (firmware / Flutter / CI / GPIO).
-- Paleta barev + zkopírovatelné `%%{init}%%` / `classDef`.
-- Odkazy na zdrojové soubory.
-
-Po prvním naklonování repa si soubor **vytvoř** (git ho neobsahuje):
-
-`cp docs/diagrams/DIAGRAM_BACKLOG.local.example.md docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`
-
-…a doplň obsah — dlouhou šablonu s řadou nápadů máš ideálně právě v tom gitignored souboru u sebe na disku (není sdílená přes remote).
-
-Veřejně v repu jsou barevné diagramy v **`README.md`** tady a v **`sources/*.mmd`** (+ SVG po `./scripts/render_docs.sh`). Hlavní rozcestník všech textů a diagramů: **[`docs/README.md`](../README.md)**.
+Veřejně v repu zůstávají hotové diagramy v **[README.md](README.md)** tady a v **`sources/*.mmd`** (+ SVG po `./scripts/render_docs.sh`). Hlavní mapa dokumentace: **[`docs/README.md`](../README.md)**.

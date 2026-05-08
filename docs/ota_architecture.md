@@ -1,38 +1,38 @@
-# OTA firmwaru ESP32-C6 (FW + Flutter)
+# OTA firmwaru na ESP32-C6 — přehled chování
 
-ESP32 si umí stáhnout nový aplikační obraz po **HTTPS** (internet, vyžaduje STA), po **HTTP** z LAN (typicky telefon hostuje `.bin` na hotspotu desky), nebo ho přijmout po **BLE** jako stream chunků `OB`. Flutter řídí start, polling stavu přes HTTP (kde jde), nebo nahrává chunky přes GATT.
+Deska si umí stáhnout nový aplikační obraz po **HTTPS** (internet, je potřeba STA), po **HTTP** z LAN (typicky když telefon hostuje `.bin` na hotspotu desky), nebo ten samý obraz přijmout po **BLE** jako stream chunků začínajících hlavičkou `OB`. Flutter pak jen řídí start; stav OTA se na desce typicky polluje přes HTTP (kde to dává smysl), nebo telefon posílá chunky přes GATT.
 
-STM32 hall MCU se tímto protokolem neaktualizuje. Flash jen přes `factory` bez `ota_0`/`ota_1` vrací `ota_supported: false` a HTTP OTA vrací 503 — pak zbývá UART / esptool.
+STM32 na Hall segmentech tímhle protokolem neřeším — tam je jiný příběh. Když je flash jen `factory` bez `ota_0`/`ota_1`, `ota_supported` je false a HTTP OTA vrací 503; pak zbývá UART / esptool.
 
-**Roadmap:** Později chci přejít z vlastní OTA logiky přímo ve firmware na **OTAvo** (aktuální chování v `ota_update.c` / související BLE a HTTP handlery pak nahradí nebo obalí ten stack).
+**Směr do budoucna:** časem přejít z vlastní logiky v `ota_update.c` na **`esp_encrypted_img` / OTAvo styl** podle Espressif — až na to dojde, současné handlery se obalí nebo nahradí.
 
 ---
 
 ## 1. Partition a synchronizace
 
-- `ota_partition_layout_ok()` v `components/web_server_task/ota_update.c` kontroluje přítomnost **oba** oddílů `APP_OTA_0` a `APP_OTA_1`. Jinak `GET /api/system/firmware` → `ota_supported: false`, `POST /api/system/ota` → **503**.
-- Po úspěchu: `esp_ota_set_boot_partition()` + `esp_restart()` (všechny tři cesty).
-- `s_ota_sem`: jen jeden běžící OTA. Druhý start → HTTP **409**, BLE často `ESP_ERR_INVALID_STATE` („busy“).
+- `ota_partition_layout_ok()` v `components/web_server_task/ota_update.c` kontroluje, že existují **oba** oddíly `APP_OTA_0` a `APP_OTA_1`. Jinak `GET /api/system/firmware` vrátí `ota_supported: false` a `POST /api/system/ota` je **503**.
+- Po úspěchu volám `esp_ota_set_boot_partition()` a `esp_restart()` — platí pro všechny tři kanály.
+- `s_ota_sem`: současně může běžet jen jedna OTA. Druhý start → HTTP **409**, přes BLE často `ESP_ERR_INVALID_STATE` („busy“).
 
 ---
 
 ## 2. Kanály
 
-| | URL | Kdo stahuje / píše | STA |
-|---|-----|-------------------|-----|
-| HTTPS | `https://…` | `esp_https_ota` + CA bundle | povinné |
+| | URL | Kdo tahá / zapisuje | STA |
+|---|-----|---------------------|-----|
+| HTTPS | `https://…` | `esp_https_ota` + CA bundle | potřeba |
 | HTTP | `http://…` | `esp_http_client` + `esp_ota_write` | ne (LAN / AP) |
-| BLE | — | telefon `OB` write na CMD char | ne |
+| BLE | — | telefon posílá `OB` write na CMD char | ne |
 
-**Debug:** `CHESS_DEBUG_MODE` → v `ota_update.c` logy `[STAGING]`; u GATT `ble_nimble_impl.c`. Chunk bez šifrování: `OTA BLE chunk rejected: link not encrypted`.
+**Debug:** při `CHESS_DEBUG_MODE` loguju v `ota_update.c` řádky `[STAGING]`; u GATT v `ble_nimble_impl.c`. Když někdo pošle chunk bez šifrování linku, uvidím něco jako `OTA BLE chunk rejected: link not encrypted`.
 
 ---
 
 ## 3. Síť
 
-- AP desky typicky `192.168.4.1`; telefon na hotspotu `192.168.4.x`. `FirmwarePhoneHostOta.ipv4OnBoardApSubnet()` vybírá IP do URL.
-- Na domácí LAN: `ipv4OnSameSubnet24As(boardStaIp)` pokud telefon není na 4.x.
-- `FirmwarePhoneHostOta.startServingBin`: `HttpServer` na `0.0.0.0`, volný port, jen `GET /czechmate_ota.bin`, `Content-Length`, stream souboru.
+- AP desky typicky `192.168.4.1`; telefon na hotspotu `192.168.4.x`. Ve Flutteru `FirmwarePhoneHostOta.ipv4OnBoardApSubnet()` vybírá IP do URL.
+- Na domácí LAN používám `ipv4OnSameSubnet24As(boardStaIp)`, pokud telefon není na 4.x.
+- `FirmwarePhoneHostOta.startServingBin`: malý `HttpServer` na `0.0.0.0`, volný port, jen `GET /czechmate_ota.bin`, `Content-Length`, stream souboru.
 
 ---
 
@@ -40,11 +40,11 @@ STM32 hall MCU se tímto protokolem neaktualizuje. Flash jen přes `factory` bez
 
 ### `GET /api/system/firmware`
 
-Bez Bearer. `version`, `project_name`, `idf`, `ota_supported`.
+Bez Bearer. Vracím `version`, `project_name`, `idf`, `ota_supported`.
 
 ### `GET /api/system/ota/status`
 
-Bez Bearer. `state`: `idle` | `downloading` | `done` | `error`; `percent`; `message` (poslední chyba z `s_last_err`). Platí i během BLE streamu (stejný globální stav).
+Bez Bearer. `state`: `idle` | `downloading` | `done` | `error`; `percent`; `message` (poslední chyba z `s_last_err`). Platí i během BLE streamu — je to stejný globální stav.
 
 ### `POST /api/system/ota`
 
@@ -54,14 +54,14 @@ Admin: Bearer + web lock podle `board_api_auth.h`. Tělo:
 {"url":"https://example/firmware.bin"}
 ```
 
-`http_post_ota` čte tělo do ~1536 B — drž JSON krátký.
+`http_post_ota` čte tělo do ~1536 B — držím JSON krátký.
 
 | Kód | Význam |
 |-----|--------|
 | 202 | `schedule_ota` OK |
 | 409 | busy |
 | 428 | HTTPS bez STA |
-| 400 | prázdné / JSON / špatná URL |
+| 400 | prázdné / rozbitý JSON / špatná URL |
 | 503 | chybí OTA oddíly |
 | 403 | token / web lock |
 | 500 | fronta / interní |
@@ -76,13 +76,13 @@ Worker: `ota_https_worker_task` nebo `ota_http_worker_task`.
 
 **HTTP:** `esp_http_client_open`, status 200, `esp_ota_begin` → read loop → `esp_ota_write`, timeout 300 s, progress z `Content-Length` nebo z velikosti partition.
 
-Chyba: `led_ota_restore_board_after_update_abort()`, `xSemaphoreGive(s_ota_sem)`.
+Při chybě volám `led_ota_restore_board_after_update_abort()` a `xSemaphoreGive(s_ota_sem)`.
 
 ---
 
 ## 6. BLE — JSON (`web_server_ble_command_dispatch`)
 
-Šifrovaný link povinný (`ble_task_conn_is_encrypted`). Jinak `needs_encryption` přes `ble_dispatch_ack_needs_encryption`.
+Šifrovaný link je povinný (`ble_task_conn_is_encrypted`). Jinak posílám `needs_encryption` přes `ble_dispatch_ack_needs_encryption`.
 
 | Příkaz | Akce |
 |--------|------|
@@ -91,7 +91,7 @@ Chyba: `led_ota_restore_board_after_update_abort()`, `xSemaphoreGive(s_ota_sem)`
 | `ota_ble_abort` | abort + uvolnění semaforu |
 | `ota_ble_status` | JSON z `ota_update_ble_build_status_ack_json` + notify |
 
-`ble_task_notify_command_result`: mapuje `esp_err` na `code` / `message`, v JSON je i `"esp": <číslo>`. `ESP_ERR_NOT_ALLOWED` (HTTPS bez STA) spadne do default větve — UART log je konkrétnější.
+`ble_task_notify_command_result` mapuje `esp_err` na `code` / `message`, v JSON je i `"esp": <číslo>`. `ESP_ERR_NOT_ALLOWED` (HTTPS bez STA) spadne do default větve — UART log je konkrétnější.
 
 ---
 
@@ -108,9 +108,9 @@ Stejná GATT CMD charakteristika jako JSON.
 
 Validace v `ota_update_ble_feed_chunk`: pořadí indexů, shoda `chunk_total`, součet payloadů = `size` z `ota_begin`, poslední chunk = `chunk_total - 1` při plném součtu.
 
-**NimBLE:** prvních max 768 B z mbuf do stacku — jeden write od klienta musí vejít do ATT MTU (kvůli chunkům drží Flutter `payloadMax` konzervativně, hlavně iOS).
+**NimBLE:** prvních max 768 B z mbuf do stacku — jeden write od klienta musí vejít do ATT MTU (Flutter drží `payloadMax` konzervativně kvůli iOS).
 
-Nešifrovaný link → `INSUFFICIENT_AUTHOR`. Špatný chunk → notify `{"cmd":"ota_ble_chunk","ok":false}`; úspěšné chunky notify nemají (iOS fronta).
+Nešifrovaný link → `INSUFFICIENT_AUTHOR`. Špatný chunk → notify `{"cmd":"ota_ble_chunk","ok":false}`; úspěšné chunky notify nemám (kvůli frontě na iOS).
 
 **Stavy:** `IDLE` → `RX` po begin. Disconnect v `RX` → `SUSPENDED` + timer **24 h**; po timeoutu abort. První platný chunk po suspend → zase `RX`.
 
@@ -141,8 +141,8 @@ sequenceDiagram
 ```
 
 - **Bearer:** `BoardApiClient.resolveBoardApiBearerToken` ← `PrefsRepository.boardApiToken` (`app_providers.dart`). `postBoardOtaStart` mapuje 409, 428, 503, 403 na `BoardApiException`.
-- **`FirmwareOtaRunner.execute`:** vyřeší `baseUrl` (`board_http_base_url.dart`), zkontroluje `ota_supported`, u `https://` ověří STA přes `fetchWiFiStatus`, zavolá `requestFirmwareOta`, pak `_pollOta` (500 ms, max 1200 cyklů). Po `downloading` a výpadku HTTP bere úspěch jako reboot heuristika v kódu.
-- **`requestFirmwareOta`:** `preferHttpOtaStart` → vždy HTTP POST na zadanou base URL i při BLE session (HTTP na AP běží vedle BLE). Čistý BLE bez toho → `_ble.postOtaStart` (`ota_start`). HTTP URL z telefonu patří spíš přes `preferHttpOtaStart`.
+- **`FirmwareOtaRunner.execute`:** vyřeší `baseUrl` (`board_http_base_url.dart`), zkontroluje `ota_supported`, u `https://` ověří STA přes `fetchWiFiStatus`, zavolá `requestFirmwareOta`, pak `_pollOta` (500 ms, max 1200 cyklů). Po `downloading` a výpadku HTTP mám v kódu heuristiku úspěchu po rebootu.
+- **`requestFirmwareOta`:** `preferHttpOtaStart` → HTTP POST na base URL i když jedu přes BLE session (HTTP na AP běží vedle BLE). Čistý BLE bez toho → `_ble.postOtaStart` (`ota_start`). URL z telefonu hostovaného binárku dávám spíš přes `preferHttpOtaStart`.
 - **`uploadFirmwareBle`:** MTU 517, `payloadMax` pod platformu, retry na chunk, iOS gap; resume přes `OtaBleStatus` po disconnect.
 - **UI:** `firmware_update_section.dart` — cache bin přes prefs, phone-host + `FirmwareOtaRunner`, nebo `_sendFirmwareViaBle` jen s lokálním `onProgress` (bez runner poll).
 
@@ -154,14 +154,14 @@ sequenceDiagram
 |-------|--------|----------------|
 | HTTPS | POST nebo BLE `ota_start` | `GET .../ota/status` v runneru |
 | HTTP z telefonu | POST + `preferHttpOtaStart` | stejně |
-| BLE stream | `ota_ble_begin` + OB | callback bajtů; HTTP status lze číst paralelně pokud znáš base URL |
+| BLE stream | `ota_ble_begin` + OB | callback bajtů; HTTP status lze číst paralelně pokud znám base URL |
 
 ---
 
 ## 10. Ladění
 
-| Projev | Kde |
-|--------|-----|
+| Projev | Kde hledám |
+|--------|------------|
 | 428 | `schedule_ota`, Flutter WiFi status před startem |
 | 409 | paralelní OTA |
 | 403 | token / lock |

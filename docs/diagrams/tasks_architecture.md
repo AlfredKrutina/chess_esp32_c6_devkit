@@ -1,7 +1,7 @@
-# Architektura tasků — odkaz
+# Architektura tasků — jen odkaz
 
-**Rozcestník dokumentace:** [`docs/README.md`](../README.md).
+**Rozcestník:** [`docs/README.md`](../README.md).
 
-Detaily, tabulky a další diagramy jsou v **[README.md ve stejném adresáři](README.md)**.
+Veškeré tabulky, legendy a SVG k taskům jsou v **[README.md ve stejné složce](README.md)**.
 
-SVG export: [`sources/tasks_architecture.mmd`](sources/tasks_architecture.mmd) → spusť z kořene `./scripts/render_docs.sh`.
+SVG se generuje ze [`sources/tasks_architecture.mmd`](sources/tasks_architecture.mmd) přes `./scripts/render_docs.sh` z kořene repa.
