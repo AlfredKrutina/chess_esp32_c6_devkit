@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['⚙️_20nastavení_20a_20přizpůsobení_20web_20ui_0',['⚙️ Nastavení a Přizpůsobení (Web UI)',['../index.html#autotoc_md117',1,'']]]
+  ['⚙️_20nastavení_20na_20webu_0',['⚙️ Nastavení na webu',['../index.html#autotoc_md117',1,'']]]
 ];

@@ -44,6 +44,7 @@
         <a href="#stockfish">Stockfish</a>
         <a href="#ai-kouc">AI kouč</a>
         <a href="#aplikace">Aplikace</a>
+        <a href="#zajem">Zájem</a>
         <a href="#stazeni">Stažení</a>
         <a href="./index.html">Dokumentace</a>
       </nav>
@@ -58,6 +59,7 @@
       <a href="#stockfish">Stockfish</a>
       <a href="#ai-kouc">AI kouč</a>
       <a href="#aplikace">Aplikace</a>
+      <a href="#zajem">Zájem</a>
       <a href="#stazeni">Stažení</a>
       <a href="./index.html">Dokumentace</a>
       <a class="btn btn--primary nav-mobile__cta" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
@@ -274,6 +276,66 @@
         </div>
       </div>
     </section>
+
+    <section id="zajem" class="section interest" aria-labelledby="zajem-title">
+      <div class="section__inner">
+        <p class="section__label">Komunita</p>
+        <h2 id="zajem-title" class="section__title">Chcete si CzechMate pořídit? Dejte nám vědět</h2>
+        <p class="section__intro">
+          Každý hlas i zpráva nám pomůže držet tempo vývoje a rozhodovat se, čemu dát prioritu.
+          <strong>Žádné veřejné počítadlo</strong> na této stránce záměrně není — výsledky dotazníků vidí jen tým CzechMate
+          (uložené v Google Formulářích, odkazy níže) a <strong>nepřepíší se</strong> při novém deployi webu ani při obnovení stránky v prohlížeči.
+        </p>
+
+        <div class="interest__grid">
+          <div class="interest__card interest__card--poll">
+            <h3 class="interest__card-title">Průzkum zájmu</h3>
+            <p class="interest__card-lead">
+              Krátký dotazník na Googleu — zájem o produkt, funkce, věk, volitelný komentář. Odpovědi sbíráme v tabulce na stejném místě jako u předobjednávek;
+              tato stránka je jen rozcestník, žádné veřejné počítadlo tu není.
+              <span class="interest__note">Automatické soukromé DM od bota na Instagram přímo z webu bez vlastního serveru a schválení Meta API veřejně spolehlivě nejde —
+              typický postup je formulář → tabulka / e-mail → případně vlastní skript nebo služba typu Make/Zapier.</span>
+            </p>
+            <a class="btn btn--primary interest-poll__submit" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">
+              Otevřít průzkum zájmu (Google Form)
+            </a>
+          </div>
+
+          <div class="interest__card interest__card--cta">
+            <h3 class="interest__card-title">Předobjednávka naprosto vážně?</h3>
+            <p class="interest__card-lead">
+              Pokud už víš, že CzechMate chceš i s hardwarem, <strong>neboj se předobjednat</strong> —
+              pomůže nám to naplánovat výrobu a komunikaci. Konkrétní domluva probíhá přímým kontaktem.
+            </p>
+            <button type="button" class="btn btn--primary interest-preorder-btn" data-open-preorder>
+              Předobjednat
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <dialog id="preorder-dialog" class="preorder-modal" aria-labelledby="preorder-dialog-title">
+      <div class="preorder-modal__inner">
+        <button type="button" class="preorder-modal__close" data-close-preorder aria-label="Zavřít okno">&times;</button>
+        <h2 id="preorder-dialog-title" class="preorder-modal__title">Předobjednávka CzechMate</h2>
+        <div class="preorder-modal__ota" role="note">
+          <strong>OTA flash z aplikace</strong> — firmware šachovnice aktualizuješ z&nbsp;CzechMate <strong>bez kabelů</strong> (Wi‑Fi nebo Bluetooth podle režimu).
+          Předobjednávka hardwaru tak není „jednorázový kus bez aktualizací“: počítej s&nbsp;<strong>plnou podporou nových verzí</strong>, jak budeme vývoj pouštět dál.
+        </div>
+        <p class="preorder-modal__text">
+          Oficiální <strong>dotazník předobjednávky</strong> (jméno, kontakt, přání k produktu) je na Google Formuláři.
+          Doplňovací rychlá domluva může proběhnout i přes zprávu na Instagramu.
+        </p>
+        <a class="btn btn--primary preorder-modal__cta" href="https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform" target="_blank" rel="noopener noreferrer">
+          Otevřít předobjednávku (Google Form)
+        </a>
+        <a class="btn btn--ghost preorder-modal__cta preorder-modal__cta--secondary" href="https://www.instagram.com/alfredkrutina/" target="_blank" rel="noopener noreferrer">
+          Napsat na Instagram — @alfredkrutina
+        </a>
+        <p class="preorder-modal__hint">Odkazy otevřou nový panel v prohlížeči (nebo aplikaci Instagram).</p>
+      </div>
+    </dialog>
 
     <section id="stazeni" class="section download" aria-labelledby="dl-title">
       <div class="section__inner">

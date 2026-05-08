@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🔮_20budoucí_20vylepšení_0',['🔮 Budoucí vylepšení',['../index.html#autotoc_md171',1,'']]]
+  ['🔮_20co_20mě_20ještě_20láká_20doplnit_0',['🔮 Co mě ještě láká doplnit',['../index.html#autotoc_md165',1,'']]]
 ];

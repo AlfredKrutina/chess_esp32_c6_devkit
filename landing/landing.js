@@ -53,4 +53,43 @@
       } catch (e) {}
     });
   }
+
+  /* Modal předobjednávky (<dialog>) */
+  var preorderDlg = document.getElementById("preorder-dialog");
+  var openPreorder = document.querySelector("[data-open-preorder]");
+  var closePreorder = document.querySelector("[data-close-preorder]");
+  if (preorderDlg && typeof preorderDlg.showModal === "function") {
+    if (openPreorder) {
+      openPreorder.addEventListener("click", function () {
+        preorderDlg.showModal();
+      });
+    }
+    if (closePreorder) {
+      closePreorder.addEventListener("click", function () {
+        preorderDlg.close();
+      });
+    }
+    preorderDlg.addEventListener("click", function (ev) {
+      if (ev.target === preorderDlg) {
+        preorderDlg.close();
+      }
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape" && preorderDlg.open) {
+        preorderDlg.close();
+      }
+    });
+  } else if (openPreorder && preorderDlg) {
+    /* Fallback bez nativního <dialog> */
+    openPreorder.addEventListener("click", function () {
+      preorderDlg.setAttribute("open", "");
+      preorderDlg.style.display = "block";
+    });
+    if (closePreorder) {
+      closePreorder.addEventListener("click", function () {
+        preorderDlg.removeAttribute("open");
+        preorderDlg.style.display = "none";
+      });
+    }
+  }
 })();

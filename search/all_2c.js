@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['📁_20struktura_20projektu_0',['📁 Struktura projektu',['../index.html#autotoc_md148',1,'']]]
+  ['📁_20jak_20je_20repozitář_20položený_0',['📁 Jak je repozitář položený',['../index.html#autotoc_md144',1,'']]]
 ];

@@ -1,14 +1,17 @@
 var searchData=
 [
-  ['jager_20hardware_0',['Matěj Jager - Hardware',['../index.html#autotoc_md175',1,'']]],
-  ['jak_20jsme_20spolupracovali_1',['🤝 Jak jsme spolupracovali',['../index.html#autotoc_md169',1,'']]],
-  ['jak_20to_20funguje_2',['jak to funguje',['../button__task_8c.html#autotoc_md3',1,'JAK TO FUNGUJE?'],['../game__task_8c.html#autotoc_md14',1,'JAK TO FUNGUJE?'],['../led__task_8c.html#autotoc_md32',1,'JAK TO FUNGUJE?'],['../matrix__task_8c.html#autotoc_md49',1,'JAK TO FUNGUJE?'],['../uart__task_8c.html#autotoc_md62',1,'JAK TO FUNGUJE?'],['../web__server__task_8c.html#autotoc_md79',1,'JAK TO FUNGUJE?']]],
-  ['jeden_20soubor_3',['RTF dokumentace (jeden soubor)',['../index.html#autotoc_md143',1,'']]],
-  ['jsme_20řešili_4',['🐛 Výzvy, které jsme řešili',['../index.html#autotoc_md131',1,'']]],
-  ['jsme_20se_20naučili_5',['🎓 Co jsme se naučili',['../index.html#autotoc_md123',1,'']]],
-  ['jsme_20spolupracovali_6',['🤝 Jak jsme spolupracovali',['../index.html#autotoc_md169',1,'']]],
-  ['json_5fbody_5fhas_5ffactory_5fconfirm_7',['json_body_has_factory_confirm',['../web__server__task_8c.html#aad1789aa8395874f840074cf96a253ef',1,'web_server_task.c']]],
-  ['json_5fbuffer_8',['json_buffer',['../web__server__task_8c.html#a4a7ce2f31b8eb2ae9b2c75a2e75147bd',1,'web_server_task.c']]],
-  ['json_5fbuffer_5fsize_9',['JSON_BUFFER_SIZE',['../web__server__task_8c.html#a2e4ba70a12e464d5b5278c18d28355f8',1,'web_server_task.c']]],
-  ['json_5fextract_5fcmd_5fstring_10',['json_extract_cmd_string',['../web__server__task_8c.html#a0e726733246359d1abdcf0ac63e887a0',1,'web_server_task.c']]]
+  ['jager_20hardware_0',['Matěj Jager - Hardware',['../index.html#autotoc_md169',1,'']]],
+  ['jak_20je_20repozitář_20položený_1',['📁 Jak je repozitář položený',['../index.html#autotoc_md144',1,'']]],
+  ['jak_20si_20firmware_20přeložím_20a_20nahraju_2',['🚀 Jak si firmware přeložím a nahraju',['../index.html#autotoc_md107',1,'']]],
+  ['jak_20to_20funguje_3',['jak to funguje',['../web__server__task_8c.html#autotoc_md79',1,'JAK TO FUNGUJE?'],['../uart__task_8c.html#autotoc_md62',1,'JAK TO FUNGUJE?'],['../matrix__task_8c.html#autotoc_md49',1,'JAK TO FUNGUJE?'],['../led__task_8c.html#autotoc_md32',1,'JAK TO FUNGUJE?'],['../game__task_8c.html#autotoc_md14',1,'JAK TO FUNGUJE?'],['../button__task_8c.html#autotoc_md3',1,'JAK TO FUNGUJE?']]],
+  ['jak_20to_20v_20praxi_20používám_4',['📖 Jak to v praxi používám',['../index.html#autotoc_md113',1,'']]],
+  ['jako_20první_5',['🔧 Když něco nejde (co zkouším jako první)',['../index.html#autotoc_md152',1,'']]],
+  ['ještě_20láká_20doplnit_6',['🔮 Co mě ještě láká doplnit',['../index.html#autotoc_md165',1,'']]],
+  ['je_20repozitář_20položený_7',['📁 Jak je repozitář položený',['../index.html#autotoc_md144',1,'']]],
+  ['jsem_20pochopil_20vedle_20matěje_8',['Hardware (co jsem pochopil vedle Matěje)',['../index.html#autotoc_md128',1,'']]],
+  ['jsem_20si_20z_20toho_20odnáším_9',['🎓 Co jsem si z toho odnáším',['../index.html#autotoc_md123',1,'']]],
+  ['json_5fbody_5fhas_5ffactory_5fconfirm_10',['json_body_has_factory_confirm',['../web__server__task_8c.html#aad1789aa8395874f840074cf96a253ef',1,'web_server_task.c']]],
+  ['json_5fbuffer_11',['json_buffer',['../web__server__task_8c.html#a4a7ce2f31b8eb2ae9b2c75a2e75147bd',1,'web_server_task.c']]],
+  ['json_5fbuffer_5fsize_12',['JSON_BUFFER_SIZE',['../web__server__task_8c.html#a2e4ba70a12e464d5b5278c18d28355f8',1,'web_server_task.c']]],
+  ['json_5fextract_5fcmd_5fstring_13',['json_extract_cmd_string',['../web__server__task_8c.html#a0e726733246359d1abdcf0ac63e887a0',1,'web_server_task.c']]]
 ];

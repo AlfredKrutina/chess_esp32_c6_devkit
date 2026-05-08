@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['📖_20použití_0',['📖 Použití',['../index.html#autotoc_md113',1,'']]]
+  ['📖_20jak_20to_20v_20praxi_20používám_0',['📖 Jak to v praxi používám',['../index.html#autotoc_md113',1,'']]]
 ];

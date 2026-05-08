@@ -1,12 +1,5 @@
 var NAVTREEINDEX15 =
 {
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6":[3,0,0,20,0,0,3],
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6a0124adadcd7f68b27f3609f4cf01c0e4":[3,0,0,20,0,0,3,2],
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6a01f20e5298d5ca321dc3904b63562e7b":[3,0,0,20,0,0,3,7],
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6a2a7c5c9cb77a6948c0e4a829ca21a032":[3,0,0,20,0,0,3,4],
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6a3fd1a5a62f63ec47085a395af6f1ba2d":[3,0,0,20,0,0,3,5],
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6aaf6efdcd03fbd8fe3574d90a8dd8d83f":[3,0,0,20,0,0,3,1],
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ab7d8cfeacc7585107aebcc81bf3e0d13":[3,0,0,20,0,0,3,3],
 "unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ac05057ec5b13965afd7265b2794b1f1c":[3,0,0,20,0,0,3,6],
 "unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ac6ce09baa3112b33b63cef95c89f2a4b":[3,0,0,20,0,0,3,0],
 "unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6acba2ed376381afd69a926d2344151d42":[3,0,0,20,0,0,3,8],
@@ -249,5 +242,12 @@ var NAVTREEINDEX15 =
 "web__server__task_8c.html#a8ea4cd3058a83430186ff45a9834eb3d":[3,0,0,22,4,34],
 "web__server__task_8c.html#a8fed04375198615d8723433210c7861a":[3,0,0,22,4,2],
 "web__server__task_8c.html#a908aa1beee83594820b7c14d65c18278":[3,0,0,22,4,75],
-"web__server__task_8c.html#a91aeff1220701b1ecdc74ab211de8243":[3,0,0,22,4,147]
+"web__server__task_8c.html#a91aeff1220701b1ecdc74ab211de8243":[3,0,0,22,4,147],
+"web__server__task_8c.html#a93314f062ff3d38822815ee5f6c2761d":[3,0,0,22,4,67],
+"web__server__task_8c.html#a94ab4e3ed0c9d94e819d7e4e9e66b9d8":[3,0,0,22,4,55],
+"web__server__task_8c.html#a94e74a2c614fc3d5ea5f639a55f2221b":[3,0,0,22,4,12],
+"web__server__task_8c.html#a965fefb27ff5e85d0c386f71669feff5":[3,0,0,22,4,28],
+"web__server__task_8c.html#a96cbfc09f923b4548a4bb4c63f70237f":[3,0,0,22,4,143],
+"web__server__task_8c.html#a97ff386657b49592624586a42a5f38e4":[3,0,0,22,4,40],
+"web__server__task_8c.html#a9aed8f59f75d856e2916530518eff586":[3,0,0,22,4,27]
 };

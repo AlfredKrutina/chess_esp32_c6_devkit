@@ -60,15 +60,15 @@ var NAVTREEINDEX =
 "game__task_8c.html#a715422f9b34ce3aff72a852b7951ebba",
 "game__task_8h.html#a25364833eb80653b4d30414376f3fe35",
 "ha__light__task_8c.html#a4ed770cbe46604586e494bae84b62304",
-"led__state__manager_8h.html#a0e1288bada603c6fa05e27c504043639",
-"led__unified__api_8h.html#a2b90b815358f1c78e36a5f4c56308449",
-"shared__buffer__pool_8c.html#a985626f60ba733d611f238158cd15aac",
-"structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d",
-"structled__health__stats__t.html#a77bac0504651661760667dab1de0b5dc",
-"test__task_8h.html#a849df7d33a2eeeb8383dab84223a7813",
-"uart__task_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c",
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6",
-"web__server__task_8c.html#a93314f062ff3d38822815ee5f6c2761d"
+"led__state__manager_8h.html#a48277ad0ecc8bc035e62eeb7541a1936",
+"led__unified__api_8h.html#a738fcd34c4727af46498fbee998f5b27",
+"shared__buffer__pool_8c_source.html",
+"structchess__move__extended__t.html",
+"structled__layer__state__t.html#a112df6c248bc73c864b6e0c401a1a87c",
+"test__task_8h.html#ac078516cdae5c2a8616a70773c5b82fd",
+"uart__task_8c.html#a6196f7e1db4cb31f634fb82f481f1965",
+"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ac05057ec5b13965afd7265b2794b1f1c",
+"web__server__task_8c.html#a9c15047ba3df7b2591894a68c0d80923"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';

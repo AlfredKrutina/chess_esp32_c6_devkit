@@ -1,12 +1,5 @@
 var NAVTREEINDEX11 =
 {
-"structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d":[2,0,12,1],
-"structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75":[2,0,12,2],
-"structchess__move__command__t.html#ab5aa48985555b2421f0774b8515dd856":[2,0,12,15],
-"structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a":[2,0,12,19],
-"structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52":[2,0,12,4],
-"structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e":[2,0,12,18],
-"structchess__move__command__t.html#ae6e4449e8345fed34c9c685eba9f1363":[2,0,12,14],
 "structchess__move__extended__t.html":[2,0,13],
 "structchess__move__extended__t.html#a16faacd78ba6e8d0036fe058422762d0":[2,0,13,0],
 "structchess__move__extended__t.html#a287d533872003ff749138ed16e12d299":[2,0,13,11],
@@ -249,5 +242,12 @@ var NAVTREEINDEX11 =
 "structled__health__stats__t.html#a0b88add05c5826b2ae3d9058187f0444":[2,0,37,8],
 "structled__health__stats__t.html#a34c491347abf9321e57c5d59e6e7314e":[2,0,37,7],
 "structled__health__stats__t.html#a64315595cf52748458fbdb44a29293ba":[2,0,37,1],
-"structled__health__stats__t.html#a71c3bd70b6692d20cbb64e95e44411a0":[2,0,37,5]
+"structled__health__stats__t.html#a71c3bd70b6692d20cbb64e95e44411a0":[2,0,37,5],
+"structled__health__stats__t.html#a77bac0504651661760667dab1de0b5dc":[2,0,37,3],
+"structled__health__stats__t.html#a7c240ea2565141afb036406f2fdd86bb":[2,0,37,9],
+"structled__health__stats__t.html#a7d9e95f1afd0b1b48c7863b1d382d685":[2,0,37,0],
+"structled__health__stats__t.html#a9a0f4f67b88467369c5b56f008ae4436":[2,0,37,2],
+"structled__health__stats__t.html#ab08c0f3da9d85647f6c69d621a6be06c":[2,0,37,6],
+"structled__health__stats__t.html#ac6ba5967b998bd74c35dab640990cca9":[2,0,37,4],
+"structled__layer__state__t.html":[2,0,38]
 };

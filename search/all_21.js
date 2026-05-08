@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['často_20kladené_20otázky_0',['❓ FAQ (Často kladené otázky)',['../index.html#autotoc_md160',1,'']]]
+  ['často_20se_20ptáte_0',['❓ FAQ (často se ptáte)',['../index.html#autotoc_md156',1,'']]]
 ];

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['🔧_20troubleshooting_0',['🔧 Troubleshooting',['../index.html#autotoc_md156',1,'']]],
-  ['🔧_20vývoj_1',['🔧 Vývoj',['../index.html#autotoc_md150',1,'']]]
+  ['🔧_20když_20něco_20nejde_20co_20zkouším_20jako_20první_0',['🔧 Když něco nejde (co zkouším jako první)',['../index.html#autotoc_md152',1,'']]],
+  ['🔧_20ladění_20a_20testy_1',['🔧 Ladění a testy',['../index.html#autotoc_md146',1,'']]]
 ];

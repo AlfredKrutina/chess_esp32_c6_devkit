@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['🐛_20výzvy_20které_20jsme_20řešili_0',['🐛 Výzvy, které jsme řešili',['../index.html#autotoc_md131',1,'']]],
-  ['🐛_20známé_20problémy_20a_20omezení_1',['🐛 Známé problémy a omezení',['../index.html#autotoc_md154',1,'']]]
+  ['🐛_20co_20víme_20že_20občas_20štve_0',['🐛 Co víme, že občas štve',['../index.html#autotoc_md150',1,'']]],
+  ['🐛_20výzvy_20které_20nás_20držely_20vzhůru_1',['🐛 Výzvy, které nás držely vzhůru',['../index.html#autotoc_md131',1,'']]]
 ];
