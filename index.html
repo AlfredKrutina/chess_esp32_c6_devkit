@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="textblock"><p><a class="anchor" id="md_README"></a> **Kompletní šachový systém s fyzickou šachovnicí, LED osvětlením, webovým serverem a Flutter klientem (<code>flutter_czechmate/</code>).** Nativní Xcode projekt <code>CZECHMATE/</code> je jen lokálně (není v gitu).</p>
 <p><b>📲 CzechMate na telefonu a Macu:</b> <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktová stránka + stažení</a> — Android APK a macOS DMG také v <b><a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">GitHub Releases</a></b>. <b>iOS / iPad</b> a <b>Windows</b> <em>coming soon</em>. <b>Představení na videu:</b> <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a>.</p>
 <p><em>Šachmat, udělaný v Česku</em></p>
-<p><b>Dokumentace v repu:</b> Jednotný rozcestník — **`docs/README.md`** (doporučené pořadí čtení, inventář všech textů a diagramů, limity vs zdroják).</p>
+<p><b>Dokumentace:</b> **`docs/README.md`** — rozcestník (diagramy, Flutter, OTA, reference, Doxygen).</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md91"></a>
 🎓 O projektu</h1>
@@ -560,9 +560,10 @@ Software výzvy (Alfred)</h2>
 <h1><a class="anchor" id="autotoc_md141"></a>
 Dokumentace</h1>
 <ul>
-<li><b>docs/README.md</b> — <b>start zde</b>: pořadí čtení, tabulka všech dokumentů, build diagramů a Doxygen</li>
+<li><b>docs/README.md</b> — pořadí čtení, inventář, build diagramů a Doxygen</li>
 <li><b>docs/diagrams/README.md</b> — SVG/Mermaid: boot, fronty, mutexy, <b>smyčky tasků</b>, šachová logika, Flutter vrstvy</li>
 <li><b>docs/flutter/README.md</b> — Flutter klient, BLE/HTTP, struktura <code>lib/</code></li>
+<li><b>docs/ota_architecture.md</b> — OTA aktualizace firmwaru desky (HTTPS / HTTP / BLE), REST + Flutter vrstvy. <em>Plán: později OTAvo místo vlastní OTA přímo ve FW.</em></li>
 <li><b>docs/reference/README.md</b> — index referenčních textů:<ul>
 <li>KOMUNIKACE_MEZI_TASKY.md — detail komunikace tasků (doplněk k diagramům)</li>
 <li>coordinates_system.md — souřadnice a notace</li>

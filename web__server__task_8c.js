@@ -28,6 +28,7 @@ var web__server__task_8c =
     [ "WIFI_STATUS_JSON_MAX", "web__server__task_8c.html#ad9dabb68e44bc590e97031ece04d02a4", null ],
     [ "__wrap_esp_log_write", "web__server__task_8c.html#ac16f4afbf3b99fa63b395c4f03e720d8", null ],
     [ "__wrap_esp_log_writev", "web__server__task_8c.html#a9aed8f59f75d856e2916530518eff586", null ],
+    [ "ble_dispatch_ack_needs_encryption", "web__server__task_8c.html#a965fefb27ff5e85d0c386f71669feff5", null ],
     [ "build_snapshot_json", "web__server__task_8c.html#a44577513339171532848fb788a4c2640", null ],
     [ "build_snapshot_json_to_buffer", "web__server__task_8c.html#ac4f360da1651ff96a00477807265054d", null ],
     [ "czechmate_ensure_snapshot_notify_queue", "web__server__task_8c.html#a11d70975281d85f2492ad3e8590b493e", null ],
