@@ -2744,6 +2744,27 @@ bool web_server_ble_dispatch_custom_ack_was_sent(void) {
   return s_ble_dispatch_custom_ack_sent;
 }
 
+/** Jasná zpětná vazba pro klienta — odliší od web locku (stejný ESP_ERR_INVALID_STATE). */
+static void ble_dispatch_ack_needs_encryption(const char *cmd_literal) {
+  char out[288];
+  int n =
+      snprintf(out, sizeof(out),
+               "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"needs_encryption\","
+               "\"cmd\":\"%s\","
+               "\"message\":\"Vyžadováno šifrované BLE spojení (dokončete párování).\","
+               "\"esp\":%d}",
+               cmd_literal, (int)ESP_ERR_INVALID_STATE);
+  if (n < 0 || (size_t)n >= sizeof(out)) {
+    ble_task_notify_cmd_ack_json(
+        "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"needs_encryption\","
+        "\"cmd\":\"unknown\",\"message\":\"Vyžadováno šifrované BLE spojení.\","
+        "\"esp\":259}");
+  } else {
+    ble_task_notify_cmd_ack_json(out);
+  }
+  s_ble_dispatch_custom_ack_sent = true;
+}
+
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   s_ble_dispatch_custom_ack_sent = false;
   if (json == NULL || json_len == 0) {
@@ -2767,6 +2788,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "ota_start") == 0) {
     if (!ble_task_conn_is_encrypted()) {
       ESP_LOGW(TAG, "BLE ota_start: encrypted link required");
+      ble_dispatch_ack_needs_encryption("ota_start");
       return ESP_ERR_INVALID_STATE;
     }
     esp_err_t ota_err = ota_update_ble_try_dispatch(buf);
@@ -2793,6 +2815,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "ota_ble_begin") == 0) {
     if (!ble_task_conn_is_encrypted()) {
       ESP_LOGW(TAG, "BLE ota_ble_begin: encrypted link required");
+      ble_dispatch_ack_needs_encryption("ota_ble_begin");
       return ESP_ERR_INVALID_STATE;
     }
     esp_err_t e = ota_update_ble_begin_from_json(buf);
@@ -2822,6 +2845,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "ota_ble_abort") == 0) {
     if (!ble_task_conn_is_encrypted()) {
       ESP_LOGW(TAG, "BLE ota_ble_abort: encrypted link required");
+      ble_dispatch_ack_needs_encryption("ota_ble_abort");
       return ESP_ERR_INVALID_STATE;
     }
     esp_err_t e = ota_update_ble_abort();
@@ -2834,6 +2858,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "ota_ble_status") == 0) {
     if (!ble_task_conn_is_encrypted()) {
       ESP_LOGW(TAG, "BLE ota_ble_status: encrypted link required");
+      ble_dispatch_ack_needs_encryption("ota_ble_status");
       return ESP_ERR_INVALID_STATE;
     }
     char status_ack[400];
@@ -2849,6 +2874,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "factory_reset") == 0) {
     if (!ble_task_conn_is_encrypted()) {
       ESP_LOGW(TAG, "BLE factory_reset: encrypted link required");
+      ble_dispatch_ack_needs_encryption("factory_reset");
       return ESP_ERR_INVALID_STATE;
     }
     if (!json_body_has_factory_confirm(buf)) {
@@ -2861,6 +2887,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   if (strcmp(cmd, "wifi_sta_config") == 0) {
     if (!ble_task_conn_is_encrypted()) {
       ESP_LOGW(TAG, "BLE wifi_sta_config: encrypted link required");
+      ble_dispatch_ack_needs_encryption("wifi_sta_config");
       return ESP_ERR_INVALID_STATE;
     }
     cJSON *root = cJSON_Parse(buf);

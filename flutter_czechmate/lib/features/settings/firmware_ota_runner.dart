@@ -17,11 +17,15 @@ class FirmwareOtaRunner {
   ///
   /// [boardHttpBaseUrlOverride] — např. `http://192.168.4.1` na hotspotu; když chybí,
   /// použije se session/prefs. Musí sedět s `POST /api/system/ota` (transport Wi‑Fi).
+  ///
+  /// [preferHttpOtaStartCommand] — při „telefon hostuje .bin“ vždy `true`: příkaz startu OTA
+  /// pošle přímo HTTP na desku (funguje na AP i když je aktivní BLE transport).
   static Future<String?> execute({
     required WidgetRef ref,
     required String binUrl,
     required void Function(int percent) onProgress,
     String? boardHttpBaseUrlOverride,
+    bool preferHttpOtaStartCommand = false,
   }) async {
     final session = ref.read(boardSessionNotifierProvider);
     final prefs = ref.read(prefsRepositoryProvider);
@@ -60,9 +64,11 @@ class FirmwareOtaRunner {
     await WakelockPlus.enable();
     try {
       try {
-        await ref
-            .read(boardSessionNotifierProvider.notifier)
-            .requestFirmwareOta(binUrl, httpBoardBaseUrl: baseUrl);
+        await ref.read(boardSessionNotifierProvider.notifier).requestFirmwareOta(
+              binUrl,
+              httpBoardBaseUrl: baseUrl,
+              preferHttpOtaStart: preferHttpOtaStartCommand,
+            );
       } on BoardApiException catch (e) {
         if (e.statusCode == 428) {
           return strings.errOtaStaRequiredForHttps;

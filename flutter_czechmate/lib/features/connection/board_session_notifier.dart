@@ -946,14 +946,25 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   ///
   /// [httpBoardBaseUrl] — musí být základ URL desky (`http://192.168.4.1`), stejný jako
   /// pro `fetchBoardFirmwareInfo`; přepíše `wifiBaseUrl` session, pokud je předán.
+  ///
+  /// [preferHttpOtaStart] — `true` při phone-host OTA: start přes HTTP na desku i v BLE režimu
+  /// (telefon je na stejné síti jako HTTP API desky, např. hotspot `192.168.4.x`).
   Future<void> requestFirmwareOta(String firmwareUrl,
-      {String? httpBoardBaseUrl}) async {
+      {String? httpBoardBaseUrl, bool preferHttpOtaStart = false}) async {
     final u = firmwareUrl.trim();
     if (!u.startsWith('https://') && !u.startsWith('http://')) {
       throw StateError(_strings.errOtaHttps);
     }
     if (state.transport == BoardTransport.mock) {
       throw StateError(_strings.errOtaMock);
+    }
+    if (preferHttpOtaStart) {
+      final boardBase = normalizeBoardHttpBaseUrl(httpBoardBaseUrl);
+      if (boardBase == null || boardBase.isEmpty) {
+        throw StateError(_strings.errOtaBoardHttpMissingDetail);
+      }
+      await _api.postBoardOtaStart(boardBase, url: u);
+      return;
     }
     if (state.transport == BoardTransport.wifi) {
       final boardBase = normalizeBoardHttpBaseUrl(httpBoardBaseUrl ?? state.wifiBaseUrl);

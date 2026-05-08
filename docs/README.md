@@ -1,47 +1,48 @@
-# Dokumentace — hlavní rozcestník
+# Dokumentace — rozcestník
 
-Tento soubor je **startovní bod**, pokud chceš projekt pochopit jen z repozitáře (bez lokálních poznámek). Kořenové **[`README.md`](../README.md)** má příběh projektu, hardware, GPIO a dlouhé pasáže; **`docs/`** doplňuje **architekturu**, **komunikaci tasků**, **klienta Flutter** a **nástroje**.
-
----
-
-## Doporučené pořadí čtení
-
-1. **[`README.md`](../README.md)** — účel systému, hardware, tabulka FreeRTOS tasků, odkaz na diagramy.
-2. **`docs/README.md` (tento soubor)** — inventář a kam jít dál.
-3. **[`docs/diagrams/README.md`](diagrams/README.md)** — obrázky: boot, fronty, mutexy, **smyčka každého tasku**, **šachová logika** (`game_is_valid_move`, generování tahů, …).
-4. **[`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md)** — stejné téma jako diagramy, ale **textově do hloubky** (fronty, mutexy, hardware).
-5. **[`docs/flutter/README.md`](flutter/README.md)** — struktura `flutter_czechmate/lib/`, BLE vs HTTP, stavy session.
-6. **[`docs/reference/`](reference/)** — souřadnice, web UI deploy, integrační checklist (viz tabulka níže).
-7. **Doxygen** (`./generate_docs.sh` → `docs/doxygen/html/index.html`) — API z **C** (`grep` v `game_task.c` má limity; Doxygen je hlavní přehled funkcí).
-
-Po změně diagramů ve zdrojích spusť z kořene: `./scripts/render_docs.sh` (SVG + `diagrams_mermaid.html`).
+Kořen **[README.md](../README.md)**: HW, GPIO, přehled projektu. Složka **`docs/`**: architektura, tasky, Flutter, OTA, reference, diagramy.
 
 ---
 
-## Inventář dokumentace v repu
+## Doporučené čtení
+
+1. [README.md](../README.md) — systém, hardware, tabulka tasků
+2. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachová logika
+3. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty a HW podrobněji
+4. [flutter/README.md](flutter/README.md) — struktura klienta, BLE/HTTP
+5. [ota_architecture.md](ota_architecture.md) — OTA firmwaru ESP32 (HTTPS, HTTP z telefonu, BLE)
+6. [reference/](reference/) — souřadnice, web UI, integrační checklist (tabulka níže)
+7. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`
+
+Po úpravě diagramů: `./scripts/render_docs.sh` (SVG, `diagrams_mermaid.html`).
+
+---
+
+## Inventář
 
 | Dokument | Obsah |
 |----------|--------|
-| [`README.md`](../README.md) | Produktový přehled, HW, GPIO, architektura, troubleshooting, odkazy dolů |
-| [`docs/README.md`](README.md) | Tento rozcestník |
-| [`docs/diagrams/README.md`](diagrams/README.md) | Všechny Mermaid/SVG diagramy firmware + Flutter vrstvy + šachové pipeline |
-| [`docs/diagrams/diagrams_mermaid.html`](diagrams/diagrams_mermaid.html) | Sekvenční diagramy (vygeneruje `render_docs.sh`) |
-| [`docs/diagrams/mermaid_diagrams.txt`](diagrams/mermaid_diagrams.txt) | Zdroj pro HTML výše |
-| Diagramy speciálních tahů, recovery, guard, undo | [`docs/diagrams/sources/chess_flow_*.mmd`](diagrams/sources/) → SVG po `./scripts/render_docs.sh` |
-| [`docs/flutter/README.md`](flutter/README.md) | Flutter klient |
-| [`docs/reference/KOMUNIKACE_MEZI_TASKY.md`](reference/KOMUNIKACE_MEZI_TASKY.md) | Komunikace tasků a HW (dlouhý text) |
-| [`docs/reference/coordinates_system.md`](reference/coordinates_system.md) | Notace a1–h8 ↔ `row`/`col`, LED indexy |
-| [`docs/reference/WEB_UI_DEPLOY.md`](reference/WEB_UI_DEPLOY.md) | Embed JS do firmware, build, Stockfish nápověda na webu |
-| [`docs/reference/CZECHMATE_INTEGRATION_CHECKLIST.md`](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE, snapshot — checklist pro klienty |
-| [`docs/reference/BLENDER_VIDEO_BRIEF.md`](reference/BLENDER_VIDEO_BRIEF.md) | Brief pro marketingová videa z Blenderu (hero, detail desky, UI mock, volitelný teaser) |
-| [`flutter_czechmate/README.md`](../flutter_czechmate/README.md) | Rychlý start Dart aplikace + odkaz sem |
-| [`docs/diagrams/DIAGRAM_BACKLOG.local.example.md`](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona pro lokální backlog diagramů |
+| [README.md](../README.md) | Projekt, HW, troubleshooting |
+| [docs/README.md](README.md) | Tento rozcestník |
+| [diagrams/README.md](diagrams/README.md) | Mermaid/SVG diagramy |
+| [diagrams/diagrams_mermaid.html](diagrams/diagrams_mermaid.html) | Sekvence (generuje `render_docs.sh`) |
+| [diagrams/mermaid_diagrams.txt](diagrams/mermaid_diagrams.txt) | Zdroj pro HTML |
+| [diagrams/sources/chess_flow_*.mmd](diagrams/sources/) | Šablony tahů, recovery, … |
+| [flutter/README.md](flutter/README.md) | Flutter klient |
+| [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) | Komunikace tasků |
+| [reference/coordinates_system.md](reference/coordinates_system.md) | Notace ↔ row/col, LED |
+| [reference/WEB_UI_DEPLOY.md](reference/WEB_UI_DEPLOY.md) | Embed web UI, build |
+| [reference/CZECHMATE_INTEGRATION_CHECKLIST.md](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE pro klienty |
+| [ota_architecture.md](ota_architecture.md) | OTA: kanály, API, Flutter (roadmap: OTAvo místo vlastní OTA ve FW) |
+| [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Brief pro videa |
+| [flutter_czechmate/README.md](../flutter_czechmate/README.md) | Spuštění aplikace |
+| [diagrams/DIAGRAM_BACKLOG.local.example.md](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona backlogu diagramů |
 
-Lokální poznámky mimo git často v `context/` nebo `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` — nejsou nutné k pochopení základu.
+Lokální drafty diagramů: `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` (gitignore). OTA logy a poznámky z testů: `context/ota/`.
 
 ---
 
-## Struktura (zjednodušeně)
+## Struktura repa (dokumentace)
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'lineColor':'#94a3b8','clusterBkg':'#0f172a','clusterBorder':'#334155','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
@@ -70,29 +71,31 @@ flowchart TB
 
 | Cesta | Obsah |
 |-------|--------|
-| `main/` | `main.c` — boot, fronty, start tasků |
-| `components/` | FreeRTOS tasky: `game_task`, `led_task`, `matrix_task`, `uart_task`, `web_server_task`, `ble_task`, … |
-| `flutter_czechmate/lib/` | Dart UI, Riverpod, služby BLE/API |
-| `docs/diagrams/` | Grafy (`sources/*.mmd`), SVG, sekvenční HTML |
-| `docs/reference/` | Delší texty (komunikace, web UI, souřadnice, checklist) |
-| `docs/flutter/` | Shrnutí Flutter appky + odkazy na diagramy |
-| `scripts/` | `render_docs.sh` apod. |
-| `Doxyfile` + `generate_docs.sh` | API dokumentace z C zdrojáků |
+| `main/` | Boot, fronty, start tasků |
+| `components/` | `game_task`, `led_task`, `matrix_task`, `uart_task`, `web_server_task`, `ble_task`, … |
+| `flutter_czechmate/lib/` | UI, Riverpod, BLE/API |
+| `docs/diagrams/` | `sources/*.mmd`, SVG, sekvenční HTML |
+| `docs/reference/` | Delší texty |
+| `docs/ota_architecture.md` | OTA ESP32 ↔ Flutter |
+| `docs/flutter/` | Přehled aplikace |
+| `context/ota/` | OTA logy, E2E poznámky (volitelné) |
+| `scripts/` | `render_docs.sh`, … |
+| `generate_docs.sh`, `Doxyfile` | C API HTML |
 
 ---
 
-## Co z dokumentace „nejde“ nahradit čtením řádek po řádku
+## Limity docs vs. zdroják
 
-- **`components/game_task/game_task.c`** je velký modul — diagramy v [`docs/diagrams/README.md`](diagrams/README.md) popisují **hlavní toky**; úplný výčet funkcí a komentářů je v **Doxygen**.
-- **Chování v čase** (série tahů, edge cases) je kombinace **diagramů**, **KOMUNIKACE_MEZI_TASKY**, **logů** a **testů** na zařízení.
+- `game_task.c` je velký — hlavní toky jsou v diagramech a Doxygenu; úplný inventář funkcí z HTML Doxygen.
+- Časové chování partie: diagramy + KOMUNIKACE + logy na desce + testy.
 
 ---
 
-## Build (pro orientaci)
+## Build
 
-| Co | Příkaz |
-|----|--------|
-| Firmware | z kořene: `idf.py build` (ESP-IDF prostředí) |
+| | Příkaz |
+|---|--------|
+| Firmware | `idf.py build` (ESP-IDF env) |
 | Flutter | `cd flutter_czechmate && flutter pub get && flutter run` |
-| Diagramy SVG | z kořene: `./scripts/render_docs.sh` (volitelně Node/npx pro Mermaid CLI) |
-| Doxygen HTML | `./generate_docs.sh` |
+| Diagramy | `./scripts/render_docs.sh` |
+| Doxygen | `./generate_docs.sh` |

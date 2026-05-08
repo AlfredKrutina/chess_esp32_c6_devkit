@@ -22,6 +22,9 @@
 # Volitelné osobní plány mimo docs/planning (např. export z nástroje)
 **/*.local.plan.md
 
+# Osobní learning plán (kořen projektu)
+/LEARNING_PLAN.md
+
 
 # =============================================================================
 # ESP-IDF / toolchain

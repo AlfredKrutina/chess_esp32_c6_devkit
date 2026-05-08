@@ -52,6 +52,8 @@ CONFIG_BT_NIMBLE_MSYS_2_BLOCK_COUNT=32
 # Host task: default 4096 nestačí — GATT read snapshotu volá build_snapshot (clock_json ~1 KiB na stacku)
 # + NimBLE/HS + coexistence → Guru Meditation „Stack protection fault“ v nimble_host (viz log).
 CONFIG_BT_NIMBLE_HOST_TASK_STACK_SIZE=8192
+# Bonding klíče do NVS — po restartu desky zůstane párování (iOS/Android); vyžaduje ble_store_config_init().
+CONFIG_BT_NIMBLE_NVS_PERSIST=y
 # INFO loguje každý GATT notify (snapshot chunky) — zaplaví sériovku; WARNING stačí na chyby/varování.
 # CONFIG_BT_NIMBLE_LOG_LEVEL_INFO is not set
 CONFIG_BT_NIMBLE_LOG_LEVEL_WARNING=y

@@ -78,6 +78,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       final prefsAfter = ref.read(prefsRepositoryProvider);
       _manifestCtrl.text = prefsAfter.firmwareManifestUrlEffective;
       setState(() => _ctrlReady = true);
+      await _syncFirmwareCacheWithPrefs();
       final guess = await PhoneWifiInfo.tryCurrentWifiSsid();
       if (mounted && guess != null && _wifiSsidCtrl.text.isEmpty) {
         _wifiSsidCtrl.text = guess;
@@ -112,6 +113,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         _pendingBleBackgroundNotice = true;
         break;
       case AppLifecycleState.resumed:
+        unawaited(_syncFirmwareCacheWithPrefs());
         if (_pendingBleBackgroundNotice && mounted) {
           _pendingBleBackgroundNotice = false;
           ScaffoldMessenger.of(context).showSnackBar(
@@ -176,6 +178,61 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     } catch (_) {}
   }
 
+  Future<void> _syncFirmwareCacheWithPrefs() async {
+    final prefs = ref.read(prefsRepositoryProvider);
+    final path = prefs.firmwareCachedBinPath;
+    final ver = prefs.firmwareCachedVersion;
+    if (path == null || ver == null || path.isEmpty || ver.isEmpty) {
+      if (mounted && (_cachedOtaFile != null || _cachedOtaVersion != null)) {
+        setState(() {
+          _cachedOtaFile = null;
+          _cachedOtaVersion = null;
+        });
+      }
+      return;
+    }
+    final f = File(path);
+    if (!await f.exists()) {
+      await prefs.clearFirmwareCachedBin();
+      if (mounted) {
+        setState(() {
+          _cachedOtaFile = null;
+          _cachedOtaVersion = null;
+        });
+      }
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    if (_cachedOtaFile?.path != path || _cachedOtaVersion != ver) {
+      setState(() {
+        _cachedOtaFile = f;
+        _cachedOtaVersion = ver;
+      });
+    }
+  }
+
+  Future<void> _clearPersistedFirmwareCache() async {
+    final prefs = ref.read(prefsRepositoryProvider);
+    final path = prefs.firmwareCachedBinPath;
+    if (path != null && path.isNotEmpty) {
+      try {
+        final f = File(path);
+        if (await f.exists()) {
+          await f.delete();
+        }
+      } catch (_) {}
+    }
+    await prefs.clearFirmwareCachedBin();
+    if (mounted) {
+      setState(() {
+        _cachedOtaFile = null;
+        _cachedOtaVersion = null;
+      });
+    }
+  }
+
   Future<void> _saveManifestUrl() async {
     await ref
         .read(prefsRepositoryProvider)
@@ -210,10 +267,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         snap.manifest != null &&
         _cachedOtaVersion != null &&
         snap.manifest!.version != _cachedOtaVersion) {
-      setState(() {
-        _cachedOtaFile = null;
-        _cachedOtaVersion = null;
-      });
+      await _clearPersistedFirmwareCache();
     }
 
     if (mounted) {
@@ -300,10 +354,14 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       _detail = null;
     });
     try {
-      final f = await FirmwarePhoneHostOta.downloadBinToTemp(
+      final f = await FirmwarePhoneHostOta.downloadBinForOta(
         httpsBinUrl: meta.url,
         version: meta.version,
       );
+      await ref.read(prefsRepositoryProvider).setFirmwareCachedBin(
+            absolutePath: f.path,
+            version: meta.version,
+          );
       if (!mounted) {
         return;
       }
@@ -424,6 +482,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         ref: ref,
         binUrl: binding.otaUrl,
         boardHttpBaseUrlOverride: baseUrl,
+        preferHttpOtaStartCommand: true,
         onProgress: (p) {
           if (mounted) {
             setState(() => _otaPercent = p);

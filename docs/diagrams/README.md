@@ -1,12 +1,12 @@
 # Diagramy (firmware)
 
-**Rozcestník celé dokumentace:** [`docs/README.md`](../README.md).
+[`docs/README.md`](../README.md) — hlavní rozcestník.
 
-Diagramy jsou **vizuální vrstva**: boot, fronty, mutexy, smyčky tasků, šachové pipeline, Flutter. Stejná témata popsaná **textově** (včetně výjimek a poznámek k HW): [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md) a [`reference/README.md`](../reference/README.md). Konkrétní **C funkce** prohledáš nejlíp přes **Doxygen** (`./generate_docs.sh` → `docs/doxygen/html/`).
+Boot, fronty, mutexy, smyčky tasků, šachové pipeline, Flutter. Textová varianta + HW poznámky: [`reference/KOMUNIKACE_MEZI_TASKY.md`](../reference/KOMUNIKACE_MEZI_TASKY.md). C API: `./generate_docs.sh` → `docs/doxygen/html/`.
 
-Čísla front a stacků ber z [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h) a [`main/main.c`](../../main/main.c).
+Konstanty front/stacků: [`freertos_chess.h`](../../components/freertos_chess/include/freertos_chess.h), pořadí bootu/tasků: [`main/main.c`](../../main/main.c).
 
-**Nápady na další grafy** si piš lokálně do souboru **`LOCAL_DIAGRAM_BACKLOG.md`** — je v `.gitignore`, do remote neleze. Start šablony: [`DIAGRAM_BACKLOG.local.example.md`](DIAGRAM_BACKLOG.local.example.md).
+Lokální backlog nových grafů: `LOCAL_DIAGRAM_BACKLOG.md` (gitignore), vzor [DIAGRAM_BACKLOG.local.example.md](DIAGRAM_BACKLOG.local.example.md).
 
 SVG z této složky: `./scripts/render_docs.sh` nad [`sources/*.mmd`](sources/).
 

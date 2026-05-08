@@ -1,10 +1,12 @@
-# Reference texty
+# Reference (`docs/reference/`)
 
-Krátký index složky `docs/reference/`. Hlavní rozcestník celého repa: **[`docs/README.md`](../README.md)**.
+[Rozcestník docs](../README.md).
 
-| Soubor | K čemu |
+| Soubor | Obsah |
 |--------|--------|
-| [`KOMUNIKACE_MEZI_TASKY.md`](KOMUNIKACE_MEZI_TASKY.md) | Fronty, mutexy, hardware ↔ tasky (detail k [`docs/diagrams/README.md`](../diagrams/README.md)) |
-| [`coordinates_system.md`](coordinates_system.md) | Šachová notace ↔ `row`/`col`, souvislost s LED |
-| [`WEB_UI_DEPLOY.md`](WEB_UI_DEPLOY.md) | Vložení `chess_app.js` do firmware, build, web nápověda |
-| [`CZECHMATE_INTEGRATION_CHECKLIST.md`](CZECHMATE_INTEGRATION_CHECKLIST.md) | API checklist pro klienty (REST, WS, BLE) |
+| [KOMUNIKACE_MEZI_TASKY.md](KOMUNIKACE_MEZI_TASKY.md) | Fronty, mutexy, HW ↔ tasky |
+| [coordinates_system.md](coordinates_system.md) | Notace ↔ row/col, LED |
+| [WEB_UI_DEPLOY.md](WEB_UI_DEPLOY.md) | `chess_app.js` ve FW, build, web nápověda |
+| [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE, snapshot pro klienty |
+| [BLENDER_VIDEO_BRIEF.md](BLENDER_VIDEO_BRIEF.md) | Brief pro videa |
+| [../ota_architecture.md](../ota_architecture.md) | OTA firmwaru ESP32 — `/api/system/firmware`, `/api/system/ota`, BLE stream |

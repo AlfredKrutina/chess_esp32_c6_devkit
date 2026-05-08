@@ -6,7 +6,7 @@
 
 *Šachmat, udělaný v Česku*
 
-**Dokumentace v repu:** Jednotný rozcestník — **[`docs/README.md`](docs/README.md)** (doporučené pořadí čtení, inventář všech textů a diagramů, limity vs zdroják).
+**Dokumentace:** **[`docs/README.md`](docs/README.md)** — rozcestník (diagramy, Flutter, OTA, reference, Doxygen).
 
 ---
 
@@ -496,9 +496,10 @@ Matěj řešil především hardware problémy:
 
 ## Dokumentace
 
-- **[docs/README.md](docs/README.md)** — **start zde**: pořadí čtení, tabulka všech dokumentů, build diagramů a Doxygen
+- **[docs/README.md](docs/README.md)** — pořadí čtení, inventář, build diagramů a Doxygen
 - **[docs/diagrams/README.md](docs/diagrams/README.md)** — SVG/Mermaid: boot, fronty, mutexy, **smyčky tasků**, šachová logika, Flutter vrstvy
 - **[docs/flutter/README.md](docs/flutter/README.md)** — Flutter klient, BLE/HTTP, struktura `lib/`
+- **[docs/ota_architecture.md](docs/ota_architecture.md)** — OTA aktualizace firmwaru desky (HTTPS / HTTP / BLE), REST + Flutter vrstvy. *Plán: později OTAvo místo vlastní OTA přímo ve FW.*
 - **[docs/reference/README.md](docs/reference/README.md)** — index referenčních textů:
   - [KOMUNIKACE_MEZI_TASKY.md](docs/reference/KOMUNIKACE_MEZI_TASKY.md) — detail komunikace tasků (doplněk k diagramům)
   - [coordinates_system.md](docs/reference/coordinates_system.md) — souřadnice a notace

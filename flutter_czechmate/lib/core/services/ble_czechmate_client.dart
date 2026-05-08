@@ -460,12 +460,17 @@ class BleCzechmateClient {
       await Future<void>.delayed(const Duration(milliseconds: 280));
     }
     final mtu = d.mtuNow;
-    final int rawPayloadMax =
-        (mtu >= 40 ? mtu - 15 : 20).clamp(20, 500).toInt();
-    /* iOS: menší chunky + delší mezery → méně CBATTError 8 (prepareQueueFull). */
+    /*
+     * OB paket = 6 B hlavička + payload; jeden GATT write musí vejít do jedné ATT hodnoty
+     * délky ≤ (mtu − 3). Jinak iOS dělí Prepare Write → fronta (apple-code 8, „authorization“).
+     * Požadavek: 6 + payload ≤ mtu − 3  ⇒  payload ≤ mtu − 9; −1 B rezerva ⇒ mtu − 10.
+     */
+    final int singlePduPayload = mtu >= 27
+        ? (mtu - 10).clamp(12, 400).toInt()
+        : (mtu - 9).clamp(8, 400).toInt();
     final int payloadMax = defaultTargetPlatform == TargetPlatform.iOS
-        ? rawPayloadMax.clamp(20, 182).toInt()
-        : rawPayloadMax;
+        ? singlePduPayload.clamp(12, 236).toInt()
+        : singlePduPayload.clamp(12, 500).toInt();
     final chunkTotal = (len + payloadMax - 1) ~/ payloadMax;
     if (chunkTotal > 65535) {
       throw StateError('Firmware too large for BLE chunk protocol');
@@ -473,7 +478,7 @@ class BleCzechmateClient {
 
     const resumeTimeout = Duration(hours: 24);
     var transferBegun = false;
-    final chunkGapMs = defaultTargetPlatform == TargetPlatform.iOS ? 48 : 0;
+    final chunkGapMs = defaultTargetPlatform == TargetPlatform.iOS ? 55 : 0;
 
     Future<void> negotiateMtuLight() async {
       try {
@@ -523,7 +528,13 @@ class BleCzechmateClient {
                 throw StateError('BLE cmd characteristic not ready');
               }
               try {
-                await wc.write(pkt, withoutResponse: false);
+                await wc.write(
+                  pkt,
+                  withoutResponse: false,
+                  /* JednopDU zápisy — bez dlouhého Prepare Write na iOS. */
+                  allowLongWrite: false,
+                  timeout: defaultTargetPlatform == TargetPlatform.iOS ? 45 : 15,
+                );
                 break;
               } catch (e) {
                 final fbp = e is FlutterBluePlusException ? e : null;

@@ -2,7 +2,7 @@
 
 **Rozcestník dokumentace:** [docs/README.md](../README.md).
 
-**Diagramy (Mermaid):** [docs/diagrams/README.md](../diagrams/README.md) — přehledové grafy; tento soubor je detailní rozbor textem.
+**Diagramy:** [docs/diagrams/README.md](../diagrams/README.md). Níže je stejné téma podrobně textem.
 
 Konstanty velikostí front a stacků: `components/freertos_chess/include/freertos_chess.h`. Pořadí a vytváření tasků: `main/main.c` (`animation_task` se **nevytváří**; BLE přes `ble_task_init()` / NimBLE host task).
 

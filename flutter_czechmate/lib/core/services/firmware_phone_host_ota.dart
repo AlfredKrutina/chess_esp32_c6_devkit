@@ -9,7 +9,8 @@ class FirmwarePhoneHostOta {
 
   static const String _servePath = '/czechmate_ota.bin';
 
-  static Future<File> downloadBinToTemp({
+  /// Trvalé uložení (ApplicationSupport) — přežije odpojení desky i pozastavení aplikace.
+  static Future<File> downloadBinForOta({
     required String httpsBinUrl,
     required String version,
   }) async {
@@ -17,12 +18,23 @@ class FirmwarePhoneHostOta {
     if (res.statusCode != 200) {
       throw StateError('HTTP ${res.statusCode}');
     }
-    final dir = await getTemporaryDirectory();
+    final dir = await getApplicationSupportDirectory();
+    final firmwareDir = Directory('${dir.path}/firmware_cache');
+    if (!await firmwareDir.exists()) {
+      await firmwareDir.create(recursive: true);
+    }
     final safe = version.replaceAll(RegExp(r'[^0-9a-zA-Z._-]'), '_');
-    final f = File('${dir.path}/czechmate_ota_$safe.bin');
+    final f = File('${firmwareDir.path}/czechmate_ota_$safe.bin');
     await f.writeAsBytes(res.bodyBytes, flush: true);
     return f;
   }
+
+  @Deprecated('Use downloadBinForOta — temp dir may be cleared by the OS.')
+  static Future<File> downloadBinToTemp({
+    required String httpsBinUrl,
+    required String version,
+  }) =>
+      downloadBinForOta(httpsBinUrl: httpsBinUrl, version: version);
 
   /// Telefon na hotspotu desky typicky dostane 192.168.4.x.
   static Future<String?> ipv4OnBoardApSubnet() async {

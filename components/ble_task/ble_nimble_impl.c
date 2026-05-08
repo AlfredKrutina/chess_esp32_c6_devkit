@@ -24,11 +24,15 @@
 #include "nimble/nimble_port_freertos.h"
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
+
+/** NimBLE store/config — v ESP-IDF příkladech (bleprph) bez prototypu v public hlavičce. */
+void ble_store_config_init(void);
 #include "esp_task_wdt.h"
 #include "game_state_notify.h"
 #include "ota_update.h"
 #include "web_server_task.h"
 #include <assert.h>
+#include <inttypes.h>
 #include <string.h>
 
 #if CONFIG_ESP_COEX_ENABLED
@@ -82,6 +86,13 @@ static uint16_t g_cmd_ack_val_handle;
 static uint16_t s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
 static bool s_net_notify_enabled = false;
 static bool s_cmd_ack_notify_enabled = false;
+
+#if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+/** Odložené opakování SMP po CONNECT — iOS někdy nereaguje na první security request. */
+static struct ble_npl_callout s_sec_retry_co;
+static bool s_sec_retry_co_ready;
+static uint8_t s_sec_deferred_attempts;
+#endif
 
 /** Periodicky ověřit GAP advertising, když není žádný centrál připojený. */
 static esp_timer_handle_t s_adv_watchdog_timer;
@@ -556,6 +567,37 @@ static void czechmate_start_adv_watchdog_timer(void) {
            "BLE spojení = žádný „pár“/centrál)");
 }
 
+#if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+static void czechmate_security_retry_cb(struct ble_npl_event *ev) {
+  (void)ev;
+  if (!s_sec_retry_co_ready || s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
+    return;
+  }
+  if (ble_task_conn_is_encrypted()) {
+    ESP_LOGI(TAG, "[STAGING] SMP: šifrování OK (po odloženém pokusu)");
+    s_sec_deferred_attempts = 0;
+    return;
+  }
+  int rc = ble_gap_security_initiate(s_conn_handle);
+  ESP_LOGI(TAG,
+           "[STAGING] SMP odložený pokus %u: ble_gap_security_initiate rc=%d",
+           (unsigned)(s_sec_deferred_attempts + 1), rc);
+  s_sec_deferred_attempts++;
+  if (s_sec_deferred_attempts < 6 && !ble_task_conn_is_encrypted()) {
+    ble_npl_error_t e = ble_npl_callout_reset(
+        &s_sec_retry_co, ble_npl_time_ms_to_ticks32(1200));
+    if (e != BLE_NPL_OK) {
+      ESP_LOGW(TAG, "SMP callout_reset rc=%d", (int)e);
+    }
+  } else if (!ble_task_conn_is_encrypted()) {
+    ESP_LOGW(TAG,
+             "[STAGING] SMP: stále bez šifrování po %u odložených pokusech",
+             (unsigned)s_sec_deferred_attempts);
+    s_sec_deferred_attempts = 0;
+  }
+}
+#endif
+
 static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
   (void)arg;
   ESP_LOGD(TAG, "[STAGING] GAP event type=%d", (int)event->type);
@@ -583,11 +625,23 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
       /* iOS: dlouhé ATT write (OTA chunky OB) často vyžadují aktivní link encryption
        * (CBATTErrorInsufficientEncryption = 15). Zahájíme SMP hned po CONNECT. */
       {
+        s_sec_deferred_attempts = 0;
+        if (s_sec_retry_co_ready) {
+          ble_npl_callout_stop(&s_sec_retry_co);
+        }
         int src = ble_gap_security_initiate(event->connect.conn_handle);
+        ESP_LOGI(TAG, "[STAGING] ble_gap_security_initiate(on_connect) rc=%d", src);
         if (src != 0) {
           ESP_LOGW(TAG,
                    "ble_gap_security_initiate rc=%d — bez šifrování mohou selhat velké zápisy",
                    src);
+        }
+        if (s_sec_retry_co_ready && !ble_task_conn_is_encrypted()) {
+          ble_npl_error_t ce = ble_npl_callout_reset(
+              &s_sec_retry_co, ble_npl_time_ms_to_ticks32(450));
+          if (ce != BLE_NPL_OK) {
+            ESP_LOGW(TAG, "SMP první odložení callout_reset rc=%d", (int)ce);
+          }
         }
       }
 #endif
@@ -602,6 +656,29 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
              "GAP enc_change status=%d handle=%u",
              (int)event->enc_change.status,
              (unsigned)event->enc_change.conn_handle);
+    if (event->enc_change.status == 0 &&
+        event->enc_change.conn_handle == s_conn_handle) {
+      struct ble_gap_conn_desc edesc = {0};
+      if (ble_gap_conn_find(s_conn_handle, &edesc) == 0) {
+        ESP_LOGI(TAG,
+                 "[STAGING] po enc_change: encrypted=%u authenticated=%u bonded=%u "
+                 "key_size=%u",
+                 (unsigned)edesc.sec_state.encrypted,
+                 (unsigned)edesc.sec_state.authenticated,
+                 (unsigned)edesc.sec_state.bonded,
+                 (unsigned)edesc.sec_state.key_size);
+        if (edesc.sec_state.encrypted && s_sec_retry_co_ready) {
+          ble_npl_callout_stop(&s_sec_retry_co);
+          s_sec_deferred_attempts = 0;
+        }
+      }
+    }
+    return 0;
+  case BLE_GAP_EVENT_PARING_COMPLETE:
+    ESP_LOGI(TAG,
+             "GAP pairing_complete status=%d handle=%u",
+             (int)event->pairing_complete.status,
+             (unsigned)event->pairing_complete.conn_handle);
     return 0;
   case BLE_GAP_EVENT_REPEAT_PAIRING: {
     struct ble_gap_conn_desc desc;
@@ -612,16 +689,43 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     return BLE_GAP_REPEAT_PAIRING_RETRY;
   }
   case BLE_GAP_EVENT_PASSKEY_ACTION: {
-    struct ble_sm_io io = {.action = event->passkey.params.action};
+    const uint8_t act = event->passkey.params.action;
+    ESP_LOGI(TAG, "[STAGING] PASSKEY_ACTION act=%u numcmp=%" PRIu32,
+             (unsigned)act, (uint32_t)event->passkey.params.numcmp);
+    if (act == BLE_SM_IOACT_NONE) {
+      return 0;
+    }
+    struct ble_sm_io io = {0};
+    io.action = act;
+    switch (act) {
+    case BLE_SM_IOACT_NUMCMP:
+      /* Headless periferie: uživatel ověří hodnotu na telefonu (iOS). */
+      io.numcmp_accept = 1;
+      break;
+    case BLE_SM_IOACT_DISP:
+      io.passkey = event->passkey.params.numcmp;
+      break;
+    case BLE_SM_IOACT_INPUT:
+      io.passkey = event->passkey.params.numcmp;
+      break;
+    default:
+      ESP_LOGW(TAG, "PASSKEY_ACTION act=%u — nepodporováno (např. OOB)", (unsigned)act);
+      return 0;
+    }
     int rc = ble_sm_inject_io(event->passkey.conn_handle, &io);
     if (rc != 0) {
-      ESP_LOGW(TAG, "ble_sm_inject_io action=%u rc=%d",
-               (unsigned)event->passkey.params.action, rc);
+      ESP_LOGW(TAG, "ble_sm_inject_io act=%u rc=%d", (unsigned)act, rc);
     }
     return 0;
   }
 #endif
   case BLE_GAP_EVENT_DISCONNECT:
+#if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+    if (s_sec_retry_co_ready) {
+      ble_npl_callout_stop(&s_sec_retry_co);
+    }
+    s_sec_deferred_attempts = 0;
+#endif
     /* Uvolnit probíhající BLE stream OTA — jinak visí s_ble_ota_rx + s_ota_sem. */
     ota_update_ble_on_disconnect();
     s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
@@ -732,15 +836,33 @@ void ble_nimble_stack_init(void) {
   ESP_LOGD(TAG,
            "[STAGING] ble_nimble_stack_init: nimble_port_init + freertos host");
   ESP_ERROR_CHECK(nimble_port_init());
+  ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+  if (!s_sec_retry_co_ready) {
+    struct ble_npl_eventq *eq = nimble_port_get_dflt_eventq();
+    if (eq != NULL) {
+      int ci = ble_npl_callout_init(&s_sec_retry_co, eq, czechmate_security_retry_cb,
+                                    NULL);
+      if (ci != 0) {
+        ESP_LOGW(TAG, "ble_npl_callout_init(SMP retry) failed rc=%d", ci);
+      } else {
+        s_sec_retry_co_ready = true;
+      }
+    }
+  }
   /* Just Works + bonding — centrál (iOS) pak používá šifrovaný ATT pro dlouhé zápisy. */
   ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_NO_IO;
   ble_hs_cfg.sm_bonding = 1;
   ble_hs_cfg.sm_sc = 1;
   ble_hs_cfg.sm_mitm = 0;
+  /* Bez distribuce ENC klíčů pairing nedokončí šifrování (bleprph / NimBLE Security). */
+  ble_hs_cfg.sm_our_key_dist |= BLE_SM_PAIR_KEY_DIST_ENC;
+  ble_hs_cfg.sm_their_key_dist |= BLE_SM_PAIR_KEY_DIST_ENC;
 #endif
   ble_hs_cfg.sync_cb = ble_on_sync;
   czechmate_gatt_register_before_host_start();
+  ble_store_config_init();
+  ESP_LOGI(TAG, "[STAGING] ble_store_config_init (SMP store callbacks — nutné pro enc/link)");
   nimble_port_freertos_init(ble_host_task);
 }
 

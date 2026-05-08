@@ -77,6 +77,9 @@ class PrefsRepository {
   static const keyFirmwareUpdateReminders = 'czechmate.firmwareUpdateRemindersEnabled';
   /// ISO den `YYYY-MM-DD` — naposledy uživatel ťukl „Teď ne“ u nabídky aktualizace.
   static const keyFirmwareReminderDismissDay = 'czechmate.firmwareReminderDismissDay';
+  /// Absolutní cesta k uloženému `.bin` v ApplicationSupport (`firmware_cache/`).
+  static const keyFirmwareCachedBinPath = 'czechmate.firmwareCachedBinPath';
+  static const keyFirmwareCachedVersion = 'czechmate.firmwareCachedVersion';
   static const keyPuzzleElo = 'czechmate.profile.puzzleElo';
   static const keyProfileDisplayName = 'czechmate.profile.displayName';
   static const keyProfileAvatarSpec = 'czechmate.profile.avatarSpec';
@@ -471,6 +474,23 @@ class PrefsRepository {
     } else {
       await _p.setString(keyFirmwareReminderDismissDay, isoDay);
     }
+  }
+
+  String? get firmwareCachedBinPath => _p.getString(keyFirmwareCachedBinPath);
+
+  String? get firmwareCachedVersion => _p.getString(keyFirmwareCachedVersion);
+
+  Future<void> setFirmwareCachedBin({
+    required String absolutePath,
+    required String version,
+  }) async {
+    await _p.setString(keyFirmwareCachedBinPath, absolutePath);
+    await _p.setString(keyFirmwareCachedVersion, version);
+  }
+
+  Future<void> clearFirmwareCachedBin() async {
+    await _p.remove(keyFirmwareCachedBinPath);
+    await _p.remove(keyFirmwareCachedVersion);
   }
 
   /// Puzzle-only Elo (oddělené od případného online ratingu).
