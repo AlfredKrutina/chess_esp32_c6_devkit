@@ -8,9 +8,9 @@ cmake_minimum_required(VERSION 3.16)
 
 # Project configuration
 set(PROJECT_NAME "esp32_chess_v24")
-# Normální release: 1.1.2. Pro OTA test z aplikace: přeflashuj desku buildem se starší
-# verzí v esp_app_desc — viz CHESS_OTA_TEST_OLD_VER níže (manifest nechte vyšší, např. 1.1.2).
-set(PROJECT_VERSION "1.1.2")
+# Normální release: 1.7.3. Pro OTA test z aplikace: přeflashuj desku buildem se starší
+# verzí v esp_app_desc — CHESS_OTA_TEST_OLD_VER (manifest v aplikaci nechte vyšší než simulovaná deska).
+set(PROJECT_VERSION "1.7.3")
 
 # -DCHESS_OTA_TEST_OLD_VER=ON → PROJECT_VER / API hlásí 1.1.1, zbytek kódu současný (vhodné jen na stole).
 if(DEFINED CHESS_OTA_TEST_OLD_VER AND CHESS_OTA_TEST_OLD_VER)
@@ -71,10 +71,10 @@ if(DEFINED CHESS_OTA_TEST_OLD_VER AND CHESS_OTA_TEST_OLD_VER)
 else()
   add_compile_definitions(
     CHESS_VERSION_MAJOR=1
-    CHESS_VERSION_MINOR=1
-    CHESS_VERSION_PATCH=2
-    CHESS_SYSTEM_VERSION=\"1.1.2\"
-    CHESS_VERSION_STRING=\"v1.1.2\"
+    CHESS_VERSION_MINOR=7
+    CHESS_VERSION_PATCH=3
+    CHESS_SYSTEM_VERSION=\"1.7.3\"
+    CHESS_VERSION_STRING=\"v1.7.3\"
   )
 endif()
 

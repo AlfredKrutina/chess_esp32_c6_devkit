@@ -1,6 +1,8 @@
-# CZECHMATE v2.5
+# CZECHMATE firmware **1.7.3**
 
 Ahoj — tady je **CzechMate**, náš šachový systém: fyzická deska se světly, firmware na ESP32-C6, web v prohlížeči a aplikace ve Flutteru (`flutter_czechmate/`). Nativní Xcode projekt `CZECHMATE/` si držím jen lokálně, v gitu není.
+
+**Verze a hardware:** Aktuální číslo projektu ve firmwaru i v dokumentaci je **`1.7.3`** — běží na prototypu **V1** s **reed switch** maticí (objemnější deska, záznam na [YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** je připravovaná **komerční** deska se **Hall senzory** (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k **V2**. Přehled: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
 
 **📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG jsou i na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** zatím připravujeme. **Krátké intro na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
 
@@ -24,11 +26,11 @@ Projekt vznikal postupně - od jednoduché myšlenky "udělat šachy s LED" až 
 
 ## 📋 Co CzechMate umí (stručně)
 
-Na desce řešíme fyzickou hru: **Reed switch matice** 8×8 hlídá figurky a **73× WS2812B** (64 pole + 9 u tlačítek) dává zpětnou vazbu k tahům. Vedle toho se dá hrát a učit přes **aplikaci** (hlavně **Flutter** v `flutter_czechmate/` — Android / iOS / Mac / desktop), přes **web** v prohlížeči nebo si můžeš hrát s konzolí přes **UART** (typicky na ladění; klidně z toho někdo časem udělá vlastní rozšíření).
+Na prototypu **V1** řešíme fyzickou hru **reed switch** maticí 8×8 (jen obsazeno / volné pole). **V2** přejde na **Hall senzory** s rozlišením typu figurky. **73× WS2812B** (64 pole + 9 u tlačítek) dává zpětnou vazbu k tahům na obou generacích. Vedle toho se dá hrát a učit přes **aplikaci** (hlavně **Flutter** v `flutter_czechmate/` — Android / iOS / Mac / desktop), přes **web** v prohlížeči nebo si můžeš hrát s konzolí přes **UART** (typicky na ladění; klidně z toho někdo časem udělá vlastní rozšíření).
 
 ### 🎯 Hlavní funkce
 
-- **Fyzická šachovnice** — 8×8 Reed matrix, detekce figurek
+- **Fyzická šachovnice** — **V1:** 8×8 reed matrix; **V2:** Hall senzory (typ figurky na poli)
 - **LED** — 64 na šachovnici + 9 u tlačítek
 - **Aplikace** — Flutter (`flutter_czechmate/`) pro Android / iOS / Mac / desktop
 - **Šachová logika** — pravidla včetně rošády, en passant, promoce, šach, mat
@@ -46,7 +48,17 @@ Na desce řešíme fyzickou hru: **Reed switch matice** 8×8 hlídá figurky a *
 
 *realizace HW: Matěj Jager*
 
-### Komponenty
+### Prototyp V1 vs plánovaná V2
+
+| | **V1** (v repu + video) | **V2.0** (komerční směr) |
+|---|-------------------------|---------------------------|
+| Figurky | Reed 8×8 | Hall — typ figurky na poli |
+| Formát | Bulkier dev/prototyp | Skladnější produkt |
+| Firmware | **`1.7.3`** v tomto repu | Stejný ekosystém softwaru; HW vrstva podle integrace |
+
+Detailní tabulka a odkazy: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
+
+### Komponenty (prototyp V1)
 
 Na desce od Matěje reálně sedí mimo jiné:
 
@@ -261,11 +273,11 @@ idf.py menuconfig
 # překlad
 idf.py build
 
-# flash (na Mac/Linux často ttyUSB0 / usbserial — u sebe si doplním správný port)
-idf.py -p /dev/ttyUSB0 flash
+# flash — PORT = sériové zařízení desky (Linux např. /dev/ttyUSB0, macOS často /dev/cu.usbserial-*)
+idf.py -p PORT flash
 
 # sériová konzole
-idf.py -p /dev/ttyUSB0 monitor
+idf.py -p PORT monitor
 ```
 
 ### Menuconfig
@@ -344,7 +356,7 @@ V záložce **Nastavení** řeším mimo jiné:
 - **Výuka** — zbývající nápovědy, průměrná kvalita.
 - **Wi‑Fi** — sken sítí, heslo, uložení do NVS.
 
-### 🤖 Bot a výuka (cca od v2.5)
+### 🤖 Bot a výuka
 
 Na webu máme napojený **Stockfish** (přes chess-api.com):
 
@@ -630,40 +642,21 @@ A: Spousta nápadů je v sekci „Budoucí vylepšení“ — osobně mě láká
 
 ## 📝 Historie verzí
 
-### v2.5.1 / firmware (aktuální stav repa, 2026-04)
-- ✅ **Flutter klient** `flutter_czechmate/` (BLE, HTTP, WebSocket; iOS Live Activities / Wear OS v portu)
-- ✅ **Vypnutý FreeRTOS `animation_task`** — animace přes `led_task` + `unified_animation_manager` / `game_led_animations`
-- ✅ **Menší stacky** u LED/matrix/game/uart oproti starším README tabulkám — hodnoty z `freertos_chess.h`
-- ✅ MQTT / Home Assistant (`ha_light_task`, priorita 3, stack 8KB)
-- ✅ **BLE:** NimBLE přes `ble_task_init()` (host task od ESP-IDF, ne vlastní jméno tasku v tabulce výše)
+### 1.7.3 — aktuální verze projektu (firmware v repu, 2026)
 
-### v2.5.0
-- ✅ **Hra proti Botovi** (Stockfish integrace)
-- ✅ **Chytrá nápověda** a analýza tahů
-- ✅ **Výukový systém** s odměnami
-- ✅ Vylepšené webové rozhraní (nové nastavení, statistiky)
+Jednotné číslo **`1.7.3`** držíme v `CMakeLists.txt`, Doxygenu, hlavičkách zdrojáků a ve Flutter `pubspec.yaml`. Shrnutí funkcí (sloučený stav vývoje):
 
-### v2.4.0
-- ✅ Kompletní šachová logika včetně všech pravidel
-- ✅ Webové rozhraní s real-time aktualizací
-- ✅ LED animace pro všechny stavy hry
-- ✅ FreeRTOS multitasking (počet tasků se měnil; `animation_task` později vypnut)
-- ✅ Time-multiplexing GPIO pinů
-- ✅ Kompletní Doxygen dokumentace
-- ✅ Unified animation manager
-- ✅ Vizuální error systém
+- ✅ Kompletní šachová logika včetně všech pravidel; webové rozhraní s real-time aktualizací
+- ✅ LED animace pro všechny stavy hry; **unified animation manager**; vizuální error systém
+- ✅ FreeRTOS multitasking; **time-multiplexing GPIO** pro **V1** reed matici + tlačítka
+- ✅ **Matrix skenování** (`matrix_task`) pro **V1**; příprava Hall/I2C pro **V2** (`hall_i2c_matrix.h`, STM32 v `firmware/stm32_hall_c031/`)
+- ✅ **Hra proti botovi** (Stockfish), chytrá nápověda, výukový systém s odměnami
+- ✅ **Flutter klient** `flutter_czechmate/` (BLE, HTTP, WebSocket)
+- ✅ **Vypnutý samostatný `animation_task`** — animace v `led_task` přes `unified_animation_manager` / `game_led_animations`
+- ✅ MQTT / Home Assistant (`ha_light_task`)
+- ✅ **BLE:** NimBLE přes `ble_task_init()` (host task od ESP-IDF)
 
-### v2.3.0
-- Základní šachová logika
-- LED osvětlení
-- Matrix skenování
-
-### v2.0.0
-- První funkční verze
-- Základní tahy
-- LED feedback
-
-**Poznámka:** Tady nevidíte každý pokus a slepou uličku — reálně jsem jich měl přes patnáct „velkých“ verzí a commitů bez počtu.
+**Poznámka:** Starší interní označení typu „v2.4 / v2.5“ v historii vývoje už nesleduju paralelně — všechno pod jednou projektovou verzí **1.7.3**. Každý pokus a slepá ulička v gitu samozřejmě zůstává v commitech.
 
 ---
 
@@ -701,7 +694,7 @@ Zodpovídal jsem za celý software stack - od FreeRTOS tasků přes šachovou lo
 
 **Role:** Hardwarová fyzická realizace, testování
 
-Matěj realizoval celý hardware - od Reed Switch matice přes LED zapojení až po time-multiplexing s diodami. Bez jeho pečlivé práce na hardwaru by software neměl na čem běžet. Matěj testoval všechny funkce na fyzickém hardwaru a pomáhal identifikovat problémy s timingem a napájením.
+Matěj realizoval hardware **V1** — Reed Switch matice, LED zapojení a time-multiplexing s diodami; na **V2** (Hall, kompaktnější deska) pracujeme jako na komerčním nástupci. Bez jeho pečlivé práce na hardwaru by software neměl na čem běžet. Matěj testoval všechny funkce na fyzickém hardwaru a pomáhal identifikovat problémy s timingem a napájením.
 
 **Hlavní příspěvky:**
 - Reed Switch matice (8x8 = 64 switchů)
@@ -788,7 +781,8 @@ Když budete mít otázku nebo postřeh k projektu, klidně napište — rád si
 
 ---
 
-CzechMate pořád žije a mění se — aktuálnější technické detaily doplním spíš v [docs/](docs/) než tady do nekonečna.
+Hlubší technické detaily a diagramy jsou v adresáři [docs/](docs/).
 
-**Verze tohoto README:** 2.5.1  
-**Naposledy jsem to upravoval:** 2026-04-30
+**Verze tohoto README:** 1.7.3  
+**Naposledy jsem to upravoval:** 2026-05-06
+ 

@@ -14,6 +14,16 @@ Deploy z CI jde na **`gh-pages`**. Když má Pages nastavené třeba **`main` + 
 
 Co dělám: zkontroluju zdroj Pages (má to být **gh-pages / root**). Když ve zdrojáku úvodní stránky vidím `<meta name="generator" content="Jekyll"`, běžím ze špatného zdroje.
 
+### Lokální náhled `downloads.html` (hero video)
+
+YouTube embed v hero sekci **nefunguje při `file://`** (typicky Error 153). Spusť z této složky HTTP server a otevři URL v prohlížeči:
+
+```bash
+cd gh-pages-ready && ./serve.sh
+```
+
+Pak např. `http://127.0.0.1:8765/downloads.html`. Jiný port: `./serve.sh 9000`.
+
 ## Ruční nasazení (když nechci čekat na Actions)
 
 ```bash
@@ -38,8 +48,8 @@ git checkout main
 ## Co přesně tu v main větvi leží
 
 - **`.nojekyll`** — zkopíruje se do kořene nasazeného webu.
-- **`downloads.html`** — veřejná stránka ke stažení APK/DMG + texty kolem CzechMate.
-- **`landing/`** — `landing.css`, `landing.js`, `assets/` (OG obrázek, placeholdery; větší WebP z Blenderu držím rozumně malé).
+- **`downloads.html`** — veřejná stránka ke stažení APK/DMG + texty kolem CzechMate. **V2** (Hall, komerce) vs **V1** (reed, video, fw **1.7.3**) je vysvětlené přímo na stránce; dotazníky a předobjednávka = **V2**. Sekce **Aplikace**: karty otevírají modal — obsah v `landing/landing.js` (`FEATURE_PAGES`). Tlačítka APK/DMG mají fallback na release; `landing.js` dotáhne z GitHub API `releases/latest` přímé `browser_download_url`.
+- **`landing/`** — `landing.css`, `landing.js`, `assets/` (WebP, SVG, OG obrázek). Specifikace médií a video integrace: **`context/MEDIA_DELIVERABLES.md`**.
 - **`README.md`** — tenhle soubor (spíš pro mě než pro návštěvníka webu).
 
 Žádné megabyte Doxygen HTML sem do gitu netahám — generuje se v CI / lokálně.

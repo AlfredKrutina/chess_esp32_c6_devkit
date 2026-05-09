@@ -10,7 +10,7 @@
  * - Plynule prechody mezi animacemi
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  * 
  * @details

@@ -10,7 +10,7 @@
  * - Jedno tlacitko pro reset cele hry
  *
  * @author Alfred Krutina
- * @version 2.0
+ * @version 1.7.3
  * @date   2025-08-16
  * 
  * @details

@@ -1,4 +1,4 @@
-# Souřadnice na šachovnici — konvence (CZECHMATE v2.5.1)
+# Souřadnice na šachovnici — konvence (CZECHMATE firmware 1.7.3)
 
 > Přesný kód je ve `game_task` (`convert_notation_to_coords` / `convert_coords_to_notation`). Tady jen shrnutí konvence **row/col** ve firmware — standardně **a1 = [0,0]**.
 

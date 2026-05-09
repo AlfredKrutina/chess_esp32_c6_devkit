@@ -9,7 +9,7 @@
  * - RGB optimalizace pro hezke barevne prechody
  *
  * @author Alfred Krutina
- * @version 2.5 - ADVANCED ANIMATIONS
+ * @version 1.7.3
  * @date 2025-09-04
  *
  * @details

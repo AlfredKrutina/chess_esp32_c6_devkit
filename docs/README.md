@@ -2,19 +2,22 @@
 
 Úplný vstup do projektu je v **[README.md](../README.md)** (hardware, GPIO, tabulka tasků, praktické věci). Ve **`docs/`** je hlubší rozpitváno: diagramy, Flutter, OTA, reference kolem integrace.
 
-**Google Formuláře:** [předobjednávka](https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform) · [průzkum zájmu](https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform)
+**Google Formuláře** (zájem o **CzechMate V2**): [předobjednávka](https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform) · [průzkum zájmu](https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform)
+
+**Firmware v repu:** **1.7.3** (prototyp **V1**, reed). **V2** = Hall — viz [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md).
 
 ---
 
 ## Typické pořadí čtení
 
 1. [README.md](../README.md) — velký obrázek.
-2. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
-3. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji.
-4. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
-5. [ota_architecture.md](ota_architecture.md) — jak taháme firmware na desku (HTTPS, HTTP z telefonu, BLE).
-6. [reference/](reference/) — souřadnice, web UI v binárce, checklist pro klienty (viz tabulku níže).
-7. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
+2. [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) — V1 (reed, fw 1.7.3) vs V2 (Hall, komerce).
+3. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
+4. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji (reed V1).
+5. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
+6. [ota_architecture.md](ota_architecture.md) — jak taháme firmware na desku (HTTPS, HTTP z telefonu, BLE).
+7. [reference/](reference/) — souřadnice, web UI v binárce, checklist pro klienty (viz tabulku níže).
+8. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
 
 Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_docs.sh`.
 
@@ -25,6 +28,7 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | Dokument | Účel |
 |----------|----------------|
 | [README.md](../README.md) | Projekt, HW, řešení problémů |
+| [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) | V1 vs V2 (reed vs Hall, fw 1.7.3, předobjednávka) |
 | [docs/README.md](README.md) | Tenhle rozcestník |
 | [diagrams/README.md](diagrams/README.md) | Mermaid / SVG přehled |
 | [diagrams/diagrams_mermaid.html](diagrams/diagrams_mermaid.html) | Sekvence (generuje `render_docs.sh`) |
@@ -37,6 +41,7 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | [reference/CZECHMATE_INTEGRATION_CHECKLIST.md](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE pro klienty |
 | [ota_architecture.md](ota_architecture.md) | OTA: kanály, API, Flutter (dlouhodobě uvažuju OTAvo místo vlastní vrstvy ve FW) |
 | [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Co potřebuju k videím z Blenderu |
+| [reference/WEB_MEDIA_BRIEF.md](reference/WEB_MEDIA_BRIEF.md) | Rozcestník ke specifikaci médií (`context/MEDIA_DELIVERABLES.md`) |
 | [flutter_czechmate/README.md](../flutter_czechmate/README.md) | Spuštění aplikace |
 | [diagrams/DIAGRAM_BACKLOG.local.example.md](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona backlogu diagramů |
 

@@ -9,7 +9,7 @@
  * - Podporu jak UART tak budoucich web server vystupu
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-01-27
  * 
  * @details

@@ -55,12 +55,129 @@ html {
     transition-duration: 0.01ms !important;
   }
 
+  dialog.cz-modal[open],
+  dialog.cz-modal[open].cz-modal--visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  dialog.cz-modal[open]::backdrop,
+  dialog.cz-modal[open].cz-modal--visible::backdrop {
+    opacity: 1 !important;
+  }
+
   .pillar-card:hover,
   .feature-tile:hover,
   .split__media:hover,
   .platform-card:not(.platform-card--soon):hover {
     transform: none;
   }
+}
+
+/* ——— Scroll reveal (Apple-style fade-up; zapíná landing.js přes html.js-scroll-reveal) ——— */
+
+.reveal {
+  transition:
+    opacity 0.9s var(--ease-out),
+    transform 0.9s var(--ease-out);
+}
+
+.reveal-stagger > * {
+  transition:
+    opacity 0.8s var(--ease-out),
+    transform 0.8s var(--ease-out);
+}
+
+html.js-scroll-reveal .reveal:not(.is-visible) {
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0);
+}
+
+html.js-scroll-reveal .reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html.js-scroll-reveal .reveal-stagger:not(.is-visible) > * {
+  opacity: 0;
+  transform: translate3d(0, 1.25rem, 0);
+}
+
+html.js-scroll-reveal .reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(2) {
+  transition-delay: 70ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(3) {
+  transition-delay: 140ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(4) {
+  transition-delay: 210ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(5) {
+  transition-delay: 280ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(6) {
+  transition-delay: 350ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(7) {
+  transition-delay: 420ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(8) {
+  transition-delay: 490ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(9) {
+  transition-delay: 560ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(10) {
+  transition-delay: 630ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(11) {
+  transition-delay: 700ms;
+}
+html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(12) {
+  transition-delay: 770ms;
+}
+
+/* Sekvenční nadpisy v rámci jedné sekce (stejný viewport) */
+html.js-scroll-reveal .reveal.is-visible.reveal--seq-1 {
+  transition-delay: 0.07s;
+}
+html.js-scroll-reveal .reveal.is-visible.reveal--seq-2 {
+  transition-delay: 0.14s;
+}
+html.js-scroll-reveal .reveal.is-visible.reveal--seq-3 {
+  transition-delay: 0.21s;
+}
+
+/* Po reveal animaci musí hover na kartách vyhrát nad `is-visible > * { transform }` */
+html.js-scroll-reveal .reveal-stagger.is-visible > .pillar-card:hover {
+  transform: translateY(-4px);
+}
+
+html.js-scroll-reveal .reveal-stagger.is-visible > .feature-tile:hover {
+  transform: translateY(-2px);
+}
+
+html.js-scroll-reveal .reveal-stagger.is-visible > .split__media:hover {
+  transform: translateY(-2px) scale(1.008);
+  box-shadow:
+    0 28px 72px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(184, 224, 200, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+html.js-scroll-reveal
+  .reveal-stagger.is-visible
+  > .platform-card:not(.platform-card--soon):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
 }
 
 body {
@@ -415,8 +532,8 @@ a.btn--primary:visited {
   font-size: clamp(2.25rem, 5.5vw, 3.85rem);
   font-weight: 700;
   letter-spacing: -0.045em;
-  line-height: 1.06;
-  max-width: 15ch;
+  line-height: 1.12;
+  max-width: min(36rem, 92vw);
   text-wrap: balance;
   color: #f0f7f2;
   text-shadow: 0 2px 28px rgba(0, 0, 0, 0.35);
@@ -439,13 +556,6 @@ a.btn--primary:visited {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 2rem;
-}
-
-.hero__meta {
-  margin-top: 2.5rem;
-  margin-bottom: 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
 .hero__video {
@@ -480,6 +590,21 @@ a.btn--primary:visited {
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.hero__video-fallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #070a09;
+}
+
+.hero__video-fallback__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .hero__video-poster {
@@ -534,22 +659,31 @@ a.btn--primary:visited {
   border: 0;
 }
 
-.hero__video-footer {
-  margin: 0;
-  padding: 0.65rem 1rem 0.85rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  text-align: center;
-  border-top: 1px solid rgba(143, 188, 159, 0.12);
+/* Velký vizuální blok (poster / později video) */
+.section--cinema {
+  padding-top: clamp(2rem, 5vw, 3rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
 }
 
-.hero__video-footer a {
-  font-weight: 600;
-  text-decoration: none;
+.cinema-stage {
+  margin: 2rem 0 0;
 }
 
-.hero__video-footer a:hover {
-  text-decoration: underline;
+.cinema-stage__frame {
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid rgba(143, 188, 159, 0.22);
+  background: #070d0b;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+.cinema-stage__poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* ——— Sections ——— */
@@ -690,6 +824,41 @@ a.btn--primary:visited {
   font-size: 0.95rem;
 }
 
+.pillar-card--interactive {
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pillar-card--interactive:focus {
+  outline: none;
+}
+
+.pillar-card--interactive:focus-visible {
+  outline: 2px solid var(--primary-bright);
+  outline-offset: 3px;
+}
+
+.pillar-card__more {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-bright);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.pillar-card--interactive:hover .pillar-card__more {
+  opacity: 1;
+}
+
 /* Split media */
 
 .split {
@@ -762,22 +931,27 @@ a.btn--primary:visited {
   grid-template-columns: 1fr;
   gap: 1rem;
   margin-top: 2.5rem;
+  align-items: stretch;
 }
 
 @media (min-width: 560px) {
   .features__grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 960px) {
   .features__grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 .feature-tile {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
   padding: 1.35rem 1.25rem 1.35rem 1.35rem;
   border-radius: calc(var(--radius) + 2px);
   border: 1px solid var(--border);
@@ -816,7 +990,9 @@ a.btn--primary:visited {
 
 .feature-tile h3 {
   margin: 0 0 0.4rem;
+  padding-right: 3.25rem;
   font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .feature-tile p {
@@ -833,6 +1009,291 @@ a.btn--primary:visited {
   border: 1px solid rgba(143, 188, 159, 0.15);
 }
 
+.feature-tile--interactive {
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feature-tile--interactive:focus {
+  outline: none;
+}
+
+.feature-tile--interactive:focus-visible {
+  outline: 2px solid var(--primary-bright);
+  outline-offset: 3px;
+}
+
+.feature-tile__more {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-bright);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.feature-tile--interactive:hover .feature-tile__more {
+  opacity: 1;
+}
+
+/* Klikatelný úvod sekce AI kouč — bez druhé „karty“ pod textem (jen kurzor + Více) */
+.section-intro-click {
+  position: relative;
+  margin: 0 0 0.5rem;
+  padding: 0 4.25rem 0 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.section-intro-click:hover {
+  background: transparent;
+  box-shadow: none;
+}
+
+.section-intro-click:focus {
+  outline: none;
+}
+
+.section-intro-click:focus-visible {
+  outline: 2px solid var(--primary-bright);
+  outline-offset: 0.35rem;
+  border-radius: var(--radius);
+}
+
+.section-intro-click .section__label {
+  margin-top: 0;
+}
+
+.section-intro-click__hint {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-bright);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.section-intro-click:hover .section-intro-click__hint {
+  opacity: 1;
+}
+
+/* Animované <dialog> — třída cz-modal + cz-modal--visible (řídí landing.js) */
+
+dialog.cz-modal[open] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.98);
+}
+
+dialog.cz-modal[open].cz-modal--visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    opacity 0.38s var(--ease-out),
+    transform 0.38s var(--ease-out);
+}
+
+dialog.cz-modal[open]::backdrop {
+  opacity: 0;
+}
+
+dialog.cz-modal[open].cz-modal--visible::backdrop {
+  opacity: 1;
+  transition: opacity 0.38s var(--ease-out);
+}
+
+/* Detail funkce — tmavý modal (stejná řeč jako zbytek stránky) */
+
+.feature-detail-modal {
+  max-width: calc(100vw - 1.5rem);
+  width: min(44rem, 100%);
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  margin: auto;
+  border: 1px solid rgba(143, 188, 159, 0.22);
+  border-radius: var(--radius-xl);
+  background: var(--bg-elevated);
+  color: var(--text);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.feature-detail-modal::backdrop {
+  background: rgba(5, 10, 8, 0.65);
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+}
+
+.feature-detail-modal__inner {
+  position: relative;
+  padding: 1.75rem 1.35rem 1.5rem;
+  padding-top: 2.25rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .feature-detail-modal__inner {
+    padding: 2rem 2rem 1.75rem;
+  }
+}
+
+.feature-detail-modal__close {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(46, 74, 62, 0.55);
+  color: var(--text);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s var(--ease-soft);
+}
+
+.feature-detail-modal__close:hover {
+  background: rgba(143, 188, 159, 0.22);
+}
+
+.feature-detail-modal__title {
+  margin: 0 2.75rem 1.25rem 0;
+  font-size: clamp(1.25rem, 3.2vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.feature-detail-modal__intro {
+  margin: -0.35rem 2.75rem 1rem 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.feature-detail-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feature-detail-block {
+  padding: 1.2rem 1.3rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  border: 1px solid rgba(143, 188, 159, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.feature-detail-block__head {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.65rem;
+}
+
+.feature-detail-block__head h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.28;
+  color: var(--text);
+}
+
+.feature-detail-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgba(46, 74, 62, 0.45);
+  color: var(--primary-bright);
+  box-shadow: 0 0 0 1px rgba(143, 188, 159, 0.12);
+}
+
+.feature-detail-icon svg {
+  display: block;
+}
+
+.feature-detail-block__figure {
+  margin: 0 0 0.85rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(10, 16, 14, 0.5);
+  border: 1px solid rgba(143, 188, 159, 0.12);
+}
+
+.feature-detail-block__figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
+.feature-detail-block__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(10, 16, 14, 0.35);
+  border-radius: var(--radius);
+  margin-bottom: 0.85rem;
+  border: 1px solid rgba(143, 188, 159, 0.12);
+}
+
+.feature-detail-block__logo img {
+  max-width: 180px;
+  max-height: 72px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.feature-detail-block__text {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.58;
+  color: var(--text-muted);
+}
+
+.feature-detail-block__text strong {
+  color: var(--text);
+}
+
+.feature-detail-block__text code {
+  font-size: 0.86em;
+  padding: 0.12em 0.4em;
+  border-radius: 4px;
+  background: rgba(15, 26, 22, 0.85);
+  border: 1px solid rgba(143, 188, 159, 0.15);
+  color: var(--primary-bright);
+}
+
 /* Zájem — průzkum zájmu + předobjednávka (odkazy na Google Forms) */
 
 .interest {
@@ -844,16 +1305,20 @@ a.btn--primary:visited {
   display: grid;
   gap: 1.25rem;
   margin-top: 2rem;
+  grid-template-columns: 1fr;
+  align-items: stretch;
 }
 
 @media (min-width: 880px) {
   .interest__grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .interest__card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   padding: clamp(1.35rem, 3vw, 1.75rem);
   border-radius: var(--radius-xl);
   border: 1px solid rgba(143, 188, 159, 0.18);
@@ -865,6 +1330,7 @@ a.btn--primary:visited {
   margin: 0 0 0.5rem;
   font-size: 1.15rem;
   letter-spacing: -0.02em;
+  flex-shrink: 0;
 }
 
 .interest__card-lead {
@@ -872,6 +1338,7 @@ a.btn--primary:visited {
   font-size: 0.92rem;
   color: var(--text-muted);
   line-height: 1.58;
+  flex: 1 1 auto;
 }
 
 .interest__note {
@@ -946,18 +1413,20 @@ a.btn--primary:visited {
   color: var(--primary-bright);
 }
 
+.interest__card > .interest-poll__submit,
+.interest__card > .interest-preorder-btn {
+  margin-top: auto;
+  align-self: stretch;
+  text-align: center;
+}
+
 .interest-poll__submit {
-  margin-top: 0.25rem;
+  box-sizing: border-box;
 }
 
 .interest-preorder-btn {
   width: 100%;
-}
-
-@media (min-width: 880px) {
-  .interest-preorder-btn {
-    width: auto;
-  }
+  box-sizing: border-box;
 }
 
 .preorder-modal {
@@ -972,8 +1441,9 @@ a.btn--primary:visited {
 }
 
 .preorder-modal::backdrop {
-  background: rgba(5, 10, 8, 0.72);
-  backdrop-filter: blur(4px);
+  background: rgba(5, 10, 8, 0.65);
+  backdrop-filter: blur(20px) saturate(1.15);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
 }
 
 .preorder-modal__inner {
@@ -1002,9 +1472,32 @@ a.btn--primary:visited {
 }
 
 .preorder-modal__title {
-  margin: 0 2rem 0.75rem 0;
+  margin: 0 2rem 0.65rem 0;
   font-size: 1.2rem;
   letter-spacing: -0.02em;
+}
+
+.preorder-modal__lead {
+  margin: 0 0 0.85rem;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.preorder-modal__list {
+  margin: 0 0 1.15rem;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.52;
+  color: var(--text-muted);
+}
+
+.preorder-modal__list li {
+  margin: 0.45rem 0;
+}
+
+.preorder-modal__list li::marker {
+  color: var(--primary-bright);
 }
 
 .preorder-modal__text {
@@ -1012,22 +1505,6 @@ a.btn--primary:visited {
   font-size: 0.92rem;
   color: var(--text-muted);
   line-height: 1.55;
-}
-
-.preorder-modal__ota {
-  margin: 0 0 1rem;
-  padding: 0.85rem 1rem;
-  border-radius: var(--radius);
-  font-size: 0.88rem;
-  line-height: 1.55;
-  color: var(--text);
-  background: linear-gradient(135deg, rgba(46, 74, 62, 0.55) 0%, rgba(24, 40, 34, 0.9) 100%);
-  border: 1px solid rgba(184, 224, 200, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-}
-
-.preorder-modal__ota strong {
-  color: var(--primary-bright);
 }
 
 .preorder-modal__cta {

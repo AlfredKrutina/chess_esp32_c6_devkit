@@ -1,6 +1,6 @@
 /**
  * @file web_server_task.h
- * @brief ESP32-C6 Chess System v2.4 - Web Server Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.7.3 - Web Server Task Hlavicka
  *
  * Tato hlavicka definuje rozhrani pro web server task:
  * - Funkce pro ovladani web serveru
@@ -9,7 +9,7 @@
  * - Konfigurace a status funkce
  *
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  *
  * @details

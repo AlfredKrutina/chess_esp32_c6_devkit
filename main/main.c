@@ -4,7 +4,7 @@
  * spoluprace.
  *
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  *
  * @details
@@ -1420,7 +1420,7 @@ void show_boot_animation_and_board(void) {
  * - Ceka 1 sekundu mezi iteracemi
  */
 void app_main(void) {
-  ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v2.4 starting...");
+  ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v1.7.3 starting...");
   ESP_LOGI(TAG, "📅 Build Timestamp: %s %s", __DATE__, __TIME__);
   esp_reset_reason_t rr = esp_reset_reason();
   ESP_LOGI(TAG, "🔁 Reset reason: %d (%s)", (int)rr, reset_reason_to_str(rr));

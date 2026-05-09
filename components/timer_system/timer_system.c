@@ -1,6 +1,6 @@
 /**
  * @file timer_system.c
- * @brief ESP32-C6 Chess System v2.4 - Timer System implementace
+ * @brief ESP32-C6 Chess System v1.7.3 - Timer System implementace
  * 
  * Tato komponenta implementuje casovy system pro sachovou hru:
  * - Presne mereni casu s ESP32 timer API
@@ -10,7 +10,7 @@
  * - NVS persistence nastaveni
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-01-XX
  * 
  * @details

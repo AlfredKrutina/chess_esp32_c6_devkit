@@ -1,6 +1,6 @@
 /**
  * @file button_task.h
- * @brief ESP32-C6 Chess System v2.4 - Button Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.7.3 - Button Task Hlavicka
  * 
  * Tato hlavicka definuje rozhrani pro button task:
  * - Typy a struktury button udalosti
@@ -8,7 +8,7 @@
  * - Funkce pro ovladani a stav tlacitek
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  * 
  * @details

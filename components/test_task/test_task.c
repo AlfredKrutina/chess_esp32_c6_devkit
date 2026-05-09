@@ -1,6 +1,6 @@
 /**
  * @file test_task.c
- * @brief ESP32-C6 Chess System v2.4 - Implementace Test tasku
+ * @brief ESP32-C6 Chess System v1.7.3 - Implementace Test tasku
  * 
  * Tento task poskytuje komplexni testovaci schopnosti systemu:
  * - Testovani hardware komponent
@@ -10,7 +10,7 @@
  * - Reportovani vysledku testu
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  * 
  * @details

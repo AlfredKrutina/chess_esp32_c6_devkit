@@ -7,7 +7,7 @@
  * funkce pro animace.
  * 
  * @author Alfred Krutina
- * @version 2.5.0
+ * @version 1.7.3
  * @date 2025-09-06
  * 
  * @details

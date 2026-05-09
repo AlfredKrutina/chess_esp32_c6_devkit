@@ -1,6 +1,6 @@
 /**
  * @file animation_task.h
- * @brief ESP32-C6 Chess System v2.4 - Hlavicka Animation Tasku
+ * @brief ESP32-C6 Chess System v1.7.3 - Hlavicka Animation Tasku
  * 
  * Tato hlavicka definuje rozhrani pro animation task:
  * - Typy animaci a struktury
@@ -8,7 +8,7 @@
  * - Funkce pro ovladani animaci a stav
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  */
 

@@ -7,7 +7,7 @@
  * led_execute_command_new, atd. cistym, konzistentnim rozhranim.
  * 
  * @author Alfred Krutina
- * @version 2.5
+ * @version 1.7.3
  * @date 2025-09-06
  * 
  * @details

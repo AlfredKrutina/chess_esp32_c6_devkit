@@ -116,7 +116,7 @@ sequenceDiagram
     participant UT as uartTask
 
     HW->>M: Boot → app_main()
-    Note over M: ESP32-C6 Chess v2.5.1 - Inicializace systému
+    Note over M: ESP32-C6 Chess v1.7.3 - Inicializace systému
     M->>WDT: esp_task_wdt_reconfigure() - 10s timeout (init)
     M->>WDT: esp_task_wdt_add(NULL) - Registrace main task
     M->>NVS: nvs_flash_init() - Non-Volatile Storage

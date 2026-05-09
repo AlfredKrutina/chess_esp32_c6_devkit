@@ -146,16 +146,16 @@ xSemaphoreGive(...);
  * 5. VZDY kontroluj navratove hodnoty!
  *    ❌ xQueueSend(...);  // Ignoruje chybu
  *    ✅ if (xQueueSend(...) != pdTRUE) { handle error }
-*== == == == == == == == == == == == == == == == == == == == == == == == == ==
-== == == == == == == == == == == ==
-= **@author Alfred Krutina * @version 2.4.1 * @date 2025 - 12 -
-      23 * *@note * -Task priorita : 4(vyssi nez uart_task, led_task) *
-          -Stack size : 10KB(8192 bytes) * -Pouziva WDT(watchdog timer) *
-          -Cyklus : 100ms * *@see matrix_task.c -
-      Detekce pohybu figurek * @see led_task.c -
-      LED animace * @see uart_task.c -
-      Terminal rozhrani * @see web_server_task.c -
-      Web rozhrani */
+ *
+ * @author Alfred Krutina
+ * @version 1.7.3
+ *
+ * @note Priorita tasku 4; hlavní smyčka cca 100 ms; WDT reset ve smyčce.
+ * @see matrix_task.c Detekce pohybu figurek
+ * @see led_task.c LED animace
+ * @see uart_task.c Terminál
+ * @see web_server_task.c Web rozhraní
+ */
 
 #include "game_task.h"
 #include "../button_task/include/button_task.h"

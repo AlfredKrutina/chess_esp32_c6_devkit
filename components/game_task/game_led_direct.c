@@ -6,7 +6,7 @@
  * Používá přímé volání LED funkcí místo front pro okamžité aktualizace.
  * 
  * @author Alfred Krutina
- * @version 2.5
+ * @version 1.7.3
  * @date 2025-09-02
  * 
  * @details

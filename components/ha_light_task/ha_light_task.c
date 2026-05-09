@@ -20,7 +20,7 @@
  * - HA -> GAME: Okamzite pri detekci pohybu figurky (PICKUP/DROP)
  *
  * @author Alfred Krutina
- * @version 1.0
+ * @version 1.7.3
  * @date 2025-01-XX
  */
 

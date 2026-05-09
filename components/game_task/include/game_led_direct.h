@@ -8,7 +8,7 @@
  * - Okamzite LED aktualizace
  * 
  * @author Alfred Krutina
- * @version 2.5 - DIRECT SYSTEM
+ * @version 1.7.3
  * @date 2025-09-02
  * 
  * @details

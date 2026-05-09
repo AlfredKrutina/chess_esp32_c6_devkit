@@ -1,6 +1,6 @@
 /**
  * @file test_task.h
- * @brief ESP32-C6 Chess System v2.4 - Test Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.7.3 - Test Task Hlavicka
  * 
  * Tato hlavicka definuje rozhrani pro test task:
  * - Typy a struktury testu
@@ -8,7 +8,7 @@
  * - Funkce pro ovladani a stav testu
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-08-24
  * 
  * @details

@@ -6,6 +6,12 @@ Skript pro generování HTML stránky s Mermaid diagramy z docs/diagrams/mermaid
 import re
 import html
 
+
+def _is_txt_section_rule_line(line_stripped):
+    """Oddělovač sekcí v mermaid_diagrams.txt (# jen znaky =). Nesmí se vkládat do Mermaid."""
+    return bool(re.match(r"^#\s*=+\s*$", line_stripped))
+
+
 def parse_mermaid_file(filename):
     """Parsuje soubor s Mermaid diagramy a vrací strukturovaná data"""
     with open(filename, 'r', encoding='utf-8') as f:
@@ -55,6 +61,8 @@ def parse_mermaid_file(filename):
                     # Pokračovat až do dalšího # (kromě komentářů v kódu)
                     while i < len(lines):
                         line_stripped = lines[i].strip()
+                        if _is_txt_section_rule_line(line_stripped):
+                            break
                         # Pokud je to nová sekce/podsekce (začíná # a není to pokračování kódu)
                         if line_stripped.startswith('# ') and not line_stripped.startswith('#    '):
                             # Zkontrolovat, jestli to není komentář v kódu (začíná na začátku řádku)
@@ -72,6 +80,8 @@ def parse_mermaid_file(filename):
                         i += 1
                         while i < len(lines):
                             line_stripped = lines[i].strip()
+                            if _is_txt_section_rule_line(line_stripped):
+                                break
                             if line_stripped.startswith('# ') and not line_stripped.startswith('#    ') and not line_stripped.startswith('# =') and not line_stripped.startswith('# -'):
                                 if not any(keyword in line_stripped for keyword in ['participant', 'Note', '->>', '-->>']):
                                     break

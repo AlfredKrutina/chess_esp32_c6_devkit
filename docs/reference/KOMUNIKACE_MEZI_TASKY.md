@@ -1,4 +1,6 @@
-# Jak spolu mluví tasky a hardware — CZECHMATE v2.5.1
+# Jak spolu mluví tasky a hardware — CZECHMATE firmware **1.7.3**
+
+> **Hardware:** Tento dokument detailně popisuje **prototyp V1** — multiplexní **reed switch** matici na ESP32-C6. Komerční **V2** má **Hall senzory** (typ figurky na poli); přehled je v [HARDWARE_VERZE.md](HARDWARE_VERZE.md).
 
 **Rozcestník:** [docs/README.md](../README.md).
 
@@ -537,4 +539,4 @@ Terminal (PC)
 ---
 
 **Datum:** 2026-04-30  
-**Verze:** 2.5.1
+**Verze dokumentu / firmware:** 1.7.3

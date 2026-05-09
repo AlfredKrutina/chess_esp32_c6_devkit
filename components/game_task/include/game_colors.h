@@ -6,7 +6,7 @@
  * Eliminates repetitive escape sequences throughout the codebase.
  * 
  * @author Alfred Krutina
- * @version 1.0
+ * @version 1.7.3
  * @date 2025-12-22
  */
 

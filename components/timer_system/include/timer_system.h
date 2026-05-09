@@ -1,6 +1,6 @@
 /**
  * @file timer_system.h
- * @brief ESP32-C6 Chess System v2.4 - Timer System komponenta
+ * @brief ESP32-C6 Chess System v1.7.3 - Timer System komponenta
  * 
  * Tato komponenta spravuje casovy system pro sachovou hru:
  * - Ruzne typy casovych kontrol (bullet, blitz, rapid, classical)
@@ -10,7 +10,7 @@
  * - Web API pro ovladani casu
  * 
  * @author Alfred Krutina
- * @version 2.4
+ * @version 1.7.3
  * @date 2025-01-XX
  * 
  * @details
