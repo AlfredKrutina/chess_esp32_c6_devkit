@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['1_20firmware_20aktuální_20stav_20repa_202026_2004_0',['v2.5.1 / firmware (aktuální stav repa, 2026-04)',['../index.html#autotoc_md159',1,'']]],
-  ['1_20time_20multiplexing_20gpio_1',['1. Time-multiplexing GPIO',['../index.html#autotoc_md134',1,'']]]
+  ['2_20šachová_20logika_0',['2. Šachová logika',['../index.html#autotoc_md136',1,'']]],
+  ['2026_1',['1.7.3 — aktuální verze projektu (firmware v repu, 2026)',['../index.html#autotoc_md160',1,'']]]
 ];

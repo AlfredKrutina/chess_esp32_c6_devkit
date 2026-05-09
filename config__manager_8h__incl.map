@@ -1,15 +1,15 @@
 <map id="config_manager.h" name="config_manager.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Config Manager Hlavicka." alt="" coords="440,5,577,31"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Config Manager Hlavicka." alt="" coords="440,5,577,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="117,225,199,251"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="440,30,329,47,200,73,139,90,85,109,42,130,15,154,9,166,10,177,17,187,29,196,64,212,104,224,103,229,62,217,26,201,13,191,5,179,4,165,11,150,40,126,83,104,137,85,199,68,328,42,440,25"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="597,79,681,104"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="531,28,608,70,605,74,528,33"/>
-<area shape="rect" id="Node000004" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="444,79,573,104"/>
+<area shape="rect" id="Node000004" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="444,79,573,104"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="511,31,511,65,506,65,506,31"/>
 <area shape="poly" id="edge12_Node000004_Node000002" title=" " alt="" coords="444,96,394,101,337,111,279,128,225,154,194,183,172,215,168,212,190,179,222,150,277,123,335,106,393,96,444,91"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="25,152,121,177"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="444,106,140,155,135,155,134,150,139,149,444,100"/>
-<area shape="rect" id="Node000006" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="246,152,361,177"/>
+<area shape="rect" id="Node000006" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="246,152,361,177"/>
 <area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="477,107,350,150,349,145,475,101"/>
 <area shape="rect" id="Node000007" title=" " alt="" coords="957,225,1108,251"/>
 <area shape="poly" id="edge13_Node000004_Node000007" title=" " alt="" coords="574,100,585,101,679,106,801,108,863,112,920,119,968,131,1004,150,1016,163,1025,179,1033,211,1028,213,1020,181,1012,166,1000,154,966,136,919,124,862,117,801,114,679,111,585,107,573,105"/>

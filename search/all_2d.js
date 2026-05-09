@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['📄_20licence_0',['📄 Licence',['../index.html#autotoc_md171',1,'']]]
+  ['📁_20jak_20je_20repozitář_20položený_0',['📁 Jak je repozitář položený',['../index.html#autotoc_md145',1,'']]]
 ];

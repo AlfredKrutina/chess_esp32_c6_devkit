@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['v2_205_0',['CZECHMATE v2.5',['../index.html',1,'']]]
+  ['firmware_20strong_201_207_203_20strong_0',['CZECHMATE firmware &lt;strong&gt;1.7.3&lt;/strong&gt;',['../index.html',1,'']]]
 ];

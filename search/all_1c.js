@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['učitelé_0',['Učitelé',['../index.html#autotoc_md176',1,'']]],
+  ['učitelé_0',['Učitelé',['../index.html#autotoc_md173',1,'']]],
   ['u_1',['u',['../structha__light__command__t.html#adb3be7db485e5a7dda579c4f16a5add2',1,'ha_light_command_t']]],
-  ['uart_20konzole_2',['UART konzole',['../index.html#autotoc_md114',1,'']]],
+  ['uart_20konzole_2',['UART konzole',['../index.html#autotoc_md115',1,'']]],
   ['uart_5fanimation_5fcommand_5fdispatcher_3',['uart_animation_command_dispatcher',['../uart__commands__extended_8c.html#a6bd963956e3a304abd305b05f126b5fc',1,'uart_animation_command_dispatcher(int argc, char **argv):&#160;uart_commands_extended.c'],['../uart__commands__extended_8h.html#a6bd963956e3a304abd305b05f126b5fc',1,'uart_animation_command_dispatcher(int argc, char **argv):&#160;uart_commands_extended.c']]],
   ['uart_5fbaud_5frate_4',['UART_BAUD_RATE',['../uart__task_8c.html#a615aed21aa6825462b7c17b0c238ffe2',1,'uart_task.c']]],
   ['uart_5fbuf_5fsize_5',['UART_BUF_SIZE',['../uart__task_8c.html#ab0249d81dd53336b7810ebcf29511210',1,'uart_task.c']]],

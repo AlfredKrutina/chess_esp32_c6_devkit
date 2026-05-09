@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['💭_20závěrečné_20myšlenky_0',['💭 Závěrečné myšlenky',['../index.html#autotoc_md183',1,'']]]
+  ['👥_20autoři_0',['👥 Autoři',['../index.html#autotoc_md164',1,'']]]
 ];

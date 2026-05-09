@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#0a100e">
   <title>CzechMate — šachovnice, která učí hrát lépe</title>
-  <meta name="description" content="CzechMate: fyzická LED šachovnice a aplikace pro výuku šachu — pro děti i dospělé, začátečníky i pokročilé. Partie a analýza se Stockfishem (v šachu silnějším než kterýkoli živý hráč, s nastavením síly), AI kouč, nápovědy na desce. APK a DMG na GitHubu.">
+  <meta name="description" content="Šachovnice s LED a aplikace v jednom: nápovědy přímo na polích, partie a rozbor se Stockfishem (nastavitelná síla) a AI kouč. Pro rodinu, klub i školu. Stáhni CzechMate pro Android (APK) nebo macOS (DMG).">
 
   <meta property="og:title" content="CzechMate — šachy, které učí">
-  <meta property="og:description" content="LED deska, protihráč silnější ve šachu než mistr světa (Stockfish), AI kouč v aplikaci. Pro všechny věky a úrovně. Stáhni CzechMate pro Android a macOS.">
+  <meta property="og:description" content="Živá šachovnice a aplikace: výuka na LED, Stockfish podle tvé úrovně a AI kouč. Pro všechny věky. Android a macOS ke stažení na této stránce.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
@@ -22,13 +23,13 @@
     "name": "CzechMate",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Android, macOS",
-    "description": "Výuková šachová soustava: LED deska, Stockfish (protihráč silnější než lidský vrchol ve šachu), AI kouč, aktualizace softwaru desky z aplikace.",
+    "description": "Výuka šachů: LED šachovnice, aplikace pro Android a macOS, motor Stockfish s výběrem síly, AI kouč a aktualizace firmwaru desky z aplikace bez kabelů.",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "CZK"
     },
-    "downloadUrl": "https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest"
+    "downloadUrl": "https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html#stazeni"
   }
   </script>
 </head>
@@ -48,7 +49,7 @@
         <a href="#stazeni">Stažení</a>
         <a href="./index.html">Dokumentace</a>
       </nav>
-      <a class="btn btn--primary nav-cta" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
+      <a class="btn btn--primary nav-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">Zpětná vazba</a>
       <button type="button" class="nav-toggle" data-nav-toggle aria-expanded="false" aria-controls="nav-mobile" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -62,7 +63,7 @@
       <a href="#zajem">Zájem</a>
       <a href="#stazeni">Stažení</a>
       <a href="./index.html">Dokumentace</a>
-      <a class="btn btn--primary nav-mobile__cta" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
+      <a class="btn btn--primary nav-mobile__cta" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">Zpětná vazba</a>
     </nav>
   </header>
 
@@ -70,66 +71,67 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__bg" aria-hidden="true"></div>
       <div class="hero__grid" aria-hidden="true"></div>
-      <div class="hero__content">
+      <div class="hero__content reveal-stagger">
         <p class="hero__eyebrow">Učení šachů · pro celou rodinu · pro kluby i školy</p>
-        <h1 id="hero-title" class="hero__title">Šachy, které tě provedou partii krok za krokem.</h1>
+        <h1 id="hero-title" class="hero__title">Šachy na živé desce. Výuka i partie v jedné soustavě.</h1>
         <p class="hero__lead">
-          CzechMate spojuje <strong>osahatelné figurky</strong> s <strong>barevnými LED na desce</strong> a chytrou aplikací.
-          Hodí se pro <strong>děti i dospělé</strong>, úplné začátečníky i hráče, kteří chtějí pilovat strategii.
-          Deska ti ukáže tahy a varování přímo na polích; aplikace doplní partii o <strong>motor Stockfish</strong> —
-          v čistém výpočtu tahů nepřekonatelný i pro mistra světa, s možností zvolit slabší úroveň pro klidnou výuku —
-          plus analýzu a <strong>AI kouče v chatu</strong>, se kterým můžeš řešit plány, varianty i chyby z aktuální nebo nedávné partie.
+          CzechMate je šachovnice s LED odezvou a aplikací. Hraješ na skutečných figurkách a signály z partie vidíš na polích i v aplikaci.
+          Nastav si sílu motoru Stockfish podle úrovně a nech si od AI kouče poradit s plánem nebo rozborem.
+          Hodí se domů, do klubu i do školy.
         </p>
         <div class="hero__actions">
-          <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout aplikaci</a>
-          <a class="btn btn--ghost" href="#deska-uci">Jak deska učí</a>
+          <a class="btn btn--primary" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">Zpětná vazba</a>
+          <a class="btn btn--ghost" href="#stazeni">Stáhnout aplikaci</a>
         </div>
-        <p class="hero__meta">Android (APK) a macOS (DMG) na GitHub Releases · iOS a Windows připravujeme · software desky včetně dokumentace je open source</p>
 
         <div class="hero__video" role="region" aria-labelledby="hero-video-heading">
           <p id="hero-video-heading" class="hero__video-label">Představení na videu</p>
-          <!-- Na http(s) vloží přehrávač skript (autoplay + loop, ztlumené). Z file:// zůstane náhled — Error 153. -->
           <div class="hero__video-frame" data-youtube-id="_MS6OP3x6Z4">
-            <a
-              class="hero__video-poster"
-              href="https://youtu.be/_MS6OP3x6Z4"
-              target="_blank"
-              rel="noopener noreferrer">
-              <img
-                src="https://img.youtube.com/vi/_MS6OP3x6Z4/maxresdefault.jpg"
-                alt=""
-                width="1280"
-                height="720"
-                loading="lazy"
-                decoding="async"
-                fetchpriority="low"
-                onerror="this.onerror=null;this.src='https://img.youtube.com/vi/_MS6OP3x6Z4/hqdefault.jpg'">
-              <span class="hero__video-play" aria-hidden="true">
-                <svg viewBox="0 0 68 68" width="68" height="68" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="34" cy="34" r="34" fill="rgba(0,0,0,0.72)"/>
-                  <path d="M48 34L26 46.5V21.5L48 34Z" fill="#fff"/>
-                </svg>
-              </span>
-              <span class="hero__video-sr">Přehrát představující video CzechMate na YouTube — otevře nový panel</span>
-            </a>
+            <iframe
+              class="hero__video-iframe"
+              src="https://www.youtube.com/embed/_MS6OP3x6Z4?controls=1&amp;fs=1&amp;playsinline=1&amp;rel=0&amp;modestbranding=1&amp;disablekb=0&amp;iv_load_policy=3"
+              title="Představující video CzechMate — přehrávání na stránce včetně posunu v čase a celé obrazovky"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+              loading="eager"></iframe>
           </div>
-          <p class="hero__video-footer">
-            <a href="https://youtu.be/_MS6OP3x6Z4" target="_blank" rel="noopener noreferrer">Otevřít na YouTube</a>
-          </p>
         </div>
+      </div>
+    </section>
+
+    <section id="product-cinema" class="section section--cinema" aria-labelledby="cinema-title">
+      <div class="section__inner">
+        <p class="section__label reveal">CzechMate V2</p>
+        <h2 id="cinema-title" class="section__title reveal reveal--seq-1">Objev CzechMate V2</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          Nová generace drží desku a aplikaci u jedné partie: méně přepínání, víc času na hru a rozbor.
+        </p>
+        <figure class="cinema-stage reveal">
+          <div class="cinema-stage__frame">
+            <img
+              class="cinema-stage__poster"
+              src="landing/assets/cinema-placeholder.webp"
+              width="1920"
+              height="1080"
+              alt="CzechMate V2 — šachovnice s LED a aplikací"
+              decoding="async"
+              loading="lazy">
+          </div>
+        </figure>
       </div>
     </section>
 
     <section id="vyuka" class="section pillars" aria-labelledby="vyuka-title">
       <div class="section__inner">
-        <p class="section__label">Vzdělávání</p>
-        <h2 id="vyuka-title" class="section__title">Proč je CzechMate výukový systém — ne jen „chytrá deska“</h2>
-        <p class="section__intro">
-          Šachy jsou nejkrásnější, když je člověk vidí na šachovnici a zároveň dostane jasnou zpětnou vazbu.
-          CzechMate na to myslí od začátku: <strong>fyzický kontakt s figurkami</strong>, <strong>okamžité světlo na polích</strong>
-          a <strong>digitální vrstva</strong> s vysvětlením pravidel a pozice, partii proti soupeři silnějšímu než kterýkoli živý velmistr (s nastavením síly) i rozhovorem s AI trenérem.
+        <p class="section__label reveal">Vzdělávání</p>
+        <h2 id="vyuka-title" class="section__title reveal reveal--seq-1">Proč je CzechMate výukový systém — ne jen „chytrá deska“</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          Šachy nejlíp sednou, když je máš pod rukama a hned vidíš, jestli je tah v pořádku.
+          CzechMate skládá dohromady <strong>skutečné figurky</strong>, <strong>světla na polích</strong> a <strong>aplikaci</strong> s pravidly, pozicí a rozborem.
+          Protihráče nastavíš od klidné výuky až po špičkový motor; když potřebuješ vysvětlení, zapojíš AI kouče.
         </p>
-        <div class="pillars__grid">
+        <div class="pillars__grid reveal-stagger">
           <article class="pillar-card">
             <div class="pillar-card__num">01</div>
             <h3>Všechny věkové kategorie</h3>
@@ -143,7 +145,7 @@
           <article class="pillar-card">
             <div class="pillar-card__num">03</div>
             <h3>Učení všemi smysly</h3>
-            <p>Hmat (figurky), zrak (LED a aplikace), sluch při výkladu od živého trenéra nebo čtení odpovědí AI — více kanálů znamená lepší zapamatování pravidel i vzorců.</p>
+            <p>Šáhneš na figurku, vidíš podsvícené pole, případně uslyšíš výklad od člověka nebo si přečteš odpověď od AI. Čím víc smyslů zapojíš, tím líp si zapamatuješ pravidla i typické vzorce.</p>
           </article>
         </div>
       </div>
@@ -151,16 +153,13 @@
 
     <section id="deska-uci" class="section" aria-labelledby="deska-title">
       <div class="section__inner">
-        <p class="section__label">Deska jako lektor</p>
-        <h2 id="deska-title" class="section__title">Světlo na polích ti ukáže, co právě potřebuješ</h2>
-        <p class="section__intro">
-          Deska nepozná jen to, kde je které pole obsazené — rozumí i <strong>tomu, jaký typ figurky</strong> na něm stojí,
-          a umí to <strong>interpretovat pro výuku</strong>: zvýraznit doporučený tah, upozornit na šach,
-          vést ke správnému provedení promoce nebo zopakovat animaci koncovky. Logika běží přímo v desce v reálném čase,
-          takže LED vždy odpovídá tomu, jak figurky skutečně stojí na šachovnici.
-          Software desky umíš aktualizovat <strong>bez kabelů</strong> — přímo z aplikace, z rozhraní desky v prohlížeči nebo přes Wi‑Fi.
+        <p class="section__label reveal">Deska jako lektor</p>
+        <h2 id="deska-title" class="section__title reveal reveal--seq-1">Světlo na polích ti ukáže, co právě potřebuješ</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          Pod každým polem jsou <strong>Hall senzory</strong>: deska ví, že tam figurka je, a také <strong>jaký typ</strong> tam stojí. Nápovědy tak sedí na skutečnou šachovnici, ne na „nějaký obrázek“.
+          Partii řídí deska v reálném čase a LED ukazuje totéž co figurky. Firmware si <strong>bez kabelů k čipu</strong> obnovíš z aplikace, z webu na desce nebo přes Wi‑Fi.
         </p>
-        <div class="split">
+        <div class="split reveal-stagger">
           <div class="split__media">
             <picture>
               <source type="image/webp" srcset="landing/assets/board-render.webp">
@@ -170,8 +169,8 @@
           <div class="split__text">
             <h3>Od první partie po návyky mistra</h3>
             <p>
-              <strong>Fyzické figurky</strong> a <strong>světla na polích</strong> tvoří jeden celek: výuka reaguje na skutečný stav partie na šachovnici, ne jen na obrázek v aplikaci — méně tápání, víc jistoty u každého tahu.
-              Po připojení telefonu nebo počítače získáš navíc přehled partie: historii tahů, textové nápovědy z rozhraní desky v prohlížeči a stejnou pozici v aplikaci CzechMate.
+              <strong>Fyzické figurky</strong> a <strong>světla na polích</strong> drží krok: při tahu hned víš, jestli systém vidí totéž co ty. Méně hádání, víc jistoty.
+              Když připojíš telefon nebo počítač, přibude ti přehled partie, historie tahů a nápovědy z webu na desce i z aplikace CzechMate ve stejné pozici.
             </p>
           </div>
         </div>
@@ -180,43 +179,76 @@
 
     <section id="stockfish" class="section pillars" aria-labelledby="stockfish-title">
       <div class="section__inner">
-        <p class="section__label">Protihráč z jiné ligy</p>
-        <h2 id="stockfish-title" class="section__title">Stockfish — zahraj si proti systému chytřejšímu ve šachu než nejlepší hráč na světě</h2>
-        <p class="section__intro">
-          V CzechMate běží motor <strong>Stockfish</strong>: typ výpočtu, který dnes v čisté síle tahů převyšuje jakéhokoli živého hráče včetně mistra světa.
-          Pro učení si ale umíš nastavit slabší úroveň a hrát klidné partie s předvídatelným tempem. Partii spustíš z rozhraní desky v prohlížeči (Wi‑Fi) i z aplikace —
-          sleduješ návrhy motoru, analyzuješ pozici a vidíš rozdíl mezi svým tahem a tím, co by zvolil „nejlepší možný“ výpočet.
+        <p class="section__label reveal">Protihráč z jiné ligy</p>
+        <h2 id="stockfish-title" class="section__title reveal reveal--seq-1">Stockfish — zahraj si proti systému chytřejšímu ve šachu než nejlepší hráč na světě</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          V CzechMate běží <strong>Stockfish</strong>: motor, který v čisté síle překoná jakéhokoli živého hráče.
+          Pro výuku si zvolíš slabší úroveň motoru a klidnější partie s čitelným tempem. Partii rozjedeš z aplikace nebo z webu na desce přes Wi‑Fi.
+          U každého tahu máš návrhy motoru, rozbor pozice a srovnání se svým výběrem.
         </p>
-        <div class="pillars__grid">
-          <article class="pillar-card">
+        <div class="pillars__grid reveal-stagger">
+          <div
+            class="pillar-card pillar-card--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="stockfish_a"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-label="Otevřít detail: Partie silnější než člověk">
+            <span class="pillar-card__more" aria-hidden="true">Více</span>
             <div class="pillar-card__num pillar-card__num--badge">A</div>
             <h3>Partie silnější než člověk</h3>
-            <p>Trénuj proti protihráči na úrovni špičkových enginů — nad lidský vrchol ve šachu. Sílu stáhni, když chceš pomalejší tempo nebo šetrný režim pro začátečníky.</p>
-          </article>
-          <article class="pillar-card">
+            <p>Trénuj proti protihráči na úrovni špičkových motorů, tedy nad lidský vrchol. Sílu motoru sniž, když chceš pomalejší tempo nebo šetrný režim pro začátečníky.</p>
+          </div>
+          <div
+            class="pillar-card pillar-card--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="stockfish_b"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-label="Otevřít detail: Orientační hodnocení">
+            <span class="pillar-card__more" aria-hidden="true">Více</span>
             <div class="pillar-card__num pillar-card__num--badge">B</div>
             <h3>Orientační hodnocení</h3>
             <p>Odhad výhody v přibližných pěšcích podle motoru, který překoná i velmistry, ti pomůže číst pozici — zvlášť ve střední hře a koncovkách.</p>
-          </article>
-          <article class="pillar-card">
+          </div>
+          <div
+            class="pillar-card pillar-card--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="stockfish_c"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-label="Otevřít detail: Propojení deska a aplikace">
+            <span class="pillar-card__more" aria-hidden="true">Více</span>
             <div class="pillar-card__num pillar-card__num--badge">C</div>
             <h3>Propojení deska ↔ aplikace</h3>
             <p>Stejná logika partie na desce i v aplikaci znamená, že výuka na světlech a na displeji si rozumí.</p>
-          </article>
+          </div>
         </div>
       </div>
     </section>
 
     <section id="ai-kouc" class="section" aria-labelledby="kouc-title">
       <div class="section__inner">
-        <p class="section__label">AI kouč v aplikaci</p>
-        <h2 id="kouc-title" class="section__title">Chat, který diskutuje strategii a katalizuje učící proces</h2>
-        <p class="section__intro">
-          V aplikaci CzechMate najdeš <strong>koučovský režim</strong>: konverzace o aktuální pozici, plánech na několik tahů dopředu,
-          typických chybách začátečníků i hlubších strategických tématech. Nastavitelná je <strong>úroveň výkladu</strong> podle tvých zkušeností,
-          aby text seděl jak školákům, tak klubovým hráčům.
-        </p>
-        <div class="split split--reverse">
+        <div
+          class="section-intro-click"
+          role="button"
+          tabindex="0"
+          data-feature-detail="coach"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+          aria-label="Otevřít detail: AI kouč v aplikaci">
+          <span class="section-intro-click__hint" aria-hidden="true">Více</span>
+          <p class="section__label reveal">AI kouč v aplikaci</p>
+          <h2 id="kouc-title" class="section__title reveal reveal--seq-1">AI kouč: strategie, chyby i plán přímo u partie</h2>
+          <p class="section__intro reveal reveal--seq-2">
+            V aplikaci máš <strong>konverzaci u aktuální pozice</strong>: plán na několik tahů, typické chyby i hlubší strategii.
+            <strong>Úroveň výkladu</strong> si nastavíš podle sebe, aby text seděl začátečníkovi i klubovému hráči.
+          </p>
+        </div>
+        <div class="split split--reverse reveal-stagger">
           <div class="split__media">
             <picture>
               <source type="image/webp" srcset="landing/assets/app-mock.webp">
@@ -226,9 +258,8 @@
           <div class="split__text">
             <h3>Vlastní AI pod tvou kontrolou</h3>
             <p>
-              V nastavení si vybereš <strong>preferovaného asistenta</strong> — cloudovou službu podle tvého účtu nebo lokální řešení,
-              aby výuka odpovídala pravidlům ve škole, klubu nebo doma. Bez připojení nebo přihlášení nabízí aplikace
-              <strong>základní offline nápovědu</strong> z vestavěných šachových rad, takže výuka neskončí na prázdné obrazovce.
+              V nastavení zvolíš <strong>asistenta</strong>: cloud podle účtu nebo lokální režim, aby to sedělo s pravidly ve škole, klubu nebo doma.
+              Bez sítě nebo přihlášení pořád dostaneš <strong>základní offline nápovědu</strong> z vestavěných šachových rad.
             </p>
           </div>
         </div>
@@ -237,127 +268,188 @@
 
     <section id="aplikace" class="section features" aria-labelledby="app-title">
       <div class="section__inner">
-        <p class="section__label">Aplikace CzechMate</p>
-        <h2 id="app-title" class="section__title">Jeden klient pro spojení s deskou, výuku i analýzu</h2>
-        <p class="section__intro">
-          Aplikace pro Android a macOS drží přehled o partii, připojení k desce přes Bluetooth nebo síť,
-          výukové funkce, hru a analýzu se Stockfishem (v šachu silnějším než kterýkoli živý hráč, s volbou síly) i AI kouče — vše v jednom programu, bez skákání mezi nástroji.
-          V nastavení najdeš i <strong>aktualizaci softwaru desky</strong> podle aktuálního vydání — bez zapojování k počítači kabelem.
+        <p class="section__label reveal">Aplikace CzechMate</p>
+        <h2 id="app-title" class="section__title reveal reveal--seq-1">Jeden klient pro spojení s deskou, výuku i analýzu</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          Jedna aplikace pro Android a macOS: přehled partie, spojení s deskou přes Bluetooth nebo síť, výuka, hra i analýza se Stockfishem (s volbou síly) a AI kouč.
+          Nemusíš přeskakovat mezi programy. V nastavení navíc <strong>aktualizuješ firmware desky</strong> bez kabelu k počítači.
         </p>
-        <div class="features__grid">
-          <article class="feature-tile">
+        <div class="features__grid reveal-stagger">
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="hints"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>Nápovědy a výukové režimy</h3>
             <p>Orientace v partii a řízení zvýraznění tahů na desce — aplikace rozšiřuje to, co už vidíš na LED.</p>
-          </article>
-          <article class="feature-tile">
+          </div>
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="analysis"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>Analýza a Stockfish</h3>
             <p>Hodnocení tahů a návrhy pokračování podle motoru, který ve výpočtu převyšuje i mistra světa — přímo v aplikaci.</p>
-          </article>
-          <article class="feature-tile">
+          </div>
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="coach"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>AI kouč / chat</h3>
             <p>Diskuze o strategii, plánech a chybách; volitelný inteligentní asistent podle tvého nastavení.</p>
-          </article>
-          <article class="feature-tile">
+          </div>
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="connect"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>Připojení k desce</h3>
             <p>Bluetooth nebo síť v dosahu desky — stejná partie na šachovnici i na displeji.</p>
-          </article>
-          <article class="feature-tile">
+          </div>
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="webui"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>Web na desce</h3>
             <p>Z prohlížeče přes Wi‑Fi — výuka i partie se Stockfishem tam, kde má deska síť.</p>
-          </article>
-          <article class="feature-tile">
+          </div>
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="ota"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>Flash přímo z aplikace</h3>
-            <p>Nový software na desku nahraješ z aplikace CzechMate — bez programátoru a bez kabelů k čipu; přes Wi-Fi i úplně bezdrátově. Průběh ti ukážou světla na šachovnici.</p>
-          </article>
-          <article class="feature-tile">
+            <p>Nahraj nový firmware z aplikace bez programátoru a bez drátů k desce. Jak to doběhne, uvidíš přímo na LED.</p>
+          </div>
+          <div
+            class="feature-tile feature-tile--interactive"
+            role="button"
+            tabindex="0"
+            data-feature-detail="opensource"
+            aria-haspopup="dialog"
+            aria-expanded="false">
+            <span class="feature-tile__more" aria-hidden="true">Více</span>
             <h3>Open source ekosystém</h3>
-            <p>Software desky i aplikace jsou veřejné — školy a kluby si mohou řešení přizpůsobit.</p>
-          </article>
+            <p>Zdrojáky firmware a aplikace jsou veřejné: školy a kluby si mohou výuku nebo klienta upravit podle licencí.</p>
+          </div>
         </div>
       </div>
     </section>
 
     <section id="zajem" class="section interest" aria-labelledby="zajem-title">
       <div class="section__inner">
-        <p class="section__label">Komunita</p>
-        <h2 id="zajem-title" class="section__title">Chcete si CzechMate pořídit? Dejte nám vědět</h2>
-        <p class="section__intro">
-          Každý hlas i zpráva nám pomůže držet tempo vývoje a rozhodovat se, čemu dát prioritu.
-          <strong>Žádné veřejné počítadlo</strong> na této stránce záměrně není — výsledky dotazníků vidí jen tým CzechMate
-          (uložené v Google Formulářích, odkazy níže) a <strong>nepřepíší se</strong> při novém deployi webu ani při obnovení stránky v prohlížeči.
+        <p class="section__label reveal">Komunita</p>
+        <h2 id="zajem-title" class="section__title reveal reveal--seq-1">Chceš CzechMate? Dej nám vědět</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          Krátká zpětná vazba nám pomůže naplánovat vývoj a říct, co je pro hráče a školy nejdůležitější.
+          Tvoje odpověď zůstane jen u týmu CzechMate.
         </p>
 
-        <div class="interest__grid">
+        <div class="interest__grid reveal-stagger">
           <div class="interest__card interest__card--poll">
             <h3 class="interest__card-title">Průzkum zájmu</h3>
             <p class="interest__card-lead">
-              Krátký dotazník na Googleu — zájem o produkt, funkce, věk, volitelný komentář. Odpovědi sbíráme v tabulce na stejném místě jako u předobjednávek;
-              tato stránka je jen rozcestník, žádné veřejné počítadlo tu není.
-              <span class="interest__note">Automatické soukromé DM od bota na Instagram přímo z webu bez vlastního serveru a schválení Meta API veřejně spolehlivě nejde —
-              typický postup je formulář → tabulka / e-mail → případně vlastní skript nebo služba typu Make/Zapier.</span>
+              Pár otázek o zájem o produkt, důležité funkce, věk a volitelný komentář. Zabere to chvilku a pomůže nám nastavit priority.
             </p>
             <a class="btn btn--primary interest-poll__submit" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">
-              Otevřít průzkum zájmu (Google Form)
+              Otevřít průzkum zájmu
             </a>
           </div>
 
           <div class="interest__card interest__card--cta">
-            <h3 class="interest__card-title">Předobjednávka naprosto vážně?</h3>
+            <h3 class="interest__card-title">Předobjednávka CzechMate V2</h3>
             <p class="interest__card-lead">
-              Pokud už víš, že CzechMate chceš i s hardwarem, <strong>neboj se předobjednat</strong> —
-              pomůže nám to naplánovat výrobu a komunikaci. Konkrétní domluva probíhá přímým kontaktem.
+              <strong>Předobjednávka desky CzechMate V2.</strong> Když už víš, že chceš hardware, rezervace nám pomůže naplánovat výrobu a ozvat se ti včas.
+              Detaily domluvíme přímo s tebou.
             </p>
             <button type="button" class="btn btn--primary interest-preorder-btn" data-open-preorder>
-              Předobjednat
+              Předobjednat V2
             </button>
           </div>
         </div>
       </div>
     </section>
 
-    <dialog id="preorder-dialog" class="preorder-modal" aria-labelledby="preorder-dialog-title">
+    <dialog id="feature-detail-dialog" class="feature-detail-modal cz-modal" aria-labelledby="feature-detail-title">
+      <div class="feature-detail-modal__inner">
+        <button type="button" class="feature-detail-modal__close" data-close-feature-detail aria-label="Zavřít detail funkce">&times;</button>
+        <h2 id="feature-detail-title" class="feature-detail-modal__title"></h2>
+        <div id="feature-detail-body" class="feature-detail-modal__body"></div>
+      </div>
+    </dialog>
+
+    <dialog id="preorder-dialog" class="preorder-modal cz-modal" aria-labelledby="preorder-dialog-title">
       <div class="preorder-modal__inner">
         <button type="button" class="preorder-modal__close" data-close-preorder aria-label="Zavřít okno">&times;</button>
-        <h2 id="preorder-dialog-title" class="preorder-modal__title">Předobjednávka CzechMate</h2>
-        <div class="preorder-modal__ota" role="note">
-          <strong>OTA flash z aplikace</strong> — firmware šachovnice aktualizuješ z&nbsp;CzechMate <strong>bez kabelů</strong> (Wi‑Fi nebo Bluetooth podle režimu).
-          Předobjednávka hardwaru tak není „jednorázový kus bez aktualizací“: počítej s&nbsp;<strong>plnou podporou nových verzí</strong>, jak budeme vývoj pouštět dál.
-        </div>
-        <p class="preorder-modal__text">
-          Oficiální <strong>dotazník předobjednávky</strong> (jméno, kontakt, přání k produktu) je na Google Formuláři.
-          Doplňovací rychlá domluva může proběhnout i přes zprávu na Instagramu.
+        <h2 id="preorder-dialog-title" class="preorder-modal__title">Předobjednávka CzechMate V2</h2>
+        <p class="preorder-modal__lead">
+          Vyplněním dáváš týmu signál o zájmu o <strong>hardware nové generace</strong>. Podle toho plánujeme výrobu a vracíme se k lidem v rozumném pořadí.
         </p>
+        <ul class="preorder-modal__list">
+          <li>Ve formuláři stačí kontakt a krátká poznámka (např. počet kusů, škola nebo klub).</li>
+          <li>O konkrétním termínu a ceně se domluvíme až ve chvíli, kdy to bude reálné.</li>
+          <li>Potřebuješ rychlou odpověď? Napiš přímo na Instagram níže.</li>
+        </ul>
         <a class="btn btn--primary preorder-modal__cta" href="https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform" target="_blank" rel="noopener noreferrer">
-          Otevřít předobjednávku (Google Form)
+          Vyplnit zájem o V2
         </a>
         <a class="btn btn--ghost preorder-modal__cta preorder-modal__cta--secondary" href="https://www.instagram.com/alfredkrutina/" target="_blank" rel="noopener noreferrer">
-          Napsat na Instagram — @alfredkrutina
+          Domluvit přes Instagram
         </a>
-        <p class="preorder-modal__hint">Odkazy otevřou nový panel v prohlížeči (nebo aplikaci Instagram).</p>
+        <p class="preorder-modal__hint">Formulář i Instagram se otevřou v novém panelu.</p>
       </div>
     </dialog>
 
     <section id="stazeni" class="section download" aria-labelledby="dl-title">
       <div class="section__inner">
-        <p class="section__label">Stažení</p>
-        <h2 id="dl-title" class="section__title">Vezmi si aplikaci CzechMate a začni se učit na živé desce</h2>
-        <p class="section__intro">
-          Nejnovější aplikaci pro Android (APK) a macOS (DMG) najdeš na GitHub Releases. Na Androidu případně povol instalaci z neznámého zdroje, pokud neinstaluješ z obchodu.
-          Na Macu s Apple Silicon otevři DMG a aplikaci přetáhni mezi programy.
+        <p class="section__label reveal">Stažení</p>
+        <h2 id="dl-title" class="section__title reveal reveal--seq-1">Stáhni si CzechMate a začni se učit na živé desce</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          Stáhni si nejnovější aplikaci pro Android (APK) nebo Mac s Apple Silicon (DMG). Po kliknutí začne stahování.
+          Na Androidu případně povol instalaci z neznámého zdroje, pokud nepoužíváš Obchod Play.
+          Na Macu otevři DMG a aplikaci přetáhni do složky Programy.
         </p>
         <div class="download-strip">
-          <h3 class="download-strip__title">Zvol platformu</h3>
-          <p class="download-strip__lead">Otevři nejnovější vydání na GitHubu a vyber soubor pro Android (koncovka <code>.apk</code>) nebo macOS (koncovka <code>.dmg</code>). Obvykle nesou v názvu označení CzechMate a verzi.</p>
-          <div class="platform-grid">
+          <h3 class="download-strip__title reveal">Zvol platformu</h3>
+          <p class="download-strip__lead reveal reveal--seq-1">Jedno kliknutí stáhne nejnovější <code>.apk</code> nebo <code>.dmg</code> z GitHub release.</p>
+          <div class="platform-grid reveal-stagger">
             <div class="platform-card">
               <h3>Android</h3>
               <p>Telefon nebo tablet — výuka a kouč v kapse.</p>
-              <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout APK</a>
+              <a
+                class="btn btn--primary"
+                data-dl-apk
+                href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest"
+                rel="noopener noreferrer">Stáhnout APK</a>
             </div>
             <div class="platform-card">
               <h3>macOS</h3>
               <p>Apple Silicon (arm64) — aplikace vedle šachovnice.</p>
-              <a class="btn btn--primary" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">Stáhnout DMG</a>
+              <a
+                class="btn btn--primary"
+                data-dl-dmg
+                href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest"
+                rel="noopener noreferrer">Stáhnout DMG</a>
             </div>
             <div class="platform-card platform-card--soon">
               <span class="badge-soon">Již brzy</span>
@@ -378,12 +470,12 @@
 
     <section class="section trust" aria-labelledby="trust-title">
       <div class="section__inner">
-        <h2 id="trust-title" class="section__title section__title--center trust__heading">Postaveno v Česku · otevřený zdrojový kód</h2>
-        <div class="trust__box">
+        <h2 id="trust-title" class="section__title section__title--center trust__heading reveal">Postaveno v Česku · open source kód</h2>
+        <div class="trust__box reveal reveal--seq-1">
           <p>
-            CzechMate buduje <strong>otevřenou výukovou platformu</strong> — hardware, software desky i aplikaci si může kdokoli stáhnout a dál upravovat.
-            Kompletní návody, zapojení a technické podklady najdeš na GitHub Pages v <a href="./index.html">dokumentaci</a>.
-            Přidej se — výukové texty, překlady i vylepšení hardwaru nebo softwaru mají smysl pro celou komunitu kolem šachů.
+            CzechMate má <strong>otevřený software</strong>: firmware desky i klientskou aplikaci najdeš na GitHubu ke stažení a úpravám podle licence v repozitáři. Samotný hardware řeší autoři produktu.
+            Návody, schémata a technické podklady jsou v <a href="./index.html">dokumentaci</a>.
+            Můžeš přispět překlady, výukovými texty nebo vylepšeními kódu pro komunitu kolem projektu.
           </p>
           <a class="btn btn--ghost" href="https://github.com/alfredkrutina/chess_esp32_c6_devkit">Repozitář na GitHubu</a>
         </div>

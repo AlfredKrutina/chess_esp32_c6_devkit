@@ -1,6 +1,6 @@
 <map id="matrix_task.h" name="matrix_task.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Matrix Task Hlavicka." alt="" coords="893,5,1005,31"/>
-<area shape="rect" id="Node000002" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="649,79,779,104"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Matrix Task Hlavicka." alt="" coords="893,5,1005,31"/>
+<area shape="rect" id="Node000002" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="649,79,779,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="912,33,766,77,764,72,910,28"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="932,225,1013,251"/>
 <area shape="poly" id="edge20_Node000001_Node000005" title=" " alt="" coords="965,29,1016,77,1043,112,1063,151,1067,165,1063,179,1043,203,1017,221,1014,217,1039,199,1058,176,1061,165,1058,153,1039,115,1012,81,962,33"/>
@@ -10,7 +10,7 @@
 <area shape="poly" id="edge18_Node000001_Node000009" title=" " alt="" coords="975,28,1010,48,1044,77,1069,111,1083,151,1089,182,1090,211,1084,211,1083,183,1078,153,1065,113,1040,81,1007,53,972,33"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="483,152,579,177"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="686,107,575,149,573,144,684,102"/>
-<area shape="rect" id="Node000004" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="705,152,819,177"/>
+<area shape="rect" id="Node000004" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="705,152,819,177"/>
 <area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="724,103,749,139,744,142,720,106"/>
 <area shape="poly" id="edge10_Node000002_Node000005" title=" " alt="" coords="748,102,800,122,857,150,907,182,950,214,947,219,904,187,854,154,798,127,746,107"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="604,225,755,251"/>

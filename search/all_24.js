@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['⚙️_20nastavení_20na_20webu_0',['⚙️ Nastavení na webu',['../index.html#autotoc_md117',1,'']]]
+  ['—_20aktuální_20verze_20projektu_20firmware_20v_20repu_202026_0',['1.7.3 — aktuální verze projektu (firmware v repu, 2026)',['../index.html#autotoc_md160',1,'']]]
 ];

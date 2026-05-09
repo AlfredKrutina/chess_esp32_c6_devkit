@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
    </div>
-   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -97,7 +97,7 @@ $(document).ready(function(){initNavTree('button__task_8h.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 
-<p>ESP32-C6 Chess System v2.4 - Button Task Hlavicka.  
+<p>ESP32-C6 Chess System v1.7.3 - Button Task Hlavicka.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
 <code>#include &quot;freertos/task.h&quot;</code><br />
@@ -113,7 +113,7 @@ Graf závislostí na vkládaných souborech pro button_task.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="button__task_8h__incl.png" border="0" usemap="#abutton__task_8h" alt=""/></div>
 <map name="abutton__task_8h" id="abutton__task_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Button Task Hlavicka." alt="" coords="185,5,296,31"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Button Task Hlavicka." alt="" coords="185,5,296,31"/>
 <area shape="rect" title=" " alt="" coords="85,225,236,251"/>
 <area shape="poly" title=" " alt="" coords="185,30,91,49,51,63,26,80,12,105,8,127,13,150,27,176,53,202,86,218,84,223,49,206,22,179,8,152,3,127,7,103,23,77,48,59,90,44,184,24"/>
 <area shape="rect" title=" " alt="" coords="182,152,299,177"/>
@@ -126,7 +126,7 @@ Graf závislostí na vkládaných souborech pro button_task.h:</div>
 <area shape="poly" title=" " alt="" coords="296,22,491,43,737,76,949,112,1124,147,1123,152,948,118,736,81,491,49,296,27"/>
 <area shape="rect" title=" " alt="" coords="413,225,494,251"/>
 <area shape="poly" title=" " alt="" coords="195,33,157,51,141,64,128,80,115,106,109,130,113,152,128,176,146,189,174,200,247,211,400,223,399,228,247,217,173,205,144,194,124,179,108,154,104,129,110,104,124,77,137,60,155,47,193,28"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="514,79,644,104"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="514,79,644,104"/>
 <area shape="poly" title=" " alt="" coords="295,28,512,73,511,78,294,33"/>
 <area shape="rect" title=" " alt="" coords="519,225,602,251"/>
 <area shape="poly" title=" " alt="" coords="229,33,202,61,175,99,165,119,160,139,162,158,172,176,195,192,229,204,272,211,320,215,420,218,505,223,505,228,420,224,320,220,271,216,228,209,193,197,168,179,157,160,155,139,160,117,170,96,198,57,226,29"/>
@@ -140,7 +140,7 @@ Graf závislostí na vkládaných souborech pro button_task.h:</div>
 <area shape="poly" title=" " alt="" coords="536,106,497,125,480,138,465,153,455,182,453,212,448,211,449,181,461,151,476,134,494,120,534,102"/>
 <area shape="rect" title=" " alt="" coords="715,152,811,177"/>
 <area shape="poly" title=" " alt="" coords="610,102,721,144,719,149,608,107"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="475,152,590,177"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="475,152,590,177"/>
 <area shape="poly" title=" " alt="" coords="574,106,550,142,545,139,569,103"/>
 <area shape="poly" title=" " alt="" coords="589,103,603,136,607,157,604,178,595,199,583,216,578,213,590,196,599,177,601,157,598,138,584,105"/>
 <area shape="poly" title=" " alt="" coords="590,103,624,150,665,212,661,215,620,154,586,106"/>
@@ -214,14 +214,14 @@ Funkce</h2></td></tr>
 <tr class="separator:ae20ae1cc0ee0a2af8cdae453a22296a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
-<div class="textblock"><p>ESP32-C6 Chess System v2.4 - Button Task Hlavicka. </p>
+<div class="textblock"><p>ESP32-C6 Chess System v1.7.3 - Button Task Hlavicka. </p>
 <p>Tato hlavicka definuje rozhrani pro button task:</p><ul>
 <li>Typy a struktury button udalosti</li>
 <li>Prototypy funkci button tasku</li>
 <li>Funkce pro ovladani a stav tlacitek</li>
 </ul>
 <dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>1.7.3 </dd></dl>
 <dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
 <p>Button task zpracovava vsechny tlacitka v sachovem systemu:</p><ul>
 <li>8 promotion tlacitek (4 pro bileho + 4 pro cerneho)</li>

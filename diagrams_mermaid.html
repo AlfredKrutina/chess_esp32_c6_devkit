@@ -316,8 +316,6 @@ sequenceDiagram
     Note over WT: web WiFi AP/STA HTTP REST (+ volitelně WS)
     Note over HT: ha_light_task MQTT Home Assistant (po WiFi STA)
     Note over TT: test_task jen pokud CONFIG_CHESS_ENABLE_TEST_TASK
-
-# =============================================================================
     </div>
   </div>
 
@@ -343,7 +341,7 @@ sequenceDiagram
     participant UT as uartTask
 
     HW-&gt;&gt;M: Boot → app_main()
-    Note over M: ESP32-C6 Chess v2.5.1 - Inicializace systému
+    Note over M: ESP32-C6 Chess v1.7.3 - Inicializace systému
     M-&gt;&gt;WDT: esp_task_wdt_reconfigure() - 10s timeout (init)
     M-&gt;&gt;WDT: esp_task_wdt_add(NULL) - Registrace main task
     M-&gt;&gt;NVS: nvs_flash_init() - Non-Volatile Storage
@@ -523,8 +521,6 @@ sequenceDiagram
     deactivate UT
 
     Note over M: Systém připraven - všechny tasky běží&lt;br/&gt;Hra inicializována, UART aktivní
-
-# =============================================================================
     </div>
   </div>
 
@@ -805,8 +801,6 @@ sequenceDiagram
     GT-&gt;&gt;L: led_update_button_availability_from_game() - Button LED feedback
     
     GT--&gt;&gt;Move: true - Tah úspěšně proveden
-
-# =============================================================================
     </div>
   </div>
 
@@ -953,8 +947,6 @@ sequenceDiagram
     end
     
     Note over L: Button LED feedback - Zelená/Modrá/Červená - podle dostupnosti
-
-# =============================================================================
     </div>
   </div>
 
@@ -1111,8 +1103,6 @@ sequenceDiagram
         G-&gt;&gt;L: led_set_pixel_safe() - Červená (chyba)
         Note over G: Normální error handling flow
     end
-
-# =============================================================================
     </div>
   </div>
 
@@ -1154,8 +1144,6 @@ sequenceDiagram
         G-&gt;&gt;L: game_stop_error_blink() - Zastavení blink animace
         Note over G: Error recovery dokončen - Normální hra pokračuje
     end
-
-# =============================================================================
     </div>
   </div>
 
@@ -1254,8 +1242,6 @@ sequenceDiagram
     end
     
     Note over G: game_update_timer_display() - Voláno každý cyklus - game_task main loop
-
-# =============================================================================
     </div>
   </div>
 
@@ -1508,8 +1494,6 @@ sequenceDiagram
     end
     
     Note over G: Po tahu / endgame: LED příkazy z game_task&lt;br/&gt;bez běžícího animation_task (viz unified_animation_manager)
-
-# =============================================================================
     </div>
   </div>
 
@@ -1610,8 +1594,6 @@ sequenceDiagram
         C-&gt;&gt;WS: GET /
         WS-&gt;&gt;C: HTTP 200 OK - HTML šachovnice (embedded)
     end
-
-# =============================================================================
     </div>
   </div>
 

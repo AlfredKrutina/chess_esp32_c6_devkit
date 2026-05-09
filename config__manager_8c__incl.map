@@ -1,6 +1,6 @@
 <map id="config_manager.c" name="config_manager.c">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v2.4 &#45; Sprava konfigurace." alt="" coords="690,5,826,31"/>
-<area shape="rect" id="Node000002" href="$config__manager_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Config Manager Hlavicka." alt="" coords="375,79,512,104"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Sprava konfigurace." alt="" coords="690,5,826,31"/>
+<area shape="rect" id="Node000002" href="$config__manager_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Config Manager Hlavicka." alt="" coords="375,79,512,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="708,33,508,78,507,73,707,28"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="520,152,604,177"/>
 <area shape="poly" id="edge21_Node000001_Node000004" title=" " alt="" coords="691,28,633,46,606,61,583,80,574,93,568,108,564,138,559,138,563,107,569,91,579,77,603,56,631,41,689,23"/>
@@ -17,12 +17,12 @@
 <area shape="rect" id="Node000003" title=" " alt="" coords="5,299,87,324"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,96,297,105,208,126,163,143,122,165,84,193,52,227,45,240,42,255,43,285,38,285,37,254,40,238,48,224,80,189,119,161,161,138,206,121,296,100,374,91"/>
 <area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="464,102,532,142,529,147,461,106"/>
-<area shape="rect" id="Node000005" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="367,152,496,177"/>
+<area shape="rect" id="Node000005" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="367,152,496,177"/>
 <area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="444,105,438,139,433,138,439,104"/>
 <area shape="poly" id="edge13_Node000005_Node000003" title=" " alt="" coords="366,171,288,177,201,187,123,204,94,215,73,227,63,240,56,254,49,285,44,284,51,252,58,237,70,223,91,210,122,199,200,182,287,172,366,166"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="83,225,179,251"/>
 <area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="384,180,193,225,192,220,383,175"/>
-<area shape="rect" id="Node000007" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="254,225,369,251"/>
+<area shape="rect" id="Node000007" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="254,225,369,251"/>
 <area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="413,180,344,220,342,216,411,175"/>
 <area shape="rect" id="Node000008" title=" " alt="" coords="125,299,276,324"/>
 <area shape="poly" id="edge14_Node000005_Node000008" title=" " alt="" coords="367,176,303,193,272,208,244,227,222,255,209,286,204,284,218,253,240,223,269,203,301,188,366,171"/>

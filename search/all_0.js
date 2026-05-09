@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['0_0',['0',['../index.html#autotoc_md162',1,'v2.3.0'],['../index.html#autotoc_md161',1,'v2.4.0'],['../index.html#autotoc_md160',1,'v2.5.0']]],
-  ['0_200_1',['v2.0.0',['../index.html#autotoc_md163',1,'']]],
-  ['04_2',['v2.5.1 / firmware (aktuální stav repa, 2026-04)',['../index.html#autotoc_md159',1,'']]]
+  ['1_207_203_20—_20aktuální_20verze_20projektu_20firmware_20v_20repu_202026_0',['1.7.3 — aktuální verze projektu (firmware v repu, 2026)',['../index.html#autotoc_md160',1,'']]],
+  ['1_207_203_20strong_1',['CZECHMATE firmware &lt;strong&gt;1.7.3&lt;/strong&gt;',['../index.html',1,'']]],
+  ['1_20time_20multiplexing_20gpio_2',['1. Time-multiplexing GPIO',['../index.html#autotoc_md135',1,'']]]
 ];

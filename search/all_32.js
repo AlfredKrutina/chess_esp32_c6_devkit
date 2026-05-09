@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['🔧_20když_20něco_20nejde_20co_20zkouším_20jako_20první_0',['🔧 Když něco nejde (co zkouším jako první)',['../index.html#autotoc_md152',1,'']]],
-  ['🔧_20ladění_20a_20testy_1',['🔧 Ladění a testy',['../index.html#autotoc_md146',1,'']]]
+  ['🔗_20odkazy_20které_20mám_20pořád_20po_20ruce_0',['🔗 Odkazy, které mám pořád po ruce',['../index.html#autotoc_md170',1,'']]]
 ];

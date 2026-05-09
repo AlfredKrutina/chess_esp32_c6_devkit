@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🏗️_20architektura_0',['🏗️ Architektura',['../index.html#autotoc_md101',1,'']]]
+  ['🎯_20hlavní_20funkce_0',['🎯 Hlavní funkce',['../index.html#autotoc_md94',1,'']]]
 ];

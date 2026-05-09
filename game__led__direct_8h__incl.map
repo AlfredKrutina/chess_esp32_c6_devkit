@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="PRIME LED FUNKCE PRO GAME TASK &#45; Zadny Queue Hell." alt="" coords="88,5,231,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,152,76,177"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,33,61,143,57,140,148,29"/>
-<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="153,79,267,104"/>
+<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="153,79,267,104"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,29,196,66,192,69,166,33"/>
 <area shape="poly" id="edge7_Node000003_Node000002" title=" " alt="" coords="184,106,82,149,80,144,182,102"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="100,152,181,177"/>

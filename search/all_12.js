@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['k_20tomu_20používám_0',['Co k tomu používám',['../index.html#autotoc_md108',1,'']]],
-  ['když_20něco_20nejde_20co_20zkouším_20jako_20první_1',['🔧 Když něco nejde (co zkouším jako první)',['../index.html#autotoc_md152',1,'']]],
+  ['k_20tomu_20používám_0',['Co k tomu používám',['../index.html#autotoc_md109',1,'']]],
+  ['když_20něco_20nejde_20co_20zkouším_20jako_20první_1',['🔧 Když něco nejde (co zkouším jako první)',['../index.html#autotoc_md153',1,'']]],
   ['king_5fanimation_5fid_2',['king_animation_id',['../structcastling__led__state__t.html#acc27bb99a6cbb794b94854f40d593c59',1,'castling_led_state_t']]],
   ['king_5fcol_3',['king_col',['../structking__resignation__state__t.html#a37e62616ed1e01e5461649b7fbe074e2',1,'king_resignation_state_t']]],
   ['king_5fdestination_4',['king_destination',['../structcastling__led__config__t.html#af99e940507d3ef2e8fb16664fd167360',1,'castling_led_config_t']]],
@@ -13,19 +13,19 @@ var searchData=
   ['king_5frow_10',['king_row',['../structking__resignation__state__t.html#a8aa2d198aefd1c851caa794ed1c1af41',1,'king_resignation_state_t']]],
   ['king_5fto_5fcol_11',['king_to_col',['../structcastling__positions__t.html#a6b2b0a29876d269219f706fa857eb78e',1,'castling_positions_t']]],
   ['king_5fto_5frow_12',['king_to_row',['../structcastling__positions__t.html#af10c6d54bf7046e73a6a0d5d48a88bf9',1,'castling_positions_t']]],
-  ['klient_20tt_20flutter_5fczechmate_20tt_13',['Flutter klient (&lt;tt&gt;flutter_czechmate/&lt;/tt&gt;)',['../index.html#autotoc_md116',1,'']]],
+  ['klient_20tt_20flutter_5fczechmate_20tt_13',['Flutter klient (&lt;tt&gt;flutter_czechmate/&lt;/tt&gt;)',['../index.html#autotoc_md117',1,'']]],
   ['knight_5fmoves_14',['knight_moves',['../game__task_8c.html#aa8992a10c771c05333aaea769d0cc506',1,'game_task.c']]],
-  ['komponent_15',['Struktura komponent',['../index.html#autotoc_md105',1,'']]],
+  ['komponent_15',['Struktura komponent',['../index.html#autotoc_md106',1,'']]],
   ['komponent_20dela_16',['CO TENTO KOMPONENT DELA?',['../ha__light__task_8h.html#autotoc_md28',1,'']]],
-  ['komponenty_17',['Komponenty',['../index.html#autotoc_md97',1,'']]],
+  ['komponenty_20prototyp_20v1_17',['Komponenty (prototyp V1)',['../index.html#autotoc_md98',1,'']]],
   ['komunikace_20fifos_18',['komunikace fifos',['../button__task_8c.html#autotoc_md5',1,'KOMUNIKACE (FIFOS)'],['../matrix__task_8c.html#autotoc_md51',1,'KOMUNIKACE (FIFOS)']]],
   ['komunikace_20fifos_20mutexy_19',['komunikace fifos mutexy',['../game__task_8c.html#autotoc_md16',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)'],['../led__task_8c.html#autotoc_md34',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)'],['../uart__task_8c.html#autotoc_md64',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)']]],
-  ['komunikace_20mezi_20tasky_20',['Komunikace mezi tasky',['../index.html#autotoc_md103',1,'']]],
+  ['komunikace_20mezi_20tasky_20',['Komunikace mezi tasky',['../index.html#autotoc_md104',1,'']]],
   ['komunikace_20queues_21',['KOMUNIKACE (QUEUES)',['../web__server__task_8c.html#autotoc_md81',1,'']]],
-  ['komunita_20esp32_20open_20source_22',['Komunita ESP32 + open source',['../index.html#autotoc_md181',1,'']]],
-  ['konzole_23',['UART konzole',['../index.html#autotoc_md114',1,'']]],
+  ['komunita_20esp32_20open_20source_22',['Komunita ESP32 + open source',['../index.html#autotoc_md178',1,'']]],
+  ['konzole_23',['UART konzole',['../index.html#autotoc_md115',1,'']]],
   ['kriticka_20pravidla_24',['kriticka pravidla',['../web__server__task_8c.html#autotoc_md85',1,'KRITICKA PRAVIDLA'],['../uart__task_8c.html#autotoc_md72',1,'KRITICKA PRAVIDLA'],['../matrix__task_8c.html#autotoc_md55',1,'KRITICKA PRAVIDLA'],['../led__task_8c.html#autotoc_md44',1,'KRITICKA PRAVIDLA'],['../game__task_8c.html#autotoc_md24',1,'KRITICKA PRAVIDLA'],['../button__task_8c.html#autotoc_md7',1,'KRITICKA PRAVIDLA']]],
-  ['krutina_20software_20firmware_25',['Alfred Krutina - Software &amp; Firmware',['../index.html#autotoc_md168',1,'']]],
-  ['které_20mám_20pořád_20po_20ruce_26',['🔗 Odkazy, které mám pořád po ruce',['../index.html#autotoc_md173',1,'']]],
-  ['které_20nás_20držely_20vzhůru_27',['🐛 Výzvy, které nás držely vzhůru',['../index.html#autotoc_md131',1,'']]]
+  ['krutina_20software_20firmware_25',['Alfred Krutina - Software &amp; Firmware',['../index.html#autotoc_md165',1,'']]],
+  ['které_20mám_20pořád_20po_20ruce_26',['🔗 Odkazy, které mám pořád po ruce',['../index.html#autotoc_md170',1,'']]],
+  ['které_20nás_20držely_20vzhůru_27',['🐛 Výzvy, které nás držely vzhůru',['../index.html#autotoc_md132',1,'']]]
 ];

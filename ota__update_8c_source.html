@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
    </div>
-   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -1052,7 +1052,7 @@ $(document).ready(function(){initNavTree('ota__update_8c_source.html',''); initR
 </div>
 <div class="ttc" id="aboard__api__auth_8c_html_aba5d37160ecb20a0c8016bb5f864c413"><div class="ttname"><a href="board__api__auth_8c.html#aba5d37160ecb20a0c8016bb5f864c413">board_api_auth_admin_http_denied</a></div><div class="ttdeci">bool board_api_auth_admin_http_denied(httpd_req_t *req)</div><div class="ttdoc">HTTP admin akce: zkontroluje Bearer token vs NVS a web lock.</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00172">board_api_auth.c:172</a></div></div>
 <div class="ttc" id="aboard__api__auth_8h_html"><div class="ttname"><a href="board__api__auth_8h.html">board_api_auth.h</a></div><div class="ttdoc">Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy.</div></div>
-<div class="ttc" id="aled__task_8h_html"><div class="ttname"><a href="led__task_8h.html">led_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - LED Task Hlavicka.</div></div>
+<div class="ttc" id="aled__task_8h_html"><div class="ttname"><a href="led__task_8h.html">led_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.7.3 - LED Task Hlavicka.</div></div>
 <div class="ttc" id="aled__task_8h_html_ae8169ab78113c9acb2a4ba031e1d42c5"><div class="ttname"><a href="led__task_8h.html#ae8169ab78113c9acb2a4ba031e1d42c5">led_ota_restore_board_after_update_abort</a></div><div class="ttdeci">void led_ota_restore_board_after_update_abort(void)</div><div class="ttdoc">Obnovit šachovnici po zrušení / chybě OTA (např.</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03634">led_task.c:3634</a></div></div>
 <div class="ttc" id="aled__task_8h_html_afbf4a51f516267053afb50aa2ddbac5a"><div class="ttname"><a href="led__task_8h.html#afbf4a51f516267053afb50aa2ddbac5a">led_ota_progress_ui</a></div><div class="ttdeci">void led_ota_progress_ui(uint8_t progress_percent)</div><div class="ttdoc">Zobrazení průběhu OTA na LED (deska + tlačítka).</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03563">led_task.c:3563</a></div></div>
 <div class="ttc" id="aota__update_8c_html_a061bf2fb7f3c766384c5042f5ad04c9f"><div class="ttname"><a href="ota__update_8c.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update_ble_try_dispatch</a></div><div class="ttdeci">esp_err_t ota_update_ble_try_dispatch(const char *json_buf)</div><div class="ttdoc">BLE JSON {&quot;cmd&quot;:&quot;ota_start&quot;,&quot;url&quot;:&quot;https://…&quot;}.</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00884">ota_update.c:884</a></div></div>
@@ -1111,7 +1111,7 @@ $(document).ready(function(){initNavTree('ota__update_8c_source.html',''); initR
 <div class="ttc" id="aota__update_8c_html_af8ad2ce4fadfc32cfe70311ccd91d158"><div class="ttname"><a href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">schedule_ota</a></div><div class="ttdeci">static esp_err_t schedule_ota(const char *url)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00459">ota_update.c:459</a></div></div>
 <div class="ttc" id="aota__update_8c_html_afb00f7e6b3456f322e9b8998f889f006"><div class="ttname"><a href="ota__update_8c.html#afb00f7e6b3456f322e9b8998f889f006">ble_ota_fail_unlock</a></div><div class="ttdeci">static esp_err_t ble_ota_fail_unlock(const char *reason_tag)</div><div class="ttdef"><b>Definition</b> <a href="ota__update_8c_source.html#l00136">ota_update.c:136</a></div></div>
 <div class="ttc" id="aota__update_8h_html"><div class="ttname"><a href="ota__update_8h.html">ota_update.h</a></div><div class="ttdoc">OTA: HTTPS/HTTP z URL, nebo stream přes BLE (chunky na CMD char).</div></div>
-<div class="ttc" id="aweb__server__task_8h_html"><div class="ttname"><a href="web__server__task_8h.html">web_server_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Web Server Task Hlavicka.</div></div>
+<div class="ttc" id="aweb__server__task_8h_html"><div class="ttname"><a href="web__server__task_8h.html">web_server_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.7.3 - Web Server Task Hlavicka.</div></div>
 <div class="ttc" id="aweb__server__task_8h_html_a96cbfc09f923b4548a4bb4c63f70237f"><div class="ttname"><a href="web__server__task_8h.html#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a></div><div class="ttdeci">bool wifi_is_sta_connected(void)</div><div class="ttdoc">Zjisti zda je STA pripojeno.</div><div class="ttdef"><b>Definition</b> <a href="web__server__task_8c_source.html#l00727">web_server_task.c:727</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
    </div>
-   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('timer__system_8c.html',''); initResiza
 </div><!--header-->
 <div class="contents">
 
-<p>ESP32-C6 Chess System v2.4 - Timer System implementace.  
+<p>ESP32-C6 Chess System v1.7.3 - Timer System implementace.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="timer__system_8h_source.html">include/timer_system.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
@@ -117,10 +117,10 @@ Graf závislostí na vkládaných souborech pro timer_system.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="timer__system_8c__incl.png" border="0" usemap="#atimer__system_8c" alt=""/></div>
 <map name="atimer__system_8c" id="atimer__system_8c">
-<area shape="rect" title="ESP32&#45;C6 Chess System v2.4 &#45; Timer System implementace." alt="" coords="1438,5,1561,31"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Timer System komponenta." alt="" coords="35,240,209,265"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Timer System implementace." alt="" coords="1438,5,1561,31"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Timer System komponenta." alt="" coords="35,240,209,265"/>
 <area shape="poly" title=" " alt="" coords="1438,23,753,42,394,59,273,70,236,75,217,81,198,95,183,112,157,152,140,193,130,228,125,226,135,191,153,149,178,109,195,91,214,76,234,70,272,64,393,54,753,36,1438,18"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; LED Task Hlavicka." alt="" coords="228,79,368,119"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; LED Task Hlavicka." alt="" coords="228,79,368,119"/>
 <area shape="poly" title=" " alt="" coords="1438,26,382,95,382,89,1438,21"/>
 <area shape="rect" title=" " alt="" coords="684,313,835,339"/>
 <area shape="poly" title=" " alt="" coords="1458,33,1420,51,1403,64,1390,80,1378,105,1376,129,1387,175,1393,198,1395,221,1389,244,1373,267,1346,281,1298,291,1157,308,993,319,849,325,848,320,993,314,1157,303,1297,286,1344,275,1370,263,1385,242,1389,221,1387,199,1381,176,1371,129,1373,104,1385,77,1400,60,1417,47,1456,28"/>
@@ -151,14 +151,14 @@ Graf závislostí na vkládaných souborech pro timer_system.c:</div>
 <area shape="poly" title=" " alt="" coords="309,118,387,299,382,301,304,120"/>
 <area shape="poly" title=" " alt="" coords="228,115,172,131,112,156,56,193,32,215,12,241,8,257,12,272,36,302,31,305,8,275,3,257,8,239,28,212,53,188,109,152,170,126,227,110"/>
 <area shape="poly" title=" " alt="" coords="294,120,282,167,275,239,274,299,268,299,270,238,277,166,289,118"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.1 &#45; Hlavni systemova hlavicka." alt="" coords="601,167,731,192"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="601,167,731,192"/>
 <area shape="poly" title=" " alt="" coords="369,112,599,161,598,166,368,117"/>
 <area shape="poly" title=" " alt="" coords="647,194,514,268,432,310,429,305,511,263,645,190"/>
 <area shape="poly" title=" " alt="" coords="601,184,451,189,268,199,107,216,52,228,24,242,18,255,20,270,40,302,36,305,15,272,13,255,20,238,51,223,106,211,268,194,450,184,601,179"/>
 <area shape="poly" title=" " alt="" coords="602,187,493,204,433,220,375,242,329,272,293,305,289,301,326,268,373,238,431,215,491,199,601,182"/>
 <area shape="rect" title=" " alt="" coords="575,240,671,265"/>
 <area shape="poly" title=" " alt="" coords="661,194,639,230,635,227,657,191"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v2.4 &#45; Spolecne definice typu." alt="" coords="386,240,501,265"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="386,240,501,265"/>
 <area shape="poly" title=" " alt="" coords="631,195,493,238,491,233,629,189"/>
 <area shape="poly" title=" " alt="" coords="683,190,707,211,730,239,745,269,756,299,751,301,740,271,725,241,703,215,680,194"/>
 <area shape="rect" title=" " alt="" coords="493,313,623,339"/>
@@ -283,7 +283,7 @@ Proměnné</h2></td></tr>
 <tr class="separator:a9e1944a686d4ae4557f50f658cb6b03c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
-<div class="textblock"><p>ESP32-C6 Chess System v2.4 - Timer System implementace. </p>
+<div class="textblock"><p>ESP32-C6 Chess System v1.7.3 - Timer System implementace. </p>
 <p>Tato komponenta implementuje casovy system pro sachovou hru:</p><ul>
 <li>Presne mereni casu s ESP32 timer API</li>
 <li>Thread-safe operace s casem</li>
@@ -292,7 +292,7 @@ Proměnné</h2></td></tr>
 <li>NVS persistence nastaveni</li>
 </ul>
 <dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Verze</dt><dd>2.4 </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>1.7.3 </dd></dl>
 <dl class="section date"><dt>Datum</dt><dd>2025-01-XX</dd></dl>
 <p>Timer system pouziva ESP32 timer API pro presne mereni casu. Vsechny operace jsou thread-safe s pouzitim mutexu. Podporuje standardni casove kontroly a vlastni nastaveni. </p>
 

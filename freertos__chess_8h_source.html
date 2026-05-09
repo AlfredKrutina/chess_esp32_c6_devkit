@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;2.5.1</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
    </div>
-   <div id="projectbrief">Kompletní šachový systém s WS2812B LED, 8x8 Matrix a Button LED Feedback - Šachmat, udělaný v Česku</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -124,11 +124,11 @@ $(document).ready(function(){initNavTree('freertos__chess_8h_source.html',''); i
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#aa46150276ebae8e1eec4efdc53dffce4">   50</a></span><span class="preprocessor">#define CHESS_SYSTEM_NAME &quot;ESP32-C6 Chess System&quot;</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#ifndef CHESS_SYSTEM_VERSION</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a">   53</a></span><span class="preprocessor">#define CHESS_SYSTEM_VERSION &quot;1.1.2&quot;</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a">   53</a></span><span class="preprocessor">#define CHESS_SYSTEM_VERSION &quot;1.7.3&quot;</span></div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#afbda35de111776579b8d9abad085db4d">   56</a></span><span class="preprocessor">#define CHESS_SYSTEM_AUTHOR &quot;Alfred Krutina&quot;</span></div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span><span class="preprocessor">#ifndef CHESS_VERSION_STRING</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4">   59</a></span><span class="preprocessor">#define CHESS_VERSION_STRING &quot;ESP32-C6 Chess System v1.1.2&quot;</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4">   59</a></span><span class="preprocessor">#define CHESS_VERSION_STRING &quot;ESP32-C6 Chess System v1.7.3&quot;</span></div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno"><a class="line" href="freertos__chess_8h.html#a8b1a270b4e32e22a214ff3ad8e670ef7">   62</a></span><span class="preprocessor">#define CHESS_BUILD_DATE __DATE__</span></div>
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
@@ -450,7 +450,7 @@ $(document).ready(function(){initNavTree('freertos__chess_8h_source.html',''); i
 <div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span> </div>
 <div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span><span class="preprocessor">#endif </span><span class="comment">// FREERTOS_CHESS_H</span></div>
-<div class="ttc" id="achess__types_8h_html"><div class="ttname"><a href="chess__types_8h.html">chess_types.h</a></div><div class="ttdoc">ESP32-C6 Chess System v2.4 - Spolecne definice typu.</div></div>
+<div class="ttc" id="achess__types_8h_html"><div class="ttname"><a href="chess__types_8h.html">chess_types.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.7.3 - Spolecne definice typu.</div></div>
 <div class="ttc" id="afreertos__chess_8h_html_a02a776b41d5e50969e5cf68dcbbc2c69"><div class="ttname"><a href="freertos__chess_8h.html#a02a776b41d5e50969e5cf68dcbbc2c69">uart_response_queue</a></div><div class="ttdeci">QueueHandle_t uart_response_queue</div><div class="ttdoc">Fronta pro UART odpovedi (odpovedi ze systemu)</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8c_source.html#l00088">freertos_chess.c:88</a></div></div>
 <div class="ttc" id="afreertos__chess_8h_html_a0321f7ecdafb014dbfb05309bf810493"><div class="ttname"><a href="freertos__chess_8h.html#a0321f7ecdafb014dbfb05309bf810493">chess_monitor_tasks</a></div><div class="ttdeci">esp_err_t chess_monitor_tasks(void)</div><div class="ttdoc">Monitoruje systemove tasky.</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8c_source.html#l01156">freertos_chess.c:1156</a></div></div>
 <div class="ttc" id="afreertos__chess_8h_html_a05107bbe85fd87a92dad9efd71dbd653"><div class="ttname"><a href="freertos__chess_8h.html#a05107bbe85fd87a92dad9efd71dbd653">button_event_queue</a></div><div class="ttdeci">QueueHandle_t button_event_queue</div><div class="ttdoc">Fronta pro button udalosti (press, release, long press)</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8c_source.html#l00083">freertos_chess.c:83</a></div></div>
