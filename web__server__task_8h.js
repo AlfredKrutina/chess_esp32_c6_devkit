@@ -43,6 +43,8 @@ var web__server__task_8h =
     [ "web_server_update_state", "web__server__task_8h.html#a64790e5afc3435f96af702391bf6a24d", null ],
     [ "web_server_websocket_init", "web__server__task_8h.html#a362473905ca28dd32196ec327d9ccaee", null ],
     [ "web_server_websocket_send_update", "web__server__task_8h.html#a2cb5b9ee72f8acc55f6cb8f8b45f8bec", null ],
+    [ "wifi_ap_effective_ssid", "web__server__task_8h.html#ab28dd1595e0c8a2083ee176a771ab90e", null ],
+    [ "wifi_ap_is_broadcasting", "web__server__task_8h.html#a402a717253a4dc08e579b033e132b44f", null ],
     [ "wifi_clear_config_from_nvs", "web__server__task_8h.html#a1b7f75613a5cab50704428a000610531", null ],
     [ "wifi_connect_sta", "web__server__task_8h.html#ad3bda523e632b9d3152cdd73fe9d8d4c", null ],
     [ "wifi_disconnect_sta", "web__server__task_8h.html#a4a4813aac1f99fb986c17f6a4f5e40e2", null ],

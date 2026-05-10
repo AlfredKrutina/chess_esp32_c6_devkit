@@ -3,7 +3,7 @@ var searchData=
   ['jager_20hardware_0',['Matěj Jager - Hardware',['../index.html#autotoc_md166',1,'']]],
   ['jak_20je_20repozitář_20položený_1',['📁 Jak je repozitář položený',['../index.html#autotoc_md145',1,'']]],
   ['jak_20si_20firmware_20přeložím_20a_20nahraju_2',['🚀 Jak si firmware přeložím a nahraju',['../index.html#autotoc_md108',1,'']]],
-  ['jak_20to_20funguje_3',['jak to funguje',['../web__server__task_8c.html#autotoc_md79',1,'JAK TO FUNGUJE?'],['../uart__task_8c.html#autotoc_md62',1,'JAK TO FUNGUJE?'],['../matrix__task_8c.html#autotoc_md49',1,'JAK TO FUNGUJE?'],['../led__task_8c.html#autotoc_md32',1,'JAK TO FUNGUJE?'],['../game__task_8c.html#autotoc_md14',1,'JAK TO FUNGUJE?'],['../button__task_8c.html#autotoc_md3',1,'JAK TO FUNGUJE?']]],
+  ['jak_20to_20funguje_3',['jak to funguje',['../button__task_8c.html#autotoc_md3',1,'JAK TO FUNGUJE?'],['../game__task_8c.html#autotoc_md14',1,'JAK TO FUNGUJE?'],['../led__task_8c.html#autotoc_md32',1,'JAK TO FUNGUJE?'],['../matrix__task_8c.html#autotoc_md49',1,'JAK TO FUNGUJE?'],['../uart__task_8c.html#autotoc_md62',1,'JAK TO FUNGUJE?']]],
   ['jak_20to_20v_20praxi_20používám_4',['📖 Jak to v praxi používám',['../index.html#autotoc_md114',1,'']]],
   ['jako_20první_5',['🔧 Když něco nejde (co zkouším jako první)',['../index.html#autotoc_md153',1,'']]],
   ['ještě_20láká_20doplnit_6',['🔮 Co mě ještě láká doplnit',['../index.html#autotoc_md162',1,'']]],

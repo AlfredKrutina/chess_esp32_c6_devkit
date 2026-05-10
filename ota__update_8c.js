@@ -3,6 +3,7 @@ var ota__update_8c =
     [ "BLE_OTA_MAGIC0", "ota__update_8c.html#a4c3fc622409c06e3abcce60b24aea772", null ],
     [ "BLE_OTA_MAGIC1", "ota__update_8c.html#a286031d9d2a8e9cdf5a0ad1562910344", null ],
     [ "BLE_OTA_SUSPEND_TIMEOUT_US", "ota__update_8c.html#a0a56c86a6dd346d26e4f5d89d7bed8f2", null ],
+    [ "OTA_HTTP_POST_BODY_CAP", "ota__update_8c.html#a63d826b3d2f4cec8482503bebcb7a261", null ],
     [ "ble_ota_rx_state_t", "ota__update_8c.html#ab412d237d352afdfdf448dbad217eaa2", [
       [ "BLE_OTA_IDLE", "ota__update_8c.html#ab412d237d352afdfdf448dbad217eaa2a9616ce214d367ee8762d41ed71f9b3d9", null ],
       [ "BLE_OTA_RX", "ota__update_8c.html#ab412d237d352afdfdf448dbad217eaa2aeb2ccda721cf7849d1b18c86fcd56a78", null ],

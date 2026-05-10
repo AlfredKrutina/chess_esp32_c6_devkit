@@ -173,7 +173,7 @@ Funkce</h2></td></tr>
 
 <p>Zruší probíhající BLE stream OTA (uvolní semafor). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00744">744</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00770">770</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -195,7 +195,7 @@ Funkce</h2></td></tr>
 
 <p>BLE JSON {"cmd":"ota_ble_begin","size":&lt;bytes&gt;} před chunky <code>OB…</code>. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00667">667</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00693">693</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -228,7 +228,7 @@ Funkce</h2></td></tr>
 <p>JSON pro cmd_ack notify (≤ ~380 B): channel/cmd_ack + ota_ble_status pole. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK nebo ESP_ERR_INVALID_STATE při malém bufferu. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00781">781</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00807">807</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -261,7 +261,7 @@ Funkce</h2></td></tr>
 <p>BLE CMD write s hlavičkou <code>OB</code> + uint16 LE chunk_idx + uint16 LE chunk_total + raw payload. </p>
 <p>Po posledním bajtu podle <code>size</code> z begin provede esp_ota_end a restart. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00815">815</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00841">841</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -284,7 +284,7 @@ Funkce</h2></td></tr>
 <p>Probíhá aktivní příjem BLE OTA chunků (ne paused). </p>
 <p>Pro potlačení snapshot notify / vedlejší zátěže během přenosu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00777">777</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00803">803</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -307,7 +307,7 @@ Funkce</h2></td></tr>
 <p>Zavolat z GAP disconnect (NimBLE). </p>
 <p>Po výpadku linku po <code>ota_ble_begin</code> jinak zůstane RX stav + držený semafor a další <code>ota_ble_begin</code> končí na ESP_ERR_INVALID_STATE („busy“). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00767">767</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00793">793</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -330,7 +330,7 @@ Funkce</h2></td></tr>
 <p>BLE JSON {"cmd":"ota_start","url":"https://…"}. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud příkaz byl přijat a naplánován (nebo už běží), jinak chyba. </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00884">884</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00910">910</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -350,7 +350,7 @@ Funkce</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00631">631</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00657">657</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -372,7 +372,7 @@ Funkce</h2></td></tr>
 
 <p>Stejné jako HTTP POST /api/system/ota — z UART po STA a https URL. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00665">665</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="ota__update_8c_source.html#l00691">691</a> v souboru <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>

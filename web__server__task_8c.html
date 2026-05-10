@@ -99,7 +99,7 @@ $(document).ready(function(){initNavTree('web__server__task_8c.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
-<p>Web Server Task - WiFi hotspot a HTTP server pro web ovladani.  
+<p>HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="web__server__task_8h_source.html">web_server_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__state__notify_8h_source.html">../game_hooks/include/game_state_notify.h</a>&quot;</code><br />
@@ -140,7 +140,7 @@ Graf závislostí na vkládaných souborech pro web_server_task.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="web__server__task_8c__incl.png" border="0" usemap="#aweb__server__task_8c" alt=""/></div>
 <map name="aweb__server__task_8c" id="aweb__server__task_8c">
-<area shape="rect" title="Web Server Task &#45; WiFi hotspot a HTTP server pro web ovladani." alt="" coords="2775,5,2917,31"/>
+<area shape="rect" title="HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci." alt="" coords="2775,5,2917,31"/>
 <area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Web Server Task Hlavicka." alt="" coords="602,86,746,111"/>
 <area shape="poly" title=" " alt="" coords="2775,22,2382,25,1798,33,1198,51,947,64,758,81,732,86,731,80,758,76,947,59,1198,46,1798,28,2382,20,2775,17"/>
 <area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="808,174,937,199"/>
@@ -290,6 +290,8 @@ Graf závislostí na vkládaných souborech pro web_server_task.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Datové struktury</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwifi__ap__toggle__msg__t.html">wifi_ap_toggle_msg_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structwifi__ble__prov__msg__t.html">wifi_ble_prov_msg_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpráva pro asynchronní STA provisioning z BLE (wifi_connect_sta může trvat až ~30 s).  <a href="structwifi__ble__prov__msg__t.html#details">...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -319,6 +321,15 @@ Definice maker</h2></td></tr>
 <tr class="separator:a4d51acbc4a1127232436f69fbbc18683"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a434b6722326d8ef2da75d4d215ac6992" id="r_a434b6722326d8ef2da75d4d215ac6992"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a434b6722326d8ef2da75d4d215ac6992">WIFI_NVS_KEY_PASSWORD</a>&#160;&#160;&#160;&quot;sta_password&quot;</td></tr>
 <tr class="separator:a434b6722326d8ef2da75d4d215ac6992"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6ee53af436bd5ce3daff5b69332fb07" id="r_aa6ee53af436bd5ce3daff5b69332fb07"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#aa6ee53af436bd5ce3daff5b69332fb07">WIFI_NVS_KEY_AP_USER</a>&#160;&#160;&#160;&quot;ap_user_en&quot;</td></tr>
+<tr class="memdesc:aa6ee53af436bd5ce3daff5b69332fb07"><td class="mdescLeft">&#160;</td><td class="mdescRight">0/1 — uživatelsky zapnutý hotspot desky (AP); výchozí NVS chybí → AP vypnutý.  <br /></td></tr>
+<tr class="separator:aa6ee53af436bd5ce3daff5b69332fb07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8821f1ed0e2e32b99633249f30da2889" id="r_a8821f1ed0e2e32b99633249f30da2889"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a8821f1ed0e2e32b99633249f30da2889">WIFI_NVS_KEY_STA_BLK_OCT</a>&#160;&#160;&#160;&quot;sta_blk_oct&quot;</td></tr>
+<tr class="memdesc:a8821f1ed0e2e32b99633249f30da2889"><td class="mdescLeft">&#160;</td><td class="mdescRight">CSV blokovaných 3.  <br /></td></tr>
+<tr class="separator:a8821f1ed0e2e32b99633249f30da2889"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae06c972ced2e79dba03f8064a5a245d9" id="r_ae06c972ced2e79dba03f8064a5a245d9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ae06c972ced2e79dba03f8064a5a245d9">WIFI_STA_BLK_OCT_DEFAULT_CSV</a>&#160;&#160;&#160;&quot;88&quot;</td></tr>
+<tr class="memdesc:ae06c972ced2e79dba03f8064a5a245d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Po flashi / chybě klíče v NVS — dokud uživatel neuloží jinak přes aplikaci.  <br /></td></tr>
+<tr class="separator:ae06c972ced2e79dba03f8064a5a245d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94e74a2c614fc3d5ea5f639a55f2221b" id="r_a94e74a2c614fc3d5ea5f639a55f2221b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a94e74a2c614fc3d5ea5f639a55f2221b">WEB_NVS_NAMESPACE</a>&#160;&#160;&#160;&quot;web_config&quot;</td></tr>
 <tr class="separator:a94e74a2c614fc3d5ea5f639a55f2221b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34ccd19a2d18b64a7db37e39c68dc704" id="r_a34ccd19a2d18b64a7db37e39c68dc704"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a34ccd19a2d18b64a7db37e39c68dc704">WEB_NVS_KEY_LOCKED</a>&#160;&#160;&#160;&quot;locked&quot;</td></tr>
@@ -336,7 +347,7 @@ Definice maker</h2></td></tr>
 <tr class="memitem:a203531c437566e817791643601aef9e0" id="r_a203531c437566e817791643601aef9e0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a203531c437566e817791643601aef9e0">SNAPSHOT_BUFFER_SIZE</a>&#160;&#160;&#160;20480</td></tr>
 <tr class="memdesc:a203531c437566e817791643601aef9e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Jeden velky buffer pro GET /api/game/snapshot (board+status+history+captured).  <br /></td></tr>
 <tr class="separator:a203531c437566e817791643601aef9e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9dabb68e44bc590e97031ece04d02a4" id="r_ad9dabb68e44bc590e97031ece04d02a4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad9dabb68e44bc590e97031ece04d02a4">WIFI_STATUS_JSON_MAX</a>&#160;&#160;&#160;512</td></tr>
+<tr class="memitem:ad9dabb68e44bc590e97031ece04d02a4" id="r_ad9dabb68e44bc590e97031ece04d02a4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad9dabb68e44bc590e97031ece04d02a4">WIFI_STATUS_JSON_MAX</a>&#160;&#160;&#160;640</td></tr>
 <tr class="memdesc:ad9dabb68e44bc590e97031ece04d02a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">GET /api/wifi/status — wifi_get_sta_status_json (~300 B); nesmi byt 8 KiB na stacku httpd.  <br /></td></tr>
 <tr class="separator:ad9dabb68e44bc590e97031ece04d02a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec1dab525109f96343c5edb1dd7de1e8" id="r_aec1dab525109f96343c5edb1dd7de1e8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#aec1dab525109f96343c5edb1dd7de1e8">TIMER_HTTP_JSON_MAX</a>&#160;&#160;&#160;1024</td></tr>
@@ -346,6 +357,8 @@ Definice maker</h2></td></tr>
 <tr class="separator:a2720cee636856bd8213af149225c46ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada7bf27261780a90d167ab1e4d0f5ba7" id="r_ada7bf27261780a90d167ab1e4d0f5ba7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ada7bf27261780a90d167ab1e4d0f5ba7">STA_RECONNECT_DELAY_MAX_MS</a>&#160;&#160;&#160;30000</td></tr>
 <tr class="separator:ada7bf27261780a90d167ab1e4d0f5ba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93a44d3a4b91d8d9249a3c92dfe8bd08" id="r_a93a44d3a4b91d8d9249a3c92dfe8bd08"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a93a44d3a4b91d8d9249a3c92dfe8bd08">STA_BLK_OCT_MAX</a>&#160;&#160;&#160;16</td></tr>
+<tr class="separator:a93a44d3a4b91d8d9249a3c92dfe8bd08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7362e99e23548ddcd754f242bc749b2e" id="r_a7362e99e23548ddcd754f242bc749b2e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a7362e99e23548ddcd754f242bc749b2e">WIFI_AP_SCAN_MAX_APS</a>&#160;&#160;&#160;64</td></tr>
 <tr class="separator:a7362e99e23548ddcd754f242bc749b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6007756a024b786edf8beafd4216bcad" id="r_a6007756a024b786edf8beafd4216bcad"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a6007756a024b786edf8beafd4216bcad">CZECHMATE_FACTORY_RESET_CONFIRM</a>&#160;&#160;&#160;&quot;erase_all_nvs&quot;</td></tr>
@@ -354,6 +367,12 @@ Definice maker</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Funkce</h2></td></tr>
+<tr class="memitem:a5614b0a4f404011bff31b8aa9564a165" id="r_a5614b0a4f404011bff31b8aa9564a165"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a5614b0a4f404011bff31b8aa9564a165">setup_tutorial_reset_finish_cooldown</a> (void)</td></tr>
+<tr class="separator:a5614b0a4f404011bff31b8aa9564a165"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8657f8e6c6fdd420f962d254d01d1b5d" id="r_a8657f8e6c6fdd420f962d254d01d1b5d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a8657f8e6c6fdd420f962d254d01d1b5d">setup_tutorial_finish_in_cooldown</a> (void)</td></tr>
+<tr class="separator:a8657f8e6c6fdd420f962d254d01d1b5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a056b15747d39b437e29fde3e57a9b324" id="r_a056b15747d39b437e29fde3e57a9b324"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a056b15747d39b437e29fde3e57a9b324">setup_tutorial_note_finish_conflict</a> (void)</td></tr>
+<tr class="separator:a056b15747d39b437e29fde3e57a9b324"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c97a0ccfbc6eb7b4c5fc2443d19a974" id="r_a6c97a0ccfbc6eb7b4c5fc2443d19a974"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a6c97a0ccfbc6eb7b4c5fc2443d19a974">web_server_task_wdt_reset_safe</a> (void)</td></tr>
 <tr class="memdesc:a6c97a0ccfbc6eb7b4c5fc2443d19a974"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset TWDT jen pokud aktuální úloha je <code>web_server_task</code>.  <br /></td></tr>
 <tr class="separator:a6c97a0ccfbc6eb7b4c5fc2443d19a974"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -375,8 +394,24 @@ Funkce</h2></td></tr>
 <tr class="memitem:a67b85e21ee1a283f1f8ba6b818e6bb3e" id="r_a67b85e21ee1a283f1f8ba6b818e6bb3e"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a67b85e21ee1a283f1f8ba6b818e6bb3e">wifi_init_apsta</a> (void)</td></tr>
 <tr class="memdesc:a67b85e21ee1a283f1f8ba6b818e6bb3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuje WiFi Access Point a Station (APSTA)  <br /></td></tr>
 <tr class="separator:a67b85e21ee1a283f1f8ba6b818e6bb3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af942ea353d3632952a7770db0ce39f1d" id="r_af942ea353d3632952a7770db0ce39f1d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#af942ea353d3632952a7770db0ce39f1d">wifi_ap_user_apply_task</a> (void *arg)</td></tr>
+<tr class="separator:af942ea353d3632952a7770db0ce39f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4a9d214719b6cb61cee0abe47c1e96f" id="r_ad4a9d214719b6cb61cee0abe47c1e96f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad4a9d214719b6cb61cee0abe47c1e96f">czechmate_mdns_refresh_sta_txt</a> (void)</td></tr>
+<tr class="memdesc:ad4a9d214719b6cb61cee0abe47c1e96f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bonjour TXT „sta_ip" + „ap_ip" — iOS/watch často nevyřeší hostname .local včas; přímá IPv4 v TXT umožní HTTP/WS bez závislosti na mDNS A záznamu.  <br /></td></tr>
+<tr class="separator:ad4a9d214719b6cb61cee0abe47c1e96f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac31e38637f7a5e5c8ce4d033b0955fec" id="r_ac31e38637f7a5e5c8ce4d033b0955fec"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ac31e38637f7a5e5c8ce4d033b0955fec">wifi_event_handler</a> (void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)</td></tr>
+<tr class="memdesc:ac31e38637f7a5e5c8ce4d033b0955fec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluhuje WiFi eventy.  <br /></td></tr>
 <tr class="separator:ac31e38637f7a5e5c8ce4d033b0955fec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e909335bc129d8bd91504c4f0f0add3" id="r_a9e909335bc129d8bd91504c4f0f0add3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a9e909335bc129d8bd91504c4f0f0add3">wifi_sta_parse_blocked_csv</a> (const char *csv)</td></tr>
+<tr class="separator:a9e909335bc129d8bd91504c4f0f0add3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81d6b5242f9ab01bd0e2ffda90456cb5" id="r_a81d6b5242f9ab01bd0e2ffda90456cb5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a81d6b5242f9ab01bd0e2ffda90456cb5">wifi_sta_refresh_blocked_octets_from_nvs</a> (void)</td></tr>
+<tr class="separator:a81d6b5242f9ab01bd0e2ffda90456cb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2edf87f5c78682fcaf51f80a61ab4af1" id="r_a2edf87f5c78682fcaf51f80a61ab4af1"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a2edf87f5c78682fcaf51f80a61ab4af1">wifi_sta_third_octet_is_blocked</a> (uint8_t oct)</td></tr>
+<tr class="separator:a2edf87f5c78682fcaf51f80a61ab4af1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a127bc0c4813e9a406301ccac4d88aded" id="r_a127bc0c4813e9a406301ccac4d88aded"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a127bc0c4813e9a406301ccac4d88aded">wifi_sta_disconnect_if_current_ip_blocked</a> (void)</td></tr>
+<tr class="separator:a127bc0c4813e9a406301ccac4d88aded"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e36fd4edb70535ec4aef57d01bcce91" id="r_a9e36fd4edb70535ec4aef57d01bcce91"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a9e36fd4edb70535ec4aef57d01bcce91">wifi_sta_save_blocked_octets_csv</a> (const char *csv_in)</td></tr>
+<tr class="separator:a9e36fd4edb70535ec4aef57d01bcce91"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a336ec184b985a0af307c5ad81f06ae9e" id="r_a336ec184b985a0af307c5ad81f06ae9e"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a336ec184b985a0af307c5ad81f06ae9e">start_http_server</a> (void)</td></tr>
 <tr class="memdesc:a336ec184b985a0af307c5ad81f06ae9e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti HTTP server.  <br /></td></tr>
 <tr class="separator:a336ec184b985a0af307c5ad81f06ae9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -395,9 +430,8 @@ Funkce</h2></td></tr>
 <tr class="separator:ac4be9f5032c10525d0b61493e402b758"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeadcd80458be0b8f189b25986dc9e72" id="r_afeadcd80458be0b8f189b25986dc9e72"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#afeadcd80458be0b8f189b25986dc9e72">http_get_chess_js_handler</a> (httpd_req_t *req)</td></tr>
 <tr class="separator:afeadcd80458be0b8f189b25986dc9e72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7ac8a7695f85cdf9c15b8045b2813b3" id="r_ae7ac8a7695f85cdf9c15b8045b2813b3"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ae7ac8a7695f85cdf9c15b8045b2813b3">http_get_test_handler</a> (httpd_req_t *req)</td></tr>
-<tr class="separator:ae7ac8a7695f85cdf9c15b8045b2813b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c15047ba3df7b2591894a68c0d80923" id="r_a9c15047ba3df7b2591894a68c0d80923"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a9c15047ba3df7b2591894a68c0d80923">http_get_favicon_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="memdesc:a9c15047ba3df7b2591894a68c0d80923"><td class="mdescLeft">&#160;</td><td class="mdescRight">GET /favicon.ico — žádné tělo; tiší 404 v logu prohlížeče při náhodném dotazu.  <br /></td></tr>
 <tr class="separator:a9c15047ba3df7b2591894a68c0d80923"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1df4df74a1d4c242f385b8288f5243d4" id="r_a1df4df74a1d4c242f385b8288f5243d4"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a1df4df74a1d4c242f385b8288f5243d4">http_get_board_handler</a> (httpd_req_t *req)</td></tr>
 <tr class="separator:a1df4df74a1d4c242f385b8288f5243d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -495,6 +529,12 @@ Funkce</h2></td></tr>
 <tr class="memitem:a0dd2f78dc29e5c5cd031dcdf59d587e6" id="r_a0dd2f78dc29e5c5cd031dcdf59d587e6"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a0dd2f78dc29e5c5cd031dcdf59d587e6">wifi_get_sta_ssid</a> (char *buffer, size_t max_len)</td></tr>
 <tr class="memdesc:a0dd2f78dc29e5c5cd031dcdf59d587e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska aktualni SSID STA rozhrani.  <br /></td></tr>
 <tr class="separator:a0dd2f78dc29e5c5cd031dcdf59d587e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a402a717253a4dc08e579b033e132b44f" id="r_a402a717253a4dc08e579b033e132b44f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a402a717253a4dc08e579b033e132b44f">wifi_ap_is_broadcasting</a> (void)</td></tr>
+<tr class="memdesc:a402a717253a4dc08e579b033e132b44f"><td class="mdescLeft">&#160;</td><td class="mdescRight">True když deska aktuálně vysílá uživatelský hotspot (AP).  <br /></td></tr>
+<tr class="separator:a402a717253a4dc08e579b033e132b44f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab28dd1595e0c8a2083ee176a771ab90e" id="r_ab28dd1595e0c8a2083ee176a771ab90e"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ab28dd1595e0c8a2083ee176a771ab90e">wifi_ap_effective_ssid</a> (void)</td></tr>
+<tr class="memdesc:ab28dd1595e0c8a2083ee176a771ab90e"><td class="mdescLeft">&#160;</td><td class="mdescRight">SSID hotspotu (konvence CzechMate), platné i když AP zrovna nevysílá.  <br /></td></tr>
+<tr class="separator:ab28dd1595e0c8a2083ee176a771ab90e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc62bf6d95aba71aede977266f96e962" id="r_acc62bf6d95aba71aede977266f96e962"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#acc62bf6d95aba71aede977266f96e962">wifi_save_config_to_nvs</a> (const char *ssid, const char *<a class="el" href="ha__light__task_8c.html#ae3a23efe266762659e03567d6afc26dd">password</a>)</td></tr>
 <tr class="memdesc:acc62bf6d95aba71aede977266f96e962"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ulozi WiFi STA konfiguraci do NVS.  <br /></td></tr>
 <tr class="separator:acc62bf6d95aba71aede977266f96e962"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -507,8 +547,17 @@ Funkce</h2></td></tr>
 <tr class="memitem:a1b7f75613a5cab50704428a000610531" id="r_a1b7f75613a5cab50704428a000610531"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a1b7f75613a5cab50704428a000610531">wifi_clear_config_from_nvs</a> (void)</td></tr>
 <tr class="memdesc:a1b7f75613a5cab50704428a000610531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaze WiFi STA konfiguraci z NVS.  <br /></td></tr>
 <tr class="separator:a1b7f75613a5cab50704428a000610531"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af86fa92e2c2b48219fde45fc574ce1f9" id="r_af86fa92e2c2b48219fde45fc574ce1f9"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#af86fa92e2c2b48219fde45fc574ce1f9">wifi_ap_user_desired_from_nvs</a> (void)</td></tr>
+<tr class="separator:af86fa92e2c2b48219fde45fc574ce1f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add11d1e69667c3ad3e99717d80f432cf" id="r_add11d1e69667c3ad3e99717d80f432cf"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#add11d1e69667c3ad3e99717d80f432cf">wifi_ap_user_persist_desired</a> (bool en)</td></tr>
+<tr class="separator:add11d1e69667c3ad3e99717d80f432cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fb34791b69c366686c2d32441492305" id="r_a0fb34791b69c366686c2d32441492305"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a0fb34791b69c366686c2d32441492305">wifi_restore_sta_connect_async</a> (void)</td></tr>
+<tr class="separator:a0fb34791b69c366686c2d32441492305"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a485df8aaa238818e53fe490c17d5c01f" id="r_a485df8aaa238818e53fe490c17d5c01f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a485df8aaa238818e53fe490c17d5c01f">wifi_ble_prov_task</a> (void *arg)</td></tr>
 <tr class="separator:a485df8aaa238818e53fe490c17d5c01f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a209e05bab35e4d5a27df135dfd9ddd6a" id="r_a209e05bab35e4d5a27df135dfd9ddd6a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a209e05bab35e4d5a27df135dfd9ddd6a">wifi_ble_survey_task</a> (void *arg)</td></tr>
+<tr class="memdesc:a209e05bab35e4d5a27df135dfd9ddd6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">BLE wifi_survey: aktivní scan okolí, výsledek přes cmd_ack JSON (šifrovaný odkaz).  <br /></td></tr>
+<tr class="separator:a209e05bab35e4d5a27df135dfd9ddd6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96cbfc09f923b4548a4bb4c63f70237f" id="r_a96cbfc09f923b4548a4bb4c63f70237f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a96cbfc09f923b4548a4bb4c63f70237f">wifi_is_sta_connected</a> (void)</td></tr>
 <tr class="memdesc:a96cbfc09f923b4548a4bb4c63f70237f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zjisti zda je STA pripojeno.  <br /></td></tr>
 <tr class="separator:a96cbfc09f923b4548a4bb4c63f70237f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -530,9 +579,6 @@ Funkce</h2></td></tr>
 <tr class="memitem:a64d803cbbc1a950b3d0194a521cfa970" id="r_a64d803cbbc1a950b3d0194a521cfa970"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a64d803cbbc1a950b3d0194a521cfa970">wifi_ap_ssid_matches_czechmate</a> (const uint8_t *ssid_raw, size_t ssid_len, int *out_slot)</td></tr>
 <tr class="memdesc:a64d803cbbc1a950b3d0194a521cfa970"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vrati true pokud SSID odpovida nase AP konvenci (zaklad | zaklad_N) a nastavi out_slot: 0 = jen zaklad, 1..N = zaklad_N.  <br /></td></tr>
 <tr class="separator:a64d803cbbc1a950b3d0194a521cfa970"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4a9d214719b6cb61cee0abe47c1e96f" id="r_ad4a9d214719b6cb61cee0abe47c1e96f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad4a9d214719b6cb61cee0abe47c1e96f">czechmate_mdns_refresh_sta_txt</a> (void)</td></tr>
-<tr class="memdesc:ad4a9d214719b6cb61cee0abe47c1e96f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obsluhuje WiFi eventy.  <br /></td></tr>
-<tr class="separator:ad4a9d214719b6cb61cee0abe47c1e96f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2b42e517ee6eb9665e1d10deb00c4ad" id="r_aa2b42e517ee6eb9665e1d10deb00c4ad"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#aa2b42e517ee6eb9665e1d10deb00c4ad">http_post_settings_brightness_handler</a> (httpd_req_t *req)</td></tr>
 <tr class="separator:aa2b42e517ee6eb9665e1d10deb00c4ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b5db84f2b49101a5a7e4929350e675f" id="r_a7b5db84f2b49101a5a7e4929350e675f"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a7b5db84f2b49101a5a7e4929350e675f">http_post_settings_auto_lamp_timeout_handler</a> (httpd_req_t *req)</td></tr>
@@ -691,6 +737,9 @@ Proměnné</h2></td></tr>
 <tr class="separator:a36e9302901a63037025cd7970fa8adbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;WEB_SERVER_TASK&quot;</td></tr>
 <tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc44afbaafdd95e621face23b464eea4" id="r_adc44afbaafdd95e621face23b464eea4"><td class="memItemLeft" align="right" valign="top">static TickType_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#adc44afbaafdd95e621face23b464eea4">s_setup_tutorial_finish_conflict_until_tick</a></td></tr>
+<tr class="memdesc:adc44afbaafdd95e621face23b464eea4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Po konfliktu při finish setup tutoriálu krátce nevolat znovu validaci (BLE + HTTP).  <br /></td></tr>
+<tr class="separator:adc44afbaafdd95e621face23b464eea4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a35141cb45623cb3b7b4d96da35ed1831" id="r_a35141cb45623cb3b7b4d96da35ed1831"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a35141cb45623cb3b7b4d96da35ed1831">task_running</a> = false</td></tr>
 <tr class="separator:a35141cb45623cb3b7b4d96da35ed1831"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aafa0fef29f6314e439892920011c0612" id="r_aafa0fef29f6314e439892920011c0612"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#aafa0fef29f6314e439892920011c0612">web_server_active</a> = false</td></tr>
@@ -732,6 +781,13 @@ Proměnné</h2></td></tr>
 <tr class="separator:a0f6957e2f742d1c62ad11d7b417a67ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6a105bb6087d94dc1dff9c49c17a3d8" id="r_ae6a105bb6087d94dc1dff9c49c17a3d8"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ae6a105bb6087d94dc1dff9c49c17a3d8">last_disconnect_reason</a></td></tr>
 <tr class="separator:ae6a105bb6087d94dc1dff9c49c17a3d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac45bd1655cbc7c632a8634df63df6f75" id="r_ac45bd1655cbc7c632a8634df63df6f75"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ac45bd1655cbc7c632a8634df63df6f75">s_sta_blk_oct</a> [16]</td></tr>
+<tr class="separator:ac45bd1655cbc7c632a8634df63df6f75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a226c754e6f1c7f1056d4cb1af0522eb3" id="r_a226c754e6f1c7f1056d4cb1af0522eb3"><td class="memItemLeft" align="right" valign="top">static size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a226c754e6f1c7f1056d4cb1af0522eb3">s_sta_blk_oct_n</a></td></tr>
+<tr class="separator:a226c754e6f1c7f1056d4cb1af0522eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a0aebf26f8f4a35fe78c96edf235bbb" id="r_a1a0aebf26f8f4a35fe78c96edf235bbb"><td class="memItemLeft" align="right" valign="top">static unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a1a0aebf26f8f4a35fe78c96edf235bbb">s_sta_blk_reject_streak</a></td></tr>
+<tr class="memdesc:a1a0aebf26f8f4a35fe78c96edf235bbb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kolikrát za sebou zamítnuta DHCP adresa (router může pořád nabízet stejnou).  <br /></td></tr>
+<tr class="separator:a1a0aebf26f8f4a35fe78c96edf235bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab17ad7844a24ac3ce03f648f18a3c976" id="r_ab17ad7844a24ac3ce03f648f18a3c976"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ab17ad7844a24ac3ce03f648f18a3c976">cached_brightness</a> = 50</td></tr>
 <tr class="separator:ab17ad7844a24ac3ce03f648f18a3c976"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a10437ead7390b9e656788a7546bb15b2" id="r_a10437ead7390b9e656788a7546bb15b2"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a10437ead7390b9e656788a7546bb15b2">cached_brightness_valid</a> = false</td></tr>
@@ -759,88 +815,25 @@ Proměnné</h2></td></tr>
 <tr class="separator:a790faf9ca3eea165994f0f39f14f74ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af49bdbc5c7ac201b89b6ec20e9ba84c7" id="r_af49bdbc5c7ac201b89b6ec20e9ba84c7"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#af49bdbc5c7ac201b89b6ec20e9ba84c7">czechmate_mdns_started</a> = false</td></tr>
 <tr class="separator:af49bdbc5c7ac201b89b6ec20e9ba84c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31bf285a16bbf718a86c71d94f2b9f31" id="r_a31bf285a16bbf718a86c71d94f2b9f31"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a31bf285a16bbf718a86c71d94f2b9f31">chess_app_js_content</a> []</td></tr>
-<tr class="separator:a31bf285a16bbf718a86c71d94f2b9f31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42e66ee24fe5081421583e97925b3d7a" id="r_a42e66ee24fe5081421583e97925b3d7a"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a42e66ee24fe5081421583e97925b3d7a">test_html</a> []</td></tr>
-<tr class="separator:a42e66ee24fe5081421583e97925b3d7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a50be2765f30c79691d319bc9a1b6920c" id="r_a50be2765f30c79691d319bc9a1b6920c"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a50be2765f30c79691d319bc9a1b6920c">html_chunk_head</a> []</td></tr>
-<tr class="separator:a50be2765f30c79691d319bc9a1b6920c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad8c6a6333babf87707dc21080b71f726" id="r_ad8c6a6333babf87707dc21080b71f726"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad8c6a6333babf87707dc21080b71f726">html_chunk_layout_start</a> []</td></tr>
-<tr class="separator:ad8c6a6333babf87707dc21080b71f726"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84a7f8dd86a306e95f345b80a4940b1e" id="r_a84a7f8dd86a306e95f345b80a4940b1e"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a84a7f8dd86a306e95f345b80a4940b1e">html_chunk_tab_hra_start</a> []</td></tr>
-<tr class="separator:a84a7f8dd86a306e95f345b80a4940b1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ace9a7067ecc97f7c7756a562c9b5c1c0" id="r_ace9a7067ecc97f7c7756a562c9b5c1c0"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ace9a7067ecc97f7c7756a562c9b5c1c0">html_chunk_game_left</a> []</td></tr>
-<tr class="separator:ace9a7067ecc97f7c7756a562c9b5c1c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ed2739c81538da574348a3db94e6462" id="r_a4ed2739c81538da574348a3db94e6462"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a4ed2739c81538da574348a3db94e6462">html_chunk_game_right</a> []</td></tr>
-<tr class="separator:a4ed2739c81538da574348a3db94e6462"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0dc3a9e01e0ee61af3f276badf9efc09" id="r_a0dc3a9e01e0ee61af3f276badf9efc09"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a0dc3a9e01e0ee61af3f276badf9efc09">html_chunk_tab_hra_end</a> [] = &quot;&lt;/div&gt;&lt;/div&gt;&quot;</td></tr>
-<tr class="separator:a0dc3a9e01e0ee61af3f276badf9efc09"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0075c9a2ed7f41df9d5f1e62ee82ff80" id="r_a0075c9a2ed7f41df9d5f1e62ee82ff80"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a0075c9a2ed7f41df9d5f1e62ee82ff80">html_chunk_board</a> []</td></tr>
-<tr class="separator:a0075c9a2ed7f41df9d5f1e62ee82ff80"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad572c26c328220889e67688a5399ce65" id="r_ad572c26c328220889e67688a5399ce65"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad572c26c328220889e67688a5399ce65">html_chunk_tab_nastaveni_start</a> []</td></tr>
-<tr class="separator:ad572c26c328220889e67688a5399ce65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae190241b4afa6e796e3537850ccbbdc7" id="r_ae190241b4afa6e796e3537850ccbbdc7"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ae190241b4afa6e796e3537850ccbbdc7">html_chunk_settings_sit</a> []</td></tr>
-<tr class="separator:ae190241b4afa6e796e3537850ccbbdc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a100af5ab84b7c192de449ff57c894816" id="r_a100af5ab84b7c192de449ff57c894816"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a100af5ab84b7c192de449ff57c894816">html_chunk_settings_bot</a> []</td></tr>
-<tr class="separator:a100af5ab84b7c192de449ff57c894816"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a440de8fc5747d153e6b7c3246f67e339" id="r_a440de8fc5747d153e6b7c3246f67e339"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a440de8fc5747d153e6b7c3246f67e339">html_chunk_settings_tutorial</a> []</td></tr>
-<tr class="separator:a440de8fc5747d153e6b7c3246f67e339"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff807476fdafba6db3514a20fa7374cb" id="r_aff807476fdafba6db3514a20fa7374cb"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#aff807476fdafba6db3514a20fa7374cb">html_chunk_settings_zarizeni</a> []</td></tr>
-<tr class="separator:aff807476fdafba6db3514a20fa7374cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38326283e81a476ac89426aea7cf3250" id="r_a38326283e81a476ac89426aea7cf3250"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a38326283e81a476ac89426aea7cf3250">html_chunk_banners</a> []</td></tr>
-<tr class="separator:a38326283e81a476ac89426aea7cf3250"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc3003a9441c86d367006ae4415a82b4" id="r_adc3003a9441c86d367006ae4415a82b4"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#adc3003a9441c86d367006ae4415a82b4">html_chunk_hint_inline</a> []</td></tr>
-<tr class="separator:adc3003a9441c86d367006ae4415a82b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad68d8dce5b4bb5eb53f9201c4a146c2f" id="r_ad68d8dce5b4bb5eb53f9201c4a146c2f"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#ad68d8dce5b4bb5eb53f9201c4a146c2f">html_chunk_javascript</a> []</td></tr>
-<tr class="separator:ad68d8dce5b4bb5eb53f9201c4a146c2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bf9680c8995edd413cb2da4a543c3d6" id="r_a8bf9680c8995edd413cb2da4a543c3d6"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a8bf9680c8995edd413cb2da4a543c3d6">html_chunk_demo_mode</a> []</td></tr>
-<tr class="separator:a8bf9680c8995edd413cb2da4a543c3d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed0fb8deb128d87225f755340b40201e" id="r_aed0fb8deb128d87225f755340b40201e"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#aed0fb8deb128d87225f755340b40201e">html_chunk_mqtt_config</a> []</td></tr>
-<tr class="separator:aed0fb8deb128d87225f755340b40201e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e25ed064bdf023c8829e45eea11ea4d" id="r_a3e25ed064bdf023c8829e45eea11ea4d"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a3e25ed064bdf023c8829e45eea11ea4d">html_chunk_tab_nastaveni_end</a> [] = &quot;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&quot;</td></tr>
-<tr class="separator:a3e25ed064bdf023c8829e45eea11ea4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d913a16031d5b9a41a6dc6551e6ce61" id="r_a3d913a16031d5b9a41a6dc6551e6ce61"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a3d913a16031d5b9a41a6dc6551e6ce61">html_chunk_end</a> []</td></tr>
-<tr class="separator:a3d913a16031d5b9a41a6dc6551e6ce61"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8022a1e78e78515682e9ac22fc7f5593" id="r_a8022a1e78e78515682e9ac22fc7f5593"><td class="memItemLeft" align="right" valign="top">static const char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__task_8c.html#a8022a1e78e78515682e9ac22fc7f5593">k_http_root_json</a> []</td></tr>
+<tr class="separator:a8022a1e78e78515682e9ac22fc7f5593"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
-<div class="textblock"><p>Web Server Task - WiFi hotspot a HTTP server pro web ovladani. </p>
-<h1><a class="anchor" id="autotoc_md76"></a>
-@details</h1>
-<h1><a class="anchor" id="autotoc_md77"></a>
+<div class="textblock"><p>HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci. </p>
+<p>Prohlížečové UI na kořenové cestě není — GET <code>/</code> vrací orientační JSON; plná obsluha je v aplikaci. Hotspot desky (AP) je ve výchozím stavu vypnutý; zapnutí přes BLE (<code>wifi_ap_set</code>) nebo NVS <code>ap_user_en</code>.</p>
+<hr  />
+ <h1><a class="anchor" id="autotoc_md77"></a>
 CO TENTO SOUBOR DELA?</h1>
-<p>Tento task zpristupnuje sachovnici pres web rozhrani:</p><ol type="1">
-<li>WiFi Access Point (hotspot "ESP32-Chess")</li>
-<li>HTTP server (port 80)</li>
-<li>REST API endpointy (/api/status, /api/board, /api/move...)</li>
-<li>Interaktivni web UI (HTML/CSS/JavaScript)</li>
-<li>Realtime aktualizace stavu (polling)</li>
+<ol type="1">
+<li>Wi‑Fi — STA podle NVS; AP jen když ho uživatel zapne (BLE / NVS).</li>
+<li>HTTP server (port 80) — REST <code>/api/...</code>, kořen bez HTML rozhraní.</li>
+<li>WebSocket — živý snapshot pro klienty.</li>
+<li>Fronta <code>game_command_queue</code> — příkazy z HTTP (tah, reset, …).</li>
 </ol>
 <hr  />
  <h1><a class="anchor" id="autotoc_md79"></a>
-JAK TO FUNGUJE?</h1>
-<p>STARTUP:</p><ul>
-<li>Init WiFi jako Access Point (AP mode)</li>
-<li>SSID: "ESP32-Chess" (bez hesla)</li>
-<li>IP: 192.168.4.1</li>
-<li>Start HTTP serveru</li>
-<li>Registrace REST API handleru</li>
-</ul>
-<p>HTTP SERVER:</p><ul>
-<li>GET / -&gt; Hlavni HTML stranka</li>
-<li>GET /api/status -&gt; JSON stav hry</li>
-<li>GET /api/board -&gt; JSON pozice figurek</li>
-<li>POST /api/move -&gt; Provest tah</li>
-<li>POST /api/reset -&gt; Nova hra</li>
-<li>GET /api/timer -&gt; Stav casovace</li>
-</ul>
-<p>WEB UI:</p><ul>
-<li>Interaktivni sachovnice (klikaci)</li>
-<li>Zobrazeni validnich tahu</li>
-<li>Historie tahu</li>
-<li>Timer display</li>
-<li>Endgame report</li>
-<li>Demo mode controls</li>
-</ul>
+REST (orientační výpis)</h1>
+<p>GET /api/status, /api/board, POST /api/move, POST /api/reset, GET /api/timer, POST /api/demo/config a další — viz implementované handlery v tomto souboru.</p>
 <hr  />
  <h1><a class="anchor" id="autotoc_md81"></a>
 KOMUNIKACE (QUEUES)</h1>
@@ -884,22 +877,13 @@ KRITICKA PRAVIDLA</h1>
 <hr  />
  <h1><a class="anchor" id="autotoc_md87"></a>
 TABLE OF CONTENTS</h1>
-<p>Sekce 1: WiFi Setup ........................... radek 100 Sekce 2: HTTP Handlers ........................ radek 300 Sekce 3: REST API Functions ................... radek 800 Sekce 4: HTML Page Generation ................. radek 1200 Sekce 5: Main Web Server Task ................. radek 4800</p>
+<p>Sekce 1: WiFi Setup ........................... radek 100 Sekce 2: HTTP Handlers ........................ radek 300 Sekce 3: REST API Functions ................... radek 800 Sekce 4: HTTP handlery a REST .................. (viz struktura souboru) Sekce 5: Main Web Server Task .................. (viz struktura souboru)</p>
 <hr  />
 <dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
 <dl class="section version"><dt>Verze</dt><dd>1.7.3 </dd></dl>
 <dl class="section date"><dt>Datum</dt><dd>2025-12-23</dd></dl>
-<dl class="section note"><dt>Poznámka</dt><dd><ul>
-<li>Task priorita: 2 (nizsi nez game/matrix)</li>
-<li>Stack size: 8KB (velke kvuli JSON bufferum)</li>
-<li>WiFi SSID: "ESP32-Chess"</li>
-<li>IP adresa: 192.168.4.1</li>
-<li>HTTP port: 80</li>
-</ul>
-</dd></dl>
-<dl class="section see"><dt>Viz také</dt><dd><a class="el" href="game__task_8c.html" title="Game Task - Sachova logika a sprava stavu hry.">game_task.c</a> - Poskytuje JSON API </dd>
-<dd>
-<a class="el" href="timer__system_8c.html" title="ESP32-C6 Chess System v1.7.3 - Timer System implementace.">timer_system.c</a> - Timer API </dd></dl>
+<dl class="section note"><dt>Poznámka</dt><dd>Task priorita 2; stack kvůli velkým JSON bufferům; AP IP při zapnutém hotspotu typicky 192.168.4.1.</dd></dl>
+<dl class="section see"><dt>Viz také</dt><dd><a class="el" href="game__task_8c.html" title="Game Task - Sachova logika a sprava stavu hry.">game_task.c</a> — JSON API hry </dd></dl>
 
 <p class="definition">Definice v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 </div><h2 class="groupheader">Dokumentace definic maker</h2>
@@ -917,7 +901,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Musí přesně sedět s webem (<code>POST /api/system/factory_reset</code>) a iOS. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02697">2697</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03129">3129</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1019,6 +1003,22 @@ TABLE OF CONTENTS</h1>
 
 </div>
 </div>
+<a id="a93a44d3a4b91d8d9249a3c92dfe8bd08" name="a93a44d3a4b91d8d9249a3c92dfe8bd08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93a44d3a4b91d8d9249a3c92dfe8bd08">&#9670;&#160;</a></span>STA_BLK_OCT_MAX</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STA_BLK_OCT_MAX&#160;&#160;&#160;16</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00279">279</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
 <a id="ada7bf27261780a90d167ab1e4d0f5ba7" name="ada7bf27261780a90d167ab1e4d0f5ba7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ada7bf27261780a90d167ab1e4d0f5ba7">&#9670;&#160;</a></span>STA_RECONNECT_DELAY_MAX_MS</h2>
 
@@ -1113,7 +1113,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00210">210</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00204">204</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1129,7 +1129,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00214">214</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00208">208</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1145,7 +1145,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00213">213</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00207">207</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1161,7 +1161,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00211">211</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00205">205</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1177,7 +1177,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00215">215</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00209">209</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1193,7 +1193,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00209">209</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00203">203</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1209,7 +1209,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00842">842</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01097">1097</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1225,7 +1225,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00206">206</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00200">200</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1244,7 +1244,25 @@ TABLE OF CONTENTS</h1>
 <p>Max. </p>
 <p>index suffixu _N (0 = bez pripony = prvni volny „slot“). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00208">208</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00202">202</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa6ee53af436bd5ce3daff5b69332fb07" name="aa6ee53af436bd5ce3daff5b69332fb07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6ee53af436bd5ce3daff5b69332fb07">&#9670;&#160;</a></span>WIFI_NVS_KEY_AP_USER</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_NVS_KEY_AP_USER&#160;&#160;&#160;&quot;ap_user_en&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>0/1 — uživatelsky zapnutý hotspot desky (AP); výchozí NVS chybí → AP vypnutý. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00216">216</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1260,7 +1278,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00220">220</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00214">214</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1276,7 +1294,26 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00219">219</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00213">213</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8821f1ed0e2e32b99633249f30da2889" name="a8821f1ed0e2e32b99633249f30da2889"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8821f1ed0e2e32b99633249f30da2889">&#9670;&#160;</a></span>WIFI_NVS_KEY_STA_BLK_OCT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_NVS_KEY_STA_BLK_OCT&#160;&#160;&#160;&quot;sta_blk_oct&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>CSV blokovaných 3. </p>
+<p>oktetů IPv4 pro STA (např. <code>88</code> → zamítnout x.x.88.x); BLE <code>wifi_sta_ip_block</code> nebo výchozí z FW. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00218">218</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1292,7 +1329,25 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00218">218</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00212">212</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae06c972ced2e79dba03f8064a5a245d9" name="ae06c972ced2e79dba03f8064a5a245d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae06c972ced2e79dba03f8064a5a245d9">&#9670;&#160;</a></span>WIFI_STA_BLK_OCT_DEFAULT_CSV</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WIFI_STA_BLK_OCT_DEFAULT_CSV&#160;&#160;&#160;&quot;88&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Po flashi / chybě klíče v NVS — dokud uživatel neuloží jinak přes aplikaci. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00220">220</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1303,7 +1358,7 @@ TABLE OF CONTENTS</h1>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define WIFI_STATUS_JSON_MAX&#160;&#160;&#160;512</td>
+          <td class="memname">#define WIFI_STATUS_JSON_MAX&#160;&#160;&#160;640</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1353,7 +1408,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12558">12558</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06065">6065</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1395,7 +1450,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12549">12549</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06056">6056</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1425,7 +1480,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Jasná zpětná vazba pro klienta — odliší od web locku (stejný ESP_ERR_INVALID_STATE). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02748">2748</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03180">3180</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1453,7 +1508,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02576">2576</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03008">3008</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1499,7 +1554,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Stejný JSON jako GET /api/game/snapshot — do bufferu <code>out</code> (HTTP i BLE). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02478">2478</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02910">2910</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1530,7 +1585,7 @@ TABLE OF CONTENTS</h1>
 <p>Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje game_task na httpd_ws_send_data / malloc). </p>
 <p>Musí být mimo #if WS — BLE vždy. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03910">3910</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04433">4433</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1558,7 +1613,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03761">3761</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04284">4284</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1586,26 +1641,10 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p>Obsluhuje WiFi eventy. </p>
-<p>Bonjour TXT „sta_ip" + „ap_ip" — iOS/watch často nevyřeší hostname .local včas; přímá IPv4 v TXT umožní HTTP/WS bez závislosti na mDNS A záznamu.</p>
-<p>Tato funkce obsluhuje WiFi eventy pro Access Point i Station. Sleduje pripojeni a odpojeni klientu k AP a stav STA pripojeni.</p>
-<dl class="params"><dt>Parametry</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">arg</td><td>Argument (nepouzivany) </td></tr>
-    <tr><td class="paramname">event_base</td><td>Typ eventu (WIFI_EVENT nebo IP_EVENT) </td></tr>
-    <tr><td class="paramname">event_id</td><td>ID eventu </td></tr>
-    <tr><td class="paramname">event_data</td><td>Data eventu</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Funkce sleduje:</p><ul>
-<li>Pripojeni a odpojeni klientu k WiFi hotspotu (AP)</li>
-<li>Pripojeni a odpojeni STA k WiFi siti</li>
-<li>Ziskani IP adresy pro STA</li>
-</ul>
+<p>Bonjour TXT „sta_ip" + „ap_ip" — iOS/watch často nevyřeší hostname .local včas; přímá IPv4 v TXT umožní HTTP/WS bez závislosti na mDNS A záznamu. </p>
 <p>ap_ip fix (AP hotspot): mDNS pakety ESP posílá jen přes STA rozhraní do domácí sítě. Telefon připojený na AP hotspot tyto pakety nikdy nedostane, protože patří do jiného L2 segmentu. Opraveno: 1) TXT ap_ip = IP adresa AP rozhraní (typicky 192.168.4.1) 2) mdns_netif_action na ap_netif → ESP vysílá mDNS i do AP subnetu </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03711">3711</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04234">4234</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1628,7 +1667,7 @@ TABLE OF CONTENTS</h1>
 <p>Silná implementace — přepíše slabou z game_hooks (WS + BLE, nezávislé na CONFIG_HTTPD_WS_SUPPORT pro BLE). </p>
 <p>Zavolej po stabilní změně herního stavu (tah, reset, nová hra, …). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03951">3951</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04474">4474</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1656,7 +1695,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03687">3687</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04210">4210</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1684,7 +1723,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02731">2731</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03163">3163</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1712,7 +1751,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02709">2709</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03141">3141</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1740,7 +1779,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04072">4072</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04595">4595</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1768,7 +1807,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03971">3971</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04494">4494</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1796,7 +1835,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04024">4024</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04547">4547</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1824,7 +1863,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l10139">10139</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06031">6031</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1852,7 +1891,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01951">1951</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02390">2390</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1880,7 +1919,9 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l10248">10248</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p>GET /favicon.ico — žádné tělo; tiší 404 v logu prohlížeče při náhodném dotazu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06039">6039</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1908,7 +1949,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04041">4041</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04564">4564</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1936,7 +1977,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04007">4007</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04530">4530</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1975,7 +2016,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, chybový kód při chybě</dd></dl>
 <p>Vrací JSON: {"host":"...","port":1883,"username":"...","connected":true/false,"mode":"game/ha"} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01355">1355</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01794">1794</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2003,7 +2044,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12392">12392</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06044">6044</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2034,7 +2075,7 @@ TABLE OF CONTENTS</h1>
 <p>Handler pro GET /api/settings/start_pos_check. </p>
 <p>Vrati stav hlidani pocatecni pozice (enabled true/false). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01786">1786</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02225">2225</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2064,7 +2105,7 @@ TABLE OF CONTENTS</h1>
 
 <p>GET /api/settings/ui — JSON preference z NVS (nebo vychozi). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05043">5043</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05583">5583</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2092,35 +2133,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03988">3988</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ae7ac8a7695f85cdf9c15b8045b2813b3" name="ae7ac8a7695f85cdf9c15b8045b2813b3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae7ac8a7695f85cdf9c15b8045b2813b3">&#9670;&#160;</a></span>http_get_test_handler()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static esp_err_t http_get_test_handler </td>
-          <td>(</td>
-          <td class="paramtype">httpd_req_t *&#160;</td>
-          <td class="paramname"><em>req</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l10241">10241</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04511">4511</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2148,7 +2161,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04093">4093</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04616">4616</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2186,7 +2199,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01321">1321</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01760">1760</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2225,7 +2238,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Vraci JSON s informacemi o AP a STA statusu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05465">5465</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06005">6005</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2253,7 +2266,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01897">1897</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02336">2336</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2281,7 +2294,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01935">1935</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02374">2374</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2312,7 +2325,7 @@ TABLE OF CONTENTS</h1>
 <p>POST /api/system/factory_reset. </p>
 <p>Smaže celý NVS oddíl (raw erase) a restartuje MCU. Neřeší web lock — záchranná cesta. Tělo musí obsahovat: {"confirm":"erase_all_nvs"} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05406">5406</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05946">5946</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2342,7 +2355,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Handler pro POST /api/game/hint_clear Vymaze vizualizaci hintu na LED (vola se pri clearBotSuggestion). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04826">4826</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05349">5349</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2373,7 +2386,7 @@ TABLE OF CONTENTS</h1>
 <p>Handler pro POST /api/game/hint_highlight. </p>
 <p>Body: { "to": "e4" } povinne; { "from": "e2" } volitelne. Kdyz "from" chybi nebo je neplatny, posle from_led=64 takze na desce sviti jen "to". </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04783">4783</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05306">5306</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2412,7 +2425,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Ocekava JSON: {"from": "e2", "to": "e4", "promotion": "q"} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04325">4325</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04848">4848</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2450,7 +2463,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK nebo chybovy kod</dd></dl>
 <p>Bez JSON payload. Odlisne se od automatickeho NEW_GAME pri startu z main (initialize_chess_game), kde se pri obnove NVS prikaz neposila. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04706">4706</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05229">5229</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2480,7 +2493,7 @@ TABLE OF CONTENTS</h1>
 
 <p>POST /api/game/puzzle Body: {"action":"start","id":1..5} | {"action":"prepare","id":1..5} | {"action":"cancel"}. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04950">4950</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05490">5490</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2510,7 +2523,7 @@ TABLE OF CONTENTS</h1>
 
 <p>POST /api/game/setup_tutorial Body: {"action":"start"|"cancel"|"finish"}. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04842">4842</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05365">5365</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2549,7 +2562,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Ocekava JSON: {"action": "pickup"|"drop", "square": "e2"} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04530">4530</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05053">5053</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2577,7 +2590,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01845">1845</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02284">2284</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2605,7 +2618,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01889">1889</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02328">2328</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2644,7 +2657,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK při úspěchu, chybový kód při chybě</dd></dl>
 <p>Očekává JSON: {"host":"...","port":1883,"username":"...","password":"..."} Vrací JSON: {"success": true/false, "message": "..."} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01421">1421</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01860">1860</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2672,7 +2685,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01645">1645</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02084">2084</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2700,7 +2713,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01584">1584</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02023">2023</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2728,7 +2741,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01680">1680</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02119">2119</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2756,7 +2769,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01725">1725</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02164">2164</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2787,7 +2800,7 @@ TABLE OF CONTENTS</h1>
 <p>Handler pro POST /api/settings/start_pos_check. </p>
 <p>Nastavi stav hlidani pocatecni pozice a ulozi do NVS. Body: {"enabled": true/false} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01804">1804</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02243">2243</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2817,7 +2830,7 @@ TABLE OF CONTENTS</h1>
 
 <p>POST /api/settings/ui — ulozeni web UI JSON do NVS. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05061">5061</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05601">5601</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2845,7 +2858,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04113">4113</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04636">4636</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2873,7 +2886,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04220">4220</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04743">4743</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2901,7 +2914,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04280">4280</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04803">4803</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2929,7 +2942,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04250">4250</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04773">4773</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2968,7 +2981,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Vraci JSON: {"success": true/false, "message": "..."} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05368">5368</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05908">5908</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3007,7 +3020,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Ocekava JSON: {"ssid": "...", "password": "..."} Vraci JSON: {"success": true/false, "message": "..."} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05120">5120</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05660">5660</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3046,7 +3059,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Vraci JSON: {"success": true/false, "message": "..."} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05256">5256</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05796">5796</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3085,7 +3098,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Vraci JSON: {"success": true/false, "message": "..."} </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05330">5330</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05870">5870</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3125,7 +3138,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Doplnění GET /api/status o web lock, WiFi, jas, matrix guard, lampu (sdílené se snapshot). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02381">2381</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02813">2813</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3185,7 +3198,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02699">2699</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03131">3131</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3229,7 +3242,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02664">2664</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03096">3096</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3269,6 +3282,90 @@ TABLE OF CONTENTS</h1>
 
 </div>
 </div>
+<a id="a8657f8e6c6fdd420f962d254d01d1b5d" name="a8657f8e6c6fdd420f962d254d01d1b5d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8657f8e6c6fdd420f962d254d01d1b5d">&#9670;&#160;</a></span>setup_tutorial_finish_in_cooldown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool setup_tutorial_finish_in_cooldown </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00153">153</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a056b15747d39b437e29fde3e57a9b324" name="a056b15747d39b437e29fde3e57a9b324"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a056b15747d39b437e29fde3e57a9b324">&#9670;&#160;</a></span>setup_tutorial_note_finish_conflict()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void setup_tutorial_note_finish_conflict </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00160">160</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a5614b0a4f404011bff31b8aa9564a165" name="a5614b0a4f404011bff31b8aa9564a165"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5614b0a4f404011bff31b8aa9564a165">&#9670;&#160;</a></span>setup_tutorial_reset_finish_cooldown()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void setup_tutorial_reset_finish_cooldown </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00149">149</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
 <a id="ae24545bda00e1b250878d3843cff71e1" name="ae24545bda00e1b250878d3843cff71e1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae24545bda00e1b250878d3843cff71e1">&#9670;&#160;</a></span>snapshot_build_mutex_give()</h2>
 
@@ -3293,7 +3390,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02468">2468</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02900">2900</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3321,7 +3418,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02457">2457</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02889">2889</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3353,7 +3450,7 @@ TABLE OF CONTENTS</h1>
 <p>Callback jednorazoveho casovace pro automaticke prepojeni STA.</p>
 <p>Vola se po WIFI_EVENT_STA_DISCONNECTED s backoffem; pouze spusti esp_wifi_connect(). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01130">1130</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01392">1392</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3392,7 +3489,7 @@ TABLE OF CONTENTS</h1>
 <li>Captured figurky (/captured) </li>
 </ul>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01985">1985</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02424">2424</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3424,7 +3521,7 @@ TABLE OF CONTENTS</h1>
 <p>Tato funkce zastavi HTTP server a uvolni prostredky.</p>
 <p>Funkce zastavi HTTP server a nastavi handle na NULL. Pouziva se pri vypinani web serveru. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02361">2361</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02793">2793</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3485,7 +3582,7 @@ TABLE OF CONTENTS</h1>
 <p>Zjisti, zda je web rozhrani zamcene. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je zamcene, false pokud je odemcene </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00818">818</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01073">1073</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3508,7 +3605,7 @@ TABLE OF CONTENTS</h1>
 <p>Nacte lock stav z NVS. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00774">774</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01029">1029</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3545,7 +3642,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00739">739</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00994">994</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3574,7 +3671,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00826">826</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01081">1081</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3604,7 +3701,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Společná logika POST /api/game/hint_highlight a BLE příkazu hint_highlight. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02604">2604</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03036">3036</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3636,7 +3733,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zpracuje UTF-8 JSON z BLE GATT zápisu na příkazovou charakteristiku (cmd: ping, hint_highlight, hint_clear, brightness — stejné chování jako REST kde je uvedeno). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02768">2768</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03200">3200</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3659,7 +3756,7 @@ TABLE OF CONTENTS</h1>
 <p>True pokud dispatch už odeslal vlastní cmd_ack (např. </p>
 <p>ota_ble_status). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02743">2743</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03175">3175</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3698,7 +3795,7 @@ TABLE OF CONTENTS</h1>
 <p>Vytáhne řetězec z pole "cmd" z BLE JSON (pro potvrzovací notify). </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud byl cmd nalezen a zkopírován do cmd_out </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02688">2688</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03120">3120</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3736,7 +3833,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Stejný JSON jako GET /api/game/snapshot (pro BLE GATT read / interní použití). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02581">2581</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03013">3013</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3769,7 +3866,7 @@ TABLE OF CONTENTS</h1>
 <p>Stejný JSON jako GET /api/game/snapshot do interního <code>snapshot_buffer</code>. </p>
 <p>Šetří ~20 KB RAM oproti druhému statickému poli v BLE — mutex je uvnitř buildu. Platný ukazatel jen do dalšího volání jakéhokoli snapshot buildu (HTTP/BLE). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02589">2589</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03021">3021</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3797,7 +3894,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12979">12979</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06493">6493</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3819,7 +3916,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zařadí příkaz do fronty web_server tasku (bezpečné z UART/jiného tasku). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12741">12741</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06255">6255</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3847,7 +3944,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12753">12753</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06267">6267</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3870,7 +3967,7 @@ TABLE OF CONTENTS</h1>
 <p>Aktualni SSID WiFi AP po startu (napr. </p>
 <p>ESP32-CzechMate nebo ESP32-CzechMate_1). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12929">12929</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06443">6443</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3893,7 +3990,7 @@ TABLE OF CONTENTS</h1>
 <p>Ziskej pocet pripojenych klientu. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Pocet aktualne pripojenych klientu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12936">12936</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06450">6450</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3915,7 +4012,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Vrati posledni chybu pri startu HTTP serveru (ESP_OK pokud bez chyby) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12938">12938</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06452">6452</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3938,7 +4035,7 @@ TABLE OF CONTENTS</h1>
 <p>Ziskej status web serveru. </p>
 <p>Vypise stav serveru (aktivni, pocet klientu, uptime). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12826">12826</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06340">6340</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3961,7 +4058,7 @@ TABLE OF CONTENTS</h1>
 <p>Ziskej uptime serveru. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Uptime v milisekundach od spusteni </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12940">12940</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06454">6454</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -3983,7 +4080,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zpracuj GET /api/board (sachovnice) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12872">12872</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06386">6386</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4005,7 +4102,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zpracuj POST /api/move (tah) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12877">12877</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06391">6391</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4027,7 +4124,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zpracuj GET /api/status (stav hry) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12867">12867</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06381">6381</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4049,7 +4146,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zpracuj GET / (hlavni stranka) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12862">12862</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06376">6376</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4072,7 +4169,7 @@ TABLE OF CONTENTS</h1>
 <p>Overi zda je web server aktivni. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud server bezi </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12927">12927</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06441">6441</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4095,7 +4192,7 @@ TABLE OF CONTENTS</h1>
 <p>Overi zda web server task bezi. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud task bezi </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12989">12989</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06503">6503</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4123,7 +4220,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12957">12957</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06471">6471</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4162,7 +4259,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12949">12949</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06463">6463</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4184,7 +4281,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Zpracuj web server prikazy z fronty. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12731">12731</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06245">6245</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4206,7 +4303,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Odešle čekající game snapshot (WS + BLE) z fronty — volat z web server task smyčky; nesmí z game_task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03920">3920</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04443">4443</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4229,7 +4326,7 @@ TABLE OF CONTENTS</h1>
 <p>Resetuj web server. </p>
 <p>Provede kompletni reset web serveru. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12996">12996</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06510">6510</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4252,7 +4349,7 @@ TABLE OF CONTENTS</h1>
 <p>Nastav konfiguraci web serveru. </p>
 <p>Zmeni konfiguraci serveru (port, max klientu, SSL). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12840">12840</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06354">6354</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4280,7 +4377,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12974">12974</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06488">6488</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4308,7 +4405,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12969">12969</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06483">6483</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4331,7 +4428,7 @@ TABLE OF CONTENTS</h1>
 <p>Spust web server. </p>
 <p>Inicializuje WiFi AP a spusti HTTP server. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12781">12781</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06295">6295</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4354,7 +4451,7 @@ TABLE OF CONTENTS</h1>
 <p>Zastav web server. </p>
 <p>Zastavi HTTP server a WiFi AP. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12805">12805</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06319">6319</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4377,7 +4474,7 @@ TABLE OF CONTENTS</h1>
 <p>Zastav web server task. </p>
 <p>Ukonci web server task a uvolni prostredky. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12991">12991</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06505">6505</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4406,7 +4503,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12570">12570</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06077">6077</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4438,7 +4535,7 @@ TABLE OF CONTENTS</h1>
 <p><code>build_snapshot_json</code> a mutexové čekání se volají i z workerů <code>httpd</code> (GET snapshot) – ty nejsou v TWDT; <code>esp_task_wdt_reset()</code> pak vrací ESP_ERR_NOT_FOUND a komponenta task_wdt spamuje sériovku ERROR řádky.</p>
 <p>Vrací ESP_OK i při přeskočení (cizí úloha nebo NULL handle). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00184">184</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00178">178</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4461,7 +4558,7 @@ TABLE OF CONTENTS</h1>
 <p>Aktualizuj stav web serveru. </p>
 <p>Periodicky aktualizuje interni stav serveru. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12849">12849</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06363">6363</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4483,7 +4580,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Inicializuj WebSocket. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12886">12886</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06400">6400</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4511,7 +4608,51 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12913">12913</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06427">6427</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ab28dd1595e0c8a2083ee176a771ab90e" name="ab28dd1595e0c8a2083ee176a771ab90e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab28dd1595e0c8a2083ee176a771ab90e">&#9670;&#160;</a></span>wifi_ap_effective_ssid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * wifi_ap_effective_ssid </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>SSID hotspotu (konvence CzechMate), platné i když AP zrovna nevysílá. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00463">463</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a402a717253a4dc08e579b033e132b44f" name="a402a717253a4dc08e579b033e132b44f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a402a717253a4dc08e579b033e132b44f">&#9670;&#160;</a></span>wifi_ap_is_broadcasting()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool wifi_ap_is_broadcasting </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True když deska aktuálně vysílá uživatelský hotspot (AP). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00461">461</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4557,7 +4698,91 @@ TABLE OF CONTENTS</h1>
 
 <p>Vrati true pokud SSID odpovida nase AP konvenci (zaklad | zaklad_N) a nastavi out_slot: 0 = jen zaklad, 1..N = zaklad_N. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00848">848</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01103">1103</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af942ea353d3632952a7770db0ce39f1d" name="af942ea353d3632952a7770db0ce39f1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af942ea353d3632952a7770db0ce39f1d">&#9670;&#160;</a></span>wifi_ap_user_apply_task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void wifi_ap_user_apply_task </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00768">768</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af86fa92e2c2b48219fde45fc574ce1f9" name="af86fa92e2c2b48219fde45fc574ce1f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af86fa92e2c2b48219fde45fc574ce1f9">&#9670;&#160;</a></span>wifi_ap_user_desired_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool wifi_ap_user_desired_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00710">710</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="add11d1e69667c3ad3e99717d80f432cf" name="add11d1e69667c3ad3e99717d80f432cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add11d1e69667c3ad3e99717d80f432cf">&#9670;&#160;</a></span>wifi_ap_user_persist_desired()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t wifi_ap_user_persist_desired </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>en</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00725">725</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4585,7 +4810,37 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00696">696</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00816">816</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a209e05bab35e4d5a27df135dfd9ddd6a" name="a209e05bab35e4d5a27df135dfd9ddd6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a209e05bab35e4d5a27df135dfd9ddd6a">&#9670;&#160;</a></span>wifi_ble_survey_task()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void wifi_ble_survey_task </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>arg</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>BLE wifi_survey: aktivní scan okolí, výsledek přes cmd_ack JSON (šifrovaný odkaz). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00848">848</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4608,7 +4863,7 @@ TABLE OF CONTENTS</h1>
 <p>Vymaze WiFi STA konfiguraci z NVS. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00655">655</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00675">675</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4631,7 +4886,7 @@ TABLE OF CONTENTS</h1>
 <p>Pripoji ESP32 k WiFi site jako Station. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00511">511</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00531">531</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4654,7 +4909,7 @@ TABLE OF CONTENTS</h1>
 <p>Odpoji ESP32 od WiFi site. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00611">611</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00631">631</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4704,7 +4959,24 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01171">1171</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p>Obsluhuje WiFi eventy. </p>
+<p>Tato funkce obsluhuje WiFi eventy pro Access Point i Station. Sleduje pripojeni a odpojeni klientu k AP a stav STA pripojeni.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">arg</td><td>Argument (nepouzivany) </td></tr>
+    <tr><td class="paramname">event_base</td><td>Typ eventu (WIFI_EVENT nebo IP_EVENT) </td></tr>
+    <tr><td class="paramname">event_id</td><td>ID eventu </td></tr>
+    <tr><td class="paramname">event_data</td><td>Data eventu</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Funkce sleduje:</p><ul>
+<li>Pripojeni a odpojeni klientu k WiFi hotspotu (AP)</li>
+<li>Pripojeni a odpojeni STA k WiFi siti</li>
+<li>Ziskani IP adresy pro STA </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01564">1564</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4744,7 +5016,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00432">432</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00443">443</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4784,7 +5056,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00441">441</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00452">452</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4834,7 +5106,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Funkce vytvori JSON s informacemi o AP (SSID, IP, clients) a STA (SSID, IP, connected status). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01259">1259</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01672">1672</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4867,7 +5139,7 @@ TABLE OF CONTENTS</h1>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe</dd></dl>
 <p>Funkce inicializuje netif, event loop, WiFi a nastavi AP i STA konfiguraci. Registruje event handler pro WiFi udalosti a spusti Access Point. Station interface je pripraven pro pripojeni k WiFi siti. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00989">989</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01244">1244</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4890,7 +5162,7 @@ TABLE OF CONTENTS</h1>
 <p>Zjisti zda je STA pripojeno. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je STA pripojeno, false jinak </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00727">727</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00982">982</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4944,7 +5216,35 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_NOT_FOUND pokud konfigurace neexistuje </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00377">377</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00388">388</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0fb34791b69c366686c2d32441492305" name="a0fb34791b69c366686c2d32441492305"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fb34791b69c366686c2d32441492305">&#9670;&#160;</a></span>wifi_restore_sta_connect_async()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void wifi_restore_sta_connect_async </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00743">743</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -4984,7 +5284,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri chybe </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00451">451</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00471">471</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5015,7 +5315,147 @@ TABLE OF CONTENTS</h1>
 <p>Jednorazovy STA sken: vybere nejnizsi volny SSID (prvni deska bez pripony, dalsi _1 … _N) podle toho, co uz v okoli vysila. </p>
 <p>Po navratu je WiFi zastavene; volajici nastavi APSTA a znovu spusti. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00887">887</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01142">1142</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a127bc0c4813e9a406301ccac4d88aded" name="a127bc0c4813e9a406301ccac4d88aded"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a127bc0c4813e9a406301ccac4d88aded">&#9670;&#160;</a></span>wifi_sta_disconnect_if_current_ip_blocked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void wifi_sta_disconnect_if_current_ip_blocked </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01482">1482</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9e909335bc129d8bd91504c4f0f0add3" name="a9e909335bc129d8bd91504c4f0f0add3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e909335bc129d8bd91504c4f0f0add3">&#9670;&#160;</a></span>wifi_sta_parse_blocked_csv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void wifi_sta_parse_blocked_csv </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>csv</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01414">1414</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a81d6b5242f9ab01bd0e2ffda90456cb5" name="a81d6b5242f9ab01bd0e2ffda90456cb5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81d6b5242f9ab01bd0e2ffda90456cb5">&#9670;&#160;</a></span>wifi_sta_refresh_blocked_octets_from_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void wifi_sta_refresh_blocked_octets_from_nvs </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01442">1442</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9e36fd4edb70535ec4aef57d01bcce91" name="a9e36fd4edb70535ec4aef57d01bcce91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e36fd4edb70535ec4aef57d01bcce91">&#9670;&#160;</a></span>wifi_sta_save_blocked_octets_csv()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t wifi_sta_save_blocked_octets_csv </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>csv_in</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01504">1504</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2edf87f5c78682fcaf51f80a61ab4af1" name="a2edf87f5c78682fcaf51f80a61ab4af1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2edf87f5c78682fcaf51f80a61ab4af1">&#9670;&#160;</a></span>wifi_sta_third_octet_is_blocked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool wifi_sta_third_octet_is_blocked </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>oct</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l01473">1473</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5064,7 +5504,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00281">281</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00287">287</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5088,31 +5528,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00282">282</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a31bf285a16bbf718a86c71d94f2b9f31" name="a31bf285a16bbf718a86c71d94f2b9f31"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31bf285a16bbf718a86c71d94f2b9f31">&#9670;&#160;</a></span>chess_app_js_content</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char chess_app_js_content[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l05485">5485</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00288">288</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5152,7 +5568,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03699">3699</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l04222">4222</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5179,527 +5595,6 @@ TABLE OF CONTENTS</h1>
 <p>Fronta pro game prikazy (new game, move, status) </p>
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00091">91</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="a38326283e81a476ac89426aea7cf3250" name="a38326283e81a476ac89426aea7cf3250"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a38326283e81a476ac89426aea7cf3250">&#9670;&#160;</a></span>html_chunk_banners</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_banners[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12037">12037</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a0075c9a2ed7f41df9d5f1e62ee82ff80" name="a0075c9a2ed7f41df9d5f1e62ee82ff80"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0075c9a2ed7f41df9d5f1e62ee82ff80">&#9670;&#160;</a></span>html_chunk_board</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_board[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;board-container&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;board&#39; class=&#39;board&#39;&gt;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;loading&#39; class=&#39;loading&#39;&gt;Načítání...&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;!-- Promotion Modal --&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;promotion-modal&#39; class=&#39;modal&#39; style=&#39;display:none; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;position:fixed; top:0; left:0; width:100%; height:100%; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;background:rgba(0,0,0,0.8); z-index:2000; align-items:center; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;justify-content:center;&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;modal-content&#39; style=&#39;background:#333; padding:20px; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;border-radius:8px; text-align:center; border:2px solid #4CAF50;&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;h3 style=&#39;color:#4CAF50; margin-bottom:15px;&#39;&gt;Promoce pěšce&lt;/h3&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div style=&#39;display:flex; gap:10px; justify-content:center;&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button onclick=\&quot;selectPromotion(&#39;Q&#39;)\&quot; style=&#39;font-size:18px; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;padding:10px; cursor:pointer;&#39;&gt;Dáma&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button onclick=\&quot;selectPromotion(&#39;R&#39;)\&quot; style=&#39;font-size:18px; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;padding:10px; cursor:pointer;&#39;&gt;Věž&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button onclick=\&quot;selectPromotion(&#39;B&#39;)\&quot; style=&#39;font-size:18px; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;padding:10px; cursor:pointer;&#39;&gt;Střelec&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button onclick=\&quot;selectPromotion(&#39;N&#39;)\&quot; style=&#39;font-size:18px; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;padding:10px; cursor:pointer;&#39;&gt;Jezdec&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button onclick=&#39;cancelPromotion()&#39; style=&#39;margin-top:15px; padding:8px &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;16px; background:#f44336; color:white; border:none; border-radius:4px; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;cursor:pointer;&#39;&gt;Zrušit&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-</div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11737">11737</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a8bf9680c8995edd413cb2da4a543c3d6" name="a8bf9680c8995edd413cb2da4a543c3d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8bf9680c8995edd413cb2da4a543c3d6">&#9670;&#160;</a></span>html_chunk_demo_mode</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_demo_mode[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12213">12213</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a3d913a16031d5b9a41a6dc6551e6ce61" name="a3d913a16031d5b9a41a6dc6551e6ce61"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3d913a16031d5b9a41a6dc6551e6ce61">&#9670;&#160;</a></span>html_chunk_end</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_end[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">= <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">                                     <span class="stringliteral">&quot;&lt;/body&gt;&quot;</span></div>
-<div class="line">                                     <span class="stringliteral">&quot;&lt;/html&gt;&quot;</span></div>
-</div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12384">12384</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ace9a7067ecc97f7c7756a562c9b5c1c0" name="ace9a7067ecc97f7c7756a562c9b5c1c0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ace9a7067ecc97f7c7756a562c9b5c1c0">&#9670;&#160;</a></span>html_chunk_game_left</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_game_left[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11543">11543</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a4ed2739c81538da574348a3db94e6462" name="a4ed2739c81538da574348a3db94e6462"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4ed2739c81538da574348a3db94e6462">&#9670;&#160;</a></span>html_chunk_game_right</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_game_right[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11666">11666</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a50be2765f30c79691d319bc9a1b6920c" name="a50be2765f30c79691d319bc9a1b6920c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a50be2765f30c79691d319bc9a1b6920c">&#9670;&#160;</a></span>html_chunk_head</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_head[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l10265">10265</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="adc3003a9441c86d367006ae4415a82b4" name="adc3003a9441c86d367006ae4415a82b4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adc3003a9441c86d367006ae4415a82b4">&#9670;&#160;</a></span>html_chunk_hint_inline</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_hint_inline[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12139">12139</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ad68d8dce5b4bb5eb53f9201c4a146c2f" name="ad68d8dce5b4bb5eb53f9201c4a146c2f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad68d8dce5b4bb5eb53f9201c4a146c2f">&#9670;&#160;</a></span>html_chunk_javascript</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_javascript[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    <span class="stringliteral">&quot;&lt;script src=&#39;/chess_app.js&#39;&gt;&lt;/script&gt;&quot;</span></div>
-</div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12209">12209</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ad8c6a6333babf87707dc21080b71f726" name="ad8c6a6333babf87707dc21080b71f726"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad8c6a6333babf87707dc21080b71f726">&#9670;&#160;</a></span>html_chunk_layout_start</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_layout_start[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11471">11471</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="aed0fb8deb128d87225f755340b40201e" name="aed0fb8deb128d87225f755340b40201e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aed0fb8deb128d87225f755340b40201e">&#9670;&#160;</a></span>html_chunk_mqtt_config</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_mqtt_config[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12280">12280</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a100af5ab84b7c192de449ff57c894816" name="a100af5ab84b7c192de449ff57c894816"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a100af5ab84b7c192de449ff57c894816">&#9670;&#160;</a></span>html_chunk_settings_bot</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_settings_bot[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11820">11820</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ae190241b4afa6e796e3537850ccbbdc7" name="ae190241b4afa6e796e3537850ccbbdc7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae190241b4afa6e796e3537850ccbbdc7">&#9670;&#160;</a></span>html_chunk_settings_sit</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_settings_sit[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11772">11772</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a440de8fc5747d153e6b7c3246f67e339" name="a440de8fc5747d153e6b7c3246f67e339"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a440de8fc5747d153e6b7c3246f67e339">&#9670;&#160;</a></span>html_chunk_settings_tutorial</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_settings_tutorial[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;settings-section&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;h3 class=&#39;set-title&#39;&gt;Tutoriály&lt;/h3&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;set-group set-check&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;label&gt;&lt;input type=&#39;checkbox&#39; id=&#39;chess-tutorials-enabled&#39; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;onchange=&#39;if(typeof saveTutorialsEnabled===\&quot;function\&quot;)saveTutorialsEnabled(this.checked);&#39;&gt; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;Zobrazit nabídku tutoriálů (výchozí vypnuto)&lt;/label&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;tutorials-panel-body&#39; class=&#39;tutorials-panel-body&#39; style=&#39;display:none;&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;p class=&#39;set-note&#39;&gt;LED a web ukážou, kam položit figurku; senzory neověřují druh figurky. &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;Po dokončení musí fyzická pozice odpovídat pravidlům šachu, jinak další hra nemusí dávat smysl.&lt;/p&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button type=&#39;button&#39; class=&#39;set-btn&#39; id=&#39;setup-tutorial-open-btn&#39; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;onclick=&#39;if(typeof openSetupTutorialIntro===\&quot;function\&quot;)openSetupTutorialIntro();&#39; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;disabled&gt;Základní postavení figur&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;set-group&#39; style=&#39;margin-top:10px;&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;p class=&#39;set-note&#39;&gt;Puzzle: nejdřív rozestavení podle LED (i bez zapnutých tutoriálů), pak hra.&lt;/p&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;button type=&#39;button&#39; class=&#39;set-btn&#39; id=&#39;puzzle-open-btn&#39; &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;onclick=&#39;if(typeof openPuzzleIntro===\&quot;function\&quot;)openPuzzleIntro();&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;Puzzles (5 obtížností)&lt;/button&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;script&gt;\n&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;/* Tutoriály: saveTutorialsEnabled, tutorialsPanelSetVisible — chess_app.js &quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;(NVS) */\n&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/script&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;/div&gt;&quot;</span></div>
-</div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11869">11869</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="aff807476fdafba6db3514a20fa7374cb" name="aff807476fdafba6db3514a20fa7374cb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aff807476fdafba6db3514a20fa7374cb">&#9670;&#160;</a></span>html_chunk_settings_zarizeni</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_settings_zarizeni[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11897">11897</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a0dc3a9e01e0ee61af3f276badf9efc09" name="a0dc3a9e01e0ee61af3f276badf9efc09"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0dc3a9e01e0ee61af3f276badf9efc09">&#9670;&#160;</a></span>html_chunk_tab_hra_end</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_tab_hra_end[] = &quot;&lt;/div&gt;&lt;/div&gt;&quot;</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11734">11734</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a84a7f8dd86a306e95f345b80a4940b1e" name="a84a7f8dd86a306e95f345b80a4940b1e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a84a7f8dd86a306e95f345b80a4940b1e">&#9670;&#160;</a></span>html_chunk_tab_hra_start</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_tab_hra_start[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;tab-hra&#39; class=&#39;tab-content active&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;main-content&#39;&gt;&quot;</span></div>
-</div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11538">11538</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a3e25ed064bdf023c8829e45eea11ea4d" name="a3e25ed064bdf023c8829e45eea11ea4d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e25ed064bdf023c8829e45eea11ea4d">&#9670;&#160;</a></span>html_chunk_tab_nastaveni_end</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_tab_nastaveni_end[] = &quot;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&quot;</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l12381">12381</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ad572c26c328220889e67688a5399ce65" name="ad572c26c328220889e67688a5399ce65"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad572c26c328220889e67688a5399ce65">&#9670;&#160;</a></span>html_chunk_tab_nastaveni_start</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char html_chunk_tab_nastaveni_start[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div id=&#39;tab-nastaveni&#39; class=&#39;tab-content&#39;&gt;&quot;</span></div>
-<div class="line">    <span class="stringliteral">&quot;&lt;div class=&#39;settings-grid&#39;&gt;&quot;</span></div>
-</div><!-- fragment -->
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l11767">11767</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5747,7 +5642,34 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00294">294</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00300">300</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8022a1e78e78515682e9ac22fc7f5593" name="a8022a1e78e78515682e9ac22fc7f5593"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8022a1e78e78515682e9ac22fc7f5593">&#9670;&#160;</a></span>k_http_root_json</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char k_http_root_json[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Inicializační hodnota:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <span class="stringliteral">&quot;{\&quot;service\&quot;:\&quot;czechmate\&quot;,\&quot;client\&quot;:\&quot;mobile_app\&quot;,&quot;</span></div>
+<div class="line">    <span class="stringliteral">&quot;\&quot;api\&quot;:\&quot;/api/\&quot;,\&quot;websocket\&quot;:\&quot;/ws\&quot;}&quot;</span></div>
+</div><!-- fragment -->
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l06027">6027</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5821,7 +5743,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02741">2741</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l03173">3173</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5847,7 +5769,107 @@ TABLE OF CONTENTS</h1>
 
 <p>Pod <code>snapshot_build_mutex</code> — žádný paralelní build; šetří ~1 KiB stacku na NimBLE host task. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02475">2475</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l02907">2907</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="adc44afbaafdd95e621face23b464eea4" name="adc44afbaafdd95e621face23b464eea4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc44afbaafdd95e621face23b464eea4">&#9670;&#160;</a></span>s_setup_tutorial_finish_conflict_until_tick</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TickType_t s_setup_tutorial_finish_conflict_until_tick</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Po konfliktu při finish setup tutoriálu krátce nevolat znovu validaci (BLE + HTTP). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00147">147</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac45bd1655cbc7c632a8634df63df6f75" name="ac45bd1655cbc7c632a8634df63df6f75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac45bd1655cbc7c632a8634df63df6f75">&#9670;&#160;</a></span>s_sta_blk_oct</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t s_sta_blk_oct[16]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00280">280</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a226c754e6f1c7f1056d4cb1af0522eb3" name="a226c754e6f1c7f1056d4cb1af0522eb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a226c754e6f1c7f1056d4cb1af0522eb3">&#9670;&#160;</a></span>s_sta_blk_oct_n</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t s_sta_blk_oct_n</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00281">281</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1a0aebf26f8f4a35fe78c96edf235bbb" name="a1a0aebf26f8f4a35fe78c96edf235bbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a0aebf26f8f4a35fe78c96edf235bbb">&#9670;&#160;</a></span>s_sta_blk_reject_streak</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned s_sta_blk_reject_streak</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Kolikrát za sebou zamítnuta DHCP adresa (router může pořád nabízet stejnou). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00283">283</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5871,7 +5893,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00295">295</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00301">301</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5897,7 +5919,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Ochrana sestavení snapshotu (HTTP + BLE paralelně). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00297">297</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00303">303</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -5923,7 +5945,7 @@ TABLE OF CONTENTS</h1>
 
 <p>Fronta pingů — build snapshot jen v web_server_task (ne v esp_timer: malý stack). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00300">300</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00306">306</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -6138,7 +6160,7 @@ TABLE OF CONTENTS</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00169">169</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00144">144</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -6163,30 +6185,6 @@ TABLE OF CONTENTS</h1>
 </div><div class="memdoc">
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00242">242</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a42e66ee24fe5081421583e97925b3d7a" name="a42e66ee24fe5081421583e97925b3d7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a42e66ee24fe5081421583e97925b3d7a">&#9670;&#160;</a></span>test_html</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char test_html[]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l10180">10180</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -6253,7 +6251,7 @@ TABLE OF CONTENTS</h1>
 <p>Fronta pro web server prikazy (HTTP requests) </p>
 <p>Fronta pro web server prikazy. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00286">286</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00292">292</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -6296,7 +6294,7 @@ TABLE OF CONTENTS</h1>
 <p>Fronta pro web server status (server state) </p>
 <p>Fronta pro web server status. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00285">285</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00291">291</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>

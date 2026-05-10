@@ -1,11 +1,25 @@
 var searchData=
 [
-  ['test_5fcommand_5fqueue_5fsize_0',['TEST_COMMAND_QUEUE_SIZE',['../freertos__chess_8h.html#a6270273d8768735a2ec19af444ab4ab3',1,'freertos_chess.h']]],
-  ['test_5ftask_5finterval_1',['TEST_TASK_INTERVAL',['../test__task_8c.html#af304591824ffd0303612bc129b97474b',1,'test_task.c']]],
-  ['test_5ftask_5fpriority_2',['TEST_TASK_PRIORITY',['../freertos__chess_8h.html#a93921d3292005836714afe15fad7d078',1,'freertos_chess.h']]],
-  ['test_5ftask_5fstack_5fsize_3',['TEST_TASK_STACK_SIZE',['../freertos__chess_8h.html#a5a50c304bdd9e66032df79cfea02fb35',1,'freertos_chess.h']]],
-  ['test_5ftimeout_5fms_4',['TEST_TIMEOUT_MS',['../test__task_8c.html#a90fcbca855c6c141b3f213a229c7016a',1,'test_task.c']]],
-  ['timer_5fhttp_5fjson_5fmax_5',['TIMER_HTTP_JSON_MAX',['../web__server__task_8c.html#aec1dab525109f96343c5edb1dd7de1e8',1,'web_server_task.c']]],
-  ['timer_5fnvs_5fnamespace_6',['TIMER_NVS_NAMESPACE',['../timer__system_8c.html#aa2d35ddf527366525ad43395c5d84a1d',1,'timer_system.c']]],
-  ['total_5fcycle_5ftime_5fms_7',['TOTAL_CYCLE_TIME_MS',['../freertos__chess_8h.html#a519b0c7ea34c85b7e4c7144095820e65',1,'freertos_chess.h']]]
+  ['safe_5fcreate_5fmutex_0',['SAFE_CREATE_MUTEX',['../freertos__chess_8h.html#a9ca3a534387caddce17a0aa3afb7a332',1,'freertos_chess.h']]],
+  ['safe_5fcreate_5fqueue_1',['SAFE_CREATE_QUEUE',['../freertos__chess_8h.html#a4821223bcff83669f6b0414b90542738',1,'freertos_chess.h']]],
+  ['safe_5fget_5fbuffer_2',['SAFE_GET_BUFFER',['../shared__buffer__pool_8h.html#a4fd36e7fb9f9dff5eaa936115b4a5e48',1,'shared_buffer_pool.h']]],
+  ['safe_5frelease_5fbuffer_3',['SAFE_RELEASE_BUFFER',['../shared__buffer__pool_8h.html#ab1e2b3bd6e04fde2a413dd3dae10c415',1,'shared_buffer_pool.h']]],
+  ['safe_5fwdt_5freset_4',['SAFE_WDT_RESET',['../uart__task_8c.html#a817d1b9d4253b32aa883d9bf92aae705',1,'uart_task.c']]],
+  ['screen_5fsaver_5fqueue_5fsize_5',['SCREEN_SAVER_QUEUE_SIZE',['../freertos__chess_8h.html#afd353feba5d0f1707fb7a70438c4dc1f',1,'freertos_chess.h']]],
+  ['screen_5fsaver_5ftask_5fpriority_6',['SCREEN_SAVER_TASK_PRIORITY',['../freertos__chess_8h.html#a66161fe4e247e0f129ebe3b2bf3d1d42',1,'freertos_chess.h']]],
+  ['screen_5fsaver_5ftask_5fstack_5fsize_7',['SCREEN_SAVER_TASK_STACK_SIZE',['../freertos__chess_8h.html#a203c5698d5ed09c06220f3f660867903',1,'freertos_chess.h']]],
+  ['snapshot_5fbuffer_5fsize_8',['SNAPSHOT_BUFFER_SIZE',['../web__server__task_8c.html#a203531c437566e817791643601aef9e0',1,'web_server_task.c']]],
+  ['sta_5fblk_5foct_5fmax_9',['STA_BLK_OCT_MAX',['../web__server__task_8c.html#a93a44d3a4b91d8d9249a3c92dfe8bd08',1,'web_server_task.c']]],
+  ['sta_5freconnect_5fdelay_5fmax_5fms_10',['STA_RECONNECT_DELAY_MAX_MS',['../web__server__task_8c.html#ada7bf27261780a90d167ab1e4d0f5ba7',1,'web_server_task.c']]],
+  ['sta_5freconnect_5fdelay_5fmin_5fms_11',['STA_RECONNECT_DELAY_MIN_MS',['../web__server__task_8c.html#a2720cee636856bd8213af149225c46ba',1,'web_server_task.c']]],
+  ['stack_5fsafety_5flimit_12',['STACK_SAFETY_LIMIT',['../uart__task_8c.html#afaa4f2205de94aa018ae84d9968d3a09',1,'uart_task.c']]],
+  ['staging_5flogi_13',['STAGING_LOGI',['../game__task_8c.html#a62ecd07b10c8688371e290c8c64df0a4',1,'game_task.c']]],
+  ['status_5fled_5fpin_14',['STATUS_LED_PIN',['../freertos__chess_8h.html#a089a71f836911c71b3f73fdd3b4b890b',1,'freertos_chess.h']]],
+  ['stream_5fchess_5fboard_15',['STREAM_CHESS_BOARD',['../streaming__output_8h.html#ad0fce4a1af286f625bf5aa844e794cb2',1,'streaming_output.h']]],
+  ['stream_5fchunked_5freport_16',['STREAM_CHUNKED_REPORT',['../streaming__output_8h.html#a6c724a82f7d007d4bffa449079138389',1,'streaming_output.h']]],
+  ['stream_5fled_5fboard_17',['STREAM_LED_BOARD',['../streaming__output_8h.html#a51d51314482adade900fa2659aede2b5',1,'streaming_output.h']]],
+  ['stream_5fline_5fbuffer_5fsize_18',['STREAM_LINE_BUFFER_SIZE',['../streaming__output_8h.html#a23a8466caaf2282acdc686a4a9dde41d',1,'streaming_output.h']]],
+  ['stream_5fmax_5foutput_5ftargets_19',['STREAM_MAX_OUTPUT_TARGETS',['../streaming__output_8h.html#a69dfd27db3e015fc85f81dea4affbbeb',1,'streaming_output.h']]],
+  ['stream_5freport_5fend_20',['STREAM_REPORT_END',['../streaming__output_8h.html#a8caa346fb405cea674904eee2b84abad',1,'streaming_output.h']]],
+  ['system_5fhealth_5ftime_5fms_21',['SYSTEM_HEALTH_TIME_MS',['../freertos__chess_8h.html#aeb05d15370ffa97f0d3ca135ffbc3bc9',1,'freertos_chess.h']]]
 ];

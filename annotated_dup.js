@@ -61,5 +61,6 @@ var annotated_dup =
     [ "uart_message_t", "structuart__message__t.html", "structuart__message__t" ],
     [ "wave_animation_state_t", "structwave__animation__state__t.html", "structwave__animation__state__t" ],
     [ "wave_t", "structwave__t.html", "structwave__t" ],
+    [ "wifi_ap_toggle_msg_t", "structwifi__ap__toggle__msg__t.html", "structwifi__ap__toggle__msg__t" ],
     [ "wifi_ble_prov_msg_t", "structwifi__ble__prov__msg__t.html", "structwifi__ble__prov__msg__t" ]
 ];

@@ -1,5 +1,5 @@
 <map id="web_server_task.c" name="web_server_task.c">
-<area shape="rect" id="Node000001" title="Web Server Task &#45; WiFi hotspot a HTTP server pro web ovladani." alt="" coords="2775,5,2917,31"/>
+<area shape="rect" id="Node000001" title="HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci." alt="" coords="2775,5,2917,31"/>
 <area shape="rect" id="Node000002" href="$web__server__task_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Web Server Task Hlavicka." alt="" coords="602,86,746,111"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="2775,22,2382,25,1798,33,1198,51,947,64,758,81,732,86,731,80,758,76,947,59,1198,46,1798,28,2382,20,2775,17"/>
 <area shape="rect" id="Node000007" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="808,174,937,199"/>

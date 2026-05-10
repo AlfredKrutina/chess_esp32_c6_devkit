@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['promotion_5fbutton_5ftask_5fpriority_0',['promotion_button_task_priority',['../freertos__chess_8h.html#a58d022d18b73ee9efae31b39b6fd4343',1,'PROMOTION_BUTTON_TASK_PRIORITY:&#160;freertos_chess.h'],['../promotion__button__task_8h.html#a58d022d18b73ee9efae31b39b6fd4343',1,'PROMOTION_BUTTON_TASK_PRIORITY:&#160;promotion_button_task.h']]],
-  ['promotion_5fbutton_5ftask_5fstack_5fsize_1',['PROMOTION_BUTTON_TASK_STACK_SIZE',['../freertos__chess_8h.html#a0777cbb816d50dcb813a9bf1b98dd46e',1,'freertos_chess.h']]]
+  ['ota_5fhttp_5fpost_5fbody_5fcap_0',['OTA_HTTP_POST_BODY_CAP',['../ota__update_8c.html#a63d826b3d2f4cec8482503bebcb7a261',1,'ota_update.c']]]
 ];

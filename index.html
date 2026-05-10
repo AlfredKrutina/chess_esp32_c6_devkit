@@ -659,7 +659,7 @@ Hardware</h2>
 Software</h2>
 <p><b>Zamrzlo to:</b> watchdog by měl po chvíli resetnout — v logu hledám poslední řádek před zásekem; případně zvětším stack u podezřelého tasku.</p>
 <p><b>Šachy „nedávají smysl“:</b> log tahů, příkaz <code>board</code> v UARTu, jestli matice sedí s realitou.</p>
-<p><b>Web nejede:</b> jestli má deska IP v logu, jestli <code>web_server_task</code> žije, jestli mě firewall neřeže z LAN.</p>
+<p><b>Web nejede:</b> v logu jestli doběhla inicializace Wi‑Fi (<code>WiFi initialized …</code>) a jestli <code>Starting HTTP server</code> / <code>HTTP server started</code> — bez toho REST neběží. <b>Starší firmware</b> při vypnutém hotspotu desky mohl skončit už na <code>ESP_ERR_WIFI_MODE</code> a úloha HTTP se vůbec nespustila; v aktuálním kódu se ve STA-only <b>nastavuje jen STA</b> a AP konfigurace se přeskakuje. Dál: IP desky (STA nebo <code>192.168.4.1</code> při zapnutém hotspotu), firewall z LAN, jestli <code>web_server_task</code> žije.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md157"></a>
 ❓ FAQ (často se ptáte)</h1>

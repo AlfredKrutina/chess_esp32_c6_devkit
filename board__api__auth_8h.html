@@ -142,14 +142,13 @@ Funkce</h2></td></tr>
 Auth matrix (HTTP)</h2>
 <ul>
 <li>Veřejné GET (bez Bearer): např. <code>/api/status</code>, <code>/api/board</code>, <code>/api/game/snapshot</code>, <code>/api/wifi/status</code>, <code>/api/system/firmware</code>, <code>/api/system/ota/status</code> (onboarding).</li>
-<li>Admin POST (Bearer povinný): <code>/api/system/ota</code>, <code>/api/system/factory_reset</code>, <code>/api/wifi/config</code>, <code>/api/wifi/connect</code>, <code>/api/wifi/disconnect</code>, <code>/api/wifi/clear</code>.</li>
-<li>Web lock: pokud je zapnutý a Bearer chybí nebo je špatný → 403 <code>web_locked</code>. Bez locku a bez platného Bearer → 403 <code>api_token_required</code>.</li>
+<li>Admin POST (<code>/api/system/ota</code>, <code>/api/system/factory_reset</code>, cesty pod <code>/api/wifi/</code>, …): platný Bearer vždy stačí. Pokud je <b>WEB_LOCK zapnutý</b> a Bearer chybí nebo neplatí → 403 <code>web_locked</code>. Pokud je <b>WEB_LOCK vypnutý</b> (výchozí), POST z LAN projde bez hlavičky (stejně jako otevřené GET API).</li>
 </ul>
 <p>Token: 32 B náhodných, v hlavičce jako <code>Authorization: Bearer &lt;64 hex znaků&gt;</code>.</p>
 <h2><a class="anchor" id="autotoc_md75"></a>
 BLE (viz ble_task_conn_is_encrypted)</h2>
 <ul>
-<li><code>ota_start</code>, <code>ota_ble_begin</code>, <code>ota_ble_abort</code>, <code>ota_ble_status</code>, <code>wifi_sta_config</code>, <code>factory_reset</code>: vyžadují aktivní šifrovaný odkaz (po SMP). </li>
+<li><code>ota_start</code>, <code>ota_ble_begin</code>, <code>ota_ble_abort</code>, <code>ota_ble_status</code>, <code>wifi_sta_config</code>, <code>wifi_ap_set</code>, <code>factory_reset</code>: vyžadují aktivní šifrovaný odkaz (po SMP). </li>
 </ul>
 
 <p class="definition">Definice v souboru <a class="el" href="board__api__auth_8h_source.html">board_api_auth.h</a>.</p>

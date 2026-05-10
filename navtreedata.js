@@ -59,16 +59,16 @@ var NAVTREEINDEX =
 "game__led__animations_8h.html#aff587ca038d004104b274391cb221113",
 "game__task_8c.html#a715422f9b34ce3aff72a852b7951ebba",
 "game__task_8h.html#a25364833eb80653b4d30414376f3fe35",
-"ha__light__task_8c.html#a4ed770cbe46604586e494bae84b62304",
-"led__state__manager_8h.html#a48277ad0ecc8bc035e62eeb7541a1936aa0025b6b86ea4dd13efeddac7a2a0997",
-"led__unified__api_8h.html#a8985352a22885bbb847bca6e772e98bc",
-"shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e",
-"structchess__move__extended__t.html#a446b69d07624770d7f9caed4a8f9c01a",
-"structled__layer__state__t.html#a751d0f8893d44627cbe70a38cecf353b",
-"test__task_8h.html#ace48e52c97a70560c37d0df5861549b2",
-"uart__task_8c.html#a66144e793ae8758d91e06b8559639464",
-"unified__animation__manager_8h.html#a36e475c8eb3e48ea57c29780f6058e78",
-"web__server__task_8c.html#aa21e15af227cd88b231854eef4d9a1cc"
+"ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a",
+"led__state__manager_8h.html#a48277ad0ecc8bc035e62eeb7541a1936a922505d6fbd0555ead23c68328860786",
+"led__unified__api_8h.html#a7dcadeeb97f7284b327666232439764a",
+"shared__buffer__pool_8h.html",
+"structchess__move__extended__t.html#a16faacd78ba6e8d0036fe058422762d0",
+"structled__layer__state__t.html#a238ba32530dd3a543bde13518ad7edd1",
+"test__task_8h.html#abce606bebe3aab6e9cd5bb6210d28d70",
+"uart__task_8c.html#a615aed21aa6825462b7c17b0c238ffe2",
+"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ab7d8cfeacc7585107aebcc81bf3e0d13",
+"web__server__task_8c.html#a97ff386657b49592624586a42a5f38e4"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';
