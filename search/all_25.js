@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['⚙️_20nastavení_20na_20webu_0',['⚙️ Nastavení na webu',['../index.html#autotoc_md118',1,'']]]
+  ['že_20občas_20štve_0',['🐛 Co víme, že občas štve',['../index.html#autotoc_md151',1,'']]]
 ];

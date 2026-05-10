@@ -1,6 +1,6 @@
 <map id="uart_cli_panel.h" name="uart_cli_panel.h">
 <area shape="rect" id="Node000001" title="Zapojení jednotného panelu — prototypy jsou v uart_task.h." alt="" coords="255,5,380,31"/>
-<area shape="rect" id="Node000002" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; UART Task Hlavicka." alt="" coords="270,79,365,104"/>
+<area shape="rect" id="Node000002" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Hlavicka." alt="" coords="270,79,365,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="320,31,320,65,315,65,315,31"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="173,225,243,251"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="311,106,227,216,223,213,306,103"/>
@@ -12,7 +12,7 @@
 <area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="366,96,426,113,457,129,483,150,501,180,508,211,503,213,496,182,479,154,454,133,424,118,364,101"/>
 <area shape="rect" id="Node000007" title=" " alt="" coords="595,225,677,251"/>
 <area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="366,101,435,121,509,150,566,182,613,215,610,219,563,187,507,154,433,126,364,106"/>
-<area shape="rect" id="Node000008" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="355,152,469,177"/>
+<area shape="rect" id="Node000008" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="355,152,469,177"/>
 <area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="334,102,387,141,384,146,331,106"/>
 <area shape="rect" id="Node000009" href="$uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="5,152,179,177"/>
 <area shape="poly" id="edge13_Node000002_Node000009" title=" " alt="" coords="282,107,142,150,141,145,280,101"/>

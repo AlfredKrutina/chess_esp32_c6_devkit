@@ -20,6 +20,7 @@ var ota__update_8c =
     [ "ble_ota_suspend_timer_arm", "ota__update_8c.html#a0defc12cf04adb9cbe105e0fcadd3c94", null ],
     [ "ble_ota_suspend_timer_cancel", "ota__update_8c.html#ac8f697fa53e9a3a4fd446ae0728f1157", null ],
     [ "ble_ota_suspend_timer_cb", "ota__update_8c.html#ad0f66a8b67ea1981cc4edbfef89cbec9", null ],
+    [ "firmware_json_add_rollback_fields", "ota__update_8c.html#aed47391e2dfccdc2f4df9c5d7506c4c8", null ],
     [ "http_get_firmware", "ota__update_8c.html#a0c9759d58918d46e54533d6fe0fa8d9e", null ],
     [ "http_get_ota_status", "ota__update_8c.html#a95a6f50250efdbc39829370fa6871fbb", null ],
     [ "http_post_ota", "ota__update_8c.html#ae98d65b10a350c82817417d57c87443c", null ],

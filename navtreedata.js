@@ -25,7 +25,7 @@
 var NAVTREE =
 [
   [ "CZECHMATE", "index.html", [
-    [ "CZECHMATE firmware <strong>1.7.3</strong>", "index.html", "index" ],
+    [ "CZECHMATE firmware <strong>1.8.0</strong>", "index.html", "index" ],
     [ "Seznam zastaralých prvků", "deprecated.html", null ],
     [ "Datové struktury", "annotated.html", [
       [ "Datové struktury", "annotated.html", "annotated_dup" ],
@@ -62,13 +62,13 @@ var NAVTREEINDEX =
 "ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a",
 "led__state__manager_8h.html#a48277ad0ecc8bc035e62eeb7541a1936a922505d6fbd0555ead23c68328860786",
 "led__unified__api_8h.html#a7dcadeeb97f7284b327666232439764a",
-"shared__buffer__pool_8h.html",
-"structchess__move__extended__t.html#a16faacd78ba6e8d0036fe058422762d0",
-"structled__layer__state__t.html#a238ba32530dd3a543bde13518ad7edd1",
-"test__task_8h.html#abce606bebe3aab6e9cd5bb6210d28d70",
-"uart__task_8c.html#a615aed21aa6825462b7c17b0c238ffe2",
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ab7d8cfeacc7585107aebcc81bf3e0d13",
-"web__server__task_8c.html#a97ff386657b49592624586a42a5f38e4"
+"shared__buffer__pool_8c_source.html",
+"structchess__move__extended__t.html",
+"structled__layer__state__t.html#a112df6c248bc73c864b6e0c401a1a87c",
+"test__task_8h.html#aaac45356aafa3772ca815cfabde4ebe3",
+"uart__task_8c.html#a61191483532939b033d38260bf51a471",
+"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6aaf6efdcd03fbd8fe3574d90a8dd8d83f",
+"web__server__task_8c.html#a96cbfc09f923b4548a4bb4c63f70237f"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';

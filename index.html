@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>CZECHMATE: CZECHMATE firmware &lt;strong&gt;1.7.3&lt;/strong&gt;</title>
+<title>CZECHMATE: CZECHMATE firmware &lt;strong&gt;1.8.0&lt;/strong&gt;</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -90,11 +90,11 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title">CZECHMATE firmware <b>1.7.3</b> </div></div>
+  <div class="headertitle"><div class="title">CZECHMATE firmware <b>1.8.0</b> </div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a> Ahoj — tady je <b>CzechMate</b>, náš šachový systém: fyzická deska se světly, firmware na ESP32-C6, web v prohlížeči a aplikace ve Flutteru (<code>flutter_czechmate/</code>). Nativní Xcode projekt <code>CZECHMATE/</code> si držím jen lokálně, v gitu není.</p>
-<p><b>Verze a hardware:</b> Aktuální číslo projektu ve firmwaru i v dokumentaci je **<code>1.7.3</code>** — běží na prototypu <b>V1</b> s <b>reed switch</b> maticí (objemnější deska, záznam na <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a>). <b>V2.0</b> je připravovaná <b>komerční</b> deska se <b>Hall senzory</b> (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k <b>V2</b>. Přehled: `docs/reference/HARDWARE_VERZE.md`.</p>
+<p><b>Verze a hardware:</b> Aktuální číslo projektu ve firmwaru i v dokumentaci je **<code>1.8.0</code>** — běží na prototypu <b>V1</b> s <b>reed switch</b> maticí (objemnější deska, záznam na <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a>). <b>V2.0</b> je připravovaná <b>komerční</b> deska se <b>Hall senzory</b> (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k <b>V2</b>. Přehled: `docs/reference/HARDWARE_VERZE.md`.</p>
 <p><b>📲 Stáhnout aplikaci:</b> <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktovka + odkazy</a> — Android APK a macOS DMG jsou i na <b><a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">GitHub Releases</a></b>. <b>iOS / iPad</b> a <b>Windows</b> zatím připravujeme. <b>Krátké intro na videu:</b> <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a>.</p>
 <p><em>Šachmat z Česka</em></p>
 <p><b>Kde co najdeš v textech:</b> **`docs/README.md`** — rozcestí po diagramech, Flutteru, OTA a referencích; k C API si lokálně generuju Doxygen (viz níže).</p>
@@ -138,7 +138,7 @@ Prototyp V1 vs plánovaná V2</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">Formát   </td><td class="markdownTableBodyNone">Bulkier dev/prototyp   </td><td class="markdownTableBodyNone">Skladnější produkt    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Firmware   </td><td class="markdownTableBodyNone">**<code>1.7.3</code>** v tomto repu   </td><td class="markdownTableBodyNone">Stejný ekosystém softwaru; HW vrstva podle integrace   </td></tr>
+<td class="markdownTableBodyNone">Firmware   </td><td class="markdownTableBodyNone">**<code>1.8.0</code>** v tomto repu   </td><td class="markdownTableBodyNone">Stejný ekosystém softwaru; HW vrstva podle integrace   </td></tr>
 </table>
 <p>Detailní tabulka a odkazy: `docs/reference/HARDWARE_VERZE.md`.</p>
 <h2><a class="anchor" id="autotoc_md98"></a>
@@ -204,7 +204,7 @@ FreeRTOS Tasky</h2>
 <p><b>Poznámka k animacím:</b> Dřívější samostatný FreeRTOS task <code>animation_task</code> (priorita 3) je <b>vypnutý</b>; animace jsou integrované do pipeline LED tasku</p>
 <h2><a class="anchor" id="autotoc_md104"></a>
 Komunikace mezi tasky</h2>
-<p>Mezi tasky to držíme přes fronty a mutexy — přehled kapacit je v <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v1.7.3 - Hlavni systemova hlavicka.">freertos_chess.h</a></code> (<code>GAME_QUEUE_SIZE</code> atd.):</p>
+<p>Mezi tasky to držíme přes fronty a mutexy — přehled kapacit je v <code><a class="el" href="freertos__chess_8h.html" title="ESP32-C6 Chess System v1.8.0 - Hlavni systemova hlavicka.">freertos_chess.h</a></code> (<code>GAME_QUEUE_SIZE</code> atd.):</p>
 <ul>
 <li><b>FreeRTOS Queues</b> — asynchronní předávání zpráv<ul>
 <li><code>game_command_queue</code> - Příkazy pro <code>game_task</code> (<b>24</b> zpráv typu <code><a class="el" href="structchess__move__command__t.html" title="Struktura prikazu pro sachovy tah pres UART.">chess_move_command_t</a></code>)</li>
@@ -562,7 +562,7 @@ Dokumentace</h1>
 <li><b>docs/README.md</b> — rozcestník po celém repu</li>
 <li><b>docs/diagrams/README.md</b> — boot, fronty, mutexy, smyčky tasků, šachy, Flutter</li>
 <li><b>docs/flutter/README.md</b> — aplikace, BLE/HTTP, <code>lib/</code></li>
-<li><b>docs/ota_architecture.md</b> — jak řešíme OTA (HTTPS / HTTP / BLE), REST a Flutter; dlouhodobě uvažuju i OTAvo místo vlastní vrstvy ve FW</li>
+<li><b>docs/ota_architecture.md</b> — OTA (HTTPS / HTTP / BLE), REST, Flutter, rollback po <code>create_system_tasks</code>, dual-slot flash, kompatibilita NVS a checklist před release; směr rozšíření: podepsaný / šifrovaný obraz podle Espressif</li>
 <li><b>docs/reference/README.md</b> — delší texty: komunikace tasků, souřadnice, web UI v binárce, checklist integrace</li>
 </ul>
 <p><b>Doxygen</b> z C kódu — HTML si generuju:</p>
@@ -673,8 +673,8 @@ Software</h2>
 <h1><a class="anchor" id="autotoc_md159"></a>
 📝 Historie verzí</h1>
 <h2><a class="anchor" id="autotoc_md160"></a>
-1.7.3 — aktuální verze projektu (firmware v repu, 2026)</h2>
-<p>Jednotné číslo **<code>1.7.3</code>** držíme v <code><a class="el" href="CMakeLists_8txt.html">CMakeLists.txt</a></code>, Doxygenu, hlavičkách zdrojáků a ve Flutter <code>pubspec.yaml</code>. Shrnutí funkcí (sloučený stav vývoje):</p>
+1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)</h2>
+<p>Semver **<code>1.8.0</code>** držíme v <code><a class="el" href="CMakeLists_8txt.html">CMakeLists.txt</a></code> (<code>PROJECT_VERSION</code>), <code>firmware/version.json</code>, Doxygen <code>PROJECT_NUMBER</code> a v záhlaví aplikace; Flutter <code>pubspec.yaml</code> má **<code>1.8.0+3</code>** (číslo za <code>+</code> je build). Shrnutí funkcí (sloučený stav vývoje):</p>
 <ul>
 <li>✅ Kompletní šachová logika včetně všech pravidel; webové rozhraní s real-time aktualizací</li>
 <li>✅ LED animace pro všechny stavy hry; <b>unified animation manager</b>; vizuální error systém</li>
@@ -686,7 +686,7 @@ Software</h2>
 <li>✅ MQTT / Home Assistant (<code>ha_light_task</code>)</li>
 <li>✅ <b>BLE:</b> NimBLE přes <code><a class="el" href="ble__task_8c.html#a673bf35c9275637c2030e5e6676564a8">ble_task_init()</a></code> (host task od ESP-IDF)</li>
 </ul>
-<p><b>Poznámka:</b> Starší interní označení typu „v2.4 / v2.5“ v historii vývoje už nesleduju paralelně — všechno pod jednou projektovou verzí <b>1.7.3</b>. Každý pokus a slepá ulička v gitu samozřejmě zůstává v commitech.</p>
+<p><b>Poznámka:</b> Starší interní označení typu „v2.4 / v2.5“ v historii vývoje už nesleduju paralelně — všechno pod jednou projektovou verzí <b>1.8.0</b>. Každý pokus a slepá ulička v gitu samozřejmě zůstává v commitech.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md162"></a>
 🔮 Co mě ještě láká doplnit</h1>
@@ -784,7 +784,7 @@ Komunita ESP32 + open source</h2>
 <p>Když budete mít otázku nebo postřeh k projektu, klidně napište — rád si přečtu, co vám z toho vyšlo.</p>
 <hr  />
 <p>Hlubší technické detaily a diagramy jsou v adresáři <a href="docs/">docs/</a>.</p>
-<p><b>Verze tohoto README:</b> 1.7.3 <br  />
+<p><b>Verze tohoto README:</b> 1.8.0 <br  />
  <b>Naposledy jsem to upravoval:</b> 2026-05-06 </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->

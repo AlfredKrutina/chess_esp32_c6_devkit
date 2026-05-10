@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['📝_20historie_20verzí_0',['📝 Historie verzí',['../index.html#autotoc_md159',1,'']]]
+  ['📋_20co_20czechmate_20umí_20stručně_0',['📋 Co CzechMate umí (stručně)',['../index.html#autotoc_md93',1,'']]]
 ];

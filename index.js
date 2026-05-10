@@ -67,7 +67,7 @@ var index =
     ] ],
     [ "❓ FAQ (často se ptáte)", "index.html#autotoc_md157", null ],
     [ "📝 Historie verzí", "index.html#autotoc_md159", [
-      [ "1.7.3 — aktuální verze projektu (firmware v repu, 2026)", "index.html#autotoc_md160", null ]
+      [ "1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)", "index.html#autotoc_md160", null ]
     ] ],
     [ "🔮 Co mě ještě láká doplnit", "index.html#autotoc_md162", null ],
     [ "👥 Autoři", "index.html#autotoc_md164", [

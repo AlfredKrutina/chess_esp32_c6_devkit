@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('matrix__task_8h.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 
-<p>ESP32-C6 Chess System v1.7.3 - Matrix Task Hlavicka.  
+<p>ESP32-C6 Chess System v1.8.0 - Matrix Task Hlavicka.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
@@ -107,8 +107,8 @@ Graf závislostí na vkládaných souborech pro matrix_task.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="matrix__task_8h__incl.png" border="0" usemap="#amatrix__task_8h" alt=""/></div>
 <map name="amatrix__task_8h" id="amatrix__task_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Matrix Task Hlavicka." alt="" coords="893,5,1005,31"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="649,79,779,104"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Hlavicka." alt="" coords="893,5,1005,31"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="649,79,779,104"/>
 <area shape="poly" title=" " alt="" coords="912,33,766,77,764,72,910,28"/>
 <area shape="rect" title=" " alt="" coords="932,225,1013,251"/>
 <area shape="poly" title=" " alt="" coords="965,29,1016,77,1043,112,1063,151,1067,165,1063,179,1043,203,1017,221,1014,217,1039,199,1058,176,1061,165,1058,153,1039,115,1012,81,962,33"/>
@@ -118,7 +118,7 @@ Graf závislostí na vkládaných souborech pro matrix_task.h:</div>
 <area shape="poly" title=" " alt="" coords="975,28,1010,48,1044,77,1069,111,1083,151,1089,182,1090,211,1084,211,1083,183,1078,153,1065,113,1040,81,1007,53,972,33"/>
 <area shape="rect" title=" " alt="" coords="483,152,579,177"/>
 <area shape="poly" title=" " alt="" coords="686,107,575,149,573,144,684,102"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="705,152,819,177"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="705,152,819,177"/>
 <area shape="poly" title=" " alt="" coords="724,103,749,139,744,142,720,106"/>
 <area shape="poly" title=" " alt="" coords="748,102,800,122,857,150,907,182,950,214,947,219,904,187,854,154,798,127,746,107"/>
 <area shape="rect" title=" " alt="" coords="604,225,755,251"/>
@@ -197,7 +197,7 @@ Funkce</h2></td></tr>
 <tr class="separator:a4ffeb65e7984e50f1ad65b6a92c304cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
-<div class="textblock"><p>ESP32-C6 Chess System v1.7.3 - Matrix Task Hlavicka. </p>
+<div class="textblock"><p>ESP32-C6 Chess System v1.8.0 - Matrix Task Hlavicka. </p>
 <p>Tato hlavicka definuje rozhrani pro matrix task:</p><ul>
 <li>Skenovani 8x8 reed switch matice</li>
 <li>Detekce a validace tahu</li>
@@ -205,7 +205,7 @@ Funkce</h2></td></tr>
 <li>Time-multiplexed GPIO ovladani</li>
 </ul>
 <dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Verze</dt><dd>1.7.3 </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>1.8.0 </dd></dl>
 <dl class="section date"><dt>Datum</dt><dd>2025-08-24</dd></dl>
 <p>Matrix task je zodpovedny za detekci figurek na sachovnici pomoci 8x8 reed switch matice. Skenuje matici kazdych 20ms a detekuje kdy hrac zvedne nebo polozi figurku. Komunikuje s game taskem pres fronty.</p>
 <p>Hardware:</p><ul>

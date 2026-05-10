@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['❓_20faq_20často_20se_20ptáte_0',['❓ FAQ (často se ptáte)',['../index.html#autotoc_md157',1,'']]]
+  ['—_20aktuální_20řádek_20verzí_20firmware_20aplikace_20v_20repu_202026_0',['1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)',['../index.html#autotoc_md160',1,'']]]
 ];

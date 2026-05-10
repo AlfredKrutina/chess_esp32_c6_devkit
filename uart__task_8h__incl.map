@@ -1,5 +1,5 @@
 <map id="uart_task.h" name="uart_task.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.7.3 &#45; UART Task Hlavicka." alt="" coords="270,5,365,31"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Hlavicka." alt="" coords="270,5,365,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="173,152,243,177"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="311,33,227,142,223,139,306,30"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="65,152,148,177"/>
@@ -10,7 +10,7 @@
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="366,22,426,40,457,55,483,77,501,107,508,138,503,139,496,109,479,80,454,60,424,45,364,27"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="595,152,677,177"/>
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="366,28,435,47,509,76,566,109,613,142,610,146,563,113,507,81,433,52,364,33"/>
-<area shape="rect" id="Node000007" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="355,79,469,104"/>
+<area shape="rect" id="Node000007" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="355,79,469,104"/>
 <area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="334,29,387,68,384,72,331,33"/>
 <area shape="rect" id="Node000008" href="$uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="5,79,179,104"/>
 <area shape="poly" id="edge12_Node000001_Node000008" title=" " alt="" coords="282,33,142,77,141,72,280,28"/>

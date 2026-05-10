@@ -25,9 +25,9 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.7.3</span>
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — šachový systém (FW 1.7.3): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
   </td>
  </tr>
  </tbody>
@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('freertos__chess_8h.html',''); initResi
 </div><!--header-->
 <div class="contents">
 
-<p>ESP32-C6 Chess System v1.7.3 - Hlavni systemova hlavicka.  
+<p>ESP32-C6 Chess System v1.8.0 - Hlavni systemova hlavicka.  
 <a href="#details">...</a></p>
 <div class="textblock"><code>#include &quot;sdkconfig.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
@@ -116,10 +116,10 @@ Graf závislostí na vkládaných souborech pro freertos_chess.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="freertos__chess_8h__incl.png" border="0" usemap="#afreertos__chess_8h" alt=""/></div>
 <map name="afreertos__chess_8h" id="afreertos__chess_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Hlavni systemova hlavicka." alt="" coords="397,5,527,31"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="397,5,527,31"/>
 <area shape="rect" title=" " alt="" coords="38,79,134,104"/>
 <area shape="poly" title=" " alt="" coords="402,33,148,81,147,76,401,28"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.7.3 &#45; Spolecne definice typu." alt="" coords="310,79,425,104"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="310,79,425,104"/>
 <area shape="poly" title=" " alt="" coords="448,33,395,72,392,68,445,29"/>
 <area shape="rect" title=" " alt="" coords="5,152,87,177"/>
 <area shape="poly" title=" " alt="" coords="415,33,336,54,248,81,159,116,84,149,82,144,157,111,246,76,335,49,413,28"/>
@@ -154,13 +154,13 @@ Definice maker</h2></td></tr>
 <tr class="memitem:aa46150276ebae8e1eec4efdc53dffce4" id="r_aa46150276ebae8e1eec4efdc53dffce4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#aa46150276ebae8e1eec4efdc53dffce4">CHESS_SYSTEM_NAME</a>&#160;&#160;&#160;&quot;ESP32-C6 Chess System&quot;</td></tr>
 <tr class="memdesc:aa46150276ebae8e1eec4efdc53dffce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nazev sachoveho systemu.  <br /></td></tr>
 <tr class="separator:aa46150276ebae8e1eec4efdc53dffce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a204a7ee69d817206b7510c6ffc47643a" id="r_a204a7ee69d817206b7510c6ffc47643a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a">CHESS_SYSTEM_VERSION</a>&#160;&#160;&#160;&quot;1.7.3&quot;</td></tr>
+<tr class="memitem:a204a7ee69d817206b7510c6ffc47643a" id="r_a204a7ee69d817206b7510c6ffc47643a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a">CHESS_SYSTEM_VERSION</a>&#160;&#160;&#160;&quot;1.8.0&quot;</td></tr>
 <tr class="memdesc:a204a7ee69d817206b7510c6ffc47643a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Verze sachoveho systemu (CMake může přepsat -DCHESS_SYSTEM_VERSION=…)  <br /></td></tr>
 <tr class="separator:a204a7ee69d817206b7510c6ffc47643a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afbda35de111776579b8d9abad085db4d" id="r_afbda35de111776579b8d9abad085db4d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#afbda35de111776579b8d9abad085db4d">CHESS_SYSTEM_AUTHOR</a>&#160;&#160;&#160;&quot;Alfred Krutina&quot;</td></tr>
 <tr class="memdesc:afbda35de111776579b8d9abad085db4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Autor sachoveho systemu.  <br /></td></tr>
 <tr class="separator:afbda35de111776579b8d9abad085db4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc0d1902b8ef5d4934f99724427e5bc4" id="r_acc0d1902b8ef5d4934f99724427e5bc4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4">CHESS_VERSION_STRING</a>&#160;&#160;&#160;&quot;ESP32-C6 Chess System v1.7.3&quot;</td></tr>
+<tr class="memitem:acc0d1902b8ef5d4934f99724427e5bc4" id="r_acc0d1902b8ef5d4934f99724427e5bc4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4">CHESS_VERSION_STRING</a>&#160;&#160;&#160;&quot;ESP32-C6 Chess System v1.8.0&quot;</td></tr>
 <tr class="memdesc:acc0d1902b8ef5d4934f99724427e5bc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kompletni retezec s verzi (CMake může přepsat -DCHESS_VERSION_STRING=…)  <br /></td></tr>
 <tr class="separator:acc0d1902b8ef5d4934f99724427e5bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b1a270b4e32e22a214ff3ad8e670ef7" id="r_a8b1a270b4e32e22a214ff3ad8e670ef7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a8b1a270b4e32e22a214ff3ad8e670ef7">CHESS_BUILD_DATE</a>&#160;&#160;&#160;__DATE__</td></tr>
@@ -565,10 +565,10 @@ Proměnné</h2></td></tr>
 <tr class="separator:a2cf065fd2e74d6ad91b3da384a96c60b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
-<div class="textblock"><p>ESP32-C6 Chess System v1.7.3 - Hlavni systemova hlavicka. </p>
+<div class="textblock"><p>ESP32-C6 Chess System v1.8.0 - Hlavni systemova hlavicka. </p>
 <p>Tato hlavicka obsahuje hlavni systemove definice, konstanty a globalni promenne pro FreeRTOS sachovy system.</p>
 <dl class="section author"><dt>Autor</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Verze</dt><dd>1.7.3 </dd></dl>
+<dl class="section version"><dt>Verze</dt><dd>1.8.0 </dd></dl>
 <dl class="section date"><dt>Datum</dt><dd>2026-05-04</dd></dl>
 <p>Tato hlavicka je centralni bod definic pro cely sachovy system. Obsahuje vsechny klicove konstanty, GPIO definice, queue handles, mutex handles, timer handles a systemove funkce.</p>
 <p>Hlavni funkce:</p><ul>
@@ -857,7 +857,7 @@ Proměnné</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CHESS_SYSTEM_VERSION&#160;&#160;&#160;&quot;1.7.3&quot;</td>
+          <td class="memname">#define CHESS_SYSTEM_VERSION&#160;&#160;&#160;&quot;1.8.0&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -875,7 +875,7 @@ Proměnné</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CHESS_VERSION_STRING&#160;&#160;&#160;&quot;ESP32-C6 Chess System v1.7.3&quot;</td>
+          <td class="memname">#define CHESS_VERSION_STRING&#160;&#160;&#160;&quot;ESP32-C6 Chess System v1.8.0&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
