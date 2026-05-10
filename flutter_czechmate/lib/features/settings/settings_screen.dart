@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -61,10 +63,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _devTitleLastTap = now;
     if (_devTitleTapCount >= 7) {
       _devTitleTapCount = 0;
-      ref
-          .read(sharedPreferencesProvider)
-          .setBool('czechmate.developerModeUnlocked', true);
+      unawaited(ref.read(prefsRepositoryProvider).setDeveloperModeUnlocked(true));
       if (!mounted) return;
+      setState(() {});
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(context.l10n.settingsDeveloperModeUnlockedSnack),
@@ -128,6 +129,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final ui = ref.watch(gameUiNotifierProvider);
     final session = ref.watch(boardSessionNotifierProvider);
     final firmwareSnap = ref.watch(firmwareUpdateAvailabilityProvider);
+    final firmwareDevReflash = prefs.developerModeUnlocked &&
+        firmwareSnap.sameSemverAsManifest &&
+        firmwareSnap.hasBoardVersion &&
+        !firmwareSnap.updateAvailable;
+    final firmwareShowOtaGit =
+        firmwareSnap.showOtaFromGitWithDeveloper(prefs.developerModeUnlocked);
+    final firmwareHighlight = firmwareSnap.updateAvailable ||
+        (firmwareShowOtaGit && !firmwareSnap.hasBoardVersion) ||
+        firmwareDevReflash;
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
 
@@ -220,32 +230,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _destinationCard(
               leading: Icon(
                 Icons.system_update_alt_outlined,
-                color: firmwareSnap.updateAvailable ||
-                        (firmwareSnap.showBleGitFirmwareActions &&
-                            !firmwareSnap.hasBoardVersion)
-                    ? cs.primary
-                    : null,
+                color: firmwareHighlight ? cs.primary : null,
               ),
               title: firmwareSnap.updateAvailable
                   ? l10n.firmwareTileTitleUpdateAvailable(
                       firmwareSnap.manifest?.version ?? '—',
                     )
-                  : (firmwareSnap.showBleGitFirmwareActions
-                      ? l10n.firmwareTileTitleGitBle(
-                          firmwareSnap.manifest?.version ?? '—',
-                        )
+                  : (firmwareShowOtaGit
+                      ? (firmwareDevReflash
+                          ? l10n.firmwareTileTitleDeveloperReflash(
+                              firmwareSnap.manifest?.version ?? '—',
+                            )
+                          : l10n.firmwareTileTitleGitBle(
+                              firmwareSnap.manifest?.version ?? '—',
+                            ))
                       : l10n.firmwareTileTitleDefault),
               subtitle: firmwareSnap.updateAvailable
                   ? '${l10n.firmwareTwoStepOtaHint} (${prefs.firmwareUpdateRemindersEnabled ? l10n.firmwareRemindersOnShort : l10n.firmwareRemindersOffShort}).'
-                  : (firmwareSnap.showBleGitFirmwareActions &&
+                  : (firmwareShowOtaGit &&
                           !firmwareSnap.hasBoardVersion)
                       ? l10n.firmwareTileSubtitleBleGitOnly
-                      : l10n.firmwareTileSubtitleIdle,
-              titleColor: firmwareSnap.updateAvailable ||
-                      (firmwareSnap.showBleGitFirmwareActions &&
-                          !firmwareSnap.hasBoardVersion)
-                  ? cs.primary
-                  : null,
+                      : (firmwareDevReflash
+                          ? l10n.firmwareTileSubtitleDeveloperReflash
+                          : l10n.firmwareTileSubtitleIdle),
+              titleColor: firmwareHighlight ? cs.primary : null,
               subtitleMaxLines: 4,
               onTap: () => _pushPage(const FirmwareSettingsScreen()),
             ),

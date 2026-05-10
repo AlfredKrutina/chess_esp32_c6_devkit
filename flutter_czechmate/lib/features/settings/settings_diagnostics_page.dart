@@ -12,10 +12,7 @@ class SettingsDiagnosticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final devMode = ref
-            .watch(sharedPreferencesProvider)
-            .getBool('czechmate.developerModeUnlocked') ??
-        false;
+    final devMode = ref.watch(prefsRepositoryProvider).developerModeUnlocked;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTileNvsDiagTitle)),
@@ -34,17 +31,27 @@ class SettingsDiagnosticsPage extends ConsumerWidget {
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.memory_outlined),
-                  title: Text(l10n.settingsNavBoardNvs),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.push<void>(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => const BoardDeviceFeaturesView(),
+                if (devMode)
+                  ListTile(
+                    leading: const Icon(Icons.memory_outlined),
+                    title: Text(l10n.settingsNavBoardNvs),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.push<void>(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (_) => const BoardDeviceFeaturesView(),
+                      ),
                     ),
+                  )
+                else
+                  ListTile(
+                    leading: Icon(
+                      Icons.lock_outline,
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    title: Text(l10n.settingsNavBoardNvs),
+                    subtitle: Text(l10n.settingsDiagnosticsBoardNvsLockedHint),
                   ),
-                ),
                 if (devMode) ...[
                   const Divider(height: 1),
                   ListTile(

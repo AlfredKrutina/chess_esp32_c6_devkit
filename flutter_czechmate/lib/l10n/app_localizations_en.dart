@@ -1621,6 +1621,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsDeveloperModeUnlockedSnack => 'Developer mode unlocked.';
 
   @override
+  String get settingsDeveloperModeDisabledSnack => 'Developer mode turned off.';
+
+  @override
   String get gameControlDisplaySection => 'Display';
 
   @override
@@ -1944,6 +1947,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String firmwareDeveloperReflashChipTitle(String ver) {
+    return 'Re-flash $ver (developer)';
+  }
+
+  @override
+  String get firmwareDeveloperSameVersionBanner =>
+      'Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).';
+
+  @override
   String get firmwareDownloadOnEspNote =>
       'Download runs on the ESP over HTTPS.';
 
@@ -2166,8 +2178,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String firmwareTileTitleDeveloperReflash(String ver) {
+    return 'Firmware — re-flash ($ver)';
+  }
+
+  @override
   String get firmwareTileSubtitleBleGitOnly =>
       'Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.';
+
+  @override
+  String get firmwareTileSubtitleDeveloperReflash =>
+      'Developer mode — manifest matches the board; open to download and flash the same build again.';
 
   @override
   String get firmwareWifiBleProvisionTitle =>
@@ -3653,6 +3674,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsNavDeveloperDiag => 'Developer diagnostics';
 
   @override
+  String get settingsDiagnosticsBoardNvsLockedHint =>
+      'Enable developer mode in About (tap the version row or Settings title 7×) to open raw board NVS.';
+
+  @override
   String get settingsTileAboutTitle => 'About';
 
   @override
@@ -3663,8 +3688,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsAboutVersionLine(String version, String build) {
-    return 'Version $version ($build) • Tap “Settings” in the title bar 7× to unlock developer mode.';
+    return 'Version $version ($build) • Tap this row or “Settings” in the main settings title bar 7× (within about a second between taps) to unlock developer mode.';
   }
+
+  @override
+  String get settingsAboutDeveloperModeTitle => 'Developer mode';
+
+  @override
+  String get settingsAboutDeveloperModeSubtitleOn =>
+      'Uncover advanced diagnostics and optional same-version OTA. Turn off to hide them again.';
 
   @override
   String get settingsPrivacyTitle => 'Privacy';

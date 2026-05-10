@@ -2943,6 +2943,12 @@ abstract class AppLocalizations {
   /// **'Developer mode unlocked.'**
   String get settingsDeveloperModeUnlockedSnack;
 
+  /// No description provided for @settingsDeveloperModeDisabledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode turned off.'**
+  String get settingsDeveloperModeDisabledSnack;
+
   /// No description provided for @gameControlDisplaySection.
   ///
   /// In en, this message translates to:
@@ -3525,6 +3531,18 @@ abstract class AppLocalizations {
   /// **'New version {ver}'**
   String firmwareNewVersionChip(String ver);
 
+  /// No description provided for @firmwareDeveloperReflashChipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-flash {ver} (developer)'**
+  String firmwareDeveloperReflashChipTitle(String ver);
+
+  /// No description provided for @firmwareDeveloperSameVersionBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).'**
+  String get firmwareDeveloperSameVersionBanner;
+
   /// No description provided for @firmwareDownloadOnEspNote.
   ///
   /// In en, this message translates to:
@@ -3873,11 +3891,23 @@ abstract class AppLocalizations {
   /// **'Firmware — GitHub build ({ver})'**
   String firmwareTileTitleGitBle(String ver);
 
+  /// No description provided for @firmwareTileTitleDeveloperReflash.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware — re-flash ({ver})'**
+  String firmwareTileTitleDeveloperReflash(String ver);
+
   /// No description provided for @firmwareTileSubtitleBleGitOnly.
   ///
   /// In en, this message translates to:
   /// **'Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.'**
   String get firmwareTileSubtitleBleGitOnly;
+
+  /// No description provided for @firmwareTileSubtitleDeveloperReflash.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode — manifest matches the board; open to download and flash the same build again.'**
+  String get firmwareTileSubtitleDeveloperReflash;
 
   /// No description provided for @firmwareWifiBleProvisionTitle.
   ///
@@ -6569,6 +6599,12 @@ abstract class AppLocalizations {
   /// **'Developer diagnostics'**
   String get settingsNavDeveloperDiag;
 
+  /// No description provided for @settingsDiagnosticsBoardNvsLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable developer mode in About (tap the version row or Settings title 7×) to open raw board NVS.'**
+  String get settingsDiagnosticsBoardNvsLockedHint;
+
   /// No description provided for @settingsTileAboutTitle.
   ///
   /// In en, this message translates to:
@@ -6590,8 +6626,20 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAboutVersionLine.
   ///
   /// In en, this message translates to:
-  /// **'Version {version} ({build}) • Tap “Settings” in the title bar 7× to unlock developer mode.'**
+  /// **'Version {version} ({build}) • Tap this row or “Settings” in the main settings title bar 7× (within about a second between taps) to unlock developer mode.'**
   String settingsAboutVersionLine(String version, String build);
+
+  /// No description provided for @settingsAboutDeveloperModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode'**
+  String get settingsAboutDeveloperModeTitle;
+
+  /// No description provided for @settingsAboutDeveloperModeSubtitleOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncover advanced diagnostics and optional same-version OTA. Turn off to hide them again.'**
+  String get settingsAboutDeveloperModeSubtitleOn;
 
   /// No description provided for @settingsPrivacyTitle.
   ///

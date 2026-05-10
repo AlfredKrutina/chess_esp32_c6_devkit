@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,33 @@ class SettingsAboutPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsAboutPageState extends ConsumerState<SettingsAboutPage> {
+  int _devVersionTapCount = 0;
+  DateTime? _devVersionLastTap;
+
+  void _onVersionCardTap() {
+    final now = DateTime.now();
+    if (_devVersionLastTap == null ||
+        now.difference(_devVersionLastTap!) >
+            const Duration(milliseconds: 600)) {
+      _devVersionTapCount = 1;
+    } else {
+      _devVersionTapCount++;
+    }
+    _devVersionLastTap = now;
+    if (_devVersionTapCount >= 7) {
+      _devVersionTapCount = 0;
+      unawaited(ref.read(prefsRepositoryProvider).setDeveloperModeUnlocked(true));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.l10n.settingsDeveloperModeUnlockedSnack),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final prefs = ref.watch(prefsRepositoryProvider);
@@ -37,21 +66,48 @@ class _SettingsAboutPageState extends ConsumerState<SettingsAboutPage> {
             future: PackageInfo.fromPlatform(),
             builder: (context, snap) {
               final v = snap.data;
-              return Card(
-                margin: EdgeInsets.zero,
-                child: ListTile(
-                  title: Text(l10n.gameAppBarTitle),
-                  subtitle: Text(
-                    v == null
-                        ? l10n.settingsAboutVersionLoading
-                        : l10n.settingsAboutVersionLine(
-                            v.version, v.buildNumber),
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _onVersionCardTap,
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  child: ListTile(
+                    title: Text(l10n.gameAppBarTitle),
+                    subtitle: Text(
+                      v == null
+                          ? l10n.settingsAboutVersionLoading
+                          : l10n.settingsAboutVersionLine(
+                              v.version, v.buildNumber),
+                    ),
+                    leading: const Icon(Icons.info_outline),
                   ),
-                  leading: const Icon(Icons.info_outline),
                 ),
               );
             },
           ),
+          if (prefs.developerModeUnlocked) ...[
+            const SizedBox(height: 8),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              secondary: const Icon(Icons.developer_mode_outlined),
+              title: Text(l10n.settingsAboutDeveloperModeTitle),
+              subtitle: Text(l10n.settingsAboutDeveloperModeSubtitleOn),
+              value: true,
+              onChanged: (on) async {
+                if (!on) {
+                  await prefs.setDeveloperModeUnlocked(false);
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          Text(context.l10n.settingsDeveloperModeDisabledSnack),
+                    ),
+                  );
+                  setState(() {});
+                }
+              },
+            ),
+          ],
           const SizedBox(height: 12),
           Card(
             margin: EdgeInsets.zero,

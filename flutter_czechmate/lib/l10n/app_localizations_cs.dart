@@ -1623,6 +1623,9 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsDeveloperModeUnlockedSnack => 'Vývojářský režim odemčen.';
 
   @override
+  String get settingsDeveloperModeDisabledSnack => 'Vývojářský režim vypnut.';
+
+  @override
   String get gameControlDisplaySection => 'Zobrazení';
 
   @override
@@ -1946,6 +1949,15 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String firmwareDeveloperReflashChipTitle(String ver) {
+    return 'Znovu nahrát $ver (vývojář)';
+  }
+
+  @override
+  String get firmwareDeveloperSameVersionBanner =>
+      'Vývojářský režim: manifest má stejnou verzi jako deska — stejný build můžeš znovu stáhnout a nahrát (oprava / ověření).';
+
+  @override
   String get firmwareDownloadOnEspNote =>
       'Stahování probíhá na ESP přes HTTPS.';
 
@@ -2169,8 +2181,17 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String firmwareTileTitleDeveloperReflash(String ver) {
+    return 'Firmware — znovu nahrát ($ver)';
+  }
+
+  @override
   String get firmwareTileSubtitleBleGitOnly =>
       'Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.';
+
+  @override
+  String get firmwareTileSubtitleDeveloperReflash =>
+      'Vývojářský režim — manifest sedí s deskou; otevři obrazovku a znovu nahraj stejný build.';
 
   @override
   String get firmwareWifiBleProvisionTitle => 'Wi‑Fi na desce (přes Bluetooth)';
@@ -3656,6 +3677,10 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsNavDeveloperDiag => 'Vývojářská diagnostika';
 
   @override
+  String get settingsDiagnosticsBoardNvsLockedHint =>
+      'Pro surové NVS desky zapni vývojářský režim v O aplikaci (7× klepnutí na řádek verze nebo titulek Nastavení).';
+
+  @override
   String get settingsTileAboutTitle => 'O aplikaci';
 
   @override
@@ -3666,8 +3691,15 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String settingsAboutVersionLine(String version, String build) {
-    return 'Verze $version ($build) • Klepnutím na „Nastavení“ v liště 7× odemkneš vývojářský režim.';
+    return 'Verze $version ($build) • Klepni 7× na tento řádek nebo na „Nastavení“ v hlavní liště nastavení (do cca sekundy mezi klepnutími) pro odemčení vývojářského režimu.';
   }
+
+  @override
+  String get settingsAboutDeveloperModeTitle => 'Vývojářský režim';
+
+  @override
+  String get settingsAboutDeveloperModeSubtitleOn =>
+      'Zobrazí rozšířenou diagnostiku a volitelné OTA stejné verze. Vypnutím je zase schováš.';
 
   @override
   String get settingsPrivacyTitle => 'Soukromí';

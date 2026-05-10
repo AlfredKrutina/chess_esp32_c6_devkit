@@ -794,6 +794,7 @@
     }
   },
   "settingsDeveloperModeUnlockedSnack": "Developer mode unlocked.",
+  "settingsDeveloperModeDisabledSnack": "Developer mode turned off.",
   "gameControlDisplaySection": "Display",
   "gameControlPlayModeSection": "Play mode",
   "gameControlSandboxLabel": "Sandbox",
@@ -946,6 +947,15 @@
       }
     }
   },
+  "firmwareDeveloperReflashChipTitle": "Re-flash {ver} (developer)",
+  "@firmwareDeveloperReflashChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDeveloperSameVersionBanner": "Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).",
   "firmwareDownloadOnEspNote": "Download runs on the ESP over HTTPS.",
   "firmwareConfirmUpdateTitle": "Confirm update",
   "firmwareConfirmUpdateBody": "Start firmware update on the board?",
@@ -1077,7 +1087,16 @@
       }
     }
   },
+  "firmwareTileTitleDeveloperReflash": "Firmware — re-flash ({ver})",
+  "@firmwareTileTitleDeveloperReflash": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareTileSubtitleBleGitOnly": "Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.",
+  "firmwareTileSubtitleDeveloperReflash": "Developer mode — manifest matches the board; open to download and flash the same build again.",
   "firmwareWifiBleProvisionTitle": "Wi‑Fi on the board (via Bluetooth)",
   "firmwareWifiBleProvisionSubtitle": "Send SSID and password over BLE so the board can join your network as a client (STA).",
   "firmwareWifiBleSsidLabel": "Wi‑Fi name (SSID)",
@@ -1787,10 +1806,11 @@
   "settingsTileNvsDiagSubtitle": "NVS rules, developer tools",
   "settingsNavBoardNvs": "Board NVS rules (LED, bot)",
   "settingsNavDeveloperDiag": "Developer diagnostics",
+  "settingsDiagnosticsBoardNvsLockedHint": "Enable developer mode in About (tap the version row or Settings title 7×) to open raw board NVS.",
   "settingsTileAboutTitle": "About",
   "settingsTileAboutSubtitle": "Version, privacy, system",
   "settingsAboutVersionLoading": "Loading version…",
-  "settingsAboutVersionLine": "Version {version} ({build}) • Tap “Settings” in the title bar 7× to unlock developer mode.",
+  "settingsAboutVersionLine": "Version {version} ({build}) • Tap this row or “Settings” in the main settings title bar 7× (within about a second between taps) to unlock developer mode.",
   "@settingsAboutVersionLine": {
     "placeholders": {
       "version": {
@@ -1801,6 +1821,8 @@
       }
     }
   },
+  "settingsAboutDeveloperModeTitle": "Developer mode",
+  "settingsAboutDeveloperModeSubtitleOn": "Uncover advanced diagnostics and optional same-version OTA. Turn off to hide them again.",
   "settingsPrivacyTitle": "Privacy",
   "settingsPrivacyBody": "This build does not send analytics. Traffic goes only to your board on the local network or over Bluetooth.",
   "settingsIcloudTitle": "iCloud",

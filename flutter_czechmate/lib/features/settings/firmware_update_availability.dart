@@ -37,6 +37,16 @@ class FirmwareAvailState {
     return compareSemverLoose(m.version, b!) > 0;
   }
 
+  /// Stejná semver jako manifest (deska i manifest známé).
+  bool get sameSemverAsManifest {
+    final m = manifest;
+    final b = boardVersion;
+    if (m == null || !hasBoardVersion) {
+      return false;
+    }
+    return compareSemverLoose(m.version, b!) == 0;
+  }
+
   /// Manifest z Gitu je platný a buď je novější než deska, nebo verzi desky neznáme (jen BLE / bez HTTP).
   bool get showBleGitFirmwareActions {
     final m = manifest;
@@ -47,6 +57,18 @@ class FirmwareAvailState {
       return true;
     }
     return !hasBoardVersion;
+  }
+
+  /// OTA akce z manifestu (včetně vývojářského znovu‑flash stejné verze).
+  bool showOtaFromGitWithDeveloper(bool developerUnlocked) {
+    if (showBleGitFirmwareActions) {
+      return true;
+    }
+    final m = manifest;
+    if (m == null || m.version.trim().isEmpty || m.url.trim().isEmpty) {
+      return false;
+    }
+    return developerUnlocked && sameSemverAsManifest;
   }
 
   FirmwareAvailState copyWith({

@@ -844,22 +844,23 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     final session = ref.watch(boardSessionNotifierProvider);
     final prefs = ref.watch(prefsRepositoryProvider);
     final snap = ref.watch(firmwareUpdateAvailabilityProvider);
+    final devMode = prefs.developerModeUnlocked;
 
     final baseOk = _resolvedBoardHttpUrl(session) != null;
     final boardV = snap.boardVersion ?? '—';
     final remoteV = snap.manifest?.version ?? '—';
     final updateAvailable = snap.updateAvailable;
-    final showBleGit = snap.showBleGitFirmwareActions;
+    final showOtaGit = snap.showOtaFromGitWithDeveloper(devMode);
+    final devSameReflash = devMode &&
+        snap.sameSemverAsManifest &&
+        snap.hasBoardVersion &&
+        !updateAvailable;
     final remindersOn = prefs.firmwareUpdateRemindersEnabled;
     final otaCapable = snap.boardOtaSupported != false;
     final bleFlashPrimary =
         session.transport == BoardTransport.ble && session.bleGattConnected;
 
     final theme = Theme.of(context);
-    final devMode = ref
-            .watch(sharedPreferencesProvider)
-            .getBool('czechmate.developerModeUnlocked') ??
-        false;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -887,6 +888,36 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                         child: Text(
                           '${context.l10n.firmwareTileTitleUpdateAvailable(remoteV)}\n${context.l10n.firmwareTwoStepOtaHint} (${remindersOn ? context.l10n.firmwareRemindersOnShort : context.l10n.firmwareRemindersOffShort}).',
                           style: theme.textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          if (devSameReflash && snap.manifest != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Material(
+                color: theme.colorScheme.tertiaryContainer
+                    .withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.build_circle_outlined,
+                        color: theme.colorScheme.onTertiaryContainer,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          context.l10n.firmwareDeveloperSameVersionBanner,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onTertiaryContainer,
+                          ),
                         ),
                       ),
                     ],
@@ -1029,7 +1060,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
-          if (!baseOk && !showBleGit)
+          if (!baseOk && !showOtaGit)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
@@ -1037,7 +1068,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
-          if (!baseOk && showBleGit)
+          if (!baseOk && showOtaGit)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
@@ -1064,7 +1095,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
               ),
             ),
           ],
-          if (showBleGit && snap.manifest != null) ...[
+          if (showOtaGit && snap.manifest != null) ...[
             const SizedBox(height: 12),
             Material(
               color: Theme.of(context)
@@ -1096,9 +1127,18 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                context.l10n.firmwareNewVersionChip(
-                                  snap.manifest!.version,
-                                ),
+                                updateAvailable
+                                    ? context.l10n.firmwareNewVersionChip(
+                                        snap.manifest!.version,
+                                      )
+                                    : (devSameReflash
+                                        ? context.l10n
+                                            .firmwareDeveloperReflashChipTitle(
+                                              snap.manifest!.version,
+                                            )
+                                        : context.l10n.firmwareNewVersionChip(
+                                            snap.manifest!.version,
+                                          )),
                                 style: Theme.of(context).textTheme.titleSmall,
                               ),
                               const SizedBox(height: 6),

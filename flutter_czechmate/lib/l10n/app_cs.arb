@@ -794,6 +794,7 @@
     }
   },
   "settingsDeveloperModeUnlockedSnack": "Vývojářský režim odemčen.",
+  "settingsDeveloperModeDisabledSnack": "Vývojářský režim vypnut.",
   "gameControlDisplaySection": "Zobrazení",
   "gameControlPlayModeSection": "Režim hry",
   "gameControlSandboxLabel": "Volná pozice",
@@ -946,6 +947,15 @@
       }
     }
   },
+  "firmwareDeveloperReflashChipTitle": "Znovu nahrát {ver} (vývojář)",
+  "@firmwareDeveloperReflashChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDeveloperSameVersionBanner": "Vývojářský režim: manifest má stejnou verzi jako deska — stejný build můžeš znovu stáhnout a nahrát (oprava / ověření).",
   "firmwareDownloadOnEspNote": "Stahování probíhá na ESP přes HTTPS.",
   "firmwareConfirmUpdateTitle": "Potvrdit aktualizaci",
   "firmwareConfirmUpdateBody": "Spustit aktualizaci firmware na desce?",
@@ -1077,7 +1087,16 @@
       }
     }
   },
+  "firmwareTileTitleDeveloperReflash": "Firmware — znovu nahrát ({ver})",
+  "@firmwareTileTitleDeveloperReflash": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareTileSubtitleBleGitOnly": "Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.",
+  "firmwareTileSubtitleDeveloperReflash": "Vývojářský režim — manifest sedí s deskou; otevři obrazovku a znovu nahraj stejný build.",
   "firmwareWifiBleProvisionTitle": "Wi‑Fi na desce (přes Bluetooth)",
   "firmwareWifiBleProvisionSubtitle": "Pošli SSID a heslo přes BLE, aby se deska připojila k tvé síti jako klient (STA).",
   "firmwareWifiBleSsidLabel": "Název Wi‑Fi (SSID)",
@@ -1787,10 +1806,11 @@
   "settingsTileNvsDiagSubtitle": "NVS pravidla, vývojářské nástroje",
   "settingsNavBoardNvs": "Pravidla NVS desky (LED, bot)",
   "settingsNavDeveloperDiag": "Vývojářská diagnostika",
+  "settingsDiagnosticsBoardNvsLockedHint": "Pro surové NVS desky zapni vývojářský režim v O aplikaci (7× klepnutí na řádek verze nebo titulek Nastavení).",
   "settingsTileAboutTitle": "O aplikaci",
   "settingsTileAboutSubtitle": "Verze, soukromí, systém",
   "settingsAboutVersionLoading": "Načítám verzi…",
-  "settingsAboutVersionLine": "Verze {version} ({build}) • Klepnutím na „Nastavení“ v liště 7× odemkneš vývojářský režim.",
+  "settingsAboutVersionLine": "Verze {version} ({build}) • Klepni 7× na tento řádek nebo na „Nastavení“ v hlavní liště nastavení (do cca sekundy mezi klepnutími) pro odemčení vývojářského režimu.",
   "@settingsAboutVersionLine": {
     "placeholders": {
       "version": {
@@ -1801,6 +1821,8 @@
       }
     }
   },
+  "settingsAboutDeveloperModeTitle": "Vývojářský režim",
+  "settingsAboutDeveloperModeSubtitleOn": "Zobrazí rozšířenou diagnostiku a volitelné OTA stejné verze. Vypnutím je zase schováš.",
   "settingsPrivacyTitle": "Soukromí",
   "settingsPrivacyBody": "Tento build neodesílá analytiku. Provoz jde jen na tvou desku v lokální síti nebo přes Bluetooth.",
   "settingsIcloudTitle": "iCloud",
