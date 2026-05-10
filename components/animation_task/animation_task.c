@@ -1,6 +1,6 @@
 /**
  * @file animation_task.c
- * @brief ESP32-C6 Chess System v1.7.3 - Implementace Animation tasku
+ * @brief ESP32-C6 Chess System v1.8.0 - Implementace Animation tasku
  * 
  * Tento task zpracovava LED animace a vzory:
  * - Animace pohybu sachovych figurek
@@ -10,7 +10,7 @@
  * - Vlastni vzory animaci
  * 
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details

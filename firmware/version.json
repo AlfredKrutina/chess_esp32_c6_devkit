@@ -1,5 +1,5 @@
 {
-  "version": "1.1.2",
+  "version": "1.8.0",
   "url": "https://raw.githubusercontent.com/alfredkrutina/chess_esp32_c6_devkit/gh-pages/firmware/esp32_chess_v24.bin",
-  "changelog": "1.1.2: nový bin po `idf.py build` nahraj na url (esp_app_desc). Desku jako „starou“ zkus přes `-DCHESS_OTA_TEST_OLD_VER=ON` + flash — hlásí 1.1.1, aplikace nabídne update na tento manifest."
+  "changelog": "1.8.0: koordinovaný bump `PROJECT_VERSION` / `esp_app_desc` s Flutter `pubspec` (1.8.0+3). Pro simulaci starší desky zůstává `-DCHESS_OTA_TEST_OLD_VER=ON` → hlášená 1.1.1."
 }

@@ -1,6 +1,6 @@
 /**
  * @file led_task.h
- * @brief ESP32-C6 Chess System v1.7.3 - LED Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - LED Task Hlavicka
  *
  * Tato hlavicka definuje rozhrani LED tasku:
  * - WS2812B LED ovladani (73 LED: 64 sachovnice + 9 tlacitek)
@@ -9,7 +9,7 @@
  * - Time-multiplexed aktualizace
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  *
  * @details

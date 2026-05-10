@@ -148,7 +148,7 @@ xSemaphoreGive(...);
  *    ✅ if (xQueueSend(...) != pdTRUE) { handle error }
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  *
  * @note Priorita tasku 4; hlavní smyčka cca 100 ms; WDT reset ve smyčce.
  * @see matrix_task.c Detekce pohybu figurek

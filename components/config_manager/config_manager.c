@@ -1,6 +1,6 @@
 /**
  * @file config_manager.c
- * @brief ESP32-C6 Chess System v1.7.3 - Sprava konfigurace
+ * @brief ESP32-C6 Chess System v1.8.0 - Sprava konfigurace
  *
  * Tento modul zpracovava persistenci systemove konfigurace v NVS:
  * - Nacteni/ulozeni konfigurace z/do NVS
@@ -9,7 +9,7 @@
  * - Validace konfigurace
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  *
  * @details

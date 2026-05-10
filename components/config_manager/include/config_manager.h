@@ -1,6 +1,6 @@
 /**
  * @file config_manager.h
- * @brief ESP32-C6 Chess System v1.7.3 - Config Manager Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Config Manager Hlavicka
  *
  * Tato hlavicka definuje rozhrani pro spravu konfigurace:
  * - Struktura systemove konfigurace
@@ -8,7 +8,7 @@
  * - Chybove kody a konstanty
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  *
  * @details

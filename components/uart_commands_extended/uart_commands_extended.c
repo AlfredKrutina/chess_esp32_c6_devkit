@@ -6,7 +6,7 @@
  * Obsahuje prikazy pro ovladani pokrocilych LED animaci a efektu.
  * 
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-09-04
  * 
  * @details

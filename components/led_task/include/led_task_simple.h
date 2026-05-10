@@ -9,7 +9,7 @@
  * - Jednoduche rozhrani bez slozitych fronticek
  * 
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-09-02
  * 
  * @details

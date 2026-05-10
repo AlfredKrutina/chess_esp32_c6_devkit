@@ -6,7 +6,7 @@
  * Pouziva serpentine layout pro optimalni rozlozeni LED na sachovnici.
  * 
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details

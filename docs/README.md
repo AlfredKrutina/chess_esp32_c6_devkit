@@ -4,14 +4,14 @@
 
 **Google Formuláře** (zájem o **CzechMate V2**): [předobjednávka](https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform) · [průzkum zájmu](https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform)
 
-**Firmware v repu:** **1.7.3** (prototyp **V1**, reed). **V2** = Hall — viz [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md).
+**Firmware v repu:** **1.8.0** (prototyp **V1**, reed). **V2** = Hall — viz [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md).
 
 ---
 
 ## Typické pořadí čtení
 
 1. [README.md](../README.md) — velký obrázek.
-2. [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) — V1 (reed, fw 1.7.3) vs V2 (Hall, komerce).
+2. [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) — V1 (reed, fw 1.8.0) vs V2 (Hall, komerce).
 3. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
 4. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji (reed V1).
 5. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
@@ -28,7 +28,7 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | Dokument | Účel |
 |----------|----------------|
 | [README.md](../README.md) | Projekt, HW, řešení problémů |
-| [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) | V1 vs V2 (reed vs Hall, fw 1.7.3, předobjednávka) |
+| [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) | V1 vs V2 (reed vs Hall, fw 1.8.0, předobjednávka) |
 | [docs/README.md](README.md) | Tenhle rozcestník |
 | [diagrams/README.md](diagrams/README.md) | Mermaid / SVG přehled |
 | [diagrams/diagrams_mermaid.html](diagrams/diagrams_mermaid.html) | Sekvence (generuje `render_docs.sh`) |

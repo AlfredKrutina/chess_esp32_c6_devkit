@@ -1,6 +1,6 @@
 /**
  * @file uart_task.h
- * @brief ESP32-C6 Chess System v1.7.3 - UART Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - UART Task Hlavicka
  * 
  * Tato hlavicka definuje rozhrani UART tasku:
  * - USB Serial JTAG konzolove rozhrani
@@ -10,7 +10,7 @@
  * - Formatovani a vystup odpovedi
  * 
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-01-27
  * 
  * @details

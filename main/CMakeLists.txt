@@ -1,4 +1,4 @@
-# main/CMakeLists.txt - ESP32-C6 Chess v1.7.3
+# main/CMakeLists.txt - ESP32-C6 Chess v1.8.0
 # test_task jen pokud CONFIG_CHESS_ENABLE_TEST_TASK=y (jinak se komponenta vůbec nenalinkuje).
 set(MAIN_REQUIRES
     freertos_chess

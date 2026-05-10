@@ -1,12 +1,12 @@
 /**
  * @file freertos_chess.h
- * @brief ESP32-C6 Chess System v1.7.3 - Hlavni systemova hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Hlavni systemova hlavicka
  *
  * Tato hlavicka obsahuje hlavni systemove definice, konstanty
  * a globalni promenne pro FreeRTOS sachovy system.
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2026-05-04
  *
  * @details
@@ -50,13 +50,13 @@ extern "C" {
 #define CHESS_SYSTEM_NAME "ESP32-C6 Chess System"
 /** @brief Verze sachoveho systemu (CMake může přepsat -DCHESS_SYSTEM_VERSION=…) */
 #ifndef CHESS_SYSTEM_VERSION
-#define CHESS_SYSTEM_VERSION "1.7.3"
+#define CHESS_SYSTEM_VERSION "1.8.0"
 #endif
 /** @brief Autor sachoveho systemu */
 #define CHESS_SYSTEM_AUTHOR "Alfred Krutina"
 /** @brief Kompletni retezec s verzi (CMake může přepsat -DCHESS_VERSION_STRING=…) */
 #ifndef CHESS_VERSION_STRING
-#define CHESS_VERSION_STRING "ESP32-C6 Chess System v1.7.3"
+#define CHESS_VERSION_STRING "ESP32-C6 Chess System v1.8.0"
 #endif
 /** @brief Datum sestaveni */
 #define CHESS_BUILD_DATE __DATE__

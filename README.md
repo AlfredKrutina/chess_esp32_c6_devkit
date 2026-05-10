@@ -1,8 +1,8 @@
-# CZECHMATE firmware **1.7.3**
+# CZECHMATE firmware **1.8.0**
 
 Ahoj — tady je **CzechMate**, náš šachový systém: fyzická deska se světly, firmware na ESP32-C6, web v prohlížeči a aplikace ve Flutteru (`flutter_czechmate/`). Nativní Xcode projekt `CZECHMATE/` si držím jen lokálně, v gitu není.
 
-**Verze a hardware:** Aktuální číslo projektu ve firmwaru i v dokumentaci je **`1.7.3`** — běží na prototypu **V1** s **reed switch** maticí (objemnější deska, záznam na [YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** je připravovaná **komerční** deska se **Hall senzory** (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k **V2**. Přehled: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
+**Verze a hardware:** Aktuální číslo projektu ve firmwaru i v dokumentaci je **`1.8.0`** — běží na prototypu **V1** s **reed switch** maticí (objemnější deska, záznam na [YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** je připravovaná **komerční** deska se **Hall senzory** (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k **V2**. Přehled: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
 
 **📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG jsou i na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** zatím připravujeme. **Krátké intro na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
 
@@ -54,7 +54,7 @@ Na prototypu **V1** řešíme fyzickou hru **reed switch** maticí 8×8 (jen obs
 |---|-------------------------|---------------------------|
 | Figurky | Reed 8×8 | Hall — typ figurky na poli |
 | Formát | Bulkier dev/prototyp | Skladnější produkt |
-| Firmware | **`1.7.3`** v tomto repu | Stejný ekosystém softwaru; HW vrstva podle integrace |
+| Firmware | **`1.8.0`** v tomto repu | Stejný ekosystém softwaru; HW vrstva podle integrace |
 
 Detailní tabulka a odkazy: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
 
@@ -642,9 +642,9 @@ A: Spousta nápadů je v sekci „Budoucí vylepšení“ — osobně mě láká
 
 ## 📝 Historie verzí
 
-### 1.7.3 — aktuální verze projektu (firmware v repu, 2026)
+### 1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)
 
-Jednotné číslo **`1.7.3`** držíme v `CMakeLists.txt`, Doxygenu, hlavičkách zdrojáků a ve Flutter `pubspec.yaml`. Shrnutí funkcí (sloučený stav vývoje):
+Semver **`1.8.0`** držíme v `CMakeLists.txt` (`PROJECT_VERSION`), `firmware/version.json`, Doxygen `PROJECT_NUMBER` a v záhlaví aplikace; Flutter `pubspec.yaml` má **`1.8.0+3`** (číslo za `+` je build). Shrnutí funkcí (sloučený stav vývoje):
 
 - ✅ Kompletní šachová logika včetně všech pravidel; webové rozhraní s real-time aktualizací
 - ✅ LED animace pro všechny stavy hry; **unified animation manager**; vizuální error systém
@@ -656,7 +656,7 @@ Jednotné číslo **`1.7.3`** držíme v `CMakeLists.txt`, Doxygenu, hlavičkác
 - ✅ MQTT / Home Assistant (`ha_light_task`)
 - ✅ **BLE:** NimBLE přes `ble_task_init()` (host task od ESP-IDF)
 
-**Poznámka:** Starší interní označení typu „v2.4 / v2.5“ v historii vývoje už nesleduju paralelně — všechno pod jednou projektovou verzí **1.7.3**. Každý pokus a slepá ulička v gitu samozřejmě zůstává v commitech.
+**Poznámka:** Starší interní označení typu „v2.4 / v2.5“ v historii vývoje už nesleduju paralelně — všechno pod jednou projektovou verzí **1.8.0**. Každý pokus a slepá ulička v gitu samozřejmě zůstává v commitech.
 
 ---
 
@@ -783,6 +783,6 @@ Když budete mít otázku nebo postřeh k projektu, klidně napište — rád si
 
 Hlubší technické detaily a diagramy jsou v adresáři [docs/](docs/).
 
-**Verze tohoto README:** 1.7.3  
+**Verze tohoto README:** 1.8.0  
 **Naposledy jsem to upravoval:** 2026-05-06
  

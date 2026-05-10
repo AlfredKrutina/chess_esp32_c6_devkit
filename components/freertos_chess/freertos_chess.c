@@ -1,6 +1,6 @@
 /**
  * @file freertos_chess.c
- * @brief ESP32-C6 Chess System v1.7.3 - Implementace FreeRTOS Chess komponenty
+ * @brief ESP32-C6 Chess System v1.8.0 - Implementace FreeRTOS Chess komponenty
  *
  * Tato komponenta poskytuje zakladni FreeRTOS infrastrukturu pro sachovy
  * system:
@@ -10,7 +10,7 @@
  * - Hardware abstraction layer
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
@@ -1168,7 +1168,7 @@ esp_err_t chess_monitor_tasks(void) {
 
 void chess_print_system_info(void) {
   ESP_LOGI(TAG, "========================================");
-  ESP_LOGI(TAG, "ESP32-C6 Chess System v1.7.3 Information");
+  ESP_LOGI(TAG, "ESP32-C6 Chess System v1.8.0 Information");
   ESP_LOGI(TAG, "========================================");
   ESP_LOGI(TAG, "Version: %s", CHESS_VERSION_STRING);
   ESP_LOGI(TAG, "Build Date: %s", CHESS_BUILD_DATE);

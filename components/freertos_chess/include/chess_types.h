@@ -1,13 +1,13 @@
 /**
  * @file chess_types.h
- * @brief ESP32-C6 Chess System v1.7.3 - Spolecne definice typu
+ * @brief ESP32-C6 Chess System v1.8.0 - Spolecne definice typu
  *
  * Tato hlavicka obsahuje vsechny spolecne definice typu pouzivane
  * v sachovem systemu. Zabranuje cirkularnim zavislost a poskytuje
  * konzistentni definice typu pres vsechny komponenty.
  *
  * @author Alfred Krutina
- * @version 1.7.3
+ * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
