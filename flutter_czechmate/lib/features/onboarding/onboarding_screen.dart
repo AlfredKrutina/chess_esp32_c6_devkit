@@ -216,47 +216,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _buildNameStep(AppLocalizations l10n, ThemeData theme) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.person_outline,
-                    size: 88, color: theme.colorScheme.primary),
-                const SizedBox(height: 24),
-                Text(
-                  l10n.onboardingYourNameTitle,
-                  style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.onboardingYourNameSubtitle,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                TextField(
-                  controller: _nameCtrl,
-                  textInputAction: TextInputAction.done,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: l10n.onboardingNameHint,
-                    border: const OutlineInputBorder(),
-                  ),
-                  onSubmitted: (_) => unawaited(_next()),
-                ),
-              ],
+    return SingleChildScrollView(
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 16),
+            Icon(Icons.person_outline,
+                size: 88, color: theme.colorScheme.primary),
+            const SizedBox(height: 24),
+            Text(
+              l10n.onboardingYourNameTitle,
+              style: theme.textTheme.headlineSmall
+                  ?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
-          ),
-        );
-      },
+            const SizedBox(height: 12),
+            Text(
+              l10n.onboardingYourNameSubtitle,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 28),
+            TextField(
+              controller: _nameCtrl,
+              textInputAction: TextInputAction.done,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                labelText: l10n.onboardingNameHint,
+                border: const OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => unawaited(_next()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -360,33 +360,31 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body = _buildPermissionsStep(l10n, theme);
     } else {
       final slide = intros[introIndex.clamp(0, intros.length - 1)];
-      body = LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(slide.icon, size: 100, color: slide.iconColor),
-                  const SizedBox(height: 32),
-                  Text(
-                    slide.title,
-                    style: theme.textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    slide.body,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyLarge,
-                  ),
-                ],
+      body = SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(slide.icon, size: 100, color: slide.iconColor),
+              const SizedBox(height: 32),
+              Text(
+                slide.title,
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 16),
+              Text(
+                slide.body,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyLarge,
+              ),
+            ],
+          ),
+        ),
       );
     }
 

@@ -240,15 +240,24 @@ class BleCzechmateClient {
       _snapChar = snapChar;
       _assembler.reset();
       /* READ před zapnutím notify — jinak dorazí CM chunky do prázdného skladače
-       * paralelně s READ a hrozí zákulisní rozbitá řada. */
-      try {
-        final initialSnap = await readSnapshot();
-        onSnapshot(initialSnap);
-        connDebugLog('readSnapshot po connect', 'OK');
-      } catch (e) {
+       * paralelně s READ a hrozí zákulisní rozbitá řada.
+       * iOS často vrátí z READ jen úsek JSON (~MTU) → FormatException; první platný
+       * stav stejně dorazí přes notify. */
+      if (defaultTargetPlatform != TargetPlatform.iOS) {
+        try {
+          final initialSnap = await readSnapshot();
+          onSnapshot(initialSnap);
+          connDebugLog('readSnapshot po connect', 'OK');
+        } catch (e) {
+          connDebugLog(
+            'readSnapshot po connect selhalo → spoléháme na notify',
+            connBleErrorDetail(e),
+          );
+        }
+      } else {
         connDebugLog(
-          'readSnapshot po connect selhalo → spoléháme na notify',
-          connBleErrorDetail(e),
+          'readSnapshot po connect',
+          'přeskočeno na iOS (zkrácené READ → jen notify)',
         );
       }
       await snapChar.setNotifyValue(true);

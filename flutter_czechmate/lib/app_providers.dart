@@ -24,10 +24,12 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw StateError('SharedPreferences — nastav override v main()');
 });
 
+/// Nesmí `watch(prefs)` — každá invalidace prefs by zavřela `http.Client` a stará
+/// reference v [BoardSessionNotifier] by pak hlásila „Client is already closed“.
 final boardApiClientProvider = Provider<BoardApiClient>((ref) {
-  final prefs = ref.watch(prefsRepositoryProvider);
   final c = BoardApiClient(
-    resolveBoardApiBearerToken: () => prefs.boardApiToken,
+    resolveBoardApiBearerToken: () =>
+        ref.read(prefsRepositoryProvider).boardApiToken,
   );
   ref.onDispose(c.close);
   return c;

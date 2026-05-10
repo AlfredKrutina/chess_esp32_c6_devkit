@@ -30,19 +30,23 @@ import 'board_session_state.dart';
 final boardSessionNotifierProvider =
     StateNotifierProvider<BoardSessionNotifier, BoardSessionState>((ref) {
   return BoardSessionNotifier(
-    ref.read(boardApiClientProvider),
     ref.read(prefsRepositoryProvider),
     ref,
   );
 });
 
 class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
-  BoardSessionNotifier(this._api, this._prefs, this._ref)
-      : super(const BoardSessionState());
+  BoardSessionNotifier(this._prefs, this._ref) : super(const BoardSessionState());
 
-  final BoardApiClient _api;
   final PrefsRepository _prefs;
   final Ref _ref;
+
+  /// Vždy aktuální instance — po `invalidate(boardApiClientProvider)` nesmí zůstat
+  /// držák na už zavřený `http.Client`.
+  BoardApiClient get _boardHttp => _ref.read(boardApiClientProvider);
+
+  /// Současné paralelní [connectBle] (uživatel + resume fallback) rozbíjí GATT a CM chunky.
+  Future<void> _bleConnectSerial = Future<void>.value();
 
   AppLocalizations get _strings => appStringsForPrefs(_prefs);
 
@@ -265,7 +269,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   /// Rychlý GET snapshotu před `connectWifi` z BLE handoffu — bez úspěchu nesmíme zrušit funkční GATT.
   Future<bool> _probeBoardHttpBeforeBleHandoff(String normalized) async {
     try {
-      await _api
+      await _boardHttp
           .fetchSnapshotIfChanged(normalized, ifNoneMatch: null)
           .timeout(const Duration(seconds: 5));
       return true;
@@ -586,6 +590,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> connectBle(BluetoothDevice device, {String? label}) async {
+    final prev = _bleConnectSerial;
+    final gate = Completer<void>();
+    _bleConnectSerial = gate.future;
+    await prev;
+    try {
+      await _connectBleBody(device, label: label);
+    } finally {
+      if (!gate.isCompleted) gate.complete();
+    }
+  }
+
+  Future<void> _connectBleBody(BluetoothDevice device, {String? label}) async {
     connDebugLog(
       'BoardSession.connectBle start',
       'remoteId=${device.remoteId.str} label="${label ?? device.platformName}"',
@@ -903,7 +919,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> _pollOnce(String base) async {
     try {
       final tag = state.lastIfNoneMatch;
-      final s = await _api.fetchSnapshotIfChanged(base, ifNoneMatch: tag);
+      final s = await _boardHttp.fetchSnapshotIfChanged(base, ifNoneMatch: tag);
       if (s != null) _applySnapshot(s, base);
       state = state.copyWith(
         pollSuccessCount: state.pollSuccessCount + 1,
@@ -959,7 +975,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     if (base.isEmpty) return;
     try {
-      final t = await _api.fetchTimerState(base);
+      final t = await _boardHttp.fetchTimerState(base);
       state = state.copyWith(timer: t);
     } catch (_) {}
   }
@@ -1036,7 +1052,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final b = state.wifiBaseUrl!;
-      await _api.postGameMove(b, from: from, to: to, promotion: promotion);
+      await _boardHttp.postGameMove(b, from: from, to: to, promotion: promotion);
       await _pollOnce(b);
       return;
     }
@@ -1050,7 +1066,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> postNewGame({String? fen}) async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final b = state.wifiBaseUrl!;
-      await _api.postNewGame(b, fen: fen);
+      await _boardHttp.postNewGame(b, fen: fen);
       await _pollOnce(b);
       return;
     }
@@ -1101,7 +1117,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final b = state.wifiBaseUrl!;
-      await _api.postTimerPause(b);
+      await _boardHttp.postTimerPause(b);
       await _refreshTimerHttp(b);
       return;
     }
@@ -1134,7 +1150,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final b = state.wifiBaseUrl!;
-      await _api.postTimerResume(b);
+      await _boardHttp.postTimerResume(b);
       await _refreshTimerHttp(b);
       return;
     }
@@ -1145,7 +1161,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   Future<void> _refreshTimerHttp(String base) async {
     try {
-      final t = await _api.fetchTimerState(base);
+      final t = await _boardHttp.fetchTimerState(base);
       state = state.copyWith(timer: t);
     } catch (_) {}
   }
@@ -1159,7 +1175,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     try {
       final a = action.trim().toLowerCase();
       if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-        await _api.postSetupTutorial(state.wifiBaseUrl!, action: a);
+        await _boardHttp.postSetupTutorial(state.wifiBaseUrl!, action: a);
         if (a != 'start') await refreshNow();
         return;
       }
@@ -1260,7 +1276,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       if (boardBase == null || boardBase.isEmpty) {
         throw StateError(_strings.errOtaBoardHttpMissingDetail);
       }
-      await _api.postBoardOtaStart(boardBase, url: u);
+      await _boardHttp.postBoardOtaStart(boardBase, url: u);
       return;
     }
     if (state.transport == BoardTransport.wifi) {
@@ -1268,7 +1284,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       if (boardBase == null || boardBase.isEmpty) {
         throw StateError(_strings.errOtaConnectFirst);
       }
-      await _api.postBoardOtaStart(boardBase, url: u);
+      await _boardHttp.postBoardOtaStart(boardBase, url: u);
       return;
     }
     if (state.transport == BoardTransport.ble) {
@@ -1282,7 +1298,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> postHintDestination(String square) async {
     final sq = square.trim().toLowerCase();
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _api.postHintHighlightDestinationOnly(state.wifiBaseUrl!, sq);
+      await _boardHttp.postHintHighlightDestinationOnly(state.wifiBaseUrl!, sq);
       return;
     }
     if (state.transport == BoardTransport.ble) {
@@ -1303,7 +1319,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   Future<void> postHintClearBoard() async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _api.postHintClear(state.wifiBaseUrl!);
+      await _boardHttp.postHintClear(state.wifiBaseUrl!);
       return;
     }
     if (state.transport == BoardTransport.ble) {
@@ -1315,7 +1331,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<List<int>?> fetchMatrixOccupiedForWizard() async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       try {
-        return await _api.fetchMatrixOccupied(state.wifiBaseUrl!);
+        return await _boardHttp.fetchMatrixOccupied(state.wifiBaseUrl!);
       } catch (_) {
         return null;
       }
@@ -1336,13 +1352,13 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final b = state.wifiBaseUrl!;
-      await _api.postTimerConfig(
+      await _boardHttp.postTimerConfig(
         b,
         type: type,
         customMinutes: customMinutes,
         customIncrement: customIncrement,
       );
-      await _api.postNewGame(b);
+      await _boardHttp.postNewGame(b);
       await _pollOnce(b);
       return;
     }
@@ -1411,7 +1427,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   Future<void> postBoardBrightness(int percent) async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _api.postBrightness(state.wifiBaseUrl!, percent);
+      await _boardHttp.postBrightness(state.wifiBaseUrl!, percent);
       await _pollOnce(state.wifiBaseUrl!);
       return;
     }
@@ -1430,7 +1446,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }) async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final base = state.wifiBaseUrl!;
-      await _api.postLightCommand(
+      await _boardHttp.postLightCommand(
         base,
         state: lampState,
         r: r,
@@ -1450,7 +1466,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> postBoardLightGameMode() async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final base = state.wifiBaseUrl!;
-      await _api.postLightGameMode(base);
+      await _boardHttp.postLightGameMode(base);
       await _pollOnce(base);
       return;
     }
@@ -1463,7 +1479,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   Future<void> postBoardAutoLampTimeout(int seconds) async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _api.postAutoLampTimeout(state.wifiBaseUrl!, seconds);
+      await _boardHttp.postAutoLampTimeout(state.wifiBaseUrl!, seconds);
       await _pollOnce(state.wifiBaseUrl!);
       return;
     }

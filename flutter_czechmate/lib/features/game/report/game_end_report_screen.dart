@@ -193,8 +193,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
             builder: (context, c) {
               final w = c.maxWidth;
               final naturalPreviewH = w / ar;
-              // Row má jen ~132 px; vysoký poměr stran by jinak rozbil Column.
-              const maxPreviewH = 52.0;
+              // Řádek má omezenou výšku + přístupnost (velký text); náhled omezit.
+              const maxPreviewH = 40.0;
               final previewH = math.min(naturalPreviewH, maxPreviewH);
               return Column(
                 mainAxisSize: MainAxisSize.min,
@@ -860,7 +860,7 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
             ),
             const SizedBox(height: 10),
             SizedBox(
-              height: 148,
+              height: 172,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
