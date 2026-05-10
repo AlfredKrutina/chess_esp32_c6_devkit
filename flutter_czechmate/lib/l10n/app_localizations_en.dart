@@ -1952,8 +1952,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String firmwareDeveloperDowngradeChipTitle(String ver) {
+    return 'Older build $ver (developer)';
+  }
+
+  @override
   String get firmwareDeveloperSameVersionBanner =>
       'Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).';
+
+  @override
+  String get firmwareDeveloperOlderManifestBanner =>
+      'Developer mode: this manifest is older than the board firmware. Downgrading can break compatibility or data — only proceed if you understand the risk.';
 
   @override
   String get firmwareDownloadOnEspNote =>
@@ -1981,6 +1990,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String firmwareCachedInAppLine(String ver, String mb) {
     return 'Saved in app: v$ver (~$mb MB)';
+  }
+
+  @override
+  String firmwareSavedFirmwareChipTitle(String ver) {
+    return 'Saved firmware v$ver';
+  }
+
+  @override
+  String get firmwareOfflineSavedFirmwareBanner =>
+      'The live manifest could not be loaded. You can still flash the firmware file saved in this app.';
+
+  @override
+  String firmwareCachedDiffersFromManifestHint(
+      String remoteVer, String savedVer) {
+    return 'Firmware saved in the app is v$savedVer; the manifest now lists v$remoteVer. The saved file was kept — flash it whenever you are ready, or download again.';
   }
 
   @override
@@ -2062,8 +2086,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'OTA finished or connection dropped — the board may reboot.';
 
   @override
+  String get firmwareOtaSuccessTitle => 'Firmware updated';
+
+  @override
+  String firmwareOtaSuccessBody(String installedVer, String reportedVer) {
+    return 'Installed build: $installedVer.\n\nBoard version in the app: $reportedVer.\n\nIf the chess board restarted, wait until it responds again or reconnect from Settings → Connection.';
+  }
+
+  @override
   String firmwareTileTitleUpdateAvailable(String ver) {
     return 'Firmware — update available ($ver)';
+  }
+
+  @override
+  String get firmwareOtaRollbackBannerTitle =>
+      'Previous firmware restored after failed boot';
+
+  @override
+  String firmwareOtaRollbackBannerBodyWithAttempt(
+      String current, String slot, String attempt) {
+    return 'The board is running $current after the new image failed to start. Unsuccessful update ($attempt) remains in slot $slot. Install a fixed build when available.';
+  }
+
+  @override
+  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot) {
+    return 'The board is running $current after the new image failed to start. The unsuccessful image is in slot $slot. Install a fixed build when available.';
   }
 
   @override
@@ -2183,12 +2230,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String firmwareTileTitleDeveloperDowngrade(String ver) {
+    return 'Firmware — older manifest ($ver)';
+  }
+
+  @override
   String get firmwareTileSubtitleBleGitOnly =>
       'Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.';
 
   @override
   String get firmwareTileSubtitleDeveloperReflash =>
       'Developer mode — manifest matches the board; open to download and flash the same build again.';
+
+  @override
+  String get firmwareTileSubtitleDeveloperDowngrade =>
+      'Developer mode — manifest is older than the board; optional downgrade from this URL.';
 
   @override
   String get firmwareWifiBleProvisionTitle =>
@@ -3689,6 +3745,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String settingsAboutVersionLine(String version, String build) {
     return 'Version $version ($build) • Tap this row or “Settings” in the main settings title bar 7× (within about a second between taps) to unlock developer mode.';
+  }
+
+  @override
+  String get settingsAppUpdateBannerTitle => 'App update available';
+
+  @override
+  String settingsAppUpdateBannerSubtitle(String current, String latest) {
+    return 'You have $current; the latest release is $latest.';
+  }
+
+  @override
+  String settingsAppUpdateBannerSubtitleRequired(
+      String current, String requiredVersion) {
+    return 'Your version ($current) is below the minimum supported. Update to at least $requiredVersion.';
+  }
+
+  @override
+  String get settingsAppUpdateOpenDownloads => 'Open download page';
+
+  @override
+  String get settingsAboutAppUpdateLineTitle => 'New app version';
+
+  @override
+  String settingsAboutAppUpdateLineBody(String current, String latest) {
+    return 'Installed: $current. Latest: $latest.';
   }
 
   @override

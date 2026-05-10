@@ -19,12 +19,16 @@ class FirmwareSettingsScreen extends ConsumerWidget {
     final showOtaGit = snap.showOtaFromGitWithDeveloper(dev);
     final devSameReflash =
         dev && snap.sameSemverAsManifest && snap.hasBoardVersion && !updateAvailable;
+    final devOlderManifest =
+        dev && snap.manifestOlderThanBoard && !updateAvailable;
     final title = updateAvailable
         ? context.l10n.firmwareTileTitleUpdateAvailable(remoteV)
         : (showOtaGit
-            ? (devSameReflash
-                ? context.l10n.firmwareTileTitleDeveloperReflash(remoteV)
-                : context.l10n.firmwareTileTitleGitBle(remoteV))
+            ? (devOlderManifest
+                ? context.l10n.firmwareTileTitleDeveloperDowngrade(remoteV)
+                : devSameReflash
+                    ? context.l10n.firmwareTileTitleDeveloperReflash(remoteV)
+                    : context.l10n.firmwareTileTitleGitBle(remoteV))
             : context.l10n.firmwareTileTitleDefault);
 
     return Scaffold(

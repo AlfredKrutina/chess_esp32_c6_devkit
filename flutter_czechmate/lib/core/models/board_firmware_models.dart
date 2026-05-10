@@ -5,6 +5,9 @@ class BoardFirmwareInfo {
     this.projectName,
     this.idfVersion,
     this.otaSupported,
+    this.otaLastBootFailed,
+    this.otaFailedFirmwareVersion,
+    this.otaFailedSlot,
   });
 
   final String version;
@@ -14,13 +17,27 @@ class BoardFirmwareInfo {
   /// From `GET /api/system/firmware` (`ota_supported`). Null if absent (older firmware).
   final bool? otaSupported;
 
+  /// `GET /api/system/firmware` — bootloader vrátil předchozí slot po pádu nového obrazu.
+  final bool? otaLastBootFailed;
+
+  /// Semver z hlavičky neúspěšného slotu (`ota_failed_firmware_version`).
+  final String? otaFailedFirmwareVersion;
+
+  /// Např. `ota_0` / `ota_1` (`ota_failed_slot`).
+  final String? otaFailedSlot;
+
   factory BoardFirmwareInfo.fromJson(Map<String, dynamic> json) {
     final rawOta = json['ota_supported'];
+    final rawFail = json['ota_last_boot_failed'];
     return BoardFirmwareInfo(
       version: (json['version'] as String?)?.trim() ?? '',
       projectName: json['project_name'] as String?,
       idfVersion: json['idf'] as String?,
       otaSupported: rawOta is bool ? rawOta : null,
+      otaLastBootFailed: rawFail is bool ? rawFail : null,
+      otaFailedFirmwareVersion:
+          (json['ota_failed_firmware_version'] as String?)?.trim(),
+      otaFailedSlot: (json['ota_failed_slot'] as String?)?.trim(),
     );
   }
 }

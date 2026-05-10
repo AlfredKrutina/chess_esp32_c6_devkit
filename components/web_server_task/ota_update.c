@@ -498,6 +498,30 @@ static esp_err_t schedule_ota(const char *url) {
   return ESP_OK;
 }
 
+/**
+ * Rollback po neúspěšném startu nového obrazu: jiný slot má stav invalid,
+ * běží předchozí firmware. Klient (Flutter) může uživateli zobrazit varování.
+ */
+static void firmware_json_add_rollback_fields(cJSON *root) {
+  if (!ota_partition_layout_ok()) {
+    return;
+  }
+  const esp_partition_t *running = esp_ota_get_running_partition();
+  const esp_partition_t *inv = esp_ota_get_last_invalid_partition();
+  bool failed = (inv != NULL && running != NULL && inv != running);
+  cJSON_AddBoolToObject(root, "ota_last_boot_failed", failed ? 1 : 0);
+  if (!failed) {
+    return;
+  }
+  cJSON_AddStringToObject(root, "ota_failed_slot", inv->label);
+  esp_app_desc_t d;
+  memset(&d, 0, sizeof(d));
+  if (esp_ota_get_partition_description(inv, &d) == ESP_OK &&
+      d.version[0] != '\0') {
+    cJSON_AddStringToObject(root, "ota_failed_firmware_version", d.version);
+  }
+}
+
 static esp_err_t http_get_firmware(httpd_req_t *req) {
   const esp_app_desc_t *app = esp_app_get_description();
   if (app == NULL) {
@@ -521,6 +545,7 @@ static esp_err_t http_get_firmware(httpd_req_t *req) {
   cJSON_AddItemToObject(
       root, "ota_supported",
       cJSON_CreateBool(ota_partition_layout_ok() ? 1 : 0));
+  firmware_json_add_rollback_fields(root);
 
   char *printed = cJSON_PrintUnformatted(root);
   cJSON_Delete(root);

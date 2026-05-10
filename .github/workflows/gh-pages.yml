@@ -25,6 +25,8 @@ on:
     - 'scripts/mermaid-puppeteer-ci.json'
     - 'gh-pages-ready/README.md'
     - 'gh-pages-ready/downloads.html'
+    - 'gh-pages-ready/app_update.json'
+    - 'gh-pages-ready/app_update.html'
     - 'gh-pages-ready/landing/**'
     - 'gh-pages-ready/.nojekyll'
     - 'firmware/**'
@@ -75,6 +77,8 @@ jobs:
           cp -a docs/doxygen/html/. _site/
           cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
           cp -f gh-pages-ready/downloads.html _site/downloads.html
+          cp -f gh-pages-ready/app_update.json _site/app_update.json
+          cp -f gh-pages-ready/app_update.html _site/app_update.html
           mkdir -p _site/landing
           cp -a gh-pages-ready/landing/. _site/landing/
           cp -f gh-pages-ready/.nojekyll _site/.nojekyll
@@ -97,6 +101,8 @@ jobs:
       - name: Kontrola marketingové stránky před deployem
         run: |
           test -f _site/downloads.html || (echo "::error::Chybí _site/downloads.html (zkontroluj gh-pages-ready v repu)" && exit 1)
+          test -f _site/app_update.json || (echo "::error::Chybí _site/app_update.json (manifest verze aplikace)" && exit 1)
+          test -f _site/app_update.html || (echo "::error::Chybí _site/app_update.html (dokumentace manifestu)" && exit 1)
           test -f _site/landing/landing.css || (echo "::error::Chybí _site/landing/landing.css" && exit 1)
           echo "::notice title=PAGES_SOURCE::Po deployi zkontroluj Settings-Pages: Branch gh-pages, folder /. Pokud je zdroj main + /docs, zivy web je Jekyll a downloads.html vrati 404."
 

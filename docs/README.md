@@ -39,7 +39,7 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | [reference/coordinates_system.md](reference/coordinates_system.md) | Notace ↔ řádek/sloupec, LED |
 | [reference/WEB_UI_DEPLOY.md](reference/WEB_UI_DEPLOY.md) | Embed web UI, build |
 | [reference/CZECHMATE_INTEGRATION_CHECKLIST.md](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE pro klienty |
-| [ota_architecture.md](ota_architecture.md) | OTA: kanály, API, Flutter (dlouhodobě uvažuju OTAvo místo vlastní vrstvy ve FW) |
+| [ota_architecture.md](ota_architecture.md) | OTA: kanály, REST/BLE, Flutter, rollback, flash/kompatibilita, checklist před release |
 | [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Co potřebuju k videím z Blenderu |
 | [reference/WEB_MEDIA_BRIEF.md](reference/WEB_MEDIA_BRIEF.md) | Médiá pro web — odkaz na lokální spec v `context/` nebo `gh-pages-ready/` |
 | [flutter_czechmate/README.md](../flutter_czechmate/README.md) | Spuštění aplikace |

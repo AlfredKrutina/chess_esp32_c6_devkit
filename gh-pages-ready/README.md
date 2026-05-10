@@ -1,6 +1,6 @@
 # CzechMate na GitHub Pages — co tu mám připravené
 
-Tahle složka (`gh-pages-ready/`) je zdroj toho, co pak GitHub nasadí jako veřejný web: **`downloads.html`** (produktovka + odkazy na appku), **`landing/`** (styly, skripty, obrázky) a **`.nojekyll`**, aby GitHub náhodou nespouštěl Jekyll nad výstupem, který tam nepatří.
+Tahle složka (`gh-pages-ready/`) je zdroj toho, co pak GitHub nasadí jako veřejný web: **`downloads.html`** (produktovka + odkazy na appku), **`app_update.json`** (semver manifest pro kontrolu aktualizace Flutter klienta), **`app_update.html`** (lidsky čitelný popis schématu), **`landing/`** (styly, skripty, obrázky) a **`.nojekyll`**, aby GitHub náhodou nespouštěl Jekyll nad výstupem, který tam nepatří.
 
 Když někdo pushne na **`main`** nebo **`master`**, Actions ([`.github/workflows/gh-pages.yml`](../.github/workflows/gh-pages.yml)) mi z repa složí `_site`: přihodí se Doxygen HTML, Mermaid výstupy, tahle marketingová stránka a případně firmware metadata — a výsledek se zapíše na větev **`gh-pages`**.
 
@@ -33,6 +33,8 @@ rm -rf /tmp/czm-pages && mkdir -p /tmp/czm-pages
 cp -a docs/doxygen/html/. /tmp/czm-pages/
 cp -f docs/diagrams/diagrams_mermaid.html /tmp/czm-pages/diagrams_mermaid.html
 cp -f gh-pages-ready/downloads.html /tmp/czm-pages/downloads.html
+cp -f gh-pages-ready/app_update.json /tmp/czm-pages/app_update.json
+cp -f gh-pages-ready/app_update.html /tmp/czm-pages/app_update.html
 mkdir -p /tmp/czm-pages/landing
 cp -a gh-pages-ready/landing/. /tmp/czm-pages/landing/
 cp -f gh-pages-ready/.nojekyll /tmp/czm-pages/.nojekyll
@@ -48,6 +50,8 @@ git checkout main
 ## Co přesně tu v main větvi leží
 
 - **`.nojekyll`** — zkopíruje se do kořene nasazeného webu.
+- **`app_update.json`** — manifest verze aplikace (`latest_version`, volitelně `min_supported_version`, `release_page_url`). Klient: `flutter_czechmate/lib/core/constants/app_update_defaults.dart`. Po release aplikace srovnej s `flutter_czechmate/pubspec.yaml`. **Důležité:** veřejná adresa vede na nasazenou větev **gh-pages**; soubor se u uživatelů změní až po **úspěšném deployi** workflow (typicky push na `main` se změnou tohoto JSONu nebo jiné sledované cesty — případně ruční spuštění *workflow_dispatch* na stejném commitu znovu nasadí aktuální obsah repa). Samotná úprava jen ve Flutter kódu bez commitu manifestu deploy neaktualizuje.
+- **`app_update.html`** — stručná dokumentace schématu pro maintainery.
 - **`downloads.html`** — veřejná stránka ke stažení APK/DMG + texty kolem CzechMate. **V2** (Hall, komerce) vs **V1** (reed, video, fw **1.7.3**) je vysvětlené přímo na stránce; dotazníky a předobjednávka = **V2**. Sekce **Aplikace**: karty otevírají modal — obsah v `landing/landing.js` (`FEATURE_PAGES`). Tlačítka APK/DMG mají fallback na release; `landing.js` dotáhne z GitHub API `releases/latest` přímé `browser_download_url`.
 - **`landing/`** — `landing.css`, `landing.js`, `assets/` (WebP, SVG, OG obrázek). Specifikace médií a video integrace: **`context/MEDIA_DELIVERABLES.md`**.
 - **`README.md`** — tenhle soubor (spíš pro mě než pro návštěvníka webu).
@@ -76,6 +80,8 @@ Automatické soukromé DM na Instagram přímo z čistě statického webu bez vl
 - `index.html` — dokumentace (z Doxygen workflow).
 - `diagrams_mermaid.html` — sekvenční diagramy.
 - `downloads.html` — marketing + stažení aplikace + sekce zájmu.
+- `app_update.json` — strojová kontrola aktualizace aplikace.
+- `app_update.html` — popis manifestu.
 
 Video na stránce / na YouTube: [youtu.be/_MS6OP3x6Z4](https://youtu.be/_MS6OP3x6Z4). Na **HTTPS** se embed načítá spolehlivěji; u `file://` často zůstane jen náhled kvůli omezením přehrávače.
 

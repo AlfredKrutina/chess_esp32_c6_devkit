@@ -90,6 +90,12 @@ class PrefsRepository {
   /// Absolutní cesta k uloženému `.bin` v ApplicationSupport (`firmware_cache/`).
   static const keyFirmwareCachedBinPath = 'czechmate.firmwareCachedBinPath';
   static const keyFirmwareCachedVersion = 'czechmate.firmwareCachedVersion';
+  /// HTTPS URL `.bin` z manifestu v době stažení (volitelné HTTPS OTA z nastavení).
+  static const keyFirmwareCachedBinSourceUrl =
+      'czechmate.firmwareCachedBinSourceUrl';
+  /// Verze z `app_update.json`, pro kterou uživatel zavřel banner „nová appka“.
+  static const keyAppUpdateBannerDismissedLatest =
+      'czechmate.appUpdateBannerDismissedLatest';
   static const keyPuzzleElo = 'czechmate.profile.puzzleElo';
   static const keyProfileDisplayName = 'czechmate.profile.displayName';
   static const keyProfileAvatarSpec = 'czechmate.profile.avatarSpec';
@@ -601,17 +607,40 @@ class PrefsRepository {
 
   String? get firmwareCachedVersion => _p.getString(keyFirmwareCachedVersion);
 
+  String? get firmwareCachedBinSourceUrl =>
+      _p.getString(keyFirmwareCachedBinSourceUrl);
+
   Future<void> setFirmwareCachedBin({
     required String absolutePath,
     required String version,
+    String? httpsBinSourceUrl,
   }) async {
     await _p.setString(keyFirmwareCachedBinPath, absolutePath);
     await _p.setString(keyFirmwareCachedVersion, version);
+    final u = httpsBinSourceUrl?.trim();
+    if (u != null && u.isNotEmpty) {
+      await _p.setString(keyFirmwareCachedBinSourceUrl, u);
+    } else {
+      await _p.remove(keyFirmwareCachedBinSourceUrl);
+    }
   }
 
   Future<void> clearFirmwareCachedBin() async {
     await _p.remove(keyFirmwareCachedBinPath);
     await _p.remove(keyFirmwareCachedVersion);
+    await _p.remove(keyFirmwareCachedBinSourceUrl);
+  }
+
+  String? get appUpdateBannerDismissedLatest =>
+      _p.getString(keyAppUpdateBannerDismissedLatest);
+
+  Future<void> setAppUpdateBannerDismissedLatest(String version) async {
+    final t = version.trim();
+    if (t.isEmpty) {
+      await _p.remove(keyAppUpdateBannerDismissedLatest);
+    } else {
+      await _p.setString(keyAppUpdateBannerDismissedLatest, t);
+    }
   }
 
   /// Puzzle-only Elo (oddělené od případného online ratingu).

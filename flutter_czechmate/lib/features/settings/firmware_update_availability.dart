@@ -14,6 +14,9 @@ class FirmwareAvailState {
     this.manifest,
     this.boardVersion,
     this.boardOtaSupported,
+    this.otaLastBootFailed,
+    this.otaFailedFirmwareVersion,
+    this.otaFailedSlot,
     this.error,
   });
 
@@ -23,6 +26,12 @@ class FirmwareAvailState {
 
   /// Null = unknown (no HTTP info yet or older firmware without `ota_supported`).
   final bool? boardOtaSupported;
+
+  /// Deska hlásí `ota_last_boot_failed` z `GET /api/system/firmware`.
+  final bool? otaLastBootFailed;
+  final String? otaFailedFirmwareVersion;
+  final String? otaFailedSlot;
+
   final String? error;
 
   bool get hasBoardVersion =>
@@ -47,6 +56,16 @@ class FirmwareAvailState {
     return compareSemverLoose(m.version, b!) == 0;
   }
 
+  /// Manifest ze zdroje je starší než hlášená verze desky (oba známé).
+  bool get manifestOlderThanBoard {
+    final m = manifest;
+    final b = boardVersion;
+    if (m == null || !hasBoardVersion) {
+      return false;
+    }
+    return compareSemverLoose(m.version, b!) < 0;
+  }
+
   /// Manifest z Gitu je platný a buď je novější než deska, nebo verzi desky neznáme (jen BLE / bez HTTP).
   bool get showBleGitFirmwareActions {
     final m = manifest;
@@ -59,7 +78,7 @@ class FirmwareAvailState {
     return !hasBoardVersion;
   }
 
-  /// OTA akce z manifestu (včetně vývojářského znovu‑flash stejné verze).
+  /// OTA akce z manifestu (včetně vývojářského znovu‑flash stejné nebo starší verze).
   bool showOtaFromGitWithDeveloper(bool developerUnlocked) {
     if (showBleGitFirmwareActions) {
       return true;
@@ -68,7 +87,9 @@ class FirmwareAvailState {
     if (m == null || m.version.trim().isEmpty || m.url.trim().isEmpty) {
       return false;
     }
-    return developerUnlocked && sameSemverAsManifest;
+    return developerUnlocked &&
+        hasBoardVersion &&
+        (sameSemverAsManifest || manifestOlderThanBoard);
   }
 
   FirmwareAvailState copyWith({
@@ -76,10 +97,14 @@ class FirmwareAvailState {
     FirmwareManifest? manifest,
     String? boardVersion,
     bool? boardOtaSupported,
+    bool? otaLastBootFailed,
+    String? otaFailedFirmwareVersion,
+    String? otaFailedSlot,
     String? error,
     bool clearManifest = false,
     bool clearBoard = false,
     bool clearBoardOtaSupported = false,
+    bool clearOtaRollback = false,
     bool clearError = false,
   }) {
     return FirmwareAvailState(
@@ -89,6 +114,15 @@ class FirmwareAvailState {
       boardOtaSupported: clearBoardOtaSupported
           ? null
           : (boardOtaSupported ?? this.boardOtaSupported),
+      otaLastBootFailed: clearOtaRollback
+          ? null
+          : (otaLastBootFailed ?? this.otaLastBootFailed),
+      otaFailedFirmwareVersion: clearOtaRollback
+          ? null
+          : (otaFailedFirmwareVersion ?? this.otaFailedFirmwareVersion),
+      otaFailedSlot: clearOtaRollback
+          ? null
+          : (otaFailedSlot ?? this.otaFailedSlot),
       error: clearError ? null : (error ?? this.error),
     );
   }
@@ -145,6 +179,9 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
         manifest: state.manifest,
         boardVersion: state.boardVersion,
         boardOtaSupported: state.boardOtaSupported,
+        otaLastBootFailed: state.otaLastBootFailed,
+        otaFailedFirmwareVersion: state.otaFailedFirmwareVersion,
+        otaFailedSlot: state.otaFailedSlot,
         error: 'Manifest ($manifestUrl): $e',
       );
       return;
@@ -152,12 +189,18 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
 
     String? bv;
     bool? otaSup;
+    bool? otaLbf;
+    String? otaFfv;
+    String? otaFs;
     String? err;
     if (!skipBoardHttpFetch && boardHttp != null && boardHttp.isNotEmpty) {
       try {
         final info = await api.fetchBoardFirmwareInfo(boardHttp);
         bv = info.version;
         otaSup = info.otaSupported;
+        otaLbf = info.otaLastBootFailed;
+        otaFfv = info.otaFailedFirmwareVersion;
+        otaFs = info.otaFailedSlot;
       } catch (e) {
         err = 'Board HTTP ($boardHttp): $e';
       }
@@ -165,18 +208,33 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
 
     final String? boardVerOut;
     final bool? otaSupOut;
+    final bool? otaLbfOut;
+    final String? otaFfvOut;
+    final String? otaFsOut;
     if (!skipBoardHttpFetch && boardHttp != null && boardHttp.isNotEmpty) {
       boardVerOut = bv;
       otaSupOut = otaSup;
+      otaLbfOut = otaLbf;
+      otaFfvOut = otaFfv;
+      otaFsOut = otaFs;
     } else if (skipBoardHttpFetch && afterBleOtaAssumeBoardMatchesManifest) {
       boardVerOut = manifest.version;
       otaSupOut = state.boardOtaSupported;
+      otaLbfOut = false;
+      otaFfvOut = null;
+      otaFsOut = null;
     } else if (skipBoardHttpFetch) {
       boardVerOut = state.boardVersion;
       otaSupOut = state.boardOtaSupported;
+      otaLbfOut = state.otaLastBootFailed;
+      otaFfvOut = state.otaFailedFirmwareVersion;
+      otaFsOut = state.otaFailedSlot;
     } else {
       boardVerOut = bv;
       otaSupOut = otaSup;
+      otaLbfOut = otaLbf;
+      otaFfvOut = otaFfv;
+      otaFsOut = otaFs;
     }
 
     state = FirmwareAvailState(
@@ -184,6 +242,9 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
       manifest: manifest,
       boardVersion: boardVerOut,
       boardOtaSupported: otaSupOut,
+      otaLastBootFailed: otaLbfOut,
+      otaFailedFirmwareVersion: otaFfvOut,
+      otaFailedSlot: otaFsOut,
       error: err,
     );
   }

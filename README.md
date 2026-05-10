@@ -494,7 +494,7 @@ Co kde držím:
 - **[docs/README.md](docs/README.md)** — rozcestník po celém repu
 - **[docs/diagrams/README.md](docs/diagrams/README.md)** — boot, fronty, mutexy, smyčky tasků, šachy, Flutter
 - **[docs/flutter/README.md](docs/flutter/README.md)** — aplikace, BLE/HTTP, `lib/`
-- **[docs/ota_architecture.md](docs/ota_architecture.md)** — jak řešíme OTA (HTTPS / HTTP / BLE), REST a Flutter; dlouhodobě uvažuju i OTAvo místo vlastní vrstvy ve FW
+- **[docs/ota_architecture.md](docs/ota_architecture.md)** — OTA (HTTPS / HTTP / BLE), REST, Flutter, rollback po `create_system_tasks`, dual-slot flash, kompatibilita NVS a checklist před release; směr rozšíření: podepsaný / šifrovaný obraz podle Espressif
 - **[docs/reference/README.md](docs/reference/README.md)** — delší texty: komunikace tasků, souřadnice, web UI v binárce, checklist integrace
 
 **Doxygen** z C kódu — HTML si generuju:

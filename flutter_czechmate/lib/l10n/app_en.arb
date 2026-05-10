@@ -955,7 +955,16 @@
       }
     }
   },
+  "firmwareDeveloperDowngradeChipTitle": "Older build {ver} (developer)",
+  "@firmwareDeveloperDowngradeChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareDeveloperSameVersionBanner": "Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).",
+  "firmwareDeveloperOlderManifestBanner": "Developer mode: this manifest is older than the board firmware. Downgrading can break compatibility or data — only proceed if you understand the risk.",
   "firmwareDownloadOnEspNote": "Download runs on the ESP over HTTPS.",
   "firmwareConfirmUpdateTitle": "Confirm update",
   "firmwareConfirmUpdateBody": "Start firmware update on the board?",
@@ -970,6 +979,26 @@
         "type": "String"
       },
       "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareSavedFirmwareChipTitle": "Saved firmware v{ver}",
+  "@firmwareSavedFirmwareChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOfflineSavedFirmwareBanner": "The live manifest could not be loaded. You can still flash the firmware file saved in this app.",
+  "firmwareCachedDiffersFromManifestHint": "Firmware saved in the app is v{savedVer}; the manifest now lists v{remoteVer}. The saved file was kept — flash it whenever you are ready, or download again.",
+  "@firmwareCachedDiffersFromManifestHint": {
+    "placeholders": {
+      "remoteVer": {
+        "type": "String"
+      },
+      "savedVer": {
         "type": "String"
       }
     }
@@ -1001,10 +1030,48 @@
   "firmwareHttpsLinkExplainBody": "You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.",
   "firmwareSettingsSecondConfirmBody": "The board will write firmware and reboot. Do not cut power or lose Wi‑Fi while downloading. Continue?",
   "firmwareOtaFinishedMaybeRebootSnack": "OTA finished or connection dropped — the board may reboot.",
+  "firmwareOtaSuccessTitle": "Firmware updated",
+  "firmwareOtaSuccessBody": "Installed build: {installedVer}.\n\nBoard version in the app: {reportedVer}.\n\nIf the chess board restarted, wait until it responds again or reconnect from Settings → Connection.",
+  "@firmwareOtaSuccessBody": {
+    "placeholders": {
+      "installedVer": {
+        "type": "String"
+      },
+      "reportedVer": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareTileTitleUpdateAvailable": "Firmware — update available ({ver})",
   "@firmwareTileTitleUpdateAvailable": {
     "placeholders": {
       "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaRollbackBannerTitle": "Previous firmware restored after failed boot",
+  "firmwareOtaRollbackBannerBodyWithAttempt": "The board is running {current} after the new image failed to start. Unsuccessful update ({attempt}) remains in slot {slot}. Install a fixed build when available.",
+  "@firmwareOtaRollbackBannerBodyWithAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      },
+      "attempt": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaRollbackBannerBodyNoAttempt": "The board is running {current} after the new image failed to start. The unsuccessful image is in slot {slot}. Install a fixed build when available.",
+  "@firmwareOtaRollbackBannerBodyNoAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
         "type": "String"
       }
     }
@@ -1095,8 +1162,17 @@
       }
     }
   },
+  "firmwareTileTitleDeveloperDowngrade": "Firmware — older manifest ({ver})",
+  "@firmwareTileTitleDeveloperDowngrade": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareTileSubtitleBleGitOnly": "Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.",
   "firmwareTileSubtitleDeveloperReflash": "Developer mode — manifest matches the board; open to download and flash the same build again.",
+  "firmwareTileSubtitleDeveloperDowngrade": "Developer mode — manifest is older than the board; optional downgrade from this URL.",
   "firmwareWifiBleProvisionTitle": "Wi‑Fi on the board (via Bluetooth)",
   "firmwareWifiBleProvisionSubtitle": "Send SSID and password over BLE so the board can join your network as a client (STA).",
   "firmwareWifiBleSsidLabel": "Wi‑Fi name (SSID)",
@@ -1817,6 +1893,42 @@
         "type": "String"
       },
       "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateBannerTitle": "App update available",
+  "settingsAppUpdateBannerSubtitle": "You have {current}; the latest release is {latest}.",
+  "@settingsAppUpdateBannerSubtitle": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateBannerSubtitleRequired": "Your version ({current}) is below the minimum supported. Update to at least {requiredVersion}.",
+  "@settingsAppUpdateBannerSubtitleRequired": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "requiredVersion": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateOpenDownloads": "Open download page",
+  "settingsAboutAppUpdateLineTitle": "New app version",
+  "settingsAboutAppUpdateLineBody": "Installed: {current}. Latest: {latest}.",
+  "@settingsAboutAppUpdateLineBody": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
         "type": "String"
       }
     }

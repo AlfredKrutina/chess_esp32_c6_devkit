@@ -6,6 +6,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../app_providers.dart';
 import '../../core/localization/locale_bridge.dart';
 import '../../core/services/board_api_exception.dart';
+import '../../core/services/firmware_phone_host_ota.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../connection/board_session_notifier.dart';
@@ -31,7 +32,7 @@ class FirmwareOtaRunner {
     final session = ref.read(boardSessionNotifierProvider);
     final prefs = ref.read(prefsRepositoryProvider);
     final strings = appStringsForPrefs(prefs);
-    final baseUrl = normalizeBoardHttpBaseUrl(boardHttpBaseUrlOverride) ??
+    var baseUrl = normalizeBoardHttpBaseUrl(boardHttpBaseUrlOverride) ??
         resolveBoardHttpBaseUrl(
           wifiTransportActive: session.transport == BoardTransport.wifi,
           sessionWifiBaseUrl: session.wifiBaseUrl,
@@ -40,6 +41,14 @@ class FirmwareOtaRunner {
         );
     if (baseUrl == null || baseUrl.isEmpty) {
       return strings.errOtaBoardHttpMissingDetail;
+    }
+    /* Telefon na Wi‑Fi hotspotu desky (192.168.4.x) — API je na gateway 192.168.4.1:80,
+     * ne na zastaralé STA URL z prefs (stejná logika jako phone‑hosted OTA v UI). */
+    if (await FirmwarePhoneHostOta.ipv4OnBoardApSubnet() != null) {
+      final ap = normalizeBoardHttpBaseUrl('http://192.168.4.1');
+      if (ap != null) {
+        baseUrl = ap;
+      }
     }
 
     final api = ref.read(boardApiClientProvider);
@@ -50,7 +59,11 @@ class FirmwareOtaRunner {
       }
     } catch (_) {}
 
-    final remoteHttps = binUrl.trim().toLowerCase().startsWith('https://');
+    final binLower = binUrl.trim().toLowerCase();
+    final remoteHttps = binLower.startsWith('https://');
+    final remoteLanHttp = binLower.startsWith('http://');
+    final usePreferHttpStart =
+        preferHttpOtaStartCommand || remoteLanHttp;
     if (remoteHttps) {
       try {
         final w = await api.fetchWiFiStatus(baseUrl);
@@ -72,7 +85,7 @@ class FirmwareOtaRunner {
             .requestFirmwareOta(
               binUrl,
               httpBoardBaseUrl: baseUrl,
-              preferHttpOtaStart: preferHttpOtaStartCommand,
+              preferHttpOtaStart: usePreferHttpStart,
             );
       } on BoardApiException catch (e) {
         if (e.statusCode == 428) {

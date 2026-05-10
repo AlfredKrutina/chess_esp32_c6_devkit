@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CzechMate — kontrola verze aplikace</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #1a1a1a; }
+    code, pre { font-family: ui-monospace, monospace; font-size: 0.9rem; }
+    pre { background: #f4f4f5; padding: 1rem; overflow-x: auto; border-radius: 8px; }
+    a { color: #2563eb; }
+    h1 { font-size: 1.35rem; }
+  </style>
+</head>
+<body>
+  <h1>Kontrola verze mobilní aplikace</h1>
+  <p>Aplikace CzechMate si při otevření nastavení stáhne soubor <code>app_update.json</code> z kořene tohoto webu a porovná semver verzi z <code>pubspec.yaml</code> s polem <code>latest_version</code>.</p>
+  <p>Zdroj pravdy pro klienta je vždy JSON (strojově čitelný). Tato stránka popisuje schéma pro údržbu.</p>
+
+  <h2>Umístění</h2>
+  <p><a href="./app_update.json"><code>app_update.json</code></a> (stejný obsah jako v repu <code>gh-pages-ready/app_update.json</code>).</p>
+
+  <h2>Schéma</h2>
+  <ul>
+    <li><code>latest_version</code> (řetězec, povinné) — nejnovější verze aplikace. Pokud je instalovaná verze starší, klient zobrazí upozornění.</li>
+    <li><code>min_supported_version</code> (řetězec, volitelné) — pod touto verzí je doporučená okamžitá aktualizace a výraznější zobrazení.</li>
+    <li><code>release_page_url</code> (řetězec URL, volitelné) — kam má vést tlačítko ke stažení. Pokud chybí, použije se výchozí produktová stránka z kódu aplikace.</li>
+  </ul>
+
+  <h2>Příklad</h2>
+  <pre>{
+  "latest_version": "1.7.4",
+  "min_supported_version": "1.6.0",
+  "release_page_url": "https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html"
+}</pre>
+
+  <p>Po vydání nové aplikace zvedni <code>latest_version</code> (a případně <code>min_supported_version</code>) v souladu s <code>flutter_czechmate/pubspec.yaml</code>, commitni změnu a nech proběhnout deploy GitHub Pages.</p>
+</body>
+</html>

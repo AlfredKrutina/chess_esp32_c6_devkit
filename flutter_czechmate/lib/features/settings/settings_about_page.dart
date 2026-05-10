@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import 'app_update_banner.dart';
 
 class SettingsAboutPage extends ConsumerStatefulWidget {
   const SettingsAboutPage({super.key});
@@ -19,6 +20,14 @@ class SettingsAboutPage extends ConsumerStatefulWidget {
 class _SettingsAboutPageState extends ConsumerState<SettingsAboutPage> {
   int _devVersionTapCount = 0;
   DateTime? _devVersionLastTap;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(appUpdateSuggestionProvider);
+    });
+  }
 
   void _onVersionCardTap() {
     final now = DateTime.now();
@@ -85,6 +94,7 @@ class _SettingsAboutPageState extends ConsumerState<SettingsAboutPage> {
               );
             },
           ),
+          const AppUpdateAboutHint(),
           if (prefs.developerModeUnlocked) ...[
             const SizedBox(height: 8),
             SwitchListTile(

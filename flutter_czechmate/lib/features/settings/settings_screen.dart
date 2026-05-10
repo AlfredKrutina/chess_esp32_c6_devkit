@@ -14,6 +14,7 @@ import 'coach_ai_settings_screen.dart';
 import 'firmware_update_availability.dart';
 import 'firmware_settings_screen.dart';
 import 'home_assistant_mqtt_screen.dart';
+import 'app_update_banner.dart';
 import 'settings_about_page.dart';
 import 'settings_app_appearance_page.dart';
 import 'settings_board_appearance_page.dart';
@@ -35,6 +36,14 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _devTitleTapCount = 0;
   DateTime? _devTitleLastTap;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(appUpdateSuggestionProvider);
+    });
+  }
 
   String _linkTierLabel(BoardSessionState s, AppLocalizations l10n) {
     if (s.transport == BoardTransport.none) {
@@ -133,11 +142,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         firmwareSnap.sameSemverAsManifest &&
         firmwareSnap.hasBoardVersion &&
         !firmwareSnap.updateAvailable;
+    final firmwareDevDowngrade = prefs.developerModeUnlocked &&
+        firmwareSnap.manifestOlderThanBoard &&
+        !firmwareSnap.updateAvailable;
     final firmwareShowOtaGit =
         firmwareSnap.showOtaFromGitWithDeveloper(prefs.developerModeUnlocked);
     final firmwareHighlight = firmwareSnap.updateAvailable ||
         (firmwareShowOtaGit && !firmwareSnap.hasBoardVersion) ||
-        firmwareDevReflash;
+        firmwareDevReflash ||
+        firmwareDevDowngrade;
+    final appUpdateSnap = ref.watch(appUpdateSuggestionProvider);
+    final appUpdateHighlight = appUpdateSnap.maybeWhen(
+      data: (s) {
+        if (s == null) return false;
+        final lv = s.manifest.latestVersion.trim();
+        return prefs.appUpdateBannerDismissedLatest != lv;
+      },
+      orElse: () => false,
+    );
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
 
@@ -166,6 +188,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             32,
           ),
           children: [
+            const AppUpdateSettingsCallout(),
             _destinationCard(
               leading: const Icon(Icons.dashboard_outlined),
               title: l10n.settingsOverviewTitle,
@@ -237,22 +260,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       firmwareSnap.manifest?.version ?? '—',
                     )
                   : (firmwareShowOtaGit
-                      ? (firmwareDevReflash
-                          ? l10n.firmwareTileTitleDeveloperReflash(
+                      ? (firmwareDevDowngrade
+                          ? l10n.firmwareTileTitleDeveloperDowngrade(
                               firmwareSnap.manifest?.version ?? '—',
                             )
-                          : l10n.firmwareTileTitleGitBle(
-                              firmwareSnap.manifest?.version ?? '—',
-                            ))
+                          : firmwareDevReflash
+                              ? l10n.firmwareTileTitleDeveloperReflash(
+                                  firmwareSnap.manifest?.version ?? '—',
+                                )
+                              : l10n.firmwareTileTitleGitBle(
+                                  firmwareSnap.manifest?.version ?? '—',
+                                ))
                       : l10n.firmwareTileTitleDefault),
               subtitle: firmwareSnap.updateAvailable
                   ? '${l10n.firmwareTwoStepOtaHint} (${prefs.firmwareUpdateRemindersEnabled ? l10n.firmwareRemindersOnShort : l10n.firmwareRemindersOffShort}).'
                   : (firmwareShowOtaGit &&
                           !firmwareSnap.hasBoardVersion)
                       ? l10n.firmwareTileSubtitleBleGitOnly
-                      : (firmwareDevReflash
-                          ? l10n.firmwareTileSubtitleDeveloperReflash
-                          : l10n.firmwareTileSubtitleIdle),
+                      : (firmwareDevDowngrade
+                          ? l10n.firmwareTileSubtitleDeveloperDowngrade
+                          : firmwareDevReflash
+                              ? l10n.firmwareTileSubtitleDeveloperReflash
+                              : l10n.firmwareTileSubtitleIdle),
               titleColor: firmwareHighlight ? cs.primary : null,
               subtitleMaxLines: 4,
               onTap: () => _pushPage(const FirmwareSettingsScreen()),
@@ -282,9 +311,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               onTap: () => _pushPage(const SettingsDiagnosticsPage()),
             ),
             _destinationCard(
-              leading: const Icon(Icons.info_outline),
+              leading: Icon(
+                Icons.info_outline,
+                color: appUpdateHighlight ? cs.primary : null,
+              ),
               title: l10n.settingsTileAboutTitle,
               subtitle: l10n.settingsTileAboutSubtitle,
+              titleColor: appUpdateHighlight ? cs.primary : null,
               onTap: () => _pushPage(const SettingsAboutPage()),
             ),
             _destinationCard(

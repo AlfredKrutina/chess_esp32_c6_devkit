@@ -60,6 +60,8 @@ components/*/build/
 !/gh-pages-ready/README.md
 !/gh-pages-ready/.nojekyll
 !/gh-pages-ready/downloads.html
+!/gh-pages-ready/app_update.json
+!/gh-pages-ready/app_update.html
 !/gh-pages-ready/landing/
 !/gh-pages-ready/landing/**/*
 

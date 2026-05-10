@@ -1954,8 +1954,17 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String firmwareDeveloperDowngradeChipTitle(String ver) {
+    return 'Starší build $ver (vývojář)';
+  }
+
+  @override
   String get firmwareDeveloperSameVersionBanner =>
       'Vývojářský režim: manifest má stejnou verzi jako deska — stejný build můžeš znovu stáhnout a nahrát (oprava / ověření).';
+
+  @override
+  String get firmwareDeveloperOlderManifestBanner =>
+      'Vývojářský režim: manifest má nižší verzi než firmware na desce. Downgrade může rozbít kompatibilitu nebo data — pokračuj jen pokud víš, co děláš.';
 
   @override
   String get firmwareDownloadOnEspNote =>
@@ -1984,6 +1993,21 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String firmwareCachedInAppLine(String ver, String mb) {
     return 'Uloženo v aplikaci: v$ver (~$mb MB)';
+  }
+
+  @override
+  String firmwareSavedFirmwareChipTitle(String ver) {
+    return 'Uložený firmware v$ver';
+  }
+
+  @override
+  String get firmwareOfflineSavedFirmwareBanner =>
+      'Živý manifest se nepodařilo načíst. Pořád můžeš nahrát soubor firmwaru uložený v aplikaci.';
+
+  @override
+  String firmwareCachedDiffersFromManifestHint(
+      String remoteVer, String savedVer) {
+    return 'V aplikaci máš uložený firmware v$savedVer; manifest teď ukazuje v$remoteVer. Soubor jsme nesmazali — můžeš ho kdykoli nahrát, nebo stáhnout znovu.';
   }
 
   @override
@@ -2065,8 +2089,31 @@ class AppLocalizationsCs extends AppLocalizations {
       'OTA skončila nebo spadlo spojení — deska se může restartovat.';
 
   @override
+  String get firmwareOtaSuccessTitle => 'Firmware nahrán';
+
+  @override
+  String firmwareOtaSuccessBody(String installedVer, String reportedVer) {
+    return 'Nahraná verze: $installedVer.\n\nVerze desky v aplikaci: $reportedVer.\n\nKdyž se deska restartovala, počkej na obnovení spojení nebo se znovu připoj v Nastavení → Připojení.';
+  }
+
+  @override
   String firmwareTileTitleUpdateAvailable(String ver) {
     return 'Firmware — dostupná aktualizace ($ver)';
+  }
+
+  @override
+  String get firmwareOtaRollbackBannerTitle =>
+      'Po neúspěšném startu je zpět předchozí firmware';
+
+  @override
+  String firmwareOtaRollbackBannerBodyWithAttempt(
+      String current, String slot, String attempt) {
+    return 'Deska běží na $current: nový obraz se nespustil. Neúspěšná aktualizace ($attempt) zůstává ve slotu $slot. Až bude opravený build, nainstaluj ho.';
+  }
+
+  @override
+  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot) {
+    return 'Deska běží na $current: nový obraz se nespustil. Neúspěšný obraz je ve slotu $slot. Až bude opravený build, nainstaluj ho.';
   }
 
   @override
@@ -2186,12 +2233,21 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String firmwareTileTitleDeveloperDowngrade(String ver) {
+    return 'Firmware — starší manifest ($ver)';
+  }
+
+  @override
   String get firmwareTileSubtitleBleGitOnly =>
       'Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.';
 
   @override
   String get firmwareTileSubtitleDeveloperReflash =>
       'Vývojářský režim — manifest sedí s deskou; otevři obrazovku a znovu nahraj stejný build.';
+
+  @override
+  String get firmwareTileSubtitleDeveloperDowngrade =>
+      'Vývojářský režim — manifest je starší než deska; volitelný downgrade z této URL.';
 
   @override
   String get firmwareWifiBleProvisionTitle => 'Wi‑Fi na desce (přes Bluetooth)';
@@ -3692,6 +3748,31 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String settingsAboutVersionLine(String version, String build) {
     return 'Verze $version ($build) • Klepni 7× na tento řádek nebo na „Nastavení“ v hlavní liště nastavení (do cca sekundy mezi klepnutími) pro odemčení vývojářského režimu.';
+  }
+
+  @override
+  String get settingsAppUpdateBannerTitle => 'Je dostupná nová verze aplikace';
+
+  @override
+  String settingsAppUpdateBannerSubtitle(String current, String latest) {
+    return 'Máš $current; nejnovější je $latest.';
+  }
+
+  @override
+  String settingsAppUpdateBannerSubtitleRequired(
+      String current, String requiredVersion) {
+    return 'Verze $current je pod minimální podporovanou. Aktualizuj prosím na alespoň $requiredVersion.';
+  }
+
+  @override
+  String get settingsAppUpdateOpenDownloads => 'Otevřít stránku ke stažení';
+
+  @override
+  String get settingsAboutAppUpdateLineTitle => 'Nová verze aplikace';
+
+  @override
+  String settingsAboutAppUpdateLineBody(String current, String latest) {
+    return 'Nainstalováno: $current. Nejnovější: $latest.';
   }
 
   @override

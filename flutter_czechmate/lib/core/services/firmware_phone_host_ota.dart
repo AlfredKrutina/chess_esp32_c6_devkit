@@ -89,7 +89,14 @@ class FirmwarePhoneHostOta {
     if (ip == null) {
       throw StateError('NOT_ON_OTA_LAN');
     }
-    final server = await HttpServer.bind(InternetAddress.anyIPv4, 0);
+    /* Na iOS (a více rozhraních) je spolehlivější naslouchat přímo na IP hotspotu/LAN,
+     * aby deska vždy tahala z adresy v otaUrl. Fallback: libovolné rozhraní. */
+    HttpServer server;
+    try {
+      server = await HttpServer.bind(InternetAddress(ip), 0);
+    } catch (_) {
+      server = await HttpServer.bind(InternetAddress.anyIPv4, 0);
+    }
     final port = server.port;
     server.listen((HttpRequest req) async {
       try {

@@ -955,7 +955,16 @@
       }
     }
   },
+  "firmwareDeveloperDowngradeChipTitle": "Starší build {ver} (vývojář)",
+  "@firmwareDeveloperDowngradeChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareDeveloperSameVersionBanner": "Vývojářský režim: manifest má stejnou verzi jako deska — stejný build můžeš znovu stáhnout a nahrát (oprava / ověření).",
+  "firmwareDeveloperOlderManifestBanner": "Vývojářský režim: manifest má nižší verzi než firmware na desce. Downgrade může rozbít kompatibilitu nebo data — pokračuj jen pokud víš, co děláš.",
   "firmwareDownloadOnEspNote": "Stahování probíhá na ESP přes HTTPS.",
   "firmwareConfirmUpdateTitle": "Potvrdit aktualizaci",
   "firmwareConfirmUpdateBody": "Spustit aktualizaci firmware na desce?",
@@ -970,6 +979,26 @@
         "type": "String"
       },
       "mb": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareSavedFirmwareChipTitle": "Uložený firmware v{ver}",
+  "@firmwareSavedFirmwareChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOfflineSavedFirmwareBanner": "Živý manifest se nepodařilo načíst. Pořád můžeš nahrát soubor firmwaru uložený v aplikaci.",
+  "firmwareCachedDiffersFromManifestHint": "V aplikaci máš uložený firmware v{savedVer}; manifest teď ukazuje v{remoteVer}. Soubor jsme nesmazali — můžeš ho kdykoli nahrát, nebo stáhnout znovu.",
+  "@firmwareCachedDiffersFromManifestHint": {
+    "placeholders": {
+      "remoteVer": {
+        "type": "String"
+      },
+      "savedVer": {
         "type": "String"
       }
     }
@@ -1001,10 +1030,48 @@
   "firmwareHttpsLinkExplainBody": "Ty jen pošleš odkaz HTTPS — celý soubor .bin stáhne ESP. Deska musí být připojená k Wi‑Fi jako klient (STA). Příkaz ke startu můžeš poslat přes HTTP na Wi‑Fi nebo přes Bluetooth; průběh se čte přes HTTP na IP desky.",
   "firmwareSettingsSecondConfirmBody": "Deska zapíše firmware a restartuje. Nepřerušuj napájení ani Wi‑Fi během stahování. Pokračovat?",
   "firmwareOtaFinishedMaybeRebootSnack": "OTA skončila nebo spadlo spojení — deska se může restartovat.",
+  "firmwareOtaSuccessTitle": "Firmware nahrán",
+  "firmwareOtaSuccessBody": "Nahraná verze: {installedVer}.\n\nVerze desky v aplikaci: {reportedVer}.\n\nKdyž se deska restartovala, počkej na obnovení spojení nebo se znovu připoj v Nastavení → Připojení.",
+  "@firmwareOtaSuccessBody": {
+    "placeholders": {
+      "installedVer": {
+        "type": "String"
+      },
+      "reportedVer": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareTileTitleUpdateAvailable": "Firmware — dostupná aktualizace ({ver})",
   "@firmwareTileTitleUpdateAvailable": {
     "placeholders": {
       "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaRollbackBannerTitle": "Po neúspěšném startu je zpět předchozí firmware",
+  "firmwareOtaRollbackBannerBodyWithAttempt": "Deska běží na {current}: nový obraz se nespustil. Neúspěšná aktualizace ({attempt}) zůstává ve slotu {slot}. Až bude opravený build, nainstaluj ho.",
+  "@firmwareOtaRollbackBannerBodyWithAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      },
+      "attempt": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaRollbackBannerBodyNoAttempt": "Deska běží na {current}: nový obraz se nespustil. Neúspěšný obraz je ve slotu {slot}. Až bude opravený build, nainstaluj ho.",
+  "@firmwareOtaRollbackBannerBodyNoAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
         "type": "String"
       }
     }
@@ -1095,8 +1162,17 @@
       }
     }
   },
+  "firmwareTileTitleDeveloperDowngrade": "Firmware — starší manifest ({ver})",
+  "@firmwareTileTitleDeveloperDowngrade": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
   "firmwareTileSubtitleBleGitOnly": "Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.",
   "firmwareTileSubtitleDeveloperReflash": "Vývojářský režim — manifest sedí s deskou; otevři obrazovku a znovu nahraj stejný build.",
+  "firmwareTileSubtitleDeveloperDowngrade": "Vývojářský režim — manifest je starší než deska; volitelný downgrade z této URL.",
   "firmwareWifiBleProvisionTitle": "Wi‑Fi na desce (přes Bluetooth)",
   "firmwareWifiBleProvisionSubtitle": "Pošli SSID a heslo přes BLE, aby se deska připojila k tvé síti jako klient (STA).",
   "firmwareWifiBleSsidLabel": "Název Wi‑Fi (SSID)",
@@ -1817,6 +1893,42 @@
         "type": "String"
       },
       "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateBannerTitle": "Je dostupná nová verze aplikace",
+  "settingsAppUpdateBannerSubtitle": "Máš {current}; nejnovější je {latest}.",
+  "@settingsAppUpdateBannerSubtitle": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateBannerSubtitleRequired": "Verze {current} je pod minimální podporovanou. Aktualizuj prosím na alespoň {requiredVersion}.",
+  "@settingsAppUpdateBannerSubtitleRequired": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "requiredVersion": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateOpenDownloads": "Otevřít stránku ke stažení",
+  "settingsAboutAppUpdateLineTitle": "Nová verze aplikace",
+  "settingsAboutAppUpdateLineBody": "Nainstalováno: {current}. Nejnovější: {latest}.",
+  "@settingsAboutAppUpdateLineBody": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
         "type": "String"
       }
     }

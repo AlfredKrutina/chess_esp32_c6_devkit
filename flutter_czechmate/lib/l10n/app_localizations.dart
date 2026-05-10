@@ -3537,11 +3537,23 @@ abstract class AppLocalizations {
   /// **'Re-flash {ver} (developer)'**
   String firmwareDeveloperReflashChipTitle(String ver);
 
+  /// No description provided for @firmwareDeveloperDowngradeChipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Older build {ver} (developer)'**
+  String firmwareDeveloperDowngradeChipTitle(String ver);
+
   /// No description provided for @firmwareDeveloperSameVersionBanner.
   ///
   /// In en, this message translates to:
   /// **'Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).'**
   String get firmwareDeveloperSameVersionBanner;
+
+  /// No description provided for @firmwareDeveloperOlderManifestBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode: this manifest is older than the board firmware. Downgrading can break compatibility or data — only proceed if you understand the risk.'**
+  String get firmwareDeveloperOlderManifestBanner;
 
   /// No description provided for @firmwareDownloadOnEspNote.
   ///
@@ -3590,6 +3602,25 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved in app: v{ver} (~{mb} MB)'**
   String firmwareCachedInAppLine(String ver, String mb);
+
+  /// No description provided for @firmwareSavedFirmwareChipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved firmware v{ver}'**
+  String firmwareSavedFirmwareChipTitle(String ver);
+
+  /// No description provided for @firmwareOfflineSavedFirmwareBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'The live manifest could not be loaded. You can still flash the firmware file saved in this app.'**
+  String get firmwareOfflineSavedFirmwareBanner;
+
+  /// No description provided for @firmwareCachedDiffersFromManifestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware saved in the app is v{savedVer}; the manifest now lists v{remoteVer}. The saved file was kept — flash it whenever you are ready, or download again.'**
+  String firmwareCachedDiffersFromManifestHint(
+      String remoteVer, String savedVer);
 
   /// No description provided for @firmwareDownloadSavedSnack.
   ///
@@ -3711,11 +3742,42 @@ abstract class AppLocalizations {
   /// **'OTA finished or connection dropped — the board may reboot.'**
   String get firmwareOtaFinishedMaybeRebootSnack;
 
+  /// No description provided for @firmwareOtaSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware updated'**
+  String get firmwareOtaSuccessTitle;
+
+  /// No description provided for @firmwareOtaSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed build: {installedVer}.\n\nBoard version in the app: {reportedVer}.\n\nIf the chess board restarted, wait until it responds again or reconnect from Settings → Connection.'**
+  String firmwareOtaSuccessBody(String installedVer, String reportedVer);
+
   /// No description provided for @firmwareTileTitleUpdateAvailable.
   ///
   /// In en, this message translates to:
   /// **'Firmware — update available ({ver})'**
   String firmwareTileTitleUpdateAvailable(String ver);
+
+  /// No description provided for @firmwareOtaRollbackBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous firmware restored after failed boot'**
+  String get firmwareOtaRollbackBannerTitle;
+
+  /// No description provided for @firmwareOtaRollbackBannerBodyWithAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'The board is running {current} after the new image failed to start. Unsuccessful update ({attempt}) remains in slot {slot}. Install a fixed build when available.'**
+  String firmwareOtaRollbackBannerBodyWithAttempt(
+      String current, String slot, String attempt);
+
+  /// No description provided for @firmwareOtaRollbackBannerBodyNoAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'The board is running {current} after the new image failed to start. The unsuccessful image is in slot {slot}. Install a fixed build when available.'**
+  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot);
 
   /// No description provided for @firmwareTileTitleDefault.
   ///
@@ -3897,6 +3959,12 @@ abstract class AppLocalizations {
   /// **'Firmware — re-flash ({ver})'**
   String firmwareTileTitleDeveloperReflash(String ver);
 
+  /// No description provided for @firmwareTileTitleDeveloperDowngrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware — older manifest ({ver})'**
+  String firmwareTileTitleDeveloperDowngrade(String ver);
+
   /// No description provided for @firmwareTileSubtitleBleGitOnly.
   ///
   /// In en, this message translates to:
@@ -3908,6 +3976,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Developer mode — manifest matches the board; open to download and flash the same build again.'**
   String get firmwareTileSubtitleDeveloperReflash;
+
+  /// No description provided for @firmwareTileSubtitleDeveloperDowngrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode — manifest is older than the board; optional downgrade from this URL.'**
+  String get firmwareTileSubtitleDeveloperDowngrade;
 
   /// No description provided for @firmwareWifiBleProvisionTitle.
   ///
@@ -6628,6 +6702,43 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version {version} ({build}) • Tap this row or “Settings” in the main settings title bar 7× (within about a second between taps) to unlock developer mode.'**
   String settingsAboutVersionLine(String version, String build);
+
+  /// No description provided for @settingsAppUpdateBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App update available'**
+  String get settingsAppUpdateBannerTitle;
+
+  /// No description provided for @settingsAppUpdateBannerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {current}; the latest release is {latest}.'**
+  String settingsAppUpdateBannerSubtitle(String current, String latest);
+
+  /// No description provided for @settingsAppUpdateBannerSubtitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your version ({current}) is below the minimum supported. Update to at least {requiredVersion}.'**
+  String settingsAppUpdateBannerSubtitleRequired(
+      String current, String requiredVersion);
+
+  /// No description provided for @settingsAppUpdateOpenDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Open download page'**
+  String get settingsAppUpdateOpenDownloads;
+
+  /// No description provided for @settingsAboutAppUpdateLineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New app version'**
+  String get settingsAboutAppUpdateLineTitle;
+
+  /// No description provided for @settingsAboutAppUpdateLineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed: {current}. Latest: {latest}.'**
+  String settingsAboutAppUpdateLineBody(String current, String latest);
 
   /// No description provided for @settingsAboutDeveloperModeTitle.
   ///
