@@ -12,7 +12,7 @@ import com.google.android.gms.wearable.Wearable
 
 /**
  * Minimal Wear OS companion — zobrazí JSON payload z Data Layer (`/czechmate/chess_clock`).
- * Telefon posílá data z [com.example.flutter_czechmate.WearDataLayerMirror].
+ * Spárované zařízení (telefon nebo tablet) posílá data z [com.example.flutter_czechmate.WearDataLayerMirror].
  */
 class MainActivity : Activity(), DataClient.OnDataChangedListener {
 
@@ -23,7 +23,7 @@ class MainActivity : Activity(), DataClient.OnDataChangedListener {
         textView = TextView(this).apply {
             textSize = 13f
             setPadding(24, 24, 24, 24)
-            text = "czechmate\n\nČekám na telefon…"
+            text = "czechmate\n\nČekám na spárované zařízení…"
         }
         val scroll = ScrollView(this)
         scroll.addView(textView)

@@ -1,8 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/platform/host_runtime_permissions.dart';
 import '../../../core/widgets/app_modal_sheet.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/phone_wifi_info.dart';
 import '../../../core/utils/user_facing_error_message.dart';
 import '../board_session_notifier.dart';
@@ -15,6 +18,7 @@ Future<void> showBoardWifiProvisionSheet(BuildContext context) async {
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
+    escapeToDismiss: false,
     builder: (ctx) {
       return Padding(
         padding: EdgeInsets.only(
@@ -49,6 +53,10 @@ class _BoardWifiProvisionSheetBodyState
     _ssid = TextEditingController();
     _pwd = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS) {
+        await ensureWifiSsidReadPermissions();
+      }
       final guess = await PhoneWifiInfo.tryCurrentWifiSsid();
       if (!mounted) return;
       setState(() {
@@ -82,20 +90,25 @@ class _BoardWifiProvisionSheetBodyState
       if (!mounted) return;
       if (!r.ok) {
         setState(() => _surveyVisible = null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.boardWifiProvisionSurveyFailed)),
+        showAppSnackBar(
+          context,
+          context.l10n.boardWifiProvisionSurveyFailed,
+          errorStyle: true,
         );
         return;
       }
-      final phone = _ssidForSurveyCompare;
+      final surveySsid = _ssidForSurveyCompare;
       setState(() {
-        _surveyVisible = phone.isNotEmpty ? r.hasSsid(phone) : false;
+        _surveyVisible =
+            surveySsid.isNotEmpty ? r.hasSsid(surveySsid) : false;
       });
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {
@@ -106,38 +119,41 @@ class _BoardWifiProvisionSheetBodyState
   Future<void> _send() async {
     final ssid = _ssid.text.trim();
     if (ssid.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.errWifiSsidEmpty)),
+      showAppSnackBar(
+        context,
+        context.l10n.errWifiSsidEmpty,
+        errorStyle: true,
       );
       return;
     }
     setState(() => _sendBusy = true);
     try {
-      await ref.read(boardSessionNotifierProvider.notifier).provisionStaWifiOverBle(
+      await ref
+          .read(boardSessionNotifierProvider.notifier)
+          .provisionStaWifiOverBle(
             ssid: ssid,
             password: _pwd.text,
           );
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.boardWifiProvisionDoneSnack)),
-      );
+      showAppSnackBar(context, context.l10n.boardWifiProvisionDoneSnack);
       await Future<void>.delayed(const Duration(seconds: 12));
       if (!mounted) return;
       final s = ref.read(boardSessionNotifierProvider);
       if (s.transport == BoardTransport.ble &&
           s.bleGattConnected &&
           !s.bleStaConnected) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.boardWifiProvisionStaTimeoutHint),
-          ),
+        showAppSnackBar(
+          context,
+          context.l10n.boardWifiProvisionStaTimeoutHint,
         );
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {
@@ -146,6 +162,17 @@ class _BoardWifiProvisionSheetBodyState
   }
 
   Future<void> _fillPhoneSsid() async {
+    final l10n = context.l10n;
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      final ok = await ensureWifiSsidReadPermissions();
+      if (!mounted) return;
+      if (!ok) {
+        showAppSnackBar(context, l10n.onboardingPermDeniedSnack,
+            errorStyle: true);
+        return;
+      }
+    }
     final s = await PhoneWifiInfo.tryCurrentWifiSsid();
     if (!mounted) return;
     setState(() {
@@ -160,8 +187,8 @@ class _BoardWifiProvisionSheetBodyState
   @override
   Widget build(BuildContext context) {
     final session = ref.watch(boardSessionNotifierProvider);
-    final bleOk = session.transport == BoardTransport.ble &&
-        session.bleGattConnected;
+    final bleOk =
+        session.transport == BoardTransport.ble && session.bleGattConnected;
     final l10n = context.l10n;
 
     return SafeArea(

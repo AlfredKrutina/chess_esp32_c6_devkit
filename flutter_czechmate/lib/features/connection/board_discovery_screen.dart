@@ -4,16 +4,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
-
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
 import '../../core/debug/connection_debug_log.dart';
+import '../../core/platform/flutter_blue_plus_host_supported.dart';
+import '../../core/platform/host_runtime_permissions.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/services/ble_czechmate_client.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../core/theme/app_motion.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../l10n/app_localizations.dart';
 import 'board_session_notifier.dart';
@@ -40,7 +41,8 @@ bool _looksLikeCzechmateBoard(ScanResult r) {
   if (pn.contains('CZECHMATE') || an.contains('CZECHMATE')) {
     return true;
   }
-  final want = czechmateServiceGuid.toString().toLowerCase().replaceAll('-', '');
+  final want =
+      czechmateServiceGuid.toString().toLowerCase().replaceAll('-', '');
   for (final u in r.advertisementData.serviceUuids) {
     final g = u.toString().toLowerCase().replaceAll('-', '');
     if (g == want) {
@@ -74,6 +76,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     super.initState();
     final prefs = ref.read(prefsRepositoryProvider);
     if (widget.autoStartBleScan &&
+        isFlutterBluePlusHostSupported &&
         prefs.effectiveConnectionMode != 'wifi_only') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(_findBoardScan());
@@ -88,27 +91,38 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     super.dispose();
   }
 
-  Future<bool> _ensureAndroidBleScanPermissions() async {
-    if (defaultTargetPlatform != TargetPlatform.android) return true;
-    final connect = await Permission.bluetoothConnect.request();
-    final scan = await Permission.bluetoothScan.request();
-    final ok = connect.isGranted && scan.isGranted;
+  Future<bool> _ensureBleScanPermissions() async {
+    final ok = await ensureBlePermissionsForScan();
     if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.discoveryBlePermissionAndroid)),
-      );
+      final l10n = context.l10n;
+      final msg = defaultTargetPlatform == TargetPlatform.android
+          ? l10n.discoveryBlePermissionAndroid
+          : l10n.discoveryBlePermissionDenied;
+      showAppSnackBar(context, msg, errorStyle: true);
     }
     return ok;
   }
 
   /// Po startu aplikace často chvíli trvá, než systém hlásí `BluetoothAdapterState.on`.
   Future<bool> _ensureBluetoothPoweredOn() async {
+    if (!isFlutterBluePlusHostSupported) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          context.l10n.errBleHostUnsupported,
+          errorStyle: true,
+        );
+      }
+      return false;
+    }
     try {
       final supported = await FlutterBluePlus.isSupported;
       if (supported == false) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.discoveryBluetoothNotReady)),
+          showAppSnackBar(
+            context,
+            context.l10n.discoveryBluetoothNotReady,
+            errorStyle: true,
           );
         }
         return false;
@@ -133,14 +147,26 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     if (FlutterBluePlus.adapterStateNow == BluetoothAdapterState.on) {
       return true;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.discoveryBluetoothNotReady)),
+    showAppSnackBar(
+      context,
+      context.l10n.discoveryBluetoothNotReady,
+      errorStyle: true,
     );
     return false;
   }
 
   Future<void> _findBoardScan() async {
-    if (!await _ensureAndroidBleScanPermissions()) return;
+    if (!isFlutterBluePlusHostSupported) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          context.l10n.errBleHostUnsupported,
+          errorStyle: true,
+        );
+      }
+      return;
+    }
+    if (!await _ensureBleScanPermissions()) return;
     if (!await _ensureBluetoothPoweredOn()) return;
     await _scanSub?.cancel();
     _scanSub = null;
@@ -149,7 +175,8 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
       _scanning = true;
       _showConnectionRecovery = false;
     });
-    connDebugLog('BLE scan start', 'timeout=12s client-side filtr CZECHMATE/service');
+    connDebugLog(
+        'BLE scan start', 'timeout=12s client-side filtr CZECHMATE/service');
     if (AppEnvironment.staging) {
       debugPrint('[staging] BLE scan start (Najít desku)');
     }
@@ -176,8 +203,10 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
       }
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {
@@ -187,6 +216,14 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
 
   Future<void> _stopBleScan() async {
     connDebugLog('BLE scan stop');
+    if (!isFlutterBluePlusHostSupported) {
+      await _scanSub?.cancel();
+      _scanSub = null;
+      if (mounted) {
+        setState(() => _scanning = false);
+      }
+      return;
+    }
     try {
       await FlutterBluePlus.stopScan();
     } catch (_) {
@@ -217,9 +254,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     try {
       await sessionN.setBoardHotspotEnabled(enable);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.discoveryBoardApCommandSent)),
-      );
+      showAppSnackBar(context, l10n.discoveryBoardApCommandSent);
     } catch (e, st) {
       if (AppEnvironment.staging) {
         debugPrint('[staging] hotspot toggle failed: $e\n$st');
@@ -230,9 +265,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
           : context.l10n.discoveryBoardApError(
               userFacingErrorSummary(context.l10n, e),
             );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      showAppSnackBar(context, msg, errorStyle: true);
     }
   }
 
@@ -240,7 +273,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     connDebugLog(
       'Discovery tap → connectBle',
       'remoteId=${r.device.remoteId.str} advName="${r.advertisementData.advName}" '
-      'platformName="${r.device.platformName}"',
+          'platformName="${r.device.platformName}"',
     );
     final notifier = ref.read(boardSessionNotifierProvider.notifier);
     final skipWifiProvision =
@@ -268,7 +301,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
       var msg = userFacingErrorSummary(l10n, err);
       if (msg.isEmpty) msg = l10n.userFacingErrGeneric;
       setState(() => _showConnectionRecovery = true);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      showAppSnackBar(context, msg, errorStyle: true);
     }
   }
 
@@ -383,6 +416,47 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
             ),
           ),
           const SizedBox(height: 12),
+          if (!isFlutterBluePlusHostSupported) ...[
+            Card(
+              elevation: 0,
+              color: cs.secondaryContainer.withValues(alpha: 0.35),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(color: cs.outlineVariant),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info_outline, color: cs.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.discoveryDesktopBleUnavailableTitle,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.discoveryDesktopBleUnavailableBody,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -391,7 +465,9 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                 children: [
                   PressableScale(
                     child: FilledButton.icon(
-                      onPressed: _scanning ? null : _findBoardScan,
+                      onPressed: (!isFlutterBluePlusHostSupported || _scanning)
+                          ? null
+                          : _findBoardScan,
                       icon: _scanning
                           ? SizedBox(
                               width: 20,
@@ -584,7 +660,8 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                             context, 2, l10n.discoveryFlowStep2, theme),
                         _numberedDiscoveryStep(
                             context, 3, l10n.discoveryFlowStep3, theme),
-                        if (widget.autoStartBleScan) ...[
+                        if (widget.autoStartBleScan &&
+                            isFlutterBluePlusHostSupported) ...[
                           const SizedBox(height: 10),
                           Text(
                             l10n.discoveryAutoScanHint,

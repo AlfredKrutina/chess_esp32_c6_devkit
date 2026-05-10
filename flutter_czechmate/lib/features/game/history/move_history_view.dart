@@ -43,8 +43,7 @@ class MoveHistoryView extends ConsumerWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 title: Text(l10n.moveHistoryCurrentPosition),
-                selected:
-                    !ui.sandboxMode && ui.historyReviewMoveIndex == null,
+                selected: !ui.sandboxMode && ui.historyReviewMoveIndex == null,
                 enabled: !ui.sandboxMode,
                 onTap: ui.sandboxMode
                     ? null

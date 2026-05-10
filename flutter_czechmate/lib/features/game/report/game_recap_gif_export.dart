@@ -5,7 +5,8 @@ import 'package:image/image.dart' as img;
 
 /// Converts a Flutter raster to the `image` package (RGBA).
 Future<img.Image?> uiImageToPackageImage(flutter_ui.Image raster) async {
-  final bd = await raster.toByteData(format: flutter_ui.ImageByteFormat.rawRgba);
+  final bd =
+      await raster.toByteData(format: flutter_ui.ImageByteFormat.rawRgba);
   if (bd == null) return null;
   return img.Image.fromBytes(
     width: raster.width,

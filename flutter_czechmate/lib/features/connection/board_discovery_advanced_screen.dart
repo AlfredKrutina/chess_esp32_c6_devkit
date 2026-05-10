@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/platform/flutter_blue_plus_host_supported.dart';
 import '../../core/utils/user_facing_error_message.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../l10n/app_localizations.dart';
 import '../settings/manual_connection_screen.dart';
@@ -45,7 +47,7 @@ class _BoardDiscoveryAdvancedScreenState
     var msg = userFacingErrorSummary(l10n, err);
     if (msg.isEmpty) msg = l10n.userFacingErrGeneric;
     setState(() => _showConnectionRecovery = true);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    showAppSnackBar(context, msg, errorStyle: true);
   }
 
   @override
@@ -124,7 +126,8 @@ class _BoardDiscoveryAdvancedScreenState
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (prefs.lastBleRemoteId != null &&
+                  if (isFlutterBluePlusHostSupported &&
+                      prefs.lastBleRemoteId != null &&
                       prefs.lastBleRemoteId!.isNotEmpty)
                     OutlinedButton.icon(
                       onPressed: () async {
@@ -146,7 +149,8 @@ class _BoardDiscoveryAdvancedScreenState
                       icon: const Icon(Icons.bluetooth_connected),
                       label: Text(l10n.discoveryReconnectSavedBoard),
                     ),
-                  if (prefs.lastBleRemoteId != null &&
+                  if (isFlutterBluePlusHostSupported &&
+                      prefs.lastBleRemoteId != null &&
                       prefs.lastBleRemoteId!.isNotEmpty)
                     const SizedBox(height: 10),
                   OutlinedButton.icon(
@@ -201,12 +205,9 @@ class _BoardDiscoveryAdvancedScreenState
                               .read(boardSessionNotifierProvider.notifier)
                               .syncWifiStaIpBlockToBoardIfBle();
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                l10n.discoveryAdvancedBlockedOctetsSavedSnack,
-                              ),
-                            ),
+                          showAppSnackBar(
+                            context,
+                            l10n.discoveryAdvancedBlockedOctetsSavedSnack,
                           );
                         },
                         child: Text(l10n.discoveryAdvancedBlockedOctetsSave),
@@ -221,12 +222,9 @@ class _BoardDiscoveryAdvancedScreenState
                               .read(boardSessionNotifierProvider.notifier)
                               .syncWifiStaIpBlockToBoardIfBle();
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                l10n.discoveryAdvancedBlockedOctetsSavedSnack,
-                              ),
-                            ),
+                          showAppSnackBar(
+                            context,
+                            l10n.discoveryAdvancedBlockedOctetsSavedSnack,
                           );
                         },
                         child: Text(l10n.discoveryAdvancedBlockedOctetsReset),
@@ -256,10 +254,10 @@ class _BoardDiscoveryAdvancedScreenState
                             _url.text.trim().replaceAll(RegExp(r'/$'), '');
                         if (u.isEmpty) {
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(l10n.discoveryEnterBoardUrlSnack),
-                            ),
+                          showAppSnackBar(
+                            context,
+                            l10n.discoveryEnterBoardUrlSnack,
+                            errorStyle: true,
                           );
                           return;
                         }

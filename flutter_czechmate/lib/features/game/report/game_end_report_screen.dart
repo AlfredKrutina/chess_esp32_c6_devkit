@@ -238,8 +238,7 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,
-                    style:
-                        tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                    style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                 ],
               );
@@ -406,14 +405,24 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
         if (pkg != null) pkgFrames.add(pkg);
       }
       if (pkgFrames.isEmpty) {
-        if (mounted)
-          showGlassSnackBar(context, l10n.reportExportGifFailed('no frames'));
+        if (mounted) {
+          showAppSnackBar(
+            context,
+            l10n.reportExportGifFailed('no frames'),
+            errorStyle: true,
+          );
+        }
         return;
       }
       final gifBytes = encodeGifAnimation(pkgFrames, durationHundredths: 45);
       if (gifBytes == null || gifBytes.isEmpty) {
-        if (mounted)
-          showGlassSnackBar(context, l10n.reportExportGifFailed('encode'));
+        if (mounted) {
+          showAppSnackBar(
+            context,
+            l10n.reportExportGifFailed('encode'),
+            errorStyle: true,
+          );
+        }
         return;
       }
       if (!mounted) return;
@@ -432,9 +441,10 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       );
     } catch (e) {
       if (mounted) {
-        showGlassSnackBar(
+        showAppSnackBar(
           context,
           l10n.reportExportGifFailed(userFacingErrorSummary(l10n, e)),
+          errorStyle: true,
         );
       }
     } finally {
@@ -575,15 +585,20 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       final pngBytes = await _renderSummaryPngBytes(l10n);
       if (!mounted) return;
       if (pngBytes == null) {
-        showGlassSnackBar(context, l10n.shareSummaryNotReady);
+        showAppSnackBar(
+          context,
+          l10n.shareSummaryNotReady,
+          errorStyle: true,
+        );
         return;
       }
       await _sharePngBytes(pngBytes, l10n);
     } catch (e) {
       if (mounted) {
-        showGlassSnackBar(
+        showAppSnackBar(
           context,
           l10n.shareExportFailed(userFacingErrorSummary(l10n, e)),
+          errorStyle: true,
         );
       }
     } finally {
@@ -600,7 +615,7 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     if (ref.read(boardSessionNotifierProvider).snapshot == null) return;
 
     if (kIsWeb) {
-      showGlassSnackBar(context, l10n.reportCopyImageWebHint);
+      showAppSnackBar(context, l10n.reportCopyImageWebHint);
       return;
     }
 
@@ -615,12 +630,16 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       final pngBytes = await _renderSummaryPngBytes(l10n);
       if (!mounted) return;
       if (pngBytes == null) {
-        showGlassSnackBar(context, l10n.shareSummaryNotReady);
+        showAppSnackBar(
+          context,
+          l10n.shareSummaryNotReady,
+          errorStyle: true,
+        );
         return;
       }
 
       if (!mobile) {
-        showGlassSnackBar(context, l10n.reportCopyImageDesktopFallback);
+        showAppSnackBar(context, l10n.reportCopyImageDesktopFallback);
         await _sharePngBytes(pngBytes, l10n);
         return;
       }
@@ -633,9 +652,15 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
 
       await FlutterImageClipboard().copyImageToClipboard(clipFile);
       HapticFeedback.mediumImpact();
-      if (mounted) showGlassSnackBar(context, l10n.reportSummaryCopiedSnack);
+      if (mounted) showAppSnackBar(context, l10n.reportSummaryCopiedSnack);
     } catch (e) {
-      if (mounted) showGlassSnackBar(context, l10n.reportCopyImageFailed);
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          l10n.reportCopyImageFailed,
+          errorStyle: true,
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {

@@ -124,7 +124,8 @@ class _BoardPiecesAnimatorState extends State<BoardPiecesAnimator> {
     }
 
     // 3. Find movements
-    List<_PieceState> nextPieces = _pieces.where((p) => !unmatchedExisting.contains(p)).toList();
+    List<_PieceState> nextPieces =
+        _pieces.where((p) => !unmatchedExisting.contains(p)).toList();
     final toRemove = <String>[]; // keys from unmatchedNew that were resolved
 
     unmatchedNew.forEach((newAlg, newGl) {
@@ -137,16 +138,17 @@ class _BoardPiecesAnimatorState extends State<BoardPiecesAnimator> {
         nextPieces.add(src);
         toRemove.add(newAlg);
       } else {
-         // Also check for promotion: old is pawn, new is something else...
-         // very naive: if there is any unmatched pawn
-         final pwnIdx = unmatchedExisting.indexWhere((p) => p.glyph.toLowerCase() == 'p');
-         if (pwnIdx != -1) {
-            final src = unmatchedExisting.removeAt(pwnIdx);
-            src.algebraic = newAlg;
-            src.glyph = newGl; // transformed
-            nextPieces.add(src);
-            toRemove.add(newAlg);
-         }
+        // Also check for promotion: old is pawn, new is something else...
+        // very naive: if there is any unmatched pawn
+        final pwnIdx =
+            unmatchedExisting.indexWhere((p) => p.glyph.toLowerCase() == 'p');
+        if (pwnIdx != -1) {
+          final src = unmatchedExisting.removeAt(pwnIdx);
+          src.algebraic = newAlg;
+          src.glyph = newGl; // transformed
+          nextPieces.add(src);
+          toRemove.add(newAlg);
+        }
       }
     });
 
@@ -169,14 +171,16 @@ class _BoardPiecesAnimatorState extends State<BoardPiecesAnimator> {
     });
   }
 
-  String _algebraic(int r, int c) => algebraicAt(flipped: false, screenRow: r, screenCol: c);
+  String _algebraic(int r, int c) =>
+      algebraicAt(flipped: false, screenRow: r, screenCol: c);
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       clipBehavior: Clip.none,
       children: _pieces.map((p) {
-        final pt = screenCoordsFromAlgebraic(flipped: widget.flipped, algebraic: p.algebraic);
+        final pt = screenCoordsFromAlgebraic(
+            flipped: widget.flipped, algebraic: p.algebraic);
         if (pt.$1 < 0) return const SizedBox.shrink();
 
         final top = pt.$1 * widget.squareW;

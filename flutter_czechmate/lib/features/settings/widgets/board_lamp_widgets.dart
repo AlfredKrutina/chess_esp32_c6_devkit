@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/user_facing_error_message.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
@@ -115,15 +116,15 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
       await ref.read(boardSessionNotifierProvider.notifier).refreshNow();
       if (mounted) {
         _syncFromSnapshot();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(successMessage)),
-        );
+        showAppSnackBar(context, successMessage);
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {

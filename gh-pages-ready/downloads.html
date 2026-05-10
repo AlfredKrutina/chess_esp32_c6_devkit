@@ -6,10 +6,10 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="theme-color" content="#0a100e">
   <title>CzechMate — šachovnice, která učí hrát lépe</title>
-  <meta name="description" content="Šachovnice s LED a aplikace v jednom: nápovědy přímo na polích, partie a rozbor se Stockfishem (nastavitelná síla) a AI kouč. Pro rodinu, klub i školu. Stáhni CzechMate pro Android (APK) nebo macOS (DMG).">
+  <meta name="description" content="Šachovnice s LED a aplikace v jednom: nápovědy přímo na polích, partie a rozbor se Stockfishem (nastavitelná síla) a AI kouč. Pro rodinu, klub i školu. Stáhni CzechMate pro Android (APK), macOS (DMG) nebo Windows (instalátor z GitHub Releases).">
 
   <meta property="og:title" content="CzechMate — šachy, které učí">
-  <meta property="og:description" content="Živá šachovnice a aplikace: výuka na LED, Stockfish podle tvé úrovně a AI kouč. Pro všechny věky. Android a macOS ke stažení na této stránce.">
+  <meta property="og:description" content="Živá šachovnice a aplikace: výuka na LED, Stockfish podle tvé úrovně a AI kouč. Pro všechny věky. Android, macOS a Windows ke stažení přes odkazy na této stránce (soubory z GitHub Releases).">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
@@ -22,8 +22,8 @@
     "@type": "SoftwareApplication",
     "name": "CzechMate",
     "applicationCategory": "EducationalApplication",
-    "operatingSystem": "Android, macOS",
-    "description": "Výuka šachů: LED šachovnice, aplikace pro Android a macOS, motor Stockfish s výběrem síly, AI kouč a aktualizace firmwaru desky z aplikace bez kabelů.",
+    "operatingSystem": "Android, macOS, Windows",
+    "description": "Výuka šachů: LED šachovnice, aplikace pro Android, macOS a Windows (Wi‑Fi připojení k desce), motor Stockfish s výběrem síly, AI kouč a aktualizace firmwaru desky z aplikace bez kabelů tam, kde je BLE podporované.",
     "offers": {
       "@type": "Offer",
       "price": "0",
@@ -425,13 +425,16 @@
         <p class="section__label reveal">Stažení</p>
         <h2 id="dl-title" class="section__title reveal reveal--seq-1">Stáhni si CzechMate a začni se učit na živé desce</h2>
         <p class="section__intro reveal reveal--seq-2">
-          Stáhni si nejnovější aplikaci pro Android (APK) nebo Mac s Apple Silicon (DMG). Po kliknutí začne stahování.
+          Stáhni si nejnovější aplikaci pro Android (APK), Mac s Apple Silicon (DMG) nebo Windows (instalátor EXE z CI).
+          Odkazy níže vedou na aktuální soubory z GitHub Releases a po načtení stránky se sama nastaví přímé stažení.
           Na Androidu případně povol instalaci z neznámého zdroje, pokud nepoužíváš Obchod Play.
           Na Macu otevři DMG a aplikaci přetáhni do složky Programy.
+          Na Windows spusť instalátor; při prvním spuštění může SmartScreen upozornit na nepodepsaný balík — pokračuj jen pokud stahuješ z oficiálního release tohoto projektu.
+          Verze pro Windows používá připojení k desce přes Wi‑Fi (Bluetooth sken v desktopové aplikaci není).
         </p>
         <div class="download-strip">
           <h3 class="download-strip__title reveal">Zvol platformu</h3>
-          <p class="download-strip__lead reveal reveal--seq-1">Jedno kliknutí stáhne nejnovější <code>.apk</code> nebo <code>.dmg</code> z GitHub release.</p>
+          <p class="download-strip__lead reveal reveal--seq-1">Jedno kliknutí stáhne nejnovější <code>.apk</code>, <code>.dmg</code> nebo <code>.exe</code> z GitHub release.</p>
           <div class="platform-grid reveal-stagger">
             <div class="platform-card">
               <h3>Android</h3>
@@ -457,11 +460,14 @@
               <p>Vydání přes TestFlight a následně App Store, jakmile projde schválením Apple.</p>
               <span class="btn btn--ghost btn--static" aria-disabled="true">Připravujeme</span>
             </div>
-            <div class="platform-card platform-card--soon">
-              <span class="badge-soon">Již brzy</span>
+            <div class="platform-card">
               <h3>Windows</h3>
-              <p>Instalátor pro Windows přidáme, jakmile bude připravený k veřejnému stažení.</p>
-              <span class="btn btn--ghost btn--static" aria-disabled="true">Připravujeme</span>
+              <p>64bit instalátor (Inno Setup). Připojení k desce přes HTTP na lokální síti — BLE sken v této verzi není.</p>
+              <a
+                class="btn btn--primary"
+                data-dl-windows
+                href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest"
+                rel="noopener noreferrer">Stáhnout instalátor</a>
             </div>
           </div>
         </div>

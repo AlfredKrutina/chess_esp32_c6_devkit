@@ -11,6 +11,7 @@ import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/theme/app_motion.dart';
 import '../../core/widgets/animated_linear_busy_strip.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../core/services/prefs_repository.dart';
@@ -275,8 +276,10 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     if (pool.isEmpty) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.puzzlePoolEmptySnack)),
+        showAppSnackBar(
+          context,
+          l10n.puzzlePoolEmptySnack,
+          errorStyle: true,
         );
       }
       return;
@@ -299,9 +302,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         t.cancel();
         _trainingTimer = null;
         setState(() => _trainingRemaining = 0);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.puzzleRoundExpiredSnack)),
-        );
+        showAppSnackBar(context, context.l10n.puzzleRoundExpiredSnack);
       } else {
         setState(() => _trainingRemaining--);
       }
@@ -364,14 +365,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     }
     ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
     final l10n = context.l10n;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          solution.isEmpty
-              ? l10n.puzzleGoPlaySandbox
-              : l10n.puzzleGoPlayPuzzle(title),
-        ),
-      ),
+    showAppSnackBar(
+      context,
+      solution.isEmpty
+          ? l10n.puzzleGoPlaySandbox
+          : l10n.puzzleGoPlayPuzzle(title),
     );
   }
 
@@ -394,8 +392,10 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     final session = ref.read(boardSessionNotifierProvider);
     if (session.transport != BoardTransport.wifi &&
         session.transport != BoardTransport.ble) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.puzzleConnectBoardSnack)),
+      showAppSnackBar(
+        context,
+        context.l10n.puzzleConnectBoardSnack,
+        errorStyle: true,
       );
       return;
     }
@@ -404,15 +404,15 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           .read(boardSessionNotifierProvider.notifier)
           .sendPuzzleFenToBoard(fen);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.puzzleNewGameSentSnack)),
-        );
+        showAppSnackBar(context, context.l10n.puzzleNewGameSentSnack);
       }
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     }
@@ -740,8 +740,10 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
             final f = fenLive?.trim() ?? '';
             if (f.isEmpty) {
               if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.puzzleSaveNeedPosition)),
+              showAppSnackBar(
+                context,
+                l10n.puzzleSaveNeedPosition,
+                errorStyle: true,
               );
               return;
             }
@@ -755,9 +757,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
             await _saveLibrary(prefs, list);
             _libTitle.clear();
             if (!context.mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(context.l10n.puzzleSavedSnack)),
-            );
+            showAppSnackBar(context, context.l10n.puzzleSavedSnack);
           },
           child: Text(l10n.puzzleAddToLibrary),
         ),

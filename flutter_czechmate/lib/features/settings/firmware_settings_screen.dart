@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import 'firmware_update_availability.dart';
 import 'widgets/firmware_update_section.dart';
@@ -17,8 +18,10 @@ class FirmwareSettingsScreen extends ConsumerWidget {
     final remoteV = snap.manifest?.version ?? '—';
     final updateAvailable = snap.updateAvailable;
     final showOtaGit = snap.showOtaFromGitWithDeveloper(dev);
-    final devSameReflash =
-        dev && snap.sameSemverAsManifest && snap.hasBoardVersion && !updateAvailable;
+    final devSameReflash = dev &&
+        snap.sameSemverAsManifest &&
+        snap.hasBoardVersion &&
+        !updateAvailable;
     final devOlderManifest =
         dev && snap.manifestOlderThanBoard && !updateAvailable;
     final title = updateAvailable
@@ -33,11 +36,14 @@ class FirmwareSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        children: const [
-          FirmwareUpdateSection(),
-        ],
+      body: desktopSettingsDetailBody(
+        ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          children: const [
+            FirmwareUpdateSection(),
+          ],
+        ),
+        maxWidth: kDesktopSettingsWideDetailMaxWidth,
       ),
     );
   }

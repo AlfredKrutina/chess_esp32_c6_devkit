@@ -81,9 +81,10 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
     final session = ref.read(boardSessionNotifierProvider);
     if (!_canSubmit(session)) {
       if (mounted) {
-        showGlassSnackBar(
+        showAppSnackBar(
           context,
           context.l10n.newGameConnectFirstSnack,
+          errorStyle: true,
         );
       }
       return;
@@ -111,14 +112,15 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
       }
       if (mounted) {
         Navigator.of(context).pop();
-        showGlassSnackBar(context, context.l10n.newGameStartedSnack);
+        showAppSnackBar(context, context.l10n.newGameStartedSnack);
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        showGlassSnackBar(
+        showAppSnackBar(
           context,
           l10n.newGameErrorSnack(userFacingErrorSummary(l10n, e)),
+          errorStyle: true,
         );
       }
     } finally {
@@ -284,7 +286,8 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
                             ButtonSegment<bool>(
                               value: false,
                               label: Text(l10n.newGameWhiteBottom),
-                              icon: const Icon(Icons.contrast_outlined, size: 18),
+                              icon:
+                                  const Icon(Icons.contrast_outlined, size: 18),
                             ),
                             ButtonSegment<bool>(
                               value: true,
@@ -424,8 +427,7 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
                     width: double.infinity,
                     child: PressableScale(
                       child: FilledButton.icon(
-                        onPressed:
-                            (_busy || !canStart) ? null : _submit,
+                        onPressed: (_busy || !canStart) ? null : _submit,
                         icon: _busy
                             ? SizedBox(
                                 width: 22,

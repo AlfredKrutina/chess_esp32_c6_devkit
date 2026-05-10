@@ -3,12 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/layout/form_factor.dart';
 import '../../core/widgets/animated_linear_busy_strip.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/localization/context_l10n.dart';
 import '../connection/board_session_notifier.dart';
 import '../settings/coach_ai_settings_screen.dart';
 import 'coach_chat_notifier.dart';
+import 'coach_level_selector.dart';
 
 /// Shared AI coach chat — same conversation as the full-screen [CoachScreen].
 class CoachChatPanel extends ConsumerStatefulWidget {
@@ -57,9 +60,7 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
     final q = _ctrl.text.trim();
     if (q.isEmpty) {
       if (!mounted || fromShortcut) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.coachChatTypeFirst)),
-      );
+      showAppSnackBar(context, context.l10n.coachChatTypeFirst);
       return;
     }
     _ctrl.clear();
@@ -89,7 +90,7 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
     final showSetup = notifier.shouldShowSetupBanner(prefs);
     final l10n = context.l10n;
 
-    return Column(
+    Widget panel = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showSetup)
@@ -211,6 +212,8 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                     return ListView.builder(
                       key: ValueKey<int>(chat.messages.length),
                       controller: _scrollCtrl,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
                       padding: const EdgeInsets.all(10),
                       itemCount: chat.messages.length,
                       itemBuilder: (_, i) => CoachChatBubble(
@@ -228,60 +231,106 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
             bottom: MediaQuery.of(context).viewInsets.bottom + 8,
             top: 6,
           ),
-          child: CallbackShortcuts(
-            bindings: {
-              const SingleActivator(LogicalKeyboardKey.enter, meta: true):
-                  _sendViaKeyboardShortcut,
-              const SingleActivator(LogicalKeyboardKey.enter, control: true):
-                  _sendViaKeyboardShortcut,
-              const SingleActivator(LogicalKeyboardKey.numpadEnter, meta: true):
-                  _sendViaKeyboardShortcut,
-              const SingleActivator(LogicalKeyboardKey.numpadEnter,
-                  control: true): _sendViaKeyboardShortcut,
-            },
-            child: Focus(
-              skipTraversal: false,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _ctrl,
-                      decoration: InputDecoration(
-                        hintText: widget.embedded
-                            ? l10n.coachInputHintEmbedded
-                            : l10n.coachInputHintFullscreen,
-                        border: const OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      maxLines: 3,
-                      minLines: 1,
-                      textInputAction: TextInputAction.newline,
-                      onSubmitted: (_) => _send(),
-                    ),
+                  Icon(
+                    Icons.tune_rounded,
+                    size: 22,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                  const SizedBox(width: 8),
-                  PressableScale(
-                    child: FilledButton(
-                      onPressed: (chat.busy || _ctrl.text.trim().isEmpty)
-                          ? null
-                          : () => _send(),
-                      child: chat.busy
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.send),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.coachChatExplanationLevelLabel,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        const CoachLevelDropdown(),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 10),
+              CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(LogicalKeyboardKey.enter, meta: true):
+                      _sendViaKeyboardShortcut,
+                  const SingleActivator(LogicalKeyboardKey.enter,
+                      control: true): _sendViaKeyboardShortcut,
+                  const SingleActivator(LogicalKeyboardKey.numpadEnter,
+                      meta: true): _sendViaKeyboardShortcut,
+                  const SingleActivator(LogicalKeyboardKey.numpadEnter,
+                      control: true): _sendViaKeyboardShortcut,
+                },
+                child: Focus(
+                  skipTraversal: false,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _ctrl,
+                          decoration: InputDecoration(
+                            hintText: widget.embedded
+                                ? l10n.coachInputHintEmbedded
+                                : l10n.coachInputHintFullscreen,
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                          maxLines: 3,
+                          minLines: 1,
+                          textInputAction: TextInputAction.newline,
+                          onSubmitted: (_) => _send(),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      PressableScale(
+                        child: FilledButton(
+                          onPressed: (chat.busy || _ctrl.text.trim().isEmpty)
+                              ? null
+                              : () => _send(),
+                          child: chat.busy
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(Icons.send),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
+    if (widget.embedded && isDesktopEmbedder()) {
+      panel = Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints:
+              const BoxConstraints(maxWidth: kDesktopCoachPanelMaxWidth),
+          child: panel,
+        ),
+      );
+    }
+    return panel;
   }
 }
 

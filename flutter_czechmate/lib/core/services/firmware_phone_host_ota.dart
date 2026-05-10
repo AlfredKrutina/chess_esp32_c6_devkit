@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-/// Lokální HTTP hostování .bin pro [ota_update.c] HTTP OTA (deska na AP stáhne z telefonu).
+/// Lokální HTTP hostování .bin pro [ota_update.c] HTTP OTA (deska na AP stáhne z aplikace na tomto zařízení).
 class FirmwarePhoneHostOta {
   FirmwarePhoneHostOta._();
 
@@ -36,7 +36,7 @@ class FirmwarePhoneHostOta {
   }) =>
       downloadBinForOta(httpsBinUrl: httpsBinUrl, version: version);
 
-  /// Telefon na hotspotu desky typicky dostane 192.168.4.x.
+  /// Klient na hotspotu desky typicky dostane 192.168.4.x.
   static Future<String?> ipv4OnBoardApSubnet() async {
     try {
       for (final iface in await NetworkInterface.list()) {
@@ -51,7 +51,7 @@ class FirmwarePhoneHostOta {
     return null;
   }
 
-  /// IPv4 telefonu ve stejném /24 prefixu jako STA IP desky (domácí LAN).
+  /// IPv4 tohoto zařízení ve stejném /24 prefixu jako STA IP desky (domácí LAN).
   static Future<String?> ipv4OnSameSubnet24As(String boardStaIp) async {
     final parts = boardStaIp.trim().split('.');
     if (parts.length != 4) return null;
@@ -75,7 +75,7 @@ class FirmwarePhoneHostOta {
 
   /// Vrátí server (je potřeba po OTA [close]) a URL pro `POST /api/system/ota` / BLE `ota_start`.
   ///
-  /// [boardStaIpForSubnet] — pokud telefon není na 192.168.4.x, zkusí najít lokální IP ve stejné /24.
+  /// [boardStaIpForSubnet] — pokud toto zařízení není na 192.168.4.x, zkusí najít lokální IP ve stejné /24.
   static Future<({HttpServer server, String otaUrl})> startServingBin(
     File bin, {
     String? boardStaIpForSubnet,

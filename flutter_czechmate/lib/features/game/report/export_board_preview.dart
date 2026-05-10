@@ -41,7 +41,8 @@ class ExportBoardPreview extends StatelessWidget {
                         return Expanded(
                           child: Row(
                             children: List.generate(8, (displayCol) {
-                              final fileIndex = flip ? (7 - displayCol) : displayCol;
+                              final fileIndex =
+                                  flip ? (7 - displayCol) : displayCol;
                               final cell = cells[rankIndex][fileIndex];
                               final light = (fileIndex + rankIndex) % 2 == 0;
                               return Expanded(
@@ -53,10 +54,12 @@ class ExportBoardPreview extends StatelessWidget {
                                       ? const SizedBox.expand()
                                       : LayoutBuilder(
                                           builder: (_, cellConstraints) {
-                                            final psz =
-                                                cellConstraints.biggest.shortestSide * 0.92;
+                                            final psz = cellConstraints
+                                                    .biggest.shortestSide *
+                                                0.92;
                                             final fileChar =
-                                                String.fromCharCode(97 + fileIndex);
+                                                String.fromCharCode(
+                                                    97 + fileIndex);
                                             final rankNum = 8 - rankIndex;
                                             return ChessPieceArt(
                                               fenGlyph: cell.trim(),

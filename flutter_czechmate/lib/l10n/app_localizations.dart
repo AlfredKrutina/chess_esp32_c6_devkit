@@ -269,7 +269,7 @@ abstract class AppLocalizations {
   /// No description provided for @netNotOnWifiBody.
   ///
   /// In en, this message translates to:
-  /// **'chess-api usually works over mobile data. To open the board’s HTTP API on a LAN IP, the phone typically needs Wi‑Fi on the same network. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, enable mobile data, or use dual‑stack (Wi‑Fi + cellular data) if your OS allows. The app cannot force traffic to cellular while Wi‑Fi is the default route.'**
+  /// **'Cloud requests (chess-api, Lichess) usually work over any internet connection your device has (Wi‑Fi or cellular). To open the board’s HTTP API on a LAN IP, this device typically needs Wi‑Fi on the same network as the board. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, use another connection with internet, or dual‑stack (Wi‑Fi + cellular) if your OS allows. The app cannot force traffic off Wi‑Fi while Wi‑Fi is the default route.'**
   String get netNotOnWifiBody;
 
   /// No description provided for @errInvalidBoardUrl.
@@ -296,6 +296,30 @@ abstract class AppLocalizations {
   /// **'No saved Bluetooth board. Open Board discovery and pair your CZECHMATE board.'**
   String get errNoSavedBle;
 
+  /// No description provided for @errBleHostUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth LE is not available in this app build (Windows desktop). Connect via Wi‑Fi: use Settings → Connection and enter your board URL, or use the Android / iOS app for BLE.'**
+  String get errBleHostUnsupported;
+
+  /// No description provided for @discoveryDesktopBleUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth scan not available here'**
+  String get discoveryDesktopBleUnavailableTitle;
+
+  /// No description provided for @discoveryDesktopBleUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This Windows build does not ship a Bluetooth Low Energy stack for the board. Use Wi‑Fi instead: open Advanced below or Settings → Connection and enter the board HTTP URL on your LAN. For BLE pairing and scan, use the Android or iOS app.'**
+  String get discoveryDesktopBleUnavailableBody;
+
+  /// No description provided for @settingsBleDesktopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On Windows, connect via Wi‑Fi URL (below). BLE discovery is not available in this build.'**
+  String get settingsBleDesktopHint;
+
   /// No description provided for @errDemoNoSnapshot.
   ///
   /// In en, this message translates to:
@@ -317,7 +341,7 @@ abstract class AppLocalizations {
   /// No description provided for @errOtaHttps.
   ///
   /// In en, this message translates to:
-  /// **'OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).'**
+  /// **'OTA URL must start with https:// (internet) or http:// (e.g. this device on the board hotspot).'**
   String get errOtaHttps;
 
   /// No description provided for @errOtaBleTransport.
@@ -665,7 +689,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportSummaryCopiedSnack.
   ///
   /// In en, this message translates to:
-  /// **'Copied — open Instagram or Messages and paste.'**
+  /// **'Copied — paste into another app.'**
   String get reportSummaryCopiedSnack;
 
   /// No description provided for @reportCopyImageFailed.
@@ -683,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportCopyImageDesktopFallback.
   ///
   /// In en, this message translates to:
-  /// **'Sharing instead — full image clipboard works best on iPhone & Android.'**
+  /// **'Sharing instead — full image clipboard works best on phones and tablets (iPhone & Android); on desktop, use Share.'**
   String get reportCopyImageDesktopFallback;
 
   /// No description provided for @reportExportSectionOrderTitle.
@@ -1244,6 +1268,12 @@ abstract class AppLocalizations {
   /// **'Allow Bluetooth permissions in system settings to scan for BLE boards.'**
   String get discoveryBlePermissionAndroid;
 
+  /// No description provided for @discoveryBlePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth access is required to scan for the board. Allow it in system Settings, then try again.'**
+  String get discoveryBlePermissionDenied;
+
   /// No description provided for @discoveryBluetoothNotReady.
   ///
   /// In en, this message translates to:
@@ -1271,7 +1301,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryFlowStep1.
   ///
   /// In en, this message translates to:
-  /// **'Turn on Bluetooth on this phone.'**
+  /// **'Turn on Bluetooth on this device.'**
   String get discoveryFlowStep1;
 
   /// No description provided for @discoveryFlowStep2.
@@ -1313,7 +1343,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryRecoveryBulletHomeWifi.
   ///
   /// In en, this message translates to:
-  /// **'At home, phone and board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.'**
+  /// **'At home, your device and the board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.'**
   String get discoveryRecoveryBulletHomeWifi;
 
   /// No description provided for @discoveryRecoveryBulletManual.
@@ -1763,7 +1793,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareDialogHttpsNote.
   ///
   /// In en, this message translates to:
-  /// **'The board downloads over HTTPS (Wi‑Fi STA). The phone only sends the link.'**
+  /// **'The board downloads over HTTPS (Wi‑Fi STA). CzechMate on this device only sends the link.'**
   String get firmwareDialogHttpsNote;
 
   /// No description provided for @firmwareTurnOffReminders.
@@ -1841,7 +1871,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryAdvancedBlockedOctetsBody.
   ///
   /// In en, this message translates to:
-  /// **'The board stores this list in NVS and rejects DHCP leases whose IPv4 third octet matches (disconnect + retry). The phone mirrors the same filter for URLs. Values are pushed over encrypted Bluetooth when you save or connect via BLE — the firmware does not ship with a blocklist until the app sends one. Example: 88 rejects every x.x.88.x. Empty field disables blocking on both sides. Until you save anything else, the app defaults to 88.'**
+  /// **'The board stores this list in NVS and rejects DHCP leases whose IPv4 third octet matches (disconnect + retry). CzechMate mirrors the same filter for URLs. Values are pushed over encrypted Bluetooth when you save or connect via BLE — the firmware does not ship with a blocklist until the app sends one. Example: 88 rejects every x.x.88.x. Empty field disables blocking on both sides. Until you save anything else, the app defaults to 88.'**
   String get discoveryAdvancedBlockedOctetsBody;
 
   /// No description provided for @discoveryAdvancedBlockedOctetsLabel.
@@ -1949,7 +1979,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryBoardApSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'The phone can join the board network for HTTP or OTA. The board ships with this hotspot off.'**
+  /// **'This device can join the board network for HTTP or OTA. The board ships with this hotspot off.'**
   String get discoveryBoardApSubtitle;
 
   /// No description provided for @discoveryBoardApCommandSent.
@@ -1979,13 +2009,13 @@ abstract class AppLocalizations {
   /// No description provided for @boardWifiProvisionSheetLead.
   ///
   /// In en, this message translates to:
-  /// **'Use the same router Wi‑Fi as your phone when possible (often 2.4 GHz works best). The app never reads your saved Wi‑Fi password from the phone — enter it here once.'**
+  /// **'Use the same router Wi‑Fi as this device when possible (often 2.4 GHz works best). CzechMate never reads your saved Wi‑Fi password from the system — enter it here once.'**
   String get boardWifiProvisionSheetLead;
 
   /// No description provided for @boardWifiProvisionIosSsidHint.
   ///
   /// In en, this message translates to:
-  /// **'On iPhone, the current network name may stay hidden until Location access is allowed for Wi‑Fi info — you can always type the SSID manually.'**
+  /// **'If the current Wi‑Fi network name stays hidden (common on Apple devices until Location access is allowed for Wi‑Fi info), type the SSID manually.'**
   String get boardWifiProvisionIosSsidHint;
 
   /// No description provided for @boardWifiProvisionScanBoardButton.
@@ -2003,7 +2033,7 @@ abstract class AppLocalizations {
   /// No description provided for @boardWifiProvisionVisibleYes.
   ///
   /// In en, this message translates to:
-  /// **'Your phone’s SSID “{ssid}” appears in the board scan — you can enter the password and connect.'**
+  /// **'This device’s Wi‑Fi network “{ssid}” appears in the board scan — you can enter the password and connect.'**
   String boardWifiProvisionVisibleYes(String ssid);
 
   /// No description provided for @boardWifiProvisionVisibleNo.
@@ -2045,7 +2075,7 @@ abstract class AppLocalizations {
   /// No description provided for @otaHttpsStaGateBody.
   ///
   /// In en, this message translates to:
-  /// **'HTTPS updates are downloaded by the board itself. Connect the board to a home/access Wi‑Fi that has internet (2.4 GHz is usually the most compatible). Turning on the board hotspot helps your phone talk to the board over HTTP, but it does not give the board internet by itself — use Bluetooth firmware upload below, or connect the board to router Wi‑Fi first.'**
+  /// **'HTTPS updates are downloaded by the board itself. Connect the board to a home/access Wi‑Fi that has internet (2.4 GHz is usually the most compatible). Turning on the board hotspot helps this device talk to the board over HTTP, but it does not give the board internet by itself — use Bluetooth firmware upload below, or connect the board to router Wi‑Fi first.'**
   String get otaHttpsStaGateBody;
 
   /// No description provided for @otaHttpsStaGateBleUpload.
@@ -2087,7 +2117,7 @@ abstract class AppLocalizations {
   /// No description provided for @otaHttpsHotspotEnabledSnack.
   ///
   /// In en, this message translates to:
-  /// **'Hotspot command sent — join the board Wi‑Fi on your phone if you need HTTP access. HTTPS download still needs the board on router Wi‑Fi with internet.'**
+  /// **'Hotspot command sent — join the board Wi‑Fi on this device if you need HTTP access. HTTPS download still needs the board on router Wi‑Fi with internet.'**
   String get otaHttpsHotspotEnabledSnack;
 
   /// No description provided for @otaHttpsBleUploadHintSnack.
@@ -2853,6 +2883,18 @@ abstract class AppLocalizations {
   /// **'sk-…'**
   String get settingsCoachOpenAiKeyHint;
 
+  /// No description provided for @settingsCoachOpenAiFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API key'**
+  String get settingsCoachOpenAiFieldLabel;
+
+  /// No description provided for @settingsCoachOpenAiKeyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the OpenAI keys page'**
+  String get settingsCoachOpenAiKeyTooltip;
+
   /// No description provided for @settingsCoachOpenAiModelHint.
   ///
   /// In en, this message translates to:
@@ -3056,6 +3098,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Write a question first, then Send.'**
   String get coachChatTypeFirst;
+
+  /// No description provided for @coachChatExplanationLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation depth'**
+  String get coachChatExplanationLevelLabel;
 
   /// No description provided for @coachChatHide.
   ///
@@ -3594,7 +3642,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareTwoStepOtaHint.
   ///
   /// In en, this message translates to:
-  /// **'Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from your phone over HTTP (no Wi‑Fi STA on the board).'**
+  /// **'Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from this device over HTTP (no Wi‑Fi STA on the board).'**
   String get firmwareTwoStepOtaHint;
 
   /// No description provided for @firmwareCachedInAppLine.
@@ -3637,7 +3685,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareJoinHotspotForUpload.
   ///
   /// In en, this message translates to:
-  /// **'Connect to the board Wi‑Fi hotspot first — your phone needs a 192.168.4.x address.'**
+  /// **'Connect to the board Wi‑Fi hotspot first — this device needs a 192.168.4.x address.'**
   String get firmwareJoinHotspotForUpload;
 
   /// No description provided for @firmwareNoCachedFirmware.
@@ -3649,13 +3697,13 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareSendToBoardTitle.
   ///
   /// In en, this message translates to:
-  /// **'Upload from this phone?'**
+  /// **'Upload from this device?'**
   String get firmwareSendToBoardTitle;
 
   /// No description provided for @firmwareSendToBoardBody.
   ///
   /// In en, this message translates to:
-  /// **'The board will download the .bin over HTTP from your phone. Stay on the hotspot and keep this screen open until finished.'**
+  /// **'The board will download the .bin over HTTP from this device. Stay on the hotspot and keep this screen open until finished.'**
   String get firmwareSendToBoardBody;
 
   /// No description provided for @firmwareOneStepHttpsOta.
@@ -3673,7 +3721,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareSendViaBleBody.
   ///
   /// In en, this message translates to:
-  /// **'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.'**
+  /// **'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep this device close to the board until the connection drops — the board will reboot.'**
   String get firmwareSendViaBleBody;
 
   /// No description provided for @firmwareBleUploadDoneSnack.
@@ -3685,7 +3733,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareBleOtaReturnedFromBackgroundSnack.
   ///
   /// In en, this message translates to:
-  /// **'You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and the phone close to the board.'**
+  /// **'You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and this device close to the board.'**
   String get firmwareBleOtaReturnedFromBackgroundSnack;
 
   /// No description provided for @firmwareOtaHttpMayLeaveAppHint.
@@ -3697,8 +3745,14 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareBleOtaKeepForegroundWarning.
   ///
   /// In en, this message translates to:
-  /// **'Keep CzechMate in the foreground and avoid locking the phone until the Bluetooth transfer finishes.'**
+  /// **'Keep CzechMate in the foreground and avoid locking the screen until the Bluetooth transfer finishes.'**
   String get firmwareBleOtaKeepForegroundWarning;
+
+  /// No description provided for @firmwareBleOtaApHotspotTip.
+  ///
+  /// In en, this message translates to:
+  /// **'If you upload over the board hotspot, join the board Wi‑Fi first so this device can reach http://192.168.4.1.'**
+  String get firmwareBleOtaApHotspotTip;
 
   /// No description provided for @firmwareBleOtaPausedReconnectDetail.
   ///
@@ -3932,7 +3986,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareOtaNoLanRouteUseBle.
   ///
   /// In en, this message translates to:
-  /// **'Your phone isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.'**
+  /// **'This device isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.'**
   String get firmwareOtaNoLanRouteUseBle;
 
   /// No description provided for @firmwareOtaNoLanRouteNeedBle.
@@ -3944,7 +3998,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareOtaPhoneNotOnLan.
   ///
   /// In en, this message translates to:
-  /// **'This phone doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.'**
+  /// **'This device doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.'**
   String get firmwareOtaPhoneNotOnLan;
 
   /// No description provided for @firmwareTileTitleGitBle.
@@ -4010,7 +4064,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareWifiBleUsePhoneSsidButton.
   ///
   /// In en, this message translates to:
-  /// **'Use this phone’s Wi‑Fi name'**
+  /// **'Use this device’s Wi‑Fi name'**
   String get firmwareWifiBleUsePhoneSsidButton;
 
   /// No description provided for @firmwareWifiBleSendCredentials.
@@ -4114,6 +4168,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enable move evaluation to see quality scores.'**
   String get analysisChartDisabledSubtitle;
+
+  /// No description provided for @analysisChartJumpedToMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened half-move {moveNumber} on Play.'**
+  String analysisChartJumpedToMove(int moveNumber);
+
+  /// No description provided for @analysisScoresheetEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No moves yet.'**
+  String get analysisScoresheetEmpty;
 
   /// No description provided for @analysisEnableMoveEval.
   ///
@@ -4628,7 +4694,7 @@ abstract class AppLocalizations {
   /// No description provided for @userFacingErrBlePairingReset.
   ///
   /// In en, this message translates to:
-  /// **'Bluetooth pairing no longer matches. On iPhone: Settings → Bluetooth → ⓘ next to the board → Forget This Device. If the board was factory-reset, clear its bond list too, then connect again from Find board.'**
+  /// **'Bluetooth pairing no longer matches. iOS / iPadOS: Settings → Bluetooth → ⓘ next to the board → Forget This Device. Android: Bluetooth settings → your board → Forget / Unpair. If the board was factory-reset, clear its bond list too, then connect again from Find board.'**
   String get userFacingErrBlePairingReset;
 
   /// No description provided for @userFacingErrNetworkReach.
@@ -6595,6 +6661,12 @@ abstract class AppLocalizations {
   /// **'You’ll join the board’s network in Settings when connecting — no extra step here.'**
   String get onboardingPermWifiBodyIos;
 
+  /// No description provided for @onboardingPermWifiBodyDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the current Wi‑Fi name often isn’t available on desktop — type the SSID manually when setting up the board. Local HTTP to the board still uses your saved URL.'**
+  String get onboardingPermWifiBodyDesktop;
+
   /// No description provided for @onboardingPermWifiAllow.
   ///
   /// In en, this message translates to:
@@ -6622,8 +6694,14 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPermissionsDesktopBody.
   ///
   /// In en, this message translates to:
-  /// **'Bluetooth and network are handled when you connect to the board from the app.'**
+  /// **'Allow Bluetooth when the system asks so you can scan for the board. Use Wi‑Fi / manual URL for HTTP.'**
   String get onboardingPermissionsDesktopBody;
+
+  /// No description provided for @onboardingPermissionsDesktopWindowsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This Windows build cannot use Bluetooth Low Energy to reach the board. Connect with Wi‑Fi only: enter your board’s HTTP address under Advanced / manual connection (for example http://192.168.4.1 on the board hotspot or your home LAN IP).'**
+  String get onboardingPermissionsDesktopWindowsBody;
 
   /// No description provided for @settingsNavChessPuzzles.
   ///
@@ -6785,7 +6863,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsLiveActivitySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen.'**
+  /// **'Phones and tablets — iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen. (Not used on desktop.)'**
   String get settingsLiveActivitySubtitle;
 
   /// No description provided for @settingsLiveActivityIosDisabledSnack.
@@ -6797,7 +6875,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsHomeScreenWidgetHint.
   ///
   /// In en, this message translates to:
-  /// **'Add the CzechMate home screen widget from the widget gallery for a quick snapshot when the app is in the background (alongside Live Activity on supported iPhones).'**
+  /// **'Where your platform supports home-screen or desktop widgets, add CzechMate from the widget gallery for a quick snapshot when the app is in the background (alongside Live Activity on supported iPhones).'**
   String get settingsHomeScreenWidgetHint;
 
   /// No description provided for @settingsWearMirrorTitle.
@@ -6959,7 +7037,7 @@ abstract class AppLocalizations {
   /// No description provided for @boardNvsHintTierFootnote.
   ///
   /// In en, this message translates to:
-  /// **'H1–H3 in the phone app is separate from on-board LED level; POST above also forwards depth/eval from app diagnostics.'**
+  /// **'H1–H3 in CzechMate is separate from on-board LED level; POST above also forwards depth/eval from app diagnostics.'**
   String get boardNvsHintTierFootnote;
 
   /// No description provided for @boardNvsFooterMock.

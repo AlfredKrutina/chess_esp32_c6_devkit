@@ -152,15 +152,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             .postHintDestination(best.to);
       }
       if (!mounted) return;
-      showGlassSnackBar(
+      showAppSnackBar(
         context,
         l10n.gameBestMoveSnack(best.from, best.to),
       );
     } catch (e) {
       if (!mounted) return;
-      showGlassSnackBar(
+      showAppSnackBar(
         context,
         l10n.gameHintFailed(userFacingErrorSummary(l10n, e)),
+        errorStyle: true,
       );
     } finally {
       if (mounted) setState(() => _hintBusy = false);
@@ -169,7 +170,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   void _demoBoardFeatureSnack(AppLocalizations l10n, String label) {
     if (!mounted) return;
-    showGlassSnackBar(
+    showAppSnackBar(
       context,
       l10n.gameDemoBoardSnack(label),
     );
@@ -408,7 +409,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       if (!completedRun && !newText) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
-        showGlassSnackBar(
+        showAppSnackBar(
           context,
           msg,
           duration: const Duration(seconds: 6),
@@ -422,7 +423,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         if (next == null || next.isEmpty) return;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
-          showGlassSnackBar(context, next);
+          showAppSnackBar(context, next);
           ref.read(gameUiNotifierProvider.notifier).clearPuzzleSnack();
         });
       },

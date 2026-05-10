@@ -30,5 +30,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>CzechMate uses Bluetooth Low Energy to discover your chess board, pair, and exchange game data.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>CzechMate connects to your board on the local network (for example http://192.168.x.x) for games, Wi‑Fi setup, and firmware updates.</string>
 </dict>
 </plist>

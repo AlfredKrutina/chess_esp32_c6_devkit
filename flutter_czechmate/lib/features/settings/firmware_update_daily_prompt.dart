@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../l10n/app_localizations.dart';
 import 'firmware_ota_runner.dart';
 import 'firmware_update_availability.dart';
@@ -144,11 +145,9 @@ class FirmwareUpdateDailyPrompt {
       return;
     }
 
-    var messenger = ScaffoldMessenger.maybeOf(context);
-    messenger?.showSnackBar(
-      SnackBar(
-          content:
-              Text(AppLocalizations.of(context)!.firmwareStartingOtaSnack)),
+    showAppSnackBar(
+      context,
+      AppLocalizations.of(context)!.firmwareStartingOtaSnack,
     );
 
     final err = await FirmwareOtaRunner.execute(
@@ -160,16 +159,12 @@ class FirmwareUpdateDailyPrompt {
     if (!context.mounted) {
       return;
     }
-    messenger = ScaffoldMessenger.maybeOf(context);
     if (err != null) {
-      messenger?.showSnackBar(SnackBar(content: Text(err)));
+      showAppSnackBar(context, err, errorStyle: true);
     } else {
-      messenger?.showSnackBar(
-        const SnackBar(
-          content: Text(
-            'OTA finished or connection dropped — the board may reboot.',
-          ),
-        ),
+      showAppSnackBar(
+        context,
+        'OTA finished or connection dropped — the board may reboot.',
       );
     }
     unawaited(ref.read(firmwareUpdateAvailabilityProvider.notifier).refresh());

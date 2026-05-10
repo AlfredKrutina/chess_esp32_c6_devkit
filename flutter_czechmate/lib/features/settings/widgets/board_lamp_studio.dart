@@ -7,6 +7,7 @@ import '../../../app_providers.dart';
 import '../../../core/localization/context_l10n.dart';
 import '../../../core/utils/user_facing_error_message.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/widgets/pressable_scale.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
@@ -298,15 +299,16 @@ class _BoardLampStudioPanelState extends ConsumerState<BoardLampStudioPanel> {
       if (mounted) {
         _syncFromSnapshot();
         if (ok != null) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(ok)));
+          showAppSnackBar(context, ok);
         }
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {

@@ -2,11 +2,19 @@
 
 [Rozcestník celého repa](../README.md).
 
-Aplikace umí **BLE** nebo **HTTP / WebSocket**, stav držím přes **Riverpod**. Partie sama o sobě žije ve firmware [`game_task`](../../components/game_task/) — klient v Dartu synchronizuje snapshoty a API; balíček `chess` používám tam, kde pomůže UI, ne jako náhradu celého `game_task`.
+Aplikace umí **BLE** nebo **HTTP / WebSocket**, stav držím přes **Riverpod**. Na **Windows** je v této codebase jen síťová větev (BLE stack chybí ve `flutter_blue_plus`). Partie sama o sobě žije ve firmware [`game_task`](../../components/game_task/) — klient v Dartu synchronizuje snapshoty a API; balíček `chess` používám tam, kde pomůže UI, ne jako náhradu celého `game_task`.
 
 ```bash
 cd flutter_czechmate && flutter pub get && flutter run
 ```
+
+### Windows desktop
+
+- **Předpoklady:** Windows 10/11, [Flutter](https://docs.flutter.dev/get-started/install/windows) na stable kanálu, **Visual Studio 2022** s úlohou *Desktop development with C++* (CMake, MSVC, Windows SDK).
+- **Spuštění:** `flutter pub get && flutter run -d windows`.
+- **Release:** `flutter build windows` — spustitelná aplikace typicky v `build/windows/x64/runner/Release/` (zkopíruj celou složku včetně dat DLL).
+- **Bluetooth:** knihovna `flutter_blue_plus` v tomto projektu **nemá** backend pro Windows. Klient BLE API nevolá; připojení k desce je přes **HTTP / WebSocket** (stejná síť jako počítač, URL z webového rozhraní desky nebo z telefonu po zprovoznění Wi‑Fi). BLE sken a OTA přes GATT vyžadují Android / iOS / macOS / Linux.
+- **CI instalátor:** při pushi na `main`/`master`, který mění `flutter_czechmate/**`, běží [`.github/workflows/flutter-app-release.yml`](../../.github/workflows/flutter-app-release.yml) na GitHub Actions — job `windows` udělá `flutter build windows --release` a zabalí výstup Inno Setup skriptem `flutter_czechmate/installer/windows/CzechMateSetup.iss` do `czechmate-<ver>-windows-setup.exe` na Releases.
 
 Hotové buildy: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
 

@@ -54,12 +54,13 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
             .postHintDestination(best.to);
       }
       if (!context.mounted) return;
-      showGlassSnackBar(context, l10n.gameBestMoveSnack(best.from, best.to));
+      showAppSnackBar(context, l10n.gameBestMoveSnack(best.from, best.to));
     } catch (e) {
       if (!context.mounted) return;
-      showGlassSnackBar(
+      showAppSnackBar(
         context,
         l10n.gameHintFailed(userFacingErrorSummary(l10n, e)),
+        errorStyle: true,
       );
     } finally {
       if (mounted) setState(() => _hintBusy = false);
@@ -68,7 +69,7 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
 
   void _demoOnlySnack(
       BuildContext context, AppLocalizations l10n, String feature) {
-    showGlassSnackBar(
+    showAppSnackBar(
       context,
       l10n.gameDemoBoardSnack(feature),
     );

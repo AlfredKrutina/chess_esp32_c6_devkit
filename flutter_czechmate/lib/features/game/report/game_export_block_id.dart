@@ -15,7 +15,8 @@ List<GameExportBlockId> get defaultGameExportBlockOrder =>
     List<GameExportBlockId>.unmodifiable(GameExportBlockId.values);
 
 /// Dedup + append any missing ids (forward-compatible).
-List<GameExportBlockId> normalizeGameExportBlockOrder(List<GameExportBlockId>? raw) {
+List<GameExportBlockId> normalizeGameExportBlockOrder(
+    List<GameExportBlockId>? raw) {
   final seen = <GameExportBlockId>{};
   final out = <GameExportBlockId>[];
   if (raw != null) {

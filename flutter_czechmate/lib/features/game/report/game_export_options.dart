@@ -113,7 +113,8 @@ class GameExportOptions {
   }) {
     return GameExportOptions(
       aspect: aspect ?? this.aspect,
-      transparentBackground: transparentBackground ?? this.transparentBackground,
+      transparentBackground:
+          transparentBackground ?? this.transparentBackground,
       showBranding: showBranding ?? this.showBranding,
       showResult: showResult ?? this.showResult,
       showReason: showReason ?? this.showReason,
@@ -125,8 +126,10 @@ class GameExportOptions {
       showCumulativeChart: showCumulativeChart ?? this.showCumulativeChart,
       showPerMoveChart: showPerMoveChart ?? this.showPerMoveChart,
       roundedClip: roundedClip ?? this.roundedClip,
-      recapMoveIndex: clearRecap ? null : (recapMoveIndex ?? this.recapMoveIndex),
-      recapMoveTotal: clearRecap ? null : (recapMoveTotal ?? this.recapMoveTotal),
+      recapMoveIndex:
+          clearRecap ? null : (recapMoveIndex ?? this.recapMoveIndex),
+      recapMoveTotal:
+          clearRecap ? null : (recapMoveTotal ?? this.recapMoveTotal),
       blockOrder: blockOrder ?? this.blockOrder,
     );
   }

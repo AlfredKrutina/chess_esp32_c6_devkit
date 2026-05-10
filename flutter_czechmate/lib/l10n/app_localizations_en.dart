@@ -101,7 +101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netNotOnWifiBody =>
-      'chess-api usually works over mobile data. To open the board’s HTTP API on a LAN IP, the phone typically needs Wi‑Fi on the same network. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, enable mobile data, or use dual‑stack (Wi‑Fi + cellular data) if your OS allows. The app cannot force traffic to cellular while Wi‑Fi is the default route.';
+      'Cloud requests (chess-api, Lichess) usually work over any internet connection your device has (Wi‑Fi or cellular). To open the board’s HTTP API on a LAN IP, this device typically needs Wi‑Fi on the same network as the board. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, use another connection with internet, or dual‑stack (Wi‑Fi + cellular) if your OS allows. The app cannot force traffic off Wi‑Fi while Wi‑Fi is the default route.';
 
   @override
   String get errInvalidBoardUrl =>
@@ -121,6 +121,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'No saved Bluetooth board. Open Board discovery and pair your CZECHMATE board.';
 
   @override
+  String get errBleHostUnsupported =>
+      'Bluetooth LE is not available in this app build (Windows desktop). Connect via Wi‑Fi: use Settings → Connection and enter your board URL, or use the Android / iOS app for BLE.';
+
+  @override
+  String get discoveryDesktopBleUnavailableTitle =>
+      'Bluetooth scan not available here';
+
+  @override
+  String get discoveryDesktopBleUnavailableBody =>
+      'This Windows build does not ship a Bluetooth Low Energy stack for the board. Use Wi‑Fi instead: open Advanced below or Settings → Connection and enter the board HTTP URL on your LAN. For BLE pairing and scan, use the Android or iOS app.';
+
+  @override
+  String get settingsBleDesktopHint =>
+      'On Windows, connect via Wi‑Fi URL (below). BLE discovery is not available in this build.';
+
+  @override
   String get errDemoNoSnapshot => 'Demo board has no snapshot.';
 
   @override
@@ -133,7 +149,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errOtaHttps =>
-      'OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).';
+      'OTA URL must start with https:// (internet) or http:// (e.g. this device on the board hotspot).';
 
   @override
   String get errOtaBleTransport =>
@@ -353,8 +369,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportCopySummaryBusy => 'Copying…';
 
   @override
-  String get reportSummaryCopiedSnack =>
-      'Copied — open Instagram or Messages and paste.';
+  String get reportSummaryCopiedSnack => 'Copied — paste into another app.';
 
   @override
   String get reportCopyImageFailed => 'Couldn’t copy the image.';
@@ -365,7 +380,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportCopyImageDesktopFallback =>
-      'Sharing instead — full image clipboard works best on iPhone & Android.';
+      'Sharing instead — full image clipboard works best on phones and tablets (iPhone & Android); on desktop, use Share.';
 
   @override
   String get reportExportSectionOrderTitle => 'Section order (export)';
@@ -668,6 +683,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow Bluetooth permissions in system settings to scan for BLE boards.';
 
   @override
+  String get discoveryBlePermissionDenied =>
+      'Bluetooth access is required to scan for the board. Allow it in system Settings, then try again.';
+
+  @override
   String get discoveryBluetoothNotReady =>
       'Bluetooth is not ready. Turn it on in Settings, wait a few seconds, then tap Find board again.';
 
@@ -684,7 +703,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoveryFlowStepsTitle => 'Three steps';
 
   @override
-  String get discoveryFlowStep1 => 'Turn on Bluetooth on this phone.';
+  String get discoveryFlowStep1 => 'Turn on Bluetooth on this device.';
 
   @override
   String get discoveryFlowStep2 =>
@@ -711,7 +730,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryRecoveryBulletHomeWifi =>
-      'At home, phone and board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.';
+      'At home, your device and the board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.';
 
   @override
   String get discoveryRecoveryBulletManual =>
@@ -967,7 +986,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareDialogHttpsNote =>
-      'The board downloads over HTTPS (Wi‑Fi STA). The phone only sends the link.';
+      'The board downloads over HTTPS (Wi‑Fi STA). CzechMate on this device only sends the link.';
 
   @override
   String get firmwareTurnOffReminders => 'Turn off reminders';
@@ -1013,7 +1032,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryAdvancedBlockedOctetsBody =>
-      'The board stores this list in NVS and rejects DHCP leases whose IPv4 third octet matches (disconnect + retry). The phone mirrors the same filter for URLs. Values are pushed over encrypted Bluetooth when you save or connect via BLE — the firmware does not ship with a blocklist until the app sends one. Example: 88 rejects every x.x.88.x. Empty field disables blocking on both sides. Until you save anything else, the app defaults to 88.';
+      'The board stores this list in NVS and rejects DHCP leases whose IPv4 third octet matches (disconnect + retry). CzechMate mirrors the same filter for URLs. Values are pushed over encrypted Bluetooth when you save or connect via BLE — the firmware does not ship with a blocklist until the app sends one. Example: 88 rejects every x.x.88.x. Empty field disables blocking on both sides. Until you save anything else, the app defaults to 88.';
 
   @override
   String get discoveryAdvancedBlockedOctetsLabel =>
@@ -1073,7 +1092,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryBoardApSubtitle =>
-      'The phone can join the board network for HTTP or OTA. The board ships with this hotspot off.';
+      'This device can join the board network for HTTP or OTA. The board ships with this hotspot off.';
 
   @override
   String get discoveryBoardApCommandSent =>
@@ -1093,11 +1112,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get boardWifiProvisionSheetLead =>
-      'Use the same router Wi‑Fi as your phone when possible (often 2.4 GHz works best). The app never reads your saved Wi‑Fi password from the phone — enter it here once.';
+      'Use the same router Wi‑Fi as this device when possible (often 2.4 GHz works best). CzechMate never reads your saved Wi‑Fi password from the system — enter it here once.';
 
   @override
   String get boardWifiProvisionIosSsidHint =>
-      'On iPhone, the current network name may stay hidden until Location access is allowed for Wi‑Fi info — you can always type the SSID manually.';
+      'If the current Wi‑Fi network name stays hidden (common on Apple devices until Location access is allowed for Wi‑Fi info), type the SSID manually.';
 
   @override
   String get boardWifiProvisionScanBoardButton => 'Scan Wi‑Fi around the board';
@@ -1107,7 +1126,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String boardWifiProvisionVisibleYes(String ssid) {
-    return 'Your phone’s SSID “$ssid” appears in the board scan — you can enter the password and connect.';
+    return 'This device’s Wi‑Fi network “$ssid” appears in the board scan — you can enter the password and connect.';
   }
 
   @override
@@ -1136,7 +1155,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get otaHttpsStaGateBody =>
-      'HTTPS updates are downloaded by the board itself. Connect the board to a home/access Wi‑Fi that has internet (2.4 GHz is usually the most compatible). Turning on the board hotspot helps your phone talk to the board over HTTP, but it does not give the board internet by itself — use Bluetooth firmware upload below, or connect the board to router Wi‑Fi first.';
+      'HTTPS updates are downloaded by the board itself. Connect the board to a home/access Wi‑Fi that has internet (2.4 GHz is usually the most compatible). Turning on the board hotspot helps this device talk to the board over HTTP, but it does not give the board internet by itself — use Bluetooth firmware upload below, or connect the board to router Wi‑Fi first.';
 
   @override
   String get otaHttpsStaGateBleUpload => 'Use Bluetooth firmware upload';
@@ -1159,7 +1178,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get otaHttpsHotspotEnabledSnack =>
-      'Hotspot command sent — join the board Wi‑Fi on your phone if you need HTTP access. HTTPS download still needs the board on router Wi‑Fi with internet.';
+      'Hotspot command sent — join the board Wi‑Fi on this device if you need HTTP access. HTTPS download still needs the board on router Wi‑Fi with internet.';
 
   @override
   String get otaHttpsBleUploadHintSnack =>
@@ -1573,6 +1592,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCoachOpenAiKeyHint => 'sk-…';
 
   @override
+  String get settingsCoachOpenAiFieldLabel => 'API key';
+
+  @override
+  String get settingsCoachOpenAiKeyTooltip => 'Open the OpenAI keys page';
+
+  @override
   String get settingsCoachOpenAiModelHint => 'gpt-4o-mini';
 
   @override
@@ -1680,6 +1705,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coachChatTypeFirst => 'Write a question first, then Send.';
+
+  @override
+  String get coachChatExplanationLevelLabel => 'Explanation depth';
 
   @override
   String get coachChatHide => 'Hide';
@@ -1985,7 +2013,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareTwoStepOtaHint =>
-      'Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from your phone over HTTP (no Wi‑Fi STA on the board).';
+      'Download the .bin while you have internet. Join the board hotspot, then send — the board pulls the file from this device over HTTP (no Wi‑Fi STA on the board).';
 
   @override
   String firmwareCachedInAppLine(String ver, String mb) {
@@ -2017,18 +2045,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareJoinHotspotForUpload =>
-      'Connect to the board Wi‑Fi hotspot first — your phone needs a 192.168.4.x address.';
+      'Connect to the board Wi‑Fi hotspot first — this device needs a 192.168.4.x address.';
 
   @override
   String get firmwareNoCachedFirmware =>
       'Download the firmware to the app first.';
 
   @override
-  String get firmwareSendToBoardTitle => 'Upload from this phone?';
+  String get firmwareSendToBoardTitle => 'Upload from this device?';
 
   @override
   String get firmwareSendToBoardBody =>
-      'The board will download the .bin over HTTP from your phone. Stay on the hotspot and keep this screen open until finished.';
+      'The board will download the .bin over HTTP from this device. Stay on the hotspot and keep this screen open until finished.';
 
   @override
   String get firmwareOneStepHttpsOta =>
@@ -2039,7 +2067,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareSendViaBleBody =>
-      'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep the phone close to the board until the connection drops — the board will reboot.';
+      'The full firmware image will be transferred over Bluetooth only (no board hotspot or STA required). Keep this device close to the board until the connection drops — the board will reboot.';
 
   @override
   String get firmwareBleUploadDoneSnack =>
@@ -2047,7 +2075,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareBleOtaReturnedFromBackgroundSnack =>
-      'You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and the phone close to the board.';
+      'You returned while a Bluetooth firmware transfer was in progress. If it stalled, keep CzechMate in the foreground and this device close to the board.';
 
   @override
   String get firmwareOtaHttpMayLeaveAppHint =>
@@ -2055,7 +2083,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareBleOtaKeepForegroundWarning =>
-      'Keep CzechMate in the foreground and avoid locking the phone until the Bluetooth transfer finishes.';
+      'Keep CzechMate in the foreground and avoid locking the screen until the Bluetooth transfer finishes.';
+
+  @override
+  String get firmwareBleOtaApHotspotTip =>
+      'If you upload over the board hotspot, join the board Wi‑Fi first so this device can reach http://192.168.4.1.';
 
   @override
   String get firmwareBleOtaPausedReconnectDetail =>
@@ -2209,7 +2241,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareOtaNoLanRouteUseBle =>
-      'Your phone isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.';
+      'This device isn’t on the same LAN as the board. Use Bluetooth to upload the firmware, or join the board’s network.';
 
   @override
   String get firmwareOtaNoLanRouteNeedBle =>
@@ -2217,7 +2249,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get firmwareOtaPhoneNotOnLan =>
-      'This phone doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.';
+      'This device doesn’t appear to be on the board’s LAN. Join the board hotspot or the Wi‑Fi where the board has an IP.';
 
   @override
   String firmwareTileTitleGitBle(String ver) {
@@ -2261,7 +2293,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firmwareWifiBlePasswordLabel => 'Wi‑Fi password';
 
   @override
-  String get firmwareWifiBleUsePhoneSsidButton => 'Use this phone’s Wi‑Fi name';
+  String get firmwareWifiBleUsePhoneSsidButton =>
+      'Use this device’s Wi‑Fi name';
 
   @override
   String get firmwareWifiBleSendCredentials => 'Send credentials to board';
@@ -2321,6 +2354,14 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get analysisChartDisabledSubtitle =>
       'Enable move evaluation to see quality scores.';
+
+  @override
+  String analysisChartJumpedToMove(int moveNumber) {
+    return 'Opened half-move $moveNumber on Play.';
+  }
+
+  @override
+  String get analysisScoresheetEmpty => 'No moves yet.';
 
   @override
   String get analysisEnableMoveEval => 'Enable move evaluation (Stockfish)';
@@ -2601,7 +2642,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get userFacingErrBlePairingReset =>
-      'Bluetooth pairing no longer matches. On iPhone: Settings → Bluetooth → ⓘ next to the board → Forget This Device. If the board was factory-reset, clear its bond list too, then connect again from Find board.';
+      'Bluetooth pairing no longer matches. iOS / iPadOS: Settings → Bluetooth → ⓘ next to the board → Forget This Device. Android: Bluetooth settings → your board → Forget / Unpair. If the board was factory-reset, clear its bond list too, then connect again from Find board.';
 
   @override
   String get userFacingErrNetworkReach =>
@@ -3689,6 +3730,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You’ll join the board’s network in Settings when connecting — no extra step here.';
 
   @override
+  String get onboardingPermWifiBodyDesktop =>
+      'Reading the current Wi‑Fi name often isn’t available on desktop — type the SSID manually when setting up the board. Local HTTP to the board still uses your saved URL.';
+
+  @override
   String get onboardingPermWifiAllow => 'Allow Wi‑Fi access';
 
   @override
@@ -3703,7 +3748,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingPermissionsDesktopBody =>
-      'Bluetooth and network are handled when you connect to the board from the app.';
+      'Allow Bluetooth when the system asks so you can scan for the board. Use Wi‑Fi / manual URL for HTTP.';
+
+  @override
+  String get onboardingPermissionsDesktopWindowsBody =>
+      'This Windows build cannot use Bluetooth Low Energy to reach the board. Connect with Wi‑Fi only: enter your board’s HTTP address under Advanced / manual connection (for example http://192.168.4.1 on the board hotspot or your home LAN IP).';
 
   @override
   String get settingsNavChessPuzzles => 'Chess puzzles';
@@ -3798,7 +3847,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLiveActivitySubtitle =>
-      'iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen.';
+      'Phones and tablets — iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen. (Not used on desktop.)';
 
   @override
   String get settingsLiveActivityIosDisabledSnack =>
@@ -3806,7 +3855,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsHomeScreenWidgetHint =>
-      'Add the CzechMate home screen widget from the widget gallery for a quick snapshot when the app is in the background (alongside Live Activity on supported iPhones).';
+      'Where your platform supports home-screen or desktop widgets, add CzechMate from the widget gallery for a quick snapshot when the app is in the background (alongside Live Activity on supported iPhones).';
 
   @override
   String get settingsWearMirrorTitle => 'Mirror clock on Wear OS';
@@ -3899,7 +3948,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get boardNvsHintTierFootnote =>
-      'H1–H3 in the phone app is separate from on-board LED level; POST above also forwards depth/eval from app diagnostics.';
+      'H1–H3 in CzechMate is separate from on-board LED level; POST above also forwards depth/eval from app diagnostics.';
 
   @override
   String get boardNvsFooterMock =>

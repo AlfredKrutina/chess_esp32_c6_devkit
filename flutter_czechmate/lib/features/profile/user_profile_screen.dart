@@ -9,6 +9,7 @@ import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../core/services/prefs_repository.dart';
+import '../../core/widgets/glass_snackbar.dart';
 
 /// Player profile — display name, avatar (preset icons or gallery photo), puzzle Elo, activity.
 class UserProfileScreen extends ConsumerStatefulWidget {
@@ -62,10 +63,10 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  l10n.profileGalleryError(userFacingErrorSummary(l10n, e)))),
+        showAppSnackBar(
+          context,
+          l10n.profileGalleryError(userFacingErrorSummary(l10n, e)),
+          errorStyle: true,
         );
       }
     }
@@ -227,14 +228,12 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 tooltip: l10n.profileSaveName,
                 icon: const Icon(Icons.check_rounded),
                 onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
                   await prefs.setProfileDisplayName(_nameCtrl.text);
                   ref.invalidate(prefsRepositoryProvider);
                   if (!mounted) return;
                   setState(() {});
-                  messenger.showSnackBar(
-                    SnackBar(content: Text(l10n.profileNameSavedSnack)),
-                  );
+                  if (!context.mounted) return;
+                  showAppSnackBar(context, l10n.profileNameSavedSnack);
                 },
               ),
             ),

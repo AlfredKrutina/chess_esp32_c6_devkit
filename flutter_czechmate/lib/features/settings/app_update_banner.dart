@@ -124,7 +124,7 @@ class AppUpdateSettingsCallout extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        Icons.phone_android_outlined,
+                        Icons.system_update_outlined,
                         color: urgent ? cs.onErrorContainer : cs.primary,
                       ),
                       const SizedBox(width: 10),

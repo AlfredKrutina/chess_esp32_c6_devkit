@@ -13,6 +13,7 @@ import '../../core/utils/opening_eco.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../core/widgets/animated_linear_busy_strip.dart';
 import '../../core/widgets/app_modal_sheet.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/widgets/network_status_banners.dart';
 import '../connection/board_session_notifier.dart';
@@ -727,9 +728,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                       .enterSandboxFromCustomFen(t);
                   ref.read(mainNavTabIndexProvider.notifier).state =
                       AppMainTab.game;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.analysisSandboxFenSnack)),
-                  );
+                  showAppSnackBar(context, l10n.analysisSandboxFenSnack);
                 },
                 child: Text(l10n.analysisPreviewInPlay),
               ),

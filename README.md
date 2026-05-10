@@ -4,7 +4,7 @@ Ahoj — tady je **CzechMate**, náš šachový systém: fyzická deska se svět
 
 **Verze a hardware:** Aktuální číslo projektu ve firmwaru i v dokumentaci je **`1.8.0`** — běží na prototypu **V1** s **reed switch** maticí (objemnější deska, záznam na [YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** je připravovaná **komerční** deska se **Hall senzory** (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k **V2**. Přehled: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
 
-**📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK a macOS DMG jsou i na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)**. **iOS / iPad** a **Windows** zatím připravujeme. **Krátké intro na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
+**📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK, macOS DMG a **Windows instalátor** (`*-windows-setup.exe`) jsou na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)** (produkční stránka je na Pages, binárky servuje GitHub). **iOS / iPad** zatím připravujeme. **Windows:** instalátor sestavuje CI ([`.github/workflows/flutter-app-release.yml`](.github/workflows/flutter-app-release.yml)); BLE sken v desktopové aplikaci není — připojení přes Wi‑Fi URL na LAN (viz [`docs/flutter/README.md`](docs/flutter/README.md)). **Krátké intro na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4).
 
 *Šachmat z Česka*
 
@@ -340,9 +340,10 @@ Na webu máme mimo jiné:
 ### Flutter klient (`flutter_czechmate/`)
 
 - **Stack:** Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP, WebSocket, balíček `chess`, Stockfish / API podle nastavení.
-- **Smysl:** jedna codebase pro telefony i desktop; k desce přes BLE a/nebo síť k ESP webu.
+- **Smysl:** jedna codebase pro telefony i desktop; k desce přes BLE (kde je host podporovaný) a/nebo síť k ESP webu.
+- **Windows desktop:** složka `flutter_czechmate/windows/` je v repu; `flutter_blue_plus` na Windows nemá backend — v aplikaci je BLE vypnuté a připojení je přes Wi‑Fi URL na LAN. Build: Visual Studio 2022 (*Desktop development with C++*), pak `flutter build windows`. Popis v [`docs/flutter/README.md`](docs/flutter/README.md).
 - **Mobilní drobnosti v repu:** třeba Live Activities (iOS), Wear OS modul, notifikace chess clocku na Androidu — detaily v `flutter_czechmate/ios/` a `flutter_czechmate/android/wear/`.
-- **Lokální běh:** `cd flutter_czechmate && flutter pub get && flutter run`.
+- **Lokální běh:** `cd flutter_czechmate && flutter pub get && flutter run` (např. `-d windows`, `-d macos`).
 - **Hotové buildy:** [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases) — APK a DMG (Apple Silicon / arm64).
 
 ### ⚙️ Nastavení na webu

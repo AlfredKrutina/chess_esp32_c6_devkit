@@ -11,6 +11,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
 import '../../core/debug/connection_debug_log.dart';
+import '../../core/platform/flutter_blue_plus_host_supported.dart';
 import '../../core/localization/locale_bridge.dart';
 import '../../core/models/board_timer_state.dart';
 import '../../core/models/game_snapshot.dart';
@@ -36,7 +37,8 @@ final boardSessionNotifierProvider =
 });
 
 class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
-  BoardSessionNotifier(this._prefs, this._ref) : super(const BoardSessionState());
+  BoardSessionNotifier(this._prefs, this._ref)
+      : super(const BoardSessionState());
 
   final PrefsRepository _prefs;
   final Ref _ref;
@@ -56,6 +58,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Timer? _bleHandoffTimer;
   bool _bleHandoffPollInFlight = false;
   int _bleHandoffPollCount = 0;
+
   /// Po čerstvém BLE spojení nejdřív nepřepínat na Wi‑Fi (`connectWifi` by GATT zabilo).
   DateTime? _bleAutoHandoffNotBefore;
   final SnapshotWebSocketClient _ws = SnapshotWebSocketClient();
@@ -99,7 +102,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await syncWifiStaIpBlockToBoardIfBle();
   }
 
-  /// Telefon má IPv4 na subnetu AP desky (typicky `192.168.4.x` při hotspotu).
+  /// Toto zařízení má IPv4 na subnetu AP desky (typicky `192.168.4.x` při hotspotu).
   Future<bool> _phoneIpv4OnBoardApSubnet() async {
     try {
       for (final iface in await NetworkInterface.list()) {
@@ -127,8 +130,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       return;
     }
     _bleHandoffPollCount = 0;
-    _bleHandoffTimer =
-        Timer.periodic(const Duration(milliseconds: 2500), (_) {
+    _bleHandoffTimer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
       unawaited(_bleHandoffPollTick());
     });
   }
@@ -215,6 +217,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
     Future<bool> tryBle() async {
       if (!hasSavedBle) return false;
+      if (!isFlutterBluePlusHostSupported) return false;
       await reconnectSavedBle();
       return state.transport == BoardTransport.ble && !state.busy;
     }
@@ -315,7 +318,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return _hostLooksLikePrivateLanIpv4(host);
   }
 
-  /// Uloží `http://<sta_ip>` při online STA, nebo `http://<ap_ip>` jen když je telefon na subnetu AP
+  /// Uloží `http://<sta_ip>` při online STA, nebo `http://<ap_ip>` jen když je klient na subnetu AP
   /// (jinak by domácí Wi‑Fi uložila 192.168.4.1 a HTTP by timeoutovalo).
   Future<void> _persistBoardHttpUrlFromBle(BleNetworkInfo? info) async {
     if (info == null) return;
@@ -579,6 +582,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   /// Po selhání HTTP pollingu zkusí uložené BLE (stejná deska podle `lastBleRemoteId`).
   Future<void> _bleFallbackAfterWifiFailure() async {
+    if (!isFlutterBluePlusHostSupported) return;
     final id = _prefs.lastBleRemoteId;
     if (id == null || id.isEmpty) return;
     connDebugLog(
@@ -595,6 +599,10 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     _bleConnectSerial = gate.future;
     await prev;
     try {
+      if (!isFlutterBluePlusHostSupported) {
+        state = state.copyWith(lastError: StateError(_strings.errBleHostUnsupported));
+        return;
+      }
       await _connectBleBody(device, label: label);
     } finally {
       if (!gate.isCompleted) gate.complete();
@@ -691,6 +699,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> reconnectSavedBle() async {
+    if (!isFlutterBluePlusHostSupported) {
+      connDebugLog('reconnectSavedBle', 'host bez flutter_blue_plus');
+      state = state.copyWith(lastError: StateError(_strings.errBleHostUnsupported));
+      return;
+    }
     final id = _prefs.lastBleRemoteId;
     if (id == null || id.isEmpty) {
       connDebugLog('reconnectSavedBle', 'chyba: žádné uložené remoteId');
@@ -754,8 +767,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return BoardTimerState(
       whiteTimeMs: wt * 1000,
       blackTimeMs: bt * 1000,
-      timerRunning:
-          snap.status.isTimerRunning && !snap.status.isGameFinished,
+      timerRunning: snap.status.isTimerRunning && !snap.status.isGameFinished,
       isWhiteTurn: snap.status.currentPlayer.toLowerCase().startsWith('w'),
       gamePaused: false,
       timeExpired: false,
@@ -772,8 +784,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (t == null || !t.isTimeControlEnabled) return;
     if (state.snapshot?.status.isGameFinished == true) return;
     _mockLastTickAt = DateTime.now();
-    _mockClockTimer =
-        Timer.periodic(const Duration(milliseconds: 300), (_) => _mockClockTick());
+    _mockClockTimer = Timer.periodic(
+        const Duration(milliseconds: 300), (_) => _mockClockTick());
   }
 
   void _mockClockTick() {
@@ -988,9 +1000,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       return;
     }
     final b = state.wifiBaseUrl?.trim();
-    if (state.transport == BoardTransport.wifi &&
-        b != null &&
-        b.isNotEmpty) {
+    if (state.transport == BoardTransport.wifi && b != null && b.isNotEmpty) {
       await _pollOnce(b);
       return;
     }
@@ -1041,7 +1051,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
           clearError: true,
           lastIfNoneMatch: r.snapshot.etagTag,
         );
-        if (r.snapshot.status.isGameFinished && !_pauseTimerSentForFinishedGame) {
+        if (r.snapshot.status.isGameFinished &&
+            !_pauseTimerSentForFinishedGame) {
           _pauseTimerSentForFinishedGame = true;
           unawaited(_pauseTimerAfterGameEnd());
         }
@@ -1052,7 +1063,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       final b = state.wifiBaseUrl!;
-      await _boardHttp.postGameMove(b, from: from, to: to, promotion: promotion);
+      await _boardHttp.postGameMove(b,
+          from: from, to: to, promotion: promotion);
       await _pollOnce(b);
       return;
     }
@@ -1223,7 +1235,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await _syncBleNetworkMetadata();
   }
 
-  /// Stream `.bin` přes BLE (bez hotspotu / STA). Telefon musí mít soubor stažený v apce.
+  /// Stream `.bin` přes BLE (bez hotspotu / STA). Aplikace na tomto zařízení musí mít soubor stažený.
   Future<void> uploadFirmwareOtaBle(
     File binFile, {
     void Function(int pct)? onProgress,
@@ -1255,13 +1267,13 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
-  /// OTA: HTTPS URL (STA na internetu) nebo `http://…` na LAN (telefon na hotspotu).
+  /// OTA: HTTPS URL (STA na internetu) nebo `http://…` na LAN (klient na hotspotu desky).
   ///
   /// [httpBoardBaseUrl] — musí být základ URL desky (`http://192.168.4.1`), stejný jako
   /// pro `fetchBoardFirmwareInfo`; přepíše `wifiBaseUrl` session, pokud je předán.
   ///
-  /// [preferHttpOtaStart] — `true` při phone-host OTA: start přes HTTP na desku i v BLE režimu
-  /// (telefon je na stejné síti jako HTTP API desky, např. hotspot `192.168.4.x`).
+  /// [preferHttpOtaStart] — `true` při hostovaném OTA: start přes HTTP na desku i v BLE režimu
+  /// (klient je na stejné síti jako HTTP API desky, např. hotspot `192.168.4.x`).
   Future<void> requestFirmwareOta(String firmwareUrl,
       {String? httpBoardBaseUrl, bool preferHttpOtaStart = false}) async {
     final u = firmwareUrl.trim();
@@ -1280,7 +1292,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       return;
     }
     if (state.transport == BoardTransport.wifi) {
-      final boardBase = normalizeBoardHttpBaseUrl(httpBoardBaseUrl ?? state.wifiBaseUrl);
+      final boardBase =
+          normalizeBoardHttpBaseUrl(httpBoardBaseUrl ?? state.wifiBaseUrl);
       if (boardBase == null || boardBase.isEmpty) {
         throw StateError(_strings.errOtaConnectFirst);
       }
@@ -1387,10 +1400,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     _stopMockClock();
     final raw = await rootBundle.loadString('assets/snapshot_golden.json');
     final base = GameSnapshotCodec.decodeRepairingAndNormalizing(raw);
-    final wSec =
-        cfg.type == 0 ? (base.status.whiteTime ?? 300) : cfg.initialTimeMs ~/ 1000;
-    final bSec =
-        cfg.type == 0 ? (base.status.blackTime ?? 300) : cfg.initialTimeMs ~/ 1000;
+    final wSec = cfg.type == 0
+        ? (base.status.whiteTime ?? 300)
+        : cfg.initialTimeMs ~/ 1000;
+    final bSec = cfg.type == 0
+        ? (base.status.blackTime ?? 300)
+        : cfg.initialTimeMs ~/ 1000;
     final snap = GameSnapshot(
       stateVersion: 1,
       board: base.board,

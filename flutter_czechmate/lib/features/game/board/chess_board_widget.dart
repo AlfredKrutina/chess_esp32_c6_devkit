@@ -153,7 +153,7 @@ class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
         err!.invalidPos!.length >= 2;
     _syncInvalidRecoveryAnimation(serverInvalid);
     void snack(String m) {
-      showGlassSnackBar(context, m);
+      showAppSnackBar(context, m);
     }
 
     return Semantics(

@@ -7,6 +7,12 @@ import '../services/board_api_exception.dart';
 String userFacingErrorSummary(AppLocalizations l, Object? error) {
   if (error == null) return '';
   if (error is StateError) return error.message;
+  if (error is UnsupportedError) {
+    final msg = error.message ?? '';
+    if (msg.toLowerCase().contains('flutter_blue_plus')) {
+      return l.errBleHostUnsupported;
+    }
+  }
 
   if (error is BoardApiException) {
     if (error.isWebLocked) return l.userFacingBoardWebLocked;

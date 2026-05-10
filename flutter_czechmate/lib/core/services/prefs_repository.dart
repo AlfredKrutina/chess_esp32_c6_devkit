@@ -74,7 +74,7 @@ class PrefsRepository {
   static const keyLastLinkKind = 'czechmate.lastBoardLinkKind';
   static const keyLiveActivity = 'czechmate.liveActivityEnabled';
   static const keyWatchCompanionMirror = 'czechmate.watchCompanionMirrorEnabled';
-  /// Wear OS Data Layer mirror z Android telefonu (`WearDataLayerMirror`).
+  /// Wear OS Data Layer mirror ze spárovaného Android zařízení (`WearDataLayerMirror`).
   static const keyWearDataLayerMirror = 'czechmate.wearDataLayerMirrorEnabled';
   static const keyPuzzleLibraryJson = 'czechmate.puzzleLibraryJson';
   static const keyPuzzleTrainingPool = 'czechmate.puzzleTrainingPoolMode';

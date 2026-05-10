@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
-import '../../../core/constants/app_environment.dart';
+import '../../../core/utils/app_debug_log.dart';
 import '../../../core/constants/firmware_defaults.dart';
 import '../../../core/localization/context_l10n.dart';
 import '../../../l10n/app_localizations.dart';
@@ -14,7 +15,9 @@ import '../../../core/models/board_timer_state.dart';
 import '../../../core/services/firmware_phone_host_ota.dart';
 import '../../../core/utils/board_http_base_url.dart';
 import '../../../core/utils/user_facing_error_message.dart';
+import '../../../core/platform/host_runtime_permissions.dart';
 import '../../../core/utils/phone_wifi_info.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 import '../../connection/widgets/board_wifi_provision_fields.dart';
@@ -22,7 +25,7 @@ import '../firmware_ota_runner.dart';
 import '../firmware_update_availability.dart';
 import 'ota_https_sta_gate_dialog.dart';
 
-/// OTA: manifest z Gitu v aplikaci; stažení .bin na telefon + přenos na desku přes hotspot HTTP, LAN nebo čistě BLE.
+/// OTA: manifest z Gitu v aplikaci; stažení .bin do aplikace na tomto zařízení + přenos na desku přes hotspot HTTP, LAN nebo čistě BLE.
 class FirmwareUpdateSection extends ConsumerStatefulWidget {
   const FirmwareUpdateSection({super.key});
 
@@ -52,7 +55,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
   bool _downloadBusy = false;
   bool _wifiSurveyBusy = false;
   bool? _wifiSurveyVisible;
-  String? _wifiPhoneGuess;
+  String? _wifiDeviceSsidGuess;
 
   String _firmwareRollbackBannerBody(
     AppLocalizations l10n,
@@ -106,10 +109,19 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       _manifestCtrl.text = prefsAfter.firmwareManifestUrlEffective;
       setState(() => _ctrlReady = true);
       await _syncFirmwareCacheWithPrefs();
-      final guess = await PhoneWifiInfo.tryCurrentWifiSsid();
+      String? guess;
+      if (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS) {
+        await ensureWifiSsidReadPermissions();
+        if (mounted) {
+          guess = await PhoneWifiInfo.tryCurrentWifiSsid();
+        }
+      } else {
+        guess = await PhoneWifiInfo.tryCurrentWifiSsid();
+      }
       if (mounted && guess != null && _wifiSsidCtrl.text.isEmpty) {
         _wifiSsidCtrl.text = guess;
-        _wifiPhoneGuess = guess;
+        _wifiDeviceSsidGuess = guess;
         setState(() {});
       }
       unawaited(_reloadWifi());
@@ -144,11 +156,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         unawaited(_syncFirmwareCacheWithPrefs());
         if (_pendingBleBackgroundNotice && mounted) {
           _pendingBleBackgroundNotice = false;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content:
-                  Text(context.l10n.firmwareBleOtaReturnedFromBackgroundSnack),
-            ),
+          showAppSnackBar(
+            context,
+            context.l10n.firmwareBleOtaReturnedFromBackgroundSnack,
           );
         }
         break;
@@ -197,10 +207,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
   bool _persistedFirmwareBinReady() {
     final f = _cachedOtaFile;
     final v = _cachedOtaVersion;
-    return f != null &&
-        v != null &&
-        v.trim().isNotEmpty &&
-        f.existsSync();
+    return f != null && v != null && v.trim().isNotEmpty && f.existsSync();
   }
 
   /// Aktuální manifest ze serveru, nebo syntetický z lokálně uloženého `.bin`.
@@ -220,8 +227,10 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
   Future<void> _sendWifiCredentialsToBoard() async {
     final ssid = _wifiSsidCtrl.text.trim();
     if (ssid.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.errWifiSsidEmpty)),
+      showAppSnackBar(
+        context,
+        context.l10n.errWifiSsidEmpty,
+        errorStyle: true,
       );
       return;
     }
@@ -235,24 +244,35 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.firmwareWifiBleProvStartedSnack)),
-      );
+      showAppSnackBar(context, context.l10n.firmwareWifiBleProvStartedSnack);
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     }
   }
 
   Future<void> _onFirmwareUsePhoneSsid() async {
+    final l10n = context.l10n;
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      final ok = await ensureWifiSsidReadPermissions();
+      if (!mounted) return;
+      if (!ok) {
+        showAppSnackBar(context, l10n.onboardingPermDeniedSnack,
+            errorStyle: true);
+        return;
+      }
+    }
     final s = await PhoneWifiInfo.tryCurrentWifiSsid();
     if (!mounted) return;
     setState(() {
-      _wifiPhoneGuess = s;
+      _wifiDeviceSsidGuess = s;
       if (s != null) {
         _wifiSsidCtrl.text = s;
       }
@@ -272,24 +292,29 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
           .read(boardSessionNotifierProvider.notifier)
           .fetchWifiSurveyOverBle();
       if (!mounted) return;
-      final phone = _wifiSsidCtrl.text.trim().isNotEmpty
+      final surveySsid = _wifiSsidCtrl.text.trim().isNotEmpty
           ? _wifiSsidCtrl.text.trim()
-          : (_wifiPhoneGuess ?? '');
+          : (_wifiDeviceSsidGuess ?? '');
       if (!r.ok) {
         setState(() => _wifiSurveyVisible = null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.boardWifiProvisionSurveyFailed)),
+        showAppSnackBar(
+          context,
+          context.l10n.boardWifiProvisionSurveyFailed,
+          errorStyle: true,
         );
         return;
       }
       setState(() {
-        _wifiSurveyVisible = phone.isNotEmpty ? r.hasSsid(phone) : false;
+        _wifiSurveyVisible =
+            surveySsid.isNotEmpty ? r.hasSsid(surveySsid) : false;
       });
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {
@@ -354,9 +379,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         ref.read(prefsRepositoryProvider).firmwareManifestUrlEffective;
     if (mounted) {
       setState(() => _manifestCtrl.text = effective);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.firmwareManifestSavedSnack)),
-      );
+      showAppSnackBar(context, context.l10n.firmwareManifestSavedSnack);
     }
     unawaited(ref.read(firmwareUpdateAvailabilityProvider.notifier).refresh());
   }
@@ -399,11 +422,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         _cacheVersusManifestHint = cacheHint;
       });
     }
-    if (AppEnvironment.staging) {
-      debugPrint(
-        '[staging] firmware check manifest=${snap.manifest?.version} board=${snap.boardVersion}',
-      );
-    }
+    appDebugLog(
+      '[staging] firmware check manifest=${snap.manifest?.version} board=${snap.boardVersion}',
+    );
     await _reloadWifi();
   }
 
@@ -499,9 +520,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
         _downloadBusy = false;
         _cacheVersusManifestHint = null;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.firmwareDownloadSavedSnack)),
-      );
+      showAppSnackBar(context, context.l10n.firmwareDownloadSavedSnack);
     } catch (e) {
       if (!mounted) {
         return;
@@ -533,8 +552,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     if (!mounted) return;
     final snap = ref.read(firmwareUpdateAvailabilityProvider);
     final raw = snap.boardVersion?.trim();
-    final reported =
-        raw != null && raw.isNotEmpty ? raw : ver;
+    final reported = raw != null && raw.isNotEmpty ? raw : ver;
 
     await showDialog<void>(
       context: context,
@@ -597,13 +615,12 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       }
     }
     /* Na subnetu AP je HTTP API desky vždy na 192.168.4.1:80 — přepsat špatnou URL
-     * ze session/prefs (např. omylem stejný port jako HttpServer telefonu). */
+     * ze session/prefs (např. omylem stejný port jako HttpServer aplikace na tomto zařízení). */
     if (onApSubnet) {
       baseUrl = normalizeBoardHttpBaseUrl('http://192.168.4.1');
     }
 
-    final boardIpv4 =
-        _ipv4BoardHostForPhoneHostedOta(baseUrl, session);
+    final boardIpv4 = _ipv4BoardHostForPhoneHostedOta(baseUrl, session);
     final phoneOnBoardLanSubnet = boardIpv4 != null &&
         await FirmwarePhoneHostOta.ipv4OnSameSubnet24As(boardIpv4) != null;
 
@@ -615,9 +632,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     if (!canHttpPhoneHost) {
       if (session.transport == BoardTransport.ble && session.bleGattConnected) {
         final msg = context.l10n.firmwareOtaNoLanRouteUseBle;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        showAppSnackBar(context, msg);
         await _sendFirmwareViaBle(meta);
         return;
       }
@@ -663,8 +678,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       }
       if (err != null) {
         setState(() => _detail = err);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(err)));
+        showAppSnackBar(context, err, errorStyle: true);
       } else {
         await _presentFirmwareFlashSuccess(installedVersion: meta.version);
       }
@@ -679,8 +693,10 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       setState(
           () => _detail = lanFail ? l10n.firmwareOtaPhoneNotOnLan : friendly);
       if (lanFail) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.firmwareOtaPhoneNotOnLan)),
+        showAppSnackBar(
+          context,
+          l10n.firmwareOtaPhoneNotOnLan,
+          errorStyle: true,
         );
       }
     } finally {
@@ -709,6 +725,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                       fontWeight: FontWeight.w600,
                     ),
               ),
+              const SizedBox(height: 12),
+              Text(context.l10n.firmwareBleOtaApHotspotTip),
             ],
           ),
         ),
@@ -783,9 +801,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       final l10n = context.l10n;
       final friendly = userFacingErrorSummary(l10n, e);
       setState(() => _detail = friendly);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(friendly)),
-      );
+      showAppSnackBar(context, friendly, errorStyle: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -834,10 +850,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
               return;
             }
             if (choice == OtaHttpsStaGateChoice.bleUpload) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(context.l10n.otaHttpsBleUploadHintSnack),
-                ),
+              showAppSnackBar(
+                context,
+                context.l10n.otaHttpsBleUploadHintSnack,
               );
               return;
             }
@@ -851,19 +866,18 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                     .read(boardSessionNotifierProvider.notifier)
                     .setBoardHotspotEnabled(true);
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.l10n.otaHttpsHotspotEnabledSnack),
-                    ),
+                  showAppSnackBar(
+                    context,
+                    context.l10n.otaHttpsHotspotEnabledSnack,
                   );
                 }
               } catch (e) {
                 if (mounted) {
                   final l10n = context.l10n;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(userFacingErrorSummary(l10n, e)),
-                    ),
+                  showAppSnackBar(
+                    context,
+                    userFacingErrorSummary(l10n, e),
+                    errorStyle: true,
                   );
                 }
               }
@@ -894,8 +908,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       setState(() => _otaBusy = false);
       if (err != null) {
         setState(() => _detail = err);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(err)));
+        showAppSnackBar(context, err, errorStyle: true);
       } else {
         await _presentFirmwareFlashSuccess(installedVersion: meta.version);
       }
@@ -947,8 +960,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Material(
-                color: theme.colorScheme.errorContainer
-                    .withValues(alpha: 0.5),
+                color: theme.colorScheme.errorContainer.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
@@ -1018,8 +1030,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
             Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Material(
-                color: theme.colorScheme.tertiaryContainer
-                    .withValues(alpha: 0.45),
+                color:
+                    theme.colorScheme.tertiaryContainer.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(12),
                 child: Padding(
                   padding: const EdgeInsets.all(12),
@@ -1212,7 +1224,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
               surveyPhoneVisible: _wifiSurveyVisible,
               surveyDisplaySsidForChip: _wifiSsidCtrl.text.trim().isNotEmpty
                   ? _wifiSsidCtrl.text.trim()
-                  : _wifiPhoneGuess,
+                  : _wifiDeviceSsidGuess,
               actionsEnabled: !snap.loading && !_otaBusy && !_downloadBusy,
               denseSubtitle: false,
             ),
@@ -1329,10 +1341,12 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                                                     .firmwareDeveloperDowngradeChipTitle(
                                                     snap.manifest!.version,
                                                   )
-                                                : context.l10n.firmwareNewVersionChip(
+                                                : context.l10n
+                                                    .firmwareNewVersionChip(
                                                     snap.manifest!.version,
                                                   )))
-                                    : context.l10n.firmwareSavedFirmwareChipTitle(
+                                    : context.l10n
+                                        .firmwareSavedFirmwareChipTitle(
                                         em.version,
                                       ),
                                 style: Theme.of(context).textTheme.titleSmall,

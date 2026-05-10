@@ -5,7 +5,8 @@ import '../../../core/utils/fen_board_parser.dart';
 
 /// Applies [movesAppliedCount] plies from [snap.history] onto the standard start position.
 /// Returns null if a move could not be replayed (illegal SAN/UCI).
-List<List<String>>? boardAfterHistoryPrefix(GameSnapshot snap, int movesAppliedCount) {
+List<List<String>>? boardAfterHistoryPrefix(
+    GameSnapshot snap, int movesAppliedCount) {
   final moves = snap.history.moves;
   if (movesAppliedCount <= 0) {
     final chess = ch.Chess();

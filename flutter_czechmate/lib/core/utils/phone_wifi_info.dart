@@ -18,7 +18,7 @@ String? normalizeWifiSsidRaw(String? raw) {
   return s.isEmpty ? null : s;
 }
 
-/// Aktuální SSID Wi‑Fi rozhraní telefonu (může být null na iOS bez oprávnění / mimo Wi‑Fi).
+/// Aktuální SSID Wi‑Fi rozhraní tohoto zařízení (může být null na iOS bez oprávnění / mimo Wi‑Fi).
 class PhoneWifiInfo {
   PhoneWifiInfo._();
 

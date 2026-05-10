@@ -213,12 +213,30 @@ Win32Window::MessageHandler(HWND hwnd,
       }
       return 0;
 
+    case WM_GETMINMAXINFO: {
+      // Parita s macOS MainFlutterWindow — minimální client ~940×640 (DESKTOP_UI_MASTER_PLAN).
+      auto* mmi = reinterpret_cast<MINMAXINFO*>(lparam);
+      constexpr LONG kMinClientW = 940;
+      constexpr LONG kMinClientH = 640;
+      RECT client_rect = {0, 0, kMinClientW, kMinClientH};
+      const DWORD style = static_cast<DWORD>(GetWindowLongPtr(hwnd, GWL_STYLE));
+      const DWORD ex_style = static_cast<DWORD>(GetWindowLongPtr(hwnd, GWL_EXSTYLE));
+      UINT dpi = GetDpiForWindow(hwnd);
+      if (dpi == 0) {
+        dpi = USER_DEFAULT_SCREEN_DPI;
+      }
+      AdjustWindowRectExForDpi(&client_rect, style, FALSE, ex_style, dpi);
+      mmi->ptMinTrackSize.x = client_rect.right - client_rect.left;
+      mmi->ptMinTrackSize.y = client_rect.bottom - client_rect.top;
+      return 0;
+    }
+
     case WM_DWMCOLORIZATIONCOLORCHANGED:
       UpdateTheme(hwnd);
       return 0;
   }
 
-  return DefWindowProc(window_handle_, message, wparam, lparam);
+  return DefWindowProc(hwnd, message, wparam, lparam);
 }
 
 void Win32Window::Destroy() {

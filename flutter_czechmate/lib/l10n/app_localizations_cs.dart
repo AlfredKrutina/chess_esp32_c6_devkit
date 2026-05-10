@@ -40,7 +40,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get languageDescription =>
-      'Zvol jazyk aplikace. Systém následuje telefon; ostatní jazyky se zobrazí v angličtině.';
+      'Zvol jazyk aplikace. Systém následuje jazyk zařízení; ostatní jazyky se zobrazí v angličtině.';
 
   @override
   String get onboardingWelcomeTitle => 'Vítej v CZECHMATE';
@@ -101,7 +101,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get netNotOnWifiBody =>
-      'Služba chess-api obvykle funguje přes mobilní data. K rozhraní HTTP desky na adresě v místní síti má telefon obvykle zapnuté Wi‑Fi ve stejné síti. Pokud používáš jen hotspot desky bez výstupu na internet, rozpoznávání adres (DNS) pro chess-api nebo Lichess může selhat — zkus Wi‑Fi na chvíli vypnout, zapnout mobilní data nebo současně Wi‑Fi i mobilní data, pokud to systém umožní. Aplikace nemůže přesměrovat síťový provoz na mobilní síť, dokud je výchozí trasa přes Wi‑Fi.';
+      'Požadavky do cloudu (chess-api, Lichess) obvykle fungují přes jakékoli internetové připojení zařízení (Wi‑Fi nebo mobilní data). K rozhraní HTTP desky na adresě v místní síti má toto zařízení obvykle zapnuté Wi‑Fi ve stejné síti jako deska. Pokud používáš jen hotspot desky bez výstupu na internet, rozpoznávání adres (DNS) pro chess-api nebo Lichess může selhat — zkus Wi‑Fi na chvíli vypnout, použít jiné připojení s internetem nebo současně Wi‑Fi i mobilní data, pokud to systém umožní. Aplikace nemůže přesměrovat síťový provoz mimo Wi‑Fi, dokud je výchozí trasa přes Wi‑Fi.';
 
   @override
   String get errInvalidBoardUrl =>
@@ -121,6 +121,22 @@ class AppLocalizationsCs extends AppLocalizations {
       'Žádná uložená Bluetooth deska. Otevři Objevování desky a spáruj CZECHMATE.';
 
   @override
+  String get errBleHostUnsupported =>
+      'Bluetooth LE v této verzi aplikace není (Windows desktop). Připoj se přes Wi‑Fi: Nastavení → Připojení a zadej URL desky, nebo použij aplikaci na Androidu / iOS pro BLE.';
+
+  @override
+  String get discoveryDesktopBleUnavailableTitle =>
+      'Bluetooth sken tady není k dispozici';
+
+  @override
+  String get discoveryDesktopBleUnavailableBody =>
+      'Windows sestavení nepoužívá Bluetooth Low Energy stack pro tuto desku. Použij Wi‑Fi: níže Pokročilé nebo Nastavení → Připojení a zadej HTTP URL desky v lokální síti. Pro BLE sken a párování použij aplikaci na Androidu nebo iOS.';
+
+  @override
+  String get settingsBleDesktopHint =>
+      'Na Windows se připoj přes Wi‑Fi URL (níže). BLE objevování v této verzi není.';
+
+  @override
   String get errDemoNoSnapshot =>
       'U ukázkové desky není k dispozici snímek stavu.';
 
@@ -134,7 +150,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get errOtaHttps =>
-      'OTA URL musí začínat https:// (internet) nebo http:// (např. telefon na hotspotu desky).';
+      'OTA URL musí začínat https:// (internet) nebo http:// (např. toto zařízení na hotspotu desky).';
 
   @override
   String get errOtaBleTransport =>
@@ -351,8 +367,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get reportCopySummaryBusy => 'Kopíruji…';
 
   @override
-  String get reportSummaryCopiedSnack =>
-      'Zkopírováno — otevři Instagram nebo Zprávy a vlož.';
+  String get reportSummaryCopiedSnack => 'Zkopírováno — vlož do jiné aplikace.';
 
   @override
   String get reportCopyImageFailed => 'Obrázek se nepodařilo zkopírovat.';
@@ -363,7 +378,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get reportCopyImageDesktopFallback =>
-      'Otevírám sdílení — obrázek ve schránce funguje nejlépe na iPhonu a Androidu.';
+      'Otevírám sdílení — obrázek ve schránce funguje nejlépe na mobilu (iPhone a Android); na počítači použij Sdílet.';
 
   @override
   String get reportExportSectionOrderTitle => 'Pořadí sekcí (export)';
@@ -668,6 +683,10 @@ class AppLocalizationsCs extends AppLocalizations {
       'Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.';
 
   @override
+  String get discoveryBlePermissionDenied =>
+      'Pro vyhledání desky je potřeba přístup k Bluetooth. Povol ho v nastavení systému a zkus to znovu.';
+
+  @override
   String get discoveryBluetoothNotReady =>
       'Bluetooth není připravené. Zapni ho v nastavení, počkej pár sekund a klepni znovu na Najít desku.';
 
@@ -684,7 +703,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get discoveryFlowStepsTitle => 'Tři kroky';
 
   @override
-  String get discoveryFlowStep1 => 'Zapni Bluetooth na tomto telefonu.';
+  String get discoveryFlowStep1 => 'Zapni Bluetooth na tomto zařízení.';
 
   @override
   String get discoveryFlowStep2 =>
@@ -711,7 +730,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryRecoveryBulletHomeWifi =>
-      'Doma je nejjednodušší mít telefon i desku na stejné Wi‑Fi kvůli HTTP; mimo domov stačí Bluetooth.';
+      'Doma je nejjednodušší mít zařízení i desku na stejné Wi‑Fi kvůli HTTP; mimo domov stačí Bluetooth.';
 
   @override
   String get discoveryRecoveryBulletManual =>
@@ -968,7 +987,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareDialogHttpsNote =>
-      'Deska stahuje přes HTTPS (Wi‑Fi STA). Telefon posílá jen odkaz.';
+      'Deska stahuje přes HTTPS (Wi‑Fi STA). CzechMate na tomto zařízení posílá jen odkaz.';
 
   @override
   String get firmwareTurnOffReminders => 'Vypnout připomínky';
@@ -1013,7 +1032,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryAdvancedBlockedOctetsBody =>
-      'Deska si seznam uloží do NVS a DHCP adresu se zakázaným 3. oktetem nepřijme (odpojí STA a zkusí znovu). Telefon používá stejný filtr pro URL. Hodnoty se po uložení nebo při připojení přes BLE odešou šifrovaně — firmware nemá vlastní výchozí blokaci, dokud aplikace nic nepošle. Příklad: 88 zamítne všechny x.x.88.x. Prázdné pole vypne filtr na obou stranách. Dokud neuložíš jinak, aplikace výchozě používá 88.';
+      'Deska si seznam uloží do NVS a DHCP adresu se zakázaným 3. oktetem nepřijme (odpojí STA a zkusí znovu). CzechMate používá stejný filtr pro URL. Hodnoty se po uložení nebo při připojení přes BLE odešou šifrovaně — firmware nemá vlastní výchozí blokaci, dokud aplikace nic nepošle. Příklad: 88 zamítne všechny x.x.88.x. Prázdné pole vypne filtr na obou stranách. Dokud neuložíš jinak, aplikace výchozě používá 88.';
 
   @override
   String get discoveryAdvancedBlockedOctetsLabel =>
@@ -1074,7 +1093,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryBoardApSubtitle =>
-      'Telefon se může připojit k síti desky kvůli HTTP nebo OTA. Na desce je hotspot ve výchozím stavu vypnutý.';
+      'Toto zařízení se může připojit k síti desky kvůli HTTP nebo OTA. Na desce je hotspot ve výchozím stavu vypnutý.';
 
   @override
   String get discoveryBoardApCommandSent =>
@@ -1094,11 +1113,11 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get boardWifiProvisionSheetLead =>
-      'Když to jde, použij stejnou domácí Wi‑Fi jako telefon (často lépe funguje 2,4 GHz). Aplikace z telefonu uložené heslo k síti nepřečte — zadej ho zde jednou.';
+      'Když to jde, použij stejnou domácí Wi‑Fi jako toto zařízení (často lépe funguje 2,4 GHz). CzechMate uložené heslo ze systému nepřečte — zadej ho zde jednou.';
 
   @override
   String get boardWifiProvisionIosSsidHint =>
-      'Na iPhonu se název aktuální sítě někdy nezobrazí, dokud aplikace nemá přístup k poloze kvůli informacím o Wi‑Fi — SSID můžeš vždy zadat ručně.';
+      'Když se název aktuální Wi‑Fi nezobrazí (na zařízeních Apple často dokud aplikace nemá přístup k poloze kvůli informacím o Wi‑Fi), zadej SSID ručně.';
 
   @override
   String get boardWifiProvisionScanBoardButton =>
@@ -1109,7 +1128,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String boardWifiProvisionVisibleYes(String ssid) {
-    return 'SSID telefonu „$ssid“ je v dosahu desky — zadej heslo a připoj.';
+    return 'Wi‑Fi síť tohoto zařízení „$ssid“ je v dosahu desky — zadej heslo a připoj.';
   }
 
   @override
@@ -1138,7 +1157,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get otaHttpsStaGateBody =>
-      'Aktualizace přes HTTPS si stahuje sama deska. Připoj ji k Wi‑Fi s internetem (nejčastěji kompatibilní 2,4 GHz). Zapnutí hotspotu desky pomůže telefonu komunikovat s deskou přes HTTP, ale samo o sobě nepřinese desce internet — použij nahrání firmwaru přes Bluetooth níže, nebo nejdřív připoj desku k domácí Wi‑Fi.';
+      'Aktualizace přes HTTPS si stahuje sama deska. Připoj ji k Wi‑Fi s internetem (nejčastěji kompatibilní 2,4 GHz). Zapnutí hotspotu desky pomůže tomuto zařízení komunikovat s deskou přes HTTP, ale samo o sobě nepřinese desce internet — použij nahrání firmwaru přes Bluetooth níže, nebo nejdřív připoj desku k domácí Wi‑Fi.';
 
   @override
   String get otaHttpsStaGateBleUpload => 'Nahrát firmware přes Bluetooth';
@@ -1161,7 +1180,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get otaHttpsHotspotEnabledSnack =>
-      'Hotspot zapnut — případně se k Wi‑Fi desky na telefonu připoj kvůli HTTP. Stažení přes HTTPS pořád vyžaduje desku na domácí Wi‑Fi s internetem.';
+      'Hotspot zapnut — případně se k Wi‑Fi desky na tomto zařízení připoj kvůli HTTP. Stažení přes HTTPS pořád vyžaduje desku na domácí Wi‑Fi s internetem.';
 
   @override
   String get otaHttpsBleUploadHintSnack =>
@@ -1575,6 +1594,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsCoachOpenAiKeyHint => 'sk-…';
 
   @override
+  String get settingsCoachOpenAiFieldLabel => 'API klíč';
+
+  @override
+  String get settingsCoachOpenAiKeyTooltip => 'Otevřít stránku klíčů OpenAI';
+
+  @override
   String get settingsCoachOpenAiModelHint => 'gpt-4o-mini';
 
   @override
@@ -1682,6 +1707,9 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get coachChatTypeFirst => 'Nejdřív napiš otázku, pak Odeslat.';
+
+  @override
+  String get coachChatExplanationLevelLabel => 'Hloubka vysvětlení';
 
   @override
   String get coachChatHide => 'Skrýt';
@@ -1988,7 +2016,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareTwoStepOtaHint =>
-      'Soubor .bin stáhni, dokud máš internet. Pak se připoj k hotspotu desky a odešli — deska si soubor stáhne z telefonu přes HTTP (na desce nemusí být Wi‑Fi STA).';
+      'Soubor .bin stáhni, dokud máš internet. Pak se připoj k hotspotu desky a odešli — deska si soubor stáhne z tohoto zařízení přes HTTP (na desce nemusí být Wi‑Fi STA).';
 
   @override
   String firmwareCachedInAppLine(String ver, String mb) {
@@ -2020,18 +2048,18 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareJoinHotspotForUpload =>
-      'Nejdřív se připoj k Wi‑Fi hotspotu desky — telefon potřebuje adresu v rozsahu 192.168.4.x.';
+      'Nejdřív se připoj k Wi‑Fi hotspotu desky — toto zařízení potřebuje adresu v rozsahu 192.168.4.x.';
 
   @override
   String get firmwareNoCachedFirmware =>
       'Nejdřív si firmware stáhni do aplikace.';
 
   @override
-  String get firmwareSendToBoardTitle => 'Nahrát z tohoto telefonu?';
+  String get firmwareSendToBoardTitle => 'Nahrát z tohoto zařízení?';
 
   @override
   String get firmwareSendToBoardBody =>
-      'Deska si soubor .bin stáhne přes HTTP z tvého telefonu. Zůstaň na hotspotu a nech tuto obrazovku otevřenou do dokončení.';
+      'Deska si soubor .bin stáhne přes HTTP z tohoto zařízení. Zůstaň na hotspotu a nech tuto obrazovku otevřenou do dokončení.';
 
   @override
   String get firmwareOneStepHttpsOta =>
@@ -2042,7 +2070,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareSendViaBleBody =>
-      'Celý obraz firmwaru se přenese jen přes Bluetooth (nepotřebuješ hotspot desky ani STA). Drž telefon blízko desky, dokud spojení neskončí — deska se restartuje.';
+      'Celý obraz firmwaru se přenese jen přes Bluetooth (nepotřebuješ hotspot desky ani STA). Drž toto zařízení blízko desky, dokud spojení neskončí — deska se restartuje.';
 
   @override
   String get firmwareBleUploadDoneSnack =>
@@ -2050,7 +2078,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareBleOtaReturnedFromBackgroundSnack =>
-      'Vrátil(a) ses během přenosu firmwaru přes Bluetooth. Pokud se nic neděje, nech CzechMate v popředí a telefon blízko desky.';
+      'Vrátil(a) ses během přenosu firmwaru přes Bluetooth. Pokud se nic neděje, nech CzechMate v popředí a toto zařízení blízko desky.';
 
   @override
   String get firmwareOtaHttpMayLeaveAppHint =>
@@ -2058,7 +2086,11 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareBleOtaKeepForegroundWarning =>
-      'Nech CzechMate v popředí a telefon nezamykaj, dokud přenos přes Bluetooth neskončí.';
+      'Nech CzechMate v popředí a obrazovku nezamykaj, dokud přenos přes Bluetooth neskončí.';
+
+  @override
+  String get firmwareBleOtaApHotspotTip =>
+      'Nahráváš-li přes hotspot desky, nejdřív se připoj k Wi‑Fi desky, aby toto zařízení dosáhlo na http://192.168.4.1.';
 
   @override
   String get firmwareBleOtaPausedReconnectDetail =>
@@ -2212,7 +2244,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareOtaNoLanRouteUseBle =>
-      'Telefon není ve stejné síti jako deska. Nahraj firmware přes Bluetooth, nebo se připoj k síti desky.';
+      'Toto zařízení není ve stejné síti jako deska. Nahraj firmware přes Bluetooth, nebo se připoj k síti desky.';
 
   @override
   String get firmwareOtaNoLanRouteNeedBle =>
@@ -2220,7 +2252,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareOtaPhoneNotOnLan =>
-      'Telefon zřejmě není v síti desky. Připoj se k hotspotu desky nebo k Wi‑Fi, kde má deska IP.';
+      'Toto zařízení zřejmě není v síti desky. Připoj se k hotspotu desky nebo k Wi‑Fi, kde má deska IP.';
 
   @override
   String firmwareTileTitleGitBle(String ver) {
@@ -2264,7 +2296,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get firmwareWifiBleUsePhoneSsidButton =>
-      'Použít název Wi‑Fi z tohoto telefonu';
+      'Použít název Wi‑Fi z tohoto zařízení';
 
   @override
   String get firmwareWifiBleSendCredentials => 'Odeslat údaje na desku';
@@ -2323,6 +2355,14 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get analysisChartDisabledSubtitle =>
       'Zapni hodnocení tahů pro skóre kvality.';
+
+  @override
+  String analysisChartJumpedToMove(int moveNumber) {
+    return 'V Hře je otevřen polo-tah $moveNumber.';
+  }
+
+  @override
+  String get analysisScoresheetEmpty => 'Zatím žádné tahy.';
 
   @override
   String get analysisEnableMoveEval => 'Povolit hodnocení tahů (Stockfish)';
@@ -2604,7 +2644,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get userFacingErrBlePairingReset =>
-      'Bluetooth párování už nesedí s deskou. Na iPhonu: Nastavení → Bluetooth → ⓘ u desky → Zapomenout toto zařízení. Po továrním resetu desky vymaž i párování na desce a znovu připoj přes Najít desku.';
+      'Bluetooth párování už nesedí s deskou. iOS / iPadOS: Nastavení → Bluetooth → ⓘ u desky → Zapomenout toto zařízení. Android: Nastavení Bluetooth → deska → Zapomenout / Odpárovat. Po továrním resetu desky vymaž i párování na desce a znovu připoj přes Najít desku.';
 
   @override
   String get userFacingErrNetworkReach =>
@@ -3692,6 +3732,10 @@ class AppLocalizationsCs extends AppLocalizations {
       'K síti desky se připojíš v Nastavení při párování — tady nic dalšího nepotřebuješ.';
 
   @override
+  String get onboardingPermWifiBodyDesktop =>
+      'Na počítači často nejde spolehlivě přečíst název aktuální Wi‑Fi — SSID zadej ručně při nastavení desky. HTTP na desku pořád používá uloženou adresu.';
+
+  @override
   String get onboardingPermWifiAllow => 'Povolit přístup k Wi‑Fi';
 
   @override
@@ -3706,7 +3750,11 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get onboardingPermissionsDesktopBody =>
-      'Bluetooth a síť se vyřeší, až v aplikaci připojíš desku.';
+      'Když systém nabídne Bluetooth, povol ho — pak půjde desku vyhledat. HTTP používej přes Wi‑Fi / ruční URL.';
+
+  @override
+  String get onboardingPermissionsDesktopWindowsBody =>
+      'Tato Windows verze nepoužívá Bluetooth Low Energy k desce. Připoj se jen přes Wi‑Fi: zadej HTTP adresu desky v pokročilém / ručním připojení (např. http://192.168.4.1 na hotspotu desky nebo IP v domácí síti).';
 
   @override
   String get settingsNavChessPuzzles => 'Šachové puzzle';
@@ -3801,7 +3849,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsLiveActivitySubtitle =>
-      'iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: probíhající notifikace (Android 13+ je potřeba povolit oznámení). Zapíná se z herní obrazovky.';
+      'Telefony a tablety — iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: probíhající notifikace (Android 13+ je potřeba povolit oznámení). Zapíná se z herní obrazovky. (Na počítači se nepoužívá.)';
 
   @override
   String get settingsLiveActivityIosDisabledSnack =>
@@ -3809,7 +3857,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsHomeScreenWidgetHint =>
-      'Domovský widget CzechMate přidáš z galerie widgetů — rychlý náhled stavu, když je aplikace na pozadí (vedle živých aktivit na podporovaných iPhonech).';
+      'Kde to systém podporuje (domovská obrazovka nebo widgety na ploše), přidej CzechMate z galerie widgetů — rychlý náhled stavu na pozadí aplikace (vedle živých aktivit na podporovaných iPhonech).';
 
   @override
   String get settingsWearMirrorTitle => 'Zrcadlit časomíru na Wear OS';
@@ -3902,7 +3950,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get boardNvsHintTierFootnote =>
-      'H1–H3 v telefonu (`czechmate.moveHintTier`) je samostatné od úrovně světel na desce; při POST výše se do NVS propíše i hloubka a hodnocení z diagnostiky aplikace.';
+      'H1–H3 v CzechMate (`czechmate.moveHintTier`) jsou samostatné od úrovně světel na desce; při POST výše se do NVS propíše i hloubka a hodnocení z diagnostiky aplikace.';
 
   @override
   String get boardNvsFooterMock =>

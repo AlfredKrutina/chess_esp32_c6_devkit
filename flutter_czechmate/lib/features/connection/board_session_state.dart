@@ -119,9 +119,8 @@ class BoardSessionState {
           : (lastSuccessfulPoll ?? this.lastSuccessfulPoll),
       bleStaIp: clearBleNetwork ? null : (bleStaIp ?? this.bleStaIp),
       bleStaSsid: clearBleNetwork ? null : (bleStaSsid ?? this.bleStaSsid),
-      bleStaConnected: clearBleNetwork
-          ? false
-          : (bleStaConnected ?? this.bleStaConnected),
+      bleStaConnected:
+          clearBleNetwork ? false : (bleStaConnected ?? this.bleStaConnected),
       bleApBroadcasting: clearBleNetwork
           ? false
           : (bleApBroadcasting ?? this.bleApBroadcasting),

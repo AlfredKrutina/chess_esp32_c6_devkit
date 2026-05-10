@@ -64,7 +64,8 @@ Future<ui.Image?> captureWidgetOffscreen({
 
   ui.Image? image;
   try {
-    final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final boundary =
+        key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
     image = await boundary?.toImage(pixelRatio: pixelRatio);
   } finally {
     entry.remove();

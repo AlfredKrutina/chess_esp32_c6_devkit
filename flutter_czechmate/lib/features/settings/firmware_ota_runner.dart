@@ -12,7 +12,7 @@ import '../../core/utils/user_facing_error_message.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-/// OTA over HTTPS: phone sends only the `.bin` URL; ESP downloads (needs STA).
+/// OTA over HTTPS: CzechMate sends only the `.bin` URL; ESP downloads (needs STA).
 /// Start command can be sent over Wi‑Fi HTTP or BLE; progress is read over HTTP.
 class FirmwareOtaRunner {
   /// `null` = success (or connection lost after reboot). Otherwise an error message.
@@ -20,7 +20,7 @@ class FirmwareOtaRunner {
   /// [boardHttpBaseUrlOverride] — např. `http://192.168.4.1` na hotspotu; když chybí,
   /// použije se session/prefs. Musí sedět s `POST /api/system/ota` (transport Wi‑Fi).
   ///
-  /// [preferHttpOtaStartCommand] — při „telefon hostuje .bin“ vždy `true`: příkaz startu OTA
+  /// [preferHttpOtaStartCommand] — když toto zařízení hostuje .bin, vždy `true`: příkaz startu OTA
   /// pošle přímo HTTP na desku (funguje na AP i když je aktivní BLE transport).
   static Future<String?> execute({
     required WidgetRef ref,
@@ -42,8 +42,8 @@ class FirmwareOtaRunner {
     if (baseUrl == null || baseUrl.isEmpty) {
       return strings.errOtaBoardHttpMissingDetail;
     }
-    /* Telefon na Wi‑Fi hotspotu desky (192.168.4.x) — API je na gateway 192.168.4.1:80,
-     * ne na zastaralé STA URL z prefs (stejná logika jako phone‑hosted OTA v UI). */
+    /* Zařízení na Wi‑Fi hotspotu desky (192.168.4.x) — API je na gateway 192.168.4.1:80,
+     * ne na zastaralé STA URL z prefs (stejná logika jako hostované OTA v UI). */
     if (await FirmwarePhoneHostOta.ipv4OnBoardApSubnet() != null) {
       final ap = normalizeBoardHttpBaseUrl('http://192.168.4.1');
       if (ap != null) {

@@ -1,67 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../app_providers.dart';
+import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/models/status_models.dart';
 import '../../core/utils/board_http_base_url.dart';
-import '../../core/widgets/app_modal_sheet.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import 'board_settings_error_message.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-Future<void> showHomeAssistantMqttGuideSheet(
-    BuildContext context, AppLocalizations l10n) async {
-  await showAppModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (ctx) {
-      final h = MediaQuery.sizeOf(ctx).height * 0.72;
-      final pad = MediaQuery.paddingOf(ctx);
-      return SizedBox(
-        height: h,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(20, 8, 20, pad.bottom + 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l10n.haMqttHowToHa,
-                style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Text(
-                    l10n.haMqttGuideBody,
-                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                          height: 1.45,
-                          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                        ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              PressableScale(
-                child: FilledButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(l10n.commonClose),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
+/// Project docs (MQTT / Home Assistant context) — opens in external browser.
+final Uri kMqttHaDocumentationUri = Uri.parse(
+  'https://alfredkrutina.github.io/chess_esp32_c6_devkit/',
+);
+
+Future<void> openMqttHaDocumentation() async {
+  if (await canLaunchUrl(kMqttHaDocumentationUri)) {
+    await launchUrl(
+      kMqttHaDocumentationUri,
+      mode: LaunchMode.externalApplication,
+    );
+  }
 }
 
-/// MQTT broker fields + board status (long HA guide lives in a sheet).
+/// MQTT broker fields + board status.
 class HomeAssistantMqttScreen extends ConsumerStatefulWidget {
   const HomeAssistantMqttScreen({super.key});
 
@@ -140,8 +107,7 @@ class _HomeAssistantMqttScreenState
       if (mounted) {
         final session = ref.read(boardSessionNotifierProvider);
         final msg = boardHttpSettingsUserMessage(context.l10n, e, session);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+        showAppSnackBar(context, msg, errorStyle: true);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -162,19 +128,16 @@ class _HomeAssistantMqttScreenState
             password: _pass.text.isEmpty ? null : _pass.text,
           );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.haMqttSavedSnack)),
-        );
+        showAppSnackBar(context, context.l10n.haMqttSavedSnack);
       }
       await _refreshStatus();
     } catch (e) {
       if (mounted) {
         final session = ref.read(boardSessionNotifierProvider);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(boardHttpSettingsUserMessage(context.l10n, e, session)),
-          ),
+        showAppSnackBar(
+          context,
+          boardHttpSettingsUserMessage(context.l10n, e, session),
+          errorStyle: true,
         );
       }
     } finally {
@@ -210,106 +173,112 @@ class _HomeAssistantMqttScreenState
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            l10n.haMqttFormLead,
-            style: Theme.of(context).textTheme.bodyMedium,
+      body: desktopSettingsDetailBody(
+        FocusTraversalGroup(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                l10n.haMqttFormLead,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: openMqttHaDocumentation,
+                  icon: Icon(Icons.open_in_new, size: 18, color: cs.primary),
+                  label: Text(l10n.haMqttSetupHelpLink),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.haMqttBrokerHeader,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _host,
+                decoration: InputDecoration(
+                  labelText: l10n.haMqttHostFieldLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _port,
+                decoration: InputDecoration(
+                  labelText: l10n.haMqttPortFieldLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _user,
+                decoration: InputDecoration(
+                  labelText: l10n.haMqttUserFieldLabel,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _pass,
+                decoration: InputDecoration(
+                  labelText: l10n.haMqttPasswordFieldLabel,
+                  border: const OutlineInputBorder(),
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 12),
+              PressableScale(
+                child: FilledButton.icon(
+                  onPressed:
+                      _busy || !_supportsWrite || _host.text.trim().isEmpty
+                          ? null
+                          : _save,
+                  icon: _busy
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.upload),
+                  label: Text(l10n.haMqttSaveToBoard),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(_footer(l10n, store),
+                    style: Theme.of(context).textTheme.bodySmall),
+              ),
+              if (_status != null) ...[
+                const Divider(height: 32),
+                Text(
+                  l10n.haMqttBoardStatusHeader,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                ListTile(
+                    title: Text(l10n.haMqttModeTile),
+                    subtitle: Text(_status!.mode)),
+                ListTile(
+                  title: Text(l10n.haMqttMqttTile),
+                  subtitle: Text(_status!.mqttConnected
+                      ? l10n.haMqttStateConnected
+                      : l10n.haMqttStateDisconnected),
+                ),
+                ListTile(
+                  title: Text(l10n.haMqttWifiStaTile),
+                  subtitle: Text(_status!.wifiConnected
+                      ? l10n.haMqttWifiOk
+                      : l10n.haMqttWifiNoLink),
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: () => showHomeAssistantMqttGuideSheet(context, l10n),
-              icon: Icon(Icons.help_outline, size: 20, color: cs.primary),
-              label: Text(l10n.haMqttSetupHelpLink),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            l10n.haMqttBrokerHeader,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _host,
-            decoration: InputDecoration(
-              labelText: l10n.haMqttHostFieldLabel,
-              border: const OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.url,
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _port,
-            decoration: InputDecoration(
-              labelText: l10n.haMqttPortFieldLabel,
-              border: const OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _user,
-            decoration: InputDecoration(
-              labelText: l10n.haMqttUserFieldLabel,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _pass,
-            decoration: InputDecoration(
-              labelText: l10n.haMqttPasswordFieldLabel,
-              border: const OutlineInputBorder(),
-            ),
-            obscureText: true,
-          ),
-          const SizedBox(height: 12),
-          PressableScale(
-            child: FilledButton.icon(
-              onPressed: _busy || !_supportsWrite || _host.text.trim().isEmpty
-                  ? null
-                  : _save,
-              icon: _busy
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.upload),
-              label: Text(l10n.haMqttSaveToBoard),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: Text(_footer(l10n, store),
-                style: Theme.of(context).textTheme.bodySmall),
-          ),
-          if (_status != null) ...[
-            const Divider(height: 32),
-            Text(
-              l10n.haMqttBoardStatusHeader,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            ListTile(
-                title: Text(l10n.haMqttModeTile),
-                subtitle: Text(_status!.mode)),
-            ListTile(
-              title: Text(l10n.haMqttMqttTile),
-              subtitle: Text(_status!.mqttConnected
-                  ? l10n.haMqttStateConnected
-                  : l10n.haMqttStateDisconnected),
-            ),
-            ListTile(
-              title: Text(l10n.haMqttWifiStaTile),
-              subtitle: Text(_status!.wifiConnected
-                  ? l10n.haMqttWifiOk
-                  : l10n.haMqttWifiNoLink),
-            ),
-          ],
-        ],
+        ),
+        maxWidth: kDesktopSettingsWideDetailMaxWidth,
       ),
     );
   }

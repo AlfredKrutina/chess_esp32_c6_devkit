@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/widgets/glass_snackbar.dart';
 
 class LearnScreen extends StatelessWidget {
   const LearnScreen({super.key});
@@ -10,101 +12,103 @@ class LearnScreen extends StatelessWidget {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.learnAppBarTitle)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _LearnCategory(
-            title: l10n.learnSecBasics,
-            color: Colors.green,
-            lessons: [
-              _Lesson(
-                  title: l10n.learnL1Title,
-                  description: l10n.learnL1Desc,
-                  done: true),
-              _Lesson(
-                  title: l10n.learnL2Title,
-                  description: l10n.learnL2Desc,
-                  done: true),
-              _Lesson(
-                  title: l10n.learnL3Title,
-                  description: l10n.learnL3Desc,
-                  done: false),
-            ],
-          ),
-          _LearnCategory(
-            title: l10n.learnSecSpecial,
-            color: Colors.blue,
-            lessons: [
-              _Lesson(
-                  title: l10n.learnL4Title,
-                  description: l10n.learnL4Desc,
-                  done: false),
-              _Lesson(
-                  title: l10n.learnL5Title,
-                  description: l10n.learnL5Desc,
-                  done: false),
-              _Lesson(
-                  title: l10n.learnL6Title,
-                  description: l10n.learnL6Desc,
-                  done: false),
-            ],
-          ),
-          _LearnCategory(
-            title: l10n.learnSecTactics,
-            color: Colors.orange,
-            lessons: [
-              _Lesson(
-                  title: l10n.learnL7Title,
-                  description: l10n.learnL7Desc,
-                  done: false),
-              _Lesson(
-                  title: l10n.learnL8Title,
-                  description: l10n.learnL8Desc,
-                  done: false),
-              _Lesson(
-                  title: l10n.learnL9Title,
-                  description: l10n.learnL9Desc,
-                  done: false),
-            ],
-          ),
-          _LearnCategory(
-            title: l10n.learnSecStrategy,
-            color: Colors.purple,
-            lessons: [
-              _Lesson(
-                  title: l10n.learnL10Title,
-                  description: l10n.learnL10Desc,
-                  done: false,
-                  locked: true),
-              _Lesson(
-                  title: l10n.learnL11Title,
-                  description: l10n.learnL11Desc,
-                  done: false,
-                  locked: true),
-              _Lesson(
-                  title: l10n.learnL12Title,
-                  description: l10n.learnL12Desc,
-                  done: false,
-                  locked: true),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.amber.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.lightbulb_outline, color: Colors.amber),
-                const SizedBox(width: 12),
-                Expanded(child: Text(l10n.learnBoardLedHint)),
+      body: desktopFormDetailBody(
+        ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _LearnCategory(
+              title: l10n.learnSecBasics,
+              color: Colors.green,
+              lessons: [
+                _Lesson(
+                    title: l10n.learnL1Title,
+                    description: l10n.learnL1Desc,
+                    done: true),
+                _Lesson(
+                    title: l10n.learnL2Title,
+                    description: l10n.learnL2Desc,
+                    done: true),
+                _Lesson(
+                    title: l10n.learnL3Title,
+                    description: l10n.learnL3Desc,
+                    done: false),
               ],
             ),
-          ),
-        ],
+            _LearnCategory(
+              title: l10n.learnSecSpecial,
+              color: Colors.blue,
+              lessons: [
+                _Lesson(
+                    title: l10n.learnL4Title,
+                    description: l10n.learnL4Desc,
+                    done: false),
+                _Lesson(
+                    title: l10n.learnL5Title,
+                    description: l10n.learnL5Desc,
+                    done: false),
+                _Lesson(
+                    title: l10n.learnL6Title,
+                    description: l10n.learnL6Desc,
+                    done: false),
+              ],
+            ),
+            _LearnCategory(
+              title: l10n.learnSecTactics,
+              color: Colors.orange,
+              lessons: [
+                _Lesson(
+                    title: l10n.learnL7Title,
+                    description: l10n.learnL7Desc,
+                    done: false),
+                _Lesson(
+                    title: l10n.learnL8Title,
+                    description: l10n.learnL8Desc,
+                    done: false),
+                _Lesson(
+                    title: l10n.learnL9Title,
+                    description: l10n.learnL9Desc,
+                    done: false),
+              ],
+            ),
+            _LearnCategory(
+              title: l10n.learnSecStrategy,
+              color: Colors.purple,
+              lessons: [
+                _Lesson(
+                    title: l10n.learnL10Title,
+                    description: l10n.learnL10Desc,
+                    done: false,
+                    locked: true),
+                _Lesson(
+                    title: l10n.learnL11Title,
+                    description: l10n.learnL11Desc,
+                    done: false,
+                    locked: true),
+                _Lesson(
+                    title: l10n.learnL12Title,
+                    description: l10n.learnL12Desc,
+                    done: false,
+                    locked: true),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.lightbulb_outline, color: Colors.amber),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(l10n.learnBoardLedHint)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -169,7 +173,8 @@ class _Lesson extends StatelessWidget {
                   ? Colors.green
                   : Theme.of(context).colorScheme.primary,
         ),
-        title: Text(title, style: TextStyle(color: locked ? Colors.grey : null)),
+        title:
+            Text(title, style: TextStyle(color: locked ? Colors.grey : null)),
         subtitle: Text(description,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -178,9 +183,7 @@ class _Lesson extends StatelessWidget {
         onTap: locked
             ? null
             : () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.learnSnackLesson(title))),
-                );
+                showAppSnackBar(context, l10n.learnSnackLesson(title));
               },
       ),
     );

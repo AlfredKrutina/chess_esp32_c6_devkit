@@ -6,6 +6,7 @@ import '../../../core/localization/context_l10n.dart';
 import '../../../core/localization/locale_bridge.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/board_http_base_url.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/user_facing_error_message.dart';
 import 'board_settings_error_message.dart';
 import '../../../core/models/status_models.dart';
@@ -92,8 +93,7 @@ class _BoardDeviceFeaturesViewState
       if (mounted) {
         final msg = boardHttpSettingsUserMessage(strings, e, session);
         setState(() => _emptyStateDetail = msg);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(msg)));
+        showAppSnackBar(context, msg, errorStyle: true);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -114,29 +114,25 @@ class _BoardDeviceFeaturesViewState
     if (baseUrl == null || baseUrl.isEmpty) return;
     setState(() => _isLoading = true);
     try {
-      final phone = ref.read(prefsRepositoryProvider);
+      final prefsRepo = ref.read(prefsRepositoryProvider);
       final merged = BoardUISettingsEnvelope(
         version: _settings!.version,
         prefs: BoardUIPrefsPayload.fromJson({
           ..._settings!.prefs.toJson(),
-          'chessHintDepth': phone.hintDepth,
-          'chessEvaluateMove': phone.moveEvaluationEnabled,
+          'chessHintDepth': prefsRepo.hintDepth,
+          'chessEvaluateMove': prefsRepo.moveEvaluationEnabled,
         }),
       );
       await ref
           .read(boardApiClientProvider)
           .postBoardUISettings(baseUrl, merged);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.boardNvsSavedSnack)),
-        );
+        showAppSnackBar(context, strings.boardNvsSavedSnack);
       }
     } catch (e) {
       if (mounted) {
         final msg = boardHttpSettingsUserMessage(strings, e, session);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), backgroundColor: Colors.red),
-        );
+        showAppSnackBar(context, msg, errorStyle: true);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -553,8 +549,10 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        showAppSnackBar(
+          context,
+          userFacingErrorSummary(l10n, e),
+          errorStyle: true,
         );
       }
     } finally {
@@ -650,16 +648,14 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
         final l10n = appStringsForPrefs(ref.read(prefsRepositoryProvider));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              boardHttpSettingsUserMessage(
-                l10n,
-                ArgumentError('Invalid argument(s): No host specified in URI'),
-                session,
-              ),
-            ),
+        showAppSnackBar(
+          context,
+          boardHttpSettingsUserMessage(
+            l10n,
+            ArgumentError('Invalid argument(s): No host specified in URI'),
+            session,
           ),
+          errorStyle: true,
         );
       }
       return;
@@ -671,16 +667,15 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
           .postLedGuidanceLevel(baseUrl, _level);
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.boardLedSentSnack)),
-        );
+        showAppSnackBar(context, l10n.boardLedSentSnack);
       }
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
+        showAppSnackBar(
+          context,
+          boardHttpSettingsUserMessage(l10n, e, session),
+          errorStyle: true,
         );
       }
     } finally {
@@ -753,16 +748,14 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
     if (baseUrl == null || baseUrl.isEmpty) {
       if (mounted) {
         final l10n = appStringsForPrefs(ref.read(prefsRepositoryProvider));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              boardHttpSettingsUserMessage(
-                l10n,
-                ArgumentError('Invalid argument(s): No host specified in URI'),
-                session,
-              ),
-            ),
+        showAppSnackBar(
+          context,
+          boardHttpSettingsUserMessage(
+            l10n,
+            ArgumentError('Invalid argument(s): No host specified in URI'),
+            session,
           ),
+          errorStyle: true,
         );
       }
       return;
@@ -776,9 +769,10 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
+        showAppSnackBar(
+          context,
+          boardHttpSettingsUserMessage(l10n, e, session),
+          errorStyle: true,
         );
       }
       setState(() => _enabled = !v);

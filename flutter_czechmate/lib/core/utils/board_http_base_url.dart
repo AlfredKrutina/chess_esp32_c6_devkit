@@ -1,5 +1,5 @@
 /// ESP výchozí AP má gateway [192.168.4.1] na portu 80.
-/// Do prefs se někdy omylem uloží stejný host s portem z lokálního HTTP serveru telefonu
+/// Do prefs se někdy omylem uloží stejný host s portem z lokálního HTTP serveru aplikace na tomto zařízení
 /// (např. `:52340`) → `Connection refused` při `POST /api/system/ota`.
 String? normalizeEspApGatewayBaseUrl(String? url) {
   if (url == null || url.trim().isEmpty) return null;

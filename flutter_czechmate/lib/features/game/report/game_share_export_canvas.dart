@@ -32,16 +32,19 @@ class GameShareExportTheme {
 
   final Color foreground;
   final Color muted;
+
   /// Branding / recap capsule — aligned with eval line.
   final Color accent;
   final Color evalLine;
   final Color cumulativeLine;
   final Color chartWhite;
   final Color chartBlack;
+
   /// Always opaque — transparent PNG must not wash out squares.
   final Color boardLight;
   final Color boardDark;
   final Color divider;
+
   /// Opaque panel behind charts when the outer export background is transparent.
   final Color? chartPlotBackground;
   final Color? chartAxisMuted;
@@ -184,7 +187,10 @@ class GameShareExportCanvas extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 Theme.of(context).colorScheme.surfaceContainerHigh,
-                Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.88),
+                Theme.of(context)
+                    .colorScheme
+                    .surfaceContainerHighest
+                    .withValues(alpha: 0.88),
               ],
             ),
             border: Border.all(color: theme.divider),
@@ -221,7 +227,8 @@ class GameShareExportCanvas extends StatelessWidget {
     if (options.showCumulativeChart && hasTiming) n++;
     if (options.showPerMoveChart && hasTiming) n++;
     if (n == 0) {
-      return const _ChartHeights(eval: 80, cumulative: 120, barOuter: 130, barPlot: 118);
+      return const _ChartHeights(
+          eval: 80, cumulative: 120, barOuter: 130, barPlot: 118);
     }
     final slice = (maxH * 0.36 / n).clamp(72.0, 118.0);
     final barPlot = (slice * 0.92).clamp(68.0, 112.0);
@@ -339,14 +346,17 @@ class GameShareExportCanvas extends StatelessWidget {
             (model.capturedValueWhite <= 0 && model.capturedValueBlack <= 0)) {
           return null;
         }
-        return Text(materialCaption, style: TextStyle(fontSize: 11, color: theme.muted));
+        return Text(materialCaption,
+            style: TextStyle(fontSize: 11, color: theme.muted));
       case GameExportBlockId.board:
         return _boardOrNull();
       case GameExportBlockId.eval:
         if (!options.showEvalChart) return null;
         return _eval(ch.eval);
       case GameExportBlockId.timing:
-        if (!options.showCumulativeChart && !options.showPerMoveChart) return null;
+        if (!options.showCumulativeChart && !options.showPerMoveChart) {
+          return null;
+        }
         return _timing(ch.cumulative, ch.barOuter, ch.barPlot);
     }
   }
@@ -364,7 +374,10 @@ class GameShareExportCanvas extends StatelessWidget {
         ),
         child: Text(
           recapCaption!,
-          style: TextStyle(color: theme.foreground, fontWeight: FontWeight.w600, fontSize: 13),
+          style: TextStyle(
+              color: theme.foreground,
+              fontWeight: FontWeight.w600,
+              fontSize: 13),
         ),
       ),
     );
@@ -474,7 +487,8 @@ class GameShareExportCanvas extends StatelessWidget {
   Widget _eval(double height) {
     if (!options.showEvalChart) return const SizedBox.shrink();
     if (evalPoints.isEmpty) {
-      return Text(noEvalCaption, style: TextStyle(fontSize: 11, color: theme.muted));
+      return Text(noEvalCaption,
+          style: TextStyle(fontSize: 11, color: theme.muted));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,14 +511,16 @@ class GameShareExportCanvas extends StatelessWidget {
       return const SizedBox.shrink();
     }
     if (!hasTiming) {
-      return Text(noTimingCaption, style: TextStyle(fontSize: 11, color: theme.muted));
+      return Text(noTimingCaption,
+          style: TextStyle(fontSize: 11, color: theme.muted));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (options.showCumulativeChart) ...[
           Text(elapsedTitle, style: _titleSm.copyWith(fontSize: 12)),
-          Text(elapsedSubtitle, style: TextStyle(fontSize: 10, color: theme.muted)),
+          Text(elapsedSubtitle,
+              style: TextStyle(fontSize: 10, color: theme.muted)),
           const SizedBox(height: 4),
           CumulativePlayedTimeChart(
             points: cumulative,
@@ -518,7 +534,8 @@ class GameShareExportCanvas extends StatelessWidget {
         ],
         if (options.showPerMoveChart) ...[
           Text(perMoveTitle, style: _titleSm.copyWith(fontSize: 12)),
-          Text(perMoveSubtitle, style: TextStyle(fontSize: 10, color: theme.muted)),
+          Text(perMoveSubtitle,
+              style: TextStyle(fontSize: 10, color: theme.muted)),
           const SizedBox(height: 4),
           TimePerMoveBarChart(
             points: think,

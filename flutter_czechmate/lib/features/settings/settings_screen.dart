@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../connection/board_session_notifier.dart';
@@ -37,14 +40,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   int _devTitleTapCount = 0;
   DateTime? _devTitleLastTap;
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(appUpdateSuggestionProvider);
-    });
-  }
-
   String _linkTierLabel(BoardSessionState s, AppLocalizations l10n) {
     if (s.transport == BoardTransport.none) {
       return l10n.settingsLinkDisconnected;
@@ -72,14 +67,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _devTitleLastTap = now;
     if (_devTitleTapCount >= 7) {
       _devTitleTapCount = 0;
-      unawaited(ref.read(prefsRepositoryProvider).setDeveloperModeUnlocked(true));
+      unawaited(
+          ref.read(prefsRepositoryProvider).setDeveloperModeUnlocked(true));
       if (!mounted) return;
       setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.settingsDeveloperModeUnlockedSnack),
-          duration: const Duration(seconds: 2),
-        ),
+      showAppSnackBar(
+        context,
+        context.l10n.settingsDeveloperModeUnlockedSnack,
+        duration: const Duration(seconds: 2),
       );
     }
   }
@@ -133,6 +128,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(mainNavTabIndexProvider, (previous, next) {
+      if (next == AppMainTab.settings && previous != AppMainTab.settings) {
+        ref.invalidate(appUpdateSuggestionProvider);
+      }
+    });
+    ref.listen<AsyncValue<List<ConnectivityResult>>>(
+      networkConnectivityProvider,
+      (previous, next) {
+        if (ref.read(mainNavTabIndexProvider) != AppMainTab.settings) {
+          return;
+        }
+        final online = next.maybeWhen(
+          data: (results) =>
+              results.isNotEmpty &&
+              results.any((r) => r != ConnectivityResult.none),
+          orElse: () => false,
+        );
+        if (!online) return;
+        final wasOffline = previous?.maybeWhen(
+              data: (results) =>
+                  results.isEmpty ||
+                  results.every((r) => r == ConnectivityResult.none),
+              orElse: () => true,
+            ) ??
+            true;
+        if (wasOffline) {
+          ref.invalidate(appUpdateSuggestionProvider);
+        }
+      },
+    );
+
     ref.watch(connectionModeUiRefreshProvider);
     final prefs = ref.watch(prefsRepositoryProvider);
     final ui = ref.watch(gameUiNotifierProvider);
@@ -180,155 +206,156 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             shape: Theme.of(context).listTileTheme.shape,
           ),
         ),
-        child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            isDesktopEmbedder() ? 24 : 16,
-            20,
-            isDesktopEmbedder() ? 24 : 16,
-            32,
-          ),
-          children: [
-            const AppUpdateSettingsCallout(),
-            _destinationCard(
-              leading: const Icon(Icons.dashboard_outlined),
-              title: l10n.settingsOverviewTitle,
-              subtitle: session.lastError != null
-                  ? l10n.settingsOverviewSubtitleError
-                  : l10n.settingsOverviewSubtitleOk,
-              onTap: () => _pushPage(const SettingsOverviewPage()),
+        child: desktopSettingsDetailBody(
+          ListView(
+            padding: EdgeInsets.fromLTRB(
+              isDesktopEmbedder() ? 24 : 16,
+              20,
+              isDesktopEmbedder() ? 24 : 16,
+              32,
             ),
-            _destinationCard(
-              leading: Icon(Icons.link, color: _linkTierColor(session, cs)),
-              title: l10n.settingsConnectionTitle,
-              subtitle: l10n.settingsConnectionSubtitle(
-                _linkTierLabel(session, l10n),
-                switch (session.transport) {
-                  BoardTransport.wifi => l10n.transportWifi,
-                  BoardTransport.ble => l10n.transportBluetooth,
-                  BoardTransport.mock => l10n.transportShortDemo,
-                  BoardTransport.none => l10n.transportShortDash,
+            children: [
+              const AppUpdateSettingsCallout(),
+              _destinationCard(
+                leading: const Icon(Icons.dashboard_outlined),
+                title: l10n.settingsOverviewTitle,
+                subtitle: session.lastError != null
+                    ? l10n.settingsOverviewSubtitleError
+                    : l10n.settingsOverviewSubtitleOk,
+                onTap: () => _pushPage(const SettingsOverviewPage()),
+              ),
+              _destinationCard(
+                leading: Icon(Icons.link, color: _linkTierColor(session, cs)),
+                title: l10n.settingsConnectionTitle,
+                subtitle: l10n.settingsConnectionSubtitle(
+                  _linkTierLabel(session, l10n),
+                  switch (session.transport) {
+                    BoardTransport.wifi => l10n.transportWifi,
+                    BoardTransport.ble => l10n.transportBluetooth,
+                    BoardTransport.mock => l10n.transportShortDemo,
+                    BoardTransport.none => l10n.transportShortDash,
+                  },
+                ),
+                onTap: () => _pushPage(const SettingsConnectionPage()),
+              ),
+              _destinationCard(
+                leading: const Icon(Icons.grid_on_outlined),
+                title: l10n.settingsBoardAppearanceTitle,
+                subtitle: l10n.settingsBoardAppearanceSubtitle(
+                  ui.layoutMode == 'boardOnly'
+                      ? l10n.settingsLayoutBoardOnlyShort
+                      : l10n.settingsLayoutFullUiShort,
+                  '${(ui.boardZoomStorage * 100).round()}%',
+                  ui.boardStyleRaw,
+                ),
+                onTap: () => _pushPage(const SettingsBoardAppearancePage()),
+              ),
+              _destinationCard(
+                leading: const Icon(Icons.palette_outlined),
+                title: l10n.settingsAppAppearanceTitle,
+                subtitle: switch (prefs.appearance) {
+                  'light' => l10n.settingsAppearanceLight,
+                  'dark' => l10n.settingsAppearanceDark,
+                  'oled' => l10n.settingsAppearanceOled,
+                  _ => l10n.settingsAppearanceSystem,
                 },
+                onTap: () => _pushPage(const SettingsAppAppearancePage()),
               ),
-              onTap: () => _pushPage(const SettingsConnectionPage()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.grid_on_outlined),
-              title: l10n.settingsBoardAppearanceTitle,
-              subtitle: l10n.settingsBoardAppearanceSubtitle(
-                ui.layoutMode == 'boardOnly'
-                    ? l10n.settingsLayoutBoardOnlyShort
-                    : l10n.settingsLayoutFullUiShort,
-                '${(ui.boardZoomStorage * 100).round()}%',
-                ui.boardStyleRaw,
+              _destinationCard(
+                leading: const Icon(Icons.language_outlined),
+                title: l10n.settingsLanguage,
+                subtitle: switch (prefs.uiLanguage) {
+                  'cs' => l10n.languageCzech,
+                  'en' => l10n.languageEnglish,
+                  _ => l10n.languageSystem,
+                },
+                onTap: () => _pushPage(const SettingsLanguagePage()),
               ),
-              onTap: () => _pushPage(const SettingsBoardAppearancePage()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.palette_outlined),
-              title: l10n.settingsAppAppearanceTitle,
-              subtitle: switch (prefs.appearance) {
-                'light' => l10n.settingsAppearanceLight,
-                'dark' => l10n.settingsAppearanceDark,
-                'oled' => l10n.settingsAppearanceOled,
-                _ => l10n.settingsAppearanceSystem,
-              },
-              onTap: () => _pushPage(const SettingsAppAppearancePage()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.language_outlined),
-              title: l10n.settingsLanguage,
-              subtitle: switch (prefs.uiLanguage) {
-                'cs' => l10n.languageCzech,
-                'en' => l10n.languageEnglish,
-                _ => l10n.languageSystem,
-              },
-              onTap: () => _pushPage(const SettingsLanguagePage()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.psychology_outlined),
-              title: l10n.settingsCoachAiTitle,
-              subtitle: coachAiNavSubtitle(l10n, prefs.coachAiPriority),
-              onTap: () => _pushPage(const CoachAiSettingsScreen()),
-            ),
-            _destinationCard(
-              leading: Icon(
-                Icons.system_update_alt_outlined,
-                color: firmwareHighlight ? cs.primary : null,
+              _destinationCard(
+                leading: const Icon(Icons.psychology_outlined),
+                title: l10n.settingsCoachAiTitle,
+                subtitle: coachAiNavSubtitle(l10n, prefs.coachAiPriority),
+                onTap: () => _pushPage(const CoachAiSettingsScreen()),
               ),
-              title: firmwareSnap.updateAvailable
-                  ? l10n.firmwareTileTitleUpdateAvailable(
-                      firmwareSnap.manifest?.version ?? '—',
-                    )
-                  : (firmwareShowOtaGit
-                      ? (firmwareDevDowngrade
-                          ? l10n.firmwareTileTitleDeveloperDowngrade(
-                              firmwareSnap.manifest?.version ?? '—',
-                            )
-                          : firmwareDevReflash
-                              ? l10n.firmwareTileTitleDeveloperReflash(
-                                  firmwareSnap.manifest?.version ?? '—',
-                                )
-                              : l10n.firmwareTileTitleGitBle(
-                                  firmwareSnap.manifest?.version ?? '—',
-                                ))
-                      : l10n.firmwareTileTitleDefault),
-              subtitle: firmwareSnap.updateAvailable
-                  ? '${l10n.firmwareTwoStepOtaHint} (${prefs.firmwareUpdateRemindersEnabled ? l10n.firmwareRemindersOnShort : l10n.firmwareRemindersOffShort}).'
-                  : (firmwareShowOtaGit &&
-                          !firmwareSnap.hasBoardVersion)
-                      ? l10n.firmwareTileSubtitleBleGitOnly
-                      : (firmwareDevDowngrade
-                          ? l10n.firmwareTileSubtitleDeveloperDowngrade
-                          : firmwareDevReflash
-                              ? l10n.firmwareTileSubtitleDeveloperReflash
-                              : l10n.firmwareTileSubtitleIdle),
-              titleColor: firmwareHighlight ? cs.primary : null,
-              subtitleMaxLines: 4,
-              onTap: () => _pushPage(const FirmwareSettingsScreen()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.home_work_outlined),
-              title: l10n.settingsTileSmartHomeTitle,
-              subtitle: l10n.settingsTileSmartHomeSubtitle,
-              onTap: () => _pushPage(const HomeAssistantMqttScreen()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.lightbulb_outline),
-              title: l10n.settingsTileBoardLightTitle,
-              subtitle: l10n.settingsTileBoardLightSubtitle,
-              onTap: () => _pushPage(const SettingsBoardLightPage()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.menu_book_outlined),
-              title: l10n.settingsTileModulesTitle,
-              subtitle: l10n.settingsTileModulesSubtitle,
-              onTap: () => _pushPage(const SettingsModulesPage()),
-            ),
-            _destinationCard(
-              leading: const Icon(Icons.memory_outlined),
-              title: l10n.settingsTileNvsDiagTitle,
-              subtitle: l10n.settingsTileNvsDiagSubtitle,
-              onTap: () => _pushPage(const SettingsDiagnosticsPage()),
-            ),
-            _destinationCard(
-              leading: Icon(
-                Icons.info_outline,
-                color: appUpdateHighlight ? cs.primary : null,
+              _destinationCard(
+                leading: Icon(
+                  Icons.system_update_alt_outlined,
+                  color: firmwareHighlight ? cs.primary : null,
+                ),
+                title: firmwareSnap.updateAvailable
+                    ? l10n.firmwareTileTitleUpdateAvailable(
+                        firmwareSnap.manifest?.version ?? '—',
+                      )
+                    : (firmwareShowOtaGit
+                        ? (firmwareDevDowngrade
+                            ? l10n.firmwareTileTitleDeveloperDowngrade(
+                                firmwareSnap.manifest?.version ?? '—',
+                              )
+                            : firmwareDevReflash
+                                ? l10n.firmwareTileTitleDeveloperReflash(
+                                    firmwareSnap.manifest?.version ?? '—',
+                                  )
+                                : l10n.firmwareTileTitleGitBle(
+                                    firmwareSnap.manifest?.version ?? '—',
+                                  ))
+                        : l10n.firmwareTileTitleDefault),
+                subtitle: firmwareSnap.updateAvailable
+                    ? '${l10n.firmwareTwoStepOtaHint} (${prefs.firmwareUpdateRemindersEnabled ? l10n.firmwareRemindersOnShort : l10n.firmwareRemindersOffShort}).'
+                    : (firmwareShowOtaGit && !firmwareSnap.hasBoardVersion)
+                        ? l10n.firmwareTileSubtitleBleGitOnly
+                        : (firmwareDevDowngrade
+                            ? l10n.firmwareTileSubtitleDeveloperDowngrade
+                            : firmwareDevReflash
+                                ? l10n.firmwareTileSubtitleDeveloperReflash
+                                : l10n.firmwareTileSubtitleIdle),
+                titleColor: firmwareHighlight ? cs.primary : null,
+                subtitleMaxLines: 4,
+                onTap: () => _pushPage(const FirmwareSettingsScreen()),
               ),
-              title: l10n.settingsTileAboutTitle,
-              subtitle: l10n.settingsTileAboutSubtitle,
-              titleColor: appUpdateHighlight ? cs.primary : null,
-              onTap: () => _pushPage(const SettingsAboutPage()),
-            ),
-            _destinationCard(
-              leading: Icon(Icons.warning_amber_rounded, color: cs.error),
-              title: l10n.settingsFactoryTileTitle,
-              subtitle: l10n.settingsFactoryTileSubtitle,
-              titleColor: cs.error,
-              onTap: () => _pushPage(const SettingsFactoryPage()),
-            ),
-            const SizedBox(height: 40),
-          ],
+              _destinationCard(
+                leading: const Icon(Icons.home_work_outlined),
+                title: l10n.settingsTileSmartHomeTitle,
+                subtitle: l10n.settingsTileSmartHomeSubtitle,
+                onTap: () => _pushPage(const HomeAssistantMqttScreen()),
+              ),
+              _destinationCard(
+                leading: const Icon(Icons.lightbulb_outline),
+                title: l10n.settingsTileBoardLightTitle,
+                subtitle: l10n.settingsTileBoardLightSubtitle,
+                onTap: () => _pushPage(const SettingsBoardLightPage()),
+              ),
+              _destinationCard(
+                leading: const Icon(Icons.menu_book_outlined),
+                title: l10n.settingsTileModulesTitle,
+                subtitle: l10n.settingsTileModulesSubtitle,
+                onTap: () => _pushPage(const SettingsModulesPage()),
+              ),
+              _destinationCard(
+                leading: const Icon(Icons.memory_outlined),
+                title: l10n.settingsTileNvsDiagTitle,
+                subtitle: l10n.settingsTileNvsDiagSubtitle,
+                onTap: () => _pushPage(const SettingsDiagnosticsPage()),
+              ),
+              _destinationCard(
+                leading: Icon(
+                  Icons.info_outline,
+                  color: appUpdateHighlight ? cs.primary : null,
+                ),
+                title: l10n.settingsTileAboutTitle,
+                subtitle: l10n.settingsTileAboutSubtitle,
+                titleColor: appUpdateHighlight ? cs.primary : null,
+                onTap: () => _pushPage(const SettingsAboutPage()),
+              ),
+              _destinationCard(
+                leading: Icon(Icons.warning_amber_rounded, color: cs.error),
+                title: l10n.settingsFactoryTileTitle,
+                subtitle: l10n.settingsFactoryTileSubtitle,
+                titleColor: cs.error,
+                onTap: () => _pushPage(const SettingsFactoryPage()),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

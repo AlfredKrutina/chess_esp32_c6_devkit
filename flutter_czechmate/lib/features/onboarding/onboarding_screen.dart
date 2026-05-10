@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../app_providers.dart';
+import '../../core/platform/host_runtime_permissions.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../l10n/app_localizations.dart';
@@ -34,13 +36,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   bool? _wifiGranted;
   bool _permBootstrapDone = false;
 
-  bool get _isMobileNative =>
-      !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.iOS ||
-          defaultTargetPlatform == TargetPlatform.android);
-
   bool get _isAndroid =>
       !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+
+  bool get _isIos => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  bool get _isMacOs => !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+
+  bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
+
+  bool get _isWindows =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.windows;
+
+  bool get _isMobileNative => _isAndroid || _isIos;
+
+  /// Karty BLE v onboarding (mobil + desktop s flutter_blue_plus).
+  bool get _showsBleOnboardingCards =>
+      _isAndroid || _isIos || _isMacOs || _isLinux;
 
   @override
   void initState() {
@@ -114,21 +126,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _refreshBleStatus() async {
-    if (!_isMobileNative) return;
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      final g = await Permission.bluetooth.isGranted;
-      if (mounted) setState(() => _bleGranted = g);
-      return;
-    }
-    final c = await Permission.bluetoothConnect.isGranted;
-    final s = await Permission.bluetoothScan.isGranted;
-    if (mounted) setState(() => _bleGranted = c && s);
+    if (!_showsBleOnboardingCards) return;
+    final snap = await blePermissionGrantedSnapshot();
+    if (mounted) setState(() => _bleGranted = snap);
   }
 
   Future<void> _refreshWifiStatus() async {
     if (!_isAndroid) return;
-    final g = await Permission.nearbyWifiDevices.isGranted;
-    if (mounted) setState(() => _wifiGranted = g);
+    final n = await Permission.nearbyWifiDevices.status;
+    if (n.isGranted) {
+      if (mounted) setState(() => _wifiGranted = true);
+      return;
+    }
+    final loc = await Permission.locationWhenInUse.status;
+    if (mounted) setState(() => _wifiGranted = loc.isGranted);
   }
 
   Future<void> _requestPhotos() async {
@@ -137,49 +148,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     await _refreshPhotoStatus();
     if (!mounted) return;
     if (!r.isGranted && r != PermissionStatus.limited) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.onboardingPermDeniedSnack)),
-      );
+      showAppSnackBar(context, context.l10n.onboardingPermDeniedSnack);
     }
   }
 
   Future<void> _requestBle() async {
-    if (!_isMobileNative) return;
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      await Permission.bluetooth.request();
-    } else {
-      await Permission.bluetoothConnect.request();
-      await Permission.bluetoothScan.request();
-    }
+    if (!_showsBleOnboardingCards) return;
+    await ensureBlePermissionsForScan();
     await _refreshBleStatus();
     if (!mounted) return;
     final ok = _bleGranted == true;
     if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.onboardingPermDeniedSnack)),
-      );
+      showAppSnackBar(context, context.l10n.onboardingPermDeniedSnack);
     }
   }
 
   Future<void> _requestWifi() async {
     if (_isAndroid) {
-      final r = await Permission.nearbyWifiDevices.request();
+      final ok = await ensureWifiSsidReadPermissions();
       await _refreshWifiStatus();
       if (!mounted) return;
-      if (!r.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.onboardingPermDeniedSnack)),
-        );
+      if (!ok) {
+        showAppSnackBar(context, context.l10n.onboardingPermDeniedSnack);
       }
     }
   }
 
   void _ensurePermBootstrap() {
-    if (_step != 1 || !_isMobileNative || _permBootstrapDone) return;
+    if (_step != 1 || _permBootstrapDone) return;
     _permBootstrapDone = true;
+    if (_isWindows) return;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _refreshPhotoStatus();
-      await _refreshBleStatus();
+      if (_isMobileNative) await _refreshPhotoStatus();
+      if (_showsBleOnboardingCards) await _refreshBleStatus();
       if (_isAndroid) await _refreshWifiStatus();
     });
   }
@@ -260,30 +261,87 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
+  List<Widget> _permissionsHeader(AppLocalizations l10n, ThemeData theme) {
+    return [
+      Icon(Icons.shield_outlined,
+          size: 72, color: theme.colorScheme.primary),
+      const SizedBox(height: 16),
+      Text(
+        l10n.onboardingPermissionsTitle,
+        style: theme.textTheme.headlineSmall
+            ?.copyWith(fontWeight: FontWeight.bold),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 8),
+      Text(
+        l10n.onboardingPermissionsSubtitle,
+        textAlign: TextAlign.center,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+      const SizedBox(height: 24),
+    ];
+  }
+
   Widget _buildPermissionsStep(AppLocalizations l10n, ThemeData theme) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Icon(Icons.shield_outlined,
-              size: 72, color: theme.colorScheme.primary),
-          const SizedBox(height: 16),
-          Text(
-            l10n.onboardingPermissionsTitle,
-            style: theme.textTheme.headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            l10n.onboardingPermissionsSubtitle,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+    if (_isWindows) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ..._permissionsHeader(l10n, theme),
+            Text(
+              l10n.onboardingPermissionsDesktopWindowsBody,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium,
             ),
-          ),
-          const SizedBox(height: 24),
-          if (_isMobileNative) ...[
+          ],
+        ),
+      );
+    }
+
+    if (_isMacOs || _isLinux) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ..._permissionsHeader(l10n, theme),
+            _PermissionCard(
+              icon: Icons.bluetooth_searching,
+              title: l10n.onboardingPermBleTitle,
+              body: l10n.onboardingPermBleBody,
+              granted: _bleGranted,
+              actionLabel: l10n.onboardingPermBleAllow,
+              onAction: _requestBle,
+              onOpenSettings: () => openAppSettings(),
+              settingsLabel: l10n.onboardingOpenSettings,
+              grantedLabel: l10n.onboardingPermGrantedShort,
+            ),
+            const SizedBox(height: 12),
+            _PermissionCard(
+              icon: Icons.wifi,
+              title: l10n.onboardingPermWifiTitle,
+              body: l10n.onboardingPermWifiBodyDesktop,
+              granted: null,
+              actionLabel: '',
+              onAction: null,
+              onOpenSettings: null,
+              settingsLabel: null,
+              grantedLabel: null,
+              infoOnly: true,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_isMobileNative) {
+      return SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ..._permissionsHeader(l10n, theme),
             _PermissionCard(
               icon: Icons.photo_library_outlined,
               title: l10n.onboardingPermPhotosTitle,
@@ -333,12 +391,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 grantedLabel: null,
                 infoOnly: true,
               ),
-          ] else
-            Text(
-              l10n.onboardingPermissionsDesktopBody,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium,
-            ),
+          ],
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ..._permissionsHeader(l10n, theme),
+          Text(
+            l10n.onboardingPermissionsDesktopBody,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium,
+          ),
         ],
       ),
     );

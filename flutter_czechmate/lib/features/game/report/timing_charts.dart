@@ -149,7 +149,10 @@ class TimePerMoveBarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final bars = points.where((p) => p.secondsFromPrevious != null).toList();
     if (bars.isEmpty) return SizedBox(height: outerHeight);
-    final maxS = bars.map((p) => p.secondsFromPrevious!).reduce((a, b) => a > b ? a : b).clamp(0.5, 9999.0);
+    final maxS = bars
+        .map((p) => p.secondsFromPrevious!)
+        .reduce((a, b) => a > b ? a : b)
+        .clamp(0.5, 9999.0);
     const barW = 12.0;
     const gap = 2.0;
     final chartW = bars.length * (barW + gap) + 40;
@@ -219,9 +222,12 @@ class _BarPainter extends CustomPainter {
       final x = padL + i * (barW + gap);
       final y = h - bh;
       final paint = Paint()
-        ..color = p.isWhite ? whiteColor.withValues(alpha: 0.92) : blackColor.withValues(alpha: 0.88);
+        ..color = p.isWhite
+            ? whiteColor.withValues(alpha: 0.92)
+            : blackColor.withValues(alpha: 0.88);
       canvas.drawRRect(
-        RRect.fromRectAndRadius(Rect.fromLTWH(x, y, barW, bh), const Radius.circular(2)),
+        RRect.fromRectAndRadius(
+            Rect.fromLTWH(x, y, barW, bh), const Radius.circular(2)),
         paint,
       );
     }

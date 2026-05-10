@@ -36,6 +36,8 @@
 	<string>CZECHMATE uses your photo library to set a profile picture.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>CZECHMATE connects to your chess board on the local network (for example over Wi‑Fi at 192.168.x.x) for games, settings, and firmware updates.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CZECHMATE uses your approximate location only so iOS can expose the current Wi‑Fi network name when provisioning the board — not for maps or tracking.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

@@ -11,13 +11,14 @@ Future<void> runBoardCommandWithSnackBar(
   try {
     await action();
     if (!context.mounted) return;
-    showGlassSnackBar(context, successMessage);
+    showAppSnackBar(context, successMessage);
   } catch (e) {
     if (!context.mounted) return;
-    showGlassSnackBar(
+    showAppSnackBar(
       context,
       'Could not send command. Check Bluetooth/Wi‑Fi and the board URL in Settings. '
       'Details: $e',
+      errorStyle: true,
     );
   }
 }

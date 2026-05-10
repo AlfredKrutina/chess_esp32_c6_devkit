@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
-import '../../../core/constants/app_environment.dart';
+import '../../../core/utils/app_debug_log.dart';
 import '../../../core/models/board_timer_state.dart';
 import '../../../core/utils/fen_from_board.dart';
 import '../../../core/utils/user_facing_error_message.dart';
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/widgets/glass_snackbar.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/connection_diagnostics_screen.dart';
 import 'board_device_features_view.dart';
@@ -63,9 +64,9 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
       final s = await ref.read(boardApiClientProvider).fetchWiFiStatus(baseUrl);
       if (mounted) setState(() => _wifiStatus = s);
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Chyba: $e')));
+      if (mounted) {
+        showAppSnackBar(context, 'Chyba: $e', errorStyle: true);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -101,13 +102,13 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
             ssid: _ssidCtrl.text.trim(),
             password: _passCtrl.text,
           );
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Odesláno na ESP')));
+      if (mounted) {
+        showAppSnackBar(context, 'Odesláno na ESP');
+      }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Chyba: $e')));
+      if (mounted) {
+        showAppSnackBar(context, 'Chyba: $e', errorStyle: true);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
       _refreshWiFi();
@@ -178,9 +179,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
             value: prefs.coachTraceLogsEnabled,
             onChanged: (v) async {
               await prefs.setCoachTraceLogsEnabled(v);
-              if (AppEnvironment.staging) {
-                debugPrint('[staging] coachTraceLogs=$v');
-              }
+              appDebugLog('[staging] coachTraceLogs=$v');
               setState(() {});
             },
           ),
@@ -196,9 +195,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                             .read(boardSessionNotifierProvider.notifier)
                             .tryResumeFromPrefs();
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Obnoveno z prefs')));
+                          showAppSnackBar(context, 'Obnoveno z prefs');
                         }
                       },
                 child: const Text('Spustit připojení'),
@@ -207,8 +204,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                 onPressed: () {
                   ref.read(boardSessionNotifierProvider.notifier).disconnect();
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Transport zastaven')));
+                    showAppSnackBar(context, 'Transport zastaven');
                   }
                 },
                 child: const Text('Zastavit'),
@@ -241,16 +237,15 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                             .read(boardApiClientProvider)
                             .postWiFiDisconnect(baseUrl);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('STA odpojeno')));
+                          showAppSnackBar(context, 'STA odpojeno');
                         }
                       } catch (e) {
                         if (context.mounted) {
                           final l10n = context.l10n;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(userFacingErrorSummary(l10n, e)),
-                            ),
+                          showAppSnackBar(
+                            context,
+                            userFacingErrorSummary(l10n, e),
+                            errorStyle: true,
                           );
                         }
                       } finally {
@@ -286,17 +281,15 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                             .read(boardApiClientProvider)
                             .postWiFiClear(baseUrl);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Wi‑Fi NVS vymazáno')));
+                          showAppSnackBar(context, 'Wi‑Fi NVS vymazáno');
                         }
                       } catch (e) {
                         if (context.mounted) {
                           final l10n = context.l10n;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(userFacingErrorSummary(l10n, e)),
-                            ),
+                          showAppSnackBar(
+                            context,
+                            userFacingErrorSummary(l10n, e),
+                            errorStyle: true,
                           );
                         }
                       } finally {

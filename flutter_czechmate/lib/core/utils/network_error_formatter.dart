@@ -11,9 +11,9 @@ class NetworkErrorFormatter {
     if (s.contains('SocketException') ||
         s.contains('Failed host lookup') ||
         s.contains('Connection refused')) {
-      return 'Cannot reach the server. Check internet (for cloud) or that the phone '
-          'and board are on the same LAN. If you are only on the board’s Wi‑Fi hotspot '
-          'without internet, turn Wi‑Fi off or use mobile data for cloud features.';
+      return 'Cannot reach the server. Check internet (for cloud) or that this device '
+          'and the board are on the same LAN. If you are only on the board’s Wi‑Fi hotspot '
+          'without internet, turn Wi‑Fi off or use another connection with internet for cloud features.';
     }
     if (s.contains('TimeoutException') || s.contains('timed out')) {
       return 'The board did not respond in time. Move closer, check power, and try again.';

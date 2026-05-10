@@ -100,7 +100,8 @@
       "https://api.github.com/repos/alfredkrutina/chess_esp32_c6_devkit/releases/latest";
     var apkAnchors = document.querySelectorAll("[data-dl-apk]");
     var dmgAnchors = document.querySelectorAll("[data-dl-dmg]");
-    if (!apkAnchors.length && !dmgAnchors.length) return;
+    var winAnchors = document.querySelectorAll("[data-dl-windows]");
+    if (!apkAnchors.length && !dmgAnchors.length && !winAnchors.length) return;
     if (!window.fetch) return;
 
     fetch(api, { headers: { Accept: "application/vnd.github+json" } })
@@ -116,6 +117,9 @@
         var dmg = assets.find(function (a) {
           return /\.dmg$/i.test(a.name);
         });
+        var win = assets.find(function (a) {
+          return /windows-setup\.exe$/i.test(a.name);
+        });
         apkAnchors.forEach(function (el) {
           if (apk && apk.browser_download_url) {
             el.href = apk.browser_download_url;
@@ -126,6 +130,12 @@
           if (dmg && dmg.browser_download_url) {
             el.href = dmg.browser_download_url;
             if (dmg.name) el.setAttribute("download", dmg.name);
+          }
+        });
+        winAnchors.forEach(function (el) {
+          if (win && win.browser_download_url) {
+            el.href = win.browser_download_url;
+            if (win.name) el.setAttribute("download", win.name);
           }
         });
       })

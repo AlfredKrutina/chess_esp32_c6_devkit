@@ -1,4 +1,4 @@
-# Android APK + macOS DMG → GitHub Releases (stažení z GitHubu bez App Store).
+# Android APK + macOS DMG + Windows EXE (Inno Setup) → GitHub Releases (stažení z GitHubu bez App Store).
 #
 # Spuštění:
 #   - Automaticky: push na main/master mění flutter_czechmate/** nebo tento workflow
@@ -9,6 +9,7 @@
 # Poznámky:
 #   - Android release je podepsaný debug klíčem z CI (stažení mimo Obchod Play → povolit „neznámý zdroj“).
 #   - macOS DMG není notářsky podepsaný → při prvním spuštění může být potřeba obejít Gatekeeper (klik pravým → Otevřít).
+#   - Windows: Inno Setup → czechmate-<ver>-windows-setup.exe (bez kódového podpisu → SmartScreen může varovat).
 
 name: Flutter app release
 
@@ -36,6 +37,7 @@ jobs:
       release_tag: ${{ steps.out.outputs.release_tag }}
       asset_version: ${{ steps.out.outputs.asset_version }}
       asset_safe: ${{ steps.out.outputs.asset_safe }}
+      asset_version_display: ${{ steps.out.outputs.asset_version_display }}
     steps:
       - uses: actions/checkout@v4
 
@@ -46,6 +48,7 @@ jobs:
           echo "asset_version=$VER" >> "$GITHUB_OUTPUT"
           echo "asset_safe=$SAFE" >> "$GITHUB_OUTPUT"
           BASE="${VER%%+*}"
+          echo "asset_version_display=$BASE" >> "$GITHUB_OUTPUT"
           if [ "${{ github.ref_type }}" = "tag" ]; then
             echo "release_tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -130,8 +133,62 @@ jobs:
           name: macos-dmg
           path: czechmate-${{ needs.meta.outputs.asset_safe }}-macos.dmg
 
+  windows:
+    needs: meta
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Inno Setup 6
+        run: choco install innosetup -y --no-progress
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter Windows release build
+        working-directory: flutter_czechmate
+        run: |
+          flutter config --enable-windows-desktop
+          flutter pub get
+          flutter build windows --release
+
+      - name: Compile installer (Inno Setup)
+        working-directory: ${{ github.workspace }}
+        run: |
+          $display = "${{ needs.meta.outputs.asset_version_display }}"
+          $safe = "${{ needs.meta.outputs.asset_safe }}"
+          $src = Join-Path $env:GITHUB_WORKSPACE "flutter_czechmate\build\windows\x64\runner\Release"
+          $iss = Join-Path $env:GITHUB_WORKSPACE "flutter_czechmate\installer\windows\CzechMateSetup.iss"
+          if (-not (Test-Path $src)) { throw "Missing Flutter output: $src" }
+          if (-not (Test-Path $iss)) { throw "Missing ISS: $iss" }
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            $iscc = Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe"
+          }
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe not found (Inno Setup)." }
+          & $iscc /DMyAppDisplayVersion="$display" /DMyAppOutputVersion="$safe" /DMyAppSourceDir="$src" $iss
+
+      - name: Verify installer on repo root
+        working-directory: ${{ github.workspace }}
+        run: |
+          $exe = "czechmate-${{ needs.meta.outputs.asset_safe }}-windows-setup.exe"
+          if (-not (Test-Path $exe)) {
+            Get-ChildItem -Filter "*.exe" -Recurse -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }
+            throw "Expected $exe at repository root"
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-setup
+          path: czechmate-${{ needs.meta.outputs.asset_safe }}-windows-setup.exe
+
   publish:
-    needs: [meta, android, macos]
+    needs: [meta, android, macos, windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

@@ -100,7 +100,7 @@ struct WatchRootView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 10) {
         if !model.phoneReachable {
-          Label("Telefon nedostupný", systemImage: "iphone.slash")
+          Label("Zařízení nedostupné", systemImage: "wifi.slash")
             .font(.caption2)
             .foregroundStyle(.secondary)
         }

@@ -11,5 +11,8 @@
 	<!-- Outgoing HTTPS (Stockfish cloud APIs, Coach LLM, LAN board HTTP). -->
 	<key>com.apple.security.network.client</key>
 	<true/>
+	<!-- Core Bluetooth (flutter_blue_plus): scan + GATT k šachovnici -->
+	<key>com.apple.security.device.bluetooth</key>
+	<true/>
 </dict>
 </plist>

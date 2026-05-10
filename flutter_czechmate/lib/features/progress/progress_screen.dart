@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/widgets/session_error_panel.dart';
@@ -178,52 +179,54 @@ class ProgressScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: Column(
-              children: [
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SegmentedButton<int>(
-                    segments: [
-                      ButtonSegment(
-                          value: 0,
-                          label: Text(l10n.progressTabLearn),
-                          icon: const Icon(Icons.school, size: 18)),
-                      ButtonSegment(
-                          value: 1,
-                          label: Text(l10n.progressTabStats),
-                          icon: const Icon(Icons.bar_chart, size: 18)),
-                    ],
-                    selected: {segment},
-                    onSelectionChanged: (Set<int> s) {
-                      if (s.isEmpty) return;
-                      ref.read(progressSegmentProvider.notifier).state =
-                          s.first;
-                    },
+      body: desktopFormDetailBody(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Column(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SegmentedButton<int>(
+                      segments: [
+                        ButtonSegment(
+                            value: 0,
+                            label: Text(l10n.progressTabLearn),
+                            icon: const Icon(Icons.school, size: 18)),
+                        ButtonSegment(
+                            value: 1,
+                            label: Text(l10n.progressTabStats),
+                            icon: const Icon(Icons.bar_chart, size: 18)),
+                      ],
+                      selected: {segment},
+                      onSelectionChanged: (Set<int> s) {
+                        if (s.isEmpty) return;
+                        ref.read(progressSegmentProvider.notifier).state =
+                            s.first;
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  segment == 0
-                      ? l10n.progressLearnCardSubtitle
-                      : l10n.progressStatsSegmentSubtitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: cs.onSurfaceVariant),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    segment == 0
+                        ? l10n.progressLearnCardSubtitle
+                        : l10n.progressStatsSegmentSubtitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: cs.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: segment == 0 ? _LearnBody() : _StatsBody(),
-          ),
-        ],
+            Expanded(
+              child: segment == 0 ? _LearnBody() : _StatsBody(),
+            ),
+          ],
+        ),
       ),
     );
   }

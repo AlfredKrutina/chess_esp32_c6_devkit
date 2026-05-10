@@ -7,7 +7,10 @@ import 'package:flutter/material.dart';
 bool isDesktopEmbedder() {
   if (kIsWeb) return false;
   return switch (defaultTargetPlatform) {
-    TargetPlatform.macOS || TargetPlatform.windows || TargetPlatform.linux => true,
+    TargetPlatform.macOS ||
+    TargetPlatform.windows ||
+    TargetPlatform.linux =>
+      true,
     _ => false,
   };
 }
@@ -28,3 +31,37 @@ EdgeInsets desktopContentPadding(bool desktopShell) {
   if (!desktopShell) return EdgeInsets.zero;
   return const EdgeInsets.symmetric(horizontal: 20);
 }
+
+/// Default max width for settings detail routes on desktop (narrow forms).
+const double kDesktopSettingsDetailMaxWidth = 560;
+
+/// Wider cap for dense sections (firmware, MQTT).
+const double kDesktopSettingsWideDetailMaxWidth = 640;
+
+/// Shared default for non-settings forms using the same constrained column.
+const double kDesktopFormDetailMaxWidth = kDesktopSettingsDetailMaxWidth;
+
+/// Max text/chat column width when coach panel is embedded beside the board (desktop).
+const double kDesktopCoachPanelMaxWidth = 520;
+
+/// Centers and constrains scrollable settings body on desktop embedders.
+Widget desktopSettingsDetailBody(
+  Widget child, {
+  double maxWidth = kDesktopSettingsDetailMaxWidth,
+}) {
+  if (!isDesktopEmbedder()) return child;
+  return Align(
+    alignment: Alignment.topCenter,
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: child,
+    ),
+  );
+}
+
+/// Alias for routes outside Settings that share the same layout helper.
+Widget desktopFormDetailBody(
+  Widget child, {
+  double maxWidth = kDesktopFormDetailMaxWidth,
+}) =>
+    desktopSettingsDetailBody(child, maxWidth: maxWidth);
