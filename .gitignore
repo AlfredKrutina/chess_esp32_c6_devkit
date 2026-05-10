@@ -25,6 +25,12 @@
 # Osobní learning plán (kořen projektu)
 /LEARNING_PLAN.md
 
+# Lokální poznámky (inventáře rizik, checklisty mimo Git — celá složka)
+/private-notes/
+
+# Lokální kopie UI auditu Flutter klienta (primární soubor je vedle repozitáře: ../flutter_czechmate_UI_AUDIT.md)
+/flutter_czechmate_UI_AUDIT.md
+
 
 # =============================================================================
 # ESP-IDF / toolchain

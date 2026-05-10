@@ -21,7 +21,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Play'), findsWidgets);
-    expect(find.text('Progress'), findsWidgets);
+    expect(find.text('Training'), findsWidgets);
+    expect(find.text('Puzzles'), findsWidgets);
     expect(find.text('Analysis'), findsWidgets);
   });
 }

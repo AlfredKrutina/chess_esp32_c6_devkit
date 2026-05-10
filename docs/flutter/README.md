@@ -123,7 +123,7 @@ JSON z BLE často končí ve `web_server_ble_command_dispatch` — stejná logik
 
 Dart: `BoardSessionNotifier.requestFirmwareOta` / `uploadFirmwareOtaBle`, `FirmwareOtaRunner`, `FirmwarePhoneHostOta`, `BleCzechmateClient.uploadFirmwareBle`.
 
-Test checklist (pokud ho mám v repu): [context/ota/e2e_verification_checklist.md](../../context/ota/e2e_verification_checklist.md).
+E2E poznámky k OTA si lze vést lokálně (např. vlastní checklist); veřejný popis kanálů a API je v [`docs/ota_architecture.md`](../ota_architecture.md).
 
 ---
 

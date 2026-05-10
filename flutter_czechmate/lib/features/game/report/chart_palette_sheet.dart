@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/models/chart_palette.dart';
+import '../../../core/widgets/app_modal_sheet.dart';
 import '../../../l10n/app_localizations.dart';
 
 const _kSwatches = <Color>[
@@ -27,7 +28,7 @@ Future<ChartPaletteColors?> showChartPaletteCustomizeSheet(
   required ChartPaletteColors initial,
   required AppLocalizations l10n,
 }) {
-  return showModalBottomSheet<ChartPaletteColors>(
+  return showAppModalBottomSheet<ChartPaletteColors>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -81,14 +82,16 @@ class _ChartPaletteSheetBodyState extends State<_ChartPaletteSheetBody> {
                     child: InkWell(
                       onTap: () => setState(() => apply(col)),
                       customBorder: const CircleBorder(),
-                        child: SizedBox(
+                      child: SizedBox(
                         width: 32,
                         height: 32,
                         child: _sameColor(current, col)
                             ? Icon(
                                 Icons.check,
                                 size: 18,
-                                color: _lightFg(col) ? Colors.black87 : Colors.white,
+                                color: _lightFg(col)
+                                    ? Colors.black87
+                                    : Colors.white,
                               )
                             : null,
                       ),
@@ -119,10 +122,21 @@ class _ChartPaletteSheetBodyState extends State<_ChartPaletteSheetBody> {
         children: [
           Text(
             l10n.reportChartPaletteCustomTitle,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.reportChartPaletteChoiceHint,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
           const SizedBox(height: 16),
-          _swatchRow(l10n.reportChartPaletteEvalLine, _c.evalLine, (v) => _c = _c.copyWith(evalLine: v)),
+          _swatchRow(l10n.reportChartPaletteEvalLine, _c.evalLine,
+              (v) => _c = _c.copyWith(evalLine: v)),
           const SizedBox(height: 14),
           _swatchRow(
             l10n.reportChartPaletteCumulative,
@@ -130,9 +144,11 @@ class _ChartPaletteSheetBodyState extends State<_ChartPaletteSheetBody> {
             (v) => _c = _c.copyWith(cumulative: v),
           ),
           const SizedBox(height: 14),
-          _swatchRow(l10n.reportChartPaletteBarWhite, _c.barWhite, (v) => _c = _c.copyWith(barWhite: v)),
+          _swatchRow(l10n.reportChartPaletteBarWhite, _c.barWhite,
+              (v) => _c = _c.copyWith(barWhite: v)),
           const SizedBox(height: 14),
-          _swatchRow(l10n.reportChartPaletteBarBlack, _c.barBlack, (v) => _c = _c.copyWith(barBlack: v)),
+          _swatchRow(l10n.reportChartPaletteBarBlack, _c.barBlack,
+              (v) => _c = _c.copyWith(barBlack: v)),
           const SizedBox(height: 20),
           FilledButton(
             onPressed: () => Navigator.pop(context, _c),
@@ -145,4 +161,8 @@ class _ChartPaletteSheetBodyState extends State<_ChartPaletteSheetBody> {
 }
 
 bool _sameColor(Color a, Color b) =>
-    (a.r - b.r).abs() + (a.g - b.g).abs() + (a.b - b.b).abs() + (a.a - b.a).abs() < 0.004;
+    (a.r - b.r).abs() +
+        (a.g - b.g).abs() +
+        (a.b - b.b).abs() +
+        (a.a - b.a).abs() <
+    0.004;

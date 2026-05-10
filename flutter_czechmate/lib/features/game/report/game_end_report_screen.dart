@@ -21,6 +21,7 @@ import '../../../core/models/game_end_report_model.dart';
 import '../../../core/models/game_snapshot.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/fen_from_board.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import '../../../core/utils/game_end_report_timing.dart';
 import '../../../core/utils/opening_eco.dart';
 import '../../../core/utils/pgn_export.dart';
@@ -38,16 +39,43 @@ import 'chart_palette_sheet.dart';
 import 'game_share_export_canvas.dart';
 import 'timing_charts.dart';
 
+bool _exportLayoutSame(GameExportOptions a, GameExportOptions b) {
+  return a.aspect == b.aspect &&
+      a.transparentBackground == b.transparentBackground &&
+      a.showBranding == b.showBranding &&
+      a.showResult == b.showResult &&
+      a.showReason == b.showReason &&
+      a.showStats == b.showStats &&
+      a.showMaterial == b.showMaterial &&
+      a.showFinalBoard == b.showFinalBoard &&
+      a.flipBoard == b.flipBoard &&
+      a.showEvalChart == b.showEvalChart &&
+      a.showCumulativeChart == b.showCumulativeChart &&
+      a.showPerMoveChart == b.showPerMoveChart &&
+      a.roundedClip == b.roundedClip;
+}
+
+/// Selected share layout thumbnail, or null when Advanced options diverge from presets.
+int? _exportLayoutThumbIndex(GameExportOptions o) {
+  if (_exportLayoutSame(o, GameExportOptions())) return 0;
+  if (_exportLayoutSame(o, GameExportOptions.minimal)) return 1;
+  if (_exportLayoutSame(o, GameExportOptions.storyHero)) return 2;
+  if (_exportLayoutSame(o, GameExportOptions.landscapeWide)) return 3;
+  return null;
+}
+
 class GameEndReportScreen extends ConsumerStatefulWidget {
   const GameEndReportScreen({super.key});
 
   @override
-  ConsumerState<GameEndReportScreen> createState() => _GameEndReportScreenState();
+  ConsumerState<GameEndReportScreen> createState() =>
+      _GameEndReportScreenState();
 }
 
 class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
   final GlobalKey _shareBoundaryKey = GlobalKey();
   bool _pngBusy = false;
+
   /// Which action shows the spinner: true = copy, false = share sheet.
   bool _pngClipboardOp = false;
   bool _gifBusy = false;
@@ -80,7 +108,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     return '${v.toStringAsFixed(1)}s';
   }
 
-  String _localizedGameEndReason(AppLocalizations l10n, GameEndReportModel model) {
+  String _localizedGameEndReason(
+      AppLocalizations l10n, GameEndReportModel model) {
     switch (model.reason) {
       case 'Unknown result':
         return l10n.endReasonUnknown;
@@ -107,7 +136,122 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     };
   }
 
-  Future<void> _applyChartPalette(AppLocalizations l10n, ChartPalettePreset preset) async {
+  Future<void> _applyExportLayoutThumb(int index) async {
+    final prefs = ref.read(prefsRepositoryProvider);
+    switch (index) {
+      case 0:
+        final reset = normalizeGameExportBlockOrder(null);
+        setState(() {
+          _exportOpts = GameExportOptions();
+          _blockOrder = reset;
+        });
+        await prefs.setExportShareBlockOrder(reset);
+        break;
+      case 1:
+        setState(() => _exportOpts = GameExportOptions.minimal);
+        break;
+      case 2:
+        setState(() => _exportOpts = GameExportOptions.storyHero);
+        break;
+      case 3:
+        setState(() => _exportOpts = GameExportOptions.landscapeWide);
+        break;
+    }
+  }
+
+  Widget _exportLayoutThumbnailCard({
+    required BuildContext context,
+    required ColorScheme cs,
+    required bool selected,
+    required String title,
+    required String subtitle,
+    required double shapeW,
+    required double shapeH,
+    required VoidCallback onTap,
+  }) {
+    final ar = shapeW / shapeH;
+    final tt = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          width: 108,
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: selected ? cs.primary : cs.outlineVariant,
+              width: selected ? 2 : 1,
+            ),
+            color: selected
+                ? cs.primaryContainer.withValues(alpha: 0.38)
+                : cs.surfaceContainerLow,
+          ),
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final w = c.maxWidth;
+              final naturalPreviewH = w / ar;
+              // Row má jen ~132 px; vysoký poměr stran by jinak rozbil Column.
+              const maxPreviewH = 52.0;
+              final previewH = math.min(naturalPreviewH, maxPreviewH);
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: w,
+                    height: previewH,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: w,
+                        height: naturalPreviewH,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                cs.primary.withValues(alpha: 0.55),
+                                cs.tertiary.withValues(alpha: 0.42),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: tt.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style:
+                        tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _applyChartPalette(
+      AppLocalizations l10n, ChartPalettePreset preset) async {
     final prefs = ref.read(prefsRepositoryProvider);
     await prefs.setChartPalettePreset(preset);
     if (!mounted) return;
@@ -167,7 +311,9 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       theme: GameShareExportTheme.forExport(
         context,
         transparentExport: opts.transparentBackground,
-        palette: ref.read(prefsRepositoryProvider).resolvedChartPalette(Theme.of(context).colorScheme),
+        palette: ref
+            .read(prefsRepositoryProvider)
+            .resolvedChartPalette(Theme.of(context).colorScheme),
       ),
       model: model,
       boardCells: boardCellsOverride ?? boardFromSnapshot(snapshot),
@@ -175,8 +321,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       localizedReason: _localizedGameEndReason(l10n, model),
       formatDuration: (sec) => _formatDuration(l10n, sec),
       formatAvg: (v) => _formatAvgSec(l10n, v),
-      materialCaption:
-          l10n.reportMaterialCaptured(model.capturedValueWhite, model.capturedValueBlack),
+      materialCaption: l10n.reportMaterialCaptured(
+          model.capturedValueWhite, model.capturedValueBlack),
       brandingLabel: l10n.pgnEventHeader,
       statTimeLabel: l10n.statTime,
       statMovesLabel: l10n.statMoves,
@@ -214,7 +360,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     try {
       final total = snapshot.history.moves.length;
       final indices = recapFrameIndices(total, 52);
-      final logical = GameExportOptions(aspect: GameExportAspect.story).logicalSize();
+      final logical =
+          GameExportOptions(aspect: GameExportAspect.story).logicalSize();
       final pkgFrames = <img.Image>[];
       final baseOpts = GameExportOptions(
         aspect: GameExportAspect.story,
@@ -227,9 +374,12 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       );
       for (final ply in indices) {
         if (!mounted) return;
-        final cells = boardAfterHistoryPrefix(snapshot, ply) ?? boardFromSnapshot(snapshot);
-        final caption = total <= 0 ? null : l10n.reportExportRecapMove(ply, total);
-        final opts = baseOpts.copyWith(recapMoveIndex: ply, recapMoveTotal: total);
+        final cells = boardAfterHistoryPrefix(snapshot, ply) ??
+            boardFromSnapshot(snapshot);
+        final caption =
+            total <= 0 ? null : l10n.reportExportRecapMove(ply, total);
+        final opts =
+            baseOpts.copyWith(recapMoveIndex: ply, recapMoveTotal: total);
         final wrapped = Theme(
           data: Theme.of(context),
           child: _shareRasterCanvas(
@@ -245,25 +395,31 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
             recapCaption: caption,
           ),
         );
-        final uiFrame =
-            await captureWidgetOffscreen(context: context, child: wrapped, logicalSize: logical, pixelRatio: 2);
+        final uiFrame = await captureWidgetOffscreen(
+            context: context,
+            child: wrapped,
+            logicalSize: logical,
+            pixelRatio: 2);
         if (uiFrame == null) continue;
         final pkg = await uiImageToPackageImage(uiFrame);
         uiFrame.dispose();
         if (pkg != null) pkgFrames.add(pkg);
       }
       if (pkgFrames.isEmpty) {
-        if (mounted) showGlassSnackBar(context, l10n.reportExportGifFailed('no frames'));
+        if (mounted)
+          showGlassSnackBar(context, l10n.reportExportGifFailed('no frames'));
         return;
       }
       final gifBytes = encodeGifAnimation(pkgFrames, durationHundredths: 45);
       if (gifBytes == null || gifBytes.isEmpty) {
-        if (mounted) showGlassSnackBar(context, l10n.reportExportGifFailed('encode'));
+        if (mounted)
+          showGlassSnackBar(context, l10n.reportExportGifFailed('encode'));
         return;
       }
       if (!mounted) return;
       final box = context.findRenderObject() as RenderBox?;
-      final rect = box != null ? box.localToGlobal(Offset.zero) & box.size : null;
+      final rect =
+          box != null ? box.localToGlobal(Offset.zero) & box.size : null;
       final tmp = await getTemporaryDirectory();
       final dir = Directory('${tmp.path}/czechmate_share');
       await dir.create(recursive: true);
@@ -275,7 +431,12 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
         sharePositionOrigin: rect,
       );
     } catch (e) {
-      if (mounted) showGlassSnackBar(context, l10n.reportExportGifFailed('$e'));
+      if (mounted) {
+        showGlassSnackBar(
+          context,
+          l10n.reportExportGifFailed(userFacingErrorSummary(l10n, e)),
+        );
+      }
     } finally {
       if (mounted) setState(() => _gifBusy = false);
     }
@@ -315,11 +476,16 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     final nMoves = snap.history.moves.length;
     final evalPoints = moveEval.entries
         .where((e) => e.evalWhitePawns != null && e.moveIndex1Based <= nMoves)
-        .map((e) => (moveIndex: e.moveIndex1Based, eval: e.evalWhitePawns!, grade: e.grade))
+        .map((e) => (
+              moveIndex: e.moveIndex1Based,
+              eval: e.evalWhitePawns!,
+              grade: e.grade
+            ))
         .toList();
     final think = GameEndReportTiming.thinkPlyPoints(snap.history.moves);
     final cumulative = GameEndReportTiming.cumulativePoints(think);
-    final barPoints = think.where((p) => p.secondsFromPrevious != null).toList();
+    final barPoints =
+        think.where((p) => p.secondsFromPrevious != null).toList();
     final hasTiming = barPoints.isNotEmpty || cumulative.isNotEmpty;
     final theme = Theme.of(context);
 
@@ -350,8 +516,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
 
     if (image == null) {
       await WidgetsBinding.instance.endOfFrame;
-      final boundary =
-          _shareBoundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _shareBoundaryKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary != null) {
         image = await boundary.toImage(pixelRatio: 3.0);
       }
@@ -414,7 +580,12 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       }
       await _sharePngBytes(pngBytes, l10n);
     } catch (e) {
-      if (mounted) showGlassSnackBar(context, l10n.shareExportFailed('$e'));
+      if (mounted) {
+        showGlassSnackBar(
+          context,
+          l10n.shareExportFailed(userFacingErrorSummary(l10n, e)),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -490,17 +661,23 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     final nMoves = snapshot.history.moves.length;
     final evalPoints = moveEval.entries
         .where((e) => e.evalWhitePawns != null && e.moveIndex1Based <= nMoves)
-        .map((e) => (moveIndex: e.moveIndex1Based, eval: e.evalWhitePawns!, grade: e.grade))
+        .map((e) => (
+              moveIndex: e.moveIndex1Based,
+              eval: e.evalWhitePawns!,
+              grade: e.grade
+            ))
         .toList();
 
     final think = GameEndReportTiming.thinkPlyPoints(snapshot.history.moves);
     final cumulative = GameEndReportTiming.cumulativePoints(think);
-    final barPoints = think.where((p) => p.secondsFromPrevious != null).toList();
+    final barPoints =
+        think.where((p) => p.secondsFromPrevious != null).toList();
     final hasTiming = barPoints.isNotEmpty || cumulative.isNotEmpty;
     final clock = snapshot.clock;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final chartPalette = ref.read(prefsRepositoryProvider).resolvedChartPalette(cs);
+    final chartPalette =
+        ref.read(prefsRepositoryProvider).resolvedChartPalette(cs);
     final chartPresetNow = ref.read(prefsRepositoryProvider).chartPalettePreset;
 
     Widget evalSection({required double chartHeight}) {
@@ -554,7 +731,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(l10n.reportElapsedTime,
-                        style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                        style: tt.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text(
                       l10n.reportElapsedCaption,
@@ -567,7 +745,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                     ),
                     Text(
                       l10n.reportHalfMoveAxis,
-                      style: tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                      style:
+                          tt.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -581,7 +760,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(l10n.reportTimePerMove,
-                        style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                        style: tt.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text(
                       l10n.reportSecondsSincePrev,
@@ -598,10 +778,12 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                       spacing: 20,
                       children: [
                         _LegendDot(
-                            color: chartPalette.barWhite.withValues(alpha: 0.92),
+                            color:
+                                chartPalette.barWhite.withValues(alpha: 0.92),
                             label: l10n.colorWhite),
                         _LegendDot(
-                            color: chartPalette.barBlack.withValues(alpha: 0.88),
+                            color:
+                                chartPalette.barBlack.withValues(alpha: 0.88),
                             label: l10n.colorBlack),
                       ],
                     ),
@@ -618,7 +800,9 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
     final exportPreview = ClipRRect(
       borderRadius: BorderRadius.circular(14),
       child: ColoredBox(
-        color: _exportOpts.transparentBackground ? Colors.grey.shade900.withValues(alpha: 0.25) : cs.surfaceContainerLow,
+        color: _exportOpts.transparentBackground
+            ? Colors.grey.shade900.withValues(alpha: 0.25)
+            : cs.surfaceContainerLow,
         child: AspectRatio(
           aspectRatio: exportSize.width / exportSize.height,
           child: LayoutBuilder(
@@ -669,74 +853,61 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
               l10n.reportExportAppearanceSubtitle,
               style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ActionChip(
-                  label: Text(l10n.reportExportPresetFull),
-                  onPressed: () async {
-                    final prefs = ref.read(prefsRepositoryProvider);
-                    final reset = normalizeGameExportBlockOrder(null);
-                    setState(() {
-                      _exportOpts = GameExportOptions();
-                      _blockOrder = reset;
-                    });
-                    await prefs.setExportShareBlockOrder(reset);
-                  },
-                ),
-                ActionChip(
-                  label: Text(l10n.reportExportPresetMinimal),
-                  onPressed: () => setState(() => _exportOpts = GameExportOptions.minimal),
-                ),
-                ActionChip(
-                  label: Text(l10n.reportExportPresetStory),
-                  onPressed: () => setState(() => _exportOpts = GameExportOptions.storyHero),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<GameExportAspect>(
-              // Controlled field; `initialValue` does not track preset changes.
-              // ignore: deprecated_member_use
-              value: _exportOpts.aspect,
-              decoration: InputDecoration(
-                labelText: l10n.reportExportAspectRatio,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              items: [
-                DropdownMenuItem(
-                  value: GameExportAspect.card,
-                  child: Text(l10n.reportExportAspectCard),
-                ),
-                DropdownMenuItem(
-                  value: GameExportAspect.square,
-                  child: Text(l10n.reportExportAspectSquare),
-                ),
-                DropdownMenuItem(
-                  value: GameExportAspect.story,
-                  child: Text(l10n.reportExportAspectStory),
-                ),
-                DropdownMenuItem(
-                  value: GameExportAspect.landscape,
-                  child: Text(l10n.reportExportAspectLandscape),
-                ),
-              ],
-              onChanged: (v) {
-                if (v != null) setState(() => _exportOpts = _exportOpts.copyWith(aspect: v));
-              },
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportTransparentBg),
-              subtitle: Text(l10n.reportExportTransparentHint, style: tt.bodySmall),
-              value: _exportOpts.transparentBackground,
-              onChanged: (v) =>
-                  setState(() => _exportOpts = _exportOpts.copyWith(transparentBackground: v)),
-            ),
             const SizedBox(height: 8),
+            Text(
+              l10n.reportExportStylePickHint,
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 148,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  _exportLayoutThumbnailCard(
+                    context: context,
+                    cs: cs,
+                    selected: _exportLayoutThumbIndex(_exportOpts) == 0,
+                    title: l10n.reportExportPresetFull,
+                    subtitle: l10n.reportExportAspectCard,
+                    shapeW: 38,
+                    shapeH: 68,
+                    onTap: () => _applyExportLayoutThumb(0),
+                  ),
+                  _exportLayoutThumbnailCard(
+                    context: context,
+                    cs: cs,
+                    selected: _exportLayoutThumbIndex(_exportOpts) == 1,
+                    title: l10n.reportExportPresetMinimal,
+                    subtitle: l10n.reportExportAspectSquare,
+                    shapeW: 52,
+                    shapeH: 52,
+                    onTap: () => _applyExportLayoutThumb(1),
+                  ),
+                  _exportLayoutThumbnailCard(
+                    context: context,
+                    cs: cs,
+                    selected: _exportLayoutThumbIndex(_exportOpts) == 2,
+                    title: l10n.reportExportPresetStory,
+                    subtitle: l10n.reportExportAspectStory,
+                    shapeW: 36,
+                    shapeH: 64,
+                    onTap: () => _applyExportLayoutThumb(2),
+                  ),
+                  _exportLayoutThumbnailCard(
+                    context: context,
+                    cs: cs,
+                    selected: _exportLayoutThumbIndex(_exportOpts) == 3,
+                    title: l10n.reportExportThumbWideLabel,
+                    subtitle: l10n.reportExportThumbWideAspect,
+                    shapeW: 72,
+                    shapeH: 40,
+                    onTap: () => _applyExportLayoutThumb(3),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
             Text(
               l10n.reportChartPaletteTitle,
               style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
@@ -744,6 +915,11 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
             const SizedBox(height: 4),
             Text(
               l10n.reportChartPaletteSubtitle,
+              style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.reportChartPaletteChoiceHint,
               style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
             const SizedBox(height: 8),
@@ -771,93 +947,136 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                   label: Text(l10n.reportChartPaletteEditCustom),
                 ),
               ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportShowBranding),
-              value: _exportOpts.showBranding,
-              onChanged: (v) => setState(() => _exportOpts = _exportOpts.copyWith(showBranding: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportShowStats),
-              value: _exportOpts.showStats,
-              onChanged: (v) => setState(() => _exportOpts = _exportOpts.copyWith(showStats: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportShowFinalBoard),
-              value: _exportOpts.showFinalBoard,
-              onChanged: (v) =>
-                  setState(() => _exportOpts = _exportOpts.copyWith(showFinalBoard: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportFlipBoard),
-              value: _exportOpts.flipBoard,
-              onChanged: (v) => setState(() => _exportOpts = _exportOpts.copyWith(flipBoard: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportShowEvalChart),
-              value: _exportOpts.showEvalChart,
-              onChanged: (v) =>
-                  setState(() => _exportOpts = _exportOpts.copyWith(showEvalChart: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportShowCumulativeChart),
-              value: _exportOpts.showCumulativeChart,
-              onChanged: (v) =>
-                  setState(() => _exportOpts = _exportOpts.copyWith(showCumulativeChart: v)),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(l10n.reportExportShowPerMoveChart),
-              value: _exportOpts.showPerMoveChart,
-              onChanged: (v) =>
-                  setState(() => _exportOpts = _exportOpts.copyWith(showPerMoveChart: v)),
-            ),
             Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
+                maintainState: true,
+                initiallyExpanded: false,
                 tilePadding: EdgeInsets.zero,
                 title: Text(
-                  l10n.reportExportSectionOrderTitle,
+                  l10n.reportExportAdvancedTitle,
                   style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  l10n.reportExportSectionOrderSubtitle,
+                  l10n.reportExportAdvancedSubtitle,
                   style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 children: [
-                  SizedBox(
-                    height: math.min(380, _blockOrder.length * 54.0),
-                    child: ReorderableListView(
-                      padding: EdgeInsets.zero,
-                      buildDefaultDragHandles: false,
-                      onReorder: (oldIndex, newIndex) async {
-                        setState(() {
-                          var ni = newIndex;
-                          if (ni > oldIndex) ni -= 1;
-                          final id = _blockOrder.removeAt(oldIndex);
-                          _blockOrder.insert(ni, id);
-                        });
-                        await ref
-                            .read(prefsRepositoryProvider)
-                            .setExportShareBlockOrder(_blockOrder);
-                      },
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        for (var i = 0; i < _blockOrder.length; i++)
-                          ListTile(
-                            key: ValueKey('${_blockOrder[i].name}_$i'),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-                            leading: ReorderableDragStartListener(
-                              index: i,
-                              child: Icon(Icons.drag_handle, color: cs.onSurfaceVariant),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportTransparentBg),
+                          subtitle: Text(l10n.reportExportTransparentHint,
+                              style: tt.bodySmall),
+                          value: _exportOpts.transparentBackground,
+                          onChanged: (v) => setState(() => _exportOpts =
+                              _exportOpts.copyWith(transparentBackground: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportShowBranding),
+                          value: _exportOpts.showBranding,
+                          onChanged: (v) => setState(() => _exportOpts =
+                              _exportOpts.copyWith(showBranding: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportShowStats),
+                          value: _exportOpts.showStats,
+                          onChanged: (v) => setState(() =>
+                              _exportOpts = _exportOpts.copyWith(showStats: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportShowFinalBoard),
+                          value: _exportOpts.showFinalBoard,
+                          onChanged: (v) => setState(() => _exportOpts =
+                              _exportOpts.copyWith(showFinalBoard: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportFlipBoard),
+                          value: _exportOpts.flipBoard,
+                          onChanged: (v) => setState(() =>
+                              _exportOpts = _exportOpts.copyWith(flipBoard: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportShowEvalChart),
+                          value: _exportOpts.showEvalChart,
+                          onChanged: (v) => setState(() => _exportOpts =
+                              _exportOpts.copyWith(showEvalChart: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportShowCumulativeChart),
+                          value: _exportOpts.showCumulativeChart,
+                          onChanged: (v) => setState(() => _exportOpts =
+                              _exportOpts.copyWith(showCumulativeChart: v)),
+                        ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.reportExportShowPerMoveChart),
+                          value: _exportOpts.showPerMoveChart,
+                          onChanged: (v) => setState(() => _exportOpts =
+                              _exportOpts.copyWith(showPerMoveChart: v)),
+                        ),
+                        Theme(
+                          data: Theme.of(context)
+                              .copyWith(dividerColor: Colors.transparent),
+                          child: ExpansionTile(
+                            maintainState: true,
+                            tilePadding: EdgeInsets.zero,
+                            title: Text(
+                              l10n.reportExportSectionOrderTitle,
+                              style: tt.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
-                            title: Text(_exportBlockLabel(l10n, _blockOrder[i])),
+                            children: [
+                              SizedBox(
+                                height:
+                                    math.min(380, _blockOrder.length * 54.0),
+                                child: ReorderableListView(
+                                  padding: EdgeInsets.zero,
+                                  buildDefaultDragHandles: false,
+                                  onReorder: (oldIndex, newIndex) async {
+                                    setState(() {
+                                      var ni = newIndex;
+                                      if (ni > oldIndex) ni -= 1;
+                                      final id = _blockOrder.removeAt(oldIndex);
+                                      _blockOrder.insert(ni, id);
+                                    });
+                                    await ref
+                                        .read(prefsRepositoryProvider)
+                                        .setExportShareBlockOrder(_blockOrder);
+                                  },
+                                  children: [
+                                    for (var i = 0; i < _blockOrder.length; i++)
+                                      ListTile(
+                                        key: ValueKey(
+                                            '${_blockOrder[i].name}_$i'),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 0, vertical: 2),
+                                        leading: ReorderableDragStartListener(
+                                          index: i,
+                                          child: Icon(Icons.drag_handle,
+                                              color: cs.onSurfaceVariant),
+                                        ),
+                                        title: Text(_exportBlockLabel(
+                                            l10n, _blockOrder[i])),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -885,10 +1104,12 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           const sidePad = 16.0;
-          final avail = (constraints.maxWidth - sidePad * 2).clamp(0.0, double.infinity);
+          final avail =
+              (constraints.maxWidth - sidePad * 2).clamp(0.0, double.infinity);
           final evalHasChart = evalPoints.isNotEmpty;
           final useTwoCol = avail >= 920 && evalHasChart && hasTiming;
-          final maxW = useTwoCol ? math.min(avail, 1080.0) : math.min(avail, 640.0);
+          final maxW =
+              useTwoCol ? math.min(avail, 1080.0) : math.min(avail, 640.0);
 
           return Align(
             alignment: Alignment.topCenter,
@@ -899,7 +1120,9 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                 children: [
                   Text(
                     l10n.reportResultHeading,
-                    style: tt.titleSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                    style: tt.titleSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(height: 340, child: exportPreview),
@@ -908,132 +1131,111 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                   const SizedBox(height: 22),
                   Text(
                     l10n.reportShareHeading,
-                    style: tt.titleSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                    style: tt.titleSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          cs.primary.withValues(alpha: 0.9),
-                          cs.tertiary.withValues(alpha: 0.72),
+                  LayoutBuilder(
+                    builder: (ctx, bc) {
+                      final narrow = bc.maxWidth < 340;
+                      final copyChild = _pngBusy && _pngClipboardOp
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: cs.onPrimary,
+                              ),
+                            )
+                          : Icon(Icons.copy_rounded,
+                              size: 18, color: cs.onPrimary);
+                      final shareChild = _pngBusy && !_pngClipboardOp
+                          ? SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: cs.primary,
+                              ),
+                            )
+                          : Icon(Icons.ios_share_rounded,
+                              size: 18, color: cs.primary);
+                      final copyBtn = FilledButton(
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed:
+                            _pngBusy ? null : _copySummaryImageToClipboard,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            copyChild,
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                _pngBusy && _pngClipboardOp
+                                    ? l10n.reportCopySummaryBusy
+                                    : l10n.reportCopySummaryImage,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      final shareBtn = OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          visualDensity: VisualDensity.compact,
+                          side: BorderSide(
+                              color: cs.primary.withValues(alpha: 0.45)),
+                        ),
+                        onPressed: _pngBusy ? null : _exportAndShare,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            shareChild,
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                _pngBusy && !_pngClipboardOp
+                                    ? l10n.reportSharePreparing
+                                    : l10n.reportShareSummaryImage,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style:
+                                    TextStyle(fontSize: 13, color: cs.primary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (narrow) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            copyBtn,
+                            const SizedBox(height: 8),
+                            shareBtn,
+                          ],
+                        );
+                      }
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(child: copyBtn),
+                          const SizedBox(width: 8),
+                          Expanded(child: shareBtn),
                         ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: cs.primary.withValues(alpha: 0.22),
-                          blurRadius: 18,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(2),
-                      child: Material(
-                        color: cs.surface,
-                        elevation: 0,
-                        borderRadius: BorderRadius.circular(18),
-                        clipBehavior: Clip.antiAlias,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.auto_awesome_rounded, color: cs.primary, size: 24),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      l10n.reportShareExportHint,
-                                      style: tt.bodyMedium?.copyWith(
-                                        height: 1.35,
-                                        color: cs.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              LayoutBuilder(
-                                builder: (ctx, bc) {
-                                  final narrow = bc.maxWidth < 360;
-                                  final copyBtn = FilledButton.icon(
-                                    style: FilledButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 13),
-                                      backgroundColor: cs.primary,
-                                      foregroundColor: cs.onPrimary,
-                                    ),
-                                    onPressed: _pngBusy ? null : _copySummaryImageToClipboard,
-                                    icon: _pngBusy && _pngClipboardOp
-                                        ? SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: cs.onPrimary,
-                                            ),
-                                          )
-                                        : const Icon(Icons.content_paste_go_rounded),
-                                    label: Text(
-                                      _pngBusy && _pngClipboardOp
-                                          ? l10n.reportCopySummaryBusy
-                                          : l10n.reportCopySummaryImage,
-                                    ),
-                                  );
-                                  final shareBtn = OutlinedButton.icon(
-                                    style: OutlinedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 13),
-                                      foregroundColor: cs.primary,
-                                      side: BorderSide(color: cs.primary.withValues(alpha: 0.45)),
-                                    ),
-                                    onPressed: _pngBusy ? null : _exportAndShare,
-                                    icon: _pngBusy && !_pngClipboardOp
-                                        ? SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: cs.primary,
-                                            ),
-                                          )
-                                        : const Icon(Icons.ios_share_rounded),
-                                    label: Text(
-                                      _pngBusy && !_pngClipboardOp
-                                          ? l10n.reportSharePreparing
-                                          : l10n.reportShareSummaryImage,
-                                    ),
-                                  );
-                                  if (narrow) {
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        copyBtn,
-                                        const SizedBox(height: 10),
-                                        shareBtn,
-                                      ],
-                                    );
-                                  }
-                                  return Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(child: copyBtn),
-                                      const SizedBox(width: 10),
-                                      Expanded(child: shareBtn),
-                                    ],
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 10),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 10),
                   Card.outlined(
@@ -1045,7 +1247,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                         children: [
                           Text(
                             l10n.reportExportGifSubtitle,
-                            style: tt.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                            style: tt.bodySmall
+                                ?.copyWith(color: cs.onSurfaceVariant),
                           ),
                           const SizedBox(height: 8),
                           OutlinedButton.icon(
@@ -1064,10 +1267,13 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                                 ? const SizedBox(
                                     width: 18,
                                     height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
                                   )
                                 : const Icon(Icons.animation_outlined),
-                            label: Text(_gifBusy ? l10n.reportExportGifBuilding : l10n.reportExportShareGifRecap),
+                            label: Text(_gifBusy
+                                ? l10n.reportExportGifBuilding
+                                : l10n.reportExportShareGifRecap),
                           ),
                           const SizedBox(height: 10),
                           OutlinedButton.icon(
@@ -1098,7 +1304,9 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                     const SizedBox(height: 24),
                     Text(
                       l10n.reportClock,
-                      style: tt.titleSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                      style: tt.titleSmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
                     Card.outlined(
@@ -1142,18 +1350,24 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
                   const SizedBox(height: 24),
                   Text(
                     l10n.reportFinalFen,
-                    style: tt.titleSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600),
+                    style: tt.titleSmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 8),
                   if (eco != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 6),
-                      child: Text(eco, style: TextStyle(color: cs.primary, fontWeight: FontWeight.w600)),
+                      child: Text(eco,
+                          style: TextStyle(
+                              color: cs.primary, fontWeight: FontWeight.w600)),
                     ),
                   Card.outlined(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: SelectableText(fen, style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
+                      child: SelectableText(fen,
+                          style: const TextStyle(
+                              fontFamily: 'monospace', fontSize: 12)),
                     ),
                   ),
                 ],
@@ -1183,7 +1397,10 @@ class _LegendDot extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 6),
         Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],

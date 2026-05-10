@@ -400,6 +400,12 @@ esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len);
  */
 esp_err_t wifi_get_sta_ssid(char *buffer, size_t max_len);
 
+/** True když deska aktuálně vysílá uživatelský hotspot (AP). */
+bool wifi_ap_is_broadcasting(void);
+
+/** SSID hotspotu (konvence CzechMate), platné i když AP zrovna nevysílá. */
+const char *wifi_ap_effective_ssid(void);
+
 // ============================================================================
 // EXTERNI PROMENNE
 // ============================================================================

@@ -9,19 +9,45 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
+import '../../core/debug/connection_debug_log.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/services/ble_czechmate_client.dart';
+import '../../core/utils/user_facing_error_message.dart';
+import '../../core/theme/app_motion.dart';
+import '../../core/widgets/pressable_scale.dart';
 import '../../l10n/app_localizations.dart';
-import '../settings/manual_connection_screen.dart';
 import 'board_session_notifier.dart';
 import 'board_session_state.dart';
+import 'widgets/board_wifi_provision_sheet.dart';
+import 'widgets/discovery_connection_recovery_card.dart';
+import 'board_discovery_advanced_screen.dart';
 
 class BoardDiscoveryScreen extends ConsumerStatefulWidget {
-  const BoardDiscoveryScreen({super.key});
+  const BoardDiscoveryScreen({super.key, this.autoStartBleScan = true});
+
+  /// When true (default), BLE scan starts once after open unless the next connection is one-shot Wi‑Fi only.
+  final bool autoStartBleScan;
 
   @override
   ConsumerState<BoardDiscoveryScreen> createState() =>
       _BoardDiscoveryScreenState();
+}
+
+/// Deska inzeruje UUID služby v ADV nebo jméno v ADV / po Scan Response (iOS).
+bool _looksLikeCzechmateBoard(ScanResult r) {
+  final pn = r.device.platformName.toUpperCase();
+  final an = r.advertisementData.advName.toUpperCase();
+  if (pn.contains('CZECHMATE') || an.contains('CZECHMATE')) {
+    return true;
+  }
+  final want = czechmateServiceGuid.toString().toLowerCase().replaceAll('-', '');
+  for (final u in r.advertisementData.serviceUuids) {
+    final g = u.toString().toLowerCase().replaceAll('-', '');
+    if (g == want) {
+      return true;
+    }
+  }
+  return false;
 }
 
 bool _sessionConnectedForDiscovery(BoardSessionState s) {
@@ -38,27 +64,27 @@ bool _sessionConnectedForDiscovery(BoardSessionState s) {
 }
 
 class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
-  final _url = TextEditingController();
   StreamSubscription<List<ScanResult>>? _scanSub;
   final _found = <String, ScanResult>{};
-  String _connectionMode = 'auto';
-  bool _preferBluetoothOnly = false;
   bool _scanning = false;
+  bool _showConnectionRecovery = false;
 
   @override
   void initState() {
     super.initState();
     final prefs = ref.read(prefsRepositoryProvider);
-    _url.text = prefs.lastBoardBaseUrl ?? '';
-    _connectionMode = prefs.connectionMode;
-    _preferBluetoothOnly = prefs.preferBluetoothOnly;
+    if (widget.autoStartBleScan &&
+        prefs.effectiveConnectionMode != 'wifi_only') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_findBoardScan());
+      });
+    }
   }
 
   @override
   void dispose() {
     _scanSub?.cancel();
     unawaited(_stopBleScan());
-    _url.dispose();
     super.dispose();
   }
 
@@ -119,29 +145,39 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     await _scanSub?.cancel();
     _scanSub = null;
     _found.clear();
-    setState(() => _scanning = true);
+    setState(() {
+      _scanning = true;
+      _showConnectionRecovery = false;
+    });
+    connDebugLog('BLE scan start', 'timeout=12s client-side filtr CZECHMATE/service');
     if (AppEnvironment.staging) {
       debugPrint('[staging] BLE scan start (Najít desku)');
     }
     try {
       _scanSub = FlutterBluePlus.scanResults.listen((list) {
         for (final r in list) {
+          if (!_looksLikeCzechmateBoard(r)) {
+            continue;
+          }
           final id = r.device.remoteId.str;
           _found[id] = r;
         }
         if (mounted) setState(() {});
       });
+      // Bez `withServices`: na iOS filtr podle UUID v inzerátu často nevrátí žádné
+      // výsledky; filtrujeme client-side (jméno + service UUID z ADV).
       await FlutterBluePlus.startScan(
-        withServices: [czechmateServiceGuid],
         timeout: const Duration(seconds: 12),
       );
     } catch (e) {
+      connDebugLog('BLE scan error', '$e');
       if (AppEnvironment.staging) {
         debugPrint('[staging] BLE scan error: $e');
       }
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.discoveryBleScanFailed('$e'))),
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
         );
       }
     } finally {
@@ -150,6 +186,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
   }
 
   Future<void> _stopBleScan() async {
+    connDebugLog('BLE scan stop');
     try {
       await FlutterBluePlus.stopScan();
     } catch (_) {
@@ -173,31 +210,98 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     return transport;
   }
 
-  Future<void> _persistConnectionPrefs() async {
-    final prefs = ref.read(prefsRepositoryProvider);
-    await prefs.setConnectionMode(_connectionMode);
-    await prefs.setPreferBluetoothOnly(_preferBluetoothOnly);
+  Future<void> _toggleBoardHotspot(WidgetRef ref,
+      {required bool enable}) async {
+    final sessionN = ref.read(boardSessionNotifierProvider.notifier);
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      await sessionN.setBoardHotspotEnabled(enable);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.discoveryBoardApCommandSent)),
+      );
+    } catch (e, st) {
+      if (AppEnvironment.staging) {
+        debugPrint('[staging] hotspot toggle failed: $e\n$st');
+      }
+      if (!mounted) return;
+      final msg = e is StateError
+          ? e.message
+          : context.l10n.discoveryBoardApError(
+              userFacingErrorSummary(context.l10n, e),
+            );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(msg)),
+      );
+    }
   }
 
   Future<void> _connectToScanResult(ScanResult r) async {
-    final session = ref.read(boardSessionNotifierProvider);
-    if (session.busy) return;
+    connDebugLog(
+      'Discovery tap → connectBle',
+      'remoteId=${r.device.remoteId.str} advName="${r.advertisementData.advName}" '
+      'platformName="${r.device.platformName}"',
+    );
+    final notifier = ref.read(boardSessionNotifierProvider.notifier);
+    final skipWifiProvision =
+        ref.read(prefsRepositoryProvider).effectiveConnectionMode == 'ble_only';
+    if (ref.read(boardSessionNotifierProvider).busy) {
+      await notifier.disconnectAwaitBle();
+    }
+    if (!mounted) return;
     final d = r.device;
     final name = d.platformName.isEmpty
         ? AppLocalizations.of(context)!.defaultBoardName
         : d.platformName;
     await _stopBleScan();
-    await ref.read(boardSessionNotifierProvider.notifier).connectBle(d, label: name);
+    await notifier.connectBle(d, label: name);
     if (!mounted) return;
     if (_sessionConnectedForDiscovery(ref.read(boardSessionNotifierProvider))) {
+      if (!skipWifiProvision) {
+        await showBoardWifiProvisionSheet(context);
+        if (!mounted) return;
+      }
       closeBoardDiscoveryAndFocusPlay(ref, context);
+    } else {
+      final err = ref.read(boardSessionNotifierProvider).lastError;
+      final l10n = AppLocalizations.of(context)!;
+      var msg = userFacingErrorSummary(l10n, err);
+      if (msg.isEmpty) msg = l10n.userFacingErrGeneric;
+      setState(() => _showConnectionRecovery = true);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
+  }
+
+  Widget _numberedDiscoveryStep(
+    BuildContext context,
+    int index,
+    String text,
+    ThemeData theme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 28,
+            child: Text(
+              '$index.',
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(connectionModeUiRefreshProvider);
     final session = ref.watch(boardSessionNotifierProvider);
-    final prefs = ref.watch(prefsRepositoryProvider);
     final devMode = ref
             .watch(sharedPreferencesProvider)
             .getBool('czechmate.developerModeUnlocked') ??
@@ -226,6 +330,12 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           Card(
+            elevation: 0,
+            color: cs.surfaceContainerHighest,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: cs.outlineVariant),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -233,54 +343,98 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.info_outline, color: cs.primary),
+                      Icon(Icons.link, color: cs.primary),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          l10n.discoveryIntro,
-                          style: theme.textTheme.bodyMedium,
+                          l10n.discoveryConnectionStatusTitle,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.link, color: cs.primary),
-                    title: Text(l10n.discoveryConnectionStatusTitle),
-                    subtitle: Text(_sessionStateLabel(session, l10n)),
+                  const SizedBox(height: 8),
+                  Text(
+                    _sessionStateLabel(session, l10n),
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  AnimatedSwitcher(
+                    duration: AppMotion.crossFade,
+                    switchInCurve: AppMotion.standardCurve,
+                    switchOutCurve: AppMotion.reverseCurve,
+                    child: session.busy
+                        ? const Column(
+                            key: ValueKey<String>('discovery_sess_busy'),
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(height: 12),
+                              LinearProgressIndicator(),
+                            ],
+                          )
+                        : const SizedBox.shrink(
+                            key: ValueKey<String>('discovery_sess_idle'),
+                          ),
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: session.busy || _scanning ? null : _findBoardScan,
-            icon: _scanning
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: cs.onPrimary,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PressableScale(
+                    child: FilledButton.icon(
+                      onPressed: _scanning ? null : _findBoardScan,
+                      icon: _scanning
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: cs.onPrimary,
+                              ),
+                            )
+                          : const Icon(Icons.bluetooth_searching),
+                      label: Text(_scanning
+                          ? l10n.discoveryScanningBoards
+                          : l10n.discoveryFindBle),
                     ),
-                  )
-                : const Icon(Icons.bluetooth_searching),
-            label: Text(
-                _scanning ? l10n.discoveryScanningBoards : l10n.discoveryFindBle),
-          ),
-          if (_scanning) ...[
-            const SizedBox(height: 8),
-            const LinearProgressIndicator(),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => unawaited(_stopBleScan()),
-              icon: const Icon(Icons.stop_circle_outlined),
-              label: Text(l10n.discoveryStopScan),
+                  ),
+                  AnimatedSwitcher(
+                    duration: AppMotion.crossFade,
+                    switchInCurve: AppMotion.standardCurve,
+                    switchOutCurve: AppMotion.reverseCurve,
+                    child: _scanning
+                        ? Column(
+                            key: const ValueKey<String>('discovery_scan_on'),
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 12),
+                              const LinearProgressIndicator(),
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                onPressed: () => unawaited(_stopBleScan()),
+                                icon: const Icon(Icons.stop_circle_outlined),
+                                label: Text(l10n.discoveryStopScan),
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(
+                            key: ValueKey<String>('discovery_scan_off'),
+                          ),
+                  ),
+                ],
+              ),
             ),
-          ],
-          const SizedBox(height: 20),
+          ),
+          const SizedBox(height: 16),
           Text(
             devMode
                 ? l10n.discoveryBleDevicesDev('$czechmateServiceGuid')
@@ -302,9 +456,8 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
             ),
           ..._found.values.map((r) {
             final d = r.device;
-            final name = d.platformName.isEmpty
-                ? l10n.defaultBoardName
-                : d.platformName;
+            final name =
+                d.platformName.isEmpty ? l10n.defaultBoardName : d.platformName;
             final busy = session.busy;
             return Card(
               margin: const EdgeInsets.only(bottom: 8),
@@ -319,23 +472,146 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.chevron_right),
-                onTap: busy ? null : () => _connectToScanResult(r),
+                onTap: () => unawaited(_connectToScanResult(r)),
               ),
             );
           }),
-          const SizedBox(height: 8),
+          if (_showConnectionRecovery) ...[
+            const SizedBox(height: 12),
+            DiscoveryConnectionRecoveryCard(
+              l10n: l10n,
+              onDismiss: () => setState(() => _showConnectionRecovery = false),
+            ),
+          ],
+          if (session.transport == BoardTransport.ble &&
+              session.bleGattConnected) ...[
+            const SizedBox(height: 16),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.wifi_tethering, color: cs.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.discoveryBoardApSubtitle,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (session.bleApSsid != null &&
+                        session.bleApSsid!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        session.bleApSsid!,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    FilledButton.tonalIcon(
+                      onPressed: session.busy
+                          ? null
+                          : () => unawaited(_toggleBoardHotspot(
+                                ref,
+                                enable: !session.bleApBroadcasting,
+                              )),
+                      icon: Icon(
+                        session.bleApBroadcasting
+                            ? Icons.portable_wifi_off_outlined
+                            : Icons.wifi_tethering,
+                      ),
+                      label: Text(
+                        session.bleApBroadcasting
+                            ? l10n.discoveryBoardApDisable
+                            : l10n.discoveryBoardApEnable,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
           Theme(
             data: theme.copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-              collapsedShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: cs.outlineVariant),
+              tilePadding: EdgeInsets.zero,
+              title: Text(
+                l10n.discoveryHelpConnectingTitle,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: cs.outlineVariant),
+              subtitle: Text(
+                l10n.discoveryHelpConnectingSubtitle,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
               ),
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          l10n.discoveryIntro,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.discoveryFlowStepsTitle,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _numberedDiscoveryStep(
+                            context, 1, l10n.discoveryFlowStep1, theme),
+                        _numberedDiscoveryStep(
+                            context, 2, l10n.discoveryFlowStep2, theme),
+                        _numberedDiscoveryStep(
+                            context, 3, l10n.discoveryFlowStep3, theme),
+                        if (widget.autoStartBleScan) ...[
+                          const SizedBox(height: 10),
+                          Text(
+                            l10n.discoveryAutoScanHint,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 10),
+                        Text(
+                          l10n.discoveryScanCardLead,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: ListTile(
+              leading: Icon(Icons.tune_outlined, color: cs.primary),
               title: Text(l10n.settingsAdvanced),
               subtitle: Text(
                 l10n.discoveryAdvancedSubtitle,
@@ -343,172 +619,14 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                   color: cs.onSurfaceVariant,
                 ),
               ),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        l10n.discoveryConnectionModeHeading,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: SegmentedButton<String>(
-                          segments: [
-                            ButtonSegment(
-                              value: 'auto',
-                              label: Text(l10n.connectionModeAutoShort),
-                            ),
-                            ButtonSegment(
-                              value: 'wifi_only',
-                              label: Text(l10n.connectionModeWifiOnly),
-                            ),
-                            ButtonSegment(
-                              value: 'ble_only',
-                              label: Text(l10n.discoveryBleSegmentShort),
-                            ),
-                          ],
-                          selected: {_connectionMode},
-                          onSelectionChanged: (s) async {
-                            if (s.isEmpty) return;
-                            setState(() => _connectionMode = s.first);
-                            await _persistConnectionPrefs();
-                          },
-                        ),
-                      ),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(l10n.settingsBleOnlyTitle),
-                        subtitle: Text(l10n.preferBleOnlySubtitle),
-                        value: _preferBluetoothOnly,
-                        onChanged: (v) async {
-                          setState(() => _preferBluetoothOnly = v);
-                          await _persistConnectionPrefs();
-                        },
-                      ),
-                      if (prefs.lastBleRemoteId != null &&
-                          prefs.lastBleRemoteId!.isNotEmpty)
-                        OutlinedButton.icon(
-                          onPressed: session.busy
-                              ? null
-                              : () async {
-                                  await ref
-                                      .read(boardSessionNotifierProvider
-                                          .notifier)
-                                      .reconnectSavedBle();
-                                  if (!context.mounted) return;
-                                  if (_sessionConnectedForDiscovery(ref.read(
-                                      boardSessionNotifierProvider))) {
-                                    closeBoardDiscoveryAndFocusPlay(
-                                        ref, context);
-                                  }
-                                },
-                          icon: const Icon(Icons.bluetooth_connected),
-                          label: Text(l10n.discoveryReconnectSavedBoard),
-                        ),
-                      if (prefs.lastBleRemoteId != null &&
-                          prefs.lastBleRemoteId!.isNotEmpty)
-                        const SizedBox(height: 10),
-                      OutlinedButton.icon(
-                        onPressed: () => Navigator.push<void>(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (_) => const ManualConnectionScreen(),
-                          ),
-                        ),
-                        icon: const Icon(Icons.edit),
-                        label: Text(l10n.discoveryManualAdvanced),
-                      ),
-                      const Divider(height: 28),
-                      TextField(
-                        controller: _url,
-                        decoration: InputDecoration(
-                          labelText: l10n.discoveryWifiUrlLabel,
-                          hintText: l10n.discoveryWifiUrlHint,
-                          border: const OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.url,
-                      ),
-                      const SizedBox(height: 8),
-                      FilledButton(
-                        onPressed: session.busy
-                            ? null
-                            : () async {
-                                final u =
-                                    _url.text.trim().replaceAll(RegExp(r'/$'), '');
-                                if (u.isEmpty) {
-                                  if (!context.mounted) return;
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        l10n.discoveryEnterBoardUrlSnack,
-                                      ),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                await ref
-                                    .read(boardSessionNotifierProvider.notifier)
-                                    .connectWifi(u);
-                                if (!context.mounted) return;
-                                if (_sessionConnectedForDiscovery(ref.read(
-                                    boardSessionNotifierProvider))) {
-                                  closeBoardDiscoveryAndFocusPlay(ref, context);
-                                }
-                              },
-                        child: Text(l10n.discoveryConnectWifi),
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton(
-                        onPressed: session.busy
-                            ? null
-                            : () async {
-                                await ref
-                                    .read(boardSessionNotifierProvider.notifier)
-                                    .connectMock();
-                                if (!context.mounted) return;
-                                if (_sessionConnectedForDiscovery(ref.read(
-                                    boardSessionNotifierProvider))) {
-                                  closeBoardDiscoveryAndFocusPlay(ref, context);
-                                }
-                              },
-                        child: Text(l10n.mockBoardTileTitle),
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton.icon(
-                        onPressed: session.busy
-                            ? null
-                            : () async {
-                                await ref
-                                    .read(boardSessionNotifierProvider.notifier)
-                                    .connectWifi('http://192.168.4.1');
-                                if (!context.mounted) return;
-                                if (_sessionConnectedForDiscovery(ref.read(
-                                    boardSessionNotifierProvider))) {
-                                  closeBoardDiscoveryAndFocusPlay(ref, context);
-                                }
-                              },
-                        icon: const Icon(Icons.wifi_tethering),
-                        label: Text(l10n.discoveryBoardHotspotButton),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          OutlinedButton(
-                            onPressed: () => unawaited(_stopBleScan()),
-                            child: Text(l10n.discoveryStopScan),
-                          ),
-                        ],
-                      ),
-                    ],
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const BoardDiscoveryAdvancedScreen(),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],

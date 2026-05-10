@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chess_home_widget_description">Stav partie a časomíry</string>
+    <string name="chess_home_widget_phase_no_game">Otevři aplikaci a připoj desku</string>
+    <string name="chess_home_widget_moves">Tahů: %1$d</string>
+    <string name="chess_home_widget_finished">Partie ukončena</string>
+    <string name="chess_home_widget_paused">Pauza</string>
+    <string name="chess_home_widget_running">Běží</string>
+    <string name="chess_home_widget_waiting">Čeká</string>
+</resources>

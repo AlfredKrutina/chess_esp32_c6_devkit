@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/context_l10n.dart';
 import '../../../core/models/board_timer_state.dart';
 import '../../connection/board_session_notifier.dart';
+import '../state/game_ui_notifier.dart';
 
 class TimerDisplay extends ConsumerWidget {
   const TimerDisplay({super.key});
@@ -17,6 +18,10 @@ class TimerDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final ui = ref.watch(gameUiNotifierProvider);
+    if (ui.sandboxMode) {
+      return const SizedBox.shrink();
+    }
     final l10n = context.l10n;
     final session = ref.watch(boardSessionNotifierProvider);
     BoardTimerState? t = session.timer;
@@ -27,12 +32,7 @@ class TimerDisplay extends ConsumerWidget {
         (snap.status.gameEnd?.ended == true ||
             snap.status.gameState.toLowerCase() == 'finished');
     if (t == null || !t.isTimeControlEnabled) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Text(l10n.timerUnavailable),
-        ),
-      );
+      return const SizedBox.shrink();
     }
     final running = !gameOver && t.timerRunning;
     return Card(

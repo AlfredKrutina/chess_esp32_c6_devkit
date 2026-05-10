@@ -41,6 +41,7 @@ class GameUiState {
     this.puzzleBoardTint = 0,
     this.puzzleBoardTintGreen = false,
     this.puzzleSnackText,
+    this.puzzleCelebrationEloDelta,
   });
 
   final bool boardFlipped;
@@ -69,11 +70,16 @@ class GameUiState {
   final bool isControlPanelExpanded;
   final bool learningMode;
   final PuzzleChallengeState? puzzleChallenge;
+
   /// 0 = žádný překryv; 0–1 síla barevného pulzu (puzzle feedback).
   final double puzzleBoardTint;
   final bool puzzleBoardTintGreen;
+
   /// Jednorázová zpráva pro SnackBar (puzzle úspěch/neúspěch), po zobrazení se vyčistí.
   final String? puzzleSnackText;
+
+  /// Po vyřešení puzzlu: kladné číslo = delta Elo; UI zobrazí oslavu a pak zavolá [clearPuzzleCelebration].
+  final int? puzzleCelebrationEloDelta;
 
   GameUiState copyWith({
     bool? boardFlipped,
@@ -108,6 +114,8 @@ class GameUiState {
     bool clearPuzzleTint = false,
     String? puzzleSnackText,
     bool clearPuzzleSnack = false,
+    int? puzzleCelebrationEloDelta,
+    bool clearPuzzleCelebration = false,
     bool clearSelection = false,
     bool clearSandboxFen = false,
     bool clearPromotion = false,
@@ -147,7 +155,8 @@ class GameUiState {
           : (transientBoardMessage ?? this.transientBoardMessage),
       invalidDestinationPulseSquare: clearInvalidDestinationPulse
           ? null
-          : (invalidDestinationPulseSquare ?? this.invalidDestinationPulseSquare),
+          : (invalidDestinationPulseSquare ??
+              this.invalidDestinationPulseSquare),
       invalidDestinationPulseLit: clearInvalidDestinationPulse
           ? false
           : (invalidDestinationPulseLit ?? this.invalidDestinationPulseLit),
@@ -165,12 +174,14 @@ class GameUiState {
       puzzleChallenge: clearPuzzleChallenge
           ? null
           : (puzzleChallenge ?? this.puzzleChallenge),
-      puzzleBoardTint: clearPuzzleTint ? 0 : (puzzleBoardTint ?? this.puzzleBoardTint),
-      puzzleBoardTintGreen:
-          puzzleBoardTintGreen ?? this.puzzleBoardTintGreen,
-      puzzleSnackText: clearPuzzleSnack
+      puzzleBoardTint:
+          clearPuzzleTint ? 0 : (puzzleBoardTint ?? this.puzzleBoardTint),
+      puzzleBoardTintGreen: puzzleBoardTintGreen ?? this.puzzleBoardTintGreen,
+      puzzleSnackText:
+          clearPuzzleSnack ? null : (puzzleSnackText ?? this.puzzleSnackText),
+      puzzleCelebrationEloDelta: clearPuzzleCelebration
           ? null
-          : (puzzleSnackText ?? this.puzzleSnackText),
+          : (puzzleCelebrationEloDelta ?? this.puzzleCelebrationEloDelta),
     );
   }
 }

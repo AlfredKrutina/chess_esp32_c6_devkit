@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 
@@ -24,8 +25,7 @@ class BoardLampQuickStrip extends ConsumerWidget {
     if (!_visible(session)) return const SizedBox.shrink();
     final l10n = context.l10n;
     final st = session.snapshot!.status;
-    final onOff =
-        st.lightState == true ? l10n.boardDemoOn : l10n.boardDemoOff;
+    final onOff = st.lightState == true ? l10n.boardDemoOn : l10n.boardDemoOff;
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: Padding(
@@ -105,10 +105,9 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
   }) async {
     final s = ref.read(boardSessionNotifierProvider);
     final w = s.wifiBaseUrl?.trim();
-    final can = (s.transport == BoardTransport.wifi &&
-            w != null &&
-            w.isNotEmpty) ||
-        s.transport == BoardTransport.ble;
+    final can =
+        (s.transport == BoardTransport.wifi && w != null && w.isNotEmpty) ||
+            s.transport == BoardTransport.ble;
     if (!can) return;
     setState(() => _busy = true);
     try {
@@ -122,7 +121,10 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -144,7 +146,8 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.showTitle) ...[
-          Text(l10n.lampHeader, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(l10n.lampHeader,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
         ],
         if (st != null)

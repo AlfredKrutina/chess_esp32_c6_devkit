@@ -623,7 +623,7 @@ idf.py -p /dev/ttyUSB0 monitor
 
 **Šachy „nedávají smysl“:** log tahů, příkaz `board` v UARTu, jestli matice sedí s realitou.
 
-**Web nejede:** jestli má deska IP v logu, jestli `web_server_task` žije, jestli mě firewall neřeže z LAN.
+**Web nejede:** v logu jestli doběhla inicializace Wi‑Fi (`WiFi initialized …`) a jestli `Starting HTTP server` / `HTTP server started` — bez toho REST neběží. **Starší firmware** při vypnutém hotspotu desky mohl skončit už na `ESP_ERR_WIFI_MODE` a úloha HTTP se vůbec nespustila; v aktuálním kódu se ve STA-only **nastavuje jen STA** a AP konfigurace se přeskakuje. Dál: IP desky (STA nebo `192.168.4.1` při zapnutém hotspotu), firewall z LAN, jestli `web_server_task` žije.
 
 ---
 

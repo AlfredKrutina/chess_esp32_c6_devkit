@@ -6,9 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization/locale_bridge.dart';
 import '../../core/services/board_api_exception.dart';
 import '../../core/utils/board_setup_fen_steps.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../../l10n/app_localizations.dart';
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/widgets/pressable_scale.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
@@ -30,21 +32,27 @@ class BoardSetupWizardScreen extends ConsumerStatefulWidget {
   final bool loadFenWhenDone;
 
   @override
-  ConsumerState<BoardSetupWizardScreen> createState() => _BoardSetupWizardScreenState();
+  ConsumerState<BoardSetupWizardScreen> createState() =>
+      _BoardSetupWizardScreenState();
 }
 
-class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen> {
+class _BoardSetupWizardScreenState
+    extends ConsumerState<BoardSetupWizardScreen> {
   _WizardPhase _phase = _WizardPhase.idle;
   List<BoardSetupPieceStep> _steps = [];
   int _currentIndex = 0;
   int _occStable = 0;
   int _pieceStable = 0;
   bool _advanceInFlight = false;
+  bool _finalizeInFlight = false;
+  String? _lastLedRefreshSquare;
+  DateTime? _lastLedRefreshAt;
   String? _error;
   Timer? _ledTimer;
   Timer? _matrixTimer;
 
-  BoardSessionNotifier get _sessionN => ref.read(boardSessionNotifierProvider.notifier);
+  BoardSessionNotifier get _sessionN =>
+      ref.read(boardSessionNotifierProvider.notifier);
 
   String get _targetFen {
     if (widget.kind == BoardSetupWizardKind.standardStart) {
@@ -125,7 +133,7 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
       if (mounted) {
         setState(() {
           _phase = _WizardPhase.failed;
-          _error = '$e';
+          _error = userFacingErrorSummary(strings, e);
         });
       }
       return;
@@ -135,7 +143,8 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
   }
 
   bool _linked(BoardSessionState s) =>
-      (s.transport == BoardTransport.wifi && s.wifiBaseUrl != null) || s.transport == BoardTransport.ble;
+      (s.transport == BoardTransport.wifi && s.wifiBaseUrl != null) ||
+      s.transport == BoardTransport.ble;
 
   String _setupPieceWord(AppLocalizations l, String pieceCh) {
     final up = pieceCh.toUpperCase() == pieceCh;
@@ -160,8 +169,10 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
   void _startTimers() {
     _ledTimer?.cancel();
     _matrixTimer?.cancel();
-    _ledTimer = Timer.periodic(const Duration(milliseconds: 600), (_) => unawaited(_refreshLed()));
-    _matrixTimer = Timer.periodic(const Duration(milliseconds: 400), (_) => unawaited(_pollMatrix()));
+    _ledTimer = Timer.periodic(
+        const Duration(milliseconds: 900), (_) => unawaited(_refreshLed()));
+    _matrixTimer = Timer.periodic(
+        const Duration(milliseconds: 400), (_) => unawaited(_pollMatrix()));
   }
 
   void _stopTimers() {
@@ -175,6 +186,15 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
     if (!mounted || _phase != _WizardPhase.running) return;
     final step = _current;
     if (step == null) return;
+    final now = DateTime.now();
+    if (_lastLedRefreshSquare == step.square &&
+        _lastLedRefreshAt != null &&
+        now.difference(_lastLedRefreshAt!) <
+            const Duration(milliseconds: 850)) {
+      return;
+    }
+    _lastLedRefreshSquare = step.square;
+    _lastLedRefreshAt = now;
     try {
       await _sessionN.postHintDestination(step.square);
     } catch (_) {}
@@ -251,61 +271,109 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
   Future<void> _applyHighlight() async {
     final step = _current;
     if (step == null) return;
+    _lastLedRefreshSquare = null;
+    _lastLedRefreshAt = null;
     try {
       await _sessionN.postHintDestination(step.square);
     } catch (e) {
       _advanceInFlight = false;
       if (mounted) {
+        final l = appStringsForPrefs(ref.read(prefsRepositoryProvider));
         setState(() {
           _phase = _WizardPhase.failed;
-          _error = '$e';
+          _error = userFacingErrorSummary(l, e);
         });
       }
     }
   }
 
   Future<void> _finalize() async {
-    setState(() => _phase = _WizardPhase.validating);
-    if (widget.kind == BoardSetupWizardKind.standardStart) {
-      await Future.delayed(const Duration(milliseconds: 300));
-      for (var attempt = 1; attempt <= 5; attempt++) {
-        try {
-          await _sessionN.postSetupTutorialAction('finish');
-          if (mounted) setState(() => _phase = _WizardPhase.completed);
-          return;
-        } catch (e) {
-          final is409 = e is BoardApiException && e.statusCode == 409;
-          if (is409 && attempt < 5) {
-            await Future.delayed(const Duration(milliseconds: 400));
-            continue;
+    if (_finalizeInFlight) return;
+    _finalizeInFlight = true;
+    try {
+      if (!mounted) return;
+      setState(() => _phase = _WizardPhase.validating);
+      final transport = ref.read(boardSessionNotifierProvider).transport;
+      final l10n = context.l10n;
+
+      if (widget.kind == BoardSetupWizardKind.standardStart) {
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+        if (!mounted) return;
+
+        if (transport == BoardTransport.ble) {
+          try {
+            await _sessionN.postSetupTutorialAction('finish');
+            await _sessionN.refreshNow();
+            await Future<void>.delayed(const Duration(milliseconds: 220));
+            if (!mounted) return;
+            final snap = ref.read(boardSessionNotifierProvider).snapshot;
+            final stillTutorial = snap?.status.boardSetupTutorial == true;
+            if (stillTutorial) {
+              setState(() {
+                _phase = _WizardPhase.failed;
+                _error = l10n.setupWizardErrPhysicalMismatch;
+              });
+              return;
+            }
+            setState(() => _phase = _WizardPhase.completed);
+            return;
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _phase = _WizardPhase.failed;
+                _error = userFacingErrorSummary(l10n, e);
+              });
+            }
+            return;
           }
-          if (mounted) {
-            setState(() {
-              _phase = _WizardPhase.failed;
-              _error = '$e';
-            });
-          }
-          return;
         }
-      }
-    } else {
-      try {
-        await _sessionN.postSetupTutorialAction('cancel');
-      } catch (_) {}
-      if (widget.loadFenWhenDone) {
-        try {
-          await _sessionN.sendPuzzleFenToBoard(_targetFen);
-        } catch (e) {
-          if (mounted) {
-            setState(() {
-              _phase = _WizardPhase.failed;
-              _error = '$e';
-            });
+
+        for (var attempt = 1; attempt <= 3; attempt++) {
+          try {
+            await _sessionN.postSetupTutorialAction('finish');
+            if (mounted) setState(() => _phase = _WizardPhase.completed);
+            return;
+          } catch (e) {
+            final is409 = e is BoardApiException && e.statusCode == 409;
+            if (is409 && attempt < 3) {
+              await Future<void>.delayed(
+                Duration(milliseconds: 400 + attempt * 350),
+              );
+              continue;
+            }
+            if (mounted) {
+              setState(() {
+                _phase = _WizardPhase.failed;
+                _error = is409
+                    ? l10n.setupWizardErrPhysicalMismatch
+                    : userFacingErrorSummary(l10n, e);
+              });
+            }
+            return;
           }
-          return;
         }
+      } else {
+        try {
+          await _sessionN.postSetupTutorialAction('cancel');
+        } catch (_) {}
+        if (widget.loadFenWhenDone) {
+          try {
+            await _sessionN.sendPuzzleFenToBoard(_targetFen);
+          } catch (e) {
+            if (mounted) {
+              final l = appStringsForPrefs(ref.read(prefsRepositoryProvider));
+              setState(() {
+                _phase = _WizardPhase.failed;
+                _error = userFacingErrorSummary(l, e);
+              });
+            }
+            return;
+          }
+        }
+        if (mounted) setState(() => _phase = _WizardPhase.completed);
       }
-      if (mounted) setState(() => _phase = _WizardPhase.completed);
+    } finally {
+      _finalizeInFlight = false;
     }
   }
 
@@ -389,9 +457,11 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
             Text(_error ?? l10n.setupWizardErrGeneric,
                 style: TextStyle(color: cs.error)),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.commonClose),
+            PressableScale(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.commonClose),
+              ),
             ),
           ] else if (_phase == _WizardPhase.completed) ...[
             Icon(Icons.check_circle, size: 56, color: cs.primary),
@@ -405,9 +475,11 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.setupWizardBtnDone),
+            PressableScale(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.setupWizardBtnDone),
+              ),
             ),
           ] else ...[
             LinearProgressIndicator(
@@ -440,21 +512,33 @@ class _BoardSetupWizardScreenState extends ConsumerState<BoardSetupWizardScreen>
                   step.square.toUpperCase(),
                 ),
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(color: cs.onSurfaceVariant),
               ),
             ] else if (_phase == _WizardPhase.validating)
-              const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
+              const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: CircularProgressIndicator())),
             const SizedBox(height: 28),
             Text(
               l10n.setupWizardLedHint,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.outline),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: cs.outline),
             ),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: (_phase == _WizardPhase.running && !_advanceInFlight) ? _skipStep : null,
+                    onPressed:
+                        (_phase == _WizardPhase.running && !_advanceInFlight)
+                            ? _skipStep
+                            : null,
                     child: Text(l10n.setupWizardSkipStep),
                   ),
                 ),

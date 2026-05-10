@@ -30,7 +30,7 @@ STM32 na Hall segmentech tímhle protokolem neřeším — tam je jiný příbě
 
 ## 3. Síť
 
-- AP desky typicky `192.168.4.1`; telefon na hotspotu `192.168.4.x`. Ve Flutteru `FirmwarePhoneHostOta.ipv4OnBoardApSubnet()` vybírá IP do URL.
+- Hotspot desky (AP) bývá ve výchozím nastavení **vypnutý** — zapíná se z aplikace přes BLE; když je zapnutý, AP desky typicky `192.168.4.1` a telefon na hotspotu `192.168.4.x`. Ve Flutteru `FirmwarePhoneHostOta.ipv4OnBoardApSubnet()` vybírá IP do URL. HTTP přes **STA** („domácí“ IP desky) nevyžaduje hotspot.
 - Na domácí LAN používám `ipv4OnSameSubnet24As(boardStaIp)`, pokud telefon není na 4.x.
 - `FirmwarePhoneHostOta.startServingBin`: malý `HttpServer` na `0.0.0.0`, volný port, jen `GET /czechmate_ota.bin`, `Content-Length`, stream souboru.
 

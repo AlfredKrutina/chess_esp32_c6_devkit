@@ -5,5 +5,6 @@ import WidgetKit
 struct ChessLiveActivityExtensionBundle: WidgetBundle {
   var body: some Widget {
     ChessLiveActivityWidget()
+    ChessBoardHomeWidget()
   }
 }

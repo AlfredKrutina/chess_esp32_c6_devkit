@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/services/board_api_client.dart';
+import 'core/services/board_home_widget_sync.dart';
 import 'core/services/live_activity_service.dart';
 import 'core/services/prefs_repository.dart';
 import 'core/services/stockfish_api_client.dart';
@@ -10,6 +11,10 @@ import 'core/services/watch_connectivity_service.dart';
 
 /// Spodní navigace (`_MainShell`) — indexy viz [AppMainTab] v `app_navigation.dart`.
 final mainNavTabIndexProvider = StateProvider<int>((ref) => 0);
+
+/// Po změně režimu připojení (`setConnectionMode` / `setNextConnectionTransportOnce`) —
+/// invaliduje závislé widgety (IndexedStack bez vlastního Prefs listen).
+final connectionModeUiRefreshProvider = StateProvider<int>((ref) => 0);
 
 /// Záložka Pokrok: 0 = Výuka, 1 = Statistiky (jako `ProgressTabView` na iOS).
 final progressSegmentProvider = StateProvider<int>((ref) => 0);
@@ -34,6 +39,10 @@ final prefsRepositoryProvider = Provider<PrefsRepository>((ref) {
 
 final liveActivityServiceProvider = Provider<LiveActivityService>((ref) {
   return LiveActivityService();
+});
+
+final boardHomeWidgetSyncProvider = Provider<BoardHomeWidgetSync>((ref) {
+  return BoardHomeWidgetSync();
 });
 
 final watchConnectivityServiceProvider = Provider<WatchConnectivityService>((ref) {

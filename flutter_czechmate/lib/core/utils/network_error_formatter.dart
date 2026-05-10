@@ -1,6 +1,9 @@
 import '../services/board_api_exception.dart';
 
-/// User-facing HTTP / network errors (English).
+/// English-only HTTP / network summaries (legacy helpers, logs, or tests).
+///
+/// For Flutter UI copy, prefer [userFacingErrorSummary] in
+/// `user_facing_error_message.dart` so CS/EN stay aligned with ARB.
 class NetworkErrorFormatter {
   static String format(Object error) {
     if (error is BoardApiException) return _formatApiException(error);

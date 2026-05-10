@@ -5,16 +5,15 @@
  * ## Auth matrix (HTTP)
  * - Veřejné GET (bez Bearer): např. `/api/status`, `/api/board`, `/api/game/snapshot`,
  *   `/api/wifi/status`, `/api/system/firmware`, `/api/system/ota/status` (onboarding).
- * - Admin POST (Bearer povinný): `/api/system/ota`, `/api/system/factory_reset`,
- *   `/api/wifi/config`, `/api/wifi/connect`, `/api/wifi/disconnect`, `/api/wifi/clear`.
- * - Web lock: pokud je zapnutý a Bearer chybí nebo je špatný → 403 `web_locked`.
- *   Bez locku a bez platného Bearer → 403 `api_token_required`.
+ * - Admin POST (`/api/system/ota`, `/api/system/factory_reset`, cesty pod `/api/wifi/`, …):
+ *   platný Bearer vždy stačí. Pokud je **WEB_LOCK zapnutý** a Bearer chybí nebo neplatí → 403 `web_locked`.
+ *   Pokud je **WEB_LOCK vypnutý** (výchozí), POST z LAN projde bez hlavičky (stejně jako otevřené GET API).
  *
  * Token: 32 B náhodných, v hlavičce jako `Authorization: Bearer <64 hex znaků>`.
  *
  * ## BLE (viz ble_task_conn_is_encrypted)
  * - `ota_start`, `ota_ble_begin`, `ota_ble_abort`, `ota_ble_status`, `wifi_sta_config`,
- *   `factory_reset`: vyžadují aktivní šifrovaný odkaz (po SMP).
+ *   `wifi_ap_set`, `factory_reset`: vyžadují aktivní šifrovaný odkaz (po SMP).
  */
 #pragma once
 

@@ -13,11 +13,14 @@ import '../../../core/models/board_firmware_models.dart';
 import '../../../core/models/board_timer_state.dart';
 import '../../../core/services/firmware_phone_host_ota.dart';
 import '../../../core/utils/board_http_base_url.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import '../../../core/utils/phone_wifi_info.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
+import '../../connection/widgets/board_wifi_provision_fields.dart';
 import '../firmware_ota_runner.dart';
 import '../firmware_update_availability.dart';
+import 'ota_https_sta_gate_dialog.dart';
 
 /// OTA: manifest z Gitu v aplikaci; stažení .bin na telefon + přenos na desku přes hotspot HTTP, LAN nebo čistě BLE.
 class FirmwareUpdateSection extends ConsumerStatefulWidget {
@@ -39,12 +42,16 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
   String? _detail;
   bool _otaBusy = false;
   int _otaPercent = 0;
+
   /// BLE stream OTA (`uploadFirmwareOtaBle`) — při přechodu do pozadí upozorníme po návratu.
   bool _bleStreamOtaWatchBackground = false;
   bool _pendingBleBackgroundNotice = false;
   File? _cachedOtaFile;
   String? _cachedOtaVersion;
   bool _downloadBusy = false;
+  bool _wifiSurveyBusy = false;
+  bool? _wifiSurveyVisible;
+  String? _wifiPhoneGuess;
 
   String _firmwareTransportLabel(AppLocalizations l10n, BoardTransport t) {
     switch (t) {
@@ -82,6 +89,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       final guess = await PhoneWifiInfo.tryCurrentWifiSsid();
       if (mounted && guess != null && _wifiSsidCtrl.text.isEmpty) {
         _wifiSsidCtrl.text = guess;
+        _wifiPhoneGuess = guess;
         setState(() {});
       }
       unawaited(_reloadWifi());
@@ -118,7 +126,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
           _pendingBleBackgroundNotice = false;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(context.l10n.firmwareBleOtaReturnedFromBackgroundSnack),
+              content:
+                  Text(context.l10n.firmwareBleOtaReturnedFromBackgroundSnack),
             ),
           );
         }
@@ -146,7 +155,9 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       return;
     }
     try {
-      await ref.read(boardSessionNotifierProvider.notifier).provisionStaWifiOverBle(
+      await ref
+          .read(boardSessionNotifierProvider.notifier)
+          .provisionStaWifiOverBle(
             ssid: ssid,
             password: _wifiPwdCtrl.text,
           );
@@ -158,8 +169,60 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
       }
+    }
+  }
+
+  Future<void> _onFirmwareUsePhoneSsid() async {
+    final s = await PhoneWifiInfo.tryCurrentWifiSsid();
+    if (!mounted) return;
+    setState(() {
+      _wifiPhoneGuess = s;
+      if (s != null) {
+        _wifiSsidCtrl.text = s;
+      }
+      _wifiSurveyVisible = null;
+    });
+  }
+
+  Future<void> _scanWifiSurveyFirmware() async {
+    final snap = ref.read(firmwareUpdateAvailabilityProvider);
+    if (snap.loading || _otaBusy || _downloadBusy) return;
+    setState(() {
+      _wifiSurveyBusy = true;
+      _wifiSurveyVisible = null;
+    });
+    try {
+      final r = await ref
+          .read(boardSessionNotifierProvider.notifier)
+          .fetchWifiSurveyOverBle();
+      if (!mounted) return;
+      final phone = _wifiSsidCtrl.text.trim().isNotEmpty
+          ? _wifiSsidCtrl.text.trim()
+          : (_wifiPhoneGuess ?? '');
+      if (!r.ok) {
+        setState(() => _wifiSurveyVisible = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.boardWifiProvisionSurveyFailed)),
+        );
+        return;
+      }
+      setState(() {
+        _wifiSurveyVisible = phone.isNotEmpty ? r.hasSsid(phone) : false;
+      });
+    } catch (e) {
+      if (mounted) {
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _wifiSurveyBusy = false);
     }
   }
 
@@ -170,8 +233,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       return;
     }
     try {
-      final w =
-          await ref.read(boardApiClientProvider).fetchWiFiStatus(baseUrl);
+      final w = await ref.read(boardApiClientProvider).fetchWiFiStatus(baseUrl);
       if (mounted) {
         setState(() => _wifiStatus = w);
       }
@@ -237,7 +299,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     await ref
         .read(prefsRepositoryProvider)
         .setFirmwareManifestUrl(_manifestCtrl.text.trim());
-    final effective = ref.read(prefsRepositoryProvider).firmwareManifestUrlEffective;
+    final effective =
+        ref.read(prefsRepositoryProvider).firmwareManifestUrlEffective;
     if (mounted) {
       setState(() => _manifestCtrl.text = effective);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -300,7 +363,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
                 Text(l10n.firmwareNewVersionLine(remoteVersion, boardVersion)),
                 if (changelog != null && changelog.trim().isNotEmpty) ...[
                   const SizedBox(height: 12),
-                  Text(changelog.trim(), style: Theme.of(ctx).textTheme.bodySmall),
+                  Text(changelog.trim(),
+                      style: Theme.of(ctx).textTheme.bodySmall),
                 ],
                 const SizedBox(height: 12),
                 Text(l10n.firmwareHttpsLinkExplainBody),
@@ -377,9 +441,12 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       if (!mounted) {
         return;
       }
+      final l10n = context.l10n;
       setState(() {
         _downloadBusy = false;
-        _detail = context.l10n.firmwareDownloadFailedLine('$e');
+        _detail = l10n.firmwareDownloadFailedLine(
+          userFacingErrorSummary(l10n, e),
+        );
       });
     }
   }
@@ -412,8 +479,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       return;
     }
     final session = ref.read(boardSessionNotifierProvider);
-    final onApSubnet =
-        await FirmwarePhoneHostOta.ipv4OnBoardApSubnet() != null;
+    final onApSubnet = await FirmwarePhoneHostOta.ipv4OnBoardApSubnet() != null;
     final boardStaReady = session.bleStaConnected &&
         session.bleStaIp != null &&
         session.bleStaIp!.trim().isNotEmpty;
@@ -442,8 +508,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       return;
     }
     if (!canHttpPhoneHost) {
-      if (session.transport == BoardTransport.ble &&
-          session.bleGattConnected) {
+      if (session.transport == BoardTransport.ble && session.bleGattConnected) {
         final msg = context.l10n.firmwareOtaNoLanRouteUseBle;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(msg)),
@@ -494,7 +559,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       }
       if (err != null) {
         setState(() => _detail = err);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(err)));
       } else {
         phoneHostOtaSucceeded = true;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -507,14 +573,15 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       if (!mounted) {
         return;
       }
-      final msg = '$e';
-      final lanFail = msg.contains('NOT_ON_OTA_LAN');
-      setState(() => _detail = lanFail
-          ? context.l10n.firmwareOtaPhoneNotOnLan
-          : msg);
+      final l10n = context.l10n;
+      final raw = e.toString();
+      final lanFail = raw.contains('NOT_ON_OTA_LAN');
+      final friendly = userFacingErrorSummary(l10n, e);
+      setState(
+          () => _detail = lanFail ? l10n.firmwareOtaPhoneNotOnLan : friendly);
       if (lanFail) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.firmwareOtaPhoneNotOnLan)),
+          SnackBar(content: Text(l10n.firmwareOtaPhoneNotOnLan)),
         );
       }
     } finally {
@@ -593,26 +660,28 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     });
     var bleStreamOtaSucceeded = false;
     try {
-      await ref.read(boardSessionNotifierProvider.notifier).uploadFirmwareOtaBle(
-            file,
-            onProgress: (p) {
-              if (mounted) {
-                setState(() => _otaPercent = p);
-              }
-            },
-            onBleOtaPhase: (phase) {
-              if (!mounted) return;
-              if (phase == 'paused_waiting_reconnect') {
-                setState(() {
-                  _detail = context.l10n.firmwareBleOtaPausedReconnectDetail;
-                });
-              } else if (phase == 'resumed') {
-                setState(() {
-                  _detail = context.l10n.firmwareBleOtaResumedTransferDetail;
-                });
-              }
-            },
-          );
+      await ref
+          .read(boardSessionNotifierProvider.notifier)
+          .uploadFirmwareOtaBle(
+        file,
+        onProgress: (p) {
+          if (mounted) {
+            setState(() => _otaPercent = p);
+          }
+        },
+        onBleOtaPhase: (phase) {
+          if (!mounted) return;
+          if (phase == 'paused_waiting_reconnect') {
+            setState(() {
+              _detail = context.l10n.firmwareBleOtaPausedReconnectDetail;
+            });
+          } else if (phase == 'resumed') {
+            setState(() {
+              _detail = context.l10n.firmwareBleOtaResumedTransferDetail;
+            });
+          }
+        },
+      );
       if (!mounted) {
         return;
       }
@@ -624,9 +693,12 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       if (!mounted) {
         return;
       }
-      final msg = '$e';
-      setState(() => _detail = msg);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final l10n = context.l10n;
+      final friendly = userFacingErrorSummary(l10n, e);
+      setState(() => _detail = friendly);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(friendly)),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -657,6 +729,72 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       return;
     }
 
+    final remoteHttps = binUrl.trim().toLowerCase().startsWith('https://');
+    if (remoteHttps && mounted) {
+      final sessionForGate = ref.read(boardSessionNotifierProvider);
+      final prefsForGate = ref.read(prefsRepositoryProvider);
+      final baseGate = resolveBoardHttpBaseUrl(
+        wifiTransportActive: sessionForGate.transport == BoardTransport.wifi,
+        sessionWifiBaseUrl: sessionForGate.wifiBaseUrl,
+        prefsLastBoardBaseUrl: prefsForGate.lastBoardBaseUrl,
+        bleStaIp: sessionForGate.bleStaIp,
+      );
+      if (baseGate != null && baseGate.isNotEmpty) {
+        try {
+          final w =
+              await ref.read(boardApiClientProvider).fetchWiFiStatus(baseGate);
+          if (!w.staConnected && mounted) {
+            final bleFlash = sessionForGate.transport == BoardTransport.ble &&
+                sessionForGate.bleGattConnected;
+            final choice = await showOtaHttpsStaGateDialog(
+              context,
+              bleUploadAvailable: bleFlash,
+            );
+            if (!mounted) return;
+            if (choice == null || choice == OtaHttpsStaGateChoice.abort) {
+              return;
+            }
+            if (choice == OtaHttpsStaGateChoice.bleUpload) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(context.l10n.otaHttpsBleUploadHintSnack),
+                ),
+              );
+              return;
+            }
+            if (choice == OtaHttpsStaGateChoice.wifiTips) {
+              await showOtaHttpsWifiTipsDialog(context);
+              return;
+            }
+            if (choice == OtaHttpsStaGateChoice.hotspotBle) {
+              try {
+                await ref
+                    .read(boardSessionNotifierProvider.notifier)
+                    .setBoardHotspotEnabled(true);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(context.l10n.otaHttpsHotspotEnabledSnack),
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  final l10n = context.l10n;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(userFacingErrorSummary(l10n, e)),
+                    ),
+                  );
+                }
+              }
+              return;
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
     setState(() {
       _otaBusy = true;
       _otaPercent = 0;
@@ -677,7 +815,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       setState(() => _otaBusy = false);
       if (err != null) {
         setState(() => _detail = err);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(err)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -711,61 +850,50 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     final remoteV = snap.manifest?.version ?? '—';
     final updateAvailable = snap.updateAvailable;
     final showBleGit = snap.showBleGitFirmwareActions;
-    final highlightFirmwareTile =
-        updateAvailable || (showBleGit && !snap.hasBoardVersion);
     final remindersOn = prefs.firmwareUpdateRemindersEnabled;
     final otaCapable = snap.boardOtaSupported != false;
-    final bleFlashPrimary = session.transport == BoardTransport.ble &&
-        session.bleGattConnected;
+    final bleFlashPrimary =
+        session.transport == BoardTransport.ble && session.bleGattConnected;
 
     final theme = Theme.of(context);
+    final devMode = ref
+            .watch(sharedPreferencesProvider)
+            .getBool('czechmate.developerModeUnlocked') ??
+        false;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        margin: EdgeInsets.zero,
-        child: Theme(
-          data: theme.copyWith(dividerColor: Colors.transparent),
-          child: ExpansionTile(
-            tilePadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            childrenPadding: EdgeInsets.zero,
-            leading: Icon(
-              Icons.system_update_alt_outlined,
-              color: theme.colorScheme.primary,
-            ),
-            title: Text(
-              updateAvailable
-                  ? context.l10n.firmwareTileTitleUpdateAvailable(remoteV)
-                  : (showBleGit
-                      ? context.l10n.firmwareTileTitleGitBle(remoteV)
-                      : context.l10n.firmwareTileTitleDefault),
-              style: highlightFirmwareTile
-                  ? theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: theme.colorScheme.primary,
-                    )
-                  : theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            subtitle: Text(
-              updateAvailable
-                  ? '${context.l10n.firmwareTwoStepOtaHint} (${remindersOn ? context.l10n.firmwareRemindersOnShort : context.l10n.firmwareRemindersOffShort}).'
-                  : (showBleGit && !snap.hasBoardVersion)
-                      ? context.l10n.firmwareTileSubtitleBleGitOnly
-                      : context.l10n.firmwareTileSubtitleIdle,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (updateAvailable)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Material(
+                color:
+                    theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(12),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.system_update_alt_outlined,
+                        color: theme.colorScheme.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          '${context.l10n.firmwareTileTitleUpdateAvailable(remoteV)}\n${context.l10n.firmwareTwoStepOtaHint} (${remindersOn ? context.l10n.firmwareRemindersOnShort : context.l10n.firmwareRemindersOffShort}).',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
             ),
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(context.l10n.firmwareDailyRemindersTitle),
@@ -776,49 +904,67 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
               setState(() {});
             },
           ),
-          TextField(
-            controller: _manifestCtrl,
-            decoration: InputDecoration(
-              labelText: context.l10n.firmwareManifestUrlLabel,
-              hintText: context.l10n.firmwareManifestUrlHint,
-              helperText: context.l10n.firmwareManifestUrlHelper,
-              border: const OutlineInputBorder(),
-            ),
-            keyboardType: TextInputType.url,
-          ),
           const SizedBox(height: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FilledButton.tonal(
-                onPressed:
-                    snap.loading || _otaBusy || _downloadBusy ? null : _saveManifestUrl,
-                child: Text(
-                  context.l10n.firmwareSaveManifestUrl,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 8),
-              FilledButton(
-                onPressed:
-                    snap.loading || _otaBusy || _downloadBusy ? null : _checkUpdate,
-                child: snap.loading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        context.l10n.firmwareCheckForUpdate,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-              ),
-            ],
+          FilledButton(
+            onPressed:
+                snap.loading || _otaBusy || _downloadBusy ? null : _checkUpdate,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
+            child: snap.loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text(
+                    context.l10n.firmwareCheckForUpdate,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
           ),
+          if (devMode) ...[
+            const SizedBox(height: 16),
+            Text(
+              context.l10n.firmwareDeveloperManifestSectionTitle,
+              style: theme.textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              context.l10n.firmwareDeveloperManifestSectionBody,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _manifestCtrl,
+              decoration: InputDecoration(
+                labelText: context.l10n.firmwareManifestUrlLabel,
+                hintText: context.l10n.firmwareManifestUrlHint,
+                helperText: context.l10n.firmwareManifestUrlHelper,
+                border: const OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.url,
+            ),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: snap.loading || _otaBusy || _downloadBusy
+                  ? null
+                  : _saveManifestUrl,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 44),
+              ),
+              child: Text(
+                context.l10n.firmwareSaveManifestUrl,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Text(
             context.l10n.firmwareBoardHttpVersionLine(boardV),
@@ -842,54 +988,34 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
           if (session.transport == BoardTransport.ble &&
               session.bleGattConnected) ...[
             const SizedBox(height: 16),
-            Text(
-              context.l10n.firmwareWifiBleProvisionTitle,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              context.l10n.firmwareWifiBleProvisionSubtitle,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _wifiSsidCtrl,
-              decoration: InputDecoration(
-                labelText: context.l10n.firmwareWifiBleSsidLabel,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _wifiPwdCtrl,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: context.l10n.firmwareWifiBlePasswordLabel,
-                border: const OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: snap.loading || _otaBusy || _downloadBusy
-                    ? null
-                    : () async {
-                        final s = await PhoneWifiInfo.tryCurrentWifiSsid();
-                        if (mounted && s != null) {
-                          setState(() => _wifiSsidCtrl.text = s);
-                        }
-                      },
-                child: Text(context.l10n.firmwareWifiBleUsePhoneSsidButton),
-              ),
-            ),
-            FilledButton.tonal(
-              onPressed: snap.loading || _otaBusy || _downloadBusy
-                  ? null
+            BoardWifiProvisionFields(
+              ssidController: _wifiSsidCtrl,
+              pwdController: _wifiPwdCtrl,
+              onSendCredentials: snap.loading || _otaBusy || _downloadBusy
+                  ? () {}
                   : _sendWifiCredentialsToBoard,
+              onUsePhoneSsid: snap.loading || _otaBusy || _downloadBusy
+                  ? () {}
+                  : _onFirmwareUsePhoneSsid,
+              onScanBoardNetworks: snap.loading || _otaBusy || _downloadBusy
+                  ? null
+                  : _scanWifiSurveyFirmware,
+              scanBusy: _wifiSurveyBusy,
+              sendBusy: snap.loading || _otaBusy || _downloadBusy,
+              surveyPhoneVisible: _wifiSurveyVisible,
+              surveyDisplaySsidForChip: _wifiSsidCtrl.text.trim().isNotEmpty
+                  ? _wifiSsidCtrl.text.trim()
+                  : _wifiPhoneGuess,
+              actionsEnabled: !snap.loading && !_otaBusy && !_downloadBusy,
+              denseSubtitle: false,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
-                context.l10n.firmwareWifiBleSendCredentials,
-                textAlign: TextAlign.center,
+                context.l10n.boardWifiProvisionFirmwareContextHint,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ),
             const SizedBox(height: 8),
@@ -924,7 +1050,10 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
           if (snap.boardOtaSupported == false) ...[
             const SizedBox(height: 12),
             Material(
-              color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .errorContainer
+                  .withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -938,7 +1067,10 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
           if (showBleGit && snap.manifest != null) ...[
             const SizedBox(height: 12),
             Material(
-              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.35),
+              color: Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(12),
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -1143,12 +1275,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
             ),
             style: Theme.of(context).textTheme.labelSmall,
           ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }

@@ -170,17 +170,15 @@ static void send_auth_error(httpd_req_t *req, const char *err_code,
 }
 
 bool board_api_auth_admin_http_denied(httpd_req_t *req) {
-  bool ok = bearer_matches_request(req);
-  if (web_is_locked() && !ok) {
-    send_auth_error(
-        req, "web_locked",
-        "Web locked. Send Authorization Bearer token or UART WEB_LOCK OFF.");
-    return true;
+  if (bearer_matches_request(req)) {
+    return false;
   }
-  if (!ok) {
-    send_auth_error(req, "api_token_required",
-                    "Authorization Bearer with 64 hex chars (UART API_TOKEN).");
-    return true;
+  if (!web_is_locked()) {
+    /* WEB_LOCK OFF: stejný model důvěry jako veřejné GET — OTA/Wi‑Fi admin z LAN bez tokenu. */
+    return false;
   }
-  return false;
+  send_auth_error(
+      req, "web_locked",
+      "Web locked. Send Authorization Bearer token or UART WEB_LOCK OFF.");
+  return true;
 }

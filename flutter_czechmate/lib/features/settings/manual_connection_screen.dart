@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/debug/connection_debug_log.dart';
 import '../../core/utils/board_http_base_url.dart';
+import '../../core/widgets/pressable_scale.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../../core/models/board_timer_state.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
@@ -64,8 +67,14 @@ class _ManualConnectionScreenState
       if (mounted) setState(() => _wifiStatus = s);
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.manualConnWifiStatusError('$e'))));
+          SnackBar(
+            content: Text(
+              l10n.manualConnWifiStatusError(userFacingErrorSummary(l10n, e)),
+            ),
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _wifiBusy = false);
@@ -82,13 +91,17 @@ class _ManualConnectionScreenState
     setState(() => _wifiBusy = true);
     try {
       await ref.read(boardApiClientProvider).postWiFiDisconnect(base);
-      if (mounted)
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.manualConnStaDisconnectedSnack)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(context.l10n.manualConnStaDisconnectedSnack)));
+      }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
+      }
     } finally {
       if (mounted) setState(() => _wifiBusy = false);
       await _refreshWiFiStatus();
@@ -124,13 +137,17 @@ class _ManualConnectionScreenState
     setState(() => _wifiBusy = true);
     try {
       await ref.read(boardApiClientProvider).postWiFiClear(base);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(context.l10n.manualConnNvsClearedSnack)));
+      }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
+      }
     } finally {
       if (mounted) setState(() => _wifiBusy = false);
       await _refreshWiFiStatus();
@@ -158,50 +175,64 @@ class _ManualConnectionScreenState
               labelText: devMode
                   ? l10n.manualConnUrlLabelDev
                   : l10n.manualConnUrlLabelUser,
-              hintText:
-                  devMode ? l10n.manualConnUrlHintDev : l10n.manualConnUrlHintUser,
+              hintText: devMode
+                  ? l10n.manualConnUrlHintDev
+                  : l10n.manualConnUrlHintUser,
               border: const OutlineInputBorder(),
             ),
             keyboardType: TextInputType.url,
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 12),
-          FilledButton(
-            onPressed: () async {
-              final n = normalizeBoardHttpBaseUrl(_url.text);
-              if (n == null) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(context.l10n.settingsInvalidUrlSnack)),
-                  );
+          PressableScale(
+            child: FilledButton(
+              onPressed: () async {
+                final n = normalizeBoardHttpBaseUrl(_url.text);
+                if (n == null) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(context.l10n.settingsInvalidUrlSnack)),
+                    );
+                  }
+                  return;
                 }
-                return;
-              }
-              await ref.read(prefsRepositoryProvider).setLastBoardBaseUrl(n);
-              _url.text = n;
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(context.l10n.manualConnSaveUrlSnack)));
-              }
-            },
-            child: Text(l10n.manualConnSaveUrl),
+                await ref.read(prefsRepositoryProvider).setLastBoardBaseUrl(n);
+                _url.text = n;
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(context.l10n.manualConnSaveUrlSnack)));
+                }
+              },
+              child: Text(l10n.manualConnSaveUrl),
+            ),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: () async {
               final u = _normalizedBase();
               if (u == null) return;
+              final l10nCatch = context.l10n;
               final sw = Stopwatch()..start();
+              connDebugLog('Manual URL GET snapshot test', 'GET $u');
               try {
                 await ref
                     .read(boardApiClientProvider)
                     .fetchSnapshotIfChanged(u);
                 sw.stop();
+                connDebugLog(
+                  'Manual URL test OK',
+                  '${sw.elapsedMilliseconds} ms',
+                );
+                if (!mounted) return;
                 setState(() => _ping = '${sw.elapsedMilliseconds} ms');
               } catch (e) {
+                connDebugLog('Manual URL test FAIL', '$e');
+                if (!mounted) return;
                 setState(() => _ping = devMode
-                    ? context.l10n.newGameErrorSnack('$e')
-                    : context.l10n.manualConnTestFailedUser);
+                    ? l10nCatch
+                        .newGameErrorSnack(userFacingErrorSummary(l10nCatch, e))
+                    : l10nCatch.manualConnTestFailedUser);
               }
             },
             child: Text(l10n.manualConnTestConnection),
@@ -212,17 +243,23 @@ class _ManualConnectionScreenState
               child: Text(_ping),
             ),
           const SizedBox(height: 16),
-          FilledButton.tonal(
-            onPressed: session.busy || _normalizedBase() == null
-                ? null
-                : () async {
-                    final u = _normalizedBase()!;
-                    await ref
-                        .read(boardSessionNotifierProvider.notifier)
-                        .connectWifi(u);
-                    if (context.mounted) Navigator.pop(context);
-                  },
-            child: Text(l10n.manualConnConnectSession),
+          PressableScale(
+            child: FilledButton.tonal(
+              onPressed: session.busy || _normalizedBase() == null
+                  ? null
+                  : () async {
+                      final u = _normalizedBase()!;
+                      connDebugLog(
+                        'Manual screen → connectWifi(session)',
+                        u,
+                      );
+                      await ref
+                          .read(boardSessionNotifierProvider.notifier)
+                          .connectWifi(u);
+                      if (context.mounted) Navigator.pop(context);
+                    },
+              child: Text(l10n.manualConnConnectSession),
+            ),
           ),
           const Divider(height: 40),
           Text(l10n.manualConnWifiStaNvs,
@@ -251,12 +288,17 @@ class _ManualConnectionScreenState
             Text(
               devMode
                   ? 'STA: ${_wifiStatus!.staSsid.isEmpty ? '—' : _wifiStatus!.staSsid} · ${_wifiStatus!.staIp} · ${_wifiStatus!.staConnected ? "online" : "offline"}'
+                      '${_wifiStatus!.staBlkOct.isEmpty ? '' : ' · DHCP blok 3. okt.: ${_wifiStatus!.staBlkOct}'}'
                   : 'STA: ${_wifiStatus!.staConnected ? "online" : "offline"}',
             ),
             Text(
               devMode
-                  ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? '—' : _wifiStatus!.apSsid} · ${_wifiStatus!.apIp} · klientů: ${_wifiStatus!.apClients}'
-                  : 'AP: ${_wifiStatus!.apSsid.isEmpty ? 'aktivní' : _wifiStatus!.apSsid} · klientů: ${_wifiStatus!.apClients}',
+                  ? (_wifiStatus!.apActive
+                      ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? '—' : _wifiStatus!.apSsid} · ${_wifiStatus!.apIp} · klientů: ${_wifiStatus!.apClients}'
+                      : 'AP: vypnutý (hotspot na desce nevysílá)')
+                  : (_wifiStatus!.apActive
+                      ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? 'zapnutý' : _wifiStatus!.apSsid} · klientů: ${_wifiStatus!.apClients}'
+                      : 'AP: vypnutý — zapni hotspot z obrazovky Najít desku přes Bluetooth'),
             ),
             const SizedBox(height: 8),
           ],

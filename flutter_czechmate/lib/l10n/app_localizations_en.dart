@@ -18,10 +18,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navAnalysis => 'Analysis';
 
   @override
-  String get navPuzzle => 'Puzzle';
+  String get navPuzzle => 'Puzzles';
 
   @override
-  String get navProgress => 'Progress';
+  String get navProgress => 'Training';
 
   @override
   String get navSettings => 'Settings';
@@ -106,6 +106,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errInvalidBoardUrl =>
       'Invalid board URL — hostname missing. Use http://192.168.4.1 or your board STA IP.';
+
+  @override
+  String errWifiIpThirdOctetBlocked(String host) {
+    return 'Address $host is blocked by your Wi‑Fi third-octet filter. Change the list under Advanced connection, enter another URL, or adjust DHCP on your router so the board avoids that subnet.';
+  }
+
+  @override
+  String get errBoardSnapshotUnreachable =>
+      'Could not load the board snapshot over Wi‑Fi. Check the URL and network, or connect via Bluetooth.';
 
   @override
   String get errNoSavedBle =>
@@ -325,8 +334,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportShareHeading => 'Share';
 
   @override
-  String get reportShareExportHint =>
-      'Like Strava: copy the summary image and paste it into Instagram, Messages, or WhatsApp — or open the share sheet for anything else.';
+  String get reportExportAdvancedTitle => 'Advanced layout';
+
+  @override
+  String get reportExportAdvancedSubtitle =>
+      'Transparency, which sections appear, and their order. Shape comes from the layout thumbnails above.';
 
   @override
   String get reportSharePreparing => 'Preparing…';
@@ -359,8 +371,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportExportSectionOrderTitle => 'Section order (export)';
 
   @override
-  String get reportExportSectionOrderSubtitle =>
-      'Drag to reorder blocks on the shared image — same idea as coach AI priority.';
+  String get reportExportSectionOrderSubtitle => '';
 
   @override
   String get reportExportBlockRecap => 'Recap caption';
@@ -394,7 +405,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportExportAppearanceSubtitle =>
-      'Choose layout, background, and which sections appear on the shared PNG. The preview matches the export.';
+      'Choose a layout below — the preview updates. Chart colors and Advanced options stay available.';
+
+  @override
+  String get reportExportStylePickHint =>
+      'Tap a layout to match how you want to share (feed card, square, story, or wide).';
+
+  @override
+  String get reportChartPaletteChoiceHint =>
+      'Preset affects eval + timing charts in Analysis and exports. Custom opens labeled rows for each chart element.';
 
   @override
   String get reportExportAspectRatio => 'Canvas size';
@@ -490,6 +509,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportExportPresetStory => 'Story hero';
+
+  @override
+  String get reportExportThumbWideLabel => 'Wide';
+
+  @override
+  String get reportExportThumbWideAspect => '16∶9';
 
   @override
   String get reportExportShareGifRecap => 'Share move recap (GIF)';
@@ -613,7 +638,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNo => 'No';
 
   @override
-  String get lastErrorTitle => 'Last error';
+  String get lastErrorTitle => 'Connection issue';
 
   @override
   String get telemetryPrivacyTitle => 'Privacy';
@@ -628,6 +653,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get telemetryIcloudBody =>
       'Game data stays on device unless you export or enable sync elsewhere.';
+
+  @override
+  String get discoveryHelpConnectingTitle => 'Need help connecting?';
+
+  @override
+  String get discoveryHelpConnectingSubtitle => 'Setup steps and scanning tips';
 
   @override
   String get discoveryTitle => 'Find board';
@@ -647,7 +678,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryIntro =>
-      'Tap a board to connect. Bluetooth pairs first; the app then switches to HTTP over Wi‑Fi when it can reach the board (home LAN STA, or the board hotspot while your phone is on the same subnet, usually 192.168.4.x).';
+      'Bluetooth connects first. At home on the same Wi‑Fi, the app switches to faster HTTP when it can reach the board.';
+
+  @override
+  String get discoveryFlowStepsTitle => 'Three steps';
+
+  @override
+  String get discoveryFlowStep1 => 'Turn on Bluetooth on this phone.';
+
+  @override
+  String get discoveryFlowStep2 =>
+      'Tap Find board and pick your board from the list.';
+
+  @override
+  String get discoveryFlowStep3 =>
+      'At home on the same Wi‑Fi as the board, the app switches to faster HTTP when possible; elsewhere it stays on Bluetooth.';
+
+  @override
+  String get discoveryScanCardLead =>
+      'Use the button below to search nearby. To type an address instead, open Advanced.';
+
+  @override
+  String get discoveryRecoveryTitle => 'Could not connect';
+
+  @override
+  String get discoveryRecoveryBulletBt =>
+      'Bluetooth is on and the board is powered on nearby.';
+
+  @override
+  String get discoveryRecoveryBulletRange =>
+      'Move closer — walls and pockets sometimes weaken the signal.';
+
+  @override
+  String get discoveryRecoveryBulletHomeWifi =>
+      'At home, phone and board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.';
+
+  @override
+  String get discoveryRecoveryBulletManual =>
+      'You can enter the board address under Advanced.';
+
+  @override
+  String get discoveryRecoveryOpenAppSettings => 'Open system settings';
+
+  @override
+  String get discoveryRecoveryDismiss => 'Got it';
 
   @override
   String get transportDisconnected => 'Disconnected';
@@ -744,7 +818,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameResumeClock => 'Resume clock';
 
   @override
-  String get gameClearHintLeds => 'Clear hint LEDs';
+  String get gameClearHintLeds => 'Hide board hint';
+
+  @override
+  String get gameHideBoardHintTooltip => 'Hide board hint';
 
   @override
   String get gameNoSnapshotYet => 'No board snapshot yet.';
@@ -813,7 +890,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String gameBestMoveSnack(String from, String to) {
-    return 'Best move: $from→$to';
+    return 'Recommended move: $from to $to';
   }
 
   @override
@@ -920,13 +997,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryEmptyBleList =>
-      'The list is empty. Tap “Find board” and wait a few seconds within range of a powered-on board.';
+      'No boards found yet. Wait a few seconds with Bluetooth on and a powered-on board nearby.';
 
   @override
-  String get discoveryAdvancedSubtitle => 'Wi‑Fi URL, connection mode, demo';
+  String get discoveryAutoScanHint =>
+      'Scan starts automatically unless the next connection is Wi‑Fi-only (Advanced).';
+
+  @override
+  String get discoveryAdvancedSubtitle =>
+      'Wi‑Fi address, saved Bluetooth, one-shot transport';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsTitle =>
+      'Wi‑Fi IP filter (third octet)';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsBody =>
+      'The board stores this list in NVS and rejects DHCP leases whose IPv4 third octet matches (disconnect + retry). The phone mirrors the same filter for URLs. Values are pushed over encrypted Bluetooth when you save or connect via BLE — the firmware does not ship with a blocklist until the app sends one. Example: 88 rejects every x.x.88.x. Empty field disables blocking on both sides. Until you save anything else, the app defaults to 88.';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsLabel =>
+      'Blocked third octets (comma-separated)';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsHint => 'e.g. 88 or 88,100';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSave => 'Save filter';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsReset => 'Reset to default (88)';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSavedSnack =>
+      'Wi‑Fi IP filter saved';
+
+  @override
+  String get discoveryTransportAdvancedExplanation =>
+      'The app defaults to automatic routing (Bluetooth first, then Wi‑Fi when the board answers over HTTP). To force just one upcoming connection over Wi‑Fi or Bluetooth, use Settings → Board connection → Advanced — it always returns to automatic after that attempt finishes.';
+
+  @override
+  String get discoveryOpenTransportSettingsButton => 'Open connection settings';
 
   @override
   String get discoveryConnectionModeHeading => 'Connection mode';
+
+  @override
+  String get discoveryConnectionModeHint =>
+      'Auto: Bluetooth first, then Wi‑Fi when the board is reachable. Wi‑Fi only skips Bluetooth. Bluetooth only stays on Bluetooth even if a Wi‑Fi URL is known.';
 
   @override
   String get discoveryBleSegmentShort => 'BLE only';
@@ -946,6 +1064,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get discoveryBoardHotspotButton => 'Board hotspot (192.168.4.1)';
+
+  @override
+  String get discoveryBoardApEnable => 'Turn on board Wi‑Fi hotspot';
+
+  @override
+  String get discoveryBoardApDisable => 'Turn off board Wi‑Fi hotspot';
+
+  @override
+  String get discoveryBoardApSubtitle =>
+      'The phone can join the board network for HTTP or OTA. The board ships with this hotspot off.';
+
+  @override
+  String get discoveryBoardApCommandSent =>
+      'Hotspot command sent — wait a few seconds, then check Wi‑Fi networks.';
+
+  @override
+  String discoveryBoardApError(String error) {
+    return 'Could not change the hotspot: $error';
+  }
+
+  @override
+  String get errBoardApNeedsBle =>
+      'Bluetooth must be connected to change the board hotspot.';
+
+  @override
+  String get boardWifiProvisionSheetTitle => 'Connect the board to Wi‑Fi';
+
+  @override
+  String get boardWifiProvisionSheetLead =>
+      'Use the same router Wi‑Fi as your phone when possible (often 2.4 GHz works best). The app never reads your saved Wi‑Fi password from the phone — enter it here once.';
+
+  @override
+  String get boardWifiProvisionIosSsidHint =>
+      'On iPhone, the current network name may stay hidden until Location access is allowed for Wi‑Fi info — you can always type the SSID manually.';
+
+  @override
+  String get boardWifiProvisionScanBoardButton => 'Scan Wi‑Fi around the board';
+
+  @override
+  String get boardWifiProvisionScanning => 'Scanning…';
+
+  @override
+  String boardWifiProvisionVisibleYes(String ssid) {
+    return 'Your phone’s SSID “$ssid” appears in the board scan — you can enter the password and connect.';
+  }
+
+  @override
+  String get boardWifiProvisionVisibleNo =>
+      'That SSID didn’t show up in the board scan — check distance, or try a 2.4 GHz network name. You can still try; play can continue over Bluetooth.';
+
+  @override
+  String get boardWifiProvisionSurveyFailed =>
+      'Board scan failed or timed out.';
+
+  @override
+  String get boardWifiProvisionDoneSnack =>
+      'Wi‑Fi credentials sent — wait until the board joins the network.';
+
+  @override
+  String get boardWifiProvisionStaTimeoutHint =>
+      'No STA connection yet — the board may not see that network. You can keep using Bluetooth or enable the board hotspot from Board discovery.';
+
+  @override
+  String get boardWifiProvisionFirmwareContextHint =>
+      'Same Wi‑Fi setup as the sheet shown after connecting from Board discovery — one shared flow, not two different settings.';
+
+  @override
+  String get otaHttpsStaGateTitle =>
+      'Internet firmware download needs router Wi‑Fi';
+
+  @override
+  String get otaHttpsStaGateBody =>
+      'HTTPS updates are downloaded by the board itself. Connect the board to a home/access Wi‑Fi that has internet (2.4 GHz is usually the most compatible). Turning on the board hotspot helps your phone talk to the board over HTTP, but it does not give the board internet by itself — use Bluetooth firmware upload below, or connect the board to router Wi‑Fi first.';
+
+  @override
+  String get otaHttpsStaGateBleUpload => 'Use Bluetooth firmware upload';
+
+  @override
+  String get otaHttpsStaGateHotspotBle => 'Turn on board hotspot (Bluetooth)';
+
+  @override
+  String get otaHttpsStaGateWifiTips => '2.4 GHz Wi‑Fi tips';
+
+  @override
+  String get otaHttpsStaGateCancel => 'Not now';
+
+  @override
+  String get otaHttpsWifiTipsTitle => 'Router Wi‑Fi tips';
+
+  @override
+  String get otaHttpsWifiTipsBody =>
+      'Place the board in range of the router. Prefer the 2.4 GHz band if your router uses different names for 2.4 GHz and 5 GHz. After the board shows connected on your network, try the update again.';
+
+  @override
+  String get otaHttpsHotspotEnabledSnack =>
+      'Hotspot command sent — join the board Wi‑Fi on your phone if you need HTTP access. HTTPS download still needs the board on router Wi‑Fi with internet.';
+
+  @override
+  String get otaHttpsBleUploadHintSnack =>
+      'Scroll down in Firmware update and use “Upload firmware via Bluetooth”.';
 
   @override
   String get connectionModeAutoShort => 'Auto';
@@ -975,8 +1193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsConnectionIntro =>
-      'Usually it’s enough to find the board via Bluetooth; the app may switch to Wi‑Fi when that makes sense.';
+  String get settingsConnectionLearnMore => 'How connecting works';
 
   @override
   String get settingsDisconnect => 'Disconnect';
@@ -987,6 +1204,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsAdvancedConnectionSubtitle =>
       'Default URL, connection mode, saved BLE';
+
+  @override
+  String get settingsAdvancedConnectionSubtitleV2 =>
+      'Default URL, next connection override, saved BLE';
 
   @override
   String get settingsReconnectingBle =>
@@ -1010,6 +1231,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsConnectionModeAutoBleWifi => 'Auto (BLE → Wi‑Fi)';
+
+  @override
+  String get settingsNextConnectionTitle => 'Next connection (one-shot)';
+
+  @override
+  String get settingsNextConnectionIntro =>
+      'Default is automatic. These apply only to the next connect attempt (Find board, reconnect, or resume), then the app returns to automatic so nothing stays stuck.';
+
+  @override
+  String get settingsNextConnectionWifiOnceButton => 'Next: Wi‑Fi only';
+
+  @override
+  String get settingsNextConnectionBleOnceButton => 'Next: Bluetooth only';
+
+  @override
+  String get settingsNextConnectionUseAuto => 'Use automatic';
+
+  @override
+  String get settingsNextConnectionActiveWifiOnce =>
+      'Next attempt will skip Bluetooth and use saved Wi‑Fi URL only.';
+
+  @override
+  String get settingsNextConnectionActiveBleOnce =>
+      'Next attempt keeps Bluetooth and will not hand off to Wi‑Fi automatically.';
 
   @override
   String get settingsDefaultBoardUrl => 'Default board URL';
@@ -1052,6 +1297,33 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsWebSocketSubtitle =>
       'Reconnect Wi‑Fi session after change';
+
+  @override
+  String get settingsAppFactoryResetTitle => 'Reset app on this device';
+
+  @override
+  String get settingsAppFactoryResetSubtitle =>
+      'Restores the app to its defaults and clears saved data on this device. Your chessboard is not changed.';
+
+  @override
+  String get settingsAppFactoryResetButton => 'Reset app data';
+
+  @override
+  String get settingsAppFactoryResetConfirmTitle => 'Reset now?';
+
+  @override
+  String get settingsAppFactoryResetConfirmBody =>
+      'This cannot be undone. You will reconnect to the board and re-enter any API keys.';
+
+  @override
+  String get settingsAppFactoryResetConfirmAction => 'Reset';
+
+  @override
+  String get settingsAppFactoryResetDoneSnack => 'App data was cleared.';
+
+  @override
+  String get settingsAppFactoryResetRestartHint =>
+      'If anything looks wrong, fully quit and reopen the app.';
 
   @override
   String get transportShortDemo => 'Demo';
@@ -1120,9 +1392,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsFlipBoardTitle => 'Flip board';
 
   @override
-  String get settingsFlipBoardSubtitle => 'Black toward you';
-
-  @override
   String get settingsRemoteMovesTitle => 'Remote moves';
 
   @override
@@ -1183,7 +1452,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsColorSchemeHelper =>
-      'Light / Dark apply immediately. System follows macOS appearance.';
+      'Light and Dark apply immediately. System follows your device.';
 
   @override
   String get settingsThemeSystem => 'System';
@@ -1397,6 +1666,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timerUnavailable => 'Clock: off or unavailable';
 
   @override
+  String get timerHiddenForPuzzleMode =>
+      'The live game clock is hidden while you solve a puzzle or explore a position.';
+
+  @override
   String get timerWhiteShort => 'White';
 
   @override
@@ -1409,7 +1682,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coachChatHide => 'Hide';
 
   @override
-  String get coachChatDismiss => 'DISMISS';
+  String get coachChatDismiss => 'Close';
 
   @override
   String get manualConnTitle => 'Manual connection';
@@ -1492,6 +1765,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get haMqttTitle => 'Home Assistant & MQTT';
+
+  @override
+  String get haMqttFormLead =>
+      'Enter the MQTT broker your board should use (often the same machine as Home Assistant).';
+
+  @override
+  String get haMqttSetupHelpLink => 'How do I set up MQTT and Home Assistant?';
 
   @override
   String get haMqttSavedSnack => 'MQTT saved to board.';
@@ -1790,6 +2070,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get firmwareDailyRemindersSubtitleLong =>
       'If a newer version is on the server, ask again each day until you update or turn reminders off.';
+
+  @override
+  String get firmwareDeveloperManifestSectionTitle => 'Developer options';
+
+  @override
+  String get firmwareDeveloperManifestSectionBody =>
+      'Only change the manifest URL if you maintain a custom firmware feed. The app uses the official source by default.';
 
   @override
   String get firmwareManifestUrlLabel => 'Manifest URL (version.json)';
@@ -2187,7 +2474,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progressPositionPlanButton => 'Position plan';
 
   @override
-  String get progressBoardErrorTitle => 'Board error';
+  String get progressBoardErrorTitle => 'Connection problem';
 
   @override
   String get progressStartingPositionTitle => 'Starting position';
@@ -2200,7 +2487,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Teaching mode: LEDs show each square in order; the app shows which piece to place (same flow as iOS).';
 
   @override
-  String get progressRunWizardStarting => 'Run wizard — starting position';
+  String get progressRunWizardStarting => 'Starting position wizard';
 
   @override
   String get progressAccountCardTitle => 'Account';
@@ -2230,6 +2517,86 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get progressWizardConnectHint =>
       'Connect the board for LED wizards (connection chip on the Play tab).';
+
+  @override
+  String get userFacingErrBle =>
+      'Bluetooth connection failed. Turn Bluetooth on, stay near the board, and try again.';
+
+  @override
+  String get userFacingErrBlePairingReset =>
+      'Bluetooth pairing no longer matches. On iPhone: Settings → Bluetooth → ⓘ next to the board → Forget This Device. If the board was factory-reset, clear its bond list too, then connect again from Find board.';
+
+  @override
+  String get userFacingErrNetworkReach =>
+      'Couldn\'t reach the board or server. Check Wi‑Fi, move closer, and make sure the board is on.';
+
+  @override
+  String get userFacingErrTimeout =>
+      'The connection timed out. Try again when the board is powered on and in range.';
+
+  @override
+  String get userFacingErrTls =>
+      'Secure connection (HTTPS) failed. Check the address and whether the board expects HTTPS.';
+
+  @override
+  String get userFacingErrWebSocket =>
+      'Live updates from the board were interrupted. Use Find board to reconnect if this keeps happening.';
+
+  @override
+  String get userFacingErrGeneric =>
+      'Something went wrong. Try again or reconnect using Find board.';
+
+  @override
+  String get userFacingErrDailyPuzzle =>
+      'Couldn\'t load today\'s puzzle. Check internet and tap refresh.';
+
+  @override
+  String get userFacingShowTechnicalDetails => 'Show technical details';
+
+  @override
+  String get userFacingHideTechnicalDetails => 'Hide technical details';
+
+  @override
+  String get userFacingBoardWebLocked =>
+      'The board\'s web dashboard is locking API access. Close it or unlock API access, then retry.';
+
+  @override
+  String get userFacingBoardApiToken =>
+      'This board requires an API token. Add it under Settings → Saved defaults.';
+
+  @override
+  String get userFacingBoardBadRequest =>
+      'The board rejected the request. Check move legality or required fields.';
+
+  @override
+  String get userFacingBoardUnauthorized =>
+      'Access was denied. Check credentials if this board requires authentication.';
+
+  @override
+  String get userFacingBoardNotFound =>
+      'That API path was not found. Your firmware may be older than this app expects.';
+
+  @override
+  String get userFacingBoardServerError =>
+      'The board reported an internal error. Try again or reboot the board.';
+
+  @override
+  String get userFacingBoardUnavailable =>
+      'The board is busy or unavailable. Wait a moment and retry.';
+
+  @override
+  String get userFacingBoardHttpOther =>
+      'HTTP error from the board. Check the board URL and connection mode.';
+
+  @override
+  String get userFacingErrBoardUrlHostMissing =>
+      'The board address is missing a host. In Settings, save a full URL such as http://192.168.4.1 on the same network as the board.';
+
+  @override
+  String get puzzleMoreActionsTooltip => 'More actions';
+
+  @override
+  String get gameClockSectionLabel => 'Clock & board LEDs';
 
   @override
   String get progressStatsCurrentMoves => 'Current move count';
@@ -2284,7 +2651,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpConnectBody =>
-      'Use Bluetooth to discover the board, then Wi‑Fi when available. Check Settings for manual URL and modes.';
+      'Discover and pair the board over Bluetooth first. The app reaches it over HTTP on your local network—usually home Wi‑Fi, or the board hotspot (often 192.168.4.x) after you enable it from Board discovery while Bluetooth stays connected. Hotspots stay off by default. Manual URL and modes remain under Settings.';
 
   @override
   String get helpPlayingTitle => 'Playing a game';
@@ -2389,7 +2756,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newGameBlackBottom => 'Black bottom';
 
   @override
-  String get newGameCustomTimeTitle => 'Custom time (type 14)';
+  String get newGameCustomTimeTitle => 'Custom time';
 
   @override
   String get newGameCustomTimeSubtitle =>
@@ -2421,16 +2788,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get newGameSheetBody =>
-      'Like on iOS: time control is sent to the board, then a new game starts.';
+  String get newGameSheetBody => 'Choose time control and board orientation.';
 
   @override
-  String get newGameBoardViewSection =>
-      'Board view (which color is at the bottom)';
+  String get newGameBoardViewSection => 'Board orientation';
 
   @override
-  String get newGameWhoStartsNote =>
-      'Who starts is decided on the board / game rules; here you only flip the view (saved in Settings).';
+  String get newGameBoardViewInfoTitle => 'Board orientation';
+
+  @override
+  String get newGameWhoStartsNote => '';
 
   @override
   String get newGameFirmwarePresets => 'Firmware presets';
@@ -2829,6 +3196,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lampStudioScenes => 'Scenes';
 
   @override
+  String get lampStudioPresetColorsTitle => 'Preset colors';
+
+  @override
+  String get lampStudioFineTuneSection => 'Fine-tune color';
+
+  @override
   String get lampStudioApplyToBoard => 'Apply to board';
 
   @override
@@ -2852,6 +3225,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lampStudioTimerSavedOk => 'Auto shut-off timer saved.';
+
+  @override
+  String get lampStudioSelectedSwatchLabel => 'Current color';
+
+  @override
+  String get lampStudioDeveloperRgbTitle => 'Developer · RGB values';
 
   @override
   String lampStudioRgbLine(int r, int g, int b) {
@@ -2983,6 +3362,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupWizardErrGeneric => 'Error';
+
+  @override
+  String get setupWizardErrPhysicalMismatch =>
+      'The board still reports setup mode, or the physical pieces do not match — adjust pieces on the highlighted squares and try again.';
 
   @override
   String get setupWizardTitleStandard => 'Starting position';
@@ -3161,7 +3544,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTileSmartHomeSubtitle => 'Home Assistant & MQTT';
 
   @override
-  String get settingsHaMqttOpenButton => 'Home Assistant & MQTT (guide + form)';
+  String get settingsHaMqttOpenButton => 'MQTT & Home Assistant';
 
   @override
   String get settingsTileBoardLightTitle => 'Board light';
@@ -3171,11 +3554,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Color, brightness, scenes, auto-off';
 
   @override
-  String get settingsTileModulesTitle => 'Modules & learning';
+  String get settingsTileModulesTitle => 'Help & guides';
 
   @override
   String get settingsTileModulesSubtitle =>
-      'Tour, puzzles, profile, progress, help';
+      'Documentation and replaying the introduction';
 
   @override
   String get settingsNavAppTour => 'App tour (onboarding)';
@@ -3309,6 +3692,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Live Activities are disabled system-wide. Enable them in Settings → czechmate → Live Activities.';
 
   @override
+  String get settingsHomeScreenWidgetHint =>
+      'Add the CzechMate home screen widget from the widget gallery for a quick snapshot when the app is in the background (alongside Live Activity on supported iPhones).';
+
+  @override
   String get settingsWearMirrorTitle => 'Mirror clock on Wear OS';
 
   @override
@@ -3327,14 +3714,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsFactoryTileSubtitle =>
-      'Clears ESP NVS — device becomes access point';
+      'Clears ESP NVS — Wi‑Fi credentials and preferences reset';
 
   @override
   String get settingsFactoryDialogTitle => 'Factory reset';
 
   @override
   String get settingsFactoryDialogBody =>
-      'Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device will restart as a Wi‑Fi access point.';
+      'Erase all board NVS (Wi‑Fi, passwords, MQTT, preferences)? The device restarts; the board hotspot stays off until you turn it on from the app.';
 
   @override
   String get settingsFactoryErase => 'Erase';
@@ -3507,7 +3894,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Turn on automatic evaluation to see the curve here.';
 
   @override
-  String get analysisClearEvalData => 'Clear chart and saved move evaluations';
+  String get analysisClearEvalData => 'Clear chart and evaluations';
+
+  @override
+  String get analysisClearEvalConfirmTitle => 'Clear analysis data?';
+
+  @override
+  String get analysisClearEvalConfirmBody =>
+      'This removes the evaluation chart and saved move-quality scores. You cannot undo this.';
+
+  @override
+  String get analysisClearEvalConfirmAction => 'Clear';
 
   @override
   String get analysisMoveQualitySideLast3 => 'Last 3 moves by side';
@@ -3589,6 +3986,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get puzzleSuccessLine => 'Nice! Correct line.';
 
   @override
+  String get puzzleCelebrationTitle => 'Great job!';
+
+  @override
+  String get puzzleCelebrationBodyPlain => 'You solved the puzzle.';
+
+  @override
+  String puzzleCelebrationBodyElo(int delta) {
+    return 'You solved the puzzle — rating +$delta.';
+  }
+
+  @override
+  String get puzzleSaveNeedPosition =>
+      'Open this puzzle on the Play tab first so the position is loaded, then save it here.';
+
+  @override
+  String get puzzleLibSavedPositionCaption =>
+      'Current saved position (technical)';
+
+  @override
   String get puzzleWrongResetting =>
       'Not the solution — resetting the position.';
 
@@ -3655,7 +4071,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coachSetupBannerBody =>
-      'Your coach priority list is non-empty, but no provider has credentials yet. Open Settings → Coach & AI and fill API keys (or Ollama URL) for at least one listed provider.';
+      'The AI coach isn’t set up yet. Add at least one cloud provider and your API key in settings so it can answer.';
+
+  @override
+  String get coachSetupBannerAction => 'Open Coach settings';
 
   @override
   String coachErrorSomethingWrong(String error) {

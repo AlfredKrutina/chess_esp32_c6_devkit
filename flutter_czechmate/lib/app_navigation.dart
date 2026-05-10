@@ -15,11 +15,14 @@ class AppMainTab {
 }
 
 /// Jako `BoardDiscoveryView` v sheetu z karty Hra — není spodní záložka.
-Future<void> pushBoardDiscoveryRoute(BuildContext context) {
+Future<void> pushBoardDiscoveryRoute(
+  BuildContext context, {
+  bool autoStartBleScan = true,
+}) {
   return Navigator.of(context).push<void>(
     MaterialPageRoute<void>(
       fullscreenDialog: true,
-      builder: (_) => const BoardDiscoveryScreen(),
+      builder: (_) => BoardDiscoveryScreen(autoStartBleScan: autoStartBleScan),
     ),
   );
 }

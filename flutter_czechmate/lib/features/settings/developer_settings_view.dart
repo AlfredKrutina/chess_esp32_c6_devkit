@@ -5,6 +5,8 @@ import '../../../app_providers.dart';
 import '../../../core/constants/app_environment.dart';
 import '../../../core/models/board_timer_state.dart';
 import '../../../core/utils/fen_from_board.dart';
+import '../../../core/utils/user_facing_error_message.dart';
+import '../../../core/localization/context_l10n.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/connection_diagnostics_screen.dart';
 import 'board_device_features_view.dart';
@@ -14,7 +16,8 @@ class DeveloperSettingsView extends ConsumerStatefulWidget {
   const DeveloperSettingsView({super.key});
 
   @override
-  ConsumerState<DeveloperSettingsView> createState() => _DeveloperSettingsViewState();
+  ConsumerState<DeveloperSettingsView> createState() =>
+      _DeveloperSettingsViewState();
 }
 
 class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
@@ -30,7 +33,12 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
     final session = ref.read(boardSessionNotifierProvider);
     final w = session.wifiBaseUrl?.trim().replaceAll(RegExp(r'/$'), '') ?? '';
     if (w.isNotEmpty) return w;
-    final p = ref.read(prefsRepositoryProvider).lastBoardBaseUrl?.trim().replaceAll(RegExp(r'/$'), '') ?? '';
+    final p = ref
+            .read(prefsRepositoryProvider)
+            .lastBoardBaseUrl
+            ?.trim()
+            .replaceAll(RegExp(r'/$'), '') ??
+        '';
     return p.isEmpty ? null : p;
   }
 
@@ -55,7 +63,9 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
       final s = await ref.read(boardApiClientProvider).fetchWiFiStatus(baseUrl);
       if (mounted) setState(() => _wifiStatus = s);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Chyba: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Chyba: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -64,7 +74,10 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
   Future<void> _ping() async {
     final baseUrl = _effectiveWifiBase();
     if (baseUrl == null || baseUrl.isEmpty) return;
-    setState(() { _isLoading = true; _pingResult = 'Měřím...'; });
+    setState(() {
+      _isLoading = true;
+      _pingResult = 'Měřím...';
+    });
     final sw = Stopwatch()..start();
     try {
       await ref.read(boardApiClientProvider).fetchSnapshotIfChanged(baseUrl);
@@ -84,13 +97,17 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
     setState(() => _isLoading = true);
     try {
       await ref.read(boardApiClientProvider).postWiFiConfig(
-        baseUrl,
-        ssid: _ssidCtrl.text.trim(),
-        password: _passCtrl.text,
-      );
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Odesláno na ESP')));
+            baseUrl,
+            ssid: _ssidCtrl.text.trim(),
+            password: _passCtrl.text,
+          );
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Odesláno na ESP')));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Chyba: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Chyba: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
       _refreshWiFi();
@@ -102,19 +119,25 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
     final session = ref.watch(boardSessionNotifierProvider);
     final prefs = ref.watch(prefsRepositoryProvider);
     final baseUrl = _effectiveWifiBase() ?? '';
-    final fen = session.snapshot != null ? fenFromSnapshot(session.snapshot!) : 'N/A';
+    final fen =
+        session.snapshot != null ? fenFromSnapshot(session.snapshot!) : 'N/A';
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Diagnostika a Vývojář'),
         actions: [
-          if (_isLoading) const Center(child: Padding(padding: EdgeInsets.all(8.0), child: CircularProgressIndicator())),
+          if (_isLoading)
+            const Center(
+                child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator())),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('Stockfish a FEN', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Stockfish a FEN',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           SwitchListTile(
             title: const Text('Eval tahů (moveEvaluationEnabled)'),
@@ -137,9 +160,11 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
               },
             ),
           ),
-          SelectableText('Aktuální FEN z desky:\n$fen', style: const TextStyle(fontFamily: 'monospace')),
+          SelectableText('Aktuální FEN z desky:\n$fen',
+              style: const TextStyle(fontFamily: 'monospace')),
           const Divider(height: 32),
-          const Text('Síť a transport', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Síť a transport',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           ListTile(
             title: const Text('Základní URL desky (ESP)'),
             subtitle: Text(baseUrl.isEmpty ? 'Žádná' : baseUrl),
@@ -167,9 +192,13 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                 onPressed: _isLoading
                     ? null
                     : () async {
-                        await ref.read(boardSessionNotifierProvider.notifier).tryResumeFromPrefs();
+                        await ref
+                            .read(boardSessionNotifierProvider.notifier)
+                            .tryResumeFromPrefs();
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Obnoveno z prefs')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Obnoveno z prefs')));
                         }
                       },
                 child: const Text('Spustit připojení'),
@@ -178,7 +207,8 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                 onPressed: () {
                   ref.read(boardSessionNotifierProvider.notifier).disconnect();
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Transport zastaven')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Transport zastaven')));
                   }
                 },
                 child: const Text('Zastavit'),
@@ -195,7 +225,8 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute<void>(builder: (_) => const ConnectionDiagnosticsScreen()),
+              MaterialPageRoute<void>(
+                  builder: (_) => const ConnectionDiagnosticsScreen()),
             ),
           ),
           if (baseUrl.isNotEmpty) ...[
@@ -206,13 +237,21 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                   : () async {
                       setState(() => _isLoading = true);
                       try {
-                        await ref.read(boardApiClientProvider).postWiFiDisconnect(baseUrl);
+                        await ref
+                            .read(boardApiClientProvider)
+                            .postWiFiDisconnect(baseUrl);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('STA odpojeno')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('STA odpojeno')));
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+                          final l10n = context.l10n;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(userFacingErrorSummary(l10n, e)),
+                            ),
+                          );
                         }
                       } finally {
                         if (mounted) setState(() => _isLoading = false);
@@ -231,21 +270,34 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                           title: const Text('Smazat Wi‑Fi z NVS?'),
                           content: const Text('ESP ztratí uloženou síť.'),
                           actions: [
-                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Zrušit')),
-                            TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Smazat')),
+                            TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('Zrušit')),
+                            TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text('Smazat')),
                           ],
                         ),
                       );
                       if (ok != true) return;
                       setState(() => _isLoading = true);
                       try {
-                        await ref.read(boardApiClientProvider).postWiFiClear(baseUrl);
+                        await ref
+                            .read(boardApiClientProvider)
+                            .postWiFiClear(baseUrl);
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Wi‑Fi NVS vymazáno')));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Wi‑Fi NVS vymazáno')));
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+                          final l10n = context.l10n;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(userFacingErrorSummary(l10n, e)),
+                            ),
+                          );
                         }
                       } finally {
                         if (mounted) setState(() => _isLoading = false);
@@ -258,25 +310,44 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
           const Divider(height: 32),
           const BoardLampBlock(showTitle: false),
           const Divider(height: 32),
-          const Text('Konfigurace Wi-Fi na desce', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Konfigurace Wi-Fi na desce',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           if (_wifiStatus != null) ...[
-            Text('STA: ${_wifiStatus!.staSsid} (${_wifiStatus!.staIp}) - ${_wifiStatus!.staConnected ? "ONLINE" : "Offline"}'),
-            Text('AP: ${_wifiStatus!.apSsid} (${_wifiStatus!.apIp}) - Klienti: ${_wifiStatus!.apClients}'),
+            Text(
+                'STA: ${_wifiStatus!.staSsid} (${_wifiStatus!.staIp}) - ${_wifiStatus!.staConnected ? "ONLINE" : "Offline"}'),
+            Text(
+                'AP: ${_wifiStatus!.apSsid} (${_wifiStatus!.apIp}) - Klienti: ${_wifiStatus!.apClients}'),
           ] else ...[
-            const Text('Stav Wi-Fi není k dispozici. Lze vyčíst po stisknutí tlačítka níže.'),
+            const Text(
+                'Stav Wi-Fi není k dispozici. Lze vyčíst po stisknutí tlačítka níže.'),
           ],
           const SizedBox(height: 8),
-          ElevatedButton(onPressed: _isLoading ? null : _refreshWiFi, child: const Text('Obnovit stav Wi-Fi')),
+          ElevatedButton(
+              onPressed: _isLoading ? null : _refreshWiFi,
+              child: const Text('Obnovit stav Wi-Fi')),
           const SizedBox(height: 16),
-          TextField(controller: _ssidCtrl, decoration: const InputDecoration(labelText: 'Wi-Fi SSID', border: OutlineInputBorder())),
+          TextField(
+              controller: _ssidCtrl,
+              decoration: const InputDecoration(
+                  labelText: 'Wi-Fi SSID', border: OutlineInputBorder())),
           const SizedBox(height: 8),
-          TextField(controller: _passCtrl, decoration: const InputDecoration(labelText: 'Heslo', border: OutlineInputBorder()), obscureText: true),
+          TextField(
+              controller: _passCtrl,
+              decoration: const InputDecoration(
+                  labelText: 'Heslo', border: OutlineInputBorder()),
+              obscureText: true),
           const SizedBox(height: 8),
-          FilledButton.tonal(onPressed: _isLoading ? null : _saveWiFi, child: const Text('Uložit do desky a Připojit (STA)')),
+          FilledButton.tonal(
+              onPressed: _isLoading ? null : _saveWiFi,
+              child: const Text('Uložit do desky a Připojit (STA)')),
           const Divider(height: 32),
-          const Text('Firmware a paměť', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Firmware a paměť',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           OutlinedButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => const BoardDeviceFeaturesView())),
+            onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (ctx) => const BoardDeviceFeaturesView())),
             child: const Text('Detailní nástroje (Třídy NVS)'),
           ),
         ],

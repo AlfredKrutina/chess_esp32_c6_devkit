@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:math' as math;
-import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_providers.dart';
 import 'core/constants/app_environment.dart';
+import 'core/theme/app_motion.dart';
+import 'core/services/prefs_repository.dart';
 import 'core/localization/context_l10n.dart';
 import 'core/localization/locale_bridge.dart';
 import 'l10n/app_localizations.dart';
@@ -40,6 +42,7 @@ Future<void> main() async {
     };
   }
   final prefs = await SharedPreferences.getInstance();
+  await PrefsRepository(prefs).migrateLegacyConnectionModeToAutoIfNeeded();
   runApp(
     ProviderScope(
       overrides: [
@@ -180,6 +183,7 @@ class CzechMateApp extends ConsumerWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        pageTransitionsTheme: AppMotion.pageTransitionsTheme,
       );
     }
 
@@ -201,7 +205,8 @@ class CzechMateApp extends ConsumerWidget {
           );
 
     return MaterialApp(
-      onGenerateTitle: (ctx) => AppLocalizations.of(ctx)?.appTitle ?? 'CzechMate',
+      onGenerateTitle: (ctx) =>
+          AppLocalizations.of(ctx)?.appTitle ?? 'CzechMate',
       locale: switch (prefs.uiLanguage) {
         'cs' => const Locale('cs'),
         'en' => const Locale('en'),
@@ -264,18 +269,43 @@ class _StartupRouterState extends ConsumerState<_StartupRouter> {
 
   @override
   Widget build(BuildContext context) {
+    late final Widget page;
+    late final Key pageKey;
     if (!_decided) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (_showOnboarding) {
-      return OnboardingScreen(onDone: () async {
+      pageKey = const ValueKey<String>('startup_loading');
+      page = const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    } else if (_showOnboarding) {
+      pageKey = const ValueKey<String>('startup_onboarding');
+      page = OnboardingScreen(onDone: () async {
         await ref
             .read(sharedPreferencesProvider)
             .setBool('czechmate.onboardingSeen', true);
         if (mounted) setState(() => _showOnboarding = false);
       });
+    } else {
+      pageKey = const ValueKey<String>('startup_main');
+      page = const _MainShell();
     }
-    return const _MainShell();
+    return AnimatedSwitcher(
+      duration: AppMotion.crossFade + const Duration(milliseconds: 40),
+      switchInCurve: AppMotion.standardCurve,
+      switchOutCurve: AppMotion.reverseCurve,
+      layoutBuilder: (currentChild, previousChildren) {
+        return Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            ...previousChildren,
+            if (currentChild != null) currentChild,
+          ],
+        );
+      },
+      child: KeyedSubtree(
+        key: pageKey,
+        child: page,
+      ),
+    );
   }
 }
 
@@ -297,7 +327,18 @@ class _MainShellState extends ConsumerState<_MainShell>
       ensureWatchInboundBinding(ref);
       unawaited(_consumeAndroidNotificationClockActions());
       unawaited(_refreshFirmwareOfferAndMaybePrompt());
+      if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+        unawaited(_primeHomeScreenWidget(ref));
+      }
     });
+  }
+
+  Future<void> _primeHomeScreenWidget(WidgetRef r) async {
+    final hw = r.read(boardHomeWidgetSyncProvider);
+    await hw.ensureInitialized();
+    final sess = r.read(boardSessionNotifierProvider);
+    final live = r.read(liveActivityServiceProvider);
+    await hw.syncPayload(live.extensionPayload(sess));
   }
 
   Future<void> _refreshFirmwareOfferAndMaybePrompt() async {
@@ -325,8 +366,9 @@ class _MainShellState extends ConsumerState<_MainShell>
   }
 
   Future<void> _consumeAndroidNotificationClockActions() async {
-    final cmd =
-        await ref.read(liveActivityServiceProvider).consumePendingAndroidClockAction();
+    final cmd = await ref
+        .read(liveActivityServiceProvider)
+        .consumePendingAndroidClockAction();
     if (cmd == null) return;
     final notifier = ref.read(boardSessionNotifierProvider.notifier);
     switch (cmd) {
@@ -342,8 +384,11 @@ class _MainShellState extends ConsumerState<_MainShell>
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    ref.listen<FirmwareAvailState>(firmwareUpdateAvailabilityProvider, (prev, next) {
-      if (next.loading || !next.updateAvailable || next.boardOtaSupported == false) {
+    ref.listen<FirmwareAvailState>(firmwareUpdateAvailabilityProvider,
+        (prev, next) {
+      if (next.loading ||
+          !next.updateAvailable ||
+          next.boardOtaSupported == false) {
         return;
       }
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -368,6 +413,7 @@ class _MainShellState extends ConsumerState<_MainShell>
         child: Icon(icon),
       );
     }
+
     const tabPages = [
       GameScreen(),
       AnalysisScreen(),
@@ -401,8 +447,8 @@ class _MainShellState extends ConsumerState<_MainShell>
         label: Text(l10n.navPuzzle),
       ),
       NavigationRailDestination(
-        icon: const Icon(Icons.horizontal_split_outlined),
-        selectedIcon: const Icon(Icons.horizontal_split),
+        icon: const Icon(Icons.insights_outlined),
+        selectedIcon: const Icon(Icons.insights),
         label: Text(l10n.navProgress),
       ),
       NavigationRailDestination(
@@ -429,8 +475,8 @@ class _MainShellState extends ConsumerState<_MainShell>
         label: l10n.navPuzzle,
       ),
       NavigationDestination(
-        icon: const Icon(Icons.horizontal_split_outlined),
-        selectedIcon: const Icon(Icons.horizontal_split),
+        icon: const Icon(Icons.insights_outlined),
+        selectedIcon: const Icon(Icons.insights),
         label: l10n.navProgress,
       ),
       NavigationDestination(
@@ -488,6 +534,7 @@ class _MainShellState extends ConsumerState<_MainShell>
           ? null
           : NavigationBar(
               selectedIndex: tab,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               onDestinationSelected: (i) =>
                   ref.read(mainNavTabIndexProvider.notifier).state = i,
               destinations: bottomDestinations,

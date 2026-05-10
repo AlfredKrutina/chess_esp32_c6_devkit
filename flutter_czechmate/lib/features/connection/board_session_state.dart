@@ -25,6 +25,8 @@ class BoardSessionState {
     this.bleStaIp,
     this.bleStaSsid,
     this.bleStaConnected = false,
+    this.bleApBroadcasting = false,
+    this.bleApSsid,
   });
 
   final BoardTransport transport;
@@ -51,6 +53,10 @@ class BoardSessionState {
   final String? bleStaIp;
   final String? bleStaSsid;
   final bool bleStaConnected;
+
+  /// Hotspot desky (AP) podle posledního BLE network JSON (`ap_active`).
+  final bool bleApBroadcasting;
+  final String? bleApSsid;
 
   bool get hasLiveBoard => snapshot != null;
 
@@ -82,6 +88,8 @@ class BoardSessionState {
     String? bleStaIp,
     String? bleStaSsid,
     bool? bleStaConnected,
+    bool? bleApBroadcasting,
+    String? bleApSsid,
     bool clearBleNetwork = false,
   }) {
     return BoardSessionState(
@@ -114,6 +122,10 @@ class BoardSessionState {
       bleStaConnected: clearBleNetwork
           ? false
           : (bleStaConnected ?? this.bleStaConnected),
+      bleApBroadcasting: clearBleNetwork
+          ? false
+          : (bleApBroadcasting ?? this.bleApBroadcasting),
+      bleApSsid: clearBleNetwork ? null : (bleApSsid ?? this.bleApSsid),
     );
   }
 }

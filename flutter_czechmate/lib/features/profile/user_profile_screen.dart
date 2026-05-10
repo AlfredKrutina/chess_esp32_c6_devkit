@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../../core/services/prefs_repository.dart';
 
 /// Player profile — display name, avatar (preset icons or gallery photo), puzzle Elo, activity.
@@ -51,8 +52,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       );
       if (x == null) return;
       final dir = await getApplicationDocumentsDirectory();
-      final destName =
-          'avatar_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final destName = 'avatar_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final sep = Platform.pathSeparator;
       final destPath = '${dir.path}$sep$destName';
       await File(x.path).copy(destPath);
@@ -61,8 +61,11 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
       if (mounted) setState(() {});
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.profileGalleryError('$e'))),
+          SnackBar(
+              content: Text(
+                  l10n.profileGalleryError(userFacingErrorSummary(l10n, e)))),
         );
       }
     }
@@ -127,8 +130,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                 ratio,
               ) ??
               cs.primaryContainer;
-          bg = blended.withValues(
-              alpha: 0.35 + 0.5 * (total.clamp(1, 8) / 8));
+          bg = blended.withValues(alpha: 0.35 + 0.5 * (total.clamp(1, 8) / 8));
         }
         cells.add(
           Tooltip(
@@ -221,6 +223,20 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               hintText: l10n.profileNameHint,
+              suffixIcon: IconButton(
+                tooltip: l10n.profileSaveName,
+                icon: const Icon(Icons.check_rounded),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await prefs.setProfileDisplayName(_nameCtrl.text);
+                  ref.invalidate(prefsRepositoryProvider);
+                  if (!mounted) return;
+                  setState(() {});
+                  messenger.showSnackBar(
+                    SnackBar(content: Text(l10n.profileNameSavedSnack)),
+                  );
+                },
+              ),
             ),
             onSubmitted: (v) async {
               await prefs.setProfileDisplayName(v);
@@ -228,24 +244,9 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
               setState(() {});
             },
           ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: () async {
-                final messenger = ScaffoldMessenger.of(context);
-                await prefs.setProfileDisplayName(_nameCtrl.text);
-                ref.invalidate(prefsRepositoryProvider);
-                if (!mounted) return;
-                setState(() {});
-                messenger.showSnackBar(
-                  SnackBar(content: Text(l10n.profileNameSavedSnack)),
-                );
-              },
-              child: Text(l10n.profileSaveName),
-            ),
-          ),
           const Divider(height: 28),
-          Text(l10n.profileAvatar, style: Theme.of(context).textTheme.titleSmall),
+          Text(l10n.profileAvatar,
+              style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           Text(
             l10n.profileAvatarHint,
@@ -271,10 +272,20 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                     ),
                   ),
                 ),
-              OutlinedButton.icon(
-                onPressed: () => _pickGallery(prefs),
-                icon: const Icon(Icons.photo_library_outlined),
-                label: Text(l10n.profileFromGallery),
+              Tooltip(
+                message: l10n.profileFromGallery,
+                child: InkWell(
+                  onTap: () => _pickGallery(prefs),
+                  borderRadius: BorderRadius.circular(999),
+                  child: CircleAvatar(
+                    radius: 26,
+                    backgroundColor: cs.surfaceContainerHighest,
+                    child: Icon(
+                      Icons.add_photo_alternate_outlined,
+                      color: cs.primary,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

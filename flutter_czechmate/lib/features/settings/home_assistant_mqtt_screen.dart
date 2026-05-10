@@ -6,19 +6,72 @@ import '../../core/localization/context_l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/models/status_models.dart';
 import '../../core/utils/board_http_base_url.dart';
+import '../../core/widgets/app_modal_sheet.dart';
+import '../../core/widgets/pressable_scale.dart';
 import 'board_settings_error_message.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-/// Parita `HomeAssistantMqttSetupView.swift` (návod + broker + stav).
+Future<void> showHomeAssistantMqttGuideSheet(
+    BuildContext context, AppLocalizations l10n) async {
+  await showAppModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (ctx) {
+      final h = MediaQuery.sizeOf(ctx).height * 0.72;
+      final pad = MediaQuery.paddingOf(ctx);
+      return SizedBox(
+        height: h,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(20, 8, 20, pad.bottom + 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.haMqttHowToHa,
+                style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Text(
+                    l10n.haMqttGuideBody,
+                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                          height: 1.45,
+                          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              PressableScale(
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(l10n.commonClose),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+/// MQTT broker fields + board status (long HA guide lives in a sheet).
 class HomeAssistantMqttScreen extends ConsumerStatefulWidget {
   const HomeAssistantMqttScreen({super.key});
 
   @override
-  ConsumerState<HomeAssistantMqttScreen> createState() => _HomeAssistantMqttScreenState();
+  ConsumerState<HomeAssistantMqttScreen> createState() =>
+      _HomeAssistantMqttScreenState();
 }
 
-class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScreen> {
+class _HomeAssistantMqttScreenState
+    extends ConsumerState<HomeAssistantMqttScreen> {
   final _host = TextEditingController();
   final _port = TextEditingController(text: '1883');
   final _user = TextEditingController();
@@ -87,7 +140,8 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
       if (mounted) {
         final session = ref.read(boardSessionNotifierProvider);
         final msg = boardHttpSettingsUserMessage(context.l10n, e, session);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -118,7 +172,8 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
         final session = ref.read(boardSessionNotifierProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(boardHttpSettingsUserMessage(context.l10n, e, session)),
+            content:
+                Text(boardHttpSettingsUserMessage(context.l10n, e, session)),
           ),
         );
       }
@@ -137,21 +192,45 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final store = ref.watch(boardSessionNotifierProvider);
+    final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.haMqttTitle)),
+      appBar: AppBar(
+        title: Text(l10n.haMqttTitle),
+        actions: [
+          IconButton(
+            tooltip: l10n.haMqttRefreshFromBoard,
+            onPressed: _busy || !_supportsWifiCommands ? null : _refreshStatus,
+            icon: _busy
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(l10n.haMqttHowToHa,
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
           Text(
-            l10n.haMqttGuideBody,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            l10n.haMqttFormLead,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const Divider(height: 32),
-          Text(l10n.haMqttBrokerHeader,
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              onPressed: () => showHomeAssistantMqttGuideSheet(context, l10n),
+              icon: Icon(Icons.help_outline, size: 20, color: cs.primary),
+              label: Text(l10n.haMqttSetupHelpLink),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            l10n.haMqttBrokerHeader,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           TextField(
             controller: _host,
@@ -188,25 +267,35 @@ class _HomeAssistantMqttScreenState extends ConsumerState<HomeAssistantMqttScree
             obscureText: true,
           ),
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _busy || !_supportsWrite || _host.text.trim().isEmpty ? null : _save,
-            icon: _busy ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.upload),
-            label: Text(l10n.haMqttSaveToBoard),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: _busy || !_supportsWifiCommands ? null : _refreshStatus,
-            child: Text(l10n.haMqttRefreshFromBoard),
+          PressableScale(
+            child: FilledButton.icon(
+              onPressed: _busy || !_supportsWrite || _host.text.trim().isEmpty
+                  ? null
+                  : _save,
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.upload),
+              label: Text(l10n.haMqttSaveToBoard),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 12),
-            child: Text(_footer(l10n, store), style: Theme.of(context).textTheme.bodySmall),
+            child: Text(_footer(l10n, store),
+                style: Theme.of(context).textTheme.bodySmall),
           ),
           if (_status != null) ...[
             const Divider(height: 32),
-            Text(l10n.haMqttBoardStatusHeader,
-                style: const TextStyle(fontWeight: FontWeight.bold)),
-            ListTile(title: Text(l10n.haMqttModeTile), subtitle: Text(_status!.mode)),
+            Text(
+              l10n.haMqttBoardStatusHeader,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ListTile(
+                title: Text(l10n.haMqttModeTile),
+                subtitle: Text(_status!.mode)),
             ListTile(
               title: Text(l10n.haMqttMqttTile),
               subtitle: Text(_status!.mqttConnected

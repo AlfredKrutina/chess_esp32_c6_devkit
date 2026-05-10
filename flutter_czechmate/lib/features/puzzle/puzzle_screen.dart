@@ -9,6 +9,10 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/theme/app_motion.dart';
+import '../../core/widgets/animated_linear_busy_strip.dart';
+import '../../core/widgets/pressable_scale.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../../core/services/prefs_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../connection/board_session_notifier.dart';
@@ -18,6 +22,14 @@ import '../game/state/game_ui_notifier.dart';
 import '../setup/board_setup_wizard_screen.dart';
 import 'bundled_puzzles.dart';
 import 'puzzle_service.dart';
+
+enum _DailyOverflowAction {
+  loadBoard,
+  setupWizard,
+  addToLibrary,
+  openLichess,
+  refreshDaily,
+}
 
 class PuzzleLibraryItem {
   PuzzleLibraryItem({
@@ -112,18 +124,25 @@ String _localizedPuzzleTheme(AppLocalizations l10n, String raw) {
     case 'tactic':
       return l10n.puzzleThemeTactic;
     default:
-      return raw
+      final spaced = raw
           .replaceAllMapped(
               RegExp(r'([a-z])([A-Z])'), (m) => '${m.group(1)} ${m.group(2)}')
           .replaceAll('_', ' ')
-          .trim();
+          .trim()
+          .split(RegExp(r'\s+'))
+          .where((w) => w.isNotEmpty)
+          .map((w) {
+        if (w.length == 1) return w.toUpperCase();
+        return '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}';
+      }).join(' ');
+      return spaced.isEmpty ? raw : spaced;
   }
 }
 
 Widget _puzzleBoardPreview(BuildContext context, String fen,
     {double maxSide = 420}) {
-  final side = min(MediaQuery.sizeOf(context).width - 48, maxSide)
-      .clamp(160.0, maxSide);
+  final side =
+      min(MediaQuery.sizeOf(context).width - 48, maxSide).clamp(160.0, maxSide);
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 12),
     child: Center(
@@ -166,8 +185,8 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   bool _dailyBusy = false;
   String? _dailyErr;
   bool _librarySavedBanner = false;
+  String? _libraryRemovingId;
   final _libTitle = TextEditingController();
-  final _libFen = TextEditingController();
   final _rnd = Random();
   Timer? _trainingTimer;
   int _trainingRoundSec = 120;
@@ -180,6 +199,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     _tabs = TabController(length: 3, vsync: this);
     _tabs.addListener(() {
       if (_tabs.indexIsChanging) return;
+      if (mounted) setState(() {});
       if (_tabs.index != 2) _stopTrainingIfActive();
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadDaily());
@@ -190,7 +210,6 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     _trainingTimer?.cancel();
     _tabs.dispose();
     _libTitle.dispose();
-    _libFen.dispose();
     super.dispose();
   }
 
@@ -203,7 +222,9 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       final p = await PuzzleService.fetchDaily();
       if (mounted) setState(() => _daily = p);
     } catch (e) {
-      if (mounted) setState(() => _dailyErr = '$e');
+      if (!mounted) return;
+      final strings = AppLocalizations.of(context)!;
+      setState(() => _dailyErr = userFacingErrorSummary(strings, e));
     } finally {
       if (mounted) setState(() => _dailyBusy = false);
     }
@@ -211,8 +232,9 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
 
   Future<void> _openLichess() async {
     final u = Uri.parse('https://lichess.org/training/daily');
-    if (await canLaunchUrl(u))
+    if (await canLaunchUrl(u)) {
       await launchUrl(u, mode: LaunchMode.externalApplication);
+    }
   }
 
   List<PuzzleLibraryItem> _library(PrefsRepository p) =>
@@ -381,14 +403,18 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       await ref
           .read(boardSessionNotifierProvider.notifier)
           .sendPuzzleFenToBoard(fen);
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(context.l10n.puzzleNewGameSentSnack)),
         );
+      }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
+      }
     }
   }
 
@@ -398,25 +424,91 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     final prefs = ref.watch(prefsRepositoryProvider);
     final session = ref.watch(boardSessionNotifierProvider);
     final gameUi = ref.watch(gameUiNotifierProvider);
-    final localPuzzle = gameUi.puzzleChallenge != null && gameUi.puzzleChallenge!.hasVerifier;
+    final localPuzzle =
+        gameUi.puzzleChallenge != null && gameUi.puzzleChallenge!.hasVerifier;
     final isPuzzleActive = session.snapshot?.status.puzzle?.active == true;
     final pData = session.snapshot?.status.puzzle;
     final showPuzzleReturnBar = isPuzzleActive || localPuzzle;
+    final compactDailyOverflow = MediaQuery.sizeOf(context).width < 400 &&
+        _tabs.index == 0 &&
+        _daily != null;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navPuzzle),
+        actions: [
+          if (compactDailyOverflow)
+            PopupMenuButton<_DailyOverflowAction>(
+              tooltip: l10n.puzzleMoreActionsTooltip,
+              icon: const Icon(Icons.more_vert),
+              onSelected: (action) async {
+                final d = _daily!;
+                switch (action) {
+                  case _DailyOverflowAction.loadBoard:
+                    await _sendToBoard(ref, d.fen);
+                  case _DailyOverflowAction.setupWizard:
+                    if (session.transport == BoardTransport.wifi ||
+                        session.transport == BoardTransport.ble) {
+                      _openBoardSetupWizard(context, d.fen);
+                    }
+                  case _DailyOverflowAction.addToLibrary:
+                    if (!_dailyInLibrary(prefs, d)) {
+                      await _addDailyToLibrary(prefs, d);
+                    }
+                  case _DailyOverflowAction.openLichess:
+                    await _openLichess();
+                  case _DailyOverflowAction.refreshDaily:
+                    await _loadDaily();
+                }
+              },
+              itemBuilder: (ctx) {
+                final d = _daily!;
+                final inLib = _dailyInLibrary(prefs, d);
+                final canWizard = session.transport == BoardTransport.wifi ||
+                    session.transport == BoardTransport.ble;
+                return [
+                  PopupMenuItem(
+                    value: _DailyOverflowAction.loadBoard,
+                    child: Text(l10n.puzzleLoadToBoard),
+                  ),
+                  PopupMenuItem(
+                    value: _DailyOverflowAction.setupWizard,
+                    enabled: canWizard,
+                    child: Text(l10n.puzzleSetupWizardShort),
+                  ),
+                  PopupMenuItem(
+                    value: _DailyOverflowAction.addToLibrary,
+                    enabled: !inLib,
+                    child: Text(
+                      inLib
+                          ? l10n.puzzleAlreadyInLibrary
+                          : l10n.puzzleAddToLibrary,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _DailyOverflowAction.openLichess,
+                    child: Text(l10n.puzzleOpenLichess),
+                  ),
+                  PopupMenuItem(
+                    value: _DailyOverflowAction.refreshDaily,
+                    child: Text(l10n.puzzleRefreshDaily),
+                  ),
+                ];
+              },
+            ),
+        ],
         leading: IconButton(
           tooltip: l10n.puzzleBackLiveTooltip,
           icon: const Icon(Icons.sports_esports_outlined),
           onPressed: () async {
             final ui = ref.read(gameUiNotifierProvider);
             if (ui.sandboxMode) {
-              await ref.read(gameUiNotifierProvider.notifier).returnToLiveGame();
+              await ref
+                  .read(gameUiNotifierProvider.notifier)
+                  .returnToLiveGame();
             }
             if (!context.mounted) return;
-            ref.read(mainNavTabIndexProvider.notifier).state =
-                AppMainTab.game;
+            ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
           },
         ),
         bottom: TabBar(
@@ -432,7 +524,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       body: TabBarView(
         controller: _tabs,
         children: [
-          _dailyTab(context, prefs, session),
+          _dailyTab(context, prefs, session, compactDailyOverflow),
           _libraryTab(context, prefs, session),
           _trainingTab(context, prefs, session),
         ],
@@ -447,7 +539,8 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                   title: Text(
                     isPuzzleActive
                         ? (pData?.title ?? l10n.puzzleBoardRiddleTitle)
-                        : (gameUi.puzzleChallenge?.title ?? l10n.puzzleBoardRiddleTitle),
+                        : (gameUi.puzzleChallenge?.title ??
+                            l10n.puzzleBoardRiddleTitle),
                   ),
                   subtitle: Text(
                     isPuzzleActive
@@ -462,10 +555,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                     label: Text(l10n.gameReturnLive),
                     onPressed: () async {
                       if (gameUi.sandboxMode) {
-                        await ref.read(gameUiNotifierProvider.notifier).returnToLiveGame();
+                        await ref
+                            .read(gameUiNotifierProvider.notifier)
+                            .returnToLiveGame();
                       }
                       if (!context.mounted) return;
-                      ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
+                      ref.read(mainNavTabIndexProvider.notifier).state =
+                          AppMainTab.game;
                     },
                   ),
                 ),
@@ -476,7 +572,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   }
 
   Widget _dailyTab(
-      BuildContext context, PrefsRepository prefs, BoardSessionState session) {
+    BuildContext context,
+    PrefsRepository prefs,
+    BoardSessionState session,
+    bool compactOverflowActions,
+  ) {
     final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -486,12 +586,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: ListTile(title: Text(l10n.puzzleSavedToLibraryBanner)),
           ),
-        if (_dailyBusy) const LinearProgressIndicator(),
+        AnimatedLinearBusyStrip(busy: _dailyBusy),
         if (_dailyErr != null)
           ListTile(
             leading: Icon(Icons.error_outline,
                 color: Theme.of(context).colorScheme.error),
-            title: Text(_dailyErr!),
+            title: Text(l10n.userFacingErrDailyPuzzle),
+            subtitle: Text(_dailyErr!),
           ),
         if (_daily != null) ...[
           Row(
@@ -524,44 +625,64 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           SelectableText(_daily!.fen,
               style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
           const SizedBox(height: 16),
-          FilledButton(
-            onPressed: () => _tryPuzzleOnScreen(
-              ref,
-              fen: _daily!.fen,
-              title: l10n.puzzleDailySolveTitle,
-              solution: _daily!.solutionMoves,
-              rating: _daily!.rating,
+          PressableScale(
+            child: FilledButton(
+              onPressed: () => _tryPuzzleOnScreen(
+                ref,
+                fen: _daily!.fen,
+                title: l10n.puzzleDailySolveTitle,
+                solution: _daily!.solutionMoves,
+                rating: _daily!.rating,
+              ),
+              child: Text(l10n.puzzleTryOnScreen),
             ),
-            child: Text(l10n.puzzleTryOnScreen),
           ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () => _sendToBoard(ref, _daily!.fen),
-            child: Text(l10n.puzzleLoadToBoard),
-          ),
-          const SizedBox(height: 8),
-          FilledButton.tonalIcon(
-            onPressed: (session.transport == BoardTransport.wifi ||
-                    session.transport == BoardTransport.ble)
-                ? () => _openBoardSetupWizard(context, _daily!.fen)
-                : null,
-            icon: const Icon(Icons.lightbulb_outline),
-            label: Text(l10n.puzzleSetupWizardLabel),
-          ),
-          const SizedBox(height: 8),
-          FilledButton.tonal(
-            onPressed: _dailyInLibrary(prefs, _daily!)
-                ? null
-                : () => _addDailyToLibrary(prefs, _daily!),
-            child: Text(_dailyInLibrary(prefs, _daily!)
-                ? l10n.puzzleAlreadyInLibrary
-                : l10n.puzzleAddToLibrary),
-          ),
-          TextButton.icon(
-            onPressed: _openLichess,
-            icon: const Icon(Icons.open_in_browser),
-            label: Text(l10n.puzzleOpenLichess),
-          ),
+          const SizedBox(height: 10),
+          if (!compactOverflowActions) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => _sendToBoard(ref, _daily!.fen),
+                    child: Text(l10n.puzzleLoadToBoard),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: (session.transport == BoardTransport.wifi ||
+                            session.transport == BoardTransport.ble)
+                        ? () => _openBoardSetupWizard(context, _daily!.fen)
+                        : null,
+                    icon: const Icon(Icons.auto_fix_high, size: 18),
+                    label: Text(l10n.puzzleSetupWizardShort),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: _dailyInLibrary(prefs, _daily!)
+                        ? null
+                        : () => _addDailyToLibrary(prefs, _daily!),
+                    child: Text(_dailyInLibrary(prefs, _daily!)
+                        ? l10n.puzzleAlreadyInLibrary
+                        : l10n.puzzleAddToLibrary),
+                  ),
+                ),
+                Expanded(
+                  child: TextButton.icon(
+                    onPressed: _openLichess,
+                    icon: const Icon(Icons.open_in_browser, size: 18),
+                    label: Text(l10n.puzzleOpenLichess),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
         const SizedBox(height: 16),
         OutlinedButton(
@@ -577,6 +698,12 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   Widget _libraryTab(
       BuildContext context, PrefsRepository prefs, BoardSessionState session) {
     final l10n = context.l10n;
+    final devMode = ref
+            .watch(sharedPreferencesProvider)
+            .getBool('czechmate.developerModeUnlocked') ??
+        false;
+    final fenLive =
+        ref.watch(gameUiNotifierProvider.select((s) => s.sandboxFenOverride));
     final items = _library(prefs);
     return ListView(
       padding: const EdgeInsets.all(12),
@@ -589,21 +716,35 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
               labelText: l10n.puzzleLibNameLabel,
               border: const OutlineInputBorder(),
             )),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _libFen,
-          maxLines: 2,
-          decoration: InputDecoration(
-            labelText: l10n.puzzleLibFenLabel,
-            border: const OutlineInputBorder(),
+        if (devMode && fenLive != null && fenLive.trim().isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Text(
+            l10n.puzzleLibSavedPositionCaption,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
-        ),
+          const SizedBox(height: 4),
+          SelectableText(
+            fenLive.trim(),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontFamily: 'monospace',
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ],
         const SizedBox(height: 8),
         FilledButton.tonal(
           onPressed: () async {
             final t = _libTitle.text.trim();
-            final f = _libFen.text.trim();
-            if (f.isEmpty) return;
+            final f = fenLive?.trim() ?? '';
+            if (f.isEmpty) {
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.puzzleSaveNeedPosition)),
+              );
+              return;
+            }
             final list = [
               ...items,
               PuzzleLibraryItem(
@@ -613,7 +754,6 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
             ];
             await _saveLibrary(prefs, list);
             _libTitle.clear();
-            _libFen.clear();
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(context.l10n.puzzleSavedSnack)),
@@ -630,97 +770,109 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         else
           ...List.generate(items.length, (i) {
             final it = items[i];
-            return Card(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ListTile(
-                    title: Text(it.title),
-                    subtitle: Text(it.fen.length > 48
-                        ? '${it.fen.substring(0, 48)}…'
-                        : it.fen),
-                    isThreeLine: true,
-                    onTap: () => _tryPuzzleOnScreen(
-                      ref,
-                      fen: it.fen,
-                      title: it.title,
-                      solution: it.solution,
-                      rating: it.rating,
+            return AnimatedOpacity(
+              opacity: _libraryRemovingId == it.id ? 0 : 1,
+              duration: AppMotion.crossFade,
+              curve: AppMotion.standardCurve,
+              child: Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ListTile(
+                      title: Text(it.title),
+                      subtitle: Text(it.fen.length > 48
+                          ? '${it.fen.substring(0, 48)}…'
+                          : it.fen),
+                      isThreeLine: true,
+                      onTap: () => _tryPuzzleOnScreen(
+                        ref,
+                        fen: it.fen,
+                        title: it.title,
+                        solution: it.solution,
+                        rating: it.rating,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: LayoutBuilder(
-                      builder: (ctx, bc) {
-                        final side = min(bc.maxWidth - 8, 280.0)
-                            .clamp(140.0, 280.0);
-                        return Center(
-                          child: SizedBox(
-                            width: side,
-                            child: FenBoardPreview(fen: it.fen),
-                          ),
-                        );
-                      },
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: LayoutBuilder(
+                        builder: (ctx, bc) {
+                          final side =
+                              min(bc.maxWidth - 8, 280.0).clamp(140.0, 280.0);
+                          return Center(
+                            child: SizedBox(
+                              width: side,
+                              child: FenBoardPreview(fen: it.fen),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: (session.transport ==
-                                        BoardTransport.wifi ||
-                                    session.transport == BoardTransport.ble)
-                                ? () => _openBoardSetupWizard(context, it.fen)
-                                : null,
-                            icon: const Icon(Icons.lightbulb_outline, size: 18),
-                            label: Text(l10n.puzzleSetupOnBoard),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: (session.transport ==
+                                          BoardTransport.wifi ||
+                                      session.transport == BoardTransport.ble)
+                                  ? () => _openBoardSetupWizard(context, it.fen)
+                                  : null,
+                              icon: const Icon(Icons.auto_fix_high, size: 18),
+                              label: Text(l10n.puzzleSetupOnBoard),
+                            ),
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: l10n.puzzleLibraryRemoveConfirm,
-                          onPressed: () async {
-                            final removeId = it.id;
-                            final ok = await showDialog<bool>(
-                              context: context,
-                              builder: (ctx) {
-                                final cs = Theme.of(ctx).colorScheme;
-                                return AlertDialog(
-                                  title: Text(l10n.puzzleLibraryRemoveTitle),
-                                  content: Text(
-                                    l10n.puzzleLibraryRemoveBody(it.title),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(false),
-                                      child: Text(l10n.commonCancel),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            tooltip: l10n.puzzleLibraryRemoveConfirm,
+                            onPressed: () async {
+                              final removeId = it.id;
+                              final ok = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) {
+                                  final cs = Theme.of(ctx).colorScheme;
+                                  return AlertDialog(
+                                    title: Text(l10n.puzzleLibraryRemoveTitle),
+                                    content: Text(
+                                      l10n.puzzleLibraryRemoveBody(it.title),
                                     ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.of(ctx).pop(true),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: cs.error,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(ctx).pop(false),
+                                        child: Text(l10n.commonCancel),
                                       ),
-                                      child: Text(l10n.puzzleLibraryRemoveConfirm),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                            if (ok != true || !context.mounted) return;
-                            final next = _library(prefs)
-                                .where((x) => x.id != removeId)
-                                .toList();
-                            await _saveLibrary(prefs, next);
-                          },
-                        ),
-                      ],
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(ctx).pop(true),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: cs.error,
+                                        ),
+                                        child: Text(
+                                            l10n.puzzleLibraryRemoveConfirm),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              if (ok != true || !context.mounted) return;
+                              setState(() => _libraryRemovingId = removeId);
+                              await Future<void>.delayed(AppMotion.crossFade);
+                              if (!context.mounted) return;
+                              final next = _library(prefs)
+                                  .where((x) => x.id != removeId)
+                                  .toList();
+                              await _saveLibrary(prefs, next);
+                              if (mounted) {
+                                setState(() => _libraryRemovingId = null);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }),
@@ -794,11 +946,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         Row(
           children: [
             Expanded(
-              child: FilledButton(
-                onPressed: _trainingRemaining > 0
-                    ? null
-                    : () => _startTrainingRound(prefs),
-                child: Text(l10n.puzzleNewRound),
+              child: PressableScale(
+                child: FilledButton(
+                  onPressed: _trainingRemaining > 0
+                      ? null
+                      : () => _startTrainingRound(prefs),
+                  child: Text(l10n.puzzleNewRound),
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -829,29 +983,32 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                   SelectableText(_trainingPick!.fen,
                       style: const TextStyle(
                           fontFamily: 'monospace', fontSize: 11)),
-                  _puzzleBoardPreview(context, _trainingPick!.fen, maxSide: 360),
+                  _puzzleBoardPreview(context, _trainingPick!.fen,
+                      maxSide: 360),
                   const SizedBox(height: 10),
-                  FilledButton.tonal(
-                    onPressed: () => _tryPuzzleOnScreen(
-                      ref,
-                      fen: _trainingPick!.fen,
-                      title: _trainingPick!.displayTitle(l10n),
+                  PressableScale(
+                    child: FilledButton(
+                      onPressed: () => _tryPuzzleOnScreen(
+                        ref,
+                        fen: _trainingPick!.fen,
+                        title: _trainingPick!.displayTitle(l10n),
+                      ),
+                      child: Text(l10n.puzzleSolveOnScreen),
                     ),
-                    child: Text(l10n.puzzleSolveOnScreen),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   OutlinedButton(
                     onPressed: () => _sendToBoard(ref, _trainingPick!.fen),
                     child: Text(l10n.puzzleLoadToBoardShort),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: (session.transport == BoardTransport.wifi ||
                             session.transport == BoardTransport.ble)
                         ? () =>
                             _openBoardSetupWizard(context, _trainingPick!.fen)
                         : null,
-                    icon: const Icon(Icons.lightbulb_outline, size: 18),
+                    icon: const Icon(Icons.auto_fix_high, size: 18),
                     label: Text(l10n.puzzleSetupWizardShort),
                   ),
                 ],
@@ -906,7 +1063,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                             session.transport == BoardTransport.ble)
                         ? () => _openBoardSetupWizard(context, b.fen)
                         : null,
-                    icon: const Icon(Icons.lightbulb_outline, size: 18),
+                    icon: const Icon(Icons.auto_fix_high, size: 18),
                     label: Text(l10n.puzzleSetupWizardLabel),
                   ),
                 ),

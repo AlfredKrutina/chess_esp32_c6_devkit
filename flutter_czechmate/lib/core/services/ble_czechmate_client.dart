@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../constants/app_environment.dart';
+import '../debug/connection_debug_log.dart';
 import '../models/game_snapshot.dart';
 import '../utils/game_snapshot_codec.dart';
 
@@ -33,8 +34,10 @@ bool _isBleTransportDropped(Object e) {
 
 bool _isRetryableGattWrite(Object e) {
   if (e is FlutterBluePlusException) {
-    // iOS CoreBluetooth CBATTError (typické raw hodnoty):
-    // 5 insufficientAuthentication, 8 prepareQueueFull, 15 insufficientEncryption
+    // iOS CoreBluetooth CBATTError (raw hodnoty z FBP):
+    // 5 insufficientAuthentication, 8 insufficientAuthorization (OTA před SMP),
+    //   — také často „prepare queue“ při dlouhých zápisech;
+    // 15 insufficientEncryption
     // 14: Linux ATT retry
     if (e.code == 5 ||
         e.code == 8 ||
@@ -55,7 +58,7 @@ bool _isRetryableGattWrite(Object e) {
   return false;
 }
 
-/// Diagnostika BLE OTA (iOS často code 8 = prepare queue full, ne „authentication“).
+/// Diagnostika BLE OTA (iOS code 8 často insufficientAuthorization / prepare queue).
 void _logBleOtaChunkWriteFailure(
   Object e, {
   required int chunkIndex,
@@ -90,11 +93,22 @@ class BleCzechmateClient {
   StreamSubscription<List<int>>? _ackSub;
   StreamSubscription<List<int>>? _netSub;
   StreamSubscription<BluetoothConnectionState>? _connSub;
+  /// Zachycení `disconnected` až po dokončení GATT setupu — jinak iOS/SMP často sejme UI dřív než `discoverServices`.
+  void Function(Object)? _onDisconnectError;
   final _assembler = _BleChunkAssembler();
+
+  /// Jedna fronta GATT zápisů — méně „prepare queue full“ a méně zahlcení při rychlých hintech.
+  Future<void> _cmdWriteTail = Future<void>.value();
+
+  static const Duration _kMinGapBetweenBleCmdWrites =
+      Duration(milliseconds: 100);
 
   BluetoothDevice? get device => _device;
 
   Future<void> disconnect() async {
+    final prev = _device?.remoteId.str;
+    connDebugLog('BLE stack disconnect()', prev ?? '(žádné zařízení)');
+    _onDisconnectError = null;
     await _valueSub?.cancel();
     await _ackSub?.cancel();
     await _netSub?.cancel();
@@ -112,6 +126,61 @@ class BleCzechmateClient {
     }
     _device = null;
     _assembler.reset();
+    _cmdWriteTail = Future<void>.value();
+  }
+
+  void _attachDisconnectListener() {
+    _connSub?.cancel();
+    _connSub = null;
+    final d = _device;
+    final handler = _onDisconnectError;
+    if (d == null || handler == null) {
+      return;
+    }
+    _connSub = d.connectionState.listen((s) {
+      if (s == BluetoothConnectionState.disconnected) {
+        connDebugLog(
+          'BLE connectionState → disconnected',
+          'remoteId=${d.remoteId.str}',
+        );
+        handler(StateError('Bluetooth disconnected'));
+      }
+    });
+  }
+
+  Future<List<BluetoothService>> _discoverServicesRobust(
+      BluetoothDevice device) async {
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
+      connDebugLog('discoverServices', 'jeden pokus (ne-iOS)');
+      return device.discoverServices();
+    }
+    Object? lastErr;
+    for (var attempt = 0; attempt < 4; attempt++) {
+      try {
+        if (!device.isConnected) {
+          throw StateError('Bluetooth disconnected');
+        }
+        final list = await device.discoverServices();
+        connDebugLog(
+          'discoverServices OK',
+          'iOS pokus=${attempt + 1} služeb=${list.length}',
+        );
+        return list;
+      } catch (e) {
+        lastErr = e;
+        connDebugLog(
+          'discoverServices chyba',
+          'iOS pokus=${attempt + 1}/4 ${connBleErrorDetail(e)}',
+        );
+        if (attempt == 3) {
+          rethrow;
+        }
+        await Future<void>.delayed(
+          Duration(milliseconds: 320 + attempt * 220),
+        );
+      }
+    }
+    throw lastErr ?? StateError('discoverServices failed');
   }
 
   /// [onNetworkNotify] — firmware posílá notify na network char při změně STA/IP (`ble_task_push_network_info`).
@@ -121,67 +190,108 @@ class BleCzechmateClient {
     required void Function(Object error) onError,
     void Function(List<int> raw)? onNetworkNotify,
   }) async {
+    connDebugLog(
+      'GATT session start',
+      'remoteId=${device.remoteId.str} platformName="${device.platformName}"',
+    );
     await disconnect();
     _device = device;
-    await device.connect(timeout: const Duration(seconds: 15));
-    _connSub = device.connectionState.listen((s) {
-      if (s == BluetoothConnectionState.disconnected) {
-        onError(StateError('Bluetooth disconnected'));
-      }
-    });
-    final services = await device.discoverServices();
+    _onDisconnectError = onError;
     try {
-      await device.requestMtu(517);
-    } catch (_) {}
-    /* iOS: peripheral po CONNECT zahajuje SMP; krátká pauza před prvním zápisem sníží „encryption insufficient“. */
-    if (defaultTargetPlatform == TargetPlatform.iOS) {
-      await Future<void>.delayed(const Duration(milliseconds: 600));
-    }
-    BluetoothCharacteristic? snapChar;
-    BluetoothCharacteristic? ackChar;
-    for (final svc in services) {
-      if (!_uuidMatch(svc.uuid, czechmateServiceGuid)) continue;
-      for (final c in svc.characteristics) {
-        if (_uuidMatch(c.uuid, snapshotCharacteristicGuid)) snapChar = c;
-        if (_uuidMatch(c.uuid, commandCharacteristicGuid)) _cmdChar = c;
-        if (_uuidMatch(c.uuid, networkCharacteristicGuid)) _networkChar = c;
-        if (_uuidMatch(c.uuid, commandAckCharacteristicGuid)) ackChar = c;
+      connDebugLog('GAP device.connect()', 'timeout=15s');
+      await device.connect(timeout: const Duration(seconds: 15));
+      connDebugLog(
+        'GAP device.connect hotovo',
+        'isConnected=${device.isConnected}',
+      );
+      /* iOS: krátká prodleva na stabilizaci linku; SMP na desce je odložené (~1,8 s),
+       * takže GATT discovery může začít dřív než dřívějších 1350 ms + SMP najednou. */
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        connDebugLog('iOS prodleva před discoverServices', '600ms');
+        await Future<void>.delayed(const Duration(milliseconds: 600));
       }
-    }
-    _ackChar = ackChar;
-    if (snapChar == null) {
-      await disconnect();
-      throw StateError('Missing GATT snapshot characteristic');
-    }
-    _snapChar = snapChar;
-    await snapChar.setNotifyValue(true);
-    _valueSub = snapChar.onValueReceived.listen(
-      (List<int> raw) {
-        try {
-          final complete = _assembler.push(Uint8List.fromList(raw));
-          if (complete == null) return;
-          onSnapshot(GameSnapshotCodec.decodeBytes(complete));
-        } catch (e) {
-          onError(e);
+      final services = await _discoverServicesRobust(device);
+      try {
+        await device.requestMtu(517);
+        connDebugLog('requestMtu', '517');
+      } catch (e) {
+        connDebugLog('requestMtu přeskočeno', connBleErrorDetail(e));
+      }
+      BluetoothCharacteristic? snapChar;
+      BluetoothCharacteristic? ackChar;
+      for (final svc in services) {
+        if (!_uuidMatch(svc.uuid, czechmateServiceGuid)) continue;
+        for (final c in svc.characteristics) {
+          if (_uuidMatch(c.uuid, snapshotCharacteristicGuid)) snapChar = c;
+          if (_uuidMatch(c.uuid, commandCharacteristicGuid)) _cmdChar = c;
+          if (_uuidMatch(c.uuid, networkCharacteristicGuid)) _networkChar = c;
+          if (_uuidMatch(c.uuid, commandAckCharacteristicGuid)) ackChar = c;
         }
-      },
-      onError: onError,
-    );
-    if (ackChar != null) {
-      await ackChar.setNotifyValue(true);
-      _ackSub = ackChar.onValueReceived.listen((raw) {
-        // Here we could handle cmd_ack logic (not strictly required if we just blindly send over BLE)
-      });
-    }
-    final netChar = _networkChar;
-    if (netChar != null &&
-        onNetworkNotify != null &&
-        (netChar.properties.notify || netChar.properties.indicate)) {
-      await netChar.setNotifyValue(true);
-      _netSub = netChar.onValueReceived.listen(
-        onNetworkNotify,
+      }
+      _ackChar = ackChar;
+      if (snapChar == null) {
+        connDebugLog(
+          'GATT session FAILED',
+          'chybí snapshot characteristic (UUID služby nenalezeno?)',
+        );
+        await disconnect();
+        throw StateError('Missing GATT snapshot characteristic');
+      }
+      _snapChar = snapChar;
+      _assembler.reset();
+      /* READ před zapnutím notify — jinak dorazí CM chunky do prázdného skladače
+       * paralelně s READ a hrozí zákulisní rozbitá řada. */
+      try {
+        final initialSnap = await readSnapshot();
+        onSnapshot(initialSnap);
+        connDebugLog('readSnapshot po connect', 'OK');
+      } catch (e) {
+        connDebugLog(
+          'readSnapshot po connect selhalo → spoléháme na notify',
+          connBleErrorDetail(e),
+        );
+      }
+      await snapChar.setNotifyValue(true);
+      _valueSub = snapChar.onValueReceived.listen(
+        (List<int> raw) {
+          try {
+            final complete = _assembler.push(Uint8List.fromList(raw));
+            if (complete == null) return;
+            onSnapshot(GameSnapshotCodec.decodeBytes(complete));
+          } catch (e) {
+            onError(e);
+          }
+        },
         onError: onError,
       );
+      if (ackChar != null) {
+        await ackChar.setNotifyValue(true);
+        _ackSub = ackChar.onValueReceived.listen((raw) {
+          // Here we could handle cmd_ack logic (not strictly required if we just blindly send over BLE)
+        });
+      }
+      final netChar = _networkChar;
+      if (netChar != null &&
+          onNetworkNotify != null &&
+          (netChar.properties.notify || netChar.properties.indicate)) {
+        await netChar.setNotifyValue(true);
+        _netSub = netChar.onValueReceived.listen(
+          onNetworkNotify,
+          onError: onError,
+        );
+      }
+      _attachDisconnectListener();
+      connDebugLog(
+        'GATT session ready',
+        'network notify=${netChar != null && onNetworkNotify != null}',
+      );
+    } catch (e, st) {
+      connDebugLog('GATT session FAILED', connBleErrorDetail(e));
+      if (kDebugMode || AppEnvironment.staging) {
+        debugPrint('[czechmate][conn] stackTrace: $st');
+      }
+      await disconnect();
+      rethrow;
     }
   }
 
@@ -191,16 +301,27 @@ class BleCzechmateClient {
       final parsed = jsonDecode(utf8.decode(raw));
       if (parsed is! Map<String, dynamic>) return null;
       final staIp = (parsed['sta_ip'] as String?)?.trim();
-      final apIp = (parsed['ap_ip'] as String?)?.trim();
+      final apIpRaw = (parsed['ap_ip'] as String?)?.trim() ?? '';
       final staSsid = (parsed['sta_ssid'] as String?)?.trim();
       final staConnected = parsed['sta_connected'] == true;
       final online = parsed['online'] == true;
+      final apActiveRaw = parsed['ap_active'];
+      final bool apActive;
+      if (apActiveRaw is bool) {
+        apActive = apActiveRaw;
+      } else {
+        apActive = apIpRaw.isNotEmpty;
+      }
+      final apIp = apActive && apIpRaw.isNotEmpty ? apIpRaw : (apActive ? '192.168.4.1' : null);
+      final apSsid = (parsed['ap_ssid'] as String?)?.trim();
       return BleNetworkInfo(
         staIp: (staIp == null || staIp.isEmpty) ? null : staIp,
-        apIp: (apIp == null || apIp.isEmpty) ? null : apIp,
+        apIp: apIp,
         staSsid: (staSsid == null || staSsid.isEmpty) ? null : staSsid,
         staConnected: staConnected,
         online: online,
+        apActive: apActive,
+        apSsid: (apSsid == null || apSsid.isEmpty) ? null : apSsid,
       );
     } catch (_) {
       return null;
@@ -212,18 +333,26 @@ class BleCzechmateClient {
   Future<void> ensureGattReadyForCommands() async {
     final d = _device;
     if (d == null) {
+      connDebugLog('ensureGattReady', 'chyba: device null');
       throw StateError('BLE device not set');
     }
+    connDebugLog(
+      'ensureGattReady start',
+      'remoteId=${d.remoteId.str} isConnected=${d.isConnected}',
+    );
+    var iosDelayAfterLink = false;
     if (!d.isConnected) {
+      connDebugLog('ensureGattReady', 'device.connect 20s');
       await d.connect(timeout: const Duration(seconds: 20));
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        await Future<void>.delayed(const Duration(milliseconds: 650));
-      }
+      iosDelayAfterLink = defaultTargetPlatform == TargetPlatform.iOS;
     }
+    if (iosDelayAfterLink) {
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+    }
+    final services = await _discoverServicesRobust(d);
     try {
       await d.requestMtu(517);
     } catch (_) {}
-    final services = await d.discoverServices();
     BluetoothCharacteristic? cmdChar;
     BluetoothCharacteristic? netChar;
     BluetoothCharacteristic? ackChar;
@@ -236,6 +365,7 @@ class BleCzechmateClient {
       }
     }
     if (cmdChar == null) {
+      connDebugLog('ensureGattReady FAIL', 'cmd characteristic nenalezena');
       throw StateError('BLE command characteristic not found');
     }
     _cmdChar = cmdChar;
@@ -243,12 +373,76 @@ class BleCzechmateClient {
     if (netChar != null) {
       _networkChar = netChar;
     }
+    _attachDisconnectListener();
+    connDebugLog('ensureGattReady OK', 'cmd+net znovu navázány');
+  }
+
+  /// OTA a další citlivé BLE příkazy vyžadují na desce aktivní link encryption (SMP).
+  /// iOS často pošle zápis dřív → CBATTError 8 (insufficientAuthorization); Androidu pomůže bond.
+  Future<void> prepareEncryptedBleLink() async {
+    await ensureGattReadyForCommands();
+    final d = _device;
+    if (d == null) {
+      throw StateError('BLE device not set');
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      try {
+        await d.createBond(timeout: 75);
+      } catch (_) {}
+      await Future<void>.delayed(const Duration(milliseconds: 450));
+      return;
+    }
+
+    if (defaultTargetPlatform != TargetPlatform.iOS) {
+      await Future<void>.delayed(const Duration(milliseconds: 280));
+      return;
+    }
+
+    Object? lastErr;
+    for (var i = 0; i < 42; i++) {
+      try {
+        final st = await fetchOtaBleStatus(
+          responseTimeout: const Duration(seconds: 4),
+        );
+        if (st != null) {
+          return;
+        }
+        lastErr = StateError('ota_ble_status: no cmd_ack');
+      } catch (e) {
+        lastErr = e;
+        final fbp = e is FlutterBluePlusException ? e : null;
+        if (!_isRetryableGattWrite(e) &&
+            !(fbp != null && fbp.code == 6) &&
+            i > 10) {
+          rethrow;
+        }
+      }
+      await Future<void>.delayed(Duration(milliseconds: 260 + i * 22));
+    }
+    throw lastErr ??
+        StateError(
+          'Bluetooth encryption not ready. Accept any pairing prompt for the '
+          'board, wait a few seconds, then retry OTA.',
+        );
   }
 
   Future<void> _writeCmd(Map<String, dynamic> cmd) async {
     if (_cmdChar == null) throw StateError('Not connected or missing cmdChar');
-    final jsonString = jsonEncode(cmd);
-    final bytes = utf8.encode(jsonString);
+    final bytes = utf8.encode(jsonEncode(cmd));
+    final prev = _cmdWriteTail;
+    final done = Completer<void>();
+    _cmdWriteTail = done.future;
+    await prev.catchError((_) {});
+    try {
+      await Future<void>.delayed(_kMinGapBetweenBleCmdWrites);
+      await _writeCmdBytesWithRetries(bytes);
+    } finally {
+      if (!done.isCompleted) done.complete();
+    }
+  }
+
+  Future<void> _writeCmdBytesWithRetries(List<int> bytes) async {
     Object? lastError;
     final maxAttempts = defaultTargetPlatform == TargetPlatform.iOS ? 8 : 4;
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
@@ -371,6 +565,7 @@ class BleCzechmateClient {
 
   /// BLE ekvivalent `POST /api/system/ota` — pouze HTTPS URL na `.bin`.
   Future<void> postOtaStart(String httpsFirmwareUrl) async {
+    await prepareEncryptedBleLink();
     await _writeCmd({'cmd': 'ota_start', 'url': httpsFirmwareUrl.trim()});
   }
 
@@ -396,7 +591,9 @@ class BleCzechmateClient {
   }
 
   /// Stav pozastaveného / aktivního BLE stream OTA na desce (`ota_ble_status`).
-  Future<OtaBleStatus?> fetchOtaBleStatus() async {
+  Future<OtaBleStatus?> fetchOtaBleStatus({
+    Duration responseTimeout = const Duration(seconds: 8),
+  }) async {
     await ensureGattReadyForCommands();
     final ack = _ackChar;
     if (ack == null) return null;
@@ -422,7 +619,7 @@ class BleCzechmateClient {
     try {
       await _writeCmd({'cmd': 'ota_ble_status'});
       return await completer.future.timeout(
-        const Duration(seconds: 8),
+        responseTimeout,
         onTimeout: () => null,
       );
     } finally {
@@ -443,7 +640,7 @@ class BleCzechmateClient {
     if (len < 32 * 1024) {
       throw StateError('Firmware file too small');
     }
-    await ensureGattReadyForCommands();
+    await prepareEncryptedBleLink();
     final d = _device;
     if (d == null || _cmdChar == null) {
       throw StateError('BLE cmd characteristic not ready');
@@ -453,11 +650,7 @@ class BleCzechmateClient {
     } catch (_) {}
     await Future<void>.delayed(const Duration(milliseconds: 60));
     if (defaultTargetPlatform == TargetPlatform.iOS) {
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-      try {
-        await _writeCmd({'cmd': 'ping'});
-      } catch (_) {}
-      await Future<void>.delayed(const Duration(milliseconds: 280));
+      await Future<void>.delayed(const Duration(milliseconds: 220));
     }
     final mtu = d.mtuNow;
     /*
@@ -632,6 +825,83 @@ class BleCzechmateClient {
     });
   }
 
+  /// NVS na desce + při DHCP zamítnutí IP s blokovaným 3. oktetem (`wifi_sta_ip_block`, šifrované BLE).
+  Future<void> postWifiStaIpBlock(String thirdOctetsCsv) async {
+    await ensureGattReadyForCommands();
+    await _writeCmd({
+      'cmd': 'wifi_sta_ip_block',
+      'third_octets': thirdOctetsCsv.trim(),
+    });
+  }
+
+  /// Aktivní scan okolí na desce; odpověď přijde přes `cmd_ack` notify (`wifi_survey`).
+  Future<BleWifiSurveyResult> fetchWifiSurvey({
+    Duration timeout = const Duration(seconds: 18),
+  }) async {
+    await ensureGattReadyForCommands();
+    final ack = _ackChar;
+    if (ack == null) {
+      throw StateError('BLE wifi_survey: missing cmd_ack characteristic');
+    }
+    final completer = Completer<BleWifiSurveyResult>();
+    final acc = <int>[];
+    late final StreamSubscription<List<int>> sub;
+    late final Timer timer;
+
+    void completeOnce(BleWifiSurveyResult r) {
+      timer.cancel();
+      if (!completer.isCompleted) {
+        completer.complete(r);
+      }
+    }
+
+    sub = ack.onValueReceived.listen(
+      (raw) {
+        acc.addAll(raw);
+        final r = BleWifiSurveyResult.tryParse(acc);
+        if (r != null) {
+          unawaited(sub.cancel());
+          completeOnce(r);
+        }
+      },
+      onError: (Object e) {
+        unawaited(sub.cancel());
+        if (!completer.isCompleted) {
+          completer.completeError(e);
+        }
+      },
+    );
+
+    timer = Timer(timeout, () {
+      unawaited(sub.cancel());
+      if (!completer.isCompleted) {
+        completer.complete(
+          const BleWifiSurveyResult(
+            ok: false,
+            networks: [],
+            message: 'timeout',
+          ),
+        );
+      }
+    });
+
+    await _writeCmd({'cmd': 'wifi_survey'});
+    try {
+      return await completer.future;
+    } finally {
+      timer.cancel();
+      await sub.cancel();
+    }
+  }
+
+  /// Zapnutí/vypnutí Wi‑Fi hotspotu na desce (`wifi_ap_set`, šifrované BLE).
+  Future<void> postWifiApSet(bool enabled) async {
+    await _writeCmd({
+      'cmd': 'wifi_ap_set',
+      'enabled': enabled,
+    });
+  }
+
   /// BLE ekvivalent iOS `fetchNetworkInfo` (sta_ip/ap_ip/online).
   /// Jednorázový READ snapshotu (firmware `BLE_GATT_ACCESS_OP_READ_CHR` na snap UUID).
   Future<GameSnapshot> readSnapshot() async {
@@ -640,7 +910,10 @@ class BleCzechmateClient {
     if (c == null || d == null || !d.isConnected) {
       throw StateError('BLE snapshot read: not connected');
     }
-    final raw = await c.read();
+    final raw = await c.read().timeout(
+          const Duration(seconds: 28),
+          onTimeout: () => throw TimeoutException('BLE snapshot read'),
+        );
     if (raw.isEmpty) {
       throw StateError('BLE snapshot read: empty response');
     }
@@ -656,6 +929,83 @@ class BleCzechmateClient {
     } catch (_) {
       return null;
     }
+  }
+}
+
+/// Jedna síť z BLE `wifi_survey`.
+class BleWifiSurveyNetwork {
+  const BleWifiSurveyNetwork({required this.ssid, required this.rssi});
+
+  final String ssid;
+  final int rssi;
+}
+
+/// Výsledek `wifi_survey` (cmd_ack JSON z desky, může dorazit ve více notify).
+class BleWifiSurveyResult {
+  const BleWifiSurveyResult({
+    required this.ok,
+    required this.networks,
+    this.message,
+  });
+
+  final bool ok;
+  final List<BleWifiSurveyNetwork> networks;
+  final String? message;
+
+  static BleWifiSurveyResult? tryParse(List<int> raw) {
+    if (raw.length < 8) {
+      return null;
+    }
+    try {
+      final s = utf8.decode(raw);
+      final dynamic parsed = jsonDecode(s);
+      if (parsed is! Map<String, dynamic>) {
+        return null;
+      }
+      if (parsed['channel'] != 'cmd_ack') {
+        return null;
+      }
+      final cmd = parsed['cmd']?.toString();
+      if (cmd != 'wifi_survey') {
+        return null;
+      }
+      final success = parsed['ok'] == true;
+      if (!success) {
+        return BleWifiSurveyResult(
+          ok: false,
+          networks: const [],
+          message: parsed['message']?.toString(),
+        );
+      }
+      final nets = <BleWifiSurveyNetwork>[];
+      final arr = parsed['networks'];
+      if (arr is List<dynamic>) {
+        for (final x in arr) {
+          if (x is Map<String, dynamic>) {
+            final name = x['ssid']?.toString() ?? '';
+            final r = (x['rssi'] as num?)?.toInt() ?? -100;
+            if (name.isNotEmpty) {
+              nets.add(BleWifiSurveyNetwork(ssid: name, rssi: r));
+            }
+          }
+        }
+      }
+      return BleWifiSurveyResult(ok: true, networks: nets);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  bool hasSsid(String? ssid) {
+    if (ssid == null || ssid.isEmpty) {
+      return false;
+    }
+    for (final n in networks) {
+      if (n.ssid == ssid) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
@@ -699,6 +1049,8 @@ class BleNetworkInfo {
     required this.online,
     this.staSsid,
     this.staConnected = false,
+    this.apActive = false,
+    this.apSsid,
   });
 
   final String? staIp;
@@ -707,6 +1059,10 @@ class BleNetworkInfo {
   final String? staSsid;
   final bool staConnected;
   final bool online;
+  /// Hotspot desky (AP) právě vysílá.
+  final bool apActive;
+  /// SSID hotspotu z network notify (volitelné).
+  final String? apSsid;
 }
 
 class _BleChunkAssembler {
@@ -722,13 +1078,32 @@ class _BleChunkAssembler {
 
   /// Vrátí kompletní JSON bajty nebo `null` (čekání na další chunk).
   List<int>? push(Uint8List data) {
-    if (data.length < 4 || data[0] != 0x43 || data[1] != 0x4d) {
-      return data.toList();
+    if (data.isEmpty) {
+      return null;
+    }
+    /* READ char vrací holý JSON (`{`…); notify používá hlavičku CM + díly. */
+    final bool cmChunk =
+        data.length >= 4 && data[0] == 0x43 && data[1] == 0x4d;
+    if (!cmChunk) {
+      if (data[0] == 0x7b) {
+        return data.toList();
+      }
+      if (AppEnvironment.staging || kDebugMode) {
+        debugPrint(
+          'BLE snapshot: neočekávaný rámec bez CM (len=${data.length}), ignoruji',
+        );
+      }
+      return null;
     }
     final part = data[2];
     final total = data[3];
     final payload = data.sublist(4);
     if (part < 1 || total < 1 || part > total) {
+      if (AppEnvironment.staging || kDebugMode) {
+        debugPrint(
+          'BLE snapshot chunk: neplatné part/total ($part/$total), reset',
+        );
+      }
       reset();
       return null;
     }
@@ -744,6 +1119,12 @@ class _BleChunkAssembler {
       return null;
     }
     if (_total != total || _part != part - 1) {
+      if (AppEnvironment.staging || kDebugMode) {
+        debugPrint(
+          'BLE snapshot chunk: nesouvislá řada (čekáno part ${_part + 1}, '
+          'total=$_total; dost part=$part total=$total), reset',
+        );
+      }
       reset();
       return null;
     }

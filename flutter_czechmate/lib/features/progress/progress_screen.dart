@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/widgets/pressable_scale.dart';
+import '../../core/widgets/session_error_panel.dart';
 import '../../l10n/app_localizations.dart';
 import '../coach/coach_screen.dart';
 import '../connection/board_session_notifier.dart';
@@ -88,7 +90,8 @@ class _CoachLevelRow extends ConsumerWidget {
           return SegmentedButton<int>(
             segments: [
               ButtonSegment(value: 1, label: Text(l10n.progressSegBeginner)),
-              ButtonSegment(value: 2, label: Text(l10n.progressSegIntermediate)),
+              ButtonSegment(
+                  value: 2, label: Text(l10n.progressSegIntermediate)),
               ButtonSegment(value: 3, label: Text(l10n.progressSegAdvanced)),
               ButtonSegment(value: 4, label: Text(l10n.progressSegExpert)),
             ],
@@ -154,7 +157,6 @@ class ProgressScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final segment = ref.watch(progressSegmentProvider);
-    final prefs = ref.watch(prefsRepositoryProvider);
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
 
@@ -218,34 +220,6 @@ class ProgressScreen extends ConsumerWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-            child: Material(
-              color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(14),
-              clipBehavior: Clip.antiAlias,
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: cs.primaryContainer,
-                  child: Icon(Icons.person_rounded,
-                      color: cs.onPrimaryContainer),
-                ),
-                title: Text(l10n.progressProfilePuzzleEloTitle),
-                subtitle: Text(
-                  '${prefs.profileDisplayName} · Elo ${prefs.puzzleElo}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push<void>(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (_) => const UserProfileScreen(),
-                  ),
-                ),
-              ),
-            ),
-          ),
           Expanded(
             child: segment == 0 ? _LearnBody() : _StatsBody(),
           ),
@@ -261,6 +235,10 @@ class _LearnBody extends ConsumerWidget {
     final session = ref.watch(boardSessionNotifierProvider);
     final ui = ref.watch(gameUiNotifierProvider);
     final uiN = ref.read(gameUiNotifierProvider.notifier);
+    final devMode = ref
+            .watch(sharedPreferencesProvider)
+            .getBool('czechmate.developerModeUnlocked') ??
+        false;
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
 
@@ -319,15 +297,17 @@ class _LearnBody extends ConsumerWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: FilledButton.icon(
-                        onPressed: ui.learningMode
-                            ? () => Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                      builder: (_) => const CoachScreen()),
-                                )
-                            : null,
-                        icon: const Icon(Icons.chat_bubble_outline),
-                        label: Text(l10n.progressCoachChatButton),
+                      child: PressableScale(
+                        child: FilledButton.icon(
+                          onPressed: ui.learningMode
+                              ? () => Navigator.of(context).push(
+                                    MaterialPageRoute<void>(
+                                        builder: (_) => const CoachScreen()),
+                                  )
+                              : null,
+                          icon: const Icon(Icons.chat_bubble_outline),
+                          label: Text(l10n.progressCoachChatButton),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -362,16 +342,10 @@ class _LearnBody extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         if (session.lastError != null)
-          Card(
-            color: cs.errorContainer,
-            child: ListTile(
-              leading: Icon(Icons.error_outline, color: cs.onErrorContainer),
-              title: Text(l10n.progressBoardErrorTitle,
-                  style: TextStyle(
-                      color: cs.onErrorContainer, fontWeight: FontWeight.w600)),
-              subtitle: Text('${session.lastError}',
-                  style: TextStyle(color: cs.onErrorContainer)),
-            ),
+          SessionErrorPanel(
+            error: session.lastError!,
+            title: l10n.progressBoardErrorTitle,
+            devMode: devMode,
           ),
         Card(
           elevation: 0,
@@ -392,20 +366,22 @@ class _LearnBody extends ConsumerWidget {
                       ?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: _supportsRemoteBoardCommands(session)
-                      ? () {
-                          Navigator.of(context).push<void>(
-                            MaterialPageRoute<void>(
-                              fullscreenDialog: true,
-                              builder: (_) => const BoardSetupWizardScreen(
-                                  kind: BoardSetupWizardKind.standardStart),
-                            ),
-                          );
-                        }
-                      : null,
-                  icon: const Icon(Icons.grid_3x3),
-                  label: Text(l10n.progressRunWizardStarting),
+                PressableScale(
+                  child: FilledButton.icon(
+                    onPressed: _supportsRemoteBoardCommands(session)
+                        ? () {
+                            Navigator.of(context).push<void>(
+                              MaterialPageRoute<void>(
+                                fullscreenDialog: true,
+                                builder: (_) => const BoardSetupWizardScreen(
+                                    kind: BoardSetupWizardKind.standardStart),
+                              ),
+                            );
+                          }
+                        : null,
+                    icon: const Icon(Icons.auto_fix_high),
+                    label: Text(l10n.progressRunWizardStarting),
+                  ),
                 ),
                 if (!_supportsRemoteBoardCommands(session))
                   Padding(
@@ -459,12 +435,14 @@ class _StatsBody extends ConsumerWidget {
                 const Divider(),
                 _LabeledRow(l10n.progressStatsPeakMoves, '$peak'),
                 const Divider(),
+                _LabeledRow(l10n.progressStatsPollSuccess,
+                    '${session.pollSuccessCount}'),
+                const Divider(),
                 _LabeledRow(
-                    l10n.progressStatsPollSuccess, '${session.pollSuccessCount}'),
+                    l10n.progressStatsPollFail, '${session.pollFailureCount}'),
                 const Divider(),
-                _LabeledRow(l10n.progressStatsPollFail, '${session.pollFailureCount}'),
-                const Divider(),
-                _LabeledRow(l10n.progressStatsWsMessages, '${session.wsMessageCount}'),
+                _LabeledRow(
+                    l10n.progressStatsWsMessages, '${session.wsMessageCount}'),
               ],
             ),
           ),

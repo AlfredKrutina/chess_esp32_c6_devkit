@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/localization/context_l10n.dart';
+import '../../core/widgets/pressable_scale.dart';
 
 class SetupScreen extends ConsumerWidget {
   const SetupScreen({super.key});
@@ -30,9 +31,11 @@ class SetupScreen extends ConsumerWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              FilledButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(l10n.setupModeGoBack),
+              PressableScale(
+                child: FilledButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(l10n.setupModeGoBack),
+                ),
               )
             ],
           ),

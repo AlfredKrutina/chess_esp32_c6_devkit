@@ -41,11 +41,11 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | [reference/CZECHMATE_INTEGRATION_CHECKLIST.md](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE pro klienty |
 | [ota_architecture.md](ota_architecture.md) | OTA: kanály, API, Flutter (dlouhodobě uvažuju OTAvo místo vlastní vrstvy ve FW) |
 | [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Co potřebuju k videím z Blenderu |
-| [reference/WEB_MEDIA_BRIEF.md](reference/WEB_MEDIA_BRIEF.md) | Rozcestník ke specifikaci médií (`context/MEDIA_DELIVERABLES.md`) |
+| [reference/WEB_MEDIA_BRIEF.md](reference/WEB_MEDIA_BRIEF.md) | Médiá pro web — odkaz na lokální spec v `context/` nebo `gh-pages-ready/` |
 | [flutter_czechmate/README.md](../flutter_czechmate/README.md) | Spuštění aplikace |
 | [diagrams/DIAGRAM_BACKLOG.local.example.md](diagrams/DIAGRAM_BACKLOG.local.example.md) | Šablona backlogu diagramů |
 
-Lokální poznámky k diagramům si píšu do `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` (gitignore). OTA logy a poznámky z testů často do `context/ota/`.
+Lokální poznámky k diagramům si píšu do `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` (gitignore). OTA logy a vlastní E2E checklisty mohou být v lokální složce `context/` (v `.gitignore`); sdílená pravda pro OTA je [`docs/ota_architecture.md`](ota_architecture.md).
 
 ---
 
@@ -85,7 +85,7 @@ flowchart TB
 | `docs/reference/` | Delší texty |
 | `docs/ota_architecture.md` | OTA ESP32 ↔ Flutter |
 | `docs/flutter/` | Přehled aplikace |
-| `context/ota/` | OTA logy, E2E poznámky (volitelné) |
+| `context/` (často gitignore) | Lokální podklady pro AI / OTA logy mimo Git |
 | `scripts/` | `render_docs.sh`, … |
 | `generate_docs.sh`, `Doxyfile` | C API HTML |
 

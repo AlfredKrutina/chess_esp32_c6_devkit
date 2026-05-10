@@ -7,6 +7,7 @@ import '../../app_providers.dart';
 import '../../core/localization/locale_bridge.dart';
 import '../../core/services/board_api_exception.dart';
 import '../../core/utils/board_http_base_url.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
@@ -57,14 +58,18 @@ class FirmwareOtaRunner {
           return strings.errOtaStaRequiredForHttps;
         }
       } catch (e) {
-        return strings.errOtaWifiStatusCheckFailed('$e');
+        return strings.errOtaWifiStatusCheckFailed(
+          userFacingErrorSummary(strings, e),
+        );
       }
     }
 
     await WakelockPlus.enable();
     try {
       try {
-        await ref.read(boardSessionNotifierProvider.notifier).requestFirmwareOta(
+        await ref
+            .read(boardSessionNotifierProvider.notifier)
+            .requestFirmwareOta(
               binUrl,
               httpBoardBaseUrl: baseUrl,
               preferHttpOtaStart: preferHttpOtaStartCommand,
@@ -79,7 +84,7 @@ class FirmwareOtaRunner {
         }
         return e.message;
       } catch (e) {
-        return '$e';
+        return userFacingErrorSummary(strings, e);
       }
 
       return await _pollOta(ref, baseUrl, onProgress);

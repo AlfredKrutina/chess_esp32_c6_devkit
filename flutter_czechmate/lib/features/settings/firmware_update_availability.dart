@@ -40,9 +40,7 @@ class FirmwareAvailState {
   /// Manifest z Gitu je platný a buď je novější než deska, nebo verzi desky neznáme (jen BLE / bez HTTP).
   bool get showBleGitFirmwareActions {
     final m = manifest;
-    if (m == null ||
-        m.version.trim().isEmpty ||
-        m.url.trim().isEmpty) {
+    if (m == null || m.version.trim().isEmpty || m.url.trim().isEmpty) {
       return false;
     }
     if (updateAvailable) {
@@ -100,10 +98,10 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
       return;
     }
 
-    final manifestUrl = (manifestUrlOverride != null &&
-            manifestUrlOverride.trim().isNotEmpty)
-        ? normalizeFirmwareManifestUrl(manifestUrlOverride.trim())
-        : prefs.firmwareManifestUrlEffective;
+    final manifestUrl =
+        (manifestUrlOverride != null && manifestUrlOverride.trim().isNotEmpty)
+            ? normalizeFirmwareManifestUrl(manifestUrlOverride.trim())
+            : prefs.firmwareManifestUrlEffective;
     final session = ref.read(boardSessionNotifierProvider);
     final boardHttp = resolveBoardHttpBaseUrl(
       wifiTransportActive: session.transport == BoardTransport.wifi,
@@ -133,9 +131,7 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
     String? bv;
     bool? otaSup;
     String? err;
-    if (!skipBoardHttpFetch &&
-        boardHttp != null &&
-        boardHttp.isNotEmpty) {
+    if (!skipBoardHttpFetch && boardHttp != null && boardHttp.isNotEmpty) {
       try {
         final info = await api.fetchBoardFirmwareInfo(boardHttp);
         bv = info.version;
@@ -147,9 +143,7 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
 
     final String? boardVerOut;
     final bool? otaSupOut;
-    if (!skipBoardHttpFetch &&
-        boardHttp != null &&
-        boardHttp.isNotEmpty) {
+    if (!skipBoardHttpFetch && boardHttp != null && boardHttp.isNotEmpty) {
       boardVerOut = bv;
       otaSupOut = otaSup;
     } else if (skipBoardHttpFetch && afterBleOtaAssumeBoardMatchesManifest) {

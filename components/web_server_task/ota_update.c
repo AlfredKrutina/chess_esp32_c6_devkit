@@ -94,6 +94,9 @@ static esp_timer_handle_t s_ble_ota_suspend_timer;
 #define BLE_OTA_MAGIC0 ((uint8_t)'O')
 #define BLE_OTA_MAGIC1 ((uint8_t)'B')
 
+/** Max tělo POST `/api/system/ota` (JSON + dlouhé HTTPS URL). */
+#define OTA_HTTP_POST_BODY_CAP 4096
+
 static void ble_ota_suspend_timer_cancel(void) {
   if (s_ble_ota_suspend_timer != NULL) {
     esp_timer_stop(s_ble_ota_suspend_timer);
@@ -571,15 +574,38 @@ static esp_err_t http_post_ota(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  char body[1536];
-  int rlen = httpd_req_recv(req, body, sizeof(body) - 1);
-  if (rlen <= 0) {
+  if (req->content_len > 0 &&
+      req->content_len > (OTA_HTTP_POST_BODY_CAP - 1)) {
+    httpd_resp_set_status(req, "413 Payload Too Large");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"body_too_large\"}", -1);
+    return ESP_OK;
+  }
+
+  char body[OTA_HTTP_POST_BODY_CAP];
+  size_t off = 0;
+  while (off < sizeof(body) - 1) {
+    int rlen =
+        httpd_req_recv(req, body + off, (size_t)(sizeof(body) - 1 - off));
+    if (rlen < 0) {
+      httpd_resp_set_status(req, "500 Internal Server Error");
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send(req, "{\"ok\":false,\"error\":\"recv_failed\"}", -1);
+      return ESP_OK;
+    }
+    if (rlen == 0) {
+      break;
+    }
+    off += (size_t)rlen;
+  }
+  body[off] = '\0';
+
+  if (off == 0) {
     httpd_resp_set_status(req, "400 Bad Request");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_send(req, "{\"ok\":false,\"error\":\"empty_body\"}", -1);
     return ESP_OK;
   }
-  body[rlen] = '\0';
 
   cJSON *root = cJSON_Parse(body);
   if (root == NULL) {

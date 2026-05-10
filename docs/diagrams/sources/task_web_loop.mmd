@@ -1,10 +1,11 @@
-%% web_server_task_start — WiFi AP/STA + HTTP server
+%% web_server_task_start — WiFi AP+STA nebo STA-only + HTTP server (hotspot desky jen pokud je v NVS zapnutý)
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TD
   START([web_server_task_start]) --> WDT[WDT]
   WDT --> LOCK[web_lock z NVS]
-  LOCK --> WIFI[wifi_init_apsta · případně STA z NVS]
-  WIFI --> HTTP[start_http_server — handler registrace]
+  LOCK --> WIFI[wifi_init_apsta · AP+STA nebo STA-only dle NVS]
+  WIFI --> READY[prodleva · volitelně wifi_connect_sta z NVS]
+  READY --> HTTP[start_http_server — handler registrace]
   HTTP --> RUN[task_running — watchdog smyčka / retry HTTP]
 
   subgraph EP["Handler zjednodušeně"]

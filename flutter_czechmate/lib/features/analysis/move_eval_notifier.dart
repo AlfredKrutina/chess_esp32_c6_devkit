@@ -7,6 +7,7 @@ import '../../core/analysis/move_evaluation.dart';
 import '../../core/localization/locale_bridge.dart';
 import '../../core/models/game_snapshot.dart';
 import '../../core/utils/fen_from_board.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
@@ -166,7 +167,7 @@ class MoveEvalNotifier extends StateNotifier<MoveEvalState> {
       if (gen != _taskGen) return;
       final l10n = appStringsForPrefs(_ref.read(prefsRepositoryProvider));
       state = state.copyWith(
-        lastMessage: l10n.moveEvalFailed('$e'),
+        lastMessage: l10n.moveEvalFailed(userFacingErrorSummary(l10n, e)),
         lastGrade: MoveGrade.error,
         lastBusy: false,
       );

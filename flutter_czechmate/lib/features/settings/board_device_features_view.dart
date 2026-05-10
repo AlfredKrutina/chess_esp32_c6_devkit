@@ -6,6 +6,7 @@ import '../../../core/localization/context_l10n.dart';
 import '../../../core/localization/locale_bridge.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/board_http_base_url.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import 'board_settings_error_message.dart';
 import '../../../core/models/status_models.dart';
 import '../connection/board_session_notifier.dart';
@@ -15,12 +16,15 @@ class BoardDeviceFeaturesView extends ConsumerStatefulWidget {
   const BoardDeviceFeaturesView({super.key});
 
   @override
-  ConsumerState<BoardDeviceFeaturesView> createState() => _BoardDeviceFeaturesViewState();
+  ConsumerState<BoardDeviceFeaturesView> createState() =>
+      _BoardDeviceFeaturesViewState();
 }
 
-class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesView> {
+class _BoardDeviceFeaturesViewState
+    extends ConsumerState<BoardDeviceFeaturesView> {
   BoardUISettingsEnvelope? _settings;
   bool _isLoading = false;
+
   /// Proč se NVS blob nenačetl (HTTP URL, BLE bez LAN, …) — ne „deska odpojená“ kvůli špatné diagnostice.
   String? _emptyStateDetail;
 
@@ -33,7 +37,8 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
   String _botFooterText(AppLocalizations l) {
     final session = ref.watch(boardSessionNotifierProvider);
     final mock = ref.watch(prefsRepositoryProvider).useMockBoard;
-    final wifiCmd = session.transport == BoardTransport.wifi && session.wifiBaseUrl != null;
+    final wifiCmd =
+        session.transport == BoardTransport.wifi && session.wifiBaseUrl != null;
     if (mock) {
       return l.boardNvsFooterMock;
     }
@@ -46,7 +51,8 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
     return l.boardNvsFooterGeneric;
   }
 
-  String _httpUnavailableExplanation(AppLocalizations l, BoardSessionState session) {
+  String _httpUnavailableExplanation(
+      AppLocalizations l, BoardSessionState session) {
     if (session.transport == BoardTransport.ble && session.bleGattConnected) {
       return l.boardNvsHttpBleExplain;
     }
@@ -79,13 +85,15 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
     if (mounted) setState(() => _emptyStateDetail = null);
     setState(() => _isLoading = true);
     try {
-      final env = await ref.read(boardApiClientProvider).fetchBoardUISettings(baseUrl);
+      final env =
+          await ref.read(boardApiClientProvider).fetchBoardUISettings(baseUrl);
       if (mounted) setState(() => _settings = env);
     } catch (e) {
       if (mounted) {
         final msg = boardHttpSettingsUserMessage(strings, e, session);
         setState(() => _emptyStateDetail = msg);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(msg)));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -115,7 +123,9 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
           'chessEvaluateMove': phone.moveEvaluationEnabled,
         }),
       );
-      await ref.read(boardApiClientProvider).postBoardUISettings(baseUrl, merged);
+      await ref
+          .read(boardApiClientProvider)
+          .postBoardUISettings(baseUrl, merged);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(strings.boardNvsSavedSnack)),
@@ -176,7 +186,8 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                     ),
                     const SizedBox(height: 12),
                     Text(l10n.boardNvsLedHeader,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
                     SwitchListTile(
                       title: Text(l10n.boardNvsEvalMode),
@@ -184,9 +195,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessEvaluateMove': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessEvaluateMove': v
+                              }));
                         });
                       },
                     ),
@@ -194,14 +207,18 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       title: Text(l10n.boardNvsStockfishDepth),
                       trailing: Text('${_settings!.prefs.chessHintDepth}'),
                       subtitle: Slider(
-                        min: 1, max: 18, divisions: 17,
+                        min: 1,
+                        max: 18,
+                        divisions: 17,
                         value: _settings!.prefs.chessHintDepth.toDouble(),
                         onChanged: (v) {
                           setState(() {
                             _settings = BoardUISettingsEnvelope(
-                              version: _settings!.version,
-                              prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessHintDepth': v.round()})
-                            );
+                                version: _settings!.version,
+                                prefs: BoardUIPrefsPayload.fromJson({
+                                  ..._settings!.prefs.toJson(),
+                                  'chessHintDepth': v.round()
+                                }));
                           });
                         },
                       ),
@@ -212,9 +229,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessHintAwardBest': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessHintAwardBest': v
+                              }));
                         });
                       },
                     ),
@@ -224,9 +243,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessHintAwardGood': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessHintAwardGood': v
+                              }));
                         });
                       },
                     ),
@@ -236,9 +257,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessHintAwardCapture': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessHintAwardCapture': v
+                              }));
                         });
                       },
                     ),
@@ -248,9 +271,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessShowHintStats': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessShowHintStats': v
+                              }));
                         });
                       },
                     ),
@@ -260,9 +285,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessBotLedTargetOnlyAfterLift': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessBotLedTargetOnlyAfterLift': v
+                              }));
                         });
                       },
                     ),
@@ -272,9 +299,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessTutorialsEnabled': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessTutorialsEnabled': v
+                              }));
                         });
                       },
                     ),
@@ -284,9 +313,11 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       onChanged: (v) {
                         setState(() {
                           _settings = BoardUISettingsEnvelope(
-                            version: _settings!.version,
-                            prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chess_confirm_new_game': v})
-                          );
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chess_confirm_new_game': v
+                              }));
                         });
                       },
                     ),
@@ -294,14 +325,18 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       title: Text(l10n.boardNvsHintLimit),
                       trailing: Text('${_settings!.prefs.chessHintLimit}'),
                       subtitle: Slider(
-                        min: 0, max: 99, divisions: 99,
+                        min: 0,
+                        max: 99,
+                        divisions: 99,
                         value: _settings!.prefs.chessHintLimit.toDouble(),
                         onChanged: (v) {
                           setState(() {
                             _settings = BoardUISettingsEnvelope(
-                              version: _settings!.version,
-                              prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'chessHintLimit': v.round()})
-                            );
+                                version: _settings!.version,
+                                prefs: BoardUIPrefsPayload.fromJson({
+                                  ..._settings!.prefs.toJson(),
+                                  'chessHintLimit': v.round()
+                                }));
                           });
                         },
                       ),
@@ -312,16 +347,22 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.moveHintTier,
                         items: [
-                          DropdownMenuItem(value: 'H1', child: Text(l10n.boardNvsH1)),
-                          DropdownMenuItem(value: 'H2', child: Text(l10n.boardNvsH2)),
-                          DropdownMenuItem(value: 'H3', child: Text(l10n.boardNvsH3)),
+                          DropdownMenuItem(
+                              value: 'H1', child: Text(l10n.boardNvsH1)),
+                          DropdownMenuItem(
+                              value: 'H2', child: Text(l10n.boardNvsH2)),
+                          DropdownMenuItem(
+                              value: 'H3', child: Text(l10n.boardNvsH3)),
                         ],
                         onChanged: (v) {
                           if (v == null) return;
                           setState(() {
                             _settings = BoardUISettingsEnvelope(
                               version: _settings!.version,
-                              prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'moveHintTier': v}),
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'moveHintTier': v
+                              }),
                             );
                           });
                         },
@@ -336,29 +377,39 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                     ),
                     const SizedBox(height: 8),
                     // LED Guidance level (1-5) — direct POST to /api/settings/led_guidance
-                    _LedGuidanceSection(baseUrlGetter: () => ref.read(prefsRepositoryProvider).lastBoardBaseUrl),
+                    _LedGuidanceSection(
+                        baseUrlGetter: () =>
+                            ref.read(prefsRepositoryProvider).lastBoardBaseUrl),
                     // Guided capture — direct POST to /api/settings/guided_hints
-                    _GuidedCaptureSection(baseUrlGetter: () => ref.read(prefsRepositoryProvider).lastBoardBaseUrl),
+                    _GuidedCaptureSection(
+                        baseUrlGetter: () =>
+                            ref.read(prefsRepositoryProvider).lastBoardBaseUrl),
                     const Divider(height: 32),
                     Text(l10n.boardNvsOpponentHeader,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     ListTile(
                       title: Text(l10n.boardNvsBotMode),
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.botSettings.mode,
                         items: [
-                          DropdownMenuItem(value: 'pvp', child: Text(l10n.boardNvsPvp)),
-                          DropdownMenuItem(value: 'bot', child: Text(l10n.boardNvsPvb)),
+                          DropdownMenuItem(
+                              value: 'pvp', child: Text(l10n.boardNvsPvp)),
+                          DropdownMenuItem(
+                              value: 'bot', child: Text(l10n.boardNvsPvb)),
                         ],
                         onChanged: (v) {
                           if (v == null) return;
                           setState(() {
-                            final botmap = _settings!.prefs.botSettings.toJson();
+                            final botmap =
+                                _settings!.prefs.botSettings.toJson();
                             botmap['mode'] = v;
                             _settings = BoardUISettingsEnvelope(
-                              version: _settings!.version,
-                              prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'botSettings': botmap})
-                            );
+                                version: _settings!.version,
+                                prefs: BoardUIPrefsPayload.fromJson({
+                                  ..._settings!.prefs.toJson(),
+                                  'botSettings': botmap
+                                }));
                           });
                         },
                       ),
@@ -367,18 +418,22 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       title: Text(l10n.boardNvsBotStrength),
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.botSettings.strength,
-                        items: ['6','8','10','12','14','16'].map((lvl) => 
-                           DropdownMenuItem(value: lvl, child: Text(lvl))
-                        ).toList(),
+                        items: ['6', '8', '10', '12', '14', '16']
+                            .map((lvl) =>
+                                DropdownMenuItem(value: lvl, child: Text(lvl)))
+                            .toList(),
                         onChanged: (v) {
                           if (v == null) return;
                           setState(() {
-                            final botmap = _settings!.prefs.botSettings.toJson();
+                            final botmap =
+                                _settings!.prefs.botSettings.toJson();
                             botmap['strength'] = v;
                             _settings = BoardUISettingsEnvelope(
-                              version: _settings!.version,
-                              prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'botSettings': botmap})
-                            );
+                                version: _settings!.version,
+                                prefs: BoardUIPrefsPayload.fromJson({
+                                  ..._settings!.prefs.toJson(),
+                                  'botSettings': botmap
+                                }));
                           });
                         },
                       ),
@@ -388,18 +443,23 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                       trailing: DropdownButton<String>(
                         value: _settings!.prefs.botSettings.side,
                         items: [
-                          DropdownMenuItem(value: 'white', child: Text(l10n.colorWhite)),
-                          DropdownMenuItem(value: 'black', child: Text(l10n.colorBlack)),
+                          DropdownMenuItem(
+                              value: 'white', child: Text(l10n.colorWhite)),
+                          DropdownMenuItem(
+                              value: 'black', child: Text(l10n.colorBlack)),
                         ],
                         onChanged: (v) {
                           if (v == null) return;
                           setState(() {
-                            final botmap = _settings!.prefs.botSettings.toJson();
+                            final botmap =
+                                _settings!.prefs.botSettings.toJson();
                             botmap['side'] = v;
                             _settings = BoardUISettingsEnvelope(
-                              version: _settings!.version,
-                              prefs: BoardUIPrefsPayload.fromJson({..._settings!.prefs.toJson(), 'botSettings': botmap})
-                            );
+                                version: _settings!.version,
+                                prefs: BoardUIPrefsPayload.fromJson({
+                                  ..._settings!.prefs.toJson(),
+                                  'botSettings': botmap
+                                }));
                           });
                         },
                       ),
@@ -413,12 +473,19 @@ class _BoardDeviceFeaturesViewState extends ConsumerState<BoardDeviceFeaturesVie
                     ),
                     const Divider(height: 32),
                     Text(l10n.boardNvsDemoHeader,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const _DemoNvsSection(),
                     const SizedBox(height: 24),
                     FilledButton.icon(
                       onPressed: _isLoading ? null : _save,
-                      icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.upload),
+                      icon: _isLoading
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.upload),
                       label: Text(l10n.boardNvsSaveToBoard),
                     )
                   ],
@@ -484,7 +551,12 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
       await fn(u);
       await _refresh();
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        final l10n = context.l10n;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(userFacingErrorSummary(l10n, e))),
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -519,16 +591,20 @@ class _DemoNvsSectionState extends ConsumerState<_DemoNvsSection> {
         FilledButton.tonal(
           onPressed: _busy
               ? null
-              : () => _run((u) => ref.read(boardApiClientProvider).postDemoConfig(
-                    u,
-                    enabled: _enabled,
-                    speedMs: _speedMs.round(),
-                  )),
+              : () =>
+                  _run((u) => ref.read(boardApiClientProvider).postDemoConfig(
+                        u,
+                        enabled: _enabled,
+                        speedMs: _speedMs.round(),
+                      )),
           child: Text(l10n.boardDemoSendConfig),
         ),
         const SizedBox(height: 8),
         OutlinedButton(
-          onPressed: _busy ? null : () => _run((u) => ref.read(boardApiClientProvider).postDemoStart(u)),
+          onPressed: _busy
+              ? null
+              : () => _run(
+                  (u) => ref.read(boardApiClientProvider).postDemoStart(u)),
           child: Text(l10n.boardDemoStart),
         ),
       ],
@@ -543,7 +619,8 @@ class _LedGuidanceSection extends ConsumerStatefulWidget {
   final String? Function() baseUrlGetter;
 
   @override
-  ConsumerState<_LedGuidanceSection> createState() => _LedGuidanceSectionState();
+  ConsumerState<_LedGuidanceSection> createState() =>
+      _LedGuidanceSectionState();
 }
 
 class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
@@ -589,7 +666,9 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
     }
     setState(() => _busy = true);
     try {
-      await ref.read(boardApiClientProvider).postLedGuidanceLevel(baseUrl, _level);
+      await ref
+          .read(boardApiClientProvider)
+          .postLedGuidanceLevel(baseUrl, _level);
       if (mounted) {
         final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -600,7 +679,8 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
       if (mounted) {
         final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
+          SnackBar(
+              content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
         );
       }
     } finally {
@@ -620,7 +700,9 @@ class _LedGuidanceSectionState extends ConsumerState<_LedGuidanceSection> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         Slider(
-          min: 1, max: 5, divisions: 4,
+          min: 1,
+          max: 5,
+          divisions: 4,
           value: _level.toDouble(),
           label: _level.toString(),
           onChanged: (v) => setState(() => _level = v.round()),
@@ -641,7 +723,8 @@ class _GuidedCaptureSection extends ConsumerStatefulWidget {
   final String? Function() baseUrlGetter;
 
   @override
-  ConsumerState<_GuidedCaptureSection> createState() => _GuidedCaptureSectionState();
+  ConsumerState<_GuidedCaptureSection> createState() =>
+      _GuidedCaptureSectionState();
 }
 
 class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
@@ -684,14 +767,18 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
       }
       return;
     }
-    setState(() { _enabled = v; _busy = true; });
+    setState(() {
+      _enabled = v;
+      _busy = true;
+    });
     try {
       await ref.read(boardApiClientProvider).postGuidedCaptureHints(baseUrl, v);
     } catch (e) {
       if (mounted) {
         final l10n = context.l10n;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
+          SnackBar(
+              content: Text(boardHttpSettingsUserMessage(l10n, e, session))),
         );
       }
       setState(() => _enabled = !v);
@@ -711,4 +798,3 @@ class _GuidedCaptureSectionState extends ConsumerState<_GuidedCaptureSection> {
     );
   }
 }
-

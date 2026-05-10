@@ -30,6 +30,9 @@ class LiveActivitySessionListener extends ConsumerWidget {
       enabled: prefs.liveActivityEnabled,
     );
 
+    final homeWidget = ref.read(boardHomeWidgetSyncProvider);
+    await homeWidget.syncPayload(live.extensionPayload(next));
+
     final mirrorCompanion = (!kIsWeb &&
             defaultTargetPlatform == TargetPlatform.iOS &&
             prefs.watchCompanionMirrorEnabled) ||

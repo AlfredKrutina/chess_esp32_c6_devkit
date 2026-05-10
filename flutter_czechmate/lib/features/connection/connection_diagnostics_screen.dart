@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/localization/context_l10n.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import 'board_session_notifier.dart';
 
 /// Parita `AdvancedConnectionDiagnosticsView` — REST poll / WS souhrn.
@@ -27,8 +28,8 @@ class ConnectionDiagnosticsScreen extends ConsumerWidget {
           ),
           ListTile(
             title: Text(l10n.connDiagPolling),
-            subtitle: Text(
-                s.pollingActive ? l10n.connDiagActive : l10n.connDiagOff),
+            subtitle:
+                Text(s.pollingActive ? l10n.connDiagActive : l10n.connDiagOff),
           ),
           ListTile(
             title: Text(l10n.connDiagWebSocket),
@@ -57,7 +58,7 @@ class ConnectionDiagnosticsScreen extends ConsumerWidget {
           if (s.lastError != null)
             ListTile(
               title: Text(l10n.connDiagLastErrorTitle),
-              subtitle: Text('${s.lastError}'),
+              subtitle: Text(userFacingErrorSummary(l10n, s.lastError)),
               textColor: Theme.of(context).colorScheme.error,
             ),
         ],

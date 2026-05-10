@@ -225,7 +225,8 @@ sequenceDiagram
     M->>WT: xTaskCreate(web_server_task, P3, 20KB)
     activate WT
     WT->>WT: web_server_task_start()
-    WT->>HW: wifi_init_apsta() - WiFi AP setup (SSID: ESP32-CzechMate)
+    WT->>HW: wifi_init_apsta() — AP+STA nebo STA-only (uživatelský hotspot jen pokud je v NVS zapnutý)
+    WT->>WT: prodleva + volitelný wifi_connect_sta() z NVS
     WT->>WT: start_http_server() - HTTP server init, URI handlers
     WT->>WDT: esp_task_wdt_add(NULL)
     deactivate WT

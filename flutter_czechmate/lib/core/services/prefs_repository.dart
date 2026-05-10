@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../constants/app_environment.dart';
 import '../constants/firmware_defaults.dart';
+import '../utils/wifi_ip_third_octet_blocklist.dart';
 import '../models/chart_palette.dart';
 import '../models/coach_ai_provider.dart';
 import '../models/coach_llm_backend.dart';
@@ -32,6 +36,12 @@ class PrefsRepository {
   static const keyCoachOllamaBase = 'czechmate.coach.ollamaBaseUrl';
   static const keyCoachOllamaModel = 'czechmate.coach.ollamaModel';
   static const keyConnectionMode = 'czechmate.connectionMode';
+  /// Jednorázově vynutí `wifi_only` / `ble_only` pro příští pokus o připojení; po dokončení
+  /// `connectWifi` / `connectBle` / `connectMock` se smaže v `BoardSessionNotifier`.
+  static const keyNextConnectionTransportOnce =
+      'czechmate.nextConnectionTransportOnce';
+  /// CSV třetích oktetů IPv4 k zamítnutí pro Wi‑Fi URL (`88` → `x.x.88.x`). Klíč chybí → výchozí `{88}`.
+  static const keyWifiBlockedThirdOctets = 'czechmate.wifiBlockedThirdOctets';
   static const keyLastBleId = 'czechmate.lastBleRemoteId';
   static const keyPreferBluetoothOnly = 'czechmate.preferBluetoothOnly';
   static const keyHintDepth = 'czechmate.hintDepth';
@@ -95,6 +105,45 @@ class PrefsRepository {
     } else {
       await _p.setString(keyBaseUrl, v);
     }
+  }
+
+  /// Aktivní množina blokovaných 3. oktetů; klíč v prefs chybí → `{88}`.
+  Set<int> get wifiBlockedThirdOctets {
+    if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
+      return {88};
+    }
+    final raw = _p.getString(keyWifiBlockedThirdOctets) ?? '';
+    return parseWifiBlockedThirdOctetsCsv(raw);
+  }
+
+  /// Text do pole v Pokročilém připojení (prázdný řetězec = uživatel vypnul filtr).
+  String wifiBlockedThirdOctetsEditingText() {
+    if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
+      return '88';
+    }
+    return _p.getString(keyWifiBlockedThirdOctets) ?? '';
+  }
+
+  /// Uloží CSV z UI; prázdný řetězec = žádné blokování (klíč zůstane s prázdnou hodnotou).
+  Future<void> setWifiBlockedThirdOctetsFromUi(String csv) async {
+    final t = csv.trim();
+    if (!_p.containsKey(keyWifiBlockedThirdOctets) && t == '88') {
+      return;
+    }
+    await _p.setString(keyWifiBlockedThirdOctets, t);
+  }
+
+  /// Odstraní klíč → opět výchozí blokace oktetu 88.
+  Future<void> clearWifiBlockedThirdOctetsToDefault() async {
+    await _p.remove(keyWifiBlockedThirdOctets);
+  }
+
+  /// CSV pro BLE příkaz `wifi_sta_ip_block` na desce — dokud uživatel nic neuložil, `88`.
+  String wifiStaIpBlockCsvForBle() {
+    if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
+      return '88';
+    }
+    return _p.getString(keyWifiBlockedThirdOctets) ?? '';
   }
 
   String? get boardApiToken => _p.getString(keyBoardApiToken);
@@ -279,8 +328,72 @@ class PrefsRepository {
     }
   }
 
-  String get connectionMode => _p.getString(keyConnectionMode) ?? 'auto';
-  Future<void> setConnectionMode(String mode) => _p.setString(keyConnectionMode, mode);
+  /// Uložený základní režim (`auto` po [migrateLegacyConnectionModeToAutoIfNeeded]).
+  ///
+  /// Pro rozhodování při připojení používej [effectiveConnectionMode] — zohlední
+  /// jednorázový přepis [nextConnectionTransportOnce].
+  ///
+  /// Starý příznak [keyPreferBluetoothOnly] se bere v úvahu jen pokud není uložen
+  /// platný řetězec v [keyConnectionMode] — pak se mapuje na `ble_only`.
+  String get connectionMode {
+    final raw = _p.getString(keyConnectionMode)?.trim();
+    if (raw != null &&
+        (raw == 'wifi_only' || raw == 'ble_only' || raw == 'auto')) {
+      return raw;
+    }
+    if (_p.getBool(keyPreferBluetoothOnly) ?? false) {
+      return 'ble_only';
+    }
+    return 'auto';
+  }
+
+  /// `wifi_only` | `ble_only` | null — jen příští pokus o připojení (pak se smaže).
+  String? get nextConnectionTransportOnce {
+    final v = _p.getString(keyNextConnectionTransportOnce)?.trim();
+    if (v == 'wifi_only' || v == 'ble_only') return v;
+    return null;
+  }
+
+  Future<void> setNextConnectionTransportOnce(String? mode) async {
+    final m = mode?.trim();
+    if (m == null || m.isEmpty) {
+      await _p.remove(keyNextConnectionTransportOnce);
+      return;
+    }
+    if (m == 'wifi_only' || m == 'ble_only') {
+      await _p.setString(keyNextConnectionTransportOnce, m);
+    } else {
+      await _p.remove(keyNextConnectionTransportOnce);
+    }
+  }
+
+  /// Reálný režim pro připojení: jednorázový přepis má přednost, jinak vždy `auto`.
+  String get effectiveConnectionMode =>
+      nextConnectionTransportOnce ?? 'auto';
+
+  /// Staré trvalé `wifi_only` / `ble_only` převede na `auto`; uživatele tak nic „nezasekne“.
+  Future<void> migrateLegacyConnectionModeToAutoIfNeeded() async {
+    final raw = _p.getString(keyConnectionMode)?.trim();
+    final legacyBleFlag = _p.getBool(keyPreferBluetoothOnly) ?? false;
+    final restricted = raw == 'wifi_only' ||
+        raw == 'ble_only' ||
+        (raw == null && legacyBleFlag);
+    if (!restricted) return;
+    await _p.setString(keyConnectionMode, 'auto');
+    await _p.setBool(keyPreferBluetoothOnly, false);
+  }
+
+  Future<void> setConnectionMode(String mode) async {
+    final m = mode == 'wifi_only' || mode == 'ble_only' || mode == 'auto'
+        ? mode
+        : 'auto';
+    final prev = connectionMode;
+    await _p.setString(keyConnectionMode, m);
+    await _p.setBool(keyPreferBluetoothOnly, false);
+    if (prev != m && AppEnvironment.staging) {
+      debugPrint('[staging] connectionMode: $prev → $m');
+    }
+  }
 
   String? get lastBleRemoteId => _p.getString(keyLastBleId);
   Future<void> setLastBleRemoteId(String? v) async {
@@ -291,8 +404,16 @@ class PrefsRepository {
     }
   }
 
-  bool get preferBluetoothOnly => _p.getBool(keyPreferBluetoothOnly) ?? false;
-  Future<void> setPreferBluetoothOnly(bool v) => _p.setBool(keyPreferBluetoothOnly, v);
+  /// Jednorázové vynucení jen BLE pro příští připojení.
+  bool get preferBluetoothOnly => effectiveConnectionMode == 'ble_only';
+
+  Future<void> setPreferBluetoothOnly(bool v) async {
+    if (v) {
+      await setNextConnectionTransportOnce('ble_only');
+    } else {
+      await setNextConnectionTransportOnce(null);
+    }
+  }
 
   // New parity getters/setters
   bool get boardFlipped => _p.getBool(keyBoardFlipped) ?? false;
@@ -664,5 +785,31 @@ class PrefsRepository {
       return chartPaletteCustom ?? ChartPaletteColors.neon;
     }
     return ChartPaletteColors.forPreset(preset, colorScheme);
+  }
+
+  /// Smaže lokální data aplikace: `SharedPreferences`, cache staženého firmwaru
+  /// (`ApplicationSupport/…/firmware_cache`). **Nemění** firmware ani nastavení na desce.
+  Future<void> factoryResetApplicationLocalState() async {
+    final legacyBin = firmwareCachedBinPath;
+    try {
+      final support = await getApplicationSupportDirectory();
+      final firmwareDir = Directory('${support.path}/firmware_cache');
+      if (await firmwareDir.exists()) {
+        await for (final entity in firmwareDir.list()) {
+          if (entity is File) {
+            try {
+              await entity.delete();
+            } catch (_) {}
+          }
+        }
+      }
+    } catch (_) {}
+    if (legacyBin != null && legacyBin.isNotEmpty) {
+      try {
+        final f = File(legacyBin);
+        if (await f.exists()) await f.delete();
+      } catch (_) {}
+    }
+    await _p.clear();
   }
 }

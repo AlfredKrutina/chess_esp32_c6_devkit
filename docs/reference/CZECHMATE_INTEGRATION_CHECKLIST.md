@@ -1,6 +1,6 @@
 # CzechMate — co kontroluju při integraci klienta
 
-- **Síť:** telefon a ESP ve stejné LAN (AP `ESP32-CzechMate` nebo STA); v appce base URL typicky `http://192.168.4.1` nebo STA IP desky.
+- **Síť:** telefon a ESP ve stejné LAN přes **STA** desky (domácí Wi‑Fi), nebo přes **hotspot desky** (`192.168.4.x`) — hotspot je ve výchozím stavu často **vypnutý** a zapíná se z aplikace přes BLE. Base URL v appce typicky `http://<STA_IP>` nebo `http://192.168.4.1` když je telefon na síti hotspotu.
 - **REST:** `GET /api/game/snapshot` vrací `state_version` a hlavičku `ETag`; s `If-None-Match` dostanu **304** bez těla.
 - **Jas:** `POST /api/settings/brightness` s `{"brightness":0…100}` — na iOS z `SettingsTabView` / `ChessboardAPIClient.postBrightness`.
 - **WebSocket:** `ws://<host>/ws`, stejný JSON jako snapshot; push při změně + watchdog ~3 s.

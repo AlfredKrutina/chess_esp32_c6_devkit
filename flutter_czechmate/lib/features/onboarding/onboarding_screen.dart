@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../app_providers.dart';
+import '../../core/widgets/pressable_scale.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -38,7 +39,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       (defaultTargetPlatform == TargetPlatform.iOS ||
           defaultTargetPlatform == TargetPlatform.android);
 
-  bool get _isAndroid => !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+  bool get _isAndroid =>
+      !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
 
   @override
   void initState() {
@@ -51,7 +53,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.didChangeDependencies();
     if (!_nameLoaded) {
       _nameLoaded = true;
-      final s = ref.read(prefsRepositoryProvider).profileDisplayNameStoredOrNull;
+      final s =
+          ref.read(prefsRepositoryProvider).profileDisplayNameStoredOrNull;
       if (s != null && s.isNotEmpty) {
         _nameCtrl.text = s;
       }
@@ -98,7 +101,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ];
 
   Future<void> _persistName() async {
-    await ref.read(prefsRepositoryProvider).setProfileDisplayName(_nameCtrl.text);
+    await ref
+        .read(prefsRepositoryProvider)
+        .setProfileDisplayName(_nameCtrl.text);
     ref.invalidate(prefsRepositoryProvider);
   }
 
@@ -211,36 +216,47 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _buildNameStep(AppLocalizations l10n, ThemeData theme) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.person_outline, size: 88, color: theme.colorScheme.primary),
-        const SizedBox(height: 24),
-        Text(
-          l10n.onboardingYourNameTitle,
-          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          l10n.onboardingYourNameSubtitle,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.person_outline,
+                    size: 88, color: theme.colorScheme.primary),
+                const SizedBox(height: 24),
+                Text(
+                  l10n.onboardingYourNameTitle,
+                  style: theme.textTheme.headlineSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.onboardingYourNameSubtitle,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                TextField(
+                  controller: _nameCtrl,
+                  textInputAction: TextInputAction.done,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: l10n.onboardingNameHint,
+                    border: const OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => unawaited(_next()),
+                ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 28),
-        TextField(
-          controller: _nameCtrl,
-          textInputAction: TextInputAction.done,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            labelText: l10n.onboardingNameHint,
-            border: const OutlineInputBorder(),
-          ),
-          onSubmitted: (_) => unawaited(_next()),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -249,11 +265,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(Icons.shield_outlined, size: 72, color: theme.colorScheme.primary),
+          Icon(Icons.shield_outlined,
+              size: 72, color: theme.colorScheme.primary),
           const SizedBox(height: 16),
           Text(
             l10n.onboardingPermissionsTitle,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -315,7 +333,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 grantedLabel: null,
                 infoOnly: true,
               ),
-          ]           else
+          ] else
             Text(
               l10n.onboardingPermissionsDesktopBody,
               textAlign: TextAlign.center,
@@ -342,23 +360,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       body = _buildPermissionsStep(l10n, theme);
     } else {
       final slide = intros[introIndex.clamp(0, intros.length - 1)];
-      body = Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(slide.icon, size: 100, color: slide.iconColor),
-          const SizedBox(height: 32),
-          Text(
-            slide.title,
-            style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            slide.body,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge,
-          ),
-        ],
+      body = LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(slide.icon, size: 100, color: slide.iconColor),
+                  const SizedBox(height: 32),
+                  Text(
+                    slide.title,
+                    style: theme.textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    slide.body,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
       );
     }
 
@@ -402,10 +430,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
-                  onPressed: () => unawaited(_next()),
-                  style: FilledButton.styleFrom(padding: const EdgeInsets.all(16)),
-                  child: Text(lastStep ? l10n.onboardingStart : l10n.onboardingNext),
+                child: PressableScale(
+                  child: FilledButton(
+                    onPressed: () => unawaited(_next()),
+                    style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.all(16)),
+                    child: Text(
+                        lastStep ? l10n.onboardingStart : l10n.onboardingNext),
+                  ),
                 ),
               ),
             ],

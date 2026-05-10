@@ -10,6 +10,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../app_providers.dart';
 import '../../core/constants/app_environment.dart';
+import '../../core/debug/connection_debug_log.dart';
 import '../../core/localization/locale_bridge.dart';
 import '../../core/models/board_timer_state.dart';
 import '../../core/models/game_snapshot.dart';
@@ -21,6 +22,7 @@ import '../../core/services/mock_board_simulator.dart';
 import '../../core/services/prefs_repository.dart';
 import '../../core/services/web_socket_manager.dart';
 import '../../core/utils/board_http_base_url.dart';
+import '../../core/utils/wifi_ip_third_octet_blocklist.dart';
 import '../../core/utils/game_snapshot_codec.dart';
 import '../../l10n/app_localizations.dart';
 import 'board_session_state.dart';
@@ -30,15 +32,17 @@ final boardSessionNotifierProvider =
   return BoardSessionNotifier(
     ref.read(boardApiClientProvider),
     ref.read(prefsRepositoryProvider),
+    ref,
   );
 });
 
 class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
-  BoardSessionNotifier(this._api, this._prefs)
+  BoardSessionNotifier(this._api, this._prefs, this._ref)
       : super(const BoardSessionState());
 
   final BoardApiClient _api;
   final PrefsRepository _prefs;
+  final Ref _ref;
 
   AppLocalizations get _strings => appStringsForPrefs(_prefs);
 
@@ -48,14 +52,23 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Timer? _bleHandoffTimer;
   bool _bleHandoffPollInFlight = false;
   int _bleHandoffPollCount = 0;
+  /// Po čerstvém BLE spojení nejdřív nepřepínat na Wi‑Fi (`connectWifi` by GATT zabilo).
+  DateTime? _bleAutoHandoffNotBefore;
   final SnapshotWebSocketClient _ws = SnapshotWebSocketClient();
   final BleCzechmateClient _ble = BleCzechmateClient();
+
+  bool _tryResumeFromPrefsInFlight = false;
 
   /// Po přechodu do konce partie jednou pošleme `timer_pause`, aby čas na desce nestál „v běhu“.
   bool _pauseTimerSentForFinishedGame = false;
 
+  Future<void> _setupTutorialMutexTail = Future<void>.value();
+  DateTime? _lastPostHintDestBleAt;
+  String? _lastPostHintDestBleSquare;
+
   @override
   void dispose() {
+    _clearBleHandoffCooldown();
     _stopMockClock();
     _stopBleHandoffTimer();
     _stopWifiTransport();
@@ -68,6 +81,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     _bleHandoffTimer = null;
     _bleHandoffPollInFlight = false;
     _bleHandoffPollCount = 0;
+  }
+
+  void _clearBleHandoffCooldown() {
+    _bleAutoHandoffNotBefore = null;
+  }
+
+  Future<void> _delayedSyncWifiStaIpBlockToBoard() async {
+    await Future<void>.delayed(const Duration(seconds: 3));
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      return;
+    }
+    await syncWifiStaIpBlockToBoardIfBle();
   }
 
   /// Telefon má IPv4 na subnetu AP desky (typicky `192.168.4.x` při hotspotu).
@@ -85,9 +110,16 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return false;
   }
 
+  void _clearNextConnectionTransportOnce() {
+    if (_prefs.nextConnectionTransportOnce == null) return;
+    unawaited(_prefs.setNextConnectionTransportOnce(null).then((_) {
+      _ref.read(connectionModeUiRefreshProvider.notifier).state++;
+    }));
+  }
+
   void _startBleHandoffRetry() {
     _stopBleHandoffTimer();
-    if (_prefs.preferBluetoothOnly || _prefs.connectionMode == 'ble_only') {
+    if (_prefs.effectiveConnectionMode == 'ble_only') {
       return;
     }
     _bleHandoffPollCount = 0;
@@ -104,7 +136,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       return;
     }
     _bleHandoffPollCount++;
-    if (_bleHandoffPollCount > 28) {
+    if (_bleHandoffPollCount > 40) {
       _stopBleHandoffTimer();
       return;
     }
@@ -120,12 +152,56 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> tryResumeFromPrefs() async {
+    if (_tryResumeFromPrefsInFlight) return;
+    _tryResumeFromPrefsInFlight = true;
+    try {
+      await _tryResumeFromPrefsBody();
+    } finally {
+      _tryResumeFromPrefsInFlight = false;
+    }
+  }
+
+  Future<void> _tryResumeFromPrefsBody() async {
     if (_prefs.useMockBoard) {
       await connectMock();
       return;
     }
-    final mode = _prefs.connectionMode;
-    final preferBleOnly = _prefs.preferBluetoothOnly || mode == 'ble_only';
+    await _runResumeTransportAttemptsOnce();
+    if (_prefs.useMockBoard) return;
+    if (state.busy || _resumeHasWorkingTransport()) return;
+
+    final savedBle = _prefs.lastBleRemoteId;
+    final hasSavedBle = savedBle != null && savedBle.isNotEmpty;
+    final url = _prefs.lastBoardBaseUrl?.trim();
+    final hasWifiUrl = url != null && url.isNotEmpty;
+    if (!hasSavedBle && !hasWifiUrl) return;
+
+    if (AppEnvironment.staging || kDebugMode) {
+      debugPrint(
+        '[staging] resume: druhý pokus po prodlevě (stack BT/Wi‑Fi po probuzení)',
+      );
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 750));
+    if (state.busy || _resumeHasWorkingTransport()) return;
+    await _runResumeTransportAttemptsOnce();
+  }
+
+  /// Wifi aktivní polling nebo BLE GATT — bez „mrtvé“ větve po resume.
+  bool _resumeHasWorkingTransport() {
+    if (state.transport == BoardTransport.mock) return true;
+    if (state.busy) return false;
+    if (state.transport == BoardTransport.wifi) {
+      return state.pollingActive;
+    }
+    if (state.transport == BoardTransport.ble) {
+      return state.bleGattConnected;
+    }
+    return false;
+  }
+
+  Future<void> _runResumeTransportAttemptsOnce() async {
+    final mode = _prefs.effectiveConnectionMode;
+    final preferBleOnly = mode == 'ble_only';
     final wifiOnly = mode == 'wifi_only';
     final savedBle = _prefs.lastBleRemoteId;
     final hasSavedBle = savedBle != null && savedBle.isNotEmpty;
@@ -142,26 +218,60 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     Future<bool> tryWifi() async {
       final base = url;
       if (!hasWifiUrl || base == null) return false;
+      if (!wifiOnly &&
+          !await _phoneHasWifiInterface() &&
+          _savedBoardUrlLooksLikePrivateLan(base)) {
+        if (AppEnvironment.staging) {
+          debugPrint(
+            '[staging] resume: skip Wi‑Fi attempt (no Wi‑Fi link, saved URL is private LAN)',
+          );
+        }
+        return false;
+      }
       await connectWifi(base, webSocket: _prefs.useWebSocket);
       return state.transport == BoardTransport.wifi && !state.busy;
     }
+
+    bool bleReadyAfterWifi() =>
+        state.transport == BoardTransport.ble &&
+        state.bleGattConnected &&
+        !state.busy;
 
     if (preferBleOnly) {
       if (await tryBle()) return;
       if (!wifiOnly) {
         await tryWifi();
+        if (state.transport == BoardTransport.wifi && !state.busy) return;
+        if (bleReadyAfterWifi()) return;
       }
       return;
     }
 
     if (wifiOnly) {
       await tryWifi();
+      if (state.transport == BoardTransport.wifi && !state.busy) return;
+      if (bleReadyAfterWifi()) return;
+      await tryBle();
       return;
     }
 
     if (lastKind == 'bluetooth' && await tryBle()) return;
-    if (await tryWifi()) return;
+    await tryWifi();
+    if (state.transport == BoardTransport.wifi && !state.busy) return;
+    if (bleReadyAfterWifi()) return;
     await tryBle();
+  }
+
+  /// Rychlý GET snapshotu před `connectWifi` z BLE handoffu — bez úspěchu nesmíme zrušit funkční GATT.
+  Future<bool> _probeBoardHttpBeforeBleHandoff(String normalized) async {
+    try {
+      await _api
+          .fetchSnapshotIfChanged(normalized, ifNoneMatch: null)
+          .timeout(const Duration(seconds: 5));
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<bool> _phoneHasWifiInterface() async {
@@ -183,6 +293,24 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return true;
   }
 
+  bool _hostLooksLikePrivateLanIpv4(String host) {
+    if (!_looksLikeIPv4(host)) return false;
+    final p = host.trim().split('.');
+    final a = int.parse(p[0]);
+    final b = int.parse(p[1]);
+    if (a == 10) return true;
+    if (a == 172 && b >= 16 && b <= 31) return true;
+    if (a == 192 && b == 168) return true;
+    return false;
+  }
+
+  bool _savedBoardUrlLooksLikePrivateLan(String rawUrl) {
+    final norm = normalizeBoardHttpBaseUrl(rawUrl.trim());
+    if (norm == null) return false;
+    final host = Uri.tryParse(norm)?.host ?? '';
+    return _hostLooksLikePrivateLanIpv4(host);
+  }
+
   /// Uloží `http://<sta_ip>` při online STA, nebo `http://<ap_ip>` jen když je telefon na subnetu AP
   /// (jinak by domácí Wi‑Fi uložila 192.168.4.1 a HTTP by timeoutovalo).
   Future<void> _persistBoardHttpUrlFromBle(BleNetworkInfo? info) async {
@@ -191,7 +319,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     String? raw;
     if (info.online == true) {
       final sta = info.staIp;
-      if (sta != null && _looksLikeIPv4(sta)) {
+      if (sta != null &&
+          _looksLikeIPv4(sta) &&
+          !wifiIpv4ThirdOctetIsBlocked(sta, _prefs.wifiBlockedThirdOctets)) {
         raw = 'http://$sta';
       }
     }
@@ -199,6 +329,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       final ap = info.apIp?.trim();
       if (ap != null &&
           _looksLikeIPv4(ap) &&
+          !wifiIpv4ThirdOctetIsBlocked(ap, _prefs.wifiBlockedThirdOctets) &&
           await _phoneIpv4OnBoardApSubnet()) {
         raw = 'http://$ap';
       }
@@ -216,7 +347,16 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> _tryBleToWifiHandoff(BleNetworkInfo? info) async {
-    if (_prefs.preferBluetoothOnly || _prefs.connectionMode == 'ble_only') {
+    if (_prefs.effectiveConnectionMode == 'ble_only') {
+      return;
+    }
+    final handoffEarliest = _bleAutoHandoffNotBefore;
+    if (handoffEarliest != null && DateTime.now().isBefore(handoffEarliest)) {
+      if (AppEnvironment.staging) {
+        debugPrint(
+          '[staging] BLE→Wi‑Fi handoff přeskočen (cooldown po novém BLE)',
+        );
+      }
       return;
     }
     if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
@@ -228,7 +368,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     String? rawUrl;
     if (info.online == true) {
       final staIp = info.staIp;
-      if (staIp != null && _looksLikeIPv4(staIp)) {
+      if (staIp != null &&
+          _looksLikeIPv4(staIp) &&
+          !wifiIpv4ThirdOctetIsBlocked(staIp, _prefs.wifiBlockedThirdOctets)) {
         if (!await _phoneHasWifiInterface()) return;
         rawUrl = 'http://$staIp';
       }
@@ -237,6 +379,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       final ap = info.apIp?.trim();
       if (ap != null &&
           _looksLikeIPv4(ap) &&
+          !wifiIpv4ThirdOctetIsBlocked(ap, _prefs.wifiBlockedThirdOctets) &&
           await _phoneIpv4OnBoardApSubnet()) {
         rawUrl = 'http://$ap';
       }
@@ -247,6 +390,15 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (normalized == null) return;
     if (state.transport == BoardTransport.wifi &&
         state.wifiBaseUrl == normalized) {
+      return;
+    }
+
+    if (!await _probeBoardHttpBeforeBleHandoff(normalized)) {
+      if (AppEnvironment.staging) {
+        debugPrint(
+          '[staging] BLE→Wi‑Fi handoff skipped (HTTP unreachable): $normalized',
+        );
+      }
       return;
     }
 
@@ -264,6 +416,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       bleStaIp: info.staIp,
       bleStaSsid: info.staSsid,
       bleStaConnected: info.staConnected,
+      bleApBroadcasting: info.apActive,
+      bleApSsid: info.apSsid,
     );
   }
 
@@ -282,6 +436,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> connectMock() async {
+    _clearBleHandoffCooldown();
     _stopBleHandoffTimer();
     _stopWifiTransport();
     await _ble.disconnect();
@@ -307,78 +462,134 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       _startMockClock();
     } catch (e) {
       state = state.copyWith(busy: false, lastError: e);
+    } finally {
+      _clearNextConnectionTransportOnce();
     }
   }
 
   Future<void> connectWifi(String baseUrl, {bool? webSocket}) async {
     final useWs = webSocket ?? _prefs.useWebSocket;
-    _stopBleHandoffTimer();
-    _stopWifiTransport();
-    await _ble.disconnect();
-    final normalized = normalizeBoardHttpBaseUrl(baseUrl);
-    if (normalized == null) {
-      state = state.copyWith(
-        busy: false,
-        lastError: StateError(_strings.errInvalidBoardUrl),
-      );
-      return;
-    }
-    await _prefs.setLastBoardBaseUrl(normalized);
-    await _prefs.setUseMockBoard(false);
-    state = state.copyWith(
-      transport: BoardTransport.wifi,
-      wifiBaseUrl: normalized,
-      transportStartedAt: DateTime.now(),
-      busy: true,
-      bleGattConnected: false,
-      clearBleNetwork: true,
-      clearError: true,
-    );
+    connDebugLog('BoardSession.connectWifi', 'raw="$baseUrl" ws=$useWs');
     try {
-      await _prefs.setLastBoardLinkKind('wifi');
-      await _pollOnce(normalized);
-      _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-        unawaited(_pollOnce(normalized));
-      });
-      state = state.copyWith(pollingActive: true, busy: false);
-      if (useWs) {
-        _ws.connect(
-          normalized,
-          onSnapshot: (s) => _applySnapshot(s, normalized),
-          onError: (e) {
-            state = state.copyWith(
-              lastError: e,
-              webSocketActive: false,
-            );
-            if (AppEnvironment.staging) {
-              debugPrint('[staging] WS error: $e');
-            }
-          },
-          onDisconnect: () {
-            state = state.copyWith(webSocketActive: false);
-          },
-          onMessageReceived: () {
-            state = state.copyWith(wsMessageCount: state.wsMessageCount + 1);
-          },
+      final normalized = normalizeBoardHttpBaseUrl(baseUrl);
+      if (normalized == null) {
+        connDebugLog('BoardSession.connectWifi', 'zamítnuto: neplatná URL');
+        state = state.copyWith(
+          busy: false,
+          lastError: StateError(_strings.errInvalidBoardUrl),
         );
-        state = state.copyWith(webSocketActive: true);
+        return;
       }
-    } catch (e) {
+      final host = Uri.tryParse(normalized)?.host ?? '';
+      if (wifiIpv4ThirdOctetIsBlocked(host, _prefs.wifiBlockedThirdOctets)) {
+        connDebugLog(
+          'BoardSession.connectWifi',
+          'zamítnuto: blokovaný 3. oktet host=$host',
+        );
+        state = state.copyWith(
+          busy: false,
+          lastError: StateError(_strings.errWifiIpThirdOctetBlocked(host)),
+        );
+        return;
+      }
+      _clearBleHandoffCooldown();
+      _stopBleHandoffTimer();
+      _stopWifiTransport();
+      await _ble.disconnect();
+      await _prefs.setLastBoardBaseUrl(normalized);
+      await _prefs.setUseMockBoard(false);
       state = state.copyWith(
-        busy: false,
-        lastError: e,
-        transport: BoardTransport.none,
+        transport: BoardTransport.wifi,
+        wifiBaseUrl: normalized,
+        transportStartedAt: DateTime.now(),
+        busy: true,
         bleGattConnected: false,
         clearBleNetwork: true,
-        clearSnapshot: true,
-        clearSnapshotReceivedAt: true,
-        clearTransportStartedAt: true,
-        clearTimer: true,
+        clearError: true,
       );
+      try {
+        await _prefs.setLastBoardLinkKind('wifi');
+        // Spolehlivěji než delta pollFailureCount (ta může „viset“ z dřívější session).
+        final pollsOkBefore = state.pollSuccessCount;
+        await _pollOnce(normalized);
+        if (state.pollSuccessCount <= pollsOkBefore) {
+          connDebugLog(
+            'BoardSession.connectWifi',
+            'první poll selhal → výjimka (pollSuccessCount)',
+          );
+          throw state.lastError ??
+              StateError(_strings.errBoardSnapshotUnreachable);
+        }
+        connDebugLog(
+          'BoardSession.connectWifi OK',
+          'polling HTTP $normalized',
+        );
+        _pollTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+          unawaited(_pollOnce(normalized));
+        });
+        state = state.copyWith(pollingActive: true, busy: false);
+        if (useWs) {
+          _ws.connect(
+            normalized,
+            onSnapshot: (s) => _applySnapshot(s, normalized),
+            onError: (e) {
+              state = state.copyWith(
+                lastError: e,
+                webSocketActive: false,
+              );
+              if (AppEnvironment.staging) {
+                debugPrint('[staging] WS error: $e');
+              }
+            },
+            onDisconnect: () {
+              state = state.copyWith(webSocketActive: false);
+            },
+            onMessageReceived: () {
+              state = state.copyWith(wsMessageCount: state.wsMessageCount + 1);
+            },
+          );
+          state = state.copyWith(webSocketActive: true);
+        }
+      } catch (e) {
+        connDebugLog(
+          'BoardSession.connectWifi FAIL',
+          '${e.runtimeType}: $e',
+        );
+        state = state.copyWith(
+          busy: false,
+          lastError: e,
+          transport: BoardTransport.none,
+          bleGattConnected: false,
+          clearBleNetwork: true,
+          clearSnapshot: true,
+          clearSnapshotReceivedAt: true,
+          clearTransportStartedAt: true,
+          clearTimer: true,
+        );
+        await _bleFallbackAfterWifiFailure();
+      }
+    } finally {
+      _clearNextConnectionTransportOnce();
     }
   }
 
+  /// Po selhání HTTP pollingu zkusí uložené BLE (stejná deska podle `lastBleRemoteId`).
+  Future<void> _bleFallbackAfterWifiFailure() async {
+    final id = _prefs.lastBleRemoteId;
+    if (id == null || id.isEmpty) return;
+    connDebugLog(
+      'BoardSession Wi‑Fi→BLE fallback',
+      'zkusím uložené BLE remoteId=$id',
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    await reconnectSavedBle();
+  }
+
   Future<void> connectBle(BluetoothDevice device, {String? label}) async {
+    connDebugLog(
+      'BoardSession.connectBle start',
+      'remoteId=${device.remoteId.str} label="${label ?? device.platformName}"',
+    );
     _stopBleHandoffTimer();
     _stopWifiTransport();
     await _ble.disconnect();
@@ -394,11 +605,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _ble.connect(
         device,
         onSnapshot: (s) => _applySnapshot(s, ''),
-        onError: (e) => state = state.copyWith(
-              lastError: e,
-              bleGattConnected: false,
-              clearBleNetwork: true,
-            ),
+        onError: (e) {
+          connDebugLog(
+            'BoardSession BLE stream/error',
+            connBleErrorDetail(e),
+          );
+          state = state.copyWith(
+            busy: false,
+            lastError: e,
+            bleGattConnected: false,
+            clearBleNetwork: true,
+          );
+        },
         onNetworkNotify: (raw) => unawaited(_onBleNetworkPayload(raw)),
       );
       await _prefs.setLastBleRemoteId(device.remoteId.str);
@@ -406,11 +624,23 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _prefs.setUseMockBoard(false);
       await _prefs.setLastBoardLinkKind('bluetooth');
       state = state.copyWith(busy: false, bleGattConnected: true);
+      connDebugLog(
+        'BoardSession.connectBle OK',
+        'GATT navázáno → sync síťových metadat',
+      );
+      _bleAutoHandoffNotBefore =
+          DateTime.now().add(const Duration(seconds: 22));
       await _syncBleNetworkMetadata();
+      unawaited(_delayedSyncWifiStaIpBlockToBoard());
       if (state.transport == BoardTransport.ble) {
         _startBleHandoffRetry();
       }
     } catch (e) {
+      connDebugLog(
+        'BoardSession.connectBle FAIL',
+        connBleErrorDetail(e),
+      );
+      _clearBleHandoffCooldown();
       _stopBleHandoffTimer();
       state = state.copyWith(
         busy: false,
@@ -423,26 +653,66 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         clearTransportStartedAt: true,
         clearTimer: true,
       );
+    } finally {
+      _clearNextConnectionTransportOnce();
     }
   }
 
   /// Znovu připojit podle `czechmate.lastBleRemoteId` (bez skenu).
+  /// Odešle na desku NVS filtr DHCP (`wifi_sta_ip_block`) podle nastavení v aplikaci.
+  Future<void> syncWifiStaIpBlockToBoardIfBle() async {
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      return;
+    }
+    try {
+      await _ble.prepareEncryptedBleLink();
+      await _ble.postWifiStaIpBlock(_prefs.wifiStaIpBlockCsvForBle());
+    } catch (e) {
+      if (AppEnvironment.staging || kDebugMode) {
+        debugPrint('[staging] wifi_sta_ip_block sync: $e');
+      }
+    }
+  }
+
   Future<void> reconnectSavedBle() async {
     final id = _prefs.lastBleRemoteId;
     if (id == null || id.isEmpty) {
+      connDebugLog('reconnectSavedBle', 'chyba: žádné uložené remoteId');
       state = state.copyWith(lastError: StateError(_strings.errNoSavedBle));
       return;
     }
+    connDebugLog(
+      'reconnectSavedBle',
+      'remoteId=$id name="${_prefs.lastBleDisplayName ?? ''}"',
+    );
     final dev = BluetoothDevice(remoteId: DeviceIdentifier(id));
     await connectBle(dev, label: _prefs.lastBleDisplayName);
   }
 
   void disconnect() {
+    _clearBleHandoffCooldown();
     _stopMockClock();
     _stopBleHandoffTimer();
     _stopWifiTransport();
     unawaited(_ble.disconnect());
     _pauseTimerSentForFinishedGame = false;
+    _setupTutorialMutexTail = Future<void>.value();
+    _lastPostHintDestBleAt = null;
+    _lastPostHintDestBleSquare = null;
+    state = const BoardSessionState();
+  }
+
+  /// Jako [disconnect], ale počká na ukončení BLE — vhodné před novým připojením ze skenu.
+  Future<void> disconnectAwaitBle() async {
+    _clearBleHandoffCooldown();
+    _stopMockClock();
+    _stopBleHandoffTimer();
+    _stopWifiTransport();
+    await _ble.disconnect();
+    _pauseTimerSentForFinishedGame = false;
+    _setupTutorialMutexTail = Future<void>.value();
+    _lastPostHintDestBleAt = null;
+    _lastPostHintDestBleSquare = null;
     state = const BoardSessionState();
   }
 
@@ -882,17 +1152,25 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   /// `POST /api/game/setup_tutorial` nebo BLE `setup_tutorial` — `start` | `cancel` | `finish`.
   Future<void> postSetupTutorialAction(String action) async {
-    final a = action.trim().toLowerCase();
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _api.postSetupTutorial(state.wifiBaseUrl!, action: a);
-      if (a != 'start') await refreshNow();
-      return;
+    final prev = _setupTutorialMutexTail;
+    final done = Completer<void>();
+    _setupTutorialMutexTail = done.future;
+    await prev.catchError((_) {});
+    try {
+      final a = action.trim().toLowerCase();
+      if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
+        await _api.postSetupTutorial(state.wifiBaseUrl!, action: a);
+        if (a != 'start') await refreshNow();
+        return;
+      }
+      if (state.transport == BoardTransport.ble) {
+        await _ble.postSetupTutorial(a);
+        return;
+      }
+      throw StateError(_strings.errSetupNeedsConnection);
+    } finally {
+      if (!done.isCompleted) done.complete();
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postSetupTutorial(a);
-      return;
-    }
-    throw StateError(_strings.errSetupNeedsConnection);
   }
 
   /// Uloží SSID/heslo do NVS na desce a spustí STA připojení (výsledek přijde přes network notify).
@@ -908,6 +1186,25 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       throw StateError(_strings.errWifiProvNeedsBle);
     }
     await _ble.postWifiStaConfig(s, password);
+  }
+
+  /// Scan okolí na desce (`wifi_survey`, šifrovaný odkaz) — výsledek přes cmd_ack.
+  Future<BleWifiSurveyResult> fetchWifiSurveyOverBle() async {
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      throw StateError(_strings.errWifiProvNeedsBle);
+    }
+    await _ble.ensureGattReadyForCommands();
+    return _ble.fetchWifiSurvey();
+  }
+
+  /// Zapnutí/vypnutí hotspotu desky přes BLE (`wifi_ap_set`). Vyžaduje šifrované spojení.
+  Future<void> setBoardHotspotEnabled(bool enabled) async {
+    if (state.transport != BoardTransport.ble || !state.bleGattConnected) {
+      throw StateError(_strings.errBoardApNeedsBle);
+    }
+    await _ble.postWifiApSet(enabled);
+    await Future<void>.delayed(const Duration(milliseconds: 800));
+    await _syncBleNetworkMetadata();
   }
 
   /// Stream `.bin` přes BLE (bez hotspotu / STA). Telefon musí mít soubor stažený v apce.
@@ -989,6 +1286,15 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       return;
     }
     if (state.transport == BoardTransport.ble) {
+      final now = DateTime.now();
+      if (_lastPostHintDestBleSquare == sq &&
+          _lastPostHintDestBleAt != null &&
+          now.difference(_lastPostHintDestBleAt!) <
+              const Duration(milliseconds: 450)) {
+        return;
+      }
+      _lastPostHintDestBleSquare = sq;
+      _lastPostHintDestBleAt = now;
       await _ble.postHintHighlightDestinationOnly(sq);
       return;
     }

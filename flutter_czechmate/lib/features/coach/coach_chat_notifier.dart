@@ -10,6 +10,7 @@ import '../../core/localization/locale_bridge.dart';
 import '../../core/services/prefs_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/utils/fen_from_board.dart';
+import '../../core/utils/user_facing_error_message.dart';
 import '../connection/board_session_notifier.dart';
 import 'coach_manager.dart';
 
@@ -184,7 +185,7 @@ class CoachChatNotifier extends StateNotifier<CoachChatState> {
         messages: [
           ...state.messages,
           CoachChatMessage(
-              text: s.coachErrorSomethingWrong('$e'),
+              text: s.coachErrorSomethingWrong(userFacingErrorSummary(s, e)),
               isUser: false,
               isError: true),
         ],

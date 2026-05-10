@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:chess/chess.dart' as ch;
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ import '../../connection/board_session_state.dart';
 import 'game_ui_state.dart';
 
 import '../../../app_providers.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import '../../../l10n/app_localizations.dart';
 
 final gameUiNotifierProvider =
@@ -74,6 +76,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   Timer? _puzzleTintTimer;
   ch.Chess? _sandboxChess;
   String? _remoteFrom;
+
   /// Blocks sandbox moves while puzzle success/failure animation and reset run (allows clean retries).
   bool _puzzleFeedbackBusy = false;
 
@@ -185,7 +188,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       hintTo: to.toLowerCase(),
       clearSelection: true,
     );
-    _hintTimer = Timer(const Duration(seconds: 5), () {
+    _hintTimer = Timer(const Duration(seconds: 4), () {
       state = state.copyWith(clearHint: true);
     });
   }
@@ -203,8 +206,8 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         : (puzzle.playedUci.isEmpty
             ? puzzle
             : puzzle.copyWith(
-                playedUci: puzzle.playedUci
-                    .sublist(0, puzzle.playedUci.length - 1),
+                playedUci:
+                    puzzle.playedUci.sublist(0, puzzle.playedUci.length - 1),
               ));
     state = state.copyWith(
       sandboxFenOverride: chess.generate_fen(),
@@ -292,6 +295,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearPuzzleChallenge: true,
       clearPuzzleTint: true,
       clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
       clearMessage: true,
       clearHistoryIndex: true,
       clearPromotion: true,
@@ -321,6 +325,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearPuzzleChallenge: true,
       clearPuzzleTint: true,
       clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
       clearMessage: true,
       clearHistoryIndex: true,
       clearPromotion: true,
@@ -350,6 +355,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearPuzzleChallenge: true,
       clearPuzzleTint: true,
       clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
       clearSelection: true,
       clearSandboxFen: true,
       clearPromotion: true,
@@ -374,12 +380,18 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearPuzzleChallenge: true,
       clearPuzzleTint: true,
       clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
     );
   }
 
   void clearPuzzleSnack() {
     if (state.puzzleSnackText == null) return;
     state = state.copyWith(clearPuzzleSnack: true);
+  }
+
+  void clearPuzzleCelebration() {
+    if (state.puzzleCelebrationEloDelta == null) return;
+    state = state.copyWith(clearPuzzleCelebration: true);
   }
 
   /// Načte pozici a zapne kontrolu řešení podle UCI linky (prázdná = jen sandbox).
@@ -401,6 +413,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearSelection: true,
       clearPuzzleTint: true,
       clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
     );
     final chess = ch.Chess();
     if (!chess.load(fenTrim)) {
@@ -446,8 +459,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       state = state.copyWith(clearHistoryIndex: true, clearSelection: true);
       return;
     }
-    state =
-        state.copyWith(historyReviewMoveIndex: index, clearSelection: true);
+    state = state.copyWith(historyReviewMoveIndex: index, clearSelection: true);
   }
 
   void _loadSandbox(GameSnapshot snap) {
@@ -462,6 +474,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       clearPuzzleChallenge: true,
       clearPuzzleTint: true,
       clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
       sandboxFenOverride: chess.generate_fen(),
       clearMessage: true,
       clearSelection: true,
@@ -524,13 +537,11 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   void _runTintPulse(bool green) {
     _puzzleTintTimer?.cancel();
     var step = 0;
-    const total = 18;
-    const halfSteps = 9;
-    _puzzleTintTimer = Timer.periodic(const Duration(milliseconds: 42), (t) {
+    const total = 20;
+    _puzzleTintTimer = Timer.periodic(const Duration(milliseconds: 40), (t) {
       step++;
-      final intensity = step <= halfSteps
-          ? step / 9.0
-          : (total - step) / 9.0;
+      final u = step / total;
+      final intensity = math.sin(u * math.pi);
       state = state.copyWith(
         puzzleBoardTint: intensity.clamp(0.0, 1.0),
         puzzleBoardTintGreen: green,
@@ -552,11 +563,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       final delta = await prefs.applyPuzzleSolveElo(puzzleRating: rating);
       await prefs.recordPuzzleActivity(solved: true);
       _ref.invalidate(prefsRepositoryProvider);
-      final snack = delta > 0
-          ? _l10n.puzzleSuccessLineWithElo(delta)
-          : _l10n.puzzleSuccessLine;
-      showTransientBoardMessage(snack);
-      state = state.copyWith(puzzleSnackText: snack);
+      state = state.copyWith(puzzleCelebrationEloDelta: delta);
       await Future<void>.delayed(const Duration(milliseconds: 920));
       // Keep puzzleChallenge until user taps „Return to live game“ — HUD must stay after solve.
     } finally {
@@ -572,7 +579,9 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         puzzleSnackText: _l10n.puzzleWrongResetting,
       );
       _runTintPulse(false);
-      await _ref.read(prefsRepositoryProvider).recordPuzzleActivity(solved: false);
+      await _ref
+          .read(prefsRepositoryProvider)
+          .recordPuzzleActivity(solved: false);
       _ref.invalidate(prefsRepositoryProvider);
       await Future<void>.delayed(const Duration(milliseconds: 720));
       _resetPuzzlePositionOnly();
@@ -720,7 +729,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         snack(msg);
         _startInvalidDestinationPulse(to);
       } else {
-        snack('$e');
+        snack(userFacingErrorSummary(_l10n, e));
       }
       state = state.copyWith(clearPromotion: true);
     }
@@ -880,7 +889,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         showTransientBoardMessage(msg);
         snack(msg);
       } else {
-        snack('$e');
+        snack(userFacingErrorSummary(_l10n, e));
       }
     }
   }

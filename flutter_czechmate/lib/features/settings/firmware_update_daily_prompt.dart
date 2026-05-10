@@ -78,7 +78,8 @@ class FirmwareUpdateDailyPrompt {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(ctx, _OfferChoice.disableReminders),
+              onPressed: () =>
+                  Navigator.pop(ctx, _OfferChoice.disableReminders),
               child: Text(l10n.firmwareTurnOffReminders),
             ),
             TextButton(
@@ -145,7 +146,9 @@ class FirmwareUpdateDailyPrompt {
 
     var messenger = ScaffoldMessenger.maybeOf(context);
     messenger?.showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context)!.firmwareStartingOtaSnack)),
+      SnackBar(
+          content:
+              Text(AppLocalizations.of(context)!.firmwareStartingOtaSnack)),
     );
 
     final err = await FirmwareOtaRunner.execute(

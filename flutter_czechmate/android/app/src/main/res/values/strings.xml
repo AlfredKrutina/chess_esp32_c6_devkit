@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chess_home_widget_description">Game status and chess clock</string>
+    <string name="chess_home_widget_phase_no_game">Open the app to connect to the board</string>
+    <string name="chess_home_widget_moves">Moves: %1$d</string>
+    <string name="chess_home_widget_finished">Game finished</string>
+    <string name="chess_home_widget_paused">Paused</string>
+    <string name="chess_home_widget_running">Running</string>
+    <string name="chess_home_widget_waiting">Waiting</string>
+</resources>

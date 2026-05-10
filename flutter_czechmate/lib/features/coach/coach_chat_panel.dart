@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/widgets/animated_linear_busy_strip.dart';
+import '../../core/widgets/pressable_scale.dart';
 import '../../core/localization/context_l10n.dart';
 import '../connection/board_session_notifier.dart';
+import '../settings/coach_ai_settings_screen.dart';
 import 'coach_chat_notifier.dart';
 
 /// Shared AI coach chat — same conversation as the full-screen [CoachScreen].
@@ -90,47 +93,69 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (showSetup)
-          widget.embedded
-              ? Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.35),
-                      ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              widget.embedded ? 10 : 16,
+              widget.embedded ? 10 : 12,
+              widget.embedded ? 10 : 16,
+              0,
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context)
+                    .colorScheme
+                    .tertiaryContainer
+                    .withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .outline
+                      .withValues(alpha: 0.35),
+                ),
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      CoachChatNotifier.setupBannerText(l10n),
+                      style: Theme.of(context).textTheme.bodySmall,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            CoachChatNotifier.setupBannerText(l10n),
-                            style: Theme.of(context).textTheme.bodySmall,
+                    const SizedBox(height: 10),
+                    Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: 8,
+                      runSpacing: 6,
+                      children: [
+                        TextButton(
+                          onPressed: notifier.dismissSetupBanner,
+                          child: Text(
+                            widget.embedded
+                                ? l10n.coachChatHide
+                                : l10n.coachChatDismiss,
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: notifier.dismissSetupBanner,
-                              child: Text(l10n.coachChatHide),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : MaterialBanner(
-                  content: Text(CoachChatNotifier.setupBannerText(l10n)),
-                  actions: [
-                    TextButton(
-                      onPressed: notifier.dismissSetupBanner,
-                      child: Text(l10n.coachChatDismiss),
+                        ),
+                        FilledButton.tonal(
+                          onPressed: () {
+                            notifier.dismissSetupBanner();
+                            Navigator.of(context).push<void>(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const CoachAiSettingsScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(l10n.coachSetupBannerAction),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+              ),
+            ),
+          ),
         if (widget.showDisconnectedBanner && session.snapshot == null)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -148,8 +173,7 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
               ],
             ),
           ),
-        if (chat.busy)
-          const LinearProgressIndicator(minHeight: 2),
+        AnimatedLinearBusyStrip(busy: chat.busy, minHeight: 2),
         Expanded(
           child: chat.messages.isEmpty
               ? Center(
@@ -161,7 +185,10 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                         Icon(
                           Icons.school_outlined,
                           size: widget.embedded ? 48 : 64,
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.45),
+                          color: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withValues(alpha: 0.45),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -179,7 +206,8 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                   builder: (context, constraints) {
                     final bubbleMax = widget.embedded
                         ? (constraints.maxWidth - 16).clamp(180.0, 340.0)
-                        : (MediaQuery.sizeOf(context).width * 0.8).clamp(200.0, 560.0);
+                        : (MediaQuery.sizeOf(context).width * 0.8)
+                            .clamp(200.0, 560.0);
                     return ListView.builder(
                       key: ValueKey<int>(chat.messages.length),
                       controller: _scrollCtrl,
@@ -208,8 +236,8 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                   _sendViaKeyboardShortcut,
               const SingleActivator(LogicalKeyboardKey.numpadEnter, meta: true):
                   _sendViaKeyboardShortcut,
-              const SingleActivator(LogicalKeyboardKey.numpadEnter, control: true):
-                  _sendViaKeyboardShortcut,
+              const SingleActivator(LogicalKeyboardKey.numpadEnter,
+                  control: true): _sendViaKeyboardShortcut,
             },
             child: Focus(
               skipTraversal: false,
@@ -233,17 +261,19 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: (chat.busy || _ctrl.text.trim().isEmpty)
-                        ? null
-                        : () => _send(),
-                    child: chat.busy
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.send),
+                  PressableScale(
+                    child: FilledButton(
+                      onPressed: (chat.busy || _ctrl.text.trim().isEmpty)
+                          ? null
+                          : () => _send(),
+                      child: chat.busy
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.send),
+                    ),
                   ),
                 ],
               ),

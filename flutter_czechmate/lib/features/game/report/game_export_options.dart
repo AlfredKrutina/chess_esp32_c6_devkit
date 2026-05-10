@@ -74,6 +74,11 @@ class GameExportOptions {
     showFinalBoard: true,
   );
 
+  /// Wide share image (same content toggles as [GameExportOptions] default).
+  static final landscapeWide = GameExportOptions(
+    aspect: GameExportAspect.landscape,
+  );
+
   Size logicalSize() {
     switch (aspect) {
       case GameExportAspect.card:

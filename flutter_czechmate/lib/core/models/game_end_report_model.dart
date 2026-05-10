@@ -44,9 +44,13 @@ class GameEndReportModel {
       }
       rsn = ge.reason ?? 'Game over';
     } else if (snap.status.gameState.toLowerCase() == 'finished') {
-      if (snap.status.checkmate == true) rsn = 'Checkmate';
-      else if (snap.status.stalemate == true) rsn = 'Stalemate';
-      else rsn = 'Finished';
+      if (snap.status.checkmate == true) {
+        rsn = 'Checkmate';
+      } else if (snap.status.stalemate == true) {
+        rsn = 'Stalemate';
+      } else {
+        rsn = 'Finished';
+      }
     }
 
     // Tahové časové razítka z firmware: esp_timer_get_time()/1000 → milisekundy od bootu.
@@ -119,10 +123,15 @@ class GameEndReportModel {
     int v = 0;
     for (final p in pieces) {
       final cp = p.toLowerCase();
-      if (cp == 'p') v += 1;
-      else if (cp == 'n' || cp == 'b') v += 3;
-      else if (cp == 'r') v += 5;
-      else if (cp == 'q') v += 9;
+      if (cp == 'p') {
+        v += 1;
+      } else if (cp == 'n' || cp == 'b') {
+        v += 3;
+      } else if (cp == 'r') {
+        v += 5;
+      } else if (cp == 'q') {
+        v += 9;
+      }
     }
     return v;
   }

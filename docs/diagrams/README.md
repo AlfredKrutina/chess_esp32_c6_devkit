@@ -277,6 +277,8 @@ Detail vrstev UI→Riverpod→služby: [`docs/flutter/README.md`](../flutter/REA
 
 Každý aktivní task z `main.c` má vlastní smyčkový diagram v `sources/`; implementace běží v komponentách (`*_task_start`). BLE nemá vlastní `xTaskCreate` — host task vzniká z `ble_task_init`.
 
+**web_server_task:** `wifi_init_apsta()` nastaví **AP+STA** jen když je v NVS zapnutý uživatelský hotspot desky; jinak **STA-only** (bez konfigurace AP rozhraní). Poté následuje prodleva, volitelný `wifi_connect_sta()` z NVS a start HTTP serveru — viz [`task_web_loop.mmd`](sources/task_web_loop.mmd) a `web_server_task.c`.
+
 | Task | Soubor zdroje | Hlavní soubor kódu |
 |------|---------------|-------------------|
 | **game_task** | [`task_game_loop.mmd`](sources/task_game_loop.mmd) | `components/game_task/game_task.c` |

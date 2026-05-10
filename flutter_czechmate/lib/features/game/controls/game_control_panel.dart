@@ -7,9 +7,12 @@ import '../../../app_navigation.dart';
 import '../../../app_providers.dart';
 import '../../../core/localization/context_l10n.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/models/board_timer_state.dart';
 import '../../../core/utils/board_action_feedback.dart';
 import '../../../core/widgets/glass_snackbar.dart';
+import '../../../core/widgets/pressable_scale.dart';
 import '../../../core/utils/fen_from_board.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 import '../state/game_ui_notifier.dart';
@@ -24,6 +27,7 @@ class GameControlPanel extends ConsumerStatefulWidget {
 
 class _GameControlPanelState extends ConsumerState<GameControlPanel> {
   bool _hintBusy = false;
+  bool _demoClockPaused = false;
 
   Future<void> _requestHint(
     BuildContext context,
@@ -43,13 +47,6 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
           .fetchBestMove(fen, depth: depth);
       uiN.showHintOverlay(best.from, best.to);
 
-      // Lokální nápověda vždy; LED nápověda jen při připojené desce.
-      final evalSuffix = best.evalPawns != null
-          ? ' · eval ${best.evalPawns!.toStringAsFixed(2)}'
-          : '';
-      uiN.showTransientBoardMessage(
-        l10n.gameHintTransient(best.from, best.to, evalSuffix),
-      );
       if (session.transport == BoardTransport.wifi ||
           session.transport == BoardTransport.ble) {
         await ref
@@ -57,17 +54,20 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
             .postHintDestination(best.to);
       }
       if (!context.mounted) return;
-      showGlassSnackBar(
-          context, l10n.gameBestMoveSnack(best.from, best.to));
+      showGlassSnackBar(context, l10n.gameBestMoveSnack(best.from, best.to));
     } catch (e) {
       if (!context.mounted) return;
-      showGlassSnackBar(context, l10n.gameHintFailed('$e'));
+      showGlassSnackBar(
+        context,
+        l10n.gameHintFailed(userFacingErrorSummary(l10n, e)),
+      );
     } finally {
       if (mounted) setState(() => _hintBusy = false);
     }
   }
 
-  void _demoOnlySnack(BuildContext context, AppLocalizations l10n, String feature) {
+  void _demoOnlySnack(
+      BuildContext context, AppLocalizations l10n, String feature) {
     showGlassSnackBar(
       context,
       l10n.gameDemoBoardSnack(feature),
@@ -85,6 +85,15 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final l10n = context.l10n;
+    BoardTimerState? timerState = snap?.clock ?? session.timer;
+    final gameOver = snap != null &&
+        (snap.status.gameEnd?.ended == true ||
+            snap.status.gameState.toLowerCase() == 'finished');
+    final clockPaused = timerState?.gamePaused ?? false;
+    final canClockToggle = timerState != null &&
+        timerState.isTimeControlEnabled &&
+        !gameOver &&
+        !timerState.timeExpired;
 
     TextStyle? sectionStyle() => theme.textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w600,
@@ -181,8 +190,8 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                 OutlinedButton.icon(
                   onPressed: uiN.sandboxUndo,
                   icon: const Icon(Icons.undo),
-                  label: Text(l10n.gameControlUndoMove(
-                      ui.sandboxUndoStack.length)),
+                  label: Text(
+                      l10n.gameControlUndoMove(ui.sandboxUndoStack.length)),
                 ),
               ],
             ),
@@ -206,7 +215,7 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                       ? l10n.gameRemoteMovesBle
                       : session.transport == BoardTransport.mock
                           ? l10n.gameRemoteMovesMock
-                          : prefs.preferBluetoothOnly
+                          : prefs.effectiveConnectionMode == 'ble_only'
                               ? l10n.gameRemoteMovesNoBoard
                               : l10n.gameRemoteMovesConnect,
               style: theme.textTheme.bodySmall?.copyWith(
@@ -245,7 +254,17 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            FilledButton.icon(
+            if (session.transport == BoardTransport.wifi ||
+                session.transport == BoardTransport.ble ||
+                session.transport == BoardTransport.mock)
+              PressableScale(
+                child: FilledButton.icon(
+                  onPressed: () => showNewGameWithTimeSheet(context),
+                  icon: const Icon(Icons.restart_alt_rounded),
+                  label: Text(l10n.gameNewGame),
+                ),
+              ),
+            FilledButton.tonalIcon(
               onPressed: snap == null || _hintBusy
                   ? null
                   : () => _requestHint(context, session, uiN),
@@ -256,17 +275,9 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.tips_and_updates_outlined),
-              label: Text(_hintBusy
-                  ? l10n.gameHintThinking
-                  : l10n.gameControlMoveHint),
+              label: Text(
+                  _hintBusy ? l10n.gameHintThinking : l10n.gameControlMoveHint),
             ),
-            if (session.transport == BoardTransport.wifi ||
-                session.transport == BoardTransport.ble ||
-                session.transport == BoardTransport.mock)
-              FilledButton.tonal(
-                onPressed: () => showNewGameWithTimeSheet(context),
-                child: Text(l10n.gameControlNewGameEllipsis),
-              ),
             if (session.transport == BoardTransport.wifi ||
                 session.transport == BoardTransport.ble) ...[
               OutlinedButton.icon(
@@ -278,22 +289,21 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                 icon: const Icon(Icons.visibility_off_outlined),
                 label: Text(l10n.gameClearHintLeds),
               ),
-              FilledButton.tonal(
-                onPressed: () => runBoardCommandWithSnackBar(
-                  context,
-                  sessionN.postTimerPause,
-                  successMessage: l10n.gameClockPauseSent,
+              if (canClockToggle)
+                FilledButton.tonal(
+                  onPressed: () => runBoardCommandWithSnackBar(
+                    context,
+                    clockPaused
+                        ? sessionN.postTimerResume
+                        : sessionN.postTimerPause,
+                    successMessage: clockPaused
+                        ? l10n.gameClockResumedSnackbar
+                        : l10n.gameClockPauseSent,
+                  ),
+                  child: Text(
+                    clockPaused ? l10n.gameResumeClock : l10n.gamePauseClock,
+                  ),
                 ),
-                child: Text(l10n.gamePauseClock),
-              ),
-              FilledButton.tonal(
-                onPressed: () => runBoardCommandWithSnackBar(
-                  context,
-                  sessionN.postTimerResume,
-                  successMessage: l10n.gameClockResumedSnackbar,
-                ),
-                child: Text(l10n.gameResumeClock),
-              ),
               FilledButton.tonal(
                 onPressed: () => runBoardCommandWithSnackBar(
                   context,
@@ -311,14 +321,19 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                 label: Text(l10n.gameClearHintLeds),
               ),
               FilledButton.tonal(
-                onPressed: () =>
-                    _demoOnlySnack(context, l10n, l10n.gamePauseClock),
-                child: Text(l10n.gamePauseClock),
-              ),
-              FilledButton.tonal(
-                onPressed: () =>
-                    _demoOnlySnack(context, l10n, l10n.gameResumeClock),
-                child: Text(l10n.gameResumeClock),
+                onPressed: () {
+                  setState(() => _demoClockPaused = !_demoClockPaused);
+                  _demoOnlySnack(
+                    context,
+                    l10n,
+                    _demoClockPaused
+                        ? l10n.gamePauseClock
+                        : l10n.gameResumeClock,
+                  );
+                },
+                child: Text(
+                  _demoClockPaused ? l10n.gameResumeClock : l10n.gamePauseClock,
+                ),
               ),
               FilledButton.tonal(
                 onPressed: () => runBoardCommandWithSnackBar(

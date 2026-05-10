@@ -122,6 +122,10 @@ static void ble_sanitize_cmd_token(const char *src, char *dst, size_t dst_cap) {
   dst[j] = '\0';
 }
 
+#ifndef BLE_CMD_ACK_JSON_MAX_LEN
+#define BLE_CMD_ACK_JSON_MAX_LEN 2048
+#endif
+
 void ble_task_notify_cmd_ack_json(const char *json_utf8) {
   if (json_utf8 == NULL) {
     return;
@@ -132,8 +136,10 @@ void ble_task_notify_cmd_ack_json(const char *json_utf8) {
     return;
   }
   size_t len = strlen(json_utf8);
-  if (len > 400) {
-    len = 400;
+  if (len > BLE_CMD_ACK_JSON_MAX_LEN) {
+    ESP_LOGW(TAG, "cmd_ack_json truncating %u to %u B",
+             (unsigned)len, (unsigned)BLE_CMD_ACK_JSON_MAX_LEN);
+    len = BLE_CMD_ACK_JSON_MAX_LEN;
   }
   struct os_mbuf *om = ble_hs_mbuf_from_flat(json_utf8, (uint16_t)len);
   if (om == NULL) {
@@ -238,18 +244,26 @@ static int czechmate_build_network_json(char *buf, size_t cap) {
   esp_err_t ip_ret = wifi_get_sta_ip(sta_ip, sizeof(sta_ip));
   esp_err_t ssid_ret = wifi_get_sta_ssid(sta_ssid, sizeof(sta_ssid));
   bool sta_connected = (ip_ret == ESP_OK && sta_ip[0] != '\0');
-  
+  const bool ap_on = wifi_ap_is_broadcasting();
+  const char *ap_ip_lit = ap_on ? "192.168.4.1" : "";
+  const char *ap_ssid_lit = wifi_ap_effective_ssid();
+
   snprintf(buf, cap,
            "{"
            "\"sta_connected\":%s,"
            "\"sta_ip\":\"%s\","
            "\"sta_ssid\":\"%s\","
-           "\"ap_ip\":\"192.168.4.1\","
+           "\"ap_ip\":\"%s\","
+           "\"ap_ssid\":\"%s\","
+           "\"ap_active\":%s,"
            "\"online\":%s"
            "}",
            sta_connected ? "true" : "false",
            sta_connected ? sta_ip : "",
            (ssid_ret == ESP_OK && sta_ssid[0] != '\0') ? sta_ssid : "",
+           ap_ip_lit,
+           ap_ssid_lit,
+           ap_on ? "true" : "false",
            sta_connected ? "true" : "false");
   return 0;
 }
@@ -286,7 +300,7 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       return 0;
     }
     if (attr_handle == g_net_val_handle) {
-      char net_json[256];
+      char net_json[384];
       czechmate_build_network_json(net_json, sizeof(net_json));
       size_t len = strlen(net_json);
       int rc = os_mbuf_append(ctxt->om, net_json, (uint16_t)len);
@@ -585,7 +599,7 @@ static void czechmate_security_retry_cb(struct ble_npl_event *ev) {
   s_sec_deferred_attempts++;
   if (s_sec_deferred_attempts < 6 && !ble_task_conn_is_encrypted()) {
     ble_npl_error_t e = ble_npl_callout_reset(
-        &s_sec_retry_co, ble_npl_time_ms_to_ticks32(1200));
+        &s_sec_retry_co, ble_npl_time_ms_to_ticks32(2500));
     if (e != BLE_NPL_OK) {
       ESP_LOGW(TAG, "SMP callout_reset rc=%d", (int)e);
     }
@@ -622,26 +636,30 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
       }
 #endif
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
-      /* iOS: dlouhé ATT write (OTA chunky OB) často vyžadují aktivní link encryption
-       * (CBATTErrorInsufficientEncryption = 15). Zahájíme SMP hned po CONNECT. */
+      /* iOS: SMP dřív než centrál dokončí GATT discovery často končí disconnect 531 /
+       * enc_change status≠0. Aplikace typicky začíná discovery ~0,5–1,5 s po LINK —
+       * první ble_gap_security_initiate odložit (~1,8 s). */
       {
         s_sec_deferred_attempts = 0;
         if (s_sec_retry_co_ready) {
           ble_npl_callout_stop(&s_sec_retry_co);
-        }
-        int src = ble_gap_security_initiate(event->connect.conn_handle);
-        ESP_LOGI(TAG, "[STAGING] ble_gap_security_initiate(on_connect) rc=%d", src);
-        if (src != 0) {
-          ESP_LOGW(TAG,
-                   "ble_gap_security_initiate rc=%d — bez šifrování mohou selhat velké zápisy",
-                   src);
-        }
-        if (s_sec_retry_co_ready && !ble_task_conn_is_encrypted()) {
           ble_npl_error_t ce = ble_npl_callout_reset(
-              &s_sec_retry_co, ble_npl_time_ms_to_ticks32(450));
+              &s_sec_retry_co, ble_npl_time_ms_to_ticks32(1800));
           if (ce != BLE_NPL_OK) {
-            ESP_LOGW(TAG, "SMP první odložení callout_reset rc=%d", (int)ce);
+            ESP_LOGW(TAG, "SMP defer callout_reset rc=%d — immediate initiate",
+                     (int)ce);
+            int src = ble_gap_security_initiate(event->connect.conn_handle);
+            ESP_LOGI(TAG, "[STAGING] ble_gap_security_initiate(fallback) rc=%d",
+                     src);
+            if (src != 0 && !ble_task_conn_is_encrypted()) {
+              (void)ble_npl_callout_reset(
+                  &s_sec_retry_co, ble_npl_time_ms_to_ticks32(450));
+            }
           }
+        } else {
+          int src = ble_gap_security_initiate(event->connect.conn_handle);
+          ESP_LOGI(TAG, "[STAGING] ble_gap_security_initiate(no_timer) rc=%d",
+                   src);
         }
       }
 #endif
@@ -653,7 +671,8 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
   case BLE_GAP_EVENT_ENC_CHANGE:
     ESP_LOGI(TAG,
-             "GAP enc_change status=%d handle=%u",
+             "GAP enc_change status=%d handle=%u (0=ok; jinak viz ble_hs_errno / "
+             "hci)",
              (int)event->enc_change.status,
              (unsigned)event->enc_change.conn_handle);
     if (event->enc_change.status == 0 &&
@@ -855,9 +874,11 @@ void ble_nimble_stack_init(void) {
   ble_hs_cfg.sm_bonding = 1;
   ble_hs_cfg.sm_sc = 1;
   ble_hs_cfg.sm_mitm = 0;
-  /* Bez distribuce ENC klíčů pairing nedokončí šifrování (bleprph / NimBLE Security). */
-  ble_hs_cfg.sm_our_key_dist |= BLE_SM_PAIR_KEY_DIST_ENC;
-  ble_hs_cfg.sm_their_key_dist |= BLE_SM_PAIR_KEY_DIST_ENC;
+  /* ENC + ID — iOS při bond často očekává i identitu (viz SMP pairing_complete). */
+  ble_hs_cfg.sm_our_key_dist |=
+      (BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
+  ble_hs_cfg.sm_their_key_dist |=
+      (BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
 #endif
   ble_hs_cfg.sync_cb = ble_on_sync;
   czechmate_gatt_register_before_host_start();
@@ -906,7 +927,7 @@ void ble_task_push_network_info(void) {
              (int)s_conn_handle, (int)s_net_notify_enabled);
     return;
   }
-  char net_json[256];
+  char net_json[384];
   czechmate_build_network_json(net_json, sizeof(net_json));
   size_t len = strlen(net_json);
   struct os_mbuf *om = ble_hs_mbuf_from_flat(net_json, (uint16_t)len);

@@ -18,10 +18,10 @@ class AppLocalizationsCs extends AppLocalizations {
   String get navAnalysis => 'Analýza';
 
   @override
-  String get navPuzzle => 'Puzzle';
+  String get navPuzzle => 'Úlohy';
 
   @override
-  String get navProgress => 'Pokrok';
+  String get navProgress => 'Trénink';
 
   @override
   String get navSettings => 'Nastavení';
@@ -106,6 +106,15 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get errInvalidBoardUrl =>
       'Neplatná adresa desky — chybí hostitel. Použij http://192.168.4.1 nebo STA IP desky.';
+
+  @override
+  String errWifiIpThirdOctetBlocked(String host) {
+    return 'Adresa $host je podle filtru 3. oktetu pro Wi‑Fi zamítnutá. Uprav seznam v Pokročilém připojení, zadej jinou URL, nebo na routeru nastav DHCP tak, aby deska nedostala adresu v tomto rozsahu.';
+  }
+
+  @override
+  String get errBoardSnapshotUnreachable =>
+      'Snapshot desky přes Wi‑Fi se nepodařilo načíst. Zkontroluj adresu a síť, nebo se připoj přes Bluetooth.';
 
   @override
   String get errNoSavedBle =>
@@ -323,8 +332,11 @@ class AppLocalizationsCs extends AppLocalizations {
   String get reportShareHeading => 'Sdílení';
 
   @override
-  String get reportShareExportHint =>
-      'Jako ve Stravě: zkopíruj obrázek shrnutí a vlož ho do Instagramu, Zpráv nebo WhatsAppu — nebo použij sdílení pro cokoli dalšího.';
+  String get reportExportAdvancedTitle => 'Pokročilé rozvržení';
+
+  @override
+  String get reportExportAdvancedSubtitle =>
+      'Průhlednost, sekce na obrázku a jejich pořadí. Tvar určují náhledy rozvržení výše.';
 
   @override
   String get reportSharePreparing => 'Připravuji…';
@@ -357,8 +369,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get reportExportSectionOrderTitle => 'Pořadí sekcí (export)';
 
   @override
-  String get reportExportSectionOrderSubtitle =>
-      'Přetáhni bloky na sdíleném obrázku — stejný princip jako priorita AI trenéra.';
+  String get reportExportSectionOrderSubtitle => '';
 
   @override
   String get reportExportBlockRecap => 'Titulek průběhu';
@@ -392,7 +403,15 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get reportExportAppearanceSubtitle =>
-      'Zvol rozvržení, pozadí a sekce na sdíleném PNG. Náhled odpovídá exportu.';
+      'Zvol rozvržení níže — náhled se hned změní. Barvy grafů a pokročilé volby zůstávají k dispozici.';
+
+  @override
+  String get reportExportStylePickHint =>
+      'Klepnutím zvolíš formát sdílení (vysoká karta, čtverec, story nebo široký obrázek).';
+
+  @override
+  String get reportChartPaletteChoiceHint =>
+      'Předvolba mění barvy grafů hodnocení a času v Analýze i v exportu. Vlastní barvy mají u každého řádku popisek.';
 
   @override
   String get reportExportAspectRatio => 'Velikost plátna';
@@ -489,6 +508,12 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get reportExportPresetStory => 'Story výřez';
+
+  @override
+  String get reportExportThumbWideLabel => 'Široký';
+
+  @override
+  String get reportExportThumbWideAspect => '16∶9';
 
   @override
   String get reportExportShareGifRecap => 'Sdílet průběh tahů (GIF)';
@@ -612,7 +637,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get commonNo => 'Ne';
 
   @override
-  String get lastErrorTitle => 'Poslední chyba';
+  String get lastErrorTitle => 'Problém s připojením';
 
   @override
   String get telemetryPrivacyTitle => 'Soukromí';
@@ -627,6 +652,13 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get telemetryIcloudBody =>
       'Data partie zůstávají na zařízení, dokud je neexportuješ nebo nezapneš synchronizaci jinde.';
+
+  @override
+  String get discoveryHelpConnectingTitle => 'Potřebujete pomoct s připojením?';
+
+  @override
+  String get discoveryHelpConnectingSubtitle =>
+      'Kroky nastavení a tipy ke skenování';
 
   @override
   String get discoveryTitle => 'Najít desku';
@@ -646,7 +678,50 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryIntro =>
-      'Klepni na desku pro připojení. Nejprve Bluetooth; aplikace pak přejde na HTTP přes Wi‑Fi, jakmile je deska dostupná (STA v domácí síti, nebo hotspot desky, když je telefon ve stejném subnetu, typicky 192.168.4.x).';
+      'Nejprve Bluetooth. Doma na stejné Wi‑Fi aplikace přejde na rychlejší HTTP, jakmile desku dosáhne.';
+
+  @override
+  String get discoveryFlowStepsTitle => 'Tři kroky';
+
+  @override
+  String get discoveryFlowStep1 => 'Zapni Bluetooth na tomto telefonu.';
+
+  @override
+  String get discoveryFlowStep2 =>
+      'Klepni na Najít desku a vyber svou desku ze seznamu.';
+
+  @override
+  String get discoveryFlowStep3 =>
+      'Doma na stejné Wi‑Fi jako deska aplikace přejde na rychlejší HTTP, když to jde; jinde zůstane Bluetooth.';
+
+  @override
+  String get discoveryScanCardLead =>
+      'Vyhledání spustíš tlačítkem níže. Adresu zadáš v Pokročilém.';
+
+  @override
+  String get discoveryRecoveryTitle => 'Nepodařilo se připojit';
+
+  @override
+  String get discoveryRecoveryBulletBt =>
+      'Bluetooth je zapnutý a deska je zapnutá poblíž.';
+
+  @override
+  String get discoveryRecoveryBulletRange =>
+      'Přibliž se — zdi a kapsy někdy signál zhorší.';
+
+  @override
+  String get discoveryRecoveryBulletHomeWifi =>
+      'Doma je nejjednodušší mít telefon i desku na stejné Wi‑Fi kvůli HTTP; mimo domov stačí Bluetooth.';
+
+  @override
+  String get discoveryRecoveryBulletManual =>
+      'Adresu desky můžeš zadat v Pokročilém.';
+
+  @override
+  String get discoveryRecoveryOpenAppSettings => 'Otevřít nastavení systému';
+
+  @override
+  String get discoveryRecoveryDismiss => 'Rozumím';
 
   @override
   String get transportDisconnected => 'Odpojeno';
@@ -744,7 +819,10 @@ class AppLocalizationsCs extends AppLocalizations {
   String get gameResumeClock => 'Pokračovat v hodinách';
 
   @override
-  String get gameClearHintLeds => 'Zrušit nápovědní LED';
+  String get gameClearHintLeds => 'Skrýt nápovědu na desce';
+
+  @override
+  String get gameHideBoardHintTooltip => 'Skrýt nápovědu na desce';
 
   @override
   String get gameNoSnapshotYet => 'Zatím není k dispozici snímek stavu desky.';
@@ -813,7 +891,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String gameBestMoveSnack(String from, String to) {
-    return 'Nejlepší tah: $from→$to';
+    return 'Doporučený tah: z $from na $to';
   }
 
   @override
@@ -920,13 +998,54 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryEmptyBleList =>
-      'Seznam je prázdný. Klepni na „Najít desku“ a počkej pár sekund v dosahu zapnuté desky.';
+      'Zatím žádná deska. Počkej pár sekund se zapnutým Bluetooth a zapnutou deskou v dosahu.';
 
   @override
-  String get discoveryAdvancedSubtitle => 'Wi‑Fi URL, režim připojení, ukázka';
+  String get discoveryAutoScanHint =>
+      'Sken začne sám, pokud není pro příští pokus nastavené jen Wi‑Fi (Pokročilé).';
+
+  @override
+  String get discoveryAdvancedSubtitle =>
+      'Adresa Wi‑Fi, uložené Bluetooth, jednorázový přenos';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsTitle => 'Filtr Wi‑Fi IP (3. oktet)';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsBody =>
+      'Deska si seznam uloží do NVS a DHCP adresu se zakázaným 3. oktetem nepřijme (odpojí STA a zkusí znovu). Telefon používá stejný filtr pro URL. Hodnoty se po uložení nebo při připojení přes BLE odešou šifrovaně — firmware nemá vlastní výchozí blokaci, dokud aplikace nic nepošle. Příklad: 88 zamítne všechny x.x.88.x. Prázdné pole vypne filtr na obou stranách. Dokud neuložíš jinak, aplikace výchozě používá 88.';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsLabel =>
+      'Blokované 3. oktety (čárkami)';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsHint => 'např. 88 nebo 88,100';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSave => 'Uložit filtr';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsReset => 'Obnovit výchozí (88)';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSavedSnack =>
+      'Filtr Wi‑Fi IP uložen';
+
+  @override
+  String get discoveryTransportAdvancedExplanation =>
+      'Aplikace ve výchozím stavu sama volí cestu (nejprve Bluetooth, potom Wi‑Fi přes HTTP, jakmile deska odpoví). Jednorázové vynucení jen Wi‑Fi nebo jen Bluetooth pro příští připojení najdeš v Nastavení → Připojení desky → Pokročilé — po dokončení pokusu se zase vrátí automatika.';
+
+  @override
+  String get discoveryOpenTransportSettingsButton =>
+      'Otevřít nastavení připojení';
 
   @override
   String get discoveryConnectionModeHeading => 'Režim připojení';
+
+  @override
+  String get discoveryConnectionModeHint =>
+      'Auto: nejdřív Bluetooth, pak Wi‑Fi, jakmile je deska dostupná. Jen Wi‑Fi přeskočí Bluetooth. Jen Bluetooth zůstane na BLE i když je známá Wi‑Fi adresa.';
 
   @override
   String get discoveryBleSegmentShort => 'Jen BLE';
@@ -946,6 +1065,107 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get discoveryBoardHotspotButton => 'Hotspot desky (192.168.4.1)';
+
+  @override
+  String get discoveryBoardApEnable => 'Zapnout Wi‑Fi hotspot desky';
+
+  @override
+  String get discoveryBoardApDisable => 'Vypnout Wi‑Fi hotspot desky';
+
+  @override
+  String get discoveryBoardApSubtitle =>
+      'Telefon se může připojit k síti desky kvůli HTTP nebo OTA. Na desce je hotspot ve výchozím stavu vypnutý.';
+
+  @override
+  String get discoveryBoardApCommandSent =>
+      'Příkaz k hotspotu odeslán — počkej pár sekund a zkontroluj dostupné Wi‑Fi sítě.';
+
+  @override
+  String discoveryBoardApError(String error) {
+    return 'Hotspot se nepodařilo změnit: $error';
+  }
+
+  @override
+  String get errBoardApNeedsBle =>
+      'Pro změnu hotspotu musí být navázané Bluetooth.';
+
+  @override
+  String get boardWifiProvisionSheetTitle => 'Připojit desku k Wi‑Fi';
+
+  @override
+  String get boardWifiProvisionSheetLead =>
+      'Když to jde, použij stejnou domácí Wi‑Fi jako telefon (často lépe funguje 2,4 GHz). Aplikace z telefonu uložené heslo k síti nepřečte — zadej ho zde jednou.';
+
+  @override
+  String get boardWifiProvisionIosSsidHint =>
+      'Na iPhonu se název aktuální sítě někdy nezobrazí, dokud aplikace nemá přístup k poloze kvůli informacím o Wi‑Fi — SSID můžeš vždy zadat ručně.';
+
+  @override
+  String get boardWifiProvisionScanBoardButton =>
+      'Vyhledat Wi‑Fi v okolí desky';
+
+  @override
+  String get boardWifiProvisionScanning => 'Skenuji…';
+
+  @override
+  String boardWifiProvisionVisibleYes(String ssid) {
+    return 'SSID telefonu „$ssid“ je v dosahu desky — zadej heslo a připoj.';
+  }
+
+  @override
+  String get boardWifiProvisionVisibleNo =>
+      'Tento SSID se ve výsledku skenu na desce neobjevil — zkontroluj vzdálenost nebo zkus síť na 2,4 GHz. Můžeš to i tak zkusit; hra může jet přes Bluetooth.';
+
+  @override
+  String get boardWifiProvisionSurveyFailed =>
+      'Sken na desce selhal nebo vypršel čas.';
+
+  @override
+  String get boardWifiProvisionDoneSnack =>
+      'Údaje k Wi‑Fi odeslány — počkej, až se deska připojí.';
+
+  @override
+  String get boardWifiProvisionStaTimeoutHint =>
+      'STA zatím nepřipojené — deska síť nejspíš nevidí. Můžeš pokračovat přes Bluetooth nebo zapnout hotspot desky v Objevování desky.';
+
+  @override
+  String get boardWifiProvisionFirmwareContextHint =>
+      'Stejné nastavení Wi‑Fi jako ve spodním listu po připojení z Objevování desky — jeden společný postup, ne dvě různá nastavení.';
+
+  @override
+  String get otaHttpsStaGateTitle =>
+      'Stažení firmwaru z internetu vyžaduje Wi‑Fi k routeru';
+
+  @override
+  String get otaHttpsStaGateBody =>
+      'Aktualizace přes HTTPS si stahuje sama deska. Připoj ji k Wi‑Fi s internetem (nejčastěji kompatibilní 2,4 GHz). Zapnutí hotspotu desky pomůže telefonu komunikovat s deskou přes HTTP, ale samo o sobě nepřinese desce internet — použij nahrání firmwaru přes Bluetooth níže, nebo nejdřív připoj desku k domácí Wi‑Fi.';
+
+  @override
+  String get otaHttpsStaGateBleUpload => 'Nahrát firmware přes Bluetooth';
+
+  @override
+  String get otaHttpsStaGateHotspotBle => 'Zapnout hotspot desky (Bluetooth)';
+
+  @override
+  String get otaHttpsStaGateWifiTips => 'Tipy k Wi‑Fi 2,4 GHz';
+
+  @override
+  String get otaHttpsStaGateCancel => 'Teď ne';
+
+  @override
+  String get otaHttpsWifiTipsTitle => 'Tipy k Wi‑Fi routeru';
+
+  @override
+  String get otaHttpsWifiTipsBody =>
+      'Dej desku do dosahu routeru. Preferuj pásmo 2,4 GHz, pokud má router jiný název pro 2,4 a 5 GHz. Až bude deska na síti připojená, zkus aktualizaci znovu.';
+
+  @override
+  String get otaHttpsHotspotEnabledSnack =>
+      'Hotspot zapnut — případně se k Wi‑Fi desky na telefonu připoj kvůli HTTP. Stažení přes HTTPS pořád vyžaduje desku na domácí Wi‑Fi s internetem.';
+
+  @override
+  String get otaHttpsBleUploadHintSnack =>
+      'V Aktualizaci firmwaru níže použij „Nahrát firmware přes Bluetooth“.';
 
   @override
   String get connectionModeAutoShort => 'Auto';
@@ -976,8 +1196,7 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
-  String get settingsConnectionIntro =>
-      'Obvykle stačí najít desku přes Bluetooth; aplikace ji pak případně sama přepne na Wi‑Fi, pokud to dává smysl.';
+  String get settingsConnectionLearnMore => 'Jak funguje připojení';
 
   @override
   String get settingsDisconnect => 'Odpojit';
@@ -988,6 +1207,10 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get settingsAdvancedConnectionSubtitle =>
       'Výchozí URL, režim připojení, uložené BLE';
+
+  @override
+  String get settingsAdvancedConnectionSubtitleV2 =>
+      'Výchozí URL, jednorázové připojení, uložené BLE';
 
   @override
   String get settingsReconnectingBle => 'Obnovuji Bluetooth k uložené desce…';
@@ -1011,6 +1234,30 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsConnectionModeAutoBleWifi => 'Auto (BLE → Wi‑Fi)';
+
+  @override
+  String get settingsNextConnectionTitle => 'Příští připojení (jednorázově)';
+
+  @override
+  String get settingsNextConnectionIntro =>
+      'Výchozí je automatika. Níže platí jen pro příští pokus o připojení (Najít desku, znovupřipojení nebo obnovení aplikace), pak se znovu použije automatické řízení, aby nic „nezůstalo zamčené“.';
+
+  @override
+  String get settingsNextConnectionWifiOnceButton => 'Příště: jen Wi‑Fi';
+
+  @override
+  String get settingsNextConnectionBleOnceButton => 'Příště: jen Bluetooth';
+
+  @override
+  String get settingsNextConnectionUseAuto => 'Zpět na automatiku';
+
+  @override
+  String get settingsNextConnectionActiveWifiOnce =>
+      'Příští pokus přeskočí Bluetooth a použije jen uloženou adresu Wi‑Fi.';
+
+  @override
+  String get settingsNextConnectionActiveBleOnce =>
+      'Příští pokus zůstane na Bluetooth a nepřepne se sám na Wi‑Fi.';
 
   @override
   String get settingsDefaultBoardUrl => 'Výchozí URL desky';
@@ -1053,6 +1300,33 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get settingsWebSocketSubtitle =>
       'Po změně znovu navázat Wi‑Fi spojení';
+
+  @override
+  String get settingsAppFactoryResetTitle => 'Reset aplikace na tomto zařízení';
+
+  @override
+  String get settingsAppFactoryResetSubtitle =>
+      'Obnoví aplikaci do výchozího stavu a smaže uložená data v tomto zařízení. Šachovnice tím není ovlivněna.';
+
+  @override
+  String get settingsAppFactoryResetButton => 'Smazat data aplikace';
+
+  @override
+  String get settingsAppFactoryResetConfirmTitle => 'Opravdu resetovat?';
+
+  @override
+  String get settingsAppFactoryResetConfirmBody =>
+      'Akci nelze vrátit. Znovu připojíš desku a zadáš případné API klíče.';
+
+  @override
+  String get settingsAppFactoryResetConfirmAction => 'Resetovat';
+
+  @override
+  String get settingsAppFactoryResetDoneSnack => 'Data aplikace byla smazána.';
+
+  @override
+  String get settingsAppFactoryResetRestartHint =>
+      'Když něco nedává smysl, aplikaci úplně ukonči a znovu spusť.';
 
   @override
   String get transportShortDemo => 'Demo';
@@ -1121,9 +1395,6 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsFlipBoardTitle => 'Otočit desku';
 
   @override
-  String get settingsFlipBoardSubtitle => 'Černá k sobě';
-
-  @override
   String get settingsRemoteMovesTitle => 'Tahy z aplikace';
 
   @override
@@ -1183,7 +1454,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsColorSchemeHelper =>
-      'Světlý / Tmavý se projeví hned. Systém sleduje vzhled macOS.';
+      'Světlý a tmavý režim se projeví hned. Systém kopíruje zařízení.';
 
   @override
   String get settingsThemeSystem => 'Systém';
@@ -1397,6 +1668,10 @@ class AppLocalizationsCs extends AppLocalizations {
   String get timerUnavailable => 'Časomíra: vypnutá nebo nedostupná';
 
   @override
+  String get timerHiddenForPuzzleMode =>
+      'Živá partie na desce zde neběží — hodiny skryjeme, dokud řešíte úlohu nebo zkoumáte pozici.';
+
+  @override
   String get timerWhiteShort => 'Bílá';
 
   @override
@@ -1409,7 +1684,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get coachChatHide => 'Skrýt';
 
   @override
-  String get coachChatDismiss => 'ZAVŘÍT';
+  String get coachChatDismiss => 'Zavřít';
 
   @override
   String get manualConnTitle => 'Ruční připojení';
@@ -1491,6 +1766,13 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get haMqttTitle => 'Home Assistant a MQTT';
+
+  @override
+  String get haMqttFormLead =>
+      'Zadej adresu MQTT brokeru, ke kterému se má šachovnice připojit (často stejný počítač jako Home Assistant).';
+
+  @override
+  String get haMqttSetupHelpLink => 'Jak nastavit MQTT a Home Assistant?';
 
   @override
   String get haMqttSavedSnack => 'MQTT uloženo na desku.';
@@ -1791,6 +2073,13 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get firmwareDailyRemindersSubtitleLong =>
       'Je-li na serveru novější verze, připomínej každý den, dokud neaktualizuješ nebo nepřepneš připomínky.';
+
+  @override
+  String get firmwareDeveloperManifestSectionTitle => 'Možnosti pro vývojáře';
+
+  @override
+  String get firmwareDeveloperManifestSectionBody =>
+      'URL manifestu měň jen při vlastním kanálu firmware. Jinak aplikace používá výchozdí zdroj.';
 
   @override
   String get firmwareManifestUrlLabel => 'URL manifestu (version.json)';
@@ -2186,7 +2475,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get progressPositionPlanButton => 'Plán pozice';
 
   @override
-  String get progressBoardErrorTitle => 'Chyba desky';
+  String get progressBoardErrorTitle => 'Problém s připojením';
 
   @override
   String get progressStartingPositionTitle => 'Výchozí postavení';
@@ -2200,8 +2489,7 @@ class AppLocalizationsCs extends AppLocalizations {
       'Výukový režim: světla na desce ukazují pole postupně; aplikace říká, kterou figurku položit (stejný postup jako na iOS).';
 
   @override
-  String get progressRunWizardStarting =>
-      'Spustit průvodce — výchozí postavení';
+  String get progressRunWizardStarting => 'Průvodce výchozím postavením';
 
   @override
   String get progressAccountCardTitle => 'Účet';
@@ -2232,6 +2520,86 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get progressWizardConnectHint =>
       'Pro průvodce se světly na desce ji připoj (indikátor připojení na kartě Hra).';
+
+  @override
+  String get userFacingErrBle =>
+      'Bluetooth spojení selhalo. Zapni Bluetooth, zůstaň blízko desky a zkus to znovu.';
+
+  @override
+  String get userFacingErrBlePairingReset =>
+      'Bluetooth párování už nesedí s deskou. Na iPhonu: Nastavení → Bluetooth → ⓘ u desky → Zapomenout toto zařízení. Po továrním resetu desky vymaž i párování na desce a znovu připoj přes Najít desku.';
+
+  @override
+  String get userFacingErrNetworkReach =>
+      'Desku nebo server se nepodařilo kontaktovat. Zkontroluj Wi‑Fi, přibliž se a ověř, že je deska zapnutá.';
+
+  @override
+  String get userFacingErrTimeout =>
+      'Spojení vypršelo. Zkus to znovu, až bude deska zapnutá a v dosahu.';
+
+  @override
+  String get userFacingErrTls =>
+      'Zabezpečené spojení (HTTPS) selhalo. Zkontroluj adresu a zda deska vyžaduje HTTPS.';
+
+  @override
+  String get userFacingErrWebSocket =>
+      'Živý přenos z desky byl přerušen. Znovu připoj přes Najít desku, pokud se to opakuje.';
+
+  @override
+  String get userFacingErrGeneric =>
+      'Něco se pokazilo. Zkus to znovu nebo se připoj znovu přes Najít desku.';
+
+  @override
+  String get userFacingErrDailyPuzzle =>
+      'Dnešní úlohu se nepodařilo načíst. Zkontroluj internet a klepni na obnovit.';
+
+  @override
+  String get userFacingShowTechnicalDetails => 'Zobrazit technické podrobnosti';
+
+  @override
+  String get userFacingHideTechnicalDetails => 'Skrýt technické podrobnosti';
+
+  @override
+  String get userFacingBoardWebLocked =>
+      'Webové rozhraní desky blokuje přístup k API. Zavři ho nebo odemkni API a zkus znovu.';
+
+  @override
+  String get userFacingBoardApiToken =>
+      'Tato deska vyžaduje API token. Doplň ho v Nastavení → Uložené výchozí hodnoty.';
+
+  @override
+  String get userFacingBoardBadRequest =>
+      'Deska požadavek odmítla. Zkontroluj platnost tahu nebo povinná pole.';
+
+  @override
+  String get userFacingBoardUnauthorized =>
+      'Přístup byl odmítnut. Zkontroluj přihlašovací údaje, pokud je deska chráněná.';
+
+  @override
+  String get userFacingBoardNotFound =>
+      'API cesta neexistuje. Firmware desky může být starší, než očekává tato aplikace.';
+
+  @override
+  String get userFacingBoardServerError =>
+      'Deska nahlásila vnitřní chybu. Zkus to znovu nebo desku restartuj.';
+
+  @override
+  String get userFacingBoardUnavailable =>
+      'Deska je zaneprázdněná nebo nedostupná. Počkej chvíli a zkus znovu.';
+
+  @override
+  String get userFacingBoardHttpOther =>
+      'HTTP chyba z desky. Zkontroluj adresu desky a režim připojení.';
+
+  @override
+  String get userFacingErrBoardUrlHostMissing =>
+      'V adrese desky chybí hostitel. V nastavení ulož celou adresu, např. http://192.168.4.1, na stejné síti jako deska.';
+
+  @override
+  String get puzzleMoreActionsTooltip => 'Další akce';
+
+  @override
+  String get gameClockSectionLabel => 'Hodiny a LED na desce';
 
   @override
   String get progressStatsCurrentMoves => 'Aktuální počet tahů';
@@ -2286,7 +2654,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get helpConnectBody =>
-      'Pro vyhledání použij Bluetooth, pak Wi‑Fi pokud je dostupné. V Nastavení najdeš ruční URL a režimy.';
+      'Nejprve desku spáruj přes Bluetooth. Aplikace ji pak ovládá přes HTTP v lokální síti — typicky domácí Wi‑Fi, nebo hotspot desky (často 192.168.4.x) po zapnutí z Objevení desky při aktivním Bluetooth. Hotspot je ve výchozím stavu vypnutý. Ruční URL a režimy zůstávají v Nastavení.';
 
   @override
   String get helpPlayingTitle => 'Hraní partie';
@@ -2393,7 +2761,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get newGameBlackBottom => 'Černá dole';
 
   @override
-  String get newGameCustomTimeTitle => 'Vlastní čas (typ 14)';
+  String get newGameCustomTimeTitle => 'Vlastní čas';
 
   @override
   String get newGameCustomTimeSubtitle =>
@@ -2426,14 +2794,16 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get newGameSheetBody =>
-      'Stejně jako na iOS: časová kontrola se odešle na desku a pak začne nová hra.';
+      'Vyberte časovou kontrolu a orientaci šachovnice.';
 
   @override
-  String get newGameBoardViewSection => 'Pohled na desku (která barva je dole)';
+  String get newGameBoardViewSection => 'Orientace šachovnice';
 
   @override
-  String get newGameWhoStartsNote =>
-      'Kdo začíná určuje deska / pravidla; zde jen otáčíš pohled (uloženo v Nastavení).';
+  String get newGameBoardViewInfoTitle => 'Orientace šachovnice';
+
+  @override
+  String get newGameWhoStartsNote => '';
 
   @override
   String get newGameFirmwarePresets => 'Předvolby firmware';
@@ -2834,6 +3204,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get lampStudioScenes => 'Scény';
 
   @override
+  String get lampStudioPresetColorsTitle => 'Předvolené barvy';
+
+  @override
+  String get lampStudioFineTuneSection => 'Doladit barvu';
+
+  @override
   String get lampStudioApplyToBoard => 'Použít na desku';
 
   @override
@@ -2857,6 +3233,12 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get lampStudioTimerSavedOk => 'Časovač auto zhasnutí uložen.';
+
+  @override
+  String get lampStudioSelectedSwatchLabel => 'Zvolená barva';
+
+  @override
+  String get lampStudioDeveloperRgbTitle => 'Vývojář · hodnoty RGB';
 
   @override
   String lampStudioRgbLine(int r, int g, int b) {
@@ -2988,6 +3370,10 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get setupWizardErrGeneric => 'Chyba';
+
+  @override
+  String get setupWizardErrPhysicalMismatch =>
+      'Deska stále hlásí režim nastavení pozice, nebo fyzické figury nesedí — uprav figury na zvýrazněných polích a zkus to znovu.';
 
   @override
   String get setupWizardTitleStandard => 'Základní postavení';
@@ -3164,8 +3550,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsTileSmartHomeSubtitle => 'Home Assistant a MQTT';
 
   @override
-  String get settingsHaMqttOpenButton =>
-      'Home Assistant a MQTT (návod + formulář)';
+  String get settingsHaMqttOpenButton => 'MQTT a Home Assistant';
 
   @override
   String get settingsTileBoardLightTitle => 'Světlo desky';
@@ -3175,11 +3560,10 @@ class AppLocalizationsCs extends AppLocalizations {
       'Barva, jas, scény, auto‑vypnutí';
 
   @override
-  String get settingsTileModulesTitle => 'Moduly a učení';
+  String get settingsTileModulesTitle => 'Nápověda a průvodci';
 
   @override
-  String get settingsTileModulesSubtitle =>
-      'Úvod, puzzle, profil, pokrok, nápověda';
+  String get settingsTileModulesSubtitle => 'Dokumentace a znovu spustit úvod';
 
   @override
   String get settingsNavAppTour => 'Průvodce aplikací (úvod)';
@@ -3311,6 +3695,10 @@ class AppLocalizationsCs extends AppLocalizations {
       'Živé aktivity jsou v systému vypnuté. Zapni je v Nastavení → czechmate → Živé aktivity.';
 
   @override
+  String get settingsHomeScreenWidgetHint =>
+      'Domovský widget CzechMate přidáš z galerie widgetů — rychlý náhled stavu, když je aplikace na pozadí (vedle živých aktivit na podporovaných iPhonech).';
+
+  @override
   String get settingsWearMirrorTitle => 'Zrcadlit časomíru na Wear OS';
 
   @override
@@ -3329,14 +3717,14 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsFactoryTileSubtitle =>
-      'Smaže NVS na ESP — zařízení jako přístupový bod';
+      'Smaže NVS na ESP — Wi‑Fi údaje a předvolby se resetují';
 
   @override
   String get settingsFactoryDialogTitle => 'Tovární reset';
 
   @override
   String get settingsFactoryDialogBody =>
-      'Smazat celé NVS desky (Wi‑Fi, hesla, MQTT, předvolby)? Zařízení se restartuje jako Wi‑Fi přístupový bod.';
+      'Smazat celé NVS desky (Wi‑Fi, hesla, MQTT, předvolby)? Zařízení se restartuje; hotspot desky zůstane vypnutý, dokud ho nezapneš z aplikace.';
 
   @override
   String get settingsFactoryErase => 'Smazat';
@@ -3508,7 +3896,17 @@ class AppLocalizationsCs extends AppLocalizations {
       'Po zapnutí automatického vyhodnocení uvidíš křivku zde.';
 
   @override
-  String get analysisClearEvalData => 'Vymazat graf a uložená hodnocení tahů';
+  String get analysisClearEvalData => 'Vymazat graf a hodnocení';
+
+  @override
+  String get analysisClearEvalConfirmTitle => 'Vymazat data analýzy?';
+
+  @override
+  String get analysisClearEvalConfirmBody =>
+      'Odstraní graf hodnocení a uložené statistiky kvality tahů. Akci nelze vrátit zpět.';
+
+  @override
+  String get analysisClearEvalConfirmAction => 'Vymazat';
 
   @override
   String get analysisMoveQualitySideLast3 => 'Poslední 3 tahy strany';
@@ -3590,6 +3988,25 @@ class AppLocalizationsCs extends AppLocalizations {
   String get puzzleSuccessLine => 'Správně! Linie.';
 
   @override
+  String get puzzleCelebrationTitle => 'Výborně!';
+
+  @override
+  String get puzzleCelebrationBodyPlain => 'Puzzle jsi vyřešil.';
+
+  @override
+  String puzzleCelebrationBodyElo(int delta) {
+    return 'Puzzle jsi vyřešil — rating +$delta.';
+  }
+
+  @override
+  String get puzzleSaveNeedPosition =>
+      'Nejdřív otevři puzzle na kartě Hra, ať se načte pozice, pak ji ulož sem.';
+
+  @override
+  String get puzzleLibSavedPositionCaption =>
+      'Aktuální pozice (technický údaj)';
+
+  @override
   String get puzzleWrongResetting => 'To není řešení — obnovuji pozici.';
 
   @override
@@ -3656,7 +4073,10 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get coachSetupBannerBody =>
-      'Seznam priorit trenéra není prázdný, ale žádný poskytovatel nemá vyplněné přihlašování. Otevři Nastavení → Trenér a AI a doplň API klíče (nebo URL Ollamy) pro alespoň jednoho z nich.';
+      'AI trenér ještě není nastavený. V nastavení přidej poskytovatele a API klíč, aby mohl odpovídat.';
+
+  @override
+  String get coachSetupBannerAction => 'Otevřít nastavení trenéra';
 
   @override
   String coachErrorSomethingWrong(String error) {

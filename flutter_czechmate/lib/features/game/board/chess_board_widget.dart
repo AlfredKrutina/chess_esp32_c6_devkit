@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/board_styles.dart';
 import '../../../core/models/game_snapshot.dart';
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/widgets/app_modal_sheet.dart';
 import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/board_algebraic.dart';
 import '../../../core/utils/fen_board_parser.dart';
@@ -28,8 +29,9 @@ void _openPromotionSheet(
   void Function(String) snack,
 ) {
   final l10n = context.l10n;
-  showModalBottomSheet<void>(
+  showAppModalBottomSheet<void>(
     context: context,
+    showDragHandle: false,
     builder: (ctx) => SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -196,8 +198,9 @@ class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
                         child: AnimatedBuilder(
                           animation: _invalidRecoveryPulse,
                           builder: (context, _) {
-                            final pulseT =
-                                serverInvalid ? _invalidRecoveryPulse.value : 0.0;
+                            final pulseT = serverInvalid
+                                ? _invalidRecoveryPulse.value
+                                : 0.0;
                             return CustomPaint(
                               size: Size(side, side),
                               painter: _BoardPainter(
@@ -212,8 +215,7 @@ class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
                                     serverInvalid ? err.originalPos : null,
                                 clientInvalidSquare:
                                     ui.invalidDestinationPulseSquare,
-                                clientInvalidLit:
-                                    ui.invalidDestinationPulseLit,
+                                clientInvalidLit: ui.invalidDestinationPulseLit,
                                 hintFrom: ui.hintFrom,
                                 hintTo: ui.hintTo,
                                 selected: ui.selectedSquare,
@@ -294,11 +296,14 @@ class _BoardPainter extends CustomPainter {
   final bool flipped;
   final String? lastFrom;
   final String? lastTo;
+
   /// Pole s neplatně postavenou figurkou (snapshot `error_state`).
   final String? serverInvalidSquare;
+
   /// 0–1 z [AnimationController] — červené „pod“ polem.
   final double serverInvalidPulseT;
   final String? originalSquare;
+
   /// Lokální zpětná vazba po zamítnutém tahu z aplikace.
   final String? clientInvalidSquare;
   final bool clientInvalidLit;
@@ -325,8 +330,7 @@ class _BoardPainter extends CustomPainter {
     _markSquare(canvas, sq, originalSquare, themeColors.selected);
     _markSquare(canvas, sq, lastFrom, themeColors.lastMove);
     _markSquare(canvas, sq, lastTo, themeColors.lastMove);
-    final serverPulseAlpha =
-        0.28 + 0.62 * serverInvalidPulseT.clamp(0.0, 1.0);
+    final serverPulseAlpha = 0.28 + 0.62 * serverInvalidPulseT.clamp(0.0, 1.0);
     _markSquare(
       canvas,
       sq,
@@ -543,51 +547,53 @@ class FenBoardPreview extends ConsumerWidget {
     final themeColors = BoardStyleColors.fromRaw(ui.boardStyleRaw);
     final flipped = ui.boardFlipped;
 
-    return AspectRatio(
-      aspectRatio: 1,
-      child: LayoutBuilder(
-        builder: (context, c) {
-          final side = c.maxWidth;
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Stack(
-              clipBehavior: Clip.hardEdge,
-              children: [
-                CustomPaint(
-                  size: Size(side, side),
-                  painter: _BoardPainter(
+    return RepaintBoundary(
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final side = c.maxWidth;
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  CustomPaint(
+                    size: Size(side, side),
+                    painter: _BoardPainter(
+                      board: cells,
+                      flipped: flipped,
+                      lastFrom: highlightFrom,
+                      lastTo: highlightTo,
+                      serverInvalidSquare: null,
+                      serverInvalidPulseT: 0,
+                      originalSquare: null,
+                      clientInvalidSquare: null,
+                      clientInvalidLit: false,
+                      hintFrom: null,
+                      hintTo: null,
+                      selected: null,
+                      themeColors: themeColors,
+                    ),
+                  ),
+                  if (showCoordinates && ui.showCoordinates)
+                    _CoordinateOverlay(
+                      size: side,
+                      square: side / 8,
+                      flipped: flipped,
+                      themeColors: themeColors,
+                    ),
+                  BoardPiecesAnimator(
                     board: cells,
                     flipped: flipped,
-                    lastFrom: highlightFrom,
-                    lastTo: highlightTo,
-                    serverInvalidSquare: null,
-                    serverInvalidPulseT: 0,
-                    originalSquare: null,
-                    clientInvalidSquare: null,
-                    clientInvalidLit: false,
-                    hintFrom: null,
-                    hintTo: null,
-                    selected: null,
-                    themeColors: themeColors,
+                    animationsEnabled: false,
+                    squareW: side / 8,
                   ),
-                ),
-                if (showCoordinates && ui.showCoordinates)
-                  _CoordinateOverlay(
-                    size: side,
-                    square: side / 8,
-                    flipped: flipped,
-                    themeColors: themeColors,
-                  ),
-                BoardPiecesAnimator(
-                  board: cells,
-                  flipped: flipped,
-                  animationsEnabled: false,
-                  squareW: side / 8,
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

@@ -5,9 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('thinkPlyPoints converts firmware ms deltas to seconds', () {
     final moves = [
-      GameHistoryMove(from: 'e2', to: 'e4', timestamp: 1000),
-      GameHistoryMove(from: 'e7', to: 'e5', timestamp: 3500),
-      GameHistoryMove(from: 'g1', to: 'f3', timestamp: 4000),
+      const GameHistoryMove(from: 'e2', to: 'e4', timestamp: 1000),
+      const GameHistoryMove(from: 'e7', to: 'e5', timestamp: 3500),
+      const GameHistoryMove(from: 'g1', to: 'f3', timestamp: 4000),
     ];
     final pts = GameEndReportTiming.thinkPlyPoints(moves);
     expect(pts[0].secondsFromPrevious, isNull);
@@ -19,9 +19,9 @@ void main() {
 
   test('thinkPlyPoints drops outlier move intervals', () {
     final moves = [
-      GameHistoryMove(from: 'e2', to: 'e4', timestamp: 1000),
-      GameHistoryMove(from: 'e7', to: 'e5', timestamp: 1000 + 5000),
-      GameHistoryMove(from: 'g1', to: 'f3', timestamp: 1000 + 5000 + 5000000),
+      const GameHistoryMove(from: 'e2', to: 'e4', timestamp: 1000),
+      const GameHistoryMove(from: 'e7', to: 'e5', timestamp: 1000 + 5000),
+      const GameHistoryMove(from: 'g1', to: 'f3', timestamp: 1000 + 5000 + 5000000),
     ];
     final pts = GameEndReportTiming.thinkPlyPoints(moves);
     expect(pts[1].secondsFromPrevious, closeTo(5.0, 1e-9));

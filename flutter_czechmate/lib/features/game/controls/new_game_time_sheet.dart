@@ -3,32 +3,40 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/widgets/app_modal_sheet.dart';
 import '../../../core/widgets/glass_snackbar.dart';
+import '../../../core/widgets/pressable_scale.dart';
 import '../../../core/constants/app_environment.dart';
+import '../../../core/utils/user_facing_error_message.dart';
 import '../../../core/constants/chess_time_control_presets.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 import '../state/game_ui_notifier.dart';
 
-/// Bottom sheet (iOS `NewGameSetupSheet` parity) — time control + `timer_config` + `new_game`.
+/// Bottom sheet — časová kontrola + `timer_config` + `new_game`.
 Future<void> showNewGameWithTimeSheet(BuildContext context) async {
-  await showModalBottomSheet<void>(
+  await showAppModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
     useSafeArea: true,
     builder: (ctx) {
-      final h = MediaQuery.sizeOf(ctx).height * 0.9;
-      return SizedBox(
-        height: h,
-        child: const NewGameTimeSheet(),
+      return DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.38,
+        maxChildSize: 0.94,
+        expand: false,
+        builder: (_, scrollController) =>
+            NewGameTimeSheet(scrollController: scrollController),
       );
     },
   );
 }
 
 class NewGameTimeSheet extends ConsumerStatefulWidget {
-  const NewGameTimeSheet({super.key});
+  const NewGameTimeSheet({super.key, required this.scrollController});
+
+  final ScrollController scrollController;
 
   @override
   ConsumerState<NewGameTimeSheet> createState() => _NewGameTimeSheetState();
@@ -63,11 +71,15 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
     }
   }
 
+  bool _canSubmit(BoardSessionState session) {
+    return session.transport == BoardTransport.wifi ||
+        session.transport == BoardTransport.ble ||
+        session.transport == BoardTransport.mock;
+  }
+
   Future<void> _submit() async {
     final session = ref.read(boardSessionNotifierProvider);
-    if (session.transport != BoardTransport.wifi &&
-        session.transport != BoardTransport.ble &&
-        session.transport != BoardTransport.mock) {
+    if (!_canSubmit(session)) {
       if (mounted) {
         showGlassSnackBar(
           context,
@@ -94,7 +106,8 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
         await prefs.setLastNewGameTimeControl('p:${_preset.name}');
       }
       if (AppEnvironment.staging) {
-        debugPrint('[staging] New game prefs saved: ${prefs.lastNewGameTimeControl}');
+        debugPrint(
+            '[staging] New game prefs saved: ${prefs.lastNewGameTimeControl}');
       }
       if (mounted) {
         Navigator.of(context).pop();
@@ -102,145 +115,336 @@ class _NewGameTimeSheetState extends ConsumerState<NewGameTimeSheet> {
       }
     } catch (e) {
       if (mounted) {
-        showGlassSnackBar(context, context.l10n.newGameErrorSnack('$e'));
+        final l10n = context.l10n;
+        showGlassSnackBar(
+          context,
+          l10n.newGameErrorSnack(userFacingErrorSummary(l10n, e)),
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
+  Widget _section(
+    BuildContext context, {
+    required Widget child,
+    String? title,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: cs.surfaceContainerLow,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (title != null) ...[
+              Text(
+                title,
+                style: tt.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 12),
+            ],
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final session = ref.watch(boardSessionNotifierProvider);
     final boardUi = ref.watch(gameUiNotifierProvider);
     final boardUiN = ref.read(gameUiNotifierProvider.notifier);
     final kb = MediaQuery.viewInsetsOf(context).bottom;
-    return Padding(
-      padding: EdgeInsets.only(bottom: kb),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+    final canStart = _canSubmit(session);
+
+    return Material(
+      color: cs.surface,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: kb),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 16, 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(l10n.newGameSheetTitle,
-                      style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.newGameSheetBody,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    l10n.newGameBoardViewSection,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 6),
-                  SegmentedButton<bool>(
-                    segments: [
-                      ButtonSegment(
-                          value: false, label: Text(l10n.newGameWhiteBottom)),
-                      ButtonSegment(
-                          value: true, label: Text(l10n.newGameBlackBottom)),
-                    ],
-                    selected: {boardUi.boardFlipped},
-                    onSelectionChanged: _busy
-                        ? null
-                        : (s) {
-                            if (s.isEmpty) return;
-                            final want = s.first;
-                            if (want != boardUi.boardFlipped) boardUiN.toggleFlip();
-                          },
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.newGameWhoStartsNote,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 12),
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(l10n.newGameCustomTimeTitle),
-                    subtitle: Text(
-                      _useCustom
-                          ? l10n.newGameCustomSummary(
-                              _customMin.round(), _customInc.round())
-                          : l10n.newGameFirmwarePresets,
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: cs.primaryContainer,
+                    child: Icon(
+                      Icons.restart_alt_rounded,
+                      size: 30,
+                      color: cs.onPrimaryContainer,
                     ),
-                    value: _useCustom,
-                    onChanged: _busy
-                        ? null
-                        : (v) => setState(() {
-                              _useCustom = v;
-                            }),
                   ),
-                  if (_useCustom) ...[
-                    Text(l10n.newGameMinutesPerSide(
-                        '${_customMin.round()}')),
-                    Slider(
-                      min: 1,
-                      max: 180,
-                      divisions: 179,
-                      value: _customMin.clamp(1, 180),
-                      onChanged: _busy
-                          ? null
-                          : (x) => setState(() => _customMin = x),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.newGameSheetTitle,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.newGameSheetSubtitle,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(l10n.newGameIncrementSeconds(
-                        '${_customInc.round()}')),
-                    Slider(
-                      min: 0,
-                      max: 60,
-                      divisions: 60,
-                      value: _customInc.clamp(0, 60),
-                      onChanged: _busy
-                          ? null
-                          : (x) => setState(() => _customInc = x),
-                    ),
-                  ] else
-                    ...ChessTimeControlPreset.values.map((p) {
-                      return RadioListTile<ChessTimeControlPreset>(
-                        dense: true,
-                        value: p,
-                        groupValue: _preset,
-                        title: Text(p.title),
-                        subtitle: Text(p.subtitle),
-                        onChanged: _busy
-                            ? null
-                            : (v) {
-                                if (v == null) return;
-                                setState(() => _preset = v);
-                              },
-                      );
-                    }),
+                  ),
                 ],
               ),
             ),
-          ),
-          const Divider(height: 1),
-          SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _busy ? null : _submit,
-                  child: _busy
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.newGameStartOnBoard),
+            if (!canStart)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: cs.errorContainer.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: cs.error.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.link_off_rounded, color: cs.error, size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.newGameConnectFirstSnack,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onErrorContainer,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            Expanded(
+              child: ListView(
+                controller: widget.scrollController,
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                children: [
+                  Text(
+                    l10n.newGameSheetBody,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _section(
+                    context,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.rotate_90_degrees_ccw,
+                                size: 22, color: cs.primary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                l10n.newGameBoardViewSection,
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        SegmentedButton<bool>(
+                          segments: [
+                            ButtonSegment<bool>(
+                              value: false,
+                              label: Text(l10n.newGameWhiteBottom),
+                              icon: const Icon(Icons.contrast_outlined, size: 18),
+                            ),
+                            ButtonSegment<bool>(
+                              value: true,
+                              label: Text(l10n.newGameBlackBottom),
+                              icon: const Icon(Icons.contrast, size: 18),
+                            ),
+                          ],
+                          selected: {boardUi.boardFlipped},
+                          onSelectionChanged: _busy
+                              ? null
+                              : (s) {
+                                  if (s.isEmpty) return;
+                                  final want = s.first;
+                                  if (want != boardUi.boardFlipped) {
+                                    boardUiN.toggleFlip();
+                                  }
+                                },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _section(
+                    context,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(l10n.newGameCustomTimeTitle),
+                          subtitle: Text(
+                            _useCustom
+                                ? l10n.newGameCustomSummary(
+                                    _customMin.round(), _customInc.round())
+                                : l10n.newGameFirmwarePresets,
+                          ),
+                          value: _useCustom,
+                          onChanged: _busy
+                              ? null
+                              : (v) => setState(() => _useCustom = v),
+                        ),
+                        if (_useCustom) ...[
+                          Text(
+                            l10n.newGameMinutesPerSide(
+                              '${_customMin.round()}',
+                            ),
+                            style: theme.textTheme.labelLarge,
+                          ),
+                          Slider(
+                            min: 1,
+                            max: 180,
+                            divisions: 179,
+                            value: _customMin.clamp(1, 180),
+                            onChanged: _busy
+                                ? null
+                                : (x) => setState(() => _customMin = x),
+                          ),
+                          Text(
+                            l10n.newGameIncrementSeconds(
+                              '${_customInc.round()}',
+                            ),
+                            style: theme.textTheme.labelLarge,
+                          ),
+                          Slider(
+                            min: 0,
+                            max: 60,
+                            divisions: 60,
+                            value: _customInc.clamp(0, 60),
+                            onChanged: _busy
+                                ? null
+                                : (x) => setState(() => _customInc = x),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              for (final p in ChessTimeControlPreset.values)
+                                ChoiceChip(
+                                  showCheckmark: false,
+                                  labelPadding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 2,
+                                  ),
+                                  label: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(p.title),
+                                      Text(
+                                        p.subtitle,
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                          color: (!_useCustom && _preset == p)
+                                              ? cs.onSecondaryContainer
+                                              : cs.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  selected: !_useCustom && _preset == p,
+                                  onSelected: _busy
+                                      ? null
+                                      : (_) => setState(() {
+                                            _preset = p;
+                                            _useCustom = false;
+                                          }),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: cs.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: PressableScale(
+                      child: FilledButton.icon(
+                        onPressed:
+                            (_busy || !canStart) ? null : _submit,
+                        icon: _busy
+                            ? SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: cs.onPrimary,
+                                ),
+                              )
+                            : const Icon(Icons.play_arrow_rounded),
+                        label: Text(l10n.newGameStartOnBoard),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
