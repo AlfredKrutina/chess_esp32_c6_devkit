@@ -59,7 +59,7 @@ var searchData=
   ['hall_5fi2c_5ffields_5fper_5fsegment_56',['HALL_I2C_FIELDS_PER_SEGMENT',['../hall__i2c__spec_8h.html#aebb15ef88fb8f35535fe5486c51103c0',1,'hall_i2c_spec.h']]],
   ['hall_5fi2c_5fmatrix_2ec_57',['hall_i2c_matrix.c',['../hall__i2c__matrix_8c.html',1,'']]],
   ['hall_5fi2c_5fmatrix_2eh_58',['hall_i2c_matrix.h',['../hall__i2c__matrix_8h.html',1,'']]],
-  ['hall_5fi2c_5fmatrix_5ffill_5fstate_59',['hall_i2c_matrix_fill_state',['../hall__i2c__matrix_8c.html#a4552b41b377abfa0e25af1e6b17e6a78',1,'hall_i2c_matrix_fill_state(uint8_t *matrix_state):&#160;hall_i2c_matrix.c'],['../hall__i2c__matrix_8h.html#a79e2c10b7f88ffac1cc91c61595082e0',1,'hall_i2c_matrix_fill_state(uint8_t matrix_state[64]):&#160;hall_i2c_matrix.h']]],
+  ['hall_5fi2c_5fmatrix_5ffill_5fstate_59',['hall_i2c_matrix_fill_state',['../hall__i2c__matrix_8c.html#a79e2c10b7f88ffac1cc91c61595082e0',1,'hall_i2c_matrix_fill_state(uint8_t matrix_state[64]):&#160;hall_i2c_matrix.c'],['../hall__i2c__matrix_8h.html#a79e2c10b7f88ffac1cc91c61595082e0',1,'hall_i2c_matrix_fill_state(uint8_t matrix_state[64]):&#160;hall_i2c_matrix.c']]],
   ['hall_5fi2c_5fmatrix_5finit_60',['hall_i2c_matrix_init',['../hall__i2c__matrix_8c.html#a7fe369cc1c3663b67df0e78d78e14e85',1,'hall_i2c_matrix_init(void):&#160;hall_i2c_matrix.c'],['../hall__i2c__matrix_8h.html#a7fe369cc1c3663b67df0e78d78e14e85',1,'hall_i2c_matrix_init(void):&#160;hall_i2c_matrix.c']]],
   ['hall_5fi2c_5fpayload_5fbytes_61',['HALL_I2C_PAYLOAD_BYTES',['../hall__i2c__spec_8h.html#a8c545818e09cbb5d504cf48276abe049',1,'hall_i2c_spec.h']]],
   ['hall_5fi2c_5fprotocol_5fversion_62',['HALL_I2C_PROTOCOL_VERSION',['../hall__i2c__spec_8h.html#a940e47a07cf20b5c47e5973914c32793',1,'hall_i2c_spec.h']]],

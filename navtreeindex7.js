@@ -89,7 +89,7 @@ var NAVTREEINDEX7 =
 "ha__light__task_8h.html#afaac44baa4c83b066d88d4a6b49c7105":[3,0,0,9,0,0,21],
 "ha__light__task_8h_source.html":[3,0,0,9,0,0],
 "hall__i2c__matrix_8c.html":[3,0,0,12,1],
-"hall__i2c__matrix_8c.html#a4552b41b377abfa0e25af1e6b17e6a78":[3,0,0,12,1,0],
+"hall__i2c__matrix_8c.html#a79e2c10b7f88ffac1cc91c61595082e0":[3,0,0,12,1,0],
 "hall__i2c__matrix_8c.html#a7fe369cc1c3663b67df0e78d78e14e85":[3,0,0,12,1,1],
 "hall__i2c__matrix_8c_source.html":[3,0,0,12,1],
 "hall__i2c__matrix_8h.html":[3,0,0,12,0,0],
