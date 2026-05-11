@@ -150,6 +150,11 @@ jobs:
           channel: stable
           cache: true
 
+      # CMake / link potřebují MSVC z Visual Studio (na hosted runneru často bez „Dev Prompt“ selže linker).
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Flutter Windows release build
         working-directory: flutter_czechmate
         run: |
@@ -166,11 +171,20 @@ jobs:
           $iss = Join-Path $env:GITHUB_WORKSPACE "flutter_czechmate\installer\windows\CzechMateSetup.iss"
           if (-not (Test-Path $src)) { throw "Missing Flutter output: $src" }
           if (-not (Test-Path $iss)) { throw "Missing ISS: $iss" }
-          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path $iscc)) {
-            $iscc = Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe"
+          $candidates = @(
+            (Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"),
+            (Join-Path $env:ProgramFiles "Inno Setup 6\ISCC.exe"),
+            "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          )
+          $iscc = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            Write-Host "ProgramFiles(x86)=" ${env:ProgramFiles(x86)}
+            Write-Host "ProgramFiles=" $env:ProgramFiles
+            if (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6") {
+              Get-ChildItem "${env:ProgramFiles(x86)}\Inno Setup 6" -ErrorAction SilentlyContinue
+            }
+            throw "ISCC.exe not found after choco install innosetup."
           }
-          if (-not (Test-Path $iscc)) { throw "ISCC.exe not found (Inno Setup)." }
           & $iscc /DMyAppDisplayVersion="$display" /DMyAppOutputVersion="$safe" /DMyAppSourceDir="$src" $iss
 
       - name: Verify installer on repo root
