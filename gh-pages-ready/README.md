@@ -89,3 +89,5 @@ Video na stránce / na YouTube: [youtu.be/_MS6OP3x6Z4](https://youtu.be/_MS6OP3x
 
 **Verze textů:** sladím s kořenovým [README.md](../README.md).  
 Diagramová část se regeneruje přes `./scripts/render_docs.sh` nebo `python3 generate_mermaid_html.py` podle toho, co zrovna měním.
+
+Push na `main`, který mění soubory podle filtru v [`.github/workflows/gh-pages.yml`](../.github/workflows/gh-pages.yml), nasadí tuto složku na větev `gh-pages`. Flutter APK/DMG/EXE z CI žije na GitHub Releases — sekce stažení na `downloads.html` jen odkazuje přes API `releases/latest`.
