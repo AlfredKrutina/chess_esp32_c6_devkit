@@ -40,7 +40,7 @@ permissions:
 
 concurrency:
   group: gh-pages-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:

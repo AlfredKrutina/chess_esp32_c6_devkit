@@ -26,9 +26,10 @@ on:
 permissions:
   contents: write
 
+# Další push nesmí zrušit rozjetý build (jinak končí android/macos/windows jako „cancelled“).
 concurrency:
   group: flutter-app-release-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   meta:
