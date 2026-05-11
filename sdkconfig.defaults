@@ -94,22 +94,18 @@ CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
 CONFIG_APP_ROLLBACK_ENABLE=y
 
-# Šachovnice — čtení 128 Hall kanálů (4× plošňák × 32 vzorků) přes I2C ze STM.
-# Po přidání / změně těchto řádků: idf.py fullclean reconfigure build.
-# CONFIG_CHESS_MATRIX_INPUT_GPIO_REED is not set
-CONFIG_CHESS_MATRIX_INPUT_I2C_HALL=y
-CONFIG_CHESS_HALL_SEGMENT_COUNT=4
+# --- Matrix vstup (build-time choice) ---
+# Reed: matrix_scan_all() dělá GPIO multiplex 8×8 (viz matrix_task.c + MATRIX_* v freertos_chess.h).
+# Hall: hall_i2c_matrix_fill_state() čte 4× STM přes I2C (hall_i2c_spec.h).
+#
+# Návrat k „STM flash přes I2C při běhu“ později:
+# - menuconfig: CHESS_MATRIX_INPUT_I2C_HALL + CHESS_STM32_I2C_BL_ENABLE (+ často CHESS_STM32_BL_SHARE_I2C_HALL=y).
+# - Při samotném programování STM už kód dělá bl_pause_scan() → matrix_scanning_enabled=false (stm32_i2c_bl.c),
+#   pak obnoví scan — neřešíš ručně kolizi transakcí se čtením Hall bufferu na stejné sběrnici.
+# - Na této desce jsou GPIO10/11 řádky matice + GPIO18 řádek 2: nesmí být současně SDA/SCL/BOOT0 pro STM,
+#   pokud nemáš jiné zapojení — před zapnutím BL přemapuj piny v menuconfig a v freertos_chess.h.
+CONFIG_CHESS_MATRIX_INPUT_GPIO_REED=y
+# CONFIG_CHESS_MATRIX_INPUT_I2C_HALL is not set
 
-# STM32C0 — ROM bootloader přes I2C; po bootu ESP auto-nahrání z oddílu stm32_fw (viz partitions.csv).
-# V menuconfig nastav NRST (a volitelně BOOT0) pro každý segment. Jen segmenty s NRST ≠ -1 se programují.
-# STM bin při výrobě: idf.py flash (oddíl stm32_fw) nebo esptool dle výpisu partition-table
-CONFIG_CHESS_STM32_I2C_BL_ENABLE=y
-# NRST segmentu 0 → RESET_STM prvního STM (KiCad test: IO15).
-CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0=15
-# ROM I2C bootloader AN2606 Table 12 (STM32C031xx): 7-bit 0x63 (0b1100011x).
-CONFIG_CHESS_STM32_BL_TARGET_ADDR7=0x63
-# BOOT0_ESP ze schématu MCU (ESP GPIO18 → všechny STM BOOT0 / PA14).
-CONFIG_CHESS_STM32_BL_BOOT0_GPIO=18
-# Sdílená sběrnice: po init Hall přepnout na 100 kHz pro ROM bootloader (Hall STJM často OK).
-CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ=100000
-CONFIG_CHESS_STM32_BL_POST_NRST_DELAY_MS=150
+# STM32 ROM bootloader (AN4221) — vypnuto v reed profilu kvůli kolizi pinů výše.
+# CONFIG_CHESS_STM32_I2C_BL_ENABLE is not set

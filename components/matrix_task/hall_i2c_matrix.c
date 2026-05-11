@@ -199,7 +199,7 @@ void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
 
 esp_err_t hall_i2c_matrix_init(void) { return ESP_OK; }
 
-void hall_i2c_matrix_fill_state(uint8_t *matrix_state) {
+void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
   if (matrix_state) {
     memset(matrix_state, 0, 64);
   }

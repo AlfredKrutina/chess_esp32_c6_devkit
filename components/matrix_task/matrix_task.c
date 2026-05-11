@@ -365,6 +365,13 @@ void matrix_scan_row(uint8_t row) {
   }
 }
 
+/*
+ * Kconfig CHESS_MATRIX_INPUT:
+ * - GPIO_REED: níže smyčka matrix_scan_row_internal(0..7) — multiplex řádků.
+ * - I2C_HALL: hall_i2c_matrix_fill_state() (čtení ze STM slave adres).
+ * STM32 flash přes I2C při zapnutém CHESS_STM32_I2C_BL_ENABLE: bootloader si sám
+ * pozastaví scan (matrix_scanning_enabled v stm32_i2c_bl.c), dokud neproběhne flash.
+ */
 void matrix_scan_all(void) {
   uint32_t current_time = esp_timer_get_time() / 1000;
 
