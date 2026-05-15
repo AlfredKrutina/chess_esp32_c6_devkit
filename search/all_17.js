@@ -2,7 +2,7 @@ var searchData=
 [
   ['o_20projektu_0',['🎓 O projektu',['../index.html#autotoc_md91',1,'']]],
   ['občas_20štve_1',['🐛 Co víme, že občas štve',['../index.html#autotoc_md151',1,'']]],
-  ['odkazy_20které_20mám_20pořád_20po_20ruce_2',['🔗 Odkazy, které mám pořád po ruce',['../index.html#autotoc_md170',1,'']]],
+  ['odkazy_2',['🔗 Užitečné odkazy',['../index.html#autotoc_md170',1,'']]],
   ['odnáším_3',['🎓 Co jsem si z toho odnáším',['../index.html#autotoc_md124',1,'']]],
   ['of_20contents_4',['of contents',['../button__task_8c.html#autotoc_md9',1,'TABLE OF CONTENTS'],['../web__server__task_8c.html#autotoc_md87',1,'TABLE OF CONTENTS'],['../matrix__task_8c.html#autotoc_md57',1,'TABLE OF CONTENTS']]],
   ['of_20contents_20navigace_5',['of contents navigace',['../uart__task_8c.html#autotoc_md68',1,'TABLE OF CONTENTS (NAVIGACE)'],['../led__task_8c.html#autotoc_md40',1,'TABLE OF CONTENTS (NAVIGACE)'],['../game__task_8c.html#autotoc_md20',1,'TABLE OF CONTENTS (NAVIGACE)']]],

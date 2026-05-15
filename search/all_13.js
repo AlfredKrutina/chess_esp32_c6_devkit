@@ -27,6 +27,5 @@ var searchData=
   ['konzole_24',['UART konzole',['../index.html#autotoc_md115',1,'']]],
   ['kriticka_20pravidla_25',['kriticka pravidla',['../uart__task_8c.html#autotoc_md72',1,'KRITICKA PRAVIDLA'],['../web__server__task_8c.html#autotoc_md85',1,'KRITICKA PRAVIDLA'],['../matrix__task_8c.html#autotoc_md55',1,'KRITICKA PRAVIDLA'],['../led__task_8c.html#autotoc_md44',1,'KRITICKA PRAVIDLA'],['../game__task_8c.html#autotoc_md24',1,'KRITICKA PRAVIDLA'],['../button__task_8c.html#autotoc_md7',1,'KRITICKA PRAVIDLA']]],
   ['krutina_20software_20firmware_26',['Alfred Krutina - Software &amp; Firmware',['../index.html#autotoc_md165',1,'']]],
-  ['které_20mám_20pořád_20po_20ruce_27',['🔗 Odkazy, které mám pořád po ruce',['../index.html#autotoc_md170',1,'']]],
-  ['které_20nás_20držely_20vzhůru_28',['🐛 Výzvy, které nás držely vzhůru',['../index.html#autotoc_md132',1,'']]]
+  ['které_20nás_20držely_20vzhůru_27',['🐛 Výzvy, které nás držely vzhůru',['../index.html#autotoc_md132',1,'']]]
 ];

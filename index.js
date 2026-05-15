@@ -69,13 +69,13 @@ var index =
     [ "📝 Historie verzí", "index.html#autotoc_md159", [
       [ "1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)", "index.html#autotoc_md160", null ]
     ] ],
-    [ "🔮 Co mě ještě láká doplnit", "index.html#autotoc_md162", null ],
+    [ "🔮 Možné další směry", "index.html#autotoc_md162", null ],
     [ "👥 Autoři", "index.html#autotoc_md164", [
       [ "Alfred Krutina - Software & Firmware", "index.html#autotoc_md165", null ],
       [ "Matěj Jager - Hardware", "index.html#autotoc_md166", null ]
     ] ],
     [ "📄 Licence", "index.html#autotoc_md168", null ],
-    [ "🔗 Odkazy, které mám pořád po ruce", "index.html#autotoc_md170", null ],
+    [ "🔗 Užitečné odkazy", "index.html#autotoc_md170", null ],
     [ "🙏 Poděkování", "index.html#autotoc_md172", [
       [ "Učitelé", "index.html#autotoc_md173", null ],
       [ "ESP-IDF tým", "index.html#autotoc_md174", null ],

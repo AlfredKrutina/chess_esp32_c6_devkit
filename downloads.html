@@ -88,12 +88,12 @@
         </div>
 
         <div class="hero__video" role="region" aria-labelledby="hero-video-heading">
-          <p id="hero-video-heading" class="hero__video-label">Představení na videu</p>
+          <p id="hero-video-heading" class="hero__video-label">CzechMate v pohybu</p>
           <div class="hero__video-frame" data-youtube-id="_MS6OP3x6Z4">
             <iframe
               class="hero__video-iframe"
               src="https://www.youtube.com/embed/_MS6OP3x6Z4?controls=1&amp;fs=1&amp;playsinline=1&amp;rel=0&amp;modestbranding=1&amp;disablekb=0&amp;iv_load_policy=3"
-              title="Představující video CzechMate — přehrávání na stránce včetně posunu v čase a celé obrazovky"
+              title="CzechMate — představení produktu"
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               referrerpolicy="strict-origin-when-cross-origin"
               allowfullscreen
@@ -144,7 +144,7 @@
         <div class="split reveal-stagger">
           <div class="split__media">
             <video
-              class="split__video split__video--loop"
+              class="split__video split__video--loop split__video--controls-on-click"
               data-hero-video
               data-lazy-local
               muted
@@ -153,7 +153,7 @@
               autoplay
               preload="none"
               tabindex="-1"
-              aria-label="Smyčka: LED šachovnice CzechMate v provozu"
+              aria-label="LED šachovnice CzechMate v provozu"
               poster="landing/assets/board-placeholder.svg">
               <source data-src="landing/assets/czm-v2-led-loop.mp4" type="video/mp4">
               <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Výuková šachovnice CzechMate s LED podsvícením polí" decoding="async" loading="lazy">
@@ -234,16 +234,17 @@
           </p>
         </div>
         <div class="split split--reverse reveal-stagger">
-          <div class="split__media split__media--app-wired">
-            <img
-              id="ai-kouc-app-preview"
-              class="app-demo-still"
-              src="landing/assets/app-placeholder.svg"
-              width="720"
-              height="1280"
-              alt="Snímek aplikace CzechMate (AI kouč) — doplní se posledním snímkem z ukázkového videa"
-              decoding="async"
-              loading="lazy">
+          <div class="split__media split__media--ai-preview">
+            <div class="split__media--ai-preview__pan">
+              <img
+                id="ai-kouc-app-preview"
+                src="landing/assets/app-placeholder.svg"
+                width="960"
+                height="720"
+                alt="CzechMate — AI kouč v aplikaci"
+                decoding="async"
+                loading="lazy">
+            </div>
           </div>
           <div class="split__text">
             <h3>Vlastní AI pod tvou kontrolou</h3>
@@ -265,27 +266,27 @@
           Nemusíš přeskakovat mezi programy. V nastavení navíc <strong>aktualizuješ firmware desky</strong> bez kabelu k počítači.
         </p>
 
-        <div class="app-phone-showcase reveal reveal--seq-3">
-          <p class="app-phone-showcase__label">Ukázka na telefonu</p>
-          <p class="app-phone-showcase__lead">
-            Natočeno v poměru stran telefonu — přibližně stejný zážitek jako v kapse u partie.
+        <div class="app-demo-showcase reveal reveal--seq-3">
+          <p class="app-demo-showcase__lead">
+            Rozhraní aplikace při práci s partií, nápovědou a AI koučem.
           </p>
-          <div class="app-phone-showcase__stage">
-            <div class="app-phone-showcase__frame">
+          <div class="app-demo-showcase__wrap">
+            <div class="split__media">
               <video
                 id="app-phone-demo-video"
-                class="app-phone-showcase__video"
+                class="split__video split__video--controls-on-click"
                 data-lazy-local
+                data-play-when-visible
+                data-ai-preview-at="0.52"
                 muted
                 loop
-                autoplay
                 playsinline
-                controls
+                tabindex="0"
                 preload="none"
                 poster="landing/assets/app-placeholder.svg"
-                title="Aplikace CzechMate na mobilu — smyčka ukázky">
+                title="CzechMate — rozhraní aplikace">
                 <source data-src="landing/assets/czm-v2-app-iphone.mp4" type="video/mp4">
-                <img src="landing/assets/app-placeholder.svg" width="720" height="1280" alt="Náhled aplikace CzechMate na mobilu" decoding="async" loading="lazy">
+                <img src="landing/assets/app-placeholder.svg" width="960" height="720" alt="CzechMate — rozhraní aplikace" decoding="async" loading="lazy">
               </video>
             </div>
           </div>
@@ -433,7 +434,6 @@
         <a class="btn btn--ghost preorder-modal__cta preorder-modal__cta--secondary" href="https://www.instagram.com/alfredkrutina/" target="_blank" rel="noopener noreferrer">
           Domluvit přes Instagram
         </a>
-        <p class="preorder-modal__hint">Formulář i Instagram se otevřou v novém panelu.</p>
       </div>
     </dialog>
 
@@ -442,16 +442,16 @@
         <p class="section__label reveal">Stažení</p>
         <h2 id="dl-title" class="section__title reveal reveal--seq-1">Stáhni si CzechMate a začni se učit na živé desce</h2>
         <p class="section__intro reveal reveal--seq-2">
-          Stáhni si nejnovější aplikaci pro Android (APK), Mac s Apple Silicon (DMG) nebo Windows (instalátor EXE z CI).
-          Odkazy níže vedou na aktuální soubory z GitHub Releases a po načtení stránky se sama nastaví přímé stažení.
+          Stáhni si nejnovější aplikaci pro Android (APK), Mac s Apple Silicon (DMG) nebo Windows (instalátor EXE).
+          Odkazy vedou na GitHub Releases a nabídnou přímé stažení aktuálního buildu pro zvolenou platformu.
           Na Androidu případně povol instalaci z neznámého zdroje, pokud nepoužíváš Obchod Play.
           Na Macu otevři DMG a aplikaci přetáhni do složky Programy.
-          Na Windows spusť instalátor; při prvním spuštění může SmartScreen upozornit na nepodepsaný balík — pokračuj jen pokud stahuješ z oficiálního release tohoto projektu.
+          Na Windows může SmartScreen při prvním spuštění instalátoru upozornit na nepodepsaný balík — pokračuj jen u souborů z oficiálního release tohoto projektu.
           Verze pro Windows používá připojení k desce přes Wi‑Fi (Bluetooth sken v desktopové aplikaci není).
         </p>
         <div class="download-strip">
           <h3 class="download-strip__title reveal">Zvol platformu</h3>
-          <p class="download-strip__lead reveal reveal--seq-1">Jedno kliknutí stáhne nejnovější <code>.apk</code>, <code>.dmg</code> nebo <code>.exe</code> z GitHub release.</p>
+          <p class="download-strip__lead reveal reveal--seq-1">Aktuální balíček pro Android, macOS nebo Windows.</p>
           <div class="platform-grid reveal-stagger">
             <div class="platform-card">
               <h3>Android</h3>

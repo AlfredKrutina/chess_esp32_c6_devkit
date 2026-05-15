@@ -63,7 +63,7 @@
     return { open: openModal, close: closeModal };
   }
 
-  /* Na file:// embed YouTube často spadne (Error 153); zobrazíme jen náhled bez odkazu na YouTube. */
+  /* file://: YouTube embed často selže; nahrazeno statickým obrázkem z CDN. */
   (function initHeroYoutubeFileFallback() {
     var ytFrame = document.querySelector(".hero__video-frame[data-youtube-id]");
     if (!ytFrame || window.location.protocol !== "file:") return;
@@ -73,7 +73,7 @@
       '<div class="hero__video-fallback">' +
       '<img class="hero__video-fallback__img" src="https://img.youtube.com/vi/' +
       encodeURIComponent(vid) +
-      '/maxresdefault.jpg" alt="Náhled představujícího videa CzechMate" width="1280" height="720" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/' +
+      '/maxresdefault.jpg" alt="CzechMate — představení produktu" width="1280" height="720" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/' +
       encodeURIComponent(vid) +
       "/hqdefault.jpg'\">" +
       "</div>";
@@ -153,7 +153,7 @@
     });
   }
 
-  /* MP4 až těsně před vstup do viewportu — rychlejší první vykreslení, méně paralelních stahů */
+  /* MP4: lazy + rozestup startu stahů (dva soubory nezačnou naráz). */
   (function initLazyLocalVideos() {
     var vids = document.querySelectorAll("video[data-lazy-local]");
     if (!vids.length) return;
@@ -164,18 +164,19 @@
       saveData = !!(conn && conn.saveData);
     } catch (eC) {}
 
-    var rootMargin = saveData ? "80px 0px" : "360px 0px";
+    var rootMargin = saveData ? "80px 0px" : "480px 0px";
+    var nextVideoLoadAt = 0;
 
     function nearViewport(el) {
       var r = el.getBoundingClientRect();
-      var m = saveData ? 120 : 400;
+      var m = saveData ? 120 : 480;
       var vh = window.innerHeight || document.documentElement.clientHeight;
       var vw = window.innerWidth || document.documentElement.clientWidth;
       return (
         r.top < vh + m &&
         r.bottom > -m &&
-        r.left < vw + 80 &&
-        r.right > -80
+        r.left < vw + 100 &&
+        r.right > -100
       );
     }
 
@@ -199,10 +200,20 @@
       }
     }
 
+    function scheduleHydrate(v) {
+      if (v.dataset.lazyLocalHydrated === "1") return;
+      var now = Date.now();
+      var delay = Math.max(0, nextVideoLoadAt - now);
+      nextVideoLoadAt = Math.max(now, nextVideoLoadAt) + 220;
+      window.setTimeout(function () {
+        hydrate(v);
+      }, delay);
+    }
+
     var pending = [];
     vids.forEach(function (v) {
       if (nearViewport(v)) {
-        hydrate(v);
+        scheduleHydrate(v);
       } else {
         pending.push(v);
       }
@@ -210,7 +221,11 @@
 
     if (!pending.length) return;
     if (!("IntersectionObserver" in window)) {
-      pending.forEach(hydrate);
+      pending.forEach(function (v, i) {
+        window.setTimeout(function () {
+          scheduleHydrate(v);
+        }, i * 220);
+      });
       return;
     }
 
@@ -218,7 +233,7 @@
       function (entries) {
         entries.forEach(function (en) {
           if (en.isIntersecting) {
-            hydrate(en.target);
+            scheduleHydrate(en.target);
             io.unobserve(en.target);
           }
         });
@@ -230,8 +245,8 @@
     });
   })();
 
-  /* Ukázka na telefonu: poslední snímek z viditelného MP4 → #ai-kouc-app-preview (stejný ořez jako video přes CSS proměnné) */
-  (function initAppPhoneDemoLastFrame() {
+  /* #ai-kouc-app-preview: snímek z MP4 v čase data-ai-preview-at (0–1, výchozí 0.52 — konec bývá černý/fade). */
+  (function initAiKoucVideoPreviewFrame() {
     var demo = document.getElementById("app-phone-demo-video");
     var preview = document.getElementById("ai-kouc-app-preview");
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -246,11 +261,11 @@
       if (demo.readyState < 2 || !demo.videoWidth) return;
       scheduleTimer = window.setTimeout(function () {
         scheduleTimer = null;
-        captureLastFrame();
+        capturePreviewFrame();
       }, reduce ? 900 : 400);
     }
 
-    function captureLastFrame() {
+    function capturePreviewFrame() {
       if (done) return;
       var w = demo.videoWidth;
       var h = demo.videoHeight;
@@ -259,7 +274,12 @@
 
       var wasPlaying = !demo.paused;
       var savedTime = demo.currentTime;
-      var target = Math.max(0, d - 0.08);
+      var fracRaw = parseFloat(demo.getAttribute("data-ai-preview-at"));
+      var frac =
+        isFinite(fracRaw) && fracRaw >= 0.08 && fracRaw <= 0.92 ? fracRaw : 0.52;
+      var target = frac * d;
+      if (target < 0.12) target = 0.12;
+      if (target > d - 0.08) target = d - 0.08;
       var applied = false;
 
       function resume() {
@@ -277,14 +297,17 @@
         demo.removeEventListener("seeked", onSeeked);
         try {
           var canv = document.createElement("canvas");
-          canv.width = w;
-          canv.height = h;
+          var maxPreviewW = 800;
+          var sc = w > maxPreviewW ? maxPreviewW / w : 1;
+          var outW = Math.max(1, Math.round(w * sc));
+          var outH = Math.max(1, Math.round(h * sc));
+          canv.width = outW;
+          canv.height = outH;
           var ctx = canv.getContext("2d");
           if (ctx) {
-            ctx.drawImage(demo, 0, 0, w, h);
-            preview.src = canv.toDataURL("image/jpeg", 0.9);
-            preview.alt =
-              "Statický snímek z konce ukázkového videa — aplikace CzechMate (AI kouč)";
+            ctx.drawImage(demo, 0, 0, w, h, 0, 0, outW, outH);
+            preview.src = canv.toDataURL("image/jpeg", 0.82);
+            preview.alt = "CzechMate — AI kouč v aplikaci";
             done = true;
           }
         } catch (e1) {
@@ -320,6 +343,86 @@
     if (demo.readyState >= 2) {
       scheduleCapture();
     }
+  })();
+
+  /* Ukázka aplikace (#app-phone-demo-video): přehrávání když je video dostatečně vidět ve viewportu. */
+  (function initAppDemoVideoPlayWhenVisible() {
+    var v = document.getElementById("app-phone-demo-video");
+    if (
+      !v ||
+      (!v.hasAttribute("data-play-when-visible") && !v.hasAttribute("data-play-on-hover"))
+    )
+      return;
+    v.removeAttribute("autoplay");
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      try {
+        v.pause();
+      } catch (e0) {}
+      return;
+    }
+    if (!("IntersectionObserver" in window)) return;
+
+    function ensureMediaSource(vid) {
+      if (vid.dataset.lazyLocalHydrated === "1") return;
+      vid.querySelectorAll("source[data-src]").forEach(function (s) {
+        var url = s.getAttribute("data-src");
+        if (!url) return;
+        s.src = url;
+        s.removeAttribute("data-src");
+      });
+      vid.dataset.lazyLocalHydrated = "1";
+      try {
+        vid.load();
+      } catch (eL) {}
+    }
+
+    function tryPlay() {
+      ensureMediaSource(v);
+      var pr = v.play();
+      if (pr && typeof pr.catch === "function") {
+        pr.catch(function () {});
+      }
+    }
+
+    function tryPause() {
+      try {
+        v.pause();
+      } catch (e1) {}
+    }
+
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) tryPlay();
+          else tryPause();
+        });
+      },
+      {
+        root: null,
+        threshold: 0.28,
+        rootMargin: "0px 0px -6% 0px",
+      }
+    );
+    io.observe(v);
+  })();
+
+  /* Ovládání videa: nativní panel až po kliknutí na samotné video */
+  (function initVideoControlsOnClick() {
+    document.querySelectorAll("video.split__video--controls-on-click").forEach(function (v) {
+      v.controls = false;
+      function revealControls() {
+        if (v.controls) return;
+        v.controls = true;
+        v.removeEventListener("click", revealControls);
+        if (v.getAttribute("tabindex") === "-1") {
+          v.setAttribute("tabindex", "0");
+        }
+        try {
+          v.focus();
+        } catch (eF) {}
+      }
+      v.addEventListener("click", revealControls);
+    });
   })();
 
   /* Modal předobjednávky (<dialog>) */
@@ -412,20 +515,12 @@
             heading: "Co ti deska ukáže na místě",
             text:
               "Hall senzory poznají typ figurky na poli. LED ti pomůže u doporučeného tahu, šachu i matu, u promocí a při návratu pozornosti ke správné figurce. V aplikaci máš stejnou pozici s textem a analýzou.",
-            img: {
-              src: "landing/assets/board-placeholder.svg",
-              alt: "Vizualizace šachovnice CzechMate s podsvícenými poli",
-            },
           },
           {
             icon: feIcon(ic.layers),
             heading: "Jedna partie, dvě obrazovky",
             text:
               "Historie tahů a výukové režimy v aplikaci kopírují stav z desky. Žádný „diagram vedle reality“, který by neodpovídal figurkám.",
-            img: {
-              src: "landing/assets/app-placeholder.svg",
-              alt: "Obrazovka aplikace CzechMate s přehledem partie",
-            },
           },
           {
             icon: feIcon(ic.book),
@@ -576,7 +671,7 @@
             icon: feIcon(ic.globe),
             heading: "Rozhraní z prohlížeče",
             text:
-              "Na desce běží HTTP server. Výuku, nastavení i hru otevřeš z adresy šachovnice v prohlížeči. Hodí se na ukázku nebo na zařízení bez aplikace.",
+              "Na desce běží HTTP server. Výuku, nastavení i hru otevřeš z adresy šachovnice v prohlížeči — vhodné třeba v učebně na zařízení bez instalace aplikace.",
           },
           {
             icon: feIcon(ic.wifi),

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🔗_20odkazy_20které_20mám_20pořád_20po_20ruce_0',['🔗 Odkazy, které mám pořád po ruce',['../index.html#autotoc_md170',1,'']]]
+  ['🔗_20užitečné_20odkazy_0',['🔗 Užitečné odkazy',['../index.html#autotoc_md170',1,'']]]
 ];

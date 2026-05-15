@@ -95,7 +95,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="contents">
 <div class="textblock"><p><a class="anchor" id="md_README"></a> Ahoj — tady je <b>CzechMate</b>, náš šachový systém: fyzická deska se světly, firmware na ESP32-C6, web v prohlížeči a aplikace ve Flutteru (<code>flutter_czechmate/</code>). Nativní Xcode projekt <code>CZECHMATE/</code> si držím jen lokálně, v gitu není.</p>
 <p><b>Verze a hardware:</b> Aktuální číslo projektu ve firmwaru i v dokumentaci je **<code>1.8.0</code>** — běží na prototypu <b>V1</b> s <b>reed switch</b> maticí (objemnější deska, záznam na <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a>). <b>V2.0</b> je připravovaná <b>komerční</b> deska se <b>Hall senzory</b> (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k <b>V2</b>. Přehled: `docs/reference/HARDWARE_VERZE.md`.</p>
-<p><b>📲 Stáhnout aplikaci:</b> <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktovka + odkazy</a> — Android APK, macOS DMG a <b>Windows instalátor</b> (<code>*-windows-setup.exe</code>) jsou na <b><a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">GitHub Releases</a></b> (produkční stránka je na Pages, binárky servuje GitHub). <b>iOS / iPad</b> zatím připravujeme. <b>Windows:</b> instalátor sestavuje CI (<a href=".github/workflows/flutter-app-release.yml"><code>.github/workflows/flutter-app-release.yml</code></a>); BLE sken v desktopové aplikaci není — připojení přes Wi‑Fi URL na LAN (viz `docs/flutter/README.md`). <b>Krátké intro na videu:</b> <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a> (embed je i na <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktové stránce</a>).</p>
+<p><b>📲 Stáhnout aplikaci:</b> <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktovka + odkazy</a> — Android APK, macOS DMG a <b>Windows instalátor</b> (<code>*-windows-setup.exe</code>) jsou na <b><a href="https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest">GitHub Releases</a></b> (produkční stránka je na Pages, binárky servuje GitHub). <b>iOS / iPad</b> zatím připravujeme. <b>Windows:</b> instalátor sestavuje CI (<a href=".github/workflows/flutter-app-release.yml"><code>.github/workflows/flutter-app-release.yml</code></a>); BLE sken v desktopové aplikaci není — připojení přes Wi‑Fi URL na LAN (viz `docs/flutter/README.md`). <b>Představení:</b> <a href="https://youtu.be/_MS6OP3x6Z4">YouTube</a> (vložené i na <a href="https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html">produktové stránce</a>).</p>
 <p><em>Šachmat z Česka</em></p>
 <p><b>Kde co najdeš v textech:</b> **`docs/README.md`** — rozcestí po diagramech, Flutteru, OTA a referencích; k C API si lokálně generuju Doxygen (viz níže).</p>
 <hr  />
@@ -690,15 +690,15 @@ Software</h2>
 <p><b>Poznámka:</b> Starší interní označení typu „v2.4 / v2.5“ v historii vývoje už nesleduju paralelně — všechno pod jednou projektovou verzí <b>1.8.0</b>. Každý pokus a slepá ulička v gitu samozřejmě zůstává v commitech.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md162"></a>
-🔮 Co mě ještě láká doplnit</h1>
-<p>Seznam nápadů držím otevřený — pár věcí z níže už částečně žije ve Flutteru, jiné jsou spíš přání:</p>
+🔮 Možné další směry</h1>
+<p>Část témat už částečně pokrývá Flutter klient, jiná zůstávají jako dlouhodobé nápady:</p>
 <ul>
 <li><b>Move history</b> — trvalejší historie her ve flash</li>
-<li><b>Offline AI</b> — plný engine na MCU je pro mě zbytečně těžký; smysl vidím spíš v telefonu / API</li>
+<li><b>Offline AI</b> — plný engine na MCU je náročný; praktická cesta vede přes telefon nebo API</li>
 <li><b>Statistics</b> — hlubší statistiky her</li>
 <li><b>Opening book</b> — knihovna zahájení</li>
 <li><b>Endgame tablebases</b> — koncovky (ambiciózní)</li>
-<li><b>Voice commands</b> — spíš experiment, ale baví mě představa např příkazu A2A4</li>
+<li><b>Voice commands</b> — experimentální směr (např. hlasové zadání tahu)</li>
 </ul>
 <hr  />
 <h1><a class="anchor" id="autotoc_md164"></a>
@@ -736,7 +736,7 @@ Matěj Jager - Hardware</h2>
 <p>Jsme <b>vstřícní k výjimkám</b> (škola, výzkum, nezisk, osobní zájem) — v takových případech se klidně ozvěte. Ve výchozím stavu ale platí: <b>transparentně sdílíme know-how, ale neudělujeme právo náš kód svévolně používat v cizích výrobcích nebo službách</b>; <b>plná a zamýšlená funkčnost je vázaná na autorův hardware</b>, který zde není součástí licence.</p>
 <hr  />
 <h1><a class="anchor" id="autotoc_md170"></a>
-🔗 Odkazy, které mám pořád po ruce</h1>
+🔗 Užitečné odkazy</h1>
 <ul>
 <li><a href="https://docs.espressif.com/projects/esp-idf/">ESP-IDF</a></li>
 <li><a href="https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf">ESP32-C6 datasheet</a></li>
