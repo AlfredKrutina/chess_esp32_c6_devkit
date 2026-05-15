@@ -62,6 +62,9 @@ components/*/build/
 !/gh-pages-ready/downloads.html
 !/gh-pages-ready/app_update.json
 !/gh-pages-ready/app_update.html
+!/gh-pages-ready/serve.sh
+!/gh-pages-ready/serve.cmd
+!/gh-pages-ready/serve.ps1
 !/gh-pages-ready/landing/
 !/gh-pages-ready/landing/**/*
 

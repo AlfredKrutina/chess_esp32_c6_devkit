@@ -145,13 +145,182 @@
   })();
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    document.querySelectorAll("video[data-hero-video]").forEach(function (v) {
+    document.querySelectorAll("video[data-lazy-local]").forEach(function (v) {
       v.removeAttribute("autoplay");
       try {
         v.pause();
       } catch (e) {}
     });
   }
+
+  /* MP4 až těsně před vstup do viewportu — rychlejší první vykreslení, méně paralelních stahů */
+  (function initLazyLocalVideos() {
+    var vids = document.querySelectorAll("video[data-lazy-local]");
+    if (!vids.length) return;
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var saveData = false;
+    try {
+      var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      saveData = !!(conn && conn.saveData);
+    } catch (eC) {}
+
+    var rootMargin = saveData ? "80px 0px" : "360px 0px";
+
+    function nearViewport(el) {
+      var r = el.getBoundingClientRect();
+      var m = saveData ? 120 : 400;
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      var vw = window.innerWidth || document.documentElement.clientWidth;
+      return (
+        r.top < vh + m &&
+        r.bottom > -m &&
+        r.left < vw + 80 &&
+        r.right > -80
+      );
+    }
+
+    function hydrate(v) {
+      if (v.dataset.lazyLocalHydrated === "1") return;
+      v.dataset.lazyLocalHydrated = "1";
+      v.querySelectorAll("source[data-src]").forEach(function (s) {
+        var url = s.getAttribute("data-src");
+        if (!url) return;
+        s.src = url;
+        s.removeAttribute("data-src");
+      });
+      try {
+        v.load();
+      } catch (eL) {}
+      if (!reduce && v.getAttribute("autoplay") !== null) {
+        var pr = v.play();
+        if (pr && typeof pr.catch === "function") {
+          pr.catch(function () {});
+        }
+      }
+    }
+
+    var pending = [];
+    vids.forEach(function (v) {
+      if (nearViewport(v)) {
+        hydrate(v);
+      } else {
+        pending.push(v);
+      }
+    });
+
+    if (!pending.length) return;
+    if (!("IntersectionObserver" in window)) {
+      pending.forEach(hydrate);
+      return;
+    }
+
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            hydrate(en.target);
+            io.unobserve(en.target);
+          }
+        });
+      },
+      { rootMargin: rootMargin, threshold: 0.01 }
+    );
+    pending.forEach(function (v) {
+      io.observe(v);
+    });
+  })();
+
+  /* Ukázka na telefonu: poslední snímek z viditelného MP4 → #ai-kouc-app-preview (stejný ořez jako video přes CSS proměnné) */
+  (function initAppPhoneDemoLastFrame() {
+    var demo = document.getElementById("app-phone-demo-video");
+    var preview = document.getElementById("ai-kouc-app-preview");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (!demo || !preview) return;
+
+    var done = false;
+    var scheduleTimer = null;
+
+    function scheduleCapture() {
+      if (done || scheduleTimer) return;
+      if (demo.readyState < 2 || !demo.videoWidth) return;
+      scheduleTimer = window.setTimeout(function () {
+        scheduleTimer = null;
+        captureLastFrame();
+      }, reduce ? 900 : 400);
+    }
+
+    function captureLastFrame() {
+      if (done) return;
+      var w = demo.videoWidth;
+      var h = demo.videoHeight;
+      var d = demo.duration;
+      if (!w || !h || !isFinite(d) || d <= 0) return;
+
+      var wasPlaying = !demo.paused;
+      var savedTime = demo.currentTime;
+      var target = Math.max(0, d - 0.08);
+      var applied = false;
+
+      function resume() {
+        try {
+          demo.currentTime = wasPlaying ? 0 : savedTime;
+          if (wasPlaying) {
+            demo.play();
+          }
+        } catch (eR) {}
+      }
+
+      function applyFrame() {
+        if (applied) return;
+        applied = true;
+        demo.removeEventListener("seeked", onSeeked);
+        try {
+          var canv = document.createElement("canvas");
+          canv.width = w;
+          canv.height = h;
+          var ctx = canv.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(demo, 0, 0, w, h);
+            preview.src = canv.toDataURL("image/jpeg", 0.9);
+            preview.alt =
+              "Statický snímek z konce ukázkového videa — aplikace CzechMate (AI kouč)";
+            done = true;
+          }
+        } catch (e1) {
+          /* např. bezpečnostní kontext / poškozený zdroj */
+        }
+        resume();
+      }
+
+      function onSeeked() {
+        applyFrame();
+      }
+
+      demo.addEventListener("seeked", onSeeked);
+      try {
+        demo.pause();
+        demo.currentTime = target;
+      } catch (e2) {
+        demo.removeEventListener("seeked", onSeeked);
+        resume();
+        return;
+      }
+
+      window.setTimeout(function () {
+        if (!done) {
+          applyFrame();
+        }
+      }, 320);
+    }
+
+    demo.addEventListener("loadeddata", scheduleCapture);
+    demo.addEventListener("canplay", scheduleCapture);
+    demo.addEventListener("playing", scheduleCapture, { once: true });
+    if (demo.readyState >= 2) {
+      scheduleCapture();
+    }
+  })();
 
   /* Modal předobjednávky (<dialog>) */
   var preorderDlg = document.getElementById("preorder-dialog");
@@ -244,7 +413,7 @@
             text:
               "Hall senzory poznají typ figurky na poli. LED ti pomůže u doporučeného tahu, šachu i matu, u promocí a při návratu pozornosti ke správné figurce. V aplikaci máš stejnou pozici s textem a analýzou.",
             img: {
-              src: "landing/assets/board-render.webp",
+              src: "landing/assets/board-placeholder.svg",
               alt: "Vizualizace šachovnice CzechMate s podsvícenými poli",
             },
           },
@@ -254,7 +423,7 @@
             text:
               "Historie tahů a výukové režimy v aplikaci kopírují stav z desky. Žádný „diagram vedle reality“, který by neodpovídal figurkám.",
             img: {
-              src: "landing/assets/app-mock.webp",
+              src: "landing/assets/app-placeholder.svg",
               alt: "Obrazovka aplikace CzechMate s přehledem partie",
             },
           },

@@ -15,6 +15,9 @@
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
   <meta name="twitter:card" content="summary_large_image">
 
+  <link rel="preconnect" href="https://www.youtube.com">
+  <link rel="preconnect" href="https://i.ytimg.com">
+
   <link rel="stylesheet" href="landing/landing.css">
   <script type="application/ld+json">
   {
@@ -94,31 +97,10 @@
               allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               referrerpolicy="strict-origin-when-cross-origin"
               allowfullscreen
-              loading="eager"></iframe>
+              loading="lazy"
+              fetchpriority="low"></iframe>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="product-cinema" class="section section--cinema" aria-labelledby="cinema-title">
-      <div class="section__inner">
-        <p class="section__label reveal">CzechMate V2</p>
-        <h2 id="cinema-title" class="section__title reveal reveal--seq-1">Objev CzechMate V2</h2>
-        <p class="section__intro reveal reveal--seq-2">
-          Nová generace drží desku a aplikaci u jedné partie: méně přepínání, víc času na hru a rozbor.
-        </p>
-        <figure class="cinema-stage reveal">
-          <div class="cinema-stage__frame">
-            <img
-              class="cinema-stage__poster"
-              src="landing/assets/cinema-placeholder.webp"
-              width="1920"
-              height="1080"
-              alt="CzechMate V2 — šachovnice s LED a aplikací"
-              decoding="async"
-              loading="lazy">
-          </div>
-        </figure>
       </div>
     </section>
 
@@ -161,10 +143,21 @@
         </p>
         <div class="split reveal-stagger">
           <div class="split__media">
-            <picture>
-              <source type="image/webp" srcset="landing/assets/board-render.webp">
-              <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Výuková šachovnice CzechMate s LED podsvícením polí">
-            </picture>
+            <video
+              class="split__video split__video--loop"
+              data-hero-video
+              data-lazy-local
+              muted
+              loop
+              playsinline
+              autoplay
+              preload="none"
+              tabindex="-1"
+              aria-label="Smyčka: LED šachovnice CzechMate v provozu"
+              poster="landing/assets/board-placeholder.svg">
+              <source data-src="landing/assets/czm-v2-led-loop.mp4" type="video/mp4">
+              <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Výuková šachovnice CzechMate s LED podsvícením polí" decoding="async" loading="lazy">
+            </video>
           </div>
           <div class="split__text">
             <h3>Od první partie po návyky mistra</h3>
@@ -232,15 +225,7 @@
 
     <section id="ai-kouc" class="section" aria-labelledby="kouc-title">
       <div class="section__inner">
-        <div
-          class="section-intro-click"
-          role="button"
-          tabindex="0"
-          data-feature-detail="coach"
-          aria-haspopup="dialog"
-          aria-expanded="false"
-          aria-label="Otevřít detail: AI kouč v aplikaci">
-          <span class="section-intro-click__hint" aria-hidden="true">Více</span>
+        <div class="section__head">
           <p class="section__label reveal">AI kouč v aplikaci</p>
           <h2 id="kouc-title" class="section__title reveal reveal--seq-1">AI kouč: strategie, chyby i plán přímo u partie</h2>
           <p class="section__intro reveal reveal--seq-2">
@@ -249,11 +234,16 @@
           </p>
         </div>
         <div class="split split--reverse reveal-stagger">
-          <div class="split__media">
-            <picture>
-              <source type="image/webp" srcset="landing/assets/app-mock.webp">
-              <img src="landing/assets/app-placeholder.svg" width="960" height="720" alt="Obrazovka aplikace CzechMate s AI koučem a analýzou partie">
-            </picture>
+          <div class="split__media split__media--app-wired">
+            <img
+              id="ai-kouc-app-preview"
+              class="app-demo-still"
+              src="landing/assets/app-placeholder.svg"
+              width="720"
+              height="1280"
+              alt="Snímek aplikace CzechMate (AI kouč) — doplní se posledním snímkem z ukázkového videa"
+              decoding="async"
+              loading="lazy">
           </div>
           <div class="split__text">
             <h3>Vlastní AI pod tvou kontrolou</h3>
@@ -274,6 +264,33 @@
           Jedna aplikace pro Android a macOS: přehled partie, spojení s deskou přes Bluetooth nebo síť, výuka, hra i analýza se Stockfishem (s volbou síly) a AI kouč.
           Nemusíš přeskakovat mezi programy. V nastavení navíc <strong>aktualizuješ firmware desky</strong> bez kabelu k počítači.
         </p>
+
+        <div class="app-phone-showcase reveal reveal--seq-3">
+          <p class="app-phone-showcase__label">Ukázka na telefonu</p>
+          <p class="app-phone-showcase__lead">
+            Natočeno v poměru stran telefonu — přibližně stejný zážitek jako v kapse u partie.
+          </p>
+          <div class="app-phone-showcase__stage">
+            <div class="app-phone-showcase__frame">
+              <video
+                id="app-phone-demo-video"
+                class="app-phone-showcase__video"
+                data-lazy-local
+                muted
+                loop
+                autoplay
+                playsinline
+                controls
+                preload="none"
+                poster="landing/assets/app-placeholder.svg"
+                title="Aplikace CzechMate na mobilu — smyčka ukázky">
+                <source data-src="landing/assets/czm-v2-app-iphone.mp4" type="video/mp4">
+                <img src="landing/assets/app-placeholder.svg" width="720" height="1280" alt="Náhled aplikace CzechMate na mobilu" decoding="async" loading="lazy">
+              </video>
+            </div>
+          </div>
+        </div>
+
         <div class="features__grid reveal-stagger">
           <div
             class="feature-tile feature-tile--interactive"
