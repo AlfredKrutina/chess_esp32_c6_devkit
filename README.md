@@ -4,7 +4,7 @@ Ahoj — tady je **CzechMate**, náš šachový systém: fyzická deska se svět
 
 **Verze a hardware:** Aktuální číslo projektu ve firmwaru i v dokumentaci je **`1.8.0`** — běží na prototypu **V1** s **reed switch** maticí (objemnější deska, záznam na [YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** je připravovaná **komerční** deska se **Hall senzory** (rozlišení typu figurky), skladnější; předobjednávky a dotazníky na webu se vztahují k **V2**. Přehled: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/HARDWARE_VERZE.md).
 
-**📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK, macOS DMG a **Windows instalátor** (`*-windows-setup.exe`) jsou na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)** (produkční stránka je na Pages, binárky servuje GitHub). **iOS / iPad** zatím připravujeme. **Windows:** instalátor sestavuje CI ([`.github/workflows/flutter-app-release.yml`](.github/workflows/flutter-app-release.yml)); BLE sken v desktopové aplikaci není — připojení přes Wi‑Fi URL na LAN (viz [`docs/flutter/README.md`](docs/flutter/README.md)). **Krátké intro na videu:** [YouTube](https://youtu.be/_MS6OP3x6Z4) (embed je i na [produktové stránce](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html)).
+**📲 Stáhnout aplikaci:** [produktovka + odkazy](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — Android APK, macOS DMG a **Windows instalátor** (`*-windows-setup.exe`) jsou na **[GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest)** (produkční stránka je na Pages, binárky servuje GitHub). **iOS / iPad** zatím připravujeme. **Windows:** instalátor sestavuje CI ([`.github/workflows/flutter-app-release.yml`](.github/workflows/flutter-app-release.yml)); BLE sken v desktopové aplikaci není — připojení přes Wi‑Fi URL na LAN (viz [`docs/flutter/README.md`](docs/flutter/README.md)). **Představení:** [YouTube](https://youtu.be/_MS6OP3x6Z4) (vložené i na [produktové stránce](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html)).
 
 *Šachmat z Česka*
 
@@ -661,16 +661,16 @@ Semver **`1.8.0`** držíme v `CMakeLists.txt` (`PROJECT_VERSION`), `firmware/ve
 
 ---
 
-## 🔮 Co mě ještě láká doplnit
+## 🔮 Možné další směry
 
-Seznam nápadů držím otevřený — pár věcí z níže už částečně žije ve Flutteru, jiné jsou spíš přání:
+Část témat už částečně pokrývá Flutter klient, jiná zůstávají jako dlouhodobé nápady:
 
 - **Move history** — trvalejší historie her ve flash
-- **Offline AI** — plný engine na MCU je pro mě zbytečně těžký; smysl vidím spíš v telefonu / API
+- **Offline AI** — plný engine na MCU je náročný; praktická cesta vede přes telefon nebo API
 - **Statistics** — hlubší statistiky her
 - **Opening book** — knihovna zahájení
 - **Endgame tablebases** — koncovky (ambiciózní)
-- **Voice commands** — spíš experiment, ale baví mě představa např příkazu A2A4
+- **Voice commands** — experimentální směr (např. hlasové zadání tahu)
 
 ---
 
@@ -719,7 +719,7 @@ Jsme **vstřícní k výjimkám** (škola, výzkum, nezisk, osobní zájem) — 
 
 ---
 
-## 🔗 Odkazy, které mám pořád po ruce
+## 🔗 Užitečné odkazy
 
 - [ESP-IDF](https://docs.espressif.com/projects/esp-idf/)
 - [ESP32-C6 datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf)
