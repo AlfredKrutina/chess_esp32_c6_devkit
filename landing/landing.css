@@ -30,6 +30,9 @@
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(143, 188, 159, 0.06);
   --shadow-card-hover: 0 14px 48px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(184, 224, 200, 0.14);
   --shadow-media: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(143, 188, 159, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* Sdílený ořez mobilní ukázky (video v Aplikace + statický snímek v AI kouč) */
+  --app-demo-zoom: 1.48;
+  --app-demo-pos: 64% 50%;
 }
 
 *,
@@ -178,6 +181,11 @@ html.js-scroll-reveal
   > .platform-card:not(.platform-card--soon):hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-card);
+}
+
+html.js-scroll-reveal .reveal-stagger.is-visible > .split__media.split__media--app-wired:hover {
+  transform: none;
+  box-shadow: var(--shadow-media);
 }
 
 body {
@@ -659,33 +667,6 @@ a.btn--primary:visited {
   border: 0;
 }
 
-/* Velký vizuální blok (poster / později video) */
-.section--cinema {
-  padding-top: clamp(2rem, 5vw, 3rem);
-  padding-bottom: clamp(2.5rem, 6vw, 4rem);
-}
-
-.cinema-stage {
-  margin: 2rem 0 0;
-}
-
-.cinema-stage__frame {
-  position: relative;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  border: 1px solid rgba(143, 188, 159, 0.22);
-  background: #070d0b;
-  aspect-ratio: 16 / 9;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-}
-
-.cinema-stage__poster {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* ——— Sections ——— */
 
 .section {
@@ -906,6 +887,107 @@ a.btn--primary:visited {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* ——— Aplikace: ukázka na telefonu ——— */
+
+.app-phone-showcase {
+  margin-top: 2.75rem;
+  text-align: center;
+}
+
+.app-phone-showcase__label {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+}
+
+.app-phone-showcase__lead {
+  margin: 0 auto 1.35rem;
+  max-width: 36rem;
+  font-size: 0.98rem;
+  color: var(--text-muted);
+}
+
+.app-phone-showcase__stage {
+  position: relative;
+  margin-inline: auto;
+  max-width: min(360px, 94vw);
+  padding: 1.35rem 1.25rem 1.6rem;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(165deg, rgba(30, 48, 40, 0.55) 0%, rgba(12, 20, 17, 0.92) 100%);
+  border: 1px solid rgba(143, 188, 159, 0.16);
+  box-shadow: var(--shadow-card);
+}
+
+.app-phone-showcase__frame {
+  position: relative;
+  margin: 0 auto;
+  max-width: min(300px, 88vw);
+  border-radius: calc(var(--radius-xl) - 6px);
+  overflow: hidden;
+  border: 1px solid rgba(143, 188, 159, 0.22);
+  background: #070d0b;
+  aspect-ratio: 9 / 16;
+  box-shadow: var(--shadow-media);
+  display: grid;
+  place-items: stretch;
+}
+
+.app-phone-showcase__video {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  object-position: var(--app-demo-pos);
+  transform: scale(var(--app-demo-zoom));
+  transform-origin: center center;
+  background: #070d0b;
+  will-change: transform;
+}
+
+/* Statický snímek v sekci AI kouč — stejný ořez jako ukázka na telefonu */
+.split__media.split__media--app-wired {
+  aspect-ratio: 9 / 16;
+  max-width: min(300px, 100%);
+  max-height: min(72vh, 560px);
+  margin-inline: auto;
+  display: grid;
+  place-items: stretch;
+  transition: box-shadow 0.28s var(--ease-soft);
+}
+
+.split__media.split__media--app-wired:hover {
+  transform: none;
+  box-shadow: var(--shadow-media);
+}
+
+.app-demo-still {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+  object-position: var(--app-demo-pos);
+  transform: scale(var(--app-demo-zoom));
+  transform-origin: center center;
+  background: #070d0b;
+  will-change: transform;
+}
+
+.split__media .split__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* LED smyčka (#deska-uci): ořez posunutý ~1/10 šířky doprava (object-position u cover) */
+.split__media .split__video--loop {
+  object-position: 60% 50%;
+  pointer-events: none;
 }
 
 .split__text h3 {
