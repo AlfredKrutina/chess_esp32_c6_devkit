@@ -42,6 +42,9 @@
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
+  overflow-anchor: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @supports not (overflow: clip) {
@@ -321,6 +324,22 @@ a:hover {
 @media (min-width: 880px) {
   .nav-desktop {
     display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0.15rem;
+  }
+
+  .nav-cta {
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 880px) and (max-width: 1200px) {
+  .nav-desktop a {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.78rem;
   }
 }
 
@@ -655,12 +674,108 @@ a.btn--primary:visited {
   min-width: 0;
 }
 
+/* Načítání videí — spinner místo placeholder posterů */
+.video-media {
+  position: relative;
+}
+
+.video-media__loader {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #070a09;
+  transition:
+    opacity 0.35s var(--ease-out),
+    visibility 0.35s var(--ease-out);
+}
+
+.video-media.is-ready .video-media__loader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.video-media.is-error .video-media__loader {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.video-media.is-loading .split__video,
+.video-media.is-loading .welcome-v2__video,
+.video-media.is-loading .hero__video-iframe,
+.video-media.is-loading .split__media--ai-preview__pan img {
+  opacity: 0;
+}
+
+.video-media.is-ready .split__video,
+.video-media.is-ready .welcome-v2__video,
+.video-media.is-ready .hero__video-iframe,
+.video-media.is-ready .split__media--ai-preview__pan img {
+  opacity: 1;
+  transition: opacity 0.4s var(--ease-out);
+}
+
+.video-media__spinner {
+  width: 2.65rem;
+  height: 2.65rem;
+  border: 2px solid rgba(143, 188, 159, 0.22);
+  border-top-color: var(--primary-bright);
+  border-radius: 50%;
+  animation: video-media-spin 0.72s linear infinite;
+}
+
+@keyframes video-media-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-media__spinner {
+    animation: none;
+    border-top-color: rgba(143, 188, 159, 0.55);
+  }
+}
+
 .hero__video-frame iframe {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border: 0;
+}
+
+.hero__video-frame:not(.is-yt-interactive) .hero__video-iframe {
+  pointer-events: none;
+}
+
+.hero__video-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.hero__video-shield:focus {
+  outline: none;
+}
+
+.hero__video-shield:focus-visible {
+  outline: 2px solid var(--primary-bright);
+  outline-offset: -3px;
+}
+
+.hero__video-frame.is-yt-interactive .hero__video-shield {
+  display: none;
 }
 
 .hero__video-fallback {
@@ -728,6 +843,73 @@ a.btn--primary:visited {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Objevte CzechMate V2 — welcome MP4, přehrání po scrollu do viewportu */
+
+.welcome-v2 {
+  border-top: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--bg-deep) 0%, rgba(17, 25, 23, 0.55) 50%, var(--bg-deep) 100%);
+}
+
+.section__label--center {
+  text-align: center;
+}
+
+.section__intro--center {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.welcome-v2__wrap {
+  width: 100%;
+  max-width: min(52rem, 100%);
+  margin: 2.25rem auto 0;
+  min-width: 0;
+}
+
+.welcome-v2__media.split__media {
+  margin-inline: auto;
+  /* MP4 je 16:9 — nižší rám než výchozí split 4:3, bez ořezu stran */
+  aspect-ratio: 16 / 9;
+  cursor: default;
+}
+
+/* Welcome video: bez hover liftu (jinak IO „bliká“ a video se resetuje) */
+.welcome-v2__media.split__media:hover,
+html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
+  transform: none;
+  box-shadow: var(--shadow-media);
+}
+
+.welcome-v2__video {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  border-radius: var(--radius-xl);
+  background: #070a09;
+}
+
+.welcome-v2__video--passive {
+  pointer-events: none;
+}
+
+.welcome-v2__hint {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(143, 188, 159, 0.45);
+  line-height: 1.3;
+  user-select: none;
 }
 
 /* ——— Sections ——— */
@@ -922,6 +1104,11 @@ a.btn--primary:visited {
   margin-top: 2.75rem;
 }
 
+.split > .split__media,
+.split > .split__text {
+  min-width: 0;
+}
+
 @media (min-width: 900px) {
   .split {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -936,13 +1123,19 @@ a.btn--primary:visited {
     order: 1;
   }
 
-  #deska-uci .split__media {
-    margin-left: 50px;
-  }
-
   /* Ořez videa uvnitr rámu: object-position (dříve příliš doprava) */
   #deska-uci .split__media .split__video--loop {
-    object-position: calc(47% + 24px) 50%;
+    object-position: 35% 50%;
+  }
+}
+
+@media (min-width: 1024px) {
+  #deska-uci .split {
+    gap: 3.25rem;
+  }
+
+  #deska-uci .split__media .split__video--loop {
+    object-position: 42% 50%;
   }
 }
 
@@ -1062,6 +1255,8 @@ a.btn--primary:visited {
 }
 
 .split__text {
+  position: relative;
+  z-index: 1;
   min-width: 0;
 }
 
@@ -1840,4 +2035,205 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
 
 .site-footer a:hover {
   color: var(--accent-strong);
+}
+
+/* ——— Responzivita: mobil · iPad · desktop ——— */
+
+main {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  main {
+    overflow-x: hidden;
+  }
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+.split__media video:not(.welcome-v2__video) {
+  max-width: 100%;
+  height: 100%;
+}
+
+.welcome-v2__video {
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Telefony */
+@media (max-width: 479px) {
+  .hero {
+    min-height: auto;
+    padding-bottom: 2.5rem;
+  }
+
+  .hero__eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    gap: 0.45rem;
+  }
+
+  .hero__eyebrow::before {
+    width: 20px;
+  }
+
+  .section {
+    padding-top: clamp(2.35rem, 6vw, 3rem);
+    padding-bottom: clamp(2.35rem, 6vw, 3rem);
+  }
+
+  .welcome-v2__wrap {
+    margin-top: 1.65rem;
+  }
+
+  .section__title--center {
+    max-width: 100%;
+  }
+
+  .download-strip {
+    padding: 1.35rem 1.15rem;
+  }
+}
+
+/* Telefony a phablety — plná šířka CTA v hero */
+@media (max-width: 767px) {
+  .hero__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero__actions .btn {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section-intro-click {
+    padding-right: 3.5rem;
+  }
+
+  .section-intro-click__hint {
+    right: 0;
+  }
+}
+
+/* Malé telefony + úzké displeje */
+@media (max-width: 374px) {
+  .nav-cta {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.68rem;
+  }
+
+  .brand {
+    font-size: 0.95rem;
+  }
+}
+
+/* Tablet / iPad (768–1279) — stejná topologie jako desktop: copy, pak video pod sebou */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .hero__video {
+    margin-top: 2.5rem;
+    max-width: min(44rem, 100%);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .welcome-v2__wrap {
+    max-width: min(44rem, 100%);
+  }
+
+  .app-demo-showcase__wrap {
+    max-width: min(40rem, 100%);
+  }
+
+  .split__media.split__media--ai-preview {
+    max-width: min(520px, 100%);
+  }
+}
+
+/* iPad na šířku — kompaktnější hero, pořád jeden sloupec */
+@media (min-width: 768px) and (max-width: 1279px) and (orientation: landscape) {
+  .hero {
+    min-height: auto;
+    padding-top: 2rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .hero__video {
+    margin-top: 2rem;
+  }
+}
+
+/* Dotyková zařízení — dostatečné cíle */
+@media (pointer: coarse) {
+  .nav-mobile a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .nav-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .btn {
+    min-height: 44px;
+  }
+
+  .pillar-card--interactive,
+  .feature-tile--interactive,
+  .section-intro-click {
+    min-height: 44px;
+  }
+}
+
+/* Nízký landscape na telefonu */
+@media (max-width: 896px) and (orientation: landscape) and (max-height: 520px) {
+  .hero {
+    min-height: auto;
+    padding-top: 1.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .hero__content {
+    display: block;
+  }
+
+  .hero__video {
+    margin-top: 1.25rem;
+  }
+}
+
+/* Patička na úzkém mobilu */
+@media (max-width: 559px) {
+  .site-footer__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .site-footer nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* Široký desktop */
+@media (min-width: 1280px) {
+  .section__inner,
+  .site-header__inner,
+  .site-footer__inner,
+  .hero__content {
+    max-width: 1200px;
+  }
 }
