@@ -43,6 +43,7 @@
     <div class="site-header__inner">
       <a class="brand" href="#">CzechMate</a>
       <nav class="nav-desktop" aria-label="Sekce stránky">
+        <a href="#objevte-v2">Objevte V2</a>
         <a href="#vyuka">Proč výuka</a>
         <a href="#deska-uci">Deska učí</a>
         <a href="#stockfish">Stockfish</a>
@@ -58,6 +59,7 @@
       </button>
     </div>
     <nav id="nav-mobile" class="nav-mobile" data-nav-mobile aria-label="Mobilní menu">
+      <a href="#objevte-v2">Objevte V2</a>
       <a href="#vyuka">Proč výuka</a>
       <a href="#deska-uci">Deska učí</a>
       <a href="#stockfish">Stockfish</a>
@@ -87,18 +89,48 @@
           <a class="btn btn--ghost" href="#stazeni">Stáhnout aplikaci</a>
         </div>
 
-        <div class="hero__video" role="region" aria-labelledby="hero-video-heading">
-          <p id="hero-video-heading" class="hero__video-label">CzechMate v pohybu</p>
+        <div class="hero__video">
           <div class="hero__video-frame" data-youtube-id="_MS6OP3x6Z4">
             <iframe
               class="hero__video-iframe"
-              src="https://www.youtube.com/embed/_MS6OP3x6Z4?controls=1&amp;fs=1&amp;playsinline=1&amp;rel=0&amp;modestbranding=1&amp;disablekb=0&amp;iv_load_policy=3"
               title="CzechMate — představení produktu"
-              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
               referrerpolicy="strict-origin-when-cross-origin"
               allowfullscreen
-              loading="lazy"
-              fetchpriority="low"></iframe>
+              fetchpriority="high"
+              tabindex="-1"></iframe>
+            <button
+              type="button"
+              class="hero__video-shield"
+              data-yt-click-shield
+              aria-label="Kliknutím aktivuješ ovládání videa"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="objevte-v2" class="section welcome-v2" aria-labelledby="objevte-v2-title">
+      <div class="section__inner">
+        <p class="section__label reveal section__label--center">CzechMate V2</p>
+        <h2 id="objevte-v2-title" class="section__title section__title--center reveal reveal--seq-1">Objevte CzechMate V2</h2>
+        <div class="welcome-v2__wrap reveal reveal--seq-2">
+          <div class="split__media welcome-v2__media">
+            <video
+              id="czm-v2-welcome-video"
+              class="split__video welcome-v2__video welcome-v2__video--passive"
+              data-play-when-visible
+              data-welcome-replay-on-click
+              muted
+              playsinline
+              disablepictureinpicture
+              disableremoteplayback
+              controlslist="nodownload noplaybackrate nofullscreen noremoteplayback"
+              preload="metadata"
+              tabindex="-1"
+              aria-label="Představení CzechMate V2"
+              poster="landing/assets/board-placeholder.svg">
+              <source src="landing/assets/czm-v2-welcome.mp4" type="video/mp4">
+            </video>
           </div>
         </div>
       </div>
@@ -267,9 +299,6 @@
         </p>
 
         <div class="app-demo-showcase reveal reveal--seq-3">
-          <p class="app-demo-showcase__lead">
-            Rozhraní aplikace při práci s partií, nápovědou a AI koučem.
-          </p>
           <div class="app-demo-showcase__wrap">
             <div class="split__media">
               <video
@@ -451,7 +480,6 @@
         </p>
         <div class="download-strip">
           <h3 class="download-strip__title reveal">Zvol platformu</h3>
-          <p class="download-strip__lead reveal reveal--seq-1">Aktuální balíček pro Android, macOS nebo Windows.</p>
           <div class="platform-grid reveal-stagger">
             <div class="platform-card">
               <h3>Android</h3>
