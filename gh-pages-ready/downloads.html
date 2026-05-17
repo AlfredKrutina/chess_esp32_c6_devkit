@@ -17,8 +17,18 @@
 
   <link rel="preconnect" href="https://www.youtube.com">
   <link rel="preconnect" href="https://i.ytimg.com">
-
+  <link rel="preload" href="landing/assets/czm-v2-welcome.mp4" as="fetch" type="video/mp4" fetchpriority="high">
   <link rel="stylesheet" href="landing/landing.css">
+  <script>
+    (function () {
+      if (!location.hash && "scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      if (!location.hash) {
+        window.scrollTo(0, 0);
+      }
+    })();
+  </script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -90,7 +100,10 @@
         </div>
 
         <div class="hero__video">
-          <div class="hero__video-frame" data-youtube-id="_MS6OP3x6Z4">
+          <div class="hero__video-frame video-media is-loading" data-video-media data-youtube-id="_MS6OP3x6Z4">
+            <div class="video-media__loader" role="status" aria-label="Načítání videa">
+              <span class="video-media__spinner" aria-hidden="true"></span>
+            </div>
             <iframe
               class="hero__video-iframe"
               title="CzechMate — představení produktu"
@@ -114,7 +127,10 @@
         <p class="section__label reveal section__label--center">CzechMate V2</p>
         <h2 id="objevte-v2-title" class="section__title section__title--center reveal reveal--seq-1">Objevte CzechMate V2</h2>
         <div class="welcome-v2__wrap reveal reveal--seq-2">
-          <div class="split__media welcome-v2__media">
+          <div class="split__media welcome-v2__media video-media is-loading" data-video-media>
+            <div class="video-media__loader" role="status" aria-label="Načítání videa">
+              <span class="video-media__spinner" aria-hidden="true"></span>
+            </div>
             <video
               id="czm-v2-welcome-video"
               class="split__video welcome-v2__video welcome-v2__video--passive"
@@ -125,13 +141,14 @@
               disablepictureinpicture
               disableremoteplayback
               controlslist="nodownload noplaybackrate nofullscreen noremoteplayback"
-              preload="metadata"
+              preload="auto"
+              fetchpriority="high"
               tabindex="-1"
-              aria-label="Představení CzechMate V2"
-              poster="landing/assets/board-placeholder.svg">
+              aria-label="Představení CzechMate V2">
               <source src="landing/assets/czm-v2-welcome.mp4" type="video/mp4">
             </video>
           </div>
+          <p class="welcome-v2__hint">Click to replay</p>
         </div>
       </div>
     </section>
@@ -174,10 +191,14 @@
           Partii řídí deska v reálném čase a LED ukazuje totéž co figurky. Firmware si <strong>bez kabelů k čipu</strong> obnovíš z aplikace, z webu na desce nebo přes Wi‑Fi.
         </p>
         <div class="split reveal-stagger">
-          <div class="split__media">
+          <div class="split__media video-media is-loading" data-video-media>
+            <div class="video-media__loader" role="status" aria-label="Načítání videa">
+              <span class="video-media__spinner" aria-hidden="true"></span>
+            </div>
             <video
-              class="split__video split__video--loop split__video--controls-on-click"
-              data-hero-video
+              id="czm-v2-led-loop-video"
+              class="split__video split__video--loop"
+              data-no-pause
               data-lazy-local
               muted
               loop
@@ -185,10 +206,8 @@
               autoplay
               preload="none"
               tabindex="-1"
-              aria-label="LED šachovnice CzechMate v provozu"
-              poster="landing/assets/board-placeholder.svg">
+              aria-label="LED šachovnice CzechMate v provozu">
               <source data-src="landing/assets/czm-v2-led-loop.mp4" type="video/mp4">
-              <img src="landing/assets/board-placeholder.svg" width="960" height="720" alt="Výuková šachovnice CzechMate s LED podsvícením polí" decoding="async" loading="lazy">
             </video>
           </div>
           <div class="split__text">
@@ -266,16 +285,17 @@
           </p>
         </div>
         <div class="split split--reverse reveal-stagger">
-          <div class="split__media split__media--ai-preview">
+          <div class="split__media split__media--ai-preview video-media is-loading" data-video-media data-video-media-static>
+            <div class="video-media__loader" role="status" aria-label="Načítání náhledu">
+              <span class="video-media__spinner" aria-hidden="true"></span>
+            </div>
             <div class="split__media--ai-preview__pan">
               <img
                 id="ai-kouc-app-preview"
-                src="landing/assets/app-placeholder.svg"
                 width="960"
                 height="720"
                 alt="CzechMate — AI kouč v aplikaci"
-                decoding="async"
-                loading="lazy">
+                decoding="async">
             </div>
           </div>
           <div class="split__text">
@@ -300,7 +320,10 @@
 
         <div class="app-demo-showcase reveal reveal--seq-3">
           <div class="app-demo-showcase__wrap">
-            <div class="split__media">
+            <div class="split__media video-media is-loading" data-video-media>
+              <div class="video-media__loader" role="status" aria-label="Načítání videa">
+                <span class="video-media__spinner" aria-hidden="true"></span>
+              </div>
               <video
                 id="app-phone-demo-video"
                 class="split__video split__video--controls-on-click"
@@ -312,10 +335,8 @@
                 playsinline
                 tabindex="0"
                 preload="none"
-                poster="landing/assets/app-placeholder.svg"
                 title="CzechMate — rozhraní aplikace">
                 <source data-src="landing/assets/czm-v2-app-iphone.mp4" type="video/mp4">
-                <img src="landing/assets/app-placeholder.svg" width="960" height="720" alt="CzechMate — rozhraní aplikace" decoding="async" loading="lazy">
               </video>
             </div>
           </div>

@@ -1,4 +1,25 @@
 (function () {
+  /* Po reloadu vždy nahoru (kromě odkazu s #kotvou); bez posunu při načítání médií. */
+  (function initScrollTopOnLoad() {
+    function scrollTopUnlessHash() {
+      if (location.hash) return;
+      window.scrollTo(0, 0);
+    }
+
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
+    scrollTopUnlessHash();
+    document.addEventListener("DOMContentLoaded", scrollTopUnlessHash);
+    window.addEventListener("load", scrollTopUnlessHash);
+    window.addEventListener("pageshow", function (ev) {
+      if (!location.hash && !ev.persisted) {
+        scrollTopUnlessHash();
+      }
+    });
+  })();
+
   /** Fade + lehký posun dialogu a backdropu; Escape přes `cancel` + preventDefault */
   function bindAnimatedModal(dialog) {
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -63,12 +84,93 @@
     return { open: openModal, close: closeModal };
   }
 
+  /** Spinner u videí: is-loading → is-ready po canplay / náhledu. */
+  var czVideoMedia = (function () {
+    function rootFor(el) {
+      if (!el) return null;
+      return el.closest("[data-video-media]");
+    }
+
+    function markLoading(media) {
+      if (!media) return;
+      media.classList.add("is-loading");
+      media.classList.remove("is-ready", "is-error");
+      media.setAttribute("aria-busy", "true");
+    }
+
+    function markReady(media) {
+      if (!media || media.classList.contains("is-ready")) return;
+      media.classList.remove("is-loading", "is-error");
+      media.classList.add("is-ready");
+      media.removeAttribute("aria-busy");
+    }
+
+    function markError(media) {
+      if (!media) return;
+      media.classList.remove("is-loading");
+      media.classList.add("is-error", "is-ready");
+      media.removeAttribute("aria-busy");
+    }
+
+    function bindVideo(v) {
+      var media = rootFor(v);
+      if (!media || v.dataset.videoMediaBound === "1") return;
+      v.dataset.videoMediaBound = "1";
+      v.removeAttribute("poster");
+      if (!v.classList.contains("split__video--controls-on-click")) {
+        v.controls = false;
+      }
+      markLoading(media);
+
+      function readyThreshold() {
+        return 2;
+      }
+
+      function tryMarkReady() {
+        if (v.readyState >= readyThreshold()) markReady(media);
+      }
+
+      v.addEventListener("loadedmetadata", tryMarkReady);
+      v.addEventListener("loadeddata", tryMarkReady);
+      v.addEventListener("canplay", tryMarkReady);
+      v.addEventListener("playing", tryMarkReady, { once: true });
+      v.addEventListener("error", function () {
+        markError(media);
+      });
+      tryMarkReady();
+    }
+
+    function init() {
+      document.querySelectorAll("[data-video-media]").forEach(function (media) {
+        if (!media.classList.contains("is-ready")) markLoading(media);
+      });
+      document.querySelectorAll("[data-video-media] video").forEach(bindVideo);
+    }
+
+    return { markLoading: markLoading, markReady: markReady, markError: markError, bindVideo: bindVideo, init: init };
+  })();
+
+  czVideoMedia.init();
+
+  /* Welcome MP4: stahovat hned po startu skriptu (priorita před YouTube). */
+  (function initWelcomeVideoEarlyLoad() {
+    var v = document.getElementById("czm-v2-welcome-video");
+    if (!v || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    v.preload = "auto";
+    if (v.networkState === HTMLMediaElement.NETWORK_EMPTY) {
+      try {
+        v.load();
+      } catch (eW) {}
+    }
+  })();
+
   /* Hero YouTube: autoplay bez ovládací lišty; controls=1 až po kliknutí na video. */
   (function initHeroYoutubeAutoplay() {
     var ytFrame = document.querySelector(".hero__video-frame[data-youtube-id]");
     if (!ytFrame || window.location.protocol === "file:") return;
     var iframe = ytFrame.querySelector(".hero__video-iframe");
     if (!iframe) return;
+    czVideoMedia.markLoading(ytFrame);
     var vid = ytFrame.getAttribute("data-youtube-id");
     if (!vid || !/^[\w-]{11}$/.test(vid)) return;
 
@@ -96,12 +198,22 @@
       );
     }
 
-    iframe.src = buildEmbedUrl(false);
-    iframe.setAttribute(
-      "allow",
-      (autoplay ? "autoplay; " : "") +
-        "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-    );
+    function mountYoutubeEmbed() {
+      iframe.src = buildEmbedUrl(false);
+      iframe.setAttribute(
+        "allow",
+        (autoplay ? "autoplay; " : "") +
+          "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+      );
+    }
+    iframe.addEventListener("load", function () {
+      czVideoMedia.markReady(ytFrame);
+    });
+    window.setTimeout(function () {
+      czVideoMedia.markReady(ytFrame);
+    }, 10000);
+    /* Krátké zpoždění YouTube — priorita stahu welcome MP4 (~4 MB) hned pod hero. */
+    window.setTimeout(mountYoutubeEmbed, 180);
 
     var shield = ytFrame.querySelector("[data-yt-click-shield]");
     if (!shield) return;
@@ -264,9 +376,7 @@
     function ensureLoadedOnce() {
       if (mediaReady) return;
       mediaReady = true;
-      try {
-        v.load();
-      } catch (eL) {}
+      v.preload = "auto";
     }
 
     function tryPlay() {
@@ -336,7 +446,8 @@
       saveData = !!(conn && conn.saveData);
     } catch (eC) {}
 
-    var rootMargin = saveData ? "80px 0px" : "480px 0px";
+    var rootMargin = saveData ? "120px 0px" : "720px 0px";
+    var hydrateGapMs = saveData ? 180 : 80;
     var nextVideoLoadAt = 0;
 
     function nearViewport(el) {
@@ -354,6 +465,9 @@
 
     function hydrate(v) {
       if (v.dataset.lazyLocalHydrated === "1") return;
+      var media = v.closest("[data-video-media]");
+      if (media) czVideoMedia.markLoading(media);
+      v.preload = "auto";
       v.dataset.lazyLocalHydrated = "1";
       v.querySelectorAll("source[data-src]").forEach(function (s) {
         var url = s.getAttribute("data-src");
@@ -361,6 +475,7 @@
         s.src = url;
         s.removeAttribute("data-src");
       });
+      czVideoMedia.bindVideo(v);
       try {
         v.load();
       } catch (eL) {}
@@ -376,7 +491,7 @@
       if (v.dataset.lazyLocalHydrated === "1") return;
       var now = Date.now();
       var delay = Math.max(0, nextVideoLoadAt - now);
-      nextVideoLoadAt = Math.max(now, nextVideoLoadAt) + 220;
+      nextVideoLoadAt = Math.max(now, nextVideoLoadAt) + hydrateGapMs;
       window.setTimeout(function () {
         hydrate(v);
       }, delay);
@@ -436,7 +551,7 @@
       pending.forEach(function (v, i) {
         window.setTimeout(function () {
           scheduleHydrate(v);
-        }, i * 220);
+        }, i * hydrateGapMs);
       });
       return;
     }
@@ -559,6 +674,8 @@
             preview.src = canv.toDataURL("image/jpeg", 0.82);
             preview.alt = "CzechMate — AI kouč v aplikaci";
             done = true;
+            var previewMedia = preview.closest("[data-video-media]");
+            if (previewMedia) czVideoMedia.markReady(previewMedia);
           }
         } catch (e1) {
           /* např. bezpečnostní kontext / poškozený zdroj */
@@ -655,6 +772,36 @@
       }
     );
     io.observe(v);
+  })();
+
+  /* LED loop (#deska-uci): nepauzovat — žádné ovládání, po pause okamžitě znovu přehrát. */
+  (function initLedLoopNoPause() {
+    var v = document.getElementById("czm-v2-led-loop-video");
+    if (!v || !v.hasAttribute("data-no-pause")) return;
+    v.controls = false;
+
+    function blockNativeVideoUi(ev) {
+      ev.preventDefault();
+    }
+    v.addEventListener("click", blockNativeVideoUi);
+    v.addEventListener("dblclick", blockNativeVideoUi);
+    v.addEventListener("contextmenu", blockNativeVideoUi);
+
+    var reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    function resumeIfAllowed() {
+      if (reduceMq.matches) return;
+      if (v.ended || !v.paused) return;
+      var pr = v.play();
+      if (pr && typeof pr.catch === "function") {
+        pr.catch(function () {});
+      }
+    }
+
+    v.addEventListener("pause", resumeIfAllowed);
+    document.addEventListener("visibilitychange", function () {
+      if (!document.hidden) resumeIfAllowed();
+    });
   })();
 
   /* Ovládání videa: nativní panel až po kliknutí na samotné video */
