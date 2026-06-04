@@ -247,7 +247,7 @@
 </nav>
         <main class="content">
 <h1>CZECHMATE firmware — sekvenční diagramy</h1>
-<p class="intro">Sekvence z <code>mermaid_diagrams.txt</code>. Obrázky tasků a front: <a href="README.md">README.md</a> ve stejné složce (nebo <code>docs/diagrams/README.md</code> v repu). Verze firmware je v kořenovém <code>CMakeLists.txt</code>.</p>
+<p class="intro">Sekvence z <code>mermaid_diagrams.txt</code> (zdroj není jeden Mermaid blok — pro mermaid.live použijte <code>extracted/*.mmd</code> po <code>python generate_mermaid_html.py --export-dir docs/diagrams/extracted</code>). Obrázky tasků: <a href="README.md">README.md</a>. Verze firmware: kořenový <code>CMakeLists.txt</code>.</p>
 <section id="section-a" class="section">
   <h2>A. SYSTEM OVERVIEW</h2>
   <div id="diagram-a1" class="diagram-container">
@@ -305,11 +305,11 @@ sequenceDiagram
     CR-&gt;&gt;GT: initialize_chess_game() (NVS / nová hra — viz game_task_start)
     CR-&gt;&gt;UT: vTaskResume(uart_task)
 
-    Note over LT,HT: led_unified_mutex vzniká v led_task_start; TWDT typicky esp_task_wdt_add uvnitř každého tasku
+    Note over LT,HT: led_unified_mutex vzniká v led_task_start&lt;br/&gt;TWDT typicky esp_task_wdt_add uvnitř každého tasku
 
-    Note over MT,URQ: Runtime — MT→GQ pickup/drop; BT→BQ; UT/WT→GQ příkazy/tahy; GT čte GQ+BQ; GT→URQ odpovědi konzoli
+    Note over MT,URQ: Runtime — MT→GQ pickup/drop&lt;br/&gt;BT→BQ · UT/WT→GQ příkazy/tahy&lt;br/&gt;GT čte GQ+BQ · GT→URQ odpovědi konzoli
     Note over GT: game_task smyčka vTaskDelayUntil 100 ms + batch příkazů z front (viz game_task.c)
-    Note over MT: matrix_task timer multiplex ~25 ms; vlastní smyčka často 10 ms
+    Note over MT: matrix_task timer multiplex ~25 ms&lt;br/&gt;vlastní smyčka často 10 ms
     Note over LT: led_task ~33 ms batch + WS2812B refresh
     Note over BT: button_task ~5 ms scan / debounce
     Note over UT: uart_task ~1 ms smyčka vstupu + výstup pod uart_mutex
