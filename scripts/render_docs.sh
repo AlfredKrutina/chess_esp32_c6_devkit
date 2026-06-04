@@ -16,8 +16,8 @@ if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
   fi
 fi
 
-echo "==> generate_mermaid_html.py → docs/diagrams/diagrams_mermaid.html"
-python3 generate_mermaid_html.py
+echo "==> generate_mermaid_html.py → diagrams_mermaid.html + extracted/*.mmd"
+python3 generate_mermaid_html.py --export-dir docs/diagrams/extracted
 
 echo "==> kopie Mermaid HTML pro gh-pages / doxygen (pokud složky existují)"
 if [[ -d gh-pages-ready ]]; then

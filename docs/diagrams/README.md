@@ -10,6 +10,12 @@ Nápady na nové grafy si píšu do `LOCAL_DIAGRAM_BACKLOG.md` (gitignore); šab
 
 SVG přegeneruju z kořene: `./scripts/render_docs.sh` (zdroje v [`sources/*.mmd`](sources/)).
 
+### Poster — tok algoritmu
+
+Stručný barevný přehled pro tisk / prezentaci: [`poster_algorithm_flow.svg`](poster_algorithm_flow.svg) (zdroj Mermaid: [`sources/poster_algorithm_flow.mmd`](sources/poster_algorithm_flow.mmd)).
+
+**Upřesnění:** zdroj pravdy je [`sources/poster_algorithm_flow.mmd`](sources/poster_algorithm_flow.mmd) — layout **2×2 sloupce** (A|B, fronta, C|D, E) ≈ čtverec; barvy pastel. Tisk: [`poster_algorithm_flow.svg`](poster_algorithm_flow.svg) **800×800**, nebo export Mermaid na A4.
+
 ---
 
 ## Legenda šipek
@@ -376,6 +382,15 @@ Komponenty, které se do image dostanou, ale aktuálně nemají vlastní task z 
 ## Sekvenční HTML
 
 Dlouhý „scroll“ všech diagramů vzniká z `mermaid_diagrams.txt` → `diagrams_mermaid.html` přes `generate_mermaid_html.py` nebo po `./scripts/render_docs.sh`. Samostatný dlouhý tok je ještě `main_flow_diagram.txt`.
+
+**`mermaid_diagrams.txt` není jeden diagram.** Obsahuje komentáře `#` a 26 bloků `sequenceDiagram`. Když ho vložíte celý do [mermaid.live](https://mermaid.live/) nebo otevřete v náhledu Mermaid v editoru, dostanete `UnknownDiagramError: No diagram type detected`.
+
+| Potřebujete | Postup |
+|-------------|--------|
+| Všechny diagramy v prohlížeči | `./scripts/render_docs.sh` → otevřít `diagrams_mermaid.html` |
+| Jeden diagram (A1, B1, …) | `python generate_mermaid_html.py --extract A1` nebo po renderu soubor `extracted/a1_*.mmd` |
+| Seznam ID | `python generate_mermaid_html.py --list` |
+| mermaid.live | Zkopírovat obsah jednoho `extracted/*.mmd` (začíná `sequenceDiagram`) |
 
 ---
 

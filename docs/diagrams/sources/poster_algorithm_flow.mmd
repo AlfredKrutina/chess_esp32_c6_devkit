@@ -1,0 +1,88 @@
+%% CzechMate poster — squircle, fw v1.8, plynulejsi sipky a lepsi kompozice
+%%{init: {'theme':'base','flowchart':{'curve':'basis','padding':16,'htmlLabels':true,'nodeSpacing':25,'rankSpacing':35},'themeVariables':{'fontFamily':'Segoe UI, Nunito, sans-serif','fontSize':'10px','background':'#f8fafc','lineColor':'#455a64','primaryTextColor':'#1a2332'}}}%%
+flowchart TB
+  APP(["Mobilni app · Flutter"]):::extN
+
+  subgraph KOM["B · Sit a komunikace"]
+    direction TB
+    WIF("WiFi STA<br/><i>volitelne AP</i>"):::netN
+    WEBN("web_server_task<br/><i>HTTP :80 · REST · WS</i>"):::netN
+    BLEU("NimBLE<br/><i>GAP adv · GATT</i>"):::netN
+    UART("uart_task<br/><i>konzole</i>"):::netN
+  end
+
+  subgraph HW["A · Fyzicka deska"]
+    direction TB
+    IN("8x8 reed / Hall<br/><i>Kconfig</i>"):::inN
+    RD("cteni stavu<br/><i>Hall I2C · STM32</i>"):::procN
+    DET("matrix_detect_moves<br/><i>PICKUP · DROP · GUARD</i>"):::procN
+    IN --> RD --> DET
+  end
+
+  GQ[("game_command_queue<br/><i>24 slotu</i>")]:::queueN
+
+  subgraph CORE["C · Logika a sprava"]
+    direction TB
+    GAME("game_task · 100 ms<br/><i>sach · validace · NVS</i><br/><i>Management · tutorial</i>"):::gameN
+    MTX("matrix_task<br/><i>STM32 flash</i>"):::sideN
+  end
+
+  subgraph VYS["D · LED vystup"]
+    direction TB
+    LEDT("led_task · 30 FPS<br/><i>led_set_pixel_safe</i>"):::ledN
+    OUT("WS2812B GPIO7<br/><i>64+9 LED</i>"):::outN
+    LEDT --> OUT
+  end
+
+  subgraph OPT["E · Volitelne"]
+    direction LR
+    HLT(["ha_light<br/><i>MQTT</i>"]):::optN
+    TST(["test_task"]):::optN
+  end
+
+  subgraph LEG["Legenda"]
+    direction LR
+    LA1(" "):::legN
+    LA2(" "):::legN
+    LB1(" "):::legN
+    LB2(" "):::legN
+    LA1 -->|hlavni tok| LA2
+    LB1 -.->|vol. spojeni| LB2
+  end
+
+  %% Propojeni
+  APP -->|HTTP| WEBN
+  APP -.->|BLE · net| BLEU
+  
+  DET --> GQ
+  WEBN --> GQ
+  BLEU --> GQ
+  UART --> GQ
+  
+  GQ --> GAME
+  GAME --> LEDT
+  GAME -.-> MTX
+
+  %% Zarovnani nepripojenych casti dospod
+  VYS ~~~ OPT
+  OPT ~~~ LEG
+
+  %% Definice trid a stylu
+  classDef inN fill:#64b5f6,stroke:#1565c0,color:#0d47a1,stroke-width:2px,rx:24,ry:24
+  classDef procN fill:#66bb6a,stroke:#2e7d32,color:#1b5e20,stroke-width:2px,rx:24,ry:24
+  classDef netN fill:#79a8dc,stroke:#37474f,color:#102030,stroke-width:2px,rx:24,ry:24
+  classDef queueN fill:#ffca28,stroke:#ef6c00,color:#bf360c,stroke-width:2.5px,rx:20,ry:20
+  classDef gameN fill:#ba68c8,stroke:#6a1b9a,color:#4a148c,stroke-width:2px,rx:24,ry:24
+  classDef ledN fill:#66bb6a,stroke:#2e7d32,color:#1b5e20,stroke-width:2px,rx:24,ry:24
+  classDef outN fill:#9ccc65,stroke:#558b2f,color:#33691e,stroke-width:2px,rx:24,ry:24
+  classDef sideN fill:#9575cd,stroke:#4527a0,color:#311b92,stroke-width:2px,rx:24,ry:24
+  classDef optN fill:#ffb74d,stroke:#e65100,color:#bf360c,stroke-width:2px,rx:26,ry:26
+  classDef extN fill:#ffb74d,stroke:#ef6c00,color:#e65100,stroke-width:2px,rx:28,ry:28
+  classDef legN fill:#e8eef4,stroke:#e8eef4,color:#e8eef4,stroke-width:0px,rx:10,ry:10
+
+  style KOM fill:#d6e8f7,stroke:#455a64,color:#263238,stroke-width:3px,rx:32,ry:32
+  style HW fill:#cfe8fc,stroke:#1565c0,color:#0d47a1,stroke-width:3px,rx:32,ry:32
+  style CORE fill:#ecd9f5,stroke:#7b1fa2,color:#4a148c,stroke-width:3px,rx:32,ry:32
+  style VYS fill:#d4f0dc,stroke:#2e7d32,color:#1b5e20,stroke-width:3px,rx:32,ry:32
+  style OPT fill:#fff0c2,stroke:#f9a825,color:#e65100,stroke-width:2.5px,rx:28,ry:28,stroke-dasharray:8 5
+  style LEG fill:#e8eef4,stroke:#90a4ae,color:#616161,stroke-width:1px,rx:18,ry:18

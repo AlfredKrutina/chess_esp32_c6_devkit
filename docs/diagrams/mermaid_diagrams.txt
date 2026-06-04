@@ -1,6 +1,13 @@
 # Mermaid Sequence Diagramy pro CZECHMATE (firmware podle main.c + freertos_chess.h)
 # Přehledové grafy + aktuální tasky: docs/diagrams/README.md
-# Vložte vybranou sekci do https://mermaid.live/ nebo použijte diagrams_mermaid.html po ./scripts/render_docs.sh
+#
+# DŮLEŽITÉ — tento soubor NENÍ jeden Mermaid diagram (komentáře # + 26× sequenceDiagram).
+# Celý soubor do mermaid.live / náhledu editoru nevkládejte → UnknownDiagramError.
+# Použití:
+#   • Prohlížeč: ./scripts/render_docs.sh → docs/diagrams/diagrams_mermaid.html
+#   • Jeden diagram: python generate_mermaid_html.py --extract A1
+#   • Soubory .mmd:  python generate_mermaid_html.py --export-dir docs/diagrams/extracted
+#     (např. extracted/a1_system_architecture_overview.mmd → mermaid.live)
 #
 # Struktura:
 # - ČÁST A: System Overview (1 diagram)
@@ -80,11 +87,11 @@ sequenceDiagram
     CR->>GT: initialize_chess_game() (NVS / nová hra — viz game_task_start)
     CR->>UT: vTaskResume(uart_task)
 
-    Note over LT,HT: led_unified_mutex vzniká v led_task_start; TWDT typicky esp_task_wdt_add uvnitř každého tasku
+    Note over LT,HT: led_unified_mutex vzniká v led_task_start<br/>TWDT typicky esp_task_wdt_add uvnitř každého tasku
 
-    Note over MT,URQ: Runtime — MT→GQ pickup/drop; BT→BQ; UT/WT→GQ příkazy/tahy; GT čte GQ+BQ; GT→URQ odpovědi konzoli
+    Note over MT,URQ: Runtime — MT→GQ pickup/drop<br/>BT→BQ · UT/WT→GQ příkazy/tahy<br/>GT čte GQ+BQ · GT→URQ odpovědi konzoli
     Note over GT: game_task smyčka vTaskDelayUntil 100 ms + batch příkazů z front (viz game_task.c)
-    Note over MT: matrix_task timer multiplex ~25 ms; vlastní smyčka často 10 ms
+    Note over MT: matrix_task timer multiplex ~25 ms<br/>vlastní smyčka často 10 ms
     Note over LT: led_task ~33 ms batch + WS2812B refresh
     Note over BT: button_task ~5 ms scan / debounce
     Note over UT: uart_task ~1 ms smyčka vstupu + výstup pod uart_mutex

@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """
-Skript pro generování HTML stránky s Mermaid diagramy z docs/diagrams/mermaid_diagrams.txt
+Generování HTML a export jednotlivých Mermaid diagramů z docs/diagrams/mermaid_diagrams.txt.
+
+mermaid_diagrams.txt NENÍ jeden diagram — obsahuje komentáře (#) a 26 bloků sequenceDiagram.
+Celý soubor do mermaid.live / náhledu editoru vložit nelze (UnknownDiagramError).
+Použijte diagrams_mermaid.html, nebo export: python generate_mermaid_html.py --export-dir ...
 """
 
+import argparse
 import re
 import html
+from pathlib import Path
 
 
 def _is_txt_section_rule_line(line_stripped):
@@ -109,6 +115,37 @@ def parse_mermaid_file(filename):
     
     return sections
 
+
+def iter_diagrams(sections):
+    """Všechny podsekce (A1, B1, …) jako (id, name, mermaid_code)."""
+    for section in sections:
+        for sub in section["subsections"]:
+            yield sub["id"], sub["name"], sub["mermaid_code"]
+
+
+def find_diagram_by_id(sections, diagram_id: str):
+    diagram_id = diagram_id.strip().upper()
+    for sub_id, name, code in iter_diagrams(sections):
+        if sub_id == diagram_id:
+            return {"id": sub_id, "name": name, "mermaid_code": code}
+    return None
+
+
+def _export_filename(diagram_id: str, name: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+    return f"{diagram_id.lower()}_{slug}.mmd"
+
+
+def export_diagrams_to_dir(sections, output_dir: Path) -> int:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    count = 0
+    for diagram_id, name, code in iter_diagrams(sections):
+        path = output_dir / _export_filename(diagram_id, name)
+        path.write_text(code + "\n", encoding="utf-8")
+        count += 1
+    return count
+
+
 def generate_html(sections, output_file):
     """Generuje HTML stránku s diagramy"""
     
@@ -132,7 +169,13 @@ def generate_html(sections, output_file):
     # Generovat obsah
     content_html = ['<main class="content">']
     content_html.append('<h1>CZECHMATE firmware — sekvenční diagramy</h1>')
-    content_html.append('<p class="intro">Sekvence z <code>mermaid_diagrams.txt</code>. Obrázky tasků a front: <a href="README.md">README.md</a> ve stejné složce (nebo <code>docs/diagrams/README.md</code> v repu). Verze firmware je v kořenovém <code>CMakeLists.txt</code>.</p>')
+    content_html.append(
+        '<p class="intro">Sekvence z <code>mermaid_diagrams.txt</code> (zdroj není jeden Mermaid blok — '
+        'pro mermaid.live použijte <code>extracted/*.mmd</code> po '
+        '<code>python generate_mermaid_html.py --export-dir docs/diagrams/extracted</code>). '
+        'Obrázky tasků: <a href="README.md">README.md</a>. Verze firmware: kořenový '
+        '<code>CMakeLists.txt</code>.</p>'
+    )
     
     for section in sections:
         section_id = f"section-{section['letter'].lower()}"
@@ -368,28 +411,97 @@ def generate_html(sections, output_file):
     
     print(f"HTML stránka vygenerována: {output_file}")
 
-if __name__ == '__main__':
-    import sys
-    
-    input_file = 'docs/diagrams/mermaid_diagrams.txt'
-    output_file = 'docs/diagrams/diagrams_mermaid.html'
-    
-    if len(sys.argv) > 1:
-        input_file = sys.argv[1]
-    if len(sys.argv) > 2:
-        output_file = sys.argv[2]
-    
-    print(f"Parsování {input_file}...")
-    sections = parse_mermaid_file(input_file)
-    
-    print(f"Nalezeno {len(sections)} sekcí:")
-    total_diagrams = 0
-    for section in sections:
-        count = len(section['subsections'])
-        total_diagrams += count
-        print(f"  {section['letter']}: {section['name']} ({count} diagramů)")
-    
-    print(f"\nCelkem {total_diagrams} diagramů")
-    print(f"\nGenerování HTML do {output_file}...")
-    generate_html(sections, output_file)
+def _build_arg_parser():
+    p = argparse.ArgumentParser(
+        description="HTML z mermaid_diagrams.txt nebo export jednoho diagramu (.mmd)."
+    )
+    p.add_argument(
+        "--input",
+        default="docs/diagrams/mermaid_diagrams.txt",
+        help="Zdrojový soubor s diagramy",
+    )
+    p.add_argument(
+        "--output",
+        default="docs/diagrams/diagrams_mermaid.html",
+        help="Výstupní HTML (výchozí režim)",
+    )
+    p.add_argument(
+        "--export-dir",
+        metavar="DIR",
+        help="Export všech diagramů jako samostatné .mmd (pro mermaid.live / mmdc)",
+    )
+    p.add_argument(
+        "--extract",
+        metavar="ID",
+        help="Vytisknout jeden diagram (např. A1) na stdout",
+    )
+    p.add_argument(
+        "-o",
+        "--out-file",
+        metavar="FILE",
+        help="Uložit --extract do souboru",
+    )
+    p.add_argument(
+        "--list",
+        action="store_true",
+        help="Vypsat ID všech diagramů",
+    )
+    p.add_argument(
+        "--html-only",
+        action="store_true",
+        help="Jen HTML, bez souhrnu sekcí",
+    )
+    return p
+
+
+def main():
+    args = _build_arg_parser().parse_args()
+    input_path = Path(args.input)
+    print(f"Parsování {input_path}...")
+    sections = parse_mermaid_file(str(input_path))
+
+    if args.list:
+        for diagram_id, name, _ in iter_diagrams(sections):
+            print(f"{diagram_id}\t{name}")
+        return
+
+    if args.extract:
+        found = find_diagram_by_id(sections, args.extract)
+        if not found:
+            known = ", ".join(d[0] for d in iter_diagrams(sections))
+            raise SystemExit(f"Diagram '{args.extract}' nenalezen. Dostupné: {known}")
+        text = found["mermaid_code"] + "\n"
+        if args.out_file:
+            Path(args.out_file).write_text(text, encoding="utf-8")
+            print(f"Uloženo: {args.out_file}")
+        else:
+            print(text, end="")
+        return
+
+    if args.export_dir:
+        n = export_diagrams_to_dir(sections, Path(args.export_dir))
+        print(f"Exportováno {n} diagramů do {args.export_dir}/")
+        if not args.html_only:
+            generate_html(sections, args.output)
+            print(f"HTML: {args.output}")
+        return
+
+    if not args.html_only:
+        print(f"Nalezeno {len(sections)} sekcí:")
+        total = 0
+        for section in sections:
+            count = len(section["subsections"])
+            total += count
+            print(f"  {section['letter']}: {section['name']} ({count} diagramů)")
+        print(f"\nCelkem {total} diagramů")
+
+    print(f"\nGenerování HTML do {args.output}...")
+    generate_html(sections, args.output)
+    export_dir = Path("docs/diagrams/extracted")
+    n = export_diagrams_to_dir(sections, export_dir)
+    print(f"Export {n}× .mmd → {export_dir}/")
     print("Hotovo!")
+
+
+if __name__ == "__main__":
+    main()
