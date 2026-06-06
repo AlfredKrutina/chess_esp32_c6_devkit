@@ -426,51 +426,43 @@ Projekt mi rozšířil obzor hodně rychle — z čistých základů k tomuhle p
 
 **Reed matice:** 64 spínačů do řádků a sloupců — každý musí sedět na správný pin a držet kontakt.
 
-**Multiplex s diodami 1N4148:** sdílení pinů mezi maticí a tlačítky; bez izolace diodami by se signály mlátily.
-
 **Napájení LED:** až ~4,5 A při plném jasu u 73 WS2812B — externí 5 V a společná zem s ESP musí být v pořádku.
 
 **Fyzická deska:** od návrhu po zapojení na desce — bez toho by firmware neměl co číst.
 
 ### Software
 
-### 1. Time-multiplexing GPIO
-
-**Co mě štvalo:** málo pinů na C6, ale potřeba 8 řádků matice, 8 sloupců a ještě tlačítka k promoci.
-
-**HW strana:** diody ke všem řádkům, tlačítka přes ně — viz výše.
-
 **FW strana:** v ~25 ms cyklu střídám sken matice a tlačítek (detail mám v sekci o multiplexu). Hodně práce s tím, aby se stavy nepřebíjely.
 
-### 2. Šachová logika
+### 1. Šachová logika
 
 **Co mě štvalo:** pravidla jsou „jednoduchá“, dokud neřešíš všechny hrany případů.
 
 **Jak jsem to lámal:** hodiny nad pravidly a postupné pravidlo po pravidlu; nejvíc mě potrápil en passant. Matěj mi pomáhal tahat hraniční situace na reálné desce.
 
-### 3. FreeRTOS
+### 2. FreeRTOS
 
 **Co mě štvalo:** na začátku chaos — závody, deadlocky, občas ticho bez logu.
 
 **Jak jsem to lámal:** fronty, mutexy, semafory a několik přestaveb architektury, než to začalo dávat smysl.
 
-### 4. LED animace
+### 3. LED animace
 
 **Co mě štvalo:** WS2812B jsou citlivé na timing — moc často trhání, málokdy molasses.
 
 **Co z toho je:** `unified_animation_manager` jako centrální řidič animací.
 
-### 5. Web na MCU
+### 4. Web na MCU
 
 **Co mě štvalo:** RAM není nafukovací; HTTP stack + JS musí být úsporné.
 
 **Co z toho je:** ESP-IDF HTTP server, optimalizovaný embed JS, komprese / cache kde to dávalo smysl. Matěj testoval UI na různých zařízeních.
 
-### 6. Debugging
+### 5. Debugging
 
 **Co mě štvalo:** někdy nebylo jasné, jestli je problém ve FW nebo v zapojení.
 
-**Jak jsme to řešili:** Matěj multimetrem na drátě; já rozšířený UART logging a systematické kroky v logu.
+**Jak jsme to řešili:** Matěj multimetrem na drátě; já UART logging a podrobně rozepsané systematické kroky v logu.
 
 ---
 
