@@ -606,19 +606,6 @@ idf.py -p /dev/ttyUSB0 monitor
 
 ---
 
-## ❓ FAQ (často se ptáte)
-
-**Q: Jak dlouho to trvalo?**  
-A: Rozkládalo se to do měsíců — od nápadu přes iterace až po verzi, která je teď v repu.
-
-**Q: Co bylo nejtěžší?**  
-A: Matěje nejvíc zaměstnal hardware s multiplexem a napájením. U mě to byla šachová logika do posledního pravidla.
-
-**Q: Kam to chcete dál?**  
-A: Spousta nápadů je v sekci „Budoucí vylepšení“ — osobně mě láká silnější AI strana a ještě vyhlazenější web.
-
----
-
 ## 📝 Historie verzí
 
 ### 1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)
