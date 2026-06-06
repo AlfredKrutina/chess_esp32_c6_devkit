@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['že_20občas_20štve_0',['🐛 Co víme, že občas štve',['../index.html#autotoc_md150',1,'']]]
+  ['—_20aktuální_20řádek_20verzí_20firmware_20aplikace_20v_20repu_202026_0',['1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)',['../index.html#autotoc_md156',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🔮_20možné_20další_20směry_0',['🔮 Možné další směry',['../index.html#autotoc_md161',1,'']]]
+  ['🚀_20jak_20si_20firmware_20přeložím_20a_20nahraju_0',['🚀 Jak si firmware přeložím a nahraju',['../index.html#autotoc_md107',1,'']]]
 ];

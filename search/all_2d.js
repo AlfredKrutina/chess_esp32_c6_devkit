@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['👥_20autoři_0',['👥 Autoři',['../index.html#autotoc_md163',1,'']]]
+  ['📁_20jak_20je_20repozitář_20položený_0',['📁 Jak je repozitář položený',['../index.html#autotoc_md143',1,'']]]
 ];

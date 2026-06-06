@@ -1,7 +1,5 @@
 var NAVTREEINDEX10 =
 {
-"shared__buffer__pool_8c_source.html":[3,0,0,5,3],
-"shared__buffer__pool_8h.html":[3,0,0,5,0,3],
 "shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69":[3,0,0,5,0,3,5],
 "shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e":[3,0,0,5,0,3,11],
 "shared__buffer__pool_8h.html#a4fd36e7fb9f9dff5eaa936115b4a5e48":[3,0,0,5,0,3,2],
@@ -249,5 +247,7 @@ var NAVTREEINDEX10 =
 "structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a":[2,0,12,19],
 "structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52":[2,0,12,4],
 "structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e":[2,0,12,18],
-"structchess__move__command__t.html#ae6e4449e8345fed34c9c685eba9f1363":[2,0,12,14]
+"structchess__move__command__t.html#ae6e4449e8345fed34c9c685eba9f1363":[2,0,12,14],
+"structchess__move__extended__t.html":[2,0,13],
+"structchess__move__extended__t.html#a16faacd78ba6e8d0036fe058422762d0":[2,0,13,0]
 };

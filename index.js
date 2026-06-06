@@ -39,50 +39,48 @@ var index =
       [ "Šachová logika", "index.html#autotoc_md125", null ],
       [ "Webové technologie", "index.html#autotoc_md126", null ],
       [ "Architektura softwaru", "index.html#autotoc_md127", null ],
-      [ "Hardware (co jsem pochopil vedle Matěje)", "index.html#autotoc_md128", null ],
+      [ "Hardware", "index.html#autotoc_md128", null ],
       [ "Ladění", "index.html#autotoc_md129", null ]
     ] ],
     [ "🐛 Výzvy, které nás držely vzhůru", "index.html#autotoc_md131", [
       [ "Hardware", "index.html#autotoc_md132", null ],
       [ "Software", "index.html#autotoc_md133", null ],
-      [ "1. Time-multiplexing GPIO", "index.html#autotoc_md134", null ],
-      [ "2. Šachová logika", "index.html#autotoc_md135", null ],
-      [ "3. FreeRTOS", "index.html#autotoc_md136", null ],
-      [ "4. LED animace", "index.html#autotoc_md137", null ],
-      [ "5. Web na MCU", "index.html#autotoc_md138", null ],
-      [ "6. Debugging", "index.html#autotoc_md139", null ]
+      [ "1. Šachová logika", "index.html#autotoc_md134", null ],
+      [ "2. FreeRTOS", "index.html#autotoc_md135", null ],
+      [ "3. LED animace", "index.html#autotoc_md136", null ],
+      [ "4. Web na MCU", "index.html#autotoc_md137", null ],
+      [ "5. Debugging", "index.html#autotoc_md138", null ]
     ] ],
-    [ "Dokumentace", "index.html#autotoc_md141", [
-      [ "GitHub Pages", "index.html#autotoc_md142", null ]
+    [ "Dokumentace", "index.html#autotoc_md140", [
+      [ "GitHub Pages", "index.html#autotoc_md141", null ]
     ] ],
-    [ "📁 Jak je repozitář položený", "index.html#autotoc_md144", null ],
-    [ "🔧 Ladění a testy", "index.html#autotoc_md146", [
-      [ "Debug mód", "index.html#autotoc_md147", null ],
-      [ "Test task", "index.html#autotoc_md148", null ]
+    [ "📁 Jak je repozitář položený", "index.html#autotoc_md143", null ],
+    [ "🔧 Ladění a testy", "index.html#autotoc_md145", [
+      [ "Debug mód", "index.html#autotoc_md146", null ],
+      [ "Test task", "index.html#autotoc_md147", null ]
     ] ],
-    [ "🐛 Co víme, že občas štve", "index.html#autotoc_md150", null ],
-    [ "🔧 Když něco nejde (co zkouším jako první)", "index.html#autotoc_md152", [
-      [ "Hardware", "index.html#autotoc_md153", null ],
-      [ "Software", "index.html#autotoc_md154", null ]
+    [ "🐛 Co víme, že občas štve", "index.html#autotoc_md149", null ],
+    [ "🔧 Když něco nejde (co zkouším jako první)", "index.html#autotoc_md151", [
+      [ "Hardware", "index.html#autotoc_md152", null ],
+      [ "Software", "index.html#autotoc_md153", null ]
     ] ],
-    [ "❓ FAQ (často se ptáte)", "index.html#autotoc_md156", null ],
-    [ "📝 Historie verzí", "index.html#autotoc_md158", [
-      [ "1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)", "index.html#autotoc_md159", null ]
+    [ "📝 Historie verzí", "index.html#autotoc_md155", [
+      [ "1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)", "index.html#autotoc_md156", null ]
     ] ],
-    [ "🔮 Možné další směry", "index.html#autotoc_md161", null ],
-    [ "👥 Autoři", "index.html#autotoc_md163", [
-      [ "Alfred Krutina - Software & Firmware", "index.html#autotoc_md164", null ],
-      [ "Matěj Jager - Hardware", "index.html#autotoc_md165", null ]
+    [ "🔮 Možné další směry", "index.html#autotoc_md158", null ],
+    [ "👥 Autoři", "index.html#autotoc_md160", [
+      [ "Alfred Krutina - Software & Firmware", "index.html#autotoc_md161", null ],
+      [ "Matěj Jager - Hardware", "index.html#autotoc_md162", null ]
     ] ],
-    [ "📄 Licence", "index.html#autotoc_md167", null ],
-    [ "🔗 Užitečné odkazy", "index.html#autotoc_md169", null ],
-    [ "🙏 Poděkování", "index.html#autotoc_md171", [
-      [ "Učitelé", "index.html#autotoc_md172", null ],
-      [ "ESP-IDF tým", "index.html#autotoc_md173", null ],
-      [ "Shawn Hymel (YouTube)", "index.html#autotoc_md174", null ],
-      [ "Perplexity AI", "index.html#autotoc_md175", null ],
-      [ "FreeRTOS", "index.html#autotoc_md176", null ],
-      [ "Komunita ESP32 + open source", "index.html#autotoc_md177", null ]
+    [ "📄 Licence", "index.html#autotoc_md164", null ],
+    [ "🔗 Užitečné odkazy", "index.html#autotoc_md166", null ],
+    [ "🙏 Poděkování", "index.html#autotoc_md168", [
+      [ "Učitelé", "index.html#autotoc_md169", null ],
+      [ "ESP-IDF tým", "index.html#autotoc_md170", null ],
+      [ "Shawn Hymel (YouTube)", "index.html#autotoc_md171", null ],
+      [ "Perplexity AI", "index.html#autotoc_md172", null ],
+      [ "FreeRTOS", "index.html#autotoc_md173", null ],
+      [ "Komunita ESP32 + open source", "index.html#autotoc_md174", null ]
     ] ],
-    [ "💭 Závěrečné myšlenky", "index.html#autotoc_md179", null ]
+    [ "💭 Závěrečné myšlenky", "index.html#autotoc_md176", null ]
 ];

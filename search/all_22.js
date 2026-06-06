@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['často_20se_20ptáte_0',['❓ FAQ (často se ptáte)',['../index.html#autotoc_md156',1,'']]],
-  ['český_20protože_20je_20to_20šachový_20systém_20udělaný_20v_20česku_20původní_20nápad_20byl_20czechmade_20ale_20to_20se_20nám_20zdálo_20příliš_20abstraktní_20czechmate_20lépe_20vystihuje_20o_20co_20jde_20šachmat_20ale_20český_1',['&lt;strong&gt;CZECHMATE&lt;/strong&gt; - to je název našeho projektu. &quot;checkmate&quot; (šachmat) a &quot;Czech&quot; (český), protože je to šachový systém udělaný v Česku. Původní nápad byl &quot;CZECHMADE&quot;, ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.',['../index.html#autotoc_md92',1,'']]],
-  ['česku_20původní_20nápad_20byl_20czechmade_20ale_20to_20se_20nám_20zdálo_20příliš_20abstraktní_20czechmate_20lépe_20vystihuje_20o_20co_20jde_20šachmat_20ale_20český_2',['&lt;strong&gt;CZECHMATE&lt;/strong&gt; - to je název našeho projektu. &quot;checkmate&quot; (šachmat) a &quot;Czech&quot; (český), protože je to šachový systém udělaný v Česku. Původní nápad byl &quot;CZECHMADE&quot;, ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.',['../index.html#autotoc_md92',1,'']]]
+  ['řádek_20verzí_20firmware_20aplikace_20v_20repu_202026_0',['1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)',['../index.html#autotoc_md156',1,'']]]
 ];

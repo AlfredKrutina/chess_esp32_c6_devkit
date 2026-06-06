@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['🔗_20užitečné_20odkazy_0',['🔗 Užitečné odkazy',['../index.html#autotoc_md169',1,'']]]
+  ['🔮_20možné_20další_20směry_0',['🔮 Možné další směry',['../index.html#autotoc_md158',1,'']]]
 ];

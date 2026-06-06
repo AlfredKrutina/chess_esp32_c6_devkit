@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['💭_20závěrečné_20myšlenky_0',['💭 Závěrečné myšlenky',['../index.html#autotoc_md179',1,'']]]
+  ['📄_20licence_0',['📄 Licence',['../index.html#autotoc_md164',1,'']]]
 ];

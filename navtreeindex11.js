@@ -1,7 +1,5 @@
 var NAVTREEINDEX11 =
 {
-"structchess__move__extended__t.html":[2,0,13],
-"structchess__move__extended__t.html#a16faacd78ba6e8d0036fe058422762d0":[2,0,13,0],
 "structchess__move__extended__t.html#a287d533872003ff749138ed16e12d299":[2,0,13,11],
 "structchess__move__extended__t.html#a446b69d07624770d7f9caed4a8f9c01a":[2,0,13,9],
 "structchess__move__extended__t.html#a64548a3d3b994e79cfddb1ff7ec47680":[2,0,13,5],
@@ -249,5 +247,7 @@ var NAVTREEINDEX11 =
 "structled__health__stats__t.html#a9a0f4f67b88467369c5b56f008ae4436":[2,0,37,2],
 "structled__health__stats__t.html#ab08c0f3da9d85647f6c69d621a6be06c":[2,0,37,6],
 "structled__health__stats__t.html#ac6ba5967b998bd74c35dab640990cca9":[2,0,37,4],
-"structled__layer__state__t.html":[2,0,38]
+"structled__layer__state__t.html":[2,0,38],
+"structled__layer__state__t.html#a112df6c248bc73c864b6e0c401a1a87c":[2,0,38,5],
+"structled__layer__state__t.html#a238ba32530dd3a543bde13518ad7edd1":[2,0,38,1]
 };

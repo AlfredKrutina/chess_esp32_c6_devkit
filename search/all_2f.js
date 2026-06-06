@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['📁_20jak_20je_20repozitář_20položený_0',['📁 Jak je repozitář položený',['../index.html#autotoc_md144',1,'']]]
+  ['📋_20co_20czechmate_20umí_20stručně_0',['📋 Co CzechMate umí (stručně)',['../index.html#autotoc_md93',1,'']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['5_20web_20na_20mcu_0',['5. Web na MCU',['../index.html#autotoc_md138',1,'']]]
+  ['5_20debugging_0',['5. Debugging',['../index.html#autotoc_md138',1,'']]]
 ];

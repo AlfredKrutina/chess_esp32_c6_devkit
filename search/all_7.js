@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['8_200_20—_20aktuální_20řádek_20verzí_20firmware_20aplikace_20v_20repu_202026_0',['1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)',['../index.html#autotoc_md159',1,'']]],
-  ['8_200_20strong_1',['CZECHMATE firmware &lt;strong&gt;1.8.0&lt;/strong&gt;',['../index.html',1,'']]]
+  ['_5f_5fattribute_5f_5f_0',['__attribute__',['../freertos__chess_8c.html#a43c4623c2553d09a59385aabe971d75d',1,'__attribute__((unused)):&#160;freertos_chess.c'],['../game__state__notify_8c.html#a201468129b483039afc5a619e2d31097',1,'__attribute__((weak)):&#160;game_state_notify.c'],['../game__led__animations_8c.html#a36f229bbda63818246ec86181b1fdd42',1,'__attribute__((unused)):&#160;game_led_animations.c']]],
+  ['_5f_5fwrap_5fesp_5flog_5fwrite_1',['__wrap_esp_log_write',['../web__server__task_8c.html#ac16f4afbf3b99fa63b395c4f03e720d8',1,'web_server_task.c']]],
+  ['_5f_5fwrap_5fesp_5flog_5fwritev_2',['__wrap_esp_log_writev',['../web__server__task_8c.html#a9aed8f59f75d856e2916530518eff586',1,'web_server_task.c']]]
 ];
