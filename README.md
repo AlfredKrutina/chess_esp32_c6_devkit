@@ -13,14 +13,13 @@ Ahoj, tady je **CzechMate**, náš šachový systém, firmware na ESP32-C6, web 
 
 ## 🎓 O projektu
 
-**CZECHMATE** - to je název našeho projektu. Hra se slovem "checkmate" (šachmat) a "Czech" (český), protože je to šachový systém udělaný v Česku. Původní nápad byl "CZECHMADE", ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.
-
 Tento projekt představuje náš největší a nejkomplexnější projekt, na kterém jsme pracovali. Je to šachový systém postavený na ESP32-C6 mikrokontroléru, který kombinuje hardware, software, embedded systémy, webové technologie a samozřejmě šachovou logiku. Když jsme začínali, netušili jsme, kolik se toho naučíme a kolik výzev nás čeká.
 
 Projekt vznikal postupně - od jednoduché myšlenky "udělat šachy s LED" až po komplexní systém s FreeRTOS multitaskingem, webovým serverem, fyzickou detekcí figurek a kompletní implementací všech šachových pravidel. Každá část projektu nás něco naučila - od základů embedded programování přes real-time systémy až po webové technologie.
 
 **Spolupráce:** Projekt je výsledkem týmové práce — Matěj řešil hardware design a fyzickou realizaci šachovnice, já aplikaci, firmware zařízení a šachovou logiku.
 
+**CZECHMATE** - to je název našeho projektu. "checkmate" (šachmat) a "Czech" (český), protože je to šachový systém udělaný v Česku. Původní nápad byl "CZECHMADE", ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.
 --- 
 
 ## 📋 Co CzechMate umí (stručně)
