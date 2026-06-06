@@ -17,7 +17,7 @@ Tento projekt představuje náš největší a nejkomplexnější projekt, na kt
 
 Projekt vznikal postupně - od jednoduché myšlenky "udělat šachy s LED" až po komplexní systém s FreeRTOS multitaskingem, webovým serverem, fyzickou detekcí figurek a kompletní implementací všech šachových pravidel. Každá část projektu nás něco naučila - od základů embedded programování přes real-time systémy až po webové technologie.
 
-**Spolupráce:** Projekt je výsledkem týmové práce — Matěj řešil hardware design a fyzickou realizaci šachovnice, já aplikaci, firmware zařízení a šachovou logiku.
+**Spolupráce:** Projekt je výsledkem týmové práce — Matěj řešil fyzickou realizaci šachovnice, já aplikaci, firmware zařízení a šachovou logiku.
 
 **CZECHMATE** - to je název našeho projektu. "checkmate" (šachmat) a "Czech" (český), protože je to šachový systém udělaný v Česku. Původní nápad byl "CZECHMADE", ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.
 --- 
@@ -34,7 +34,7 @@ Na prototypu **V1** řešíme fyzickou hru **reed switch** maticí 8×8 (jen obs
 - **Šachová logika** — pravidla včetně rošády, en passant, promoce, šach, mat
 - **Web** — HTTP server, stav stránky držíme aktuální (volitelně WebSocket `/ws`)
 - **UART** — textové příkazy, debug, testy
-- **Animace** — tahy, šach, mat, remíza; samostatný FreeRTOS **`animation_task` máme vypnutý** — běží to v **`led_task`** přes **`unified_animation_manager`** / **`game_led_animations`** (složka `animation_task/` v repu zůstává kvůli API, ale ve `main.c` ten task nevytváříme)
+- **Animace** — tahy, šach, mat, remíza...
 - **Home Assistant** — MQTT „světlo“ přes `ha_light_task`
 - **Auto nová hra** — když jsou figurky v základním postavení a chvíli to drží (~2 s), spustí se nová partie
 - **Stockfish / bot** — obtížnost (ELO), volba barvy
@@ -58,7 +58,7 @@ Detailní tabulka a odkazy: [`docs/reference/HARDWARE_VERZE.md`](docs/reference/
 
 ### Komponenty (prototyp V1)
 
-Na desce od Matěje reálně sedí mimo jiné:
+V HW primárně je mimo jiné:
 
 - **ESP32-C6 DevKit** - Hlavní mikrokontrolér s WiFi a Bluetooth
 - **73x WS2812B LED** - 64 LED na šachovnici + 9 LED na tlačítkách
@@ -79,18 +79,6 @@ Matrix Columns: GPIO0,1,2,3,6,4,16,17 (8 vstupů s pull-up)
 Status LED:      GPIO5  
 Reset Button:    GPIO15 (s pull-up)
 ```
-
-### Time-Multiplexing
-
-Protože ESP32-C6 má omezený počet GPIO pinů, museli jsme použít time-multiplexing pro sdílení pinů mezi maticí a tlačítky. Matěj navrhl hardware zapojení s diodami, které umožňují sdílení pinů, a já jsem implementoval software časování. To byla jedna z technicky nejnáročnějších částí projektu:
-
-**25ms cyklus:**
-- **0-20ms**: Matrix skenování (8x8 reed switchů) - detekce figurek
-- **20-25ms**: Tlačítkové skenování (9 tlačítek) - ovládání
-- LED aktualizace probíhá nezávisle mimo multiplexing cyklus
-
-Toto řešení mi umožnilo použít stejné piny pro matici i tlačítka, což bylo kritické pro úsporu GPIO pinů.
-
 ---
 
 ## 🏗️ Architektura
