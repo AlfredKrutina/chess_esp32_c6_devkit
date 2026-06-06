@@ -407,7 +407,7 @@ Projekt mi rozšířil obzor hodně rychle — z čistých základů k tomuhle p
 - **Chyby** — kde logovat, kde recovery
 - **Organizace** — jak se neztratit ve velkém C projektu
 
-### Hardware (co jsem pochopil vedle Matěje)
+### Hardware 
 - **Reed spínače** — jak je číst v matici
 - **WS2812B** — timing a napájení
 - **Time-multiplexing** — sdílení pinů s diodami
