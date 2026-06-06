@@ -10,8 +10,8 @@ var searchData=
   ['refresh_5finput_5fdisplay_7',['refresh_input_display',['../uart__task_8c.html#ad1780c902a974c1328d45972b588d593',1,'uart_task.c']]],
   ['register_5fextended_5fuart_5fcommands_8',['register_extended_uart_commands',['../uart__commands__extended_8c.html#a91f740ce224db3050d1f85890fdbbdce',1,'register_extended_uart_commands(void):&#160;uart_commands_extended.c'],['../uart__commands__extended_8h.html#a91f740ce224db3050d1f85890fdbbdce',1,'register_extended_uart_commands(void):&#160;uart_commands_extended.c']]],
   ['release_5fshared_5fbuffer_9',['release_shared_buffer',['../shared__buffer__pool_8c.html#a2dcea7230ff8c3509b7b7adaeba9874e',1,'release_shared_buffer(char *buffer):&#160;shared_buffer_pool.c'],['../shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e',1,'release_shared_buffer(char *buffer):&#160;shared_buffer_pool.c']]],
-  ['repozitář_20položený_10',['📁 Jak je repozitář položený',['../index.html#autotoc_md145',1,'']]],
-  ['repu_202026_11',['1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)',['../index.html#autotoc_md160',1,'']]],
+  ['repozitář_20položený_10',['📁 Jak je repozitář položený',['../index.html#autotoc_md144',1,'']]],
+  ['repu_202026_11',['1.8.0 — aktuální řádek verzí (firmware + aplikace v repu, 2026)',['../index.html#autotoc_md159',1,'']]],
   ['require_5fuser_5fconfirm_12',['require_user_confirm',['../structerror__guidance__t.html#a14400cf1fab2b94d126d753a649bf1e2',1,'error_guidance_t']]],
   ['requires_5fargs_13',['requires_args',['../structuart__command__t.html#ad2edd88434fbd2fb4eda438c08e8a953',1,'uart_command_t']]],
   ['reset_5fbutton_5fget_5fevent_5fcount_14',['reset_button_get_event_count',['../reset__button__task_8c.html#a06d02f46f762a840863c8353f7e7f506',1,'reset_button_get_event_count(void):&#160;reset_button_task.c'],['../reset__button__task_8h.html#a06d02f46f762a840863c8353f7e7f506',1,'reset_button_get_event_count(void):&#160;reset_button_task.c']]],
@@ -58,5 +58,5 @@ var searchData=
   ['rook_5fto_5fcol_55',['rook_to_col',['../structcastling__positions__t.html#a56dd6d90404022b71164de6f9b02b88d',1,'castling_positions_t::rook_to_col'],['../structcastling__state__t.html#a3f6d980f0e18ee2f5df5907b82d500a0',1,'castling_state_t::rook_to_col'],['../game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f',1,'rook_to_col:&#160;game_task.c']]],
   ['rook_5fto_5frow_56',['rook_to_row',['../structcastling__positions__t.html#a327b358b5219956a1a4c1a17cadb9363',1,'castling_positions_t::rook_to_row'],['../game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0',1,'rook_to_row:&#160;game_task.c'],['../structcastling__state__t.html#a4744be90f6da3461a00f214616844512',1,'castling_state_t::rook_to_row']]],
   ['row_57',['row',['../structchess__position__t.html#a52fc42938f588120d7427968dd5c6c5b',1,'chess_position_t::row'],['../structactive__error__t.html#a3a1ae9add15aea94b873af99aeb85509',1,'active_error_t::row']]],
-  ['rozhraní_58',['Webové rozhraní',['../index.html#autotoc_md116',1,'']]]
+  ['rozhraní_58',['Webové rozhraní',['../index.html#autotoc_md115',1,'']]]
 ];

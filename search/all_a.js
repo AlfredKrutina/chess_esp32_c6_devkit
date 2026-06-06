@@ -96,8 +96,8 @@ var searchData=
   ['boot_5fcycles_5fwindow_5fms_93',['BOOT_CYCLES_WINDOW_MS',['../main_8c.html#a4cb58a2662d3d54f7747c5881abd8ccc',1,'main.c']]],
   ['boot_5fnew_5fgame_5ftriggered_94',['boot_new_game_triggered',['../game__task_8c.html#a6839c905e61377fdb6835d7afb50b08c',1,'game_task.c']]],
   ['boot_5fwindow_5fseconds_95',['BOOT_WINDOW_SECONDS',['../game__task_8c.html#ac8c5d99877f0d00359a06f437c8044c6',1,'game_task.c']]],
-  ['bot_20a_20výuka_96',['🤖 Bot a výuka',['../index.html#autotoc_md119',1,'']]],
-  ['botovi_97',['Hra proti botovi',['../index.html#autotoc_md120',1,'']]],
+  ['bot_20a_20výuka_96',['🤖 Bot a výuka',['../index.html#autotoc_md118',1,'']]],
+  ['botovi_97',['Hra proti botovi',['../index.html#autotoc_md119',1,'']]],
   ['brightness_98',['brightness',['../structled__pixel__t.html#a5cb1f7787f6504a80d57c3dbe4da536b',1,'led_pixel_t::brightness'],['../ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4',1,'brightness:&#160;ha_light_task.c']]],
   ['brightness_5flevel_99',['brightness_level',['../structsystem__config__t.html#a05bbd482d93891e6ed1ec8d1068309d7',1,'system_config_t']]],
   ['buffer_100',['buffer',['../structinput__buffer__t.html#a5e1a0d38646ef4e3b2ee1b2c049c2d22',1,'input_buffer_t']]],
@@ -173,5 +173,6 @@ var searchData=
   ['button_5ftask_5fstart_170',['button_task_start',['../button__task_8c.html#af93b7fa55287e83f6caf447e756de6d2',1,'button_task_start(void *pvParameters):&#160;button_task.c'],['../button__task_8h.html#af93b7fa55287e83f6caf447e756de6d2',1,'button_task_start(void *pvParameters):&#160;button_task.c']]],
   ['button_5ftask_5fwdt_5freset_5fsafe_171',['button_task_wdt_reset_safe',['../button__task_8c.html#af88dd4237305bcbdee51952490e7d163',1,'button_task.c']]],
   ['button_5ftest_5fall_172',['button_test_all',['../button__task_8c.html#ae20ae1cc0ee0a2af8cdae453a22296a2',1,'button_test_all(void):&#160;button_task.c'],['../button__task_8h.html#ae20ae1cc0ee0a2af8cdae453a22296a2',1,'button_test_all(void):&#160;button_task.c']]],
-  ['button_5fupdate_5fled_5ffeedback_173',['button_update_led_feedback',['../button__task_8c.html#a558352d2b9df8e61bfada7d422249e64',1,'button_update_led_feedback(uint8_t button_id, bool pressed):&#160;button_task.c'],['../button__task_8h.html#a558352d2b9df8e61bfada7d422249e64',1,'button_update_led_feedback(uint8_t button_id, bool pressed):&#160;button_task.c']]]
+  ['button_5fupdate_5fled_5ffeedback_173',['button_update_led_feedback',['../button__task_8c.html#a558352d2b9df8e61bfada7d422249e64',1,'button_update_led_feedback(uint8_t button_id, bool pressed):&#160;button_task.c'],['../button__task_8h.html#a558352d2b9df8e61bfada7d422249e64',1,'button_update_led_feedback(uint8_t button_id, bool pressed):&#160;button_task.c']]],
+  ['byl_20czechmade_20ale_20to_20se_20nám_20zdálo_20příliš_20abstraktní_20czechmate_20lépe_20vystihuje_20o_20co_20jde_20šachmat_20ale_20český_174',['&lt;strong&gt;CZECHMATE&lt;/strong&gt; - to je název našeho projektu. &quot;checkmate&quot; (šachmat) a &quot;Czech&quot; (český), protože je to šachový systém udělaný v Česku. Původní nápad byl &quot;CZECHMADE&quot;, ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.',['../index.html#autotoc_md92',1,'']]]
 ];

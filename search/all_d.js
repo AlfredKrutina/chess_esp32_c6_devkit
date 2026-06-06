@@ -2,7 +2,7 @@ var searchData=
 [
   ['ease_5fin_5fout_5fcubic_0',['ease_in_out_cubic',['../unified__animation__manager_8c.html#a44a07045bc7d0b9019e122b6ee2f1c59',1,'unified_animation_manager.c']]],
   ['effect_1',['effect',['../ha__light__task_8c.html#af7b0cb88246dfc40187f86c43e8d18f0',1,'ha_light_task.c']]],
-  ['embedded_20programování_2',['Embedded programování',['../index.html#autotoc_md125',1,'']]],
+  ['embedded_20programování_2',['Embedded programování',['../index.html#autotoc_md124',1,'']]],
   ['en_5fpassant_5favailable_3',['en_passant_available',['../game__task_8c.html#a01bb301cbe8700c281dbf823fc412923',1,'en_passant_available:&#160;game_task.c'],['../structgame__snapshot__full__t.html#a94eb7482be49d5d0484dc5d1b9136400',1,'game_snapshot_full_t::en_passant_available'],['../structgame__snapshot__min__t.html#ac78da5dd8968bb3b16a8cd936a1cf743',1,'game_snapshot_min_t::en_passant_available']]],
   ['en_5fpassant_5ftarget_5fcol_4',['en_passant_target_col',['../game__task_8c.html#a5d18dd08e04b69848244304316e48083',1,'en_passant_target_col:&#160;game_task.c'],['../structgame__snapshot__full__t.html#acdaf1d3563ca2df87b3de5c1ba2d8c87',1,'game_snapshot_full_t::en_passant_target_col'],['../structgame__snapshot__min__t.html#a70a95e448e79255b327cef85d324ef98',1,'game_snapshot_min_t::en_passant_target_col']]],
   ['en_5fpassant_5ftarget_5frow_5',['en_passant_target_row',['../structgame__snapshot__full__t.html#a32cdf989578954ba4440fcbb927a0a9e',1,'game_snapshot_full_t::en_passant_target_row'],['../game__task_8c.html#a088deaf2db03b864150aa4b907da0ce7',1,'en_passant_target_row:&#160;game_task.c'],['../structgame__snapshot__min__t.html#afe0e64deba77729601c8900430d0ea85',1,'game_snapshot_min_t::en_passant_target_row']]],
@@ -112,8 +112,8 @@ var searchData=
   ['esc_5fstate_5fesc_109',['ESC_STATE_ESC',['../uart__task_8c.html#a945fae464be4b4e1c782a66a4401856facb373f962a04b4ce988e888e6cee6105',1,'uart_task.c']]],
   ['esc_5fstate_5fnone_110',['ESC_STATE_NONE',['../uart__task_8c.html#a945fae464be4b4e1c782a66a4401856fa08f8d80eed5895fa184c992527d86067',1,'uart_task.c']]],
   ['esc_5fstate_5ft_111',['esc_state_t',['../uart__task_8c.html#a945fae464be4b4e1c782a66a4401856f',1,'uart_task.c']]],
-  ['esp_20idf_20tým_112',['ESP-IDF tým',['../index.html#autotoc_md174',1,'']]],
-  ['esp32_20open_20source_113',['Komunita ESP32 + open source',['../index.html#autotoc_md178',1,'']]],
+  ['esp_20idf_20tým_112',['ESP-IDF tým',['../index.html#autotoc_md173',1,'']]],
+  ['esp32_20open_20source_113',['Komunita ESP32 + open source',['../index.html#autotoc_md177',1,'']]],
   ['execute_5fcommand_114',['execute_command',['../uart__task_8c.html#a015b3be04ff0b73780f9c39e0197a98f',1,'uart_task.c']]],
   ['execute_5fdemo_5fmove_115',['execute_demo_move',['../main_8c.html#a47be0f08c5acbba3a901be7d65e4cb8a',1,'main.c']]]
 ];

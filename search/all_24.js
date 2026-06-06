@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['šachová_20logika_0',['šachová logika',['../index.html#autotoc_md126',1,'Šachová logika'],['../index.html#autotoc_md136',1,'2. Šachová logika']]],
-  ['štve_1',['🐛 Co víme, že občas štve',['../index.html#autotoc_md151',1,'']]]
+  ['šachmat_20a_20czech_20český_20protože_20je_20to_20šachový_20systém_20udělaný_20v_20česku_20původní_20nápad_20byl_20czechmade_20ale_20to_20se_20nám_20zdálo_20příliš_20abstraktní_20czechmate_20lépe_20vystihuje_20o_20co_20jde_20šachmat_20ale_20český_0',['&lt;strong&gt;CZECHMATE&lt;/strong&gt; - to je název našeho projektu. &quot;checkmate&quot; (šachmat) a &quot;Czech&quot; (český), protože je to šachový systém udělaný v Česku. Původní nápad byl &quot;CZECHMADE&quot;, ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.',['../index.html#autotoc_md92',1,'']]],
+  ['šachová_20logika_1',['šachová logika',['../index.html#autotoc_md125',1,'Šachová logika'],['../index.html#autotoc_md135',1,'2. Šachová logika']]],
+  ['šachový_20systém_20udělaný_20v_20česku_20původní_20nápad_20byl_20czechmade_20ale_20to_20se_20nám_20zdálo_20příliš_20abstraktní_20czechmate_20lépe_20vystihuje_20o_20co_20jde_20šachmat_20ale_20český_2',['&lt;strong&gt;CZECHMATE&lt;/strong&gt; - to je název našeho projektu. &quot;checkmate&quot; (šachmat) a &quot;Czech&quot; (český), protože je to šachový systém udělaný v Česku. Původní nápad byl &quot;CZECHMADE&quot;, ale to se nám zdálo příliš abstraktní. CZECHMATE lépe vystihuje, o co jde - šachmat, ale český.',['../index.html#autotoc_md92',1,'']]],
+  ['štve_3',['🐛 Co víme, že občas štve',['../index.html#autotoc_md150',1,'']]]
 ];
