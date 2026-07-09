@@ -40,9 +40,7 @@ set(EXTRA_COMPONENT_DIRS
     components/uart_task
     components/game_task
     components/animation_task
-    components/screen_saver_task
     components/test_task
-    components/matter_task
     components/web_server_task
     components/config_manager
     components/promotion_button_task

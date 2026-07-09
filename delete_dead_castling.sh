@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED (2026-07): enhanced_castling_system už není linkovaný z game_task.
+# Komponenta zůstává v repu — před smazáním ověř, že ji nikdo nevolá.
 # Script to complete dead code removal
 # Run this from project root: bash delete_dead_castling.sh
 
