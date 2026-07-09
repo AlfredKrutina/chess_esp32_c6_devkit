@@ -18,6 +18,7 @@ import '../../core/widgets/brief_celebration_dialog.dart';
 import '../../core/widgets/glass_snackbar.dart';
 import '../../core/utils/fen_from_board.dart';
 import '../../core/widgets/pressable_scale.dart';
+import '../../core/widgets/matrix_guard_banner.dart';
 import '../../core/widgets/network_status_banners.dart';
 import '../../core/widgets/session_error_panel.dart';
 import '../../core/utils/user_facing_error_message.dart';
@@ -677,6 +678,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const LiveActivitySessionListener(),
+              if (session.snapshot != null)
+                MatrixGuardBanner(snapshot: session.snapshot!),
               if (session.snapshot != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
