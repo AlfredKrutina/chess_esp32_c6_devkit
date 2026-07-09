@@ -492,6 +492,8 @@
       }
     }
   },
+  "gameMatrixGuardForceClear": "Force clear",
+  "gameMatrixGuardForceClearSnack": "Matrix guard cleared — verify the board matches the game",
   "gameNoSnapshotBody": "Find a board from the top-left or below (Bluetooth). Wi‑Fi and more options are in advanced settings.",
   "gameBackToPanelTooltip": "Back to layout with panel",
   "gameAiCoachTitle": "AI coach",

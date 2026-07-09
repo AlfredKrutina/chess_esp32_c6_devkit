@@ -99,6 +99,7 @@
 #include "web_server_task.h"
 #include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
+#include "../matrix_task/include/matrix_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -375,6 +376,7 @@ static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req);
 static esp_err_t http_post_game_new_handler(httpd_req_t *req);
 static esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req);
 static esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req);
+static esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req);
 static esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req);
 static esp_err_t http_post_game_puzzle_handler(httpd_req_t *req);
 static esp_err_t http_get_settings_ui_handler(httpd_req_t *req);
@@ -2702,6 +2704,12 @@ static esp_err_t start_http_server(void) {
                                .user_ctx = NULL};
   httpd_register_uri_handler(httpd_handle, &hint_clear_uri);
 
+  httpd_uri_t guard_clear_uri = {.uri = "/api/game/guard_clear",
+                                 .method = HTTP_POST,
+                                 .handler = http_post_game_guard_clear_handler,
+                                 .user_ctx = NULL};
+  httpd_register_uri_handler(httpd_handle, &guard_clear_uri);
+
   httpd_uri_t setup_tutorial_uri = {.uri = "/api/game/setup_tutorial",
                                     .method = HTTP_POST,
                                     .handler =
@@ -3459,6 +3467,17 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     c.type = LED_CMD_CLEAR_HIGHLIGHTS;
     led_execute_command_new(&c);
     ESP_LOGD(TAG, "BLE cmd: hint_clear");
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "guard_clear") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "BLE guard_clear blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (game_is_matrix_guard_active() || matrix_is_guard_mode_active()) {
+      game_force_clear_matrix_guard();
+    }
+    ESP_LOGD(TAG, "BLE cmd: guard_clear");
     return ESP_OK;
   }
   if (strcmp(cmd, "brightness") == 0) {
@@ -5355,6 +5374,38 @@ static esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req) {
   httpd_resp_set_status(req, "200 OK");
   httpd_resp_set_type(req, "application/json");
   httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
+static esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req) {
+  (void)req;
+  ESP_LOGI(TAG, "POST /api/game/guard_clear");
+
+  if (web_is_locked()) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(
+        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
+    return ESP_OK;
+  }
+
+  const bool was_active =
+      game_is_matrix_guard_active() || matrix_is_guard_mode_active();
+  if (was_active) {
+    game_force_clear_matrix_guard();
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  if (was_active) {
+    httpd_resp_send(
+        req,
+        "{\"success\":true,\"cleared\":true,\"message\":\"Matrix guard "
+        "cleared. Verify physical board matches the game.\"}",
+        -1);
+  } else {
+    httpd_resp_send(req, "{\"success\":true,\"cleared\":false}", -1);
+  }
   return ESP_OK;
 }
 

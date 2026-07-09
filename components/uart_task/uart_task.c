@@ -2662,6 +2662,12 @@ static const uart_command_t commands[] = {
      "",
      false,
      {"GAME_RESET", "GAME_RESTART", "", "", ""}},
+    {"GUARD_CLEAR",
+     uart_cmd_guard_clear,
+     "Force-clear matrix guard (emergency — board must be aligned)",
+     "",
+     false,
+     {"MATRIX_GUARD_CLEAR", "GUARD", "MG_CLEAR", "", ""}},
     {"MOVES",
      uart_cmd_show_moves,
      "Show valid moves",
@@ -6123,6 +6129,20 @@ command_result_t uart_cmd_game_reset(const char *args) {
     uart_send_error("Internal error: failed to reset game");
     return CMD_ERROR_SYSTEM_ERROR;
   }
+}
+
+command_result_t uart_cmd_guard_clear(const char *args) {
+  (void)args;
+
+  if (!game_is_matrix_guard_active() && !matrix_is_guard_mode_active()) {
+    uart_send_formatted("Matrix guard is not active");
+    return CMD_SUCCESS;
+  }
+
+  game_force_clear_matrix_guard();
+  uart_send_formatted(
+      "Matrix guard cleared (both layers). Verify physical board matches logic.");
+  return CMD_SUCCESS;
 }
 
 command_result_t uart_cmd_show_moves(const char *args) {

@@ -1340,6 +1340,19 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
+  /// Nouzové zrušení matrix guard (deska musí být fyzicky srovnaná).
+  Future<void> postGuardClear() async {
+    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
+      await _boardHttp.postGuardClear(state.wifiBaseUrl!);
+      return;
+    }
+    if (state.transport == BoardTransport.ble) {
+      await _ble.postGuardClear();
+      return;
+    }
+    throw StateError(_strings.errHintsNeedConnection);
+  }
+
   /// Reed matice: Wi‑Fi `GET /api/status`, BLE poslední `snapshot.status.matrix_occupied`.
   Future<List<int>?> fetchMatrixOccupiedForWizard() async {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {

@@ -946,6 +946,13 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String get gameMatrixGuardForceClear => 'Vynutit zrušení';
+
+  @override
+  String get gameMatrixGuardForceClearSnack =>
+      'Matrix guard zrušen — zkontrolujte, že deska sedí s hrou';
+
+  @override
   String get gameNoSnapshotBody =>
       'Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.';
 

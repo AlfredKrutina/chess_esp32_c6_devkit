@@ -1730,6 +1730,18 @@ abstract class AppLocalizations {
   /// **'After startup the physical board does not match the saved game. Align pieces on: {squares}.'**
   String gameMatrixGuardResync(String squares);
 
+  /// No description provided for @gameMatrixGuardForceClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Force clear'**
+  String get gameMatrixGuardForceClear;
+
+  /// No description provided for @gameMatrixGuardForceClearSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Matrix guard cleared — verify the board matches the game'**
+  String get gameMatrixGuardForceClearSnack;
+
   /// No description provided for @gameNoSnapshotBody.
   ///
   /// In en, this message translates to:
