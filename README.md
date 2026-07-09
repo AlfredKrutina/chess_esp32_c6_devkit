@@ -541,8 +541,12 @@ chess_esp32_c6_devkit/
 ├── context/                       # AI podklady — .gitignore (není v remote)
 ├── CMakeLists.txt                 # Build konfigurace
 ├── Doxyfile                       # Doxygen konfigurace
-├── generate_docs.sh              # Skript pro generování dokumentace
-├── create_pdf_simple.sh          # Skript pro vytvoření PDF
+├── scripts/                       # Automatizace — viz scripts/README.md
+│   ├── docs/                      # Doxygen, Mermaid, PDF
+│   ├── maintenance/               # Jednorázové údržbové skripty
+│   └── render_docs.sh             # Diagramy SVG/PNG + HTML
+├── generate_docs.sh              # Wrapper → scripts/docs/generate_docs.sh
+├── create_pdf_simple.sh          # Wrapper → scripts/docs/create_pdf_simple.sh
 └── README.md                      # Kořenový přehled projektu
 ```
 
