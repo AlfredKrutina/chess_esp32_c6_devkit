@@ -17,7 +17,7 @@
 5. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
 6. [ota_architecture.md](ota_architecture.md) — jak taháme firmware na desku (HTTPS, HTTP z telefonu, BLE).
 7. [reference/](reference/) — souřadnice, web UI v binárce, checklist pro klienty (viz tabulku níže).
-8. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
+8. Doxygen: `./scripts/docs/generate_docs.sh` (nebo `./generate_docs.sh`) → `docs/doxygen/html/index.html`.
 
 Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_docs.sh`.
 
@@ -86,8 +86,8 @@ flowchart TB
 | `docs/ota_architecture.md` | OTA ESP32 ↔ Flutter |
 | `docs/flutter/` | Přehled aplikace |
 | `context/` (často gitignore) | Lokální podklady pro AI / OTA logy mimo Git |
-| `scripts/` | `render_docs.sh`, … |
-| `generate_docs.sh`, `Doxyfile` | C API HTML |
+| `scripts/` | `render_docs.sh`, `docs/generate_docs.sh`, … — viz [scripts/README.md](../scripts/README.md) |
+| `generate_docs.sh`, `Doxyfile` | Kořenové wrappery → `scripts/docs/` |
 
 ---
 
@@ -105,4 +105,4 @@ flowchart TB
 | Firmware | `idf.py build` (v aktivovaném ESP-IDF prostředí) |
 | Flutter | `cd flutter_czechmate && flutter pub get && flutter run` |
 | Diagramy | `./scripts/render_docs.sh` |
-| Doxygen | `./generate_docs.sh` |
+| Doxygen | `./scripts/docs/generate_docs.sh` |

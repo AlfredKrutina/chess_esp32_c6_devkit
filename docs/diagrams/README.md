@@ -388,8 +388,8 @@ Dlouhý „scroll“ všech diagramů vzniká z `mermaid_diagrams.txt` → `diag
 | Potřebujete | Postup |
 |-------------|--------|
 | Všechny diagramy v prohlížeči | `./scripts/render_docs.sh` → otevřít `diagrams_mermaid.html` |
-| Jeden diagram (A1, B1, …) | `python generate_mermaid_html.py --extract A1` nebo po renderu soubor `extracted/a1_*.mmd` |
-| Seznam ID | `python generate_mermaid_html.py --list` |
+| Jeden diagram (A1, B1, …) | `python3 scripts/docs/generate_mermaid_html.py --extract A1` nebo po renderu soubor `extracted/a1_*.mmd` |
+| Seznam ID | `python3 scripts/docs/generate_mermaid_html.py --list` |
 | mermaid.live | Zkopírovat obsah jednoho `extracted/*.mmd` (začíná `sequenceDiagram`) |
 
 ---

@@ -38,7 +38,7 @@ cd gh-pages-ready && ./serve.sh
 ## Ruční nasazení (bez čekání na Actions)
 
 ```bash
-./generate_docs.sh
+./scripts/docs/generate_docs.sh
 ./scripts/render_docs.sh
 rm -rf /tmp/czm-pages && mkdir -p /tmp/czm-pages
 cp -a docs/doxygen/html/. /tmp/czm-pages/
@@ -111,6 +111,6 @@ YouTube (stejné ID jako v hero): [youtu.be/_MS6OP3x6Z4](https://youtu.be/_MS6OP
 
 ---
 
-Koordinace s kořenovým [README.md](../README.md). Diagramy: `./scripts/render_docs.sh` nebo `python3 generate_mermaid_html.py` podle workflow v repozitáři.
+Koordinace s kořenovým [README.md](../README.md). Diagramy: `./scripts/render_docs.sh` nebo `python3 scripts/docs/generate_mermaid_html.py` podle workflow v repozitáři.
 
 Push na `main` nebo `master`, který mění alespoň jednu z cest v [`.github/workflows/gh-pages.yml`](../.github/workflows/gh-pages.yml) (včetně celé složky `gh-pages-ready/**`), znovu nasadí obsah na větev `gh-pages`. Binárky aplikace (APK, DMG, EXE) jsou na GitHub Releases; sekce stažení na `downloads.html` je s nimi propojená přes API `releases/latest`. Ruční spuštění: Actions → „Deploy GitHub Pages“ → **Run workflow**.
