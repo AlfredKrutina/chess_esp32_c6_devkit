@@ -3,14 +3,14 @@
   "appTitle": "CzechMate",
   "navPlay": "Hra",
   "navAnalysis": "Analýza",
-  "navPuzzle": "Úlohy",
-  "navProgress": "Trénink",
+  "navPuzzle": "Puzzle",
+  "navProgress": "Pokrok",
   "navSettings": "Nastavení",
   "settingsLanguage": "Jazyk",
   "languageSystem": "Systém",
   "languageEnglish": "Angličtina",
   "languageCzech": "Čeština",
-  "languageDescription": "Zvol jazyk aplikace. Systém následuje jazyk zařízení; ostatní jazyky se zobrazí v angličtině.",
+  "languageDescription": "Zvol jazyk aplikace. Systém následuje telefon; ostatní jazyky se zobrazí v angličtině.",
   "onboardingWelcomeTitle": "Vítej v CZECHMATE",
   "onboardingSkip": "Přeskočit",
   "onboardingNext": "Další",
@@ -22,32 +22,20 @@
   "onboard3Title": "LED nápovědy",
   "onboard3Body": "Deska umí zvýraznit tahy LEDkami. Hloubku nápovědy nastavíš v Nastavení → NVS desky.",
   "onboard4Title": "Začni partii",
-  "onboard4Body": "Na kartě Hra klepni Nová hra a zvol časovou kontrolu. Otočení strany (bílá nebo černá dole) najdeš v ovládání hry nebo v nastavení.",
+  "onboard4Body": "Na kartě Hra otevři Nová hra a zvol časovou kontrolu. Otočení strany (bílá nebo černá dole) najdeš v ovládání hry nebo v nastavení.",
   "onboard5Title": "Trenér a analýza",
   "onboard5Body": "Zapni výukový režim a hodnocení Stockfish na kartě Analýza pro hlubší poznatky.",
   "netNoInternetTitle": "Bez internetu",
   "netNoInternetBody": "Stockfish (chess-api), Lichess a další cloudové funkce vyžadují internet. Přes Bluetooth ale šachovnici použiješ i bez připojení k internetu.",
   "netNotOnWifiTitle": "Nejsi na Wi‑Fi",
-  "netNotOnWifiBody": "Požadavky do cloudu (chess-api, Lichess) obvykle fungují přes jakékoli internetové připojení zařízení (Wi‑Fi nebo mobilní data). K rozhraní HTTP desky na adresě v místní síti má toto zařízení obvykle zapnuté Wi‑Fi ve stejné síti jako deska. Pokud používáš jen hotspot desky bez výstupu na internet, rozpoznávání adres (DNS) pro chess-api nebo Lichess může selhat — zkus Wi‑Fi na chvíli vypnout, použít jiné připojení s internetem nebo současně Wi‑Fi i mobilní data, pokud to systém umožní. Aplikace nemůže přesměrovat síťový provoz mimo Wi‑Fi, dokud je výchozí trasa přes Wi‑Fi.",
+  "netNotOnWifiBody": "Služba chess-api obvykle funguje přes mobilní data. K rozhraní HTTP desky na adresě v místní síti má telefon obvykle zapnuté Wi‑Fi ve stejné síti. Pokud používáš jen hotspot desky bez výstupu na internet, rozpoznávání adres (DNS) pro chess-api nebo Lichess může selhat — zkus Wi‑Fi na chvíli vypnout, zapnout mobilní data nebo současně Wi‑Fi i mobilní data, pokud to systém umožní. Aplikace nemůže přesměrovat síťový provoz na mobilní síť, dokud je výchozí trasa přes Wi‑Fi.",
+  "connBleMobileDataPathSnack": "Deska: Bluetooth. Cloudová analýza (chess-api a zálohy) jde po internetu — teď typicky mobilní data. Domácí Wi‑Fi k desce nepotřebuješ.",
   "errInvalidBoardUrl": "Neplatná adresa desky — chybí hostitel. Použij http://192.168.4.1 nebo STA IP desky.",
-  "errWifiIpThirdOctetBlocked": "Adresa {host} je podle filtru 3. oktetu pro Wi‑Fi zamítnutá. Uprav seznam v Pokročilém připojení, zadej jinou URL, nebo na routeru nastav DHCP tak, aby deska nedostala adresu v tomto rozsahu.",
-  "@errWifiIpThirdOctetBlocked": {
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "errBoardSnapshotUnreachable": "Snapshot desky přes Wi‑Fi se nepodařilo načíst. Zkontroluj adresu a síť, nebo se připoj přes Bluetooth.",
   "errNoSavedBle": "Žádná uložená Bluetooth deska. Otevři Objevování desky a spáruj CZECHMATE.",
-  "errBleHostUnsupported": "Bluetooth LE v této verzi aplikace není (Windows desktop). Připoj se přes Wi‑Fi: Nastavení → Připojení a zadej URL desky, nebo použij aplikaci na Androidu / iOS pro BLE.",
-  "discoveryDesktopBleUnavailableTitle": "Bluetooth sken tady není k dispozici",
-  "discoveryDesktopBleUnavailableBody": "Windows sestavení nepoužívá Bluetooth Low Energy stack pro tuto desku. Použij Wi‑Fi: níže Pokročilé nebo Nastavení → Připojení a zadej HTTP URL desky v lokální síti. Pro BLE sken a párování použij aplikaci na Androidu nebo iOS.",
-  "settingsBleDesktopHint": "Na Windows se připoj přes Wi‑Fi URL (níže). BLE objevování v této verzi není.",
   "errDemoNoSnapshot": "U ukázkové desky není k dispozici snímek stavu.",
   "errConnectBeforeMoves": "Než odešleš tah z aplikace, připoj desku přes Wi‑Fi nebo Bluetooth.",
   "errSetupNeedsConnection": "Průvodce nastavením vyžaduje aktivní připojení k desce (Wi‑Fi nebo Bluetooth).",
-  "errOtaHttps": "OTA URL musí začínat https:// (internet) nebo http:// (např. toto zařízení na hotspotu desky).",
+  "errOtaHttps": "OTA URL musí začínat https:// (internet) nebo http:// (např. telefon na hotspotu desky).",
   "errOtaBleTransport": "Nahrání firmwaru přes Bluetooth vyžaduje aktivní Bluetooth spojení (připoj přes Bluetooth, ne jen přes Wi‑Fi).",
   "errOtaBleGatt": "Bluetooth GATT není připojené — znovu připoj desku z karty Hra nebo z Objevování desky.",
   "errOtaMock": "OTA není dostupná u demo desky.",
@@ -202,17 +190,19 @@
   "reportResultHeading": "Výsledek",
   "reportShareHeading": "Sdílení",
   "reportExportAdvancedTitle": "Pokročilé rozvržení",
-  "reportExportAdvancedSubtitle": "Průhlednost, sekce na obrázku a jejich pořadí. Tvar určují náhledy rozvržení výše.",
+  "reportExportAdvancedSubtitle": "Velikost plátna, průhlednost a sekce na obrázku.",
+  "discoveryHelpConnectingTitle": "Potřebujete pomoct s připojením?",
+  "discoveryHelpConnectingSubtitle": "Kroky nastavení a tipy ke skenování",
   "reportSharePreparing": "Připravuji…",
   "reportShareSummaryImage": "Sdílet…",
   "reportCopySummaryImage": "Zkopírovat obrázek",
   "reportCopySummaryBusy": "Kopíruji…",
-  "reportSummaryCopiedSnack": "Zkopírováno — vlož do jiné aplikace.",
+  "reportSummaryCopiedSnack": "Zkopírováno — otevři Instagram nebo Zprávy a vlož.",
   "reportCopyImageFailed": "Obrázek se nepodařilo zkopírovat.",
   "reportCopyImageWebHint": "Ve prohlížeči nejde kopírovat obrázek do schránky — použij Sdílet níže.",
-  "reportCopyImageDesktopFallback": "Otevírám sdílení — obrázek ve schránce funguje nejlépe na mobilu (iPhone a Android); na počítači použij Sdílet.",
+  "reportCopyImageDesktopFallback": "Otevírám sdílení — obrázek ve schránce funguje nejlépe na iPhonu a Androidu.",
   "reportExportSectionOrderTitle": "Pořadí sekcí (export)",
-  "reportExportSectionOrderSubtitle": "",
+  "reportExportSectionOrderSubtitle": "Přetáhni bloky na sdíleném obrázku — stejný princip jako priorita AI trenéra.",
   "reportExportBlockRecap": "Titulek průběhu",
   "reportExportBlockBranding": "Značka",
   "reportExportBlockResult": "Výsledek a důvod",
@@ -223,9 +213,7 @@
   "reportExportBlockTiming": "Grafy času",
   "reportSharePgn": "Sdílet soubor PGN",
   "reportExportAppearanceTitle": "Export obrázku",
-  "reportExportAppearanceSubtitle": "Zvol rozvržení níže — náhled se hned změní. Barvy grafů a pokročilé volby zůstávají k dispozici.",
-  "reportExportStylePickHint": "Klepnutím zvolíš formát sdílení (vysoká karta, čtverec, story nebo široký obrázek).",
-  "reportChartPaletteChoiceHint": "Předvolba mění barvy grafů hodnocení a času v Analýze i v exportu. Vlastní barvy mají u každého řádku popisek.",
+  "reportExportAppearanceSubtitle": "Zvol rozvržení, pozadí a sekce na sdíleném PNG. Náhled odpovídá exportu.",
   "reportExportAspectRatio": "Velikost plátna",
   "reportExportAspectCard": "Karta (vysoká)",
   "reportExportAspectSquare": "Čtverec 1:1",
@@ -257,8 +245,6 @@
   "reportExportPresetFull": "Plný",
   "reportExportPresetMinimal": "Minimální",
   "reportExportPresetStory": "Story výřez",
-  "reportExportThumbWideLabel": "Široký",
-  "reportExportThumbWideAspect": "16∶9",
   "reportExportShareGifRecap": "Sdílet průběh tahů (GIF)",
   "reportExportGifSubtitle": "Animovaný průběh pro Stories nebo chaty (9:16). U dlouhých partií se vzorkuje.",
   "reportExportGifBuilding": "Skládám animaci…",
@@ -354,12 +340,9 @@
   "telemetryPrivacyBody": "Tento build neodesílá analytiku. Provoz jde jen na tvou desku v lokální síti nebo přes Bluetooth.",
   "telemetryIcloudTitle": "iCloud",
   "telemetryIcloudBody": "Data partie zůstávají na zařízení, dokud je neexportuješ nebo nezapneš synchronizaci jinde.",
-  "discoveryHelpConnectingTitle": "Potřebujete pomoct s připojením?",
-  "discoveryHelpConnectingSubtitle": "Kroky nastavení a tipy ke skenování",
   "discoveryTitle": "Najít desku",
   "discoveryBlePermissionAndroid": "Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.",
-  "discoveryBlePermissionDenied": "Pro vyhledání desky je potřeba přístup k Bluetooth. Povol ho v nastavení systému a zkus to znovu.",
-  "discoveryBluetoothNotReady": "Bluetooth není připravené. Zapni ho v nastavení, počkej pár sekund a klepni znovu na Najít desku.",
+  "discoveryBluetoothNotReady": "Bluetooth není připravené. Zapni ho v systémových nastaveních, počkej pár sekund a zkus znovu Najít desku.",
   "discoveryBleScanFailed": "Sken Bluetooth selhal: {error}",
   "@discoveryBleScanFailed": {
     "placeholders": {
@@ -370,14 +353,14 @@
   },
   "discoveryIntro": "Nejprve Bluetooth. Doma na stejné Wi‑Fi aplikace přejde na rychlejší HTTP, jakmile desku dosáhne.",
   "discoveryFlowStepsTitle": "Tři kroky",
-  "discoveryFlowStep1": "Zapni Bluetooth na tomto zařízení.",
-  "discoveryFlowStep2": "Klepni na Najít desku a vyber svou desku ze seznamu.",
+  "discoveryFlowStep1": "Zapni Bluetooth na tomto telefonu.",
+  "discoveryFlowStep2": "Zvol Najít desku a vyber svou desku ze seznamu.",
   "discoveryFlowStep3": "Doma na stejné Wi‑Fi jako deska aplikace přejde na rychlejší HTTP, když to jde; jinde zůstane Bluetooth.",
   "discoveryScanCardLead": "Vyhledání spustíš tlačítkem níže. Adresu zadáš v Pokročilém.",
   "discoveryRecoveryTitle": "Nepodařilo se připojit",
   "discoveryRecoveryBulletBt": "Bluetooth je zapnutý a deska je zapnutá poblíž.",
   "discoveryRecoveryBulletRange": "Přibliž se — zdi a kapsy někdy signál zhorší.",
-  "discoveryRecoveryBulletHomeWifi": "Doma je nejjednodušší mít zařízení i desku na stejné Wi‑Fi kvůli HTTP; mimo domov stačí Bluetooth.",
+  "discoveryRecoveryBulletHomeWifi": "Doma je nejjednodušší mít telefon i desku na stejné Wi‑Fi kvůli HTTP; mimo domov stačí Bluetooth.",
   "discoveryRecoveryBulletManual": "Adresu desky můžeš zadat v Pokročilém.",
   "discoveryRecoveryOpenAppSettings": "Otevřít nastavení systému",
   "discoveryRecoveryDismiss": "Rozumím",
@@ -418,8 +401,7 @@
   "gameHint": "Nápověda",
   "gamePauseClock": "Pozastavit hodiny",
   "gameResumeClock": "Pokračovat v hodinách",
-  "gameClearHintLeds": "Skrýt nápovědu na desce",
-  "gameHideBoardHintTooltip": "Skrýt nápovědu na desce",
+  "gameClearHintLeds": "Zrušit nápovědní LED",
   "gameNoSnapshotYet": "Zatím není k dispozici snímek stavu desky.",
   "gameFindBoard": "Najít desku",
   "gameFindBoardSubtitle": "Připoj Wi‑Fi nebo Bluetooth pro živou pozici.",
@@ -463,7 +445,7 @@
       }
     }
   },
-  "gameBestMoveSnack": "Doporučený tah: z {from} na {to}",
+  "gameBestMoveSnack": "Nejlepší tah: {from}→{to}",
   "@gameBestMoveSnack": {
     "placeholders": {
       "from": {
@@ -493,7 +475,24 @@
   "gameClockPauseSent": "Příkaz pozastavit hodiny odeslán",
   "gameClockResumedSnackbar": "Hodiny pokračují",
   "gameHintLedsClearedSnackbar": "Nápovědní LED zrušeny",
-  "gameNoSnapshotBody": "Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.",
+  "gameMatrixGuardTitle": "Nutné srovnat desku",
+  "gameMatrixGuardPaused": "Hra je pozastavena: srovnejte figurky na zvýrazněných polích ({squares}). Po srovnání hra automaticky pokračuje.",
+  "@gameMatrixGuardPaused": {
+    "placeholders": {
+      "squares": {
+        "type": "String"
+      }
+    }
+  },
+  "gameMatrixGuardResync": "Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky na: {squares}.",
+  "@gameMatrixGuardResync": {
+    "placeholders": {
+      "squares": {
+        "type": "String"
+      }
+    }
+  },
+  "gameNoSnapshotBody": "Desku najdeš vlevo nahoře nebo níže (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.",
   "gameBackToPanelTooltip": "Zpět na rozvržení s panelem",
   "gameAiCoachTitle": "AI trenér",
   "gameMoreOptionsTooltip": "Další možnosti",
@@ -530,7 +529,7 @@
     }
   },
   "gameDesktopPlayTitle": "Hra — desktop",
-  "gameDesktopPlaySubtitle": "Klepnutím na indikátor vlevo nahoře otevřeš správu připojení (Wi‑Fi, Bluetooth, ukázková deska) — stejně jako na iOS.",
+  "gameDesktopPlaySubtitle": "Připojení spravuješ přes indikátor vlevo nahoře (Wi‑Fi, Bluetooth, ukázková deska) — stejně jako na iPhonu.",
   "stockfishEvalFailedSnack": "Vyhodnocení selhalo: {msg}",
   "@stockfishEvalFailedSnack": {
     "placeholders": {
@@ -551,7 +550,7 @@
       }
     }
   },
-  "firmwareDialogHttpsNote": "Deska stahuje přes HTTPS (Wi‑Fi STA). CzechMate na tomto zařízení posílá jen odkaz.",
+  "firmwareDialogHttpsNote": "Deska stahuje přes HTTPS (Wi‑Fi STA). Telefon posílá jen odkaz.",
   "firmwareTurnOffReminders": "Vypnout připomínky",
   "firmwareNotNow": "Teď ne",
   "firmwareUpdateAction": "Aktualizovat",
@@ -569,16 +568,7 @@
   "discoveryFoundBoards": "Nalezené desky",
   "discoveryEmptyBleList": "Zatím žádná deska. Počkej pár sekund se zapnutým Bluetooth a zapnutou deskou v dosahu.",
   "discoveryAutoScanHint": "Sken začne sám, pokud není pro příští pokus nastavené jen Wi‑Fi (Pokročilé).",
-  "discoveryAdvancedSubtitle": "Adresa Wi‑Fi, uložené Bluetooth, jednorázový přenos",
-  "discoveryAdvancedBlockedOctetsTitle": "Filtr Wi‑Fi IP (3. oktet)",
-  "discoveryAdvancedBlockedOctetsBody": "Deska si seznam uloží do NVS a DHCP adresu se zakázaným 3. oktetem nepřijme (odpojí STA a zkusí znovu). CzechMate používá stejný filtr pro URL. Hodnoty se po uložení nebo při připojení přes BLE odešou šifrovaně — firmware nemá vlastní výchozí blokaci, dokud aplikace nic nepošle. Příklad: 88 zamítne všechny x.x.88.x. Prázdné pole vypne filtr na obou stranách. Dokud neuložíš jinak, aplikace výchozě používá 88.",
-  "discoveryAdvancedBlockedOctetsLabel": "Blokované 3. oktety (čárkami)",
-  "discoveryAdvancedBlockedOctetsHint": "např. 88 nebo 88,100",
-  "discoveryAdvancedBlockedOctetsSave": "Uložit filtr",
-  "discoveryAdvancedBlockedOctetsReset": "Obnovit výchozí (88)",
-  "discoveryAdvancedBlockedOctetsSavedSnack": "Filtr Wi‑Fi IP uložen",
-  "discoveryTransportAdvancedExplanation": "Aplikace ve výchozím stavu sama volí cestu (nejprve Bluetooth, potom Wi‑Fi přes HTTP, jakmile deska odpoví). Jednorázové vynucení jen Wi‑Fi nebo jen Bluetooth pro příští připojení najdeš v Nastavení → Připojení desky → Pokročilé — po dokončení pokusu se zase vrátí automatika.",
-  "discoveryOpenTransportSettingsButton": "Otevřít nastavení připojení",
+  "discoveryAdvancedSubtitle": "Adresa Wi‑Fi, preference odkazu, uložené Bluetooth",
   "discoveryConnectionModeHeading": "Režim připojení",
   "discoveryConnectionModeHint": "Auto: nejdřív Bluetooth, pak Wi‑Fi, jakmile je deska dostupná. Jen Wi‑Fi přeskočí Bluetooth. Jen Bluetooth zůstane na BLE i když je známá Wi‑Fi adresa.",
   "discoveryBleSegmentShort": "Jen BLE",
@@ -650,7 +640,6 @@
   "settingsDisconnect": "Odpojit",
   "settingsAdvanced": "Pokročilé",
   "settingsAdvancedConnectionSubtitle": "Výchozí URL, režim připojení, uložené BLE",
-  "settingsAdvancedConnectionSubtitleV2": "Výchozí URL, jednorázové připojení, uložené BLE",
   "settingsReconnectingBle": "Obnovuji Bluetooth k uložené desce…",
   "settingsReconnectSavedBleShort": "Znovu připojit uloženou desku (BLE)",
   "settingsManualEntry": "Ruční zadání",
@@ -658,13 +647,6 @@
   "settingsSavedDefaultsBody": "Použijí se při příštím připojení z obrazovky „Najít desku“ nebo po znovupřipojení.",
   "settingsConnectionModeLabel": "Režim připojení",
   "settingsConnectionModeAutoBleWifi": "Auto (BLE → Wi‑Fi)",
-  "settingsNextConnectionTitle": "Příští připojení (jednorázově)",
-  "settingsNextConnectionIntro": "Výchozí je automatika. Níže platí jen pro příští pokus o připojení (Najít desku, znovupřipojení nebo obnovení aplikace), pak se znovu použije automatické řízení, aby nic „nezůstalo zamčené“.",
-  "settingsNextConnectionWifiOnceButton": "Příště: jen Wi‑Fi",
-  "settingsNextConnectionBleOnceButton": "Příště: jen Bluetooth",
-  "settingsNextConnectionUseAuto": "Zpět na automatiku",
-  "settingsNextConnectionActiveWifiOnce": "Příští pokus přeskočí Bluetooth a použije jen uloženou adresu Wi‑Fi.",
-  "settingsNextConnectionActiveBleOnce": "Příští pokus zůstane na Bluetooth a nepřepne se sám na Wi‑Fi.",
   "settingsDefaultBoardUrl": "Výchozí URL desky",
   "settingsInvalidUrlSnack": "Neplatná URL — zadej hostitele (např. 192.168.4.1 nebo http://…)",
   "settingsSavedSnack": "Uloženo",
@@ -678,14 +660,6 @@
   "settingsBleOnlySubtitle": "Nepřepínat na Wi‑Fi po BLE",
   "settingsWebSocketTitle": "Snímek stavu přes WebSocket",
   "settingsWebSocketSubtitle": "Po změně znovu navázat Wi‑Fi spojení",
-  "settingsAppFactoryResetTitle": "Reset aplikace na tomto zařízení",
-  "settingsAppFactoryResetSubtitle": "Obnoví aplikaci do výchozího stavu a smaže uložená data v tomto zařízení. Šachovnice tím není ovlivněna.",
-  "settingsAppFactoryResetButton": "Smazat data aplikace",
-  "settingsAppFactoryResetConfirmTitle": "Opravdu resetovat?",
-  "settingsAppFactoryResetConfirmBody": "Akci nelze vrátit. Znovu připojíš desku a zadáš případné API klíče.",
-  "settingsAppFactoryResetConfirmAction": "Resetovat",
-  "settingsAppFactoryResetDoneSnack": "Data aplikace byla smazána.",
-  "settingsAppFactoryResetRestartHint": "Když něco nedává smysl, aplikaci úplně ukonči a znovu spusť.",
   "transportShortDemo": "Demo",
   "transportShortDash": "—",
   "settingsBoardAppearanceTitle": "Vzhled desky",
@@ -777,8 +751,6 @@
   "settingsCoachCustomModelId": "Vlastní ID modelu",
   "settingsCoachCustomModelHint": "např. gemini-2.5-flash",
   "settingsCoachOpenAiKeyHint": "sk-…",
-  "settingsCoachOpenAiFieldLabel": "API klíč",
-  "settingsCoachOpenAiKeyTooltip": "Otevřít stránku klíčů OpenAI",
   "settingsCoachOpenAiModelHint": "gpt-4o-mini",
   "settingsCoachGroqKeyHint": "Vlož Groq API klíč",
   "settingsCoachGroqModelHint": "llama-3.3-70b-versatile",
@@ -801,7 +773,6 @@
     }
   },
   "settingsDeveloperModeUnlockedSnack": "Vývojářský režim odemčen.",
-  "settingsDeveloperModeDisabledSnack": "Vývojářský režim vypnut.",
   "gameControlDisplaySection": "Zobrazení",
   "gameControlPlayModeSection": "Režim hry",
   "gameControlSandboxLabel": "Volná pozice",
@@ -823,13 +794,11 @@
   "gameControlRefreshState": "Obnovit stav",
   "gameControlPanelTitle": "Ovládání hry",
   "timerUnavailable": "Časomíra: vypnutá nebo nedostupná",
-  "timerHiddenForPuzzleMode": "Živá partie na desce zde neběží — hodiny skryjeme, dokud řešíte úlohu nebo zkoumáte pozici.",
   "timerWhiteShort": "Bílá",
   "timerBlackShort": "Černá",
   "coachChatTypeFirst": "Nejdřív napiš otázku, pak Odeslat.",
-  "coachChatExplanationLevelLabel": "Hloubka vysvětlení",
   "coachChatHide": "Skrýt",
-  "coachChatDismiss": "Zavřít",
+  "coachChatDismiss": "ZAVŘÍT",
   "manualConnTitle": "Ruční připojení",
   "manualConnWifiStatusError": "Stav Wi‑Fi: {error}",
   "@manualConnWifiStatusError": {
@@ -862,8 +831,6 @@
   "manualConnStaSectionUser": "Tato sekce slouží pro ruční správu síťového připojení desky.",
   "manualConnTestFailedUser": "Spojení se nepodařilo navázat.",
   "haMqttTitle": "Home Assistant a MQTT",
-  "haMqttFormLead": "Zadej adresu MQTT brokeru, ke kterému se má šachovnice připojit (často stejný počítač jako Home Assistant).",
-  "haMqttSetupHelpLink": "Jak nastavit MQTT a Home Assistant?",
   "haMqttSavedSnack": "MQTT uloženo na desku.",
   "haMqttHowToHa": "Jak na Home Assistant",
   "haMqttBrokerHeader": "Server MQTT",
@@ -955,24 +922,6 @@
       }
     }
   },
-  "firmwareDeveloperReflashChipTitle": "Znovu nahrát {ver} (vývojář)",
-  "@firmwareDeveloperReflashChipTitle": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareDeveloperDowngradeChipTitle": "Starší build {ver} (vývojář)",
-  "@firmwareDeveloperDowngradeChipTitle": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareDeveloperSameVersionBanner": "Vývojářský režim: manifest má stejnou verzi jako deska — stejný build můžeš znovu stáhnout a nahrát (oprava / ověření).",
-  "firmwareDeveloperOlderManifestBanner": "Vývojářský režim: manifest má nižší verzi než firmware na desce. Downgrade může rozbít kompatibilitu nebo data — pokračuj jen pokud víš, co děláš.",
   "firmwareDownloadOnEspNote": "Stahování probíhá na ESP přes HTTPS.",
   "firmwareConfirmUpdateTitle": "Potvrdit aktualizaci",
   "firmwareConfirmUpdateBody": "Spustit aktualizaci firmware na desce?",
@@ -987,26 +936,6 @@
         "type": "String"
       },
       "mb": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareSavedFirmwareChipTitle": "Uložený firmware v{ver}",
-  "@firmwareSavedFirmwareChipTitle": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareOfflineSavedFirmwareBanner": "Živý manifest se nepodařilo načíst. Pořád můžeš nahrát soubor firmwaru uložený v aplikaci.",
-  "firmwareCachedDiffersFromManifestHint": "V aplikaci máš uložený firmware v{savedVer}; manifest teď ukazuje v{remoteVer}. Soubor jsme nesmazali — můžeš ho kdykoli nahrát, nebo stáhnout znovu.",
-  "@firmwareCachedDiffersFromManifestHint": {
-    "placeholders": {
-      "remoteVer": {
-        "type": "String"
-      },
-      "savedVer": {
         "type": "String"
       }
     }
@@ -1031,7 +960,6 @@
   "firmwareBleOtaReturnedFromBackgroundSnack": "Vrátil(a) ses během přenosu firmwaru přes Bluetooth. Pokud se nic neděje, nech CzechMate v popředí a toto zařízení blízko desky.",
   "firmwareOtaHttpMayLeaveAppHint": "Systém se při práci s HTTPS odkazem může na chvíli přepnout jinam — to je v pořádku. Znovu otevři CzechMate a sleduj průběh přes HTTP adresu desky.",
   "firmwareBleOtaKeepForegroundWarning": "Nech CzechMate v popředí a obrazovku nezamykaj, dokud přenos přes Bluetooth neskončí.",
-  "firmwareBleOtaApHotspotTip": "Nahráváš-li přes hotspot desky, nejdřív se připoj k Wi‑Fi desky, aby toto zařízení dosáhlo na http://192.168.4.1.",
   "firmwareBleOtaPausedReconnectDetail": "Přenos přes Bluetooth pozastaven — obnovuji spojení s deskou…",
   "firmwareBleOtaResumedTransferDetail": "Spojení obnoveno — pokračuji v přenosu firmwaru.",
   "firmwareOtaSlotsDisabledHint": "Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu).",
@@ -1039,48 +967,10 @@
   "firmwareHttpsLinkExplainBody": "Ty jen pošleš odkaz HTTPS — celý soubor .bin stáhne ESP. Deska musí být připojená k Wi‑Fi jako klient (STA). Příkaz ke startu můžeš poslat přes HTTP na Wi‑Fi nebo přes Bluetooth; průběh se čte přes HTTP na IP desky.",
   "firmwareSettingsSecondConfirmBody": "Deska zapíše firmware a restartuje. Nepřerušuj napájení ani Wi‑Fi během stahování. Pokračovat?",
   "firmwareOtaFinishedMaybeRebootSnack": "OTA skončila nebo spadlo spojení — deska se může restartovat.",
-  "firmwareOtaSuccessTitle": "Firmware nahrán",
-  "firmwareOtaSuccessBody": "Nahraná verze: {installedVer}.\n\nVerze desky v aplikaci: {reportedVer}.\n\nKdyž se deska restartovala, počkej na obnovení spojení nebo se znovu připoj v Nastavení → Připojení.",
-  "@firmwareOtaSuccessBody": {
-    "placeholders": {
-      "installedVer": {
-        "type": "String"
-      },
-      "reportedVer": {
-        "type": "String"
-      }
-    }
-  },
   "firmwareTileTitleUpdateAvailable": "Firmware — dostupná aktualizace ({ver})",
   "@firmwareTileTitleUpdateAvailable": {
     "placeholders": {
       "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareOtaRollbackBannerTitle": "Po neúspěšném startu je zpět předchozí firmware",
-  "firmwareOtaRollbackBannerBodyWithAttempt": "Deska běží na {current}: nový obraz se nespustil. Neúspěšná aktualizace ({attempt}) zůstává ve slotu {slot}. Až bude opravený build, nainstaluj ho.",
-  "@firmwareOtaRollbackBannerBodyWithAttempt": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "slot": {
-        "type": "String"
-      },
-      "attempt": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareOtaRollbackBannerBodyNoAttempt": "Deska běží na {current}: nový obraz se nespustil. Neúspěšný obraz je ve slotu {slot}. Až bude opravený build, nainstaluj ho.",
-  "@firmwareOtaRollbackBannerBodyNoAttempt": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "slot": {
         "type": "String"
       }
     }
@@ -1090,8 +980,6 @@
   "firmwareRemindersOnShort": "připomínky zapnuté",
   "firmwareRemindersOffShort": "připomínky vypnuté",
   "firmwareDailyRemindersSubtitleLong": "Je-li na serveru novější verze, připomínej každý den, dokud neaktualizuješ nebo nepřepneš připomínky.",
-  "firmwareDeveloperManifestSectionTitle": "Možnosti pro vývojáře",
-  "firmwareDeveloperManifestSectionBody": "URL manifestu měň jen při vlastním kanálu firmware. Jinak aplikace používá výchozdí zdroj.",
   "firmwareManifestUrlLabel": "URL manifestu (version.json)",
   "firmwareManifestUrlHint": "https://…/version.json",
   "firmwareManifestUrlHelper": "Výchozí URL se doplní sama. Vymaž pole a ulož, pokud chceš jen vestavěný manifest.",
@@ -1163,25 +1051,7 @@
       }
     }
   },
-  "firmwareTileTitleDeveloperReflash": "Firmware — znovu nahrát ({ver})",
-  "@firmwareTileTitleDeveloperReflash": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
-  "firmwareTileTitleDeveloperDowngrade": "Firmware — starší manifest ({ver})",
-  "@firmwareTileTitleDeveloperDowngrade": {
-    "placeholders": {
-      "ver": {
-        "type": "String"
-      }
-    }
-  },
   "firmwareTileSubtitleBleGitOnly": "Jen Bluetooth — stáhni .bin do aplikace a odešli přes BLE nebo HTTP na hotspotu desky.",
-  "firmwareTileSubtitleDeveloperReflash": "Vývojářský režim — manifest sedí s deskou; otevři obrazovku a znovu nahraj stejný build.",
-  "firmwareTileSubtitleDeveloperDowngrade": "Vývojářský režim — manifest je starší než deska; volitelný downgrade z této URL.",
   "firmwareWifiBleProvisionTitle": "Wi‑Fi na desce (přes Bluetooth)",
   "firmwareWifiBleProvisionSubtitle": "Pošli SSID a heslo přes BLE, aby se deska připojila k tvé síti jako klient (STA).",
   "firmwareWifiBleSsidLabel": "Název Wi‑Fi (SSID)",
@@ -1214,15 +1084,6 @@
   "analysisOpenPlay": "Otevřít Hru",
   "analysisChartDisabledTitle": "Graf a hodnocení tahů jsou vypnuté",
   "analysisChartDisabledSubtitle": "Zapni hodnocení tahů pro skóre kvality.",
-  "analysisChartJumpedToMove": "V Hře je otevřen polo-tah {moveNumber}.",
-  "@analysisChartJumpedToMove": {
-    "placeholders": {
-      "moveNumber": {
-        "type": "int"
-      }
-    }
-  },
-  "analysisScoresheetEmpty": "Zatím žádné tahy.",
   "analysisEnableMoveEval": "Povolit hodnocení tahů (Stockfish)",
   "analysisGameOverview": "Přehled partie",
   "analysisGameOverviewBody": "Materiál, hodiny a zahájení, pokud jsou k dispozici.",
@@ -1349,7 +1210,6 @@
   "progressLearningModePlayHint": "Zapni výukový režim na kartě Hra → Ovládání hry pro chat a plán pozice.",
   "progressWizardConnectHint": "Pro průvodce se světly na desce ji připoj (indikátor připojení na kartě Hra).",
   "userFacingErrBle": "Bluetooth spojení selhalo. Zapni Bluetooth, zůstaň blízko desky a zkus to znovu.",
-  "userFacingErrBlePairingReset": "Bluetooth párování už nesedí s deskou. iOS / iPadOS: Nastavení → Bluetooth → ⓘ u desky → Zapomenout toto zařízení. Android: Nastavení Bluetooth → deska → Zapomenout / Odpárovat. Po továrním resetu desky vymaž i párování na desce a znovu připoj přes Najít desku.",
   "userFacingErrNetworkReach": "Desku nebo server se nepodařilo kontaktovat. Zkontroluj Wi‑Fi, přibliž se a ověř, že je deska zapnutá.",
   "userFacingErrTimeout": "Spojení vypršelo. Zkus to znovu, až bude deska zapnutá a v dosahu.",
   "userFacingErrTls": "Zabezpečené spojení (HTTPS) selhalo. Zkontroluj adresu a zda deska vyžaduje HTTPS.",
@@ -1366,9 +1226,6 @@
   "userFacingBoardServerError": "Deska nahlásila vnitřní chybu. Zkus to znovu nebo desku restartuj.",
   "userFacingBoardUnavailable": "Deska je zaneprázdněná nebo nedostupná. Počkej chvíli a zkus znovu.",
   "userFacingBoardHttpOther": "HTTP chyba z desky. Zkontroluj adresu desky a režim připojení.",
-  "userFacingErrBoardUrlHostMissing": "V adrese desky chybí hostitel. V nastavení ulož celou adresu, např. http://192.168.4.1, na stejné síti jako deska.",
-  "puzzleMoreActionsTooltip": "Další akce",
-  "gameClockSectionLabel": "Hodiny a LED na desce",
   "progressStatsCurrentMoves": "Aktuální počet tahů",
   "progressStatsPeakMoves": "Max. pozorovaný počet tahů",
   "progressStatsPollSuccess": "Úspěšné HTTP dotazy",
@@ -1447,7 +1304,7 @@
   "newGameSheetSubtitle": "Zvol časovou kontrolu a stranu.",
   "newGameWhiteBottom": "Bílá dole",
   "newGameBlackBottom": "Černá dole",
-  "newGameCustomTimeTitle": "Vlastní čas",
+  "newGameCustomTimeTitle": "Vlastní čas (typ 14)",
   "newGameCustomTimeSubtitle": "Minuty + přírůstek odeslané na desku.",
   "newGameMinutesPerSide": "Minuty na stranu: {n}",
   "@newGameMinutesPerSide": {
@@ -1476,10 +1333,9 @@
       }
     }
   },
-  "newGameSheetBody": "Vyberte časovou kontrolu a orientaci šachovnice.",
-  "newGameBoardViewSection": "Orientace šachovnice",
-  "newGameBoardViewInfoTitle": "Orientace šachovnice",
-  "newGameWhoStartsNote": "",
+  "newGameSheetBody": "Stejně jako na iOS: časová kontrola se odešle na desku a pak začne nová hra.",
+  "newGameBoardViewSection": "Pohled na desku (která barva je dole)",
+  "newGameWhoStartsNote": "Kdo začíná určuje deska / pravidla; zde jen otáčíš pohled (uloženo v Nastavení).",
   "newGameFirmwarePresets": "Předvolby firmware",
   "newGameCustomSummary": "{min} min + {inc} s / tah",
   "@newGameCustomSummary": {
@@ -1689,8 +1545,6 @@
   "lampStudioPreviewGlowHint": "Náhled rozptylu světla",
   "lampStudioPreviewLampOff": "Lampa vypnutá",
   "lampStudioScenes": "Scény",
-  "lampStudioPresetColorsTitle": "Předvolené barvy",
-  "lampStudioFineTuneSection": "Doladit barvu",
   "lampStudioApplyToBoard": "Použít na desku",
   "lampStudioGameMode": "Režim partie",
   "lampStudioAppliedOk": "Barva a jas odeslány na desku.",
@@ -1699,8 +1553,6 @@
   "lampStudioAutoOff": "Automatické zhasnutí",
   "lampStudioSaveTimer": "Uložit časovač",
   "lampStudioTimerSavedOk": "Časovač auto zhasnutí uložen.",
-  "lampStudioSelectedSwatchLabel": "Zvolená barva",
-  "lampStudioDeveloperRgbTitle": "Vývojář · hodnoty RGB",
   "lampStudioRgbLine": "RGB ({r}, {g}, {b})",
   "@lampStudioRgbLine": {
     "placeholders": {
@@ -1778,7 +1630,6 @@
   "setupWizardErrConnectBoard": "Připoj desku přes Wi‑Fi nebo Bluetooth (ukázkový režim tento postup nepodporuje).",
   "setupWizardErrNoSteps": "Z FEN nešlo sestavit žádné kroky.",
   "setupWizardErrGeneric": "Chyba",
-  "setupWizardErrPhysicalMismatch": "Deska stále hlásí režim nastavení pozice, nebo fyzické figury nesedí — uprav figury na zvýrazněných polích a zkus to znovu.",
   "setupWizardTitleStandard": "Základní postavení",
   "setupWizardTitleFromFen": "Postavení z FEN",
   "setupWizardDoneStandard": "Deska potvrdila základní postavení.",
@@ -1867,7 +1718,7 @@
   "bundledPuzzleTwoRooksSubtitle": "Bílý · dvě věže",
   "settingsTileSmartHomeTitle": "Smart home (MQTT)",
   "settingsTileSmartHomeSubtitle": "Home Assistant a MQTT",
-  "settingsHaMqttOpenButton": "MQTT a Home Assistant",
+  "settingsHaMqttOpenButton": "Home Assistant a MQTT (návod + formulář)",
   "settingsTileBoardLightTitle": "Světlo desky",
   "settingsTileBoardLightSubtitle": "Barva, jas, scény, auto‑vypnutí",
   "settingsTileModulesTitle": "Nápověda a průvodci",
@@ -1887,13 +1738,11 @@
   "onboardingPermWifiTitle": "Wi‑Fi",
   "onboardingPermWifiBodyAndroid": "Aplikace si může přečíst název aktuální sítě pro doplnění Wi‑Fi nastavení (na Androidu 13+ bez přístupu k poloze).",
   "onboardingPermWifiBodyIos": "K síti desky se připojíš v Nastavení při párování — tady nic dalšího nepotřebuješ.",
-  "onboardingPermWifiBodyDesktop": "Na počítači často nejde spolehlivě přečíst název aktuální Wi‑Fi — SSID zadej ručně při nastavení desky. HTTP na desku pořád používá uloženou adresu.",
   "onboardingPermWifiAllow": "Povolit přístup k Wi‑Fi",
   "onboardingPermGrantedShort": "Povoleno",
   "onboardingPermDeniedSnack": "To později změníš v nastavení systému.",
   "onboardingOpenSettings": "Otevřít nastavení",
-  "onboardingPermissionsDesktopBody": "Když systém nabídne Bluetooth, povol ho — pak půjde desku vyhledat. HTTP používej přes Wi‑Fi / ruční URL.",
-  "onboardingPermissionsDesktopWindowsBody": "Tato Windows verze nepoužívá Bluetooth Low Energy k desce. Připoj se jen přes Wi‑Fi: zadej HTTP adresu desky v pokročilém / ručním připojení (např. http://192.168.4.1 na hotspotu desky nebo IP v domácí síti).",
+  "onboardingPermissionsDesktopBody": "Bluetooth a síť se vyřeší, až v aplikaci připojíš desku.",
   "settingsNavChessPuzzles": "Šachové puzzle",
   "settingsNavProfileElo": "Profil a puzzle Elo",
   "settingsNavProgress": "Pokrok (učení a statistiky)",
@@ -1902,11 +1751,10 @@
   "settingsTileNvsDiagSubtitle": "NVS pravidla, vývojářské nástroje",
   "settingsNavBoardNvs": "Pravidla NVS desky (LED, bot)",
   "settingsNavDeveloperDiag": "Vývojářská diagnostika",
-  "settingsDiagnosticsBoardNvsLockedHint": "Pro surové NVS desky zapni vývojářský režim v O aplikaci (7× klepnutí na řádek verze nebo titulek Nastavení).",
   "settingsTileAboutTitle": "O aplikaci",
   "settingsTileAboutSubtitle": "Verze, soukromí, systém",
   "settingsAboutVersionLoading": "Načítám verzi…",
-  "settingsAboutVersionLine": "Verze {version} ({build}) • Klepni 7× na tento řádek nebo na „Nastavení“ v hlavní liště nastavení (do cca sekundy mezi klepnutími) pro odemčení vývojářského režimu.",
+  "settingsAboutVersionLine": "Verze {version} ({build}) • Klepnutím na „Nastavení“ v liště 7× odemkneš vývojářský režim.",
   "@settingsAboutVersionLine": {
     "placeholders": {
       "version": {
@@ -1917,52 +1765,14 @@
       }
     }
   },
-  "settingsAppUpdateBannerTitle": "Je dostupná nová verze aplikace",
-  "settingsAppUpdateBannerSubtitle": "Máš {current}; nejnovější je {latest}.",
-  "@settingsAppUpdateBannerSubtitle": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "latest": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsAppUpdateBannerSubtitleRequired": "Verze {current} je pod minimální podporovanou. Aktualizuj prosím na alespoň {requiredVersion}.",
-  "@settingsAppUpdateBannerSubtitleRequired": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "requiredVersion": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsAppUpdateOpenDownloads": "Otevřít stránku ke stažení",
-  "settingsAboutAppUpdateLineTitle": "Nová verze aplikace",
-  "settingsAboutAppUpdateLineBody": "Nainstalováno: {current}. Nejnovější: {latest}.",
-  "@settingsAboutAppUpdateLineBody": {
-    "placeholders": {
-      "current": {
-        "type": "String"
-      },
-      "latest": {
-        "type": "String"
-      }
-    }
-  },
-  "settingsAboutDeveloperModeTitle": "Vývojářský režim",
-  "settingsAboutDeveloperModeSubtitleOn": "Zobrazí rozšířenou diagnostiku a volitelné OTA stejné verze. Vypnutím je zase schováš.",
   "settingsPrivacyTitle": "Soukromí",
   "settingsPrivacyBody": "Tento build neodesílá analytiku. Provoz jde jen na tvou desku v lokální síti nebo přes Bluetooth.",
   "settingsIcloudTitle": "iCloud",
   "settingsIcloudBody": "Synchronizace puzzlů přes iCloud (CloudKit) je plánovaná; tento build nesynchronizuje.",
   "settingsLiveActivityTitle": "Stav časomíry mimo aplikaci",
   "settingsLiveActivitySubtitle": "Telefony a tablety — iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: probíhající notifikace (Android 13+ je potřeba povolit oznámení). Zapíná se z herní obrazovky. (Na počítači se nepoužívá.)",
-  "settingsLiveActivityIosDisabledSnack": "Živé aktivity jsou v systému vypnuté. Zapni je v Nastavení → czechmate → Živé aktivity.",
   "settingsHomeScreenWidgetHint": "Kde to systém podporuje (domovská obrazovka nebo widgety na ploše), přidej CzechMate z galerie widgetů — rychlý náhled stavu na pozadí aplikace (vedle živých aktivit na podporovaných iPhonech).",
+  "settingsLiveActivityIosDisabledSnack": "Živé aktivity jsou v systému vypnuté. Zapni je v Nastavení → czechmate → Živé aktivity.",
   "settingsWearMirrorTitle": "Zrcadlit časomíru na Wear OS",
   "settingsWearMirrorSubtitle": "Google Data Layer — stejný stav jako probíhající notifikace; vyžaduje párování hodinek Wear OS.",
   "settingsWatchMirrorTitle": "Zrcadlit časomíru na Apple Watch",
@@ -2058,10 +1868,7 @@
   "analysisOverviewSubtitleEval": "Hodnocení pozice po každém tahu (z pohledu bílého: + znamená výhodu bílého)",
   "analysisChartFillHintLiveEvalOn": "Graf se naplní po tazích, až Stockfish vyhodnotí pozici (hraj na kartě Hra s internetem).",
   "analysisChartFillHintLiveEvalOff": "Po zapnutí automatického vyhodnocení uvidíš křivku zde.",
-  "analysisClearEvalData": "Vymazat graf a hodnocení",
-  "analysisClearEvalConfirmTitle": "Vymazat data analýzy?",
-  "analysisClearEvalConfirmBody": "Odstraní graf hodnocení a uložené statistiky kvality tahů. Akci nelze vrátit zpět.",
-  "analysisClearEvalConfirmAction": "Vymazat",
+  "analysisClearEvalData": "Vymazat graf a uložená hodnocení tahů",
   "analysisMoveQualitySideLast3": "Poslední 3 tahy strany",
   "analysisMoveQualitySideLast10": "Posledních 10 tahů strany",
   "analysisMoveQualityFullGame": "Celá partie",
@@ -2149,18 +1956,6 @@
     }
   },
   "puzzleSuccessLine": "Správně! Linie.",
-  "puzzleCelebrationTitle": "Výborně!",
-  "puzzleCelebrationBodyPlain": "Puzzle jsi vyřešil.",
-  "puzzleCelebrationBodyElo": "Puzzle jsi vyřešil — rating +{delta}.",
-  "@puzzleCelebrationBodyElo": {
-    "placeholders": {
-      "delta": {
-        "type": "int"
-      }
-    }
-  },
-  "puzzleSaveNeedPosition": "Nejdřív otevři puzzle na kartě Hra, ať se načte pozice, pak ji ulož sem.",
-  "puzzleLibSavedPositionCaption": "Aktuální pozice (technický údaj)",
   "puzzleWrongResetting": "To není řešení — obnovuji pozici.",
   "gameControlWhiteBottom": "Bílá dole",
   "gameControlBlackBottom": "Černá dole",
@@ -2180,8 +1975,7 @@
   "timerCenterGameOver": "Konec partie",
   "timerCenterRunning": "Běží",
   "timerCenterStopped": "Stojí",
-  "coachSetupBannerBody": "AI trenér ještě není nastavený. V nastavení přidej poskytovatele a API klíč, aby mohl odpovídat.",
-  "coachSetupBannerAction": "Otevřít nastavení trenéra",
+  "coachSetupBannerBody": "Seznam priorit trenéra není prázdný, ale žádný poskytovatel nemá vyplněné přihlašování. Otevři Nastavení → Trenér a AI a doplň API klíče (nebo URL Ollamy) pro alespoň jednoho z nich.",
   "coachErrorSomethingWrong": "Něco se pokazilo: {error}",
   "@coachErrorSomethingWrong": {
     "placeholders": {

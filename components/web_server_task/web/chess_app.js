@@ -3098,8 +3098,8 @@ function updateStatus(status) {
             const hint = all.length > 0 ? all.join(', ') : 'označené pozice';
             const resync = status.restore_state && status.restore_state.resync_required;
             castlingMsg.textContent = resync
-                ? ('Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky na LED zvýrazněných polích: ' + hint + '.')
-                : ('Hra je pozastavena: zvednuto více figurek najednou. Vraťte figurky na: ' + hint + '. Po návratu hra automaticky pokračuje.');
+                ? ('Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky podle LED na zvýrazněných polích' + (all.length > 0 ? ' (' + hint + ')' : '') + '. Po srovnání hra automaticky pokračuje.')
+                : ('Hra je pozastavena: zvednuto více figurek najednou. Vraťte figurky podle LED na zvýrazněných polích' + (all.length > 0 ? ' (' + hint + ')' : '') + '. Po srovnání hra automaticky pokračuje.');
             castlingMsg.style.display = 'block';
             castlingMsg.style.background = 'rgba(220,53,69,0.14)';
             castlingMsg.style.borderColor = 'rgba(220,53,69,0.45)';

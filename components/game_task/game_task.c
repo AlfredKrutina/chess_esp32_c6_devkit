@@ -5034,30 +5034,26 @@ static void game_render_matrix_guard_leds(void) {
   }
 
   led_clear_board_only();
-  uint64_t mask = ((uint64_t)matrix_guard_pause_state.lifted_mask_high << 32) |
-                  matrix_guard_pause_state.lifted_mask_low |
-                  ((uint64_t)matrix_guard_pause_state.dropped_mask_high << 32) |
-                  matrix_guard_pause_state.dropped_mask_low;
-
   uint8_t phys[64] = {0};
   matrix_get_state(phys);
 
   for (uint8_t square = 0; square < 64; square++) {
-    if ((mask & (1ULL << square)) == 0) {
-      continue;
-    }
     uint8_t row = square / 8;
     uint8_t col = square % 8;
     piece_t piece = board[row][col];
+    uint8_t expected_occ =
+        (piece == PIECE_EMPTY) ? 0 : 1;
+    if (phys[square] == expected_occ) {
+      continue;
+    }
+
     if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0);
     } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 0, 255);
     } else if (phys[square] != 0) {
-      /* Logika říká prázdno, senzor hlásí figurku — zvýraznit (oranžová). */
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 140, 0);
     } else {
-      /* Chybí figurka oproti logice — bílá výplň */
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 220, 220, 220);
     }
   }
