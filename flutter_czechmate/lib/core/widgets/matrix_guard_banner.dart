@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/connection/board_session_notifier.dart';
+import '../../features/connection/board_session_state.dart';
 import '../localization/context_l10n.dart';
 import '../models/game_snapshot.dart';
+import '../utils/board_action_feedback.dart';
 import '../utils/matrix_guard_utils.dart';
 
 /// Shown when firmware pauses play until physical board matches logic.
-class MatrixGuardBanner extends StatelessWidget {
+class MatrixGuardBanner extends ConsumerWidget {
   const MatrixGuardBanner({super.key, required this.snapshot});
 
   final GameSnapshot snapshot;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final status = snapshot.status;
     if (status.matrixGuardActive != true) {
       return const SizedBox.shrink();
@@ -19,6 +23,9 @@ class MatrixGuardBanner extends StatelessWidget {
 
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
+    final session = ref.watch(boardSessionNotifierProvider);
+    final canForceClear = session.transport == BoardTransport.wifi ||
+        session.transport == BoardTransport.ble;
     final squares = matrixGuardSquaresLabel(
       liftedLow: status.matrixGuardLiftedLow,
       liftedHigh: status.matrixGuardLiftedHigh,
@@ -49,6 +56,19 @@ class MatrixGuardBanner extends StatelessWidget {
             text,
             style: TextStyle(color: cs.onErrorContainer),
           ),
+          trailing: canForceClear
+              ? TextButton(
+                  onPressed: () => runBoardCommandWithSnackBar(
+                    context,
+                    ref.read(boardSessionNotifierProvider.notifier).postGuardClear,
+                    successMessage: l10n.gameMatrixGuardForceClearSnack,
+                  ),
+                  child: Text(
+                    l10n.gameMatrixGuardForceClear,
+                    style: TextStyle(color: cs.onErrorContainer),
+                  ),
+                )
+              : null,
         ),
       ),
     );

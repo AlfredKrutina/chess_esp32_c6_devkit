@@ -483,6 +483,13 @@ uint32_t game_get_matrix_guard_dropped_mask_low(void);
 uint32_t game_get_matrix_guard_dropped_mask_high(void);
 
 /**
+ * @brief Nouzové zrušení matrix guard (game + matrix vrstva) a obnovení LED nápovědy.
+ * @details Použij jen když je deska fyzicky srovnaná, ale guard zůstal viset.
+ *          Preferuj automatické vyčištění po srovnání figurek.
+ */
+void game_force_clear_matrix_guard(void);
+
+/**
  * @brief true pokud game_load_snapshot_from_nvs() v game_task_start uspesne nacetl hru.
  * @see game_was_boot_new_game_triggered()
  */

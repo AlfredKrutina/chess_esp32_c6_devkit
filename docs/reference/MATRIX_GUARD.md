@@ -21,7 +21,10 @@ Matrix guard pozastaví hru, když senzorová matice a logická `board[]` nejsou
 
 ## Když to pořád nejde
 
-- **Nová hra** / UART `reset` / tlačítko reset (GPIO15) — volá `matrix_abort_ambiguous_guard_baseline()`.
+- **Nová hra** / UART `GAME_RESET` / tlačítko reset (GPIO15).
+- **Nouzové vyčištění guardu** (jen když je deska fyzicky srovnaná):
+  - UART: `GUARD_CLEAR` (alias `MATRIX_GUARD_CLEAR`)
+  - HTTP: `POST /api/game/guard_clear`
 - Zkontrolujte `/api/status`: `matrix_guard_active`, `matrix_guard_conflicts`.
 - Režim **Lampa** může přebít herní LED — přepněte na Šachovnice.
 

@@ -945,6 +945,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get gameMatrixGuardForceClear => 'Force clear';
+
+  @override
+  String get gameMatrixGuardForceClearSnack =>
+      'Matrix guard cleared — verify the board matches the game';
+
+  @override
   String get gameNoSnapshotBody =>
       'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.';
 

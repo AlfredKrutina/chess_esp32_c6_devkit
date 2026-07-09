@@ -510,6 +510,8 @@
       }
     }
   },
+  "gameMatrixGuardForceClear": "Vynutit zrušení",
+  "gameMatrixGuardForceClearSnack": "Matrix guard zrušen — zkontrolujte, že deska sedí s hrou",
   "gameNoSnapshotBody": "Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.",
   "gameBackToPanelTooltip": "Zpět na rozvržení s panelem",
   "gameAiCoachTitle": "AI trenér",

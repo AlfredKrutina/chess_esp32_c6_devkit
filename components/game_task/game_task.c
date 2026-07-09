@@ -1887,8 +1887,7 @@ void game_reset_game(void) {
   memset(guided_capture_state.attacker_pieces, 0,
          sizeof(guided_capture_state.attacker_pieces));
 
-  // Reset matrix guard pause state
-  memset(&matrix_guard_pause_state, 0, sizeof(matrix_guard_pause_state));
+  // Reset matrix guard pause state (full clear after board init below).
   resync_required_after_restore = false;
 
   // Reset promotion state to prevent blocking moves in a new game.
@@ -1922,7 +1921,7 @@ void game_reset_game(void) {
   // Reinitialize board
   game_initialize_board();
 
-  matrix_abort_ambiguous_guard_baseline();
+  game_matrix_guard_clear_both_layers();
 
   ESP_LOGI(TAG, "Game reset completed");
   game_bump_revision_and_notify();
@@ -4632,6 +4631,17 @@ uint32_t game_get_matrix_guard_dropped_mask_low(void) {
 
 uint32_t game_get_matrix_guard_dropped_mask_high(void) {
   return matrix_guard_pause_state.dropped_mask_high;
+}
+
+void game_force_clear_matrix_guard(void) {
+  if (!matrix_guard_pause_state.active && !matrix_is_guard_mode_active()) {
+    return;
+  }
+  game_matrix_guard_clear_both_layers();
+  led_clear_board_only();
+  game_highlight_movable_pieces();
+  game_bump_revision_and_notify();
+  STAGING_LOGI(TAG, "Matrix guard force-cleared (game + matrix)");
 }
 
 bool game_was_snapshot_loaded_on_boot(void) { return snapshot_loaded_on_boot; }

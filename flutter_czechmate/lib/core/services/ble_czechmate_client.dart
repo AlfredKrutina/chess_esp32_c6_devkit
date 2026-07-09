@@ -534,6 +534,8 @@ class BleCzechmateClient {
 
   Future<void> postHintClear() async => await _writeCmd({'cmd': 'hint_clear'});
 
+  Future<void> postGuardClear() async => await _writeCmd({'cmd': 'guard_clear'});
+
   /// Parita `BLEBoardTransport.postHintHighlightDestinationOnly`.
   Future<void> postHintHighlightDestinationOnly(String toSquare) async {
     await _writeCmd({'cmd': 'hint_highlight', 'to': toSquare.toLowerCase()});

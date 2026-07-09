@@ -224,6 +224,9 @@ class BoardApiClient {
   Future<void> postHintClear(String baseUrl) =>
       _postEmpty(baseUrl, 'api/game/hint_clear', webLock: false);
 
+  Future<void> postGuardClear(String baseUrl) =>
+      _postEmpty(baseUrl, 'api/game/guard_clear', webLock: true);
+
   /// Jako `ChessboardAPIClient+SetupWizard` — jen cílové pole na LED.
   Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
