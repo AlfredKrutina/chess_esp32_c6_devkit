@@ -683,13 +683,17 @@ void matrix_detect_moves(void) {
 
   if (ambiguous_state) {
     if (!matrix_guard_mode_active) {
-      // Snapshot expected board occupancy before anomaly.
+      // Snapshot expected board occupancy before anomaly; game_task realigns to
+      // board[] when handling GAME_CMD_MATRIX_GUARD.
       memcpy(matrix_guard_expected_state, matrix_previous,
              sizeof(matrix_guard_expected_state));
+      matrix_guard_mode_active = true;
+      last_piece_lifted = 255;
+      last_piece_placed = 255;
+      move_detection_timeout = 0;
+      matrix_send_guard_command(lifted_mask_low, lifted_mask_high, dropped_mask_low,
+                                dropped_mask_high, 1);
     }
-    matrix_guard_mode_active = true;
-    matrix_send_guard_command(lifted_mask_low, lifted_mask_high, dropped_mask_low,
-                              dropped_mask_high, 1);
     return;
   }
 
@@ -969,6 +973,38 @@ void matrix_reset(void) {
 
   ESP_LOGI(TAG, "Matrix reset completed");
 }
+
+void matrix_guard_apply_expected_occupancy(const uint8_t expected[64]) {
+  if (expected == NULL) {
+    return;
+  }
+
+  bool gave = false;
+  if (matrix_mutex != NULL) {
+    if (xSemaphoreTake(matrix_mutex, pdMS_TO_TICKS(300)) == pdTRUE) {
+      gave = true;
+    } else {
+      ESP_LOGW(TAG,
+               "matrix_guard_apply_expected: mutex timeout — applying without lock");
+    }
+  }
+
+  memcpy(matrix_guard_expected_state, expected, sizeof(matrix_guard_expected_state));
+  matrix_guard_mode_active = true;
+  last_piece_lifted = 255;
+  last_piece_placed = 255;
+  move_detection_timeout = 0;
+
+  if (gave) {
+    xSemaphoreGive(matrix_mutex);
+  }
+
+  ESP_LOGI(TAG, "matrix_guard_apply_expected: recovery target synced to logic");
+}
+
+bool matrix_is_guard_mode_active(void) { return matrix_guard_mode_active; }
+
+uint8_t matrix_get_pending_lift_square(void) { return last_piece_lifted; }
 
 void matrix_abort_ambiguous_guard_baseline(void) {
   bool gave = false;

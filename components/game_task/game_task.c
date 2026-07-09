@@ -603,6 +603,8 @@ static bool game_boot_tracker_should_force_new_game(void);
 static void game_check_resync_needed_after_restore(void);
 static void game_persist_after_valid_move(void);
 static void game_try_clear_local_guard_from_matrix(void);
+static void game_board_to_occupancy(uint8_t out[64]);
+static void game_matrix_guard_clear_both_layers(void);
 static bool game_parse_piece_from_fen(char c, piece_t *out_piece);
 static bool game_load_position_from_fen(const char *fen, player_t *active_player);
 static const char *game_puzzle_feedback_key(void);
@@ -4565,13 +4567,26 @@ bool game_matrix_allow_second_sequential_lift(void) {
       capture_in_progress) {
     return false;
   }
-  if (!piece_lifted || lifted_piece == PIECE_EMPTY) {
+
+  piece_t pending_piece = PIECE_EMPTY;
+  if (piece_lifted && lifted_piece != PIECE_EMPTY) {
+    pending_piece = lifted_piece;
+  } else {
+    /* Race: matrix queued PICKUP before game_task set piece_lifted. */
+    uint8_t pending_sq = matrix_get_pending_lift_square();
+    if (pending_sq != 255) {
+      pending_piece = board[pending_sq / 8][pending_sq % 8];
+    }
+  }
+
+  if (pending_piece == PIECE_EMPTY) {
     return false;
   }
+
   bool is_white_piece =
-      (lifted_piece >= PIECE_WHITE_PAWN && lifted_piece <= PIECE_WHITE_KING);
+      (pending_piece >= PIECE_WHITE_PAWN && pending_piece <= PIECE_WHITE_KING);
   bool is_black_piece =
-      (lifted_piece >= PIECE_BLACK_PAWN && lifted_piece <= PIECE_BLACK_KING);
+      (pending_piece >= PIECE_BLACK_PAWN && pending_piece <= PIECE_BLACK_KING);
   if (current_player == PLAYER_WHITE && is_white_piece) {
     return true;
   }
@@ -5055,13 +5070,7 @@ static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
 
   uint8_t action = cmd->timer_data.matrix_guard.action;
   if (action == 0) {
-    matrix_guard_pause_state.active = false;
-    matrix_guard_pause_state.lifted_mask_low = 0;
-    matrix_guard_pause_state.lifted_mask_high = 0;
-    matrix_guard_pause_state.dropped_mask_low = 0;
-    matrix_guard_pause_state.dropped_mask_high = 0;
-    matrix_guard_pause_state.conflict_count = 0;
-    resync_required_after_restore = false;
+    game_matrix_guard_clear_both_layers();
     STAGING_LOGI(TAG, "Matrix guard cleared");
     led_clear_board_only();
     game_highlight_movable_pieces();
@@ -5097,6 +5106,11 @@ static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
   lifted_piece_row = 0;
   lifted_piece_col = 0;
   capture_in_progress = false;
+
+  /* Recovery target = logical board[], not stale physical snapshot. */
+  uint8_t expected[64];
+  game_board_to_occupancy(expected);
+  matrix_guard_apply_expected_occupancy(expected);
 
   STAGING_LOGI(TAG, "Matrix guard active, conflict_count=%u",
                matrix_guard_pause_state.conflict_count);
@@ -5426,15 +5440,32 @@ static void game_check_resync_needed_after_restore(void) {
   matrix_guard_pause_state.dropped_mask_high = 0;
   matrix_guard_pause_state.conflict_count = conflicts;
   resync_required_after_restore = true;
+
+  uint8_t expected[64];
+  game_board_to_occupancy(expected);
+  matrix_guard_apply_expected_occupancy(expected);
+
   game_render_matrix_guard_leds();
 }
 
-static void game_persist_after_valid_move(void) {
-  esp_err_t ret = game_save_snapshot_to_nvs();
-  if (ret != ESP_OK) {
-    ESP_LOGW(TAG, "Game snapshot save failed: %s", esp_err_to_name(ret));
+static void game_board_to_occupancy(uint8_t out[64]) {
+  if (out == NULL) {
+    return;
   }
-  game_boot_tracker_update_on_move();
+  for (uint8_t i = 0; i < 64; i++) {
+    out[i] = (((uint8_t)board[i / 8][i % 8]) == PIECE_EMPTY) ? 0 : 1;
+  }
+}
+
+static void game_matrix_guard_clear_both_layers(void) {
+  matrix_guard_pause_state.active = false;
+  matrix_guard_pause_state.lifted_mask_low = 0;
+  matrix_guard_pause_state.lifted_mask_high = 0;
+  matrix_guard_pause_state.dropped_mask_low = 0;
+  matrix_guard_pause_state.dropped_mask_high = 0;
+  matrix_guard_pause_state.conflict_count = 0;
+  resync_required_after_restore = false;
+  matrix_abort_ambiguous_guard_baseline();
 }
 
 static void game_try_clear_local_guard_from_matrix(void) {
@@ -5450,15 +5481,18 @@ static void game_try_clear_local_guard_from_matrix(void) {
     }
   }
 
-  matrix_guard_pause_state.active = false;
-  matrix_guard_pause_state.lifted_mask_low = 0;
-  matrix_guard_pause_state.lifted_mask_high = 0;
-  matrix_guard_pause_state.dropped_mask_low = 0;
-  matrix_guard_pause_state.dropped_mask_high = 0;
-  matrix_guard_pause_state.conflict_count = 0;
-  resync_required_after_restore = false;
+  game_matrix_guard_clear_both_layers();
   led_clear_board_only();
   game_highlight_movable_pieces();
+  STAGING_LOGI(TAG, "Matrix guard cleared (game + matrix layers synced)");
+}
+
+static void game_persist_after_valid_move(void) {
+  esp_err_t ret = game_save_snapshot_to_nvs();
+  if (ret != ESP_OK) {
+    ESP_LOGW(TAG, "Game snapshot save failed: %s", esp_err_to_name(ret));
+  }
+  game_boot_tracker_update_on_move();
 }
 
 static void game_reset_guided_capture_state(void) {
