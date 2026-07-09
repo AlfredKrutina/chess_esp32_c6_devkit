@@ -2299,6 +2299,39 @@ function matrixGuardMaskToSquares(low, high) {
     return squares;
 }
 
+function matrixGuardSetForceClearButton(visible) {
+    var id = 'matrix-guard-clear-btn';
+    var btn = document.getElementById(id);
+    if (!visible) {
+        if (btn) btn.style.display = 'none';
+        return;
+    }
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.id = id;
+        btn.type = 'button';
+        btn.className = 'secondary-btn';
+        btn.style.margin = '6px 0 10px';
+        btn.textContent = 'Vynutit zrušení guardu (deska musí sedět)';
+        btn.onclick = function () {
+            btn.disabled = true;
+            fetch('/api/game/guard_clear', { method: 'POST' })
+                .then(function () {
+                    return fetch('/api/status');
+                })
+                .then(function (r) { return r.json(); })
+                .then(function (st) { updateStatus(st); })
+                .catch(function () {})
+                .finally(function () { btn.disabled = false; });
+        };
+        var anchor = document.getElementById('castling-pending-message');
+        if (anchor && anchor.parentNode) {
+            anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+        }
+    }
+    btn.style.display = 'inline-block';
+}
+
 // ============================================================================
 // SETUP TUTORIAL (základní postavení — web + LED)
 // ============================================================================
@@ -3133,6 +3166,7 @@ function updateStatus(status) {
             }
         }
     }
+    matrixGuardSetForceClearButton(!!status.matrix_guard_active);
 
     // Panel „Bot“ – zobrazit jen v režimu proti botovi; při zvednuté figurce navádění
     updateBotStatusPanel(undefined, status);

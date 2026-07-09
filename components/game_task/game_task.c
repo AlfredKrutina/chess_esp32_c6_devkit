@@ -605,6 +605,7 @@ static void game_persist_after_valid_move(void);
 static void game_try_clear_local_guard_from_matrix(void);
 static void game_board_to_occupancy(uint8_t out[64]);
 static void game_matrix_guard_clear_both_layers(void);
+static void game_matrix_guard_restore_after_clear(bool notify_clients);
 static bool game_parse_piece_from_fen(char c, piece_t *out_piece);
 static bool game_load_position_from_fen(const char *fen, player_t *active_player);
 static const char *game_puzzle_feedback_key(void);
@@ -4637,10 +4638,7 @@ void game_force_clear_matrix_guard(void) {
   if (!matrix_guard_pause_state.active && !matrix_is_guard_mode_active()) {
     return;
   }
-  game_matrix_guard_clear_both_layers();
-  led_clear_board_only();
-  game_highlight_movable_pieces();
-  game_bump_revision_and_notify();
+  game_matrix_guard_restore_after_clear(true);
   STAGING_LOGI(TAG, "Matrix guard force-cleared (game + matrix)");
 }
 
@@ -5076,10 +5074,8 @@ static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
 
   uint8_t action = cmd->timer_data.matrix_guard.action;
   if (action == 0) {
-    game_matrix_guard_clear_both_layers();
+    game_matrix_guard_restore_after_clear(true);
     STAGING_LOGI(TAG, "Matrix guard cleared");
-    led_clear_board_only();
-    game_highlight_movable_pieces();
     return;
   }
 
@@ -5087,6 +5083,10 @@ static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
     STAGING_LOGI(TAG,
                  "Matrix guard ignored (special mode) — clearing matrix local "
                  "guard so UP/DN continues");
+    if (matrix_guard_pause_state.active) {
+      memset(&matrix_guard_pause_state, 0, sizeof(matrix_guard_pause_state));
+      resync_required_after_restore = false;
+    }
     matrix_abort_ambiguous_guard_baseline();
     return;
   }
@@ -5474,6 +5474,15 @@ static void game_matrix_guard_clear_both_layers(void) {
   matrix_abort_ambiguous_guard_baseline();
 }
 
+static void game_matrix_guard_restore_after_clear(bool notify_clients) {
+  game_matrix_guard_clear_both_layers();
+  led_clear_board_only();
+  game_highlight_movable_pieces();
+  if (notify_clients) {
+    game_bump_revision_and_notify();
+  }
+}
+
 static void game_try_clear_local_guard_from_matrix(void) {
   if (!matrix_guard_pause_state.active) {
     return;
@@ -5487,9 +5496,7 @@ static void game_try_clear_local_guard_from_matrix(void) {
     }
   }
 
-  game_matrix_guard_clear_both_layers();
-  led_clear_board_only();
-  game_highlight_movable_pieces();
+  game_matrix_guard_restore_after_clear(true);
   STAGING_LOGI(TAG, "Matrix guard cleared (game + matrix layers synced)");
 }
 

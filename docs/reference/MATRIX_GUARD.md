@@ -42,5 +42,5 @@ Web UI (`chess_app.js`) a Flutter (`MatrixGuardBanner`) zobrazují návod podle 
 ## Implementace (od PR #5)
 
 - Recovery cíl = logická `board[]` (`matrix_guard_apply_expected_occupancy`).
-- `game_matrix_guard_clear_both_layers()` synchronizuje game i matrix vrstvu.
+- `game_matrix_guard_restore_after_clear()` — sjednocené LED + `state_version` bump pro klienty
 - Druhé zvednutí při capture toleruje race přes `matrix_get_pending_lift_square()`.
