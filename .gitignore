@@ -80,6 +80,9 @@ components/*/build/
 # STM32 build artefakty (make v firmware/stm32_hall_c031/)
 /firmware/stm32_hall_c031/build/
 
+# Omylem zkompilované objekty v komponentách
+components/web_server_task/*.o
+
 # =============================================================================
 # STM32 — lokální STM32CubeC0 (ST CMSIS + LL/HAL). Build: firmware/stm32_hall_c031/Makefile
 # očekává `firmware/STM32CubeC0` (git clone ST repo sem), do Gitu nedávat.

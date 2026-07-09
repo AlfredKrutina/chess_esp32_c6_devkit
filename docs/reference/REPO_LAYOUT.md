@@ -65,7 +65,7 @@ components/
 ├── led_task/                # WS2812B + animační pipeline
 ├── button_task/             # Tlačítka (promoce, reset, …)
 ├── uart_task/               # USB Serial JTAG konzole
-├── web_server_task/         # HTTP, REST, embed chess_app.js
+├── web_server_task/         # HTTP, REST; web/chess_app.js, web/piece_assets/
 ├── ble_task/                # NimBLE GATT
 ├── ha_light_task/           # MQTT Home Assistant
 ├── unified_animation_manager/
@@ -92,7 +92,9 @@ components/
 |-------|--------|
 | `flutter_czechmate/lib/` | UI, Riverpod, služby (BLE, API, Stockfish) |
 | `flutter_czechmate/ios/`, `android/`, `windows/`, … | Platformní projekty |
-| `components/web_server_task/chess_app.js` | Zdroj web UI (embed do firmware) |
+| `components/web_server_task/web/chess_app.js` | Zdroj web UI (embed do firmware) |
+| `components/web_server_task/web/piece_assets/` | PNG figurek pro HTTP embed |
+| `components/web_server_task/tools/` | embed_chess_js.py, process_piece_pngs.py, … |
 | `gh-pages-ready/downloads.html` | Stránka stažení aplikace |
 | `gh-pages-ready/app_update.json` | Manifest verze Flutter klienta |
 

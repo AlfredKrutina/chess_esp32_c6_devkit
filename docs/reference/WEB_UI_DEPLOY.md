@@ -1,15 +1,14 @@
 # Web UI — jak znovu zabalím JS do firmware
 
-## Po úpravách `chess_app.js`
+## Po úpravách `web/chess_app.js`
 
-JavaScript na ESP32 servíruju z **vnořeného pole** v `web_server_task.c`. Když něco měním v `chess_app.js`, musím znovu vygenerovat C pole:
+JavaScript na ESP32 servíruju z **vnořeného pole** v `web_server_task.c`. Když něco měním v `web/chess_app.js`, musím znovu vygenerovat C pole:
 
 ```bash
-cd components/web_server_task
-python3 embed_chess_js.py
+python3 components/web_server_task/tools/embed_chess_js.py
 ```
 
-Skript přepíše `chess_app_js_content[]` v `web_server_task.c` obsahem aktuálního `chess_app.js`.
+Skript přepíše `chess_app_js_content[]` v `web_server_task.c` obsahem aktuálního `web/chess_app.js`.
 
 ## Build a flash
 
@@ -42,5 +41,5 @@ idf.py flash monitor
 
 ## Poznámky
 
-- `embed_chess_js.py` nahrazuje blok od řádku s `// TEST PAGE - MINIMAL TIMER TEST` do řádku před `static esp_err_t http_get_chess_js_handler`.
-- Starší `js_to_c.py` jen vypisuje C pole na stdout; pro automatický zápis do `.c` používám `embed_chess_js.py`.
+- `embed_chess_js.py` v `tools/` nahrazuje blok od řádku s `// TEST PAGE - MINIMAL TIMER TEST` do řádku před `static esp_err_t http_get_chess_js_handler`.
+- Starší `js_to_c.py` (také v `tools/`) jen vypisuje C pole na stdout; pro automatický zápis do `.c` používám `embed_chess_js.py`.

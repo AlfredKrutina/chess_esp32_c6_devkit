@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """
-Re-embed chess_app.js into web_server_task.c (replaces chess_app_js_content array).
-Run from project root or from components/web_server_task.
+Re-embed web/chess_app.js into web_server_task.c (replaces chess_app_js_content array).
+
+Spuštění z kořene repa:
+  python3 components/web_server_task/tools/embed_chess_js.py
 """
 import os
-import re
 import sys
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-JS_FILE = os.path.join(SCRIPT_DIR, "chess_app.js")
-C_FILE = os.path.join(SCRIPT_DIR, "web_server_task.c")
+TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
+COMPONENT_DIR = os.path.dirname(TOOLS_DIR)
+JS_FILE = os.path.join(COMPONENT_DIR, "web", "chess_app.js")
+C_FILE = os.path.join(COMPONENT_DIR, "web_server_task.c")
 
 def js_to_c_lines(js_path):
     with open(js_path, "r", encoding="utf-8") as f:
