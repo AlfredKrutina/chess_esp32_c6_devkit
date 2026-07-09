@@ -355,7 +355,7 @@ Behaviour kolem rozporů senzorů, návratu figurek, rezignace králem a undo �
 
 | Téma | Diagram |
 |------|---------|
-| **Matrix guard** — rozpor senzor vs `board[]` | [`chess_flow_matrix_guard.mmd`](sources/chess_flow_matrix_guard.mmd) · `GAME_CMD_MATRIX_GUARD`, `matrix_send_guard_command` |
+| **Matrix guard** — rozpor senzor vs `board[]` | [`chess_flow_matrix_guard.mmd`](sources/chess_flow_matrix_guard.mmd) · [MATRIX_GUARD.md](../reference/MATRIX_GUARD.md) |
 | **Chybný pickup** — vrácení soupeřovy figury | [`chess_flow_error_recovery.mmd`](sources/chess_flow_error_recovery.mmd) · `GAME_STATE_WAITING_FOR_RETURN`, `error_recovery_state` |
 | **Rezignace** — zvednutí krále 10 s | [`chess_flow_resignation.mmd`](sources/chess_flow_resignation.mmd) · `resignation_start` / `resignation_tick` / `resignation_finalize_timeout` |
 | **Undo** | [`chess_flow_undo.mmd`](sources/chess_flow_undo.mmd) · `game_undo_last_move_impl` |
