@@ -12,7 +12,7 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 
 | Oblast | Problém | Dopad |
 |--------|---------|-------|
-| **Monolity** | `game_task.c` ~15 323 ř., `uart_task.c` ~8 294, `web_server_task.c` ~6 569, `chess_app.js` ~4 726 | těžké review, riziko regresí |
+| **Monolity** | `game_task.c` ~10 083 ř., `uart_task.c` ~4 408, `web_server_task.c` ~6 217 (+ `web_routes.c` ~350), `chess_app.js` ~4 726 | těžké review, riziko regresí |
 | **CMake / git** | mrtvé cesty (`screen_saver_task`, `matter_task`), build artefakty v historii | matoucí onboarding, pomalý clone |
 | **CI** | jen diagramy + Flutter release + Pages | žádná automatická kontrola firmware buildu |
 | **Legacy komponenty** | `enhanced_castling_system`, `animation_task`, `visual_error_system` | nejasná „pravda“ v kódu |
@@ -35,9 +35,10 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 ### 2.2 Velikost „god souborů“
 
 ```
-game_task.c              15 323 ř.
-uart_task.c               8 294 ř.
-web_server_task.c         6 569 ř.
+game_task.c              10 083 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical)
+uart_task.c               4 408 ř.  (split: commands_table, parse, handlers_game/wifi/debug)
+web_server_task.c         6 217 ř.  (split: web_routes.c ~350)
+web_routes.c                ~350 ř.
 chess_app.js              4 726 ř.
 board_session_notifier    1 520 ř.
 matrix_task.c             1 184 ř.
@@ -216,7 +217,7 @@ Tabulka příkazů začíná ~řádek 2562 — největší okamžitý win.
 
 | Pořadí | Soubor | Obsah |
 |--------|--------|-------|
-| 3C.1 | `web_routes.c` | registrace URI |
+| 3C.1 | `web_routes.c` | registrace URI | **hotovo** (PR #7) |
 | 3C.2 | `web_handlers_game.c` | `/api/game/*`, snapshot |
 | 3C.3 | `web_handlers_wifi.c` | `/api/wifi/*` |
 | 3C.4 | `web_handlers_system.c` | OTA, factory reset, demo |
@@ -362,7 +363,7 @@ PR-24+ Schválené deprecations (jeden PR na komponentu)
 
 ## 7. Definition of Done (celý program)
 
-- [ ] `main`: CI build firmware + Flutter test green
+- [ ] `main`: CI build firmware + Flutter test green — **PR #7 green (2026-07-10)**
 - [ ] Žádný source soubor > 5 000 ř. (výjimka: generated)
 - [ ] REPO_LAYOUT + COMPONENTS aktuální
 - [ ] Matrix guard dokumentace a test scénáře projdu HW
