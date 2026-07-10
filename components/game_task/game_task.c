@@ -2784,8 +2784,6 @@ void game_set_led_guidance_level(uint8_t level) {
   }
 }
 
-uint8_t game_get_led_guidance_level(void) { return led_guidance_level; }
-
 bool game_is_resync_required_after_restore(void) {
   return resync_required_after_restore;
 }

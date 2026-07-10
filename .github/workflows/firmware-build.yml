@@ -40,6 +40,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure and build
+        shell: bash
         run: |
+          source "$IDF_PATH/export.sh"
           idf.py set-target esp32c6
           idf.py build
