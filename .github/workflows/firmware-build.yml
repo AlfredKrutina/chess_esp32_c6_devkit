@@ -87,3 +87,22 @@ jobs:
           source "$IDF_PATH/export.sh"
           idf.py set-target esp32c6
           idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.gameplay_dev" build
+
+  build-hall-v2:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify STM32 embedded firmware present
+        shell: bash
+        run: |
+          test -s embedded/stm32_fw_embedded.bin
+
+      - name: Configure and build (Hall V2 + STM32 auto-flash profile)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build

@@ -125,12 +125,10 @@ CONFIG_APP_ROLLBACK_ENABLE=y
 # Reed: matrix_scan_all() dělá GPIO multiplex 8×8 (viz matrix_task.c + MATRIX_* v freertos_chess.h).
 # Hall: hall_i2c_matrix_fill_state() čte 4× STM přes I2C (hall_i2c_spec.h).
 #
-# Návrat k „STM flash přes I2C při běhu“ později:
+# Návrat k „STM flash přes I2C při běhu“:
+# - idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
 # - menuconfig: CHESS_MATRIX_INPUT_I2C_HALL + CHESS_STM32_I2C_BL_ENABLE (+ často CHESS_STM32_BL_SHARE_I2C_HALL=y).
-# - Při samotném programování STM už kód dělá bl_pause_scan() → matrix_scanning_enabled=false (stm32_i2c_bl.c),
-#   pak obnoví scan — neřešíš ručně kolizi transakcí se čtením Hall bufferu na stejné sběrnici.
-# - Na této desce jsou GPIO10/11 řádky matice + GPIO18 řádek 2: nesmí být současně SDA/SCL/BOOT0 pro STM,
-#   pokud nemáš jiné zapojení — před zapnutím BL přemapuj piny v menuconfig a v freertos_chess.h.
+# - Zapojení: docs/reference/ZAPOJENI_ESP_STM4.md
 CONFIG_CHESS_MATRIX_INPUT_GPIO_REED=y
 # CONFIG_CHESS_MATRIX_INPUT_I2C_HALL is not set
 
