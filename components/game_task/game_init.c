@@ -8,6 +8,7 @@
 #include "game_board_core.h"
 #include "game_snapshot.h"
 #include "game_matrix_guard.h"
+#include "chess_gameplay_policy.h"
 
 #include "../matrix_task/include/matrix_task.h"
 #include "../led_task/include/led_task.h"
@@ -557,7 +558,7 @@ void game_start_new_game(void) {
     // Restart hry - zvýraznit pohyblivé figurky
     vTaskDelay(pdMS_TO_TICKS(100)); // Krátká pauza pro stabilizaci
     game_task_wdt_reset_safe();
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
     game_task_wdt_reset_safe();
     ESP_LOGI(TAG,
              "✅ Highlighted movable pieces for starting player (restart)");
@@ -660,7 +661,7 @@ void game_start_new_game_from_fen(const char *fen) {
   if (total_games >= 1) {
     vTaskDelay(pdMS_TO_TICKS(100));
     game_task_wdt_reset_safe();
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
     game_task_wdt_reset_safe();
   }
   game_bump_revision_and_notify();

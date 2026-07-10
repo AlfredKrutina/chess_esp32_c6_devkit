@@ -6,6 +6,7 @@
 #include "game_task_internal.h"
 #include "game_task.h"
 #include "game_matrix_guard.h"
+#include "chess_gameplay_policy.h"
 
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -200,7 +201,7 @@ bool game_check_castling_completion(const chess_move_t *move) {
 
       // Zobrazit pohyblivé figury pro nového hráče
       led_clear_board_only();
-      game_highlight_movable_pieces();
+      chess_policy_highlight_movable_if_enabled();
 
       ESP_LOGI(TAG, "🏰 Castling completed! %s to move",
                (current_player == PLAYER_WHITE) ? "White" : "Black");
@@ -454,7 +455,7 @@ bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
 
     // Clear board and show movable pieces for new player
     led_clear_board_only();
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
 
     ESP_LOGI(TAG, "🏰 Castling completed! %s to move",
              (current_player == PLAYER_WHITE) ? "White" : "Black");
@@ -507,10 +508,12 @@ void game_refresh_leds(void) {
                                             error_recovery_state.invalid_col);
 
     // Also highlight the original valid position (Blue)
-    led_set_pixel_safe(
-        chess_pos_to_led_index(error_recovery_state.original_valid_row,
-                               error_recovery_state.original_valid_col),
-        0, 0, 255);
+    if (chess_policy_error_recovery_led_valid_blue()) {
+      led_set_pixel_safe(
+          chess_pos_to_led_index(error_recovery_state.original_valid_row,
+                                 error_recovery_state.original_valid_col),
+          0, 0, 255);
+    }
 
     return;
   }
@@ -590,7 +593,7 @@ void game_refresh_leds(void) {
 
   // 4. Default Active State - Highlight movable pieces
   ESP_LOGI(TAG, "  - Restoring ACTIVE state LEDs (movable pieces)");
-  game_highlight_movable_pieces();
+  chess_policy_highlight_movable_if_enabled();
 
   // Update button LEDs (64-71) to match current game state (promotion green/blue)
   // so they are correct after switching back to game mode (e.g. from HA).

@@ -5,6 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -178,23 +179,27 @@ void game_check_promotion_needed(void) {
         led_set_pixel_safe(i, 0, 255, 0); // Green
       }
       // Black promotion buttons (68-71): BLUE
-      for (int i = 68; i <= 71; i++) {
-        led_set_pixel_safe(i, 0, 0, 255); // Blue
+      if (chess_policy_move_hints_promotion_blue()) {
+        for (int i = 68; i <= 71; i++) {
+          led_set_pixel_safe(i, 0, 0, 255);
+        }
       }
     } else {
       // White promotion buttons (64-67): BLUE
-      for (int i = 64; i <= 67; i++) {
-        led_set_pixel_safe(i, 0, 0, 255); // Blue
+      if (chess_policy_move_hints_promotion_blue()) {
+        for (int i = 64; i <= 67; i++) {
+          led_set_pixel_safe(i, 0, 0, 255);
+        }
       }
       // Black promotion buttons (68-71): GREEN
       for (int i = 68; i <= 71; i++) {
         led_set_pixel_safe(i, 0, 255, 0); // Green
       }
     }
-  } else {
+  } else if (chess_policy_move_hints_promotion_blue()) {
     // No promotion pending - all promotion buttons BLUE
     for (int i = 64; i <= 71; i++) {
-      led_set_pixel_safe(i, 0, 0, 255); // Blue
+      led_set_pixel_safe(i, 0, 0, 255);
     }
   }
 
@@ -372,7 +377,7 @@ void game_process_promotion_button(uint8_t button_id) {
 
       // Update LED indications
       game_check_promotion_needed();
-      game_highlight_movable_pieces();
+      chess_policy_highlight_movable_if_enabled();
       led_force_immediate_update(); // Commit highlight so movable pieces show
                                     // right after player change animation
     }

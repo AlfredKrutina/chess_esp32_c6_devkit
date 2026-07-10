@@ -4,6 +4,7 @@
  */
 
 #include "game_physical.h"
+#include "chess_gameplay_policy.h"
 #include "game_matrix_guard.h"
 #include "game_move_exec.h"
 #include "game_move_validate.h"
@@ -176,7 +177,7 @@ static void game_exit_guided_capture(bool restore_highlights) {
 
   if (restore_highlights) {
     led_clear_board_only();
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
   }
 }
 
@@ -343,10 +344,12 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
                          0);
 
       // MODRÁ na původní validní pozici
-      led_set_pixel_safe(
-          chess_pos_to_led_index(error_recovery_state.original_valid_row,
-                                 error_recovery_state.original_valid_col),
-          0, 0, 255);
+      if (chess_policy_error_recovery_led_valid_blue()) {
+        led_set_pixel_safe(
+            chess_pos_to_led_index(error_recovery_state.original_valid_row,
+                                   error_recovery_state.original_valid_col),
+            0, 0, 255);
+      }
 
       // ZELENÉ LED pro validní cílová pole (z původní pozice)
       if (game_led_guidance_show_destinations()) {
@@ -625,7 +628,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
 
     // KRITICKÉ: Nastavit error_recovery_state pro proper recovery flow
     error_recovery_state.has_invalid_piece = true;
-    error_recovery_state.waiting_for_move_correction = true;
+    chess_policy_error_recovery_enter_lock();
     error_recovery_state.piece_type = piece;
     error_recovery_state.invalid_row = from_row;
     error_recovery_state.invalid_col = from_col;
@@ -643,7 +646,9 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     opponent_piece_moved = true;
 
     // Odstranit figurku z boardu (byla zvednuta)
-    board[from_row][from_col] = PIECE_EMPTY;
+    if (chess_policy_error_recovery_should_mutate_board()) {
+      board[from_row][from_col] = PIECE_EMPTY;
+    }
 
     // Nastavit recovery stav
     current_game_state = GAME_STATE_WAITING_FOR_RETURN;
@@ -733,12 +738,13 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
 
         // Check if this is a castling move - zobrazit jako modré
         if (suggestions[i].is_castling) {
-          // Blue for castling moves (special move - rošáda)
-          led_set_pixel_safe(led_index, 0, 0, 255);
-          ESP_LOGI(TAG,
-                   "🏰 Castling move highlighted at %c%d (blue) during "
-                   "resignation pickup",
-                   'a' + dest_col, dest_row + 1);
+          if (chess_policy_move_hints_castling_blue()) {
+            led_set_pixel_safe(led_index, 0, 0, 255);
+            ESP_LOGI(TAG,
+                     "🏰 Castling move highlighted at %c%d (blue) during "
+                     "resignation pickup",
+                     'a' + dest_col, dest_row + 1);
+          }
         } else {
           // Normal move handling
           piece_t dest_piece = board[dest_row][dest_col];
@@ -846,10 +852,11 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
 
       // Check if this is a castling move - zobrazit jako speciální tah
       if (suggestions[i].is_castling) {
-        // Blue for castling moves (special move - rošáda)
-        led_set_pixel_safe(led_index, 0, 0, 255);
-        ESP_LOGI(TAG, "🏰 Castling move highlighted at %c%d (blue)",
-                 'a' + dest_col, dest_row + 1);
+        if (chess_policy_move_hints_castling_blue()) {
+          led_set_pixel_safe(led_index, 0, 0, 255);
+          ESP_LOGI(TAG, "🏰 Castling move highlighted at %c%d (blue)",
+                   'a' + dest_col, dest_row + 1);
+        }
       } else {
         // Normal move handling (existing code)
         piece_t dest_piece = board[dest_row][dest_col];
@@ -877,7 +884,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
   // flow)
   if (!guided_capture_state.active && !game_is_castle_animation_active() &&
       !game_is_castling_expected()) {
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
   }
 
   // Send success response
@@ -1217,7 +1224,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     // Po opponent-return jsme vyčistili piece_lifted; král se vrací bez tracku.
     if (!piece_lifted) {
       led_clear_board_only();
-      game_highlight_movable_pieces();
+      chess_policy_highlight_movable_if_enabled();
       game_send_response_to_uart("✅ King placed - resignation cancelled",
                                  false, (QueueHandle_t)cmd->response_queue);
       return;
@@ -1318,7 +1325,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         }
 
         led_clear_board_only();
-        game_highlight_movable_pieces();
+        chess_policy_highlight_movable_if_enabled();
 
         game_send_response_to_uart("✅ Capture complete!", false,
                                    (QueueHandle_t)cmd->response_queue);
@@ -1377,7 +1384,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
 
       // Vyčistit LED a ukázat normální stav
       led_clear_board_only();
-      game_highlight_movable_pieces();
+      chess_policy_highlight_movable_if_enabled();
 
       game_send_response_to_uart("✅ Opponent piece returned - continue game",
                                  false, (QueueHandle_t)cmd->response_queue);
@@ -1455,7 +1462,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       // Vyčistit LED a ukázat normální stav
       game_stop_error_blink(); // STOP blinking red LED!
       led_clear_board_only();
-      game_highlight_movable_pieces();
+      chess_policy_highlight_movable_if_enabled();
 
       game_send_response_to_uart("✅ Piece returned to original valid position",
                                  false, (QueueHandle_t)cmd->response_queue);
@@ -1517,7 +1524,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
 
         // Vyčistit LED a ukázat nový stav (blikání už přerušeno na začátku DROP)
         led_clear_board_only();
-        game_highlight_movable_pieces();
+        chess_policy_highlight_movable_if_enabled();
 
         char success_msg[128];
         snprintf(success_msg, sizeof(success_msg),
@@ -1592,7 +1599,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
 
     // Zobrazit pohyblivé figurky (blikání už přerušeno na začátku DROP)
     led_clear_board_only();
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
 
     game_send_response_to_uart("✅ Move cancelled", false,
                                (QueueHandle_t)cmd->response_queue);
@@ -1637,7 +1644,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           STAGING_LOGI(TAG, "opening: wrong opponent move %c%d -> %c%d",
                        'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
                        to_row + 1);
-          error_recovery_state.waiting_for_move_correction = true;
+          chess_policy_error_recovery_enter_lock();
           error_recovery_state.has_invalid_piece = true;
           error_recovery_state.piece_type = lifted_piece;
           error_recovery_state.invalid_row = to_row;
@@ -1646,10 +1653,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
             error_recovery_state.original_valid_row = lifted_piece_row;
             error_recovery_state.original_valid_col = lifted_piece_col;
           }
-          board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
-          board[to_row][to_col] = lifted_piece;
-          lifted_piece_row = to_row;
-          lifted_piece_col = to_col;
+          if (chess_policy_error_recovery_should_mutate_board()) {
+            board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+            board[to_row][to_col] = lifted_piece;
+            lifted_piece_row = to_row;
+            lifted_piece_col = to_col;
+          }
           game_show_invalid_move_error_with_blink(to_row, to_col);
           return;
         }
@@ -1663,7 +1672,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                      'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
                      to_row + 1);
 
-        error_recovery_state.waiting_for_move_correction = true;
+        chess_policy_error_recovery_enter_lock();
         error_recovery_state.has_invalid_piece = true;
         error_recovery_state.piece_type = lifted_piece;
         error_recovery_state.invalid_row = to_row;
@@ -1672,10 +1681,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           error_recovery_state.original_valid_row = lifted_piece_row;
           error_recovery_state.original_valid_col = lifted_piece_col;
         }
-        board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
-        board[to_row][to_col] = lifted_piece;
-        lifted_piece_row = to_row;
-        lifted_piece_col = to_col;
+        if (chess_policy_error_recovery_should_mutate_board()) {
+          board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+          board[to_row][to_col] = lifted_piece;
+          lifted_piece_row = to_row;
+          lifted_piece_col = to_col;
+        }
         game_show_invalid_move_error_with_blink(to_row, to_col);
         return;
       }
@@ -1693,7 +1704,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                      'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
                      to_row + 1, (unsigned)puzzle_active_id);
 
-        error_recovery_state.waiting_for_move_correction = true;
+        chess_policy_error_recovery_enter_lock();
         error_recovery_state.has_invalid_piece = true;
         error_recovery_state.piece_type = lifted_piece;
         error_recovery_state.invalid_row = to_row;
@@ -1704,10 +1715,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           error_recovery_state.original_valid_col = lifted_piece_col;
         }
 
-        board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
-        board[to_row][to_col] = lifted_piece;
-        lifted_piece_row = to_row;
-        lifted_piece_col = to_col;
+        if (chess_policy_error_recovery_should_mutate_board()) {
+          board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+          board[to_row][to_col] = lifted_piece;
+          lifted_piece_row = to_row;
+          lifted_piece_col = to_col;
+        }
 
         game_show_invalid_move_error_with_blink(to_row, to_col);
 
@@ -1947,7 +1960,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       // (same as matrix flow) - ONLY if game is active
       if (current_game_state == GAME_STATE_ACTIVE &&
           !game_is_castle_animation_active() && !game_is_castling_expected()) {
-        game_highlight_movable_pieces();
+        chess_policy_highlight_movable_if_enabled();
       }
 
       char success_msg[128];
@@ -1976,7 +1989,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     bool already_in_error = error_recovery_state.waiting_for_move_correction;
 
     // SPOLEČNÉ NASTAVENÍ pro všechny chyby
-    error_recovery_state.waiting_for_move_correction = true;
+    chess_policy_error_recovery_enter_lock();
     error_recovery_state.has_invalid_piece = true;
     error_recovery_state.piece_type = lifted_piece;
     error_recovery_state.invalid_row =
@@ -2003,14 +2016,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     // AKTUALIZOVAT board stav - figurka je nyní na neplatném poli (fyzická
     // realita) Board musí odpovídat fyzickému stavu, aby PICKUP fungoval
     // správně!
-    board[lifted_piece_row][lifted_piece_col] =
-        PIECE_EMPTY;                      // původní pole prázdné
-    board[to_row][to_col] = lifted_piece; // neplatné pole má figurku
-
-    // AKTUALIZOVAT lifted_piece tracking na novou neplatnou pozici
-    lifted_piece_row = to_row;
-    lifted_piece_col = to_col;
-    // piece_lifted = true; // Zůstává true!
+    if (chess_policy_error_recovery_should_mutate_board()) {
+      board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+      board[to_row][to_col] = lifted_piece;
+      lifted_piece_row = to_row;
+      lifted_piece_col = to_col;
+    }
 
     // LED INDIKACE - červené blikání na neplatném poli
     game_show_invalid_move_error_with_blink(to_row, to_col);
@@ -2725,7 +2736,7 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
         }
 
         // Zobrazit pohyblivé figurky pro nového hráče
-        game_highlight_movable_pieces();
+        chess_policy_highlight_movable_if_enabled();
       }
     } else {
       ESP_LOGE(TAG, "❌ Failed to execute UART move");
