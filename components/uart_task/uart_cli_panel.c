@@ -5,6 +5,9 @@
 #include "uart_cli_panel.h"
 
 #include "sdkconfig.h"
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+#include "hall_i2c_matrix.h"
+#endif
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
 #include "stm32_i2c_bl.h"
 #endif
@@ -370,7 +373,47 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
   uart_send_error("neznámý STM32 příkaz — CLI STM32 HELP");
   return CMD_ERROR_INVALID_SYNTAX;
 }
-#endif
+#endif /* CONFIG_CHESS_STM32_I2C_BL_ENABLE */
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+static command_result_t cli_hall_tail(const char *tail) {
+  const char *p = skip_leading_ws(tail);
+  char verb[24];
+  if (sscanf(p, "%23s", verb) != 1) {
+    uart_send_error("CLI HALL HELP | PROBE <seg>");
+    return CMD_ERROR_INVALID_SYNTAX;
+  }
+
+  if (!strcasecmp(verb, "HELP") || !strcasecmp(verb, "?")) {
+    uart_send_line("Hall I2C matice (STM32 slave @ 0x30…)");
+    uart_send_line("  CLI HALL PROBE <seg>   (0–3, krátký read pointeru 0x00)");
+    return CMD_SUCCESS;
+  }
+
+  if (!strcasecmp(verb, "PROBE")) {
+    unsigned seg = 0;
+    if (sscanf(p, "%*s %u", &seg) != 1 || seg > 3) {
+      uart_send_error("CLI HALL PROBE <seg>");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    esp_err_t hi = hall_i2c_matrix_init();
+    if (hi != ESP_OK) {
+      uart_send_formatted("hall_i2c_matrix_init: %s", esp_err_to_name(hi));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    esp_err_t pe = hall_i2c_matrix_probe_segment((uint8_t)seg, 200);
+    if (pe != ESP_OK) {
+      uart_send_formatted("Hall seg%u probe: %s", seg, esp_err_to_name(pe));
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_formatted("Hall seg%u probe OK", seg);
+    return CMD_SUCCESS;
+  }
+
+  uart_send_error("neznámý HALL příkaz — CLI HALL HELP");
+  return CMD_ERROR_INVALID_SYNTAX;
+}
+#endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
 
 static void cli_snapshot(void) {
   char *json = NULL;
@@ -410,6 +453,9 @@ void uart_cli_print_help(void) {
   uart_send_line("  CLI RESET             (esp_restart)");
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
   uart_send_line("  CLI STM32 HELP        (STM32 ROM bootloader přes I2C)");
+#endif
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  uart_send_line("  CLI HALL HELP         (Hall I2C segment probe)");
 #endif
 }
 
@@ -513,6 +559,15 @@ command_result_t uart_cmd_cli(const char *args) {
 #else
     uart_send_error(
         "CLI STM32 — zapni CHESS_STM32_I2C_BL_ENABLE v menuconfig");
+    return CMD_ERROR_INVALID_SYNTAX;
+#endif
+  }
+  if (!strcasecmp(cmd, "HALL")) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    return cli_hall_tail(tail);
+#else
+    uart_send_error(
+        "CLI HALL — zapni CHESS_MATRIX_INPUT_I2C_HALL v menuconfig");
     return CMD_ERROR_INVALID_SYNTAX;
 #endif
   }

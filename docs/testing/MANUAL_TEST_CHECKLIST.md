@@ -180,6 +180,22 @@ Ověření po změně Kconfig. Vyžaduje flash s příslušným `SDKCONFIG_DEFAU
 
 ---
 
+## H — Hall V2 + STM32 auto-flash (volitelné, HW V2)
+
+Build: `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash`  
+Zapojení: [ZAPOJENI_ESP_STM4.md](../reference/ZAPOJENI_ESP_STM4.md)
+
+| # | Kroky | Očekávání |
+|---|--------|-----------|
+| H1 | První boot virgin STM (nebo po `chip erase` ESP) | `STM32_AUTO` → flash z oddílu `stm32_fw` |
+| H2 | Po flashi | `STM32_I2C_BL: [hall_probe] seg0 addr 0x30 OK` |
+| H3 | Druhý boot (stejný STM) | `auto-flash přeskočen` + hall_probe OK |
+| H4 | Výměna STM / prázdný čip, NVS beze změny | `NVS … ale Hall neodpovídá — vynucuji auto-flash` |
+| H5 | Matrix scan | `HALL_I2C` bez WARN na seg0; pole reagují na magnet |
+| H6 | UART | `CLI HALL PROBE 0` → `Hall seg0 probe OK` |
+
+---
+
 ## Shrnutí gate (zaškrtni po testu)
 
 | ID | Kritérium | HW | Poznámka / datum |
@@ -207,5 +223,5 @@ Ověření po změně Kconfig. Vyžaduje flash s příslušným `SDKCONFIG_DEFAU
 
 - `openings-catalog.yml` — 41 linií, UCI, mirror-symmetric, sync
 - `flutter-test.yml` — catalog, progress, curriculum, UX, release gate
-- `firmware-build.yml` — full HTTP + BLE-only + gameplay-lite + gameplay-dev profily
+- `firmware-build.yml` — full HTTP + BLE-only + gameplay-lite + gameplay-dev + hall-v2 profily
 - `scripts/test_opening_api.sh` — HTTP smoke na desce

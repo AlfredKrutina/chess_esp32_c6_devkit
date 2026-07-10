@@ -18,11 +18,16 @@ Diagramy (Mermaid SVG/PNG + HTML): `./scripts/render_docs.sh` — volá `scripts
 | Skript | Účel |
 |--------|------|
 | `idf_build.sh` | ESP-IDF build wrapper |
+| `build_stm32_embedded.sh` | Demo STM32 Hall → `embedded/stm32_fw_embedded.bin` |
 | `render_docs.sh` | Přegenerování diagramů |
 | `test_opening_api.sh` | HTTP smoke test `POST /api/game/opening` na desce |
 
 BLE-only firmware (bez HTTP):  
 `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only" build`
+
+Hall V2 + STM32 auto-flash:  
+`idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash`  
+Zapojení: [docs/reference/ZAPOJENI_ESP_STM4.md](../docs/reference/ZAPOJENI_ESP_STM4.md)
 
 ## Testování HW
 

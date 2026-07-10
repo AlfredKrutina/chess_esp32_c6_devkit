@@ -10,4 +10,4 @@ Text sladí marketing (`gh-pages-ready`), README a firmware — aby nevznikal do
 | **Video** | [YouTube představení](https://youtu.be/_MS6OP3x6Z4) — **V1** | Viz produktovka — render a mock jsou **V2** |
 | **Předobjednávka / dotazníky** | Ne — reference & vývoj | Ano — zájem na webu se vztahuje k **V2** |
 
-Technický popis multiplexu reed matice a tasků pro aktuální **V1** je v [KOMUNIKACE_MEZI_TASKY.md](KOMUNIKACE_MEZI_TASKY.md). Směr **Hall přes I2C** (`hall_i2c_matrix.h`, STM32 v `firmware/stm32_hall_c031/`) je příprava / paralelní větev pro **V2**.
+Technický popis multiplexu reed matice a tasků pro aktuální **V1** je v [KOMUNIKACE_MEZI_TASKY.md](KOMUNIKACE_MEZI_TASKY.md). Směr **Hall přes I2C** (`hall_i2c_matrix.h`, STM32 v `firmware/stm32_hall_c031/`) je příprava / paralelní větev pro **V2** — aktivní build profil `sdkconfig.defaults.hall_v2`, zapojení [ZAPOJENI_ESP_STM4.md](ZAPOJENI_ESP_STM4.md).
