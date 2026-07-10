@@ -3,11 +3,12 @@
  * @brief Shared opening trainer JSON dispatch for HTTP and BLE.
  */
 
+#include "cJSON.h"
+
 #include "web_server_internal.h"
 #include "../game_task/include/game_task.h"
 #include "../led_task/include/led_task.h"
 
-#include "cJSON.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -17,8 +18,6 @@
 extern QueueHandle_t game_command_queue;
 
 static const char *TAG = "WEB_OPENING";
-
-esp_err_t web_server_opening_dispatch_json(cJSON *root);
 
 static uint8_t opening_action_code(const char *action) {
   if (action == NULL) {
