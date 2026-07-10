@@ -1733,8 +1733,14 @@ abstract class AppLocalizations {
   /// No description provided for @gameMatrixGuardForceClear.
   ///
   /// In en, this message translates to:
-  /// **'Force clear'**
+  /// **'Resume play'**
   String get gameMatrixGuardForceClear;
+
+  /// No description provided for @gameMatrixGuardForceClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if pieces are already aligned'**
+  String get gameMatrixGuardForceClearHint;
 
   /// No description provided for @gameMatrixGuardForceClearSnack.
   ///

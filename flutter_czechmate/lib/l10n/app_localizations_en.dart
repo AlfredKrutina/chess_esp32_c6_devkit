@@ -936,20 +936,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String gameMatrixGuardPaused(String squares) {
-    return 'Game paused: align pieces on the highlighted squares ($squares). Play resumes automatically when the board matches.';
+    return 'Align pieces using board LEDs$squares. Play resumes when matched.';
   }
 
   @override
   String gameMatrixGuardResync(String squares) {
-    return 'After startup the physical board does not match the saved game. Align pieces on: $squares.';
+    return 'Board mismatch after startup$squares. Align pieces using LEDs.';
   }
 
   @override
-  String get gameMatrixGuardForceClear => 'Force clear';
+  String get gameMatrixGuardForceClear => 'Resume play';
+
+  @override
+  String get gameMatrixGuardForceClearHint =>
+      'Only if pieces are already aligned';
 
   @override
   String get gameMatrixGuardForceClearSnack =>
-      'Matrix guard cleared — verify the board matches the game';
+      'Play resumed — verify the board matches the game';
 
   @override
   String get gameNoSnapshotBody =>

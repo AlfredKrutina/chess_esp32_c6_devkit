@@ -2299,37 +2299,89 @@ function matrixGuardMaskToSquares(low, high) {
     return squares;
 }
 
-function matrixGuardSetForceClearButton(visible) {
-    var id = 'matrix-guard-clear-btn';
-    var btn = document.getElementById(id);
-    if (!visible) {
-        if (btn) btn.style.display = 'none';
-        return;
-    }
-    if (!btn) {
-        btn = document.createElement('button');
-        btn.id = id;
-        btn.type = 'button';
-        btn.className = 'secondary-btn';
-        btn.style.margin = '6px 0 10px';
-        btn.textContent = 'Vynutit zrušení guardu (deska musí sedět)';
-        btn.onclick = function () {
-            btn.disabled = true;
-            fetch('/api/game/guard_clear', { method: 'POST' })
-                .then(function () {
-                    return fetch('/api/status');
-                })
-                .then(function (r) { return r.json(); })
-                .then(function (st) { updateStatus(st); })
-                .catch(function () {})
-                .finally(function () { btn.disabled = false; });
-        };
-        var anchor = document.getElementById('castling-pending-message');
-        if (anchor && anchor.parentNode) {
-            anchor.parentNode.insertBefore(btn, anchor.nextSibling);
+function matrixGuardEnsureStyles() {
+    if (document.getElementById('matrix-guard-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'matrix-guard-styles';
+    style.textContent = [
+        '.matrix-guard-shell{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;padding:12px 14px;border-radius:12px;',
+        'border:1px solid rgba(220,53,69,0.42);background:rgba(220,53,69,0.12);}',
+        '.matrix-guard-shell__head{display:flex;gap:10px;align-items:flex-start;}',
+        '.matrix-guard-shell__icon{flex:0 0 auto;width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;',
+        'background:rgba(220,53,69,0.22);color:#ffb4b4;font-size:15px;line-height:1;}',
+        '.matrix-guard-shell__title{margin:0 0 4px;font-size:14px;font-weight:600;color:#ff9a9a;}',
+        '.matrix-guard-shell__message{margin:0;padding:0;border:none;background:transparent!important;color:#ffd0d0!important;',
+        'font-size:13px;line-height:1.45;display:block!important;box-shadow:none!important;}',
+        '.matrix-guard-shell__foot{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}',
+        '.matrix-guard-shell__action{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.24);',
+        'background:rgba(255,255,255,0.08);color:#fff;font-size:13px;font-weight:600;cursor:pointer;',
+        'transition:background .15s,border-color .15s,opacity .15s,transform .15s;}',
+        '.matrix-guard-shell__action:hover:not(:disabled){background:rgba(255,255,255,0.14);border-color:rgba(255,255,255,0.36);}',
+        '.matrix-guard-shell__action:active:not(:disabled){transform:scale(0.98);}',
+        '.matrix-guard-shell__action:disabled{opacity:.55;cursor:wait;}',
+        '.matrix-guard-shell__action:focus-visible{outline:2px solid rgba(255,255,255,0.55);outline-offset:2px;}',
+        '.matrix-guard-shell__hint{margin:0;font-size:11px;line-height:1.35;color:rgba(255,210,210,0.78);text-align:right;}'
+    ].join('');
+    document.head.appendChild(style);
+}
+
+function matrixGuardHidePanel() {
+    var shell = document.getElementById('matrix-guard-shell');
+    if (shell) shell.style.display = 'none';
+    var castlingMsg = document.getElementById('castling-pending-message');
+    if (castlingMsg) castlingMsg.classList.remove('matrix-guard-shell__message');
+}
+
+function matrixGuardShowPanel(message) {
+    matrixGuardEnsureStyles();
+    var castlingMsg = document.getElementById('castling-pending-message');
+    if (!castlingMsg || !castlingMsg.parentNode) return;
+
+    var shell = document.getElementById('matrix-guard-shell');
+    if (!shell) {
+        shell = document.createElement('div');
+        shell.id = 'matrix-guard-shell';
+        shell.className = 'matrix-guard-shell';
+        shell.innerHTML =
+            '<div class="matrix-guard-shell__head">' +
+            '<span class="matrix-guard-shell__icon" aria-hidden="true">▦</span>' +
+            '<div><p class="matrix-guard-shell__title">Srovnejte desku</p></div></div>' +
+            '<div class="matrix-guard-shell__foot">' +
+            '<button type="button" id="matrix-guard-clear-btn" class="matrix-guard-shell__action">Obnovit hru</button>' +
+            '<p class="matrix-guard-shell__hint">Jen když jsou figurky fyzicky srovnané</p></div>';
+        castlingMsg.parentNode.insertBefore(shell, castlingMsg);
+        shell.insertBefore(castlingMsg, shell.querySelector('.matrix-guard-shell__foot'));
+        castlingMsg.classList.add('matrix-guard-shell__message');
+
+        var btn = document.getElementById('matrix-guard-clear-btn');
+        if (btn) {
+            btn.addEventListener('click', function () {
+                btn.disabled = true;
+                fetch('/api/game/guard_clear', { method: 'POST' })
+                    .then(function () { return fetch('/api/status'); })
+                    .then(function (r) { return r.json(); })
+                    .then(function (st) { updateStatus(st); })
+                    .catch(function () {})
+                    .finally(function () { btn.disabled = false; });
+            });
         }
     }
-    btn.style.display = 'inline-block';
+
+    castlingMsg.textContent = message;
+    castlingMsg.style.display = 'block';
+    shell.style.display = 'flex';
+}
+
+function matrixGuardBuildMessage(status) {
+    var liftedSquares = matrixGuardMaskToSquares(status.matrix_guard_lifted_low, status.matrix_guard_lifted_high);
+    var droppedSquares = matrixGuardMaskToSquares(status.matrix_guard_dropped_low, status.matrix_guard_dropped_high);
+    var all = Array.from(new Set(liftedSquares.concat(droppedSquares)));
+    var hint = all.length > 0 ? ' (' + all.join(', ') + ')' : '';
+    var resync = status.restore_state && status.restore_state.resync_required;
+    if (resync) {
+        return 'Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky podle LED' + hint + '.';
+    }
+    return 'Hra je pozastavena. Srovnejte figurky podle LED na desce' + hint + ' — hra pokračuje automaticky.';
 }
 
 // ============================================================================
@@ -3118,55 +3170,44 @@ function updateStatus(status) {
     var castlingMsg = document.getElementById('castling-pending-message');
     if (castlingMsg) {
         if (status.restore_state && status.restore_state.boot_new_game_triggered) {
+            matrixGuardHidePanel();
             castlingMsg.textContent = 'Byla spuštěna nová hra: detekovány 2 starty zařízení bez tahu v intervalu 1 minuty.';
             castlingMsg.style.display = 'block';
             castlingMsg.style.background = 'rgba(23,162,184,0.14)';
             castlingMsg.style.borderColor = 'rgba(23,162,184,0.45)';
             castlingMsg.style.color = '#4dd0e1';
-        // Highest priority: matrix guard pause with return guidance.
         } else if (status.matrix_guard_active) {
-            const liftedSquares = matrixGuardMaskToSquares(status.matrix_guard_lifted_low, status.matrix_guard_lifted_high);
-            const droppedSquares = matrixGuardMaskToSquares(status.matrix_guard_dropped_low, status.matrix_guard_dropped_high);
-            const all = Array.from(new Set(liftedSquares.concat(droppedSquares)));
-            const hint = all.length > 0 ? all.join(', ') : 'označené pozice';
-            const resync = status.restore_state && status.restore_state.resync_required;
-            castlingMsg.textContent = resync
-                ? ('Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky podle LED na zvýrazněných polích' + (all.length > 0 ? ' (' + hint + ')' : '') + '. Po srovnání hra automaticky pokračuje.')
-                : ('Hra je pozastavena: zvednuto více figurek najednou. Vraťte figurky podle LED na zvýrazněných polích' + (all.length > 0 ? ' (' + hint + ')' : '') + '. Po srovnání hra automaticky pokračuje.');
-            castlingMsg.style.display = 'block';
-            castlingMsg.style.background = 'rgba(220,53,69,0.14)';
-            castlingMsg.style.borderColor = 'rgba(220,53,69,0.45)';
-            castlingMsg.style.color = '#ff6b6b';
-        } else if (status.restore_state && status.restore_state.snapshot_restore_failed) {
-            castlingMsg.textContent = 'Chyba obnovy hry z NVS — hra běží z výchozí / poslední známé pozice. Zkontrolujte log.';
-            castlingMsg.style.display = 'block';
-            castlingMsg.style.background = 'rgba(255,87,34,0.14)';
-            castlingMsg.style.borderColor = 'rgba(255,87,34,0.45)';
-            castlingMsg.style.color = '#ff8a65';
-        } else if (status.restore_state && status.restore_state.snapshot_save_failed) {
-            castlingMsg.textContent = 'Varování: uložení hry do NVS selhalo — po výpadku napájení může chybět poslední tah.';
-            castlingMsg.style.display = 'block';
-            castlingMsg.style.background = 'rgba(255,152,0,0.14)';
-            castlingMsg.style.borderColor = 'rgba(255,152,0,0.45)';
-            castlingMsg.style.color = '#ffb74d';
-        // Next priority: castling guidance.
-        } else if (status.castling_in_progress && status.castling_from && status.castling_to) {
-            castlingMsg.textContent = 'Dokončete rošádu: přesuňte věž z ' + status.castling_from + ' na ' + status.castling_to + '.';
-            castlingMsg.style.display = 'block';
-            // Reset style to warning for castling
-            castlingMsg.style.background = 'rgba(255,193,7,0.12)';
-            castlingMsg.style.borderColor = 'rgba(255,193,7,0.4)';
-            castlingMsg.style.color = '#ffc107';
+            matrixGuardShowPanel(matrixGuardBuildMessage(status));
         } else {
-            if (status.game_end && status.game_end.ended) castlingMsg.style.display = 'none';
-            else if (status.game_state !== 'active' && status.game_state !== 'playing') castlingMsg.style.display = 'none';
-            else {
-                var keepMsg = castlingMsg.textContent.indexOf('Losování:') === 0 || castlingMsg.textContent.indexOf('nápověda') !== -1;
-                if (!keepMsg) castlingMsg.style.display = 'none';
+            matrixGuardHidePanel();
+            if (status.restore_state && status.restore_state.snapshot_restore_failed) {
+                castlingMsg.textContent = 'Chyba obnovy hry z NVS — hra běží z výchozí / poslední známé pozice. Zkontrolujte log.';
+                castlingMsg.style.display = 'block';
+                castlingMsg.style.background = 'rgba(255,87,34,0.14)';
+                castlingMsg.style.borderColor = 'rgba(255,87,34,0.45)';
+                castlingMsg.style.color = '#ff8a65';
+            } else if (status.restore_state && status.restore_state.snapshot_save_failed) {
+                castlingMsg.textContent = 'Varování: uložení hry do NVS selhalo — po výpadku napájení může chybět poslední tah.';
+                castlingMsg.style.display = 'block';
+                castlingMsg.style.background = 'rgba(255,152,0,0.14)';
+                castlingMsg.style.borderColor = 'rgba(255,152,0,0.45)';
+                castlingMsg.style.color = '#ffb74d';
+            } else if (status.castling_in_progress && status.castling_from && status.castling_to) {
+                castlingMsg.textContent = 'Dokončete rošádu: přesuňte věž z ' + status.castling_from + ' na ' + status.castling_to + '.';
+                castlingMsg.style.display = 'block';
+                castlingMsg.style.background = 'rgba(255,193,7,0.12)';
+                castlingMsg.style.borderColor = 'rgba(255,193,7,0.4)';
+                castlingMsg.style.color = '#ffc107';
+            } else {
+                if (status.game_end && status.game_end.ended) castlingMsg.style.display = 'none';
+                else if (status.game_state !== 'active' && status.game_state !== 'playing') castlingMsg.style.display = 'none';
+                else {
+                    var keepMsg = castlingMsg.textContent.indexOf('Losování:') === 0 || castlingMsg.textContent.indexOf('nápověda') !== -1;
+                    if (!keepMsg) castlingMsg.style.display = 'none';
+                }
             }
         }
     }
-    matrixGuardSetForceClearButton(!!status.matrix_guard_active);
 
     // Panel „Bot“ – zobrazit jen v režimu proti botovi; při zvednuté figurce navádění
     updateBotStatusPanel(undefined, status);

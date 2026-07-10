@@ -494,7 +494,7 @@
   "gameClockResumedSnackbar": "Hodiny pokračují",
   "gameHintLedsClearedSnackbar": "Nápovědní LED zrušeny",
   "gameMatrixGuardTitle": "Nutné srovnat desku",
-  "gameMatrixGuardPaused": "Hra je pozastavena: srovnejte figurky na zvýrazněných polích ({squares}). Po srovnání hra automaticky pokračuje.",
+  "gameMatrixGuardPaused": "Srovnejte figurky podle LED na desce{squares}. Hra pokračuje po srovnání.",
   "@gameMatrixGuardPaused": {
     "placeholders": {
       "squares": {
@@ -502,7 +502,7 @@
       }
     }
   },
-  "gameMatrixGuardResync": "Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky na: {squares}.",
+  "gameMatrixGuardResync": "Po startu nesedí deska s uloženou hrou{squares}. Srovnejte podle LED.",
   "@gameMatrixGuardResync": {
     "placeholders": {
       "squares": {
@@ -510,8 +510,9 @@
       }
     }
   },
-  "gameMatrixGuardForceClear": "Vynutit zrušení",
-  "gameMatrixGuardForceClearSnack": "Matrix guard zrušen — zkontrolujte, že deska sedí s hrou",
+  "gameMatrixGuardForceClear": "Obnovit hru",
+  "gameMatrixGuardForceClearHint": "Jen když jsou figurky už srovnané",
+  "gameMatrixGuardForceClearSnack": "Hra obnovena — zkontrolujte, že deska sedí",
   "gameNoSnapshotBody": "Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.",
   "gameBackToPanelTooltip": "Zpět na rozvržení s panelem",
   "gameAiCoachTitle": "AI trenér",

@@ -494,7 +494,7 @@
   "gameClockResumedSnackbar": "Clock resumed",
   "gameHintLedsClearedSnackbar": "Hint LEDs cleared",
   "gameMatrixGuardTitle": "Board alignment required",
-  "gameMatrixGuardPaused": "Game paused: align pieces on the highlighted squares ({squares}). Play resumes automatically when the board matches.",
+  "gameMatrixGuardPaused": "Align pieces using board LEDs{squares}. Play resumes when matched.",
   "@gameMatrixGuardPaused": {
     "placeholders": {
       "squares": {
@@ -502,7 +502,7 @@
       }
     }
   },
-  "gameMatrixGuardResync": "After startup the physical board does not match the saved game. Align pieces on: {squares}.",
+  "gameMatrixGuardResync": "Board mismatch after startup{squares}. Align pieces using LEDs.",
   "@gameMatrixGuardResync": {
     "placeholders": {
       "squares": {
@@ -510,8 +510,9 @@
       }
     }
   },
-  "gameMatrixGuardForceClear": "Force clear",
-  "gameMatrixGuardForceClearSnack": "Matrix guard cleared — verify the board matches the game",
+  "gameMatrixGuardForceClear": "Resume play",
+  "gameMatrixGuardForceClearHint": "Only if pieces are already aligned",
+  "gameMatrixGuardForceClearSnack": "Play resumed — verify the board matches the game",
   "gameNoSnapshotBody": "Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.",
   "gameBackToPanelTooltip": "Back to layout with panel",
   "gameAiCoachTitle": "AI coach",

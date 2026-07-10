@@ -937,20 +937,23 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String gameMatrixGuardPaused(String squares) {
-    return 'Hra je pozastavena: srovnejte figurky na zvýrazněných polích ($squares). Po srovnání hra automaticky pokračuje.';
+    return 'Srovnejte figurky podle LED na desce$squares. Hra pokračuje po srovnání.';
   }
 
   @override
   String gameMatrixGuardResync(String squares) {
-    return 'Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky na: $squares.';
+    return 'Po startu nesedí deska s uloženou hrou$squares. Srovnejte podle LED.';
   }
 
   @override
-  String get gameMatrixGuardForceClear => 'Vynutit zrušení';
+  String get gameMatrixGuardForceClear => 'Obnovit hru';
+
+  @override
+  String get gameMatrixGuardForceClearHint => 'Jen když jsou figurky už srovnané';
 
   @override
   String get gameMatrixGuardForceClearSnack =>
-      'Matrix guard zrušen — zkontrolujte, že deska sedí s hrou';
+      'Hra obnovena — zkontrolujte, že deska sedí';
 
   @override
   String get gameNoSnapshotBody =>
