@@ -1,6 +1,7 @@
 var dir_7acbcb872a2ebcf5753943ec89f39513 =
 [
     [ "include", "dir_33cc7e91f7e0627bade559bf776868f5.html", "dir_33cc7e91f7e0627bade559bf776868f5" ],
+    [ "chess_gameplay_policy.c", "chess__gameplay__policy_8c.html", "chess__gameplay__policy_8c" ],
     [ "demo_mode_helpers.c", "demo__mode__helpers_8c.html", "demo__mode__helpers_8c" ],
     [ "game_board_core.c", "game__board__core_8c.html", "game__board__core_8c" ],
     [ "game_castling.c", "game__castling_8c.html", "game__castling_8c" ],

@@ -1,0 +1,765 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru chess_gameplay_policy.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('chess__gameplay__policy_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru chess_gameplay_policy.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Kconfig-driven gameplay policy helpers.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="chess__gameplay__policy_8h_source.html">chess_gameplay_policy.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;sdkconfig.h&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro chess_gameplay_policy.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="chess__gameplay__policy_8c__incl.png" border="0" usemap="#achess__gameplay__policy_8c" alt=""/></div>
+<map name="achess__gameplay__policy_8c" id="achess__gameplay__policy_8c">
+<area shape="rect" title="Kconfig&#45;driven gameplay policy helpers." alt="" coords="745,5,932,31"/>
+<area shape="rect" href="chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="305,152,492,177"/>
+<area shape="poly" title=" " alt="" coords="805,33,447,150,446,145,803,28"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="757,79,920,104"/>
+<area shape="poly" title=" " alt="" coords="841,31,841,65,836,65,836,31"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="633,152,740,177"/>
+<area shape="poly" title=" " alt="" coords="817,33,782,53,747,81,721,111,701,142,697,139,717,108,743,77,779,49,814,28"/>
+<area shape="rect" title=" " alt="" coords="945,79,1029,104"/>
+<area shape="poly" title=" " alt="" coords="864,28,951,70,949,75,861,33"/>
+<area shape="rect" title=" " alt="" coords="1053,79,1149,104"/>
+<area shape="poly" title=" " alt="" coords="881,28,1046,72,1045,78,880,33"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="388,233,503,258"/>
+<area shape="poly" title=" " alt="" coords="408,176,434,219,429,222,403,179"/>
+<area shape="rect" title=" " alt="" coords="404,313,487,339"/>
+<area shape="poly" title=" " alt="" coords="394,179,377,218,374,242,378,264,394,286,414,304,411,308,390,290,373,266,368,242,372,217,389,176"/>
+<area shape="rect" title=" " alt="" coords="11,313,82,339"/>
+<area shape="poly" title=" " alt="" coords="305,170,226,175,143,185,73,202,47,214,30,227,22,244,22,262,35,300,30,302,17,263,17,242,26,224,44,209,71,197,142,180,225,170,305,165"/>
+<area shape="rect" title=" " alt="" coords="259,313,341,339"/>
+<area shape="poly" title=" " alt="" coords="425,261,335,309,332,304,423,256"/>
+<area shape="rect" title=" " alt="" coords="599,313,750,339"/>
+<area shape="poly" title=" " alt="" coords="479,255,629,306,627,311,478,261"/>
+<area shape="rect" title=" " alt="" coords="774,313,903,339"/>
+<area shape="poly" title=" " alt="" coords="486,255,515,263,645,289,761,310,760,315,644,294,514,268,485,261"/>
+<area shape="poly" title=" " alt="" coords="448,258,448,299,443,299,443,258"/>
+<area shape="poly" title=" " alt="" coords="388,261,96,318,95,312,387,255"/>
+<area shape="poly" title=" " alt="" coords="785,107,707,126,622,154,543,191,477,228,474,223,540,187,620,150,706,121,784,101"/>
+<area shape="poly" title=" " alt="" coords="917,101,1076,127,1140,140,1171,150,1190,180,1197,209,1190,238,1171,267,1141,288,1097,302,1045,310,986,313,865,314,764,316,764,311,865,309,986,308,1044,304,1096,297,1138,283,1167,263,1185,236,1191,209,1185,182,1168,154,1139,145,1075,132,916,107"/>
+<area shape="poly" title=" " alt="" coords="920,100,1108,126,1185,139,1222,150,1241,179,1247,209,1241,238,1222,267,1201,283,1171,295,1092,313,1001,323,917,327,917,321,1001,317,1091,308,1170,290,1199,278,1218,264,1236,236,1242,209,1236,181,1218,154,1184,144,1107,131,920,105"/>
+<area shape="poly" title=" " alt="" coords="897,101,988,125,1036,141,1080,160,1115,182,1138,207,1144,221,1144,236,1139,251,1127,268,501,323,500,317,1124,263,1134,249,1139,235,1139,222,1134,210,1112,186,1077,165,1034,146,986,130,896,107"/>
+<area shape="poly" title=" " alt="" coords="757,95,573,100,462,107,348,118,238,135,141,158,100,172,64,189,36,207,15,227,9,244,11,264,19,283,30,301,26,304,14,286,6,265,3,244,11,224,33,203,62,184,98,168,140,153,237,130,347,113,461,102,573,95,757,90"/>
+<area shape="rect" title=" " alt="" coords="821,233,958,258"/>
+<area shape="poly" title=" " alt="" coords="845,103,884,219,879,220,840,105"/>
+<area shape="rect" title=" " alt="" coords="983,233,1113,258"/>
+<area shape="poly" title=" " alt="" coords="856,102,1022,222,1019,226,853,106"/>
+<area shape="poly" title=" " alt="" coords="815,106,725,149,723,144,813,102"/>
+<area shape="poly" title=" " alt="" coords="652,180,494,231,493,226,651,175"/>
+<area shape="poly" title=" " alt="" coords="633,168,577,171,510,180,441,198,408,211,377,228,357,244,339,263,314,303,309,300,335,260,353,240,374,223,406,206,440,193,509,174,576,165,633,162"/>
+<area shape="poly" title=" " alt="" coords="693,177,703,216,705,241,703,266,690,302,685,300,697,265,699,241,697,217,688,178"/>
+<area shape="poly" title=" " alt="" coords="699,176,820,301,816,305,696,179"/>
+<area shape="poly" title=" " alt="" coords="689,178,683,221,673,246,658,267,622,293,581,311,539,321,500,326,500,321,538,316,579,305,619,289,654,263,669,243,677,220,684,177"/>
+<area shape="poly" title=" " alt="" coords="633,172,306,197,148,213,97,221,73,228,61,243,53,262,48,300,43,300,48,260,57,240,70,223,96,216,148,208,306,192,633,167"/>
+<area shape="poly" title=" " alt="" coords="717,175,848,225,846,230,715,180"/>
+<area shape="poly" title=" " alt="" coords="741,174,970,223,988,227,987,232,969,228,740,179"/>
+<area shape="rect" title=" " alt="" coords="527,233,644,258"/>
+<area shape="poly" title=" " alt="" coords="673,180,613,226,610,222,670,175"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="84,225,263,265"/>
+<area shape="poly" title=" " alt="" coords="633,176,282,228,277,229,276,224,281,223,632,171"/>
+<area shape="poly" title=" " alt="" coords="205,263,271,304,268,308,203,268"/>
+<area shape="poly" title=" " alt="" coords="239,263,393,307,392,312,238,268"/>
+<area shape="poly" title=" " alt="" coords="144,268,78,308,75,304,141,263"/>
+</map>
+</div>
+</div>
+<p><a href="chess__gameplay__policy_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a6cd64ad0f866352bedbda9b0cfc824cd" id="r_a6cd64ad0f866352bedbda9b0cfc824cd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a6cd64ad0f866352bedbda9b0cfc824cd">chess_policy_matrix_guard_enabled</a> (void)</td></tr>
+<tr class="separator:a6cd64ad0f866352bedbda9b0cfc824cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6266eff259ab49dc889745aeb4ad6830" id="r_a6266eff259ab49dc889745aeb4ad6830"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a6266eff259ab49dc889745aeb4ad6830">chess_policy_matrix_guard_should_freeze</a> (void)</td></tr>
+<tr class="separator:a6266eff259ab49dc889745aeb4ad6830"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a230b88dbe7c6d012607452a335982b64" id="r_a230b88dbe7c6d012607452a335982b64"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a230b88dbe7c6d012607452a335982b64">chess_policy_matrix_guard_auto_clear_enabled</a> (void)</td></tr>
+<tr class="separator:a230b88dbe7c6d012607452a335982b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a771af82814a078562121168f39600541" id="r_a771af82814a078562121168f39600541"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a771af82814a078562121168f39600541">chess_policy_matrix_guard_nvs_resync_enabled</a> (void)</td></tr>
+<tr class="separator:a771af82814a078562121168f39600541"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a8ceacf330bbc99e35327e5700f13bb" id="r_a6a8ceacf330bbc99e35327e5700f13bb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a6a8ceacf330bbc99e35327e5700f13bb">chess_policy_matrix_guard_led_enabled</a> (void)</td></tr>
+<tr class="separator:a6a8ceacf330bbc99e35327e5700f13bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcecd6e0a131260613df1854848f31e2" id="r_adcecd6e0a131260613df1854848f31e2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#adcecd6e0a131260613df1854848f31e2">chess_policy_mg_led_white_yellow</a> (void)</td></tr>
+<tr class="separator:adcecd6e0a131260613df1854848f31e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abdf3660742f5ed3c3c30963af335102c" id="r_abdf3660742f5ed3c3c30963af335102c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#abdf3660742f5ed3c3c30963af335102c">chess_policy_mg_led_black_blue</a> (void)</td></tr>
+<tr class="separator:abdf3660742f5ed3c3c30963af335102c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abea6013b7ca3e5b1313f121f74a71c9e" id="r_abea6013b7ca3e5b1313f121f74a71c9e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#abea6013b7ca3e5b1313f121f74a71c9e">chess_policy_mg_led_ghost_orange</a> (void)</td></tr>
+<tr class="separator:abea6013b7ca3e5b1313f121f74a71c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a550237eba8cff051cc0b7a9476eb8fa1" id="r_a550237eba8cff051cc0b7a9476eb8fa1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a550237eba8cff051cc0b7a9476eb8fa1">chess_policy_mg_led_missing_white</a> (void)</td></tr>
+<tr class="separator:a550237eba8cff051cc0b7a9476eb8fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a258b405a7ce3212eee0419cd528447cf" id="r_a258b405a7ce3212eee0419cd528447cf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a258b405a7ce3212eee0419cd528447cf">chess_policy_error_recovery_enabled</a> (void)</td></tr>
+<tr class="separator:a258b405a7ce3212eee0419cd528447cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50fe842232e31bc541c94b2c5532aedd" id="r_a50fe842232e31bc541c94b2c5532aedd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a50fe842232e31bc541c94b2c5532aedd">chess_policy_error_recovery_should_lock</a> (void)</td></tr>
+<tr class="separator:a50fe842232e31bc541c94b2c5532aedd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0527b506b599223edc33cf59998e85cb" id="r_a0527b506b599223edc33cf59998e85cb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a0527b506b599223edc33cf59998e85cb">chess_policy_error_recovery_should_mutate_board</a> (void)</td></tr>
+<tr class="separator:a0527b506b599223edc33cf59998e85cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4671b10d73f5dc49d756d5960450af62" id="r_a4671b10d73f5dc49d756d5960450af62"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a4671b10d73f5dc49d756d5960450af62">chess_policy_error_recovery_led_red_persist</a> (void)</td></tr>
+<tr class="separator:a4671b10d73f5dc49d756d5960450af62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28edae7449338789baed64d8584bc8b6" id="r_a28edae7449338789baed64d8584bc8b6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a28edae7449338789baed64d8584bc8b6">chess_policy_error_recovery_led_red_blink</a> (void)</td></tr>
+<tr class="separator:a28edae7449338789baed64d8584bc8b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a409efbd642f99fffefa5bab42069714c" id="r_a409efbd642f99fffefa5bab42069714c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a409efbd642f99fffefa5bab42069714c">chess_policy_error_recovery_led_valid_blue</a> (void)</td></tr>
+<tr class="separator:a409efbd642f99fffefa5bab42069714c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa80300cf6f9137b8979bb09682c85216" id="r_aa80300cf6f9137b8979bb09682c85216"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aa80300cf6f9137b8979bb09682c85216">chess_policy_error_recovery_enter_lock</a> (void)</td></tr>
+<tr class="separator:aa80300cf6f9137b8979bb09682c85216"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8beac5760ae080c8af58b6aa6518fdc" id="r_aa8beac5760ae080c8af58b6aa6518fdc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aa8beac5760ae080c8af58b6aa6518fdc">chess_policy_move_hints_enabled</a> (void)</td></tr>
+<tr class="separator:aa8beac5760ae080c8af58b6aa6518fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeca3ab9f9ed1083891d0413ebad50799" id="r_aeca3ab9f9ed1083891d0413ebad50799"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aeca3ab9f9ed1083891d0413ebad50799">chess_policy_move_hints_legal_blue</a> (void)</td></tr>
+<tr class="separator:aeca3ab9f9ed1083891d0413ebad50799"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1227e3ab91efa84f6d01d6a4d9801363" id="r_a1227e3ab91efa84f6d01d6a4d9801363"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a1227e3ab91efa84f6d01d6a4d9801363">chess_policy_move_hints_castling_blue</a> (void)</td></tr>
+<tr class="separator:a1227e3ab91efa84f6d01d6a4d9801363"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f426a59a16c6a51607172c2a96abc4a" id="r_a2f426a59a16c6a51607172c2a96abc4a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a2f426a59a16c6a51607172c2a96abc4a">chess_policy_move_hints_promotion_blue</a> (void)</td></tr>
+<tr class="separator:a2f426a59a16c6a51607172c2a96abc4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa01b73e8e0a672bfd25a47b981e41d26" id="r_aa01b73e8e0a672bfd25a47b981e41d26"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aa01b73e8e0a672bfd25a47b981e41d26">chess_policy_move_hints_movable_yellow</a> (void)</td></tr>
+<tr class="separator:aa01b73e8e0a672bfd25a47b981e41d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8856cbb21a324430e7a69c3e8fedaa24" id="r_a8856cbb21a324430e7a69c3e8fedaa24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a8856cbb21a324430e7a69c3e8fedaa24">chess_policy_highlight_movable_if_enabled</a> (void)</td></tr>
+<tr class="separator:a8856cbb21a324430e7a69c3e8fedaa24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fcfa235f82285a98f8c27cc106838ab" id="r_a7fcfa235f82285a98f8c27cc106838ab"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a7fcfa235f82285a98f8c27cc106838ab">chess_policy_uart_error_detail_enabled</a> (void)</td></tr>
+<tr class="separator:a7fcfa235f82285a98f8c27cc106838ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a007d451e76ca310e848cd5e710854354" id="r_a007d451e76ca310e848cd5e710854354"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a007d451e76ca310e848cd5e710854354">chess_policy_profile_name</a> (void)</td></tr>
+<tr class="separator:a007d451e76ca310e848cd5e710854354"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae43e54788b0e531e1feb4fdf0922824" id="r_aae43e54788b0e531e1feb4fdf0922824"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aae43e54788b0e531e1feb4fdf0922824">chess_policy_log_boot</a> (void)</td></tr>
+<tr class="separator:aae43e54788b0e531e1feb4fdf0922824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAMEPLAY_POLICY&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Kconfig-driven gameplay policy helpers. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a258b405a7ce3212eee0419cd528447cf" name="a258b405a7ce3212eee0419cd528447cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a258b405a7ce3212eee0419cd528447cf">&#9670;&#160;</a></span>chess_policy_error_recovery_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_error_recovery_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00091">91</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="aa80300cf6f9137b8979bb09682c85216" name="aa80300cf6f9137b8979bb09682c85216"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa80300cf6f9137b8979bb09682c85216">&#9670;&#160;</a></span>chess_policy_error_recovery_enter_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void chess_policy_error_recovery_enter_lock </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00139">139</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a28edae7449338789baed64d8584bc8b6" name="a28edae7449338789baed64d8584bc8b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28edae7449338789baed64d8584bc8b6">&#9670;&#160;</a></span>chess_policy_error_recovery_led_red_blink()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_error_recovery_led_red_blink </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00123">123</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a4671b10d73f5dc49d756d5960450af62" name="a4671b10d73f5dc49d756d5960450af62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4671b10d73f5dc49d756d5960450af62">&#9670;&#160;</a></span>chess_policy_error_recovery_led_red_persist()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_error_recovery_led_red_persist </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00115">115</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a409efbd642f99fffefa5bab42069714c" name="a409efbd642f99fffefa5bab42069714c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a409efbd642f99fffefa5bab42069714c">&#9670;&#160;</a></span>chess_policy_error_recovery_led_valid_blue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_error_recovery_led_valid_blue </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00131">131</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a50fe842232e31bc541c94b2c5532aedd" name="a50fe842232e31bc541c94b2c5532aedd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50fe842232e31bc541c94b2c5532aedd">&#9670;&#160;</a></span>chess_policy_error_recovery_should_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_error_recovery_should_lock </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00099">99</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a0527b506b599223edc33cf59998e85cb" name="a0527b506b599223edc33cf59998e85cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0527b506b599223edc33cf59998e85cb">&#9670;&#160;</a></span>chess_policy_error_recovery_should_mutate_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_error_recovery_should_mutate_board </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00107">107</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a8856cbb21a324430e7a69c3e8fedaa24" name="a8856cbb21a324430e7a69c3e8fedaa24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8856cbb21a324430e7a69c3e8fedaa24">&#9670;&#160;</a></span>chess_policy_highlight_movable_if_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void chess_policy_highlight_movable_if_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00185">185</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="aae43e54788b0e531e1feb4fdf0922824" name="aae43e54788b0e531e1feb4fdf0922824"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae43e54788b0e531e1feb4fdf0922824">&#9670;&#160;</a></span>chess_policy_log_boot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void chess_policy_log_boot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00213">213</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a230b88dbe7c6d012607452a335982b64" name="a230b88dbe7c6d012607452a335982b64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a230b88dbe7c6d012607452a335982b64">&#9670;&#160;</a></span>chess_policy_matrix_guard_auto_clear_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_matrix_guard_auto_clear_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00031">31</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a6cd64ad0f866352bedbda9b0cfc824cd" name="a6cd64ad0f866352bedbda9b0cfc824cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cd64ad0f866352bedbda9b0cfc824cd">&#9670;&#160;</a></span>chess_policy_matrix_guard_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_matrix_guard_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00015">15</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a6a8ceacf330bbc99e35327e5700f13bb" name="a6a8ceacf330bbc99e35327e5700f13bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a8ceacf330bbc99e35327e5700f13bb">&#9670;&#160;</a></span>chess_policy_matrix_guard_led_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_matrix_guard_led_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00047">47</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a771af82814a078562121168f39600541" name="a771af82814a078562121168f39600541"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a771af82814a078562121168f39600541">&#9670;&#160;</a></span>chess_policy_matrix_guard_nvs_resync_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_matrix_guard_nvs_resync_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00039">39</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a6266eff259ab49dc889745aeb4ad6830" name="a6266eff259ab49dc889745aeb4ad6830"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6266eff259ab49dc889745aeb4ad6830">&#9670;&#160;</a></span>chess_policy_matrix_guard_should_freeze()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_matrix_guard_should_freeze </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00023">23</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="abdf3660742f5ed3c3c30963af335102c" name="abdf3660742f5ed3c3c30963af335102c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abdf3660742f5ed3c3c30963af335102c">&#9670;&#160;</a></span>chess_policy_mg_led_black_blue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_mg_led_black_blue </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00064">64</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="abea6013b7ca3e5b1313f121f74a71c9e" name="abea6013b7ca3e5b1313f121f74a71c9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abea6013b7ca3e5b1313f121f74a71c9e">&#9670;&#160;</a></span>chess_policy_mg_led_ghost_orange()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_mg_led_ghost_orange </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00073">73</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a550237eba8cff051cc0b7a9476eb8fa1" name="a550237eba8cff051cc0b7a9476eb8fa1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a550237eba8cff051cc0b7a9476eb8fa1">&#9670;&#160;</a></span>chess_policy_mg_led_missing_white()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_mg_led_missing_white </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00082">82</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="adcecd6e0a131260613df1854848f31e2" name="adcecd6e0a131260613df1854848f31e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcecd6e0a131260613df1854848f31e2">&#9670;&#160;</a></span>chess_policy_mg_led_white_yellow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_mg_led_white_yellow </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00055">55</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a1227e3ab91efa84f6d01d6a4d9801363" name="a1227e3ab91efa84f6d01d6a4d9801363"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1227e3ab91efa84f6d01d6a4d9801363">&#9670;&#160;</a></span>chess_policy_move_hints_castling_blue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_move_hints_castling_blue </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00161">161</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="aa8beac5760ae080c8af58b6aa6518fdc" name="aa8beac5760ae080c8af58b6aa6518fdc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8beac5760ae080c8af58b6aa6518fdc">&#9670;&#160;</a></span>chess_policy_move_hints_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_move_hints_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00145">145</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="aeca3ab9f9ed1083891d0413ebad50799" name="aeca3ab9f9ed1083891d0413ebad50799"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeca3ab9f9ed1083891d0413ebad50799">&#9670;&#160;</a></span>chess_policy_move_hints_legal_blue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_move_hints_legal_blue </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00153">153</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="aa01b73e8e0a672bfd25a47b981e41d26" name="aa01b73e8e0a672bfd25a47b981e41d26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa01b73e8e0a672bfd25a47b981e41d26">&#9670;&#160;</a></span>chess_policy_move_hints_movable_yellow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_move_hints_movable_yellow </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00177">177</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f426a59a16c6a51607172c2a96abc4a" name="a2f426a59a16c6a51607172c2a96abc4a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f426a59a16c6a51607172c2a96abc4a">&#9670;&#160;</a></span>chess_policy_move_hints_promotion_blue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_move_hints_promotion_blue </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00169">169</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a007d451e76ca310e848cd5e710854354" name="a007d451e76ca310e848cd5e710854354"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a007d451e76ca310e848cd5e710854354">&#9670;&#160;</a></span>chess_policy_profile_name()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * chess_policy_profile_name </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00199">199</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<a id="a7fcfa235f82285a98f8c27cc106838ab" name="a7fcfa235f82285a98f8c27cc106838ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fcfa235f82285a98f8c27cc106838ab">&#9670;&#160;</a></span>chess_policy_uart_error_detail_enabled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool chess_policy_uart_error_detail_enabled </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00191">191</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;GAMEPLAY_POLICY&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__gameplay__policy_8c_source.html#l00013">13</a> v souboru <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="chess__gameplay__policy_8c.html">chess_gameplay_policy.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

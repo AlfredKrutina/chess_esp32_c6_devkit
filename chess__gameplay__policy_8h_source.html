@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor chess_gameplay_policy.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function() { init_codefold(0); });
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('chess__gameplay__policy_8h_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">chess_gameplay_policy.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="chess__gameplay__policy_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#ifndef CHESS_GAMEPLAY_POLICY_H</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#define CHESS_GAMEPLAY_POLICY_H</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="chess__types_8h.html">chess_types.h</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">/* Matrix guard */</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a6cd64ad0f866352bedbda9b0cfc824cd">chess_policy_matrix_guard_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a6266eff259ab49dc889745aeb4ad6830">chess_policy_matrix_guard_should_freeze</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a230b88dbe7c6d012607452a335982b64">chess_policy_matrix_guard_auto_clear_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a771af82814a078562121168f39600541">chess_policy_matrix_guard_nvs_resync_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a6a8ceacf330bbc99e35327e5700f13bb">chess_policy_matrix_guard_led_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#adcecd6e0a131260613df1854848f31e2">chess_policy_mg_led_white_yellow</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#abdf3660742f5ed3c3c30963af335102c">chess_policy_mg_led_black_blue</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#abea6013b7ca3e5b1313f121f74a71c9e">chess_policy_mg_led_ghost_orange</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a550237eba8cff051cc0b7a9476eb8fa1">chess_policy_mg_led_missing_white</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="comment">/* Error recovery */</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a258b405a7ce3212eee0419cd528447cf">chess_policy_error_recovery_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a50fe842232e31bc541c94b2c5532aedd">chess_policy_error_recovery_should_lock</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a0527b506b599223edc33cf59998e85cb">chess_policy_error_recovery_should_mutate_board</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a4671b10d73f5dc49d756d5960450af62">chess_policy_error_recovery_led_red_persist</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a28edae7449338789baed64d8584bc8b6">chess_policy_error_recovery_led_red_blink</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a409efbd642f99fffefa5bab42069714c">chess_policy_error_recovery_led_valid_blue</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keywordtype">void</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#aa80300cf6f9137b8979bb09682c85216">chess_policy_error_recovery_enter_lock</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="comment">/* Move hints */</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#aa8beac5760ae080c8af58b6aa6518fdc">chess_policy_move_hints_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#aeca3ab9f9ed1083891d0413ebad50799">chess_policy_move_hints_legal_blue</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a1227e3ab91efa84f6d01d6a4d9801363">chess_policy_move_hints_castling_blue</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a2f426a59a16c6a51607172c2a96abc4a">chess_policy_move_hints_promotion_blue</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#aa01b73e8e0a672bfd25a47b981e41d26">chess_policy_move_hints_movable_yellow</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keywordtype">void</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a8856cbb21a324430e7a69c3e8fedaa24">chess_policy_highlight_movable_if_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">/* Diagnostics */</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keywordtype">bool</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#a7fcfa235f82285a98f8c27cc106838ab">chess_policy_uart_error_detail_enabled</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="chess__gameplay__policy_8h.html#a007d451e76ca310e848cd5e710854354">chess_policy_profile_name</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keywordtype">void</span> <a class="code hl_function" href="chess__gameplay__policy_8h.html#aae43e54788b0e531e1feb4fdf0922824">chess_policy_log_boot</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>}</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="preprocessor">#endif </span><span class="comment">/* CHESS_GAMEPLAY_POLICY_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a007d451e76ca310e848cd5e710854354"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a007d451e76ca310e848cd5e710854354">chess_policy_profile_name</a></div><div class="ttdeci">const char * chess_policy_profile_name(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00199">chess_gameplay_policy.c:199</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a0527b506b599223edc33cf59998e85cb"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a0527b506b599223edc33cf59998e85cb">chess_policy_error_recovery_should_mutate_board</a></div><div class="ttdeci">bool chess_policy_error_recovery_should_mutate_board(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00107">chess_gameplay_policy.c:107</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a1227e3ab91efa84f6d01d6a4d9801363"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a1227e3ab91efa84f6d01d6a4d9801363">chess_policy_move_hints_castling_blue</a></div><div class="ttdeci">bool chess_policy_move_hints_castling_blue(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00161">chess_gameplay_policy.c:161</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a230b88dbe7c6d012607452a335982b64"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a230b88dbe7c6d012607452a335982b64">chess_policy_matrix_guard_auto_clear_enabled</a></div><div class="ttdeci">bool chess_policy_matrix_guard_auto_clear_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00031">chess_gameplay_policy.c:31</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a258b405a7ce3212eee0419cd528447cf"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a258b405a7ce3212eee0419cd528447cf">chess_policy_error_recovery_enabled</a></div><div class="ttdeci">bool chess_policy_error_recovery_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00091">chess_gameplay_policy.c:91</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a28edae7449338789baed64d8584bc8b6"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a28edae7449338789baed64d8584bc8b6">chess_policy_error_recovery_led_red_blink</a></div><div class="ttdeci">bool chess_policy_error_recovery_led_red_blink(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00123">chess_gameplay_policy.c:123</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a2f426a59a16c6a51607172c2a96abc4a"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a2f426a59a16c6a51607172c2a96abc4a">chess_policy_move_hints_promotion_blue</a></div><div class="ttdeci">bool chess_policy_move_hints_promotion_blue(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00169">chess_gameplay_policy.c:169</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a409efbd642f99fffefa5bab42069714c"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a409efbd642f99fffefa5bab42069714c">chess_policy_error_recovery_led_valid_blue</a></div><div class="ttdeci">bool chess_policy_error_recovery_led_valid_blue(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00131">chess_gameplay_policy.c:131</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a4671b10d73f5dc49d756d5960450af62"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a4671b10d73f5dc49d756d5960450af62">chess_policy_error_recovery_led_red_persist</a></div><div class="ttdeci">bool chess_policy_error_recovery_led_red_persist(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00115">chess_gameplay_policy.c:115</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a50fe842232e31bc541c94b2c5532aedd"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a50fe842232e31bc541c94b2c5532aedd">chess_policy_error_recovery_should_lock</a></div><div class="ttdeci">bool chess_policy_error_recovery_should_lock(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00099">chess_gameplay_policy.c:99</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a550237eba8cff051cc0b7a9476eb8fa1"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a550237eba8cff051cc0b7a9476eb8fa1">chess_policy_mg_led_missing_white</a></div><div class="ttdeci">bool chess_policy_mg_led_missing_white(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00082">chess_gameplay_policy.c:82</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a6266eff259ab49dc889745aeb4ad6830"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a6266eff259ab49dc889745aeb4ad6830">chess_policy_matrix_guard_should_freeze</a></div><div class="ttdeci">bool chess_policy_matrix_guard_should_freeze(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00023">chess_gameplay_policy.c:23</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a6a8ceacf330bbc99e35327e5700f13bb"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a6a8ceacf330bbc99e35327e5700f13bb">chess_policy_matrix_guard_led_enabled</a></div><div class="ttdeci">bool chess_policy_matrix_guard_led_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00047">chess_gameplay_policy.c:47</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a6cd64ad0f866352bedbda9b0cfc824cd"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a6cd64ad0f866352bedbda9b0cfc824cd">chess_policy_matrix_guard_enabled</a></div><div class="ttdeci">bool chess_policy_matrix_guard_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00015">chess_gameplay_policy.c:15</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a771af82814a078562121168f39600541"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a771af82814a078562121168f39600541">chess_policy_matrix_guard_nvs_resync_enabled</a></div><div class="ttdeci">bool chess_policy_matrix_guard_nvs_resync_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00039">chess_gameplay_policy.c:39</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a7fcfa235f82285a98f8c27cc106838ab"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a7fcfa235f82285a98f8c27cc106838ab">chess_policy_uart_error_detail_enabled</a></div><div class="ttdeci">bool chess_policy_uart_error_detail_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00191">chess_gameplay_policy.c:191</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_a8856cbb21a324430e7a69c3e8fedaa24"><div class="ttname"><a href="chess__gameplay__policy_8h.html#a8856cbb21a324430e7a69c3e8fedaa24">chess_policy_highlight_movable_if_enabled</a></div><div class="ttdeci">void chess_policy_highlight_movable_if_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00185">chess_gameplay_policy.c:185</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_aa01b73e8e0a672bfd25a47b981e41d26"><div class="ttname"><a href="chess__gameplay__policy_8h.html#aa01b73e8e0a672bfd25a47b981e41d26">chess_policy_move_hints_movable_yellow</a></div><div class="ttdeci">bool chess_policy_move_hints_movable_yellow(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00177">chess_gameplay_policy.c:177</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_aa80300cf6f9137b8979bb09682c85216"><div class="ttname"><a href="chess__gameplay__policy_8h.html#aa80300cf6f9137b8979bb09682c85216">chess_policy_error_recovery_enter_lock</a></div><div class="ttdeci">void chess_policy_error_recovery_enter_lock(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00139">chess_gameplay_policy.c:139</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_aa8beac5760ae080c8af58b6aa6518fdc"><div class="ttname"><a href="chess__gameplay__policy_8h.html#aa8beac5760ae080c8af58b6aa6518fdc">chess_policy_move_hints_enabled</a></div><div class="ttdeci">bool chess_policy_move_hints_enabled(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00145">chess_gameplay_policy.c:145</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_aae43e54788b0e531e1feb4fdf0922824"><div class="ttname"><a href="chess__gameplay__policy_8h.html#aae43e54788b0e531e1feb4fdf0922824">chess_policy_log_boot</a></div><div class="ttdeci">void chess_policy_log_boot(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00213">chess_gameplay_policy.c:213</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_abdf3660742f5ed3c3c30963af335102c"><div class="ttname"><a href="chess__gameplay__policy_8h.html#abdf3660742f5ed3c3c30963af335102c">chess_policy_mg_led_black_blue</a></div><div class="ttdeci">bool chess_policy_mg_led_black_blue(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00064">chess_gameplay_policy.c:64</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_abea6013b7ca3e5b1313f121f74a71c9e"><div class="ttname"><a href="chess__gameplay__policy_8h.html#abea6013b7ca3e5b1313f121f74a71c9e">chess_policy_mg_led_ghost_orange</a></div><div class="ttdeci">bool chess_policy_mg_led_ghost_orange(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00073">chess_gameplay_policy.c:73</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_adcecd6e0a131260613df1854848f31e2"><div class="ttname"><a href="chess__gameplay__policy_8h.html#adcecd6e0a131260613df1854848f31e2">chess_policy_mg_led_white_yellow</a></div><div class="ttdeci">bool chess_policy_mg_led_white_yellow(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00055">chess_gameplay_policy.c:55</a></div></div>
+<div class="ttc" id="achess__gameplay__policy_8h_html_aeca3ab9f9ed1083891d0413ebad50799"><div class="ttname"><a href="chess__gameplay__policy_8h.html#aeca3ab9f9ed1083891d0413ebad50799">chess_policy_move_hints_legal_blue</a></div><div class="ttdeci">bool chess_policy_move_hints_legal_blue(void)</div><div class="ttdef"><b>Definition</b> <a href="chess__gameplay__policy_8c_source.html#l00153">chess_gameplay_policy.c:153</a></div></div>
+<div class="ttc" id="achess__types_8h_html"><div class="ttname"><a href="chess__types_8h.html">chess_types.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Spolecne definice typu.</div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="dir_33cc7e91f7e0627bade559bf776868f5.html">include</a></li><li class="navelem"><a class="el" href="chess__gameplay__policy_8h.html">chess_gameplay_policy.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

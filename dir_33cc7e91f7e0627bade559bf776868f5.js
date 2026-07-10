@@ -1,5 +1,6 @@
 var dir_33cc7e91f7e0627bade559bf776868f5 =
 [
+    [ "chess_gameplay_policy.h", "chess__gameplay__policy_8h.html", "chess__gameplay__policy_8h" ],
     [ "game_board_core.h", "game__board__core_8h.html", "game__board__core_8h" ],
     [ "game_colors.h", "game__colors_8h.html", "game__colors_8h" ],
     [ "game_led_direct.h", "game__led__direct_8h.html", "game__led__direct_8h" ],

@@ -102,6 +102,7 @@ $(document).ready(function(){initNavTree('game__castling_8c.html',''); initResiz
 <div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__matrix__guard_8h_source.html">game_matrix_guard.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__gameplay__policy_8h_source.html">chess_gameplay_policy.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
@@ -115,90 +116,95 @@ Graf závislostí na vkládaných souborech pro game_castling.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__castling_8c__incl.png" border="0" usemap="#agame__castling_8c" alt=""/></div>
 <map name="agame__castling_8c" id="agame__castling_8c">
-<area shape="rect" title="Castling detection, rook guidance, legacy animation, LED refresh." alt="" coords="910,5,1038,31"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="591,86,754,111"/>
-<area shape="poly" title=" " alt="" coords="931,33,730,85,729,80,929,28"/>
-<area shape="rect" title=" " alt="" coords="208,328,358,353"/>
-<area shape="poly" title=" " alt="" coords="909,24,717,30,472,41,248,58,168,69,123,81,91,99,63,120,40,143,22,168,11,195,9,222,15,250,32,278,56,295,96,309,194,328,193,333,95,314,54,300,28,282,10,252,3,222,6,193,17,166,36,140,60,116,88,95,121,76,167,64,248,53,471,36,717,25,909,18"/>
-<area shape="rect" title=" " alt="" coords="170,247,300,273"/>
-<area shape="poly" title=" " alt="" coords="910,22,711,26,584,33,452,45,324,64,210,90,161,106,119,124,85,145,61,168,54,182,55,194,62,205,74,215,112,231,157,243,155,249,110,236,71,219,58,208,49,196,49,181,57,165,82,141,116,119,159,101,208,84,323,58,452,40,584,28,711,21,909,16"/>
-<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="710,167,816,192"/>
-<area shape="poly" title=" " alt="" coords="960,33,791,160,788,156,957,29"/>
-<area shape="rect" href="game__matrix__guard_8h.html" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="891,167,1056,192"/>
-<area shape="poly" title=" " alt="" coords="976,31,976,153,971,153,971,31"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="1044,79,1184,119"/>
-<area shape="poly" title=" " alt="" coords="996,29,1069,70,1067,74,993,33"/>
-<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="2181,167,2300,192"/>
-<area shape="poly" title=" " alt="" coords="1039,27,1116,46,1158,59,1198,76,1213,87,1224,98,1234,108,1249,116,1288,128,1334,138,1443,150,1568,157,1701,159,1960,158,2072,159,2162,164,2167,165,2167,170,2161,169,2072,164,1960,163,1701,164,1568,162,1443,156,1334,143,1287,133,1247,121,1231,112,1220,102,1210,91,1195,81,1156,64,1115,51,1037,32"/>
-<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="71,167,250,192"/>
-<area shape="poly" title=" " alt="" coords="910,30,759,51,580,81,379,125,217,166,215,161,378,120,578,76,758,46,909,25"/>
-<area shape="rect" title=" " alt="" coords="1260,86,1344,111"/>
-<area shape="poly" title=" " alt="" coords="1031,28,1241,76,1253,79,1252,85,1240,81,1030,33"/>
-<area shape="rect" title=" " alt="" coords="1368,86,1438,111"/>
-<area shape="poly" title=" " alt="" coords="1038,22,1185,41,1272,56,1357,76,1366,79,1364,84,1356,81,1271,61,1184,46,1038,27"/>
-<area shape="rect" title=" " alt="" coords="1462,86,1533,111"/>
-<area shape="poly" title=" " alt="" coords="1038,19,1225,36,1339,52,1452,76,1461,79,1459,84,1450,81,1338,57,1225,41,1038,25"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="628,247,743,273"/>
-<area shape="poly" title=" " alt="" coords="676,111,686,233,681,234,671,112"/>
-<area shape="poly" title=" " alt="" coords="591,105,441,112,267,124,117,143,66,155,40,169,28,190,27,216,40,245,68,278,95,299,127,315,161,325,194,332,193,337,160,330,125,320,93,304,64,282,35,248,22,217,22,189,36,165,64,150,116,138,266,119,440,107,591,100"/>
-<area shape="rect" title=" " alt="" coords="478,328,608,353"/>
-<area shape="poly" title=" " alt="" coords="591,106,445,113,278,125,135,144,86,156,61,169,48,185,42,199,42,210,49,221,83,246,141,278,201,297,285,312,465,331,464,337,285,317,199,302,139,282,80,250,45,225,37,212,37,198,43,182,57,165,84,151,134,139,278,120,445,108,590,100"/>
-<area shape="rect" title=" " alt="" coords="868,328,951,353"/>
-<area shape="poly" title=" " alt="" coords="663,113,636,145,608,188,598,212,593,236,596,258,606,278,622,291,646,302,712,318,787,328,855,334,854,339,786,334,711,323,645,307,619,295,602,282,590,259,588,235,593,210,603,186,632,142,659,110"/>
-<area shape="rect" title=" " alt="" coords="1657,328,1728,353"/>
-<area shape="poly" title=" " alt="" coords="754,103,1060,126,1463,160,1820,200,1938,219,1974,229,1993,238,2004,253,2008,267,2006,280,1999,291,1972,308,1932,321,1834,336,1742,341,1741,336,1834,331,1931,316,1970,304,1995,287,2001,278,2003,268,1999,256,1989,242,1972,234,1937,224,1819,205,1462,166,1060,131,754,108"/>
-<area shape="rect" title=" " alt="" coords="818,247,956,273"/>
-<area shape="poly" title=" " alt="" coords="718,109,774,130,803,146,830,165,859,198,879,233,874,236,855,201,827,169,801,150,772,135,716,114"/>
-<area shape="poly" title=" " alt="" coords="591,104,529,109,459,120,388,140,320,169,299,183,281,201,252,237,248,234,277,197,296,179,318,164,386,135,458,115,528,104,591,98"/>
-<area shape="poly" title=" " alt="" coords="687,109,741,156,738,160,684,114"/>
-<area shape="rect" title=" " alt="" coords="1174,328,1256,353"/>
-<area shape="poly" title=" " alt="" coords="729,270,762,277,983,311,1161,332,1160,337,982,317,761,283,728,275"/>
-<area shape="poly" title=" " alt="" coords="628,275,356,328,355,323,627,270"/>
-<area shape="poly" title=" " alt="" coords="666,275,577,324,575,319,663,271"/>
-<area shape="poly" title=" " alt="" coords="719,270,865,321,863,326,717,275"/>
-<area shape="poly" title=" " alt="" coords="744,269,806,277,1052,301,1293,317,1643,335,1643,340,1293,323,1052,306,805,283,743,274"/>
-<area shape="poly" title=" " alt="" coords="753,194,709,239,705,236,750,190"/>
-<area shape="poly" title=" " alt="" coords="767,191,778,235,790,258,807,278,834,292,871,304,967,321,1071,331,1160,335,1160,341,1071,336,966,326,870,309,831,297,804,282,785,261,773,237,762,193"/>
-<area shape="poly" title=" " alt="" coords="725,195,568,243,328,326,326,321,566,237,723,189"/>
-<area shape="poly" title=" " alt="" coords="710,194,657,212,630,225,606,242,589,259,575,278,555,317,550,314,571,276,585,255,603,238,628,221,655,207,709,189"/>
-<area shape="poly" title=" " alt="" coords="710,190,660,207,637,222,619,241,611,260,618,278,633,290,656,301,718,317,789,328,855,334,854,339,789,333,717,322,654,306,631,295,614,282,606,260,614,239,633,218,657,202,709,185"/>
-<area shape="poly" title=" " alt="" coords="817,184,879,189,1029,195,1223,198,1322,201,1415,209,1496,220,1560,238,1576,246,1588,255,1611,278,1666,318,1663,322,1608,282,1584,259,1574,250,1558,242,1495,225,1414,214,1321,207,1223,203,1029,200,879,195,816,189"/>
-<area shape="poly" title=" " alt="" coords="783,190,859,238,856,242,780,194"/>
-<area shape="poly" title=" " alt="" coords="710,191,314,250,314,244,709,186"/>
-<area shape="rect" title=" " alt="" coords="980,247,1098,273"/>
-<area shape="poly" title=" " alt="" coords="804,189,987,241,985,246,802,195"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="1324,240,1503,280"/>
-<area shape="poly" title=" " alt="" coords="817,184,1311,244,1310,249,816,190"/>
-<area shape="poly" title=" " alt="" coords="1367,282,1258,325,1256,320,1365,278"/>
-<area shape="poly" title=" " alt="" coords="1325,280,1306,283,965,334,964,329,1305,277,1324,274"/>
-<area shape="poly" title=" " alt="" coords="1481,277,1644,323,1643,328,1480,283"/>
-<area shape="poly" title=" " alt="" coords="932,195,741,246,740,241,931,189"/>
-<area shape="poly" title=" " alt="" coords="1038,190,1079,208,1097,221,1112,239,1120,260,1112,281,1081,310,1044,328,1004,338,966,342,965,337,1003,333,1042,323,1078,305,1107,279,1115,260,1107,241,1093,225,1076,212,1035,195"/>
-<area shape="poly" title=" " alt="" coords="1057,188,1070,189,1190,194,1345,197,1424,201,1498,208,1561,220,1611,238,1634,254,1654,274,1682,314,1678,317,1650,277,1631,258,1608,242,1560,225,1497,213,1423,206,1345,202,1190,200,1069,195,1056,193"/>
-<area shape="poly" title=" " alt="" coords="1185,115,1191,116,1269,126,1368,131,1600,140,1716,150,1821,167,1868,180,1908,196,1942,215,1968,238,1977,260,1975,271,1967,282,1936,292,1871,301,1672,318,1270,340,1269,334,1672,313,1870,296,1935,287,1964,278,1970,269,1972,260,1964,242,1939,219,1906,201,1866,185,1820,173,1716,155,1600,145,1368,136,1268,131,1191,121,1183,120"/>
-<area shape="poly" title=" " alt="" coords="1167,117,1200,137,1225,165,1241,196,1249,225,1245,253,1228,282,1210,296,1184,307,1114,324,1036,334,965,340,965,334,1035,329,1113,319,1182,302,1207,291,1224,278,1240,251,1243,225,1236,198,1221,168,1196,141,1165,121"/>
-<area shape="poly" title=" " alt="" coords="1184,115,1191,116,1284,123,1403,125,1681,126,1820,134,1945,153,1999,167,2046,186,2084,210,2113,239,2122,260,2120,271,2113,282,2087,301,2048,315,2001,326,1947,333,1836,341,1742,343,1742,337,1835,336,1946,328,2000,320,2047,310,2084,296,2109,278,2115,269,2117,261,2109,241,2081,214,2043,191,1997,173,1944,158,1819,140,1681,132,1403,130,1284,129,1191,121,1184,120"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="1081,167,1210,192"/>
-<area shape="poly" title=" " alt="" coords="1124,118,1138,153,1133,155,1119,120"/>
-<area shape="poly" title=" " alt="" coords="1081,194,757,249,756,244,1080,189"/>
-<area shape="poly" title=" " alt="" coords="1211,187,1401,216,1516,238,1527,253,1531,267,1530,280,1523,291,1497,309,1458,322,1412,331,1362,337,1270,342,1270,336,1361,331,1411,325,1457,317,1494,304,1519,288,1525,278,1526,268,1522,256,1514,242,1400,221,1210,193"/>
-<area shape="poly" title=" " alt="" coords="1081,193,1069,195,941,206,841,209,742,217,684,227,617,243,590,252,570,261,523,283,435,308,353,328,352,323,433,303,521,277,568,256,588,247,616,237,683,222,741,212,840,204,941,200,1068,189,1080,188"/>
-<area shape="poly" title=" " alt="" coords="1148,193,1140,237,1129,262,1111,282,1085,293,1039,303,907,319,622,338,621,333,906,313,1038,297,1083,288,1108,278,1124,259,1135,235,1143,192"/>
-<area shape="poly" title=" " alt="" coords="1163,190,1184,208,1203,231,1214,256,1213,269,1206,282,1190,295,1166,306,1103,322,1031,333,965,339,965,334,1030,328,1102,317,1164,301,1187,290,1202,278,1208,268,1208,257,1199,234,1180,212,1160,194"/>
-<area shape="poly" title=" " alt="" coords="1211,187,1230,189,1371,192,1607,194,1730,198,1839,206,1922,219,1950,227,1967,238,1978,252,1982,264,1981,276,1975,287,1951,304,1916,316,1827,333,1742,340,1741,335,1826,327,1914,311,1948,299,1971,283,1976,275,1977,265,1973,254,1964,242,1948,232,1921,224,1838,211,1730,203,1607,199,1371,197,1230,195,1210,193"/>
-<area shape="poly" title=" " alt="" coords="1109,195,938,246,937,241,1107,189"/>
-<area shape="poly" title=" " alt="" coords="1081,193,1069,195,704,226,314,256,314,250,703,221,1068,189,1080,188"/>
-<area shape="poly" title=" " alt="" coords="1132,194,1067,241,1064,237,1128,190"/>
-<area shape="rect" title=" " alt="" coords="1730,247,1826,273"/>
-<area shape="poly" title=" " alt="" coords="1211,187,1230,189,1365,202,1471,208,1577,217,1711,237,1729,241,1728,246,1711,243,1576,222,1471,213,1365,207,1229,195,1210,192"/>
-<area shape="rect" title=" " alt="" coords="1850,247,1954,273"/>
-<area shape="poly" title=" " alt="" coords="1211,187,1230,189,1401,202,1535,206,1668,213,1746,222,1838,237,1855,241,1854,246,1837,243,1746,228,1668,219,1535,211,1401,207,1229,195,1210,192"/>
-<area shape="poly" title=" " alt="" coords="2237,194,2210,238,2189,263,2163,282,2128,296,2081,308,1965,325,1842,335,1742,340,1742,335,1842,330,1964,320,2080,303,2127,291,2160,278,2185,259,2206,235,2233,191"/>
-<area shape="poly" title=" " alt="" coords="205,190,384,232,500,256,617,277,771,298,924,315,1161,333,1161,339,924,320,770,304,616,283,499,262,383,237,204,195"/>
-<area shape="poly" title=" " alt="" coords="149,194,133,212,118,234,110,257,111,268,116,279,132,296,151,309,195,327,193,332,148,314,128,300,111,281,106,269,105,257,113,231,129,209,145,191"/>
-<area shape="poly" title=" " alt="" coords="158,193,148,235,149,258,159,278,188,287,253,296,452,313,855,334,854,340,451,318,252,301,187,292,156,282,144,260,143,235,153,192"/>
-<area shape="poly" title=" " alt="" coords="250,180,971,203,1334,219,1456,228,1516,237,1531,246,1540,257,1548,267,1561,278,1604,302,1647,321,1645,325,1602,307,1557,282,1544,271,1536,260,1527,251,1514,243,1456,234,1334,225,970,208,250,186"/>
-<area shape="poly" title=" " alt="" coords="173,190,217,236,213,239,169,194"/>
+<area shape="rect" title="Castling detection, rook guidance, legacy animation, LED refresh." alt="" coords="882,5,1010,31"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="609,86,771,111"/>
+<area shape="poly" title=" " alt="" coords="910,33,741,84,740,79,908,28"/>
+<area shape="rect" title=" " alt="" coords="276,328,427,353"/>
+<area shape="poly" title=" " alt="" coords="882,22,696,29,578,37,456,49,338,68,233,93,188,109,150,127,119,146,97,168,85,186,76,210,76,224,78,240,86,258,100,278,125,295,165,309,263,327,262,333,163,314,122,300,96,282,82,261,73,242,70,224,71,209,81,183,93,165,116,142,147,122,186,104,231,88,337,63,455,44,578,31,695,23,882,17"/>
+<area shape="rect" title=" " alt="" coords="935,247,1066,273"/>
+<area shape="poly" title=" " alt="" coords="950,31,958,99,977,191,992,234,987,236,971,193,953,100,944,31"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="637,167,743,192"/>
+<area shape="poly" title=" " alt="" coords="929,33,721,162,719,157,926,28"/>
+<area shape="rect" href="game__matrix__guard_8h.html" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="145,167,310,192"/>
+<area shape="poly" title=" " alt="" coords="882,27,718,46,619,61,521,81,381,123,269,164,267,159,380,118,520,76,618,56,717,41,882,22"/>
+<area shape="rect" href="chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="358,167,545,192"/>
+<area shape="poly" title=" " alt="" coords="882,25,821,30,748,40,672,57,598,81,563,98,529,119,476,160,473,156,526,115,560,94,596,76,670,52,747,35,820,25,882,19"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="1009,79,1149,119"/>
+<area shape="poly" title=" " alt="" coords="967,29,1037,69,1034,74,964,33"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="2153,167,2272,192"/>
+<area shape="poly" title=" " alt="" coords="1011,28,1085,46,1163,76,1179,87,1189,98,1200,108,1215,116,1254,128,1301,138,1410,151,1536,157,1670,159,1931,158,2044,159,2134,164,2140,165,2139,170,2134,169,2044,164,1931,163,1670,164,1536,162,1410,156,1300,143,1253,133,1213,121,1196,112,1186,102,1176,91,1161,81,1084,51,1010,33"/>
+<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="1141,167,1319,192"/>
+<area shape="poly" title=" " alt="" coords="951,30,966,73,980,97,998,117,1023,130,1059,142,1146,162,1145,167,1058,147,1021,134,995,121,976,100,961,75,946,32"/>
+<area shape="rect" title=" " alt="" coords="1225,86,1309,111"/>
+<area shape="poly" title=" " alt="" coords="1002,28,1207,76,1219,79,1217,85,1205,81,1000,33"/>
+<area shape="rect" title=" " alt="" coords="1333,86,1404,111"/>
+<area shape="poly" title=" " alt="" coords="1010,22,1155,41,1239,56,1323,76,1331,79,1329,84,1321,81,1238,62,1154,46,1010,28"/>
+<area shape="rect" title=" " alt="" coords="1428,86,1499,111"/>
+<area shape="poly" title=" " alt="" coords="1010,20,1195,36,1306,52,1417,76,1426,79,1425,84,1416,81,1305,58,1194,41,1010,25"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="341,247,455,273"/>
+<area shape="poly" title=" " alt="" coords="677,114,626,152,558,194,499,223,444,245,442,240,497,218,555,190,623,147,674,109"/>
+<area shape="poly" title=" " alt="" coords="609,106,473,114,318,127,185,145,141,156,117,169,105,187,99,211,105,241,129,278,150,292,182,304,263,324,262,329,181,310,147,297,125,282,100,243,94,211,100,184,114,165,139,151,184,140,317,122,472,109,608,101"/>
+<area shape="rect" title=" " alt="" coords="5,328,135,353"/>
+<area shape="poly" title=" " alt="" coords="609,106,469,115,308,128,170,146,122,157,97,169,85,184,76,201,66,241,65,280,68,314,63,314,59,280,61,240,71,200,80,181,94,165,121,152,169,141,307,122,468,109,608,101"/>
+<area shape="rect" title=" " alt="" coords="502,328,585,353"/>
+<area shape="poly" title=" " alt="" coords="608,107,476,115,327,128,200,146,157,157,135,169,122,193,124,219,141,248,173,278,218,292,303,307,488,331,488,336,302,312,217,297,170,282,137,251,119,221,117,192,131,165,155,152,199,141,327,122,476,109,608,101"/>
+<area shape="rect" title=" " alt="" coords="1543,328,1613,353"/>
+<area shape="poly" title=" " alt="" coords="772,103,1071,126,1462,161,1809,200,1924,219,1959,229,1977,238,2021,280,2024,289,2005,293,1891,299,1785,310,1640,331,1627,333,1626,327,1639,325,1785,304,1891,293,2004,288,2019,287,2017,283,1974,242,1957,234,1923,225,1809,205,1462,166,1070,132,771,109"/>
+<area shape="rect" title=" " alt="" coords="773,247,911,273"/>
+<area shape="poly" title=" " alt="" coords="704,110,757,165,824,236,820,239,753,169,700,114"/>
+<area shape="poly" title=" " alt="" coords="714,109,967,239,965,243,711,114"/>
+<area shape="poly" title=" " alt="" coords="693,112,693,153,687,153,687,112"/>
+<area shape="rect" title=" " alt="" coords="1651,328,1732,353"/>
+<area shape="poly" title=" " alt="" coords="456,264,620,277,903,290,1123,294,1344,301,1473,310,1626,325,1637,327,1637,332,1626,331,1473,316,1344,307,1123,299,902,296,619,283,456,269"/>
+<area shape="poly" title=" " alt="" coords="393,274,368,317,363,315,389,271"/>
+<area shape="poly" title=" " alt="" coords="351,275,131,327,130,322,350,270"/>
+<area shape="poly" title=" " alt="" coords="421,270,511,319,509,324,418,275"/>
+<area shape="poly" title=" " alt="" coords="439,270,474,277,629,297,788,312,1095,330,1355,337,1529,337,1529,343,1355,342,1095,336,787,317,629,302,474,283,438,275"/>
+<area shape="poly" title=" " alt="" coords="648,195,454,246,453,241,647,189"/>
+<area shape="poly" title=" " alt="" coords="744,181,1220,206,1464,223,1545,230,1586,237,1614,253,1639,273,1676,314,1673,318,1635,277,1611,258,1584,243,1545,236,1463,228,1220,211,744,186"/>
+<area shape="poly" title=" " alt="" coords="637,188,454,210,372,226,345,234,331,242,323,258,323,277,338,315,333,317,318,278,318,257,327,238,343,229,371,220,454,205,636,183"/>
+<area shape="poly" title=" " alt="" coords="637,188,491,206,403,222,316,243,200,283,106,325,104,320,198,278,315,237,402,217,490,201,636,183"/>
+<area shape="poly" title=" " alt="" coords="653,194,613,213,594,226,577,242,566,259,558,278,549,315,543,314,553,276,561,256,573,238,590,222,610,208,650,190"/>
+<area shape="poly" title=" " alt="" coords="673,194,649,212,626,234,615,257,615,268,621,278,633,284,660,289,748,300,1014,317,1529,335,1529,341,1014,322,748,305,659,295,632,289,618,282,610,270,609,256,622,231,646,208,670,190"/>
+<area shape="poly" title=" " alt="" coords="714,190,809,239,806,243,711,195"/>
+<area shape="poly" title=" " alt="" coords="736,189,943,241,942,247,735,195"/>
+<area shape="rect" title=" " alt="" coords="631,247,749,273"/>
+<area shape="poly" title=" " alt="" coords="693,192,693,233,687,233,687,192"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="1394,240,1573,280"/>
+<area shape="poly" title=" " alt="" coords="744,183,1380,246,1380,251,744,189"/>
+<area shape="poly" title=" " alt="" coords="1534,278,1649,321,1647,326,1532,283"/>
+<area shape="poly" title=" " alt="" coords="1394,280,1376,283,1150,306,928,323,599,340,598,335,927,317,1149,301,1375,277,1394,275"/>
+<area shape="poly" title=" " alt="" coords="1508,278,1555,317,1551,321,1505,282"/>
+<area shape="poly" title=" " alt="" coords="253,190,362,239,360,244,251,194"/>
+<area shape="poly" title=" " alt="" coords="217,194,200,212,185,235,178,258,180,268,185,278,222,289,303,303,488,329,488,335,302,308,221,294,182,282,175,270,173,257,181,232,196,209,213,190"/>
+<area shape="poly" title=" " alt="" coords="237,191,273,236,299,259,330,278,359,286,404,294,533,307,700,317,889,325,1266,333,1529,336,1529,342,1265,339,889,330,700,322,532,312,403,299,358,291,328,282,296,264,269,239,233,194"/>
+<area shape="poly" title=" " alt="" coords="446,194,416,237,412,234,441,191"/>
+<area shape="poly" title=" " alt="" coords="400,195,361,212,344,225,331,241,324,260,331,278,355,295,395,309,489,329,488,334,394,315,353,300,327,282,318,260,326,239,341,221,359,208,398,190"/>
+<area shape="poly" title=" " alt="" coords="466,190,525,235,565,259,608,277,690,296,801,311,930,321,1069,328,1336,336,1529,337,1529,342,1336,341,1068,334,930,326,800,316,689,301,607,283,562,264,522,239,463,194"/>
+<area shape="poly" title=" " alt="" coords="1150,108,1214,116,1756,126,2109,139,2230,150,2267,157,2286,165,2309,195,2317,222,2311,246,2294,266,2266,283,2231,298,2141,319,2035,333,1926,340,1746,343,1746,338,1926,335,2034,327,2140,314,2229,293,2264,279,2290,262,2307,243,2312,222,2304,197,2283,169,2266,162,2229,155,2108,144,1756,131,1214,121,1149,114"/>
+<area shape="poly" title=" " alt="" coords="1150,115,1268,145,1333,165,1338,179,1334,193,1314,227,1292,250,1264,267,1227,283,1173,298,1100,311,923,329,740,338,599,341,598,336,740,333,923,323,1100,306,1172,293,1225,277,1261,262,1288,246,1310,224,1329,191,1333,179,1330,169,1266,150,1149,120"/>
+<area shape="poly" title=" " alt="" coords="1150,115,1157,116,1223,119,1334,119,1630,118,1783,120,1920,127,2024,141,2060,152,2081,165,2101,193,2108,223,2101,253,2081,282,2066,295,2047,305,1997,319,1937,326,1871,329,1740,327,1684,328,1640,331,1627,333,1626,327,1639,325,1683,322,1740,322,1871,323,1937,321,1996,314,2045,300,2063,290,2077,278,2096,251,2102,223,2096,196,2078,169,2057,156,2023,146,1919,132,1783,125,1630,123,1334,125,1223,125,1156,121,1149,120"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="987,167,1116,192"/>
+<area shape="poly" title=" " alt="" coords="1075,120,1063,154,1058,153,1070,118"/>
+<area shape="poly" title=" " alt="" coords="987,191,469,253,469,248,986,186"/>
+<area shape="poly" title=" " alt="" coords="1117,188,1129,189,1283,192,1542,192,1676,196,1795,204,1886,217,1917,226,1936,238,1949,261,1949,272,1944,282,1925,297,1896,310,1821,328,1746,338,1746,333,1820,323,1894,305,1922,293,1940,278,1943,271,1944,262,1932,242,1915,231,1885,222,1794,209,1676,201,1542,198,1283,197,1128,195,1116,193"/>
+<area shape="poly" title=" " alt="" coords="1071,190,1096,208,1119,231,1132,256,1131,269,1124,282,1109,291,1085,299,1013,311,920,319,814,324,490,331,441,335,440,329,490,325,814,319,919,314,1013,306,1083,294,1107,287,1120,278,1126,268,1127,257,1115,234,1092,212,1068,194"/>
+<area shape="poly" title=" " alt="" coords="1063,191,1075,210,1086,234,1090,259,1087,271,1079,282,149,337,148,332,1077,278,1082,269,1085,259,1081,235,1070,212,1058,194"/>
+<area shape="poly" title=" " alt="" coords="1104,190,1143,208,1161,221,1175,239,1183,260,1182,271,1174,282,1144,297,1088,309,926,326,744,336,598,341,598,336,744,331,926,321,1087,304,1142,292,1171,278,1177,269,1178,261,1170,241,1157,225,1140,212,1101,194"/>
+<area shape="poly" title=" " alt="" coords="1117,188,1129,189,1233,192,1369,190,1437,192,1499,200,1551,214,1571,225,1587,238,1597,256,1599,277,1591,315,1586,314,1594,276,1591,258,1583,242,1568,229,1549,219,1498,205,1437,198,1369,195,1233,197,1128,195,1116,193"/>
+<area shape="poly" title=" " alt="" coords="1022,195,886,245,884,240,1020,190"/>
+<area shape="poly" title=" " alt="" coords="1046,194,1018,237,1013,234,1042,191"/>
+<area shape="poly" title=" " alt="" coords="991,195,761,243,745,246,744,241,760,237,990,189"/>
+<area shape="rect" title=" " alt="" coords="1698,247,1794,273"/>
+<area shape="poly" title=" " alt="" coords="1117,188,1129,189,1284,203,1405,208,1526,215,1680,237,1697,241,1696,246,1679,243,1525,221,1405,213,1283,208,1128,195,1116,193"/>
+<area shape="rect" title=" " alt="" coords="1818,247,1922,273"/>
+<area shape="poly" title=" " alt="" coords="1117,188,1129,189,1232,199,1319,203,1469,206,1617,212,1704,221,1806,237,1824,241,1822,246,1806,243,1704,227,1617,217,1468,211,1319,208,1232,204,1128,195,1116,193"/>
+<area shape="poly" title=" " alt="" coords="2215,192,2209,237,2199,261,2182,282,2162,295,2136,306,2074,320,2000,327,1920,329,1761,327,1693,327,1640,331,1627,333,1626,327,1639,325,1693,322,1761,322,1919,323,1999,321,2073,314,2134,300,2159,290,2179,278,2195,259,2204,235,2210,192"/>
+<area shape="poly" title=" " alt="" coords="1320,178,1496,182,1702,191,1799,198,1881,208,1943,221,1964,229,1977,238,1988,252,1992,265,1991,277,1984,288,1960,305,1924,318,1834,334,1746,340,1745,335,1833,328,1923,312,1958,300,1981,284,1986,275,1987,266,1983,255,1973,242,1962,234,1942,227,1881,214,1798,204,1702,196,1495,187,1320,184"/>
+<area shape="poly" title=" " alt="" coords="1226,194,1197,239,1174,263,1146,282,1086,303,1008,316,919,324,823,327,635,328,490,331,441,335,440,329,490,325,635,322,823,322,918,318,1008,311,1084,298,1143,278,1170,259,1192,235,1222,191"/>
+<area shape="poly" title=" " alt="" coords="1232,193,1225,237,1214,262,1197,282,1163,295,1104,306,935,323,748,334,599,340,598,335,748,329,935,318,1103,301,1162,290,1194,278,1210,259,1220,235,1227,192"/>
+<area shape="poly" title=" " alt="" coords="1320,179,1486,183,1679,193,1847,210,1904,222,1924,230,1936,238,1964,264,1994,283,2022,295,2048,302,2088,304,2098,302,2100,300,2094,297,2076,292,1999,289,1857,299,1640,331,1627,333,1626,328,1639,325,1857,294,1999,283,2077,287,2096,292,2105,299,2101,306,2089,309,2047,307,2020,300,1991,287,1961,268,1932,242,1921,234,1903,227,1846,215,1679,198,1486,188,1319,184"/>
+<area shape="poly" title=" " alt="" coords="1198,195,1048,245,1046,240,1196,189"/>
 </map>
 </div>
 </div>
@@ -281,7 +287,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castling was completed </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00104">104</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00105">105</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -336,7 +342,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castle was completed successfully </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00424">424</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00425">425</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -364,7 +370,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00035">35</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00036">36</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -388,7 +394,7 @@ Proměnné</h2></td></tr>
 <p>Overi zda je aktivni animace rosady.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castle animation is waiting for rook move </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00393">393</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00394">394</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -412,7 +418,7 @@ Proměnné</h2></td></tr>
 <p>Overi zda se ocekava rosada.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if castling is expected </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00400">400</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00401">401</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -435,7 +441,7 @@ Proměnné</h2></td></tr>
 <p>Force refresh of LED state based on current game status Called when switching back from HA mode or other interruptions. </p>
 <p>Vynuceny refresh LED podle stavu hry (highlight, sach, chyby, promoce). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00482">482</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00483">483</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -457,7 +463,7 @@ Proměnné</h2></td></tr>
 <p>Show LED guidance for castling rook move. </p>
 <p>Zobraz LED navod pro tah veze pri rosade. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00066">66</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00067">67</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -485,7 +491,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00266">266</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00267">267</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -508,7 +514,7 @@ Proměnné</h2></td></tr>
 <p>Start repeating rook animation. </p>
 <p>Spust opakovani animace veze pro rosadu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00351">351</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00352">352</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -531,7 +537,7 @@ Proměnné</h2></td></tr>
 <p>Stop repeating rook animation. </p>
 <p>Zastav opakovanou animaci veze. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00381">381</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00382">382</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -560,7 +566,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00315">315</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00316">316</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -585,7 +591,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00023">23</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00024">24</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -609,7 +615,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00025">25</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00026">26</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -633,7 +639,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00024">24</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00025">25</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>
@@ -657,7 +663,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00021">21</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__castling_8c_source.html#l00022">22</a> v souboru <a class="el" href="game__castling_8c_source.html">game_castling.c</a>.</p>
 
 </div>
 </div>

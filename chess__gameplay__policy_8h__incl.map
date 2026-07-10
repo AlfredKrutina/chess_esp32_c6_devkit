@@ -1,0 +1,17 @@
+<map id="chess_gameplay_policy.h" name="chess_gameplay_policy.h">
+<area shape="rect" id="Node000001" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="387,5,574,31"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="311,79,426,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="439,152,522,177"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="483,31,483,138,478,138,478,31"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="547,152,617,177"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="491,30,568,139,564,142,487,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="317,107,101,154,99,149,316,101"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,261,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="340,107,230,149,228,144,338,102"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="285,152,415,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="368,105,359,140,354,138,363,104"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="388,102,452,142,449,147,385,106"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="404,101,535,145,534,150,402,107"/>
+</map>
