@@ -17,6 +17,7 @@ on:
     - 'Doxyfile'
     - 'generate_docs.sh'
     - 'generate_mermaid_html.py'
+    - 'scripts/docs/**'
     - 'docs/diagrams/**'
     - 'docs/reference/**'
     - 'docs/README.md'
@@ -56,7 +57,7 @@ jobs:
 
       - name: Build Doxygen HTML + Mermaid výstupy
         run: |
-          ./generate_docs.sh
+          ./scripts/docs/generate_docs.sh
           ./scripts/render_docs.sh
 
       # Verze image drž v souladu s lokálním IDF (projekt sdkconfig hlásí IDF 5.5.x).
