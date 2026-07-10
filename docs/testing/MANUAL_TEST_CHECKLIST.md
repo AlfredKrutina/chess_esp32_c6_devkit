@@ -146,6 +146,40 @@ Pro desku s firmware `CONFIG_CHESS_ENABLE_WEB_SERVER=n`:
 
 ---
 
+## G — Gameplay policy profily (menuconfig, PR #20)
+
+Ověření po změně Kconfig. Vyžaduje flash s příslušným `SDKCONFIG_DEFAULTS`.
+
+### G1 — FULL (produkce, default)
+
+| # | Kroky | Očekávání |
+|---|--------|-----------|
+| G1.1 | Boot monitor | `GAMEPLAY_POLICY: profile=FULL MG=1 ER=1 MH=1` |
+| G1.2 | Zvedni 2 figurky najednou | Matrix guard active, žlutá/modrá LED |
+| G1.3 | Nelegální tah na desce | Červené pole + lock (`error_state.active`) |
+| G1.4 | Po validním tahu | Modré/žluté hinty podle LED guidance |
+
+### G2 — LITE (`sdkconfig.defaults.gameplay_lite`)
+
+| # | Kroky | Očekávání |
+|---|--------|-----------|
+| G2.1 | Boot monitor | `profile=LITE`, `MG=0` |
+| G2.2 | Zvedni 2 figurky | **Žádný** guard, hra pokračuje (UART warning) |
+| G2.3 | Nelegální tah | UART chyba, **bez** červené LED, **bez** locku |
+| G2.4 | `/api/status` | `matrix_guard_active=false`, `error_state.active=false`, `gameplay_profile":"LITE"` |
+
+### G3 — DEV (`sdkconfig.defaults.gameplay_dev`)
+
+| # | Kroky | Očekávání |
+|---|--------|-----------|
+| G3.1 | Opening Learn fyzický soupeř | Guard se **ne**aktivuje při běžných tazích |
+| G3.2 | Nelegální tah | ER lock + LED jako FULL |
+| G3.3 | Ghost figurka mimo tah | Bez guard pause (jako LITE u MG) |
+
+**Gate gameplay ✅** pokud G1–G3 odpovídají tabulce v [MENUCONFIG_FEATURES_PLAN.md](../reference/MENUCONFIG_FEATURES_PLAN.md) §10.
+
+---
+
 ## Shrnutí gate (zaškrtni po testu)
 
 | ID | Kritérium | HW | Poznámka / datum |
@@ -163,6 +197,7 @@ Pro desku s firmware `CONFIG_CHESS_ENABLE_WEB_SERVER=n`:
 | P5 | Miniboard | ☐ | |
 | P6 | 2 mirror páry e4+d4 | ☐ | |
 | P7 | L10/L12 mode picker | ☐ | |
+| GP | Gameplay FULL / LITE / DEV (§G) | ☐ | menuconfig PR #20 |
 
 **v1.0 release:** všechny řádky G* a P* ✅ (G6/G7/P4 částečně pokryto CI — viz `opening_release_gate_test.dart`).
 
@@ -172,5 +207,5 @@ Pro desku s firmware `CONFIG_CHESS_ENABLE_WEB_SERVER=n`:
 
 - `openings-catalog.yml` — 41 linií, UCI, mirror-symmetric, sync
 - `flutter-test.yml` — catalog, progress, curriculum, UX, release gate
-- `firmware-build.yml` — full HTTP + BLE-only profil
+- `firmware-build.yml` — full HTTP + BLE-only + gameplay-lite + gameplay-dev profily
 - `scripts/test_opening_api.sh` — HTTP smoke na desce

@@ -166,7 +166,7 @@ void chess_policy_highlight_movable_if_enabled(void);
 
 | Symbol | Stav |
 |--------|------|
-| `game_handle_invalid_move_smart()` | Definováno, **nikde nevoláno** → smazat nebo sloučit do policy |
+| `game_handle_invalid_move_smart()` | **Odstraněno** v PR #22 — nahrazeno `chess_gameplay_policy` + `game_handle_invalid_move()` |
 | `visual_error_system` | Linkováno, minimální integrace s ER → compile-out volitelně |
 
 ---
@@ -435,4 +435,4 @@ I (1234) GAMEPLAY_POLICY: profile=DEV mg=off er=on lock=on mh=on
 
 ---
 
-*Plán v2.0 — revize po auditu `game_physical.c` (rozptýlený error recovery) a `web_handlers_game.c` (matrix_guard JSON). Navazuje na PR #19.*
+*Plán v2.0 — implementováno v PR #20–#21. PR5 docs v PR #22. Navazuje na PR #19 (superseded).*
