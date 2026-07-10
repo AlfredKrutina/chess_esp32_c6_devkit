@@ -1,0 +1,39 @@
+# CI: Flutter unit/widget tests for flutter_czechmate/
+
+name: Flutter test
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'flutter_czechmate/**'
+      - '.github/workflows/flutter-test.yml'
+  pull_request:
+    paths:
+      - 'flutter_czechmate/**'
+      - '.github/workflows/flutter-test.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: flutter-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_czechmate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: pub get
+        run: flutter pub get
+
+      - name: flutter test
+        run: flutter test

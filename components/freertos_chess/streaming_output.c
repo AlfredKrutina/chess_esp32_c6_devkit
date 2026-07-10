@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <inttypes.h>
 #include "streaming_output.h"
 #include "chess_types.h"
 #include "led_mapping.h"  // Include LED mapping functions
@@ -545,11 +546,11 @@ void streaming_print_stats(void)
              (current_output.type == STREAM_UART) ? "UART" :
              (current_output.type == STREAM_WEB) ? "WEB" :
              (current_output.type == STREAM_QUEUE) ? "QUEUE" : "UNKNOWN");
-    ESP_LOGI(TAG, "Total writes: %d", stats.total_writes);
-    ESP_LOGI(TAG, "Total bytes: %d", stats.total_bytes_written);
-    ESP_LOGI(TAG, "Write errors: %d", stats.write_errors);
-    ESP_LOGI(TAG, "Truncated writes: %d", stats.truncated_writes);
-    ESP_LOGI(TAG, "Mutex timeouts: %d", stats.mutex_timeouts);
+    ESP_LOGI(TAG, "Total writes: %" PRIu32, stats.total_writes);
+    ESP_LOGI(TAG, "Total bytes: %" PRIu32, stats.total_bytes_written);
+    ESP_LOGI(TAG, "Write errors: %" PRIu32, stats.write_errors);
+    ESP_LOGI(TAG, "Truncated writes: %" PRIu32, stats.truncated_writes);
+    ESP_LOGI(TAG, "Mutex timeouts: %" PRIu32, stats.mutex_timeouts);
     
     if (stats.total_writes > 0) {
         ESP_LOGI(TAG, "Average write size: %.1f bytes", 
@@ -582,21 +583,21 @@ bool streaming_is_healthy(void)
     // Check error rate
     if (stats.total_writes > 100 && 
         stats.write_errors > (stats.total_writes * 0.1)) {
-        ESP_LOGW(TAG, "High write error rate: %d/%d", 
+        ESP_LOGW(TAG, "High write error rate: %" PRIu32 "/%" PRIu32,
                  stats.write_errors, stats.total_writes);
         healthy = false;
     }
     
     // Check for excessive truncation
     if (stats.truncated_writes > (stats.total_writes * 0.05)) {
-        ESP_LOGW(TAG, "High truncation rate: %d/%d", 
+        ESP_LOGW(TAG, "High truncation rate: %" PRIu32 "/%" PRIu32,
                  stats.truncated_writes, stats.total_writes);
         healthy = false;
     }
     
     // Check for mutex timeouts
     if (stats.mutex_timeouts > 0) {
-        ESP_LOGW(TAG, "Mutex timeout issues: %d", stats.mutex_timeouts);
+        ESP_LOGW(TAG, "Mutex timeout issues: %" PRIu32, stats.mutex_timeouts);
         healthy = false;
     }
     

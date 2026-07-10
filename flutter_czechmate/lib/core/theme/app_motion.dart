@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// Sdílené časy a křivky pro levné animace napříč aplikací.

@@ -633,6 +633,7 @@ CONFIG_PARTITION_TABLE_MD5=y
 # CzechMate firmware
 #
 # CONFIG_CHESS_ENABLE_TEST_TASK is not set
+CONFIG_CHESS_ENABLE_WEB_SERVER=y
 # end of CzechMate firmware
 
 #

@@ -120,6 +120,10 @@ static void cli_app_info(void) {
 }
 
 static void cli_web_command(const char *sub_args) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  uart_send_error("HTTP web server disabled at build (CONFIG_CHESS_ENABLE_WEB_SERVER=n)");
+  return;
+#else
   char verb[16];
   if (sscanf(sub_args, "%15s", verb) != 1) {
     uart_send_error("CLI WEB START|STOP|STATUS");
@@ -160,6 +164,7 @@ static void cli_web_command(const char *sub_args) {
     return;
   }
   uart_send_error("CLI WEB START|STOP|STATUS");
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
 }
 
 static void cli_ota_info(void) {

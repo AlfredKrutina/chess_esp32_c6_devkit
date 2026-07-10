@@ -8,6 +8,7 @@ import 'core/services/live_activity_service.dart';
 import 'core/services/prefs_repository.dart';
 import 'core/services/stockfish_api_client.dart';
 import 'core/services/watch_connectivity_service.dart';
+import 'features/opening/opening_progress_repository.dart';
 
 /// Spodní navigace (`_MainShell`) — indexy viz [AppMainTab] v `app_navigation.dart`.
 final mainNavTabIndexProvider = StateProvider<int>((ref) => 0);
@@ -37,6 +38,11 @@ final boardApiClientProvider = Provider<BoardApiClient>((ref) {
 
 final prefsRepositoryProvider = Provider<PrefsRepository>((ref) {
   return PrefsRepository(ref.watch(sharedPreferencesProvider));
+});
+
+final openingProgressRepositoryProvider =
+    Provider<OpeningProgressRepository>((ref) {
+  return OpeningProgressRepository(ref.watch(sharedPreferencesProvider));
 });
 
 final liveActivityServiceProvider = Provider<LiveActivityService>((ref) {

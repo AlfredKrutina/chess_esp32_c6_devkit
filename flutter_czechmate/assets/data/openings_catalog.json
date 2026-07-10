@@ -1,0 +1,4232 @@
+{
+  "version": 2,
+  "locale_default": "cs",
+  "curricula": [
+    {
+      "id": "basics_white",
+      "name": {
+        "cs": "Bílé základy",
+        "en": "White basics"
+      },
+      "line_ids": [
+        "italian_giuoco_white",
+        "london_system_white",
+        "four_knights_white",
+        "vienna_white",
+        "scotch_game_white",
+        "colle_system_white",
+        "italian_two_knights_white",
+        "reti_opening_white",
+        "english_four_knights_white"
+      ]
+    },
+    {
+      "id": "basics_black",
+      "name": {
+        "cs": "Černé základy",
+        "en": "Black basics"
+      },
+      "line_ids": [
+        "sicilian_odb_black",
+        "caro_kann_classical_black",
+        "petrov_black",
+        "pirc_classical_black",
+        "alekhine_defence_black",
+        "slav_defence_black",
+        "dutch_defence_black",
+        "philidor_black",
+        "modern_defence_black"
+      ]
+    },
+    {
+      "id": "classical_deep",
+      "name": {
+        "cs": "Klasika hlouběji",
+        "en": "Classical depth"
+      },
+      "line_ids": [
+        "spanish_berlin_white",
+        "queens_gambit_white",
+        "queens_gambit_declined_black",
+        "french_classical_black",
+        "nimzo_indian_black",
+        "torre_attack_white",
+        "ruy_lopez_classical_white",
+        "queens_indian_black",
+        "kings_indian_black",
+        "kings_gambit_declined_white",
+        "sicilian_closed_black",
+        "semi_slav_black"
+      ]
+    },
+    {
+      "id": "systems",
+      "name": {
+        "cs": "Systémová hra",
+        "en": "System openings"
+      },
+      "line_ids": [
+        "english_reversed_white",
+        "catalan_white",
+        "trompowsky_white",
+        "english_symmetrical_white",
+        "london_vs_kid_white",
+        "bogo_indian_black",
+        "grunfeld_black",
+        "catalan_vs_slav_white",
+        "sicilian_alapin_white",
+        "chigorin_black",
+        "owen_defence_black"
+      ]
+    }
+  ],
+  "openings": [
+    {
+      "id": "italian_giuoco_white",
+      "eco": "C50",
+      "family": "italian",
+      "name": {
+        "cs": "Italská hra — Giuoco Piano",
+        "en": "Italian Game — Giuoco Piano"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "classical",
+        "e4"
+      ],
+      "idea": {
+        "cs": "Rychlý rozvoj a tlak na f7.",
+        "en": "Rapid development and pressure on f7."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "b8c6",
+        "f1c4",
+        "f8c5",
+        "c2c3",
+        "g8f6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "Ovládni centrum e4.",
+            "en": "Control the center with e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Rozviň jezdce na f3.",
+            "en": "Develop the knight to f3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Aktivuj střelce na c4.",
+            "en": "Activate the bishop on c4."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Připrav d3 a stabilní centrum.",
+            "en": "Prepare d3 and a stable center."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "f1b5",
+          "at_ply_index": 4,
+          "hint": {
+            "cs": "Nejdřív c4 — španělská je jiná lekce.",
+            "en": "Play c4 first — the Spanish is a separate lesson."
+          }
+        },
+        {
+          "wrong_uci": "f1c4",
+          "at_ply_index": 2,
+          "hint": {
+            "cs": "Nejdřív Nf3 — střelec až po jezdci.",
+            "en": "Develop the knight to f3 before the bishop."
+          }
+        }
+      ],
+      "mirror_line_id": "petrov_black",
+      "rationale": {
+        "summary": {
+          "cs": "Nejklidnější italská — c3 a rozvoj bez ostré teorie.",
+          "en": "The calmest Italian — c3 and development without sharp theory."
+        },
+        "why_this_line": {
+          "cs": "Giuoco Piano učí klíčový plán: rychlý rozvoj, střelec na c4 a příprava d3/e4. Tahy jsou logické a často se opakují v praxi.",
+          "en": "The Giuoco Piano teaches the key plan: rapid development, Bc4, and preparing d3/e4. The moves are logical and recur often in practice."
+        },
+        "instead_of": {
+          "cs": "Místo Two Knights nebo Evans gambitu — tady nehrozí předčasný taktický chaos a nemusíš znát dlouhé varianty.",
+          "en": "Instead of the Two Knights or Evans Gambit — you avoid early tactical chaos and long theoretical lines."
+        },
+        "when_to_play": {
+          "cs": "Proti soupeřům, kteří hrají ...Bc5 symetricky; ideální první italská linie.",
+          "en": "Against opponents who meet e4 with ...Bc5; ideal as your first Italian line."
+        },
+        "related_line_ids": [
+          "italian_two_knights_white",
+          "spanish_berlin_white"
+        ]
+      }
+    },
+    {
+      "id": "sicilian_odb_black",
+      "eco": "B50",
+      "family": "sicilian",
+      "name": {
+        "cs": "Sicilská — ODB (úvod)",
+        "en": "Sicilian — Open Defence intro"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Asymetrická hra proti 1.e4.",
+        "en": "Asymmetric play against 1.e4."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "c7c5",
+        "g1f3",
+        "d7d6",
+        "d2d4",
+        "g8f6",
+        "b1c3",
+        "a7a6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Sicilská c5 — boj o centrum.",
+            "en": "Sicilian c5 — fight for the center."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Připrav e6/d6 strukturu.",
+            "en": "Prepare the d6 structure."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Rozviň jezdce na f6.",
+            "en": "Develop the knight to f6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "a6 brání b5 a připraví b5.",
+            "en": "a6 prevents Bb5 and prepares ...b5."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "g8f6",
+          "at_ply_index": 3,
+          "hint": {
+            "cs": "Nejdřív ...d6 — typická sicílie, ne ...Nf6 tak brzy.",
+            "en": "Play ...d6 first — typical Sicilian, not ...Nf6 so early."
+          }
+        }
+      ],
+      "mirror_line_id": "spanish_berlin_white",
+      "rationale": {
+        "summary": {
+          "cs": "Nejčastější sicilská — boj o centrum bez okamžitého taktického rizika.",
+          "en": "The most common Sicilian — fight for the center without instant tactics."
+        },
+        "why_this_line": {
+          "cs": "Open Defence (…d6) je standardní odpověď na Alapin i klasické 1.e4. Učí asymetrii a rozvoj lehkých figur bez předčasného útoku.",
+          "en": "The Open Defence (...d6) is the standard answer to both classical e4 and anti-Sicilians. It teaches asymmetry and piece development."
+        },
+        "instead_of": {
+          "cs": "Místo Dragonu nebo Najdorfu — méně teorie, ale stále „pravá“ sicilská hra.",
+          "en": "Instead of the Dragon or Najdorf — less theory, still 'real' Sicilian chess."
+        },
+        "when_to_play": {
+          "cs": "Když chceš hrát na výhru proti 1.e4 a nebát se asymetrických pozic.",
+          "en": "When you want winning chances against 1.e4 and accept asymmetric positions."
+        },
+        "related_line_ids": [
+          "sicilian_closed_black",
+          "sicilian_alapin_white"
+        ]
+      }
+    },
+    {
+      "id": "london_system_white",
+      "eco": "D02",
+      "family": "london",
+      "name": {
+        "cs": "Londýnský systém",
+        "en": "London System"
+      },
+      "side": "white",
+      "difficulty": 1,
+      "tags": [
+        "d4",
+        "system"
+      ],
+      "idea": {
+        "cs": "Solidní systém s Bf4 a e3.",
+        "en": "Solid system with Bf4 and e3."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c1f4",
+        "g8f6",
+        "e2e3",
+        "e7e6",
+        "g1f3",
+        "f8d6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "Centrum d4.",
+            "en": "Occupy the center with d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Londýnský střelec f4.",
+            "en": "London bishop to f4."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Solidní e3.",
+            "en": "Solid e3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Rozvoj jezdce f3.",
+            "en": "Develop the knight to f3."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "c2c4",
+          "at_ply_index": 2,
+          "hint": {
+            "cs": "Londýn drží d4 + Bf4, ne klasické c4 hned.",
+            "en": "London keeps d4 + Bf4, not an early c4."
+          }
+        }
+      ],
+      "mirror_line_id": "slav_defence_black",
+      "rationale": {
+        "summary": {
+          "cs": "Systém nezávislý na pořadí tahů — Bf4 + e3.",
+          "en": "Order-independent system — Bf4 and e3."
+        },
+        "why_this_line": {
+          "cs": "Londýn je ideální pro klubovou praxi: stejný plán proti většině odpovědí, minimum memorování.",
+          "en": "The London is ideal for club play: one plan against most replies, minimal memorization."
+        },
+        "instead_of": {
+          "cs": "Místo klasického d4 s c4/Nc3 — méně taktických pastí v úvodu.",
+          "en": "Instead of classical d4 with c4/Nc3 — fewer opening traps early on."
+        },
+        "when_to_play": {
+          "cs": "Když chceš spolehlivou bílou bez hluboké teorie dámského gambitu.",
+          "en": "When you want a reliable White repertoire without deep QG theory."
+        },
+        "related_line_ids": [
+          "colle_system_white",
+          "london_vs_kid_white"
+        ]
+      }
+    },
+    {
+      "id": "four_knights_white",
+      "eco": "C47",
+      "family": "four_knights",
+      "name": {
+        "cs": "Čtyři jezdci",
+        "en": "Four Knights Game"
+      },
+      "side": "white",
+      "difficulty": 1,
+      "tags": [
+        "e4",
+        "development"
+      ],
+      "idea": {
+        "cs": "Rychlý a symetrický rozvoj figur.",
+        "en": "Quick symmetrical piece development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "b8c6",
+        "b1c3",
+        "g8f6",
+        "f1b5",
+        "f8b4"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4 a kontrola centra.",
+            "en": "Play e4 to control the center."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Jezdec na f3.",
+            "en": "Knight to f3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Jezdec na c3.",
+            "en": "Knight to c3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Střelec na b5.",
+            "en": "Bishop to b5."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "f1c4",
+          "at_ply_index": 4,
+          "hint": {
+            "cs": "Ve čtyřech jezdcích je typické d4, ne Bc4.",
+            "en": "In Four Knights d4 is typical, not Bc4."
+          }
+        }
+      ],
+      "mirror_line_id": "caro_kann_classical_black",
+      "rationale": {
+        "summary": {
+          "cs": "Symetrický rozvoj — bez gambitů a překvapení.",
+          "en": "Symmetrical development — no gambits or surprises."
+        },
+        "why_this_line": {
+          "cs": "Čtyři jezdci jsou didakticky čisté: každý tah rozvíjí figuru a respektuje principy.",
+          "en": "Four Knights is pedagogically clean: every move develops and follows opening principles."
+        },
+        "instead_of": {
+          "cs": "Místo Ruy Lopez nebo Italské s Bc4 — méně taktiky, vhodné pro začátek e4.",
+          "en": "Instead of the Ruy Lopez or Italian with Bc4 — less tactics, good e4 starter."
+        },
+        "when_to_play": {
+          "cs": "Proti soupeřům, kteří hrají symetricky 1…e5.",
+          "en": "Against opponents who answer 1.e4 with 1…e5 symmetrically."
+        },
+        "related_line_ids": [
+          "italian_giuoco_white",
+          "scotch_game_white"
+        ]
+      }
+    },
+    {
+      "id": "vienna_white",
+      "eco": "C25",
+      "family": "vienna",
+      "name": {
+        "cs": "Vídeňská hra",
+        "en": "Vienna Game"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Jezdec c3 a fianchetto královského střelce.",
+        "en": "Nc3 and a kingside bishop fianchetto."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "b1c3",
+        "b8c6",
+        "g2g3",
+        "g8f6",
+        "f1g2",
+        "f8c5"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "Otevři hru e4.",
+            "en": "Open with e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Jezdec c3 — vídeňský plán.",
+            "en": "Knight c3 — Vienna plan."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Připrav fianchetto g3.",
+            "en": "Prepare g3 fianchetto."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Střelec g2.",
+            "en": "Bishop g2."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "f2f4",
+          "at_ply_index": 2,
+          "hint": {
+            "cs": "Ve vídeňské nejdřív Nc3, pak až f4.",
+            "en": "In the Vienna play Nc3 before f4."
+          }
+        }
+      ],
+      "mirror_line_id": "alekhine_defence_black",
+      "rationale": {
+        "summary": {
+          "cs": "Nc3 + fianchetto — plán mimo hlavní beaten path.",
+          "en": "Nc3 plus fianchetto — a plan off the main highway."
+        },
+        "why_this_line": {
+          "cs": "Vídeňská kombinuje rozvoj jezdce a královského střelce; soupeř často podcení g3/Bg2.",
+          "en": "The Vienna combines knight development and a kingside fianchetto; opponents often underestimate g3/Bg2."
+        },
+        "instead_of": {
+          "cs": "Místo přímé Italské — méně okatá varianta, ale stále solidní.",
+          "en": "Instead of a direct Italian — less mainstream, still solid."
+        },
+        "when_to_play": {
+          "cs": "Když chceš překvapit klubového soupeře, který čeká pouze 3.Bc4.",
+          "en": "When you want to surprise club players expecting only 3.Bc4."
+        },
+        "related_line_ids": [
+          "italian_giuoco_white"
+        ]
+      }
+    },
+    {
+      "id": "spanish_berlin_white",
+      "eco": "C60",
+      "family": "spanish",
+      "name": {
+        "cs": "Španělská — Berlin",
+        "en": "Ruy Lopez — Berlin Defence"
+      },
+      "side": "white",
+      "difficulty": 3,
+      "tags": [
+        "e4",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Tlak střelce b5 na jezdce c6.",
+        "en": "Bb5 pressure on the Nc6 knight."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "b8c6",
+        "f1b5",
+        "g8f6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4.",
+            "en": "e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Bb5 — španělská.",
+            "en": "Bb5 — the Ruy Lopez."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "f1c4",
+          "at_ply_index": 4,
+          "hint": {
+            "cs": "V berlínské španělské hrajeme Bb5, ne Bc4.",
+            "en": "In the Berlin Spanish we play Bb5, not Bc4."
+          }
+        }
+      ],
+      "mirror_line_id": "sicilian_odb_black",
+      "rationale": {
+        "summary": {
+          "cs": "Krátká španělská — Berlin bez dlouhé teorie.",
+          "en": "Short Spanish — Berlin without long theory."
+        },
+        "why_this_line": {
+          "cs": "Bb5 na Nc6 je nejznámější způsob, jak tlačit na černého. Berlin s …Nf6 je moderní standard.",
+          "en": "Bb5 against Nc6 is the most famous way to pressure Black. Berlin ...Nf6 is the modern standard."
+        },
+        "instead_of": {
+          "cs": "Místo Morphyho útoku nebo dlouhé Ruy Lopez — linie končí v klidné pozici.",
+          "en": "Instead of the Morphy Attack or long Ruy Lopez — the line ends in a calm position."
+        },
+        "when_to_play": {
+          "cs": "Když chceš „španělskou“ v repertoáru, ale s minimem variant.",
+          "en": "When you want 'Spanish' in your repertoire with minimal branches."
+        },
+        "related_line_ids": [
+          "ruy_lopez_classical_white"
+        ]
+      }
+    },
+    {
+      "id": "queens_gambit_white",
+      "eco": "D06",
+      "family": "queens_gambit",
+      "name": {
+        "cs": "Dámský gambit — přijatý",
+        "en": "Queen's Gambit Accepted intro"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Centrum d4 a rozvoj lehkých figur.",
+        "en": "d4 center and light-piece development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "g8f6",
+        "g1f3",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "c4 — dámský gambit.",
+            "en": "c4 — Queen's Gambit."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "d2d3",
+          "at_ply_index": 0,
+          "hint": {
+            "cs": "Dámský gambit začíná d4, ne d3.",
+            "en": "The Queen's Gambit starts with d4, not d3."
+          }
+        }
+      ],
+      "mirror_line_id": "queens_gambit_declined_black",
+      "rationale": {
+        "summary": {
+          "cs": "Klasické d4 + c4 — učí dámský gambit od základu.",
+          "en": "Classical d4 and c4 — teaches the Queen's Gambit from scratch."
+        },
+        "why_this_line": {
+          "cs": "Přijatý gambit (…e6) vede k harmonickému rozvoji bílých figur a kontrole centra.",
+          "en": "The Accepted (...e6) line leads to harmonious White development and central control."
+        },
+        "instead_of": {
+          "cs": "Místo Londýna nebo Colle — více prostoru v centru, ale stále strukturované.",
+          "en": "Instead of the London or Colle — more central space, still structured."
+        },
+        "when_to_play": {
+          "cs": "Základní linie pro hráče 1.d4, kteří chtějí poziční hru.",
+          "en": "A foundation line for 1.d4 players who want positional play."
+        },
+        "related_line_ids": [
+          "queens_gambit_declined_black",
+          "semi_slav_black"
+        ]
+      }
+    },
+    {
+      "id": "caro_kann_classical_black",
+      "eco": "B12",
+      "family": "caro_kann",
+      "name": {
+        "cs": "Caro-Kann — klasická",
+        "en": "Caro-Kann — Classical"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Solidní c6 a d5 proti 1.e4.",
+        "en": "Solid c6 and ...d5 against 1.e4."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "c7c6",
+        "d2d4",
+        "d7d5",
+        "b1c3",
+        "e7e6",
+        "g1f3",
+        "g8f6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "c6 — Caro-Kann.",
+            "en": "c6 — Caro-Kann."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "g8f6",
+          "at_ply_index": 3,
+          "hint": {
+            "cs": "Nejdřív ...d5 v karu — ne ...Nf6 před pevným centrem.",
+            "en": "Play ...d5 in the Caro first — not ...Nf6 before a solid center."
+          }
+        }
+      ],
+      "mirror_line_id": "four_knights_white",
+      "rationale": {
+        "summary": {
+          "cs": "Solidní štít proti 1.e4 — c6 a …d5.",
+          "en": "A solid shield against 1.e4 — c6 and ...d5."
+        },
+        "why_this_line": {
+          "cs": "Klasická Caro-Kann je těžká k proražení: černý má pevné centrum a jasný rozvoj.",
+          "en": "Classical Caro-Kann is hard to crack: Black gets a firm center and clear development."
+        },
+        "instead_of": {
+          "cs": "Místo Sicilské — méně taktiky, více pozice; vhodné, pokud se bojíš ostrých útoků.",
+          "en": "Instead of the Sicilian — less tactics, more position; good if you fear sharp attacks."
+        },
+        "when_to_play": {
+          "cs": "Proti agresivním bílým, kteří tlačí e4/e5.",
+          "en": "Against aggressive White players pushing e4/e5."
+        },
+        "related_line_ids": [
+          "sicilian_odb_black",
+          "french_classical_black"
+        ]
+      }
+    },
+    {
+      "id": "petrov_black",
+      "eco": "C42",
+      "family": "petrov",
+      "name": {
+        "cs": "Petrova obrana",
+        "en": "Petrov's Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black",
+        "symmetrical"
+      ],
+      "idea": {
+        "cs": "Symetrická odpověď Nf6 na Nf3.",
+        "en": "Symmetrical ...Nf6 against Nf3."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "g8f6",
+        "b1c3",
+        "b8c6",
+        "d2d3",
+        "f8e7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "e5.",
+            "en": "e5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Nf6 — Petrova.",
+            "en": "Nf6 — Petrov."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nc6.",
+            "en": "Nc6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Be7.",
+            "en": "Be7."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "d7d6",
+          "at_ply_index": 3,
+          "hint": {
+            "cs": "V petrově pokračuj ...Nf6, ne ...d6.",
+            "en": "In the Petrov continue ...Nf6, not ...d6."
+          }
+        }
+      ],
+      "mirror_line_id": "italian_giuoco_white",
+      "rationale": {
+        "summary": {
+          "cs": "Symetrie proti 1.e4 e5 — bez slabiny f7.",
+          "en": "Symmetry against 1.e4 e5 — no f7 weakness."
+        },
+        "why_this_line": {
+          "cs": "Petrov (...Nf6) okamžitě útočí na e4 a vyrovnává hru. Učí princip rovnosti v otevřeném centru.",
+          "en": "Petrov (...Nf6) immediately hits e4 and equalizes. It teaches equality in an open center."
+        },
+        "instead_of": {
+          "cs": "Místo pasivního …Nc6 — aktivnější, ale stále bez gambitů.",
+          "en": "Instead of passive ...Nc6 lines — more active, still without gambits."
+        },
+        "when_to_play": {
+          "cs": "Když chceš spolehlivou odpověď bez sicilské teorie.",
+          "en": "When you want a reliable answer without Sicilian theory."
+        },
+        "related_line_ids": [
+          "philidor_black"
+        ]
+      }
+    },
+    {
+      "id": "pirc_classical_black",
+      "eco": "B07",
+      "family": "pirc",
+      "name": {
+        "cs": "Pirc — klasická",
+        "en": "Pirc — Classical"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black",
+        "hypermodern"
+      ],
+      "idea": {
+        "cs": "Hypermoderní d6, g6 a fianchetto.",
+        "en": "Hypermodern d6, g6, and fianchetto."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "d7d6",
+        "d2d4",
+        "g8f6",
+        "b1c3",
+        "g7g6",
+        "g1f3",
+        "f8g7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "d6 — Pirc.",
+            "en": "d6 — Pirc."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "g6.",
+            "en": "g6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Bg7.",
+            "en": "Bg7."
+          }
+        }
+      ],
+      "mirror_line_id": "scotch_game_white",
+      "rationale": {
+        "summary": {
+          "cs": "Hypermoderní g6 — útok bílého se odráží.",
+          "en": "Hypermodern g6 — White's attack bounces off."
+        },
+        "why_this_line": {
+          "cs": "Pirc učí fianchetto a protihru v centru; bílý často přetáhne a černý útočí později.",
+          "en": "The Pirc teaches fianchetto and central counterplay; White often overextends."
+        },
+        "instead_of": {
+          "cs": "Místo pevné Caro-Kann — riskantnější, ale flexibilnější.",
+          "en": "Instead of solid Caro-Kann — riskier but more flexible."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým, kteří automaticky hrají velké centrum e4/d4.",
+          "en": "Against Whites who automatically build a big e4/d4 center."
+        },
+        "related_line_ids": [
+          "modern_defence_black",
+          "kings_indian_black"
+        ]
+      }
+    },
+    {
+      "id": "english_reversed_white",
+      "eco": "A13",
+      "family": "english",
+      "name": {
+        "cs": "Anglická — reversed London",
+        "en": "English — reversed London"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "c4",
+        "system"
+      ],
+      "idea": {
+        "cs": "c4 a klidný rozvoj na královském křídle.",
+        "en": "c4 and calm kingside development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "c2c4",
+        "e7e5",
+        "b1c3",
+        "b8c6",
+        "g1f3",
+        "g8f6",
+        "e2e3",
+        "f8b4",
+        "f1d3"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "Anglická c4.",
+            "en": "English c4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Bd3.",
+            "en": "Bd3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "c4 s plánem e3/Bd3 — anglická s královským centrem.",
+          "en": "c4 with e3/Bd3 — English with a kingside center."
+        },
+        "why_this_line": {
+          "cs": "Reversed London z 1.c4 překvapí hráče d4 systémů a vede k harmonickému rozvoji.",
+          "en": "A reversed London from 1.c4 surprises d4-system players and develops smoothly."
+        },
+        "instead_of": {
+          "cs": "Místo čisté symetrické anglické — více prostoru na královském křídle.",
+          "en": "Instead of pure symmetrical English — more kingside space."
+        },
+        "when_to_play": {
+          "cs": "Když chceš 1.c4, ale ne symetrii po …e5.",
+          "en": "When you want 1.c4 but not symmetry after ...e5."
+        },
+        "related_line_ids": [
+          "english_symmetrical_white",
+          "london_system_white"
+        ]
+      }
+    },
+    {
+      "id": "catalan_white",
+      "eco": "E00",
+      "family": "catalan",
+      "name": {
+        "cs": "Katalánská — základ",
+        "en": "Catalan — basics"
+      },
+      "side": "white",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "c4",
+        "fianchetto"
+      ],
+      "idea": {
+        "cs": "d4 + c4 a fianchetto královského střelce.",
+        "en": "d4 + c4 with a kingside fianchetto."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "e7e6",
+        "g1f3",
+        "d7d5",
+        "g2g3",
+        "b8c6",
+        "f1g2"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "c4.",
+            "en": "c4."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "g3.",
+            "en": "g3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Bg2.",
+            "en": "Bg2."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "d4 + c4 + g3 — dlouhodobý tlak na velkém křídle.",
+          "en": "d4, c4, and g3 — long-term queenside pressure."
+        },
+        "why_this_line": {
+          "cs": "Katalánská spojuje dámský gambit s fianchetto. Bg2 cílí na slabá pole v černé pozici.",
+          "en": "The Catalan combines the QG with a fianchetto. Bg2 targets weaknesses in Black's camp."
+        },
+        "instead_of": {
+          "cs": "Místo klasického Nf3 bez g3 — víc pozičního potenciálu.",
+          "en": "Instead of classical Nf3 without g3 — more positional potential."
+        },
+        "when_to_play": {
+          "cs": "Proti …Nf6/e6 bez okamžitého …d5.",
+          "en": "Against ...Nf6/e6 setups without an immediate ...d5."
+        },
+        "related_line_ids": [
+          "catalan_vs_slav_white",
+          "queens_gambit_white"
+        ]
+      }
+    },
+    {
+      "id": "trompowsky_white",
+      "eco": "A45",
+      "family": "trompowsky",
+      "name": {
+        "cs": "Trompowsky",
+        "en": "Trompowsky Attack"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "Bg5"
+      ],
+      "idea": {
+        "cs": "Bg5 hned po d4 — netradiční tlak.",
+        "en": "Bg5 right after d4 — unusual pressure."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c1g5",
+        "d7d5",
+        "e2e3",
+        "c7c6",
+        "f1d3",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Bg5.",
+            "en": "Bg5."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Bd3.",
+            "en": "Bd3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Bg5 hned — netradiční tlak na Nf6.",
+          "en": "Early Bg5 — unusual pressure on ...Nf6."
+        },
+        "why_this_line": {
+          "cs": "Trompowsky vyhazuje černého z hlavních d4/e4 linií. Soupeř často neví, co hrát.",
+          "en": "The Trompowsky takes Black out of main d4/e4 theory. Opponents often lack preparation."
+        },
+        "instead_of": {
+          "cs": "Místo klidného Londýna — víc psychologického tlaku.",
+          "en": "Instead of a calm London — more psychological pressure."
+        },
+        "when_to_play": {
+          "cs": "Proti hráčům s KID nebo Nimzo, kteří čekají pouze 2.c4.",
+          "en": "Against KID/Nimzo players expecting only 2.c4."
+        },
+        "related_line_ids": [
+          "torre_attack_white",
+          "london_system_white"
+        ]
+      }
+    },
+    {
+      "id": "queens_gambit_declined_black",
+      "eco": "D30",
+      "family": "queens_gambit",
+      "name": {
+        "cs": "Dámský gambit — odmítnutý",
+        "en": "Queen's Gambit Declined"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Solidní ...e6 a rozvoj lehkých figur.",
+        "en": "Solid ...e6 and piece development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "g8f6",
+        "c1g5",
+        "f8e7",
+        "e2e3",
+        "c7c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Be7.",
+            "en": "Be7."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "c6.",
+            "en": "c6."
+          }
+        }
+      ],
+      "mirror_line_id": "queens_gambit_white",
+      "rationale": {
+        "summary": {
+          "cs": "…e6 drží pěšce — klasická odpověď na c4.",
+          "en": "...e6 holds the pawn — the classical answer to c4."
+        },
+        "why_this_line": {
+          "cs": "Odmítnutý gambit je zlatý standard: černý má solidní strukturu a jasný rozvoj.",
+          "en": "The QGD is the gold standard: Black has a solid structure and clear development."
+        },
+        "instead_of": {
+          "cs": "Místo přijetí cxd5 — méně izolovaných pěšáků na d5.",
+          "en": "Instead of accepting cxd5 — fewer isolated d-pawn issues."
+        },
+        "when_to_play": {
+          "cs": "Univerzální odpověď na 1.d4 c4 pro poziční hráče.",
+          "en": "A universal answer to 1.d4 c4 for positional players."
+        },
+        "related_line_ids": [
+          "semi_slav_black",
+          "queens_indian_black"
+        ]
+      }
+    },
+    {
+      "id": "french_classical_black",
+      "eco": "C11",
+      "family": "french",
+      "name": {
+        "cs": "Francouzská — klasická",
+        "en": "French — Classical"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "e4",
+        "black"
+      ],
+      "idea": {
+        "cs": "e6, d5 a přesný rozvoj proti bílému centru.",
+        "en": "e6, d5, and precise development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e6",
+        "d2d4",
+        "d7d5",
+        "b1d2",
+        "g8f6",
+        "e4e5",
+        "f6d7",
+        "f1d3",
+        "c7c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Nd7.",
+            "en": "Nd7."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "c6.",
+            "en": "c6."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "e6 + d5 — pevná francouzská struktura.",
+          "en": "e6 and d5 — a firm French structure."
+        },
+        "why_this_line": {
+          "cs": "Klasická francouzská učí uzavřené centrum a protihru po …c5/c6. Plán je srozumitelný.",
+          "en": "Classical French teaches a closed center and counterplay with ...c5/c6. The plan is clear."
+        },
+        "instead_of": {
+          "cs": "Místo sicilské asymetrie — pomalejší, ale velmi solidní.",
+          "en": "Instead of Sicilian asymmetry — slower but very solid."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým, kteří hrají e4 bez přípravy na uzavřenou hru.",
+          "en": "Against Whites who play e4 without preparation for closed positions."
+        },
+        "related_line_ids": [
+          "caro_kann_classical_black"
+        ]
+      }
+    },
+    {
+      "id": "nimzo_indian_black",
+      "eco": "E20",
+      "family": "nimzo",
+      "name": {
+        "cs": "Nimzo-indická",
+        "en": "Nimzo-Indian"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Bb4 a boj o tempo v centru.",
+        "en": "Bb4 and fighting for central tempo."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "f8b4",
+        "e2e3",
+        "c7c5",
+        "g1f3",
+        "b8c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Bb4.",
+            "en": "Bb4."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "c5.",
+            "en": "c5."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nc6.",
+            "en": "Nc6."
+          }
+        }
+      ],
+      "mirror_line_id": "reti_opening_white",
+      "rationale": {
+        "summary": {
+          "cs": "Bb4 kontroluje e4 — aktivní d4 odpověď.",
+          "en": "Bb4 fights for e4 — an active d4 answer."
+        },
+        "why_this_line": {
+          "cs": "Nimzo-indická je špička d4 teorie v kostce: tempo, centrum a protihra na křídlech.",
+          "en": "The Nimzo-Indian is top d4 theory in a nutshell: tempo, center, and flank play."
+        },
+        "instead_of": {
+          "cs": "Místo pasivního …d5 bez aktivního střelce — víc dynamiky.",
+          "en": "Instead of passive ...d5 without an active bishop — more dynamism."
+        },
+        "when_to_play": {
+          "cs": "Proti 1.d4 c4 Nc3 — základ moderního repertoáru černých.",
+          "en": "Against 1.d4 c4 Nc3 — a modern Black repertoire staple."
+        },
+        "related_line_ids": [
+          "bogo_indian_black",
+          "queens_indian_black"
+        ]
+      }
+    },
+    {
+      "id": "scotch_game_white",
+      "eco": "C45",
+      "family": "scotch",
+      "name": {
+        "cs": "Skotská hra",
+        "en": "Scotch Game"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Centrum d4 a rychlý rozvoj proti ...d6.",
+        "en": "d4 center and quick development against ...d6."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "b8c6",
+        "d2d4",
+        "d7d6",
+        "f1b5",
+        "c8d7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4.",
+            "en": "e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "d4 — skotská idea.",
+            "en": "d4 — Scotch idea."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Bb5.",
+            "en": "Bb5."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "f1b5",
+          "at_ply_index": 4,
+          "hint": {
+            "cs": "Ve skotské hře je d4 klíčové, ne Bb5.",
+            "en": "In the Scotch d4 is key, not Bb5."
+          }
+        }
+      ],
+      "mirror_line_id": "pirc_classical_black",
+      "rationale": {
+        "summary": {
+          "cs": "d4 v italské — otevřené centrum bez okamžité výměny.",
+          "en": "d4 in the Italian — open center without an immediate exchange."
+        },
+        "why_this_line": {
+          "cs": "Skotská s …d6 je klidná varianta: bílý rozvíjí figury a drží iniciativu v centru.",
+          "en": "The Scotch with ...d6 is a calm branch: White develops and keeps central initiative."
+        },
+        "instead_of": {
+          "cs": "Místo ostré skotské s exd4 — méně taktiky, vhodné po Four Knights.",
+          "en": "Instead of the sharp Scotch with exd4 — less tactics, good after Four Knights."
+        },
+        "when_to_play": {
+          "cs": "Když soupeř hraje …d6 místo exd4.",
+          "en": "When opponents meet d4 with ...d6 instead of exd4."
+        },
+        "related_line_ids": [
+          "four_knights_white",
+          "italian_giuoco_white"
+        ]
+      }
+    },
+    {
+      "id": "colle_system_white",
+      "eco": "D05",
+      "family": "colle",
+      "name": {
+        "cs": "Colleův systém",
+        "en": "Colle System"
+      },
+      "side": "white",
+      "difficulty": 1,
+      "tags": [
+        "d4",
+        "system"
+      ],
+      "idea": {
+        "cs": "Klidný plán e3, Bd3 a Nd2.",
+        "en": "Quiet plan with e3, Bd3, and Nd2."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "e2e3",
+        "g8f6",
+        "f1d3",
+        "e7e6",
+        "b1d2",
+        "f8d6",
+        "g1f3",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "e3 — Colle.",
+            "en": "e3 — Colle."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Bd3.",
+            "en": "Bd3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Nd2.",
+            "en": "Nd2."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        }
+      ],
+      "mirror_line_id": "dutch_defence_black",
+      "rationale": {
+        "summary": {
+          "cs": "e3 + Bd3 — útok na královském křídle později.",
+          "en": "e3 and Bd3 — a later kingside attack."
+        },
+        "why_this_line": {
+          "cs": "Colle je srozumitelný systém: připravíš e4 a útočíš na f7. Soupeř často podcení hrozbu.",
+          "en": "The Colle is straightforward: you prepare e4 and attack f7. Opponents often underestimate it."
+        },
+        "instead_of": {
+          "cs": "Místo Londýna s Bf4 — víc přímý útok, méně „čekání“.",
+          "en": "Instead of the London with Bf4 — more direct attack, less waiting."
+        },
+        "when_to_play": {
+          "cs": "Proti …Nf6/g6 bez včasného …d5.",
+          "en": "Against ...Nf6/g6 setups without an early ...d5."
+        },
+        "related_line_ids": [
+          "london_system_white"
+        ]
+      }
+    },
+    {
+      "id": "italian_two_knights_white",
+      "eco": "C55",
+      "family": "italian",
+      "name": {
+        "cs": "Italská — dva jezdci",
+        "en": "Italian — Two Knights"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Bc4 a klidný d3 proti ...Nf6.",
+        "en": "Bc4 and calm d3 against ...Nf6."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "b8c6",
+        "f1c4",
+        "g8f6",
+        "d2d3",
+        "f8e7",
+        "b1c3",
+        "d7d6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4.",
+            "en": "e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Bc4.",
+            "en": "Bc4."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "d3.",
+            "en": "d3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Bc4 + d3 — klidná italská proti …Nf6.",
+          "en": "Bc4 and d3 — a calm Italian against ...Nf6."
+        },
+        "why_this_line": {
+          "cs": "Two Knights s d3 vyhýbá se Fried Liver a učí rozvoj bez taktických pastí.",
+          "en": "Two Knights with d3 avoids the Fried Liver and teaches development without traps."
+        },
+        "instead_of": {
+          "cs": "Místo c3 Giuoco — rychlejší rozvoj, méně uzavřené pozice.",
+          "en": "Instead of the c3 Giuoco — faster development, less closed play."
+        },
+        "when_to_play": {
+          "cs": "Když černý hraje …Nf6 už v úvodu.",
+          "en": "When Black plays ...Nf6 early."
+        },
+        "related_line_ids": [
+          "italian_giuoco_white"
+        ]
+      }
+    },
+    {
+      "id": "torre_attack_white",
+      "eco": "A46",
+      "family": "torre",
+      "name": {
+        "cs": "Torreův útok",
+        "en": "Torre Attack"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "Bg5"
+      ],
+      "idea": {
+        "cs": "Bg5 a harmonický rozvoj na královském křídle.",
+        "en": "Bg5 with harmonious kingside development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c1g5",
+        "e7e6",
+        "e2e3",
+        "f8e7",
+        "g1f3",
+        "b8c6",
+        "f1d3",
+        "d7d5"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Bg5.",
+            "en": "Bg5."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Bd3.",
+            "en": "Bd3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Bg5 + e3 — tlak na Nf6 bez c4.",
+          "en": "Bg5 and e3 — pressure on ...Nf6 without c4."
+        },
+        "why_this_line": {
+          "cs": "Torre je jednoduchý plán proti …Nf6: pin a harmonický rozvoj. Málo teorie.",
+          "en": "The Torre is a simple plan vs ...Nf6: pin and smooth development. Little theory."
+        },
+        "instead_of": {
+          "cs": "Místo Trompowskyho nebo Londýna — střední cesta s aktivním střelcem.",
+          "en": "Instead of Trompowsky or London — middle ground with an active bishop."
+        },
+        "when_to_play": {
+          "cs": "Proti KID/Indian hráčům, kteří začínají …Nf6.",
+          "en": "Against KID/Indian players who start with ...Nf6."
+        },
+        "related_line_ids": [
+          "trompowsky_white",
+          "london_vs_kid_white"
+        ]
+      }
+    },
+    {
+      "id": "ruy_lopez_classical_white",
+      "eco": "C78",
+      "family": "spanish",
+      "name": {
+        "cs": "Španělská — klasická",
+        "en": "Ruy Lopez — Classical"
+      },
+      "side": "white",
+      "difficulty": 3,
+      "tags": [
+        "e4",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Ba4 a d3 proti berlínskému Nf6.",
+        "en": "Ba4 and d3 against the Berlin ...Nf6."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "b8c6",
+        "f1b5",
+        "a7a6",
+        "b5a4",
+        "g8f6",
+        "d2d3",
+        "f8e7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4.",
+            "en": "e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Bb5.",
+            "en": "Bb5."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Ba4.",
+            "en": "Ba4."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "d3.",
+            "en": "d3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Ba4 + d3 — hlubší španělská bez Morphyho.",
+          "en": "Ba4 and d3 — deeper Spanish without the Morphy Attack."
+        },
+        "why_this_line": {
+          "cs": "Klasická Ruy po …a6 učí dlouhodobý tlak na černého bez okamžitého útoku.",
+          "en": "Classical Ruy after ...a6 teaches long-term pressure without an immediate assault."
+        },
+        "instead_of": {
+          "cs": "Místo krátké Berlin linie — více prostoru pro bílého.",
+          "en": "Instead of the short Berlin line — more space for White."
+        },
+        "when_to_play": {
+          "cs": "Když černý hraje …a6 místo …Nf6 hned.",
+          "en": "When Black plays ...a6 instead of an immediate ...Nf6."
+        },
+        "related_line_ids": [
+          "spanish_berlin_white"
+        ]
+      }
+    },
+    {
+      "id": "english_symmetrical_white",
+      "eco": "A35",
+      "family": "english",
+      "name": {
+        "cs": "Anglická — symetrická",
+        "en": "English — Symmetrical"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "c4",
+        "symmetrical"
+      ],
+      "idea": {
+        "cs": "Symetrická anglická s fianchetto obou střelců.",
+        "en": "Symmetrical English with both bishops fianchettoed."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "c2c4",
+        "c7c5",
+        "b1c3",
+        "b8c6",
+        "g2g3",
+        "g7g6",
+        "f1g2",
+        "f8g7",
+        "g1f3",
+        "g8f6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "c4.",
+            "en": "c4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "g3.",
+            "en": "g3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Bg2.",
+            "en": "Bg2."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Symetrická anglická — fianchetto obou střelců.",
+          "en": "Symmetrical English — both bishops fianchettoed."
+        },
+        "why_this_line": {
+          "cs": "Symetrie učí manévrování a rovnost v uzavřené struktuře. Ideální pro poziční hráče.",
+          "en": "Symmetry teaches manoeuvring and equality in closed structures. Ideal for positional players."
+        },
+        "instead_of": {
+          "cs": "Místo reversed anglické — méně rizika, více rovnosti.",
+          "en": "Instead of the reversed English — less risk, more equality."
+        },
+        "when_to_play": {
+          "cs": "Proti …c5, když nechceš předčasný e4.",
+          "en": "Against ...c5 when you do not want an early e4."
+        },
+        "related_line_ids": [
+          "english_reversed_white"
+        ]
+      }
+    },
+    {
+      "id": "london_vs_kid_white",
+      "eco": "A47",
+      "family": "london",
+      "name": {
+        "cs": "Londýn proti KID",
+        "en": "London vs King's Indian"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "system"
+      ],
+      "idea": {
+        "cs": "Bf4 a e3 proti ...g6.",
+        "en": "Bf4 and e3 against ...g6."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c1f4",
+        "g7g6",
+        "e2e3",
+        "f8g7",
+        "g1f3",
+        "d7d6",
+        "f1e2",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Bf4.",
+            "en": "Bf4."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Be2.",
+            "en": "Be2."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Londýn proti …g6 — stejný plán, jiná startovní odpověď.",
+          "en": "London vs ...g6 — same plan, different first reply."
+        },
+        "why_this_line": {
+          "cs": "Učí, že systém není vázaný na …d5: Bf4/e3 funguje i proti KID setupu.",
+          "en": "Shows the system is not tied to ...d5: Bf4/e3 works vs KID setups too."
+        },
+        "instead_of": {
+          "cs": "Místo klasického Londýna s …d5 — přizpůsobení hypermoderní obraně.",
+          "en": "Instead of classical London vs ...d5 — adapted to hypermodern defences."
+        },
+        "when_to_play": {
+          "cs": "Když soupeř odpovídá 1.d4 systémem …Nf6/g6.",
+          "en": "When opponents answer 1.d4 with ...Nf6/g6."
+        },
+        "related_line_ids": [
+          "london_system_white",
+          "kings_indian_black"
+        ]
+      }
+    },
+    {
+      "id": "alekhine_defence_black",
+      "eco": "B03",
+      "family": "alekhine",
+      "name": {
+        "cs": "Aljechinova obrana",
+        "en": "Alekhine's Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black",
+        "hypermodern"
+      ],
+      "idea": {
+        "cs": "Nf6 a vyprovokuj e5 — pak Nd5.",
+        "en": "Nf6 provoking e5 — then ...Nd5."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "g8f6",
+        "e4e5",
+        "f6d5",
+        "d2d4",
+        "d7d6",
+        "g1f3",
+        "c8g4",
+        "f1e2",
+        "e7e6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Nd5.",
+            "en": "Nd5."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "d6.",
+            "en": "d6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Bg4.",
+            "en": "Bg4."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        }
+      ],
+      "mirror_line_id": "vienna_white",
+      "rationale": {
+        "summary": {
+          "cs": "Nf6 provokuje e5 — černý útočí centrum později.",
+          "en": "Nf6 provokes e5 — Black strikes the center later."
+        },
+        "why_this_line": {
+          "cs": "Aljechin učí, že velké bílé centrum může být cíl. Nd5 je klíčový manévr.",
+          "en": "Alekhine teaches that a big White center can be a target. ...Nd5 is the key manoeuvre."
+        },
+        "instead_of": {
+          "cs": "Místo pasivní pirc — aktivnější hned v úvodu.",
+          "en": "Instead of passive Pirc — more active from move one."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým, kteří milují velké e4/d4/e5.",
+          "en": "Against Whites who love big e4/d4/e5 centers."
+        },
+        "related_line_ids": [
+          "modern_defence_black",
+          "pirc_classical_black"
+        ]
+      }
+    },
+    {
+      "id": "slav_defence_black",
+      "eco": "D10",
+      "family": "slav",
+      "name": {
+        "cs": "Slovanská obrana",
+        "en": "Slav Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "c6 podporuje d5 a solidní rozvoj.",
+        "en": "c6 supports d5 and solid development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "c7c6",
+        "g1f3",
+        "g8f6",
+        "b1c3",
+        "e7e6",
+        "c1f4",
+        "f8d6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "c6 — slovanská.",
+            "en": "c6 — Slav."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Bd6.",
+            "en": "Bd6."
+          }
+        }
+      ],
+      "common_mistakes": [
+        {
+          "wrong_uci": "g8f6",
+          "at_ply_index": 3,
+          "hint": {
+            "cs": "Ve slavské ...c6 drží strukturu, ne ...Nf6 hned.",
+            "en": "In the Slav ...c6 holds the structure, not ...Nf6 so soon."
+          }
+        }
+      ],
+      "mirror_line_id": "london_system_white",
+      "rationale": {
+        "summary": {
+          "cs": "c6 podporuje d5 — velmi solidní d4 odpověď.",
+          "en": "c6 supports d5 — a very solid d4 answer."
+        },
+        "why_this_line": {
+          "cs": "Slovanská je těžší k proražení než QGD: pěšec c6 drží linii d5.",
+          "en": "The Slav is harder to crack than QGD: c6 supports d5."
+        },
+        "instead_of": {
+          "cs": "Místo semi-slovanské e6 — méně světlošedých polí, pevnější.",
+          "en": "Instead of Semi-Slav e6 — fewer light-square holes, more solid."
+        },
+        "when_to_play": {
+          "cs": "Proti 1.d4 c4, když nechceš izolovaného pěšce d5.",
+          "en": "Against 1.d4 c4 when you want to avoid an isolated d-pawn."
+        },
+        "related_line_ids": [
+          "semi_slav_black",
+          "chigorin_black"
+        ]
+      }
+    },
+    {
+      "id": "kings_indian_black",
+      "eco": "E60",
+      "family": "kings_indian",
+      "name": {
+        "cs": "Královský indický",
+        "en": "King's Indian Defence"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black",
+        "fianchetto"
+      ],
+      "idea": {
+        "cs": "g6, Bg7 a protihra v centru.",
+        "en": "g6, Bg7, and counterplay in the center."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "g7g6",
+        "b1c3",
+        "f8g7",
+        "e2e4",
+        "d7d6",
+        "g1f3",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "g6.",
+            "en": "g6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Bg7.",
+            "en": "Bg7."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "d6.",
+            "en": "d6."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nbd7.",
+            "en": "Nbd7."
+          }
+        }
+      ],
+      "mirror_line_id": "english_four_knights_white",
+      "rationale": {
+        "summary": {
+          "cs": "g6 + Bg7 — protihra na královském křídle.",
+          "en": "g6 and Bg7 — kingside counterplay."
+        },
+        "why_this_line": {
+          "cs": "KID je klasika dynamické hry: černý dovolí centrum a útočí na královském křídle.",
+          "en": "KID is a classic of dynamic play: Black allows a center and attacks on the kingside."
+        },
+        "instead_of": {
+          "cs": "Místo Nimzo/QI — víc taktiky a šach matových plánů.",
+          "en": "Instead of Nimzo/QI — more tactics and mating attacks."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým s velkým e4/c4 centrem.",
+          "en": "Against Whites with a big e4/c4 center."
+        },
+        "related_line_ids": [
+          "london_vs_kid_white",
+          "grunfeld_black"
+        ]
+      }
+    },
+    {
+      "id": "dutch_defence_black",
+      "eco": "A80",
+      "family": "dutch",
+      "name": {
+        "cs": "Holandská obrana",
+        "en": "Dutch Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "f5 a dynamická hra na královském křídle.",
+        "en": "f5 and dynamic kingside play."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "f7f5",
+        "c2c4",
+        "g8f6",
+        "b1c3",
+        "e7e6",
+        "g2g3",
+        "f8b4",
+        "f1g2",
+        "b8c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "f5.",
+            "en": "f5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Bb4.",
+            "en": "Bb4."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nc6.",
+            "en": "Nc6."
+          }
+        }
+      ],
+      "mirror_line_id": "colle_system_white",
+      "rationale": {
+        "summary": {
+          "cs": "f5 — okamžitá kontrola e4 a křídla.",
+          "en": "f5 — immediate fight for e4 and the kingside."
+        },
+        "why_this_line": {
+          "cs": "Holandská učí asymetrii už z prvního tahu. Bb4 a Nc6 rozvíjí figury aktivně.",
+          "en": "The Dutch teaches asymmetry from move one. ...Bb4 and ...Nc6 develop actively."
+        },
+        "instead_of": {
+          "cs": "Místo klidného …f5 v Old Indian stylu — víc prostoru, víc rizika.",
+          "en": "Instead of quiet ...f5 Old Indian style — more space, more risk."
+        },
+        "when_to_play": {
+          "cs": "Když chceš hrát na výhru proti 1.d4 a nebát se asymetrie.",
+          "en": "When you want to play for a win against 1.d4 and accept asymmetry."
+        },
+        "related_line_ids": [
+          "london_system_white"
+        ]
+      }
+    },
+    {
+      "id": "bogo_indian_black",
+      "eco": "E11",
+      "family": "bogo",
+      "name": {
+        "cs": "Bogoindická",
+        "en": "Bogo-Indian Defence"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Bb4 bez včasného ...d5.",
+        "en": "Bb4 without an early ...d5."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "f8b4",
+        "d1c2",
+        "d7d5",
+        "e2e3",
+        "b8c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Bb4.",
+            "en": "Bb4."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nc6.",
+            "en": "Nc6."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Bb4 bez včasného …d5 — flexibilní indian.",
+          "en": "Bb4 without an early ...d5 — a flexible Indian."
+        },
+        "why_this_line": {
+          "cs": "Bogo je „lehčí“ Nimzo: stejný princip Bb4, ale méně ostrá teorie.",
+          "en": "Bogo is a 'lighter' Nimzo: same Bb4 idea, less sharp theory."
+        },
+        "instead_of": {
+          "cs": "Místo Nimzo s …c5 — klidnější rozvoj, stále aktivní střelec.",
+          "en": "Instead of Nimzo with ...c5 — calmer development, still an active bishop."
+        },
+        "when_to_play": {
+          "cs": "Proti 1.d4 c4 Nc3, když nechceš hlubokou Nimzo teorii.",
+          "en": "Against 1.d4 c4 Nc3 when you want to avoid deep Nimzo theory."
+        },
+        "related_line_ids": [
+          "nimzo_indian_black",
+          "queens_indian_black"
+        ]
+      }
+    },
+    {
+      "id": "queens_indian_black",
+      "eco": "E12",
+      "family": "queens_indian",
+      "name": {
+        "cs": "Dámský indický",
+        "en": "Queen's Indian Defence"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black",
+        "fianchetto"
+      ],
+      "idea": {
+        "cs": "b6, Bb7 a kontrola světlých polí.",
+        "en": "b6, Bb7, and control of the light squares."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "e7e6",
+        "g1f3",
+        "b7b6",
+        "g2g3",
+        "c8b7",
+        "f1g2",
+        "f8e7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "b6.",
+            "en": "b6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Bb7.",
+            "en": "Bb7."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Be7.",
+            "en": "Be7."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "b6 + Bb7 — kontrola světlých polí.",
+          "en": "b6 and Bb7 — control of the light squares."
+        },
+        "why_this_line": {
+          "cs": "QI je elegantní odpověď na Nf3: fianchetto bez včasného …Bb4.",
+          "en": "QI is an elegant answer to Nf3: fianchetto without an early ...Bb4."
+        },
+        "instead_of": {
+          "cs": "Místo Nimzo/Bogo — méně výměn, více manévrování.",
+          "en": "Instead of Nimzo/Bogo — fewer exchanges, more manoeuvring."
+        },
+        "when_to_play": {
+          "cs": "Proti systémům s g3/Nf3 bez c4.",
+          "en": "Against g3/Nf3 systems without an early c4."
+        },
+        "related_line_ids": [
+          "nimzo_indian_black",
+          "bogo_indian_black"
+        ]
+      }
+    },
+    {
+      "id": "grunfeld_black",
+      "eco": "D70",
+      "family": "grunfeld",
+      "name": {
+        "cs": "Grünfeldská obrana",
+        "en": "Grünfeld Defence"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black",
+        "hypermodern"
+      ],
+      "idea": {
+        "cs": "d5 útočí na bílé centrum c4/e4.",
+        "en": "...d5 strikes at the white c4/e4 center."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "g7g6",
+        "b1c3",
+        "d7d5",
+        "e2e3",
+        "f8g7",
+        "g1f3",
+        "c7c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "g6.",
+            "en": "g6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Bg7.",
+            "en": "Bg7."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "c6.",
+            "en": "c6."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "d5 útočí na bílé centrum c4/e4.",
+          "en": "...d5 strikes at White's c4/e4 center."
+        },
+        "why_this_line": {
+          "cs": "Grünfeld je hypermoderní škola v praxi: černý povolí centrum a rozbíjí ho …d5/c6.",
+          "en": "The Grünfeld is hypermodern theory in practice: allow the center, break with ...d5/c6."
+        },
+        "instead_of": {
+          "cs": "Místo KID — méně uzavřené, více výměn a protihry v centru.",
+          "en": "Instead of KID — less closed, more central counterplay."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým, kteří hrají e3/Nf3 proti …g6.",
+          "en": "Against Whites who play e3/Nf3 vs ...g6."
+        },
+        "related_line_ids": [
+          "kings_indian_black",
+          "catalan_white"
+        ]
+      }
+    },
+    {
+      "id": "reti_opening_white",
+      "eco": "A06",
+      "family": "reti",
+      "name": {
+        "cs": "Retiho zahájení",
+        "en": "Réti Opening"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "hypermodern",
+        "Nf3"
+      ],
+      "idea": {
+        "cs": "Nf3, c4 a fianchetto — kontrola centra z boku.",
+        "en": "Nf3, c4, and fianchetto — flank control of the center."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "g1f3",
+        "d7d5",
+        "c2c4",
+        "e7e6",
+        "g2g3",
+        "g8f6",
+        "f1g2",
+        "f8e7",
+        "e2e3",
+        "c7c6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "Nf3 — Reti.",
+            "en": "Nf3 — Réti."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "c4.",
+            "en": "c4."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "g3.",
+            "en": "g3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Bg2.",
+            "en": "Bg2."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        }
+      ],
+      "mirror_line_id": "nimzo_indian_black",
+      "rationale": {
+        "summary": {
+          "cs": "Nf3 + c4 — hypermoderní kontrola centra.",
+          "en": "Nf3 and c4 — hypermodern central control."
+        },
+        "why_this_line": {
+          "cs": "Réti učí, že centrum se ovládá i z boku. g3/Bg2 je univerzální plán.",
+          "en": "The Réti teaches flank control of the center. g3/Bg2 is a universal plan."
+        },
+        "instead_of": {
+          "cs": "Místo 1.e4/d4 — méně teorie, více flexibility.",
+          "en": "Instead of 1.e4/d4 — less theory, more flexibility."
+        },
+        "when_to_play": {
+          "cs": "Když nechceš ukázat těžiště hned prvním tahem.",
+          "en": "When you do not want to reveal your center pawn on move one."
+        },
+        "related_line_ids": [
+          "english_symmetrical_white",
+          "london_system_white"
+        ]
+      }
+    },
+    {
+      "id": "english_four_knights_white",
+      "eco": "A28",
+      "family": "english",
+      "name": {
+        "cs": "Anglická — čtyři jezdci",
+        "en": "English — Four Knights"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "c4",
+        "development"
+      ],
+      "idea": {
+        "cs": "c4 a symetrický rozvoj jezců.",
+        "en": "c4 with symmetrical knight development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "c2c4",
+        "e7e5",
+        "b1c3",
+        "g8f6",
+        "g1f3",
+        "b8c6",
+        "e2e3",
+        "f8b4",
+        "f1e2",
+        "d7d6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "c4.",
+            "en": "c4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Be2.",
+            "en": "Be2."
+          }
+        }
+      ],
+      "mirror_line_id": "kings_indian_black",
+      "rationale": {
+        "summary": {
+          "cs": "c4 + jezdci — anglická s e5 symetrií.",
+          "en": "c4 and knights — English vs 1…e5."
+        },
+        "why_this_line": {
+          "cs": "Spojuje anglickou 1.c4 s rozvojem jako u Four Knights. Velmi přirozené tahy.",
+          "en": "Combines 1.c4 with Four Knights development. Very natural moves."
+        },
+        "instead_of": {
+          "cs": "Místo 1.e4 Four Knights — méně otevřené, více kontroly b5/e5.",
+          "en": "Instead of 1.e4 Four Knights — less open, more control of b5/e5."
+        },
+        "when_to_play": {
+          "cs": "Proti …e5, když preferuješ c4 před e4.",
+          "en": "Against ...e5 when you prefer c4 over e4."
+        },
+        "related_line_ids": [
+          "four_knights_white",
+          "english_symmetrical_white"
+        ]
+      }
+    },
+    {
+      "id": "kings_gambit_declined_white",
+      "eco": "C30",
+      "family": "kings_gambit",
+      "name": {
+        "cs": "Královský gambit — odmítnutý",
+        "en": "King's Gambit Declined"
+      },
+      "side": "white",
+      "difficulty": 3,
+      "tags": [
+        "e4",
+        "gambit"
+      ],
+      "idea": {
+        "cs": "f4 bez brání e5 — rychlý rozvoj figur.",
+        "en": "f4 without taking on e5 — rapid piece play."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "f2f4",
+        "f8c5",
+        "g1f3",
+        "d7d6",
+        "f1c4",
+        "g8f6",
+        "c2c3",
+        "b8c6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4.",
+            "en": "e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "f4 — gambit.",
+            "en": "f4 — the gambit."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Bc4.",
+            "en": "Bc4."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "c3.",
+            "en": "c3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "f4 bez brání e5 — aktivní hra bez gambitu.",
+          "en": "f4 without taking on e5 — active play without a gambit."
+        },
+        "why_this_line": {
+          "cs": "Odmítnutý gambit učí agresivní rozvoj (Bc4, c3) bez rizika ztráty pěšce.",
+          "en": "King's Gambit Declined teaches aggressive development (Bc4, c3) without pawn risk."
+        },
+        "instead_of": {
+          "cs": "Místo přijatého KGA — méně taktických pastí, stále aktivní.",
+          "en": "Instead of accepted KGA — fewer traps, still active."
+        },
+        "when_to_play": {
+          "cs": "Proti soupeřům, kteří hrají …Bc5 proti f4.",
+          "en": "Against opponents who meet f4 with ...Bc5."
+        },
+        "related_line_ids": [
+          "italian_giuoco_white"
+        ]
+      }
+    },
+    {
+      "id": "catalan_vs_slav_white",
+      "eco": "E00",
+      "family": "catalan",
+      "name": {
+        "cs": "Katalánská proti slovanské",
+        "en": "Catalan vs Slav"
+      },
+      "side": "white",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "c4",
+        "fianchetto"
+      ],
+      "idea": {
+        "cs": "g3 a Bg2 proti ...Bf5 ve slovanské.",
+        "en": "g3 and Bg2 against ...Bf5 in the Slav."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "c7c6",
+        "g1f3",
+        "g8f6",
+        "g2g3",
+        "c8f5",
+        "f1g2",
+        "e7e6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "c4.",
+            "en": "c4."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "g3.",
+            "en": "g3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Bg2.",
+            "en": "Bg2."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Katalánská proti slovanské …Bf5.",
+          "en": "Catalan vs Slav ...Bf5."
+        },
+        "why_this_line": {
+          "cs": "Učí typický plán g3/Bg2 proti aktivnímu černému střelci. Důležité v d4 repertoáru.",
+          "en": "Teaches the typical g3/Bg2 plan vs an active Black bishop. Important in d4 repertoires."
+        },
+        "instead_of": {
+          "cs": "Místo klasické katalánské proti …e6/Nf6 — řeší konkrétní slovanskou.",
+          "en": "Instead of classical Catalan vs ...e6/Nf6 — handles the Slav specifically."
+        },
+        "when_to_play": {
+          "cs": "Když černý hraje …c6 a …Bf5.",
+          "en": "When Black plays ...c6 and ...Bf5."
+        },
+        "related_line_ids": [
+          "catalan_white",
+          "slav_defence_black"
+        ]
+      }
+    },
+    {
+      "id": "sicilian_alapin_white",
+      "eco": "B22",
+      "family": "sicilian",
+      "name": {
+        "cs": "Sicilská — Alapin",
+        "en": "Sicilian — Alapin"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "anti-sicilian"
+      ],
+      "idea": {
+        "cs": "c3 a d4 proti sicilské bez teorie Dragonu.",
+        "en": "c3 and d4 against the Sicilian without Dragon theory."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "c7c5",
+        "c2c3",
+        "d7d6",
+        "d2d4",
+        "c5d4",
+        "c3d4",
+        "g8f6",
+        "b1c3",
+        "a7a6"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "e4.",
+            "en": "e4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "c3 — Alapin.",
+            "en": "c3 — Alapin."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "cxd4.",
+            "en": "cxd4."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "c3 proti sicilské — minimum Dragon teorie.",
+          "en": "c3 vs Sicilian — minimal Dragon theory."
+        },
+        "why_this_line": {
+          "cs": "Alapin je nejpopulárnější anti-sicilská: bílý buduje pevné centrum d4 bez otevření a-diagonály.",
+          "en": "The Alapin is the most popular anti-Sicilian: White builds a firm d4 center."
+        },
+        "instead_of": {
+          "cs": "Místo otevřené sicilské 2.Nf3 d4 — méně variant, více klidu.",
+          "en": "Instead of Open Sicilian 2.Nf3 d4 — fewer branches, more calm."
+        },
+        "when_to_play": {
+          "cs": "Proti hráčům s Dragon/Najdorf, které nechceš studovat.",
+          "en": "Against Dragon/Najdorf players you do not want to study."
+        },
+        "related_line_ids": [
+          "sicilian_odb_black",
+          "sicilian_closed_black"
+        ]
+      }
+    },
+    {
+      "id": "philidor_black",
+      "eco": "C41",
+      "family": "philidor",
+      "name": {
+        "cs": "Philidorova obrana",
+        "en": "Philidor Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black",
+        "solid"
+      ],
+      "idea": {
+        "cs": "d6 a Nd7 — pevná struktura proti 1.e4.",
+        "en": "d6 and ...Nd7 — solid structure against 1.e4."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e5",
+        "g1f3",
+        "d7d6",
+        "d2d4",
+        "b8d7",
+        "b1c3",
+        "g8f6",
+        "f1e2",
+        "f8e7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "e5.",
+            "en": "e5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "d6 — Philidor.",
+            "en": "d6 — Philidor."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nd7.",
+            "en": "Nd7."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Be7.",
+            "en": "Be7."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "d6 + Nd7 — pevná obrana e5.",
+          "en": "d6 and Nd7 — a firm e5 defence."
+        },
+        "why_this_line": {
+          "cs": "Philidor je nejjednodušší odpověď na otevřenou hru 1.e4 e5: bez taktických pastí.",
+          "en": "Philidor is the simplest answer in 1.e4 e5 open games: no tactical traps."
+        },
+        "instead_of": {
+          "cs": "Místo Petrova nebo sicilské — nejklidnější e5 varianta.",
+          "en": "Instead of Petrov or Sicilian — the calmest e5 line."
+        },
+        "when_to_play": {
+          "cs": "Pro začátečníky černé proti 1.e4 e5.",
+          "en": "For beginners as Black against 1.e4 e5."
+        },
+        "related_line_ids": [
+          "petrov_black",
+          "italian_giuoco_white"
+        ]
+      }
+    },
+    {
+      "id": "modern_defence_black",
+      "eco": "B06",
+      "family": "modern",
+      "name": {
+        "cs": "Moderní obrana",
+        "en": "Modern Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black",
+        "hypermodern"
+      ],
+      "idea": {
+        "cs": "g6 a Bg7 proti jakémukoli bílému plánu.",
+        "en": "g6 and Bg7 against any white setup."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "g7g6",
+        "d2d4",
+        "f8g7",
+        "b1c3",
+        "d7d6",
+        "g1f3",
+        "c7c5",
+        "f1e2",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "g6.",
+            "en": "g6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Bg7.",
+            "en": "Bg7."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "d6.",
+            "en": "d6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "c5.",
+            "en": "c5."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nd7.",
+            "en": "Nd7."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "g6 proti e4 — univerzální hypermoderní.",
+          "en": "g6 vs e4 — a universal hypermodern reply."
+        },
+        "why_this_line": {
+          "cs": "Moderní obrana funguje proti různým bílým plánům. Bg7 a …c5 jsou jasný cíl.",
+          "en": "The Modern works against many White setups. Bg7 and ...c5 are clear goals."
+        },
+        "instead_of": {
+          "cs": "Místo Pirc s …d6 — flexibilnější pořadí tahů.",
+          "en": "Instead of Pirc with ...d6 — more flexible move order."
+        },
+        "when_to_play": {
+          "cs": "Když nechceš commitovat se k …e5 ani sicilské.",
+          "en": "When you do not want to commit to ...e5 or the Sicilian."
+        },
+        "related_line_ids": [
+          "pirc_classical_black",
+          "alekhine_defence_black"
+        ]
+      }
+    },
+    {
+      "id": "owen_defence_black",
+      "eco": "B00",
+      "family": "owen",
+      "name": {
+        "cs": "Owenova obrana",
+        "en": "Owen's Defence"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "e4",
+        "black",
+        "offbeat"
+      ],
+      "idea": {
+        "cs": "b6 a Bb7 — netradiční fianchetto.",
+        "en": "b6 and Bb7 — unusual fianchetto."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "b7b6",
+        "d2d4",
+        "c8b7",
+        "b1c3",
+        "e7e6",
+        "g1f3",
+        "g8f6",
+        "f1e2",
+        "f8e7"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "b6.",
+            "en": "b6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Bb7.",
+            "en": "Bb7."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Be7.",
+            "en": "Be7."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "b6 — překvapení už na první tah.",
+          "en": "b6 — a surprise on move one."
+        },
+        "why_this_line": {
+          "cs": "Owen vyhazuje bílé z přípravy. Bb7 a e6 jsou solidní, i když netradiční.",
+          "en": "Owen takes White out of book. ...Bb7 and ...e6 are solid if unusual."
+        },
+        "instead_of": {
+          "cs": "Místo standardní pirc/modern — psychologická zbraň v klubové praxi.",
+          "en": "Instead of standard Pirc/Modern — a psychological club weapon."
+        },
+        "when_to_play": {
+          "cs": "Proti soupeřům závislým na 1.e4 e5/sicilské teorii.",
+          "en": "Against opponents reliant on 1.e4 e5/Sicilian theory."
+        },
+        "related_line_ids": [
+          "modern_defence_black"
+        ]
+      }
+    },
+    {
+      "id": "semi_slav_black",
+      "eco": "D45",
+      "family": "slav",
+      "name": {
+        "cs": "Semi-slovanská",
+        "en": "Semi-Slav Defence"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "c6 + e6 — velmi solidní dámský gambit.",
+        "en": "c6 + e6 — very solid against the Queen's Gambit."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "c7c6",
+        "g1f3",
+        "g8f6",
+        "e2e3",
+        "f8d6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "c6 — semi-slovanská.",
+            "en": "c6 — Semi-Slav."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Bd6.",
+            "en": "Bd6."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "c6 + e6 — pevnost dámského gambitu.",
+          "en": "c6 and e6 — a QG fortress."
+        },
+        "why_this_line": {
+          "cs": "Semi-slovanská kombinuje pevnost slavské s flexibility e6. Velmi odolná struktura.",
+          "en": "Semi-Slav combines Slav solidity with e6 flexibility. A very resilient structure."
+        },
+        "instead_of": {
+          "cs": "Místo čisté slavské — více možností …dxc4/…c5 později.",
+          "en": "Instead of pure Slav — more options with ...dxc4/...c5 later."
+        },
+        "when_to_play": {
+          "cs": "Proti 1.d4 c4 Nc3 — když chceš maximální soliditu.",
+          "en": "Against 1.d4 c4 Nc3 when you want maximum solidity."
+        },
+        "related_line_ids": [
+          "slav_defence_black",
+          "queens_gambit_declined_black"
+        ]
+      }
+    },
+    {
+      "id": "sicilian_closed_black",
+      "eco": "B23",
+      "family": "sicilian",
+      "name": {
+        "cs": "Sicilská — uzavřená",
+        "en": "Sicilian — Closed"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "e4",
+        "black"
+      ],
+      "idea": {
+        "cs": "e6 a ...a6 v uzavřené sicilské.",
+        "en": "e6 and ...a6 in the Closed Sicilian."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "c7c5",
+        "g1f3",
+        "e7e6",
+        "d2d4",
+        "c5d4",
+        "f3d4",
+        "a7a6",
+        "b1c3",
+        "g8f6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "c5.",
+            "en": "c5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "cxd4.",
+            "en": "cxd4."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "a6.",
+            "en": "a6."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "e6 sicilská — méně taktiky než ODB.",
+          "en": "e6 Sicilian — less tactics than the Open Defence."
+        },
+        "why_this_line": {
+          "cs": "Uzavřená sicilská učí manévry a protihru …a6/…Nf6 bez okamžitého otevření.",
+          "en": "Closed Sicilian teaches manoeuvres and ...a6/...Nf6 without instant opening."
+        },
+        "instead_of": {
+          "cs": "Místo …d6 ODB — pomalejší, ale bez ostrých výměn v centru.",
+          "en": "Instead of ...d6 Open Defence — slower, without sharp central exchanges."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým, kteří hrají 2.Nf3 bez okamžitého d4.",
+          "en": "Against Whites who play 2.Nf3 without an immediate d4."
+        },
+        "related_line_ids": [
+          "sicilian_odb_black"
+        ]
+      }
+    },
+    {
+      "id": "chigorin_black",
+      "eco": "D07",
+      "family": "chigorin",
+      "name": {
+        "cs": "Čigorinova obrana",
+        "en": "Chigorin Defence"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black",
+        "classical"
+      ],
+      "idea": {
+        "cs": "Nc6 místo e6 — aktivní vývoj proti dámskému gambitu.",
+        "en": "Nc6 instead of ...e6 — active play against the QG."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "b8c6",
+        "b1c3",
+        "g8f6",
+        "c1f4",
+        "c8f5",
+        "e2e3",
+        "e7e6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "Nc6 — Čigorin.",
+            "en": "Nc6 — Chigorin."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Bf5.",
+            "en": "Bf5."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        }
+      ],
+      "rationale": {
+        "summary": {
+          "cs": "Nc6 místo …e6 — aktivní dámský gambit.",
+          "en": "Nc6 instead of ...e6 — active QG play."
+        },
+        "why_this_line": {
+          "cs": "Čigorin je historicky aktivní: jezdec tlačí na e4/e5 a Bf5 rozvíjí světlého střelce.",
+          "en": "Chigorin is historically active: the knight fights for e4/e5 and ...Bf5 develops."
+        },
+        "instead_of": {
+          "cs": "Místo pasivního QGD …e6 — víc dynamiky, méně uzavřeno.",
+          "en": "Instead of passive QGD ...e6 — more dynamism, less closure."
+        },
+        "when_to_play": {
+          "cs": "Proti bílým s Bf4 systémy — typická klubová volba.",
+          "en": "Against Bf4 systems — a typical club choice."
+        },
+        "related_line_ids": [
+          "slav_defence_black",
+          "queens_gambit_declined_black"
+        ]
+      }
+    }
+  ]
+}

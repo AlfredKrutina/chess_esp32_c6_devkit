@@ -168,6 +168,24 @@ void matrix_reset(void);
  */
 void matrix_abort_ambiguous_guard_baseline(void);
 
+/**
+ * @brief Nastav očekávanou fyzickou obsazenost pro matrix guard (0/1 na pole).
+ *
+ * Sladí recovery cíl s logickou deskou (board[]). Volá game_task při aktivaci
+ * guardu nebo po NVS restore.
+ */
+void matrix_guard_apply_expected_occupancy(const uint8_t expected[64]);
+
+/**
+ * @brief Je matrix guard na straně matice aktivní?
+ */
+bool matrix_is_guard_mode_active(void);
+
+/**
+ * @brief Čtverec čekající na DROP (255 = žádný), pro race s game pickup frontou.
+ */
+uint8_t matrix_get_pending_lift_square(void);
+
 // ============================================================================
 // TIME-MULTIPLEXING FUNKCE
 // ============================================================================

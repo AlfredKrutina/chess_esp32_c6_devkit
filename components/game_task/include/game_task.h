@@ -462,6 +462,45 @@ bool game_is_puzzle_active(void);
 bool game_puzzle_enter_setup(uint8_t puzzle_id);
 bool game_is_puzzle_setup_active(void);
 
+/** Compare reed matrix occupancy (0/1) to FEN piece placement. */
+bool game_physical_matrix_matches_fen(const char *fen);
+
+/** Opening trainer — multi-ply line with virtual opponent replies. */
+void game_opening_cancel(void);
+bool game_is_opening_trainer_active(void);
+bool game_is_opening_trainer_setup_active(void);
+bool game_opening_physical_matches_start(void);
+bool game_opening_enter_setup_phase(void);
+bool game_opening_load_config(const char *line_id, const char *start_fen,
+                              const char line_uci[][6], uint8_t line_uci_count,
+                              const uint8_t *player_ply_indices,
+                              uint8_t player_ply_count,
+                              const uint8_t *checkpoint_ply_indices,
+                              uint8_t checkpoint_count, uint8_t mode,
+                              uint8_t player_side_white,
+                              uint8_t opponent_mode);
+bool game_opening_start(void);
+bool game_opening_hint(void);
+bool game_opening_checkpoint_ack(void);
+bool game_opening_awaiting_opponent_physical(void);
+bool game_opening_is_physical_opponent_mode(void);
+bool game_opening_validate_opponent_pickup(uint8_t from_row, uint8_t from_col);
+void game_opening_on_opponent_piece_lifted(void);
+void game_opening_advance_after_opponent_physical(void);
+bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
+                                         uint8_t to_row, uint8_t to_col);
+void game_opening_advance_after_correct(void);
+bool game_opening_on_wrong_player_move(void);
+void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
+                                   uint8_t to_row, uint8_t to_col);
+bool game_opening_on_illegal_player_move(void);
+bool game_opening_apply_uci(const char *uci);
+bool game_opening_validate_checkpoint_physical(void);
+bool game_opening_status_needs_matrix(void);
+const char *game_opening_feedback_key(void);
+const char *game_opening_opponent_mode_key(void);
+void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset);
+
 /**
  * @brief Matrix guard: aktivni pauza pri nesouladu matice s logickou deskou.
  * @details true = uzivatel musi srovnat fyzickou desku pred dalsimi tahy.
@@ -481,6 +520,13 @@ uint32_t game_get_matrix_guard_lifted_mask_high(void);
 uint32_t game_get_matrix_guard_dropped_mask_low(void);
 /** @brief Bitova maska polozenych poli (hornich 32), matrix guard. */
 uint32_t game_get_matrix_guard_dropped_mask_high(void);
+
+/**
+ * @brief Nouzové zrušení matrix guard (game + matrix vrstva) a obnovení LED nápovědy.
+ * @details Použij jen když je deska fyzicky srovnaná, ale guard zůstal viset.
+ *          Preferuj automatické vyčištění po srovnání figurek.
+ */
+void game_force_clear_matrix_guard(void);
 
 /**
  * @brief true pokud game_load_snapshot_from_nvs() v game_task_start uspesne nacetl hru.
@@ -743,6 +789,21 @@ void game_stop_repeating_rook_animation(void);
  * @param cmd Drop prikaz s pozici
  */
 void game_process_drop_command(const chess_move_command_t *cmd);
+
+/**
+ * @brief Zpracuj PICKUP prikaz (UP)
+ */
+void game_process_pickup_command(const chess_move_command_t *cmd);
+
+/**
+ * @brief Zpracuj CASTLE prikaz
+ */
+void game_process_castle_command(const chess_move_command_t *cmd);
+
+/**
+ * @brief Zpracuj PROMOTE prikaz
+ */
+void game_process_promote_command(const chess_move_command_t *cmd);
 
 /**
  * @brief Timer callback pro opakovanou animaci veze

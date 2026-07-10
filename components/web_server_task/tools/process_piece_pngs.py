@@ -124,6 +124,7 @@ def main() -> None:
         REPO_ROOT,
         "components",
         "web_server_task",
+        "web",
         "piece_assets",
     )
     for name in PIECES:

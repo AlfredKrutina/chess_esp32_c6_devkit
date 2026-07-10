@@ -932,6 +932,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gameHintLedsClearedSnackbar => 'Hint LEDs cleared';
 
   @override
+  String get gameMatrixGuardTitle => 'Board alignment required';
+
+  @override
+  String gameMatrixGuardPaused(String squares) {
+    return 'Align pieces using board LEDs$squares. Play resumes when matched.';
+  }
+
+  @override
+  String gameMatrixGuardResync(String squares) {
+    return 'Board mismatch after startup$squares. Align pieces using LEDs.';
+  }
+
+  @override
+  String get gameMatrixGuardForceClear => 'Resume play';
+
+  @override
+  String get gameMatrixGuardForceClearHint =>
+      'Only if pieces are already aligned';
+
+  @override
+  String get gameMatrixGuardForceClearSnack =>
+      'Play resumed — verify the board matches the game';
+
+  @override
   String get gameNoSnapshotBody =>
       'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.';
 

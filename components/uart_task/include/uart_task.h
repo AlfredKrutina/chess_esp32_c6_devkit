@@ -179,9 +179,63 @@ command_result_t uart_cmd_show_mutexes(const char* args);
 /** @brief Prikaz show_fifos */
 command_result_t uart_cmd_show_fifos(const char* args);
 
+/* Game / matrix handlers (uart_handlers_game.c) */
+command_result_t uart_cmd_castle(const char* args);
+command_result_t uart_cmd_promote(const char* args);
+command_result_t uart_cmd_guard_clear(const char* args);
+command_result_t uart_cmd_start_pos_check(const char* args);
+command_result_t uart_cmd_matrixtest(const char* args);
+
+/* System / demo handlers (uart_task.c) */
+command_result_t uart_cmd_eval(const char* args);
+command_result_t uart_cmd_ledtest(const char* args);
+command_result_t uart_cmd_performance(const char* args);
+command_result_t uart_cmd_config(const char* args);
+command_result_t uart_cmd_demo(const char* args);
+command_result_t uart_cmd_demo_status(const char* args);
+command_result_t uart_cmd_component_off(const char* args);
+command_result_t uart_cmd_component_on(const char* args);
+command_result_t uart_cmd_endgame_white(const char* args);
+command_result_t uart_cmd_endgame_black(const char* args);
+command_result_t uart_cmd_endgame_wave(const char* args);
+command_result_t uart_cmd_endgame_circles(const char* args);
+command_result_t uart_cmd_endgame_cascade(const char* args);
+command_result_t uart_cmd_endgame_fireworks(const char* args);
+command_result_t uart_cmd_endgame_draw_spiral(const char* args);
+command_result_t uart_cmd_endgame_draw_pulse(const char* args);
+command_result_t uart_cmd_stop_endgame(const char* args);
+command_result_t uart_cmd_test_move_anim(const char* args);
+command_result_t uart_cmd_test_player_anim(const char* args);
+command_result_t uart_cmd_test_castle_anim(const char* args);
+command_result_t uart_cmd_test_promote_anim(const char* args);
+command_result_t uart_cmd_test_endgame_anim(const char* args);
+
+/* Timer / WiFi / web / MQTT handlers (uart_handlers_wifi.c) */
+command_result_t uart_cmd_timer(const char* args);
+command_result_t uart_cmd_timer_config(const char* args);
+command_result_t uart_cmd_timer_pause(const char* args);
+command_result_t uart_cmd_timer_resume(const char* args);
+command_result_t uart_cmd_timer_reset(const char* args);
+command_result_t uart_cmd_wifi(const char* args);
+command_result_t uart_cmd_wifi_connect(const char* args);
+command_result_t uart_cmd_wifi_disconnect(const char* args);
+command_result_t uart_cmd_wifi_status(const char* args);
+command_result_t uart_cmd_wifi_clear(const char* args);
+command_result_t uart_cmd_web_lock(const char* args);
+command_result_t uart_cmd_web_status(const char* args);
+command_result_t uart_cmd_api_token(const char* args);
+command_result_t uart_cmd_ble(const char* args);
+command_result_t uart_cmd_mqtt_config(const char* args);
+command_result_t uart_cmd_mqtt_status(const char* args);
+command_result_t uart_cmd_mqtt_test(const char* args);
+
 // ============================================================================
 // POMOCNE FUNKCE
 // ============================================================================
+
+void uart_send_error(const char* message);
+void uart_send_formatted(const char* format, ...);
+void uart_send_line(const char* str);
 
 /**
  * @brief Zobraz hlavni help

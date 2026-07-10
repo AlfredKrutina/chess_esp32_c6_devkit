@@ -161,6 +161,68 @@ class PuzzleStatusJson {
   }
 }
 
+class OpeningTrainingStatusJson {
+  const OpeningTrainingStatusJson({
+    this.active,
+    this.setupPhase,
+    this.opponentMode,
+    this.awaitingOpponentPhysical,
+    this.feedback,
+    this.playerPlyIndex,
+    this.playerPlyTotal,
+    this.expectedFrom,
+    this.expectedTo,
+    this.awaitingCheckpointAck,
+    this.physicalSynced,
+    this.physicalMatch,
+    this.wrongMoveCount,
+    this.plyIndex,
+    this.lastWrongUci,
+    this.checkpointExpectedOccupied,
+  });
+
+  final bool? active;
+  final bool? setupPhase;
+  final String? opponentMode;
+  final bool? awaitingOpponentPhysical;
+  final String? feedback;
+  final int? playerPlyIndex;
+  final int? playerPlyTotal;
+  final int? plyIndex;
+  final String? expectedFrom;
+  final String? expectedTo;
+  final String? lastWrongUci;
+  final bool? awaitingCheckpointAck;
+  final bool? physicalSynced;
+  final bool? physicalMatch;
+  final int? wrongMoveCount;
+  final List<int>? checkpointExpectedOccupied;
+
+  factory OpeningTrainingStatusJson.fromJson(Map<String, dynamic> json) {
+    return OpeningTrainingStatusJson(
+      active: json['active'] as bool?,
+      setupPhase: json['setup_phase'] as bool?,
+      opponentMode: json['opponent_mode'] as String?,
+      awaitingOpponentPhysical: json['awaiting_opponent_physical'] as bool?,
+      feedback: json['feedback'] as String?,
+      playerPlyIndex: (json['player_ply_index'] as num?)?.toInt(),
+      playerPlyTotal: (json['player_ply_total'] as num?)?.toInt(),
+      plyIndex: (json['ply_index'] as num?)?.toInt(),
+      expectedFrom: json['expected_from'] as String?,
+      expectedTo: json['expected_to'] as String?,
+      lastWrongUci: json['last_wrong_uci'] as String?,
+      awaitingCheckpointAck: json['awaiting_checkpoint_ack'] as bool?,
+      physicalSynced: json['physical_synced'] as bool?,
+      physicalMatch: json['physical_match'] as bool?,
+      wrongMoveCount: (json['wrong_move_count'] as num?)?.toInt(),
+      checkpointExpectedOccupied:
+          (json['checkpoint_expected_occupied'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList(),
+    );
+  }
+}
+
 class GameStatus {
   const GameStatus({
     required this.gameState,
@@ -181,6 +243,7 @@ class GameStatus {
     this.restoreState,
     this.boardSetupTutorial,
     this.puzzle,
+    this.openingTraining,
     this.guidedCaptureHintsEnabled,
     this.ledGuidanceLevel,
     this.matrixGuardActive,
@@ -217,6 +280,7 @@ class GameStatus {
   final RestoreStateJson? restoreState;
   final bool? boardSetupTutorial;
   final PuzzleStatusJson? puzzle;
+  final OpeningTrainingStatusJson? openingTraining;
   final bool? guidedCaptureHintsEnabled;
   final int? ledGuidanceLevel;
   final bool? matrixGuardActive;
@@ -287,6 +351,11 @@ class GameStatus {
               Map<String, dynamic>.from(json['puzzle'] as Map),
             )
           : null,
+      openingTraining: json['opening_training'] != null
+          ? OpeningTrainingStatusJson.fromJson(
+              Map<String, dynamic>.from(json['opening_training'] as Map),
+            )
+          : null,
       guidedCaptureHintsEnabled: json['guided_capture_hints_enabled'] as bool?,
       ledGuidanceLevel: (json['led_guidance_level'] as num?)?.toInt(),
       matrixGuardActive: json['matrix_guard_active'] as bool?,
@@ -333,6 +402,7 @@ class GameStatus {
       restoreState: restoreState,
       boardSetupTutorial: boardSetupTutorial,
       puzzle: puzzle,
+      openingTraining: openingTraining,
       guidedCaptureHintsEnabled: guidedCaptureHintsEnabled,
       ledGuidanceLevel: ledGuidanceLevel,
       matrixGuardActive: matrixGuardActive,
@@ -380,6 +450,7 @@ class GameStatus {
       restoreState: restoreState,
       boardSetupTutorial: boardSetupTutorial,
       puzzle: puzzle,
+      openingTraining: openingTraining,
       guidedCaptureHintsEnabled: guidedCaptureHintsEnabled,
       ledGuidanceLevel: ledGuidanceLevel,
       matrixGuardActive: matrixGuardActive,

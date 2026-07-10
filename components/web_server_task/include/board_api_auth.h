@@ -17,11 +17,14 @@
  */
 #pragma once
 
+#include "sdkconfig.h"
 #include "esp_err.h"
 #include <stdbool.h>
 #include <stddef.h>
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 #include "esp_http_server.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,11 +33,13 @@ extern "C" {
 /** NVS inicializace / generace tokenu při prvním spuštění. */
 esp_err_t board_api_auth_init(void);
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 /**
  * HTTP admin akce: zkontroluje Bearer token vs NVS a web lock.
  * @return true pokud už byl odeslán 403 a handler má vrátit ESP_OK.
  */
 bool board_api_auth_admin_http_denied(httpd_req_t *req);
+#endif
 
 /** UART / diagnostika: hex řetězec (64 znaků) + '\\0'. */
 esp_err_t board_api_auth_get_token_hex(char *out_hex, size_t cap);

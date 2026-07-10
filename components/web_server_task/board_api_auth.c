@@ -4,7 +4,10 @@
  */
 #include "board_api_auth.h"
 
+#include "sdkconfig.h"
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 #include "esp_http_server.h"
+#endif
 #include "esp_log.h"
 #include "esp_random.h"
 #include "nvs_flash.h"
@@ -128,6 +131,7 @@ esp_err_t board_api_auth_rotate_token(void) {
   return e;
 }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static bool bearer_matches_request(httpd_req_t *req) {
   if (!s_loaded || req == NULL) {
     return false;
@@ -182,3 +186,4 @@ bool board_api_auth_admin_http_denied(httpd_req_t *req) {
       "Web locked. Send Authorization Bearer token or UART WEB_LOCK OFF.");
   return true;
 }
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */

@@ -16,8 +16,8 @@ if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
   fi
 fi
 
-echo "==> generate_mermaid_html.py → diagrams_mermaid.html + extracted/*.mmd"
-python3 generate_mermaid_html.py --export-dir docs/diagrams/extracted
+echo "==> scripts/docs/generate_mermaid_html.py → diagrams_mermaid.html + extracted/*.mmd"
+python3 scripts/docs/generate_mermaid_html.py --export-dir docs/diagrams/extracted
 
 echo "==> kopie Mermaid HTML pro gh-pages / doxygen (pokud složky existují)"
 if [[ -d gh-pages-ready ]]; then
@@ -28,7 +28,7 @@ if [[ -f docs/doxygen/html/index.html ]]; then
   cp -f docs/diagrams/diagrams_mermaid.html docs/doxygen/html/diagrams_mermaid.html
   echo "    docs/doxygen/html/diagrams_mermaid.html"
 elif [[ -d docs/doxygen ]]; then
-  echo "    (přeskočeno: vygeneruj nejdřív Doxygen — ./generate_docs.sh)"
+  echo "    (přeskočeno: vygeneruj nejdřív Doxygen — ./scripts/docs/generate_docs.sh)"
 fi
 
 render_mmd() {

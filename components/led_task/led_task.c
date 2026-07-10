@@ -567,7 +567,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
   }
 
   if (simulation_mode) {
-    ESP_LOGI(TAG, "LED[%d] = RGB(%d,%d,%d) = 0x%06X", led_index, red, green,
+    ESP_LOGI(TAG, "LED[%d] = RGB(%d,%d,%d) = 0x%06" PRIX32, led_index, red, green,
              blue, led_states[led_index]);
   }
 
@@ -599,7 +599,7 @@ void led_set_all_internal(uint8_t red, uint8_t green, uint8_t blue) {
   }
 
   if (simulation_mode) {
-    ESP_LOGI(TAG, "All LEDs = RGB(%d,%d,%d) = 0x%06X", red, green, blue, color);
+    ESP_LOGI(TAG, "All LEDs = RGB(%d,%d,%d) = 0x%06" PRIX32, red, green, blue, color);
   }
 }
 
@@ -668,7 +668,7 @@ void led_show_chess_board(void) {
   // Debug button LEDs after initialization
   for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
     uint8_t led_index = led_get_button_led_index(i);
-    ESP_LOGI(TAG, "Button %d (LED %d) after final init: 0x%06X", i, led_index,
+    ESP_LOGI(TAG, "Button %d (LED %d) after final init: 0x%06" PRIX32, i, led_index,
              led_states[led_index]);
   }
 
@@ -890,7 +890,7 @@ void led_start_animation(uint32_t duration_ms) {
   animation_pattern = 0;
 
   if (simulation_mode) {
-    ESP_LOGI(TAG, "Animation started: duration=%dms", duration_ms);
+    ESP_LOGI(TAG, "Animation started: duration=%" PRIu32 "ms", duration_ms);
   }
 }
 
@@ -1274,7 +1274,7 @@ void led_update_animation(void) {
     // Animation complete
     animation_active = false;
     if (simulation_mode) {
-      ESP_LOGI(TAG, "Animation completed after %dms", elapsed);
+      ESP_LOGI(TAG, "Animation completed after %" PRIu32 "ms", elapsed);
     }
     return;
   }
@@ -2048,8 +2048,8 @@ void led_task_start(void *pvParameters) {
 
     // Watchdog logging every 1000 iterations (5 seconds)
     if (loop_count % 1000 == 0) {
-      ESP_LOGI(TAG, "LED Task Watchdog: loop=%d, heap=%zu", loop_count,
-               esp_get_free_heap_size());
+      ESP_LOGI(TAG, "LED Task Watchdog: loop=%" PRIu32 ", heap=%" PRIu32,
+               loop_count, esp_get_free_heap_size());
     }
 
     // Process LED commands from queue
@@ -2075,7 +2075,7 @@ void led_task_start(void *pvParameters) {
 
     // Periodic status update - reduced frequency for cleaner UART
     if (loop_count % 10000 == 0) { // Every 10000 loops (50 seconds)
-      ESP_LOGI(TAG, "LED Task Status: loop=%d, animation=%s", loop_count,
+      ESP_LOGI(TAG, "LED Task Status: loop=%" PRIu32 ", animation=%s", loop_count,
                animation_active ? "active" : "inactive");
     }
 

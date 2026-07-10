@@ -97,17 +97,24 @@
  */
 
 #include "web_server_task.h"
+#include "sdkconfig.h"
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+#include "web_routes.h"
+#include "chess_piece_http.h"
+#include "esp_http_server.h"
+#include "mdns.h"
+#endif
+#include "web_server_internal.h"
 #include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
+#include "../matrix_task/include/matrix_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
 // #include "../timer_system/include/timer_system.h" // UNUSED
 #include "esp_event.h"
-#include "chess_piece_http.h"
 #include "board_api_auth.h"
 #include "ota_update.h"
-#include "esp_http_server.h"
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_task_wdt.h"
@@ -116,7 +123,6 @@
 #include "esp_random.h"
 #include "esp_wifi.h"
 #include "freertos_chess.h"
-#include "mdns.h"
 #include "../ble_task/include/ble_task.h"
 #include "../config_manager/include/config_manager.h"
 #include "nvs.h"
@@ -143,24 +149,6 @@ extern TaskHandle_t web_server_task_handle;
 
 static const char *TAG = "WEB_SERVER_TASK";
 
-/** Po konfliktu při finish setup tutoriálu krátce nevolat znovu validaci (BLE + HTTP). */
-static TickType_t s_setup_tutorial_finish_conflict_until_tick;
-
-static void setup_tutorial_reset_finish_cooldown(void) {
-  s_setup_tutorial_finish_conflict_until_tick = 0;
-}
-
-static bool setup_tutorial_finish_in_cooldown(void) {
-  if (s_setup_tutorial_finish_conflict_until_tick == 0) {
-    return false;
-  }
-  return xTaskGetTickCount() < s_setup_tutorial_finish_conflict_until_tick;
-}
-
-static void setup_tutorial_note_finish_conflict(void) {
-  s_setup_tutorial_finish_conflict_until_tick =
-      xTaskGetTickCount() + pdMS_TO_TICKS(900);
-}
 
 // ============================================================================
 // WDT WRAPPER FUNCTIONS
@@ -175,7 +163,7 @@ static void setup_tutorial_note_finish_conflict(void) {
  *
  * Vrací ESP_OK i při přeskočení (cizí úloha nebo NULL handle).
  */
-static esp_err_t web_server_task_wdt_reset_safe(void) {
+esp_err_t web_server_task_wdt_reset_safe(void) {
   if (web_server_task_handle == NULL) {
     return ESP_OK;
   }
@@ -229,14 +217,7 @@ static esp_err_t web_server_task_wdt_reset_safe(void) {
 #define HTTP_SERVER_MAX_HEADERS 8
 #define HTTP_SERVER_MAX_CLIENTS 4
 
-// Velikosti JSON bufferu (status JSON + inject_web_status_fields — 2048 nestacilo)
-#define JSON_BUFFER_SIZE 8192
-/** Jeden velky buffer pro GET /api/game/snapshot (board+status+history+captured). */
-#define SNAPSHOT_BUFFER_SIZE 20480
-/** GET /api/wifi/status — wifi_get_sta_status_json (~300 B); nesmi byt 8 KiB na stacku httpd. */
-#define WIFI_STATUS_JSON_MAX 640
 /** GET /api/timer — timer_get_json (name 32 + description 64 + cisla); nesmi byt 8 KiB na stacku. */
-#define TIMER_HTTP_JSON_MAX 1024
 
 // Sledovani stavu web serveru
 static bool task_running = false;
@@ -247,11 +228,10 @@ static esp_err_t last_http_start_error = ESP_OK;
 uint32_t client_count = 0; // Externi pro UART prikazy
 
 // Handle HTTP serveru
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static httpd_handle_t httpd_handle = NULL;
-
-#if CONFIG_HTTPD_WS_SUPPORT
-static esp_timer_handle_t ws_broadcast_timer = NULL;
 #endif
+
 
 // Handle netif
 static esp_netif_t *ap_netif = NULL;
@@ -284,8 +264,8 @@ static unsigned s_sta_blk_reject_streak;
 
 /* Cache jasu pro GET /api/status – zabranuje NVS + CONFIG_MANAGER na kazdy
  * request */
-static uint8_t cached_brightness = 50;
-static bool cached_brightness_valid = false;
+uint8_t cached_brightness = 50;
+bool cached_brightness_valid = false;
 
 // Externi promenne
 QueueHandle_t web_server_status_queue = NULL;
@@ -296,15 +276,8 @@ extern void toggle_demo_mode(bool enabled);
 extern void set_demo_speed_ms(uint32_t speed_ms);
 extern bool is_demo_mode_enabled(void);
 
-// JSON buffer pool (znovupouzitelny)
-static char json_buffer[JSON_BUFFER_SIZE];
-static char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
-/** Ochrana sestavení snapshotu (HTTP + BLE paralelně). */
-static SemaphoreHandle_t snapshot_build_mutex;
-
 /** Fronta pingů — build snapshot jen v web_server_task (ne v esp_timer: malý stack). */
-static QueueHandle_t snapshot_notify_queue;
-static void czechmate_ensure_snapshot_notify_queue(void);
+QueueHandle_t snapshot_notify_queue;
 
 // ============================================================================
 // PREDBEZNE DEKLARACE
@@ -313,7 +286,9 @@ static void czechmate_ensure_snapshot_notify_queue(void);
 static void wifi_select_ap_ssid_by_scan(void);
 static esp_err_t wifi_init_apsta(void);
 static void wifi_ap_user_apply_task(void *arg);
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static void czechmate_mdns_refresh_sta_txt(void);
+#endif
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data);
 static void wifi_sta_parse_blocked_csv(const char *csv);
@@ -321,68 +296,23 @@ static void wifi_sta_refresh_blocked_octets_from_nvs(void);
 static bool wifi_sta_third_octet_is_blocked(uint8_t oct);
 static void wifi_sta_disconnect_if_current_ip_blocked(void);
 static esp_err_t wifi_sta_save_blocked_octets_csv(const char *csv_in);
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static esp_err_t start_http_server(void);
 static void stop_http_server(void);
-static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
-                                               size_t *out_len);
-static esp_err_t build_snapshot_json(size_t *out_len);
-static esp_err_t web_server_apply_hint_highlight_json_body(const char *buf);
-#if CONFIG_HTTPD_WS_SUPPORT
-static esp_err_t http_ws_handler(httpd_req_t *req);
 #endif
 
-// HTTP handlery
-static esp_err_t http_get_root_handler(httpd_req_t *req);
-static esp_err_t
-http_get_chess_js_handler(httpd_req_t *req); // chess_app.js file
-static esp_err_t
-http_get_favicon_handler(httpd_req_t *req); // Favicon handler (204 No Content)
-static esp_err_t http_get_board_handler(httpd_req_t *req);
-static esp_err_t http_get_game_snapshot_handler(httpd_req_t *req);
-static esp_err_t http_get_status_handler(httpd_req_t *req);
-static esp_err_t http_get_history_handler(httpd_req_t *req);
-static esp_err_t http_get_captured_handler(httpd_req_t *req);
-static esp_err_t http_get_advantage_handler(httpd_req_t *req);
-static esp_err_t http_get_timer_handler(httpd_req_t *req);
-static esp_err_t http_post_timer_config_handler(httpd_req_t *req);
-static esp_err_t http_post_timer_pause_handler(httpd_req_t *req);
-static esp_err_t http_post_timer_resume_handler(httpd_req_t *req);
-static esp_err_t http_post_timer_reset_handler(httpd_req_t *req);
 // static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
 // je 100% READ-ONLY
 
 // Handler pro Tahy (Move)
-static esp_err_t http_post_game_move_handler(httpd_req_t *req);
 
 // WiFi API handlery
-static esp_err_t http_post_wifi_config_handler(httpd_req_t *req);
-static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req);
-static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req);
-static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req);
-static esp_err_t http_post_factory_reset_handler(httpd_req_t *req);
-static esp_err_t http_get_wifi_status_handler(httpd_req_t *req);
-static esp_err_t http_get_wifi_status_handler(httpd_req_t *req);
-static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req);
 
 // Handlery pro Demo API
-static esp_err_t http_post_demo_config_handler(httpd_req_t *req);
-static esp_err_t http_get_demo_status_handler(httpd_req_t *req);
-static esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req);
-static esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req);
 
 // Handler pro Virtual Actions
-static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req);
-static esp_err_t http_post_game_new_handler(httpd_req_t *req);
-static esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req);
-static esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req);
-static esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req);
-static esp_err_t http_post_game_puzzle_handler(httpd_req_t *req);
-static esp_err_t http_get_settings_ui_handler(httpd_req_t *req);
-static esp_err_t http_post_settings_ui_handler(httpd_req_t *req);
 
 // Handlery pro MQTT API
-static esp_err_t http_get_mqtt_status_handler(httpd_req_t *req);
-static esp_err_t http_post_mqtt_config_handler(httpd_req_t *req);
 
 // WiFi NVS funkce
 esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
@@ -437,7 +367,6 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
 }
 
 // WiFi STA funkce (static pro interni pouziti)
-static esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size);
 
 // Gettery pro externi pouziti
 esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len) {
@@ -1669,7 +1598,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
  * Funkce vytvori JSON s informacemi o AP (SSID, IP, clients)
  * a STA (SSID, IP, connected status).
  */
-static esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
+esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
   if (buffer == NULL || buffer_size == 0) {
     return ESP_ERR_INVALID_ARG;
   }
@@ -1749,657 +1678,6 @@ static esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
   return ESP_OK;
 }
 
-/**
- * @brief Handler pro GET /api/web/lock-status
- *
- * Vraci JSON s lock statusem web rozhrani.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- */
-static esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "GET /api/web/lock-status");
-
-  char response[128];
-  int len = snprintf(response, sizeof(response), "{\"locked\":%s}",
-                     web_locked ? "true" : "false");
-
-  if (len < 0 || len >= (int)sizeof(response)) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to create response", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, response, strlen(response));
-  return ESP_OK;
-}
-
-// ============================================================================
-// MQTT API HANDLERS
-// ============================================================================
-
-/**
- * @brief Handler pro GET /api/mqtt/status
- *
- * Vrátí JSON s aktuálním stavem MQTT konfigurace a připojení.
- *
- * @param req HTTP request
- * @return ESP_OK při úspěchu, chybový kód při chybě
- *
- * @details
- * Vrací JSON:
- * {"host":"...","port":1883,"username":"...","connected":true/false,"mode":"game/ha"}
- */
-static esp_err_t http_get_mqtt_status_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "GET /api/mqtt/status");
-
-  // Get MQTT config
-  char host[128] = {0};
-  char username[64] = {0};
-  char password[64] = {0};
-  uint16_t port = 1883;
-
-  esp_err_t ret = mqtt_get_config(host, sizeof(host), &port, username,
-                                  sizeof(username), password, sizeof(password));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get MQTT config", -1);
-    return ESP_FAIL;
-  }
-
-  // Get WiFi STA status (required for MQTT)
-  bool sta_connected = wifi_is_sta_connected();
-
-  // Get MQTT connection status
-  bool mqtt_connected = ha_light_is_mqtt_connected();
-
-  // Get HA mode
-  ha_mode_t mode = ha_light_get_mode();
-  const char *mode_str = (mode == HA_MODE_GAME) ? "game" : "ha";
-
-  // Build JSON response
-  char response[512];
-  int len = snprintf(response, sizeof(response),
-                     "{"
-                     "\"host\":\"%s\","
-                     "\"port\":%d,"
-                     "\"username\":\"%s\","
-                     "\"password\":\"%s\","
-                     "\"wifi_connected\":%s,"
-                     "\"mqtt_connected\":%s,"
-                     "\"mode\":\"%s\""
-                     "}",
-                     host, port, username[0] ? username : "",
-                     password[0] ? "***" : "", sta_connected ? "true" : "false",
-                     mqtt_connected ? "true" : "false", mode_str);
-
-  if (len < 0 || len >= (int)sizeof(response)) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to create response", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, response, strlen(response));
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/mqtt/config
- *
- * Uloží MQTT konfiguraci (host, port, username, password) do NVS.
- *
- * @param req HTTP request
- * @return ESP_OK při úspěchu, chybový kód při chybě
- *
- * @details
- * Očekává JSON: {"host":"...","port":1883,"username":"...","password":"..."}
- * Vrací JSON: {"success": true/false, "message": "..."}
- */
-static esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/mqtt/config");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "MQTT config blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  // Načíst JSON z request body
-  char content[512] = {0};
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Parsovat JSON - hledat "host", "port", "username", "password"
-  char host[128] = {0};
-  uint16_t port = 1883; // Default
-  char username[64] = {0};
-  char password[64] = {0};
-
-  // Najít "host"
-  const char *host_start = strstr(content, "\"host\"");
-  if (host_start != NULL) {
-    host_start = strchr(host_start, ':');
-    if (host_start != NULL) {
-      host_start++; // Přeskočit ':'
-      while (*host_start == ' ' || *host_start == '\"')
-        host_start++;
-      const char *host_end = strchr(host_start, '\"');
-      if (host_end != NULL && host_end > host_start) {
-        size_t len = host_end - host_start;
-        if (len < sizeof(host)) {
-          strncpy(host, host_start, len);
-          host[len] = '\0';
-        }
-      }
-    }
-  }
-
-  // Najít "port"
-  const char *port_start = strstr(content, "\"port\"");
-  if (port_start != NULL) {
-    port_start = strchr(port_start, ':');
-    if (port_start != NULL) {
-      port_start++; // Přeskočit ':'
-      while (*port_start == ' ')
-        port_start++;
-      uint32_t port_val = strtoul(port_start, NULL, 10);
-      if (port_val > 0 && port_val <= 65535) {
-        port = (uint16_t)port_val;
-      }
-    }
-  }
-
-  // Najít "username" (volitelné)
-  const char *username_start = strstr(content, "\"username\"");
-  if (username_start != NULL) {
-    username_start = strchr(username_start, ':');
-    if (username_start != NULL) {
-      username_start++; // Přeskočit ':'
-      while (*username_start == ' ' || *username_start == '\"')
-        username_start++;
-      const char *username_end = strchr(username_start, '\"');
-      if (username_end != NULL && username_end > username_start) {
-        size_t len = username_end - username_start;
-        if (len < sizeof(username)) {
-          strncpy(username, username_start, len);
-          username[len] = '\0';
-        }
-      }
-    }
-  }
-
-  // Najít "password" (volitelné)
-  const char *password_start = strstr(content, "\"password\"");
-  if (password_start != NULL) {
-    password_start = strchr(password_start, ':');
-    if (password_start != NULL) {
-      password_start++; // Přeskočit ':'
-      while (*password_start == ' ' || *password_start == '\"')
-        password_start++;
-      const char *password_end = strchr(password_start, '\"');
-      if (password_end != NULL && password_end > password_start) {
-        size_t len = password_end - password_start;
-        if (len < sizeof(password)) {
-          strncpy(password, password_start, len);
-          password[len] = '\0';
-        }
-      }
-    }
-  }
-
-  // Validovat host
-  if (strlen(host) == 0 || strlen(host) > 127) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Invalid host (must be "
-                    "1-127 characters)\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-
-  // Uložit do NVS
-  const char *username_ptr = (strlen(username) > 0) ? username : NULL;
-  const char *password_ptr = (strlen(password) > 0) ? password : NULL;
-
-  esp_err_t err =
-      mqtt_save_config_to_nvs(host, port, username_ptr, password_ptr);
-  if (err != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[256];
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"Failed to save: %s\"}",
-             esp_err_to_name(err));
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  // Reinit MQTT client if WiFi STA is connected
-  const char *success_message;
-  if (wifi_is_sta_connected()) {
-    esp_err_t reinit_ret = ha_light_reinit_mqtt();
-    if (reinit_ret == ESP_OK) {
-      success_message = "MQTT configuration saved and client reinicialized "
-                        "with new settings.";
-    } else {
-      success_message = "MQTT configuration saved. Client reinit failed (will "
-                        "reconnect on next WiFi connection).";
-    }
-  } else {
-    success_message = "MQTT configuration saved. Client will reconnect with "
-                      "new settings on next WiFi connection.";
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  char response[256];
-  snprintf(response, sizeof(response), "{\"success\":true,\"message\":\"%s\"}",
-           success_message);
-  httpd_resp_send(req, response, strlen(response));
-
-  return ESP_OK;
-}
-
-// ============================================================================
-// DEMO MODE API HANDLERS
-// ============================================================================
-
-static esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/settings/brightness");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char content[100];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "No data", -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Parse "brightness"
-  int brightness_val = -1;
-  char *ptr = strstr(content, "\"brightness\":");
-  if (ptr) {
-    if (sscanf(ptr, "\"brightness\":%d", &brightness_val) == 1) {
-      // Validovat
-      if (brightness_val < 0)
-        brightness_val = 0;
-      if (brightness_val > 100)
-        brightness_val = 100;
-
-      // 1. Nastavit LED driver hned
-      led_set_brightness_global((uint8_t)brightness_val);
-
-      // 2. Ulozit do configu (load-modify-save)
-      system_config_t config;
-      // Default init v pripade chyby loadu
-      config.brightness_level = 50;
-
-      if (config_load_from_nvs(&config) == ESP_OK) {
-        config.brightness_level = (uint8_t)brightness_val;
-        config_save_to_nvs(&config);
-      } else {
-        // Config neexistuje, vytvorit novy s defaulty a novym jasem
-        config.brightness_level = (uint8_t)brightness_val;
-        // Ostatni defaulty (pokud config_load selhal, config struct je
-        // nedefinovany, ale my ukladame jen brightness do NVS v teto verzi
-        // config_manageru? Ne, config_manager uklada celou struct?
-        // config_save_to_nvs uklada key-value pairs. Takze je to bezpecne.
-        config_save_to_nvs(&config);
-      }
-
-      cached_brightness = (uint8_t)brightness_val;
-      cached_brightness_valid = true;
-      ESP_LOGI(TAG, "Brightness updated to %d%% via Web UI", brightness_val);
-    }
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-static esp_err_t http_post_settings_auto_lamp_timeout_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/settings/auto_lamp_timeout");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char content[80];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
-    return ESP_OK;
-  }
-  content[ret] = '\0';
-
-  int seconds_val = -1;
-  char *ptr = strstr(content, "\"seconds\":");
-  if (ptr && sscanf(ptr, "\"seconds\":%d", &seconds_val) == 1) {
-    if (seconds_val < 5) seconds_val = 5;
-    if (seconds_val > 7200) seconds_val = 7200;
-    if (ha_light_set_activity_timeout_sec((uint32_t)seconds_val) == ESP_OK) {
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send(req, "{\"success\":true,\"seconds\":%d}", seconds_val);
-      return ESP_OK;
-    }
-  }
-  httpd_resp_set_status(req, "400 Bad Request");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":false,\"message\":\"Invalid seconds (5..7200)\"}", -1);
-  return ESP_OK;
-}
-
-static esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/settings/guided_hints");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char content[96];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
-    return ESP_OK;
-  }
-  content[ret] = '\0';
-
-  bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
-                 (strstr(content, "\"enabled\": true") != NULL);
-
-  system_config_t config;
-  if (config_load_from_nvs(&config) != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Config load failed\"}",
-                    -1);
-    return ESP_OK;
-  }
-  config.guided_capture_hints_enabled = enabled;
-  config.led_guidance_level = enabled ? (uint8_t)5 : (uint8_t)4;
-  config_save_to_nvs(&config);
-  game_set_led_guidance_level(config.led_guidance_level);
-
-  char resp[120];
-  snprintf(resp, sizeof(resp),
-           "{\"success\":true,\"enabled\":%s,\"led_guidance_level\":%u}",
-           enabled ? "true" : "false",
-           (unsigned)config.led_guidance_level);
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, resp, strlen(resp));
-  return ESP_OK;
-}
-
-static esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/settings/led_guidance");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char content[128];
-  int r = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (r <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
-    return ESP_OK;
-  }
-  content[r] = '\0';
-
-  int level = -1;
-  char *p = strstr(content, "\"level\"");
-  if (p) {
-    p = strchr(p, ':');
-    if (p) {
-      level = (int)strtol(p + 1, NULL, 10);
-    }
-  }
-  if (level < 1 || level > 5) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"level 1..5\"}", -1);
-    return ESP_OK;
-  }
-
-  system_config_t config;
-  if (config_load_from_nvs(&config) != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Config load failed\"}",
-                    -1);
-    return ESP_OK;
-  }
-  config.led_guidance_level = (uint8_t)level;
-  config.guided_capture_hints_enabled = (level >= 5);
-  config_save_to_nvs(&config);
-  game_set_led_guidance_level((uint8_t)level);
-
-  char resp[96];
-  snprintf(resp, sizeof(resp),
-           "{\"success\":true,\"led_guidance_level\":%u,\"guided_capture_hints_enabled\":%s}",
-           (unsigned)level, (level >= 5) ? "true" : "false");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, resp, strlen(resp));
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro GET /api/settings/start_pos_check
- *
- * Vrati stav hlidani pocatecni pozice (enabled true/false).
- */
-static esp_err_t http_get_settings_start_pos_check_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "GET /api/settings/start_pos_check");
-
-  bool enabled = game_get_starting_position_check();
-
-  char resp[64];
-  snprintf(resp, sizeof(resp), "{\"enabled\":%s}", enabled ? "true" : "false");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, resp, strlen(resp));
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/settings/start_pos_check
- *
- * Nastavi stav hlidani pocatecni pozice a ulozi do NVS.
- * Body: {"enabled": true/false}
- */
-static esp_err_t http_post_settings_start_pos_check_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/settings/start_pos_check");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char content[64];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
-    return ESP_OK;
-  }
-  content[ret] = '\0';
-
-  bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
-                 (strstr(content, "\"enabled\": true") != NULL);
-
-  // Nastavit v game_task
-  game_set_starting_position_check(enabled);
-
-  // Ulozit do NVS
-  system_config_t config;
-  if (config_load_from_nvs(&config) == ESP_OK) {
-    config.starting_position_check_enabled = enabled;
-    config_save_to_nvs(&config);
-    ESP_LOGI(TAG, "Starting position check saved to NVS: %s", enabled ? "ON" : "OFF");
-  }
-
-  char resp[64];
-  snprintf(resp, sizeof(resp), "{\"success\":true,\"enabled\":%s}", enabled ? "true" : "false");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, resp, strlen(resp));
-  return ESP_OK;
-}
-
-static esp_err_t http_post_light_command_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/light/command");
-
-  char content[128];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
-    return ESP_OK;
-  }
-  content[ret] = '\0';
-
-  bool state = true;
-  int r = 255, g = 255, b = 255;
-  if (strstr(content, "\"state\":false") || strstr(content, "\"state\": false\"")) {
-    state = false;
-  }
-  char *p;
-  if ((p = strstr(content, "\"r\":")) && sscanf(p, "\"r\":%d", &r) == 1) { }
-  if ((p = strstr(content, "\"g\":")) && sscanf(p, "\"g\":%d", &g) == 1) { }
-  if ((p = strstr(content, "\"b\":")) && sscanf(p, "\"b\":%d", &b) == 1) { }
-
-  if (r < 0) r = 0;
-  if (r > 255) r = 255;
-  if (g < 0) g = 0;
-  if (g > 255) g = 255;
-  if (b < 0) b = 0;
-  if (b > 255) b = 255;
-
-  if (!ha_light_request_web_lamp(state, (uint8_t)r, (uint8_t)g, (uint8_t)b)) {
-    httpd_resp_set_status(req, "503 Service Unavailable");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Light task busy or not "
-                    "ready\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-static esp_err_t http_post_light_game_mode_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/light/game_mode");
-  ha_light_report_activity("web_game_mode");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-static esp_err_t http_post_demo_config_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/demo/config");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char content[100];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "No data", -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Parse "enabled"
-  bool enabled = (strstr(content, "\"enabled\":true") != NULL) ||
-                 (strstr(content, "\"enabled\": true") != NULL);
-
-  // Parse "speed_ms"
-  char *speed_ptr = strstr(content, "\"speed_ms\":");
-  if (speed_ptr) {
-    int speed_val;
-    if (sscanf(speed_ptr, "\"speed_ms\":%d", &speed_val) == 1) {
-      set_demo_speed_ms((uint32_t)speed_val);
-    }
-  }
-
-  toggle_demo_mode(enabled);
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-static esp_err_t http_post_demo_start_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/demo/start");
-
-  if (web_is_locked()) {
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
-    return ESP_OK;
-  }
-
-  toggle_demo_mode(true);
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"Demo started\"}", -1);
-  return ESP_OK;
-}
-
-static esp_err_t http_get_demo_status_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/demo/status");
-
-  bool enabled = is_demo_mode_enabled();
-
-  char resp_str[64];
-  snprintf(resp_str, sizeof(resp_str), "{\"enabled\":%s}",
-           enabled ? "true" : "false");
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, resp_str, strlen(resp_str));
-  return ESP_OK;
-}
 
 // ============================================================================
 // HTTP SERVER SETUP
@@ -2421,6 +1699,7 @@ static esp_err_t http_get_demo_status_handler(httpd_req_t *req) {
  * - Historie tahu (/history)
  * - Captured figurky (/captured)
  */
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static esp_err_t start_http_server(void) {
   if (httpd_handle != NULL) {
     ESP_LOGW(TAG, "HTTP server already running");
@@ -2459,324 +1738,13 @@ static esp_err_t start_http_server(void) {
   }
   last_http_start_error = ESP_OK;
 
-  // Registrovat URI handlery
-  ESP_LOGI(TAG, "Registering URI handlers...");
-
-  // Handler pro Chess JavaScript soubor
-  httpd_uri_t chess_js_uri = {.uri = "/chess_app.js",
-                              .method = HTTP_GET,
-                              .handler = http_get_chess_js_handler,
-                              .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &chess_js_uri);
-
-  // Handler pro root (JSON — aplikace místo prohlížeče)
-  httpd_uri_t root_uri = {.uri = "/",
-                          .method = HTTP_GET,
-                          .handler = http_get_root_handler,
-                          .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &root_uri);
-
-  // Handlery pro API
-  httpd_uri_t board_uri = {.uri = "/api/board",
-                           .method = HTTP_GET,
-                           .handler = http_get_board_handler,
-                           .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &board_uri);
-
-  httpd_uri_t game_snapshot_uri = {.uri = "/api/game/snapshot",
-                                   .method = HTTP_GET,
-                                   .handler = http_get_game_snapshot_handler,
-                                   .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &game_snapshot_uri);
-
-  httpd_uri_t status_uri = {.uri = "/api/status",
-                            .method = HTTP_GET,
-                            .handler = http_get_status_handler,
-                            .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &status_uri);
-
-  httpd_uri_t history_uri = {.uri = "/api/history",
-                             .method = HTTP_GET,
-                             .handler = http_get_history_handler,
-                             .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &history_uri);
-
-  httpd_uri_t captured_uri = {.uri = "/api/captured",
-                              .method = HTTP_GET,
-                              .handler = http_get_captured_handler,
-                              .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &captured_uri);
-
-  httpd_uri_t advantage_uri = {.uri = "/api/advantage",
-                               .method = HTTP_GET,
-                               .handler = http_get_advantage_handler,
-                               .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &advantage_uri);
-
-  // Handlery pro Timer API
-  httpd_uri_t timer_uri = {.uri = "/api/timer",
-                           .method = HTTP_GET,
-                           .handler = http_get_timer_handler,
-                           .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &timer_uri);
-
-  // Handler pro favicon.ico (silence 404 warnings)
-  httpd_uri_t favicon_uri = {.uri = "/favicon.ico",
-                             .method = HTTP_GET,
-                             .handler = http_get_favicon_handler,
-                             .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &favicon_uri);
-
-  httpd_uri_t timer_config_uri = {.uri = "/api/timer/config",
-                                  .method = HTTP_POST,
-                                  .handler = http_post_timer_config_handler,
-                                  .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &timer_config_uri);
-
-  httpd_uri_t settings_brightness_uri = {
-      .uri = "/api/settings/brightness",
-      .method = HTTP_POST,
-      .handler = http_post_settings_brightness_handler,
-      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_brightness_uri);
-
-  httpd_uri_t settings_auto_lamp_timeout_uri = {
-      .uri = "/api/settings/auto_lamp_timeout",
-      .method = HTTP_POST,
-      .handler = http_post_settings_auto_lamp_timeout_handler,
-      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_auto_lamp_timeout_uri);
-
-  httpd_uri_t settings_guided_hints_uri = {
-      .uri = "/api/settings/guided_hints",
-      .method = HTTP_POST,
-      .handler = http_post_settings_guided_hints_handler,
-      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_guided_hints_uri);
-
-  httpd_uri_t settings_led_guidance_uri = {
-      .uri = "/api/settings/led_guidance",
-      .method = HTTP_POST,
-      .handler = http_post_settings_led_guidance_handler,
-      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_led_guidance_uri);
-
-  // Handlery pro Start Position Check nastaveni
-  httpd_uri_t settings_start_pos_check_get_uri = {
-      .uri = "/api/settings/start_pos_check",
-      .method = HTTP_GET,
-      .handler = http_get_settings_start_pos_check_handler,
-      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_start_pos_check_get_uri);
-
-  httpd_uri_t settings_start_pos_check_post_uri = {
-      .uri = "/api/settings/start_pos_check",
-      .method = HTTP_POST,
-      .handler = http_post_settings_start_pos_check_handler,
-      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_start_pos_check_post_uri);
-
-  httpd_uri_t timer_pause_uri = {.uri = "/api/timer/pause",
-                                 .method = HTTP_POST,
-                                 .handler = http_post_timer_pause_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &timer_pause_uri);
-
-  httpd_uri_t timer_resume_uri = {.uri = "/api/timer/resume",
-                                  .method = HTTP_POST,
-                                  .handler = http_post_timer_resume_handler,
-                                  .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &timer_resume_uri);
-
-  httpd_uri_t timer_reset_uri = {.uri = "/api/timer/reset",
-                                 .method = HTTP_POST,
-                                 .handler = http_post_timer_reset_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &timer_reset_uri);
-
-  // Handlery pro WiFi API
-  httpd_uri_t wifi_config_uri = {.uri = "/api/wifi/config",
-                                 .method = HTTP_POST,
-                                 .handler = http_post_wifi_config_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &wifi_config_uri);
-
-  httpd_uri_t wifi_connect_uri = {.uri = "/api/wifi/connect",
-                                  .method = HTTP_POST,
-                                  .handler = http_post_wifi_connect_handler,
-                                  .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &wifi_connect_uri);
-
-  httpd_uri_t wifi_disconnect_uri = {.uri = "/api/wifi/disconnect",
-                                     .method = HTTP_POST,
-                                     .handler =
-                                         http_post_wifi_disconnect_handler,
-                                     .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &wifi_disconnect_uri);
-
-  httpd_uri_t wifi_clear_uri = {.uri = "/api/wifi/clear",
-                                .method = HTTP_POST,
-                                .handler = http_post_wifi_clear_handler,
-                                .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &wifi_clear_uri);
-
-  httpd_uri_t factory_reset_uri = {.uri = "/api/system/factory_reset",
-                                   .method = HTTP_POST,
-                                   .handler = http_post_factory_reset_handler,
-                                   .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &factory_reset_uri);
-
-  ret = ota_update_register_http_handlers(httpd_handle);
+  ret = web_routes_register(httpd_handle);
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "ota_update_register_http_handlers failed: %s",
-             esp_err_to_name(ret));
+    last_http_start_error = ret;
+    httpd_stop(httpd_handle);
+    httpd_handle = NULL;
     return ret;
   }
-
-  httpd_uri_t wifi_status_uri = {.uri = "/api/wifi/status",
-                                 .method = HTTP_GET,
-                                 .handler = http_get_wifi_status_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &wifi_status_uri);
-
-  // Handler pro web lock status
-  httpd_uri_t web_lock_status_uri = {.uri = "/api/web/lock-status",
-                                     .method = HTTP_GET,
-                                     .handler =
-                                         http_get_web_lock_status_handler,
-                                     .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &web_lock_status_uri);
-
-  // Handlery pro Demo Mode
-  httpd_uri_t demo_config_uri = {.uri = "/api/demo/config",
-                                 .method = HTTP_POST,
-                                 .handler = http_post_demo_config_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &demo_config_uri);
-
-  httpd_uri_t demo_start_uri = {.uri = "/api/demo/start",
-                                .method = HTTP_POST,
-                                .handler = http_post_demo_start_handler,
-                                .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &demo_start_uri);
-
-  httpd_uri_t demo_status_uri = {.uri = "/api/demo/status",
-                                 .method = HTTP_GET,
-                                 .handler = http_get_demo_status_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &demo_status_uri);
-
-  // Handler pro Tahy
-  httpd_uri_t move_uri = {.uri = "/api/move",
-                          .method = HTTP_POST,
-                          .handler = http_post_game_move_handler,
-                          .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &move_uri);
-
-  // Handler pro Virtual Actions (Remote Control)
-  httpd_uri_t virtual_action_uri = {.uri = "/api/game/virtual_action",
-                                    .method = HTTP_POST,
-                                    .handler =
-                                        http_post_game_virtual_action_handler,
-                                    .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &virtual_action_uri);
-
-  // Handler pro New Game
-  httpd_uri_t new_game_uri = {.uri = "/api/game/new",
-                              .method = HTTP_POST,
-                              .handler = http_post_game_new_handler,
-                              .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &new_game_uri);
-
-  // Handler pro Hint highlight (LED)
-  httpd_uri_t hint_highlight_uri = {.uri = "/api/game/hint_highlight",
-                                    .method = HTTP_POST,
-                                    .handler =
-                                        http_post_game_hint_highlight_handler,
-                                    .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &hint_highlight_uri);
-
-  httpd_uri_t hint_clear_uri = {.uri = "/api/game/hint_clear",
-                               .method = HTTP_POST,
-                               .handler = http_post_game_hint_clear_handler,
-                               .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &hint_clear_uri);
-
-  httpd_uri_t setup_tutorial_uri = {.uri = "/api/game/setup_tutorial",
-                                    .method = HTTP_POST,
-                                    .handler =
-                                        http_post_game_setup_tutorial_handler,
-                                    .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &setup_tutorial_uri);
-
-  httpd_uri_t puzzle_uri = {.uri = "/api/game/puzzle",
-                            .method = HTTP_POST,
-                            .handler = http_post_game_puzzle_handler,
-                            .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &puzzle_uri);
-
-  httpd_uri_t settings_ui_get_uri = {.uri = "/api/settings/ui",
-                                   .method = HTTP_GET,
-                                   .handler = http_get_settings_ui_handler,
-                                   .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_ui_get_uri);
-
-  httpd_uri_t settings_ui_post_uri = {.uri = "/api/settings/ui",
-                                      .method = HTTP_POST,
-                                      .handler = http_post_settings_ui_handler,
-                                      .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &settings_ui_post_uri);
-
-  // Handlery pro lampu (režim Lampa z webu)
-  httpd_uri_t light_command_uri = {.uri = "/api/light/command",
-                                   .method = HTTP_POST,
-                                   .handler = http_post_light_command_handler,
-                                   .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &light_command_uri);
-
-  httpd_uri_t light_game_mode_uri = {.uri = "/api/light/game_mode",
-                                    .method = HTTP_POST,
-                                    .handler = http_post_light_game_mode_handler,
-                                    .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &light_game_mode_uri);
-
-  // Handlery pro MQTT API
-  httpd_uri_t mqtt_status_uri = {.uri = "/api/mqtt/status",
-                                 .method = HTTP_GET,
-                                 .handler = http_get_mqtt_status_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &mqtt_status_uri);
-
-  httpd_uri_t mqtt_config_uri = {.uri = "/api/mqtt/config",
-                                 .method = HTTP_POST,
-                                 .handler = http_post_mqtt_config_handler,
-                                 .user_ctx = NULL};
-  httpd_register_uri_handler(httpd_handle, &mqtt_config_uri);
-
-  ret = chess_piece_register_http_uris(httpd_handle);
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "chess_piece_register_http_uris failed: %s",
-             esp_err_to_name(ret));
-    return ret;
-  }
-
-#if CONFIG_HTTPD_WS_SUPPORT
-  httpd_uri_t ws_uri = {.uri = "/ws",
-                        .method = HTTP_GET,
-                        .handler = http_ws_handler,
-                        .user_ctx = NULL,
-                        .is_websocket = true};
-  httpd_register_uri_handler(httpd_handle, &ws_uri);
-  ESP_LOGI(TAG,
-           "HTTP server on port %d: GET /api/game/snapshot + WS /ws, max_uri_handlers=64",
-           HTTP_SERVER_PORT);
-  web_server_websocket_init();
-#else
-  ESP_LOGW(TAG,
-           "HTTP server on port %d: WebSocket /ws NENÍ v buildu — zapni "
-           "CONFIG_HTTPD_WS_SUPPORT (iOS/watchOS WS jinak padá na -1011)",
-           HTTP_SERVER_PORT);
-#endif
 
   return ESP_OK;
 }
@@ -2791,307 +1759,20 @@ static esp_err_t start_http_server(void) {
  * Pouziva se pri vypinani web serveru.
  */
 static void stop_http_server(void) {
-#if CONFIG_HTTPD_WS_SUPPORT
-  if (ws_broadcast_timer != NULL) {
-    esp_timer_stop(ws_broadcast_timer);
-    esp_timer_delete(ws_broadcast_timer);
-    ws_broadcast_timer = NULL;
-  }
-#endif
+  web_ws_shutdown();
   if (httpd_handle != NULL) {
     httpd_stop(httpd_handle);
     httpd_handle = NULL;
     ESP_LOGI(TAG, "HTTP server stopped");
   }
 }
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
+
 
 // ============================================================================
 // REST API HANDLERS
 // ============================================================================
 
-/** Doplnění GET /api/status o web lock, WiFi, jas, matrix guard, lampu (sdílené se snapshot). */
-static void inject_web_status_fields(char *buf, size_t buf_size) {
-  char *last_brace = strrchr(buf, '}');
-  if (!last_brace) {
-    ESP_LOGW(TAG, "[STAGING] inject_web_status_fields: no closing brace in buf");
-    return;
-  }
-  size_t remaining = buf_size - (size_t)(last_brace - buf);
-  /* První blok ~370 B (+ chess_hint_limit) + druhý ~120 B — při těsném bufferu raději neposlat useknutý JSON. */
-  if (remaining < 430) {
-    ESP_LOGE(TAG,
-             "[STAGING] inject_web_status_fields: remaining=%zu B too small for "
-             "web fields (cap=%zu)",
-             remaining, buf_size);
-    return;
-  }
-  uint8_t b = cached_brightness_valid ? cached_brightness : 50;
-  int hint_lim = config_ui_prefs_get_chess_hint_limit();
-  int wr =
-      snprintf(last_brace, remaining,
-               ",\"web_locked\":%s,\"internet_connected\":%s,\"brightness\":%d,"
-               "\"guided_capture_hints_enabled\":%s,\"led_guidance_level\":%u,"
-               "\"matrix_guard_active\":%s,"
-               "\"matrix_guard_conflicts\":%u,"
-               "\"matrix_guard_lifted_low\":%lu,\"matrix_guard_lifted_high\":%lu,"
-               "\"matrix_guard_dropped_low\":%lu,\"matrix_guard_dropped_high\":%lu,"
-               "\"chess_hint_limit\":%d}",
-               web_is_locked() ? "true" : "false",
-               sta_connected ? "true" : "false", (int)b,
-               game_get_guided_capture_hints_enabled() ? "true" : "false",
-               (unsigned)game_get_led_guidance_level(),
-               game_is_matrix_guard_active() ? "true" : "false",
-               (unsigned int)game_get_matrix_guard_conflict_count(),
-               (unsigned long)game_get_matrix_guard_lifted_mask_low(),
-               (unsigned long)game_get_matrix_guard_lifted_mask_high(),
-               (unsigned long)game_get_matrix_guard_dropped_mask_low(),
-               (unsigned long)game_get_matrix_guard_dropped_mask_high(),
-               hint_lim);
-  if (wr < 0 || (size_t)wr >= remaining) {
-    ESP_LOGE(TAG,
-             "[STAGING] inject_web_status_fields: first snprintf truncated "
-             "wr=%d rem=%zu",
-             wr, remaining);
-    return;
-  }
-  if (remaining >= 150) {
-    last_brace = strrchr(buf, '}');
-    if (last_brace) {
-      remaining = buf_size - (size_t)(last_brace - buf);
-      if (remaining < 130) {
-        ESP_LOGW(TAG,
-                 "[STAGING] inject_web_status_fields: skip lamp fields "
-                 "remaining=%zu",
-                 remaining);
-        return;
-      }
-      ha_mode_t light_mode = ha_light_get_mode();
-      uint8_t lr = 255, lg = 255, lb = 255, lbright = 255;
-      bool lstate = true;
-      ha_light_get_state(&lr, &lg, &lb, &lbright, &lstate);
-      uint32_t auto_sec = ha_light_get_activity_timeout_sec();
-      wr = snprintf(last_brace, remaining,
-                    ",\"light_mode\":\"%s\",\"light_state\":%s,\"light_r\":%u,"
-                    "\"light_g\":%u,\"light_b\":%u,\"auto_lamp_timeout_sec\":%lu}",
-                    (light_mode == HA_MODE_HA) ? "lamp" : "game",
-                    lstate ? "true" : "false", (unsigned)lr, (unsigned)lg,
-                    (unsigned)lb, (unsigned long)auto_sec);
-      if (wr < 0 || (size_t)wr >= remaining) {
-        ESP_LOGE(TAG,
-                 "[STAGING] inject_web_status_fields: lamp snprintf truncated "
-                 "wr=%d rem=%zu",
-                 wr, remaining);
-      }
-    }
-  }
-}
-
-static void snapshot_build_mutex_take(void) {
-  if (snapshot_build_mutex == NULL) {
-    snapshot_build_mutex = xSemaphoreCreateMutex();
-  }
-  /* portMAX_DELAY zde zablokoval web_server_task na mutexu (HTTP httpd drží build)
-   * → bez esp_task_wdt_reset() TWDT timeout (~10 s). Čekáme po krocích + reset. */
-  while (xSemaphoreTake(snapshot_build_mutex, pdMS_TO_TICKS(400)) != pdTRUE) {
-    (void)web_server_task_wdt_reset_safe();
-  }
-}
-
-static void snapshot_build_mutex_give(void) {
-  if (snapshot_build_mutex != NULL) {
-    xSemaphoreGive(snapshot_build_mutex);
-  }
-}
-
-/** Pod `snapshot_build_mutex` — žádný paralelní build; šetří ~1 KiB stacku na NimBLE host task. */
-static char s_clock_json_build_scratch[TIMER_HTTP_JSON_MAX];
-
-/** Stejný JSON jako GET /api/game/snapshot — do bufferu `out` (HTTP i BLE). */
-static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
-                                               size_t *out_len) {
-  snapshot_build_mutex_take();
-  (void)web_server_task_wdt_reset_safe();
-  esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    snapshot_build_mutex_give();
-    return ret;
-  }
-  (void)web_server_task_wdt_reset_safe();
-  size_t L = strlen(json_buffer);
-  if (L < 4 || json_buffer[0] != '{' || json_buffer[L - 1] != '}') {
-    snapshot_build_mutex_give();
-    return ESP_FAIL;
-  }
-  json_buffer[L - 1] = '\0';
-  uint32_t srev = game_get_state_revision();
-  size_t pos = (size_t)snprintf(out, cap, "{\"state_version\":%" PRIu32 ",%s",
-                                srev, json_buffer + 1);
-  if (pos >= cap) {
-    json_buffer[L - 1] = '}';
-    snapshot_build_mutex_give();
-    return ESP_FAIL;
-  }
-
-  ret = game_get_status_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    snapshot_build_mutex_give();
-    return ret;
-  }
-  (void)web_server_task_wdt_reset_safe();
-#ifndef NDEBUG
-  ESP_LOGI(TAG,
-           "[STAGING] build_snapshot: status raw len=%zu / cap=%zu",
-           strlen(json_buffer), sizeof(json_buffer));
-#endif
-  inject_web_status_fields(json_buffer, sizeof(json_buffer));
-#ifndef NDEBUG
-  ESP_LOGI(TAG,
-           "[STAGING] build_snapshot: status after inject len=%zu / cap=%zu",
-           strlen(json_buffer), sizeof(json_buffer));
-#endif
-  int n = snprintf(out + pos, cap - pos, ",\"status\":%s", json_buffer);
-  if (n < 0 || (size_t)n >= cap - pos) {
-    snapshot_build_mutex_give();
-    return ESP_FAIL;
-  }
-  pos += (size_t)n;
-
-  ret = game_get_history_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    snapshot_build_mutex_give();
-    return ret;
-  }
-  (void)web_server_task_wdt_reset_safe();
-  n = snprintf(out + pos, cap - pos, ",\"history\":%s", json_buffer);
-  if (n < 0 || (size_t)n >= cap - pos) {
-    snapshot_build_mutex_give();
-    return ESP_FAIL;
-  }
-  pos += (size_t)n;
-
-  ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    snapshot_build_mutex_give();
-    return ret;
-  }
-  (void)web_server_task_wdt_reset_safe();
-  n = snprintf(out + pos, cap - pos, ",\"captured\":%s", json_buffer);
-  if (n < 0 || (size_t)n >= cap - pos) {
-    snapshot_build_mutex_give();
-    return ESP_FAIL;
-  }
-  pos += (size_t)n;
-
-  ret = game_get_timer_json(s_clock_json_build_scratch,
-                            sizeof(s_clock_json_build_scratch));
-  if (ret == ESP_OK) {
-    n = snprintf(out + pos, cap - pos, ",\"clock\":%s}",
-                 s_clock_json_build_scratch);
-  } else {
-#ifndef NDEBUG
-    ESP_LOGW(TAG, "build_snapshot: game_get_timer_json failed: %s",
-             esp_err_to_name(ret));
-#endif
-    n = snprintf(out + pos, cap - pos, "}");
-  }
-  if (n < 0 || (size_t)n >= cap - pos) {
-    snapshot_build_mutex_give();
-    return ESP_FAIL;
-  }
-  pos += (size_t)n;
-
-  *out_len = pos;
-  snapshot_build_mutex_give();
-  return ESP_OK;
-}
-
-static esp_err_t build_snapshot_json(size_t *out_len) {
-  return build_snapshot_json_to_buffer(snapshot_buffer, sizeof(snapshot_buffer),
-                                       out_len);
-}
-
-esp_err_t web_server_build_game_snapshot_json(char *out, size_t cap,
-                                              size_t *out_len) {
-  if (out == NULL || out_len == NULL || cap == 0) {
-    return ESP_ERR_INVALID_ARG;
-  }
-  return build_snapshot_json_to_buffer(out, cap, out_len);
-}
-
-esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
-                                                     size_t *out_len) {
-  if (out_json == NULL || out_len == NULL) {
-    return ESP_ERR_INVALID_ARG;
-  }
-  esp_err_t e =
-      build_snapshot_json_to_buffer(snapshot_buffer, sizeof(snapshot_buffer),
-                                    out_len);
-  if (e == ESP_OK) {
-    *out_json = snapshot_buffer;
-  }
-  return e;
-}
-
-/** Společná logika POST /api/game/hint_highlight a BLE příkazu hint_highlight. */
-static esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
-  if (buf == NULL) {
-    return ESP_ERR_INVALID_ARG;
-  }
-  const char *p_to = strstr(buf, "\"to\"");
-  if (!p_to) {
-    return ESP_ERR_INVALID_ARG;
-  }
-  p_to += 4;
-  while (*p_to && *p_to != '"')
-    p_to++;
-  if (*p_to == '"')
-    p_to++;
-  if (!*p_to || !p_to[1]) {
-    return ESP_ERR_INVALID_ARG;
-  }
-  char to_sq[3] = {0};
-  to_sq[0] = (char)((unsigned char)p_to[0] <= 'Z' ? p_to[0] + 32 : p_to[0]);
-  to_sq[1] = p_to[1];
-  if (to_sq[0] < 'a' || to_sq[0] > 'h' || to_sq[1] < '1' || to_sq[1] > '8') {
-    return ESP_ERR_INVALID_ARG;
-  }
-
-  uint8_t to_led = chess_notation_to_led_index(to_sq);
-  if (to_led >= 64) {
-    return ESP_ERR_INVALID_ARG;
-  }
-
-  uint8_t from_led = 64;
-  const char *p_from = strstr(buf, "\"from\"");
-  if (p_from) {
-    p_from += 6;
-    while (*p_from && *p_from != '"')
-      p_from++;
-    if (*p_from == '"')
-      p_from++;
-    if (*p_from && p_from[1]) {
-      char from_sq[3] = {0};
-      from_sq[0] =
-          (char)((unsigned char)p_from[0] <= 'Z' ? p_from[0] + 32 : p_from[0]);
-      from_sq[1] = p_from[1];
-      if (from_sq[0] >= 'a' && from_sq[0] <= 'h' && from_sq[1] >= '1' &&
-          from_sq[1] <= '8') {
-        uint8_t fl = chess_notation_to_led_index(from_sq);
-        if (fl < 64)
-          from_led = fl;
-      }
-    }
-  }
-
-  led_command_t cmd = {0};
-  cmd.type = LED_CMD_HIGHLIGHT_HINT;
-  cmd.led_index = from_led;
-  cmd.data = (void *)&to_led;
-  led_execute_command_new(&cmd);
-  ESP_LOGI(TAG, "Hint highlight: %s (LED %u -> %u)", to_sq, (unsigned)from_led,
-           (unsigned)to_led);
-  return ESP_OK;
-}
 
 static bool json_extract_cmd_string(const char *buf, char *cmd_out, size_t cmd_sz) {
   const char *p = strstr(buf, "\"cmd\"");
@@ -3125,50 +1806,6 @@ bool web_server_ble_extract_cmd_for_ack(const char *json, char *cmd_out,
   return json_extract_cmd_string(json, cmd_out, cmd_out_sz);
 }
 
-/** Musí přesně sedět s webem (`POST /api/system/factory_reset`) a iOS. */
-#define CZECHMATE_FACTORY_RESET_CONFIRM "erase_all_nvs"
-
-static bool json_body_has_factory_confirm(const char *json) {
-  if (json == NULL) {
-    return false;
-  }
-  if (strstr(json, "\"confirm\"") == NULL) {
-    return false;
-  }
-  return strstr(json, CZECHMATE_FACTORY_RESET_CONFIRM) != NULL;
-}
-
-static void factory_reset_worker(void *ignored) {
-  (void)ignored;
-  vTaskDelay(pdMS_TO_TICKS(500));
-  ESP_LOGW(TAG,
-           "[STAGING] factory_reset: raw erase default NVS partition + restart");
-
-  const esp_partition_t *nvs_part = esp_partition_find_first(
-      ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
-  esp_err_t er = ESP_FAIL;
-  if (nvs_part != NULL) {
-    er = esp_partition_erase_range(nvs_part, 0, nvs_part->size);
-    ESP_LOGW(TAG, "esp_partition_erase_range(label=%s size=%u): %s",
-             nvs_part->label, (unsigned)nvs_part->size, esp_err_to_name(er));
-  } else {
-    er = nvs_flash_erase();
-    ESP_LOGW(TAG, "nvs_flash_erase (no nvs partition label): %s",
-             esp_err_to_name(er));
-  }
-
-  esp_restart();
-}
-
-static esp_err_t factory_reset_schedule(void) {
-  BaseType_t ok =
-      xTaskCreate(factory_reset_worker, "fac_rst", 4096, NULL, 10, NULL);
-  if (ok != pdPASS) {
-    ESP_LOGE(TAG, "factory_reset: xTaskCreate failed");
-    return ESP_FAIL;
-  }
-  return ESP_OK;
-}
 
 static bool s_ble_dispatch_custom_ack_sent;
 
@@ -3459,6 +2096,17 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     c.type = LED_CMD_CLEAR_HIGHLIGHTS;
     led_execute_command_new(&c);
     ESP_LOGD(TAG, "BLE cmd: hint_clear");
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "guard_clear") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "BLE guard_clear blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (game_is_matrix_guard_active() || matrix_is_guard_mode_active()) {
+      game_force_clear_matrix_guard();
+    }
+    ESP_LOGD(TAG, "BLE cmd: guard_clear");
     return ESP_OK;
   }
   if (strcmp(cmd, "brightness") == 0) {
@@ -4199,6 +2847,24 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return ESP_OK;
   }
 
+  if (strcmp(cmd, "opening") == 0) {
+    esp_err_t oerr = web_server_opening_dispatch_body(buf);
+    if (oerr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] opening dispatched");
+      return ESP_OK;
+    }
+    if (oerr == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "[BLE] opening blocked (locked or mode conflict)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (oerr == ESP_ERR_NOT_ALLOWED) {
+      ESP_LOGW(TAG, "[BLE] opening checkpoint resync incomplete");
+      return ESP_ERR_NOT_ALLOWED;
+    }
+    ESP_LOGW(TAG, "[BLE] opening dispatch failed: %s", esp_err_to_name(oerr));
+    return oerr;
+  }
+
   /* ============================================
    * NOVÉ BLE PŘÍKAZY - Konec
    * ============================================ */
@@ -4219,6 +2885,7 @@ static void czechmate_push_ble_snapshot(void) {
   ble_task_push_snapshot_json((const uint8_t *)snapshot_buffer, len);
 }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static bool czechmate_mdns_started = false;
 
 /**
@@ -4313,124 +2980,16 @@ static void czechmate_mdns_ensure_started(void) {
   /* refresh_sta_txt aktivuje mDNS na STA i AP rozhrani + plni TXT zaznamy */
   czechmate_mdns_refresh_sta_txt();
 }
+#else
+static void czechmate_mdns_refresh_sta_txt(void) {}
+static void czechmate_mdns_ensure_started(void) {}
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
 
-#if CONFIG_HTTPD_WS_SUPPORT
-#define WS_MAX_CLIENT_FDS 32
-
-static esp_err_t http_ws_handler(httpd_req_t *req) {
-  if (req->method == HTTP_GET) {
-    ESP_LOGD(TAG, "WebSocket handshake OK (/ws)");
-    return ESP_OK;
-  }
-
-  httpd_ws_frame_t ws_pkt;
-  memset(&ws_pkt, 0, sizeof(ws_pkt));
-  ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-  esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
-  if (ret != ESP_OK) {
-    ESP_LOGD(TAG, "ws recv (len): %s", esp_err_to_name(ret));
-    return ret;
-  }
-  if (ws_pkt.len) {
-    uint8_t *buf = calloc(1, ws_pkt.len + 1);
-    if (buf == NULL) {
-      return ESP_ERR_NO_MEM;
-    }
-    ws_pkt.payload = buf;
-    ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
-    free(buf);
-    if (ret != ESP_OK) {
-      ESP_LOGD(TAG, "ws recv payload: %s", esp_err_to_name(ret));
-      return ret;
-    }
-  }
-  return ESP_OK;
-}
-
-static bool ws_has_clients(void) {
-  if (httpd_handle == NULL) {
-    return false;
-  }
-  size_t n = WS_MAX_CLIENT_FDS;
-  int fds[WS_MAX_CLIENT_FDS];
-  if (httpd_get_client_list(httpd_handle, &n, fds) != ESP_OK) {
-    return false;
-  }
-  for (size_t i = 0; i < n; i++) {
-    if (httpd_ws_get_fd_info(httpd_handle, fds[i]) ==
-        HTTPD_WS_CLIENT_WEBSOCKET) {
-      return true;
-    }
-  }
-  return false;
-}
-
-static void ws_broadcast_snapshot(void) {
-  if (httpd_handle == NULL || !web_server_active) {
-    return;
-  }
-  if (!ws_has_clients()) {
-    return;
-  }
-  (void)web_server_task_wdt_reset_safe();
-  size_t len = 0;
-  if (build_snapshot_json(&len) != ESP_OK) {
-    ESP_LOGD(TAG, "WS broadcast: build_snapshot_json failed");
-    return;
-  }
-  uint8_t *payload = (uint8_t *)malloc(len);
-  if (payload == NULL) {
-    ESP_LOGE(TAG, "WS broadcast: malloc %u B failed", (unsigned)len);
-    return;
-  }
-  memcpy(payload, snapshot_buffer, len);
-  httpd_ws_frame_t ws_pkt = {.type = HTTPD_WS_TYPE_TEXT,
-                             .payload = payload,
-                             .len = len};
-  size_t n = WS_MAX_CLIENT_FDS;
-  int fds[WS_MAX_CLIENT_FDS];
-  if (httpd_get_client_list(httpd_handle, &n, fds) != ESP_OK) {
-    free(payload);
-    return;
-  }
-  size_t ws_count = 0;
-  for (size_t i = 0; i < n; i++) {
-    if (httpd_ws_get_fd_info(httpd_handle, fds[i]) !=
-        HTTPD_WS_CLIENT_WEBSOCKET) {
-      continue;
-    }
-    ws_count++;
-    (void)web_server_task_wdt_reset_safe();
-    esp_err_t err = httpd_ws_send_data(httpd_handle, fds[i], &ws_pkt);
-    if (err != ESP_OK) {
-      ESP_LOGD(TAG, "WS send fd %d: %s", fds[i], esp_err_to_name(err));
-    }
-  }
-  ESP_LOGD(TAG, "[STAGING] WS broadcast → %u WS client(s), %u B payload",
-           (unsigned)ws_count, (unsigned)len);
-  free(payload);
-}
-
-static void ws_broadcast_timer_cb(void *arg) {
-  (void)arg;
-  ESP_LOGD(TAG,
-           "[STAGING] WS watchdog tick → defer snapshot (esp_timer stack too small)");
-  czechmate_ensure_snapshot_notify_queue();
-  if (snapshot_notify_queue == NULL) {
-    ESP_LOGW(TAG, "WS watchdog: snapshot_notify_queue missing, skip");
-    return;
-  }
-  uint8_t ping = 1;
-  if (xQueueSend(snapshot_notify_queue, &ping, 0) != pdTRUE) {
-    ESP_LOGD(TAG, "[STAGING] WS watchdog: notify coalesced (queue full)");
-  }
-}
-#endif /* CONFIG_HTTPD_WS_SUPPORT */
 
 /** Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje
  * game_task na httpd_ws_send_data / malloc). Musí být mimo #if WS — BLE vždy. */
 
-static void czechmate_ensure_snapshot_notify_queue(void) {
+void czechmate_ensure_snapshot_notify_queue(void) {
   if (snapshot_notify_queue != NULL) {
     return;
   }
@@ -4461,7 +3020,7 @@ void web_server_process_snapshot_notify_queue(void) {
              "low heap before snapshot push: %zu B (cíl udržet ~8–10kB+ volné)",
              fh);
   }
-#if CONFIG_HTTPD_WS_SUPPORT
+#if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
   ws_broadcast_snapshot();
 #endif
   (void)web_server_task_wdt_reset_safe();
@@ -4474,7 +3033,7 @@ void web_server_process_snapshot_notify_queue(void) {
 void czechmate_on_game_state_changed(void) {
   czechmate_ensure_snapshot_notify_queue();
   if (snapshot_notify_queue == NULL) {
-#if CONFIG_HTTPD_WS_SUPPORT
+#if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
     ESP_LOGD(TAG,
              "[STAGING] czechmate_on_game_state_changed sync → WS broadcast");
     ws_broadcast_snapshot();
@@ -4491,129 +3050,12 @@ void czechmate_on_game_state_changed(void) {
   }
 }
 
-static esp_err_t http_get_board_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/board");
-
-  // Ziskat stav sachovnice z game tasku
-  esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get board state", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
-  return ESP_OK;
-}
-
-static esp_err_t http_get_status_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/status");
-
-  // Ziskat stav hry z game tasku
-  esp_err_t ret = game_get_status_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get game status", -1);
-    return ESP_FAIL;
-  }
-
-  inject_web_status_fields(json_buffer, sizeof(json_buffer));
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
-  return ESP_OK;
-}
-
-static esp_err_t http_get_history_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/history");
-
-  // Ziskat historii tahu z game tasku
-  esp_err_t ret = game_get_history_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get move history", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
-  return ESP_OK;
-}
-
-static esp_err_t http_get_captured_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/captured");
-
-  // Ziskat sebrane figurky z game tasku
-  esp_err_t ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get captured pieces", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
-  return ESP_OK;
-}
-
-static esp_err_t http_get_game_snapshot_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/game/snapshot");
-  uint32_t rev = game_get_state_revision();
-  char etag[24];
-  snprintf(etag, sizeof(etag), "%" PRIu32, rev);
-
-  char inm[64];
-  if (httpd_req_get_hdr_value_str(req, "If-None-Match", inm, sizeof(inm)) ==
-      ESP_OK) {
-    if (strcmp(inm, etag) == 0) {
-      httpd_resp_set_status(req, "304 Not Modified");
-      httpd_resp_send(req, NULL, 0);
-      return ESP_OK;
-    }
-  }
-
-  size_t pos = 0;
-  esp_err_t ret = build_snapshot_json(&pos);
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to build game snapshot", -1);
-    return ESP_FAIL;
-  }
-  httpd_resp_set_type(req, "application/json");
-  if (httpd_resp_set_hdr(req, "ETag", etag) != ESP_OK) {
-    ESP_LOGD(TAG, "ETag header not set");
-  }
-  httpd_resp_send(req, snapshot_buffer, pos);
-  return ESP_OK;
-}
-
-static esp_err_t http_get_advantage_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "GET /api/advantage");
-
-  // Ziskat historii material advantage z game tasku
-  esp_err_t ret = game_get_advantage_json(json_buffer, sizeof(json_buffer));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get advantage history", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
-  return ESP_OK;
-}
 
 // ============================================================================
 // TIMER API HANDLERS
 // ============================================================================
 
-static esp_err_t http_get_timer_handler(httpd_req_t *req) {
+esp_err_t http_get_timer_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/timer");
 
   // Lokalni buffer jen pro timer JSON (~1 KiB); JSON_BUFFER_SIZE na stacku = overflow httpd (8192 B).
@@ -4633,7 +3075,7 @@ static esp_err_t http_get_timer_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
+esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/timer/config");
 
   // Kontrola web lock
@@ -4740,7 +3182,7 @@ static esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static esp_err_t http_post_timer_pause_handler(httpd_req_t *req) {
+esp_err_t http_post_timer_pause_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/timer/pause");
 
   // Kontrola web lock
@@ -4770,7 +3212,7 @@ static esp_err_t http_post_timer_pause_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static esp_err_t http_post_timer_resume_handler(httpd_req_t *req) {
+esp_err_t http_post_timer_resume_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/timer/resume");
 
   // Kontrola web lock
@@ -4800,7 +3242,7 @@ static esp_err_t http_post_timer_resume_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
+esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/timer/reset");
 
   // Kontrola web lock
@@ -4830,1194 +3272,7 @@ static esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-// ============================================================================
-// VIRTUAL GAME ACTIONS (REMOTE CONTROL)
-// ============================================================================
 
-/**
- * @brief Handler pro POST /api/move
- *
- * Provede tah na sachovnici.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Ocekava JSON: {"from": "e2", "to": "e4", "promotion": "q"}
- */
-static esp_err_t http_post_game_move_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/move");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Move blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  // Precist JSON data
-  char content[128];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "No data received", -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Jednoduchy JSON parser
-  char from[8] = {0};
-  char to[8] = {0};
-  char promotion[4] = {0};
-
-  // Najit "from"
-  const char *from_start = strstr(content, "\"from\"");
-  if (from_start != NULL) {
-    from_start = strchr(from_start, ':');
-    if (from_start != NULL) {
-      from_start++;
-      while (*from_start == ' ' || *from_start == '\"')
-        from_start++;
-      const char *from_end = strchr(from_start, '\"');
-      if (from_end != NULL && from_end > from_start) {
-        size_t len = from_end - from_start;
-        if (len < sizeof(from))
-          strncpy(from, from_start, len);
-      }
-    }
-  }
-
-  // Najit "to"
-  const char *to_start = strstr(content, "\"to\"");
-  if (to_start != NULL) {
-    to_start = strchr(to_start, ':');
-    if (to_start != NULL) {
-      to_start++;
-      while (*to_start == ' ' || *to_start == '\"')
-        to_start++;
-      const char *to_end = strchr(to_start, '\"');
-      if (to_end != NULL && to_end > to_start) {
-        size_t len = to_end - to_start;
-        if (len < sizeof(to))
-          strncpy(to, to_start, len);
-      }
-    }
-  }
-
-  // Najit "promotion"
-  const char *promo_start = strstr(content, "\"promotion\"");
-  if (promo_start != NULL) {
-    promo_start = strchr(promo_start, ':');
-    if (promo_start != NULL) {
-      promo_start++;
-      while (*promo_start == ' ' || *promo_start == '\"')
-        promo_start++;
-      const char *promo_end = strchr(promo_start, '\"');
-      if (promo_end != NULL && promo_end > promo_start) {
-        size_t len = promo_end - promo_start;
-        if (len < sizeof(promotion))
-          strncpy(promotion, promo_start, len);
-      }
-    }
-  }
-
-  if (strlen(from) == 0 || strlen(to) == 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":false,\"message\":\"Missing 'from' or 'to'\"}", -1);
-    return ESP_FAIL;
-  }
-
-  /* Promoce se týká jen tahu PĚŠCE na poslední řadu. Dříve zde HTTP vracelo 400
-   * pro každý tah na řádky 1/8 bez "promotion" — to blokovalo legální tahy
-   * dámy, věže, střelce a jezdce na poslední řadu. Game task validuje tah a u
-   * pěšce spustí promotion flow (pending + volba z UI/tlačítek). */
-  bool dest_back_rank =
-      (strlen(to) >= 2 && (to[1] == '1' || to[1] == '8'));
-  if (!dest_back_rank && strlen(promotion) > 0) {
-    ESP_LOGW(TAG,
-             "Promotion parameter for %s->%s (cíl není řádek 1/8), ignoring",
-             from, to);
-  }
-
-  // Pripravit command pro game task
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_MOVE;
-  strncpy(cmd.from_notation, from, sizeof(cmd.from_notation) - 1);
-  strncpy(cmd.to_notation, to, sizeof(cmd.to_notation) - 1);
-
-  cmd.promotion_choice = PROMOTION_QUEEN;
-  if (strlen(promotion) > 0) {
-    switch (promotion[0]) {
-    case 'q':
-    case 'Q':
-      cmd.promotion_choice = PROMOTION_QUEEN;
-      break;
-    case 'r':
-    case 'R':
-      cmd.promotion_choice = PROMOTION_ROOK;
-      break;
-    case 'b':
-    case 'B':
-      cmd.promotion_choice = PROMOTION_BISHOP;
-      break;
-    case 'n':
-    case 'N':
-      cmd.promotion_choice = PROMOTION_KNIGHT;
-      break;
-    default:
-      cmd.promotion_choice = PROMOTION_QUEEN;
-      break;
-    }
-  }
-  cmd.promotion_from_remote = (strlen(promotion) > 0) ? 1U : 0U;
-
-  // Odeslat do fronty
-  if (game_command_queue == NULL) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Game queue not available", -1);
-    return ESP_FAIL;
-  }
-
-  // Synchronous Verification Setup
-  // Create a temporary queue to receive the validation result
-  // This allows us to return 400 Bad Request if the move is invalid
-  QueueHandle_t response_queue = xQueueCreate(1, sizeof(game_response_t));
-  if (response_queue == NULL) {
-    ESP_LOGE(TAG, "Failed to create response queue");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to create response queue", -1);
-    return ESP_FAIL;
-  }
-  cmd.response_queue = response_queue;
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    vQueueDelete(response_queue); // Cleanup
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to queue move", -1);
-    return ESP_FAIL;
-  }
-
-  // Wait for response (validation result)
-  game_response_t response;
-  // 500ms timeout should be enough for simple validation
-  if (xQueueReceive(response_queue, &response, pdMS_TO_TICKS(1000)) == pdTRUE) {
-    // Check if move was successful
-    if (response.type == GAME_RESPONSE_ERROR) {
-      ESP_LOGW(TAG, "❌ Move rejected by game task: %s", response.data);
-      httpd_resp_set_status(req, "400 Bad Request");
-      httpd_resp_set_type(req, "application/json");
-      char error_json[256];
-      snprintf(error_json, sizeof(error_json),
-               "{\"success\":false,\"message\":\"%s\"}", response.data);
-      httpd_resp_send(req, error_json, -1);
-    } else {
-      ESP_LOGI(TAG, "✅ Move accepted by game task");
-      httpd_resp_set_status(req, "200 OK");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send(req, "{\"success\":true,\"message\":\"Move processed\"}",
-                      -1);
-    }
-  } else {
-    // Timeout - treat as success (async fallback) or error?
-    // Let's treat as partial success but log warning
-    ESP_LOGW(TAG, "⚠️ Move validation timed out");
-    httpd_resp_set_status(req, "202 Accepted"); // Accepted but not verified yet
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":true,\"message\":\"Move queued (timeout)\"}", -1);
-  }
-
-  // Cleanup queue
-  vQueueDelete(response_queue);
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/game/virtual_action
- *
- * Umoznuje virtualni zvedani a pokladani figurek pres web.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Ocekava JSON: {"action": "pickup"|"drop", "square": "e2"}
- */
-static esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/game/virtual_action");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Virtual action blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  // Nacist JSON z request body
-  char content[128] = {0};
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Jednoduchy JSON parser
-  char action[16] = {0};
-  char square[8] = {0};
-  char choice[4] = {0};
-
-  // Najit "action"
-  const char *action_start = strstr(content, "\"action\"");
-  if (action_start != NULL) {
-    action_start = strchr(action_start, ':');
-    if (action_start != NULL) {
-      action_start++; // Preskocit ':'
-      while (*action_start == ' ' || *action_start == '\"')
-        action_start++;
-      const char *action_end = strchr(action_start, '\"');
-      if (action_end != NULL && action_end > action_start) {
-        size_t len = action_end - action_start;
-        if (len < sizeof(action)) {
-          strncpy(action, action_start, len);
-        }
-      }
-    }
-  }
-
-  // Najit "square"
-  const char *square_start = strstr(content, "\"square\"");
-  if (square_start != NULL) {
-    square_start = strchr(square_start, ':');
-    if (square_start != NULL) {
-      square_start++; // Preskocit ':'
-      while (*square_start == ' ' || *square_start == '\"')
-        square_start++;
-      const char *square_end = strchr(square_start, '\"');
-      if (square_end != NULL && square_end > square_start) {
-        size_t len = square_end - square_start;
-        if (len < sizeof(square)) {
-          strncpy(square, square_start, len);
-        }
-      }
-    }
-  }
-
-  // Najit "choice" (pro promotion)
-  const char *choice_start = strstr(content, "\"choice\"");
-  if (choice_start != NULL) {
-    choice_start = strchr(choice_start, ':');
-    if (choice_start != NULL) {
-      choice_start++; // Preskocit ':'
-      while (*choice_start == ' ' || *choice_start == '\"')
-        choice_start++;
-      const char *choice_end = strchr(choice_start, '\"');
-      if (choice_end != NULL && choice_end > choice_start) {
-        size_t len = choice_end - choice_start;
-        if (len < sizeof(choice)) {
-          strncpy(choice, choice_start, len);
-        }
-      }
-    }
-  }
-
-  // Validace
-  if (strlen(action) == 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Missing action\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-
-  // Pripravit command pro game task
-  chess_move_command_t cmd = {0};
-
-  if (strcmp(action, "pickup") == 0) {
-    cmd.type = GAME_CMD_PICKUP; // UP command
-  } else if (strcmp(action, "drop") == 0) {
-    cmd.type = GAME_CMD_DROP; // DOWN command
-  } else if (strcmp(action, "promote") == 0) {
-    cmd.type = GAME_CMD_PROMOTION;
-  } else {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"Invalid action\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-
-  if (strcmp(action, "pickup") == 0) {
-    // PICKUP: source square goes in from_notation
-    if (strlen(square) == 0) {
-      httpd_resp_send(
-          req, "{\"success\":false,\"message\":\"Missing square for pickup\"}",
-          -1);
-      return ESP_FAIL;
-    }
-    strncpy(cmd.from_notation, square, sizeof(cmd.from_notation) - 1);
-  } else if (strcmp(action, "drop") == 0) {
-    // DROP: destination square goes in to_notation
-    if (strlen(square) == 0) {
-      httpd_resp_send(
-          req, "{\"success\":false,\"message\":\"Missing square for drop\"}",
-          -1);
-      return ESP_FAIL;
-    }
-    strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
-  } else if (strcmp(action, "promote") == 0) {
-    // PROMOTE: choice goes into promotion_choice
-    if (strlen(choice) == 0)
-      strcpy(choice, "Q"); // Default to Queen
-
-    if (strcasecmp(choice, "Q") == 0)
-      cmd.promotion_choice = PROMOTION_QUEEN;
-    else if (strcasecmp(choice, "R") == 0)
-      cmd.promotion_choice = PROMOTION_ROOK;
-    else if (strcasecmp(choice, "B") == 0)
-      cmd.promotion_choice = PROMOTION_BISHOP;
-    else if (strcasecmp(choice, "N") == 0)
-      cmd.promotion_choice = PROMOTION_KNIGHT;
-    else
-      cmd.promotion_choice = PROMOTION_QUEEN; // Fallback
-
-    // Optional square
-    if (strlen(square) > 0)
-      strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
-  }
-
-  // Odeslat do fronty
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to send command", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"Action processed\"}",
-                  -1);
-
-  return ESP_OK;
-}
-
-/**
- * @brief POST /api/game/new: fronta GAME_CMD_NEW_GAME (explicitni nova hra z webu).
- *
- * @param req ukazatel na httpd_req_t
- * @return ESP_OK nebo chybovy kod
- *
- * @details
- * Bez JSON payload. Odlisne se od automatickeho NEW_GAME pri startu z main
- * (initialize_chess_game), kde se pri obnove NVS prikaz neposila.
- */
-static esp_err_t http_post_game_new_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/game/new");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "New game blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
-    return ESP_OK;
-  }
-
-  chess_move_command_t cmd = {0};
-  cmd.player = 0;
-  cmd.response_queue = NULL;
-
-  char body[256] = {0};
-  int r = httpd_req_recv(req, body, (int)sizeof(body) - 1);
-  if (r > 0) {
-    body[r] = '\0';
-    cJSON *root = cJSON_Parse(body);
-    if (root != NULL) {
-      cJSON *fj = cJSON_GetObjectItemCaseSensitive(root, "fen");
-      if (cJSON_IsString(fj) && fj->valuestring != NULL &&
-          fj->valuestring[0] != '\0') {
-        cmd.type = GAME_CMD_NEW_GAME_FROM_FEN;
-        strncpy(cmd.timer_data.fen_new_game.fen, fj->valuestring,
-                sizeof(cmd.timer_data.fen_new_game.fen) - 1);
-        cmd.timer_data.fen_new_game.fen[sizeof(cmd.timer_data.fen_new_game.fen) -
-                                        1] = '\0';
-        cJSON_Delete(root);
-      } else {
-        cJSON_Delete(root);
-        cmd.type = GAME_CMD_NEW_GAME;
-      }
-    } else {
-      cmd.type = GAME_CMD_NEW_GAME;
-    }
-  } else {
-    cmd.type = GAME_CMD_NEW_GAME;
-  }
-
-  if (game_command_queue == NULL) {
-    ESP_LOGE(TAG, "Game command queue not available");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Queue not available\"}", -1);
-    return ESP_FAIL;
-  }
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    ESP_LOGE(TAG, "Failed to send NEW_GAME command to queue");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Failed to send command\"}", -1);
-    return ESP_FAIL;
-  }
-
-  ESP_LOGI(TAG, "✅ game/new command sent (type=%d)", (int)cmd.type);
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"New game started\"}",
-                  -1);
-
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/game/hint_highlight
- *
- * Body: { "to": "e4" } povinne; { "from": "e2" } volitelne.
- * Kdyz "from" chybi nebo je neplatny, posle from_led=64 takze na desce sviti jen "to".
- */
-static esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/game/hint_highlight");
-
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Hint highlight blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  char buf[128];
-  int ret = httpd_req_recv(req, buf, sizeof(buf) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"No body\"}", -1);
-    return ESP_OK;
-  }
-  buf[ret] = '\0';
-
-  esp_err_t herr = web_server_apply_hint_highlight_json_body(buf);
-  if (herr == ESP_ERR_INVALID_ARG) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Invalid hint body\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/game/hint_clear
- * Vymaze vizualizaci hintu na LED (vola se pri clearBotSuggestion).
- */
-static esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req) {
-  (void)req;
-  ESP_LOGI(TAG, "POST /api/game/hint_clear");
-  led_command_t cmd = {0};
-  cmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-  led_execute_command_new(&cmd);
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-/**
- * POST /api/game/setup_tutorial
- * Body: {"action":"start"|"cancel"|"finish"}
- */
-static esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/game/setup_tutorial");
-
-  if (web_is_locked()) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char buf[192] = {0};
-  int r = httpd_req_recv(req, buf, (int)sizeof(buf) - 1);
-  if (r <= 0) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Empty body\"}", -1);
-    return ESP_OK;
-  }
-  buf[r] = '\0';
-
-  bool want_start = (strstr(buf, "\"start\"") != NULL);
-  bool want_cancel = (strstr(buf, "\"cancel\"") != NULL);
-  bool want_finish = (strstr(buf, "\"finish\"") != NULL);
-  int n = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) + (want_finish ? 1 : 0);
-  if (n != 1) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"error\":\"Specify exactly one action: "
-                    "start, cancel, or finish\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  if (want_start || want_cancel) {
-    setup_tutorial_reset_finish_cooldown();
-  }
-
-  if (want_finish) {
-    if (!game_is_board_setup_tutorial_active()) {
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_set_status(req, "400 Bad Request");
-      httpd_resp_send(
-          req, "{\"success\":false,\"error\":\"Tutorial is not active\"}", -1);
-      return ESP_OK;
-    }
-    if (setup_tutorial_finish_in_cooldown()) {
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_set_status(req, "409 Conflict");
-      httpd_resp_send(req,
-                      "{\"success\":false,\"error\":\"Physical board does "
-                      "not match starting occupancy (rows 0-1,6-7 full; "
-                      "2-5 empty)\"}",
-                      -1);
-      return ESP_OK;
-    }
-    if (!game_finish_board_setup_tutorial_from_web()) {
-      httpd_resp_set_type(req, "application/json");
-      if (game_is_board_setup_tutorial_active()) {
-        setup_tutorial_note_finish_conflict();
-        httpd_resp_set_status(req, "409 Conflict");
-        httpd_resp_send(req,
-                        "{\"success\":false,\"error\":\"Physical board does "
-                        "not match starting occupancy (rows 0-1,6-7 full; "
-                        "2-5 empty)\"}",
-                        -1);
-      } else {
-        setup_tutorial_reset_finish_cooldown();
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(
-            req, "{\"success\":false,\"error\":\"Could not finish tutorial\"}",
-            -1);
-      }
-      return ESP_OK;
-    }
-    setup_tutorial_reset_finish_cooldown();
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":true,\"message\":\"Starting position "
-                    "confirmed; new game started\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  if (game_command_queue == NULL) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Game command queue unavailable\"}",
-        -1);
-    return ESP_FAIL;
-  }
-
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
-  cmd.promotion_choice = want_start ? 0U : 1U;
-  cmd.response_queue = NULL;
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    ESP_LOGE(TAG, "setup_tutorial: queue send failed");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Queue full\"}", -1);
-    return ESP_FAIL;
-  }
-
-  if (want_cancel) {
-    led_command_t lcmd = {0};
-    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&lcmd);
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-/**
- * POST /api/game/puzzle
- * Body: {"action":"start","id":1..5} | {"action":"prepare","id":1..5} |
- * {"action":"cancel"}
- */
-static esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/game/puzzle");
-
-  if (web_is_locked()) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char buf[192] = {0};
-  int r = httpd_req_recv(req, buf, (int)sizeof(buf) - 1);
-  if (r <= 0) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Empty body\"}", -1);
-    return ESP_OK;
-  }
-  buf[r] = '\0';
-
-  bool want_start = (strstr(buf, "\"start\"") != NULL);
-  bool want_cancel = (strstr(buf, "\"cancel\"") != NULL);
-  bool want_prepare = (strstr(buf, "\"prepare\"") != NULL);
-  int n = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) + (want_prepare ? 1 : 0);
-  if (n != 1) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"error\":\"Specify exactly one action: "
-                    "start, prepare, or cancel\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  if (game_command_queue == NULL) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Game command queue unavailable\"}",
-        -1);
-    return ESP_FAIL;
-  }
-
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_PUZZLE;
-  cmd.promotion_choice = 0U;
-  cmd.response_queue = NULL;
-
-  if (want_start || want_prepare) {
-    int puzzle_id = -1;
-    char *id_ptr = strstr(buf, "\"id\"");
-    if (id_ptr != NULL) {
-      char *colon = strchr(id_ptr, ':');
-      if (colon != NULL) {
-        puzzle_id = atoi(colon + 1);
-      }
-    }
-    if (puzzle_id < 1 || puzzle_id > 5) {
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_set_status(req, "400 Bad Request");
-      httpd_resp_send(req,
-                      "{\"success\":false,\"error\":\"Puzzle id must be 1..5\"}",
-                      -1);
-      return ESP_OK;
-    }
-    cmd.promotion_choice =
-        want_prepare ? (uint8_t)(100 + puzzle_id) : (uint8_t)puzzle_id;
-  }
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    ESP_LOGE(TAG, "puzzle: queue send failed");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Queue full\"}", -1);
-    return ESP_FAIL;
-  }
-
-  if (want_cancel) {
-    led_command_t lcmd = {0};
-    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&lcmd);
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-/**
- * GET /api/settings/ui — JSON preference z NVS (nebo vychozi).
- */
-static esp_err_t http_get_settings_ui_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "GET /api/settings/ui");
-  char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
-  size_t len = 0;
-  esp_err_t err = config_load_ui_prefs_json(buf, sizeof(buf), &len);
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_set_status(req, "200 OK");
-  if (err != ESP_OK || len == 0) {
-    httpd_resp_send(req, "{\"version\":1,\"prefs\":{}}", -1);
-    return ESP_OK;
-  }
-  httpd_resp_send(req, buf, len);
-  return ESP_OK;
-}
-
-/**
- * POST /api/settings/ui — ulozeni web UI JSON do NVS.
- */
-static esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/settings/ui");
-
-  if (web_is_locked()) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Web interface locked\"}", -1);
-    return ESP_OK;
-  }
-
-  char body[CONFIG_UI_PREFS_MAX_BYTES + 1];
-  int r = httpd_req_recv(req, body, (int)sizeof(body) - 1);
-  if (r <= 0) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Empty body\"}", -1);
-    return ESP_OK;
-  }
-  body[r] = '\0';
-
-  esp_err_t s = config_save_ui_prefs_json(body, (size_t)r);
-  httpd_resp_set_type(req, "application/json");
-  if (s == ESP_ERR_INVALID_ARG) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(
-        req,
-        "{\"success\":false,\"error\":\"Invalid JSON or too large (max "
-        "3072 bytes)\"}",
-        -1);
-    return ESP_OK;
-  }
-  if (s != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"NVS write failed\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-// ============================================================================
-// WIFI API HANDLERS
-// ============================================================================
-
-/**
- * @brief Handler pro POST /api/wifi/config
- *
- * Ulozi WiFi konfiguraci (SSID a heslo) do NVS.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Ocekava JSON: {"ssid": "...", "password": "..."}
- * Vraci JSON: {"success": true/false, "message": "..."}
- */
-static esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/wifi/config");
-
-  if (board_api_auth_admin_http_denied(req)) {
-    return ESP_OK;
-  }
-
-  // Nacist JSON z request body
-  char content[256] = {0};
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data received\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Jednoduchy JSON parser (hleda "ssid" a "password")
-  char ssid[33] = {0};
-  char password[65] = {0};
-
-  // Najit "ssid"
-  const char *ssid_start = strstr(content, "\"ssid\"");
-  if (ssid_start != NULL) {
-    ssid_start = strchr(ssid_start, ':');
-    if (ssid_start != NULL) {
-      ssid_start++; // Preskocit ':'
-      while (*ssid_start == ' ' || *ssid_start == '\"')
-        ssid_start++;
-      const char *ssid_end = strchr(ssid_start, '\"');
-      if (ssid_end != NULL && ssid_end > ssid_start) {
-        size_t len = ssid_end - ssid_start;
-        if (len < sizeof(ssid)) {
-          strncpy(ssid, ssid_start, len);
-          ssid[len] = '\0';
-        }
-      }
-    }
-  }
-
-  // Najit "password"
-  const char *password_start = strstr(content, "\"password\"");
-  if (password_start != NULL) {
-    password_start = strchr(password_start, ':');
-    if (password_start != NULL) {
-      password_start++; // Preskocit ':'
-      while (*password_start == ' ' || *password_start == '\"')
-        password_start++;
-      const char *password_end = strchr(password_start, '\"');
-      if (password_end != NULL && password_end > password_start) {
-        size_t len = password_end - password_start;
-        if (len < sizeof(password)) {
-          strncpy(password, password_start, len);
-          password[len] = '\0';
-        }
-      }
-    }
-  }
-
-  // Validovat SSID
-  size_t ssid_len = strlen(ssid);
-  size_t password_len = strlen(password);
-
-  if (ssid_len == 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"SSID is required\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-  if (ssid_len > 32) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[128];
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"SSID must be 1-32 characters "
-             "(current: %zu)\"}",
-             ssid_len);
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  // Validovat password
-  if (password_len == 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":false,\"message\":\"Password is required\"}", -1);
-    return ESP_FAIL;
-  }
-  if (password_len > 64) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[128];
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"Password must be 1-64 "
-             "characters (current: %zu)\"}",
-             password_len);
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  // Ulozit do NVS
-  esp_err_t err = wifi_save_config_to_nvs(ssid, password);
-  if (err != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[128];
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"Failed to save: %s\"}",
-             esp_err_to_name(err));
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"WiFi config saved\"}",
-                  -1);
-
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/wifi/connect
- *
- * Pripoji ESP32 k WiFi site s ulozenou konfiguraci.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Vraci JSON: {"success": true/false, "message": "..."}
- */
-static esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/wifi/connect");
-
-  if (board_api_auth_admin_http_denied(req)) {
-    return ESP_OK;
-  }
-
-  // Zkontrolovat, zda existuje konfigurace
-  char ssid[33] = {0};
-  char password[65] = {0};
-  esp_err_t load_ret =
-      wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
-  if (load_ret != ESP_OK) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"No WiFi configuration "
-                    "found. Please save SSID and password first.\"}",
-                    -1);
-    return ESP_FAIL;
-  }
-
-  esp_err_t err = wifi_connect_sta();
-  if (err != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[256];
-    const char *user_message = NULL;
-
-    // Prevest ESP error kody na uzivatelsky pristupne zpravy
-    if (err == ESP_ERR_INVALID_STATE) {
-      user_message = "Connection already in progress. Please wait...";
-    } else if (err == ESP_ERR_NOT_FOUND) {
-      user_message = "Network not found. Please check SSID and ensure the "
-                     "network is in range.";
-    } else if (err == ESP_ERR_INVALID_RESPONSE) {
-      user_message =
-          "Authentication failed. Please check password and try again.";
-    } else if (err == ESP_ERR_TIMEOUT) {
-      user_message =
-          "Connection timeout. The network may be too far or not responding.";
-    } else if (err == ESP_ERR_NVS_NOT_FOUND) {
-      user_message =
-          "WiFi configuration not found. Please save SSID and password first.";
-    } else {
-      user_message = "Connection failed. Please check SSID, password, and "
-                     "network availability.";
-    }
-
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"%s\"}", user_message);
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"Connected to WiFi\"}",
-                  -1);
-
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/wifi/disconnect
- *
- * Odpoji ESP32 od WiFi site.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Vraci JSON: {"success": true/false, "message": "..."}
- */
-static esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/wifi/disconnect");
-
-  if (board_api_auth_admin_http_denied(req)) {
-    return ESP_OK;
-  }
-
-  esp_err_t err = wifi_disconnect_sta();
-  if (err != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[128];
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"Disconnect failed: %s\"}",
-             esp_err_to_name(err));
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(
-      req, "{\"success\":true,\"message\":\"Disconnected from WiFi\"}", -1);
-
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro POST /api/wifi/clear
- *
- * Vymaze ulozenou WiFi konfiguraci z NVS.
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Vraci JSON: {"success": true/false, "message": "..."}
- */
-static esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/wifi/clear");
-
-  if (board_api_auth_admin_http_denied(req)) {
-    return ESP_OK;
-  }
-
-  // Odpojit STA pokud je pripojeny
-  if (sta_connected) {
-    wifi_disconnect_sta();
-  }
-
-  esp_err_t err = wifi_clear_config_from_nvs();
-  if (err != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    char error_msg[128];
-    snprintf(error_msg, sizeof(error_msg),
-             "{\"success\":false,\"message\":\"Failed to clear: %s\"}",
-             esp_err_to_name(err));
-    httpd_resp_send(req, error_msg, -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(
-      req, "{\"success\":true,\"message\":\"WiFi configuration cleared\"}", -1);
-
-  return ESP_OK;
-}
-
-/**
- * @brief POST /api/system/factory_reset
- *
- * Smaže celý NVS oddíl (raw erase) a restartuje MCU. Neřeší web lock — záchranná
- * cesta. Tělo musí obsahovat: {"confirm":"erase_all_nvs"}
- */
-static esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/system/factory_reset");
-
-  if (board_api_auth_admin_http_denied(req)) {
-    return ESP_OK;
-  }
-
-  char content[160] = {0};
-  int rlen = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (rlen <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"No JSON body\"}", -1);
-    return ESP_OK;
-  }
-  content[rlen] = '\0';
-
-  if (!json_body_has_factory_confirm(content)) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req,
-        "{\"success\":false,\"message\":\"JSON must include confirm "
-        "erase_all_nvs\"}",
-        -1);
-    return ESP_OK;
-  }
-
-  esp_err_t qerr = factory_reset_schedule();
-  if (qerr != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":false,\"message\":\"Could not queue reset task\"}",
-        -1);
-    return ESP_OK;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req,
-                  "{\"success\":true,\"message\":\"NVS erase scheduled\","
-                  "\"rebooting\":true}",
-                  -1);
-  return ESP_OK;
-}
-
-/**
- * @brief Handler pro GET /api/wifi/status
- *
- * Vrati aktualni stav WiFi (AP i STA).
- *
- * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
- *
- * @details
- * Vraci JSON s informacemi o AP a STA statusu.
- */
-static esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
-  ESP_LOGD(TAG, "GET /api/wifi/status");
-
-  char local_json[WIFI_STATUS_JSON_MAX];
-  esp_err_t ret = wifi_get_sta_status_json(local_json, sizeof(local_json));
-  if (ret != ESP_OK) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to get WiFi status", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, local_json, strlen(local_json));
-
-  return ESP_OK;
-}
 
 // ============================================================================
 // HTTP root & legacy JS paths — app-only product build (no browser dashboard).
@@ -6028,7 +3283,7 @@ static const char k_http_root_json[] =
     "{\"service\":\"czechmate\",\"client\":\"mobile_app\","
     "\"api\":\"/api/\",\"websocket\":\"/ws\"}";
 
-static esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
+esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
   httpd_resp_set_status(req, "404 Not Found");
   httpd_resp_set_type(req, "application/json; charset=utf-8");
   return httpd_resp_send(req, "{\"error\":\"browser_ui_removed\"}",
@@ -6036,12 +3291,12 @@ static esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
 }
 
 /** GET /favicon.ico — žádné tělo; tiší 404 v logu prohlížeče při náhodném dotazu. */
-static esp_err_t http_get_favicon_handler(httpd_req_t *req) {
+esp_err_t http_get_favicon_handler(httpd_req_t *req) {
   httpd_resp_set_status(req, "204 No Content");
   return httpd_resp_send(req, "", 0);
 }
 
-static esp_err_t http_get_root_handler(httpd_req_t *req) {
+esp_err_t http_get_root_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET / (JSON — CzechMate app-only HTTP surface)");
   httpd_resp_set_type(req, "application/json; charset=utf-8");
   httpd_resp_set_hdr(req, "Cache-Control", "no-store");
@@ -6098,6 +3353,7 @@ void web_server_task_start(void *pvParameters) {
     ESP_LOGW(TAG, "Failed to load web lock status, using default: unlocked");
   }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
   // Initialize WiFi APSTA
   esp_err_t ret = wifi_init_apsta();
   if (ret != ESP_OK) {
@@ -6193,6 +3449,13 @@ void web_server_task_start(void *pvParameters) {
     ESP_LOGI(TAG, "Board hotspot: OFF (enable from CzechMate app over BLE)");
   }
 
+#else /* !CONFIG_CHESS_ENABLE_WEB_SERVER */
+  (void)board_api_auth_init();
+  task_running = true;
+  ESP_LOGI(TAG,
+           "HTTP disabled (CONFIG_CHESS_ENABLE_WEB_SERVER=n) — BLE JSON bridge only");
+#endif
+
   // Main task loop
   uint32_t loop_count = 0;
 
@@ -6228,9 +3491,11 @@ void web_server_task_start(void *pvParameters) {
   }
 
   // Cleanup
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
   stop_http_server();
   esp_wifi_stop();
   esp_wifi_deinit();
+#endif
 
   ESP_LOGI(TAG, "Web server task stopped");
 
@@ -6293,6 +3558,10 @@ void web_server_execute_command(uint8_t command) {
 // ============================================================================
 
 void web_server_start(void) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  ESP_LOGW(TAG, "HTTP web server disabled at build time");
+  return;
+#else
   if (web_server_active) {
     ESP_LOGW(TAG, "Web server already active");
     return;
@@ -6314,9 +3583,14 @@ void web_server_start(void) {
     uint8_t status = web_server_active ? 1 : 0;
     xQueueSend(web_server_status_queue, &status, 0);
   }
+#endif
 }
 
 void web_server_stop(void) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  ESP_LOGW(TAG, "HTTP web server disabled at build time");
+  return;
+#else
   if (!web_server_active) {
     ESP_LOGW(TAG, "Web server not active - cannot stop");
     return;
@@ -6335,6 +3609,7 @@ void web_server_stop(void) {
     uint8_t status = 0;
     xQueueSend(web_server_status_queue, &status, 0);
   }
+#endif
 }
 
 void web_server_get_status(void) {
@@ -6393,46 +3668,6 @@ void web_server_handle_api_move(void) {
   ESP_LOGD(TAG, "API move request processed successfully");
 }
 
-// ============================================================================
-// WEBSOCKET (snapshot push — stejný JSON jako GET /api/game/snapshot)
-// ============================================================================
-
-void web_server_websocket_init(void) {
-#if CONFIG_HTTPD_WS_SUPPORT
-  if (ws_broadcast_timer != NULL) {
-    return;
-  }
-  const esp_timer_create_args_t args = {.callback = &ws_broadcast_timer_cb,
-                                        .name = "ws_snap"};
-  esp_err_t e = esp_timer_create(&args, &ws_broadcast_timer);
-  if (e != ESP_OK) {
-    ESP_LOGE(TAG, "WS timer create failed: %s", esp_err_to_name(e));
-    return;
-  }
-  e = esp_timer_start_periodic(ws_broadcast_timer, 3000 * 1000);
-  if (e != ESP_OK) {
-    ESP_LOGE(TAG, "WS timer start failed: %s", esp_err_to_name(e));
-    esp_timer_delete(ws_broadcast_timer);
-    ws_broadcast_timer = NULL;
-    return;
-  }
-  czechmate_ensure_snapshot_notify_queue();
-  ESP_LOGI(TAG,
-           "WebSocket: watchdog broadcast 3 s + okamžitý push při změně stavu");
-#else
-  ESP_LOGD(TAG, "WebSocket disabled (CONFIG_HTTPD_WS_SUPPORT)");
-#endif
-}
-
-void web_server_websocket_send_update(const char *data) {
-  (void)data;
-  if (!web_server_active) {
-    return;
-  }
-#if CONFIG_HTTPD_WS_SUPPORT
-  ws_broadcast_snapshot();
-#endif
-}
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -6440,11 +3675,21 @@ void web_server_websocket_send_update(const char *data) {
 
 bool web_server_is_active(void) { return web_server_active; }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+httpd_handle_t web_server_get_httpd_handle(void) { return httpd_handle; }
+#else
+httpd_handle_t web_server_get_httpd_handle(void) { return NULL; }
+#endif
+
 const char *web_server_get_ap_ssid(void) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  return "(HTTP disabled)";
+#else
   if (wifi_ap_ssid_effective[0] == '\0') {
     return WIFI_AP_SSID_BASE;
   }
   return wifi_ap_ssid_effective;
+#endif
 }
 
 uint32_t web_server_get_client_count(void) { return client_count; }

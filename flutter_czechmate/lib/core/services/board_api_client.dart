@@ -224,6 +224,9 @@ class BoardApiClient {
   Future<void> postHintClear(String baseUrl) =>
       _postEmpty(baseUrl, 'api/game/hint_clear', webLock: false);
 
+  Future<void> postGuardClear(String baseUrl) =>
+      _postEmpty(baseUrl, 'api/game/guard_clear', webLock: true);
+
   /// Jako `ChessboardAPIClient+SetupWizard` — jen cílové pole na LED.
   Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
@@ -237,6 +240,15 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/game/setup_tutorial');
     final body = jsonEncode({'action': action});
     final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  }
+
+  /// `POST /api/game/opening` — start | cancel | hint | checkpoint_ack
+  Future<void> postOpening(String baseUrl, Map<String, dynamic> body) async {
+    final uri = _api(baseUrl, 'api/game/opening');
+    final res = await _client
+        .post(uri, headers: _headersJson(), body: jsonEncode(body))
+        .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 

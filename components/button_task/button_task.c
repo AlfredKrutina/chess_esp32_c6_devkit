@@ -112,6 +112,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 static const char *TAG = "BUTTON_TASK";
 
@@ -616,8 +617,8 @@ void button_task_start(void *pvParameters) {
 
     // Watchdog logging every 1000 iterations (5 seconds)
     if (loop_count % 1000 == 0) {
-      ESP_LOGI(TAG, "Button Task Watchdog: loop=%d, heap=%zu", loop_count,
-               esp_get_free_heap_size());
+      ESP_LOGI(TAG, "Button Task Watchdog: loop=%" PRIu32 ", heap=%" PRIu32,
+               loop_count, esp_get_free_heap_size());
     }
 
     // Process button commands
@@ -629,7 +630,7 @@ void button_task_start(void *pvParameters) {
 
     // Periodic status update - reduced frequency for cleaner UART
     if (loop_count % 100000 == 0) { // Every 100000 loops (500 seconds)
-      ESP_LOGI(TAG, "Button Task Status: loop=%d, simulation_button=%d",
+      ESP_LOGI(TAG, "Button Task Status: loop=%" PRIu32 ", simulation_button=%d",
                loop_count, current_simulation_button);
     }
 
