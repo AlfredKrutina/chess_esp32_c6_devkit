@@ -433,7 +433,7 @@ typedef struct {
 
 // Task state
 static bool task_running = false;
-static bool color_enabled = true; // ANSI color support
+bool color_enabled = true; // ANSI color support
 static input_buffer_t input_buffer;
 static command_history_t command_history;
 static system_config_t system_config;
@@ -460,27 +460,7 @@ uint32_t last_command_time = 0;
 // ANSI COLOR CODES AND FORMATTING
 // ============================================================================
 
-// ANSI Color codes for terminal output
-#define COLOR_RESET "\033[0m"
-#define COLOR_RED "\033[31m"
-#define COLOR_GREEN "\033[32m"
-#define COLOR_YELLOW "\033[33m"
-#define COLOR_BLUE "\033[34m"
-#define COLOR_MAGENTA "\033[35m"
-#define COLOR_CYAN "\033[36m"
-#define COLOR_WHITE "\033[37m"
-#define COLOR_BOLD "\033[1m"
-#define COLOR_DIM "\033[2m"
-
-// Message type colors
-#define COLOR_ERROR COLOR_RED COLOR_BOLD
-#define COLOR_SUCCESS COLOR_GREEN COLOR_BOLD
-#define COLOR_WARNING COLOR_YELLOW COLOR_BOLD
-#define COLOR_INFO COLOR_CYAN
-#define COLOR_MOVE COLOR_GREEN COLOR_BOLD
-#define COLOR_STATUS COLOR_YELLOW
-#define COLOR_DEBUG COLOR_MAGENTA
-#define COLOR_HELP COLOR_BLUE COLOR_BOLD
+// ANSI Color codes for terminal output (see uart_task_internal.h)
 
 // ============================================================================
 // FORMATTING FUNCTIONS
