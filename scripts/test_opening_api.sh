@@ -17,5 +17,6 @@ BODY='{
 echo "POST $BASE_URL/api/game/opening"
 curl -sf -X POST "$BASE_URL/api/game/opening" -H 'Content-Type: application/json' -d "$BODY"
 echo
-curl -sf "$BASE_URL/api/status" | head -c 400
+curl -sf "$BASE_URL/api/status" | head -c 800
 echo
+echo "Tip: po checkpointu hledej opening_training.checkpoint_expected_occupied a physical_synced"

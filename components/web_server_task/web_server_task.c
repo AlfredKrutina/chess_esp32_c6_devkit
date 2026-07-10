@@ -2835,6 +2835,24 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return ESP_OK;
   }
 
+  if (strcmp(cmd, "opening") == 0) {
+    esp_err_t oerr = web_server_opening_dispatch_body(buf);
+    if (oerr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] opening dispatched");
+      return ESP_OK;
+    }
+    if (oerr == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "[BLE] opening blocked (locked or mode conflict)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (oerr == ESP_ERR_NOT_ALLOWED) {
+      ESP_LOGW(TAG, "[BLE] opening checkpoint resync incomplete");
+      return ESP_ERR_NOT_ALLOWED;
+    }
+    ESP_LOGW(TAG, "[BLE] opening dispatch failed: %s", esp_err_to_name(oerr));
+    return oerr;
+  }
+
   /* ============================================
    * NOVÉ BLE PŘÍKAZY - Konec
    * ============================================ */

@@ -457,6 +457,14 @@ bool game_opening_status_needs_matrix(void) {
   return opening_state.awaiting_checkpoint_ack || opening_state.setup_phase;
 }
 
+static void opening_fill_expected_occupied(uint8_t out[64]) {
+  for (uint8_t i = 0; i < 64; i++) {
+    uint8_t row = i / 8;
+    uint8_t col = i % 8;
+    out[i] = (board[row][col] == PIECE_EMPTY) ? 0 : 1;
+  }
+}
+
 void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset) {
   if (buf == NULL || offset == NULL || buf_size == 0) {
     return;
@@ -473,7 +481,7 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       "\"expected_from\":\"%s\",\"expected_to\":\"%s\","
       "\"last_opponent_uci\":\"%s\","
       "\"checkpoint_required\":%s,\"awaiting_checkpoint_ack\":%s,"
-      "\"physical_synced\":%s}",
+      "\"physical_synced\":%s",
       opening_state.active ? "true" : "false",
       opening_state.setup_phase ? "true" : "false", game_opening_mode_key(),
       opening_state.line_id, (unsigned)opening_state.ply_index,
@@ -486,6 +494,36 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       opening_state.awaiting_checkpoint_ack ? "true" : "false",
       opening_state.awaiting_checkpoint_ack ? "true" : "false",
       game_opening_validate_checkpoint_physical() ? "true" : "false");
+  if (n <= 0 || (size_t)n >= buf_size - *offset) {
+    return;
+  }
+  *offset += (size_t)n;
+
+  if (opening_state.awaiting_checkpoint_ack) {
+    uint8_t expected[64];
+    opening_fill_expected_occupied(expected);
+    n = snprintf(buf + *offset, buf_size - *offset,
+                 ",\"checkpoint_expected_occupied\":[");
+    if (n <= 0 || (size_t)n >= buf_size - *offset) {
+      return;
+    }
+    *offset += (size_t)n;
+    for (int i = 0; i < 64; i++) {
+      n = snprintf(buf + *offset, buf_size - *offset, "%s%u",
+                   (i > 0) ? "," : "", (unsigned)expected[i]);
+      if (n <= 0 || (size_t)n >= buf_size - *offset) {
+        return;
+      }
+      *offset += (size_t)n;
+    }
+    n = snprintf(buf + *offset, buf_size - *offset, "]");
+    if (n <= 0 || (size_t)n >= buf_size - *offset) {
+      return;
+    }
+    *offset += (size_t)n;
+  }
+
+  n = snprintf(buf + *offset, buf_size - *offset, "}");
   if (n > 0 && (size_t)n < buf_size - *offset) {
     *offset += (size_t)n;
   }

@@ -546,6 +546,13 @@ class BleCzechmateClient {
     await _writeCmd({'cmd': 'setup_tutorial', 'action': action});
   }
 
+  /// Parita `POST /api/game/opening` — start | cancel | hint | checkpoint_ack.
+  Future<void> postOpening(Map<String, dynamic> body) async {
+    final cmd = <String, dynamic>{'cmd': 'opening'};
+    cmd.addAll(body);
+    await _writeCmd(cmd);
+  }
+
   Future<void> postBrightness(int percent) async {
     await _writeCmd({'cmd': 'brightness', 'percent': percent.clamp(0, 100)});
   }

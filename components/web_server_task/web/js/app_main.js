@@ -1158,6 +1158,7 @@ async function requestHint() {
     if (statusData && statusData.board_setup_tutorial === true) return;
     if (statusData && statusData.puzzle && statusData.puzzle.setup_active === true) return;
     if (statusData && statusData.puzzle && statusData.puzzle.active === true) return;
+    if (typeof openingIsActive === 'function' && openingIsActive(statusData)) return;
     if (isWebLocked()) {
         showHintError('Rozhraní je zamčeno. Odemkněte přes UART.');
         return;
@@ -1852,6 +1853,10 @@ function checkBotTurn(status, fen) {
         return;
     }
     if (status && status.puzzle && status.puzzle.active === true) {
+        clearBotSuggestion();
+        return;
+    }
+    if (typeof openingIsActive === 'function' && openingIsActive(status)) {
         clearBotSuggestion();
         return;
     }
@@ -2623,6 +2628,9 @@ function updateStatus(status) {
     }
     puzzleUpdateGuidedMessage(status);
     updatePuzzleStatusPanel(status, { offline: false });
+    if (typeof openingTrainerOnStatusUpdate === 'function') {
+        openingTrainerOnStatusUpdate(status);
+    }
 
     // Lampa (Nastavení) – režim, zapnutí, R/G/B ze statusu
     const lightMode = status.light_mode;
@@ -2781,6 +2789,9 @@ function updateStatus(status) {
         } else if (status.board_setup_tutorial === true) {
             hintBtn.disabled = true;
             hintBtn.title = 'Běží tutoriál rozestavení';
+        } else if (typeof openingIsActive === 'function' && openingIsActive(status)) {
+            hintBtn.disabled = true;
+            hintBtn.title = 'Běží trénink zahájení';
         } else {
             if (typeof updateHintButtonLabel === 'function') updateHintButtonLabel();
         }

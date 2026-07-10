@@ -21,6 +21,8 @@ MODULES = [
     WEB_DIR / "js" / "matrix_guard.js",
     WEB_DIR / "js" / "api.js",
     WEB_DIR / "js" / "prefs.js",
+    WEB_DIR / "js" / "opening_catalog.js",
+    WEB_DIR / "js" / "opening_trainer.js",
     WEB_DIR / "js" / "app_main.js",
 ]
 

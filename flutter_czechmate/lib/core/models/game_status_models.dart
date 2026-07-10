@@ -170,6 +170,8 @@ class OpeningTrainingStatusJson {
     this.expectedFrom,
     this.expectedTo,
     this.awaitingCheckpointAck,
+    this.physicalSynced,
+    this.checkpointExpectedOccupied,
   });
 
   final bool? active;
@@ -179,6 +181,8 @@ class OpeningTrainingStatusJson {
   final String? expectedFrom;
   final String? expectedTo;
   final bool? awaitingCheckpointAck;
+  final bool? physicalSynced;
+  final List<int>? checkpointExpectedOccupied;
 
   factory OpeningTrainingStatusJson.fromJson(Map<String, dynamic> json) {
     return OpeningTrainingStatusJson(
@@ -189,6 +193,11 @@ class OpeningTrainingStatusJson {
       expectedFrom: json['expected_from'] as String?,
       expectedTo: json['expected_to'] as String?,
       awaitingCheckpointAck: json['awaiting_checkpoint_ack'] as bool?,
+      physicalSynced: json['physical_synced'] as bool?,
+      checkpointExpectedOccupied:
+          (json['checkpoint_expected_occupied'] as List<dynamic>?)
+              ?.map((e) => (e as num).toInt())
+              .toList(),
     );
   }
 }

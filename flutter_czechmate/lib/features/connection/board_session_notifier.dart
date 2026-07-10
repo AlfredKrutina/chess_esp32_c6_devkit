@@ -1208,6 +1208,10 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await refreshNow();
       return;
     }
+    if (state.transport == BoardTransport.ble) {
+      await _ble.postOpening(body);
+      return;
+    }
     throw StateError(_strings.errSetupNeedsConnection);
   }
 
