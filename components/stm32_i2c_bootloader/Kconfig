@@ -71,6 +71,14 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         help
             ROM bootloader potřebuje čas po náběhu. Při ESP_FAIL na GET_ID zkus zvýšit (např. 200).
 
+    config CHESS_STM32_BL_APP_BOOT_SETTLE_MS
+        int "Čekání po přechodu STM do aplikace (ms)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range 20 500
+        default 120
+        help
+            Po GO nebo NRST pulzu (BOOT0 LOW) — čas než Hall I2C slave na 0x30 odpoví.
+
     config CHESS_STM32_BL_NRST_GPIO_SEG0
         int "NRST segment 0 (-1 = nepoužito)"
         depends on CHESS_STM32_I2C_BL_ENABLE

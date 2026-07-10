@@ -98,7 +98,8 @@ jobs:
       - name: Verify STM32 embedded firmware present
         shell: bash
         run: |
-          test -s embedded/stm32_fw_embedded.bin
+          chmod +x scripts/verify_hall_v2_profile.sh
+          ./scripts/verify_hall_v2_profile.sh
 
       - name: Configure and build (Hall V2 + STM32 auto-flash profile)
         shell: bash

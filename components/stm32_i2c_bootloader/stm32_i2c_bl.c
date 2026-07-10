@@ -374,11 +374,30 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
   return ESP_OK;
 }
 
-esp_err_t stm32_i2c_bl_release_all_run_app(void) {
+/** BOOT0 LOW; volitelný NRST pulz (BOOT0 LOW při náběžné hře) pro start aplikace z flash. */
+static esp_err_t bl_release_run_app(bool pulse_nrst) {
   ESP_RETURN_ON_ERROR(stm32_i2c_bl_init(), TAG, "init");
 
   if (CONFIG_CHESS_STM32_BL_BOOT0_GPIO >= 0) {
     gpio_set_level((gpio_num_t)CONFIG_CHESS_STM32_BL_BOOT0_GPIO, 0);
+  }
+  vTaskDelay(pdMS_TO_TICKS(5));
+
+  if (pulse_nrst) {
+    bool any_nrst = false;
+    for (unsigned s = 0; s < 4; s++) {
+      int p = NRST_CFG(s);
+      if (p < 0) {
+        continue;
+      }
+      gpio_set_level((gpio_num_t)p, 0);
+      any_nrst = true;
+    }
+    if (any_nrst) {
+      ESP_LOGI(TAG,
+               "[release] NRST pulz LOW 30 ms (BOOT0 LOW → boot z flash, ne ROM BL)");
+      vTaskDelay(pdMS_TO_TICKS(30));
+    }
   }
 
   for (unsigned s = 0; s < 4; s++) {
@@ -387,9 +406,16 @@ esp_err_t stm32_i2c_bl_release_all_run_app(void) {
       gpio_set_level((gpio_num_t)p, 1);
     }
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
-  ESP_LOGI(TAG, "[release] všechny NRST HIGH, BOOT0 LOW, 50 ms");
+
+  vTaskDelay(pdMS_TO_TICKS(CONFIG_CHESS_STM32_BL_APP_BOOT_SETTLE_MS));
+  ESP_LOGI(TAG,
+           "[release] BOOT0 LOW, NRST HIGH, čekání %d ms na Hall/I2C aplikaci",
+           CONFIG_CHESS_STM32_BL_APP_BOOT_SETTLE_MS);
   return ESP_OK;
+}
+
+esp_err_t stm32_i2c_bl_release_all_run_app(void) {
+  return bl_release_run_app(true);
 }
 
 esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter,
@@ -689,15 +715,17 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
   }
 
 restore:
+  bool go_ok = false;
   if (err == ESP_OK) {
 #if CONFIG_CHESS_STM32_BL_GO_AFTER_FLASH
     esp_err_t go_err = bl_send_go_at_addr(flash_base);
     if (go_err != ESP_OK) {
       ESP_LOGW(TAG,
-               "[flash_bin] GO @0x%08" PRIx32 " selhal (%s) — záložně NRST release",
+               "[flash_bin] GO @0x%08" PRIx32 " selhal (%s) — záložně NRST pulz",
                flash_base, esp_err_to_name(go_err));
     } else {
       ESP_LOGI(TAG, "[flash_bin] GO @0x%08" PRIx32 " OK", flash_base);
+      go_ok = true;
       vTaskDelay(pdMS_TO_TICKS(20));
     }
 #endif
@@ -707,7 +735,8 @@ restore:
              esp_err_to_name(err));
   }
 
-  (void)stm32_i2c_bl_release_all_run_app();
+  /* GO úspěšné → aplikace už běží, NRST nepulzovat. Jinak BOOT0 LOW + NRST↑. */
+  (void)bl_release_run_app(err != ESP_OK || !go_ok);
   bl_resume_scan(scan_was);
   return err;
 }
@@ -1090,22 +1119,27 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   }
 
   if (all_ok && any_nrst) {
-    nvs_handle_t hw;
-    if (nvs_open("stm32_bl", NVS_READWRITE, &hw) == ESP_OK) {
-      nvs_set_u32(hw, "af_crc", crc);
-      nvs_set_u32(hw, "af_len", (uint32_t)eff);
-      nvs_commit(hw);
-      nvs_close(hw);
-      ESP_LOGI(TAG_A, "NVS: uložen CRC+délka (další boot přeskočí při stejném obsahu)");
-    }
+    bool hall_ok = true;
 #if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                          \
     CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-    if (!bl_probe_all_nrst_hall_segments(true)) {
+    hall_ok = bl_probe_all_nrst_hall_segments(true);
+    if (!hall_ok) {
       ESP_LOGE(TAG_A,
-               "auto-flash zápis OK, ale Hall neodpovídá — zkontroluj NRST, "
-               "BOOT0 release a zapojení I2C (PB6/PB7)");
+               "auto-flash zápis OK, ale Hall neodpovídá — NVS se neuloží, "
+               "další boot zkusí flash znovu (NRST/BOOT0/I2C PB6/PB7)");
     }
 #endif
+    if (hall_ok) {
+      nvs_handle_t hw;
+      if (nvs_open("stm32_bl", NVS_READWRITE, &hw) == ESP_OK) {
+        nvs_set_u32(hw, "af_crc", crc);
+        nvs_set_u32(hw, "af_len", (uint32_t)eff);
+        nvs_commit(hw);
+        nvs_close(hw);
+        ESP_LOGI(TAG_A,
+                 "NVS: uložen CRC+délka (další boot přeskočí při stejném obsahu)");
+      }
+    }
   } else if (any_nrst && !all_ok) {
     ESP_LOGE(TAG_A,
              "auto-flash selhal na alespoň jednom segmentu — Hall čtení "

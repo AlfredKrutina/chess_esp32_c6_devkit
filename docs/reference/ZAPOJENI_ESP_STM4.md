@@ -42,7 +42,8 @@ GPIO **15** je na V1 zároveň reset tlačítko — při zapnutém `CHESS_STM32_
 2. Flash ESP včetně oddílu `stm32_fw`: `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash`
 3. První boot ESP:
    - `matrix_task` inicializuje I2C
-   - `STM32_AUTO` nahraje binárku z oddílu `stm32_fw` (BOOT0 HIGH → erase → write → GO → NRST release)
+   - `STM32_AUTO` nahraje binárku z oddílu `stm32_fw` (BOOT0 HIGH → erase → write → GO)
+   - Pokud GO selže: **NRST pulz při BOOT0 LOW** (start aplikace z flash)
    - `STM32_I2C_BL: [hall_probe] seg0 addr 0x30 OK` potvrdí běžící aplikaci
 4. Matrix sken čte Hall každých 25 ms.
 
