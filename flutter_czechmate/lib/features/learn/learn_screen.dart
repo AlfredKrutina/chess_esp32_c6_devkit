@@ -24,7 +24,7 @@ class LearnScreen extends StatelessWidget {
                 leading: Icon(Icons.menu_book,
                     color: Theme.of(context).colorScheme.primary),
                 title: const Text('Trénink zahájení'),
-                subtitle: const Text('10 linií — Učení, Drill, Na čas, Mirror'),
+                subtitle: const Text('16 linií — Učení, Drill, Na čas, Mirror'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(

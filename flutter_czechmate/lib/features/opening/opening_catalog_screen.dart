@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
 import 'opening_catalog_repository.dart';
+import 'opening_curriculum_unlock.dart';
 import 'opening_progress_repository.dart';
 import 'opening_trainer_screen.dart';
 
@@ -142,40 +143,141 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
             }
             final data = snap.data!;
             final byId = {for (final l in data.lines) l.id: l};
+            final dueIds = OpeningCurriculumUnlock.linesDueForReview(
+              data.lines,
+              data.progress,
+            );
+            final dueLines = dueIds
+                .map((id) => byId[id])
+                .whereType<OpeningLine>()
+                .toList();
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                for (final curriculum in data.curricula) ...[
-                  Text(
-                    curriculum.nameCs,
-                    style: Theme.of(context).textTheme.titleMedium,
+                if (dueLines.isNotEmpty)
+                  Card(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.replay,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Čas na opakování',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer,
+                                    ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ...dueLines.take(3).map(
+                                (line) => ListTile(
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  title: Text(line.nameCs),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () => _pickMode(line),
+                                ),
+                              ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  ...curriculum.lineIds.map((id) {
-                    final line = byId[id];
-                    if (line == null) return const SizedBox.shrink();
-                    final stars = data.progress[id]?.stars ?? 0;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        title: Text(line.nameCs),
-                        subtitle: Text(
-                          'ECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
+                for (final curriculum in data.curricula) ...[
+                  Builder(builder: (context) {
+                    final unlocked = OpeningCurriculumUnlock.isUnlocked(
+                      curriculum,
+                      allCurricula: data.curricula,
+                      progress: data.progress,
+                    );
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Text('★$stars'),
-                            const Icon(Icons.chevron_right),
+                            if (!unlocked)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 6),
+                                child: Icon(Icons.lock, size: 18),
+                              ),
+                            Expanded(
+                              child: Text(
+                                curriculum.nameCs,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
                           ],
                         ),
-                        onTap: () => _pickMode(line),
-                      ),
+                        if (!unlocked) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            OpeningCurriculumUnlock.lockReasonCs(
+                              curriculum,
+                              allCurricula: data.curricula,
+                              progress: data.progress,
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
+                        if (unlocked)
+                          ...curriculum.lineIds.map((id) {
+                            final line = byId[id];
+                            if (line == null) return const SizedBox.shrink();
+                            final stars = data.progress[id]?.stars ?? 0;
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                title: Text(line.nameCs),
+                                subtitle: Text(
+                                  'ECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('★$stars'),
+                                    const Icon(Icons.chevron_right),
+                                  ],
+                                ),
+                                onTap: () => _pickMode(line),
+                              ),
+                            );
+                          })
+                        else
+                          Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              enabled: false,
+                              title: Text(
+                                '${curriculum.lineIds.length} linií uzamčeno',
+                                style: TextStyle(
+                                  color: Theme.of(context).disabledColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
                     );
                   }),
-                  const SizedBox(height: 16),
                 ],
               ],
             );

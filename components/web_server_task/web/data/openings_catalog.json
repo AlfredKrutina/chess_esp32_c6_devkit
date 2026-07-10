@@ -36,7 +36,22 @@
       },
       "line_ids": [
         "spanish_berlin_white",
-        "queens_gambit_white"
+        "queens_gambit_white",
+        "queens_gambit_declined_black",
+        "french_classical_black",
+        "nimzo_indian_black"
+      ]
+    },
+    {
+      "id": "systems",
+      "name": {
+        "cs": "Systémová hra",
+        "en": "System openings"
+      },
+      "line_ids": [
+        "english_reversed_white",
+        "catalan_white",
+        "trompowsky_white"
       ]
     }
   ],
@@ -721,6 +736,469 @@
           "comment": {
             "cs": "Bg7.",
             "en": "Bg7."
+          }
+        }
+      ]
+    },
+    {
+      "id": "english_reversed_white",
+      "eco": "A13",
+      "family": "english",
+      "name": {
+        "cs": "Anglická — reversed London",
+        "en": "English — reversed London"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "c4",
+        "system"
+      ],
+      "idea": {
+        "cs": "c4 a klidný rozvoj na královském křídle.",
+        "en": "c4 and calm kingside development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "c2c4",
+        "e7e5",
+        "b1c3",
+        "b8c6",
+        "g1f3",
+        "g8f6",
+        "e2e3",
+        "f8b4",
+        "f1d3"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "Anglická c4.",
+            "en": "English c4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Nc3.",
+            "en": "Nc3."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Bd3.",
+            "en": "Bd3."
+          }
+        }
+      ]
+    },
+    {
+      "id": "catalan_white",
+      "eco": "E00",
+      "family": "catalan",
+      "name": {
+        "cs": "Katalánská — základ",
+        "en": "Catalan — basics"
+      },
+      "side": "white",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "c4",
+        "fianchetto"
+      ],
+      "idea": {
+        "cs": "d4 + c4 a fianchetto královského střelce.",
+        "en": "d4 + c4 with a kingside fianchetto."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "e7e6",
+        "g1f3",
+        "d7d5",
+        "g2g3",
+        "b8c6",
+        "f1g2"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6,
+        8
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "c4.",
+            "en": "c4."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "Nf3.",
+            "en": "Nf3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "g3.",
+            "en": "g3."
+          }
+        },
+        {
+          "ply_index": 8,
+          "comment": {
+            "cs": "Bg2.",
+            "en": "Bg2."
+          }
+        }
+      ]
+    },
+    {
+      "id": "trompowsky_white",
+      "eco": "A45",
+      "family": "trompowsky",
+      "name": {
+        "cs": "Trompowsky",
+        "en": "Trompowsky Attack"
+      },
+      "side": "white",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "Bg5"
+      ],
+      "idea": {
+        "cs": "Bg5 hned po d4 — netradiční tlak.",
+        "en": "Bg5 right after d4 — unusual pressure."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c1g5",
+        "d7d5",
+        "e2e3",
+        "c7c6",
+        "f1d3",
+        "b8d7"
+      ],
+      "player_ply_indices": [
+        0,
+        2,
+        4,
+        6
+      ],
+      "checkpoint_ply_indices": [
+        4
+      ],
+      "steps": [
+        {
+          "ply_index": 0,
+          "comment": {
+            "cs": "d4.",
+            "en": "d4."
+          }
+        },
+        {
+          "ply_index": 2,
+          "comment": {
+            "cs": "Bg5.",
+            "en": "Bg5."
+          }
+        },
+        {
+          "ply_index": 4,
+          "comment": {
+            "cs": "e3.",
+            "en": "e3."
+          }
+        },
+        {
+          "ply_index": 6,
+          "comment": {
+            "cs": "Bd3.",
+            "en": "Bd3."
+          }
+        }
+      ]
+    },
+    {
+      "id": "queens_gambit_declined_black",
+      "eco": "D30",
+      "family": "queens_gambit",
+      "name": {
+        "cs": "Dámský gambit — odmítnutý",
+        "en": "Queen's Gambit Declined"
+      },
+      "side": "black",
+      "difficulty": 2,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Solidní ...e6 a rozvoj lehkých figur.",
+        "en": "Solid ...e6 and piece development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "d7d5",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "g8f6",
+        "c1g5",
+        "f8e7",
+        "e2e3",
+        "c7c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Be7.",
+            "en": "Be7."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "c6.",
+            "en": "c6."
+          }
+        }
+      ]
+    },
+    {
+      "id": "french_classical_black",
+      "eco": "C11",
+      "family": "french",
+      "name": {
+        "cs": "Francouzská — klasická",
+        "en": "French — Classical"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "e4",
+        "black"
+      ],
+      "idea": {
+        "cs": "e6, d5 a přesný rozvoj proti bílému centru.",
+        "en": "e6, d5, and precise development."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "e2e4",
+        "e7e6",
+        "d2d4",
+        "d7d5",
+        "b1d2",
+        "g8f6",
+        "e4e5",
+        "f6d7",
+        "f1d3",
+        "c7c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "d5.",
+            "en": "d5."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "Nd7.",
+            "en": "Nd7."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "c6.",
+            "en": "c6."
+          }
+        }
+      ]
+    },
+    {
+      "id": "nimzo_indian_black",
+      "eco": "E20",
+      "family": "nimzo",
+      "name": {
+        "cs": "Nimzo-indická",
+        "en": "Nimzo-Indian"
+      },
+      "side": "black",
+      "difficulty": 3,
+      "tags": [
+        "d4",
+        "black"
+      ],
+      "idea": {
+        "cs": "Bb4 a boj o tempo v centru.",
+        "en": "Bb4 and fighting for central tempo."
+      },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": [
+        "d2d4",
+        "g8f6",
+        "c2c4",
+        "e7e6",
+        "b1c3",
+        "f8b4",
+        "e2e3",
+        "c7c5",
+        "g1f3",
+        "b8c6"
+      ],
+      "player_ply_indices": [
+        1,
+        3,
+        5,
+        7,
+        9
+      ],
+      "checkpoint_ply_indices": [
+        3
+      ],
+      "steps": [
+        {
+          "ply_index": 1,
+          "comment": {
+            "cs": "Nf6.",
+            "en": "Nf6."
+          }
+        },
+        {
+          "ply_index": 3,
+          "comment": {
+            "cs": "e6.",
+            "en": "e6."
+          }
+        },
+        {
+          "ply_index": 5,
+          "comment": {
+            "cs": "Bb4.",
+            "en": "Bb4."
+          }
+        },
+        {
+          "ply_index": 7,
+          "comment": {
+            "cs": "c5.",
+            "en": "c5."
+          }
+        },
+        {
+          "ply_index": 9,
+          "comment": {
+            "cs": "Nc6.",
+            "en": "Nc6."
           }
         }
       ]

@@ -224,6 +224,58 @@
         await openingPostAction({ action: 'checkpoint_ack' });
     }
 
+    function openingCountStarsInCurriculum(curriculumId, minStars) {
+        var curricula = global.OPENING_CURRICULA || [];
+        var curriculum = curricula.filter(function (c) {
+            return c.id === curriculumId;
+        })[0];
+        if (!curriculum) return 0;
+        var count = 0;
+        curriculum.line_ids.forEach(function (id) {
+            if (openingGetStars(id) >= minStars) count++;
+        });
+        return count;
+    }
+
+    function openingTotalStarsAtLeast(minStars) {
+        var all = openingLoadProgress();
+        var count = 0;
+        Object.keys(all).forEach(function (id) {
+            if ((all[id].stars || 0) >= minStars) count++;
+        });
+        return count;
+    }
+
+    function openingIsCurriculumUnlocked(curriculumId) {
+        if (curriculumId === 'basics_white') return true;
+        if (curriculumId === 'basics_black') {
+            return openingCountStarsInCurriculum('basics_white', 1) >= 2;
+        }
+        if (curriculumId === 'classical_deep') {
+            return openingCountStarsInCurriculum('basics_white', 2) >= 1 ||
+                openingCountStarsInCurriculum('basics_black', 2) >= 1;
+        }
+        if (curriculumId === 'systems') {
+            return openingTotalStarsAtLeast(2) >= 5;
+        }
+        return true;
+    }
+
+    function openingLinesDueForReview(reviewAfterDays) {
+        reviewAfterDays = reviewAfterDays || 3;
+        var all = openingLoadProgress();
+        var due = [];
+        var now = Date.now();
+        Object.keys(all).forEach(function (id) {
+            var p = all[id];
+            if (!p || (p.stars || 0) < 2 || !p.last_completed_at) return;
+            var last = Date.parse(p.last_completed_at);
+            if (isNaN(last)) return;
+            if ((now - last) >= reviewAfterDays * 86400000) due.push(id);
+        });
+        return due;
+    }
+
     global.openingIsActive = openingIsActive;
     global.openingIsCheckpoint = openingIsCheckpoint;
     global.openingTrainerOnStatusUpdate = openingTrainerOnStatusUpdate;
@@ -234,4 +286,6 @@
     global.openingStopHintRefresh = openingStopHintRefresh;
     global.openingGetStars = openingGetStars;
     global.openingRecordCompletion = openingRecordCompletion;
+    global.openingIsCurriculumUnlocked = openingIsCurriculumUnlocked;
+    global.openingLinesDueForReview = openingLinesDueForReview;
 }(typeof window !== 'undefined' ? window : globalThis));
