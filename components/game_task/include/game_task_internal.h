@@ -16,6 +16,8 @@
 #include <stdint.h>
 
 #define GAME_TASK_MAX_MOVES_HISTORY 200
+#define GAME_TASK_MAX_CAPTURED_PIECES 16
+#define GAME_TASK_MAX_ADVANTAGE_HISTORY 200
 
 extern piece_t board[8][8];
 extern bool resync_required_after_restore;
@@ -60,8 +62,36 @@ extern uint32_t black_moves_count;
 extern uint32_t white_castles;
 extern uint32_t black_castles;
 
+typedef enum {
+  ENDGAME_REASON_CHECKMATE = 0,
+  ENDGAME_REASON_CHECKMATE_EN_PASSANT = 1,
+  ENDGAME_REASON_CHECKMATE_CASTLING = 2,
+  ENDGAME_REASON_CHECKMATE_PROMOTION = 3,
+  ENDGAME_REASON_CHECKMATE_DISCOVERED = 4,
+  ENDGAME_REASON_STALEMATE = 10,
+  ENDGAME_REASON_50_MOVE = 11,
+  ENDGAME_REASON_REPETITION = 12,
+  ENDGAME_REASON_INSUFFICIENT = 13,
+  ENDGAME_REASON_TIMEOUT = 20,
+  ENDGAME_REASON_RESIGNATION = 21
+} endgame_reason_t;
+
 extern game_state_t game_result;
 extern game_result_type_t current_result_type;
+extern endgame_reason_t current_endgame_reason;
+
+extern uint32_t white_checks;
+extern uint32_t black_checks;
+
+extern piece_t white_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
+extern piece_t black_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
+extern uint32_t white_captured_count;
+extern uint32_t black_captured_count;
+
+extern int8_t material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
+extern uint32_t advantage_history_count;
+
+char piece_to_char(piece_t piece);
 
 typedef enum {
   LAST_MOVE_NORMAL = 0,
