@@ -727,6 +727,22 @@
                 }
             }
         ],
+        "opponent_annotations": [
+            {
+                "ply_index": 1,
+                "comment": {
+                    "cs": "Černý symetricky drží centrum e5.",
+                    "en": "Black mirrors central control with ...e5."
+                }
+            },
+            {
+                "ply_index": 5,
+                "comment": {
+                    "cs": "Střelec c5 míří na f2 — typická italská struktura.",
+                    "en": "The c5 bishop eyes f2 — classic Italian structure."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Nejklidnější italská — c3 a rozvoj bez ostré teorie.",
@@ -794,6 +810,29 @@
                 }
             }
         ],
+        "opponent_annotations": [
+            {
+                "ply_index": 0,
+                "comment": {
+                    "cs": "Bílý klasicky ovládá centrum e4.",
+                    "en": "White takes classical central space with e4."
+                }
+            },
+            {
+                "ply_index": 2,
+                "comment": {
+                    "cs": "Nf3 rozvíjí a připravuje d4.",
+                    "en": "Nf3 develops and prepares d4."
+                }
+            },
+            {
+                "ply_index": 4,
+                "comment": {
+                    "cs": "d4 otevírá centrum — typická sicílie.",
+                    "en": "d4 opens the center — typical Sicilian play."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Nejčastější sicilská — boj o centrum bez okamžitého taktického rizika.",
@@ -858,6 +897,22 @@
                 "hint": {
                     "cs": "Londýn drží d4 + Bf4, ne klasické c4 hned.",
                     "en": "London keeps d4 + Bf4, not an early c4."
+                }
+            }
+        ],
+        "opponent_annotations": [
+            {
+                "ply_index": 1,
+                "comment": {
+                    "cs": "Černý odpovídá symetrickým d5.",
+                    "en": "Black answers with symmetrical ...d5."
+                }
+            },
+            {
+                "ply_index": 3,
+                "comment": {
+                    "cs": "Nf6 rozvíjí a brání e4.",
+                    "en": "Nf6 develops and controls e4."
                 }
             }
         ],
@@ -1058,6 +1113,29 @@
                 }
             }
         ],
+        "opponent_annotations": [
+            {
+                "ply_index": 1,
+                "comment": {
+                    "cs": "Černý drží centrum e5.",
+                    "en": "Black occupies the center with ...e5."
+                }
+            },
+            {
+                "ply_index": 3,
+                "comment": {
+                    "cs": "Nc6 rozvíjí a brání e5.",
+                    "en": "Nc6 develops and defends e5."
+                }
+            },
+            {
+                "ply_index": 5,
+                "comment": {
+                    "cs": "Nf6 — berlínská obrana proti Bb5.",
+                    "en": "Nf6 — the Berlin Defence against Bb5."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Krátká španělská — Berlin bez dlouhé teorie.",
@@ -1121,6 +1199,22 @@
                 "hint": {
                     "cs": "Dámský gambit začíná d4, ne d3.",
                     "en": "The Queen's Gambit starts with d4, not d3."
+                }
+            }
+        ],
+        "opponent_annotations": [
+            {
+                "ply_index": 1,
+                "comment": {
+                    "cs": "Černý drží symetrické d5.",
+                    "en": "Black mirrors with ...d5."
+                }
+            },
+            {
+                "ply_index": 3,
+                "comment": {
+                    "cs": "e6 podporuje d5 a rozvoj.",
+                    "en": "e6 supports d5 and development."
                 }
             }
         ],
@@ -1255,6 +1349,29 @@
                 "hint": {
                     "cs": "V petrově pokračuj ...Nf6, ne ...d6.",
                     "en": "In the Petrov continue ...Nf6, not ...d6."
+                }
+            }
+        ],
+        "opponent_annotations": [
+            {
+                "ply_index": 0,
+                "comment": {
+                    "cs": "Bílý začíná e4 — klasická otevřená hra.",
+                    "en": "White opens with e4 — classical open game."
+                }
+            },
+            {
+                "ply_index": 2,
+                "comment": {
+                    "cs": "Nf3 rozvíjí a útočí na e5.",
+                    "en": "Nf3 develops and attacks e5."
+                }
+            },
+            {
+                "ply_index": 4,
+                "comment": {
+                    "cs": "Nc3 posiluje centrum a e5.",
+                    "en": "Nc3 reinforces the center and e5."
                 }
             }
         ],
@@ -3392,6 +3509,19 @@
         return '';
     }
 
+    function openingOpponentAnnotation(line, ot) {
+        if (!line || !line.opponent_annotations || !ot) return '';
+        var ply = ot.ply_index;
+        if (ply == null) return '';
+        for (var i = 0; i < line.opponent_annotations.length; i++) {
+            var a = line.opponent_annotations[i];
+            if (a.ply_index === ply) {
+                return (a.comment && a.comment.cs) ? a.comment.cs : '';
+            }
+        }
+        return '';
+    }
+
     function openingEnsureMiniboardStyles() {
         if (document.getElementById('opening-miniboard-styles')) return;
         var style = document.createElement('style');
@@ -3589,8 +3719,12 @@
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
             if (ot.active) openingStartHintRefresh();
         } else if (ot.feedback === 'opponent_turn' || ot.awaiting_opponent_physical) {
-            subEl.textContent = 'Tah soupeře — zvedni z ' +
-                (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?');
+            var oppNote = openingOpponentAnnotation(line, ot);
+            subEl.textContent = oppNote
+                ? oppNote + ' — zvedni z ' +
+                    (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?')
+                : 'Tah soupeře — zvedni z ' +
+                    (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?');
             if (ot.opponent_mode === 'physical') openingStartHintRefresh();
         } else {
             subEl.textContent = 'Táhni na desce: ' +

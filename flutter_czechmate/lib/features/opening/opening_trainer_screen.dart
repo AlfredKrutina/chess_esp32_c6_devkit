@@ -367,6 +367,12 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
 
     final line = _line;
     final stepComment = line?.commentForPlayerPly(_playerPly, locale);
+    final opponentComment = line?.commentForOpponentPly(opening?.plyIndex, locale);
+    final showOpponentComment = !widget.isDrillLike &&
+        isOpponentTurn &&
+        widget.opponentMode == 'physical' &&
+        opponentComment != null &&
+        opponentComment.isNotEmpty;
     final idea = line?.ideaForLocale(locale);
     final showRationale = !widget.isDrillLike &&
         _playerPly == 0 &&
@@ -454,6 +460,16 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                             mistakeHint!,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.tertiary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ],
+                        if (showOpponentComment) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            opponentComment!,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.secondary,
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),

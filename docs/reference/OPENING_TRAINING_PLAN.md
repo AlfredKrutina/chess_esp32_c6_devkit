@@ -1329,7 +1329,7 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 - [x] Rationale panel jen na **ply 0** (Learn) — Flutter + web
 - [x] `idea` + `steps[]`: Flutter locale (`commentForPlayerPly`, `ideaForLocale`)
 - [x] L10/L12: sdílený `pickOpeningModeAndStart`
-- [ ] `opponent_annotations` u 5+ linií — dnes 0/41 (obsah, ne UX)
+- [x] `opponent_annotations` u 5+ linií — 6 linií (italská, sicílie, londýn, berlín, petrov, QG)
 - [x] Katalog filtry: side + search (název/ECO)
 
 **Acceptance:** Learn lekce bez technických stavů; rationale viditelné jen na úvodu.
