@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_czechmate/features/opening/opening_catalog_repository.dart';
+import 'package:czechmate/features/opening/opening_catalog_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

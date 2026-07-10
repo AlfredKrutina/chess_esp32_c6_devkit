@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_czechmate/core/utils/fen_board_parser.dart';
+import 'package:czechmate/core/utils/fen_board_parser.dart';
 
 void main() {
   group('placementFenFromSnapshotBoard', () {

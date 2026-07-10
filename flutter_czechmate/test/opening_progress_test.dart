@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter_czechmate/features/opening/opening_progress_repository.dart';
+import 'package:czechmate/features/opening/opening_progress_repository.dart';
 
 void main() {
   test('opening progress stars learn then drill', () async {

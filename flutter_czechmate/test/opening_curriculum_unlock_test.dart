@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_czechmate/features/opening/opening_catalog_repository.dart';
-import 'package:flutter_czechmate/features/opening/opening_curriculum_unlock.dart';
-import 'package:flutter_czechmate/features/opening/opening_progress_repository.dart';
+import 'package:czechmate/features/opening/opening_catalog_repository.dart';
+import 'package:czechmate/features/opening/opening_curriculum_unlock.dart';
+import 'package:czechmate/features/opening/opening_progress_repository.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

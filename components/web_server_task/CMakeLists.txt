@@ -28,6 +28,7 @@ set(WS_REQUIRES
     app_update
     esp_partition
     esp_http_client
+    esp_http_server
     mbedtls
     esp_wifi
     esp_netif
