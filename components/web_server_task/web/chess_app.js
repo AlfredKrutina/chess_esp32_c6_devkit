@@ -604,7 +604,10 @@
             "italian_giuoco_white",
             "london_system_white",
             "four_knights_white",
-            "vienna_white"
+            "vienna_white",
+            "scotch_game_white",
+            "colle_system_white",
+            "italian_two_knights_white"
         ]
     },
     {
@@ -617,7 +620,10 @@
             "sicilian_odb_black",
             "caro_kann_classical_black",
             "petrov_black",
-            "pirc_classical_black"
+            "pirc_classical_black",
+            "alekhine_defence_black",
+            "slav_defence_black",
+            "dutch_defence_black"
         ]
     },
     {
@@ -631,7 +637,11 @@
             "queens_gambit_white",
             "queens_gambit_declined_black",
             "french_classical_black",
-            "nimzo_indian_black"
+            "nimzo_indian_black",
+            "torre_attack_white",
+            "ruy_lopez_classical_white",
+            "queens_indian_black",
+            "kings_indian_black"
         ]
     },
     {
@@ -643,7 +653,11 @@
         "line_ids": [
             "english_reversed_white",
             "catalan_white",
-            "trompowsky_white"
+            "trompowsky_white",
+            "english_symmetrical_white",
+            "london_vs_kid_white",
+            "bogo_indian_black",
+            "grunfeld_black"
         ]
     }
 ];
@@ -1194,6 +1208,521 @@
             "c7c5",
             "g1f3",
             "b8c6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "scotch_game_white",
+        "eco": "C45",
+        "name": {
+            "cs": "Skotská hra",
+            "en": "Scotch Game"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Centrum d4 a rychlý rozvoj proti ...d6.",
+            "en": "d4 center and quick development against ...d6."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "e7e5",
+            "g1f3",
+            "b8c6",
+            "d2d4",
+            "d7d6",
+            "f1b5",
+            "c8d7"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "colle_system_white",
+        "eco": "D05",
+        "name": {
+            "cs": "Colleův systém",
+            "en": "Colle System"
+        },
+        "side": "white",
+        "difficulty": 1,
+        "idea": {
+            "cs": "Klidný plán e3, Bd3 a Nd2.",
+            "en": "Quiet plan with e3, Bd3, and Nd2."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "d7d5",
+            "e2e3",
+            "g8f6",
+            "f1d3",
+            "e7e6",
+            "b1d2",
+            "f8d6",
+            "g1f3",
+            "b8d7"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "italian_two_knights_white",
+        "eco": "C55",
+        "name": {
+            "cs": "Italská — dva jezdci",
+            "en": "Italian — Two Knights"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Bc4 a klidný d3 proti ...Nf6.",
+            "en": "Bc4 and calm d3 against ...Nf6."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "e7e5",
+            "g1f3",
+            "b8c6",
+            "f1c4",
+            "g8f6",
+            "d2d3",
+            "f8e7",
+            "b1c3",
+            "d7d6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "torre_attack_white",
+        "eco": "A46",
+        "name": {
+            "cs": "Torreův útok",
+            "en": "Torre Attack"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Bg5 a harmonický rozvoj na královském křídle.",
+            "en": "Bg5 with harmonious kingside development."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "g8f6",
+            "c1g5",
+            "e7e6",
+            "e2e3",
+            "f8e7",
+            "g1f3",
+            "b8c6",
+            "f1d3",
+            "d7d5"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "ruy_lopez_classical_white",
+        "eco": "C78",
+        "name": {
+            "cs": "Španělská — klasická",
+            "en": "Ruy Lopez — Classical"
+        },
+        "side": "white",
+        "difficulty": 3,
+        "idea": {
+            "cs": "Ba4 a d3 proti berlínskému Nf6.",
+            "en": "Ba4 and d3 against the Berlin ...Nf6."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "e7e5",
+            "g1f3",
+            "b8c6",
+            "f1b5",
+            "a7a6",
+            "b5a4",
+            "g8f6",
+            "d2d3",
+            "f8e7"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "english_symmetrical_white",
+        "eco": "A35",
+        "name": {
+            "cs": "Anglická — symetrická",
+            "en": "English — Symmetrical"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Symetrická anglická s fianchetto obou střelců.",
+            "en": "Symmetrical English with both bishops fianchettoed."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "c2c4",
+            "c7c5",
+            "b1c3",
+            "b8c6",
+            "g2g3",
+            "g7g6",
+            "f1g2",
+            "f8g7",
+            "g1f3",
+            "g8f6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "london_vs_kid_white",
+        "eco": "A47",
+        "name": {
+            "cs": "Londýn proti KID",
+            "en": "London vs King's Indian"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Bf4 a e3 proti ...g6.",
+            "en": "Bf4 and e3 against ...g6."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "g8f6",
+            "c1f4",
+            "g7g6",
+            "e2e3",
+            "f8g7",
+            "g1f3",
+            "d7d6",
+            "f1e2",
+            "b8d7"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "alekhine_defence_black",
+        "eco": "B03",
+        "name": {
+            "cs": "Aljechinova obrana",
+            "en": "Alekhine's Defence"
+        },
+        "side": "black",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Nf6 a vyprovokuj e5 — pak Nd5.",
+            "en": "Nf6 provoking e5 — then ...Nd5."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "g8f6",
+            "e4e5",
+            "f6d5",
+            "d2d4",
+            "d7d6",
+            "g1f3",
+            "c8g4",
+            "f1e2",
+            "e7e6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "slav_defence_black",
+        "eco": "D10",
+        "name": {
+            "cs": "Slovanská obrana",
+            "en": "Slav Defence"
+        },
+        "side": "black",
+        "difficulty": 2,
+        "idea": {
+            "cs": "c6 podporuje d5 a solidní rozvoj.",
+            "en": "c6 supports d5 and solid development."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "d7d5",
+            "c2c4",
+            "c7c6",
+            "g1f3",
+            "g8f6",
+            "b1c3",
+            "e7e6",
+            "c1f4",
+            "f8d6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "kings_indian_black",
+        "eco": "E60",
+        "name": {
+            "cs": "Královský indický",
+            "en": "King's Indian Defence"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "g6, Bg7 a protihra v centru.",
+            "en": "g6, Bg7, and counterplay in the center."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "g8f6",
+            "c2c4",
+            "g7g6",
+            "b1c3",
+            "f8g7",
+            "e2e4",
+            "d7d6",
+            "g1f3",
+            "b8d7"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "dutch_defence_black",
+        "eco": "A80",
+        "name": {
+            "cs": "Holandská obrana",
+            "en": "Dutch Defence"
+        },
+        "side": "black",
+        "difficulty": 2,
+        "idea": {
+            "cs": "f5 a dynamická hra na královském křídle.",
+            "en": "f5 and dynamic kingside play."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "f7f5",
+            "c2c4",
+            "g8f6",
+            "b1c3",
+            "e7e6",
+            "g2g3",
+            "f8b4",
+            "f1g2",
+            "b8c6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "bogo_indian_black",
+        "eco": "E11",
+        "name": {
+            "cs": "Bogoindická",
+            "en": "Bogo-Indian Defence"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "Bb4 bez včasného ...d5.",
+            "en": "Bb4 without an early ...d5."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "g8f6",
+            "c2c4",
+            "e7e6",
+            "b1c3",
+            "f8b4",
+            "d1c2",
+            "d7d5",
+            "e2e3",
+            "b8c6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "queens_indian_black",
+        "eco": "E12",
+        "name": {
+            "cs": "Dámský indický",
+            "en": "Queen's Indian Defence"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "b6, Bb7 a kontrola světlých polí.",
+            "en": "b6, Bb7, and control of the light squares."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "g8f6",
+            "c2c4",
+            "e7e6",
+            "g1f3",
+            "b7b6",
+            "g2g3",
+            "c8b7",
+            "f1g2",
+            "f8e7"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "grunfeld_black",
+        "eco": "D70",
+        "name": {
+            "cs": "Grünfeldská obrana",
+            "en": "Grünfeld Defence"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "d5 útočí na bílé centrum c4/e4.",
+            "en": "...d5 strikes at the white c4/e4 center."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "g8f6",
+            "c2c4",
+            "g7g6",
+            "b1c3",
+            "d7d5",
+            "e2e3",
+            "f8g7",
+            "g1f3",
+            "c7c6"
         ],
         "player_ply_indices": [
             1,
