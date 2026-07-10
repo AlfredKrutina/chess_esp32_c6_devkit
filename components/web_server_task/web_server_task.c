@@ -4179,7 +4179,6 @@ esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-/**
 // ============================================================================
 // HTTP root & legacy JS paths — app-only product build (no browser dashboard).
 // REST `/api/*`, WebSocket `/ws`, and OTA handlers remain registered below.
