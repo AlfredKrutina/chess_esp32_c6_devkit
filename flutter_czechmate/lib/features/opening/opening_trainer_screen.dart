@@ -11,6 +11,7 @@ import '../../core/utils/board_setup_fen_steps.dart';
 import '../connection/board_session_notifier.dart';
 import '../setup/board_setup_wizard_screen.dart';
 import 'opening_catalog_repository.dart';
+import 'opening_rationale.dart';
 
 class OpeningTrainerScreen extends ConsumerStatefulWidget {
   const OpeningTrainerScreen({
@@ -362,6 +363,14 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                         const SizedBox(height: 8),
                         if (!widget.isDrillLike && line.ideaCs != null)
                           Text(line.ideaCs!, style: Theme.of(context).textTheme.bodyLarge),
+                        if (!widget.isDrillLike && line.rationale != null) ...[
+                          const SizedBox(height: 8),
+                          OpeningRationalePanel(
+                            rationale: line.rationale!,
+                            locale: Localizations.localeOf(context).languageCode,
+                            compact: true,
+                          ),
+                        ],
                         if (!widget.isDrillLike &&
                             stepComment != null &&
                             stepComment.isNotEmpty) ...[

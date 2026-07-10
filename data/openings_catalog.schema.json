@@ -28,6 +28,22 @@
         "en": { "type": "string", "minLength": 1 }
       }
     },
+    "rationale": {
+      "type": "object",
+      "required": ["why_this_line", "instead_of"],
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "$ref": "#/definitions/localized" },
+        "why_this_line": { "$ref": "#/definitions/localized" },
+        "instead_of": { "$ref": "#/definitions/localized" },
+        "when_to_play": { "$ref": "#/definitions/localized" },
+        "related_line_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "maxItems": 4
+        }
+      }
+    },
     "curriculum": {
       "type": "object",
       "required": ["id", "name", "line_ids"],
@@ -64,6 +80,7 @@
         "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
         "tags": { "type": "array", "items": { "type": "string" } },
         "idea": { "$ref": "#/definitions/localized" },
+        "rationale": { "$ref": "#/definitions/rationale" },
         "start_fen": { "type": "string", "minLength": 10 },
         "line_uci": {
           "type": "array",

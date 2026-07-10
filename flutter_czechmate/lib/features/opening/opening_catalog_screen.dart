@@ -6,6 +6,7 @@ import '../../core/layout/form_factor.dart';
 import 'opening_catalog_repository.dart';
 import 'opening_curriculum_unlock.dart';
 import 'opening_progress_repository.dart';
+import 'opening_rationale.dart';
 import 'opening_trainer_screen.dart';
 
 class OpeningCatalogScreen extends ConsumerStatefulWidget {
@@ -39,108 +40,134 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
     });
   }
 
-  Future<void> _pickMode(OpeningLine line) async {
+  Future<void> _pickMode(OpeningLine line, {List<OpeningLine>? allLines}) async {
     final progressRepo = ref.read(openingProgressRepositoryProvider);
     final progress = progressRepo.progressFor(line.id);
     final mirrorId = line.mirrorLineId;
     final mirrorOk = progressRepo.mirrorUnlocked(line.id, mirrorLineId: mirrorId);
     var opponentMode = 'physical';
+    final locale = Localizations.localeOf(context).languageCode;
+    final linesById = {
+      for (final l in allLines ?? const <OpeningLine>[]) l.id: l,
+    };
 
     final mode = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
+      isScrollControlled: true,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setSheetState) {
             return SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(line.nameCs, style: Theme.of(ctx).textTheme.titleMedium),
-                    Text('ECO ${line.eco} · ${line.side} · ★${progress.stars}/4'),
-                    const SizedBox(height: 12),
-                    Text('Soupeř', style: Theme.of(ctx).textTheme.titleSmall),
-                    const SizedBox(height: 4),
-                    SegmentedButton<String>(
-                      segments: const [
-                        ButtonSegment(
-                          value: 'physical',
-                          label: Text('Fyzicky'),
-                          icon: Icon(Icons.pan_tool_alt_outlined),
-                        ),
-                        ButtonSegment(
-                          value: 'virtual',
-                          label: Text('Virtuálně'),
-                          icon: Icon(Icons.smart_toy_outlined),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  0,
+                  16,
+                  16 + MediaQuery.viewInsetsOf(ctx).bottom,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(line.nameCs, style: Theme.of(ctx).textTheme.titleMedium),
+                      Text('ECO ${line.eco} · ${line.side} · ★${progress.stars}/4'),
+                      if (line.rationale != null) ...[
+                        const SizedBox(height: 12),
+                        OpeningRationalePanel(
+                          rationale: line.rationale!,
+                          locale: locale,
+                          linesById: linesById,
+                          onRelatedTap: (relatedId) {
+                            final related = linesById[relatedId];
+                            if (related == null) return;
+                            Navigator.pop(ctx);
+                            _pickMode(related, allLines: allLines);
+                          },
                         ),
                       ],
-                      selected: {opponentMode},
-                      onSelectionChanged: (s) {
-                        setSheetState(() => opponentMode = s.first);
-                      },
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4, bottom: 12),
-                      child: Text(
-                        opponentMode == 'physical'
-                            ? 'LED ukáže tah soupeře — figurku přesuneš sám (jako proti botovi).'
-                            : 'Soupeř táhne na logické desce — po tahu může být potřeba srovnat fyzickou desku.',
-                        style: Theme.of(ctx).textTheme.bodySmall,
+                      const SizedBox(height: 12),
+                      Text('Soupeř', style: Theme.of(ctx).textTheme.titleSmall),
+                      const SizedBox(height: 4),
+                      SegmentedButton<String>(
+                        segments: const [
+                          ButtonSegment(
+                            value: 'physical',
+                            label: Text('Fyzicky'),
+                            icon: Icon(Icons.pan_tool_alt_outlined),
+                          ),
+                          ButtonSegment(
+                            value: 'virtual',
+                            label: Text('Virtuálně'),
+                            icon: Icon(Icons.smart_toy_outlined),
+                          ),
+                        ],
+                        selected: {opponentMode},
+                        onSelectionChanged: (s) {
+                          setSheetState(() => opponentMode = s.first);
+                        },
                       ),
-                    ),
-                    ListTile(
-                  leading: const Icon(Icons.school_outlined),
-                  title: const Text('Učení'),
-                  subtitle: const Text('Komentáře ke každému tahu'),
-                  onTap: () => Navigator.pop(ctx, 'learn'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.fitness_center_outlined),
-                  title: const Text('Drill'),
-                  subtitle: Text(
-                    progress.stars >= 1
-                        ? 'Bez komentářů, max 2 chyby pro ★★'
-                        : 'Nejdřív dokonči režim Učení',
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4, bottom: 12),
+                        child: Text(
+                          opponentMode == 'physical'
+                              ? 'LED ukáže tah soupeře — figurku přesuneš sám (jako proti botovi).'
+                              : 'Soupeř táhne na logické desce — po tahu může být potřeba srovnat fyzickou desku.',
+                          style: Theme.of(ctx).textTheme.bodySmall,
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.school_outlined),
+                        title: const Text('Učení'),
+                        subtitle: const Text('Komentáře ke každému tahu'),
+                        onTap: () => Navigator.pop(ctx, 'learn'),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.fitness_center_outlined),
+                        title: const Text('Drill'),
+                        subtitle: Text(
+                          progress.stars >= 1
+                              ? 'Bez komentářů, max 2 chyby pro ★★'
+                              : 'Nejdřív dokonči režim Učení',
+                        ),
+                        enabled: progress.stars >= 1,
+                        onTap: progress.stars >= 1
+                            ? () => Navigator.pop(ctx, 'drill')
+                            : null,
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.timer_outlined),
+                        title: const Text('Na čas'),
+                        subtitle: Text(
+                          progress.stars >= 2
+                              ? '90 s na celou linii'
+                              : 'Odemčeno po ★★ v Drillu',
+                        ),
+                        enabled: progress.stars >= 2,
+                        onTap: progress.stars >= 2
+                            ? () => Navigator.pop(ctx, 'timed')
+                            : null,
+                      ),
+                    if (mirrorId != null)
+                      ListTile(
+                        leading: const Icon(Icons.swap_horiz),
+                        title: const Text('Mirror — protistrana'),
+                        subtitle: Text(
+                          mirrorOk
+                              ? 'Párová linie $mirrorId'
+                              : 'Odemčeno po ★★ na hlavní linii',
+                        ),
+                        enabled: mirrorOk,
+                        onTap: mirrorOk
+                            ? () => Navigator.pop(ctx, 'mirror')
+                            : null,
+                      ),
+                    ],
                   ),
-                  enabled: progress.stars >= 1,
-                  onTap: progress.stars >= 1
-                      ? () => Navigator.pop(ctx, 'drill')
-                      : null,
                 ),
-                ListTile(
-                  leading: const Icon(Icons.timer_outlined),
-                  title: const Text('Na čas'),
-                  subtitle: Text(
-                    progress.stars >= 2
-                        ? '90 s na celou linii'
-                        : 'Odemčeno po ★★ v Drillu',
-                  ),
-                  enabled: progress.stars >= 2,
-                  onTap: progress.stars >= 2
-                      ? () => Navigator.pop(ctx, 'timed')
-                      : null,
-                ),
-                if (mirrorId != null)
-                  ListTile(
-                    leading: const Icon(Icons.swap_horiz),
-                    title: const Text('Mirror — protistrana'),
-                    subtitle: Text(
-                      mirrorOk
-                          ? 'Párová linie $mirrorId'
-                          : 'Odemčeno po ★★ na hlavní linii',
-                    ),
-                    enabled: mirrorOk,
-                    onTap: mirrorOk
-                        ? () => Navigator.pop(ctx, 'mirror')
-                        : null,
-                  ),
-              ],
-            ),
-          ),
-        );
+              ),
+            );
           },
         );
       },
@@ -225,7 +252,7 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
                                   contentPadding: EdgeInsets.zero,
                                   title: Text(line.nameCs),
                                   trailing: const Icon(Icons.chevron_right),
-                                  onTap: () => _pickMode(line),
+                                  onTap: () => _pickMode(line, allLines: data.lines),
                                 ),
                               ),
                         ],
@@ -276,13 +303,18 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
                             final line = byId[id];
                             if (line == null) return const SizedBox.shrink();
                             final stars = data.progress[id]?.stars ?? 0;
+                            final locale =
+                                Localizations.localeOf(context).languageCode;
+                            final subtitle = line.subtitleForLocale(locale);
                             return Card(
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
                                 title: Text(line.nameCs),
                                 subtitle: Text(
-                                  'ECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}',
-                                  maxLines: 2,
+                                  subtitle != null && subtitle.isNotEmpty
+                                      ? '$subtitle\nECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}'
+                                      : 'ECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}',
+                                  maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 trailing: Row(
@@ -292,7 +324,7 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
                                     const Icon(Icons.chevron_right),
                                   ],
                                 ),
-                                onTap: () => _pickMode(line),
+                                onTap: () => _pickMode(line, allLines: data.lines),
                               ),
                             );
                           })

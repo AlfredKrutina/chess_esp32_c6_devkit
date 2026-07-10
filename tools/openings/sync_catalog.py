@@ -13,6 +13,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MASTER = ROOT / "data" / "openings_master.json"
 SCHEMA = ROOT / "data" / "openings_catalog.schema.json"
+RATIONALE = ROOT / "data" / "openings_rationale.json"
+RATIONALE_SCHEMA = ROOT / "data" / "openings_rationale.schema.json"
 WEB_OUT = ROOT / "components" / "web_server_task" / "web" / "data" / "openings_catalog.json"
 FLUTTER_OUT = ROOT / "flutter_czechmate" / "assets" / "data" / "openings_catalog.json"
 WEB_JS_CATALOG = ROOT / "components" / "web_server_task" / "web" / "js" / "opening_catalog.js"
@@ -26,14 +28,51 @@ def load_json(path: Path) -> dict:
         return json.load(f)
 
 
-def validate_schema(data: dict) -> None:
+def validate_schema(data: dict, *, schema_path: Path = SCHEMA) -> None:
     try:
         import jsonschema
     except ImportError:
         print("WARN: jsonschema not installed — skipping schema validation", file=sys.stderr)
         return
-    schema = load_json(SCHEMA)
+    schema = load_json(schema_path)
     jsonschema.validate(data, schema)
+
+
+def load_rationale() -> dict:
+    if not RATIONALE.exists():
+        raise FileNotFoundError(f"missing rationale sidecar: {RATIONALE}")
+    rationale = load_json(RATIONALE)
+    validate_schema(rationale, schema_path=RATIONALE_SCHEMA)
+    return rationale
+
+
+def validate_rationale_coverage(data: dict, rationale: dict) -> None:
+    opening_ids = {o["id"] for o in data["openings"]}
+    entries = rationale.get("entries") or {}
+    entry_ids = set(entries.keys())
+    missing = sorted(opening_ids - entry_ids)
+    extra = sorted(entry_ids - opening_ids)
+    if missing:
+        raise ValueError(f"rationale missing entries for: {', '.join(missing)}")
+    if extra:
+        raise ValueError(f"rationale has unknown opening ids: {', '.join(extra)}")
+
+    for opening in data["openings"]:
+        rat = entries[opening["id"]]
+        for related_id in rat.get("related_line_ids") or []:
+            if related_id not in opening_ids:
+                raise ValueError(
+                    f"{opening['id']}: related_line_id not in catalog: {related_id}"
+                )
+
+
+def merge_rationale(data: dict, rationale: dict) -> dict:
+    """Return export payload with rationale merged per opening (master stays sidecar)."""
+    entries = rationale["entries"]
+    export = json.loads(json.dumps(data))
+    for opening in export["openings"]:
+        opening["rationale"] = entries[opening["id"]]
+    return export
 
 
 def parse_uci(uci: str) -> tuple[str, str, str | None]:
@@ -141,15 +180,16 @@ def file_hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def copy_outputs(data: dict) -> None:
-    payload = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+def copy_outputs(data: dict, rationale: dict) -> None:
+    export = merge_rationale(data, rationale)
+    payload = json.dumps(export, ensure_ascii=False, indent=2) + "\n"
     WEB_OUT.parent.mkdir(parents=True, exist_ok=True)
     FLUTTER_OUT.parent.mkdir(parents=True, exist_ok=True)
     WEB_OUT.write_text(payload, encoding="utf-8")
     FLUTTER_OUT.write_text(payload, encoding="utf-8")
     print(f"Wrote {WEB_OUT}")
     print(f"Wrote {FLUTTER_OUT}")
-    write_web_catalog_js(data)
+    write_web_catalog_js(export)
 
 
 def write_web_catalog_js(data: dict) -> None:
@@ -172,6 +212,8 @@ def write_web_catalog_js(data: dict) -> None:
         }
         if o.get("mirror_line_id"):
             entry["mirror_line_id"] = o["mirror_line_id"]
+        if o.get("rationale"):
+            entry["rationale"] = o["rationale"]
         compact.append(entry)
 
     lines_json = json.dumps(compact, ensure_ascii=False, indent=4)
@@ -237,6 +279,8 @@ def main() -> int:
         validate_schema(data)
         validate_ids(data)
         validate_chess_moves(data)
+        rationale = load_rationale()
+        validate_rationale_coverage(data, rationale)
         if args.physical_rules:
             validate_physical_rules(data)
     except Exception as exc:
@@ -244,9 +288,10 @@ def main() -> int:
         return 1
 
     print(f"OK: {len(data['openings'])} openings validated")
+    print(f"OK: {len(rationale['entries'])} rationale entries")
 
     if args.copy:
-        copy_outputs(data)
+        copy_outputs(data, rationale)
         if WEB_OUT.exists() and FLUTTER_OUT.exists():
             if file_hash(WEB_OUT) != file_hash(FLUTTER_OUT):
                 print("ERROR: web/flutter catalog hash mismatch", file=sys.stderr)

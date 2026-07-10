@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+import 'opening_rationale.dart';
+
 class OpeningCurriculum {
   const OpeningCurriculum({
     required this.id,
@@ -40,6 +42,7 @@ class OpeningLine {
     this.checkpointPlyIndices = const [],
     this.ideaCs,
     this.ideaEn,
+    this.rationale,
     this.mirrorLineId,
     this.stepCommentsCs = const {},
   });
@@ -56,6 +59,7 @@ class OpeningLine {
   final List<int> checkpointPlyIndices;
   final String? ideaCs;
   final String? ideaEn;
+  final OpeningRationale? rationale;
   final String? mirrorLineId;
   final Map<int, String> stepCommentsCs;
 
@@ -68,6 +72,14 @@ class OpeningLine {
         : null;
     if (ply == null) return null;
     return stepCommentsCs[ply];
+  }
+
+  String? subtitleForLocale(String locale) {
+    final fromRationale = rationale?.summaryForLocale(locale);
+    if (fromRationale != null && fromRationale.isNotEmpty) {
+      return fromRationale;
+    }
+    return locale.startsWith('cs') ? ideaCs : ideaEn;
   }
 
   Map<String, dynamic> toStartPayload({
@@ -89,6 +101,7 @@ class OpeningLine {
   factory OpeningLine.fromJson(Map<String, dynamic> json) {
     final name = json['name'] as Map<String, dynamic>? ?? {};
     final idea = json['idea'] as Map<String, dynamic>?;
+    final rationaleJson = json['rationale'] as Map<String, dynamic>?;
     final steps = json['steps'] as List<dynamic>? ?? [];
     final comments = <int, String>{};
     for (final raw in steps) {
@@ -114,6 +127,9 @@ class OpeningLine {
           (json['checkpoint_ply_indices'] as List<dynamic>? ?? []).cast<int>(),
       ideaCs: idea?['cs'] as String?,
       ideaEn: idea?['en'] as String?,
+      rationale: rationaleJson != null
+          ? OpeningRationale.fromJson(rationaleJson)
+          : null,
       mirrorLineId: json['mirror_line_id'] as String?,
       stepCommentsCs: comments,
     );

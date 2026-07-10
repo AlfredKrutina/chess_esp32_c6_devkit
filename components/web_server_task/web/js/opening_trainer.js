@@ -136,6 +136,39 @@
         return !!(ot && (ot.feedback === 'checkpoint' || ot.awaiting_checkpoint_ack));
     }
 
+    function openingEnsureRationaleEl(panel) {
+        var el = document.getElementById('opening-trainer-rationale');
+        if (!el && panel) {
+            el = document.createElement('div');
+            el.id = 'opening-trainer-rationale';
+            el.className = 'opening-trainer-rationale';
+            var subEl = document.getElementById('opening-trainer-sub');
+            if (subEl && subEl.parentNode) {
+                subEl.parentNode.insertBefore(el, subEl);
+            } else {
+                panel.appendChild(el);
+            }
+        }
+        return el;
+    }
+
+    function openingRationaleText(line) {
+        if (!line || !line.rationale) return '';
+        var r = line.rationale;
+        var parts = [];
+        if (r.summary && r.summary.cs) parts.push(r.summary.cs);
+        if (r.why_this_line && r.why_this_line.cs) {
+            parts.push(r.why_this_line.cs);
+        }
+        if (r.instead_of && r.instead_of.cs) {
+            parts.push('Místo: ' + r.instead_of.cs);
+        }
+        if (r.when_to_play && r.when_to_play.cs) {
+            parts.push('Kdy: ' + r.when_to_play.cs);
+        }
+        return parts.join(' · ');
+    }
+
     function openingUpdatePanel(status) {
         var panel = document.getElementById('opening-trainer-panel');
         var textEl = document.getElementById('opening-trainer-text');
@@ -155,6 +188,17 @@
         var line = openingActiveLineId && global.findOpeningById
             ? global.findOpeningById(openingActiveLineId)
             : null;
+        var rationaleEl = openingEnsureRationaleEl(panel);
+        var showRationale = openingActiveMode === 'learn' && line && line.rationale &&
+            (ot.player_ply_index || 0) === 0;
+        if (rationaleEl) {
+            if (showRationale) {
+                rationaleEl.textContent = openingRationaleText(line);
+                rationaleEl.style.display = '';
+            } else {
+                rationaleEl.style.display = 'none';
+            }
+        }
         var title = line && line.name ? (line.name.cs || line.id) : (ot.line_id || 'Opening');
         textEl.textContent = title + ' — tah ' +
             String((ot.player_ply_index || 0) + 1) + '/' + String(ot.player_ply_total || '?');
