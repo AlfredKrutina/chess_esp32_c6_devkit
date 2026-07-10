@@ -187,6 +187,9 @@ void game_check_promotion_needed(void);
 
 void game_bump_revision_and_notify(void);
 
+bool game_is_board_in_starting_position(void);
+void game_show_missing_pieces_led(void);
+
 /* --- Physical / lift-drop flow (game_physical.c) --- */
 
 extern bool piece_lifted;

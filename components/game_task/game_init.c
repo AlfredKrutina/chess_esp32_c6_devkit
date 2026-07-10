@@ -147,7 +147,7 @@ static bool game_is_board_in_starting_position(void) {
  * Používá se ve stavu GAME_STATE_WAITING_FOR_BOARD_SETUP pro indikaci
  * uživateli, která pole musí obsadit figurkami.
  */
-static void game_show_missing_pieces_led(void) {
+void game_show_missing_pieces_led(void) {
   uint8_t matrix_state[64] = {0};
   matrix_get_state(matrix_state);
   
