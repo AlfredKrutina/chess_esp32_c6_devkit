@@ -2,7 +2,6 @@ var game__error__recovery_8c =
 [
     [ "game_check_game_conditions", "game__error__recovery_8c.html#ad50b0c62b7700e4422eba52d68e2a938", null ],
     [ "game_handle_invalid_move", "game__error__recovery_8c.html#accc9ce251093d9ee6c29aea32234ad53", null ],
-    [ "game_handle_invalid_move_smart", "game__error__recovery_8c.html#ae998755862849e203b40a085fde47541", null ],
     [ "game_highlight_invalid_target_area", "game__error__recovery_8c.html#acd21a8521c05d2746643f0a674e9ee5d", null ],
     [ "game_highlight_valid_moves_for_piece", "game__error__recovery_8c.html#ac0310521f54ddea6598d78bf6e009713", null ],
     [ "game_process_move_command", "game__error__recovery_8c.html#a1e6678c31e3832807ff10c23bbcd517b", null ],

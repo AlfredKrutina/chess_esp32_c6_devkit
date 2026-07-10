@@ -1,6 +1,5 @@
 var NAVTREEINDEX8 =
 {
-"game__task__internal_8h.html#af81491a006e7a193e8fd657043851221":[3,0,0,8,0,10,129],
 "game__task__internal_8h.html#af9573718b1c9e531b771c3d938ff88e3":[3,0,0,8,0,10,13],
 "game__task__internal_8h.html#afb3b2e18e26654ce6ceb6b8ff455ad69":[3,0,0,8,0,10,60],
 "game__task__internal_8h.html#afc75720af79d21406b4818da5d502fe0":[3,0,0,8,0,10,35],
@@ -249,5 +248,6 @@ var NAVTREEINDEX8 =
 "hall__i2c__matrix_8c.html#a79e2c10b7f88ffac1cc91c61595082e0":[3,0,0,12,1,0],
 "hall__i2c__matrix_8c.html#a7fe369cc1c3663b67df0e78d78e14e85":[3,0,0,12,1,1],
 "hall__i2c__matrix_8c_source.html":[3,0,0,12,1],
-"hall__i2c__matrix_8h.html":[3,0,0,12,0,0]
+"hall__i2c__matrix_8h.html":[3,0,0,12,0,0],
+"hall__i2c__matrix_8h.html#a79e2c10b7f88ffac1cc91c61595082e0":[3,0,0,12,0,0,0]
 };
