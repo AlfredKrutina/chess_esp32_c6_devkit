@@ -216,8 +216,8 @@ Funkce</h2></td></tr>
 <tr class="memitem:a2e528b3b66fe59544f28ca993c4a6143" id="r_a2e528b3b66fe59544f28ca993c4a6143"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#a2e528b3b66fe59544f28ca993c4a6143">game_get_move_count</a> (void)</td></tr>
 <tr class="memdesc:a2e528b3b66fe59544f28ca993c4a6143"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get current move count safely.  <br /></td></tr>
 <tr class="separator:a2e528b3b66fe59544f28ca993c4a6143"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99831cb1704da85a3a72587ccbc73313" id="r_a99831cb1704da85a3a72587ccbc73313"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#a99831cb1704da85a3a72587ccbc73313">game_status_json_append</a> (int *offset, char *buffer, size_t size, const char *fmt,...)</td></tr>
-<tr class="separator:a99831cb1704da85a3a72587ccbc73313"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3351600eed32a8c110d697b84926b576" id="r_a3351600eed32a8c110d697b84926b576"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#a3351600eed32a8c110d697b84926b576">game_status_json_append</a> (size_t *offset, char *buffer, size_t size, const char *fmt,...)</td></tr>
+<tr class="separator:a3351600eed32a8c110d697b84926b576"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdf3ba446d87db43c26b6c51275a521e" id="r_abdf3ba446d87db43c26b6c51275a521e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#abdf3ba446d87db43c26b6c51275a521e">game_get_status_json</a> (char *buffer, size_t size)</td></tr>
 <tr class="memdesc:abdf3ba446d87db43c26b6c51275a521e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Exportuj stav hry do JSON retezce.  <br /></td></tr>
 <tr class="separator:abdf3ba446d87db43c26b6c51275a521e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -260,7 +260,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Hodnota:</b><div class="fragment"><div class="line">  <span class="keywordflow">do</span> {                                                                         \</div>
-<div class="line">    if (<a class="code hl_function" href="game__json__export_8c.html#a99831cb1704da85a3a72587ccbc73313">game_status_json_append</a>(&amp;offset, buffer, size, __VA_ARGS__) !=         \</div>
+<div class="line">    if (<a class="code hl_function" href="game__json__export_8c.html#a3351600eed32a8c110d697b84926b576">game_status_json_append</a>(&amp;offset, buffer, size, __VA_ARGS__) !=         \</div>
 <div class="line">        ESP_OK) {                                                              \</div>
 <div class="line">      if (<a class="code hl_variable" href="freertos__chess_8c.html#af5298ceb88597b4b25328ac7e1af7ff0">game_mutex</a> != NULL)                                                  \</div>
 <div class="line">        xSemaphoreGive(<a class="code hl_variable" href="freertos__chess_8c.html#af5298ceb88597b4b25328ac7e1af7ff0">game_mutex</a>);                                            \</div>
@@ -268,7 +268,7 @@ Proměnné</h2></td></tr>
 <div class="line">    }                                                                          \</div>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
 <div class="ttc" id="afreertos__chess_8c_html_af5298ceb88597b4b25328ac7e1af7ff0"><div class="ttname"><a href="freertos__chess_8c.html#af5298ceb88597b4b25328ac7e1af7ff0">game_mutex</a></div><div class="ttdeci">SemaphoreHandle_t game_mutex</div><div class="ttdoc">Mutex pro game operace (ochrana game stavu)</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8c_source.html#l00119">freertos_chess.c:119</a></div></div>
-<div class="ttc" id="agame__json__export_8c_html_a99831cb1704da85a3a72587ccbc73313"><div class="ttname"><a href="game__json__export_8c.html#a99831cb1704da85a3a72587ccbc73313">game_status_json_append</a></div><div class="ttdeci">static esp_err_t game_status_json_append(int *offset, char *buffer, size_t size, const char *fmt,...)</div><div class="ttdef"><b>Definition</b> <a href="game__json__export_8c_source.html#l00090">game_json_export.c:90</a></div></div>
+<div class="ttc" id="agame__json__export_8c_html_a3351600eed32a8c110d697b84926b576"><div class="ttname"><a href="game__json__export_8c.html#a3351600eed32a8c110d697b84926b576">game_status_json_append</a></div><div class="ttdeci">static esp_err_t game_status_json_append(size_t *offset, char *buffer, size_t size, const char *fmt,...)</div><div class="ttdef"><b>Definition</b> <a href="game__json__export_8c_source.html#l00090">game_json_export.c:90</a></div></div>
 </div><!-- fragment -->
 <p class="definition">Definice je uvedena na řádku <a class="el" href="game__json__export_8c_source.html#l00116">116</a> v souboru <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
@@ -577,8 +577,8 @@ Proměnné</h2></td></tr>
 
 </div>
 </div>
-<a id="a99831cb1704da85a3a72587ccbc73313" name="a99831cb1704da85a3a72587ccbc73313"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a99831cb1704da85a3a72587ccbc73313">&#9670;&#160;</a></span>game_status_json_append()</h2>
+<a id="a3351600eed32a8c110d697b84926b576" name="a3351600eed32a8c110d697b84926b576"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3351600eed32a8c110d697b84926b576">&#9670;&#160;</a></span>game_status_json_append()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -589,7 +589,7 @@ Proměnné</h2></td></tr>
         <tr>
           <td class="memname">static esp_err_t game_status_json_append </td>
           <td>(</td>
-          <td class="paramtype">int *&#160;</td>
+          <td class="paramtype">size_t *&#160;</td>
           <td class="paramname"><em>offset</em>, </td>
         </tr>
         <tr>

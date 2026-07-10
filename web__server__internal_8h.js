@@ -16,6 +16,7 @@ var web__server__internal_8h =
     [ "web_server_apply_hint_highlight_json_body", "web__server__internal_8h.html#ae2ee8d0febaa6efbb435ca1a93784fa2", null ],
     [ "web_server_get_httpd_handle", "web__server__internal_8h.html#a79931a21b5e20ece42b9b17b28d94e8b", null ],
     [ "web_server_opening_dispatch_body", "web__server__internal_8h.html#a4abd7470fc1b949d24303feda00f7739", null ],
+    [ "web_server_opening_dispatch_json", "web__server__internal_8h.html#a591cdaf22423bbfdb1e7b5c1b8502fba", null ],
     [ "web_server_task_wdt_reset_safe", "web__server__internal_8h.html#a55bb096de1c30250cf17daaf49e423a9", null ],
     [ "wifi_get_sta_status_json", "web__server__internal_8h.html#abe3fd9f4abc134a2e04a1281aa685fab", null ],
     [ "cached_brightness", "web__server__internal_8h.html#ab17ad7844a24ac3ce03f648f18a3c976", null ],
