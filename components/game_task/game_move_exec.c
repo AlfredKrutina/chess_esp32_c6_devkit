@@ -224,7 +224,7 @@ bool game_execute_move(const chess_move_t *move) {
                game_get_piece_name(dest_piece));
 
       // Add captured piece to tracking
-      game_game_add_captured_piece(dest_piece);
+      game_add_captured_piece(dest_piece);
     }
   } else {
     // During error recovery, treat everything as NORMAL move (or CAPTURE if
@@ -263,7 +263,7 @@ bool game_execute_move(const chess_move_t *move) {
 
     if (!is_castling_rook_completion) {
       // Add to move history
-      if (history_index < MAX_MOVES_HISTORY) {
+      if (history_index < GAME_TASK_MAX_MOVES_HISTORY) {
         move_history[history_index] = *move;
         move_history[history_index].piece = source_piece;
         move_history[history_index].captured_piece = dest_piece;
