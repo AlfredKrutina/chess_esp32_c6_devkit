@@ -20,6 +20,7 @@ OUTPUT = WEB_DIR / "chess_app.js"
 MODULES = [
     WEB_DIR / "js" / "matrix_guard.js",
     WEB_DIR / "js" / "api.js",
+    WEB_DIR / "js" / "prefs.js",
     WEB_DIR / "js" / "app_main.js",
 ]
 

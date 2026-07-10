@@ -16,6 +16,7 @@ web_server_task/
 │   ├── js/
 │   │   ├── matrix_guard.js
 │   │   ├── api.js
+│   │   ├── prefs.js
 │   │   └── app_main.js    # hlavní logika (editovat zde)
 │   └── piece_assets/      # PNG pro EMBED_FILES v CMakeLists.txt
 └── tools/
