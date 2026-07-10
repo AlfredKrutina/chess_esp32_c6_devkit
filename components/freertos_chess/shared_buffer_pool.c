@@ -24,6 +24,7 @@
 #include "esp_log.h"
 #include "esp_err.h"
 #include <string.h>
+#include <inttypes.h>
 #include "shared_buffer_pool.h"
 
 static const char *TAG = "BUFFER_POOL";
@@ -192,7 +193,7 @@ char* get_shared_buffer_debug(size_t min_size, const char* file, int line)
 
     xSemaphoreGive(buffer_pool_mutex);
 
-    ESP_LOGD(TAG, "Buffer %d allocated to %p (%s:%d), usage: %d/%d", 
+    ESP_LOGD(TAG, "Buffer %d allocated to %p (%s:%d), usage: %" PRIu32 "/%d", 
              buffer_index, buffer_pool[buffer_index].owner,
              file ? file : "unknown", line,
              current_usage, BUFFER_POOL_SIZE);
@@ -250,7 +251,7 @@ esp_err_t release_shared_buffer(char* buffer)
 
     xSemaphoreGive(buffer_pool_mutex);
 
-    ESP_LOGD(TAG, "Buffer %d released, usage: %d/%d", 
+    ESP_LOGD(TAG, "Buffer %d released, usage: %" PRIu32 "/%d", 
              buffer_index, current_usage, BUFFER_POOL_SIZE);
 
     return ESP_OK;
@@ -275,20 +276,20 @@ void buffer_pool_print_status(void)
     ESP_LOGI(TAG, "=== SHARED BUFFER POOL STATUS ===");
     ESP_LOGI(TAG, "Pool size: %d buffers × %dB = %dKB", 
              BUFFER_POOL_SIZE, BUFFER_SIZE, (BUFFER_POOL_SIZE * BUFFER_SIZE) / 1024);
-    ESP_LOGI(TAG, "Current usage: %d/%d buffers (%.1f%%)", 
+    ESP_LOGI(TAG, "Current usage: %" PRIu32 "/%d buffers (%.1f%%)", 
              current_usage, BUFFER_POOL_SIZE, 
              (float)current_usage / BUFFER_POOL_SIZE * 100.0f);
-    ESP_LOGI(TAG, "Peak usage: %d/%d buffers", peak_usage, BUFFER_POOL_SIZE);
-    ESP_LOGI(TAG, "Total allocations: %d", total_allocations);
-    ESP_LOGI(TAG, "Total releases: %d", total_releases);
-    ESP_LOGI(TAG, "Allocation failures: %d", allocation_failures);
+    ESP_LOGI(TAG, "Peak usage: %" PRIu32 "/%d buffers", peak_usage, BUFFER_POOL_SIZE);
+    ESP_LOGI(TAG, "Total allocations: %" PRIu32, total_allocations);
+    ESP_LOGI(TAG, "Total releases: %" PRIu32, total_releases);
+    ESP_LOGI(TAG, "Allocation failures: %" PRIu32, allocation_failures);
 
     ESP_LOGI(TAG, "Active buffers:");
     for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
         if (buffer_pool[i].in_use) {
             uint32_t age_ms = (xTaskGetTickCount() * portTICK_PERIOD_MS) - 
                               buffer_pool[i].allocated_time;
-            ESP_LOGI(TAG, "  Buffer %d: Task %p, Age %dms (%s:%d)", 
+            ESP_LOGI(TAG, "  Buffer %d: Task %p, Age %" PRIu32 "ms (%s:%d)", 
                      i, buffer_pool[i].owner, age_ms,
                      buffer_pool[i].file ? buffer_pool[i].file : "unknown",
                      buffer_pool[i].line);
@@ -332,13 +333,13 @@ bool buffer_pool_is_healthy(void)
     
     // Check for excessive usage
     if (stats.current_usage > (BUFFER_POOL_SIZE * 0.8)) {
-        ESP_LOGW(TAG, "High buffer usage: %d/%d", stats.current_usage, BUFFER_POOL_SIZE);
+        ESP_LOGW(TAG, "High buffer usage: %" PRIu32 "/%d", stats.current_usage, BUFFER_POOL_SIZE);
         healthy = false;
     }
     
     // Check for allocation failures
     if (stats.allocation_failures > (stats.total_allocations * 0.1)) {
-        ESP_LOGW(TAG, "High allocation failure rate: %d/%d", 
+        ESP_LOGW(TAG, "High allocation failure rate: %" PRIu32 "/%" PRIu32, 
                  stats.allocation_failures, stats.total_allocations);
         healthy = false;
     }
@@ -378,7 +379,7 @@ void buffer_pool_detect_leaks(void)
             
             // Consider buffers older than 30 seconds as potential leaks
             if (age_ms > 30000) {
-                ESP_LOGW(TAG, "⚠️ Potential leak - Buffer %d: Task %p, Age %dms (%s:%d)", 
+                ESP_LOGW(TAG, "⚠️ Potential leak - Buffer %d: Task %p, Age %" PRIu32 "ms (%s:%d)", 
                          i, buffer_pool[i].owner, age_ms,
                          buffer_pool[i].file ? buffer_pool[i].file : "unknown",
                          buffer_pool[i].line);

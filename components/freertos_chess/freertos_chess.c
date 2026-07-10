@@ -381,7 +381,7 @@ esp_err_t chess_gpio_init(void) {
   uint32_t status_led_pin = (uint32_t)STATUS_LED_PIN;
   uint64_t status_led_mask = (1ULL << status_led_pin);
 
-  ESP_LOGI(TAG, "Configuring STATUS_LED (GPIO%d, mask=0x%llx)...",
+  ESP_LOGI(TAG, "Configuring STATUS_LED (GPIO%" PRIu32 ", mask=0x%llx)...",
            status_led_pin, status_led_mask);
 
   // Reset před gpio_config()
@@ -396,7 +396,7 @@ esp_err_t chess_gpio_init(void) {
   ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to configure status LED pin (GPIO%d): %s",
+    ESP_LOGE(TAG, "Failed to configure status LED pin (GPIO%" PRIu32 "): %s",
              status_led_pin, esp_err_to_name(ret));
     return ret; // Return error instead of continuing
   } else {
@@ -413,7 +413,7 @@ esp_err_t chess_gpio_init(void) {
   } else {
     uint64_t reset_button_mask = (1ULL << reset_button_pin);
 
-    ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%d, mask=0x%llx)...",
+    ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%" PRIu32 ", mask=0x%llx)...",
              reset_button_pin, reset_button_mask);
 
     gpio_config_t reset_button_conf = {.pin_bit_mask = reset_button_mask,
@@ -425,7 +425,7 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
     if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to configure reset button pin (GPIO%d): %s",
+      ESP_LOGE(TAG, "Failed to configure reset button pin (GPIO%" PRIu32 "): %s",
                reset_button_pin, esp_err_to_name(ret));
       return ret;
     }
