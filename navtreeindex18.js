@@ -1,5 +1,7 @@
 var NAVTREEINDEX18 =
 {
+"web__server__task_8c.html#a5e0371ac7e6487deb1cc347871101661":[3,0,0,22,9,72],
+"web__server__task_8c.html#a60794af64124b4ea29b3dfe79c1d45ab":[3,0,0,22,9,18],
 "web__server__task_8c.html#a63927ab8c5be90b09ed638d9eb4ad162":[3,0,0,22,9,121],
 "web__server__task_8c.html#a64790e5afc3435f96af702391bf6a24d":[3,0,0,22,9,82],
 "web__server__task_8c.html#a64d803cbbc1a950b3d0194a521cfa970":[3,0,0,22,9,85],
