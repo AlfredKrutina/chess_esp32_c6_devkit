@@ -1,6 +1,6 @@
 # components/uart_task/CMakeLists.txt
 idf_component_register(
-    SRCS "uart_task.c" "uart_cli_panel.c" "uart_commands_table.c" "uart_parse.c" "uart_handlers_game.c"
+    SRCS "uart_task.c" "uart_cli_panel.c" "uart_commands_table.c" "uart_parse.c" "uart_handlers_game.c" "uart_handlers_wifi.c" "uart_handlers_debug.c"
     INCLUDE_DIRS "include"
-    REQUIRES freertos_chess matrix_task led_task driver config_manager game_task uart_commands_extended ble_task web_server_task spi_flash esp_partition app_update stm32_i2c_bootloader
+    REQUIRES freertos_chess matrix_task led_task driver config_manager game_task uart_commands_extended ble_task web_server_task ha_light_task spi_flash esp_partition app_update stm32_i2c_bootloader
 )
