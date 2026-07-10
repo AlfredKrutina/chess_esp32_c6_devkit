@@ -29,52 +29,6 @@ static const char *TAG = "GAME_ERROR";
 // ============================================================================
 
 /**
- * @brief Enhanced smart error handling for invalid moves
- * @param move Invalid move that was attempted
- * @param error Type of error that occurred
- */
-void game_handle_invalid_move_smart(const chess_move_t *move,
-                                    move_error_t error) {
-  ESP_LOGI(TAG, "🚫 INVALID MOVE - Starting smart recovery");
-
-  if (!move) {
-    ESP_LOGE(TAG, "❌ Critical error: NULL move pointer in error handling");
-    return;
-  }
-
-  // 1. Červené bliknutí chybného tahu
-  uint8_t from_led = chess_pos_to_led_index(move->from_row, move->from_col);
-  uint8_t to_led = chess_pos_to_led_index(move->to_row, move->to_col);
-
-  // Flash error - 5 rychlých červených bliknutí
-  for (int i = 0; i < 5; i++) {
-    led_set_pixel_safe(from_led, 255, 0, 0); // Red
-    led_set_pixel_safe(to_led, 255, 0, 0);   // Red
-    vTaskDelay(pdMS_TO_TICKS(100));
-    led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(100));
-  }
-
-  // 2. Rosvítit zeleně zdrojové pole (kde je figurka)
-  led_set_pixel_safe(from_led, 0, 255, 0); // Green - kde vzít figurku
-
-  // 3. Rosvítit červeně kolem nevalidního cíle
-  game_highlight_invalid_target_area(move->to_row, move->to_col);
-
-  // 4. Rosvítit validní tahy pro tuto figurku
-  game_highlight_valid_moves_for_piece(move->from_row, move->from_col);
-
-  // 5. KRITICKÉ: Neměnit hráče, nechat ho opravit tah
-  ESP_LOGI(TAG, "💡 Please return piece to correct square. Valid moves are "
-                "highlighted.");
-
-  // 6. Nastavit internal stav "waiting for correction"
-  chess_policy_error_recovery_enter_lock();
-  error_recovery_state.invalid_row = move->from_row;
-  error_recovery_state.invalid_col = move->from_col;
-}
-
-/**
  * @brief Highlight invalid target area with red LEDs
  * @param row Row of invalid target
  * @param col Column of invalid target
