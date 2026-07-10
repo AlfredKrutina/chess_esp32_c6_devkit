@@ -7,6 +7,8 @@
 #define GAME_TASK_INTERNAL_H
 
 #include "chess_types.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/timers.h"
 #include "game_task.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -67,6 +69,25 @@ typedef struct {
 
 extern castling_state_t castling_state;
 extern bool piece_moved[8][8];
+
+typedef struct {
+  bool active;
+  player_t player;
+  uint8_t king_row;
+  uint8_t king_col;
+  TimerHandle_t main_timer;
+  TimerHandle_t animation_timer;
+  uint64_t start_time_ms;
+  uint8_t last_countdown_sec;
+} king_resignation_state_t;
+
+extern king_resignation_state_t resignation_state;
+
+extern bool has_last_move;
+extern uint8_t last_move_from_row;
+extern uint8_t last_move_from_col;
+extern uint8_t last_move_to_row;
+extern uint8_t last_move_to_col;
 
 void game_check_promotion_needed(void);
 
