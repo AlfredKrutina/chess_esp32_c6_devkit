@@ -461,7 +461,7 @@ void resignation_stop(bool finalize);
 static void resignation_update_button_leds(uint32_t elapsed_ms);
 static void resignation_tick(void);
 static void resignation_finalize_timeout(void);
-static bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
+bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
 static const char *game_puzzle_feedback_key(void);
 static const char *game_puzzle_feedback_message(void);
 
@@ -2579,7 +2579,7 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
         count++;
         ESP_LOGI(
             TAG,
-            "🏰 Castling rook: Added valid move from %c%d to %c%d (count=%u)",
+            "🏰 Castling rook: Added valid move from %c%d to %c%d (count=%" PRIu32 ")",
             'a' + col, row + 1, 'a' + castling_state.rook_to_col,
             castling_state.rook_to_row + 1, count);
         return count; // Vrátit pouze tento tah - ostatní tahy jsou blokované
@@ -7168,7 +7168,7 @@ void game_task_start(void *pvParameters) {
 
     // Periodic status update
     if (loop_count % 5000 == 0) { // Every 5 seconds
-      ESP_LOGI(TAG, "Game Task Status: loop=%d, state=%d, player=%d, moves=%lu",
+      ESP_LOGI(TAG, "Game Task Status: loop=%" PRIu32 ", state=%d, player=%d, moves=%" PRIu32,
                loop_count, current_game_state, current_player, move_count);
     }
 
