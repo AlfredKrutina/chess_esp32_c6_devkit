@@ -2,13 +2,20 @@
 
 ## Po úpravách `web/chess_app.js`
 
-JavaScript na ESP32 servíruju z **vnořeného pole** v `web_server_task.c`. Když něco měním v `web/chess_app.js`, musím znovu vygenerovat C pole:
+Zdrojový kód je rozdělený v `web/js/` (Phase 4A). **`chess_app.js` se generuje** — neupravuj ho ručně:
 
 ```bash
-python3 components/web_server_task/tools/embed_chess_js.py
+python3 components/web_server_task/tools/concat_web_js.py
 ```
 
-Skript přepíše `chess_app_js_content[]` v `web_server_task.c` obsahem aktuálního `web/chess_app.js`.
+Moduly (pořadí concat): `web/js/matrix_guard.js` → `web/js/app_main.js`.
+
+Pro embed do firmware (pokud znovu zapneš browser UI handler):
+
+```bash
+python3 components/web_server_task/tools/concat_web_js.py
+python3 components/web_server_task/tools/embed_chess_js.py
+```
 
 ## Build a flash
 

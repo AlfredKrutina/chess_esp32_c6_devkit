@@ -12,9 +12,13 @@ web_server_task/
 ├── chess_piece_http.c
 ├── include/
 ├── web/
-│   ├── chess_app.js       # zdroj web UI — po úpravě spusť tools/embed_chess_js.py
+│   ├── chess_app.js       # generovaný výstup — concat_web_js.py
+│   ├── js/
+│   │   ├── matrix_guard.js
+│   │   └── app_main.js    # hlavní logika (editovat zde)
 │   └── piece_assets/      # PNG pro EMBED_FILES v CMakeLists.txt
 └── tools/
+    ├── concat_web_js.py   # web/js/* → chess_app.js
     ├── embed_chess_js.py  # přepíše JS pole v web_server_task.c
     ├── js_to_c.py         # stdout náhled C pole
     ├── update_js_in_c.py  # alternativní updater

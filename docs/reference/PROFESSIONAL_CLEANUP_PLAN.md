@@ -229,6 +229,15 @@ Většina je v PR #4; po merge doplnit:
 
 **Cíl:** `game_task.c` < 3 000 ř. — **splněno** (2 476 ř.)
 
+#### 4A — `chess_app.js` modularizace
+
+| Pořadí | Modul | Obsah | Stav |
+|--------|-------|-------|------|
+| 4A.0 | `concat_web_js.py` | concat `web/js/*` → `chess_app.js` bez bundleru | **hotovo** (PR #7) |
+| 4A.1 | `js/matrix_guard.js` | panel, mask→squares, guard_clear | **hotovo** (PR #7) |
+| 4A.2 | `js/api.js` | fetch, snapshot poll | plán |
+| 4A.3 | `js/board.js`, `js/prefs.js`, `js/bot.js` | board, prefs, Stockfish UI | plán |
+
 #### 3B — `uart_task`
 
 | Pořadí | Soubor | Obsah |
@@ -275,7 +284,9 @@ Cíl: ES moduly nebo IIFE namespaces **bez bundleru** (firmware servíruje stati
 
 **Postup:** nejdřív extrahovat `matrix_guard.js` (malý, izolovaný), pak `api.js`.
 
-**Pozor:** `web_server_task.c` musí servírovat více `.js` souborů nebo jeden concatenated build krok v CI — rozhodnout v PR 4A.0 (design).
+**4A.0 design (PR #7):** zdroj v `web/js/`, výstup `web/chess_app.js` generuje `tools/concat_web_js.py` (bez bundleru). Firmware handler `/chess_app.js` zatím vrací 404 — moduly připravují údržbu a budoucí multi-file serving.
+
+**Pozor:** až se obnoví servírování z ESP, `web_routes.c` může registrovat `/js/matrix_guard.js` nebo zůstat u concat výstupu.
 
 #### 4B — Flutter
 
