@@ -12,7 +12,7 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 
 | Oblast | Problém | Dopad |
 |--------|---------|-------|
-| **Monolity** | `game_task.c` ~9 320 ř. (+ split moduly), `uart_task.c` ~4 408, `web_server_task.c` ~3 707 (+ split moduly), `chess_app.js` ~4 726 | těžké review, riziko regresí |
+| **Monolity** | `game_task.c` ~8 400 ř. (+ split moduly), `uart_task.c` ~4 408, `web_server_task.c` ~3 707 (+ split moduly), `chess_app.js` ~4 726 | těžké review, riziko regresí |
 | **CMake / git** | mrtvé cesty (`screen_saver_task`, `matter_task`), build artefakty v historii | matoucí onboarding, pomalý clone |
 | **CI** | jen diagramy + Flutter release + Pages | žádná automatická kontrola firmware buildu |
 | **Legacy komponenty** | `enhanced_castling_system`, `animation_task`, `visual_error_system` | nejasná „pravda“ v kódu |
@@ -35,9 +35,11 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 ### 2.2 Velikost „god souborů“
 
 ```
-game_task.c               9 320 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical, puzzle, json_export)
+game_task.c               8 400 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical, puzzle, json_export, timer, dispatch)
 game_puzzle.c               ~224 ř.
 game_json_export.c          ~560 ř.
+game_timer.c                ~277 ř.
+game_dispatch.c             ~693 ř.
 uart_task.c               4 408 ř.  (split: commands_table, parse, handlers_game/wifi/debug)
 web_server_task.c         3 707 ř.  (split: routes ~350, game ~1230, wifi ~340, system ~865, ws ~186)
 web_routes.c                ~350 ř.
@@ -205,7 +207,8 @@ Většina je v PR #4; po merge doplnit:
 | 3A.7 | `game_bot.c` | — | **N/A** (Stockfish jen v `chess_app.js`, ne ve firmware) |
 | 3A.8 | `game_puzzle.c` | ~234 | puzzle setup/start | 3A.3 | **hotovo** (PR #7) |
 | 3A.9 | `game_json_export.c` | ~560 | board/status/history/captured/advantage/timer JSON | 3A.8 | **hotovo** (PR #7) |
-| 3A.10 | `game_task.c` (zbytek) | ~2000 | task loop, queue dispatch, orchestrace | vše |
+| 3A.10 | `game_timer.c` + `game_dispatch.c` | ~277 + ~693 | timer integration, command queue dispatch, undo | 3A.9 | **hotovo** (PR #7) |
+| 3A.11 | `game_task.c` (zbytek) | ~2000 | task loop, orchestrace, error handling | vše |
 
 **Cíl:** `game_task.c` < 3 000 ř.
 

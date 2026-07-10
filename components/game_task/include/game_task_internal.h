@@ -87,11 +87,21 @@ extern piece_t white_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
 extern piece_t black_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
 extern uint32_t white_captured_count;
 extern uint32_t black_captured_count;
+extern uint32_t white_captured_index;
+extern uint32_t black_captured_index;
+extern uint32_t white_captures;
+extern uint32_t black_captures;
+
+extern bool endgame_report_requested;
 
 extern int8_t material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
 extern uint32_t advantage_history_count;
 
 char piece_to_char(piece_t piece);
+
+esp_err_t game_task_wdt_reset_safe(void);
+void game_trigger_victory_animation(player_t winner);
+void game_process_promotion_button(uint8_t button_id);
 
 typedef enum {
   LAST_MOVE_NORMAL = 0,
