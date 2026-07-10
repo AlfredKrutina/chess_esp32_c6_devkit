@@ -508,10 +508,12 @@ bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
   if (opening_state.ply_index >= opening_state.line_uci_count) {
     return false;
   }
-  char from_notation[3] = {0};
-  char to_notation[3] = {0};
-  snprintf(from_notation, sizeof(from_notation), "%c%d", 'a' + from_col, from_row + 1);
-  snprintf(to_notation, sizeof(to_notation), "%c%d", 'a' + to_col, to_row + 1);
+  char from_notation[4] = {0};
+  char to_notation[4] = {0};
+  if (!convert_coords_to_notation(from_row, from_col, from_notation) ||
+      !convert_coords_to_notation(to_row, to_col, to_notation)) {
+    return false;
+  }
   if (opening_state.awaiting_opponent_physical) {
     return (strcmp(from_notation, opening_state.expected_from) == 0 &&
             strcmp(to_notation, opening_state.expected_to) == 0);
@@ -527,8 +529,10 @@ bool game_opening_validate_opponent_pickup(uint8_t from_row, uint8_t from_col) {
   if (!opening_state.awaiting_opponent_physical) {
     return false;
   }
-  char from_notation[3] = {0};
-  snprintf(from_notation, sizeof(from_notation), "%c%d", 'a' + from_col, from_row + 1);
+  char from_notation[4] = {0};
+  if (!convert_coords_to_notation(from_row, from_col, from_notation)) {
+    return false;
+  }
   return strcmp(from_notation, opening_state.expected_from) == 0;
 }
 
@@ -612,8 +616,15 @@ bool game_opening_on_wrong_player_move(void) {
 
 void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
                                      uint8_t to_row, uint8_t to_col) {
+  char from_sq[4] = {0};
+  char to_sq[4] = {0};
+  if (!convert_coords_to_notation(from_row, from_col, from_sq) ||
+      !convert_coords_to_notation(to_row, to_col, to_sq)) {
+    opening_state.last_wrong_uci[0] = '\0';
+    return;
+  }
   snprintf(opening_state.last_wrong_uci, sizeof(opening_state.last_wrong_uci),
-           "%c%d%c%d", 'a' + from_col, from_row + 1, 'a' + to_col, to_row + 1);
+           "%s%s", from_sq, to_sq);
   STAGING_LOGI(TAG, "wrong uci recorded %s ply=%u", opening_state.last_wrong_uci,
                (unsigned)opening_state.ply_index);
 }

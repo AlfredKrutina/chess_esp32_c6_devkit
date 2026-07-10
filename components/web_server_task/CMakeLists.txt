@@ -46,7 +46,6 @@ if(CONFIG_CHESS_ENABLE_WEB_SERVER)
         "chess_piece_http.c"
     )
     list(APPEND WS_REQUIRES
-        esp_http_server
         mdns
     )
     set(WS_EMBED_FILES
