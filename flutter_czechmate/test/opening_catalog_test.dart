@@ -29,6 +29,8 @@ void main() {
         expect(ids.contains(id), isTrue, reason: 'missing $id in ${c.id}');
       }
     }
+  });
+
   test('mirror_line_id pairs are symmetric with opposite sides', () async {
     final repo = OpeningCatalogRepository();
     final lines = await repo.loadAll();
