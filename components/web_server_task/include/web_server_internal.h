@@ -5,13 +5,19 @@
 #ifndef WEB_SERVER_INTERNAL_H
 #define WEB_SERVER_INTERNAL_H
 
+#include "sdkconfig.h"
 #include "esp_err.h"
-#include "esp_http_server.h"
 #include "freertos/semphr.h"
 #include "freertos/queue.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+#include "esp_http_server.h"
+#else
+typedef void *httpd_handle_t;
+#endif
 
 #define JSON_BUFFER_SIZE 8192
 #define SNAPSHOT_BUFFER_SIZE 20480
@@ -38,13 +44,16 @@ esp_err_t factory_reset_schedule(void);
 
 httpd_handle_t web_server_get_httpd_handle(void);
 void czechmate_ensure_snapshot_notify_queue(void);
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 void ws_broadcast_snapshot(void);
 void web_ws_shutdown(void);
+#endif
 
 extern QueueHandle_t snapshot_notify_queue;
 
 esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size);
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 esp_err_t http_get_advantage_handler(httpd_req_t *req);
 esp_err_t http_get_board_handler(httpd_req_t *req);
 esp_err_t http_get_captured_handler(httpd_req_t *req);
@@ -91,5 +100,6 @@ esp_err_t http_post_wifi_config_handler(httpd_req_t *req);
 esp_err_t http_post_wifi_connect_handler(httpd_req_t *req);
 esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req);
 esp_err_t http_ws_handler(httpd_req_t *req);
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
 
 #endif /* WEB_SERVER_INTERNAL_H */

@@ -97,7 +97,13 @@
  */
 
 #include "web_server_task.h"
+#include "sdkconfig.h"
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 #include "web_routes.h"
+#include "chess_piece_http.h"
+#include "esp_http_server.h"
+#include "mdns.h"
+#endif
 #include "web_server_internal.h"
 #include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
@@ -107,10 +113,8 @@
 #include "led_mapping.h"
 // #include "../timer_system/include/timer_system.h" // UNUSED
 #include "esp_event.h"
-#include "chess_piece_http.h"
 #include "board_api_auth.h"
 #include "ota_update.h"
-#include "esp_http_server.h"
 #include "esp_log.h"
 #include "esp_netif.h"
 #include "esp_task_wdt.h"
@@ -119,7 +123,6 @@
 #include "esp_random.h"
 #include "esp_wifi.h"
 #include "freertos_chess.h"
-#include "mdns.h"
 #include "../ble_task/include/ble_task.h"
 #include "../config_manager/include/config_manager.h"
 #include "nvs.h"
@@ -225,7 +228,9 @@ static esp_err_t last_http_start_error = ESP_OK;
 uint32_t client_count = 0; // Externi pro UART prikazy
 
 // Handle HTTP serveru
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static httpd_handle_t httpd_handle = NULL;
+#endif
 
 
 // Handle netif
@@ -281,7 +286,9 @@ QueueHandle_t snapshot_notify_queue;
 static void wifi_select_ap_ssid_by_scan(void);
 static esp_err_t wifi_init_apsta(void);
 static void wifi_ap_user_apply_task(void *arg);
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static void czechmate_mdns_refresh_sta_txt(void);
+#endif
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data);
 static void wifi_sta_parse_blocked_csv(const char *csv);
@@ -289,8 +296,10 @@ static void wifi_sta_refresh_blocked_octets_from_nvs(void);
 static bool wifi_sta_third_octet_is_blocked(uint8_t oct);
 static void wifi_sta_disconnect_if_current_ip_blocked(void);
 static esp_err_t wifi_sta_save_blocked_octets_csv(const char *csv_in);
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static esp_err_t start_http_server(void);
 static void stop_http_server(void);
+#endif
 
 // static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
 // je 100% READ-ONLY
@@ -1690,6 +1699,7 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
  * - Historie tahu (/history)
  * - Captured figurky (/captured)
  */
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static esp_err_t start_http_server(void) {
   if (httpd_handle != NULL) {
     ESP_LOGW(TAG, "HTTP server already running");
@@ -1756,6 +1766,8 @@ static void stop_http_server(void) {
     ESP_LOGI(TAG, "HTTP server stopped");
   }
 }
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
+
 
 // ============================================================================
 // REST API HANDLERS
@@ -2873,6 +2885,7 @@ static void czechmate_push_ble_snapshot(void) {
   ble_task_push_snapshot_json((const uint8_t *)snapshot_buffer, len);
 }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 static bool czechmate_mdns_started = false;
 
 /**
@@ -2967,6 +2980,10 @@ static void czechmate_mdns_ensure_started(void) {
   /* refresh_sta_txt aktivuje mDNS na STA i AP rozhrani + plni TXT zaznamy */
   czechmate_mdns_refresh_sta_txt();
 }
+#else
+static void czechmate_mdns_refresh_sta_txt(void) {}
+static void czechmate_mdns_ensure_started(void) {}
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
 
 
 /** Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje
@@ -3003,7 +3020,7 @@ void web_server_process_snapshot_notify_queue(void) {
              "low heap before snapshot push: %zu B (cíl udržet ~8–10kB+ volné)",
              fh);
   }
-#if CONFIG_HTTPD_WS_SUPPORT
+#if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
   ws_broadcast_snapshot();
 #endif
   (void)web_server_task_wdt_reset_safe();
@@ -3016,7 +3033,7 @@ void web_server_process_snapshot_notify_queue(void) {
 void czechmate_on_game_state_changed(void) {
   czechmate_ensure_snapshot_notify_queue();
   if (snapshot_notify_queue == NULL) {
-#if CONFIG_HTTPD_WS_SUPPORT
+#if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
     ESP_LOGD(TAG,
              "[STAGING] czechmate_on_game_state_changed sync → WS broadcast");
     ws_broadcast_snapshot();
@@ -3336,6 +3353,7 @@ void web_server_task_start(void *pvParameters) {
     ESP_LOGW(TAG, "Failed to load web lock status, using default: unlocked");
   }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
   // Initialize WiFi APSTA
   esp_err_t ret = wifi_init_apsta();
   if (ret != ESP_OK) {
@@ -3431,6 +3449,13 @@ void web_server_task_start(void *pvParameters) {
     ESP_LOGI(TAG, "Board hotspot: OFF (enable from CzechMate app over BLE)");
   }
 
+#else /* !CONFIG_CHESS_ENABLE_WEB_SERVER */
+  (void)board_api_auth_init();
+  task_running = true;
+  ESP_LOGI(TAG,
+           "HTTP disabled (CONFIG_CHESS_ENABLE_WEB_SERVER=n) — BLE JSON bridge only");
+#endif
+
   // Main task loop
   uint32_t loop_count = 0;
 
@@ -3466,9 +3491,11 @@ void web_server_task_start(void *pvParameters) {
   }
 
   // Cleanup
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
   stop_http_server();
   esp_wifi_stop();
   esp_wifi_deinit();
+#endif
 
   ESP_LOGI(TAG, "Web server task stopped");
 
@@ -3531,6 +3558,10 @@ void web_server_execute_command(uint8_t command) {
 // ============================================================================
 
 void web_server_start(void) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  ESP_LOGW(TAG, "HTTP web server disabled at build time");
+  return;
+#else
   if (web_server_active) {
     ESP_LOGW(TAG, "Web server already active");
     return;
@@ -3552,9 +3583,14 @@ void web_server_start(void) {
     uint8_t status = web_server_active ? 1 : 0;
     xQueueSend(web_server_status_queue, &status, 0);
   }
+#endif
 }
 
 void web_server_stop(void) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  ESP_LOGW(TAG, "HTTP web server disabled at build time");
+  return;
+#else
   if (!web_server_active) {
     ESP_LOGW(TAG, "Web server not active - cannot stop");
     return;
@@ -3573,6 +3609,7 @@ void web_server_stop(void) {
     uint8_t status = 0;
     xQueueSend(web_server_status_queue, &status, 0);
   }
+#endif
 }
 
 void web_server_get_status(void) {
@@ -3638,13 +3675,21 @@ void web_server_handle_api_move(void) {
 
 bool web_server_is_active(void) { return web_server_active; }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 httpd_handle_t web_server_get_httpd_handle(void) { return httpd_handle; }
+#else
+httpd_handle_t web_server_get_httpd_handle(void) { return NULL; }
+#endif
 
 const char *web_server_get_ap_ssid(void) {
+#if !CONFIG_CHESS_ENABLE_WEB_SERVER
+  return "(HTTP disabled)";
+#else
   if (wifi_ap_ssid_effective[0] == '\0') {
     return WIFI_AP_SSID_BASE;
   }
   return wifi_ap_ssid_effective;
+#endif
 }
 
 uint32_t web_server_get_client_count(void) { return client_count; }

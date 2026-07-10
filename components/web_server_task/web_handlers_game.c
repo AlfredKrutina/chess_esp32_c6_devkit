@@ -12,7 +12,10 @@
 #include "led_mapping.h"
 #include "../config_manager/include/config_manager.h"
 
+#include "sdkconfig.h"
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 #include "esp_http_server.h"
+#endif
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
@@ -333,6 +336,8 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
            (unsigned)to_led);
   return ESP_OK;
 }
+
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
 esp_err_t http_get_board_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/board");
 
@@ -1342,3 +1347,4 @@ esp_err_t http_post_game_opening_handler(httpd_req_t *req) {
   httpd_resp_send(req, err_body, -1);
   return ESP_OK;
 }
+#endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */

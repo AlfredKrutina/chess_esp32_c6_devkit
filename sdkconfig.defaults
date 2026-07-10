@@ -6,6 +6,10 @@ CONFIG_IDF_TARGET="esp32c6"
 # CzechMate — automatizovaný test task (vypni pro úsporu ~4,5 KiB stack + TCB)
 # CONFIG_CHESS_ENABLE_TEST_TASK is not set
 
+# HTTP web server — vypni pro BLE-only / menší firmware (bez REST, WS, PNG embedů):
+# CONFIG_CHESS_ENABLE_WEB_SERVER is not set
+CONFIG_CHESS_ENABLE_WEB_SERVER=y
+
 # HTTP server — WebSocket /ws (watchOS/iOS); bez toho klient dostane „bad response“ (-1011)
 CONFIG_HTTPD_WS_SUPPORT=y
 

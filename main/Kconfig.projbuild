@@ -8,4 +8,20 @@ config CHESS_ENABLE_TEST_TASK
         Disable for production builds to save RAM and reduce background logging;
         hardware/UART test commands that depend on the task will not run.
 
+config CHESS_ENABLE_WEB_SERVER
+    bool "Enable HTTP web server (WiFi AP/STA UI + REST)"
+    default y
+    help
+        When enabled, builds the full web_server_task HTTP stack: WiFi hotspot/STA
+        bootstrap, REST API, WebSocket, embedded piece PNGs, and browser-facing
+        routes.
+
+        When disabled, the web_server_task component is still linked as a lightweight
+        BLE/remote bridge (JSON dispatch, game snapshots, opening trainer API over BLE).
+        Flash and RAM savings: no esp_http_server, no mDNS, no embedded PNG assets,
+        no HTTP handler sources.
+
+        Use BLE + UART builds for factory test or minimal firmware profiles.
+        Reconfigure after change: idf.py fullclean reconfigure build
+
 endmenu

@@ -1067,6 +1067,11 @@ esp_err_t create_system_tasks(void) {
   */
 
   // Create Web Server task
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+  ESP_LOGI(TAG, "Creating Web Server task (HTTP + BLE bridge)...");
+#else
+  ESP_LOGI(TAG, "Creating remote bridge task (HTTP disabled, BLE only)...");
+#endif
   result = xTaskCreate((TaskFunction_t)web_server_task_start, "web_server_task",
                        WEB_SERVER_TASK_STACK_SIZE, NULL,
                        WEB_SERVER_TASK_PRIORITY, &web_server_task_handle);
