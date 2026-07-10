@@ -5,8 +5,62 @@
     'use strict';
 
     var OPENING_HINT_REFRESH_MS = 600;
+    var OPENING_PROGRESS_KEY = 'opening_progress_v1';
     var openingHintIntervalId = null;
     var openingActiveLineId = null;
+    var openingActiveMode = 'learn';
+    var openingDrillErrors = 0;
+    var openingLastFeedback = 'none';
+    var openingProgressSaved = false;
+
+    function openingLoadProgress() {
+        try {
+            var raw = localStorage.getItem(OPENING_PROGRESS_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function openingSaveProgress(map) {
+        try {
+            localStorage.setItem(OPENING_PROGRESS_KEY, JSON.stringify(map));
+        } catch (e) {}
+    }
+
+    function openingRecordCompletion(lineId, mode, drillErrors, timedSuccess) {
+        var all = openingLoadProgress();
+        var prev = all[lineId] || { stars: 0, best_drill_errors: 99 };
+        var stars = prev.stars || 0;
+        var best = prev.best_drill_errors != null ? prev.best_drill_errors : 99;
+        if (mode === 'learn' && stars < 1) stars = 1;
+        if (mode === 'drill') {
+            if (stars < 1) stars = 1;
+            if (drillErrors <= 2 && stars < 2) stars = 2;
+            if (drillErrors < best) best = drillErrors;
+        }
+        if (mode === 'timed' && timedSuccess) {
+            if (stars < 1) stars = 1;
+            if (stars < 3) stars = 3;
+        }
+        if (mode === 'mirror') {
+            if (drillErrors <= 2 && stars < 2) stars = 2;
+            if (stars < 4) stars = 4;
+            if (drillErrors < best) best = drillErrors;
+        }
+        all[lineId] = {
+            stars: stars,
+            best_drill_errors: best,
+            last_completed_at: new Date().toISOString()
+        };
+        openingSaveProgress(all);
+        return all[lineId];
+    }
+
+    function openingGetStars(lineId) {
+        var all = openingLoadProgress();
+        return (all[lineId] && all[lineId].stars) || 0;
+    }
 
     function openingSquareFromIndex(index) {
         var col = index % 8;
@@ -118,6 +172,24 @@
     }
 
     function openingTrainerOnStatusUpdate(status) {
+        var ot = status && status.opening_training;
+        if (ot && ot.feedback) {
+            if ((ot.feedback === 'wrong' || ot.feedback === 'illegal') &&
+                ot.feedback !== openingLastFeedback) {
+                openingDrillErrors++;
+            }
+            if (ot.feedback === 'complete' && openingLastFeedback !== 'complete' &&
+                openingActiveLineId && !openingProgressSaved) {
+                openingRecordCompletion(
+                    openingActiveLineId,
+                    openingActiveMode,
+                    openingDrillErrors,
+                    true
+                );
+                openingProgressSaved = true;
+            }
+            openingLastFeedback = ot.feedback;
+        }
         openingUpdatePanel(status);
         var hintBtn = document.getElementById('hint-btn');
         if (hintBtn && openingIsActive(status)) {
@@ -132,11 +204,18 @@
         var body = global.openingStartPayload(line, mode || 'learn');
         await openingPostAction(body);
         openingActiveLineId = lineId;
+        openingActiveMode = mode || 'learn';
+        openingDrillErrors = 0;
+        openingLastFeedback = 'none';
+        openingProgressSaved = false;
     }
 
     async function openingCancelLesson() {
         openingStopHintRefresh();
         openingActiveLineId = null;
+        openingActiveMode = 'learn';
+        openingDrillErrors = 0;
+        openingProgressSaved = false;
         await openingPostAction({ action: 'cancel' });
         fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
     }
@@ -153,4 +232,6 @@
     global.openingCheckpointAck = openingCheckpointAck;
     global.openingPostAction = openingPostAction;
     global.openingStopHintRefresh = openingStopHintRefresh;
+    global.openingGetStars = openingGetStars;
+    global.openingRecordCompletion = openingRecordCompletion;
 }(typeof window !== 'undefined' ? window : globalThis));

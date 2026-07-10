@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/widgets/glass_snackbar.dart';
+import '../opening/opening_catalog_screen.dart';
 import '../opening/opening_trainer_screen.dart';
 
 class LearnScreen extends StatelessWidget {
@@ -17,6 +18,23 @@ class LearnScreen extends StatelessWidget {
         ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Card(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                leading: Icon(Icons.menu_book,
+                    color: Theme.of(context).colorScheme.primary),
+                title: const Text('Trénink zahájení'),
+                subtitle: const Text('10 linií — Učení, Drill, Na čas, Mirror'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const OpeningCatalogScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
             _LearnCategory(
               title: l10n.learnSecBasics,
               color: Colors.green,
@@ -89,7 +107,7 @@ class LearnScreen extends StatelessWidget {
                     title: l10n.learnL12Title,
                     description: l10n.learnL12Desc,
                     done: false,
-                    locked: true),
+                    openingId: 'spanish_berlin_white'),
               ],
             ),
             const SizedBox(height: 16),

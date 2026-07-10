@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/widgets/glass_snackbar.dart';
@@ -14,6 +15,8 @@ class OpeningTrainerScreen extends ConsumerStatefulWidget {
 
   final String lineId;
   final String mode;
+
+  bool get isDrillLike => mode == 'drill' || mode == 'timed' || mode == 'mirror';
 
   @override
   ConsumerState<OpeningTrainerScreen> createState() =>
@@ -27,9 +30,15 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
   String _feedback = 'none';
   int _playerPly = 0;
   int _playerTotal = 0;
+  int _drillErrors = 0;
+  int _timedSecondsLeft = 90;
+  bool _timedExpired = false;
+  bool _progressSaved = false;
   Timer? _hintRefreshTimer;
+  Timer? _countdownTimer;
 
   static const _hintRefreshMs = 600;
+  static const _timedLimitSec = 90;
 
   @override
   void initState() {
@@ -40,7 +49,44 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
   @override
   void dispose() {
     _stopHintRefresh();
+    _countdownTimer?.cancel();
     super.dispose();
+  }
+
+  void _startTimedCountdown() {
+    if (widget.mode != 'timed') return;
+    _countdownTimer?.cancel();
+    _timedSecondsLeft = _timedLimitSec;
+    _timedExpired = false;
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
+      if (_feedback == 'complete') {
+        t.cancel();
+        return;
+      }
+      setState(() {
+        _timedSecondsLeft--;
+        if (_timedSecondsLeft <= 0) {
+          _timedExpired = true;
+          t.cancel();
+        }
+      });
+      if (_timedExpired) {
+        showGlassSnackBar(context, 'Čas vypršel');
+        _cancel();
+      }
+    });
+  }
+
+  Future<void> _saveProgressIfNeeded() async {
+    if (_progressSaved || _feedback != 'complete') return;
+    _progressSaved = true;
+    await ref.read(openingProgressRepositoryProvider).recordCompletion(
+          lineId: widget.lineId,
+          mode: widget.mode,
+          drillErrors: _drillErrors,
+          timedSuccess: widget.mode != 'timed' || !_timedExpired,
+        );
   }
 
   void _stopHintRefresh() {
@@ -92,8 +138,14 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
       await ref
           .read(boardSessionNotifierProvider.notifier)
           .postOpeningAction(line.toStartPayload(mode: widget.mode));
+      _startTimedCountdown();
       if (mounted) {
-        showGlassSnackBar(context, 'Lekce spuštěna — táhni na desce');
+        final msg = widget.mode == 'drill'
+            ? 'Drill — táhni bez nápověd v textu'
+            : widget.mode == 'timed'
+                ? 'Na čas $_timedLimitSec s — začni!'
+                : 'Lekce spuštěna — táhni na desce';
+        showGlassSnackBar(context, msg);
       }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
@@ -109,6 +161,7 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
 
   Future<void> _cancel() async {
     _stopHintRefresh();
+    _countdownTimer?.cancel();
     final n = ref.read(boardSessionNotifierProvider.notifier);
     await n.postOpeningRaw({'action': 'cancel'});
     if (mounted) Navigator.of(context).pop();
@@ -170,13 +223,20 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     final opening = session.snapshot?.status.openingTraining;
     final matrix = session.snapshot?.status.matrixOccupied;
     if (opening != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
+        final prevFeedback = _feedback;
         setState(() {
+          if (opening.feedback == 'wrong' || opening.feedback == 'illegal') {
+            _drillErrors++;
+          }
           _feedback = opening.feedback ?? 'none';
           _playerPly = opening.playerPlyIndex ?? 0;
           _playerTotal = opening.playerPlyTotal ?? _playerTotal;
         });
+        if (_feedback == 'complete' && prevFeedback != 'complete') {
+          await _saveProgressIfNeeded();
+        }
         _syncHintRefresh(
           opening.active == true,
           opening.feedback == 'checkpoint' || opening.awaitingCheckpointAck == true,
@@ -195,11 +255,33 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
         : const <String>[];
 
     final line = _line;
+    final stepComment = line?.commentForPlayerPly(_playerPly);
+    final modeLabel = switch (widget.mode) {
+      'drill' => 'Drill',
+      'timed' => 'Na čas',
+      'mirror' => 'Mirror',
+      _ => 'Učení',
+    };
     return Scaffold(
       appBar: AppBar(
         title: Text(line?.nameForLocale(Localizations.localeOf(context).languageCode) ??
             l10n.learnAppBarTitle),
         actions: [
+          if (widget.mode == 'timed')
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Center(
+                child: Text(
+                  '${_timedSecondsLeft}s',
+                  style: TextStyle(
+                    color: _timedSecondsLeft <= 10
+                        ? Theme.of(context).colorScheme.error
+                        : null,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           IconButton(onPressed: _busy ? null : _cancel, icon: const Icon(Icons.close)),
         ],
       ),
@@ -213,11 +295,24 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('ECO ${line.eco} · ${line.side}',
+                        Text('ECO ${line.eco} · ${line.side} · $modeLabel',
                             style: Theme.of(context).textTheme.titleSmall),
                         const SizedBox(height: 8),
-                        if (line.ideaCs != null)
+                        if (!widget.isDrillLike && line.ideaCs != null)
                           Text(line.ideaCs!, style: Theme.of(context).textTheme.bodyLarge),
+                        if (!widget.isDrillLike &&
+                            stepComment != null &&
+                            stepComment.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(stepComment,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                  )),
+                        ],
+                        if (widget.isDrillLike) ...[
+                          const SizedBox(height: 8),
+                          Text('Chyby: $_drillErrors'),
+                        ],
                         const SizedBox(height: 16),
                         LinearProgressIndicator(
                           value: _playerTotal == 0

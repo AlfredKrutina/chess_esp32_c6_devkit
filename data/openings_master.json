@@ -5,12 +5,27 @@
     {
       "id": "basics_white",
       "name": { "cs": "Bílé základy", "en": "White basics" },
-      "line_ids": ["italian_giuoco_white", "london_system_white"]
+      "line_ids": [
+        "italian_giuoco_white",
+        "london_system_white",
+        "four_knights_white",
+        "vienna_white"
+      ]
     },
     {
       "id": "basics_black",
       "name": { "cs": "Černé základy", "en": "Black basics" },
-      "line_ids": ["sicilian_odb_black"]
+      "line_ids": [
+        "sicilian_odb_black",
+        "caro_kann_classical_black",
+        "petrov_black",
+        "pirc_classical_black"
+      ]
+    },
+    {
+      "id": "classical_deep",
+      "name": { "cs": "Klasika hlouběji", "en": "Classical depth" },
+      "line_ids": ["spanish_berlin_white", "queens_gambit_white"]
     }
   ],
   "openings": [
@@ -74,6 +89,145 @@
         { "ply_index": 2, "comment": { "cs": "Londýnský střelec f4.", "en": "London bishop to f4." } },
         { "ply_index": 4, "comment": { "cs": "Solidní e3.", "en": "Solid e3." } },
         { "ply_index": 6, "comment": { "cs": "Rozvoj jezdce f3.", "en": "Develop the knight to f3." } }
+      ]
+    },
+    {
+      "id": "four_knights_white",
+      "eco": "C47",
+      "family": "four_knights",
+      "name": { "cs": "Čtyři jezdci", "en": "Four Knights Game" },
+      "side": "white",
+      "difficulty": 1,
+      "tags": ["e4", "development"],
+      "idea": { "cs": "Rychlý a symetrický rozvoj figur.", "en": "Quick symmetrical piece development." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "e7e5", "g1f3", "b8c6", "b1c3", "g8f6", "f1b5", "f8b4"],
+      "player_ply_indices": [0, 2, 4, 6],
+      "checkpoint_ply_indices": [4],
+      "steps": [
+        { "ply_index": 0, "comment": { "cs": "e4 a kontrola centra.", "en": "Play e4 to control the center." } },
+        { "ply_index": 2, "comment": { "cs": "Jezdec na f3.", "en": "Knight to f3." } },
+        { "ply_index": 4, "comment": { "cs": "Jezdec na c3.", "en": "Knight to c3." } },
+        { "ply_index": 6, "comment": { "cs": "Střelec na b5.", "en": "Bishop to b5." } }
+      ]
+    },
+    {
+      "id": "vienna_white",
+      "eco": "C25",
+      "family": "vienna",
+      "name": { "cs": "Vídeňská hra", "en": "Vienna Game" },
+      "side": "white",
+      "difficulty": 2,
+      "tags": ["e4", "classical"],
+      "idea": { "cs": "Jezdec c3 a fianchetto královského střelce.", "en": "Nc3 and a kingside bishop fianchetto." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "e7e5", "b1c3", "b8c6", "g2g3", "g8f6", "f1g2", "f8c5"],
+      "player_ply_indices": [0, 2, 4, 6],
+      "checkpoint_ply_indices": [4],
+      "steps": [
+        { "ply_index": 0, "comment": { "cs": "Otevři hru e4.", "en": "Open with e4." } },
+        { "ply_index": 2, "comment": { "cs": "Jezdec c3 — vídeňský plán.", "en": "Knight c3 — Vienna plan." } },
+        { "ply_index": 4, "comment": { "cs": "Připrav fianchetto g3.", "en": "Prepare g3 fianchetto." } },
+        { "ply_index": 6, "comment": { "cs": "Střelec g2.", "en": "Bishop g2." } }
+      ]
+    },
+    {
+      "id": "spanish_berlin_white",
+      "eco": "C60",
+      "family": "spanish",
+      "name": { "cs": "Španělská — Berlin", "en": "Ruy Lopez — Berlin Defence" },
+      "side": "white",
+      "difficulty": 3,
+      "tags": ["e4", "classical"],
+      "idea": { "cs": "Tlak střelce b5 na jezdce c6.", "en": "Bb5 pressure on the Nc6 knight." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "e7e5", "g1f3", "b8c6", "f1b5", "g8f6"],
+      "player_ply_indices": [0, 2, 4],
+      "checkpoint_ply_indices": [4],
+      "steps": [
+        { "ply_index": 0, "comment": { "cs": "e4.", "en": "e4." } },
+        { "ply_index": 2, "comment": { "cs": "Nf3.", "en": "Nf3." } },
+        { "ply_index": 4, "comment": { "cs": "Bb5 — španělská.", "en": "Bb5 — the Ruy Lopez." } }
+      ]
+    },
+    {
+      "id": "queens_gambit_white",
+      "eco": "D06",
+      "family": "queens_gambit",
+      "name": { "cs": "Dámský gambit — přijatý", "en": "Queen's Gambit Accepted intro" },
+      "side": "white",
+      "difficulty": 2,
+      "tags": ["d4", "classical"],
+      "idea": { "cs": "Centrum d4 a rozvoj lehkých figur.", "en": "d4 center and light-piece development." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["d2d4", "d7d5", "c2c4", "e7e6", "b1c3", "g8f6", "g1f3", "b8d7"],
+      "player_ply_indices": [0, 2, 4, 6],
+      "checkpoint_ply_indices": [4],
+      "steps": [
+        { "ply_index": 0, "comment": { "cs": "d4.", "en": "d4." } },
+        { "ply_index": 2, "comment": { "cs": "c4 — dámský gambit.", "en": "c4 — Queen's Gambit." } },
+        { "ply_index": 4, "comment": { "cs": "Nc3.", "en": "Nc3." } },
+        { "ply_index": 6, "comment": { "cs": "Nf3.", "en": "Nf3." } }
+      ]
+    },
+    {
+      "id": "caro_kann_classical_black",
+      "eco": "B12",
+      "family": "caro_kann",
+      "name": { "cs": "Caro-Kann — klasická", "en": "Caro-Kann — Classical" },
+      "side": "black",
+      "difficulty": 2,
+      "tags": ["e4", "black"],
+      "idea": { "cs": "Solidní c6 a d5 proti 1.e4.", "en": "Solid c6 and ...d5 against 1.e4." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "c7c6", "d2d4", "d7d5", "b1c3", "e7e6", "g1f3", "g8f6"],
+      "player_ply_indices": [1, 3, 5, 7],
+      "checkpoint_ply_indices": [3],
+      "steps": [
+        { "ply_index": 1, "comment": { "cs": "c6 — Caro-Kann.", "en": "c6 — Caro-Kann." } },
+        { "ply_index": 3, "comment": { "cs": "d5.", "en": "d5." } },
+        { "ply_index": 5, "comment": { "cs": "e6.", "en": "e6." } },
+        { "ply_index": 7, "comment": { "cs": "Nf6.", "en": "Nf6." } }
+      ]
+    },
+    {
+      "id": "petrov_black",
+      "eco": "C42",
+      "family": "petrov",
+      "name": { "cs": "Petrova obrana", "en": "Petrov's Defence" },
+      "side": "black",
+      "difficulty": 2,
+      "tags": ["e4", "black", "symmetrical"],
+      "idea": { "cs": "Symetrická odpověď Nf6 na Nf3.", "en": "Symmetrical ...Nf6 against Nf3." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "e7e5", "g1f3", "g8f6", "b1c3", "b8c6", "d2d3", "f8e7"],
+      "player_ply_indices": [1, 3, 5, 7],
+      "checkpoint_ply_indices": [3],
+      "steps": [
+        { "ply_index": 1, "comment": { "cs": "e5.", "en": "e5." } },
+        { "ply_index": 3, "comment": { "cs": "Nf6 — Petrova.", "en": "Nf6 — Petrov." } },
+        { "ply_index": 5, "comment": { "cs": "Nc6.", "en": "Nc6." } },
+        { "ply_index": 7, "comment": { "cs": "Be7.", "en": "Be7." } }
+      ]
+    },
+    {
+      "id": "pirc_classical_black",
+      "eco": "B07",
+      "family": "pirc",
+      "name": { "cs": "Pirc — klasická", "en": "Pirc — Classical" },
+      "side": "black",
+      "difficulty": 2,
+      "tags": ["e4", "black", "hypermodern"],
+      "idea": { "cs": "Hypermoderní d6, g6 a fianchetto.", "en": "Hypermodern d6, g6, and fianchetto." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "d7d6", "d2d4", "g8f6", "b1c3", "g7g6", "g1f3", "f8g7"],
+      "player_ply_indices": [1, 3, 5, 7],
+      "checkpoint_ply_indices": [3],
+      "steps": [
+        { "ply_index": 1, "comment": { "cs": "d6 — Pirc.", "en": "d6 — Pirc." } },
+        { "ply_index": 3, "comment": { "cs": "Nf6.", "en": "Nf6." } },
+        { "ply_index": 5, "comment": { "cs": "g6.", "en": "g6." } },
+        { "ply_index": 7, "comment": { "cs": "Bg7.", "en": "Bg7." } }
       ]
     }
   ]
