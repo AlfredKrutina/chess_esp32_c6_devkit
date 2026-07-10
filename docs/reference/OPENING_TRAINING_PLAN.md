@@ -1,8 +1,8 @@
 # Plán v2: Interaktivní trénink zahájení (Opening Trainer)
 
-**Verze:** 2.2 (implementační review 2026-07-10)  
-**Stav:** **v1.0 v implementaci** — FW + Flutter + web parita hotové; katalog 41 linií; rationale sidecar; fyzický/virtuální soupeř  
-**Aktivní PR:** [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (`cursor/opening-opponent-physical-8fdd`)  
+**Verze:** 2.3 (build + pedagogika 2026-07-10)  
+**Stav:** **v1.0 v implementaci** — FW + Flutter + web parita; katalog 41 linií; rationale; fyzický/virtuální soupeř; volitelný HTTP build  
+**Aktivní PR:** [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (opening trainer) · [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) (volitelný web server)  
 **Cíl:** Krok-za-krokem výuka slavných zahájení pro **bílé i černé**, s fyzickou deskou, LED nápovědou a jednotným UX na webu + Flutter.  
 **Vstupní dokumentace:** [docs/README.md](../README.md) · [MATRIX_GUARD.md](MATRIX_GUARD.md) · [WEB_UI_DEPLOY.md](WEB_UI_DEPLOY.md) · [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md)
 
@@ -23,6 +23,7 @@
 | Inventář kódu | obecný | **Konkrétní soubory, funkce, mezery** (§5) |
 | Progress | localStorage zmínka | **Hvězdičky, spaced repetition, curriculum unlock** (§11) |
 | Sanity | — | **§20 — ověření proti kódu + HW** (matrix guard, setup, captures) |
+| Build | monolitický web_server | **`CONFIG_CHESS_ENABLE_WEB_SERVER`** — HTTP volitelný, BLE bridge vždy (§3 D12, §17.1) |
 
 ---
 
@@ -54,6 +55,18 @@
 
 ---
 
+## 0.4 Changelog v2.2 → v2.3 (build + pedagogika)
+
+| Změna | Proč |
+|--------|------|
+| **`CONFIG_CHESS_ENABLE_WEB_SERVER`** (Kconfig) | HTTP/WS/PNG embedy volitelné; při `n` zůstává BLE JSON bridge (opening API přes GATT) |
+| **§4.7 Pedagogické vrstvy** | Jasné rozhraní: `rationale` (varianta) vs `steps` (tah) vs `common_mistakes` (chyba) |
+| **Fáze 5 rozdělena** na 5a–5d | Priorita: UX lekce → common_mistakes → miniboard → mirror páry |
+| **Mirror gap** zdokumentován | Jen 2/41 `mirror_line_id` — ★★★★ systém potřebuje párování nebo předefinování |
+| **G5 upřesněno** | Primární klient Flutter/BLE; web HTTP je volitelný transport |
+
+---
+
 ## 0.3 Stav implementace (živý přehled)
 
 | Oblast | Stav | Důkaz / poznámka |
@@ -71,14 +84,19 @@
 | Režimy Learn/Drill/Timed/Mirror | ✅ | Hvězdičky + curriculum unlock |
 | Setup wizard + retry | ✅ | `setup_phase` flow obě platformy |
 | PGN import | ✅ | `tools/openings/pgn_to_catalog.py` |
-| `common_mistakes` v UI | ⬜ | Schema připraveno, obsah/UI backlog |
+| Volitelný HTTP build | ✅ | `CONFIG_CHESS_ENABLE_WEB_SERVER` — PR #10 |
+| `steps[]` EN v JSON | ✅ | 41/41; Flutter zatím čte jen `cs` u tahů |
+| `mirror_line_id` páry | 🟡 | Jen 2/41 — ★★★★ režim omezený |
+| `common_mistakes` v UI | ⬜ | 0/41 v masteru; schema + UI backlog |
+| UX lekce (bez debug stavů) | ⬜ | `Stav: wrong` → srozumitelné hlášky; rationale jen ply 0 |
+| Katalog filtry (side/ECO/family) | ⬜ | 41 linií bez vyhledávání |
 | Miniboard sync v lekci | ⬜ | Text + progress bar; plný miniboard backlog |
 | Stockfish „proč tento tah“ | ⬜ | Fáze 5 backlog |
 | Spaced repetition notifikace | ⬜ | Fronta due lines hotová; push notif backlog |
 | Větvení `branches[]` | ⬜ | v1.1 |
 | FW-native LED pulz | ⬜ | Fáze 6 backlog |
 
-**Zbývá pro v1.0 polish:** §14 Fáze 5 (common_mistakes, miniboard, manuální UX test 5 uživatelů).
+**Zbývá pro v1.0 polish:** §14 Fáze 5a–5c (UX, common_mistakes, miniboard) + mirror páry (5d).
 
 ---
 
@@ -115,7 +133,7 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 | G2 | Krok za krokem: setup → linie → dokončení | E2E HW test 3 linie |
 | G3 | Fyzická deska + LED | 0 regressí matrix guard |
 | G4 | Learn / Drill / Timed / Mirror | Každý režim má HW checklist |
-| G5 | Web + Flutter parita | Stejná lekce dokončitelná z obou |
+| G5 | Flutter + BLE parita; web HTTP volitelný | Stejná lekce z Flutteru (Wi‑Fi/BLE); web jen pokud `CONFIG_CHESS_ENABLE_WEB_SERVER=y` |
 | G6 | Curriculum s odemykáním | 4 učební cesty (§8.3) |
 | G7 | Progress + hvězdičky | Uloženo lokálně; sync volitelně v2 |
 
@@ -145,6 +163,23 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 | D9 | Validace tahu | **Nejdřív expected UCI, pak `game_is_valid_move`** | Špatná destinace = opening feedback; legalita z logické desky |
 | D10 | Volba soupeře | **`opponent_mode` v `start` requestu** | `physical`: FW čeká pickup/drop soupeře, feedback `opponent_turn`; `virtual`: auto-reply na logice |
 | D11 | Pedagogika variant | **Sidecar `openings_rationale.json`** | Merge do exportu; master drží tahy, rationale editovatelné bez dotyku UCI |
+| D12 | HTTP web server build | **`CONFIG_CHESS_ENABLE_WEB_SERVER`** (default y) | `n` = bez `esp_http_server`/mDNS/PNG; opening API přes BLE + `web_opening_dispatch.c` v lite bridge |
+
+### 3.1 Firmware build profily
+
+| Profil | Kconfig | Opening trainer transport | Typické použití |
+|--------|---------|---------------------------|-----------------|
+| **Plný** (výchozí) | `CONFIG_CHESS_ENABLE_WEB_SERVER=y` | HTTP `POST /api/game/opening` + BLE + web UI | Vývoj, LAN, browser klient |
+| **BLE-only** | `CONFIG_CHESS_ENABLE_WEB_SERVER=n` | BLE JSON (`cmd: opening`) + snapshot GATT | Menší flash/RAM, tovární test, jen mobilní app |
+
+```bash
+idf.py menuconfig
+# CzechMate firmware → [ ] Enable HTTP web server (WiFi AP/STA UI + REST)
+
+idf.py fullclean reconfigure build
+```
+
+Při `n`: task `web_server_task` běží jako **remote bridge** (snapshots, `web_server_ble_command_dispatch`, opening dispatch). WiFi AP/HTTP se při startu nespouští.
 
 ---
 
@@ -215,6 +250,56 @@ Zdroj: `data/openings_rationale.json` (sidecar). Detail §8.6.
 
 ---
 
+### 4.7 Pedagogické vrstvy (co kde patří)
+
+Rationale řeší **„proč tuto variantu v repertoáru“**, ne **„co hrát na tomto ply“**.
+
+```mermaid
+flowchart TB
+  subgraph before [Před lekcí]
+    R[rationale: proč varianta]
+    S[summary: 1 věta v katalogu]
+  end
+  subgraph during [Během lekce]
+    I[idea: strategický plán linie]
+    C[steps: komentář k hráčovu ply]
+    O[opponent_annotations: proč soupeř táhne]
+    M[common_mistakes: typická špatná UCI]
+  end
+  subgraph after [Po lekci]
+    P[progress + spaced repetition]
+    F[related_line_ids → další linie]
+  end
+  R --> I
+  I --> C
+  M -.->|při wrong UCI na klientovi| C
+  P --> F
+```
+
+| Vrstva | Zdroj | Kdy v UI |
+|--------|-------|----------|
+| `summary` / rationale | `openings_rationale.json` | Katalog + mode picker |
+| `idea` | `openings_master.json` | Úvod lekce (Learn) |
+| `steps[]` | master, per `ply_index` | Každý hráčův tah |
+| `opponent_annotations` | master (backlog) | `opponent_turn` (physical režim) |
+| `common_mistakes` | master (backlog) | Validace na klientovi před odesláním tahu |
+
+**Pravidlo:** rationale **nepatří** do `steps` — edituje se bez dotyku UCI.
+
+---
+
+### 4.8 Mirror režim a hvězdička ★★★★
+
+| Stav | Detail |
+|------|--------|
+| Implementace režimu | ✅ Samostatná párová linie přes `mirror_line_id` |
+| Obsah | 🟡 Pouze **2/41** linií má `mirror_line_id` |
+| Dopad | ★★★★ je pro většinu linií nedosažitelná |
+
+**Plán obsahu (Fáze 5d):** min. 10 ručních párů v `basics_*` + `classical_deep`, nebo předefinovat Mirror jako „stejná linie, opačná barva v jiném záznamu“ bez párování.
+
+---
+
 ### 4.6 Spaced repetition (Fáze 7)
 
 - Linie s ★★ se řadí do fronty „opakovat za 3 dny“ (`OpeningCurriculumUnlock.linesDueForReview`).
@@ -247,9 +332,9 @@ Zdroj: `data/openings_rationale.json` (sidecar). Detail §8.6.
 | BLE parita | `ble_czechmate_client.dart` | `postSetupTutorial`, `postHintHighlightDestinationOnly` |
 | ECO popisky | `opening_eco.dart` | Rozšířit mapování pro katalog karty |
 
-### 5.2 Kritické mezery — původní (Fáze 1) → stav v2.2
+### 5.2 Kritické mezery — původní (Fáze 1) → stav v2.3
 
-| Mezera (původně) | Stav v2.2 |
+| Mezera (původně) | Stav v2.3 |
 |-------------------|-----------|
 | Žádný `game_opening_trainer.c` | ✅ Implementováno |
 | Žádný `POST /api/game/opening` | ✅ `web_opening_dispatch.c` |
@@ -258,7 +343,7 @@ Zdroj: `data/openings_rationale.json` (sidecar). Detail §8.6.
 | Status JSON bez `opening_training` | ✅ Export + parita |
 | `openings_catalog.json` neexistuje | ✅ 41 linií + rationale v assets |
 
-**Zbývající mezery (polish):** `common_mistakes` ve FW/klientu, plný miniboard v lekci, FW-native LED pulz.
+**Zbývající mezery (polish):** Fáze 5a–5d — viz §14; FW-native LED pulz (Fáze 6).
 
 ### 5.3 Vzácná vyloučení režimů a matrix guard
 
@@ -1075,17 +1160,51 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 - [x] Merge do exportu; Flutter + web UI
 - [x] `opening_rationale_test.dart`
 
-### Fáze 5 — Pedagogika a polish 🟡
+### Fáze 4c — Volitelný HTTP build ✅ (PR #10)
 
-- [x] Rationale CS/EN kompletní (sidecar)
-- [ ] `steps[]` komentáře u všech hráčových ply (částečně)
-- [ ] `common_mistakes` u 10+ linií + UI
-- [ ] Miniboard sync v lekci
+- [x] `CONFIG_CHESS_ENABLE_WEB_SERVER` v `main/Kconfig.projbuild`
+- [x] Podmíněný CMake — bez HTTP/mDNS/PNG při `n`
+- [x] `#if CONFIG_CHESS_ENABLE_WEB_SERVER` v handlerech
+- [x] BLE bridge + `web_opening_dispatch.c` při `n`
+- [x] UART `WEB` příkaz hlásí disabled build
+
+### Fáze 5a — UX lekce (priorita 1) ⬜
+
+- [ ] Nahradit debug `Stav: $_feedback` srozumitelnými hláškami (CS/EN dle locale)
+- [ ] Rationale panel jen na **ply 0** (Learn); skrýt během drill/timed
+- [ ] `steps[]` komentáře: Flutter čte locale (`cs`/`en`), ne jen `cs`
+- [ ] `opponent_annotations` u 5+ linií + text při `opponent_turn` (physical)
+- [ ] Katalog filtry: side / ECO / family / difficulty
+
+**Acceptance:** Learn lekce bez technických stavů; rationale viditelné jen na úvodu.
+
+### Fáze 5b — `common_mistakes` (priorita 2) ⬜
+
+- [ ] Obsah: min. 10 linií v `openings_master.json` (0/41 dnes)
+- [ ] Validace na klientovi před odesláním tahu (Flutter + web)
+- [ ] UI hint při shodě `wrong_uci` + `at_ply_index`
+- [ ] CI: schema validace `common_mistakes[]` struktury
+
+**Acceptance:** Špatná varianta (např. `f1b5` místo `f1c4`) ukáže pedagogický hint bez FW změny.
+
+### Fáze 5c — Miniboard v lekci (priorita 3) ⬜
+
+- [ ] Sync `/api/board` nebo snapshot v `OpeningTrainerScreen`
+- [ ] Web: stejný miniboard v `opening_trainer.js`
+- [ ] Checkpoint diff zvýraznění na miniboardu
+- [ ] WCAG AA kontrast (§11.5)
+
+**Acceptance:** Hráč vidí pozici i bez pohledu na fyzickou desku.
+
+### Fáze 5d — Mirror páry + polish (priorita 4) 🟡
+
+- [x] Rationale CS/EN kompletní (sidecar) — Fáze 4b
+- [ ] `mirror_line_id` u min. 10 párů (`basics_*` + `classical_deep`) — dnes 2/41
 - [ ] Checkpoint „srovnej desku“ UI — základ hotový, polish
-- [ ] Stockfish „proč tento tah“ (read-only, Learn only)
-- [ ] Rozšířit `MANUAL_TEST_CHECKLIST.md`
+- [ ] Stockfish „proč tento tah“ (read-only, Learn only) — volitelné
+- [ ] Rozšířit `MANUAL_TEST_CHECKLIST.md` (vč. BLE-only build)
 
-**Acceptance:** 5 uživatelů dokončí lekci bez nápovědy dokumentace.
+**Acceptance:** ★★★★ dosažitelná u ≥10 linií; 5 uživatelů dokončí lekci bez dokumentace.
 
 ### Fáze 6 — Obsah v1.1 ⬜
 
@@ -1111,7 +1230,7 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 | Web | Playwright (mock + live) | Catalog load, lesson state machine |
 | Flutter | `flutter test` | Parse catalog, ply index, progress |
 | HW | `MANUAL_TEST_CHECKLIST.md` | 3 linie × 4 režimy |
-| Regrese | Existující CI | `idf.py build`, matrix guard, puzzle beze změny |
+| Regrese | Existující CI | `idf.py build` (y + n), matrix guard, puzzle beze změny |
 
 ### Kritické HW scénáře
 
@@ -1135,7 +1254,7 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 | Web UI 404 | Žádný browser klient | ✅ Obnoveno `concat_web_js.py` |
 | Příliš dlouhé linie | Únava | Max 12 plies; checkpoint |
 | Flutter/web drift | Jiné chování | §10 API kontrakt; shared JSON |
-| Flash overflow | Build fail | Katalog jen klient; FW max 16 plies buffer |
+| Flash overflow | Build fail | Katalog jen klient; FW max 16 plies buffer; volitelný HTTP build (§17.1) |
 | Queue overflow | API 503 | Opening příkazy priorita jako puzzle |
 | Špatný PGN import | Nelegální linie | CI python-chess + physical-rules |
 | Timed na BLE | Latence | Timer běží na klientu; FW jen stav |
@@ -1153,6 +1272,17 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 | HTTP body max | ~2 KB | Validovat délku v handleru |
 
 **Pravidlo:** FW **neukládá** celý katalog — jen aktivní linii z posledního `start` requestu.
+
+### 17.1 Build profily a flash budget
+
+| Profil | `CONFIG_CHESS_ENABLE_WEB_SERVER` | Úspora (orientačně) | Opening transport |
+|--------|-----------------------------------|---------------------|-------------------|
+| Plný | `y` (default) | — | HTTP + BLE + web UI |
+| BLE-only | `n` | `esp_http_server`, mDNS, PNG embedy | BLE JSON + lite bridge |
+
+Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote bridge** — opening API přes GATT, snapshots, `web_opening_dispatch.c`.
+
+**CI doporučení:** jeden job `idf.py build` s `CONFIG_CHESS_ENABLE_WEB_SERVER=n` (regrese flash + linker).
 
 ---
 
@@ -1173,6 +1303,11 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 | Flutter learn | `flutter_czechmate/lib/features/learn/learn_screen.dart` |
 | ECO | `flutter_czechmate/lib/core/utils/opening_eco.dart` |
 | GAME_CMD enum | `components/freertos_chess/include/chess_types.h` |
+| Kconfig web server | `main/Kconfig.projbuild` — `CONFIG_CHESS_ENABLE_WEB_SERVER` |
+| Web server CMake | `components/web_server_task/CMakeLists.txt` |
+| Opening BLE dispatch | `components/web_server_task/web_opening_dispatch.c` |
+| Rationale sidecar | `data/openings_rationale.json` |
+| Sync + merge | `tools/openings/sync_catalog.py` |
 
 ---
 
@@ -1203,15 +1338,20 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 | Web `chess_app.js` | `concat_web_js.py` | ✅ |
 | Learn screen → opening | `learn_screen.dart` | ✅ |
 | Katalog 41 linií CI | `opening_catalog_test.dart`, `opening_rationale_test.dart` | ✅ |
-| `common_mistakes` v UI | grep klient | ⬜ Backlog Fáze 5 |
-| Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5 |
+| `common_mistakes` v UI | grep klient | ⬜ Backlog Fáze 5b |
+| Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5c |
+| `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
+| `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — Fáze 5d |
 
 ### Doporučené pořadí (další práce)
 
-1. **Fáze 5** — `steps[]` doplnit, `common_mistakes`, miniboard, manuální HW checklist  
-2. **Fáze 7** — push notifikace pro spaced repetition  
-3. **Fáze 6** — větvení variant (`branches[]`) až po UX feedbacku z v1.0
+1. **Fáze 5a** — UX lekce, locale steps, katalog filtry  
+2. **Fáze 5b** — `common_mistakes` obsah + klient validace  
+3. **Fáze 5c** — miniboard sync  
+4. **Fáze 5d** — mirror páry + HW checklist  
+5. **Fáze 7** — push notifikace pro spaced repetition  
+6. **Fáze 6** — větvení variant (`branches[]`) až po UX feedbacku z v1.0
 
 ---
 
-*Plán v2.2 — živý dokument. Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · větev `cursor/opening-opponent-physical-8fdd`.*
+*Plán v2.3 — živý dokument. Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (opening + rationale) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) (volitelný HTTP build). Větve: `cursor/opening-opponent-physical-8fdd`, `cursor/optional-web-server-8fdd`.*
