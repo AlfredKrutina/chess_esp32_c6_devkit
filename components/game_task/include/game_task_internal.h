@@ -55,6 +55,19 @@ bool game_task_matrix_guard_mode_conflict_active(void);
 /** Clear transient lift state when matrix guard activates. */
 void game_task_matrix_guard_freeze_move_flow(void);
 
-void game_bump_revision_and_notify(void);
+typedef struct {
+  bool in_progress;
+  uint8_t rook_from_row;
+  uint8_t rook_from_col;
+  uint8_t rook_to_row;
+  uint8_t rook_to_col;
+  player_t player;
+  bool is_kingside;
+} castling_state_t;
 
-#endif /* GAME_TASK_INTERNAL_H */
+extern castling_state_t castling_state;
+extern bool piece_moved[8][8];
+
+void game_check_promotion_needed(void);
+
+void game_bump_revision_and_notify(void);

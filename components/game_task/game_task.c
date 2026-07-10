@@ -158,6 +158,7 @@ xSemaphoreGive(...);
  */
 
 #include "game_task.h"
+#include "game_board_core.h"
 #include "game_matrix_guard.h"
 #include "game_snapshot.h"
 #include "game_task_internal.h"
@@ -265,16 +266,8 @@ static uint32_t game_state_revision = 0;
 // New logic: Block auto-new game until at least one move is made
 static bool auto_new_game_blocked_until_move = false;
 
-// Simplified castling state
-typedef struct {
-  bool in_progress;                     // Rošáda probíhá
-  uint8_t rook_from_row, rook_from_col; // Pozice věže
-  uint8_t rook_to_row, rook_to_col;     // Cíl věže
-  player_t player;                      // Hráč, který provádí rošádu
-  bool is_kingside;                     // Je to kingside rošáda?
-} castling_state_t;
-
-static castling_state_t castling_state = {0};
+// Simplified castling state (type in game_task_internal.h)
+castling_state_t castling_state = {0};
 
 // Active castling state (simplified implementation)
 static bool castle_animation_active = false;
@@ -287,7 +280,7 @@ static uint8_t rook_from_row, rook_from_col, rook_to_row, rook_to_col;
 
 // Board representation (8x8)
 piece_t board[8][8] = {0};
-static bool piece_moved[8][8] = {false}; // Track if pieces have moved
+bool piece_moved[8][8] = {false};
 
 // Global variables for tracking lifted piece (UP/DN commands)
 static bool piece_lifted = false;
@@ -502,8 +495,6 @@ static void resignation_update_button_leds(uint32_t elapsed_ms);
 static void resignation_tick(void);
 static void resignation_finalize_timeout(void);
 static bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
-static bool game_parse_piece_from_fen(char c, piece_t *out_piece);
-static bool game_load_position_from_fen(const char *fen, player_t *active_player);
 static const char *game_puzzle_feedback_key(void);
 static const char *game_puzzle_feedback_message(void);
 
@@ -746,7 +737,7 @@ static game_result_type_t current_result_type =
 
 // Promotion functions - MUST BE FIRST (called from game_initialize_board)
 // Note: These are defined later in the file (around line 3800)
-static void game_check_promotion_needed(void);
+void game_check_promotion_needed(void);
 static void game_update_promotion_anchor_led(void);
 static void game_process_promotion_button(uint8_t button_id);
 static bool game_execute_promotion(promotion_choice_t choice);
@@ -1573,90 +1564,6 @@ static void game_show_missing_pieces_led(void) {
   ESP_LOGI(TAG, "🔴 LED: Showing missing pieces in red");
 }
 
-/**
- * @brief Inicializuje sachovnici do vychoziho stavu
- *
- * Tato funkce nastavi sachovnici do standardniho vychoziho stavu.
- * Umisti vsechny figurky na jejich vychozi pozice podle sachovych pravidel.
- *
- * @details
- * Funkce nastavi:
- * - Bile figurky na radky 1 a 2
- * - Cerne figurky na radky 7 a 8
- * - Vsechny figurky na jejich standardni pozice
- * - Resetuje vsechny stavy hry
- */
-void game_initialize_board(void) {
-  ESP_LOGI(TAG, "Initializing enhanced chess board...");
-
-  // Clear board
-  memset(board, 0, sizeof(board));
-  memset(piece_moved, 0, sizeof(piece_moved));
-
-  // Set up white pieces (bottom rank - row 1, index 0)
-  board[0][0] = PIECE_WHITE_ROOK;   // a1
-  board[0][1] = PIECE_WHITE_KNIGHT; // b1
-  board[0][2] = PIECE_WHITE_BISHOP; // c1
-  board[0][3] = PIECE_WHITE_QUEEN;  // d1
-  board[0][4] = PIECE_WHITE_KING;   // e1
-  board[0][5] = PIECE_WHITE_BISHOP; // f1
-  board[0][6] = PIECE_WHITE_KNIGHT; // g1
-  board[0][7] = PIECE_WHITE_ROOK;   // h1
-
-  // Set up white pawns (row 2, index 1)
-  for (int col = 0; col < 8; col++) {
-    board[1][col] = PIECE_WHITE_PAWN;
-  }
-
-  // Rows 3-6 (indices 2-5) remain empty
-
-  // Set up black pawns (row 7, index 6)
-  for (int col = 0; col < 8; col++) {
-    board[6][col] = PIECE_BLACK_PAWN;
-  }
-
-  // Set up black pieces (top rank - row 8, index 7)
-  board[7][0] = PIECE_BLACK_ROOK;   // a8
-  board[7][1] = PIECE_BLACK_KNIGHT; // b8
-  board[7][2] = PIECE_BLACK_BISHOP; // c8
-  board[7][3] = PIECE_BLACK_QUEEN;  // d8
-  board[7][4] = PIECE_BLACK_KING;   // e8
-  board[7][5] = PIECE_BLACK_BISHOP; // f8
-  board[7][6] = PIECE_BLACK_KNIGHT; // g8
-  board[7][7] = PIECE_BLACK_ROOK;   // h8
-
-  // Reset game state
-  current_player = PLAYER_WHITE;
-  current_game_state = GAME_STATE_ACTIVE;
-  move_count = 0;
-
-  // Reset castling flags (declared later in the file)
-  white_king_moved = false;
-  white_rook_a_moved = false;
-  white_rook_h_moved = false;
-  black_king_moved = false;
-  black_rook_a_moved = false;
-  black_rook_h_moved = false;
-
-  // Reset internal castling state machine.
-  memset(&castling_state, 0, sizeof(castling_state));
-
-  // Reset en passant (declared later in the file)
-  // en_passant_available = false;
-
-  // Reset other counters (declared later in the file)
-  // fifty_move_counter = 0;
-  // position_history_count = 0;
-
-  ESP_LOGI(TAG, "Enhanced chess board initialized successfully");
-  ESP_LOGI(TAG,
-           "Initial position: White pieces at bottom, Black pieces at top");
-
-  // Update promotion LED indications.
-  game_check_promotion_needed();
-
-  // Board will be displayed after all tasks are initialized
-}
 
 void game_bump_revision_and_notify(void) {
   game_task_wdt_reset_safe();
@@ -1904,106 +1811,6 @@ bool game_finish_board_setup_tutorial_from_web(void) {
   return true;
 }
 
-static bool game_parse_piece_from_fen(char c, piece_t *out_piece) {
-  if (out_piece == NULL) {
-    return false;
-  }
-  switch (c) {
-  case 'P':
-    *out_piece = PIECE_WHITE_PAWN;
-    return true;
-  case 'N':
-    *out_piece = PIECE_WHITE_KNIGHT;
-    return true;
-  case 'B':
-    *out_piece = PIECE_WHITE_BISHOP;
-    return true;
-  case 'R':
-    *out_piece = PIECE_WHITE_ROOK;
-    return true;
-  case 'Q':
-    *out_piece = PIECE_WHITE_QUEEN;
-    return true;
-  case 'K':
-    *out_piece = PIECE_WHITE_KING;
-    return true;
-  case 'p':
-    *out_piece = PIECE_BLACK_PAWN;
-    return true;
-  case 'n':
-    *out_piece = PIECE_BLACK_KNIGHT;
-    return true;
-  case 'b':
-    *out_piece = PIECE_BLACK_BISHOP;
-    return true;
-  case 'r':
-    *out_piece = PIECE_BLACK_ROOK;
-    return true;
-  case 'q':
-    *out_piece = PIECE_BLACK_QUEEN;
-    return true;
-  case 'k':
-    *out_piece = PIECE_BLACK_KING;
-    return true;
-  default:
-    return false;
-  }
-}
-
-static bool game_load_position_from_fen(const char *fen, player_t *active_player) {
-  if (fen == NULL || active_player == NULL) {
-    return false;
-  }
-
-  memset(board, 0, sizeof(board));
-
-  int row = 7;
-  int col = 0;
-  const char *p = fen;
-  while (*p != '\0' && *p != ' ') {
-    if (*p == '/') {
-      if (col != 8) {
-        return false;
-      }
-      row--;
-      col = 0;
-      p++;
-      continue;
-    }
-    if (*p >= '1' && *p <= '8') {
-      col += (*p - '0');
-      if (col > 8) {
-        return false;
-      }
-      p++;
-      continue;
-    }
-    piece_t piece = PIECE_EMPTY;
-    if (!game_parse_piece_from_fen(*p, &piece)) {
-      return false;
-    }
-    if (row < 0 || row > 7 || col < 0 || col > 7) {
-      return false;
-    }
-    board[row][col] = piece;
-    col++;
-    p++;
-  }
-
-  if (row != 0 || col != 8 || *p != ' ') {
-    return false;
-  }
-
-  p++;
-  if (*p == 'w') {
-    *active_player = PLAYER_WHITE;
-  } else if (*p == 'b') {
-    *active_player = PLAYER_BLACK;
-  } else {
-    return false;
-  }
-  return true;
-}
 
 static const game_puzzle_definition_t *game_get_puzzle_definition(uint8_t puzzle_id) {
   for (size_t i = 0; i < (sizeof(game_puzzles) / sizeof(game_puzzles[0])); i++) {
@@ -2400,60 +2207,6 @@ void game_start_new_game_from_fen(const char *fen) {
     game_task_wdt_reset_safe();
   }
   game_bump_revision_and_notify();
-}
-
-// ============================================================================
-// BOARD UTILITY FUNCTIONS
-// ============================================================================
-
-bool game_is_valid_position(int row, int col) {
-  return (row >= 0 && row < 8 && col >= 0 && col < 8);
-}
-
-piece_t game_get_piece(int row, int col) {
-  if (!game_is_valid_position(row, col)) {
-    return PIECE_EMPTY;
-  }
-  return board[row][col];
-}
-
-void game_set_piece(int row, int col, piece_t piece) {
-  if (!game_is_valid_position(row, col)) {
-    return;
-  }
-  board[row][col] = piece;
-}
-
-bool game_is_empty(int row, int col) {
-  return game_get_piece(row, col) == PIECE_EMPTY;
-}
-
-bool game_is_white_piece(piece_t piece) {
-  return (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
-}
-
-bool game_is_black_piece(piece_t piece) {
-  return (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
-}
-
-bool game_is_same_color(piece_t piece1, piece_t piece2) {
-  if (piece1 == PIECE_EMPTY || piece2 == PIECE_EMPTY) {
-    return false;
-  }
-  return (game_is_white_piece(piece1) && game_is_white_piece(piece2)) ||
-         (game_is_black_piece(piece1) && game_is_black_piece(piece2));
-}
-
-bool game_is_opponent_piece(piece_t piece, player_t player) {
-  if (piece == PIECE_EMPTY) {
-    return false;
-  }
-
-  if (player == PLAYER_WHITE) {
-    return game_is_black_piece(piece);
-  } else {
-    return game_is_white_piece(piece);
-  }
 }
 
 // ============================================================================
@@ -6970,7 +6723,7 @@ static void game_update_promotion_anchor_led(void) {
  * - Modra (0,0,255): Promoce neni mozna
  * - Reset tlacitko (LED 72): Vzdy zelena
  */
-static void game_check_promotion_needed(void) {
+void game_check_promotion_needed(void) {
   // Reset promotion state
   promotion_state.pending = false;
   promotion_state.square_row = 0;
