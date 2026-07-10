@@ -10,14 +10,16 @@
 
 ## Typické pořadí čtení
 
-1. [README.md](../README.md) — velký obrázek.
-2. [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) — V1 (reed, fw 1.8.0) vs V2 (Hall, komerce).
-3. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
-4. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji (reed V1).
-5. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
-6. [ota_architecture.md](ota_architecture.md) — jak taháme firmware na desku (HTTPS, HTTP z telefonu, BLE).
-7. [reference/](reference/) — souřadnice, web UI v binárce, checklist pro klienty (viz tabulku níže).
-8. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
+1. [README.md](../README.md) — úvod, build, rychlý přehled.
+2. [reference/REPO_LAYOUT.md](reference/REPO_LAYOUT.md) — inventář cest a skupin komponent.
+3. [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) — V1 (reed) vs V2 (Hall).
+4. [reference/ZAPOJENI_ESP_STM4.md](reference/ZAPOJENI_ESP_STM4.md) — zapojení ESP ↔ STM32 (V2, auto-flash).
+5. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
+6. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji.
+7. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
+8. [ota_architecture.md](ota_architecture.md) — OTA firmware na desku.
+9. [reference/TROUBLESHOOTING.md](reference/TROUBLESHOOTING.md) — ladění a známé problémy.
+10. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
 
 Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_docs.sh`.
 
@@ -27,8 +29,12 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 
 | Dokument | Účel |
 |----------|----------------|
-| [README.md](../README.md) | Projekt, HW, řešení problémů |
+| [README.md](../README.md) | Úvod, build, odkazy |
+| [reference/REPO_LAYOUT.md](reference/REPO_LAYOUT.md) | Inventář repozitáře |
+| [reference/TROUBLESHOOTING.md](reference/TROUBLESHOOTING.md) | Ladění, UART, známé limity |
+| [reference/PROJECT_NOTES.md](reference/PROJECT_NOTES.md) | Verze, autoři, licence, poznámky |
 | [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) | V1 vs V2 (reed vs Hall, fw 1.8.0, předobjednávka) |
+| [reference/ZAPOJENI_ESP_STM4.md](reference/ZAPOJENI_ESP_STM4.md) | Zapojení ESP ↔ STM32C031, profil `hall_v2` |
 | [docs/README.md](README.md) | Tenhle rozcestník |
 | [diagrams/README.md](diagrams/README.md) | Mermaid / SVG přehled |
 | [diagrams/diagrams_mermaid.html](diagrams/diagrams_mermaid.html) | Sekvence (generuje `render_docs.sh`) |
@@ -39,6 +45,8 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | [reference/coordinates_system.md](reference/coordinates_system.md) | Notace ↔ řádek/sloupec, LED |
 | [reference/WEB_UI_DEPLOY.md](reference/WEB_UI_DEPLOY.md) | Embed web UI, build |
 | [reference/CZECHMATE_INTEGRATION_CHECKLIST.md](reference/CZECHMATE_INTEGRATION_CHECKLIST.md) | REST, WS, BLE pro klienty |
+| [reference/OPENING_TRAINING_PLAN.md](reference/OPENING_TRAINING_PLAN.md) | Opening Trainer — architektura, fáze, release gate |
+| [testing/MANUAL_TEST_CHECKLIST.md](testing/MANUAL_TEST_CHECKLIST.md) | HW checklist opening trainer v1.0 |
 | [ota_architecture.md](ota_architecture.md) | OTA: kanály, REST/BLE, Flutter, rollback, flash/kompatibilita, checklist před release |
 | [reference/BLENDER_VIDEO_BRIEF.md](reference/BLENDER_VIDEO_BRIEF.md) | Co potřebuju k videím z Blenderu |
 | [reference/WEB_MEDIA_BRIEF.md](reference/WEB_MEDIA_BRIEF.md) | Médiá pro web — odkaz na lokální spec v `context/` nebo `gh-pages-ready/` |
@@ -82,12 +90,12 @@ flowchart TB
 | `components/` | `game_task`, `led_task`, `matrix_task`, `uart_task`, `web_server_task`, `ble_task`, … |
 | `flutter_czechmate/lib/` | UI, Riverpod, BLE/API |
 | `docs/diagrams/` | `sources/*.mmd`, SVG, sekvenční HTML |
-| `docs/reference/` | Delší texty |
+| `docs/reference/` | Delší texty — viz [reference/README.md](reference/README.md) |
 | `docs/ota_architecture.md` | OTA ESP32 ↔ Flutter |
 | `docs/flutter/` | Přehled aplikace |
-| `context/` (často gitignore) | Lokální podklady pro AI / OTA logy mimo Git |
-| `scripts/` | `render_docs.sh`, … |
-| `generate_docs.sh`, `Doxyfile` | C API HTML |
+| `context/` (gitignore) | Lokální podklady pro AI |
+| `scripts/` | `render_docs.sh`, `docs/` — viz [scripts/README.md](../scripts/README.md) |
+| `generate_docs.sh`, `Doxyfile` | C API HTML (wrapper → `scripts/docs/`) |
 
 ---
 

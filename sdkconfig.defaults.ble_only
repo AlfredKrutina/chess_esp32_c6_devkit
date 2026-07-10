@@ -1,0 +1,3 @@
+# CI / produkční profil: opening API přes BLE, bez HTTP web serveru.
+# Použití: idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only" build
+CONFIG_CHESS_ENABLE_WEB_SERVER=n

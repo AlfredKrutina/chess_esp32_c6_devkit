@@ -117,6 +117,36 @@ esp_err_t hall_i2c_matrix_init(void) {
   return ESP_OK;
 }
 
+esp_err_t hall_i2c_matrix_probe_segment(uint8_t segment_0_to_3, int timeout_ms) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (!s_i2c_ready) {
+    return ESP_ERR_INVALID_STATE;
+  }
+  if (segment_0_to_3 > 3u) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  if (timeout_ms <= 0) {
+    timeout_ms = 80;
+  }
+
+  uint8_t addr = segment_addr(segment_0_to_3);
+  uint8_t reg = (uint8_t)CONFIG_CHESS_HALL_REG_START;
+  uint8_t buf[2];
+  esp_err_t err = i2c_master_write_read_device(
+      (i2c_port_t)CONFIG_CHESS_HALL_I2C_PORT_NUM, addr, &reg, 1, buf,
+      sizeof(buf), pdMS_TO_TICKS(timeout_ms));
+  if (err != ESP_OK) {
+    ESP_LOGD(TAG, "probe seg%u addr 0x%02x: %s", segment_0_to_3, addr,
+             esp_err_to_name(err));
+  }
+  return err;
+#else
+  (void)segment_0_to_3;
+  (void)timeout_ms;
+  return ESP_ERR_NOT_SUPPORTED;
+#endif
+}
+
 void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
   if (!s_i2c_ready || matrix_state == NULL) {
     return;
@@ -198,6 +228,12 @@ void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
 #else /* !CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
 
 esp_err_t hall_i2c_matrix_init(void) { return ESP_OK; }
+
+esp_err_t hall_i2c_matrix_probe_segment(uint8_t segment_0_to_3, int timeout_ms) {
+  (void)segment_0_to_3;
+  (void)timeout_ms;
+  return ESP_ERR_NOT_SUPPORTED;
+}
 
 void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
   if (matrix_state) {

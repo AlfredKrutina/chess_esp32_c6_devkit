@@ -136,6 +136,27 @@ static esp_err_t bl_send_command_byte_pair(uint8_t cmd) {
   return e;
 }
 
+/** GO příkaz — čip už musí být v ROM bootloaderu (bez select/release). */
+static esp_err_t bl_send_go_at_addr(uint32_t addr) {
+  esp_err_t err = bl_send_command_byte_pair(0x21);
+  if (err != ESP_OK) {
+    return err;
+  }
+
+  uint8_t ab[4] = {(uint8_t)(addr >> 24), (uint8_t)(addr >> 16),
+                   (uint8_t)(addr >> 8), (uint8_t)addr};
+  uint8_t aw[5];
+  memcpy(aw, ab, 4);
+  aw[4] = bl_xor_buf(ab, 4);
+  bl_inter_frame();
+  err = bl_i2c_write(aw, sizeof(aw));
+  if (err != ESP_OK) {
+    return err;
+  }
+  bl_inter_frame();
+  return bl_wait_ack(500);
+}
+
 /**
  * WRITE MEMORY — předpoklad: cílový segment už vybrán NRST, bez uvolnění sběrnice.
  */
@@ -353,11 +374,30 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
   return ESP_OK;
 }
 
-esp_err_t stm32_i2c_bl_release_all_run_app(void) {
+/** BOOT0 LOW; volitelný NRST pulz (BOOT0 LOW při náběžné hře) pro start aplikace z flash. */
+static esp_err_t bl_release_run_app(bool pulse_nrst) {
   ESP_RETURN_ON_ERROR(stm32_i2c_bl_init(), TAG, "init");
 
   if (CONFIG_CHESS_STM32_BL_BOOT0_GPIO >= 0) {
     gpio_set_level((gpio_num_t)CONFIG_CHESS_STM32_BL_BOOT0_GPIO, 0);
+  }
+  vTaskDelay(pdMS_TO_TICKS(5));
+
+  if (pulse_nrst) {
+    bool any_nrst = false;
+    for (unsigned s = 0; s < 4; s++) {
+      int p = NRST_CFG(s);
+      if (p < 0) {
+        continue;
+      }
+      gpio_set_level((gpio_num_t)p, 0);
+      any_nrst = true;
+    }
+    if (any_nrst) {
+      ESP_LOGI(TAG,
+               "[release] NRST pulz LOW 30 ms (BOOT0 LOW → boot z flash, ne ROM BL)");
+      vTaskDelay(pdMS_TO_TICKS(30));
+    }
   }
 
   for (unsigned s = 0; s < 4; s++) {
@@ -366,9 +406,16 @@ esp_err_t stm32_i2c_bl_release_all_run_app(void) {
       gpio_set_level((gpio_num_t)p, 1);
     }
   }
-  vTaskDelay(pdMS_TO_TICKS(50));
-  ESP_LOGI(TAG, "[release] všechny NRST HIGH, BOOT0 LOW, 50 ms");
+
+  vTaskDelay(pdMS_TO_TICKS(CONFIG_CHESS_STM32_BL_APP_BOOT_SETTLE_MS));
+  ESP_LOGI(TAG,
+           "[release] BOOT0 LOW, NRST HIGH, čekání %d ms na Hall/I2C aplikaci",
+           CONFIG_CHESS_STM32_BL_APP_BOOT_SETTLE_MS);
   return ESP_OK;
+}
+
+esp_err_t stm32_i2c_bl_release_all_run_app(void) {
+  return bl_release_run_app(true);
 }
 
 esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter,
@@ -502,23 +549,7 @@ esp_err_t stm32_i2c_bl_go(uint8_t segment_0_to_3, bool boot0_enter,
     return err;
   }
 
-  err = bl_send_command_byte_pair(0x21);
-  if (err != ESP_OK) {
-    goto done;
-  }
-
-  uint8_t ab[4] = {(uint8_t)(addr >> 24), (uint8_t)(addr >> 16),
-                   (uint8_t)(addr >> 8), (uint8_t)addr};
-  uint8_t aw[5];
-  memcpy(aw, ab, 4);
-  aw[4] = bl_xor_buf(ab, 4);
-  bl_inter_frame();
-  err = bl_i2c_write(aw, sizeof(aw));
-  if (err != ESP_OK) {
-    goto done;
-  }
-  bl_inter_frame();
-  err = bl_wait_ack(500);
+  err = bl_send_go_at_addr(addr);
 
 done:
   (void)stm32_i2c_bl_release_all_run_app();
@@ -684,14 +715,28 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
   }
 
 restore:
+  bool go_ok = false;
   if (err == ESP_OK) {
+#if CONFIG_CHESS_STM32_BL_GO_AFTER_FLASH
+    esp_err_t go_err = bl_send_go_at_addr(flash_base);
+    if (go_err != ESP_OK) {
+      ESP_LOGW(TAG,
+               "[flash_bin] GO @0x%08" PRIx32 " selhal (%s) — záložně NRST pulz",
+               flash_base, esp_err_to_name(go_err));
+    } else {
+      ESP_LOGI(TAG, "[flash_bin] GO @0x%08" PRIx32 " OK", flash_base);
+      go_ok = true;
+      vTaskDelay(pdMS_TO_TICKS(20));
+    }
+#endif
     ESP_LOGI(TAG, "[flash_bin] KONEC seg=%u OK", segment_0_to_3);
   } else {
     ESP_LOGE(TAG, "[flash_bin] KONEC seg=%u chyba: %s", segment_0_to_3,
              esp_err_to_name(err));
   }
 
-  (void)stm32_i2c_bl_release_all_run_app();
+  /* GO úspěšné → aplikace už běží, NRST nepulzovat. Jinak BOOT0 LOW + NRST↑. */
+  (void)bl_release_run_app(err != ESP_OK || !go_ok);
   bl_resume_scan(scan_was);
   return err;
 }
@@ -819,6 +864,80 @@ static esp_err_t auto_part_crc32(const esp_partition_t *part, size_t len,
 
 #endif /* BL_ENABLE && AUTO_FLASH_ON_BOOT */
 
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+
+static uint8_t bl_hall_segment_addr7(unsigned seg) {
+  switch (seg) {
+  case 0:
+    return (uint8_t)CONFIG_CHESS_HALL_SEG0_ADDR;
+  case 1:
+    return (uint8_t)CONFIG_CHESS_HALL_SEG1_ADDR;
+  case 2:
+    return (uint8_t)CONFIG_CHESS_HALL_SEG2_ADDR;
+  case 3:
+    return (uint8_t)CONFIG_CHESS_HALL_SEG3_ADDR;
+  default:
+    return (uint8_t)CONFIG_CHESS_HALL_SEG0_ADDR;
+  }
+}
+
+static esp_err_t bl_probe_hall_segment_once(uint8_t seg, int timeout_ms) {
+  uint8_t addr = bl_hall_segment_addr7(seg);
+  uint8_t reg = (uint8_t)CONFIG_CHESS_HALL_REG_START;
+  uint8_t buf[2];
+  return i2c_master_write_read_device(bl_port(), addr, &reg, 1, buf,
+                                      sizeof(buf), pdMS_TO_TICKS(timeout_ms));
+}
+
+static esp_err_t bl_probe_hall_segment_retries(uint8_t seg) {
+  const unsigned tries =
+      (unsigned)CONFIG_CHESS_STM32_BL_HALL_PROBE_RETRIES;
+  const int gap_ms = CONFIG_CHESS_STM32_BL_HALL_PROBE_RETRY_MS;
+  esp_err_t last = ESP_FAIL;
+
+  for (unsigned t = 0; t < tries; t++) {
+    last = bl_probe_hall_segment_once(seg, 120);
+    if (last == ESP_OK) {
+      return ESP_OK;
+    }
+    if (t + 1u < tries) {
+      vTaskDelay(pdMS_TO_TICKS(gap_ms));
+    }
+  }
+  return last;
+}
+
+/** Ověří Hall odpověď u všech segmentů, které mají NRST GPIO. */
+static bool bl_probe_all_nrst_hall_segments(bool log_ok) {
+  bool all_ok = true;
+  bool any = false;
+
+  for (unsigned seg = 0; seg < 4; seg++) {
+    if (NRST_CFG(seg) < 0) {
+      continue;
+    }
+    any = true;
+    esp_err_t pe = bl_probe_hall_segment_retries((uint8_t)seg);
+    if (pe != ESP_OK) {
+      ESP_LOGW(TAG,
+               "[hall_probe] seg%u addr 0x%02x neodpovídá (%s)",
+               seg, bl_hall_segment_addr7(seg), esp_err_to_name(pe));
+      all_ok = false;
+    } else if (log_ok) {
+      ESP_LOGI(TAG, "[hall_probe] seg%u addr 0x%02x OK", seg,
+               bl_hall_segment_addr7(seg));
+    }
+  }
+
+  if (!any) {
+    ESP_LOGD(TAG, "[hall_probe] žádný NRST GPIO — přeskočeno");
+    return true;
+  }
+  return all_ok;
+}
+
+#endif /* BL + HALL */
+
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
 static SemaphoreHandle_t s_boot_flash_done_sem;
 
@@ -937,11 +1056,25 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
       nvs_close(h);
       if (ge1 == ESP_OK && ge2 == ESP_OK && oc == crc &&
           ol == (uint32_t)eff) {
-        ESP_LOGI(TAG_A,
-                 "auto-flash přeskočen (stejný obsah CRC=0x%08" PRIx32
-                 ", %" PRIu32 " B)",
-                 crc, (uint32_t)eff);
-        goto out;
+#if CONFIG_CHESS_STM32_BL_REFLASH_IF_HALL_MISSING &&                          \
+    CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+        if (!bl_probe_all_nrst_hall_segments(false)) {
+          ESP_LOGW(TAG_A,
+                   "NVS říká stejný image, ale Hall neodpovídá — "
+                   "vynucuji auto-flash (výměna STM / prázdný čip?)");
+        } else
+#endif
+        {
+          ESP_LOGI(TAG_A,
+                   "auto-flash přeskočen (stejný obsah CRC=0x%08" PRIx32
+                   ", %" PRIu32 " B)",
+                   crc, (uint32_t)eff);
+#if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                            \
+    CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+          (void)bl_probe_all_nrst_hall_segments(true);
+#endif
+          goto out;
+        }
       }
     }
   }
@@ -986,14 +1119,31 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   }
 
   if (all_ok && any_nrst) {
-    nvs_handle_t hw;
-    if (nvs_open("stm32_bl", NVS_READWRITE, &hw) == ESP_OK) {
-      nvs_set_u32(hw, "af_crc", crc);
-      nvs_set_u32(hw, "af_len", (uint32_t)eff);
-      nvs_commit(hw);
-      nvs_close(hw);
-      ESP_LOGI(TAG_A, "NVS: uložen CRC+délka (další boot přeskočí při stejném obsahu)");
+    bool hall_ok = true;
+#if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                          \
+    CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    hall_ok = bl_probe_all_nrst_hall_segments(true);
+    if (!hall_ok) {
+      ESP_LOGE(TAG_A,
+               "auto-flash zápis OK, ale Hall neodpovídá — NVS se neuloží, "
+               "další boot zkusí flash znovu (NRST/BOOT0/I2C PB6/PB7)");
     }
+#endif
+    if (hall_ok) {
+      nvs_handle_t hw;
+      if (nvs_open("stm32_bl", NVS_READWRITE, &hw) == ESP_OK) {
+        nvs_set_u32(hw, "af_crc", crc);
+        nvs_set_u32(hw, "af_len", (uint32_t)eff);
+        nvs_commit(hw);
+        nvs_close(hw);
+        ESP_LOGI(TAG_A,
+                 "NVS: uložen CRC+délka (další boot přeskočí při stejném obsahu)");
+      }
+    }
+  } else if (any_nrst && !all_ok) {
+    ESP_LOGE(TAG_A,
+             "auto-flash selhal na alespoň jednom segmentu — Hall čtení "
+             "nebude fungovat");
   }
 
 out:

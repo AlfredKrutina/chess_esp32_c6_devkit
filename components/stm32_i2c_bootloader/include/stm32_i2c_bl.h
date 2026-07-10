@@ -19,7 +19,7 @@ esp_err_t stm32_i2c_bl_init(void);
 /** Jen jeden STM má NRST uvolněný (HIGH), ostatní drženy v resetu (LOW). boot0_enter=1 nastaví BOOT0 HIGH před uvolněním. */
 esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3, bool boot0_enter_bootloader);
 
-/** BOOT0 LOW (pokud zapojeno), všechny NRST HIGH — běh aplikace (základní stav). */
+/** BOOT0 LOW (pokud zapojeno), NRST HIGH (+ pulz) — běh aplikace ze flash. */
 esp_err_t stm32_i2c_bl_release_all_run_app(void);
 
 esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter, uint16_t *pid_out);

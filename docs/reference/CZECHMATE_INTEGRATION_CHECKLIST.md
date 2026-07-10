@@ -7,4 +7,5 @@
 - **iOS:** při živém WebSocket volám REST každých ~25 s jako pojistku; v DEBUG loguju `[staging]`.
 - **BLE:** `CONFIG_BT_ENABLED` + NimBLE (`sdkconfig.defaults`). `ble_task_init()` volá **`ble_nimble_stack_init()`** → GATT v [`ble_nimble_impl.c`](../../components/ble_task/ble_nimble_impl.c). Bez BT jen hláška „BLE vypnuto“.
 - **Build firmware:** `source $IDF_PATH/export.sh && ./scripts/idf_build.sh`
+- **Matrix guard** (pozastavení při rozporu senzor vs logika): viz [MATRIX_GUARD.md](MATRIX_GUARD.md). Snapshot/status pole: `matrix_guard_active`, `matrix_guard_conflicts`, `matrix_guard_*_mask_*`, `restore_state.resync_required`. Nouzové vyčištění: `POST /api/game/guard_clear`, BLE `{"cmd":"guard_clear"}`, UART `GUARD_CLEAR`.
 - **Build iOS (lokální Xcode projekt):** `xcodebuild -scheme CZECHMATE -project CZECHMATE/CZECHMATE.xcodeproj -destination 'platform=iOS Simulator,name=iPhone 17' build`

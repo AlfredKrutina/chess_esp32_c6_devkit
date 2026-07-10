@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://czechmate.local/openings_rationale.schema.json",
+  "title": "CZECHMATE Opening Variant Rationale",
+  "type": "object",
+  "required": ["version", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "entries": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/rationaleEntry" }
+    }
+  },
+  "definitions": {
+    "localized": {
+      "type": "object",
+      "required": ["cs", "en"],
+      "additionalProperties": false,
+      "properties": {
+        "cs": { "type": "string", "minLength": 8 },
+        "en": { "type": "string", "minLength": 8 }
+      }
+    },
+    "rationaleEntry": {
+      "type": "object",
+      "required": ["why_this_line", "instead_of"],
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "$ref": "#/definitions/localized" },
+        "why_this_line": { "$ref": "#/definitions/localized" },
+        "instead_of": { "$ref": "#/definitions/localized" },
+        "when_to_play": { "$ref": "#/definitions/localized" },
+        "related_line_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "maxItems": 4
+        }
+      }
+    }
+  }
+}

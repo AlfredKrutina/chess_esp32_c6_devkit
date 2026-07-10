@@ -100,7 +100,7 @@ class _SettingsBoardAppearancePageState
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             isExpanded: true,
-            initialValue: ui.boardStyleRaw,
+            value: ui.boardStyleRaw,
             decoration: InputDecoration(
               labelText: l10n.settingsBoardThemeLabel,
               border: const OutlineInputBorder(),

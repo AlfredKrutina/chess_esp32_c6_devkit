@@ -1,19 +1,22 @@
-%% Matrix guard — rozpor fyzické matice vs logická deska
+%% Matrix guard — rozpor fyzické matice vs logická deska (sync obou vrstev)
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TD
-  MT[matrix_task: matrix_detect_moves] --> M[sestavil lifted/dropped masky 64 polí]
-  M --> SEND[matrix_send_guard_command → GAME_CMD_MATRIX_GUARD]
+  MT[matrix_task: matrix_detect_moves] --> AMB{ambiguous?}
+  AMB -->|první vstup| SNAP[snapshot matrix_previous · reset last_piece_lifted]
+  SNAP --> SEND[matrix_send_guard_command action=1]
+  AMB -->|už aktivní| HOLD[žádný další activate spam]
   SEND --> GQ[(game_command_queue)]
-  GQ --> PC[game_process_commands]
-  PC --> H[game_handle_matrix_guard_command]
+  GQ --> H[game_handle_matrix_guard_command]
 
-  H --> A{action == 0?}
-  A -->|ano| CLR[matrix_guard_pause_state vypnout · LED clear · game_highlight_movable_pieces]
-  A -->|ne| CON{game_matrix_guard_mode_conflict_active?}
+  H --> A0{action == 0?}
+  A0 -->|ano| CLR[game_matrix_guard_clear_both_layers · matrix_abort_ambiguous_guard_baseline]
+  A0 -->|ne| CON{game_matrix_guard_mode_conflict_active?}
 
-  CON -->|ano| IGN[režim tutorial/puzzle/promo/rošáda/resignation/… — guard ignorován · matrix_abort_ambiguous_guard_baseline]
-  CON -->|ne| ACT[active=true · uložit masky · conflict_count]
-  ACT --> FZ[vyčistit piece_lifted / capture_in_progress]
-  FZ --> LED[game_render_matrix_guard_leds — logika vs matrix_get_state]
+  CON -->|ano| IGN[guard ignorován · matrix_abort_ambiguous_guard_baseline]
+  CON -->|ne| SYNC[matrix_guard_apply_expected_occupancy z board]
+  SYNC --> ACT[game matrix_guard_pause_state active]
+  ACT --> LED[game_render_matrix_guard_leds — všechny konflikty logika vs senzor]
 
-  LED --> LEG[legenda: žlutá/modrá = figurka v logice · oranžová = jen senzor · bílá = chybí podle logiky]
+  LED --> LEG[žlutá/modrá = figurka v logice · oranžová = jen senzor · bílá = chybí]
+  MT --> CLR2{fyzická == expected?}
+  CLR2 -->|ano, klid| SEND0[action=0 → CLR]

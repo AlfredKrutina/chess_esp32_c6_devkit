@@ -534,6 +534,8 @@ class BleCzechmateClient {
 
   Future<void> postHintClear() async => await _writeCmd({'cmd': 'hint_clear'});
 
+  Future<void> postGuardClear() async => await _writeCmd({'cmd': 'guard_clear'});
+
   /// Parita `BLEBoardTransport.postHintHighlightDestinationOnly`.
   Future<void> postHintHighlightDestinationOnly(String toSquare) async {
     await _writeCmd({'cmd': 'hint_highlight', 'to': toSquare.toLowerCase()});
@@ -542,6 +544,13 @@ class BleCzechmateClient {
   /// Parita `BLEBoardTransport.postSetupTutorial`.
   Future<void> postSetupTutorial(String action) async {
     await _writeCmd({'cmd': 'setup_tutorial', 'action': action});
+  }
+
+  /// Parita `POST /api/game/opening` — start | cancel | hint | checkpoint_ack.
+  Future<void> postOpening(Map<String, dynamic> body) async {
+    final cmd = <String, dynamic>{'cmd': 'opening'};
+    cmd.addAll(body);
+    await _writeCmd(cmd);
   }
 
   Future<void> postBrightness(int percent) async {

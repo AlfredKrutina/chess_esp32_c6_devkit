@@ -5,8 +5,8 @@
 # Celý soubor do mermaid.live / náhledu editoru nevkládejte → UnknownDiagramError.
 # Použití:
 #   • Prohlížeč: ./scripts/render_docs.sh → docs/diagrams/diagrams_mermaid.html
-#   • Jeden diagram: python generate_mermaid_html.py --extract A1
-#   • Soubory .mmd:  python generate_mermaid_html.py --export-dir docs/diagrams/extracted
+#   • Jeden diagram: python3 scripts/docs/generate_mermaid_html.py --extract A1
+#   • Soubory .mmd:  python3 scripts/docs/generate_mermaid_html.py --export-dir docs/diagrams/extracted
 #     (např. extracted/a1_system_architecture_overview.mmd → mermaid.live)
 #
 # Struktura:

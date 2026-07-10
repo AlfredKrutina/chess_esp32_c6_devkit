@@ -1,8 +1,10 @@
 ## IDF Component Manager Manifest File
 dependencies:
   espressif/led_strip: ^3.0.1~1
+  espressif/mdns: ^1.8.2
   # All dependencies of `main` are public by default.
   # LED strip is optional - only required for hardware mode
   # Simulation mode uses no external dependencies
   # espressif/led_strip: ^3.0.1~1  # Uncomment for hardware mode
-  espressif/esp_matter: ^1.4.0~1
+  # Matter vypnuto v main.c — závislost neaktivovat, dokud neexistuje components/matter_task/
+  # espressif/esp_matter: ^1.4.0~1

@@ -933,6 +933,29 @@ class AppLocalizationsCs extends AppLocalizations {
   String get gameHintLedsClearedSnackbar => 'Nápovědní LED zrušeny';
 
   @override
+  String get gameMatrixGuardTitle => 'Nutné srovnat desku';
+
+  @override
+  String gameMatrixGuardPaused(String squares) {
+    return 'Srovnejte figurky podle LED na desce$squares. Hra pokračuje po srovnání.';
+  }
+
+  @override
+  String gameMatrixGuardResync(String squares) {
+    return 'Po startu nesedí deska s uloženou hrou$squares. Srovnejte podle LED.';
+  }
+
+  @override
+  String get gameMatrixGuardForceClear => 'Obnovit hru';
+
+  @override
+  String get gameMatrixGuardForceClearHint => 'Jen když jsou figurky už srovnané';
+
+  @override
+  String get gameMatrixGuardForceClearSnack =>
+      'Hra obnovena — zkontrolujte, že deska sedí';
+
+  @override
   String get gameNoSnapshotBody =>
       'Klepni vlevo nahoře nebo níže pro nalezení desky (Bluetooth). Wi‑Fi a další možnosti jsou v rozšířeném nastavení.';
 

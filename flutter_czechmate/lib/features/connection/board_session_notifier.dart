@@ -1201,6 +1201,22 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
+  /// `POST /api/game/opening` — start | cancel | hint | checkpoint_ack (+ line payload on start).
+  Future<void> postOpeningAction(Map<String, dynamic> body) async {
+    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
+      await _boardHttp.postOpening(state.wifiBaseUrl!, body);
+      await refreshNow();
+      return;
+    }
+    if (state.transport == BoardTransport.ble) {
+      await _ble.postOpening(body);
+      return;
+    }
+    throw StateError(_strings.errSetupNeedsConnection);
+  }
+
+  Future<void> postOpeningRaw(Map<String, dynamic> body) => postOpeningAction(body);
+
   /// Uloží SSID/heslo do NVS na desce a spustí STA připojení (výsledek přijde přes network notify).
   Future<void> provisionStaWifiOverBle({
     required String ssid,
@@ -1338,6 +1354,19 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (state.transport == BoardTransport.ble) {
       await _ble.postHintClear();
     }
+  }
+
+  /// Nouzové zrušení matrix guard (deska musí být fyzicky srovnaná).
+  Future<void> postGuardClear() async {
+    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
+      await _boardHttp.postGuardClear(state.wifiBaseUrl!);
+      return;
+    }
+    if (state.transport == BoardTransport.ble) {
+      await _ble.postGuardClear();
+      return;
+    }
+    throw StateError(_strings.errHintsNeedConnection);
   }
 
   /// Reed matice: Wi‑Fi `GET /api/status`, BLE poslední `snapshot.status.matrix_occupied`.

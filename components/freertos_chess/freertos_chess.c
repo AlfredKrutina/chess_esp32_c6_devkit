@@ -60,6 +60,7 @@
 #include "streaming_output.h"
 #include <stdarg.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -263,7 +264,7 @@ esp_err_t chess_gpio_init(void) {
     uint32_t pin_number = (uint32_t)matrix_row_pins[i];
     uint64_t pin_mask = (1ULL << pin_number);
 
-    ESP_LOGI(TAG, "Configuring MATRIX_ROW_%d (GPIO%d, mask=0x%llx)...", i,
+    ESP_LOGI(TAG, "Configuring MATRIX_ROW_%d (GPIO%" PRIu32 ", mask=0x%llx)...", i,
              pin_number, pin_mask);
 
     gpio_config_t io_conf = {.pin_bit_mask = pin_mask,
@@ -275,12 +276,12 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
     if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to configure matrix row pin %d (GPIO%d): %s", i,
+      ESP_LOGE(TAG, "Failed to configure matrix row pin %d (GPIO%" PRIu32 "): %s", i,
                pin_number, esp_err_to_name(ret));
       return ret;
     } else {
       gpio_set_level(matrix_row_pins[i], 1);
-      ESP_LOGI(TAG, "gpio_set_level done for GPIO%d", pin_number);
+      ESP_LOGI(TAG, "gpio_set_level done for GPIO%" PRIu32, pin_number);
     }
   }
 #else
@@ -296,7 +297,7 @@ esp_err_t chess_gpio_init(void) {
     uint32_t pin_number = (uint32_t)matrix_col_pins[i];
     uint64_t pin_mask = (1ULL << pin_number);
 
-    ESP_LOGI(TAG, "Configuring MATRIX_COL_%d (GPIO%d, mask=0x%llx)...", i,
+    ESP_LOGI(TAG, "Configuring MATRIX_COL_%d (GPIO%" PRIu32 ", mask=0x%llx)...", i,
              pin_number, pin_mask);
 
     // DEBUG: Special logging for GPIO17 (column 7)
@@ -306,14 +307,14 @@ esp_err_t chess_gpio_init(void) {
 
     // CRITICAL: Skip strapping pins to avoid system reset
     if (pin_number == 9) {
-      ESP_LOGW(TAG, "Skipping GPIO%d (strapping pin) to avoid system reset",
+      ESP_LOGW(TAG, "Skipping GPIO%" PRIu32 " (strapping pin) to avoid system reset",
                pin_number);
       ESP_LOGI(TAG, "Matrix column pin %d skipped (strapping pin)", i);
       ESP_LOGI(TAG, "DEBUG: About to continue to next iteration");
       continue; // Přeskočení strapping pinu
     }
 
-    ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%d configuration", pin_number);
+    ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%" PRIu32 " configuration", pin_number);
 
     // Explicitly reset GPIO17 before configuration
     // GPIO17 is UART0 RX pin on ESP32-C6 and may have special properties
@@ -348,7 +349,7 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
     if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to configure matrix column pin %d (GPIO%d): %s", i,
+      ESP_LOGE(TAG, "Failed to configure matrix column pin %d (GPIO%" PRIu32 "): %s", i,
                pin_number, esp_err_to_name(ret));
       return ret; // Return error instead of continuing
     } else {
@@ -380,7 +381,7 @@ esp_err_t chess_gpio_init(void) {
   uint32_t status_led_pin = (uint32_t)STATUS_LED_PIN;
   uint64_t status_led_mask = (1ULL << status_led_pin);
 
-  ESP_LOGI(TAG, "Configuring STATUS_LED (GPIO%d, mask=0x%llx)...",
+  ESP_LOGI(TAG, "Configuring STATUS_LED (GPIO%" PRIu32 ", mask=0x%llx)...",
            status_led_pin, status_led_mask);
 
   // Reset před gpio_config()
@@ -395,7 +396,7 @@ esp_err_t chess_gpio_init(void) {
   ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
   if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to configure status LED pin (GPIO%d): %s",
+    ESP_LOGE(TAG, "Failed to configure status LED pin (GPIO%" PRIu32 "): %s",
              status_led_pin, esp_err_to_name(ret));
     return ret; // Return error instead of continuing
   } else {
@@ -412,7 +413,7 @@ esp_err_t chess_gpio_init(void) {
   } else {
     uint64_t reset_button_mask = (1ULL << reset_button_pin);
 
-    ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%d, mask=0x%llx)...",
+    ESP_LOGI(TAG, "Configuring RESET_BUTTON (GPIO%" PRIu32 ", mask=0x%llx)...",
              reset_button_pin, reset_button_mask);
 
     gpio_config_t reset_button_conf = {.pin_bit_mask = reset_button_mask,
@@ -424,7 +425,7 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
     if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to configure reset button pin (GPIO%d): %s",
+      ESP_LOGE(TAG, "Failed to configure reset button pin (GPIO%" PRIu32 "): %s",
                reset_button_pin, esp_err_to_name(ret));
       return ret;
     }
@@ -573,27 +574,27 @@ esp_err_t chess_hardware_init(void) {
 
 esp_err_t chess_create_queues(void) {
   ESP_LOGI(TAG, "=== CREATING FREERTOS QUEUES ===");
-  ESP_LOGI(TAG, "Free heap before queues: %zu bytes", esp_get_free_heap_size());
-  ESP_LOGI(TAG, "Min free heap: %zu bytes", esp_get_minimum_free_heap_size());
+  ESP_LOGI(TAG, "Free heap before queues: %" PRIu32 " bytes", esp_get_free_heap_size());
+  ESP_LOGI(TAG, "Min free heap: %" PRIu32 " bytes", esp_get_minimum_free_heap_size());
   ESP_LOGI(TAG, "========================================");
 
   // WDT reset pro vytváření front
   // WDT reset removed during initialization
 
   // CRITICAL: Check heap availability before creating queues
-  size_t free_heap = esp_get_free_heap_size();
+  uint32_t free_heap = esp_get_free_heap_size();
   /* Pocatecni rezerva pred alokaci front (~50 KiB); pri zmene poctu tasku upravit. */
   if (free_heap < 50000) {
     ESP_LOGE(
         TAG,
-        "Insufficient free heap for queue creation: %zu bytes (minimum 50000)",
+        "Insufficient free heap for queue creation: %" PRIu32 " bytes (minimum 50000)",
         free_heap);
     return ESP_ERR_NO_MEM;
   }
 
   // LED queues - REMOVED: Using direct LED calls instead
   ESP_LOGI(TAG, "🔄 LED queues removed - using direct LED calls");
-  ESP_LOGI(TAG, "✅ LED system simplified. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ LED system simplified. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // Matrix event queues
@@ -610,7 +611,7 @@ esp_err_t chess_create_queues(void) {
            MATRIX_QUEUE_SIZE, sizeof(game_response_t));
   SAFE_CREATE_QUEUE(matrix_response_queue, MATRIX_QUEUE_SIZE,
                     sizeof(game_response_t), "Matrix Response Queue");
-  ESP_LOGI(TAG, "✅ Matrix queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Matrix queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // Button event queues
@@ -623,7 +624,7 @@ esp_err_t chess_create_queues(void) {
            BUTTON_QUEUE_SIZE, sizeof(uint8_t));
   SAFE_CREATE_QUEUE(button_command_queue, BUTTON_QUEUE_SIZE, sizeof(uint8_t),
                     "Button Command Queue");
-  ESP_LOGI(TAG, "✅ Button queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Button queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // UART communication queues
@@ -644,7 +645,7 @@ esp_err_t chess_create_queues(void) {
   SAFE_CREATE_QUEUE(uart_output_queue, UART_OUTPUT_QUEUE_LENGTH,
                     sizeof(uart_message_t), "UART Output Queue");
 
-  ESP_LOGI(TAG, "✅ UART queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ UART queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // Game control queues
@@ -657,7 +658,7 @@ esp_err_t chess_create_queues(void) {
            sizeof(uint8_t));
   SAFE_CREATE_QUEUE(game_status_queue, GAME_QUEUE_SIZE, sizeof(uint8_t),
                     "Game Status Queue");
-  ESP_LOGI(TAG, "✅ Game queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Game queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // Animation control queues
@@ -670,7 +671,7 @@ esp_err_t chess_create_queues(void) {
            ANIMATION_QUEUE_SIZE, sizeof(esp_err_t));
   SAFE_CREATE_QUEUE(animation_status_queue, ANIMATION_QUEUE_SIZE,
                     sizeof(esp_err_t), "Animation Status Queue");
-  ESP_LOGI(TAG, "✅ Animation queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Animation queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // Screen saver control queues
@@ -683,7 +684,7 @@ esp_err_t chess_create_queues(void) {
            SCREEN_SAVER_QUEUE_SIZE, sizeof(esp_err_t));
   SAFE_CREATE_QUEUE(screen_saver_status_queue, SCREEN_SAVER_QUEUE_SIZE,
                     sizeof(esp_err_t), "Screen Saver Status Queue");
-  ESP_LOGI(TAG, "✅ Screen Saver queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Screen Saver queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
   // DISABLED: Matter control queues - Matter not needed
@@ -695,7 +696,7 @@ esp_err_t chess_create_queues(void) {
   - Matter Status Queue: %d items × %zu bytes", MATTER_QUEUE_SIZE,
   sizeof(esp_err_t)); SAFE_CREATE_QUEUE(matter_status_queue, MATTER_QUEUE_SIZE,
   sizeof(esp_err_t), "Matter Status Queue"); ESP_LOGI(TAG, "✅ Matter queues
-  created. Free heap: %zu bytes", esp_get_free_heap_size());
+  created. Free heap: %" PRIu32 " bytes", esp_get_free_heap_size());
   */
 
   // Web server control queues
@@ -712,7 +713,7 @@ esp_err_t chess_create_queues(void) {
            WEB_SERVER_QUEUE_SIZE, sizeof(esp_err_t));
   SAFE_CREATE_QUEUE(web_server_status_queue, WEB_SERVER_QUEUE_SIZE,
                     sizeof(esp_err_t), "Web Server Status Queue");
-  ESP_LOGI(TAG, "✅ Web Server queues created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Web Server queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
 #if CONFIG_CHESS_ENABLE_TEST_TASK
@@ -721,7 +722,7 @@ esp_err_t chess_create_queues(void) {
            TEST_COMMAND_QUEUE_SIZE, sizeof(uint8_t));
   SAFE_CREATE_QUEUE(test_command_queue, TEST_COMMAND_QUEUE_SIZE,
                       sizeof(uint8_t), "Test Command Queue");
-  ESP_LOGI(TAG, "✅ Test queue created. Free heap: %zu bytes",
+  ESP_LOGI(TAG, "✅ Test queue created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 #else
   test_command_queue = NULL;
@@ -730,7 +731,7 @@ esp_err_t chess_create_queues(void) {
 
   ESP_LOGI(TAG, "========================================");
   ESP_LOGI(TAG, "🎉 ALL FREERTOS QUEUES CREATED SUCCESSFULLY!");
-  ESP_LOGI(TAG, "Final free heap: %zu bytes", esp_get_free_heap_size());
+  ESP_LOGI(TAG, "Final free heap: %" PRIu32 " bytes", esp_get_free_heap_size());
   ESP_LOGI(TAG, "========================================");
 
   bool queues_ok =
@@ -1022,9 +1023,9 @@ esp_err_t chess_start_timers(void) {
 
 esp_err_t chess_freertos_init(void) {
   ESP_LOGI(TAG, "=== FreeRTOS Initialization ===");
-  ESP_LOGI(TAG, "Free heap before FreeRTOS init: %zu bytes",
+  ESP_LOGI(TAG, "Free heap before FreeRTOS init: %" PRIu32 " bytes",
            esp_get_free_heap_size());
-  ESP_LOGI(TAG, "Min free heap: %zu bytes", esp_get_minimum_free_heap_size());
+  ESP_LOGI(TAG, "Min free heap: %" PRIu32 " bytes", esp_get_minimum_free_heap_size());
   ESP_LOGI(TAG, "========================================");
   // Don't reset watchdog here - it might not be initialized yet
 
@@ -1135,20 +1136,20 @@ esp_err_t chess_system_init(void) {
 }
 
 esp_err_t chess_check_memory_health(void) {
-  size_t free_heap = esp_get_free_heap_size();
-  size_t min_free_heap = esp_get_minimum_free_heap_size();
+  uint32_t free_heap = esp_get_free_heap_size();
+  uint32_t min_free_heap = esp_get_minimum_free_heap_size();
 
   if (free_heap < 10000) { // Less than 10KB free
-    ESP_LOGW(TAG, "Low memory warning: %zu bytes free", free_heap);
+    ESP_LOGW(TAG, "Low memory warning: %" PRIu32 " bytes free", free_heap);
     return ESP_ERR_NO_MEM;
   }
 
   if (free_heap < 5000) { // Less than 5KB free
-    ESP_LOGE(TAG, "Critical memory warning: %zu bytes free", free_heap);
+    ESP_LOGE(TAG, "Critical memory warning: %" PRIu32 " bytes free", free_heap);
     return ESP_ERR_NO_MEM;
   }
 
-  ESP_LOGI(TAG, "Memory health: %zu bytes free, %zu bytes minimum", free_heap,
+  ESP_LOGI(TAG, "Memory health: %" PRIu32 " bytes free, %" PRIu32 " bytes minimum", free_heap,
            min_free_heap);
   return ESP_OK;
 }
@@ -1190,10 +1191,10 @@ void chess_print_system_info(void) {
            system_initialized ? "✓ Initialized" : "✗ Not initialized");
   ESP_LOGI(TAG, "========================================");
   ESP_LOGI(TAG, "Memory Information:");
-  ESP_LOGI(TAG, "  • Free Heap: %zu bytes", esp_get_free_heap_size());
-  ESP_LOGI(TAG, "  • Minimum Free: %zu bytes",
+  ESP_LOGI(TAG, "  • Free Heap: %" PRIu32 " bytes", esp_get_free_heap_size());
+  ESP_LOGI(TAG, "  • Minimum Free: %" PRIu32 " bytes",
            esp_get_minimum_free_heap_size());
-  ESP_LOGI(TAG, "  • Total Free: %zu bytes", esp_get_free_heap_size());
+  ESP_LOGI(TAG, "  • Total Free: %" PRIu32 " bytes", esp_get_free_heap_size());
   ESP_LOGI(TAG, "========================================");
   ESP_LOGI(TAG, "Task Information:");
   ESP_LOGI(TAG, "  • Active Tasks: %d", uxTaskGetNumberOfTasks());

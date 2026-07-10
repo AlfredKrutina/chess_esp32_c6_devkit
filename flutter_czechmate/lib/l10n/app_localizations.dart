@@ -1712,6 +1712,42 @@ abstract class AppLocalizations {
   /// **'Hint LEDs cleared'**
   String get gameHintLedsClearedSnackbar;
 
+  /// No description provided for @gameMatrixGuardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board alignment required'**
+  String get gameMatrixGuardTitle;
+
+  /// No description provided for @gameMatrixGuardPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Game paused: align pieces on the highlighted squares ({squares}). Play resumes automatically when the board matches.'**
+  String gameMatrixGuardPaused(String squares);
+
+  /// No description provided for @gameMatrixGuardResync.
+  ///
+  /// In en, this message translates to:
+  /// **'After startup the physical board does not match the saved game. Align pieces on: {squares}.'**
+  String gameMatrixGuardResync(String squares);
+
+  /// No description provided for @gameMatrixGuardForceClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume play'**
+  String get gameMatrixGuardForceClear;
+
+  /// No description provided for @gameMatrixGuardForceClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only if pieces are already aligned'**
+  String get gameMatrixGuardForceClearHint;
+
+  /// No description provided for @gameMatrixGuardForceClearSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Matrix guard cleared — verify the board matches the game'**
+  String get gameMatrixGuardForceClearSnack;
+
   /// No description provided for @gameNoSnapshotBody.
   ///
   /// In en, this message translates to:

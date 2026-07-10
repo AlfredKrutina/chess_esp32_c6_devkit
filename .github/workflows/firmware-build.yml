@@ -1,0 +1,109 @@
+# CI: ESP-IDF firmware build (ESP32-C6)
+# Runs on PRs touching firmware sources. Requires no hardware.
+
+name: Firmware build
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'components/**'
+      - 'main/**'
+      - 'CMakeLists.txt'
+      - 'sdkconfig*'
+      - 'partitions*.csv'
+      - 'embedded/**'
+      - 'scripts/idf_build.sh'
+      - '.github/workflows/firmware-build.yml'
+  pull_request:
+    paths:
+      - 'components/**'
+      - 'main/**'
+      - 'CMakeLists.txt'
+      - 'sdkconfig*'
+      - 'partitions*.csv'
+      - 'embedded/**'
+      - 'scripts/idf_build.sh'
+      - '.github/workflows/firmware-build.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: firmware-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure and build (HTTP + BLE)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py build
+
+  build-ble-only:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure and build (BLE-only, no HTTP)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only" build
+
+  build-gameplay-lite:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure and build (gameplay LITE profile)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.gameplay_lite" build
+
+  build-gameplay-dev:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure and build (gameplay DEV profile)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.gameplay_dev" build
+
+  build-hall-v2:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify STM32 embedded firmware present
+        shell: bash
+        run: |
+          chmod +x scripts/verify_hall_v2_profile.sh
+          ./scripts/verify_hall_v2_profile.sh
+
+      - name: Configure and build (Hall V2 + STM32 auto-flash profile)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build

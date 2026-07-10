@@ -13,6 +13,7 @@
 
 #include "led_mapping.h"
 #include "esp_log.h"
+#include <string.h>
 #include <ctype.h>
 
 static const char *TAG = "LED_MAPPING";
