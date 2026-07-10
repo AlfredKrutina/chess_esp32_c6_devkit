@@ -164,6 +164,7 @@ class PuzzleStatusJson {
 class OpeningTrainingStatusJson {
   const OpeningTrainingStatusJson({
     this.active,
+    this.setupPhase,
     this.feedback,
     this.playerPlyIndex,
     this.playerPlyTotal,
@@ -171,10 +172,13 @@ class OpeningTrainingStatusJson {
     this.expectedTo,
     this.awaitingCheckpointAck,
     this.physicalSynced,
+    this.physicalMatch,
+    this.wrongMoveCount,
     this.checkpointExpectedOccupied,
   });
 
   final bool? active;
+  final bool? setupPhase;
   final String? feedback;
   final int? playerPlyIndex;
   final int? playerPlyTotal;
@@ -182,11 +186,14 @@ class OpeningTrainingStatusJson {
   final String? expectedTo;
   final bool? awaitingCheckpointAck;
   final bool? physicalSynced;
+  final bool? physicalMatch;
+  final int? wrongMoveCount;
   final List<int>? checkpointExpectedOccupied;
 
   factory OpeningTrainingStatusJson.fromJson(Map<String, dynamic> json) {
     return OpeningTrainingStatusJson(
       active: json['active'] as bool?,
+      setupPhase: json['setup_phase'] as bool?,
       feedback: json['feedback'] as String?,
       playerPlyIndex: (json['player_ply_index'] as num?)?.toInt(),
       playerPlyTotal: (json['player_ply_total'] as num?)?.toInt(),
@@ -194,6 +201,8 @@ class OpeningTrainingStatusJson {
       expectedTo: json['expected_to'] as String?,
       awaitingCheckpointAck: json['awaiting_checkpoint_ack'] as bool?,
       physicalSynced: json['physical_synced'] as bool?,
+      physicalMatch: json['physical_match'] as bool?,
+      wrongMoveCount: (json['wrong_move_count'] as num?)?.toInt(),
       checkpointExpectedOccupied:
           (json['checkpoint_expected_occupied'] as List<dynamic>?)
               ?.map((e) => (e as num).toInt())

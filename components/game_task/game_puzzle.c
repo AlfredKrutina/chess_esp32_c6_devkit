@@ -99,6 +99,10 @@ static bool game_fen_expected_occupancy_64(const char *fen, uint8_t exp[64]) {
 }
 
 bool game_puzzle_physical_matches_fen(const char *fen) {
+  return game_physical_matrix_matches_fen(fen);
+}
+
+bool game_physical_matrix_matches_fen(const char *fen) {
   uint8_t exp[64];
   if (!game_fen_expected_occupancy_64(fen, exp)) {
     return false;

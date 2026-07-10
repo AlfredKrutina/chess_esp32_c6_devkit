@@ -12,6 +12,7 @@
     var openingDrillErrors = 0;
     var openingLastFeedback = 'none';
     var openingProgressSaved = false;
+    var openingAwaitingSetupRetry = false;
 
     function openingLoadProgress() {
         try {
@@ -121,7 +122,13 @@
     }
 
     function openingIsActive(status) {
-        return !!(status && status.opening_training && status.opening_training.active);
+        var ot = status && status.opening_training;
+        return !!(ot && ot.active);
+    }
+
+    function openingIsSetupPhase(status) {
+        var ot = status && status.opening_training;
+        return !!(ot && ot.setup_phase && !ot.active);
     }
 
     function openingIsCheckpoint(status) {
@@ -136,9 +143,10 @@
         if (!panel || !textEl) return;
 
         var ot = status && status.opening_training;
-        if (!ot || (!ot.active && ot.feedback !== 'complete')) {
+        if (!ot || (!ot.active && ot.feedback !== 'complete' && !ot.setup_phase)) {
             panel.style.display = 'none';
             openingActiveLineId = null;
+            openingAwaitingSetupRetry = false;
             openingStopHintRefresh();
             return;
         }
@@ -150,6 +158,14 @@
         var title = line && line.name ? (line.name.cs || line.id) : (ot.line_id || 'Opening');
         textEl.textContent = title + ' — tah ' +
             String((ot.player_ply_index || 0) + 1) + '/' + String(ot.player_ply_total || '?');
+
+        if (openingIsSetupPhase(status)) {
+            subEl.textContent = ot.physical_match === false
+                ? 'Deska nesedí se startem — použij průvodce rozestavením, pak „Zkusit znovu“.'
+                : 'Kontroluji fyzickou desku…';
+            openingStopHintRefresh();
+            return;
+        }
 
         if (openingIsCheckpoint(status)) {
             var mismatches = openingCheckpointMismatches(status);
@@ -164,6 +180,10 @@
         } else if (ot.feedback === 'complete') {
             subEl.textContent = 'Linie dokončena.';
             openingStopHintRefresh();
+        } else if (ot.feedback === 'mistake_hint') {
+            subEl.textContent = 'Po 3 chybách — ' +
+                (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
+            if (ot.active) openingStartHintRefresh();
         } else {
             subEl.textContent = 'Táhni na desce: ' +
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
@@ -177,6 +197,9 @@
             if ((ot.feedback === 'wrong' || ot.feedback === 'illegal') &&
                 ot.feedback !== openingLastFeedback) {
                 openingDrillErrors++;
+            }
+            if (openingIsSetupPhase(status) && openingActiveLineId) {
+                openingAwaitingSetupRetry = true;
             }
             if (ot.feedback === 'complete' && openingLastFeedback !== 'complete' &&
                 openingActiveLineId && !openingProgressSaved) {
@@ -195,6 +218,23 @@
         if (hintBtn && openingIsActive(status)) {
             hintBtn.disabled = true;
             hintBtn.title = 'Běží trénink zahájení';
+        }
+    }
+
+    async function openingRetryAfterSetup() {
+        if (!openingActiveLineId) return;
+        await openingStartLesson(openingActiveLineId, openingActiveMode);
+    }
+
+    async function openingOnSetupTutorialDone() {
+        if (!openingAwaitingSetupRetry || !openingActiveLineId) return;
+        openingAwaitingSetupRetry = false;
+        try {
+            await openingRetryAfterSetup();
+        } catch (e) {
+            if (typeof console !== 'undefined' && console.warn) {
+                console.warn('opening retry after setup', e);
+            }
         }
     }
 
@@ -277,9 +317,12 @@
     }
 
     global.openingIsActive = openingIsActive;
+    global.openingIsSetupPhase = openingIsSetupPhase;
     global.openingIsCheckpoint = openingIsCheckpoint;
     global.openingTrainerOnStatusUpdate = openingTrainerOnStatusUpdate;
     global.openingStartLesson = openingStartLesson;
+    global.openingRetryAfterSetup = openingRetryAfterSetup;
+    global.openingOnSetupTutorialDone = openingOnSetupTutorialDone;
     global.openingCancelLesson = openingCancelLesson;
     global.openingCheckpointAck = openingCheckpointAck;
     global.openingPostAction = openingPostAction;

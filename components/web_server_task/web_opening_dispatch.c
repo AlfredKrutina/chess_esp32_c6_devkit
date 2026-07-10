@@ -178,6 +178,13 @@ esp_err_t web_server_opening_dispatch_json(cJSON *root) {
     if (load_err != ESP_OK) {
       return load_err;
     }
+    if (!game_opening_physical_matches_start()) {
+      if (!game_opening_enter_setup_phase()) {
+        return ESP_ERR_INVALID_ARG;
+      }
+      ESP_LOGI(TAG, "opening physical mismatch — setup_phase, start not queued");
+      return ESP_OK;
+    }
   }
 
   if (action_code == 2) {

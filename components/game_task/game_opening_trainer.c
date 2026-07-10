@@ -35,6 +35,7 @@ typedef enum {
   OPENING_FEEDBACK_CORRECT,
   OPENING_FEEDBACK_WRONG,
   OPENING_FEEDBACK_ILLEGAL,
+  OPENING_FEEDBACK_MISTAKE_HINT,
   OPENING_FEEDBACK_COMPLETE,
   OPENING_FEEDBACK_CHECKPOINT
 } opening_feedback_t;
@@ -66,6 +67,7 @@ typedef struct {
   opening_feedback_t feedback;
   player_t player_side;
   bool awaiting_checkpoint_ack;
+  uint8_t wrong_move_count;
 } opening_trainer_state_t;
 
 static opening_trainer_state_t opening_state;
@@ -132,15 +134,22 @@ static void opening_show_hint_led(void) {
   if (opening_state.expected_from[0] == '\0' || opening_state.expected_to[0] == '\0') {
     return;
   }
-  uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
-  uint8_t from_led = 64;
-  if (convert_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
-    from_led = chess_pos_to_led_index(from_row, from_col);
+  uint8_t guidance = game_get_led_guidance_level();
+  if (guidance == 0) {
+    return;
   }
+  uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
   if (!convert_notation_to_coords(opening_state.expected_to, &to_row, &to_col)) {
     return;
   }
   uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
+  bool to_only = (opening_state.mode == OPENING_MODE_DRILL ||
+                  opening_state.mode == OPENING_MODE_TIMED || guidance == 1);
+  uint8_t from_led = 64;
+  if (!to_only && guidance >= 2 &&
+      convert_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
+    from_led = chess_pos_to_led_index(from_row, from_col);
+  }
   led_command_t hint_cmd = {
       .type = LED_CMD_HIGHLIGHT_HINT,
       .led_index = from_led,
@@ -243,6 +252,24 @@ bool game_is_opening_trainer_active(void) { return opening_state.active; }
 
 bool game_is_opening_trainer_setup_active(void) { return opening_state.setup_phase; }
 
+bool game_opening_physical_matches_start(void) {
+  if (opening_state.start_fen[0] == '\0') {
+    return false;
+  }
+  return game_physical_matrix_matches_fen(opening_state.start_fen);
+}
+
+bool game_opening_enter_setup_phase(void) {
+  if (opening_state.line_uci_count == 0) {
+    return false;
+  }
+  opening_state.setup_phase = true;
+  opening_state.active = false;
+  STAGING_LOGI(TAG, "setup_phase line=%s (physical mismatch)",
+               opening_state.line_id);
+  return true;
+}
+
 bool game_opening_validate_checkpoint_physical(void) {
   uint8_t matrix[64] = {0};
   matrix_get_state(matrix);
@@ -289,12 +316,21 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
   opening_state.mode = (opening_mode_t)mode;
   opening_state.player_side = player_side_white ? PLAYER_WHITE : PLAYER_BLACK;
   opening_state.feedback = OPENING_FEEDBACK_NONE;
+  opening_state.wrong_move_count = 0;
+  opening_state.setup_phase = false;
   STAGING_LOGI(TAG, "load line=%s plies=%u", line_id, (unsigned)line_uci_count);
   return true;
 }
 
 bool game_opening_start(void) {
   if (opening_state.line_uci_count == 0) {
+    return false;
+  }
+  if (!game_opening_physical_matches_start()) {
+    opening_state.setup_phase = true;
+    opening_state.active = false;
+    STAGING_LOGI(TAG, "start blocked — physical mismatch line=%s",
+                 opening_state.line_id);
     return false;
   }
   if (game_is_board_setup_tutorial_active()) {
@@ -319,6 +355,7 @@ bool game_opening_start(void) {
   opening_state.awaiting_checkpoint_ack = false;
   opening_state.feedback = OPENING_FEEDBACK_NONE;
   opening_state.last_opponent_uci[0] = '\0';
+  opening_state.wrong_move_count = 0;
   led_clear_board_only();
 
   opening_run_virtual_until_player();
@@ -371,6 +408,7 @@ void game_opening_advance_after_correct(void) {
   if (!opening_state.active) {
     return;
   }
+  opening_state.wrong_move_count = 0;
   opening_state.feedback = OPENING_FEEDBACK_CORRECT;
   opening_state.ply_index++;
   if (opening_state.ply_index >= opening_state.line_uci_count) {
@@ -411,7 +449,15 @@ bool game_opening_on_wrong_player_move(void) {
   if (!opening_state.active) {
     return false;
   }
-  opening_state.feedback = OPENING_FEEDBACK_WRONG;
+  if (opening_state.wrong_move_count < 255) {
+    opening_state.wrong_move_count++;
+  }
+  if (opening_state.wrong_move_count >= 3) {
+    opening_state.feedback = OPENING_FEEDBACK_MISTAKE_HINT;
+    opening_show_hint_led();
+  } else {
+    opening_state.feedback = OPENING_FEEDBACK_WRONG;
+  }
   return true;
 }
 
@@ -419,7 +465,15 @@ bool game_opening_on_illegal_player_move(void) {
   if (!opening_state.active) {
     return false;
   }
-  opening_state.feedback = OPENING_FEEDBACK_ILLEGAL;
+  if (opening_state.wrong_move_count < 255) {
+    opening_state.wrong_move_count++;
+  }
+  if (opening_state.wrong_move_count >= 3) {
+    opening_state.feedback = OPENING_FEEDBACK_MISTAKE_HINT;
+    opening_show_hint_led();
+  } else {
+    opening_state.feedback = OPENING_FEEDBACK_ILLEGAL;
+  }
   return true;
 }
 
@@ -431,6 +485,8 @@ const char *game_opening_feedback_key(void) {
     return "wrong";
   case OPENING_FEEDBACK_ILLEGAL:
     return "illegal";
+  case OPENING_FEEDBACK_MISTAKE_HINT:
+    return "mistake_hint";
   case OPENING_FEEDBACK_COMPLETE:
     return "complete";
   case OPENING_FEEDBACK_CHECKPOINT:
@@ -457,6 +513,11 @@ bool game_opening_status_needs_matrix(void) {
   return opening_state.awaiting_checkpoint_ack || opening_state.setup_phase;
 }
 
+static bool opening_export_active(void) {
+  return opening_state.active || opening_state.setup_phase ||
+         opening_state.line_uci_count > 0;
+}
+
 static void opening_fill_expected_occupied(uint8_t out[64]) {
   for (uint8_t i = 0; i < 64; i++) {
     uint8_t row = i / 8;
@@ -469,9 +530,10 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
   if (buf == NULL || offset == NULL || buf_size == 0) {
     return;
   }
-  if (!opening_state.active && !opening_state.setup_phase) {
+  if (!opening_export_active()) {
     return;
   }
+  bool physical_match = game_opening_physical_matches_start();
   int n = snprintf(
       buf + *offset, buf_size - *offset,
       ",\"opening_training\":{\"active\":%s,\"setup_phase\":%s,\"mode\":\"%s\","
@@ -481,7 +543,8 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       "\"expected_from\":\"%s\",\"expected_to\":\"%s\","
       "\"last_opponent_uci\":\"%s\","
       "\"checkpoint_required\":%s,\"awaiting_checkpoint_ack\":%s,"
-      "\"physical_synced\":%s",
+      "\"physical_synced\":%s,\"physical_match\":%s,"
+      "\"wrong_move_count\":%u",
       opening_state.active ? "true" : "false",
       opening_state.setup_phase ? "true" : "false", game_opening_mode_key(),
       opening_state.line_id, (unsigned)opening_state.ply_index,
@@ -493,7 +556,9 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       opening_state.expected_to, opening_state.last_opponent_uci,
       opening_state.awaiting_checkpoint_ack ? "true" : "false",
       opening_state.awaiting_checkpoint_ack ? "true" : "false",
-      game_opening_validate_checkpoint_physical() ? "true" : "false");
+      game_opening_validate_checkpoint_physical() ? "true" : "false",
+      physical_match ? "true" : "false",
+      (unsigned)opening_state.wrong_move_count);
   if (n <= 0 || (size_t)n >= buf_size - *offset) {
     return;
   }

@@ -7,7 +7,9 @@ import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/widgets/glass_snackbar.dart';
+import '../../core/utils/board_setup_fen_steps.dart';
 import '../connection/board_session_notifier.dart';
+import '../setup/board_setup_wizard_screen.dart';
 import 'opening_catalog_repository.dart';
 
 class OpeningTrainerScreen extends ConsumerStatefulWidget {
@@ -34,6 +36,7 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
   int _timedSecondsLeft = 90;
   bool _timedExpired = false;
   bool _progressSaved = false;
+  bool _setupWizardInFlight = false;
   Timer? _hintRefreshTimer;
   Timer? _countdownTimer;
 
@@ -138,6 +141,20 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
       await ref
           .read(boardSessionNotifierProvider.notifier)
           .postOpeningAction(line.toStartPayload(mode: widget.mode));
+      final opening = ref
+          .read(boardSessionNotifierProvider)
+          .snapshot
+          ?.status
+          .openingTraining;
+      if (opening?.setupPhase == true) {
+        if (mounted) {
+          showGlassSnackBar(
+            context,
+            'Deska nesedí se startovní pozicí — nastav figurky',
+          );
+        }
+        return;
+      }
       _startTimedCountdown();
       if (mounted) {
         final msg = widget.mode == 'drill'
@@ -151,6 +168,31 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
       if (mounted) setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _openSetupWizard(OpeningLine line) async {
+    if (_setupWizardInFlight || !mounted) return;
+    _setupWizardInFlight = true;
+    final useStandard =
+        line.startFen.trim() == BoardSetupFenSteps.standardStartFen;
+    try {
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => BoardSetupWizardScreen(
+            kind: useStandard
+                ? BoardSetupWizardKind.standardStart
+                : BoardSetupWizardKind.fenGuided,
+            targetFen: useStandard ? null : line.startFen,
+            loadFenWhenDone: !useStandard,
+          ),
+        ),
+      );
+      if (!mounted) return;
+      await _startLesson(line);
+    } finally {
+      _setupWizardInFlight = false;
     }
   }
 
@@ -237,13 +279,21 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
         if (_feedback == 'complete' && prevFeedback != 'complete') {
           await _saveProgressIfNeeded();
         }
+        if (opening.setupPhase == true &&
+            opening.active != true &&
+            _line != null &&
+            !_setupWizardInFlight) {
+          unawaited(_openSetupWizard(_line!));
+        }
         _syncHintRefresh(
-          opening.active == true,
+          opening.active == true && opening.setupPhase != true,
           opening.feedback == 'checkpoint' || opening.awaitingCheckpointAck == true,
         );
       });
     }
 
+    final isSetupPhase = opening?.setupPhase == true && opening?.active != true;
+    final isMistakeHint = _feedback == 'mistake_hint';
     final isCheckpoint =
         _feedback == 'checkpoint' || opening?.awaitingCheckpointAck == true;
     final physicalSynced = opening?.physicalSynced == true;
@@ -322,6 +372,41 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                         const SizedBox(height: 8),
                         Text('Tah hráče ${_playerPly + 1} / $_playerTotal'),
                         Text('Stav: $_feedback'),
+                        if (opening?.wrongMoveCount != null &&
+                            opening!.wrongMoveCount! > 0)
+                          Text('Špatné pokusy: ${opening.wrongMoveCount}'),
+                        if (isSetupPhase) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            opening?.physicalMatch == false
+                                ? 'Fyzická deska nesedí se startovní pozicí této linie.'
+                                : 'Čekám na potvrzení fyzické desky…',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          FilledButton(
+                            onPressed: (_busy || _setupWizardInFlight || line == null)
+                                ? null
+                                : () => _openSetupWizard(line),
+                            child: const Text('Nastavit desku'),
+                          ),
+                        ],
+                        if (isMistakeHint) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            'Po 3 chybách — správný tah: '
+                            '${opening?.expectedFrom ?? '?'} → ${opening?.expectedTo ?? '?'}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          FilledButton(
+                            onPressed: _busy ? null : _hint,
+                            child: const Text('Zobrazit tah na LED'),
+                          ),
+                        ],
                         if (isCheckpoint) ...[
                           const SizedBox(height: 16),
                           Text(
@@ -364,7 +449,7 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                             ),
                           ),
                         const SizedBox(height: 8),
-                        if (!isCheckpoint)
+                        if (!isCheckpoint && !isSetupPhase && !isMistakeHint)
                           OutlinedButton(
                             onPressed: _busy ? null : _hint,
                             child: const Text('LED nápověda'),

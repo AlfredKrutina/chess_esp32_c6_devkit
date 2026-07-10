@@ -2224,6 +2224,9 @@ async function setupTutorialFinish() {
     if (run) run.style.display = 'none';
     if (done) done.style.display = 'none';
     if (typeof fetchData === 'function') fetchData();
+    if (typeof global.openingOnSetupTutorialDone === 'function') {
+        global.openingOnSetupTutorialDone();
+    }
 }
 
 window.openSetupTutorialIntro = openSetupTutorialIntro;

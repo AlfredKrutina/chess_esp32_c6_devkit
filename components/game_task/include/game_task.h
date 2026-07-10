@@ -462,10 +462,15 @@ bool game_is_puzzle_active(void);
 bool game_puzzle_enter_setup(uint8_t puzzle_id);
 bool game_is_puzzle_setup_active(void);
 
+/** Compare reed matrix occupancy (0/1) to FEN piece placement. */
+bool game_physical_matrix_matches_fen(const char *fen);
+
 /** Opening trainer — multi-ply line with virtual opponent replies. */
 void game_opening_cancel(void);
 bool game_is_opening_trainer_active(void);
 bool game_is_opening_trainer_setup_active(void);
+bool game_opening_physical_matches_start(void);
+bool game_opening_enter_setup_phase(void);
 bool game_opening_load_config(const char *line_id, const char *start_fen,
                               const char line_uci[][6], uint8_t line_uci_count,
                               const uint8_t *player_ply_indices,
