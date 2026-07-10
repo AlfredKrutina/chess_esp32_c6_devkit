@@ -12,7 +12,7 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 
 | Oblast | Problém | Dopad |
 |--------|---------|-------|
-| **Monolity** | `game_task.c` ~4 691 ř. (+ split moduly), `uart_task.c` ~4 408, `web_server_task.c` ~3 707 (+ split moduly), `chess_app.js` ~4 726 | těžké review, riziko regresí |
+| **Monolity** | `game_task.c` ~3 955 ř. (+ split moduly), `uart_task.c` ~4 408, `web_server_task.c` ~3 707 (+ split moduly), `chess_app.js` ~4 726 | těžké review, riziko regresí |
 | **CMake / git** | mrtvé cesty (`screen_saver_task`, `matter_task`), build artefakty v historii | matoucí onboarding, pomalý clone |
 | **CI** | jen diagramy + Flutter release + Pages | žádná automatická kontrola firmware buildu |
 | **Legacy komponenty** | `enhanced_castling_system`, `animation_task`, `visual_error_system` | nejasná „pravda“ v kódu |
@@ -35,7 +35,7 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 ### 2.2 Velikost „god souborů“
 
 ```
-game_task.c               4 691 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical, puzzle, json_export, timer, dispatch, cmd_handlers, error_recovery, init, matrix_workflow, endgame_report)
+game_task.c               3 955 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical, puzzle, json_export, timer, dispatch, cmd_handlers, error_recovery, init, matrix_workflow, endgame_report, endgame_detect, promotion)
 game_puzzle.c               ~224 ř.
 game_json_export.c          ~560 ř.
 game_timer.c                ~277 ř.
@@ -45,6 +45,8 @@ game_error_recovery.c       ~873 ř.
 game_init.c                 ~663 ř.
 game_matrix_workflow.c      ~817 ř.
 game_endgame_report.c       ~347 ř.
+game_endgame_detect.c       ~347 ř.
+game_promotion.c            ~424 ř.
 uart_task.c               4 408 ř.  (split: commands_table, parse, handlers_game/wifi/debug)
 web_server_task.c         3 707 ř.  (split: routes ~350, game ~1230, wifi ~340, system ~865, ws ~186)
 web_routes.c                ~350 ř.
@@ -218,7 +220,9 @@ Většina je v PR #4; po merge doplnit:
 | 3A.13 | `game_init.c` | ~663 | reset, new game, board setup tutorial, revision | 3A.12 | **hotovo** (PR #7) |
 | 3A.14 | `game_matrix_workflow.c` | ~817 | matrix LED workflow, promotion command, movable highlights | 3A.13 | **hotovo** (PR #7) |
 | 3A.15 | `game_endgame_report.c` | ~347 | endgame stats, UART report, win/draw getters | 3A.14 | **hotovo** (PR #7) |
-| 3A.16 | `game_task.c` (zbytek) | ~1700 | task loop, move gen, promotion, endgame detect | 3A.15 |
+| 3A.16 | `game_endgame_detect.c` | ~347 | check/stalemate/draw detection, `game_is_king_in_check` | 3A.15 | **hotovo** (PR #7) |
+| 3A.17 | `game_promotion.c` | ~424 | promotion LED, button handling, anchor pulse | 3A.16 | **hotovo** (PR #7) |
+| 3A.18 | `game_task.c` (zbytek) | ~1400 | task loop, move gen, castling legacy | 3A.17 |
 
 **Cíl:** `game_task.c` < 3 000 ř.
 
