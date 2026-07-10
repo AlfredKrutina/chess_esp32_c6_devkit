@@ -8,6 +8,7 @@
 #include "freertos/queue.h"
 
 #include "web_server_internal.h"
+#include "web_server_task.h"
 #include "../game_task/include/game_task.h"
 #include "../led_task/include/led_task.h"
 
