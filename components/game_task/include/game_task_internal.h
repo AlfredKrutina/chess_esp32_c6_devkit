@@ -8,6 +8,7 @@
 
 #include "chess_types.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/timers.h"
 #include "game_task.h"
 #include <stdbool.h>
@@ -46,10 +47,55 @@ typedef struct {
 extern game_task_promotion_state_t promotion_state;
 
 extern chess_move_t move_history[GAME_TASK_MAX_MOVES_HISTORY];
+extern move_type_t move_history_kind[GAME_TASK_MAX_MOVES_HISTORY];
 extern uint32_t history_index;
 
 extern uint32_t white_time_total;
 extern uint32_t black_time_total;
+
+extern uint32_t last_move_time;
+extern uint32_t white_moves_count;
+extern uint32_t black_moves_count;
+extern uint32_t white_castles;
+extern uint32_t black_castles;
+
+extern game_state_t game_result;
+extern game_result_type_t current_result_type;
+
+typedef enum {
+  LAST_MOVE_NORMAL = 0,
+  LAST_MOVE_EN_PASSANT = 1,
+  LAST_MOVE_CASTLING = 2,
+  LAST_MOVE_PROMOTION = 3,
+  LAST_MOVE_DISCOVERED = 4
+} last_move_type_t;
+
+extern last_move_type_t last_move_type;
+
+typedef struct {
+  bool has_invalid_piece;
+  uint8_t invalid_row;
+  uint8_t invalid_col;
+  uint8_t original_valid_row;
+  uint8_t original_valid_col;
+  piece_t piece_type;
+  bool waiting_for_move_correction;
+  uint8_t error_count;
+} game_task_error_recovery_t;
+
+extern game_task_error_recovery_t error_recovery_state;
+
+extern SemaphoreHandle_t promotion_mutex;
+extern bool s_uart_move_immediate_promotion;
+extern promotion_choice_t s_uart_move_immediate_promotion_piece;
+
+void game_add_captured_piece(piece_t piece);
+void game_update_endgame_statistics(game_result_type_t result_type);
+void game_print_endgame_report_uart(game_result_type_t result_type);
+void game_record_material_advantage(void);
+bool game_led_guidance_show_check_anim(void);
+
+uint32_t game_generate_legal_moves(player_t player);
 
 /** True when matrix guard must not pause normal play (tutorial, castling, …). */
 bool game_task_matrix_guard_mode_conflict_active(void);

@@ -193,7 +193,7 @@ Většina je v PR #4; po merge doplnit:
 | 3A.2 | `game_snapshot.c` | ~600 | NVS load/save, boot restore, `snapshot_*` flags | 3A.1 |
 | 3A.3 | `game_board_core.c` | ~500 | init, reset, FEN, piece helpers | — |
 | 3A.4 | `game_move_validate.c` | ~781 | `game_validate_*`, check detection | 3A.3 | **hotovo** (PR #7) |
-| 3A.5 | `game_move_exec.c` | ~900 | `game_execute_move*`, history | 3A.4 |
+| 3A.5 | `game_move_exec.c` | ~866 | `game_execute_move*`, history | 3A.4 | **hotovo** (PR #7) |
 | 3A.6 | `game_physical.c` | ~1200 | pickup/drop/castle/promote command processing | 3A.5 |
 | 3A.7 | `game_bot.c` | ~? | Stockfish integrace | 3A.5 |
 | 3A.8 | `game_puzzle.c` | ~300 | puzzle setup/start | 3A.3 |
