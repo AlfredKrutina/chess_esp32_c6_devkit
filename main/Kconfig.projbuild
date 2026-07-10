@@ -1,27 +1,229 @@
 menu "CzechMate firmware"
 
 config CHESS_ENABLE_TEST_TASK
-    bool "Enable automated test task"
+    bool "Testovací úloha (UART příkazy, automatické testy)"
     default y
     help
-        When enabled, creates test_task (4 KB stack) and the test command queue.
-        Disable for production builds to save RAM and reduce background logging;
-        hardware/UART test commands that depend on the task will not run.
+        Zapne FreeRTOS test_task (~4 KiB stack) a frontu testovacích příkazů.
+
+        Zapnuto: UART/test příkazy pro HW diagnostiku fungují.
+        Vypnuto: úspora RAM a méně logů — vhodné pro produkční flash.
 
 config CHESS_ENABLE_WEB_SERVER
-    bool "Enable HTTP web server (WiFi AP/STA UI + REST)"
+    bool "HTTP web server (WiFi AP/STA, REST API, WebSocket, PNG)"
     default y
     help
-        When enabled, builds the full web_server_task HTTP stack: WiFi hotspot/STA
-        bootstrap, REST API, WebSocket, embedded piece PNGs, and browser-facing
-        routes.
+        Zapne plný web_server_task: WiFi hotspot/STA, REST, WebSocket,
+        vložené PNG figurek a prohlížečové stránky.
 
-        When disabled, the web_server_task component is still linked as a lightweight
-        BLE/remote bridge (JSON dispatch, game snapshots, opening trainer API over BLE).
-        Flash and RAM savings: no esp_http_server, no mDNS, no embedded PNG assets,
-        no HTTP handler sources.
+        Vypnuto: zůstane lehký BLE/UART most (snapshot, opening trainer přes GATT).
+        Úspora flash/RAM — bez esp_http_server, mDNS a HTTP handlerů.
 
-        Use BLE + UART builds for factory test or minimal firmware profiles.
-        Reconfigure after change: idf.py fullclean reconfigure build
+        Pro BLE-only tovární profil použij sdkconfig.defaults.ble_only.
+        Po změně: idf.py fullclean reconfigure build
+
+menu "Herní bezpečnost a LED nápovědy"
+    help
+        Ovládá tři nezávislé systémy na fyzické desce:
+
+        1) Matrix guard — pozastaví hru, když senzory nesedí s logikou
+        2) Error recovery — nelegální tah (červená LED, lock hry)
+        3) Move hints — běžná hra (modrá/žlutá nápověda tahů)
+
+        Nejdřív zvol preset; podvolby níže ho můžeš po reconfigure přepsat.
+
+choice CHESS_GAMEPLAY_PROFILE
+    prompt "Preset — souhrn guard + chyb + LED"
+    default CHESS_GAMEPLAY_PROFILE_FULL
+    help
+        Rychlá volba celého chování. FULL = dnešní produkce.
+
+        FULL     — guard + lock při chybě + všechny LED nápovědy
+        DEV      — bez matrix guardu (opening vývoj), chyby a hinty zapnuté
+        LITE     — bez guardu, bez locku, minimum LED (klub/továrna)
+        FACTORY  — jen detekce chyb v logu, bez LED a bez zastavení hry
+
+config CHESS_GAMEPLAY_PROFILE_FULL
+    bool "FULL — produkce (guard + lock chyb + LED hinty)"
+
+config CHESS_GAMEPLAY_PROFILE_DEV
+    bool "DEV — vývoj openingu (bez matrix guardu, chyby zapnuté)"
+
+config CHESS_GAMEPLAY_PROFILE_LITE
+    bool "LITE — tichý režim (bez guardu, bez locku, minimum LED)"
+
+config CHESS_GAMEPLAY_PROFILE_FACTORY
+    bool "FACTORY — tovární test (jen log, bez LED a bez locku)"
+
+endchoice
+
+menu "① Matrix guard — nesoulad matice vs. logika"
+
+config CHESS_MG_ENABLE
+    bool "Detekovat nesoulad (2× zvednutí / ghost figurka → pause)"
+    default y if CHESS_GAMEPLAY_PROFILE_FULL
+    default n
+    help
+        Když fyzická matice nesouhlasí s logickou deskou board[], hra se
+        pozastaví a klient dostane matrix_guard_active=true.
+
+        Vypnuto: ambiguous stavy se jen zalogují, tahy pokračují.
+        Opening virtual / puzzle guard stejně ignorují (režim conflict).
+
+config CHESS_MG_FREEZE_MOVES
+    bool "Zamrznout tahový flow při aktivním guardu"
+    depends on CHESS_MG_ENABLE
+    default y
+    help
+        Zapnuto: další pickup/drop se nezpracují, dokud není deska srovnaná.
+        Vypnuto: guard jen hlásí stav, tahy technicky projdou (nedoporučeno).
+
+config CHESS_MG_AUTO_CLEAR
+    bool "Auto-zrušit guard po srovnání desky"
+    depends on CHESS_MG_ENABLE
+    default y
+    help
+        Když matice odpovídá logice, guard se sám vyčistí bez GUARD_CLEAR.
+
+config CHESS_MG_NVS_RESYNC
+    bool "Po startu z NVS zkontrolovat desku (resync guard)"
+    depends on CHESS_MG_ENABLE
+    default y
+    help
+        Po obnově uložené hry aktivuje guard, pokud fyzická deska nesedí.
+        restore_state.resync_required v JSON.
+
+menu "Barvy LED při matrix guardu"
+    depends on CHESS_MG_ENABLE
+
+config CHESS_MG_LED_ENABLE
+    bool "Zobrazovat barevné LED při guardu"
+    default y
+    help
+        Vypnuto: guard může běžet, ale deska se nerozsvítí (tichý režim).
+
+config CHESS_MG_LED_WHITE_YELLOW
+    bool "Žlutá — bílá figurka na nesedícím poli"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+config CHESS_MG_LED_BLACK_BLUE
+    bool "Modrá — černá figurka na nesedícím poli"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+config CHESS_MG_LED_GHOST_ORANGE
+    bool "Oranžová — senzor vidí figurku, logika má prázdno (ghost)"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+config CHESS_MG_LED_MISSING_WHITE
+    bool "Bílá — logika má figurku, senzor je prázdný (chybí)"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+endmenu
+
+endmenu
+
+menu "② Error recovery — nelegální fyzický tah"
+
+config CHESS_ER_ENABLE
+    bool "Detekovat nelegální tah na desce"
+    default y
+    help
+        Firmware reaguje na fyzický tah, který porušuje šachová pravidla.
+
+        Vypnuto: chyba jen v UART/JSON bez recovery logiky.
+
+config CHESS_ER_LOCK_GAME
+    bool "Zamknout hru do opravy tahu (error_state.active)"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+    help
+        Zapnuto: další tahy blokovány, dokud hráč nevrátí figurku.
+        Vypnuto: app/JSON error_state.active zůstane false.
+
+config CHESS_ER_MUTATE_BOARD
+    bool "Synchronizovat logickou desku s fyzickou (figurka na špatném poli)"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+    help
+        Zapnuto: board[] kopíruje fyzickou realitu pro správný pickup recovery.
+        Vypnuto: logika zůstane „správná“, app může ukazovat jinak než deska.
+
+config CHESS_ER_LED_RED_PERSIST
+    bool "Červená LED trvale na neplatném poli"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_ER_LED_RED_BLINK
+    bool "Červené blikání při nové chybě tahu"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_ER_LED_VALID_BLUE
+    bool "Modrá LED — kam figurku vrátit / legální recovery tahy"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+    help
+        Po zvednutí figurky z červeného pole ukáže původní validní pozici
+        a legální cíle. Nezávislé na move hints (běžná hra).
+
+endmenu
+
+menu "③ Move hints — nápověda při normální hře"
+
+config CHESS_MH_ENABLE
+    bool "Zapnout LED nápovědy tahů (mimo error recovery)"
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+    help
+        Ovládá modré/žluté hinty při běžné hře. Neovlivňuje matrix guard LED.
+
+config CHESS_MH_LEGAL_MOVES_BLUE
+    bool "Modrá — legální cílová pole po zvednutí figurky"
+    depends on CHESS_MH_ENABLE
+    default y
+    help
+        Zelená/oranžová capture zůstává dle LED guidance level v runtime.
+
+config CHESS_MH_CASTLING_BLUE
+    bool "Modrá — pole rošády (král + věž)"
+    depends on CHESS_MH_ENABLE
+    default y
+
+config CHESS_MH_PROMOTION_BLUE
+    bool "Modrá — tlačítka promoce (LED 64–71)"
+    depends on CHESS_MH_ENABLE
+    default y
+
+config CHESS_MH_MOVABLE_YELLOW
+    bool "Žlutá — figurky, které se mohou pohnout (tah na řadě)"
+    depends on CHESS_MH_ENABLE
+    default y
+    help
+        Po validním tahu nebo nové hře zvýrazní pohyblivé figurky.
+
+endmenu
+
+menu "Diagnostika — sériová linka (UART)"
+
+config CHESS_DIAG_UART_ERROR_DETAIL
+    bool "Podrobné vysvětlení chybného tahu v UART (Reason/Solution)"
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+    help
+        Zapnuto: print_error_detail vypíše důvod a návod (více textu).
+        Vypnuto: jen krátká chybová hláška.
+
+endmenu
+
+endmenu
 
 endmenu

@@ -9,6 +9,7 @@
 #include "game_task_internal.h"
 
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 #include "game_led_animations.h"
 #include "led_mapping.h"
 
@@ -528,7 +529,7 @@ bool game_execute_move(const chess_move_t *move) {
 
           // Zobrazit pohyblivé figury pro nového hráče
           led_clear_board_only();
-          game_highlight_movable_pieces();
+          chess_policy_highlight_movable_if_enabled();
 
           // Zkontrolovat, zda je nový hráč v šachu
           bool in_check = game_is_king_in_check(current_player);

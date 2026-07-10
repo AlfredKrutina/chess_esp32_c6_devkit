@@ -13,12 +13,13 @@
 1. [README.md](../README.md) — úvod, build, rychlý přehled.
 2. [reference/REPO_LAYOUT.md](reference/REPO_LAYOUT.md) — inventář cest a skupin komponent.
 3. [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) — V1 (reed) vs V2 (Hall).
-4. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
-5. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji.
-6. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
-7. [ota_architecture.md](ota_architecture.md) — OTA firmware na desku.
-8. [reference/TROUBLESHOOTING.md](reference/TROUBLESHOOTING.md) — ladění a známé problémy.
-9. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
+4. [reference/ZAPOJENI_ESP_STM4.md](reference/ZAPOJENI_ESP_STM4.md) — zapojení ESP ↔ STM32 (V2, auto-flash).
+5. [diagrams/README.md](diagrams/README.md) — boot, fronty, smyčky tasků, šachové toky.
+6. [reference/KOMUNIKACE_MEZI_TASKY.md](reference/KOMUNIKACE_MEZI_TASKY.md) — fronty, mutexy, HW podrobněji.
+7. [flutter/README.md](flutter/README.md) — klient, BLE/HTTP.
+8. [ota_architecture.md](ota_architecture.md) — OTA firmware na desku.
+9. [reference/TROUBLESHOOTING.md](reference/TROUBLESHOOTING.md) — ladění a známé problémy.
+10. Doxygen: `./generate_docs.sh` → `docs/doxygen/html/index.html`.
 
 Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_docs.sh`.
 
@@ -33,6 +34,7 @@ Když měním `.mmd` nebo chci přepsat SVG/HTML diagramů: `./scripts/render_do
 | [reference/TROUBLESHOOTING.md](reference/TROUBLESHOOTING.md) | Ladění, UART, známé limity |
 | [reference/PROJECT_NOTES.md](reference/PROJECT_NOTES.md) | Verze, autoři, licence, poznámky |
 | [reference/HARDWARE_VERZE.md](reference/HARDWARE_VERZE.md) | V1 vs V2 (reed vs Hall, fw 1.8.0, předobjednávka) |
+| [reference/ZAPOJENI_ESP_STM4.md](reference/ZAPOJENI_ESP_STM4.md) | Zapojení ESP ↔ STM32C031, profil `hall_v2` |
 | [docs/README.md](README.md) | Tenhle rozcestník |
 | [diagrams/README.md](diagrams/README.md) | Mermaid / SVG přehled |
 | [diagrams/diagrams_mermaid.html](diagrams/diagrams_mermaid.html) | Sekvence (generuje `render_docs.sh`) |

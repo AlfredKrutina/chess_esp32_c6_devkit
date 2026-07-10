@@ -5,6 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 #include "freertos_chess.h"
 
 #include "../matrix_task/include/matrix_task.h"
@@ -313,6 +314,9 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
      * vnořený do error_state). */
     GAME_STATUS_JSON_APPEND(",\"error_state\":{\"active\":false}");
   }
+
+  GAME_STATUS_JSON_APPEND(",\"gameplay_profile\":\"%s\"",
+                          chess_policy_profile_name());
 
   GAME_STATUS_JSON_APPEND(
       ",\"restore_state\":{\"snapshot_loaded\":%s,\"snapshot_fallback_used\":%s,"

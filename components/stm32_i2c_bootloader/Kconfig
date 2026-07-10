@@ -71,6 +71,14 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         help
             ROM bootloader potřebuje čas po náběhu. Při ESP_FAIL na GET_ID zkus zvýšit (např. 200).
 
+    config CHESS_STM32_BL_APP_BOOT_SETTLE_MS
+        int "Čekání po přechodu STM do aplikace (ms)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        range 20 500
+        default 120
+        help
+            Po GO nebo NRST pulzu (BOOT0 LOW) — čas než Hall I2C slave na 0x30 odpoví.
+
     config CHESS_STM32_BL_NRST_GPIO_SEG0
         int "NRST segment 0 (-1 = nepoužito)"
         depends on CHESS_STM32_I2C_BL_ENABLE
@@ -169,5 +177,41 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
         range 0 524288
         default 0
+
+    config CHESS_STM32_BL_GO_AFTER_FLASH
+        bool "Po zápisu flash poslat GO příkaz (před uvolněním NRST)"
+        depends on CHESS_STM32_I2C_BL_ENABLE
+        default y
+        help
+            Některé STM po WRITE MEMORY nenaběhnou bez explicitního GO (0x21).
+            Při selhání GO firmware stejně uvolní NRST (BOOT0 LOW) jako záložní cestu.
+
+    config CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH
+        bool "Po auto-flash ověřit Hall I2C odpověď (0x30…)"
+        depends on CHESS_STM32_I2C_BL_ENABLE && CHESS_MATRIX_INPUT_I2C_HALL && CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
+        default y
+        help
+            Krátký I2C read po flashi / po přeskočení NVS — potvrdí, že STM aplikace běží
+            jako slave na Hall adrese, ne jen že zápis do flash proběhl.
+
+    config CHESS_STM32_BL_REFLASH_IF_HALL_MISSING
+        bool "Ignorovat NVS skip pokud Hall segment neodpovídá"
+        depends on CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH
+        default y
+        help
+            Ochrana při výměně STM čipu nebo prázdném flashi: NVS může říkat „už flashnuto“,
+            ale nový čip na sběrnici neodpovídá — v tom případě provede auto-flash znovu.
+
+    config CHESS_STM32_BL_HALL_PROBE_RETRIES
+        int "Počet pokusů Hall probe po flashi"
+        depends on CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH
+        range 1 10
+        default 3
+
+    config CHESS_STM32_BL_HALL_PROBE_RETRY_MS
+        int "Mezera mezi pokusy Hall probe (ms)"
+        depends on CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH
+        range 10 500
+        default 80
 
 endmenu

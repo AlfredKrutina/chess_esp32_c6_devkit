@@ -6,6 +6,7 @@
 #include "game_task_internal.h"
 #include "game_task.h"
 #include "game_move_validate.h"
+#include "chess_gameplay_policy.h"
 
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -26,52 +27,6 @@ static const char *TAG = "GAME_ERROR";
 // ============================================================================
 // ENHANCED SMART ERROR HANDLING SYSTEM
 // ============================================================================
-
-/**
- * @brief Enhanced smart error handling for invalid moves
- * @param move Invalid move that was attempted
- * @param error Type of error that occurred
- */
-void game_handle_invalid_move_smart(const chess_move_t *move,
-                                    move_error_t error) {
-  ESP_LOGI(TAG, "🚫 INVALID MOVE - Starting smart recovery");
-
-  if (!move) {
-    ESP_LOGE(TAG, "❌ Critical error: NULL move pointer in error handling");
-    return;
-  }
-
-  // 1. Červené bliknutí chybného tahu
-  uint8_t from_led = chess_pos_to_led_index(move->from_row, move->from_col);
-  uint8_t to_led = chess_pos_to_led_index(move->to_row, move->to_col);
-
-  // Flash error - 5 rychlých červených bliknutí
-  for (int i = 0; i < 5; i++) {
-    led_set_pixel_safe(from_led, 255, 0, 0); // Red
-    led_set_pixel_safe(to_led, 255, 0, 0);   // Red
-    vTaskDelay(pdMS_TO_TICKS(100));
-    led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(100));
-  }
-
-  // 2. Rosvítit zeleně zdrojové pole (kde je figurka)
-  led_set_pixel_safe(from_led, 0, 255, 0); // Green - kde vzít figurku
-
-  // 3. Rosvítit červeně kolem nevalidního cíle
-  game_highlight_invalid_target_area(move->to_row, move->to_col);
-
-  // 4. Rosvítit validní tahy pro tuto figurku
-  game_highlight_valid_moves_for_piece(move->from_row, move->from_col);
-
-  // 5. KRITICKÉ: Neměnit hráče, nechat ho opravit tah
-  ESP_LOGI(TAG, "💡 Please return piece to correct square. Valid moves are "
-                "highlighted.");
-
-  // 6. Nastavit internal stav "waiting for correction"
-  error_recovery_state.waiting_for_move_correction = true;
-  error_recovery_state.invalid_row = move->from_row;
-  error_recovery_state.invalid_col = move->from_col;
-}
 
 /**
  * @brief Highlight invalid target area with red LEDs
@@ -127,6 +82,11 @@ void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col) {
 void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   ESP_LOGI(TAG, "🚨 ENTERING game_handle_invalid_move - error: %d", error);
 
+  if (!chess_policy_error_recovery_enabled()) {
+    ESP_LOGW(TAG, "Invalid move ignored (error recovery disabled)");
+    return;
+  }
+
   // KRITICKÁ OPRAVA: Bezpečnostní kontrola move pointeru
   if (!move) {
     ESP_LOGE(TAG, "❌ Critical error: NULL move pointer in error handling");
@@ -170,26 +130,33 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   error_recovery_state.original_valid_col = move->from_col;
 
   // 3. Přesunout figurku na neplatnou pozici (simulace HW reality)
-  board[move->to_row][move->to_col] = board[move->from_row][move->from_col];
-  board[move->from_row][move->from_col] = PIECE_EMPTY;
+  if (chess_policy_error_recovery_should_mutate_board()) {
+    board[move->to_row][move->to_col] = board[move->from_row][move->from_col];
+    board[move->from_row][move->from_col] = PIECE_EMPTY;
+  }
 
   // 4. JASNÉ VIZUÁLNÍ UPOZORNĚNÍ - červené pole + blikání pro upoutání
   // pozornosti
-  led_clear_all_safe();
-  uint8_t invalid_led = chess_pos_to_led_index(move->to_row, move->to_col);
+  if (chess_policy_error_recovery_led_red_blink() ||
+      chess_policy_error_recovery_led_red_persist()) {
+    led_clear_all_safe();
+    uint8_t invalid_led = chess_pos_to_led_index(move->to_row, move->to_col);
 
-  ESP_LOGI(TAG, "🚨 STARTING ERROR ANIMATION - RED BLINKING");
+    ESP_LOGI(TAG, "🚨 STARTING ERROR ANIMATION - RED BLINKING");
 
-  // Blikání pro upoutání pozornosti (krátké, non-blocking)
-  for (int blink = 0; blink < 4; blink++) {
-    led_set_pixel_safe(invalid_led, 255, 0, 0); // Červená
-    vTaskDelay(pdMS_TO_TICKS(150));
-    led_set_pixel_safe(invalid_led, 0, 0, 0); // Zhasnout
-    vTaskDelay(pdMS_TO_TICKS(150));
+    if (chess_policy_error_recovery_led_red_blink()) {
+      for (int blink = 0; blink < 4; blink++) {
+        led_set_pixel_safe(invalid_led, 255, 0, 0);
+        vTaskDelay(pdMS_TO_TICKS(150));
+        led_set_pixel_safe(invalid_led, 0, 0, 0);
+        vTaskDelay(pdMS_TO_TICKS(150));
+      }
+    }
+
+    if (chess_policy_error_recovery_led_red_persist()) {
+      led_set_pixel_safe(invalid_led, 255, 0, 0);
+    }
   }
-
-  // Nechat červené pole trvale rozsvícené
-  led_set_pixel_safe(invalid_led, 255, 0, 0);
 
   ESP_LOGI(TAG, "🔴 RED SQUARE ACTIVE: %c%d (piece must be lifted from here)",
            'a' + move->to_col, move->to_row + 1);
@@ -206,6 +173,8 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
 
   ESP_LOGI(TAG, "💡 Error recovery active - red square will stay lit until "
                 "piece is lifted");
+
+  chess_policy_error_recovery_enter_lock();
 }
 
 /**
@@ -707,7 +676,7 @@ void game_show_player_change_animation(player_t previous_player,
   vTaskDelay(pdMS_TO_TICKS(200));
 
   // Finally, highlight movable pieces for current player
-  game_highlight_movable_pieces();
+  chess_policy_highlight_movable_if_enabled();
 }
 
 /**

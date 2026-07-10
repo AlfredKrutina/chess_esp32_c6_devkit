@@ -13,6 +13,7 @@ Kanónický inventář cest v repu. Vstupní rozcestník: [docs/README.md](../RE
 | `main/`, `components/`, kořenové `CMakeLists.txt`, `sdkconfig*` | ESP-IDF očekává projekt v kořeni |
 | `firmware/version.json` | OTA manifest — raw URL v aplikaci a CI |
 | `embedded/stm32_fw_embedded.bin` | Flash oddíl `stm32_fw` v `CMakeLists.txt` |
+| `sdkconfig.defaults.hall_v2` | Hall V2 + STM32 auto-flash build profil |
 | `gh-pages-ready/` | GitHub Pages workflow kopíruje konkrétní soubory |
 | `flutter_czechmate/` | CI, package name, desítky odkazů v docs |
 

@@ -162,6 +162,7 @@ xSemaphoreGive(...);
 #include "game_matrix_guard.h"
 #include "game_snapshot.h"
 #include "game_task_internal.h"
+#include "chess_gameplay_policy.h"
 #include "../button_task/include/button_task.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
@@ -295,11 +296,11 @@ static bool guided_capture_hints_enabled = true;
 static uint8_t led_guidance_level = 5;
 
 bool game_led_guidance_show_destinations(void) {
-  return led_guidance_level >= 2;
+  return chess_policy_move_hints_legal_blue() && led_guidance_level >= 2;
 }
 
 bool game_led_guidance_show_movable_yellow(void) {
-  return led_guidance_level >= 3;
+  return chess_policy_move_hints_movable_yellow() && led_guidance_level >= 3;
 }
 
 bool game_led_guidance_show_check_anim(void) {
@@ -955,6 +956,9 @@ const char *piece_symbols[] = {
  * Vyhodi variadickou funkci s printf-style argumenty.
  */
 static void print_error_detail(const char *label, const char *fmt, ...) {
+  if (!chess_policy_uart_error_detail_enabled()) {
+    return;
+  }
   va_list args;
   char buffer[256];
 
@@ -1824,6 +1828,11 @@ void game_task_matrix_guard_freeze_move_flow(void) {
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row,
                                              uint8_t error_col) {
+  if (!chess_policy_error_recovery_enabled() ||
+      (!chess_policy_error_recovery_led_red_blink() &&
+       !chess_policy_error_recovery_led_red_persist())) {
+    return;
+  }
   // Přerušit předchozí blikání
   game_stop_error_blink();
 
@@ -2160,6 +2169,7 @@ void game_print_status(void) {
 
 void game_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Game task started successfully");
+  chess_policy_log_boot();
 
   // CRITICAL: Register with TWDT from within task
   esp_err_t wdt_ret = esp_task_wdt_add(NULL);
@@ -2281,7 +2291,7 @@ void game_task_start(void *pvParameters) {
         }
         
         // Zvýraznit pohyblivé figurky
-        game_highlight_movable_pieces();
+        chess_policy_highlight_movable_if_enabled();
         
         // Notify web
         game_bump_revision_and_notify();

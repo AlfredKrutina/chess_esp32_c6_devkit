@@ -6,6 +6,7 @@
 #include "game_task_internal.h"
 #include "game_board_core.h"
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 #include "../matrix_task/include/matrix_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -178,7 +179,7 @@ bool game_puzzle_start(uint8_t puzzle_id) {
   puzzle_solution_to_col = to_col;
   puzzle_feedback = PUZZLE_FEEDBACK_NONE;
   led_clear_board_only();
-  game_highlight_movable_pieces();
+  chess_policy_highlight_movable_if_enabled();
   STAGING_LOGI(TAG, "puzzle: started id=%u difficulty=%u",
                (unsigned)puzzle->id, (unsigned)puzzle->difficulty);
   return true;
