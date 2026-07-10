@@ -1,6 +1,6 @@
 # Plán v2: Interaktivní trénink zahájení (Opening Trainer)
 
-**Verze:** 2.3 (build + pedagogika 2026-07-10)  
+**Verze:** 2.3.1 (audit proti repu 2026-07-10)  
 **Stav:** **v1.0 v implementaci** — FW + Flutter + web parita; katalog 41 linií; rationale; fyzický/virtuální soupeř; volitelný HTTP build  
 **Aktivní PR:** [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (opening trainer) · [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) (volitelný web server)  
 **Cíl:** Krok-za-krokem výuka slavných zahájení pro **bílé i černé**, s fyzickou deskou, LED nápovědou a jednotným UX na webu + Flutter.  
@@ -55,6 +55,18 @@
 
 ---
 
+## 0.5 Changelog v2.3 → v2.3.1 (audit proti repu)
+
+| Oprava | Proč |
+|--------|------|
+| §6.0 fyzický soupeř | Text z v2.1 („pro v1 ne“) — odporuje D3 a implementaci `opponent_mode` |
+| §4.8 mirror kvalita | 2/41 párů existuje, ale **nesprávně** (`italian_giuoco_white` ↔ `sicilian_odb_black`) |
+| §10.3 / §10.4 status + BLE | `physical_setup_match` → `physical_match` + `physical_synced`; BLE dispatch v `web_server_task.c` |
+| §0.3 / §11.4 Flutter mezery | Rationale na webu jen ply 0; Flutter pořád celou lekci; L10/L12 bez mode pickeru → default `virtual` |
+| §0.3 steps | Data kompletní (192/192 komentářů); mezera je locale ve Flutteru, ne obsah JSON |
+
+---
+
 ## 0.4 Changelog v2.2 → v2.3 (build + pedagogika)
 
 | Změna | Proč |
@@ -85,10 +97,11 @@
 | Setup wizard + retry | ✅ | `setup_phase` flow obě platformy |
 | PGN import | ✅ | `tools/openings/pgn_to_catalog.py` |
 | Volitelný HTTP build | ✅ | `CONFIG_CHESS_ENABLE_WEB_SERVER` — PR #10 |
-| `steps[]` EN v JSON | ✅ | 41/41; Flutter zatím čte jen `cs` u tahů |
-| `mirror_line_id` páry | 🟡 | Jen 2/41 — ★★★★ režim omezený |
+| `steps[]` EN v JSON | ✅ | 192/192 komentářů u všech hráčových ply; Flutter čte jen `cs` |
+| `mirror_line_id` páry | 🟡 | 2/41 — ★★★★ omezený; **oba páry jsou cross-family** (ne opačná barva stejné linie) |
 | `common_mistakes` v UI | ⬜ | 0/41 v masteru; schema + UI backlog |
-| UX lekce (bez debug stavů) | ⬜ | `Stav: wrong` → srozumitelné hlášky; rationale jen ply 0 |
+| UX lekce (bez debug stavů) | ⬜ | Flutter: `Stav: $_feedback`; web už má lidské texty |
+| Rationale jen ply 0 (Learn) | 🟡 | Web ✅ (`player_ply_index === 0`); Flutter zobrazuje po celou lekci |
 | Katalog filtry (side/ECO/family) | ⬜ | 41 linií bez vyhledávání |
 | Miniboard sync v lekci | ⬜ | Text + progress bar; plný miniboard backlog |
 | Stockfish „proč tento tah“ | ⬜ | Fáze 5 backlog |
@@ -294,9 +307,10 @@ flowchart TB
 |------|--------|
 | Implementace režimu | ✅ Samostatná párová linie přes `mirror_line_id` |
 | Obsah | 🟡 Pouze **2/41** linií má `mirror_line_id` |
-| Dopad | ★★★★ je pro většinu linií nedosažitelná |
+| Kvalita párů | ⚠️ Oba existující páry jsou **špatně**: `italian_giuoco_white` ↔ `sicilian_odb_black` (cross-family, ne stejná varianta z opačné barvy) |
+| Dopad | ★★★★ je pro většinu linií nedosažitelná; u 2 linií vede na nesouvisející lekci |
 
-**Plán obsahu (Fáze 5d):** min. 10 ručních párů v `basics_*` + `classical_deep`, nebo předefinovat Mirror jako „stejná linie, opačná barva v jiném záznamu“ bez párování.
+**Plán obsahu (Fáze 5d):** min. 10 **správných** párů (např. `italian_giuoco_white` ↔ budoucí `italian_giuoco_black`) v `basics_*` + `classical_deep`, nebo předefinovat Mirror bez `mirror_line_id`.
 
 ---
 
@@ -377,7 +391,7 @@ Blokovat současně: normální hra, puzzle, setup tutorial, bot tah, Stockfish 
 | Lze validovat tahy hráče? | **Ano** — porovnání `(from,to)` s UCI + `game_is_valid_move` na logické desce |
 | Spustí matrix guard? | **Ano, bez D8** — po 1. virtuálním tahu. **Řešení:** opening v `mode_conflict_active` |
 | Lze hrát capture v linii? | **Jen s opatrností** — viz §6.5 a §8.5 |
-| Je lepší fyzický soupeř? | Pro v1 **ne** — 2× délka lekce, vyšší chybovost u začátečníků |
+| Je lepší fyzický soupeř? | **Záleží na cíli** — default `physical` (D3): deska = logika, parita s botem; `virtual` rychlejší, ale ghost figurky |
 | Alternativa v2.0 HW? | Hall senzory s typem figury — mimo scope V1 |
 
 **Závěr:** Plán je realizovatelný na V1 reed desce, pokud dodržíme D8 + checkpoint resync + katalogová pravidla.
@@ -603,6 +617,8 @@ flutter_czechmate/assets/data/openings_catalog.json
 - `checkpoint_ply_indices` = po tomto ply **povinný fyzický resync** před dalším hráčovým tahem.
 - `common_mistakes` = **jen klient** v1 (porovnání před odesláním tahu); FW v1.1.
 - Pro `side: "black"`: první bílé ply v `line_uci` se auto-playne virtuálně; hráč začíná na `player_ply_indices[0]`.
+
+> **Stav dat (2026-07-10):** Příklad výše je cílový tvar. V `openings_master.json` má `mirror_line_id` jen 2 linie a obě ukazují na **nesouvisející** linii (`italian_giuoco_white` ↔ `sicilian_odb_black`). `common_mistakes` a `opponent_annotations` jsou v masteru prázdné (0/41).
 
 ### 8.5 Validace obsahu (CI + python-chess)
 
@@ -834,9 +850,11 @@ Nový blok (vedle `puzzle`, `board_setup_tutorial`):
   "expected_to": "f6",
   "last_opponent_uci": "f1c4",
   "checkpoint_required": true,
-  "physical_setup_match": true
+  "physical_match": true
 }
 ```
+
+Pole `physical_synced` se používá při checkpointu (shoda matrix vs logika); `physical_match` při setup/startu (shoda s `start_fen`).
 
 `matrix_occupied[64]` exportovat když `setup_phase || checkpoint_required`.
 
@@ -846,7 +864,7 @@ Nový blok (vedle `puzzle`, `board_setup_tutorial`):
 { "cmd": "opening", "action": "start", "line_id": "...", "opponent_mode": "physical", "line_uci": ["..."], "player_ply_indices": [0,2,4] }
 ```
 
-Implementace: `ble_nimble_impl.c` → stejný parser jako HTTP (`web_server_apply_opening_json_body` — nová shared funkce vedle hint).
+Implementace: `web_server_task.c` → `web_server_ble_command_dispatch()` → `web_server_opening_dispatch_body()` (sdílené s HTTP handlerem v `web_handlers_game.c`).
 
 ### 10.5 Flutter API
 
@@ -923,6 +941,8 @@ Reuse konstant: `SETUP_TUTORIAL_REFRESH_MS = 600`, `SETUP_TUTORIAL_FAST_POLL_MS 
 | L10 Control the center | `italian_giuoco_white` | `basics_white` |
 | L11 Opening principles | `meta_principles` (text-only, bez FW) | — |
 | L12 Ruy Lopez intro | `spanish_berlin_white` | `classical_deep` |
+
+> **Mezera (Fáze 5a):** L10/L12 otevírají `OpeningTrainerScreen` přímo — **bez mode pickeru** → default konstruktoru `opponentMode: virtual`. Katalog přes `OpeningCatalogScreen` nabízí volbu a defaultuje `physical`.
 
 ### 11.5 Přístupnost (a11y)
 
@@ -1059,8 +1079,8 @@ typedef struct {
 | `game_json_export.c` | Sekce `opening_training` |
 | `game_task.c` | Matrix guard rozšíření |
 | `web_handlers_game.c` | `http_post_game_opening_handler` |
-| `web_routes.c` | Route registrace |
-| `ble_nimble_impl.c` | BLE `opening` cmd |
+| `web_routes.c` | Route registrace (jen pokud `CONFIG_CHESS_ENABLE_WEB_SERVER=y`) |
+| `web_server_task.c` | BLE `opening` cmd → `web_server_opening_dispatch_body` |
 | `game_task/CMakeLists.txt` | Přidat `game_opening_trainer.c` |
 
 ### 13.3 Hlavní funkce
@@ -1170,10 +1190,11 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 
 ### Fáze 5a — UX lekce (priorita 1) ⬜
 
-- [ ] Nahradit debug `Stav: $_feedback` srozumitelnými hláškami (CS/EN dle locale)
-- [ ] Rationale panel jen na **ply 0** (Learn); skrýt během drill/timed
-- [ ] `steps[]` komentáře: Flutter čte locale (`cs`/`en`), ne jen `cs`
-- [ ] `opponent_annotations` u 5+ linií + text při `opponent_turn` (physical)
+- [ ] Nahradit debug `Stav: $_feedback` srozumitelnými hláškami (CS/EN dle locale) — **Flutter**; web má lidské texty
+- [ ] Rationale panel jen na **ply 0** (Learn) — **web hotovo**; Flutter zobrazuje po celou lekci
+- [ ] `idea` + `steps[]`: Flutter locale (`cs`/`en`), ne jen `cs` / `ideaCs`
+- [ ] L10/L12: mode picker nebo default `physical` jako v katalogu
+- [ ] `opponent_annotations` u 5+ linií + text při `opponent_turn` (physical) — dnes 0/41
 - [ ] Katalog filtry: side / ECO / family / difficulty
 
 **Acceptance:** Learn lekce bez technických stavů; rationale viditelné jen na úvodu.
@@ -1199,7 +1220,8 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 ### Fáze 5d — Mirror páry + polish (priorita 4) 🟡
 
 - [x] Rationale CS/EN kompletní (sidecar) — Fáze 4b
-- [ ] `mirror_line_id` u min. 10 párů (`basics_*` + `classical_deep`) — dnes 2/41
+- [ ] Opravit 2 existující **špatné** páry (`italian_giuoco_white` ↔ `sicilian_odb_black`)
+- [ ] `mirror_line_id` u min. 10 **správných** párů (`basics_*` + `classical_deep`) — dnes 2/41
 - [ ] Checkpoint „srovnej desku“ UI — základ hotový, polish
 - [ ] Stockfish „proč tento tah“ (read-only, Learn only) — volitelné
 - [ ] Rozšířit `MANUAL_TEST_CHECKLIST.md` (vč. BLE-only build)
@@ -1341,7 +1363,9 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 | `common_mistakes` v UI | grep klient | ⬜ Backlog Fáze 5b |
 | Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5c |
 | `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
-| `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — Fáze 5d |
+| `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — oba cross-family; Fáze 5d |
+| Flutter rationale ply 0 | `opening_trainer_screen.dart` | ⬜ Web parita hotová |
+| L10/L12 default opponent | `learn_screen.dart` | ⬜ `virtual` místo `physical` |
 
 ### Doporučené pořadí (další práce)
 
@@ -1354,4 +1378,4 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 
 ---
 
-*Plán v2.3 — živý dokument. Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (opening + rationale) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) (volitelný HTTP build). Větve: `cursor/opening-opponent-physical-8fdd`, `cursor/optional-web-server-8fdd`.*
+*Plán v2.3.1 — živý dokument (audit 2026-07-10). Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (opening + rationale) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) (volitelný HTTP build). Větve: `cursor/opening-opponent-physical-8fdd`, `cursor/optional-web-server-8fdd`.*
