@@ -26,3 +26,30 @@ List<List<String>> boardFromPlacementFen(String fen) {
   }
   return board;
 }
+
+/// Snapshot `board[row][col]` (řádek 0 = rank 1) → placement část FEN (řádek 0 = rank 8).
+String placementFenFromSnapshotBoard(List<List<String>> board) {
+  if (board.length != 8) return '';
+  final rows = <String>[];
+  for (var r = 7; r >= 0; r--) {
+    if (board[r].length != 8) return '';
+    final buf = StringBuffer();
+    var empty = 0;
+    for (var c = 0; c < 8; c++) {
+      final raw = board[r][c].trim();
+      final p = raw.isEmpty ? '' : raw.substring(0, 1);
+      if (p.isEmpty || p == ' ') {
+        empty++;
+      } else {
+        if (empty > 0) {
+          buf.write(empty);
+          empty = 0;
+        }
+        buf.write(p);
+      }
+    }
+    if (empty > 0) buf.write(empty);
+    rows.add(buf.toString());
+  }
+  return rows.join('/');
+}

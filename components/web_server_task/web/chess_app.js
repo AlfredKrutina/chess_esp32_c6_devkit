@@ -3374,6 +3374,141 @@
         return '';
     }
 
+    function openingEnsureMiniboardStyles() {
+        if (document.getElementById('opening-miniboard-styles')) return;
+        var style = document.createElement('style');
+        style.id = 'opening-miniboard-styles';
+        style.textContent = [
+            '.opening-trainer-board {',
+            '  display: grid;',
+            '  grid-template-columns: repeat(8, 1fr);',
+            '  width: min(280px, 100%);',
+            '  aspect-ratio: 1;',
+            '  margin: 0 auto 12px;',
+            '  border-radius: 8px;',
+            '  overflow: hidden;',
+            '  box-shadow: 0 2px 8px rgba(0,0,0,0.35);',
+            '}',
+            '.opening-miniboard-square {',
+            '  position: relative;',
+            '  display: flex;',
+            '  align-items: center;',
+            '  justify-content: center;',
+            '}',
+            '.opening-miniboard-square.light { background: #f0d9b5; }',
+            '.opening-miniboard-square.dark { background: #b58863; }',
+            '.opening-miniboard-square.opening-hint-from {',
+            '  box-shadow: inset 0 0 0 9999px rgba(255, 213, 79, 0.55);',
+            '}',
+            '.opening-miniboard-square.opening-hint-to {',
+            '  box-shadow: inset 0 0 0 9999px rgba(118, 255, 122, 0.55);',
+            '}',
+            '.opening-miniboard-square.opening-checkpoint {',
+            '  box-shadow: inset 0 0 0 9999px rgba(103, 58, 183, 0.55);',
+            '}',
+            '.opening-miniboard-square .piece {',
+            '  width: 90%;',
+            '  height: 90%;',
+            '  display: flex;',
+            '  align-items: center;',
+            '  justify-content: center;',
+            '  font-size: clamp(14px, 4vw, 28px);',
+            '}',
+            '.opening-miniboard-square .piece img {',
+            '  width: 100%;',
+            '  height: 100%;',
+            '  object-fit: contain;',
+            '}'
+        ].join('\n');
+        document.head.appendChild(style);
+    }
+
+    function openingEnsureMiniboardEl(panel) {
+        openingEnsureMiniboardStyles();
+        var el = document.getElementById('opening-trainer-board');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'opening-trainer-board';
+            el.className = 'opening-trainer-board';
+            el.setAttribute('aria-label', 'Miniboard — logická pozice lekce');
+            var textEl = document.getElementById('opening-trainer-text');
+            if (textEl && textEl.parentNode) {
+                textEl.parentNode.insertBefore(el, textEl);
+            } else if (panel.firstChild) {
+                panel.insertBefore(el, panel.firstChild);
+            } else {
+                panel.appendChild(el);
+            }
+            for (var row = 7; row >= 0; row--) {
+                for (var col = 0; col < 8; col++) {
+                    var sq = document.createElement('div');
+                    sq.className = 'opening-miniboard-square ' +
+                        ((row + col) % 2 === 0 ? 'light' : 'dark');
+                    sq.dataset.row = String(row);
+                    sq.dataset.col = String(col);
+                    var piece = document.createElement('div');
+                    piece.className = 'opening-miniboard-piece';
+                    piece.id = 'opening-piece-' + (row * 8 + col);
+                    sq.appendChild(piece);
+                    el.appendChild(sq);
+                }
+            }
+        }
+        return el;
+    }
+
+    function openingUpdateMiniboard(status) {
+        var panel = document.getElementById('opening-trainer-panel');
+        if (!panel) return;
+        var boardEl = openingEnsureMiniboardEl(panel);
+        var board = status && status.board;
+        var ot = status && status.opening_training;
+        if (!board || !Array.isArray(board) || board.length !== 8) {
+            boardEl.style.display = 'none';
+            return;
+        }
+        boardEl.style.display = 'grid';
+        for (var row = 0; row < 8; row++) {
+            if (!board[row] || board[row].length !== 8) continue;
+            for (var col = 0; col < 8; col++) {
+                var pieceEl = document.getElementById('opening-piece-' + (row * 8 + col));
+                if (pieceEl && typeof setPieceElementFromFen === 'function') {
+                    setPieceElementFromFen(pieceEl, board[row][col]);
+                }
+                var sq = boardEl.querySelector('[data-row="' + row + '"][data-col="' + col + '"]');
+                if (sq) {
+                    sq.classList.remove('opening-hint-from', 'opening-hint-to', 'opening-checkpoint');
+                }
+            }
+        }
+        if (ot && ot.expected_from) {
+            document.querySelectorAll('#opening-trainer-board .opening-miniboard-square').forEach(function (sq) {
+                var r = parseInt(sq.dataset.row, 10);
+                var c = parseInt(sq.dataset.col, 10);
+                var alg = String.fromCharCode(97 + c) + (r + 1);
+                if (ot.expected_from === alg) sq.classList.add('opening-hint-from');
+                if (ot.expected_to === alg) sq.classList.add('opening-hint-to');
+            });
+        }
+        if (ot && (ot.feedback === 'checkpoint' || ot.awaiting_checkpoint_ack)) {
+            var matrix = status.matrix_occupied;
+            var expected = ot.checkpoint_expected_occupied;
+            if (matrix && expected && matrix.length >= 64 && expected.length >= 64) {
+                for (var i = 0; i < 64; i++) {
+                    if (matrix[i] !== expected[i]) {
+                        var alg = openingSquareFromIndex(i);
+                        document.querySelectorAll('#opening-trainer-board .opening-miniboard-square').forEach(function (sq) {
+                            var r = parseInt(sq.dataset.row, 10);
+                            var c = parseInt(sq.dataset.col, 10);
+                            var name = String.fromCharCode(97 + c) + (r + 1);
+                            if (name === alg) sq.classList.add('opening-checkpoint');
+                        });
+                    }
+                }
+            }
+        }
+    }
+
     function openingUpdatePanel(status) {
         var panel = document.getElementById('opening-trainer-panel');
         var textEl = document.getElementById('opening-trainer-text');
@@ -3390,6 +3525,7 @@
         }
 
         panel.style.display = '';
+        openingUpdateMiniboard(status);
         var line = openingActiveLineId && global.findOpeningById
             ? global.findOpeningById(openingActiveLineId)
             : null;

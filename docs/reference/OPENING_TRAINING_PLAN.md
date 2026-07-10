@@ -127,7 +127,7 @@
 | Rationale jen ply 0 (Learn) | ✅ | Flutter `_playerPly == 0`; web už měl |
 | Katalog filtry (side/ECO/search) | ✅ | `opening_catalog_screen.dart` PR 5a |
 | L10/L12 mode picker | ✅ | `launchOpeningLessonById` + sdílený picker |
-| Miniboard sync v lekci | ⬜ | Text + progress bar; plný miniboard backlog |
+| Miniboard sync v lekci | ✅ | Flutter `OpeningLessonBoardPreview` + web miniboard; PR 5c |
 | Stockfish „proč tento tah“ | ⬜ | Fáze 5 backlog |
 | Spaced repetition notifikace | ⬜ | Fronta due lines hotová; push notif backlog |
 | Větvení `branches[]` | ⬜ | v1.1 |
@@ -356,7 +356,7 @@ flowchart TB
 | `steps` locale | ✅ čte z JSON obou jazyků | ⬜ Jen `stepCommentsCs` | 5a — `commentForPlayerPly(locale)` |
 | Mode picker | ✅ Před startem | ✅ Katalog ano; L10/L12 ne | 5a — `_pickMode` nebo `physical` default |
 | `common_mistakes` | ⬜ | ⬜ | 5b |
-| Miniboard | ⬜ | ⬜ | 5c — reuse board widget z `game_screen` |
+| Miniboard | ✅ | ✅ | 5c — `OpeningLessonBoardPreview` + web `#opening-trainer-board` |
 | Katalog filtry | ⬜ | ⬜ | 5a — `SearchBar` + chip filtry |
 | Progress / hvězdy | ✅ localStorage | ✅ SharedPreferences | — |
 | BLE opening API | — | ✅ | — |
@@ -1344,12 +1344,12 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 
 **Acceptance:** Špatná varianta (např. `f1b5` místo `f1c4`) ukáže pedagogický hint.
 
-### Fáze 5c — Miniboard v lekci (priorita 3) ⬜
+### Fáze 5c — Miniboard v lekci (priorita 3) ✅
 
-- [ ] Sync `/api/board` nebo snapshot v `OpeningTrainerScreen`
-- [ ] Web: stejný miniboard v `opening_trainer.js`
-- [ ] Checkpoint diff zvýraznění na miniboardu
-- [ ] WCAG AA kontrast (§11.5)
+- [x] Sync snapshot v `OpeningTrainerScreen` (`OpeningLessonBoardPreview`)
+- [x] Web: miniboard v `opening_trainer.js` + CSS
+- [x] Checkpoint diff zvýraznění na miniboardu (fialové pole)
+- [x] WCAG AA kontrast — světlé/tmavé pole + dostatečný kontrast overlay
 
 **Acceptance:** Hráč vidí pozici i bez pohledu na fyzickou desku.
 
@@ -1520,7 +1520,7 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 | Learn screen → opening | `learn_screen.dart` | ✅ |
 | Katalog 41 linií CI | `opening_catalog_test.dart`, `opening_rationale_test.dart` | ✅ |
 | `common_mistakes` v UI | grep klient + sync | ✅ Fáze 5b |
-| Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5c |
+| Miniboard v lekci | `opening_trainer_screen.dart`, `opening_trainer.js` | ✅ Fáze 5c |
 | `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
 | `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — oba cross-family; Fáze 5d |
 | Flutter rationale ply 0 | `opening_trainer_screen.dart` | ✅ PR 5a |
@@ -1570,4 +1570,4 @@ Všechny body musí být ✅ před označením opening traineru za **v1.0 produk
 
 ---
 
-*Plán v2.4 — živý dokument (2026-07-10). Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10). Další práce: §14.1 Fáze 5a.*
+*Plán v2.4 — živý dokument (2026-07-10). Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) · PR [#11](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/11) · PR [#12](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/12). Další práce: §14.1 Fáze 5d.*

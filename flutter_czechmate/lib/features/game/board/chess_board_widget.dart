@@ -289,6 +289,7 @@ class _BoardPainter extends CustomPainter {
     this.hintFrom,
     this.hintTo,
     this.selected,
+    this.accentSquares = const [],
     required this.themeColors,
   });
 
@@ -310,6 +311,7 @@ class _BoardPainter extends CustomPainter {
   final String? hintFrom;
   final String? hintTo;
   final String? selected;
+  final List<String> accentSquares;
   final BoardStyleColors themeColors;
 
   @override
@@ -346,6 +348,9 @@ class _BoardPainter extends CustomPainter {
     );
     _markSquare(canvas, sq, hintFrom, const Color(0x99FFD54F));
     _markSquare(canvas, sq, hintTo, const Color(0x9976FF7A));
+    for (final sqName in accentSquares) {
+      _markSquare(canvas, sq, sqName, const Color(0x99673AB7));
+    }
     _markSquare(canvas, sq, selected, themeColors.selected);
   }
 
@@ -373,6 +378,7 @@ class _BoardPainter extends CustomPainter {
         oldDelegate.clientInvalidLit != clientInvalidLit ||
         oldDelegate.hintFrom != hintFrom ||
         oldDelegate.hintTo != hintTo ||
+        oldDelegate.accentSquares != accentSquares ||
         oldDelegate.themeColors != themeColors;
   }
 }
@@ -529,21 +535,26 @@ class _CoordinateOverlay extends StatelessWidget {
 class FenBoardPreview extends ConsumerWidget {
   const FenBoardPreview({
     super.key,
-    required this.fen,
+    this.fen,
+    this.cells,
     this.showCoordinates = true,
     this.highlightFrom,
     this.highlightTo,
-  });
+    this.accentSquares = const [],
+  }) : assert(fen != null || cells != null);
 
-  final String fen;
+  final String? fen;
+  final List<List<String>>? cells;
   final bool showCoordinates;
   final String? highlightFrom;
   final String? highlightTo;
+  final List<String> accentSquares;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ui = ref.watch(gameUiNotifierProvider);
-    final cells = boardFromPlacementFen(fen.trim());
+    final parsed = cells ??
+        boardFromPlacementFen((fen ?? '').trim());
     final themeColors = BoardStyleColors.fromRaw(ui.boardStyleRaw);
     final flipped = ui.boardFlipped;
 
@@ -561,7 +572,7 @@ class FenBoardPreview extends ConsumerWidget {
                   CustomPaint(
                     size: Size(side, side),
                     painter: _BoardPainter(
-                      board: cells,
+                      board: parsed,
                       flipped: flipped,
                       lastFrom: highlightFrom,
                       lastTo: highlightTo,
@@ -570,8 +581,9 @@ class FenBoardPreview extends ConsumerWidget {
                       originalSquare: null,
                       clientInvalidSquare: null,
                       clientInvalidLit: false,
-                      hintFrom: null,
-                      hintTo: null,
+                      hintFrom: highlightFrom,
+                      hintTo: highlightTo,
+                      accentSquares: accentSquares,
                       selected: null,
                       themeColors: themeColors,
                     ),
@@ -584,7 +596,7 @@ class FenBoardPreview extends ConsumerWidget {
                       themeColors: themeColors,
                     ),
                   BoardPiecesAnimator(
-                    board: cells,
+                    board: parsed,
                     flipped: flipped,
                     animationsEnabled: false,
                     squareW: side / 8,

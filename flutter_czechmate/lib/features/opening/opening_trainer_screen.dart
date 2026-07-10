@@ -13,6 +13,7 @@ import '../setup/board_setup_wizard_screen.dart';
 import 'opening_catalog_repository.dart';
 import 'opening_common_mistake.dart';
 import 'opening_feedback_l10n.dart';
+import 'opening_lesson_board.dart';
 import 'opening_rationale.dart';
 
 class OpeningTrainerScreen extends ConsumerStatefulWidget {
@@ -263,6 +264,25 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     return '${String.fromCharCode(97 + col)}${row + 1}';
   }
 
+  List<String> _checkpointDiffSquares({
+    required List<int>? matrix,
+    required List<int>? expected,
+  }) {
+    if (matrix == null ||
+        expected == null ||
+        matrix.length < 64 ||
+        expected.length < 64) {
+      return const [];
+    }
+    final out = <String>[];
+    for (var i = 0; i < 64; i++) {
+      if (matrix[i] != expected[i]) {
+        out.add(_squareFromIndex(i));
+      }
+    }
+    return out;
+  }
+
   List<String> _checkpointMismatches({
     required List<int>? matrix,
     required List<int>? expected,
@@ -338,6 +358,12 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
             expected: opening?.checkpointExpectedOccupied,
           )
         : const <String>[];
+    final checkpointSquares = isCheckpoint
+        ? _checkpointDiffSquares(
+            matrix: matrix,
+            expected: opening?.checkpointExpectedOccupied,
+          )
+        : const <String>[];
 
     final line = _line;
     final stepComment = line?.commentForPlayerPly(_playerPly, locale);
@@ -409,7 +435,13 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                       children: [
                         Text('ECO ${line.eco} · ${line.side} · $modeLabel',
                             style: Theme.of(context).textTheme.titleSmall),
-                        const SizedBox(height: 12),
+                        OpeningLessonBoardPreview(
+                          line: line,
+                          hintFrom: opening?.expectedFrom,
+                          hintTo: opening?.expectedTo,
+                          checkpointSquares: checkpointSquares,
+                        ),
+                        const SizedBox(height: 8),
                         Text(
                           instruction,
                           style: Theme.of(context).textTheme.titleMedium?.copyWith(
