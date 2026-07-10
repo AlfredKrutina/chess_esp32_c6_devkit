@@ -205,9 +205,10 @@ Většina je v PR #4; po merge doplnit:
 
 | Pořadí | Soubor | Obsah |
 |--------|--------|-------|
-| 3B.1 | `uart_commands.c` | pole `commands[]`, registrace, help |
-| 3B.2 | `uart_parse.c` | `uart_parse_command` |
-| 3B.3 | tematické handlery | game / wifi / system / debug |
+| 3B.1 | `uart_commands_table.c` | ~499 | pole `commands[]`, registrace, help | **hotovo** (PR #7) |
+| 3B.2 | `uart_parse.c` | ~365 | `uart_parse_command`, `find_command`, move parsing | 3B.1 | **hotovo** (PR #7) |
+| 3B.3 | `uart_handlers_game.c` | ~1117 | game move/board/castle/promote handlers | 3B.2 | **hotovo** (PR #7) |
+| 3B.4 | tematické handlery | — | wifi / system / debug (zbývá v `uart_task.c`) | 3B.3 |
 
 Tabulka příkazů začíná ~řádek 2562 — největší okamžitý win.
 
