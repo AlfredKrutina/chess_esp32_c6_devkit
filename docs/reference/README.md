@@ -6,6 +6,7 @@ Tady držím delší „jednorázové“ texty — spíš aby bylo jasné, jak s
 
 | Soubor | O čem to je |
 |--------|-------------|
+| [PROFESSIONAL_CLEANUP_PLAN.md](PROFESSIONAL_CLEANUP_PLAN.md) | Plán profesionalizace kódu — fáze, PR sekvence, rizika |
 | [KOMUNIKACE_MEZI_TASKY.md](KOMUNIKACE_MEZI_TASKY.md) | Fronty, mutexy, hardware ↔ tasky |
 | [coordinates_system.md](coordinates_system.md) | Notace ↔ row/col, LED |
 | [WEB_UI_DEPLOY.md](WEB_UI_DEPLOY.md) | `chess_app.js` ve firmware, build, nápověda na webu |
