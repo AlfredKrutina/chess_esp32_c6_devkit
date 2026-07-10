@@ -97,6 +97,13 @@ extern bool endgame_report_requested;
 extern int8_t material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
 extern uint32_t advantage_history_count;
 
+extern uint32_t moves_without_capture;
+extern uint32_t max_moves_without_capture;
+extern uint32_t total_games;
+extern uint32_t white_wins;
+extern uint32_t black_wins;
+extern uint32_t draws;
+
 char piece_to_char(piece_t piece);
 
 esp_err_t game_task_wdt_reset_safe(void);
