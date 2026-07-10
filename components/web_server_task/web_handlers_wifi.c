@@ -1,6 +1,6 @@
 /**
  * @file web_handlers_wifi.c
- * @brief WiFi-related HTTP handlers (/api/wifi/*).
+ * @brief WiFi-related HTTP handlers (api/wifi endpoints).
  */
 
 #include "web_server_task.h"
@@ -9,12 +9,14 @@
 
 #include "esp_http_server.h"
 #include "esp_log.h"
+#include "nvs_flash.h"
 
 #include <stdio.h>
 #include <string.h>
 
 static const char *TAG = "WEB_WIFI";
 
+// ============================================================================
 // WIFI API HANDLERS
 // ============================================================================
 
