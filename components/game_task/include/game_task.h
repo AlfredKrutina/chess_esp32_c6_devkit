@@ -752,6 +752,21 @@ void game_stop_repeating_rook_animation(void);
 void game_process_drop_command(const chess_move_command_t *cmd);
 
 /**
+ * @brief Zpracuj PICKUP prikaz (UP)
+ */
+void game_process_pickup_command(const chess_move_command_t *cmd);
+
+/**
+ * @brief Zpracuj CASTLE prikaz
+ */
+void game_process_castle_command(const chess_move_command_t *cmd);
+
+/**
+ * @brief Zpracuj PROMOTE prikaz
+ */
+void game_process_promote_command(const chess_move_command_t *cmd);
+
+/**
  * @brief Timer callback pro opakovanou animaci veze
  *
  * @param xTimer Handle timeru

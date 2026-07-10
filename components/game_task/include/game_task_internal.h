@@ -8,6 +8,7 @@
 
 #include "chess_types.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "freertos/timers.h"
 #include "game_task.h"
@@ -138,3 +139,71 @@ extern uint8_t last_move_to_col;
 void game_check_promotion_needed(void);
 
 void game_bump_revision_and_notify(void);
+
+/* --- Physical / lift-drop flow (game_physical.c) --- */
+
+extern bool piece_lifted;
+extern uint8_t lifted_piece_row;
+extern uint8_t lifted_piece_col;
+extern piece_t lifted_piece;
+
+extern bool capture_in_progress;
+extern uint8_t capture_target_row;
+extern uint8_t capture_target_col;
+extern piece_t capture_removed_piece;
+
+extern bool opponent_piece_moved;
+extern piece_t opponent_piece_type;
+extern uint8_t opponent_original_row;
+extern uint8_t opponent_original_col;
+extern uint8_t opponent_current_row;
+extern uint8_t opponent_current_col;
+
+extern bool castle_animation_active;
+extern uint8_t rook_from_row;
+extern uint8_t rook_from_col;
+extern uint8_t rook_to_row;
+extern uint8_t rook_to_col;
+
+#define GUIDED_CAPTURE_MAX_ATTACKERS 16
+
+typedef struct {
+  bool active;
+  uint8_t target_row;
+  uint8_t target_col;
+  piece_t target_piece;
+  uint8_t attacker_count;
+  uint8_t attacker_rows[GUIDED_CAPTURE_MAX_ATTACKERS];
+  uint8_t attacker_cols[GUIDED_CAPTURE_MAX_ATTACKERS];
+  piece_t attacker_pieces[GUIDED_CAPTURE_MAX_ATTACKERS];
+} guided_capture_state_t;
+
+extern guided_capture_state_t guided_capture_state;
+
+typedef enum {
+  PUZZLE_FEEDBACK_NONE = 0,
+  PUZZLE_FEEDBACK_WRONG = 1,
+  PUZZLE_FEEDBACK_SOLVED = 2,
+  PUZZLE_FEEDBACK_ILLEGAL = 3
+} puzzle_feedback_t;
+
+extern bool puzzle_active;
+extern puzzle_feedback_t puzzle_feedback;
+
+extern bool auto_new_game_blocked_until_move;
+
+void game_send_response_to_uart(const char *message, bool is_error,
+                                QueueHandle_t response_queue);
+bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
+bool game_led_guidance_show_destinations(void);
+bool game_led_guidance_show_movable_yellow(void);
+
+void resignation_start(player_t player, uint8_t row, uint8_t col);
+void resignation_stop(bool finalize);
+
+void game_reset_guided_capture_state(void);
+void game_show_guided_capture_leds(void);
+
+void game_handle_invalid_move(move_error_t error, const chess_move_t *move);
+
+#endif /* GAME_TASK_INTERNAL_H */
