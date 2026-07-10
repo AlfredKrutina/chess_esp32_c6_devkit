@@ -3,6 +3,8 @@ import 'package:czechmate/features/opening/opening_catalog_repository.dart';
 import 'package:czechmate/features/opening/opening_feedback_l10n.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('OpeningFeedbackL10n', () {
     test('maps wrong feedback to human text in cs', () {
       final text = OpeningFeedbackL10n.moveLabel(

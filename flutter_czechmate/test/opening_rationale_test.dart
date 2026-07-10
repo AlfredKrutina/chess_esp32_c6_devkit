@@ -3,6 +3,8 @@ import 'package:czechmate/features/opening/opening_catalog_repository.dart';
 import 'package:czechmate/features/opening/opening_rationale.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('OpeningRationale', () {
     test('parses full rationale block from catalog json', () {
       final rationale = OpeningRationale.fromJson({

@@ -87,16 +87,16 @@ uint32_t game_get_move_count(void) {
   return count;
 }
 
-static esp_err_t game_status_json_append(int *offset, char *buffer, size_t size,
+static esp_err_t game_status_json_append(size_t *offset, char *buffer, size_t size,
                                         const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
-  if (*offset < 0 || (size_t)*offset >= size) {
+  if (*offset >= size) {
     va_end(ap);
-    ESP_LOGE(TAG, "game_get_status_json: offset invalid %d", *offset);
+    ESP_LOGE(TAG, "game_get_status_json: offset invalid %zu", *offset);
     return ESP_ERR_NO_MEM;
   }
-  size_t rem = size - (size_t)*offset;
+  size_t rem = size - *offset;
   if (rem <= 1) {
     va_end(ap);
     return ESP_ERR_NO_MEM;
@@ -105,11 +105,11 @@ static esp_err_t game_status_json_append(int *offset, char *buffer, size_t size,
   va_end(ap);
   if (n < 0 || (size_t)n >= rem) {
     ESP_LOGE(TAG,
-             "game_get_status_json: append overflow need=%d rem=%zu off=%d", n,
+             "game_get_status_json: append overflow need=%d rem=%zu off=%zu", n,
              rem, *offset);
     return ESP_ERR_NO_MEM;
   }
-  *offset += n;
+  *offset += (size_t)n;
   return ESP_OK;
 }
 
@@ -136,7 +136,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
   }
 
   // Build JSON string
-  int offset = 0;
+  size_t offset = 0;
 
   // Game state string
   const char *game_state_str = "idle";

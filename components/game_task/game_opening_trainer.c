@@ -623,8 +623,11 @@ void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
     opening_state.last_wrong_uci[0] = '\0';
     return;
   }
-  snprintf(opening_state.last_wrong_uci, sizeof(opening_state.last_wrong_uci),
-           "%s%s", from_sq, to_sq);
+  opening_state.last_wrong_uci[0] = from_sq[0];
+  opening_state.last_wrong_uci[1] = from_sq[1];
+  opening_state.last_wrong_uci[2] = to_sq[0];
+  opening_state.last_wrong_uci[3] = to_sq[1];
+  opening_state.last_wrong_uci[4] = '\0';
   STAGING_LOGI(TAG, "wrong uci recorded %s ply=%u", opening_state.last_wrong_uci,
                (unsigned)opening_state.ply_index);
 }
