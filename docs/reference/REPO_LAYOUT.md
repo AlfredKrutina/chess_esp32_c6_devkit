@@ -33,7 +33,7 @@ chess_esp32_c6_devkit/
 ├── embedded/
 │   └── stm32_fw_embedded.bin  # Binárka pro flash oddíl ESP
 ├── gh-pages-ready/          # Zdroj statického webu (downloads, landing)
-├── .github/workflows/       # CI: Pages, diagramy, Flutter release
+├── .github/workflows/       # CI: Pages, diagramy, Flutter release, firmware build, flutter test
 ├── partitions*.csv          # Tabulky oddílů flash
 ├── Doxyfile                 # Doxygen konfigurace
 ├── generate_docs.sh         # Wrapper → scripts/docs/generate_docs.sh

@@ -1,0 +1,45 @@
+# CI: ESP-IDF firmware build (ESP32-C6)
+# Runs on PRs touching firmware sources. Requires no hardware.
+
+name: Firmware build
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'components/**'
+      - 'main/**'
+      - 'CMakeLists.txt'
+      - 'sdkconfig*'
+      - 'partitions*.csv'
+      - 'embedded/**'
+      - 'scripts/idf_build.sh'
+      - '.github/workflows/firmware-build.yml'
+  pull_request:
+    paths:
+      - 'components/**'
+      - 'main/**'
+      - 'CMakeLists.txt'
+      - 'sdkconfig*'
+      - 'partitions*.csv'
+      - 'embedded/**'
+      - 'scripts/idf_build.sh'
+      - '.github/workflows/firmware-build.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: firmware-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure and build
+        run: |
+          idf.py set-target esp32c6
+          idf.py build

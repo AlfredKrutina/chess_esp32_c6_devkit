@@ -158,6 +158,8 @@ xSemaphoreGive(...);
  */
 
 #include "game_task.h"
+#include "game_matrix_guard.h"
+#include "game_task_internal.h"
 #include "../button_task/include/button_task.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
@@ -282,7 +284,7 @@ static bool rook_animation_active = false;
 static uint8_t rook_from_row, rook_from_col, rook_to_row, rook_to_col;
 
 // Board representation (8x8)
-static piece_t board[8][8] = {0};
+piece_t board[8][8] = {0};
 static bool piece_moved[8][8] = {false}; // Track if pieces have moved
 
 // Global variables for tracking lifted piece (UP/DN commands)
@@ -328,17 +330,6 @@ static bool game_led_guidance_show_check_anim(void) {
 }
 
 static void game_show_guided_capture_leds(void);
-
-typedef struct {
-  bool active;
-  uint32_t lifted_mask_low;
-  uint32_t lifted_mask_high;
-  uint32_t dropped_mask_low;
-  uint32_t dropped_mask_high;
-  uint8_t conflict_count;
-} matrix_guard_pause_state_t;
-
-static matrix_guard_pause_state_t matrix_guard_pause_state = {0};
 
 #define GAME_SNAPSHOT_VERSION 1
 #define GAME_SNAPSHOT_HISTORY_CAP 40
@@ -413,7 +404,7 @@ static bool snapshot_restore_failed = false;
 static bool snapshot_save_failed = false;
 static bool snapshot_fallback_used = false;
 static bool boot_new_game_triggered = false;
-static bool resync_required_after_restore = false;
+bool resync_required_after_restore = false;
 
 // Proměnné pro tracking opponent piece (když se zvedne figurka
 // nehrajícího hráče)
@@ -591,21 +582,12 @@ static void resignation_update_button_leds(uint32_t elapsed_ms);
 static void resignation_tick(void);
 static void resignation_finalize_timeout(void);
 static bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
-static uint8_t game_count_mask_bits(uint32_t low, uint32_t high);
-static bool game_matrix_guard_mode_conflict_active(void);
-static void game_render_matrix_guard_leds(void);
-static void game_handle_matrix_guard_command(const chess_move_command_t *cmd);
 static uint32_t game_crc32_simple(const uint8_t *data, size_t len);
 static esp_err_t game_save_snapshot_to_nvs(void);
 static esp_err_t game_load_snapshot_from_nvs(void);
 static void game_boot_tracker_update_on_move(void);
 static bool game_boot_tracker_should_force_new_game(void);
-static void game_check_resync_needed_after_restore(void);
 static void game_persist_after_valid_move(void);
-static void game_try_clear_local_guard_from_matrix(void);
-static void game_board_to_occupancy(uint8_t out[64]);
-static void game_matrix_guard_clear_both_layers(void);
-static void game_matrix_guard_restore_after_clear(bool notify_clients);
 static bool game_parse_piece_from_fen(char c, piece_t *out_piece);
 static bool game_load_position_from_fen(const char *fen, player_t *active_player);
 static const char *game_puzzle_feedback_key(void);
@@ -1762,7 +1744,7 @@ void game_initialize_board(void) {
   // Board will be displayed after all tasks are initialized
 }
 
-static void game_bump_revision_and_notify(void) {
+void game_bump_revision_and_notify(void) {
   game_task_wdt_reset_safe();
   game_state_revision++;
   if (game_state_revision == 0U) {
@@ -4555,7 +4537,7 @@ bool game_get_guided_capture_hints_enabled(void) {
 }
 
 bool game_matrix_allow_second_sequential_lift(void) {
-  if (matrix_guard_pause_state.active) {
+  if (game_is_matrix_guard_active()) {
     return false;
   }
   if (guided_capture_state.active) {
@@ -4612,35 +4594,7 @@ void game_set_led_guidance_level(uint8_t level) {
   }
 }
 
-bool game_is_matrix_guard_active(void) { return matrix_guard_pause_state.active; }
-
-uint8_t game_get_matrix_guard_conflict_count(void) {
-  return matrix_guard_pause_state.conflict_count;
-}
-
-uint32_t game_get_matrix_guard_lifted_mask_low(void) {
-  return matrix_guard_pause_state.lifted_mask_low;
-}
-
-uint32_t game_get_matrix_guard_lifted_mask_high(void) {
-  return matrix_guard_pause_state.lifted_mask_high;
-}
-
-uint32_t game_get_matrix_guard_dropped_mask_low(void) {
-  return matrix_guard_pause_state.dropped_mask_low;
-}
-
-uint32_t game_get_matrix_guard_dropped_mask_high(void) {
-  return matrix_guard_pause_state.dropped_mask_high;
-}
-
-void game_force_clear_matrix_guard(void) {
-  if (!matrix_guard_pause_state.active && !matrix_is_guard_mode_active()) {
-    return;
-  }
-  game_matrix_guard_restore_after_clear(true);
-  STAGING_LOGI(TAG, "Matrix guard force-cleared (game + matrix)");
-}
+uint8_t game_get_led_guidance_level(void) { return led_guidance_level; }
 
 bool game_was_snapshot_loaded_on_boot(void) { return snapshot_loaded_on_boot; }
 
@@ -5015,20 +4969,7 @@ static bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd) {
           (cmd->type == GAME_CMD_PICKUP || cmd->type == GAME_CMD_DROP));
 }
 
-static uint8_t game_count_mask_bits(uint32_t low, uint32_t high) {
-  uint8_t count = 0;
-  while (low != 0) {
-    count += (uint8_t)(low & 1U);
-    low >>= 1;
-  }
-  while (high != 0) {
-    count += (uint8_t)(high & 1U);
-    high >>= 1;
-  }
-  return count;
-}
-
-static bool game_matrix_guard_mode_conflict_active(void) {
+bool game_task_matrix_guard_mode_conflict_active(void) {
   return (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
           promotion_state.pending ||
           castling_state.in_progress || castle_animation_active ||
@@ -5036,91 +4977,12 @@ static bool game_matrix_guard_mode_conflict_active(void) {
           error_recovery_state.waiting_for_move_correction);
 }
 
-static void game_render_matrix_guard_leds(void) {
-  if (!matrix_guard_pause_state.active) {
-    return;
-  }
-
-  led_clear_board_only();
-  uint8_t phys[64] = {0};
-  matrix_get_state(phys);
-
-  for (uint8_t square = 0; square < 64; square++) {
-    uint8_t row = square / 8;
-    uint8_t col = square % 8;
-    piece_t piece = board[row][col];
-    uint8_t expected_occ =
-        (piece == PIECE_EMPTY) ? 0 : 1;
-    if (phys[square] == expected_occ) {
-      continue;
-    }
-
-    if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0);
-    } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 0, 255);
-    } else if (phys[square] != 0) {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 140, 0);
-    } else {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 220, 220, 220);
-    }
-  }
-}
-
-static void game_handle_matrix_guard_command(const chess_move_command_t *cmd) {
-  if (cmd == NULL || cmd->type != GAME_CMD_MATRIX_GUARD) {
-    return;
-  }
-
-  uint8_t action = cmd->timer_data.matrix_guard.action;
-  if (action == 0) {
-    game_matrix_guard_restore_after_clear(true);
-    STAGING_LOGI(TAG, "Matrix guard cleared");
-    return;
-  }
-
-  if (game_matrix_guard_mode_conflict_active()) {
-    STAGING_LOGI(TAG,
-                 "Matrix guard ignored (special mode) — clearing matrix local "
-                 "guard so UP/DN continues");
-    if (matrix_guard_pause_state.active) {
-      memset(&matrix_guard_pause_state, 0, sizeof(matrix_guard_pause_state));
-      resync_required_after_restore = false;
-    }
-    matrix_abort_ambiguous_guard_baseline();
-    return;
-  }
-
-  matrix_guard_pause_state.active = true;
-  matrix_guard_pause_state.lifted_mask_low =
-      cmd->timer_data.matrix_guard.lifted_mask_low;
-  matrix_guard_pause_state.lifted_mask_high =
-      cmd->timer_data.matrix_guard.lifted_mask_high;
-  matrix_guard_pause_state.dropped_mask_low =
-      cmd->timer_data.matrix_guard.dropped_mask_low;
-  matrix_guard_pause_state.dropped_mask_high =
-      cmd->timer_data.matrix_guard.dropped_mask_high;
-  matrix_guard_pause_state.conflict_count = game_count_mask_bits(
-      matrix_guard_pause_state.lifted_mask_low |
-          matrix_guard_pause_state.dropped_mask_low,
-      matrix_guard_pause_state.lifted_mask_high |
-          matrix_guard_pause_state.dropped_mask_high);
-
-  // Freeze matrix move flow and clear transient lift state.
+void game_task_matrix_guard_freeze_move_flow(void) {
   piece_lifted = false;
   lifted_piece = PIECE_EMPTY;
   lifted_piece_row = 0;
   lifted_piece_col = 0;
   capture_in_progress = false;
-
-  /* Recovery target = logical board[], not stale physical snapshot. */
-  uint8_t expected[64];
-  game_board_to_occupancy(expected);
-  matrix_guard_apply_expected_occupancy(expected);
-
-  STAGING_LOGI(TAG, "Matrix guard active, conflict_count=%u",
-               matrix_guard_pause_state.conflict_count);
-  game_render_matrix_guard_leds();
 }
 
 static uint32_t game_crc32_simple(const uint8_t *data, size_t len) {
@@ -5416,90 +5278,6 @@ static bool game_boot_tracker_should_force_new_game(void) {
   return force_new_game;
 }
 
-static void game_check_resync_needed_after_restore(void) {
-  uint8_t matrix_state_now[64] = {0};
-  matrix_get_state(matrix_state_now);
-
-  uint32_t lifted_low = 0, lifted_high = 0;
-  uint8_t conflicts = 0;
-  for (uint8_t i = 0; i < 64; i++) {
-    uint8_t expected = (((uint8_t)board[i / 8][i % 8]) == PIECE_EMPTY) ? 0 : 1;
-    if (matrix_state_now[i] != expected) {
-      if (i < 32) {
-        lifted_low |= (1UL << i);
-      } else {
-        lifted_high |= (1UL << (i - 32));
-      }
-      conflicts++;
-    }
-  }
-
-  if (conflicts == 0) {
-    resync_required_after_restore = false;
-    return;
-  }
-
-  matrix_guard_pause_state.active = true;
-  matrix_guard_pause_state.lifted_mask_low = lifted_low;
-  matrix_guard_pause_state.lifted_mask_high = lifted_high;
-  matrix_guard_pause_state.dropped_mask_low = 0;
-  matrix_guard_pause_state.dropped_mask_high = 0;
-  matrix_guard_pause_state.conflict_count = conflicts;
-  resync_required_after_restore = true;
-
-  uint8_t expected[64];
-  game_board_to_occupancy(expected);
-  matrix_guard_apply_expected_occupancy(expected);
-
-  game_render_matrix_guard_leds();
-}
-
-static void game_board_to_occupancy(uint8_t out[64]) {
-  if (out == NULL) {
-    return;
-  }
-  for (uint8_t i = 0; i < 64; i++) {
-    out[i] = (((uint8_t)board[i / 8][i % 8]) == PIECE_EMPTY) ? 0 : 1;
-  }
-}
-
-static void game_matrix_guard_clear_both_layers(void) {
-  matrix_guard_pause_state.active = false;
-  matrix_guard_pause_state.lifted_mask_low = 0;
-  matrix_guard_pause_state.lifted_mask_high = 0;
-  matrix_guard_pause_state.dropped_mask_low = 0;
-  matrix_guard_pause_state.dropped_mask_high = 0;
-  matrix_guard_pause_state.conflict_count = 0;
-  resync_required_after_restore = false;
-  matrix_abort_ambiguous_guard_baseline();
-}
-
-static void game_matrix_guard_restore_after_clear(bool notify_clients) {
-  game_matrix_guard_clear_both_layers();
-  led_clear_board_only();
-  game_highlight_movable_pieces();
-  if (notify_clients) {
-    game_bump_revision_and_notify();
-  }
-}
-
-static void game_try_clear_local_guard_from_matrix(void) {
-  if (!matrix_guard_pause_state.active) {
-    return;
-  }
-  uint8_t matrix_state_now[64] = {0};
-  matrix_get_state(matrix_state_now);
-  for (uint8_t i = 0; i < 64; i++) {
-    uint8_t expected = (((uint8_t)board[i / 8][i % 8]) == PIECE_EMPTY) ? 0 : 1;
-    if (matrix_state_now[i] != expected) {
-      return;
-    }
-  }
-
-  game_matrix_guard_restore_after_clear(true);
-  STAGING_LOGI(TAG, "Matrix guard cleared (game + matrix layers synced)");
-}
-
 static void game_persist_after_valid_move(void) {
   esp_err_t ret = game_save_snapshot_to_nvs();
   if (ret != ESP_OK) {
@@ -5681,13 +5459,13 @@ static void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  if (matrix_guard_pause_state.active) {
+  if (game_is_matrix_guard_active()) {
     if (game_cmd_is_matrix_origin(cmd)) {
-      game_try_clear_local_guard_from_matrix();
-      if (!matrix_guard_pause_state.active) {
+      game_matrix_guard_try_clear_from_matrix();
+      if (!game_is_matrix_guard_active()) {
         return;
       }
-      game_render_matrix_guard_leds();
+      game_matrix_guard_render_leds();
       return;
     }
     game_send_response_to_uart(
@@ -6376,13 +6154,13 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  if (matrix_guard_pause_state.active) {
+  if (game_is_matrix_guard_active()) {
     if (game_cmd_is_matrix_origin(cmd)) {
-      game_try_clear_local_guard_from_matrix();
-      if (!matrix_guard_pause_state.active) {
+      game_matrix_guard_try_clear_from_matrix();
+      if (!game_is_matrix_guard_active()) {
         return;
       }
-      game_render_matrix_guard_leds();
+      game_matrix_guard_render_leds();
       return;
     }
     game_send_response_to_uart(
@@ -10287,15 +10065,15 @@ static bool game_undo_last_move_impl(void) {
   game_end_timer_move();
   game_start_timer_move(current_player == PLAYER_WHITE);
 
-  game_check_resync_needed_after_restore();
-  if (!matrix_guard_pause_state.active) {
+  game_matrix_guard_check_resync_after_restore();
+  if (!game_is_matrix_guard_active()) {
     led_clear_board_only();
     game_highlight_movable_pieces();
   } else {
     STAGING_LOGI(TAG,
                  "undo: matrix guard active — highlight squares until physical "
                  "board matches logic (conflicts=%u)",
-                 (unsigned)matrix_guard_pause_state.conflict_count);
+                 (unsigned)game_get_matrix_guard_conflict_count());
   }
 
   game_persist_after_valid_move();
@@ -10558,7 +10336,7 @@ void game_process_commands(void) {
 
       case GAME_CMD_MATRIX_GUARD: // 45
         ESP_LOGW(TAG, "Processing MATRIX_GUARD command");
-        game_handle_matrix_guard_command(&chess_cmd);
+        game_matrix_guard_handle_command(&chess_cmd);
         break;
 
       case GAME_CMD_BOARD_SETUP_TUTORIAL: // 46
@@ -12055,7 +11833,7 @@ void game_task_start(void *pvParameters) {
   /*
    * Start logicke hry: vychozi deska, pak NVS nebo boot tracker.
    * - Platny klic v NVS: vypnout nucenou novou hru z boot trackeru, nacist snapshot,
-   *   game_check_resync_needed_after_restore() pri nesouladu matice.
+   *   game_matrix_guard_check_resync_after_restore() pri nesouladu matice.
    * - Jinak: boot_new_game_triggered z game_boot_tracker_should_force_new_game();
    *   pri true volat game_start_new_game() (main pak neposle druhy NEW_GAME).
    * - Pri uspesnem nacteni snapshotu nastavi game_load_snapshot_from_nvs() i game_active.
@@ -12079,7 +11857,7 @@ void game_task_start(void *pvParameters) {
     esp_err_t restore_ret = game_load_snapshot_from_nvs();
     if (restore_ret == ESP_OK) {
       ESP_LOGI(TAG, "Game snapshot restored from NVS");
-      game_check_resync_needed_after_restore();
+      game_matrix_guard_check_resync_after_restore();
     } else {
       ESP_LOGI(TAG, "No valid snapshot found, using fresh board");
     }
@@ -15217,9 +14995,9 @@ void game_refresh_leds(void) {
   // Clear board first (to remove HA colors)
   led_clear_board_only();
 
-  if (matrix_guard_pause_state.active) {
+  if (game_is_matrix_guard_active()) {
     ESP_LOGI(TAG, "  - Restoring MATRIX GUARD LEDs (physical vs logic)");
-    game_render_matrix_guard_leds();
+    game_matrix_guard_render_leds();
     game_check_promotion_needed();
     return;
   }
