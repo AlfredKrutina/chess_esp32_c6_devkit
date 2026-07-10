@@ -60,6 +60,7 @@
 #include "streaming_output.h"
 #include <stdarg.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -263,7 +264,7 @@ esp_err_t chess_gpio_init(void) {
     uint32_t pin_number = (uint32_t)matrix_row_pins[i];
     uint64_t pin_mask = (1ULL << pin_number);
 
-    ESP_LOGI(TAG, "Configuring MATRIX_ROW_%d (GPIO%d, mask=0x%llx)...", i,
+    ESP_LOGI(TAG, "Configuring MATRIX_ROW_%d (GPIO%" PRIu32 ", mask=0x%llx)...", i,
              pin_number, pin_mask);
 
     gpio_config_t io_conf = {.pin_bit_mask = pin_mask,
@@ -275,12 +276,12 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
     if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to configure matrix row pin %d (GPIO%d): %s", i,
+      ESP_LOGE(TAG, "Failed to configure matrix row pin %d (GPIO%" PRIu32 "): %s", i,
                pin_number, esp_err_to_name(ret));
       return ret;
     } else {
       gpio_set_level(matrix_row_pins[i], 1);
-      ESP_LOGI(TAG, "gpio_set_level done for GPIO%d", pin_number);
+      ESP_LOGI(TAG, "gpio_set_level done for GPIO%" PRIu32, pin_number);
     }
   }
 #else
@@ -296,7 +297,7 @@ esp_err_t chess_gpio_init(void) {
     uint32_t pin_number = (uint32_t)matrix_col_pins[i];
     uint64_t pin_mask = (1ULL << pin_number);
 
-    ESP_LOGI(TAG, "Configuring MATRIX_COL_%d (GPIO%d, mask=0x%llx)...", i,
+    ESP_LOGI(TAG, "Configuring MATRIX_COL_%d (GPIO%" PRIu32 ", mask=0x%llx)...", i,
              pin_number, pin_mask);
 
     // DEBUG: Special logging for GPIO17 (column 7)
@@ -306,14 +307,14 @@ esp_err_t chess_gpio_init(void) {
 
     // CRITICAL: Skip strapping pins to avoid system reset
     if (pin_number == 9) {
-      ESP_LOGW(TAG, "Skipping GPIO%d (strapping pin) to avoid system reset",
+      ESP_LOGW(TAG, "Skipping GPIO%" PRIu32 " (strapping pin) to avoid system reset",
                pin_number);
       ESP_LOGI(TAG, "Matrix column pin %d skipped (strapping pin)", i);
       ESP_LOGI(TAG, "DEBUG: About to continue to next iteration");
       continue; // Přeskočení strapping pinu
     }
 
-    ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%d configuration", pin_number);
+    ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%" PRIu32 " configuration", pin_number);
 
     // Explicitly reset GPIO17 before configuration
     // GPIO17 is UART0 RX pin on ESP32-C6 and may have special properties
@@ -348,7 +349,7 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "gpio_config returned %s", esp_err_to_name(ret));
 
     if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to configure matrix column pin %d (GPIO%d): %s", i,
+      ESP_LOGE(TAG, "Failed to configure matrix column pin %d (GPIO%" PRIu32 "): %s", i,
                pin_number, esp_err_to_name(ret));
       return ret; // Return error instead of continuing
     } else {

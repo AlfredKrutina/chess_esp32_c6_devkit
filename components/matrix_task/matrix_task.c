@@ -1155,8 +1155,8 @@ void matrix_task_start(void *pvParameters) {
 
     // Watchdog logging every 500 iterations (5 seconds)
     if (loop_count % 500 == 0) {
-      ESP_LOGI(TAG, "Matrix Task Watchdog: loop=%d, heap=%zu", loop_count,
-               esp_get_free_heap_size());
+      ESP_LOGI(TAG, "Matrix Task Watchdog: loop=%" PRIu32 ", heap=%" PRIu32,
+               loop_count, esp_get_free_heap_size());
     }
 
     // Process matrix commands
@@ -1167,7 +1167,8 @@ void matrix_task_start(void *pvParameters) {
 
     // Periodic status update - reduced frequency for cleaner UART
     if (loop_count % 50000 == 0) { // Every 50000 loops (1000 seconds)
-      ESP_LOGI(TAG, "Matrix Task Status: loop=%d, scans=%lu, pattern=%d",
+      ESP_LOGI(TAG, "Matrix Task Status: loop=%" PRIu32 ", scans=%" PRIu32
+               ", pattern=%d",
                loop_count, scan_count, current_pattern);
 
       // Print matrix state occasionally
