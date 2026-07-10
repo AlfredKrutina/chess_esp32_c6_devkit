@@ -21,6 +21,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
