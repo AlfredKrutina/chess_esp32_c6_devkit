@@ -32,7 +32,7 @@ class _SettingsLanguagePageState extends ConsumerState<SettingsLanguagePage> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            initialValue: prefs.uiLanguage,
+            value: prefs.uiLanguage,
             decoration: InputDecoration(
               labelText: l10n.settingsLanguage,
               border: const OutlineInputBorder(),

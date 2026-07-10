@@ -25,7 +25,7 @@ class _SettingsAppAppearancePageState
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
         children: [
           DropdownButtonFormField<String>(
-            initialValue: prefs.appearance,
+            value: prefs.appearance,
             decoration: InputDecoration(
               labelText: l10n.settingsColorSchemeLabel,
               border: const OutlineInputBorder(),

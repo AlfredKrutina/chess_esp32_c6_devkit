@@ -406,7 +406,7 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
                     _coachFieldLabel(context, l10n.settingsCoachModelIdLabel),
                     DropdownButtonFormField<String>(
                       isExpanded: true,
-                      initialValue: _gemmaPresetChoice == '__custom__'
+                      value: _gemmaPresetChoice == '__custom__'
                           ? '__custom__'
                           : (_kGemmaPresetModels.contains(_gemmaPresetChoice)
                               ? _gemmaPresetChoice
