@@ -696,7 +696,7 @@ game_result_type_t current_result_type =
 // Promotion functions - MUST BE FIRST (called from game_initialize_board)
 // Note: These are defined later in the file (around line 3800)
 void game_check_promotion_needed(void);
-static void game_update_promotion_anchor_led(void);
+void game_update_promotion_anchor_led(void);
 static void game_process_promotion_button(uint8_t button_id);
 static bool game_execute_promotion(promotion_choice_t choice);
 
@@ -1327,11 +1327,11 @@ bool puzzle_active = false;
 /** Příprava fyzické pozice před game_puzzle_start (prázdná logika, matrix v JSON). */
 static bool puzzle_setup_active = false;
 static uint8_t puzzle_setup_id = 0;
-static uint8_t puzzle_active_id = 0;
-static uint8_t puzzle_solution_from_row = 0;
-static uint8_t puzzle_solution_from_col = 0;
-static uint8_t puzzle_solution_to_row = 0;
-static uint8_t puzzle_solution_to_col = 0;
+uint8_t puzzle_active_id = 0;
+uint8_t puzzle_solution_from_row = 0;
+uint8_t puzzle_solution_from_col = 0;
+uint8_t puzzle_solution_to_row = 0;
+uint8_t puzzle_solution_to_col = 0;
 puzzle_feedback_t puzzle_feedback = PUZZLE_FEEDBACK_NONE;
 // Game analysis flags (for future use)
 // static bool show_warnings = true;
@@ -1343,7 +1343,7 @@ puzzle_feedback_t puzzle_feedback = PUZZLE_FEEDBACK_NONE;
 // static uint32_t last_analysis_time = 0;
 
 // Piece symbols for display (ASCII) - FIXED INDEXES
-static const char *piece_symbols[] = {
+const char *piece_symbols[] = {
     " ", // 0: PIECE_EMPTY
     "p", // 1: PIECE_WHITE_PAWN
     "n", // 2: PIECE_WHITE_KNIGHT
@@ -3311,7 +3311,7 @@ void game_reset_error_recovery_state(void) {
  * swapovat)
  * - Nesahá na ostatní LED (jen 1 políčko na šachovnici)
  */
-static void game_update_promotion_anchor_led(void) {
+void game_update_promotion_anchor_led(void) {
   if (!promotion_state.pending) {
     return;
   }

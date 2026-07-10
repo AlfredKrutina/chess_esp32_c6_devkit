@@ -188,9 +188,19 @@ typedef enum {
 } puzzle_feedback_t;
 
 extern bool puzzle_active;
+extern uint8_t puzzle_active_id;
+extern uint8_t puzzle_solution_from_row;
+extern uint8_t puzzle_solution_from_col;
+extern uint8_t puzzle_solution_to_row;
+extern uint8_t puzzle_solution_to_col;
 extern puzzle_feedback_t puzzle_feedback;
 
 extern bool auto_new_game_blocked_until_move;
+
+extern const char *piece_symbols[];
+
+void game_stop_error_blink(void);
+void game_update_promotion_anchor_led(void);
 
 void game_send_response_to_uart(const char *message, bool is_error,
                                 QueueHandle_t response_queue);

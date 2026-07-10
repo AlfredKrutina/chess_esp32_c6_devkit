@@ -543,9 +543,9 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
       } else {
         // INVALID CAPTURE: Proceed to error flow
         ESP_LOGW(TAG,
-                 "⚠️ Invalid capture attempt: %s from %c%d CANNOT capture %s",
+                 "⚠️ Invalid capture attempt: %s from %c%d CANNOT capture at %s",
                  game_get_piece_name(lifted_piece), 'a' + lifted_piece_col,
-                 lifted_piece_row + 1, cmd->from_notation, capture_valid);
+                 lifted_piece_row + 1, cmd->from_notation);
       }
     }
 

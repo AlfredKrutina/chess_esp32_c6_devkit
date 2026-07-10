@@ -8,6 +8,7 @@
 
 #include "freertos_chess.h"
 #include "game_task.h"
+#include "led_mapping.h"
 #include "led_task.h"
 #include "matrix_task.h"
 
