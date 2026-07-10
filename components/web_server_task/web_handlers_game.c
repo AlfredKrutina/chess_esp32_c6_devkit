@@ -1228,3 +1228,227 @@ esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
   httpd_resp_send(req, "{\"success\":true}", -1);
   return ESP_OK;
 }
+
+static uint8_t opening_action_code(const char *action) {
+  if (action == NULL) {
+    return 255;
+  }
+  if (strcmp(action, "cancel") == 0) {
+    return 0;
+  }
+  if (strcmp(action, "start") == 0) {
+    return 1;
+  }
+  if (strcmp(action, "hint") == 0) {
+    return 2;
+  }
+  if (strcmp(action, "checkpoint_ack") == 0) {
+    return 3;
+  }
+  return 255;
+}
+
+/** POST /api/game/opening */
+esp_err_t http_post_game_opening_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/game/opening");
+
+  if (web_is_locked()) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"Web interface locked\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  char buf[2048] = {0};
+  int r = httpd_req_recv(req, buf, (int)sizeof(buf) - 1);
+  if (r <= 0) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"Empty body\"}", -1);
+    return ESP_OK;
+  }
+  buf[r] = '\0';
+
+  cJSON *root = cJSON_Parse(buf);
+  if (root == NULL) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"Invalid JSON\"}", -1);
+    return ESP_OK;
+  }
+
+  cJSON *action_j = cJSON_GetObjectItemCaseSensitive(root, "action");
+  if (!cJSON_IsString(action_j) || action_j->valuestring == NULL) {
+    cJSON_Delete(root);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"Missing action\"}", -1);
+    return ESP_OK;
+  }
+
+  uint8_t action_code = opening_action_code(action_j->valuestring);
+  if (action_code == 255) {
+    cJSON_Delete(root);
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"invalid_action\"}", -1);
+    return ESP_OK;
+  }
+
+  if (action_code == 1) {
+    cJSON *line_id_j = cJSON_GetObjectItemCaseSensitive(root, "line_id");
+    cJSON *fen_j = cJSON_GetObjectItemCaseSensitive(root, "start_fen");
+    cJSON *uci_j = cJSON_GetObjectItemCaseSensitive(root, "line_uci");
+    cJSON *player_j =
+        cJSON_GetObjectItemCaseSensitive(root, "player_ply_indices");
+    cJSON *checkpoint_j =
+        cJSON_GetObjectItemCaseSensitive(root, "checkpoint_ply_indices");
+    cJSON *mode_j = cJSON_GetObjectItemCaseSensitive(root, "mode");
+    cJSON *side_j = cJSON_GetObjectItemCaseSensitive(root, "side");
+
+    if (!cJSON_IsString(line_id_j) || !cJSON_IsString(fen_j) ||
+        !cJSON_IsArray(uci_j) || !cJSON_IsArray(player_j)) {
+      cJSON_Delete(root);
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(req, "{\"ok\":false,\"error\":\"invalid_line\"}", -1);
+      return ESP_OK;
+    }
+
+    int uci_count = cJSON_GetArraySize(uci_j);
+    int player_count = cJSON_GetArraySize(player_j);
+    if (uci_count <= 0 || uci_count > 16 || player_count <= 0 ||
+        player_count > 8) {
+      cJSON_Delete(root);
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(req, "{\"ok\":false,\"error\":\"invalid_line\"}", -1);
+      return ESP_OK;
+    }
+
+    char line_uci[16][6];
+    uint8_t player_idx[8];
+    uint8_t checkpoint_idx[4];
+    uint8_t checkpoint_count = 0;
+
+    for (int i = 0; i < uci_count; i++) {
+      cJSON *item = cJSON_GetArrayItem(uci_j, i);
+      if (!cJSON_IsString(item) || item->valuestring == NULL) {
+        cJSON_Delete(root);
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_send(req, "{\"ok\":false,\"error\":\"invalid_line\"}", -1);
+        return ESP_OK;
+      }
+      strncpy(line_uci[i], item->valuestring, sizeof(line_uci[i]) - 1);
+    }
+    for (int i = 0; i < player_count; i++) {
+      cJSON *item = cJSON_GetArrayItem(player_j, i);
+      if (!cJSON_IsNumber(item)) {
+        cJSON_Delete(root);
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_status(req, "400 Bad Request");
+        httpd_resp_send(req, "{\"ok\":false,\"error\":\"invalid_line\"}", -1);
+        return ESP_OK;
+      }
+      player_idx[i] = (uint8_t)item->valueint;
+    }
+    if (cJSON_IsArray(checkpoint_j)) {
+      int cp_count = cJSON_GetArraySize(checkpoint_j);
+      if (cp_count > 4) {
+        cp_count = 4;
+      }
+      for (int i = 0; i < cp_count; i++) {
+        cJSON *item = cJSON_GetArrayItem(checkpoint_j, i);
+        if (cJSON_IsNumber(item)) {
+          checkpoint_idx[checkpoint_count++] = (uint8_t)item->valueint;
+        }
+      }
+    }
+
+    uint8_t mode = 0;
+    if (cJSON_IsString(mode_j) && mode_j->valuestring != NULL) {
+      if (strcmp(mode_j->valuestring, "drill") == 0) {
+        mode = 1;
+      } else if (strcmp(mode_j->valuestring, "timed") == 0) {
+        mode = 2;
+      } else if (strcmp(mode_j->valuestring, "mirror") == 0) {
+        mode = 3;
+      }
+    }
+    bool side_white = true;
+    if (cJSON_IsString(side_j) && side_j->valuestring != NULL) {
+      side_white = (strcmp(side_j->valuestring, "white") == 0);
+    }
+
+    if (!game_opening_load_config(
+            line_id_j->valuestring, fen_j->valuestring, line_uci,
+            (uint8_t)uci_count, player_idx, (uint8_t)player_count,
+            checkpoint_idx, checkpoint_count, mode, side_white)) {
+      cJSON_Delete(root);
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(req, "{\"ok\":false,\"error\":\"invalid_line\"}", -1);
+      return ESP_OK;
+    }
+  }
+
+  cJSON_Delete(root);
+
+  if (action_code == 2) {
+    if (!game_opening_hint()) {
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "409 Conflict");
+      httpd_resp_send(req, "{\"ok\":false,\"error\":\"mode_conflict\"}", -1);
+      return ESP_OK;
+    }
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"ok\":true}", -1);
+    return ESP_OK;
+  }
+
+  if (action_code == 3) {
+    if (!game_opening_checkpoint_ack()) {
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_set_status(req, "409 Conflict");
+      httpd_resp_send(req, "{\"ok\":false,\"error\":\"resync_incomplete\"}", -1);
+      return ESP_OK;
+    }
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"ok\":true}", -1);
+    return ESP_OK;
+  }
+
+  if (game_command_queue == NULL) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "503 Service Unavailable");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"queue_full\"}", -1);
+    return ESP_FAIL;
+  }
+
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_OPENING_TRAINER;
+  cmd.promotion_choice = action_code;
+  cmd.response_queue = NULL;
+
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "503 Service Unavailable");
+    httpd_resp_send(req, "{\"ok\":false,\"error\":\"queue_full\"}", -1);
+    return ESP_FAIL;
+  }
+
+  if (action_code == 0) {
+    led_command_t lcmd = {0};
+    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+    led_execute_command_new(&lcmd);
+  }
+
+  httpd_resp_set_status(req, "200 OK");
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"ok\":true}", -1);
+  return ESP_OK;
+}

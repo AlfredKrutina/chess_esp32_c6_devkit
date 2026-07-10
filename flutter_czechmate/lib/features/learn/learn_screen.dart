@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/widgets/glass_snackbar.dart';
+import '../opening/opening_trainer_screen.dart';
 
 class LearnScreen extends StatelessWidget {
   const LearnScreen({super.key});
@@ -78,7 +79,7 @@ class LearnScreen extends StatelessWidget {
                     title: l10n.learnL10Title,
                     description: l10n.learnL10Desc,
                     done: false,
-                    locked: true),
+                    openingId: 'italian_giuoco_white'),
                 _Lesson(
                     title: l10n.learnL11Title,
                     description: l10n.learnL11Desc,
@@ -145,15 +146,18 @@ class _LearnCategory extends StatelessWidget {
 }
 
 class _Lesson extends StatelessWidget {
-  const _Lesson(
-      {required this.title,
-      required this.description,
-      this.done = false,
-      this.locked = false});
+  const _Lesson({
+    required this.title,
+    required this.description,
+    this.done = false,
+    this.locked = false,
+    this.openingId,
+  });
   final String title;
   final String description;
   final bool done;
   final bool locked;
+  final String? openingId;
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +187,14 @@ class _Lesson extends StatelessWidget {
         onTap: locked
             ? null
             : () {
+                if (openingId != null) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => OpeningTrainerScreen(lineId: openingId!),
+                    ),
+                  );
+                  return;
+                }
                 showAppSnackBar(context, l10n.learnSnackLesson(title));
               },
       ),

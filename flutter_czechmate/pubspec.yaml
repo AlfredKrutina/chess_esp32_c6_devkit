@@ -55,4 +55,5 @@ flutter:
   assets:
     - assets/snapshot_golden.json
     - assets/app_icon.png
+    - assets/data/openings_catalog.json
     - assets/pieces/

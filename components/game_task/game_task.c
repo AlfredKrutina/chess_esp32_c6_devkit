@@ -1800,7 +1800,8 @@ bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd) {
 
 bool game_task_matrix_guard_mode_conflict_active(void) {
   return (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
-          promotion_state.pending ||
+          game_is_opening_trainer_active() ||
+          game_is_opening_trainer_setup_active() || promotion_state.pending ||
           castling_state.in_progress || castle_animation_active ||
           resignation_state.active || guided_capture_state.active ||
           error_recovery_state.waiting_for_move_correction);

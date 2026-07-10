@@ -376,6 +376,7 @@ void game_apply_empty_logical_board_after_full_reset(void) {
 }
 
 void game_enter_board_setup_tutorial(void) {
+  game_opening_cancel();
   game_puzzle_cancel();
   game_reset_game();
   game_apply_empty_logical_board_after_full_reset();

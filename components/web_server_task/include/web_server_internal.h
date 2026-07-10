@@ -69,6 +69,7 @@ esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req);
 esp_err_t http_post_game_move_handler(httpd_req_t *req);
 esp_err_t http_post_game_new_handler(httpd_req_t *req);
 esp_err_t http_post_game_puzzle_handler(httpd_req_t *req);
+esp_err_t http_post_game_opening_handler(httpd_req_t *req);
 esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req);
 esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req);
 esp_err_t http_post_light_command_handler(httpd_req_t *req);

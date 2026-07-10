@@ -1,0 +1,80 @@
+{
+  "version": 2,
+  "locale_default": "cs",
+  "curricula": [
+    {
+      "id": "basics_white",
+      "name": { "cs": "Bílé základy", "en": "White basics" },
+      "line_ids": ["italian_giuoco_white", "london_system_white"]
+    },
+    {
+      "id": "basics_black",
+      "name": { "cs": "Černé základy", "en": "Black basics" },
+      "line_ids": ["sicilian_odb_black"]
+    }
+  ],
+  "openings": [
+    {
+      "id": "italian_giuoco_white",
+      "eco": "C50",
+      "family": "italian",
+      "name": { "cs": "Italská hra — Giuoco Piano", "en": "Italian Game — Giuoco Piano" },
+      "side": "white",
+      "difficulty": 2,
+      "tags": ["classical", "e4"],
+      "idea": { "cs": "Rychlý rozvoj a tlak na f7.", "en": "Rapid development and pressure on f7." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "f8c5", "c2c3", "g8f6"],
+      "player_ply_indices": [0, 2, 4, 6],
+      "checkpoint_ply_indices": [4],
+      "mirror_line_id": "sicilian_odb_black",
+      "steps": [
+        { "ply_index": 0, "comment": { "cs": "Ovládni centrum e4.", "en": "Control the center with e4." } },
+        { "ply_index": 2, "comment": { "cs": "Rozviň jezdce na f3.", "en": "Develop the knight to f3." } },
+        { "ply_index": 4, "comment": { "cs": "Aktivuj střelce na c4.", "en": "Activate the bishop on c4." } },
+        { "ply_index": 6, "comment": { "cs": "Připrav d3 a stabilní centrum.", "en": "Prepare d3 and a stable center." } }
+      ]
+    },
+    {
+      "id": "sicilian_odb_black",
+      "eco": "B50",
+      "family": "sicilian",
+      "name": { "cs": "Sicilská — ODB (úvod)", "en": "Sicilian — Open Defence intro" },
+      "side": "black",
+      "difficulty": 2,
+      "tags": ["e4", "black"],
+      "idea": { "cs": "Asymetrická hra proti 1.e4.", "en": "Asymmetric play against 1.e4." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["e2e4", "c7c5", "g1f3", "d7d6", "d2d4", "g8f6", "b1c3", "a7a6"],
+      "player_ply_indices": [1, 3, 5, 7],
+      "checkpoint_ply_indices": [3],
+      "mirror_line_id": "italian_giuoco_white",
+      "steps": [
+        { "ply_index": 1, "comment": { "cs": "Sicilská c5 — boj o centrum.", "en": "Sicilian c5 — fight for the center." } },
+        { "ply_index": 3, "comment": { "cs": "Připrav e6/d6 strukturu.", "en": "Prepare the d6 structure." } },
+        { "ply_index": 5, "comment": { "cs": "Rozviň jezdce na f6.", "en": "Develop the knight to f6." } },
+        { "ply_index": 7, "comment": { "cs": "a6 brání b5 a připraví b5.", "en": "a6 prevents Bb5 and prepares ...b5." } }
+      ]
+    },
+    {
+      "id": "london_system_white",
+      "eco": "D02",
+      "family": "london",
+      "name": { "cs": "Londýnský systém", "en": "London System" },
+      "side": "white",
+      "difficulty": 1,
+      "tags": ["d4", "system"],
+      "idea": { "cs": "Solidní systém s Bf4 a e3.", "en": "Solid system with Bf4 and e3." },
+      "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "line_uci": ["d2d4", "d7d5", "c1f4", "g8f6", "e2e3", "e7e6", "g1f3", "f8d6"],
+      "player_ply_indices": [0, 2, 4, 6],
+      "checkpoint_ply_indices": [4],
+      "steps": [
+        { "ply_index": 0, "comment": { "cs": "Centrum d4.", "en": "Occupy the center with d4." } },
+        { "ply_index": 2, "comment": { "cs": "Londýnský střelec f4.", "en": "London bishop to f4." } },
+        { "ply_index": 4, "comment": { "cs": "Solidní e3.", "en": "Solid e3." } },
+        { "ply_index": 6, "comment": { "cs": "Rozvoj jezdce f3.", "en": "Develop the knight to f3." } }
+      ]
+    }
+  ]
+}

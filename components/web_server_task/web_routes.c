@@ -283,6 +283,12 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                             .user_ctx = NULL};
   httpd_register_uri_handler(handle, &puzzle_uri);
 
+  httpd_uri_t opening_uri = {.uri = "/api/game/opening",
+                             .method = HTTP_POST,
+                             .handler = http_post_game_opening_handler,
+                             .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &opening_uri);
+
   httpd_uri_t settings_ui_get_uri = {.uri = "/api/settings/ui",
                                    .method = HTTP_GET,
                                    .handler = http_get_settings_ui_handler,

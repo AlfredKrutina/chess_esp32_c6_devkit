@@ -243,6 +243,15 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
+  /// `POST /api/game/opening` — start | cancel | hint | checkpoint_ack
+  Future<void> postOpening(String baseUrl, Map<String, dynamic> body) async {
+    final uri = _api(baseUrl, 'api/game/opening');
+    final res = await _client
+        .post(uri, headers: _headersJson(), body: jsonEncode(body))
+        .timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  }
+
   /// `GET /api/status` — pro `matrix_occupied` během tutoriálu (Wi‑Fi).
   Future<List<int>?> fetchMatrixOccupied(String baseUrl) async {
     final uri = _api(baseUrl, 'api/status');

@@ -187,6 +187,9 @@ void game_matrix_guard_handle_command(const chess_move_command_t *cmd) {
 }
 
 void game_matrix_guard_check_resync_after_restore(void) {
+  if (game_is_opening_trainer_active() || game_is_opening_trainer_setup_active()) {
+    return;
+  }
   uint8_t matrix_state_now[64] = {0};
   matrix_get_state(matrix_state_now);
 

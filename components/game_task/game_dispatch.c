@@ -632,6 +632,32 @@ void game_process_commands(void) {
         }
         break;
 
+      case GAME_CMD_OPENING_TRAINER: // 49
+        ESP_LOGI(TAG, "OPENING_TRAINER action=%u",
+                 (unsigned)chess_cmd.promotion_choice);
+        switch (chess_cmd.promotion_choice) {
+        case 0:
+          game_opening_cancel();
+          break;
+        case 1:
+          if (!game_opening_start()) {
+            ESP_LOGW(TAG, "OPENING start failed");
+          }
+          break;
+        case 2:
+          game_opening_hint();
+          break;
+        case 3:
+          if (!game_opening_checkpoint_ack()) {
+            ESP_LOGW(TAG, "OPENING checkpoint_ack failed");
+          }
+          break;
+        default:
+          ESP_LOGW(TAG, "OPENING unknown action");
+          break;
+        }
+        break;
+
       default:
         ESP_LOGW(TAG, "Unknown game command: %d", chess_cmd.type);
         break;

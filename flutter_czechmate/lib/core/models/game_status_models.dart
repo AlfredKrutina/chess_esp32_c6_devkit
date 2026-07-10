@@ -161,6 +161,38 @@ class PuzzleStatusJson {
   }
 }
 
+class OpeningTrainingStatusJson {
+  const OpeningTrainingStatusJson({
+    this.active,
+    this.feedback,
+    this.playerPlyIndex,
+    this.playerPlyTotal,
+    this.expectedFrom,
+    this.expectedTo,
+    this.awaitingCheckpointAck,
+  });
+
+  final bool? active;
+  final String? feedback;
+  final int? playerPlyIndex;
+  final int? playerPlyTotal;
+  final String? expectedFrom;
+  final String? expectedTo;
+  final bool? awaitingCheckpointAck;
+
+  factory OpeningTrainingStatusJson.fromJson(Map<String, dynamic> json) {
+    return OpeningTrainingStatusJson(
+      active: json['active'] as bool?,
+      feedback: json['feedback'] as String?,
+      playerPlyIndex: (json['player_ply_index'] as num?)?.toInt(),
+      playerPlyTotal: (json['player_ply_total'] as num?)?.toInt(),
+      expectedFrom: json['expected_from'] as String?,
+      expectedTo: json['expected_to'] as String?,
+      awaitingCheckpointAck: json['awaiting_checkpoint_ack'] as bool?,
+    );
+  }
+}
+
 class GameStatus {
   const GameStatus({
     required this.gameState,
@@ -181,6 +213,7 @@ class GameStatus {
     this.restoreState,
     this.boardSetupTutorial,
     this.puzzle,
+    this.openingTraining,
     this.guidedCaptureHintsEnabled,
     this.ledGuidanceLevel,
     this.matrixGuardActive,
@@ -217,6 +250,7 @@ class GameStatus {
   final RestoreStateJson? restoreState;
   final bool? boardSetupTutorial;
   final PuzzleStatusJson? puzzle;
+  final OpeningTrainingStatusJson? openingTraining;
   final bool? guidedCaptureHintsEnabled;
   final int? ledGuidanceLevel;
   final bool? matrixGuardActive;
@@ -287,6 +321,11 @@ class GameStatus {
               Map<String, dynamic>.from(json['puzzle'] as Map),
             )
           : null,
+      openingTraining: json['opening_training'] != null
+          ? OpeningTrainingStatusJson.fromJson(
+              Map<String, dynamic>.from(json['opening_training'] as Map),
+            )
+          : null,
       guidedCaptureHintsEnabled: json['guided_capture_hints_enabled'] as bool?,
       ledGuidanceLevel: (json['led_guidance_level'] as num?)?.toInt(),
       matrixGuardActive: json['matrix_guard_active'] as bool?,
@@ -333,6 +372,7 @@ class GameStatus {
       restoreState: restoreState,
       boardSetupTutorial: boardSetupTutorial,
       puzzle: puzzle,
+      openingTraining: openingTraining,
       guidedCaptureHintsEnabled: guidedCaptureHintsEnabled,
       ledGuidanceLevel: ledGuidanceLevel,
       matrixGuardActive: matrixGuardActive,
@@ -380,6 +420,7 @@ class GameStatus {
       restoreState: restoreState,
       boardSetupTutorial: boardSetupTutorial,
       puzzle: puzzle,
+      openingTraining: openingTraining,
       guidedCaptureHintsEnabled: guidedCaptureHintsEnabled,
       ledGuidanceLevel: ledGuidanceLevel,
       matrixGuardActive: matrixGuardActive,

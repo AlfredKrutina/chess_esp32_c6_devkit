@@ -295,7 +295,9 @@ typedef enum {
   GAME_CMD_PUZZLE =
       47, ///< Web puzzle: 0=cancel,1..5=start,101..105=prepare id 1..5
   GAME_CMD_NEW_GAME_FROM_FEN =
-      48 ///< Nová hra z FEN (placement + strana); data v timer_data.fen_new_game
+      48, ///< Nová hra z FEN (placement + strana); data v timer_data.fen_new_game
+  GAME_CMD_OPENING_TRAINER =
+      49 ///< Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack
 } game_command_type_t;
 
 /**

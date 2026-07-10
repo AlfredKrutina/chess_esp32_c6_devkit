@@ -123,6 +123,7 @@ bool game_puzzle_enter_setup(uint8_t puzzle_id) {
   if (game_is_board_setup_tutorial_active()) {
     game_exit_board_setup_tutorial(false);
   }
+  game_opening_cancel();
   game_puzzle_cancel();
   game_reset_game();
   game_apply_empty_logical_board_after_full_reset();

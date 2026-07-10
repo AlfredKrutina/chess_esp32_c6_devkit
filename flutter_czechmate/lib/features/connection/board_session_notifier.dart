@@ -1201,6 +1201,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
+  /// `POST /api/game/opening` — start | cancel | hint | checkpoint_ack (+ line payload on start).
+  Future<void> postOpeningAction(Map<String, dynamic> body) async {
+    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
+      await _boardHttp.postOpening(state.wifiBaseUrl!, body);
+      await refreshNow();
+      return;
+    }
+    throw StateError(_strings.errSetupNeedsConnection);
+  }
+
+  Future<void> postOpeningRaw(Map<String, dynamic> body) => postOpeningAction(body);
+
   /// Uloží SSID/heslo do NVS na desce a spustí STA připojení (výsledek přijde přes network notify).
   Future<void> provisionStaWifiOverBle({
     required String ssid,

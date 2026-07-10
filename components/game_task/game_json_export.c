@@ -362,7 +362,10 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                           pd ? pd->teaser : "", game_puzzle_feedback_key(),
                           game_puzzle_feedback_message());
 
-  if (board_setup_tutorial_active || puzzle_setup_active) {
+  game_opening_export_status_json(buffer, size, &offset);
+
+  if (board_setup_tutorial_active || puzzle_setup_active ||
+      game_opening_status_needs_matrix()) {
     uint8_t occ[64];
     matrix_get_state(occ);
     GAME_STATUS_JSON_APPEND(",\"matrix_occupied\":[");

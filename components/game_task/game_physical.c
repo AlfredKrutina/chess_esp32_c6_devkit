@@ -1606,6 +1606,33 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     // VALIDNÍ TAH - normální processing
     ESP_LOGI(TAG, "✅ Valid move detected");
 
+    if (game_is_opening_trainer_active()) {
+      if (!game_opening_validate_expected_move(lifted_piece_row, lifted_piece_col,
+                                               to_row, to_col)) {
+        bool already_in_error = error_recovery_state.waiting_for_move_correction;
+        game_opening_on_wrong_player_move();
+        STAGING_LOGI(TAG, "opening: wrong move %c%d -> %c%d",
+                     'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
+                     to_row + 1);
+
+        error_recovery_state.waiting_for_move_correction = true;
+        error_recovery_state.has_invalid_piece = true;
+        error_recovery_state.piece_type = lifted_piece;
+        error_recovery_state.invalid_row = to_row;
+        error_recovery_state.invalid_col = to_col;
+        if (!already_in_error) {
+          error_recovery_state.original_valid_row = lifted_piece_row;
+          error_recovery_state.original_valid_col = lifted_piece_col;
+        }
+        board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+        board[to_row][to_col] = lifted_piece;
+        lifted_piece_row = to_row;
+        lifted_piece_col = to_col;
+        game_show_invalid_move_error_with_blink(to_row, to_col);
+        return;
+      }
+    }
+
     if (puzzle_active) {
       bool is_expected_solution = (lifted_piece_row == puzzle_solution_from_row &&
                                    lifted_piece_col == puzzle_solution_from_col &&
@@ -1690,6 +1717,18 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         puzzle_active = false;
         puzzle_feedback = PUZZLE_FEEDBACK_SOLVED;
         STAGING_LOGI(TAG, "puzzle: solved id=%u", (unsigned)puzzle_active_id);
+      }
+      if (game_is_opening_trainer_active()) {
+        game_opening_advance_after_correct();
+        if (error_recovery_state.waiting_for_move_correction) {
+          game_reset_error_recovery_state();
+        }
+        char opening_msg[128];
+        snprintf(opening_msg, sizeof(opening_msg),
+                 "✅ Opening move OK (%s)", game_opening_feedback_key());
+        game_send_response_to_uart(opening_msg, false,
+                                   (QueueHandle_t)cmd->response_queue);
+        return;
       }
       // KRITICKÁ OPRAVA: Reset error state při jakémkoliv validním tahu!
       if (error_recovery_state.waiting_for_move_correction) {
@@ -1874,6 +1913,9 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     ESP_LOGW(TAG, "❌ Invalid move attempt: %s", cmd->to_notation);
     if (puzzle_active) {
       puzzle_feedback = PUZZLE_FEEDBACK_ILLEGAL;
+    }
+    if (game_is_opening_trainer_active()) {
+      game_opening_on_illegal_player_move();
     }
 
     // KRITICKÝ: Rozlišit první error vs další errory
