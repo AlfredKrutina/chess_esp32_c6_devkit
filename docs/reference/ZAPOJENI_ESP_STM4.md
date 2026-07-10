@@ -55,6 +55,7 @@ GPIO **15** je na V1 zároveň reset tlačítko — při zapnutém `CHESS_STM32_
 | `STM32_AUTO: NVS … ale Hall neodpovídá` | Vynucený reflash (výměna čipu) |
 | `CLI STM32 PROBE 0 1` | Ruční vstup do ROM BL segmentu 0 |
 | `CLI STM32 FLASH_PART 0 stm32_fw 1` | Ruční flash z oddílu |
+| `CLI HALL PROBE 0` | Ověření Hall aplikace po flashi |
 
 ## Související soubory
 

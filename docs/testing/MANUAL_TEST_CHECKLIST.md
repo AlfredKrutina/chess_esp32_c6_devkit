@@ -192,6 +192,7 @@ Zapojení: [ZAPOJENI_ESP_STM4.md](../reference/ZAPOJENI_ESP_STM4.md)
 | H3 | Druhý boot (stejný STM) | `auto-flash přeskočen` + hall_probe OK |
 | H4 | Výměna STM / prázdný čip, NVS beze změny | `NVS … ale Hall neodpovídá — vynucuji auto-flash` |
 | H5 | Matrix scan | `HALL_I2C` bez WARN na seg0; pole reagují na magnet |
+| H6 | UART | `CLI HALL PROBE 0` → `Hall seg0 probe OK` |
 
 ---
 
