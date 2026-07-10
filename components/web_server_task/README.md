@@ -15,6 +15,7 @@ web_server_task/
 │   ├── chess_app.js       # generovaný výstup — concat_web_js.py
 │   ├── js/
 │   │   ├── matrix_guard.js
+│   │   ├── api.js
 │   │   └── app_main.js    # hlavní logika (editovat zde)
 │   └── piece_assets/      # PNG pro EMBED_FILES v CMakeLists.txt
 └── tools/

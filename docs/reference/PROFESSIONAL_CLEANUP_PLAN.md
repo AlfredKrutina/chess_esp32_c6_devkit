@@ -235,7 +235,7 @@ Většina je v PR #4; po merge doplnit:
 |--------|-------|-------|------|
 | 4A.0 | `concat_web_js.py` | concat `web/js/*` → `chess_app.js` bez bundleru | **hotovo** (PR #7) |
 | 4A.1 | `js/matrix_guard.js` | panel, mask→squares, guard_clear | **hotovo** (PR #7) |
-| 4A.2 | `js/api.js` | fetch, snapshot poll | plán |
+| 4A.2 | `js/api.js` | auth headers, snapshot fetch, apiGet/PostJson | **hotovo** (PR #7) |
 | 4A.3 | `js/board.js`, `js/prefs.js`, `js/bot.js` | board, prefs, Stockfish UI | plán |
 
 #### 3B — `uart_task`

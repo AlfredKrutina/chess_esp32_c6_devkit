@@ -82,29 +82,7 @@ function pieceImgHtml(ch) {
     return pieceSymbols[ch] || ch;
 }
 
-/** Zabrání souběhu několika fetchData na pomalé síti / přetíženém HTTPD. */
-let fetchDataInFlight = false;
-
-/**
- * Hlavičky pro admin POST — doplní Bearer z localStorage `czechmate_api_token`
- * (64 hex z UART `API_TOKEN`), pokud je uložen.
- * @param {Object.<string,string>} [base] základní hlavičky (např. Content-Type)
- */
-function boardApiAuthHeaders(base) {
-    const h = {};
-    if (base) {
-        for (const k of Object.keys(base)) {
-            h[k] = base[k];
-        }
-    }
-    try {
-        const t = localStorage.getItem('czechmate_api_token');
-        if (t && String(t).trim()) {
-            h['Authorization'] = 'Bearer ' + String(t).trim();
-        }
-    } catch (e) {}
-    return h;
-}
+/** fetchDataInFlight, boardApiAuthHeaders, fetchGameSnapshot — web/js/api.js */
 
 let boardData = [];
 let statusData = {};
@@ -3353,38 +3331,18 @@ async function fetchData() {
     if (fetchDataInFlight) return;
     fetchDataInFlight = true;
     try {
-        var snapRes = await fetch('/api/game/snapshot');
-        var board;
-        var status;
-        var history;
-        var captured;
-        if (snapRes.ok) {
-            var data = await snapRes.json();
-            board = { board: data.board, timestamp: data.timestamp };
-            status = data.status;
-            history = data.history;
-            captured = data.captured;
-            if (data.clock) {
-                lastSnapshotClockInfo = data.clock;
-                lastSnapshotClockAt = Date.now();
-                applyTimerInfo(data.clock);
-            } else {
-                lastSnapshotClockInfo = null;
-                lastSnapshotClockAt = 0;
-            }
+        var payload = await fetchGameSnapshot();
+        var board = payload.board;
+        var status = payload.status;
+        var history = payload.history;
+        var captured = payload.captured;
+        if (payload.clock) {
+            lastSnapshotClockInfo = payload.clock;
+            lastSnapshotClockAt = Date.now();
+            applyTimerInfo(payload.clock);
         } else {
             lastSnapshotClockInfo = null;
             lastSnapshotClockAt = 0;
-            const [boardRes, statusRes, historyRes, capturedRes] = await Promise.all([
-                fetch('/api/board'),
-                fetch('/api/status'),
-                fetch('/api/history'),
-                fetch('/api/captured')
-            ]);
-            board = await boardRes.json();
-            status = await statusRes.json();
-            history = await historyRes.json();
-            captured = await capturedRes.json();
         }
         updateBoard(board.board);
         updateStatus(status);

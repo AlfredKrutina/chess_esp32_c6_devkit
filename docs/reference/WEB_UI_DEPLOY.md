@@ -8,7 +8,7 @@ Zdrojový kód je rozdělený v `web/js/` (Phase 4A). **`chess_app.js` se generu
 python3 components/web_server_task/tools/concat_web_js.py
 ```
 
-Moduly (pořadí concat): `web/js/matrix_guard.js` → `web/js/app_main.js`.
+Moduly (pořadí concat): `web/js/matrix_guard.js` → `web/js/api.js` → `web/js/app_main.js`.
 
 Pro embed do firmware (pokud znovu zapneš browser UI handler):
 
