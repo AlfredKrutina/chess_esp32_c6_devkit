@@ -1,7 +1,7 @@
 # Plán v2: Interaktivní trénink zahájení (Opening Trainer)
 
-**Verze:** 2.0 (upgrade 2026-07-10)  
-**Stav:** schválený návrh — připraveno pro Fázi 0  
+**Verze:** 2.1 (sanity review 2026-07-10)  
+**Stav:** schválený návrh — ověřeno proti firmware 1.8.0  
 **Cíl:** Krok-za-krokem výuka slavných zahájení pro **bílé i černé**, s fyzickou deskou, LED nápovědou a jednotným UX na webu + Flutter.  
 **Vstupní dokumentace:** [docs/README.md](../README.md) · [MATRIX_GUARD.md](MATRIX_GUARD.md) · [WEB_UI_DEPLOY.md](WEB_UI_DEPLOY.md) · [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md)
 
@@ -19,6 +19,21 @@
 | Fáze | 6 hrubých fází | **9 fází** s checklistem souborů a acceptance (§14) |
 | Inventář kódu | obecný | **Konkrétní soubory, funkce, mezery** (§5) |
 | Progress | localStorage zmínka | **Hvězdičky, spaced repetition, curriculum unlock** (§11) |
+| Sanity | — | **§20 — ověření proti kódu + HW** (matrix guard, setup, captures) |
+
+---
+
+## 0.1 Changelog v2 → v2.1 (sanity review)
+
+| Oprava | Proč |
+|--------|------|
+| Matrix guard **musí** být vypnutý v opening režimu | Bez toho virtuální tahy okamžitě spustí guard (logika ≠ matrix) |
+| Setup **není** puzzle-style prázdná deska pro standardní FEN | `prepare` = empty board jen pro mid-line FEN (v1.1); v1 = startovní pozice |
+| Checkpoint = **fyzický resync**, ne jen UI tlačítko | `checkpoint_ack` až po shodě matrix vs logika na checkpoint FEN |
+| `game_execute_move_uci` → `game_opening_apply_uci()` | V kódu neexistuje UCI helper; reuse `convert_notation_to_coords` + `game_execute_move` |
+| Mirror režim přejmenován / upřesněn | Není „hrát soupeřovy tahy v jedné linii“, ale **párová linie** `mirror_line_id` |
+| Katalog v1: omezení capture/rosady | Hráčův capture na virtuálně přesunutou figuru bez resyncu je nemožný |
+| Web fáze 2: Flutter-first nebo obnovit embed | `/chess_app.js` dnes vrací 404 (`browser_ui_removed`) |
 
 ---
 
@@ -37,7 +52,7 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 | Princip | Implementace |
 |---------|--------------|
 | Fyzická deska = primární vstup | UI jen řídí a vysvětluje; tah bez matrix pickup/drop neplatí |
-| LED musí být čitelná i bez appky | Firmware po `start` drží hint stav; klient jen refreshuje |
+| LED čitelná při živé lekci | FW posílá hint/trace při `start` a auto-reply; klient **refreshuje** hint každých 600 ms |
 | Parita Web = Flutter = BLE | Jeden JSON kontrakt; žádné „jen web“ API |
 | Offline-first | Katalog v assets; FW nepotřebuje internet |
 | Malé PR, zelená CI | Každá fáze = samostatná větev `cursor/opening-trainer-phaseN-8fdd` |
@@ -76,11 +91,13 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 |---|------------|----------|------|
 | D1 | Kde žije katalog | **Klient** (`openings_catalog.json`) | Flash ESP ušetříme; obsah updatuje se s app/web bez OTA |
 | D2 | Formát linie | **Plná `line_uci[]`** + `player_ply_indices[]` | FW jednoduše iteruje ply; soupeř i hráč ve stejném poli |
-| D3 | Soupeř | **Virtuálně na logické desce** + `led_anim_move_path` | Bez ručního přesouvání černých figurek; matrix zůstane konzistentní s hráčovými tahy |
+| D3 | Soupeř | **Virtuálně na logické desce** + `led_anim_move_path` | Rychlejší lekce; vyžaduje D8 a checkpoint resync |
 | D4 | Režim FW | **Samostatný `opening_trainer`** | Puzzle = 1 tah; opening = stavový stroj s auto-reply — jiná semantika |
-| D5 | Setup startovní pozice | **Vždy ze standardní FEN** v1 | `start_fen` = začátek hry; mid-line FEN až v1.1 (šetří setup kroky) |
-| D6 | Hint LED | **Klient refresh 600 ms** + FW drží `expected_from/to` ve statusu | Reuse `SETUP_TUTORIAL_REFRESH_MS`; při výpadku HTTP FW může sám pulzovat (Fáze 1b) |
-| D7 | `GAME_CMD` slot | **`GAME_CMD_OPENING_TRAINER`** v `chess_types.h` (nový enum za `GAME_CMD_PUZZLE`) | Konzistentní s puzzle/setup pattern |
+| D5 | Setup startovní pozice | **Standardní FEN: přeskočit empty prepare** | Pokud `game_is_physical_board_starting_occupancy()` → rovnou `start`; jinak setup wizard (32 kroků). Empty-board `prepare` jen pro mid-line FEN (v1.1) |
+| D6 | Hint LED | **Klient refresh 600 ms** + FW internal hint po auto-reply | Reuse `SETUP_TUTORIAL_REFRESH_MS`; FW-native pulz = Fáze 6 |
+| D7 | `GAME_CMD` slot | **`GAME_CMD_OPENING_TRAINER`** v `chess_types.h` | Konzistentní s puzzle/setup pattern |
+| D8 | Matrix guard | **Vypnutý po celou aktivní lekci** | `opening_trainer` v `game_task_matrix_guard_mode_conflict_active()` — **povinné**, ne volitelné |
+| D9 | Validace tahu | **Nejdřív expected UCI, pak `game_is_valid_move`** | Špatná destinace = opening feedback; legalita z logické desky |
 
 ---
 
@@ -110,7 +127,7 @@ stateDiagram-v2
 | **Learn** | Komentář ke každému hráčovu ply; auto-reply po 1,5 s | Zlatý pulz `to`; cyan `from` po pickup | Velký text + miniboard |
 | **Drill** | Jen „Tah N/M“; bez komentářů | Jen `to`; po 3 chybách „Ukázat řešení“ | Minimální panel |
 | **Timed** | Drill + časovač (celá linie nebo/tah) | Stejné + červený pulz pod 5 s | Timer ring |
-| **Mirror** | Hráč hraje **protivníkovy** tahy v linii | LED barva podle `player_side` | Badge „Hraješ černé“ |
+| **Mirror** | Samostatná **párová linie** (`mirror_line_id`, typicky opačná barva) | Stejné LED | Badge „Trénuješ černou proti 1.e4“ |
 | **Review** | Prohlížení dokončené linie bez HW | Animace na miniboardu | Pouze app (bez FW) |
 
 ### 4.2 Hvězdičky a mastery
@@ -120,7 +137,7 @@ stateDiagram-v2
 | ★ | Dokončeno v Learn |
 | ★★ | Dokončeno v Drill ≤ 2 chyby |
 | ★★★ | Dokončeno v Timed v limitu |
-| ★★★★ | Mirror (protistrana) ★★ |
+| ★★★★ | Dokončena **párová** linie `mirror_line_id` s ★★ |
 
 Progress klíč: `opening_progress_v1` → `{ "line_id": { "stars": 3, "best_drill_errors": 1, "last_completed_at": "ISO" } }`.
 
@@ -169,14 +186,22 @@ Progress klíč: `opening_progress_v1` → `{ "line_id": { "stars": 3, "best_dri
 | Status JSON | Chybí `opening_training` blok |
 | `openings_catalog.json` | Neexistuje |
 
-### 5.3 Vzácná vyloučení režimů
+### 5.3 Vzácná vyloučení režimů a matrix guard
 
-Rozšířit `game_task_matrix_guard_mode_conflict_active()` a hint gating (`app_main.js` ~1158) o:
+Rozšířit `game_task_matrix_guard_mode_conflict_active()` (`game_task.c` ~1801) a hint gating (`app_main.js` ~1158):
 
 ```c
-|| opening_trainer_active
-|| opening_trainer_setup_phase
+|| game_is_opening_trainer_active()
+|| game_is_opening_trainer_setup_active()
 ```
+
+**Proč je to povinné (ne jen „blokovat jiné režimy“):**  
+`game_matrix_guard.c` při `mode_conflict_active()` **ignoruje guard** a nechává UP/DN pokračovat. Virtuální tahy soupeře záměrně vytváří rozdíl logika ↔ matrix (§6). Bez D8 by guard po prvním auto-reply pozastavil hru.
+
+Stejně rozšířit:
+
+- `game_matrix_guard_check_resync_after_restore()` — přeskočit při aktivním opening traineru
+- `game_physical.c` — pickup/drop povolen i když matrix ≠ logika (guard inactive)
 
 Blokovat současně: normální hra, puzzle, setup tutorial, bot tah, Stockfish hint.
 
@@ -184,27 +209,40 @@ Blokovat současně: normální hra, puzzle, setup tutorial, bot tah, Stockfish 
 
 ## 6. Model synchronizace fyzické vs logické desky
 
-**Nejdůležitější designový problém.** Matrix vidí jen obsazenost; soupeř hraje virtuálně.
+**Nejdůležitější designový problém.** Matrix vidí jen obsazenost; soupeř hraje virtuálně. Tento model **dává smysl jen s D8** (guard off) a **fyzickým checkpoint resync**.
+
+### 6.0 Verdikt: dává to smysl?
+
+| Otázka | Odpověď |
+|--------|---------|
+| Lze validovat tahy hráče? | **Ano** — porovnání `(from,to)` s UCI + `game_is_valid_move` na logické desce |
+| Spustí matrix guard? | **Ano, bez D8** — po 1. virtuálním tahu. **Řešení:** opening v `mode_conflict_active` |
+| Lze hrát capture v linii? | **Jen s opatrností** — viz §6.5 a §8.5 |
+| Je lepší fyzický soupeř? | Pro v1 **ne** — 2× délka lekce, vyšší chybovost u začátečníků |
+| Alternativa v2.0 HW? | Hall senzory s typem figury — mimo scope V1 |
+
+**Závěr:** Plán je realizovatelný na V1 reed desce, pokud dodržíme D8 + checkpoint resync + katalogová pravidla.
 
 ### 6.1 Pravidla
 
 | Fáze | Logická deska | Fyzická deska (matrix) |
 |------|---------------|------------------------|
-| **Setup** | Prázdná → plná startovní FEN | Hráč klade figurky podle kroků |
+| **Setup** | `game_load_position_from_fen(start_fen)` po potvrzení fyzické shody | Hráč má figurky na startovní pozici (wizard jen pokud nesedí) |
 | **Hráčův tah** | Očekává se UCI tah hráče | Pickup/drop musí sedět s `expected_from/to` |
-| **Soupeřův tah** | `game_execute_move_uci()` na logice | **Žádná změna matrix** — figurky zůstávají kde jsou |
-| **Po soupeřově tahu** | Aktualizovaná pozice | Hráč vidí LED trace; UI text „Soupeř: …e5“ |
+| **Soupeřův tah** | `game_opening_apply_uci()` na logice | **Žádná změna matrix** |
+| **Checkpoint** | FEN po `ply_index` | **Hráč fyzicky srovná** podle LED diff wizardu |
+| **Po checkpointu** | Shoda logika = matrix (0/1) | Pokračuje další hráčův tah |
 
-### 6.2 Důsledek: „ghost“ figurky
+### 6.2 Důsledek: „ghost“ figurky (mezi checkpointy)
 
-Po několika tazích **fyzická deska ≠ logická pozice** (normální a záměrné).
+Mezi checkpointy **fyzická deska ≠ logická pozice** — záměr, ne bug.
 
 **Mitigace v1:**
 
-1. **Checkpointy** každých 4 plných tahů: UI zobrazí „Srovnej desku“ + minimální diff (která pole se liší).
-2. **Volitelný resync** (`action: "resync_hint"`): LED ukáže figurky k přesunu (Fáze 5).
-3. **Learn mode:** po auto-reply krátká pauza 1,5 s + animace `led_anim_move_path` — hráč chápe, že soupeř „hrál virtuálně“.
-4. **Drill/Timed:** checkpoint povinný; bez potvrzení „deska OK“ nepokračovat.
+1. **Checkpoint = fyzický resync** (ne jen „OK“ tlačítko): klient porovná `matrix_occupied` vs occupancy z logické FEN; `checkpoint_ack` FW přijme jen při shodě (nebo tolerance 0 diff).
+2. **Resync wizard:** reuse `BoardSetupFenSteps` — jen pole kde se liší occupancy (max ~8 figur po 4 tazích).
+3. **Learn mode:** po auto-reply pauza 1,5 s + `led_anim_move_path` + text „Soupeř hrál … (virtuálně)“.
+4. **Drill/Timed:** checkpoint **povinný** před dalším hráčovým tahem.
 
 ```mermaid
 sequenceDiagram
@@ -214,21 +252,55 @@ sequenceDiagram
   participant LED as LED
 
   P->>M: Tah e2→e4
-  M->>L: Validace OK, execute
+  M->>L: expected UCI OK → execute
   L->>LED: Green flash e4
   L->>L: Auto e7→e5 (virtuální)
   L->>LED: ANIM_MOVE_PATH e7→e5
-  Note over P,M: Matrix stále ukazuje figury na e2/e7<br/>Logika má e4/e5
-  P->>M: Tah g1→f3 (fyzicky správně)
+  Note over P,M: Mezi checkpointy: matrix ≠ logika<br/>Guard je OFF (D8)
+  P->>M: Tah g1→f3
+  M->>L: Validace OK (g1,f3 fyzicky sedí)
+  L->>L: Checkpoint po ply 4
+  P->>M: Resync figur podle LED
+  M->>L: checkpoint_ack (shoda)
 ```
 
-### 6.3 Proč nefyzický soupeř
+### 6.3 Proč ne fyzický soupeř
 
 | Alternativa | Problém |
 |-------------|---------|
-| Hráč přesouvá i černé | Zmatení, dlouhé lekce, chyby při drillu |
+| Hráč přesouvá i černé | 2× pohybů, zmatení v drillu, delší lekce |
 | Reset desky po každém ply | Nepřijatelné UX |
-| **Virtuální soupeř (volba v2)** | Rychlé učení; checkpoint srovná fyzickou desku |
+| **Virtuální soupeř + checkpoint** | Nejkratší cesta k 30 liniím na V1 HW |
+
+### 6.4 Matrix guard — povinná integrace
+
+```c
+// game_matrix_guard.c — existující chování (ř. ~151):
+if (game_task_matrix_guard_mode_conflict_active()) {
+  // guard se IGNORUJE, UP/DN pokračuje
+}
+```
+
+Opening trainer **musí** být v tomto seznamu. Bez toho je virtuální model nefunkční.
+
+Doplňkově v `game_matrix_guard_check_resync_after_restore()`:
+
+```c
+if (game_is_opening_trainer_active() || game_is_opening_trainer_setup_active()) {
+  return;  // neaktivovat guard po NVS restore během lekce
+}
+```
+
+### 6.5 Omezení tahů v katalogu (v1)
+
+| Typ tahu | Povoleno v1? | Podmínka |
+|----------|--------------|----------|
+| Hráč: quiet move (e4, Nf3) | ✅ | Vždy |
+| Hráč: capture fyzicky přítomné figury | ✅ | Po checkpointu, když je figura na poli fyzicky |
+| Hráč: capture jen na logické desce | ❌ | Zakázáno v1 — validator fail |
+| Soupeř: capture (virtuální) | ✅ | Vždy; checkpoint za 1–2 ply |
+| Rosada | ⚠️ | Jen pokud fyzický resync zvládne wizard — **v1 spíš vynechat** |
+| Promoce | ⚠️ | UCI 5 znaků (`e7e8q`) — Fáze 4+, ne v počátečním katalogu |
 
 ---
 
@@ -361,9 +433,21 @@ flutter_czechmate/assets/data/openings_catalog.json
 - `line_uci` = **kompletní** sekvence včetně soupeře.
 - `player_ply_indices` = indexy, kde **očekáváme fyzický tah hráče**.
 - `steps[]` odkazuje na `ply_index` (ne duplicitní UCI).
-- `checkpoint_ply_indices` = po tomto ply UI vynutí „srovnej desku“.
-- `common_mistakes` = volitelné; FW porovná `(from,to)` a vrátí `feedback: "mistake_hint"`.
-- Pro `side: "black"`: první bílý ply se auto-playne před prvním hráčovým indexem.
+- `checkpoint_ply_indices` = po tomto ply **povinný fyzický resync** před dalším hráčovým tahem.
+- `common_mistakes` = **jen klient** v1 (porovnání před odesláním tahu); FW v1.1.
+- Pro `side: "black"`: první bílé ply v `line_uci` se auto-playne virtuálně; hráč začíná na `player_ply_indices[0]`.
+
+### 8.5 Validace obsahu (CI + python-chess)
+
+Kromě §8.4 pipeline přidat kontroly:
+
+1. **Legální UCI** — každý tah z `start_fen`.
+2. **Player capture rule** — u každého `player_ply_indices[i]` s capture: buď `requires_checkpoint_before: true`, nebo capture cíl byl fyzicky na desce po předchozím checkpointu (simulace).
+3. **Žádná rosada** v `line_uci` v1 (`e1g1`, `e8c8`, …) — fail CI.
+4. **Max 12 plies**, max 6 hráčových tahů.
+5. **`checkpoint_ply_indices`** musí být ≤ poslední virtuální soupeřův tah před dalším hráčovým capture (pokud existuje).
+
+Skript: `tools/openings/sync_catalog.py --validate --physical-rules`
 
 ### 8.3 Učební cesty (curricula)
 
@@ -437,7 +521,34 @@ Respektovat `GET /api/status.led_guidance_level`:
 
 ## 10. API kontrakt
 
-### 10.1 `POST /api/game/opening`
+### 10.1 Tok lekce (opravený setup flow)
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant F as Firmware
+
+  C->>F: GET /api/status (matrix / board)
+  alt Deska = start_fen occupancy
+    C->>F: POST opening start + line_uci
+  else Deska nesedí
+    C->>F: POST setup_tutorial start NEBO opening prepare (v1.1 mid-FEN)
+    loop Setup kroky
+      C->>F: hint + poll matrix
+    end
+    C->>F: POST opening start
+  end
+  F->>F: game_load_position_from_fen(start_fen)
+  loop Hráčovy tahy
+    C->>F: hint_highlight (refresh)
+    Note over F: Hráč fyzický tah
+    F->>F: virtual opponent plies + checkpoint?
+  end
+```
+
+**Důležité:** Pro standardní zahájení (`start_fen` = počátek hry) **nepoužívat** `puzzle`-style `prepare` s prázdnou deskou. To by donutilo hráče zbytečně skládat 32 figur. `prepare` s `setup_phase` vyhradit pro v1.1 mid-line FEN.
+
+### 10.2 `POST /api/game/opening`
 
 **Request:**
 
@@ -455,11 +566,11 @@ Respektovat `GET /api/status.led_guidance_level`:
 
 | `action` | Chování | HTTP |
 |----------|---------|------|
-| `prepare` | Prázdná logika, `setup_phase=true`, `matrix_occupied` v status | 200 |
+| `prepare` | **v1.1 mid-FEN only:** prázdná logika + `setup_phase`. **v1 standard:** klient nepoužívá — viz §10.1 | 200 |
 | `start` | Načte FEN, auto-play bílé úvodní ply pro black lines, `active=true` | 200 |
 | `cancel` | Reset; `hint_clear` | 200 |
 | `hint` | Zopakuje LED pro aktuální expected tah | 200 |
-| `checkpoint_ack` | Hráč potvrdil srovnání desky | 200 |
+| `checkpoint_ack` | Klient potvrdil **fyzický** resync (FW ověří matrix vs logika) | 200 nebo 409 `resync_incomplete` |
 | `pause` / `resume` | Timed mode | 200 |
 
 **Response 200:**
@@ -482,10 +593,13 @@ Respektovat `GET /api/status.led_guidance_level`:
     "expected_from": "g1",
     "expected_to": "f3",
     "checkpoint_required": false,
-    "awaiting_checkpoint_ack": false
+    "awaiting_checkpoint_ack": false,
+    "physical_synced": true
   }
 }
 ```
+
+`physical_synced`: `true` pokud matrix occupancy odpovídá logické desce (0/1) — obzvlášť důležité při checkpointu.
 
 **Feedback hodnoty:** `none` | `correct` | `wrong` | `mistake_hint` | `complete` | `illegal` | `checkpoint`
 
@@ -497,9 +611,10 @@ Respektovat `GET /api/status.led_guidance_level`:
 | 400 | `invalid_line` | Prázdné `line_uci` |
 | 409 | `mode_conflict` | Aktivní hra / puzzle |
 | 409 | `setup_incomplete` | `start` bez fyzické startovní pozice |
+| 409 | `resync_incomplete` | `checkpoint_ack` ale matrix ≠ logika |
 | 503 | `queue_full` | Game command queue |
 
-### 10.2 Status JSON (`GET /api/status` / snapshot)
+### 10.3 Status JSON (`GET /api/status` / snapshot)
 
 Nový blok (vedle `puzzle`, `board_setup_tutorial`):
 
@@ -524,7 +639,7 @@ Nový blok (vedle `puzzle`, `board_setup_tutorial`):
 
 `matrix_occupied[64]` exportovat když `setup_phase || checkpoint_required`.
 
-### 10.3 BLE parita
+### 10.4 BLE parita
 
 ```json
 { "cmd": "opening", "action": "start", "line_id": "...", "line_uci": ["..."], "player_ply_indices": [0,2,4] }
@@ -532,7 +647,7 @@ Nový blok (vedle `puzzle`, `board_setup_tutorial`):
 
 Implementace: `ble_nimble_impl.c` → stejný parser jako HTTP (`web_server_apply_opening_json_body` — nová shared funkce vedle hint).
 
-### 10.4 Flutter API
+### 10.5 Flutter API
 
 ```dart
 // board_api_client.dart
@@ -542,7 +657,7 @@ Future<Map<String, dynamic>> postOpening(String baseUrl, Map<String, dynamic> bo
 Future<void> postOpeningAction({required String action, required OpeningLine line});
 ```
 
-### 10.5 Staging logy
+### 10.6 Staging logy
 
 ```c
 STAGING_LOGI(TAG, "opening action=%s line=%s ply=%u/%u feedback=%d",
@@ -562,7 +677,7 @@ Learn (home)
 │   └── Opening detail card
 │       ├── Start Learn
 │       ├── Start Drill (locked until ★)
-│       └── Mirror (locked until ★★)
+│       └── Párová linie (mirror_line_id) — locked until ★★
 └── Progress summary (hvězdy, streak)
 
 Opening lesson (fullscreen)
@@ -574,6 +689,9 @@ Opening lesson (fullscreen)
 ```
 
 ### 11.2 Web moduly
+
+> **Stav repa (2026-07):** HTTP handler `/chess_app.js` vrací `browser_ui_removed` (404).  
+> **Fáze 2:** buď obnovit embed (`embed_chess_js.py`), nebo **Flutter-first MVP** a web až po obnově UI.
 
 | Soubor | Úkol |
 |--------|------|
@@ -724,9 +842,11 @@ typedef struct {
 ### 13.3 Hlavní funkce
 
 ```c
+bool game_opening_apply_uci(const char *uci);  /* parse 4–5 znaků → game_execute_move */
 esp_err_t game_opening_prepare(const opening_load_request_t *req);
 esp_err_t game_opening_start(void);
 esp_err_t game_opening_cancel(void);
+bool game_opening_validate_checkpoint_physical(void);  /* matrix vs logika */
 bool game_opening_on_physical_move(uint8_t from_row, uint8_t from_col,
                                    uint8_t to_row, uint8_t to_col);
 void game_opening_advance_after_correct(void);  /* auto-reply loop */
@@ -734,15 +854,22 @@ bool game_is_opening_trainer_active(void);
 bool game_is_opening_trainer_setup_active(void);
 ```
 
-### 13.4 Validace tahu (flow)
+`game_opening_apply_uci`: rozparsovat `"e2e4"` / `"e7e8q"` přes `convert_notation_to_coords` (existuje v `game_task.c`) + sestavit `chess_move_t` + `game_execute_move()` — **neexistující** `game_execute_move_uci` nepřidávat.
 
-1. `game_opening_on_physical_move` — jen když `ply_index` ∈ `player_ply_indices`.
-2. Porovnat s `expected_from/to` z UCI `line_uci[ply_index]`.
-3. **Správně:** execute na logice, `feedback=CORRECT`, `game_opening_advance_after_correct()`:
-   - while další ply není hráčův: `game_execute_move_uci` + `led_anim_move_path`
-   - zastavit na dalším hráčovu ply nebo `COMPLETE`
-4. **Špatně:** zkontrolovat `common_mistakes` (pokud FW dostal hash — volitelně v1.1); jinak `WRONG` + blink.
-5. **Checkpoint:** pokud `ply_index` ∈ `checkpoint_ply_indices` → `CHECKPOINT`, čekat `checkpoint_ack`.
+### 13.4 Validace tahu (flow) — integrace `game_physical.c`
+
+V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
+
+1. Pokud `game_is_opening_trainer_active()` a `ply_index` je hráčův:
+2. Porovnat `(from,to)` s `expected_from/to` z `line_uci[ply_index]`.
+3. **Neshoda:** `OPENING_FEEDBACK_WRONG` + error blink (reuse puzzle pattern — dočasně mutovat board pro recovery).
+4. **Shoda:** `game_execute_move(&move)` na logice.
+5. Volat `game_opening_advance_after_correct()`:
+   - while další ply ∉ `player_ply_indices`: `game_opening_apply_uci()` + `led_anim_move_path`
+   - pokud další ply ∈ `checkpoint_ply_indices`: `CHECKPOINT`, čekat `checkpoint_ack` + `game_opening_validate_checkpoint_physical()`
+6. **Konec linie:** `OPENING_FEEDBACK_COMPLETE` + `LED_CMD_ANIM_ENDGAME` (zkrácená).
+
+**Poznámka:** `game_is_valid_move` se volá až po shodě s expected UCI — jinak by legální ale „špatná varianta“ prošla.
 
 ---
 
@@ -752,10 +879,10 @@ bool game_is_opening_trainer_setup_active(void);
 
 - [ ] `data/openings_catalog.schema.json`
 - [ ] `data/openings_master.json` — 3 linie (Italian white, Sicilian black, London white)
-- [ ] `tools/openings/sync_catalog.py`
+- [ ] `tools/openings/sync_catalog.py` včetně `--physical-rules`
 - [ ] CI job `openings-catalog`
 
-**Acceptance:** `sync_catalog.py --validate` exit 0; web/flutter kopie shodné.
+**Acceptance:** `sync_catalog.py --validate --physical-rules` exit 0; 3 linie bez capture/rosady problémů.
 
 ### Fáze 0b — PGN import (PR `opening-trainer-phase0b`)
 
@@ -770,7 +897,7 @@ bool game_is_opening_trainer_setup_active(void);
 - [ ] `game_physical.c` — opening větev
 - [ ] `GAME_CMD_OPENING_TRAINER` + dispatch
 - [ ] `opening_training` v status JSON
-- [ ] Matrix guard + mode conflict
+- [ ] Matrix guard rozšíření + **skip** v `game_matrix_guard_check_resync_after_restore`
 
 **Acceptance:** curl script `scripts/test_opening_api.sh` — prepare → start → 3 UCI; UART log `[STAGING]`.
 
@@ -782,16 +909,16 @@ bool game_is_opening_trainer_setup_active(void);
 
 **Acceptance:** HW checklist 1 linie Italian — LED opponent trace viditelná.
 
-### Fáze 2 — Web MVP (PR `opening-trainer-phase2`)
+### Fáze 2 — Web MVP nebo Flutter-first (PR `opening-trainer-phase2`)
 
-- [ ] `web/js/opening_trainer.js`, `opening_catalog.js`
+- [ ] `web/js/opening_trainer.js`, `opening_catalog.js` — **nebo odložit** pokud web embed stále 404
 - [ ] 10 linií v katalogu
-- [ ] Learn panel v UI
-- [ ] `localStorage` progress
+- [ ] Learn panel v UI (web) **nebo** přeskočit při Flutter-first
+- [ ] `localStorage` progress (web) — volitelné
 
-**Acceptance:** kompletní lekce z prohlížeče na fyzické desce.
+**Acceptance:** kompletní lekce na fyzické desce z **alespoň jednoho** klienta.
 
-### Fáze 3 — Flutter parita (PR `opening-trainer-phase3`)
+### Fáze 3 — Flutter parita (PR `opening-trainer-phase3`) — doporučeno před webem
 
 - [ ] `OpeningTrainerScreen`, repository, models
 - [ ] `postOpeningAction` v notifier + BLE
@@ -850,9 +977,9 @@ bool game_is_opening_trainer_setup_active(void);
 
 1. Learn Italian white — 4 hráčovy tahy, 3 virtual opponent replies.
 2. Sicilian black — auto `e2e4` před prvním černým tahem.
-3. Checkpoint po 4. ply — uživatel potvrdí, pokračuje.
-4. Cancel během setupu — návrat do normální hry.
-5. Matrix guard během opening — guard_clear funguje.
+3. Checkpoint po 4. ply — **fyzický resync** + `checkpoint_ack` (409 pokud matrix ≠ logika).
+4. Cancel během lekce — návrat do normální hry, guard znovu aktivní.
+5. Matrix guard během opening — **nesmí** aktivovat (D8); po `cancel` guard funguje normálně.
 
 ---
 
@@ -860,14 +987,17 @@ bool game_is_opening_trainer_setup_active(void);
 
 | Riziko | Dopad | Mitigace |
 |--------|-------|----------|
-| Ghost figurky (fyz ≠ logika) | Zmatení hráče | Checkpoint + vysvětlení v Learn; §6 |
+| Ghost figurky (fyz ≠ logika) | Zmatení hráče | Checkpoint **fyzický resync** + text v Learn; §6 |
+| Matrix guard při virtuálním tahu | Hra zamrzne | **D8** — opening v `mode_conflict_active`; §6.4 |
 | Matrix nezná typ figury | Špatná figura při setupu | Snapshot `/api/board` + text „dáma na d1“ |
+| Hráčův capture na ghost figuru | Nemožný tah | §8.5 CI `--physical-rules`; checkpoint před capture |
 | LED přepsány jiným režimem | Ztráta hintu | 600 ms refresh; mode conflict guard |
+| Web UI 404 | Žádný browser klient | Flutter-first Fáze 2; §11.2 |
 | Příliš dlouhé linie | Únava | Max 12 plies; checkpoint |
 | Flutter/web drift | Jiné chování | §10 API kontrakt; shared JSON |
 | Flash overflow | Build fail | Katalog jen klient; FW max 16 plies buffer |
 | Queue overflow | API 503 | Opening příkazy priorita jako puzzle |
-| Špatný PGN import | Nelegální linie | CI python-chess mandatory |
+| Špatný PGN import | Nelegální linie | CI python-chess + physical-rules |
 | Timed na BLE | Latence | Timer běží na klientu; FW jen stav |
 
 ---
@@ -919,4 +1049,33 @@ bool game_is_opening_trainer_setup_active(void);
 
 ---
 
-*Plán v2 — živý dokument. Implementace: větev `cursor/opening-trainer-phase0a-8fdd` po merge cleanup PR #7. Issue série: `opening-trainer-phase-*`.*
+## 20. Sanity review — checklist (ověřeno proti kódu)
+
+| Tvrzení v plánu | Ověření v repu | Verdikt |
+|-----------------|----------------|---------|
+| Setup tutorial + matrix poll funguje | `app_main.js` SETUP_TUTORIAL_*, `board_setup_wizard_screen.dart` | ✅ Reuse OK |
+| Puzzle = 1 tah, feedback enum | `game_puzzle.c`, `game_physical.c` ~1609 | ✅ Rozšířit, ne nahradit |
+| `hint_highlight` cyan/orange | `led_task.c` `LED_CMD_HIGHLIGHT_HINT` | ✅ Reuse |
+| Animace tahu soupeře | `LED_CMD_ANIM_MOVE_PATH` / `led_anim_move_path` | ✅ Reuse |
+| `convert_notation_to_coords` pro UCI | `game_task.c`, `game_puzzle.c` | ✅ Split UCI 4/5 znaků |
+| `game_load_position_from_fen` | `game_board_core.c` | ✅ Jako puzzle_start |
+| Matrix guard ignoruje special modes | `game_matrix_guard.c` ~151 + `game_task.c` ~1801 | ✅ Opening musí do seznamu |
+| Virtuální tah → guard bez D8 | Logika ≠ matrix po e7e5 | ⚠️ D8 povinné |
+| `game_execute_move_uci` existuje | grep v `components/game_task` | ❌ → `game_opening_apply_uci` |
+| Flutter volá puzzle API | `board_api_client.dart` | ❌ Vlastní opening API |
+| Web serving chess_app.js | `web_server_task.c` `browser_ui_removed` | ⚠️ Flutter-first |
+| Learn screen funkční | `learn_screen.dart` | ❌ Placeholder |
+| Starting position detect | `game_is_physical_board_starting_occupancy()` | ✅ Skip setup |
+| Reed matrix = occupancy only | `MATRIX_GUARD.md` | ✅ §6.5 omezení |
+
+### Doporučené pořadí (nejmenší riziko)
+
+1. Fáze 0a — validátor + 3 quiet-move linie  
+2. Fáze 1a+1b — FW + D8 + checkpoint + HW Italian  
+3. **Fáze 3** — Flutter (setup wizard + BLE už hotové)  
+4. Fáze 2 — Web po obnově embed  
+5. Fáze 4+ — 30 linií až po ověření checkpoint UX
+
+---
+
+*Plán v2.1 — živý dokument. Implementace: větev `cursor/opening-trainer-phase0a-8fdd` po merge cleanup PR #7.*
