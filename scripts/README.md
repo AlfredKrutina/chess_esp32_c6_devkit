@@ -19,6 +19,16 @@ Diagramy (Mermaid SVG/PNG + HTML): `./scripts/render_docs.sh` — volá `scripts
 |--------|------|
 | `idf_build.sh` | ESP-IDF build wrapper |
 | `render_docs.sh` | Přegenerování diagramů |
+| `test_opening_api.sh` | HTTP smoke test `POST /api/game/opening` na desce |
+
+BLE-only firmware (bez HTTP):  
+`idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only" build`
+
+## Testování HW
+
+| Dokument | Účel |
+|----------|------|
+| [docs/testing/MANUAL_TEST_CHECKLIST.md](../docs/testing/MANUAL_TEST_CHECKLIST.md) | Opening Trainer v1.0 release gate na fyzické desce |
 
 ## Údržba (`scripts/maintenance/`)
 
