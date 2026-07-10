@@ -266,6 +266,15 @@ extern puzzle_feedback_t puzzle_feedback;
 
 extern bool auto_new_game_blocked_until_move;
 
+extern uint32_t game_state_revision;
+extern bool starting_position_check_enabled;
+extern bool auto_new_game_in_starting_position;
+extern uint32_t auto_new_game_timer_start;
+extern bool auto_new_game_triggered;
+extern bool game_saved;
+extern char saved_game_name[32];
+extern uint32_t position_history_count;
+
 extern const char *piece_symbols[];
 
 void game_stop_error_blink(void);
