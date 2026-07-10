@@ -5,9 +5,8 @@ import '../../app_providers.dart';
 import '../../core/layout/form_factor.dart';
 import 'opening_catalog_repository.dart';
 import 'opening_curriculum_unlock.dart';
+import 'opening_mode_picker.dart';
 import 'opening_progress_repository.dart';
-import 'opening_rationale.dart';
-import 'opening_trainer_screen.dart';
 
 class OpeningCatalogScreen extends ConsumerStatefulWidget {
   const OpeningCatalogScreen({super.key});
@@ -19,11 +18,41 @@ class OpeningCatalogScreen extends ConsumerStatefulWidget {
 
 class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
   late Future<_CatalogBundle> _bundle;
+  String _searchQuery = '';
+  String? _sideFilter;
 
   @override
   void initState() {
     super.initState();
     _bundle = _load();
+  }
+
+  bool get _filterActive =>
+      _searchQuery.trim().isNotEmpty || _sideFilter != null;
+
+  List<OpeningLine> _filterLines(List<OpeningLine> lines) {
+    final q = _searchQuery.trim().toLowerCase();
+    return lines.where((line) {
+      if (_sideFilter != null && line.side != _sideFilter) return false;
+      if (q.isEmpty) return true;
+      return line.id.toLowerCase().contains(q) ||
+          line.eco.toLowerCase().contains(q) ||
+          line.nameCs.toLowerCase().contains(q) ||
+          line.nameEn.toLowerCase().contains(q) ||
+          (line.rationale?.summaryForLocale('cs') ?? '')
+              .toLowerCase()
+              .contains(q);
+    }).toList();
+  }
+
+  Future<void> _pickMode(OpeningLine line, {List<OpeningLine>? allLines}) {
+    return pickOpeningModeAndStart(
+      context: context,
+      ref: ref,
+      line: line,
+      allLines: allLines,
+      onReturn: _refresh,
+    );
   }
 
   Future<_CatalogBundle> _load() async {
@@ -40,162 +69,85 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
     });
   }
 
-  Future<void> _pickMode(OpeningLine line, {List<OpeningLine>? allLines}) async {
-    final progressRepo = ref.read(openingProgressRepositoryProvider);
-    final progress = progressRepo.progressFor(line.id);
-    final mirrorId = line.mirrorLineId;
-    final mirrorOk = progressRepo.mirrorUnlocked(line.id, mirrorLineId: mirrorId);
-    var opponentMode = 'physical';
-    final locale = Localizations.localeOf(context).languageCode;
-    final linesById = {
-      for (final l in allLines ?? const <OpeningLine>[]) l.id: l,
-    };
-
-    final mode = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      isScrollControlled: true,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setSheetState) {
-            return SafeArea(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  0,
-                  16,
-                  16 + MediaQuery.viewInsetsOf(ctx).bottom,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(line.nameCs, style: Theme.of(ctx).textTheme.titleMedium),
-                      Text('ECO ${line.eco} · ${line.side} · ★${progress.stars}/4'),
-                      if (line.rationale != null) ...[
-                        const SizedBox(height: 12),
-                        OpeningRationalePanel(
-                          rationale: line.rationale!,
-                          locale: locale,
-                          linesById: linesById,
-                          onRelatedTap: (relatedId) {
-                            final related = linesById[relatedId];
-                            if (related == null) return;
-                            Navigator.pop(ctx);
-                            _pickMode(related, allLines: allLines);
-                          },
-                        ),
-                      ],
-                      const SizedBox(height: 12),
-                      Text('Soupeř', style: Theme.of(ctx).textTheme.titleSmall),
-                      const SizedBox(height: 4),
-                      SegmentedButton<String>(
-                        segments: const [
-                          ButtonSegment(
-                            value: 'physical',
-                            label: Text('Fyzicky'),
-                            icon: Icon(Icons.pan_tool_alt_outlined),
-                          ),
-                          ButtonSegment(
-                            value: 'virtual',
-                            label: Text('Virtuálně'),
-                            icon: Icon(Icons.smart_toy_outlined),
-                          ),
-                        ],
-                        selected: {opponentMode},
-                        onSelectionChanged: (s) {
-                          setSheetState(() => opponentMode = s.first);
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4, bottom: 12),
-                        child: Text(
-                          opponentMode == 'physical'
-                              ? 'LED ukáže tah soupeře — figurku přesuneš sám (jako proti botovi).'
-                              : 'Soupeř táhne na logické desce — po tahu může být potřeba srovnat fyzickou desku.',
-                          style: Theme.of(ctx).textTheme.bodySmall,
-                        ),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.school_outlined),
-                        title: const Text('Učení'),
-                        subtitle: const Text('Komentáře ke každému tahu'),
-                        onTap: () => Navigator.pop(ctx, 'learn'),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.fitness_center_outlined),
-                        title: const Text('Drill'),
-                        subtitle: Text(
-                          progress.stars >= 1
-                              ? 'Bez komentářů, max 2 chyby pro ★★'
-                              : 'Nejdřív dokonči režim Učení',
-                        ),
-                        enabled: progress.stars >= 1,
-                        onTap: progress.stars >= 1
-                            ? () => Navigator.pop(ctx, 'drill')
-                            : null,
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.timer_outlined),
-                        title: const Text('Na čas'),
-                        subtitle: Text(
-                          progress.stars >= 2
-                              ? '90 s na celou linii'
-                              : 'Odemčeno po ★★ v Drillu',
-                        ),
-                        enabled: progress.stars >= 2,
-                        onTap: progress.stars >= 2
-                            ? () => Navigator.pop(ctx, 'timed')
-                            : null,
-                      ),
-                    if (mirrorId != null)
-                      ListTile(
-                        leading: const Icon(Icons.swap_horiz),
-                        title: const Text('Mirror — protistrana'),
-                        subtitle: Text(
-                          mirrorOk
-                              ? 'Párová linie $mirrorId'
-                              : 'Odemčeno po ★★ na hlavní linii',
-                        ),
-                        enabled: mirrorOk,
-                        onTap: mirrorOk
-                            ? () => Navigator.pop(ctx, 'mirror')
-                            : null,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-    if (!mounted || mode == null) return;
-
-    String lineId = line.id;
-    if (mode == 'mirror' && mirrorId != null) {
-      lineId = mirrorId;
-    }
-
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (_) => OpeningTrainerScreen(
-          lineId: lineId,
-          mode: mode,
-          opponentMode: opponentMode,
+  Widget _buildFilters(BuildContext context) {
+    final cs = Localizations.localeOf(context).languageCode.startsWith('cs');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          decoration: InputDecoration(
+            hintText: cs ? 'Hledat název, ECO…' : 'Search name, ECO…',
+            prefixIcon: const Icon(Icons.search),
+            border: const OutlineInputBorder(),
+            isDense: true,
+          ),
+          onChanged: (v) => setState(() => _searchQuery = v),
         ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [
+            FilterChip(
+              label: Text(cs ? 'Vše' : 'All'),
+              selected: _sideFilter == null,
+              onSelected: (_) => setState(() => _sideFilter = null),
+            ),
+            FilterChip(
+              label: Text(cs ? 'Bílé' : 'White'),
+              selected: _sideFilter == 'white',
+              onSelected: (_) => setState(() => _sideFilter = 'white'),
+            ),
+            FilterChip(
+              label: Text(cs ? 'Černé' : 'Black'),
+              selected: _sideFilter == 'black',
+              onSelected: (_) => setState(() => _sideFilter = 'black'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget _buildLineTile(
+    BuildContext context,
+    OpeningLine line,
+    int stars,
+    List<OpeningLine> allLines,
+  ) {
+    final locale = Localizations.localeOf(context).languageCode;
+    final subtitle = line.subtitleForLocale(locale);
+    final cs = locale.startsWith('cs');
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        title: Text(line.nameForLocale(locale)),
+        subtitle: Text(
+          subtitle != null && subtitle.isNotEmpty
+              ? '$subtitle\nECO ${line.eco} · ${line.side} · ${cs ? 'obtížnost' : 'difficulty'} ${line.difficulty}'
+              : 'ECO ${line.eco} · ${line.side} · ${cs ? 'obtížnost' : 'difficulty'} ${line.difficulty}',
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('★$stars'),
+            const Icon(Icons.chevron_right),
+          ],
+        ),
+        onTap: () => _pickMode(line, allLines: allLines),
       ),
     );
-    _refresh();
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Localizations.localeOf(context).languageCode.startsWith('cs');
     return Scaffold(
-      appBar: AppBar(title: const Text('Trénink zahájení')),
+      appBar: AppBar(
+        title: Text(cs ? 'Trénink zahájení' : 'Opening training'),
+      ),
       body: desktopFormDetailBody(
         FutureBuilder<_CatalogBundle>(
           future: _bundle,
@@ -205,6 +157,7 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
             }
             final data = snap.data!;
             final byId = {for (final l in data.lines) l.id: l};
+            final filtered = _filterLines(data.lines);
             final dueIds = OpeningCurriculumUnlock.linesDueForReview(
               data.lines,
               data.progress,
@@ -216,6 +169,24 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                _buildFilters(context),
+                if (_filterActive) ...[
+                  Text(
+                    cs
+                        ? 'Nalezeno ${filtered.length} linií'
+                        : '${filtered.length} lines found',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  ...filtered.map(
+                    (line) => _buildLineTile(
+                      context,
+                      line,
+                      data.progress[line.id]?.stars ?? 0,
+                      data.lines,
+                    ),
+                  ),
+                ] else ...[
                 if (dueLines.isNotEmpty)
                   Card(
                     color: Theme.of(context).colorScheme.primaryContainer,
@@ -303,29 +274,11 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
                             final line = byId[id];
                             if (line == null) return const SizedBox.shrink();
                             final stars = data.progress[id]?.stars ?? 0;
-                            final locale =
-                                Localizations.localeOf(context).languageCode;
-                            final subtitle = line.subtitleForLocale(locale);
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                title: Text(line.nameCs),
-                                subtitle: Text(
-                                  subtitle != null && subtitle.isNotEmpty
-                                      ? '$subtitle\nECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}'
-                                      : 'ECO ${line.eco} · ${line.side} · obtížnost ${line.difficulty}',
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('★$stars'),
-                                    const Icon(Icons.chevron_right),
-                                  ],
-                                ),
-                                onTap: () => _pickMode(line, allLines: data.lines),
-                              ),
+                            return _buildLineTile(
+                              context,
+                              line,
+                              stars,
+                              data.lines,
                             );
                           })
                         else

@@ -11,6 +11,7 @@ import '../../core/utils/board_setup_fen_steps.dart';
 import '../connection/board_session_notifier.dart';
 import '../setup/board_setup_wizard_screen.dart';
 import 'opening_catalog_repository.dart';
+import 'opening_feedback_l10n.dart';
 import 'opening_rationale.dart';
 
 class OpeningTrainerScreen extends ConsumerStatefulWidget {
@@ -18,7 +19,7 @@ class OpeningTrainerScreen extends ConsumerStatefulWidget {
     super.key,
     required this.lineId,
     this.mode = 'learn',
-    this.opponentMode = 'virtual',
+    this.opponentMode = 'physical',
   });
 
   final String lineId;
@@ -63,6 +64,11 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     super.dispose();
   }
 
+  bool _isCs() {
+    if (!mounted) return true;
+    return Localizations.localeOf(context).languageCode.startsWith('cs');
+  }
+
   void _startTimedCountdown() {
     if (widget.mode != 'timed') return;
     _countdownTimer?.cancel();
@@ -82,7 +88,10 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
         }
       });
       if (_timedExpired) {
-        showGlassSnackBar(context, 'Čas vypršel');
+        showGlassSnackBar(
+          context,
+          _isCs() ? 'Čas vypršel' : 'Time is up',
+        );
         _cancel();
       }
     });
@@ -129,7 +138,7 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
       final line = await OpeningCatalogRepository().findById(widget.lineId);
       if (!mounted) return;
       if (line == null) {
-        setState(() => _error = 'Opening not found');
+        setState(() => _error = _isCs() ? 'Linie nenalezena' : 'Opening not found');
         return;
       }
       setState(() {
@@ -160,18 +169,24 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
         if (mounted) {
           showGlassSnackBar(
             context,
-            'Deska nesedí se startovní pozicí — nastav figurky',
+            _isCs()
+                ? 'Deska nesedí se startovní pozicí — nastav figurky'
+                : 'Board does not match the start — set up the pieces',
           );
         }
         return;
       }
       _startTimedCountdown();
       if (mounted) {
-        final msg = widget.mode == 'drill'
-            ? 'Drill — táhni bez nápověd v textu'
-            : widget.mode == 'timed'
-                ? 'Na čas $_timedLimitSec s — začni!'
-                : 'Lekce spuštěna — táhni na desce';
+        final msg = switch (widget.mode) {
+          'drill' => _isCs()
+              ? 'Drill — táhni bez komentářů v textu'
+              : 'Drill — play without move comments',
+          'timed' => _isCs()
+              ? 'Na čas $_timedLimitSec s — začni!'
+              : 'Timed $_timedLimitSec s — go!',
+          _ => _isCs() ? 'Lekce spuštěna — táhni na desce' : 'Lesson started — play on the board',
+        };
         showGlassSnackBar(context, msg);
       }
     } catch (e) {
@@ -224,13 +239,18 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     try {
       await n.postOpeningRaw({'action': 'checkpoint_ack'});
       if (mounted) {
-        showGlassSnackBar(context, 'Deska srovnaná — pokračuj');
+        showGlassSnackBar(
+          context,
+          _isCs() ? 'Deska srovnaná — pokračuj' : 'Board synced — continue',
+        );
       }
     } catch (e) {
       if (mounted) {
         showGlassSnackBar(
           context,
-          'Deska ještě nesedí — uprav figurky podle návodu',
+          _isCs()
+              ? 'Deska ještě nesedí — uprav figurky podle návodu'
+              : 'Board still mismatched — adjust pieces per guide',
         );
       }
     }
@@ -257,11 +277,11 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
       if (matrix[i] != expected[i]) {
         final sq = _squareFromIndex(i);
         if (expected[i] == 1 && matrix[i] == 0) {
-          out.add('Polož figurku na $sq');
+          out.add(_isCs() ? 'Polož figurku na $sq' : 'Place a piece on $sq');
         } else if (expected[i] == 0 && matrix[i] == 1) {
-          out.add('Zvedni figurku z $sq');
+          out.add(_isCs() ? 'Zvedni figurku z $sq' : 'Remove piece from $sq');
         } else {
-          out.add('Uprav pole $sq');
+          out.add(_isCs() ? 'Uprav pole $sq' : 'Fix square $sq');
         }
       }
     }
@@ -271,6 +291,7 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final locale = Localizations.localeOf(context).languageCode;
     final session = ref.watch(boardSessionNotifierProvider);
     final opening = session.snapshot?.status.openingTraining;
     final matrix = session.snapshot?.status.matrixOccupied;
@@ -318,17 +339,35 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
         : const <String>[];
 
     final line = _line;
-    final stepComment = line?.commentForPlayerPly(_playerPly);
-    final modeLabel = switch (widget.mode) {
-      'drill' => 'Drill',
-      'timed' => 'Na čas',
-      'mirror' => 'Mirror',
-      _ => 'Učení',
-    };
+    final stepComment = line?.commentForPlayerPly(_playerPly, locale);
+    final idea = line?.ideaForLocale(locale);
+    final showRationale = !widget.isDrillLike &&
+        _playerPly == 0 &&
+        line?.rationale != null;
+    final modeLabel = OpeningFeedbackL10n.modeLabel(locale, widget.mode);
+    final from = opening?.expectedFrom ?? '?';
+    final to = opening?.expectedTo ?? '?';
+    final instruction = OpeningFeedbackL10n.moveLabel(
+      locale: locale,
+      playerPlyIndex: _playerPly,
+      playerPlyTotal: _playerTotal,
+      from: from,
+      to: to,
+      feedback: _feedback,
+      drillLike: widget.isDrillLike,
+      isSetupPhase: isSetupPhase,
+      isCheckpoint: isCheckpoint,
+      physicalSynced: physicalSynced,
+      mismatchCount: mismatches.length,
+      physicalMatch: opening?.physicalMatch ?? true,
+      opponentMode: widget.opponentMode,
+    );
+    final opponentHint =
+        OpeningFeedbackL10n.opponentModeHint(locale, widget.opponentMode);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(line?.nameForLocale(Localizations.localeOf(context).languageCode) ??
-            l10n.learnAppBarTitle),
+        title: Text(line?.nameForLocale(locale) ?? l10n.learnAppBarTitle),
         actions: [
           if (widget.mode == 'timed')
             Padding(
@@ -360,29 +399,40 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                       children: [
                         Text('ECO ${line.eco} · ${line.side} · $modeLabel',
                             style: Theme.of(context).textTheme.titleSmall),
-                        const SizedBox(height: 8),
-                        if (!widget.isDrillLike && line.ideaCs != null)
-                          Text(line.ideaCs!, style: Theme.of(context).textTheme.bodyLarge),
-                        if (!widget.isDrillLike && line.rationale != null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          instruction,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                        if (!widget.isDrillLike && idea != null && idea.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(idea, style: Theme.of(context).textTheme.bodyLarge),
+                        ],
+                        if (showRationale) ...[
                           const SizedBox(height: 8),
                           OpeningRationalePanel(
                             rationale: line.rationale!,
-                            locale: Localizations.localeOf(context).languageCode,
+                            locale: locale,
                             compact: true,
                           ),
                         ],
                         if (!widget.isDrillLike &&
+                            _playerPly > 0 &&
                             stepComment != null &&
                             stepComment.isNotEmpty) ...[
                           const SizedBox(height: 8),
-                          Text(stepComment,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.primary,
-                                  )),
+                          Text(
+                            stepComment,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                          ),
                         ],
                         if (widget.isDrillLike) ...[
                           const SizedBox(height: 8),
-                          Text('Chyby: $_drillErrors'),
+                          Text(_isCs() ? 'Chyby: $_drillErrors' : 'Errors: $_drillErrors'),
                         ],
                         const SizedBox(height: 16),
                         LinearProgressIndicator(
@@ -391,73 +441,48 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                               : (_playerPly + 1) / _playerTotal,
                         ),
                         const SizedBox(height: 8),
-                        Text('Tah hráče ${_playerPly + 1} / $_playerTotal'),
-                        Text('Stav: $_feedback'),
+                        Text(
+                          _isCs()
+                              ? 'Tah hráče ${_playerPly + 1} / $_playerTotal'
+                              : 'Your move ${_playerPly + 1} / $_playerTotal',
+                        ),
                         if (opening?.wrongMoveCount != null &&
                             opening!.wrongMoveCount! > 0)
-                          Text('Špatné pokusy: ${opening.wrongMoveCount}'),
-                        if (isOpponentTurn) ...[
-                          const SizedBox(height: 16),
                           Text(
-                            'Tah soupeře — zvedni figurku z ${opening?.expectedFrom ?? '?'} '
-                            'a polož ji na ${opening?.expectedTo ?? '?'}',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.secondary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            _isCs()
+                                ? 'Špatné pokusy: ${opening.wrongMoveCount}'
+                                : 'Wrong attempts: ${opening.wrongMoveCount}',
                           ),
+                        if (isOpponentTurn && opponentHint != null) ...[
                           const SizedBox(height: 8),
                           Text(
-                            widget.opponentMode == 'physical'
-                                ? 'Fyzický režim — stejně jako proti botovi na desce.'
-                                : 'Virtuální režim soupeře.',
+                            opponentHint,
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                         if (isSetupPhase) ...[
                           const SizedBox(height: 16),
-                          Text(
-                            opening?.physicalMatch == false
-                                ? 'Fyzická deska nesedí se startovní pozicí této linie.'
-                                : 'Čekám na potvrzení fyzické desky…',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 8),
                           FilledButton(
-                            onPressed: (_busy || _setupWizardInFlight || line == null)
+                            onPressed: (_busy || _setupWizardInFlight)
                                 ? null
                                 : () => _openSetupWizard(line),
-                            child: const Text('Nastavit desku'),
+                            child: Text(_isCs() ? 'Nastavit desku' : 'Set up board'),
                           ),
                         ],
                         if (isMistakeHint) ...[
                           const SizedBox(height: 16),
-                          Text(
-                            'Po 3 chybách — správný tah: '
-                            '${opening?.expectedFrom ?? '?'} → ${opening?.expectedTo ?? '?'}',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
                           FilledButton(
                             onPressed: _busy ? null : _hint,
-                            child: const Text('Zobrazit tah na LED'),
+                            child: Text(_isCs() ? 'Zobrazit tah na LED' : 'Show move on LED'),
                           ),
                         ],
                         if (isCheckpoint) ...[
                           const SizedBox(height: 16),
-                          Text(
-                            'Srovnej fyzickou desku s logickou pozicí po tahu soupeře.',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 8),
                           if (mismatches.isEmpty && !physicalSynced)
-                            const Text('Načítám stav matice…')
+                            Text(_isCs() ? 'Načítám stav matice…' : 'Loading matrix state…')
                           else if (mismatches.isEmpty)
                             Text(
-                              'Deska sedí — můžeš pokračovat.',
+                              _isCs() ? 'Deska sedí — můžeš pokračovat.' : 'Board matches — you can continue.',
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                               ),
@@ -483,22 +508,28 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                             onPressed: (_busy || !physicalSynced) ? null : _checkpointAck,
                             child: Text(
                               physicalSynced
-                                  ? 'Deska srovnaná — pokračovat'
-                                  : 'Nejdřív srovnej desku (${mismatches.length} rozdílů)',
+                                  ? (_isCs() ? 'Deska srovnaná — pokračovat' : 'Synced — continue')
+                                  : (_isCs()
+                                      ? 'Nejdřív srovnej desku (${mismatches.length} rozdílů)'
+                                      : 'Sync board first (${mismatches.length} diffs)'),
                             ),
                           ),
                         const SizedBox(height: 8),
-                        if (!isCheckpoint && !isSetupPhase && !isMistakeHint && !isOpponentTurn)
+                        if (!isCheckpoint &&
+                            !isSetupPhase &&
+                            !isMistakeHint &&
+                            !isOpponentTurn &&
+                            _feedback != 'complete')
                           OutlinedButton(
                             onPressed: _busy ? null : _hint,
-                            child: const Text('LED nápověda'),
+                            child: Text(_isCs() ? 'LED nápověda' : 'LED hint'),
                           ),
                         if (_feedback == 'complete')
                           Padding(
                             padding: const EdgeInsets.only(top: 12),
                             child: FilledButton(
                               onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Hotovo'),
+                              child: Text(_isCs() ? 'Hotovo' : 'Done'),
                             ),
                           ),
                       ],

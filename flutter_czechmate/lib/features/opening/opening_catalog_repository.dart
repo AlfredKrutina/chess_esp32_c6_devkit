@@ -45,6 +45,7 @@ class OpeningLine {
     this.rationale,
     this.mirrorLineId,
     this.stepCommentsCs = const {},
+    this.stepCommentsEn = const {},
   });
 
   final String id;
@@ -62,16 +63,29 @@ class OpeningLine {
   final OpeningRationale? rationale;
   final String? mirrorLineId;
   final Map<int, String> stepCommentsCs;
+  final Map<int, String> stepCommentsEn;
 
   String nameForLocale(String locale) =>
       locale.startsWith('cs') ? nameCs : nameEn;
 
-  String? commentForPlayerPly(int playerPlyIndex) {
+  String? ideaForLocale(String locale) {
+    final cs = ideaCs;
+    final en = ideaEn;
+    if (locale.startsWith('cs')) {
+      return cs?.isNotEmpty == true ? cs : en;
+    }
+    return en?.isNotEmpty == true ? en : cs;
+  }
+
+  String? commentForPlayerPly(int playerPlyIndex, [String locale = 'cs']) {
     final ply = playerPlyIndex < playerPlyIndices.length
         ? playerPlyIndices[playerPlyIndex]
         : null;
     if (ply == null) return null;
-    return stepCommentsCs[ply];
+    if (locale.startsWith('cs')) {
+      return stepCommentsCs[ply] ?? stepCommentsEn[ply];
+    }
+    return stepCommentsEn[ply] ?? stepCommentsCs[ply];
   }
 
   String? subtitleForLocale(String locale) {
@@ -84,7 +98,7 @@ class OpeningLine {
 
   Map<String, dynamic> toStartPayload({
     String mode = 'learn',
-    String opponentMode = 'virtual',
+    String opponentMode = 'physical',
   }) => {
         'action': 'start',
         'line_id': id,
@@ -103,13 +117,15 @@ class OpeningLine {
     final idea = json['idea'] as Map<String, dynamic>?;
     final rationaleJson = json['rationale'] as Map<String, dynamic>?;
     final steps = json['steps'] as List<dynamic>? ?? [];
-    final comments = <int, String>{};
+    final commentsCs = <int, String>{};
+    final commentsEn = <int, String>{};
     for (final raw in steps) {
       final step = raw as Map<String, dynamic>;
       final ply = (step['ply_index'] as num?)?.toInt();
       final comment = step['comment'] as Map<String, dynamic>?;
       if (ply != null && comment != null) {
-        comments[ply] = comment['cs'] as String? ?? '';
+        commentsCs[ply] = comment['cs'] as String? ?? '';
+        commentsEn[ply] = comment['en'] as String? ?? '';
       }
     }
     return OpeningLine(
@@ -131,7 +147,8 @@ class OpeningLine {
           ? OpeningRationale.fromJson(rationaleJson)
           : null,
       mirrorLineId: json['mirror_line_id'] as String?,
-      stepCommentsCs: comments,
+      stepCommentsCs: commentsCs,
+      stepCommentsEn: commentsEn,
     );
   }
 }

@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/layout/form_factor.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/widgets/glass_snackbar.dart';
 import '../opening/opening_catalog_screen.dart';
-import '../opening/opening_trainer_screen.dart';
+import '../opening/opening_mode_picker.dart';
 
-class LearnScreen extends StatelessWidget {
+class LearnScreen extends ConsumerWidget {
   const LearnScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final cs = Localizations.localeOf(context).languageCode.startsWith('cs');
     return Scaffold(
       appBar: AppBar(title: Text(l10n.learnAppBarTitle)),
       body: desktopFormDetailBody(
@@ -23,8 +25,10 @@ class LearnScreen extends StatelessWidget {
               child: ListTile(
                 leading: Icon(Icons.menu_book,
                     color: Theme.of(context).colorScheme.primary),
-                title: const Text('Trénink zahájení'),
-                subtitle: const Text('16 linií — Učení, Drill, Na čas, Mirror'),
+                title: Text(cs ? 'Trénink zahájení' : 'Opening training'),
+                subtitle: Text(cs
+                    ? '41 linií — Učení, Drill, Na čas, Mirror'
+                    : '41 lines — Learn, Drill, Timed, Mirror'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
@@ -157,13 +161,61 @@ class _LearnCategory extends StatelessWidget {
             ],
           ),
         ),
-        ...lessons,
+        ...lessons.map((lesson) => _LessonTile(lesson: lesson)),
       ],
     );
   }
 }
 
-class _Lesson extends StatelessWidget {
+class _LessonTile extends ConsumerWidget {
+  const _LessonTile({required this.lesson});
+  final _Lesson lesson;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final lesson = this.lesson;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: Icon(
+          lesson.locked
+              ? Icons.lock
+              : lesson.done
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+          color: lesson.locked
+              ? Colors.grey
+              : lesson.done
+                  ? Colors.green
+                  : Theme.of(context).colorScheme.primary,
+        ),
+        title: Text(lesson.title,
+            style: TextStyle(color: lesson.locked ? Colors.grey : null)),
+        subtitle: Text(lesson.description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: lesson.locked ? Colors.grey : null)),
+        trailing: lesson.locked ? null : const Icon(Icons.chevron_right),
+        onTap: lesson.locked
+            ? null
+            : () async {
+                if (lesson.openingId != null) {
+                  await launchOpeningLessonById(
+                    context: context,
+                    ref: ref,
+                    lineId: lesson.openingId!,
+                  );
+                  return;
+                }
+                showAppSnackBar(context, l10n.learnSnackLesson(lesson.title));
+              },
+      ),
+    );
+  }
+}
+
+class _Lesson {
   const _Lesson({
     required this.title,
     required this.description,
@@ -176,46 +228,4 @@ class _Lesson extends StatelessWidget {
   final bool done;
   final bool locked;
   final String? openingId;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(
-          locked
-              ? Icons.lock
-              : done
-                  ? Icons.check_circle
-                  : Icons.radio_button_unchecked,
-          color: locked
-              ? Colors.grey
-              : done
-                  ? Colors.green
-                  : Theme.of(context).colorScheme.primary,
-        ),
-        title:
-            Text(title, style: TextStyle(color: locked ? Colors.grey : null)),
-        subtitle: Text(description,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: locked ? Colors.grey : null)),
-        trailing: locked ? null : const Icon(Icons.chevron_right),
-        onTap: locked
-            ? null
-            : () {
-                if (openingId != null) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => OpeningTrainerScreen(lineId: openingId!),
-                    ),
-                  );
-                  return;
-                }
-                showAppSnackBar(context, l10n.learnSnackLesson(title));
-              },
-      ),
-    );
-  }
 }

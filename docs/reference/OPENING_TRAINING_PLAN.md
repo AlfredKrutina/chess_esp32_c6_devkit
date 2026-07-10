@@ -120,12 +120,13 @@
 | Setup wizard + retry | ✅ | `setup_phase` flow obě platformy |
 | PGN import | ✅ | `tools/openings/pgn_to_catalog.py` |
 | Volitelný HTTP build | ✅ | `CONFIG_CHESS_ENABLE_WEB_SERVER` — PR #10 |
-| `steps[]` EN v JSON | ✅ | 192/192 komentářů u všech hráčových ply; Flutter čte jen `cs` |
+| `steps[]` locale v UI | ✅ | JSON 192/192; Flutter `commentForPlayerPly(locale)` |
 | `mirror_line_id` páry | 🟡 | 2/41 — ★★★★ omezený; **oba páry jsou cross-family** (ne opačná barva stejné linie) |
 | `common_mistakes` v UI | ⬜ | 0/41 v masteru; schema + UI backlog |
-| UX lekce (bez debug stavů) | ⬜ | Flutter: `Stav: $_feedback`; web už má lidské texty |
-| Rationale jen ply 0 (Learn) | 🟡 | Web ✅ (`player_ply_index === 0`); Flutter zobrazuje po celou lekci |
-| Katalog filtry (side/ECO/family) | ⬜ | 41 linií bez vyhledávání |
+| UX lekce (bez debug stavů) | ✅ | Flutter §8.9 `OpeningFeedbackL10n`; PR 5a |
+| Rationale jen ply 0 (Learn) | ✅ | Flutter `_playerPly == 0`; web už měl |
+| Katalog filtry (side/ECO/search) | ✅ | `opening_catalog_screen.dart` PR 5a |
+| L10/L12 mode picker | ✅ | `launchOpeningLessonById` + sdílený picker |
 | Miniboard sync v lekci | ⬜ | Text + progress bar; plný miniboard backlog |
 | Stockfish „proč tento tah“ | ⬜ | Fáze 5 backlog |
 | Spaced repetition notifikace | ⬜ | Fronta due lines hotová; push notif backlog |
@@ -1323,14 +1324,14 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 - [x] BLE bridge + `web_opening_dispatch.c` při `n`
 - [x] UART `WEB` příkaz hlásí disabled build
 
-### Fáze 5a — UX lekce (priorita 1) ⬜
+### Fáze 5a — UX lekce (priorita 1) ✅
 
-- [ ] Nahradit debug `Stav: $_feedback` srozumitelnými hláškami (CS/EN dle locale) — **Flutter**; web má lidské texty
-- [ ] Rationale panel jen na **ply 0** (Learn) — **web hotovo**; Flutter zobrazuje po celou lekci
-- [ ] `idea` + `steps[]`: Flutter locale (`cs`/`en`), ne jen `cs` / `ideaCs`
-- [ ] L10/L12: mode picker nebo default `physical` jako v katalogu
-- [ ] `opponent_annotations` u 5+ linií + text při `opponent_turn` (physical) — dnes 0/41
-- [ ] Katalog filtry: side / ECO / family / difficulty
+- [x] Nahradit debug `Stav: $_feedback` — `OpeningFeedbackL10n`
+- [x] Rationale panel jen na **ply 0** (Learn) — Flutter + web
+- [x] `idea` + `steps[]`: Flutter locale (`commentForPlayerPly`, `ideaForLocale`)
+- [x] L10/L12: sdílený `pickOpeningModeAndStart`
+- [ ] `opponent_annotations` u 5+ linií — dnes 0/41 (obsah, ne UX)
+- [x] Katalog filtry: side + search (název/ECO)
 
 **Acceptance:** Learn lekce bez technických stavů; rationale viditelné jen na úvodu.
 
@@ -1522,8 +1523,8 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 | Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5c |
 | `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
 | `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — oba cross-family; Fáze 5d |
-| Flutter rationale ply 0 | `opening_trainer_screen.dart` | ⬜ Web parita hotová |
-| L10/L12 default opponent | `learn_screen.dart` | ⬜ `virtual` místo `physical` |
+| Flutter rationale ply 0 | `opening_trainer_screen.dart` | ✅ PR 5a |
+| L10/L12 default opponent | `learn_screen.dart` | ✅ mode picker |
 
 ### Doporučené pořadí (další práce)
 
