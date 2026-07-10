@@ -2954,7 +2954,7 @@ static void czechmate_mdns_ensure_started(void) {
 /** Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje
  * game_task na httpd_ws_send_data / malloc). Musí být mimo #if WS — BLE vždy. */
 
-static void czechmate_ensure_snapshot_notify_queue(void) {
+void czechmate_ensure_snapshot_notify_queue(void) {
   if (snapshot_notify_queue != NULL) {
     return;
   }
