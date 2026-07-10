@@ -1,21 +1,20 @@
 # Plán v2: Interaktivní trénink zahájení (Opening Trainer)
 
-**Verze:** 2.4 (strategie polish + obsah 2026-07-10)  
-**Stav:** **v1.0 jádro hotové** — FW + Flutter + web; katalog 41 linií; rationale; fyzický/virtuální soupeř; volitelný HTTP build. **Zbývá polish §14 Fáze 5a–5d** pro v1.0 release.  
-**Aktivní PR:** [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (opening trainer) · [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) (volitelný web server)  
+**Verze:** 2.5 (v1.0 release gate — 2026-07-10)  
+**Stav:** **v1.0 hotové v kódu a CI** — FW + Flutter + web; katalog 41 linií; Fáze 5a–5d; BLE-only CI build; `MANUAL_TEST_CHECKLIST.md` pro HW sign-off.  
+**Aktivní PR:** — (stack #9–#15 merged do `main`)  
 **Cíl:** Krok-za-krokem výuka slavných zahájení pro **bílé i černé**, s fyzickou deskou, LED nápovědou a jednotným UX na webu + Flutter.  
 **Vstupní dokumentace:** [docs/README.md](../README.md) · [MATRIX_GUARD.md](MATRIX_GUARD.md) · [WEB_UI_DEPLOY.md](WEB_UI_DEPLOY.md) · [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md)
 
 ### Rychlý přehled — co dělat dál
 
-| Priorita | Fáze | Výsledek pro uživatele | Odhad rozsahu |
-|----------|------|------------------------|---------------|
-| 1 | **5a** Flutter UX | Lekce bez `Stav: wrong`; rationale jen na úvodu; EN locale | 1 PR, ~5 souborů |
-| 2 | **5b** `common_mistakes` | „Ne Bb5, ale c4“ při špatné variantě | 1 PR obsah + 1 PR klient |
-| 3 | **5c** Miniboard | Pozice na displeji během lekce | 1 PR Flutter + web |
-| 4 | **5d** Mirror páry | ★★★★ dosažitelná u 10 linií | 1 PR obsah + CI validace |
+| Priorita | Úkol | Stav |
+|----------|------|------|
+| 1 | **HW sign-off** — `docs/testing/MANUAL_TEST_CHECKLIST.md` | ☐ manuálně na desce |
+| 2 | **v1.1** — Fáze 6 (větvení, mid-line FEN, SPIFFS) | backlog |
+| 3 | **v1.1** — Stockfish „proč tento tah“, push notifikace | backlog |
 
-**Gate v1.0:** splnění §21 (Definice hotovo). Architektura se nemění — jen UX, obsah a parita.
+**Gate v1.0 (kód):** splněno §21 automatizovanou částí + checklist připraven.
 
 ---
 
@@ -1358,9 +1357,9 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 - [x] Rationale CS/EN kompletní (sidecar) — Fáze 4b
 - [x] Odstraněn špatný cross-family pár (`italian_giuoco_white` ↔ `sicilian_odb_black`)
 - [x] Implementováno 10 párů dle §8.8 + `--mirror-symmetric` v sync + CI
-- [ ] Checkpoint „srovnej desku“ UI — základ hotový, polish
+- [x] Checkpoint „srovnej desku“ UI — mismatch list + disabled ack + miniboard diff
 - [ ] Stockfish „proč tento tah“ (read-only, Learn only) — **v1.1**, ne blocker
-- [ ] Rozšířit `MANUAL_TEST_CHECKLIST.md` (vč. BLE-only build)
+- [x] Rozšířit `MANUAL_TEST_CHECKLIST.md` (vč. BLE-only build) — `docs/testing/MANUAL_TEST_CHECKLIST.md`
 
 **Acceptance:** ★★★★ dosažitelná u ≥10 linií; mirror páry symetrické a opačné barvy.
 
@@ -1521,7 +1520,7 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 | Katalog 41 linií CI | `opening_catalog_test.dart`, `opening_rationale_test.dart` | ✅ |
 | `common_mistakes` v UI | grep klient + sync | ✅ Fáze 5b |
 | Miniboard v lekci | `opening_trainer_screen.dart`, `opening_trainer.js` | ✅ Fáze 5c |
-| `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
+| `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ CI job `build-ble-only` + `sdkconfig.defaults.ble_only` |
 | `mirror_line_id` ≥10 párů | `openings_master.json` | ✅ 10 symetrických párů §8.8; PR 5d |
 | Flutter rationale ply 0 | `opening_trainer_screen.dart` | ✅ PR 5a |
 | L10/L12 default opponent | `learn_screen.dart` | ✅ mode picker |
@@ -1534,31 +1533,32 @@ Viz **§14.1 PR balíčky** a **§21 release gate**. Stručně: 5a → 5b → 5c
 
 ## 21. Definice hotovo — v1.0 release gate
 
-Všechny body musí být ✅ před označením opening traineru za **v1.0 produkční**.
+Všechny body musí být ✅ před označením opening traineru za **v1.0 produkční**.  
+**Kód + CI:** splněno (2026-07-10). **HW:** viz [MANUAL_TEST_CHECKLIST.md](../testing/MANUAL_TEST_CHECKLIST.md).
 
 ### Produktové minimum
 
-| # | Kritérium | Ověření |
-|---|-----------|---------|
-| G1 | 41 linií legálních + rationale | CI `openings-catalog` |
-| G2 | E2E HW: 3 linie × Learn + Drill | `MANUAL_TEST_CHECKLIST.md` |
-| G3 | Matrix guard bez regrese | CI + HW cancel scénář |
-| G4 | 4 režimy fungují na FW | HW checklist |
-| G5 | Flutter = web sémantika (§4.9) | Manuální + widget testy |
-| G6 | Curriculum unlock | `opening_curriculum_unlock_test.dart` |
-| G7 | Progress přežije restart app | SharedPreferences test |
+| # | Kritérium | Ověření | Stav |
+|---|-----------|---------|------|
+| G1 | 41 linií legálních + rationale | CI `openings-catalog` | ✅ |
+| G2 | E2E HW: 3 linie × Learn + Drill | `MANUAL_TEST_CHECKLIST.md` §A | ☐ HW |
+| G3 | Matrix guard bez regrese | CI + HW §B3 | ☐ HW |
+| G4 | 4 režimy fungují na FW | HW §B + `opening_release_gate_test.dart` | ☐ HW / ✅ stars |
+| G5 | Flutter = web sémantika (§4.9) | Manuální §F + widget testy | ☐ HW / ✅ UX testy |
+| G6 | Curriculum unlock | `opening_curriculum_unlock_test.dart` | ✅ |
+| G7 | Progress přežije restart app | `opening_release_gate_test.dart` | ✅ |
 
 ### Polish minimum (Fáze 5)
 
-| # | Kritérium | Metrika |
-|---|-----------|---------|
-| P1 | Žádný debug feedback v UI | 0× `Stav:` v `opening_trainer_screen.dart` |
-| P2 | Rationale jen ply 0 (Learn) | Flutter + web shodně |
-| P3 | Locale steps + idea | EN UI → anglické komentáře |
-| P4 | `common_mistakes` | ≥10 linií, klient ukáže hint |
-| P5 | Miniboard v lekci | Pozice viditelná při aktivní lekci |
-| P6 | Mirror páry | 10 symetrických párů §8.8, ★★★★ test na 2 liniích |
-| P7 | L10/L12 start | `opponent_mode: physical` nebo mode picker |
+| # | Kritérium | Metrika | Stav |
+|---|-----------|---------|------|
+| P1 | Žádný debug feedback v UI | 0× `Stav:` v opening UI | ✅ |
+| P2 | Rationale jen ply 0 (Learn) | Flutter + web shodně | ✅ |
+| P3 | Locale steps + idea | EN UI → anglické komentáře | ✅ |
+| P4 | `common_mistakes` | ≥10 linií, klient ukáže hint | ✅ (11 linií) |
+| P5 | Miniboard v lekci | Pozice viditelná při aktivní lekci | ✅ |
+| P6 | Mirror páry | 10 symetrických párů §8.8, ★★★★ test na 2 liniích | ✅ CI / ☐ HW §C |
+| P7 | L10/L12 start | `opponent_mode: physical` nebo mode picker | ✅ |
 
 ### Explicitně mimo v1.0
 
@@ -1570,4 +1570,4 @@ Všechny body musí být ✅ před označením opening traineru za **v1.0 produk
 
 ---
 
-*Plán v2.4 — živý dokument (2026-07-10). Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) · PR [#11](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/11) · PR [#12](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/12) · PR [#13](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/13). Další: §21 release gate.*
+*Plán v2.5 — živý dokument (2026-07-10). Implementace merged #9–#15. HW sign-off: [MANUAL_TEST_CHECKLIST.md](../testing/MANUAL_TEST_CHECKLIST.md).*

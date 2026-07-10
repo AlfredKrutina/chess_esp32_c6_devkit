@@ -39,9 +39,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure and build
+      - name: Configure and build (HTTP + BLE)
         shell: bash
         run: |
           source "$IDF_PATH/export.sh"
           idf.py set-target esp32c6
           idf.py build
+
+  build-ble-only:
+    runs-on: ubuntu-latest
+    container:
+      image: espressif/idf:release-v5.3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure and build (BLE-only, no HTTP)
+        shell: bash
+        run: |
+          source "$IDF_PATH/export.sh"
+          idf.py set-target esp32c6
+          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only" build
