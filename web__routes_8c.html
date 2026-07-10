@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru web_routes.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('web__routes_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru web_routes.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>HTTP URI handler registration (extracted from <a class="el" href="web__server__task_8c.html" title="HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci.">web_server_task.c</a>).  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="web__routes_8h_source.html">web_routes.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="web__server__internal_8h_source.html">web_server_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="chess__piece__http_8h_source.html">chess_piece_http.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ota__update_8h_source.html">ota_update.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="web__server__task_8h_source.html">web_server_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_http_server.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro web_routes.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="web__routes_8c__incl.png" border="0" usemap="#aweb__routes_8c" alt=""/></div>
+<map name="aweb__routes_8c" id="aweb__routes_8c">
+<area shape="rect" title="HTTP URI handler registration (extracted from web_server_task.c)." alt="" coords="359,5,467,31"/>
+<area shape="rect" href="web__routes_8h.html" title="HTTP URI route registration for web_server_task." alt="" coords="227,152,336,177"/>
+<area shape="poly" title=" " alt="" coords="404,33,303,143,299,140,401,29"/>
+<area shape="rect" title=" " alt="" coords="121,225,258,251"/>
+<area shape="poly" title=" " alt="" coords="386,33,347,51,302,78,256,112,217,154,202,183,195,212,190,211,197,181,212,150,252,108,299,73,345,47,384,28"/>
+<area shape="rect" href="web__server__internal_8h.html" title="Internal API between web_server_task.c sibling files." alt="" coords="605,152,771,177"/>
+<area shape="poly" title=" " alt="" coords="437,29,656,143,653,148,434,33"/>
+<area shape="rect" href="chess__piece__http_8h.html" title=" " alt="" coords="5,152,152,177"/>
+<area shape="poly" title=" " alt="" coords="359,27,269,45,219,60,172,81,131,111,99,143,95,139,127,107,169,76,217,55,267,40,358,22"/>
+<area shape="rect" href="ota__update_8h.html" title="OTA: HTTPS/HTTP z URL, nebo stream přes BLE (chunky na CMD char)." alt="" coords="360,152,467,177"/>
+<area shape="poly" title=" " alt="" coords="416,31,416,138,411,138,411,31"/>
+<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Web Server Task Hlavicka." alt="" coords="887,79,1031,104"/>
+<area shape="poly" title=" " alt="" coords="468,24,874,76,873,82,467,29"/>
+<area shape="rect" title=" " alt="" coords="1055,79,1139,104"/>
+<area shape="poly" title=" " alt="" coords="468,20,712,38,874,54,1042,76,1041,81,873,60,712,43,467,25"/>
+<area shape="rect" title=" " alt="" coords="506,299,587,324"/>
+<area shape="poly" title=" " alt="" coords="292,176,324,211,369,248,432,278,494,296,492,301,430,283,367,253,320,215,288,179"/>
+<area shape="poly" title=" " alt="" coords="268,179,217,219,213,215,265,175"/>
+<area shape="poly" title=" " alt="" coords="679,179,631,227,569,291,565,287,627,223,675,175"/>
+<area shape="rect" title=" " alt="" coords="949,225,1045,251"/>
+<area shape="poly" title=" " alt="" coords="738,175,937,220,936,225,737,180"/>
+<area shape="rect" title=" " alt="" coords="787,225,925,251"/>
+<area shape="poly" title=" " alt="" coords="716,175,817,217,815,222,714,180"/>
+<area shape="rect" title=" " alt="" coords="1163,299,1293,324"/>
+<area shape="poly" title=" " alt="" coords="693,177,705,213,716,233,732,248,763,264,807,276,919,294,1042,303,1149,307,1149,312,1041,309,918,299,806,282,762,269,729,253,712,236,700,216,688,178"/>
+<area shape="rect" title=" " alt="" coords="1317,299,1400,324"/>
+<area shape="poly" title=" " alt="" coords="698,176,729,213,751,233,776,248,822,263,882,273,1027,284,1178,288,1304,296,1303,301,1178,294,1027,289,882,279,821,268,774,253,748,237,725,217,694,180"/>
+<area shape="rect" title=" " alt="" coords="435,225,509,251"/>
+<area shape="poly" title=" " alt="" coords="654,180,521,223,519,218,652,175"/>
+<area shape="rect" title=" " alt="" coords="841,299,911,324"/>
+<area shape="poly" title=" " alt="" coords="685,178,675,213,675,232,682,249,712,276,749,294,789,304,827,308,826,313,788,309,748,299,709,281,678,252,670,233,670,212,680,177"/>
+<area shape="poly" title=" " alt="" coords="82,177,88,213,96,233,110,249,138,264,178,277,283,294,396,303,492,307,492,312,396,309,282,300,177,282,136,269,106,253,92,235,83,215,76,178"/>
+<area shape="poly" title=" " alt="" coords="98,175,161,215,158,220,95,180"/>
+<area shape="poly" title=" " alt="" coords="404,179,381,213,376,232,381,249,403,272,432,288,462,298,493,304,492,309,461,303,429,293,400,276,376,252,370,232,376,211,399,176"/>
+<area shape="poly" title=" " alt="" coords="378,180,239,224,238,219,377,175"/>
+<area shape="poly" title=" " alt="" coords="425,176,456,213,452,217,421,179"/>
+<area shape="poly" title=" " alt="" coords="413,178,411,214,415,233,424,249,444,258,483,268,594,284,827,304,827,310,593,289,482,273,443,263,421,253,410,235,406,214,408,178"/>
+<area shape="poly" title=" " alt="" coords="887,98,807,104,720,114,643,131,614,141,594,154,571,183,558,219,551,254,549,285,543,284,546,253,552,217,567,181,590,150,612,137,642,125,719,109,806,98,886,93"/>
+<area shape="poly" title=" " alt="" coords="1031,100,1531,169,1769,204,1875,223,1885,241,1881,256,1866,268,1842,277,1771,289,1679,295,1473,298,1307,302,1307,296,1472,292,1679,290,1770,284,1840,272,1863,263,1876,253,1879,242,1872,227,1769,210,1530,175,1031,105"/>
+<area shape="poly" title=" " alt="" coords="1031,100,1044,101,1130,107,1240,109,1495,115,1623,126,1739,145,1789,159,1833,176,1870,198,1898,224,1906,239,1902,252,1889,263,1869,271,1809,283,1731,289,1556,295,1414,302,1414,296,1556,290,1731,284,1809,277,1867,266,1887,258,1898,250,1900,240,1894,227,1867,202,1831,181,1787,164,1737,150,1622,131,1495,121,1240,115,1130,112,1044,107,1030,105"/>
+<area shape="poly" title=" " alt="" coords="887,99,796,105,694,116,601,132,564,143,537,154,521,167,507,182,486,214,481,211,503,179,517,163,535,150,562,138,600,127,693,111,795,100,886,94"/>
+<area shape="rect" title=" " alt="" coords="1425,299,1575,324"/>
+<area shape="poly" title=" " alt="" coords="1031,100,1044,101,1134,105,1250,104,1382,102,1520,104,1653,113,1714,121,1771,133,1821,149,1863,169,1897,194,1920,224,1925,239,1919,252,1897,269,1865,283,1779,301,1681,310,1589,313,1589,308,1681,304,1778,295,1863,277,1894,265,1915,249,1919,239,1915,227,1893,197,1860,173,1819,154,1769,138,1713,127,1652,118,1520,109,1382,108,1250,109,1134,110,1044,107,1031,105"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="1210,152,1339,177"/>
+<area shape="poly" title=" " alt="" coords="1010,101,1211,146,1210,152,1009,107"/>
+<area shape="poly" title=" " alt="" coords="1235,180,1172,200,1103,228,1081,241,1058,253,996,271,933,285,805,303,690,311,601,313,601,308,690,306,805,298,932,280,995,266,1056,248,1078,237,1100,223,1170,195,1233,175"/>
+<area shape="poly" title=" " alt="" coords="1231,180,1056,224,1055,219,1229,175"/>
+<area shape="poly" title=" " alt="" coords="1210,180,937,226,936,220,1209,174"/>
+<area shape="poly" title=" " alt="" coords="1285,176,1301,210,1304,231,1300,252,1283,275,1263,293,1259,289,1279,272,1295,250,1299,231,1296,212,1280,179"/>
+<area shape="poly" title=" " alt="" coords="1286,176,1320,224,1351,285,1346,287,1315,227,1282,179"/>
+<area shape="poly" title=" " alt="" coords="1254,180,1175,220,1102,253,1009,282,926,303,924,297,1008,277,1100,248,1172,215,1251,175"/>
+<area shape="poly" title=" " alt="" coords="1294,175,1472,289,1469,293,1291,180"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="1171,225,1285,251"/>
+<area shape="poly" title=" " alt="" coords="1269,179,1245,215,1241,212,1265,176"/>
+<area shape="rect" title=" " alt="" coords="1461,225,1565,251"/>
+<area shape="poly" title=" " alt="" coords="1314,175,1462,219,1461,224,1312,180"/>
+<area shape="rect" title=" " alt="" coords="1589,225,1707,251"/>
+<area shape="poly" title=" " alt="" coords="1335,175,1576,220,1575,226,1334,180"/>
+<area shape="rect" title=" " alt="" coords="1731,225,1861,251"/>
+<area shape="poly" title=" " alt="" coords="1340,172,1718,223,1717,228,1339,177"/>
+<area shape="poly" title=" " alt="" coords="1171,248,601,307,601,302,1170,243"/>
+<area shape="poly" title=" " alt="" coords="1231,251,1231,285,1225,285,1225,251"/>
+<area shape="poly" title=" " alt="" coords="1250,248,1327,290,1324,294,1248,253"/>
+<area shape="poly" title=" " alt="" coords="1172,253,925,303,924,298,1171,248"/>
+<area shape="poly" title=" " alt="" coords="1272,248,1444,293,1442,298,1271,253"/>
+</map>
+</div>
+</div>
+<p><a href="web__routes_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a2a8a0a46976a19b28adac2ba68368806" id="r_a2a8a0a46976a19b28adac2ba68368806"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__routes_8c.html#a2a8a0a46976a19b28adac2ba68368806">web_routes_register</a> (<a class="el" href="web__server__internal_8h.html#a660bc64ded0fb1c7ad498180fc22a7a7">httpd_handle_t</a> handle)</td></tr>
+<tr class="separator:a2a8a0a46976a19b28adac2ba68368806"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__routes_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;WEB_ROUTES&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>HTTP URI handler registration (extracted from <a class="el" href="web__server__task_8c.html" title="HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci.">web_server_task.c</a>). </p>
+
+<p class="definition">Definice v souboru <a class="el" href="web__routes_8c_source.html">web_routes.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a2a8a0a46976a19b28adac2ba68368806" name="a2a8a0a46976a19b28adac2ba68368806"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a8a0a46976a19b28adac2ba68368806">&#9670;&#160;</a></span>web_routes_register()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t web_routes_register </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="web__server__internal_8h.html#a660bc64ded0fb1c7ad498180fc22a7a7">httpd_handle_t</a>&#160;</td>
+          <td class="paramname"><em>handle</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__routes_8c_source.html#l00018">18</a> v souboru <a class="el" href="web__routes_8c_source.html">web_routes.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;WEB_ROUTES&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__routes_8c_source.html#l00016">16</a> v souboru <a class="el" href="web__routes_8c_source.html">web_routes.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_17f9138bad1f9d2ff44cddc9da54d444.html">web_server_task</a></li><li class="navelem"><a class="el" href="web__routes_8c.html">web_routes.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

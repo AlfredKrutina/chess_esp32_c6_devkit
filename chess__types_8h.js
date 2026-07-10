@@ -73,7 +73,8 @@ var chess__types_8h =
       [ "GAME_CMD_MATRIX_GUARD", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4af5a0b54b7dbb8a1e24fe81414ee1ed4e", null ],
       [ "GAME_CMD_BOARD_SETUP_TUTORIAL", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b", null ],
       [ "GAME_CMD_PUZZLE", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0", null ],
-      [ "GAME_CMD_NEW_GAME_FROM_FEN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b", null ]
+      [ "GAME_CMD_NEW_GAME_FROM_FEN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b", null ],
+      [ "GAME_CMD_OPENING_TRAINER", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72", null ]
     ] ],
     [ "game_response_type_t", "chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502", [
       [ "GAME_RESPONSE_SUCCESS", "chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d", null ],

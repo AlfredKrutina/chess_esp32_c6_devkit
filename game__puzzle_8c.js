@@ -1,0 +1,26 @@
+var game__puzzle_8c =
+[
+    [ "STAGING_LOGI", "game__puzzle_8c.html#a62ecd07b10c8688371e290c8c64df0a4", null ],
+    [ "game_fen_expected_occupancy_64", "game__puzzle_8c.html#afc7075159c285231f9157728a4819011", null ],
+    [ "game_get_puzzle_definition", "game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd", null ],
+    [ "game_is_puzzle_active", "game__puzzle_8c.html#aaa780f6901abda22ff80c49e2d851d49", null ],
+    [ "game_is_puzzle_setup_active", "game__puzzle_8c.html#a9a17f30ab5e966f7966d9775f28ccb43", null ],
+    [ "game_physical_matrix_matches_fen", "game__puzzle_8c.html#a70c7e309649ce8464d1850b9e68f50f4", null ],
+    [ "game_puzzle_cancel", "game__puzzle_8c.html#abfce4f49606128cf55f4a12cc3bd2a61", null ],
+    [ "game_puzzle_enter_setup", "game__puzzle_8c.html#a1518cea04e69b31f017b63ce7025c96d", null ],
+    [ "game_puzzle_feedback_key", "game__puzzle_8c.html#a5ee101d1cc5320cd1a144ef1ca5a4ae7", null ],
+    [ "game_puzzle_feedback_message", "game__puzzle_8c.html#ac6a40a379006af60343a24bfee8d1922", null ],
+    [ "game_puzzle_physical_matches_fen", "game__puzzle_8c.html#ad22efb0260b6734fc6f8bd0eda3e6a91", null ],
+    [ "game_puzzle_start", "game__puzzle_8c.html#a6e01269522b8d4fabfaf010b22089f8f", null ],
+    [ "game_puzzles", "game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d", null ],
+    [ "puzzle_active", "game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c", null ],
+    [ "puzzle_active_id", "game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d", null ],
+    [ "puzzle_feedback", "game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724", null ],
+    [ "puzzle_setup_active", "game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e", null ],
+    [ "puzzle_setup_id", "game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0", null ],
+    [ "puzzle_solution_from_col", "game__puzzle_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13", null ],
+    [ "puzzle_solution_from_row", "game__puzzle_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957", null ],
+    [ "puzzle_solution_to_col", "game__puzzle_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49", null ],
+    [ "puzzle_solution_to_row", "game__puzzle_8c.html#a07df2d15b38d935c5873364f85ac349c", null ],
+    [ "TAG", "game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
+];

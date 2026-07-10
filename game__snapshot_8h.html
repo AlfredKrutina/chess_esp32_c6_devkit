@@ -1,0 +1,372 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_snapshot.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__snapshot_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_snapshot.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>NVS game snapshot save/load and boot restore logic.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_snapshot.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__snapshot_8h__incl.png" border="0" usemap="#agame__snapshot_8h" alt=""/></div>
+<map name="agame__snapshot_8h" id="agame__snapshot_8h">
+<area shape="rect" title="NVS game snapshot save/load and boot restore logic." alt="" coords="31,5,168,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,87,104"/>
+<area shape="poly" title=" " alt="" coords="93,33,65,69,61,66,88,29"/>
+<area shape="rect" title=" " alt="" coords="111,79,194,104"/>
+<area shape="poly" title=" " alt="" coords="110,29,138,66,134,69,106,33"/>
+</map>
+</div>
+</div>
+<p><a href="game__snapshot_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a2f475f68392eb7b28444670292cfea81" id="r_a2f475f68392eb7b28444670292cfea81"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a2f475f68392eb7b28444670292cfea81">game_snapshot_erase_nvs</a> (void)</td></tr>
+<tr class="memdesc:a2f475f68392eb7b28444670292cfea81"><td class="mdescLeft">&#160;</td><td class="mdescRight">Erase snapshot + boot tracker keys (new game).  <br /></td></tr>
+<tr class="separator:a2f475f68392eb7b28444670292cfea81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5da1e71ab6d35504b0b5f57afe8eea4c" id="r_a5da1e71ab6d35504b0b5f57afe8eea4c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a5da1e71ab6d35504b0b5f57afe8eea4c">game_snapshot_reset_failure_flags</a> (void)</td></tr>
+<tr class="memdesc:a5da1e71ab6d35504b0b5f57afe8eea4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear save/restore failure flags after starting a fresh game.  <br /></td></tr>
+<tr class="separator:a5da1e71ab6d35504b0b5f57afe8eea4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5c681881513775c9740b76192fe65f7" id="r_ac5c681881513775c9740b76192fe65f7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#ac5c681881513775c9740b76192fe65f7">game_snapshot_nvs_has_valid</a> (void)</td></tr>
+<tr class="memdesc:ac5c681881513775c9740b76192fe65f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">True if NVS holds a full or minimal snapshot with valid CRC.  <br /></td></tr>
+<tr class="separator:ac5c681881513775c9740b76192fe65f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4085ff4f5f25ebced628153d9306585f" id="r_a4085ff4f5f25ebced628153d9306585f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a4085ff4f5f25ebced628153d9306585f">game_snapshot_restore_on_boot</a> (void)</td></tr>
+<tr class="memdesc:a4085ff4f5f25ebced628153d9306585f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boot path after <a class="el" href="game__board__core_8c.html#a9b4b4ef6ba4260c09a59192fc68be834" title="Inicializuj sachovnici do vychozi pozice.">game_initialize_board()</a>: boot tracker, load NVS or force new game.  <br /></td></tr>
+<tr class="separator:a4085ff4f5f25ebced628153d9306585f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85b407ec50bb621c3830bec5292e8459" id="r_a85b407ec50bb621c3830bec5292e8459"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a85b407ec50bb621c3830bec5292e8459">game_snapshot_persist_after_valid_move</a> (void)</td></tr>
+<tr class="memdesc:a85b407ec50bb621c3830bec5292e8459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save snapshot to NVS and update boot tracker after a valid move.  <br /></td></tr>
+<tr class="separator:a85b407ec50bb621c3830bec5292e8459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a5a68b3e99926a5c96f3a6eeef64c3b" id="r_a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a2a5a68b3e99926a5c96f3a6eeef64c3b">game_was_snapshot_loaded_on_boot</a> (void)</td></tr>
+<tr class="separator:a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22c95fb0cc38a88fa1b0087e95469439" id="r_a22c95fb0cc38a88fa1b0087e95469439"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a22c95fb0cc38a88fa1b0087e95469439">game_is_snapshot_fallback_used</a> (void)</td></tr>
+<tr class="separator:a22c95fb0cc38a88fa1b0087e95469439"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec08c00ac587cf88f75b6a39dc437677" id="r_aec08c00ac587cf88f75b6a39dc437677"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#aec08c00ac587cf88f75b6a39dc437677">game_has_snapshot_restore_failure</a> (void)</td></tr>
+<tr class="separator:aec08c00ac587cf88f75b6a39dc437677"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6c84403a8e0eb766153ab1234605bf3" id="r_af6c84403a8e0eb766153ab1234605bf3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#af6c84403a8e0eb766153ab1234605bf3">game_has_snapshot_save_failure</a> (void)</td></tr>
+<tr class="separator:af6c84403a8e0eb766153ab1234605bf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1e09878bd4592f7f46ae5713f17fc6f" id="r_af1e09878bd4592f7f46ae5713f17fc6f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#af1e09878bd4592f7f46ae5713f17fc6f">game_was_boot_new_game_triggered</a> (void)</td></tr>
+<tr class="separator:af1e09878bd4592f7f46ae5713f17fc6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>NVS game snapshot save/load and boot restore logic. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__snapshot_8h_source.html">game_snapshot.h</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="aec08c00ac587cf88f75b6a39dc437677" name="aec08c00ac587cf88f75b6a39dc437677"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aec08c00ac587cf88f75b6a39dc437677">&#9670;&#160;</a></span>game_has_snapshot_restore_failure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_has_snapshot_restore_failure </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00135">135</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="af6c84403a8e0eb766153ab1234605bf3" name="af6c84403a8e0eb766153ab1234605bf3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6c84403a8e0eb766153ab1234605bf3">&#9670;&#160;</a></span>game_has_snapshot_save_failure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_has_snapshot_save_failure </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00137">137</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a22c95fb0cc38a88fa1b0087e95469439" name="a22c95fb0cc38a88fa1b0087e95469439"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22c95fb0cc38a88fa1b0087e95469439">&#9670;&#160;</a></span>game_is_snapshot_fallback_used()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_snapshot_fallback_used </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00133">133</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f475f68392eb7b28444670292cfea81" name="a2f475f68392eb7b28444670292cfea81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f475f68392eb7b28444670292cfea81">&#9670;&#160;</a></span>game_snapshot_erase_nvs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_snapshot_erase_nvs </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Erase snapshot + boot tracker keys (new game). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00141">141</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="ac5c681881513775c9740b76192fe65f7" name="ac5c681881513775c9740b76192fe65f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5c681881513775c9740b76192fe65f7">&#9670;&#160;</a></span>game_snapshot_nvs_has_valid()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_snapshot_nvs_has_valid </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True if NVS holds a full or minimal snapshot with valid CRC. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00232">232</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a85b407ec50bb621c3830bec5292e8459" name="a85b407ec50bb621c3830bec5292e8459"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a85b407ec50bb621c3830bec5292e8459">&#9670;&#160;</a></span>game_snapshot_persist_after_valid_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_snapshot_persist_after_valid_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Save snapshot to NVS and update boot tracker after a valid move. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00401">401</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a5da1e71ab6d35504b0b5f57afe8eea4c" name="a5da1e71ab6d35504b0b5f57afe8eea4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5da1e71ab6d35504b0b5f57afe8eea4c">&#9670;&#160;</a></span>game_snapshot_reset_failure_flags()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_snapshot_reset_failure_flags </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Clear save/restore failure flags after starting a fresh game. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00147">147</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a4085ff4f5f25ebced628153d9306585f" name="a4085ff4f5f25ebced628153d9306585f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4085ff4f5f25ebced628153d9306585f">&#9670;&#160;</a></span>game_snapshot_restore_on_boot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_snapshot_restore_on_boot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Boot path after <a class="el" href="game__board__core_8c.html#a9b4b4ef6ba4260c09a59192fc68be834" title="Inicializuj sachovnici do vychozi pozice.">game_initialize_board()</a>: boot tracker, load NVS or force new game. </p>
+<p>May call <a class="el" href="game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44" title="Spusti novou hru.">game_start_new_game()</a>, <a class="el" href="game__matrix__guard_8c.html#aa2ad17091138a8d7b1df3bd238964d84">game_matrix_guard_check_resync_after_restore()</a>. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00409">409</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="af1e09878bd4592f7f46ae5713f17fc6f" name="af1e09878bd4592f7f46ae5713f17fc6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1e09878bd4592f7f46ae5713f17fc6f">&#9670;&#160;</a></span>game_was_boot_new_game_triggered()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_was_boot_new_game_triggered </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00139">139</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a5a68b3e99926a5c96f3a6eeef64c3b" name="a2a5a68b3e99926a5c96f3a6eeef64c3b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a5a68b3e99926a5c96f3a6eeef64c3b">&#9670;&#160;</a></span>game_was_snapshot_loaded_on_boot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_was_snapshot_loaded_on_boot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__snapshot_8c_source.html#l00131">131</a> v souboru <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="dir_33cc7e91f7e0627bade559bf776868f5.html">include</a></li><li class="navelem"><a class="el" href="game__snapshot_8h.html">game_snapshot.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

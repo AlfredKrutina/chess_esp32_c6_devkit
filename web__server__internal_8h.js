@@ -1,0 +1,27 @@
+var web__server__internal_8h =
+[
+    [ "JSON_BUFFER_SIZE", "web__server__internal_8h.html#a2e4ba70a12e464d5b5278c18d28355f8", null ],
+    [ "SNAPSHOT_BUFFER_SIZE", "web__server__internal_8h.html#a203531c437566e817791643601aef9e0", null ],
+    [ "TIMER_HTTP_JSON_MAX", "web__server__internal_8h.html#aec1dab525109f96343c5edb1dd7de1e8", null ],
+    [ "WIFI_STATUS_JSON_MAX", "web__server__internal_8h.html#ad9dabb68e44bc590e97031ece04d02a4", null ],
+    [ "httpd_handle_t", "web__server__internal_8h.html#a660bc64ded0fb1c7ad498180fc22a7a7", null ],
+    [ "build_snapshot_json", "web__server__internal_8h.html#a364f56a5832a9dc6c43e823dcef0cdc7", null ],
+    [ "czechmate_ensure_snapshot_notify_queue", "web__server__internal_8h.html#a98a54dbb11377534d4aae37a3259ac33", null ],
+    [ "factory_reset_schedule", "web__server__internal_8h.html#ab95692cae58f6eb06039c9bc4bc772d8", null ],
+    [ "inject_web_status_fields", "web__server__internal_8h.html#a7ff67d437127bf998076f532413e16b6", null ],
+    [ "json_body_has_factory_confirm", "web__server__internal_8h.html#a16250fed4400f3db7fb72db41e0fac22", null ],
+    [ "setup_tutorial_finish_in_cooldown", "web__server__internal_8h.html#a7f839d29533325d76c5148c78694031d", null ],
+    [ "setup_tutorial_note_finish_conflict", "web__server__internal_8h.html#a5ccbc748aeeb55810f7eefc980b0d8f1", null ],
+    [ "setup_tutorial_reset_finish_cooldown", "web__server__internal_8h.html#a938fe7ffdfcaf5921d8578e63ad76b7d", null ],
+    [ "web_server_apply_hint_highlight_json_body", "web__server__internal_8h.html#ae2ee8d0febaa6efbb435ca1a93784fa2", null ],
+    [ "web_server_get_httpd_handle", "web__server__internal_8h.html#a79931a21b5e20ece42b9b17b28d94e8b", null ],
+    [ "web_server_opening_dispatch_body", "web__server__internal_8h.html#a4abd7470fc1b949d24303feda00f7739", null ],
+    [ "web_server_task_wdt_reset_safe", "web__server__internal_8h.html#a55bb096de1c30250cf17daaf49e423a9", null ],
+    [ "wifi_get_sta_status_json", "web__server__internal_8h.html#abe3fd9f4abc134a2e04a1281aa685fab", null ],
+    [ "cached_brightness", "web__server__internal_8h.html#ab17ad7844a24ac3ce03f648f18a3c976", null ],
+    [ "cached_brightness_valid", "web__server__internal_8h.html#a10437ead7390b9e656788a7546bb15b2", null ],
+    [ "json_buffer", "web__server__internal_8h.html#a4a7ce2f31b8eb2ae9b2c75a2e75147bd", null ],
+    [ "snapshot_buffer", "web__server__internal_8h.html#a59e2189b179fe26098bde1ae3dfbb20a", null ],
+    [ "snapshot_build_mutex", "web__server__internal_8h.html#a481e9b08e82551919739d6f2388ea96e", null ],
+    [ "snapshot_notify_queue", "web__server__internal_8h.html#a63927ab8c5be90b09ed638d9eb4ad162", null ]
+];

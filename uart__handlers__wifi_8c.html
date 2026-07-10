@@ -1,0 +1,830 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru uart_handlers_wifi.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('uart__handlers__wifi_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru uart_handlers_wifi.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Timer, WiFi, web, BLE, and MQTT UART command handlers.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="uart__parse_8h_source.html">uart_parse.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="uart__task_8h_source.html">uart_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="config__manager_8h_source.html">config_manager.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ble__task_8h_source.html">../ble_task/include/ble_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="timer__system_8h_source.html">../timer_system/include/timer_system.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="board__api__auth_8h_source.html">../web_server_task/include/board_api_auth.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="web__server__task_8h_source.html">../web_server_task/include/web_server_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="ha__light__task_8h_source.html">../ha_light_task/include/ha_light_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &lt;ctype.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro uart_handlers_wifi.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="uart__handlers__wifi_8c__incl.png" border="0" usemap="#auart__handlers__wifi_8c" alt=""/></div>
+<map name="auart__handlers__wifi_8c" id="auart__handlers__wifi_8c">
+<area shape="rect" title="Timer, WiFi, web, BLE, and MQTT UART command handlers." alt="" coords="2253,5,2405,31"/>
+<area shape="rect" href="uart__task__internal_8h.html" title="Internal API between uart_task.c and sibling source files." alt="" coords="2089,189,2241,214"/>
+<area shape="poly" title=" " alt="" coords="2320,33,2186,180,2182,176,2316,29"/>
+<area shape="rect" title=" " alt="" coords="5,357,156,383"/>
+<area shape="poly" title=" " alt="" coords="2253,23,1798,28,1145,39,543,56,338,68,274,74,240,81,202,100,175,120,154,146,131,183,111,225,98,269,85,344,80,343,93,268,106,223,126,180,150,143,172,116,199,95,238,76,273,69,338,62,543,51,1145,33,1798,22,2253,17"/>
+<area shape="rect" title=" " alt="" coords="180,357,309,383"/>
+<area shape="poly" title=" " alt="" coords="2252,22,1787,24,1460,30,1113,42,776,62,622,75,482,91,360,109,261,131,188,156,162,169,146,183,138,203,136,237,139,276,151,308,173,332,200,349,198,354,169,336,146,311,134,277,130,238,133,202,141,180,160,165,186,151,259,126,359,104,481,86,621,70,776,57,1113,37,1460,25,1787,19,2252,16"/>
+<area shape="rect" href="uart__parse_8h.html" title="Command parsing and game&#45;task dispatch (internal to uart_task component)." alt="" coords="2631,93,2733,119"/>
+<area shape="poly" title=" " alt="" coords="2397,28,2499,48,2612,76,2642,86,2640,91,2611,81,2498,53,2396,33"/>
+<area shape="rect" href="uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Hlavicka." alt="" coords="1965,189,2060,214"/>
+<area shape="poly" title=" " alt="" coords="2309,33,2223,81,2045,184,2042,179,2221,76,2306,28"/>
+<area shape="rect" href="config__manager_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Config Manager Hlavicka." alt="" coords="2367,93,2504,119"/>
+<area shape="poly" title=" " alt="" coords="2345,29,2412,82,2409,87,2341,33"/>
+<area shape="rect" title=" " alt="" coords="2520,189,2604,214"/>
+<area shape="poly" title=" " alt="" coords="2406,25,2465,43,2493,57,2519,77,2536,99,2549,125,2562,175,2557,176,2544,127,2532,102,2515,81,2490,62,2463,48,2404,30"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="1144,189,1273,214"/>
+<area shape="poly" title=" " alt="" coords="2253,30,2065,51,1840,81,1280,189,1279,183,1839,76,2064,45,2252,24"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="694,189,801,214"/>
+<area shape="poly" title=" " alt="" coords="2252,24,1944,40,1746,57,1548,81,1480,94,1427,108,1375,122,1306,136,1170,157,1034,174,815,197,814,192,1033,169,1169,152,1306,131,1374,117,1426,103,1478,89,1547,76,1746,51,1943,35,2252,19"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="1610,269,1789,309"/>
+<area shape="poly" title=" " alt="" coords="2331,31,2327,69,2316,122,2293,177,2276,202,2254,224,2230,234,2189,243,2071,260,1803,284,1802,279,2071,255,2188,238,2229,229,2251,219,2272,199,2288,175,2311,120,2322,68,2326,31"/>
+<area shape="rect" href="ble__task_8h.html" title="BLE rozhraní CZECHMATE — NimBLE GATT při CONFIG_BT_ENABLED." alt="" coords="2628,181,2768,221"/>
+<area shape="poly" title=" " alt="" coords="2402,28,2476,47,2551,76,2667,170,2663,175,2549,81,2474,52,2401,33"/>
+<area shape="rect" href="board__api__auth_8h.html" title="Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy." alt="" coords="2843,181,3033,221"/>
+<area shape="poly" title=" " alt="" coords="2405,22,2593,40,2683,56,2720,66,2747,76,2765,89,2775,103,2785,117,2800,131,2837,155,2876,174,2874,178,2835,159,2796,135,2781,120,2771,106,2761,93,2745,81,2718,71,2682,61,2592,46,2404,27"/>
+<area shape="rect" href="web__server__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Web Server Task Hlavicka." alt="" coords="1851,79,2003,133"/>
+<area shape="poly" title=" " alt="" coords="2276,33,2017,88,2016,83,2274,28"/>
+<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="1123,86,1295,126"/>
+<area shape="poly" title=" " alt="" coords="2253,27,1510,81,1309,98,1308,93,1510,76,2252,22"/>
+<area shape="rect" title=" " alt="" coords="2809,93,2880,119"/>
+<area shape="poly" title=" " alt="" coords="2405,19,2486,25,2583,35,2688,51,2791,76,2813,85,2811,90,2789,81,2687,57,2582,40,2485,30,2405,24"/>
+<area shape="rect" title=" " alt="" coords="2905,93,2971,119"/>
+<area shape="poly" title=" " alt="" coords="2405,21,2666,41,2798,56,2893,76,2911,84,2909,89,2892,81,2797,62,2665,46,2405,26"/>
+<area shape="rect" title=" " alt="" coords="2996,93,3067,119"/>
+<area shape="poly" title=" " alt="" coords="2405,20,2710,38,2869,55,2935,65,2984,76,3004,84,3001,89,2983,81,2934,70,2869,60,2710,44,2405,25"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="1269,277,1383,302"/>
+<area shape="poly" title=" " alt="" coords="2113,217,2072,224,1912,243,1788,252,1663,259,1504,272,1397,283,1397,278,1503,267,1663,254,1788,247,1912,238,2071,219,2113,211"/>
+<area shape="rect" title=" " alt="" coords="1887,357,1968,383"/>
+<area shape="poly" title=" " alt="" coords="2226,211,2313,235,2350,250,2373,268,2382,289,2380,300,2373,311,2353,322,2316,332,2210,348,1982,368,1981,363,2209,343,2315,327,2351,317,2370,307,2375,298,2377,290,2369,271,2347,255,2311,240,2224,217"/>
+<area shape="rect" title=" " alt="" coords="2283,357,2366,383"/>
+<area shape="poly" title=" " alt="" coords="2222,211,2341,239,2391,254,2417,268,2425,289,2418,311,2397,336,2370,354,2367,349,2393,332,2413,308,2420,289,2413,271,2389,259,2340,244,2221,217"/>
+<area shape="rect" title=" " alt="" coords="1363,357,1433,383"/>
+<area shape="poly" title=" " alt="" coords="2113,217,2072,224,2000,233,1938,237,1833,238,1729,244,1669,254,1599,272,1551,289,1504,310,1429,352,1426,347,1502,305,1549,284,1597,267,1668,249,1728,239,1832,232,1938,231,1999,227,2071,219,2112,211"/>
+<area shape="poly" title=" " alt="" coords="1369,299,1402,307,1534,327,1666,343,1873,362,1873,367,1665,348,1534,332,1402,312,1367,305"/>
+<area shape="poly" title=" " alt="" coords="1268,303,1200,312,1044,325,912,332,686,337,460,342,327,348,170,360,169,355,326,343,460,337,686,332,912,327,1044,320,1199,307,1268,298"/>
+<area shape="poly" title=" " alt="" coords="1286,305,1250,312,1119,329,985,343,722,361,492,369,324,372,324,366,492,364,722,356,985,338,1119,324,1250,307,1285,299"/>
+<area shape="poly" title=" " alt="" coords="1384,293,2270,362,2269,367,1383,298"/>
+<area shape="poly" title=" " alt="" coords="1339,300,1380,345,1376,349,1335,304"/>
+<area shape="poly" title=" " alt="" coords="2732,116,2798,131,2844,137,2891,140,2982,144,3018,151,3044,164,3052,175,3055,188,3054,204,3047,222,3029,256,3009,279,2983,295,2948,312,2900,327,2835,340,2676,357,2511,366,2380,370,2380,365,2510,361,2675,352,2834,334,2899,322,2946,307,2980,291,3005,274,3025,253,3042,220,3048,203,3050,188,3047,177,3040,168,3017,156,2981,149,2891,145,2843,142,2798,136,2731,121"/>
+<area shape="poly" title=" " alt="" coords="2631,119,2517,136,2393,149,2296,155,2200,164,2077,184,2061,188,2060,182,2076,179,2199,159,2296,150,2393,144,2516,131,2630,113"/>
+<area shape="rect" title=" " alt="" coords="2789,277,2863,302"/>
+<area shape="poly" title=" " alt="" coords="2705,117,2744,143,2783,180,2807,222,2822,262,2817,264,2802,224,2779,183,2741,147,2702,121"/>
+<area shape="poly" title=" " alt="" coords="1965,211,1453,272,1398,280,1397,274,1452,267,1965,205"/>
+<area shape="poly" title=" " alt="" coords="2009,215,1942,346,1937,344,2004,213"/>
+<area shape="poly" title=" " alt="" coords="1965,205,1800,207,1577,216,1463,224,1356,236,1266,252,1200,272,1187,281,1180,291,1171,302,1156,312,1092,325,982,335,684,348,376,354,170,360,170,355,376,349,684,342,982,330,1091,320,1154,307,1167,298,1175,288,1184,277,1198,267,1265,247,1356,231,1462,219,1577,211,1800,202,1965,200"/>
+<area shape="poly" title=" " alt="" coords="1965,206,1812,211,1606,223,1403,242,1319,256,1258,272,1241,281,1230,291,1218,302,1200,312,1124,331,1023,345,904,356,775,363,521,371,323,372,323,367,521,365,775,358,903,350,1022,340,1123,325,1198,307,1215,298,1226,288,1238,276,1256,267,1318,250,1402,237,1606,217,1812,206,1965,201"/>
+<area shape="poly" title=" " alt="" coords="2016,214,2026,260,2038,286,2056,307,2092,326,2148,341,2270,360,2270,365,2147,346,2091,331,2052,311,2034,288,2021,262,2011,215"/>
+<area shape="poly" title=" " alt="" coords="1965,208,1858,215,1724,228,1595,247,1543,258,1504,272,1478,288,1454,307,1417,348,1413,344,1450,304,1475,283,1502,267,1541,253,1594,241,1723,223,1858,210,1965,202"/>
+<area shape="rect" href="uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="2066,277,2239,302"/>
+<area shape="poly" title=" " alt="" coords="2033,212,2123,267,2121,272,2030,216"/>
+<area shape="poly" title=" " alt="" coords="2179,300,2288,349,2286,354,2177,304"/>
+<area shape="poly" title=" " alt="" coords="2440,119,2443,156,2441,208,2436,236,2427,264,2414,289,2396,311,2365,330,2321,344,2267,355,2207,363,2084,370,1982,372,1982,367,2084,365,2207,357,2266,350,2320,339,2363,325,2392,307,2410,286,2422,262,2431,235,2435,208,2437,156,2434,119"/>
+<area shape="poly" title=" " alt="" coords="2452,117,2537,178,2534,183,2449,121"/>
+<area shape="poly" title=" " alt="" coords="2367,115,1287,197,1287,191,2366,110"/>
+<area shape="poly" title=" " alt="" coords="1226,212,1301,266,1297,270,1223,216"/>
+<area shape="poly" title=" " alt="" coords="1241,212,1376,257,1555,307,1729,340,1874,360,1873,365,1728,345,1553,312,1375,262,1239,217"/>
+<area shape="poly" title=" " alt="" coords="1144,208,1084,214,1013,225,940,244,870,272,857,281,849,292,840,302,826,312,766,330,690,341,603,348,510,352,323,355,170,360,170,355,323,349,509,347,603,343,690,336,765,324,824,307,837,298,845,288,853,277,867,267,938,239,1012,220,1083,208,1144,202"/>
+<area shape="poly" title=" " alt="" coords="1176,217,1018,269,869,312,719,337,568,354,323,369,323,364,568,348,718,331,868,307,1016,264,1174,212"/>
+<area shape="poly" title=" " alt="" coords="1274,204,1525,226,1685,244,1845,267,1935,285,2024,307,2270,356,2269,361,2023,312,1934,291,1844,272,1684,249,1524,231,1273,210"/>
+<area shape="poly" title=" " alt="" coords="1151,217,1098,231,1050,252,1032,264,1022,277,1021,292,1029,308,1050,323,1083,336,1169,353,1266,362,1349,366,1349,371,1266,368,1169,359,1081,341,1048,328,1025,311,1016,293,1017,275,1029,260,1047,247,1096,226,1150,211"/>
+<area shape="rect" title=" " alt="" coords="2263,277,2359,302"/>
+<area shape="poly" title=" " alt="" coords="1273,202,1766,224,2047,243,2163,254,2252,267,2267,270,2266,275,2251,272,2163,259,2046,248,1765,229,1273,207"/>
+<area shape="rect" title=" " alt="" coords="1039,277,1143,302"/>
+<area shape="poly" title=" " alt="" coords="1194,216,1120,270,1117,266,1191,212"/>
+<area shape="rect" title=" " alt="" coords="379,277,516,302"/>
+<area shape="poly" title=" " alt="" coords="1144,209,875,229,703,248,529,272,506,276,505,271,528,267,702,242,874,224,1143,204"/>
+<area shape="rect" title=" " alt="" coords="541,277,658,302"/>
+<area shape="poly" title=" " alt="" coords="1144,210,933,232,802,250,671,272,652,276,651,271,669,267,801,245,932,227,1144,205"/>
+<area shape="rect" title=" " alt="" coords="682,277,813,302"/>
+<area shape="poly" title=" " alt="" coords="1144,216,832,272,811,276,810,271,831,267,1143,211"/>
+<area shape="poly" title=" " alt="" coords="801,208,1255,275,1255,280,800,213"/>
+<area shape="poly" title=" " alt="" coords="771,212,880,260,953,286,1028,307,1104,319,1205,330,1448,347,1873,365,1873,370,1448,352,1204,335,1103,324,1027,312,951,291,878,265,769,217"/>
+<area shape="poly" title=" " alt="" coords="694,207,612,213,507,224,391,243,276,272,229,290,184,311,111,352,108,348,182,306,227,285,275,267,390,238,506,218,611,207,694,202"/>
+<area shape="poly" title=" " alt="" coords="694,209,602,217,494,229,393,248,353,259,323,272,303,287,285,307,259,346,254,343,280,303,299,283,321,267,351,254,392,242,493,224,602,211,693,204"/>
+<area shape="poly" title=" " alt="" coords="801,203,1371,235,1665,254,1802,267,1816,276,1825,287,1833,298,1846,307,1881,319,1928,329,2044,346,2270,363,2269,369,2044,351,1927,334,1879,324,1843,312,1829,302,1821,291,1813,280,1800,272,1664,259,1371,241,801,208"/>
+<area shape="poly" title=" " alt="" coords="694,204,576,206,510,211,447,219,395,233,361,251,352,263,350,275,355,290,368,307,381,313,410,319,506,330,795,348,1116,359,1349,365,1349,370,1116,365,795,353,506,336,409,325,380,318,364,311,350,293,345,276,347,260,357,247,393,228,446,214,509,206,576,201,694,199"/>
+<area shape="poly" title=" " alt="" coords="708,217,501,275,500,270,706,212"/>
+<area shape="poly" title=" " alt="" coords="729,216,632,272,630,267,726,212"/>
+<area shape="poly" title=" " alt="" coords="750,214,750,262,745,262,745,214"/>
+<area shape="poly" title=" " alt="" coords="801,205,1597,276,1596,281,801,210"/>
+<area shape="poly" title=" " alt="" coords="1755,307,1882,350,1880,355,1753,312"/>
+<area shape="poly" title=" " alt="" coords="1789,304,1808,307,2066,339,2270,361,2269,366,2066,345,1807,312,1788,309"/>
+<area shape="poly" title=" " alt="" coords="1628,312,1447,359,1446,354,1626,307"/>
+<area shape="poly" title=" " alt="" coords="2692,223,2665,269,2644,293,2619,312,2582,323,2517,333,2337,350,1982,369,1981,364,2336,344,2516,328,2581,318,2617,307,2641,289,2661,266,2688,220"/>
+<area shape="poly" title=" " alt="" coords="2713,220,2723,241,2730,265,2731,289,2721,311,2698,329,2663,342,2619,353,2571,360,2468,369,2380,371,2380,366,2468,363,2570,355,2618,347,2661,337,2695,324,2717,308,2726,288,2725,265,2718,243,2708,223"/>
+<area shape="poly" title=" " alt="" coords="2654,224,2528,270,2451,293,2372,312,2287,324,2175,335,1906,352,1447,370,1447,365,1906,347,2175,330,2287,319,2371,307,2450,288,2527,265,2652,219"/>
+<area shape="poly" title=" " alt="" coords="2728,219,2799,267,2796,271,2725,224"/>
+<area shape="poly" title=" " alt="" coords="2935,223,2916,269,2899,293,2877,312,2834,321,2748,330,2488,347,1983,369,1982,364,2488,341,2747,324,2834,316,2874,307,2895,289,2911,266,2930,221"/>
+<area shape="poly" title=" " alt="" coords="2944,222,2943,267,2936,291,2921,311,2891,325,2839,336,2688,353,2518,364,2380,370,2380,364,2518,358,2687,347,2838,330,2890,319,2918,307,2931,288,2937,266,2938,222"/>
+<area shape="poly" title=" " alt="" coords="2915,224,2854,270,2851,266,2912,219"/>
+<area shape="poly" title=" " alt="" coords="2844,218,2373,282,2373,277,2843,213"/>
+<area shape="poly" title=" " alt="" coords="1930,133,1930,343,1925,343,1925,133"/>
+<area shape="poly" title=" " alt="" coords="1851,113,983,152,337,184,289,200,253,217,178,271,135,310,101,348,97,345,131,307,175,267,250,213,287,195,336,179,983,147,1851,108"/>
+<area shape="poly" title=" " alt="" coords="1851,113,1264,140,928,161,682,184,618,190,560,191,461,191,416,196,372,209,326,233,277,271,265,287,256,306,248,344,243,343,251,304,260,284,273,267,323,228,370,204,415,191,461,185,560,185,617,185,682,179,928,156,1264,135,1851,108"/>
+<area shape="poly" title=" " alt="" coords="2004,116,2142,141,2297,179,2349,198,2400,219,2426,225,2450,228,2494,229,2514,231,2533,237,2551,248,2570,268,2580,292,2574,313,2555,330,2526,343,2454,360,2381,368,2380,363,2453,355,2525,338,2552,325,2570,311,2575,293,2565,271,2548,253,2531,242,2512,236,2493,234,2450,233,2425,231,2399,224,2347,203,2296,184,2140,146,2003,121"/>
+<area shape="poly" title=" " alt="" coords="2004,112,2186,136,2293,155,2400,179,2455,198,2509,219,2653,254,2775,277,2774,282,2652,259,2508,224,2453,203,2399,184,2292,160,2185,141,2003,117"/>
+<area shape="poly" title=" " alt="" coords="1851,122,1754,136,1287,194,1287,188,1754,131,1851,117"/>
+<area shape="poly" title=" " alt="" coords="1243,124,1424,223,1524,274,1599,307,1672,328,1746,343,1873,361,1873,367,1745,349,1671,333,1597,312,1522,279,1421,228,1241,129"/>
+<area shape="poly" title=" " alt="" coords="1122,110,902,113,618,124,474,133,341,146,229,163,144,184,102,199,70,213,44,235,20,270,15,289,20,308,34,330,53,347,49,351,30,333,16,310,10,289,16,268,40,232,67,209,100,194,143,179,227,157,341,140,474,128,618,118,902,108,1122,105"/>
+<area shape="poly" title=" " alt="" coords="1123,110,883,111,582,121,437,130,313,143,220,161,190,172,172,183,153,213,149,242,157,273,172,308,189,331,211,348,208,352,185,334,168,311,152,274,144,242,148,211,168,179,188,167,219,156,312,138,437,125,581,115,883,106,1123,104"/>
+<area shape="poly" title=" " alt="" coords="1295,108,1531,117,1829,132,2100,153,2197,165,2254,179,2268,188,2277,198,2286,209,2298,219,2318,228,2337,233,2374,235,2408,241,2424,251,2439,268,2447,289,2439,311,2427,326,2413,338,2380,356,2378,351,2410,334,2423,322,2434,308,2441,289,2434,271,2420,255,2406,246,2373,240,2337,238,2317,233,2295,224,2282,213,2273,202,2265,192,2252,184,2196,171,2099,158,1829,138,1531,122,1295,113"/>
+<area shape="poly" title=" " alt="" coords="1123,116,884,138,741,155,601,177,477,203,426,218,384,234,354,251,336,269,332,288,344,307,358,314,387,320,486,331,782,348,1110,359,1349,365,1349,370,1110,365,782,354,485,336,387,325,356,319,340,311,327,288,331,267,351,247,382,229,424,213,476,198,600,171,740,150,883,132,1122,111"/>
+<area shape="poly" title=" " alt="" coords="1211,126,1211,175,1206,175,1206,126"/>
+</map>
+</div>
+</div>
+<p><a href="uart__handlers__wifi_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:abc07526e4d22deb256e3182b5f6857b8" id="r_abc07526e4d22deb256e3182b5f6857b8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#abc07526e4d22deb256e3182b5f6857b8">format_time_mmss</a> (char *buffer, size_t size, uint32_t time_ms)</td></tr>
+<tr class="memdesc:abc07526e4d22deb256e3182b5f6857b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format time in milliseconds to MM:SS format.  <br /></td></tr>
+<tr class="separator:abc07526e4d22deb256e3182b5f6857b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a475b0f6db66e3d1b412220cf21179f73" id="r_a475b0f6db66e3d1b412220cf21179f73"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a475b0f6db66e3d1b412220cf21179f73">uart_cmd_timer</a> (const char *args)</td></tr>
+<tr class="memdesc:a475b0f6db66e3d1b412220cf21179f73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobrazi stav timeru (lidsky citelny format)  <br /></td></tr>
+<tr class="separator:a475b0f6db66e3d1b412220cf21179f73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae137c42e9c2b523702668600a4126f53" id="r_ae137c42e9c2b523702668600a4126f53"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#ae137c42e9c2b523702668600a4126f53">uart_cmd_timer_config</a> (const char *args)</td></tr>
+<tr class="memdesc:ae137c42e9c2b523702668600a4126f53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastavi casovy limit nebo zobrazi dostupne moznosti.  <br /></td></tr>
+<tr class="separator:ae137c42e9c2b523702668600a4126f53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a749364e3a9de6bde7c09d339c88a1440" id="r_a749364e3a9de6bde7c09d339c88a1440"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a749364e3a9de6bde7c09d339c88a1440">uart_cmd_timer_pause</a> (const char *args)</td></tr>
+<tr class="memdesc:a749364e3a9de6bde7c09d339c88a1440"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pause timer.  <br /></td></tr>
+<tr class="separator:a749364e3a9de6bde7c09d339c88a1440"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7a0ee931e10dbc1d27d1cbea7fee4ec" id="r_af7a0ee931e10dbc1d27d1cbea7fee4ec"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#af7a0ee931e10dbc1d27d1cbea7fee4ec">uart_cmd_timer_resume</a> (const char *args)</td></tr>
+<tr class="memdesc:af7a0ee931e10dbc1d27d1cbea7fee4ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resume timer.  <br /></td></tr>
+<tr class="separator:af7a0ee931e10dbc1d27d1cbea7fee4ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae8ad10d8170f6fc652c11ff484ff48a" id="r_aae8ad10d8170f6fc652c11ff484ff48a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#aae8ad10d8170f6fc652c11ff484ff48a">uart_cmd_timer_reset</a> (const char *args)</td></tr>
+<tr class="memdesc:aae8ad10d8170f6fc652c11ff484ff48a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset timer.  <br /></td></tr>
+<tr class="separator:aae8ad10d8170f6fc652c11ff484ff48a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b73406393efc0efe0786fc87e571a22" id="r_a5b73406393efc0efe0786fc87e571a22"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a5b73406393efc0efe0786fc87e571a22">uart_cmd_wifi</a> (const char *args)</td></tr>
+<tr class="memdesc:a5b73406393efc0efe0786fc87e571a22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Konfiguruje WiFi STA (SSID a heslo)  <br /></td></tr>
+<tr class="separator:a5b73406393efc0efe0786fc87e571a22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbf3e3944f1845925bd08459c6b7cb89" id="r_adbf3e3944f1845925bd08459c6b7cb89"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#adbf3e3944f1845925bd08459c6b7cb89">uart_cmd_wifi_connect</a> (const char *args)</td></tr>
+<tr class="memdesc:adbf3e3944f1845925bd08459c6b7cb89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pripoji ESP32 k WiFi site.  <br /></td></tr>
+<tr class="separator:adbf3e3944f1845925bd08459c6b7cb89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1eebbc47571699c8bb5c8da5ce40cd6a" id="r_a1eebbc47571699c8bb5c8da5ce40cd6a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a1eebbc47571699c8bb5c8da5ce40cd6a">uart_cmd_wifi_disconnect</a> (const char *args)</td></tr>
+<tr class="memdesc:a1eebbc47571699c8bb5c8da5ce40cd6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Odpoji ESP32 od WiFi site.  <br /></td></tr>
+<tr class="separator:a1eebbc47571699c8bb5c8da5ce40cd6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a011169e6aa5d6b3f141448e2864decbf" id="r_a011169e6aa5d6b3f141448e2864decbf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a011169e6aa5d6b3f141448e2864decbf">uart_cmd_wifi_status</a> (const char *args)</td></tr>
+<tr class="memdesc:a011169e6aa5d6b3f141448e2864decbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobrazi WiFi status (AP i STA)  <br /></td></tr>
+<tr class="separator:a011169e6aa5d6b3f141448e2864decbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f1538a5485ed6e27c22829f066d3a87" id="r_a7f1538a5485ed6e27c22829f066d3a87"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a7f1538a5485ed6e27c22829f066d3a87">uart_cmd_web_lock</a> (const char *args)</td></tr>
+<tr class="memdesc:a7f1538a5485ed6e27c22829f066d3a87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastavi lock/unlock web rozhrani.  <br /></td></tr>
+<tr class="separator:a7f1538a5485ed6e27c22829f066d3a87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9f2f59b642c88983b3335005fa13d04" id="r_aa9f2f59b642c88983b3335005fa13d04"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#aa9f2f59b642c88983b3335005fa13d04">uart_cmd_web_status</a> (const char *args)</td></tr>
+<tr class="memdesc:aa9f2f59b642c88983b3335005fa13d04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobrazi status web rozhrani.  <br /></td></tr>
+<tr class="separator:aa9f2f59b642c88983b3335005fa13d04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf65d6d06537d23ebc4c3f37a3ab42aa" id="r_aaf65d6d06537d23ebc4c3f37a3ab42aa"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#aaf65d6d06537d23ebc4c3f37a3ab42aa">uart_cmd_api_token</a> (const char *args)</td></tr>
+<tr class="separator:aaf65d6d06537d23ebc4c3f37a3ab42aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9808d5b4c8bf121e754153798dfd8ffd" id="r_a9808d5b4c8bf121e754153798dfd8ffd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a9808d5b4c8bf121e754153798dfd8ffd">uart_cmd_ble</a> (const char *args)</td></tr>
+<tr class="separator:a9808d5b4c8bf121e754153798dfd8ffd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cf583b305279172da15e67506989102" id="r_a4cf583b305279172da15e67506989102"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a4cf583b305279172da15e67506989102">uart_cmd_mqtt_config</a> (const char *args)</td></tr>
+<tr class="memdesc:a4cf583b305279172da15e67506989102"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastaví MQTT konfiguraci.  <br /></td></tr>
+<tr class="separator:a4cf583b305279172da15e67506989102"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a67f06fc8ba00682d61c5c380ce612b" id="r_a8a67f06fc8ba00682d61c5c380ce612b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a8a67f06fc8ba00682d61c5c380ce612b">uart_cmd_mqtt_status</a> (const char *args)</td></tr>
+<tr class="memdesc:a8a67f06fc8ba00682d61c5c380ce612b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobrazí MQTT status.  <br /></td></tr>
+<tr class="separator:a8a67f06fc8ba00682d61c5c380ce612b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0eaf4451977618b26df3ef6c207edfb1" id="r_a0eaf4451977618b26df3ef6c207edfb1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a0eaf4451977618b26df3ef6c207edfb1">uart_cmd_mqtt_test</a> (const char *args)</td></tr>
+<tr class="memdesc:a0eaf4451977618b26df3ef6c207edfb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Otestuje MQTT připojení  <br /></td></tr>
+<tr class="separator:a0eaf4451977618b26df3ef6c207edfb1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a703be1161dc49f25dd0e476c596443f9" id="r_a703be1161dc49f25dd0e476c596443f9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a703be1161dc49f25dd0e476c596443f9">uart_cmd_wifi_clear</a> (const char *args)</td></tr>
+<tr class="memdesc:a703be1161dc49f25dd0e476c596443f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vymaze WiFi konfiguraci z NVS.  <br /></td></tr>
+<tr class="separator:a703be1161dc49f25dd0e476c596443f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__handlers__wifi_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;UART_WIFI&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Timer, WiFi, web, BLE, and MQTT UART command handlers. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="abc07526e4d22deb256e3182b5f6857b8" name="abc07526e4d22deb256e3182b5f6857b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc07526e4d22deb256e3182b5f6857b8">&#9670;&#160;</a></span>format_time_mmss()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void format_time_mmss </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>time_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Format time in milliseconds to MM:SS format. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00037">37</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="aaf65d6d06537d23ebc4c3f37a3ab42aa" name="aaf65d6d06537d23ebc4c3f37a3ab42aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf65d6d06537d23ebc4c3f37a3ab42aa">&#9670;&#160;</a></span>uart_cmd_api_token()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_api_token </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00690">690</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a9808d5b4c8bf121e754153798dfd8ffd" name="a9808d5b4c8bf121e754153798dfd8ffd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9808d5b4c8bf121e754153798dfd8ffd">&#9670;&#160;</a></span>uart_cmd_ble()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_ble </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00740">740</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a4cf583b305279172da15e67506989102" name="a4cf583b305279172da15e67506989102"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4cf583b305279172da15e67506989102">&#9670;&#160;</a></span>uart_cmd_mqtt_config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_mqtt_config </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastaví MQTT konfiguraci. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Parametry: &lt;host&gt; [port] [username] [password] </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00770">770</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a8a67f06fc8ba00682d61c5c380ce612b" name="a8a67f06fc8ba00682d61c5c380ce612b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a67f06fc8ba00682d61c5c380ce612b">&#9670;&#160;</a></span>uart_cmd_mqtt_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_mqtt_status </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobrazí MQTT status. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepoužitý </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00850">850</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a0eaf4451977618b26df3ef6c207edfb1" name="a0eaf4451977618b26df3ef6c207edfb1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0eaf4451977618b26df3ef6c207edfb1">&#9670;&#160;</a></span>uart_cmd_mqtt_test()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_mqtt_test </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Otestuje MQTT připojení </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepoužitý </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00912">912</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a475b0f6db66e3d1b412220cf21179f73" name="a475b0f6db66e3d1b412220cf21179f73"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a475b0f6db66e3d1b412220cf21179f73">&#9670;&#160;</a></span>uart_cmd_timer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_timer </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobrazi stav timeru (lidsky citelny format) </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00048">48</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="ae137c42e9c2b523702668600a4126f53" name="ae137c42e9c2b523702668600a4126f53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae137c42e9c2b523702668600a4126f53">&#9670;&#160;</a></span>uart_cmd_timer_config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_timer_config </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastavi casovy limit nebo zobrazi dostupne moznosti. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00141">141</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a749364e3a9de6bde7c09d339c88a1440" name="a749364e3a9de6bde7c09d339c88a1440"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a749364e3a9de6bde7c09d339c88a1440">&#9670;&#160;</a></span>uart_cmd_timer_pause()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_timer_pause </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pause timer. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00274">274</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="aae8ad10d8170f6fc652c11ff484ff48a" name="aae8ad10d8170f6fc652c11ff484ff48a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae8ad10d8170f6fc652c11ff484ff48a">&#9670;&#160;</a></span>uart_cmd_timer_reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_timer_reset </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reset timer. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00322">322</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="af7a0ee931e10dbc1d27d1cbea7fee4ec" name="af7a0ee931e10dbc1d27d1cbea7fee4ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af7a0ee931e10dbc1d27d1cbea7fee4ec">&#9670;&#160;</a></span>uart_cmd_timer_resume()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_timer_resume </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resume timer. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00298">298</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f1538a5485ed6e27c22829f066d3a87" name="a7f1538a5485ed6e27c22829f066d3a87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f1538a5485ed6e27c22829f066d3a87">&#9670;&#160;</a></span>uart_cmd_web_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_web_lock </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastavi lock/unlock web rozhrani. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>"ON" nebo "OFF" </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00566">566</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="aa9f2f59b642c88983b3335005fa13d04" name="aa9f2f59b642c88983b3335005fa13d04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9f2f59b642c88983b3335005fa13d04">&#9670;&#160;</a></span>uart_cmd_web_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_web_status </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobrazi status web rozhrani. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepouzivany </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00614">614</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a5b73406393efc0efe0786fc87e571a22" name="a5b73406393efc0efe0786fc87e571a22"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b73406393efc0efe0786fc87e571a22">&#9670;&#160;</a></span>uart_cmd_wifi()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_wifi </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Konfiguruje WiFi STA (SSID a heslo) </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>SSID a heslo (muze byt v uvozovkach pro mezery) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t</dd></dl>
+<p>Parsuje argumenty: WIFI &lt;ssid&gt; &lt;password&gt; Podporuje uvozovky pro SSID/heslo s mezerami: WIFI "My Home WiFi" "My
+Password" </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00358">358</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a703be1161dc49f25dd0e476c596443f9" name="a703be1161dc49f25dd0e476c596443f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a703be1161dc49f25dd0e476c596443f9">&#9670;&#160;</a></span>uart_cmd_wifi_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_wifi_clear </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vymaze WiFi konfiguraci z NVS. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepouzivany </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00963">963</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="adbf3e3944f1845925bd08459c6b7cb89" name="adbf3e3944f1845925bd08459c6b7cb89"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbf3e3944f1845925bd08459c6b7cb89">&#9670;&#160;</a></span>uart_cmd_wifi_connect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_wifi_connect </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pripoji ESP32 k WiFi site. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepouzivany </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00465">465</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a1eebbc47571699c8bb5c8da5ce40cd6a" name="a1eebbc47571699c8bb5c8da5ce40cd6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1eebbc47571699c8bb5c8da5ce40cd6a">&#9670;&#160;</a></span>uart_cmd_wifi_disconnect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_wifi_disconnect </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Odpoji ESP32 od WiFi site. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepouzivany </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00489">489</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<a id="a011169e6aa5d6b3f141448e2864decbf" name="a011169e6aa5d6b3f141448e2864decbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a011169e6aa5d6b3f141448e2864decbf">&#9670;&#160;</a></span>uart_cmd_wifi_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a> uart_cmd_wifi_status </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobrazi WiFi status (AP i STA) </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">args</td><td>Nepouzivany </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>command_result_t </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00513">513</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;UART_WIFI&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="uart__handlers__wifi_8c_source.html#l00028">28</a> v souboru <a class="el" href="uart__handlers__wifi_8c_source.html">uart_handlers_wifi.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_d0ae06983db71f379ba075ec013a456f.html">uart_task</a></li><li class="navelem"><a class="el" href="uart__handlers__wifi_8c.html">uart_handlers_wifi.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

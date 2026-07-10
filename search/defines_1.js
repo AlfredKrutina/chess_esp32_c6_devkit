@@ -13,7 +13,7 @@ var searchData=
   ['boot_5fcounter_5ftime_5fkey_10',['BOOT_COUNTER_TIME_KEY',['../main_8c.html#afd33883537eb21985239203da13e48c6',1,'main.c']]],
   ['boot_5fcycles_5flimit_11',['BOOT_CYCLES_LIMIT',['../main_8c.html#a984382ac84d6f6a967feb33bbf5dd3e1',1,'main.c']]],
   ['boot_5fcycles_5fwindow_5fms_12',['BOOT_CYCLES_WINDOW_MS',['../main_8c.html#a4cb58a2662d3d54f7747c5881abd8ccc',1,'main.c']]],
-  ['boot_5fwindow_5fseconds_13',['BOOT_WINDOW_SECONDS',['../game__task_8c.html#ac8c5d99877f0d00359a06f437c8044c6',1,'game_task.c']]],
+  ['boot_5fwindow_5fseconds_13',['BOOT_WINDOW_SECONDS',['../game__snapshot_8c.html#ac8c5d99877f0d00359a06f437c8044c6',1,'game_snapshot.c']]],
   ['buffer_5fpool_5fsize_14',['BUFFER_POOL_SIZE',['../shared__buffer__pool_8c.html#ac1ae1af79e723ac8e3093efca7af3e71',1,'shared_buffer_pool.c']]],
   ['buffer_5fsize_15',['BUFFER_SIZE',['../shared__buffer__pool_8c.html#a6b20d41d6252e9871430c242cb1a56e7',1,'shared_buffer_pool.c']]],
   ['button_5fbishop_16',['BUTTON_BISHOP',['../freertos__chess_8h.html#ac861d083f88a75aef0cb5a65ba142f97',1,'freertos_chess.h']]],

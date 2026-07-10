@@ -1,0 +1,7 @@
+<map id="web_routes.h" name="web_routes.h">
+<area shape="rect" id="Node000001" title="HTTP URI route registration for web_server_task." alt="" coords="58,5,167,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="104,33,68,70,64,67,100,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="111,79,248,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="126,29,161,67,157,70,122,33"/>
+</map>

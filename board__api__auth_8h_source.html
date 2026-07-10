@@ -101,31 +101,35 @@ $(document).ready(function(){initNavTree('board__api__auth_8h_source.html',''); 
 <a href="board__api__auth_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#pragma once</span></div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#include &quot;esp_http_server.h&quot;</span></div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>esp_err_t <a class="code hl_function" href="board__api__auth_8h.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#include &quot;sdkconfig.h&quot;</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#include &quot;esp_err.h&quot;</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#include &lt;stddef.h&gt;</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#if CONFIG_CHESS_ENABLE_WEB_SERVER</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#include &quot;esp_http_server.h&quot;</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keywordtype">bool</span> <a class="code hl_function" href="board__api__auth_8h.html#aba5d37160ecb20a0c8016bb5f864c413">board_api_auth_admin_http_denied</a>(httpd_req_t *req);</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>esp_err_t <a class="code hl_function" href="board__api__auth_8h.html#af0630014db3572ad88deb3e622229de3">board_api_auth_get_token_hex</a>(<span class="keywordtype">char</span> *out_hex, <span class="keywordtype">size_t</span> cap);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>esp_err_t <a class="code hl_function" href="board__api__auth_8h.html#accc9a84c5a029d1a15f66e15201f029f">board_api_auth_rotate_token</a>(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>}</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="aboard__api__auth_8h_html_aba5d37160ecb20a0c8016bb5f864c413"><div class="ttname"><a href="board__api__auth_8h.html#aba5d37160ecb20a0c8016bb5f864c413">board_api_auth_admin_http_denied</a></div><div class="ttdeci">bool board_api_auth_admin_http_denied(httpd_req_t *req)</div><div class="ttdoc">HTTP admin akce: zkontroluje Bearer token vs NVS a web lock.</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00172">board_api_auth.c:172</a></div></div>
-<div class="ttc" id="aboard__api__auth_8h_html_accc9a84c5a029d1a15f66e15201f029f"><div class="ttname"><a href="board__api__auth_8h.html#accc9a84c5a029d1a15f66e15201f029f">board_api_auth_rotate_token</a></div><div class="ttdeci">esp_err_t board_api_auth_rotate_token(void)</div><div class="ttdoc">Vygeneruje nový token (starý přestane platit).</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00113">board_api_auth.c:113</a></div></div>
-<div class="ttc" id="aboard__api__auth_8h_html_ae69414b0bf5b1f31145e0fdbc4816aa6"><div class="ttname"><a href="board__api__auth_8h.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth_init</a></div><div class="ttdeci">esp_err_t board_api_auth_init(void)</div><div class="ttdoc">NVS inicializace / generace tokenu při prvním spuštění.</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00064">board_api_auth.c:64</a></div></div>
-<div class="ttc" id="aboard__api__auth_8h_html_af0630014db3572ad88deb3e622229de3"><div class="ttname"><a href="board__api__auth_8h.html#af0630014db3572ad88deb3e622229de3">board_api_auth_get_token_hex</a></div><div class="ttdeci">esp_err_t board_api_auth_get_token_hex(char *out_hex, size_t cap)</div><div class="ttdoc">UART / diagnostika: hex řetězec (64 znaků) + '\0'.</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00102">board_api_auth.c:102</a></div></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>esp_err_t <a class="code hl_function" href="board__api__auth_8h.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth_init</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span><span class="preprocessor">#if CONFIG_CHESS_ENABLE_WEB_SERVER</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="keywordtype">bool</span> board_api_auth_admin_http_denied(httpd_req_t *req);</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>esp_err_t <a class="code hl_function" href="board__api__auth_8h.html#af0630014db3572ad88deb3e622229de3">board_api_auth_get_token_hex</a>(<span class="keywordtype">char</span> *out_hex, <span class="keywordtype">size_t</span> cap);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>esp_err_t <a class="code hl_function" href="board__api__auth_8h.html#accc9a84c5a029d1a15f66e15201f029f">board_api_auth_rotate_token</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>}</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="aboard__api__auth_8h_html_accc9a84c5a029d1a15f66e15201f029f"><div class="ttname"><a href="board__api__auth_8h.html#accc9a84c5a029d1a15f66e15201f029f">board_api_auth_rotate_token</a></div><div class="ttdeci">esp_err_t board_api_auth_rotate_token(void)</div><div class="ttdoc">Vygeneruje nový token (starý přestane platit).</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00116">board_api_auth.c:116</a></div></div>
+<div class="ttc" id="aboard__api__auth_8h_html_ae69414b0bf5b1f31145e0fdbc4816aa6"><div class="ttname"><a href="board__api__auth_8h.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth_init</a></div><div class="ttdeci">esp_err_t board_api_auth_init(void)</div><div class="ttdoc">NVS inicializace / generace tokenu při prvním spuštění.</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00067">board_api_auth.c:67</a></div></div>
+<div class="ttc" id="aboard__api__auth_8h_html_af0630014db3572ad88deb3e622229de3"><div class="ttname"><a href="board__api__auth_8h.html#af0630014db3572ad88deb3e622229de3">board_api_auth_get_token_hex</a></div><div class="ttdeci">esp_err_t board_api_auth_get_token_hex(char *out_hex, size_t cap)</div><div class="ttdoc">UART / diagnostika: hex řetězec (64 znaků) + '\0'.</div><div class="ttdef"><b>Definition</b> <a href="board__api__auth_8c_source.html#l00105">board_api_auth.c:105</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

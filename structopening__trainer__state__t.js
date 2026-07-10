@@ -1,0 +1,26 @@
+var structopening__trainer__state__t =
+[
+    [ "active", "structopening__trainer__state__t.html#a2d24bc36ef9343ef41dce786542cbc72", null ],
+    [ "awaiting_checkpoint_ack", "structopening__trainer__state__t.html#a48bfca8976dc8a1202fc809ae9c78d05", null ],
+    [ "awaiting_opponent_physical", "structopening__trainer__state__t.html#ade556667b1646ca99afa1e7930f7af0b", null ],
+    [ "checkpoint_count", "structopening__trainer__state__t.html#acf7a6235edfdbcb82d5079daa2844eff", null ],
+    [ "checkpoint_ply_indices", "structopening__trainer__state__t.html#a45f731740359d65083162421028da0ff", null ],
+    [ "expected_from", "structopening__trainer__state__t.html#a56d4cd7d35b97fbf162953b94f7b47e6", null ],
+    [ "expected_to", "structopening__trainer__state__t.html#af9c23918162da4da5eef99b479fe9c2a", null ],
+    [ "feedback", "structopening__trainer__state__t.html#a200fd929b994d3a3cf9bf96ac154b52f", null ],
+    [ "last_opponent_uci", "structopening__trainer__state__t.html#ab718d315f6a6727d1941eebdfe47afa2", null ],
+    [ "last_wrong_uci", "structopening__trainer__state__t.html#a70e9d7fc7f8b4451263f28e51cd8e323", null ],
+    [ "line_id", "structopening__trainer__state__t.html#adc4eccdd4e41e6e8293fbe7f51eda85f", null ],
+    [ "line_uci", "structopening__trainer__state__t.html#a85a050c36e9aa26c0cb480671ce77ba1", null ],
+    [ "line_uci_count", "structopening__trainer__state__t.html#ae349517c347b98d9bd6d75275295ac52", null ],
+    [ "mode", "structopening__trainer__state__t.html#a3fcfb5163e089f35a0337d738bba3fe7", null ],
+    [ "opponent_mode", "structopening__trainer__state__t.html#aea92c04b180e1478a2cad4095e0fb567", null ],
+    [ "player_ply_count", "structopening__trainer__state__t.html#a6c75c8457e219fa2e42a448c24206a54", null ],
+    [ "player_ply_index", "structopening__trainer__state__t.html#a4a0b3a189238a7a790a99162959ca520", null ],
+    [ "player_ply_indices", "structopening__trainer__state__t.html#ae7491c0f034749f4775a76d351fd7282", null ],
+    [ "player_side", "structopening__trainer__state__t.html#a7bbb6a07de8ac3378a169f94e71bab56", null ],
+    [ "ply_index", "structopening__trainer__state__t.html#a5c4ae7af27f0ab79c036c039c916406f", null ],
+    [ "setup_phase", "structopening__trainer__state__t.html#a06494687ca15944f5ddad0484ce4aed3", null ],
+    [ "start_fen", "structopening__trainer__state__t.html#a67f660543b0b165091fd959b8d6930ae", null ],
+    [ "wrong_move_count", "structopening__trainer__state__t.html#a6c31c9177b53a118abde672d65851bfb", null ]
+];

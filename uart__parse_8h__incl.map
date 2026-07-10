@@ -1,0 +1,28 @@
+<map id="uart_parse.h" name="uart_parse.h">
+<area shape="rect" id="Node000001" title="Command parsing and game&#45;task dispatch (internal to uart_task component)." alt="" coords="279,5,382,31"/>
+<area shape="rect" id="Node000002" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Hlavicka." alt="" coords="283,79,378,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="333,31,333,65,328,65,328,31"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="63,225,145,251"/>
+<area shape="poly" id="edge15_Node000001_Node000004" title=" " alt="" coords="280,26,215,37,141,60,104,76,69,97,38,123,13,153,9,163,9,171,19,189,38,204,62,217,59,222,35,209,15,192,3,173,3,162,8,151,34,119,66,93,101,72,139,55,214,32,279,21"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="403,79,477,104"/>
+<area shape="poly" id="edge16_Node000001_Node000010" title=" " alt="" coords="350,28,412,69,409,73,347,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="603,225,674,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="371,102,432,122,500,150,561,183,612,215,609,220,558,187,497,154,430,127,369,107"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="316,106,209,180,139,221,136,216,206,175,313,102"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="170,225,321,251"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="326,106,261,215,257,212,321,103"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="345,225,474,251"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="379,101,418,120,436,133,450,151,455,168,452,185,433,216,429,214,447,184,450,168,445,153,432,137,415,124,377,106"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="498,225,579,251"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="371,102,420,121,469,150,501,180,526,212,521,215,497,184,466,154,417,126,369,107"/>
+<area shape="rect" id="Node000008" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="321,152,436,177"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="341,103,365,139,361,142,336,106"/>
+<area shape="rect" id="Node000009" href="$uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="23,152,196,177"/>
+<area shape="poly" id="edge13_Node000002_Node000009" title=" " alt="" coords="296,107,159,150,157,145,294,101"/>
+<area shape="poly" id="edge12_Node000008_Node000003" title=" " alt="" coords="421,175,591,221,589,226,420,180"/>
+<area shape="poly" id="edge11_Node000008_Node000004" title=" " alt="" coords="335,180,159,225,158,220,334,175"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="358,180,280,221,278,216,356,175"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="386,177,401,212,396,214,381,179"/>
+<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="405,175,501,217,499,222,403,180"/>
+<area shape="poly" id="edge14_Node000009_Node000004" title=" " alt="" coords="111,178,108,212,103,212,106,177"/>
+</map>

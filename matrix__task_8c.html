@@ -274,6 +274,15 @@ Funkce</h2></td></tr>
 <tr class="memitem:aa7161ac2bf0076cc5ddfc91270c2bd34" id="r_aa7161ac2bf0076cc5ddfc91270c2bd34"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix__task_8c.html#aa7161ac2bf0076cc5ddfc91270c2bd34">matrix_reset</a> (void)</td></tr>
 <tr class="memdesc:aa7161ac2bf0076cc5ddfc91270c2bd34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj stav matice.  <br /></td></tr>
 <tr class="separator:aa7161ac2bf0076cc5ddfc91270c2bd34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6e2c2199ed87c3eca88c11513370c780" id="r_a6e2c2199ed87c3eca88c11513370c780"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix__task_8c.html#a6e2c2199ed87c3eca88c11513370c780">matrix_guard_apply_expected_occupancy</a> (const uint8_t expected[64])</td></tr>
+<tr class="memdesc:a6e2c2199ed87c3eca88c11513370c780"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nastav očekávanou fyzickou obsazenost pro matrix guard (0/1 na pole).  <br /></td></tr>
+<tr class="separator:a6e2c2199ed87c3eca88c11513370c780"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e40035f63e55a2200e9124a90324ceb" id="r_a9e40035f63e55a2200e9124a90324ceb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix__task_8c.html#a9e40035f63e55a2200e9124a90324ceb">matrix_is_guard_mode_active</a> (void)</td></tr>
+<tr class="memdesc:a9e40035f63e55a2200e9124a90324ceb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Je matrix guard na straně matice aktivní?  <br /></td></tr>
+<tr class="separator:a9e40035f63e55a2200e9124a90324ceb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bf10133ef95e31d09aa06f7ee1dc3b4" id="r_a2bf10133ef95e31d09aa06f7ee1dc3b4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix__task_8c.html#a2bf10133ef95e31d09aa06f7ee1dc3b4">matrix_get_pending_lift_square</a> (void)</td></tr>
+<tr class="memdesc:a2bf10133ef95e31d09aa06f7ee1dc3b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Čtverec čekající na DROP (255 = žádný), pro race s game pickup frontou.  <br /></td></tr>
+<tr class="separator:a2bf10133ef95e31d09aa06f7ee1dc3b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c2ffaa00133692c9c63f4680457b458" id="r_a4c2ffaa00133692c9c63f4680457b458"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="matrix__task_8c.html#a4c2ffaa00133692c9c63f4680457b458">matrix_abort_ambiguous_guard_baseline</a> (void)</td></tr>
 <tr class="memdesc:a4c2ffaa00133692c9c63f4680457b458"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zruší lokální matrix guard a zarovná baseline (previous = HW stav).  <br /></td></tr>
 <tr class="separator:a4c2ffaa00133692c9c63f4680457b458"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -459,7 +468,7 @@ TABLE OF CONTENTS</h1>
 <p>Zruší lokální matrix guard a zarovná baseline (previous = HW stav). </p>
 <p>Volá game_task když matrix guard na straně hry ignorujeme (tutoriál / puzzle), nebo po game_reset — aby se nezasekla detekce a neplatný last_piece_lifted nevyvolával falešné „více zvednutí najednou“. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00973">973</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01009">1009</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -483,7 +492,7 @@ TABLE OF CONTENTS</h1>
 <p>Obnovi normalni matrix scanning rezim po button scan window.</p>
 <p>Tato funkce je volana po button scan window. Matrix muze pokracovat v normalnim skenovani. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01035">1035</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01071">1071</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -523,7 +532,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00755">755</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00759">759</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -547,6 +556,28 @@ TABLE OF CONTENTS</h1>
 <p>Hleda prechody 1-&gt;0 (figurka zvednuta) a 0-&gt;1 (figurka polozena) a generuje maticove udalosti. </p>
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00625">625</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a2bf10133ef95e31d09aa06f7ee1dc3b4" name="a2bf10133ef95e31d09aa06f7ee1dc3b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bf10133ef95e31d09aa06f7ee1dc3b4">&#9670;&#160;</a></span>matrix_get_pending_lift_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t matrix_get_pending_lift_square </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Čtverec čekající na DROP (255 = žádný), pro race s game pickup frontou. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01007">1007</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -574,7 +605,52 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00802">802</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00806">806</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6e2c2199ed87c3eca88c11513370c780" name="a6e2c2199ed87c3eca88c11513370c780"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6e2c2199ed87c3eca88c11513370c780">&#9670;&#160;</a></span>matrix_guard_apply_expected_occupancy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void matrix_guard_apply_expected_occupancy </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>expected</em>[64]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nastav očekávanou fyzickou obsazenost pro matrix guard (0/1 na pole). </p>
+<p>Sladí recovery cíl s logickou deskou (board[]). Volá game_task při aktivaci guardu nebo po NVS restore. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00977">977</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a9e40035f63e55a2200e9124a90324ceb" name="a9e40035f63e55a2200e9124a90324ceb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e40035f63e55a2200e9124a90324ceb">&#9670;&#160;</a></span>matrix_is_guard_mode_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool matrix_is_guard_mode_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Je matrix guard na straně matice aktivní? </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01005">1005</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -603,7 +679,7 @@ TABLE OF CONTENTS</h1>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Cislo pole (0-63) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00785">785</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00789">789</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -627,7 +703,7 @@ TABLE OF CONTENTS</h1>
 <p>Overi zda jsou matrix piny uvolnene pro button scan.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud jsou vsechny row piny HIGH (uvolnene) </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01048">1048</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01084">1084</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -650,7 +726,7 @@ TABLE OF CONTENTS</h1>
 <p>Vypis aktualni stav matice. </p>
 <p>Vypise 8x8 matici s aktualni stav vsech poli (0 = prazdne, 1 = figurka). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00810">810</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00814">814</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -673,7 +749,7 @@ TABLE OF CONTENTS</h1>
 <p>Zpracuj matrix prikazy z fronty. </p>
 <p>Cte prikazy z matrix_command_queue a vykonava je (scan, reset, test, calibrate, enable/disable). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00907">907</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00911">911</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -697,7 +773,7 @@ TABLE OF CONTENTS</h1>
 <p>Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task mohl cist column piny bez interference.</p>
 <p>Tato funkce je volana pred button scan window (20-25ms). Vsechny row piny jsou nastaveny na HIGH (pulled up) takze column piny mohou byt bezpecne cteny pro button detection. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01015">1015</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01051">1051</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -720,7 +796,7 @@ TABLE OF CONTENTS</h1>
 <p>Resetuj stav matice. </p>
 <p>Vymaze vsechny vnitrni stavy matice a resetuje detekci tahu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00951">951</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00955">955</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1003,7 +1079,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00880">880</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00884">884</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1042,7 +1118,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00773">773</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00777">777</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1071,7 +1147,7 @@ TABLE OF CONTENTS</h1>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01065">1065</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l01101">1101</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>
@@ -1123,7 +1199,7 @@ TABLE OF CONTENTS</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00834">834</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="matrix__task_8c_source.html#l00838">838</a> v souboru <a class="el" href="matrix__task_8c_source.html">matrix_task.c</a>.</p>
 
 </div>
 </div>

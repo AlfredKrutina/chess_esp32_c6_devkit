@@ -355,6 +355,7 @@ Výčty</h2></td></tr>
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0">GAME_CMD_PUZZLE</a>
 , <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b">GAME_CMD_NEW_GAME_FROM_FEN</a>
+, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72">GAME_CMD_OPENING_TRAINER</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ade7744437207164be6ca650b128bd9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typy game prikazu pro UART komunikaci.  <a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4">...</a><br /></td></tr>
@@ -473,13 +474,13 @@ Funkce</h2></td></tr>
 <tr class="memitem:ad58024344b5777da494b4a35f8250c32" id="r_ad58024344b5777da494b4a35f8250c32"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#ad58024344b5777da494b4a35f8250c32">game_is_valid_square</a> (int row, int col)</td></tr>
 <tr class="memdesc:ad58024344b5777da494b4a35f8250c32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je pozice platna na sachovnici.  <br /></td></tr>
 <tr class="separator:ad58024344b5777da494b4a35f8250c32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f31b3ea42f40399386306ba3d88cb9c" id="r_a7f31b3ea42f40399386306ba3d88cb9c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a7f31b3ea42f40399386306ba3d88cb9c">game_is_own_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> <a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">player</a>)</td></tr>
+<tr class="memitem:a7f31b3ea42f40399386306ba3d88cb9c" id="r_a7f31b3ea42f40399386306ba3d88cb9c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a7f31b3ea42f40399386306ba3d88cb9c">game_is_own_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player)</td></tr>
 <tr class="memdesc:a7f31b3ea42f40399386306ba3d88cb9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je figurka vlastni (patri aktualnimu hraci)  <br /></td></tr>
 <tr class="separator:a7f31b3ea42f40399386306ba3d88cb9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a1fae8d66a8db2dd28a091a3b11279c" id="r_a4a1fae8d66a8db2dd28a091a3b11279c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a4a1fae8d66a8db2dd28a091a3b11279c">game_is_enemy_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> <a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">player</a>)</td></tr>
+<tr class="memitem:a4a1fae8d66a8db2dd28a091a3b11279c" id="r_a4a1fae8d66a8db2dd28a091a3b11279c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a4a1fae8d66a8db2dd28a091a3b11279c">game_is_enemy_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player)</td></tr>
 <tr class="memdesc:a4a1fae8d66a8db2dd28a091a3b11279c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je figurka nepratelska.  <br /></td></tr>
 <tr class="separator:a4a1fae8d66a8db2dd28a091a3b11279c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d771c47f735ab5e75fee68915b073fc" id="r_a3d771c47f735ab5e75fee68915b073fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a3d771c47f735ab5e75fee68915b073fc">game_simulate_move_check</a> (<a class="el" href="structchess__move__extended__t.html">chess_move_extended_t</a> *move, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> <a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">player</a>)</td></tr>
+<tr class="memitem:a3d771c47f735ab5e75fee68915b073fc" id="r_a3d771c47f735ab5e75fee68915b073fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a3d771c47f735ab5e75fee68915b073fc">game_simulate_move_check</a> (<a class="el" href="structchess__move__extended__t.html">chess_move_extended_t</a> *move, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player)</td></tr>
 <tr class="memdesc:a3d771c47f735ab5e75fee68915b073fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Simuluje tah a overi zda by nechal krale v sachu.  <br /></td></tr>
 <tr class="separator:a3d771c47f735ab5e75fee68915b073fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad744426452d0ddd581a96e82f2369853" id="r_ad744426452d0ddd581a96e82f2369853"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#ad744426452d0ddd581a96e82f2369853">config_manager_init</a> (void)</td></tr>
@@ -529,7 +530,7 @@ Funkce</h2></td></tr>
 
 <p>Pocet tlacitek v systemu (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00581">581</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00583">583</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -547,7 +548,7 @@ Funkce</h2></td></tr>
 
 <p>Celkovy pocet LED v systemu (alias pro CHESS_LED_COUNT_TOTAL) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00577">577</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00579">579</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -565,7 +566,7 @@ Funkce</h2></td></tr>
 
 <p>Pocet LED pro sachovnici (8x8 = 64) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00571">571</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00573">573</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -583,7 +584,7 @@ Funkce</h2></td></tr>
 
 <p>Pocet LED pro tlacitka (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00573">573</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00575">575</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -601,7 +602,7 @@ Funkce</h2></td></tr>
 
 <p>Celkovy pocet LED (64 sachovnice + 9 tlacitek = 73) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00575">575</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00577">577</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -619,7 +620,7 @@ Funkce</h2></td></tr>
 
 <p>Velikost matrix (8x8 = 64 poli) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00585">585</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00587">587</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -637,7 +638,7 @@ Funkce</h2></td></tr>
 
 <p>Maximalni pocet tahu v historii (200 tahu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00589">589</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00591">591</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -667,7 +668,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00487">487</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00489">489</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -784,6 +785,8 @@ Funkce</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b" name="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b"></a>GAME_CMD_NEW_GAME_FROM_FEN&#160;</td><td class="fielddoc"><p>Nová hra z FEN (placement + strana); data v timer_data.fen_new_game. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72" name="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72"></a>GAME_CMD_OPENING_TRAINER&#160;</td><td class="fielddoc"><p>Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack. </p>
+</td></tr>
 </table>
 
 <p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00230">230</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
@@ -823,7 +826,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00350">350</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00352">352</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1022,7 +1025,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00388">388</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00390">390</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1055,7 +1058,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00546">546</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00548">548</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1084,7 +1087,7 @@ Funkce</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00517">517</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="chess__types_8h_source.html#l00519">519</a> v souboru <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1435,7 +1438,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true if insufficient material (draw)</dd></dl>
 <p>Check if piece belongs to opponent </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l11552">11552</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__endgame__detect_8c_source.html#l00097">97</a> v souboru <a class="el" href="game__endgame__detect_8c_source.html">game_endgame_detect.c</a>.</p>
 
 </div>
 </div>
@@ -1476,7 +1479,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je figurka vlastni</dd></dl>
 <p>Overi zda je figurka vlastni (patri aktualnimu hraci) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12248">12248</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__gen_8c_source.html#l00045">45</a> v souboru <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>
@@ -1517,7 +1520,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pozice platna</dd></dl>
 <p>Overi zda je pozice platna na sachovnici. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12241">12241</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__gen_8c_source.html#l00038">38</a> v souboru <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>
@@ -1558,7 +1561,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud by tah nechal krale v sachu</dd></dl>
 <p>Simuluje tah a overi zda by nechal krale v sachu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="game__task_8c_source.html#l12352">12352</a> v souboru <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__gen_8c_source.html#l00149">149</a> v souboru <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>

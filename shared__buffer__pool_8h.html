@@ -187,7 +187,7 @@ Funkce</h2></td></tr>
 <div class="line">    printf(<span class="stringliteral">&quot;%s\n&quot;</span>, buffer);</div>
 <div class="line">    <a class="code hl_function" href="shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e">release_shared_buffer</a>(buffer);</div>
 <div class="line">}</div>
-<div class="ttc" id="ashared__buffer__pool_8h_html_a2dcea7230ff8c3509b7b7adaeba9874e"><div class="ttname"><a href="shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e">release_shared_buffer</a></div><div class="ttdeci">esp_err_t release_shared_buffer(char *buffer)</div><div class="ttdoc">Uvolni sdileny buffer zpet do poolu.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00203">shared_buffer_pool.c:203</a></div></div>
+<div class="ttc" id="ashared__buffer__pool_8h_html_a2dcea7230ff8c3509b7b7adaeba9874e"><div class="ttname"><a href="shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e">release_shared_buffer</a></div><div class="ttdeci">esp_err_t release_shared_buffer(char *buffer)</div><div class="ttdoc">Uvolni sdileny buffer zpet do poolu.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8c_source.html#l00204">shared_buffer_pool.c:204</a></div></div>
 <div class="ttc" id="ashared__buffer__pool_8h_html_a70318c0bb964a91191f81e8b06a264eb"><div class="ttname"><a href="shared__buffer__pool_8h.html#a70318c0bb964a91191f81e8b06a264eb">get_shared_buffer</a></div><div class="ttdeci">#define get_shared_buffer(size)</div><div class="ttdoc">Ziskej sdileny buffer s automatickym sledovanim souboru/radky.</div><div class="ttdef"><b>Definition</b> <a href="shared__buffer__pool_8h_source.html#l00058">shared_buffer_pool.h:58</a></div></div>
 </div><!-- fragment --> 
 <p class="definition">Definice v souboru <a class="el" href="shared__buffer__pool_8h_source.html">shared_buffer_pool.h</a>.</p>
@@ -324,7 +324,7 @@ Funkce</h2></td></tr>
 <p>Deinicializuje buffer pool a uvolni prostredky. </p>
 <p>Kontroluje zda nejsou neuvolnene buffery (leak detection) a uvolni mutex. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00109">109</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00110">110</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -347,7 +347,7 @@ Funkce</h2></td></tr>
 <p>Detekuj potencialni buffer leaky. </p>
 <p>Loguje varovani pro buffery drzene dele nez je ocekavano. Pomaha identifikovat zapomnute uvolneni bufferu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00359">359</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00360">360</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -370,7 +370,7 @@ Funkce</h2></td></tr>
 <p>Ziskej statistiky buffer poolu. </p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Struktura s aktualnimi statistikami </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00301">301</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00302">302</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -394,7 +394,7 @@ Funkce</h2></td></tr>
 <p>Vytvori mutex pro thread-safe pristup a inicializuje vsechny buffery jako volne. Resetuje statistiky.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_NO_MEM pri selhani vytvoreni mutexu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00068">68</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00069">69</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -418,7 +418,7 @@ Funkce</h2></td></tr>
 <p>Kontroluje zda nejsou preteceni, leaky nebo jine problemy.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pool zdravy, false pokud jsou detekovany problemy </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00322">322</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00323">323</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -441,7 +441,7 @@ Funkce</h2></td></tr>
 <p>Vypis detailni status buffer poolu do konzole. </p>
 <p>Zobrazuje vsechny buffery, jejich stav (volny/pouzivany), vlastnika a statistiky. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00263">263</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00264">264</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -490,7 +490,7 @@ Funkce</h2></td></tr>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>Ukazatel na buffer nebo NULL pokud alokace selhala</dd></dl>
 <dl class="section note"><dt>Poznámka</dt><dd>Nepouzivejte primo - pouzijte makro <a class="el" href="shared__buffer__pool_8h.html#a70318c0bb964a91191f81e8b06a264eb" title="Ziskej sdileny buffer s automatickym sledovanim souboru/radky.">get_shared_buffer()</a> </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00143">143</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00144">144</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -520,7 +520,7 @@ Funkce</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, ESP_ERR_INVALID_ARG pokud buffer je neplatny </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00203">203</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="shared__buffer__pool_8c_source.html#l00204">204</a> v souboru <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>

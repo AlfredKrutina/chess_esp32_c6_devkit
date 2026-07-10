@@ -17,7 +17,7 @@ var uart__cli__panel_8c =
     [ "uart_send_colored_line", "uart__cli__panel_8c.html#a24fe1d895d08ee05b18db4ebe08f7aa4", null ],
     [ "uart_send_error", "uart__cli__panel_8c.html#a997485823479f84fcbc9b5121128fb8b", null ],
     [ "uart_send_formatted", "uart__cli__panel_8c.html#af15e84a1f0c0382355b80a7876d16045", null ],
-    [ "uart_send_line", "uart__cli__panel_8c.html#a5e73cb389b8160054b07da47410b12da", null ],
+    [ "uart_send_line", "uart__cli__panel_8c.html#a108a58f33562aa03f1bb6d14a707b6bd", null ],
     [ "uart_send_success", "uart__cli__panel_8c.html#aadc15ad30b458f1f25f63c2400ed3e4e", null ],
     [ "TAG", "uart__cli__panel_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

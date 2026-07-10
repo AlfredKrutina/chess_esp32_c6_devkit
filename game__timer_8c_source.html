@@ -1,0 +1,490 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor game_timer.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function() { init_codefold(0); });
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__timer_8c_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">game_timer.c</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="game__timer_8c.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="game__task__internal_8h.html">game_task_internal.h</a>&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;<a class="code" href="game__task_8h.html">game_task.h</a>&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="freertos__chess_8h.html">freertos_chess.h</a>&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;../../timer_system/include/timer_system.h&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &quot;esp_log.h&quot;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;esp_timer.h&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">   15</a></span><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = <span class="stringliteral">&quot;GAME_TIMER&quot;</span>;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">// TIMER SYSTEM INTEGRATION IMPLEMENTATION</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
+<div class="foldopen" id="foldopen00022" data-start="{" data-end="}">
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a3784bb9de91bf60f6bff17c25c220c37">   22</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a3784bb9de91bf60f6bff17c25c220c37">game_set_time_control</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a> *config) {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>  <span class="keywordflow">if</span> (config == NULL) {</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Invalid config parameter&quot;</span>);</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordflow">return</span> ESP_ERR_INVALID_ARG;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>  }</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a158cdf2baa4bc74c696f82e8c610737d">timer_set_time_control</a>(config);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Time control set: %s&quot;</span>, config-&gt;<a class="code hl_variable" href="structtime__control__config__t.html#ac5f05a43dfc9af7383b21d26235c8425">name</a>);</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    <span class="comment">// Pokud je hra aktivní, spustit timer pro aktuálního hráče</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="game__task_8c.html#a6b5f091d5551e8348e4b43edde98e03f">current_game_state</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c">GAME_STATE_ACTIVE</a>) {</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>      ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Game is active, starting timer for current player&quot;</span>);</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>      <a class="code hl_function" href="timer__system_8h.html#a23265b63c17ea7990a7362a4d497d6d9">timer_start_move</a>(<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>);</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>      ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>               <span class="stringliteral">&quot;Game state is %d (not active), timer will start on first move&quot;</span>,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>               <a class="code hl_variable" href="game__task_8c.html#a6b5f091d5551e8348e4b43edde98e03f">current_game_state</a>);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    }</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  }</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>}</div>
+</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="foldopen" id="foldopen00046" data-start="{" data-end="}">
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a76220c211d4e21aa36ac90a00761f698">   46</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a76220c211d4e21aa36ac90a00761f698">game_start_timer_move</a>(<span class="keywordtype">bool</span> is_white_turn) {</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  ESP_LOGI(</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>      <a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>      <span class="stringliteral">&quot;🎮 game_start_timer_move called: is_white_turn=%s, current_player=%s&quot;</span>,</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>      is_white_turn ? <span class="stringliteral">&quot;WHITE&quot;</span> : <span class="stringliteral">&quot;BLACK&quot;</span>,</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      <a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a> ? <span class="stringliteral">&quot;WHITE&quot;</span> : <span class="stringliteral">&quot;BLACK&quot;</span>);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a23265b63c17ea7990a7362a4d497d6d9">timer_start_move</a>(is_white_turn);</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✅ Timer started successfully for %s&quot;</span>,</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>             is_white_turn ? <span class="stringliteral">&quot;White&quot;</span> : <span class="stringliteral">&quot;Black&quot;</span>);</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;❌ Failed to start timer for %s: %s&quot;</span>,</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>             is_white_turn ? <span class="stringliteral">&quot;White&quot;</span> : <span class="stringliteral">&quot;Black&quot;</span>, esp_err_to_name(ret));</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>  }</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>}</div>
+</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="foldopen" id="foldopen00064" data-start="{" data-end="}">
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a95937d38b6f9490371d95bd51ec8460c">   64</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a95937d38b6f9490371d95bd51ec8460c">game_end_timer_move</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a89c7235662a4eeb08b1d5e8b77c58492">timer_end_move</a>();</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    ESP_LOGD(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Timer ended for move&quot;</span>);</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  }</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>}</div>
+</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="foldopen" id="foldopen00073" data-start="{" data-end="}">
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a25364833eb80653b4d30414376f3fe35">   73</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a25364833eb80653b4d30414376f3fe35">game_pause_timer</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Timer paused&quot;</span>);</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>  }</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>}</div>
+</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="foldopen" id="foldopen00082" data-start="{" data-end="}">
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="game__timer_8c.html#aa1855cbe07e70ad38d0fbd163e7e9746">   82</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#aa1855cbe07e70ad38d0fbd163e7e9746">game_resume_timer</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a48d538badd51ca6eca88b2f54ae3f7fe">timer_resume</a>();</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Timer resumed&quot;</span>);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>  }</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span> </div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>}</div>
+</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
+<div class="foldopen" id="foldopen00091" data-start="{" data-end="}">
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a0df29c9e5d4723c41477e530799976b0">   91</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a0df29c9e5d4723c41477e530799976b0">game_reset_timer</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#ac52afa2de7a6af69f2f67d86af351a05">timer_reset</a>();</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Timer reset&quot;</span>);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>  }</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>}</div>
+</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="game__timer_8c.html#aac9b313d5314a9f9c948b466052c1e06">  100</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__timer_8c.html#aac9b313d5314a9f9c948b466052c1e06">game_check_timer_timeout</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#aaa24fcf316f295f7a17bf2ff5ed8dd5e">timer_check_timeout</a>(); }</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="foldopen" id="foldopen00102" data-start="{" data-end="}">
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a58b489e87078e33ccf75b35d892bb4fe">  102</a></span>uint32_t <a class="code hl_function" href="game__timer_8c.html#a58b489e87078e33ccf75b35d892bb4fe">game_get_remaining_time</a>(<span class="keywordtype">bool</span> is_white_turn) {</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#a3129dee6f4627aead1732185abca4395">timer_get_remaining_time</a>(is_white_turn);</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>}</div>
+</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
+<div class="foldopen" id="foldopen00106" data-start="{" data-end="}">
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno"><a class="line" href="game__timer_8c.html#af09ae67f3a64e8d2865bac5eb0d7e3ca">  106</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#af09ae67f3a64e8d2865bac5eb0d7e3ca">game_get_timer_state</a>(<a class="code hl_struct" href="structchess__timer__t.html">chess_timer_t</a> *timer_data) {</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keywordflow">if</span> (timer_data == NULL) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Invalid timer_data parameter&quot;</span>);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">return</span> ESP_ERR_INVALID_ARG;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  }</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#a10198b60b509490f91eee1685ba0d980">timer_get_state</a>(timer_data);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>}</div>
+</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
+<div class="foldopen" id="foldopen00115" data-start="{" data-end="}">
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a917f1907b236e1476e75bb033e2a3165">  115</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a917f1907b236e1476e75bb033e2a3165">game_init_timer_system</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>  ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Initializing timer system in game task...&quot;</span>);</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a8ad517573ace8a78289a8305b9acb3ea">timer_system_init</a>();</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Timer system initialized successfully&quot;</span>);</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>  } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to initialize timer system: %s&quot;</span>,</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>             esp_err_to_name(ret));</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  }</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>}</div>
+</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
+<div class="foldopen" id="foldopen00129" data-start="{" data-end="}">
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a7c1b38b6a6342df233fdcafe702b5a0f">  129</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a7c1b38b6a6342df233fdcafe702b5a0f">game_process_timer_command</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd) {</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <span class="keywordflow">if</span> (cmd == NULL) {</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Invalid command parameter&quot;</span>);</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keywordflow">return</span> ESP_ERR_INVALID_ARG;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>  }</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  esp_err_t ret = ESP_OK;</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <span class="keywordflow">switch</span> (cmd-&gt;<a class="code hl_variable" href="structchess__move__command__t.html#a87f810beeb0b0322d2b99c87d5a7c91c">type</a>) {</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003">GAME_CMD_SET_TIME_CONTROL</a>: {</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    <a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a> config;</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    <a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a> type =</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>        (<a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a>)cmd-&gt;<a class="code hl_variable" href="structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a">timer_data</a>.<a class="code hl_variable" href="structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e">timer_config</a>.<a class="code hl_variable" href="structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263">time_control_type</a>;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="keywordflow">if</span> (type == <a class="code hl_enumvalue" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0">TIME_CONTROL_CUSTOM</a>) {</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>      <span class="comment">// Vlastní časová kontrola</span></div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>      ret = <a class="code hl_function" href="timer__system_8h.html#a11ab1bc968801095ba83fad279c4d282">timer_set_custom_time_control</a>(</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>          cmd-&gt;<a class="code hl_variable" href="structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a">timer_data</a>.<a class="code hl_variable" href="structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e">timer_config</a>.<a class="code hl_variable" href="structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75">custom_minutes</a>,</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>          cmd-&gt;<a class="code hl_variable" href="structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a">timer_data</a>.<a class="code hl_variable" href="structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e">timer_config</a>.<a class="code hl_variable" href="structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d">custom_increment</a>);</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>      <span class="comment">// Předdefinovaná časová kontrola</span></div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>      ret = <a class="code hl_function" href="timer__system_8h.html#acc36d1000e481c6d6062135a9f115d40">timer_get_config_by_type</a>(type, &amp;config);</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>      <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>        ret = <a class="code hl_function" href="timer__system_8h.html#a158cdf2baa4bc74c696f82e8c610737d">timer_set_time_control</a>(&amp;config);</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>      }</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    }</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    <span class="keywordflow">if</span> (ret == ESP_OK) {</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>      ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Time control command processed successfully&quot;</span>);</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>      ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to process time control command&quot;</span>);</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    }</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  } <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659">GAME_CMD_PAUSE_TIMER</a>:</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    ret = <a class="code hl_function" href="game__timer_8c.html#a25364833eb80653b4d30414376f3fe35">game_pause_timer</a>();</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a">GAME_CMD_RESUME_TIMER</a>:</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    ret = <a class="code hl_function" href="game__timer_8c.html#aa1855cbe07e70ad38d0fbd163e7e9746">game_resume_timer</a>();</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d">GAME_CMD_RESET_TIMER</a>:</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    ret = <a class="code hl_function" href="game__timer_8c.html#a0df29c9e5d4723c41477e530799976b0">game_reset_timer</a>();</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2">GAME_CMD_GET_TIMER_STATE</a>:</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="comment">// Timer state je získáván přes JSON API</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    ret = ESP_OK;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534">GAME_CMD_TIMER_TIMEOUT</a>:</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    ret = <a class="code hl_function" href="game__timer_8c.html#a3b6831d8d640dff74119ccdb4f9ff9d2">game_handle_time_expiration</a>();</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    ESP_LOGW(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Unknown timer command: %d&quot;</span>, cmd-&gt;<a class="code hl_variable" href="structchess__move__command__t.html#a87f810beeb0b0322d2b99c87d5a7c91c">type</a>);</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    ret = ESP_ERR_INVALID_ARG;</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  }</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>  <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>}</div>
+</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="foldopen" id="foldopen00193" data-start="{" data-end="}">
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a3b6831d8d640dff74119ccdb4f9ff9d2">  193</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a3b6831d8d640dff74119ccdb4f9ff9d2">game_handle_time_expiration</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  ESP_LOGW(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;⏰ Time expired! Handling timeout...&quot;</span>);</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  <span class="comment">// Získat stav timeru</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <a class="code hl_struct" href="structchess__timer__t.html">chess_timer_t</a> timer_data;</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>  esp_err_t ret = <a class="code hl_function" href="timer__system_8h.html#a10198b60b509490f91eee1685ba0d980">timer_get_state</a>(&amp;timer_data);</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>  <span class="keywordflow">if</span> (ret != ESP_OK) {</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Failed to get timer state&quot;</span>);</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordflow">return</span> ret;</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>  }</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="comment">// Určit vítěze</span></div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  <a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> winner = timer_data.<a class="code hl_variable" href="structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae">is_white_turn</a> ? <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e">PLAYER_BLACK</a> : <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>;</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *winner_name = (winner == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;White&quot;</span> : <span class="stringliteral">&quot;Black&quot;</span>;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *loser_name = (winner == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;Black&quot;</span> : <span class="stringliteral">&quot;White&quot;</span>;</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  ESP_LOGW(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🏆 %s wins by timeout! %s ran out of time.&quot;</span>, winner_name,</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>           loser_name);</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>  <span class="comment">// Ukončit hru</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  <a class="code hl_variable" href="game__task_8c.html#a6b5f091d5551e8348e4b43edde98e03f">current_game_state</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  <a class="code hl_variable" href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  <a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a> =</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>      (winner == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602">RESULT_WHITE_WINS</a> : <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990">RESULT_BLACK_WINS</a>;</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>  <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caaf504ae744a15e3a3ec113ff53541df72">ENDGAME_REASON_TIMEOUT</a>; <span class="comment">// Označit jako timeout</span></div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="comment">// Požadavek na endgame report (stejný fix jako u resignation)</span></div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  <a class="code hl_function" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a>(<a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a>);</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <a class="code hl_variable" href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>  <span class="comment">// UNIFIED VICTORY ANIMATION</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  <span class="comment">// Timeout = Winner determined above</span></div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  <a class="code hl_function" href="game__task_8c.html#a8ffc3e4b7385ec855b4098504e6637f6">game_trigger_victory_animation</a>(winner);</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span> </div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>  <span class="comment">// Zobrazit výsledek na LED (použít existující LED funkce)</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  <span class="comment">// led_show_game_result(game_result); // Funkce neexistuje</span></div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>  <span class="comment">// Pozastavit timer</span></div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>  <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>  ESP_LOGI(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Game ended due to timeout. Winner: %s&quot;</span>, winner_name);</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>}</div>
+</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
+<div class="foldopen" id="foldopen00238" data-start="{" data-end="}">
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="game__timer_8c.html#aab2504466c50dfa9455e1414810bc073">  238</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#aab2504466c50dfa9455e1414810bc073">game_update_timer_display</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>  <span class="comment">// Kontrola timeout</span></div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>  <span class="keywordflow">if</span> (<a class="code hl_function" href="timer__system_8h.html#aaa24fcf316f295f7a17bf2ff5ed8dd5e">timer_check_timeout</a>()) {</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>    <span class="keywordflow">return</span> <a class="code hl_function" href="game__timer_8c.html#a3b6831d8d640dff74119ccdb4f9ff9d2">game_handle_time_expiration</a>();</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>  }</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span> </div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>}</div>
+</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span> </div>
+<div class="foldopen" id="foldopen00247" data-start="{" data-end="}">
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a7d42316d2411ec24cc4ccbae29fa3cd9">  247</a></span>uint32_t <a class="code hl_function" href="game__timer_8c.html#a7d42316d2411ec24cc4ccbae29fa3cd9">game_get_available_time_controls</a>(<a class="code hl_struct" href="structtime__control__config__t.html">time_control_config_t</a> *controls,</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>                                          uint32_t max_count) {</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>  <span class="keywordflow">if</span> (controls == NULL || max_count == 0) {</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>  }</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#a737397401ab70e21a2979653e14837e6">timer_get_available_controls</a>(controls, max_count);</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>}</div>
+</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span> </div>
+<div class="foldopen" id="foldopen00256" data-start="{" data-end="}">
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a66ce03930668ef5869101bef9e2a8474">  256</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#a66ce03930668ef5869101bef9e2a8474">game_set_custom_time_control</a>(uint32_t minutes,</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>                                       uint32_t increment_seconds) {</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#a11ab1bc968801095ba83fad279c4d282">timer_set_custom_time_control</a>(minutes, increment_seconds);</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>}</div>
+</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span> </div>
+<div class="foldopen" id="foldopen00261" data-start="{" data-end="}">
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno"><a class="line" href="game__timer_8c.html#af61ca7975c281efd16bd95628b65bd5e">  261</a></span>esp_err_t <a class="code hl_function" href="game__timer_8c.html#af61ca7975c281efd16bd95628b65bd5e">game_get_timer_stats</a>(uint32_t *total_moves, uint32_t *avg_move_time) {</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>  <span class="keywordflow">if</span> (total_moves == NULL || avg_move_time == NULL) {</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>    ESP_LOGE(<a class="code hl_variable" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;Invalid parameters&quot;</span>);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>    <span class="keywordflow">return</span> ESP_ERR_INVALID_ARG;</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>  }</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>  *total_moves = <a class="code hl_function" href="timer__system_8h.html#a1e23fdb509bdce625a0de3e5ce093fba">timer_get_total_moves</a>();</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>  *avg_move_time = <a class="code hl_function" href="timer__system_8h.html#a918dfb50c8da934336dc81cf36c28a08">timer_get_average_move_time</a>();</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>  <span class="keywordflow">return</span> ESP_OK;</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>}</div>
+</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a2f01e5a8d282157e3cd8bd5a03b9c8b5">  273</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__timer_8c.html#a2f01e5a8d282157e3cd8bd5a03b9c8b5">game_is_timer_active</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#a0812f137aa77d3f66c950c1b98505e20">timer_is_active</a>(); }</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span> </div>
+<div class="foldopen" id="foldopen00275" data-start="{" data-end="}">
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno"><a class="line" href="game__timer_8c.html#a7fb22aa3cdacc593dccf7d95db908750">  275</a></span><a class="code hl_enumeration" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a> <a class="code hl_function" href="game__timer_8c.html#a7fb22aa3cdacc593dccf7d95db908750">game_get_current_time_control_type</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="timer__system_8h.html#af9ad41921ea1477b929f7dd703b71adc">timer_get_current_type</a>();</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>}</div>
+</div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a></div><div class="ttdeci">player_t</div><div class="ttdoc">Definice hracu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00097">chess_types.h:97</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a></div><div class="ttdeci">@ PLAYER_WHITE</div><div class="ttdoc">Bily hrac.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00098">chess_types.h:98</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e">PLAYER_BLACK</a></div><div class="ttdeci">@ PLAYER_BLACK</div><div class="ttdoc">Cerny hrac.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00100">chess_types.h:99</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990">RESULT_BLACK_WINS</a></div><div class="ttdeci">@ RESULT_BLACK_WINS</div><div class="ttdoc">Cerny vitezi.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00109">chess_types.h:109</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602">RESULT_WHITE_WINS</a></div><div class="ttdeci">@ RESULT_WHITE_WINS</div><div class="ttdoc">Bily vitezi.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00108">chess_types.h:108</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c"><div class="ttname"><a href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c">GAME_STATE_ACTIVE</a></div><div class="ttdeci">@ GAME_STATE_ACTIVE</div><div class="ttdoc">Aktivni hra.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00081">chess_types.h:81</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2"><div class="ttname"><a href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a></div><div class="ttdeci">@ GAME_STATE_FINISHED</div><div class="ttdoc">Ukoncena hra.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00083">chess_types.h:83</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659"><div class="ttname"><a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659">GAME_CMD_PAUSE_TIMER</a></div><div class="ttdeci">@ GAME_CMD_PAUSE_TIMER</div><div class="ttdoc">Pozastav timer.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00287">chess_types.h:287</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003"><div class="ttname"><a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003">GAME_CMD_SET_TIME_CONTROL</a></div><div class="ttdeci">@ GAME_CMD_SET_TIME_CONTROL</div><div class="ttdoc">Nastav casovou kontrolu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00286">chess_types.h:286</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534"><div class="ttname"><a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534">GAME_CMD_TIMER_TIMEOUT</a></div><div class="ttdeci">@ GAME_CMD_TIMER_TIMEOUT</div><div class="ttdoc">Vyprseni casoveho limitu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00291">chess_types.h:291</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a"><div class="ttname"><a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a">GAME_CMD_RESUME_TIMER</a></div><div class="ttdeci">@ GAME_CMD_RESUME_TIMER</div><div class="ttdoc">Obnov timer.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00288">chess_types.h:288</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2"><div class="ttname"><a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2">GAME_CMD_GET_TIMER_STATE</a></div><div class="ttdeci">@ GAME_CMD_GET_TIMER_STATE</div><div class="ttdoc">Ziskej stav timeru.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00290">chess_types.h:290</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d"><div class="ttname"><a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d">GAME_CMD_RESET_TIMER</a></div><div class="ttdeci">@ GAME_CMD_RESET_TIMER</div><div class="ttdoc">Resetuj timer.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00289">chess_types.h:289</a></div></div>
+<div class="ttc" id="afreertos__chess_8h_html"><div class="ttname"><a href="freertos__chess_8h.html">freertos_chess.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Hlavni systemova hlavicka.</div></div>
+<div class="ttc" id="agame__endgame__report_8c_html_a9b4cb898b4bc25bca38d4533fc6ff025"><div class="ttname"><a href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a></div><div class="ttdeci">void game_update_endgame_statistics(game_result_type_t result_type)</div><div class="ttdoc">Update endgame statistics (centralized function)</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__report_8c_source.html#l00027">game_endgame_report.c:27</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a39560fbeaa9a251526561b4f2a86eac1"><div class="ttname"><a href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a></div><div class="ttdeci">player_t current_player</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00259">game_task.c:259</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a4276036f284fa3441e791279608a4ffa"><div class="ttname"><a href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a></div><div class="ttdeci">game_result_type_t current_result_type</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00637">game_task.c:637</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a5e3dc04c60e763a8338084ef2d20d34f"><div class="ttname"><a href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a></div><div class="ttdeci">game_state_t game_result</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00636">game_task.c:636</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a6b5f091d5551e8348e4b43edde98e03f"><div class="ttname"><a href="game__task_8c.html#a6b5f091d5551e8348e4b43edde98e03f">current_game_state</a></div><div class="ttdeci">game_state_t current_game_state</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00258">game_task.c:258</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a8ffc3e4b7385ec855b4098504e6637f6"><div class="ttname"><a href="game__task_8c.html#a8ffc3e4b7385ec855b4098504e6637f6">game_trigger_victory_animation</a></div><div class="ttdeci">void game_trigger_victory_animation(player_t winner)</div><div class="ttdoc">Trigger unified victory animation (Wave from Winner King - Green/Red/Blue)</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l01906">game_task.c:1906</a></div></div>
+<div class="ttc" id="agame__task_8c_html_ada50d1ec543170004c480c898a2718c6"><div class="ttname"><a href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a></div><div class="ttdeci">bool endgame_report_requested</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00459">game_task.c:459</a></div></div>
+<div class="ttc" id="agame__task_8c_html_adef591657b12c25bdfa613166b89f076"><div class="ttname"><a href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a></div><div class="ttdeci">endgame_reason_t current_endgame_reason</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00461">game_task.c:461</a></div></div>
+<div class="ttc" id="agame__task_8h_html"><div class="ttname"><a href="game__task_8h.html">game_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Game Task Hlavicka.</div></div>
+<div class="ttc" id="agame__task__internal_8h_html"><div class="ttname"><a href="game__task__internal_8h.html">game_task_internal.h</a></div><div class="ttdoc">Internal API between game_task.c and sibling source files in this component.</div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caaf504ae744a15e3a3ec113ff53541df72"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caaf504ae744a15e3a3ec113ff53541df72">ENDGAME_REASON_TIMEOUT</a></div><div class="ttdeci">@ ENDGAME_REASON_TIMEOUT</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00075">game_task_internal.h:75</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a0df29c9e5d4723c41477e530799976b0"><div class="ttname"><a href="game__timer_8c.html#a0df29c9e5d4723c41477e530799976b0">game_reset_timer</a></div><div class="ttdeci">esp_err_t game_reset_timer(void)</div><div class="ttdoc">Resetuj herni timer.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00091">game_timer.c:91</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a25364833eb80653b4d30414376f3fe35"><div class="ttname"><a href="game__timer_8c.html#a25364833eb80653b4d30414376f3fe35">game_pause_timer</a></div><div class="ttdeci">esp_err_t game_pause_timer(void)</div><div class="ttdoc">Pozastav herni timer.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00073">game_timer.c:73</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a2f01e5a8d282157e3cd8bd5a03b9c8b5"><div class="ttname"><a href="game__timer_8c.html#a2f01e5a8d282157e3cd8bd5a03b9c8b5">game_is_timer_active</a></div><div class="ttdeci">bool game_is_timer_active(void)</div><div class="ttdoc">Overi zda je timer aktivni.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00273">game_timer.c:273</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a3784bb9de91bf60f6bff17c25c220c37"><div class="ttname"><a href="game__timer_8c.html#a3784bb9de91bf60f6bff17c25c220c37">game_set_time_control</a></div><div class="ttdeci">esp_err_t game_set_time_control(const time_control_config_t *config)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00022">game_timer.c:22</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a3b6831d8d640dff74119ccdb4f9ff9d2"><div class="ttname"><a href="game__timer_8c.html#a3b6831d8d640dff74119ccdb4f9ff9d2">game_handle_time_expiration</a></div><div class="ttdeci">esp_err_t game_handle_time_expiration(void)</div><div class="ttdoc">Zpracuj vyprseni casu.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00193">game_timer.c:193</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a58b489e87078e33ccf75b35d892bb4fe"><div class="ttname"><a href="game__timer_8c.html#a58b489e87078e33ccf75b35d892bb4fe">game_get_remaining_time</a></div><div class="ttdeci">uint32_t game_get_remaining_time(bool is_white_turn)</div><div class="ttdoc">Ziskej zbyvajici cas hrace.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00102">game_timer.c:102</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00015">game_timer.c:15</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a66ce03930668ef5869101bef9e2a8474"><div class="ttname"><a href="game__timer_8c.html#a66ce03930668ef5869101bef9e2a8474">game_set_custom_time_control</a></div><div class="ttdeci">esp_err_t game_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00256">game_timer.c:256</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a76220c211d4e21aa36ac90a00761f698"><div class="ttname"><a href="game__timer_8c.html#a76220c211d4e21aa36ac90a00761f698">game_start_timer_move</a></div><div class="ttdeci">esp_err_t game_start_timer_move(bool is_white_turn)</div><div class="ttdoc">Spust timer pro tah aktualniho hrace.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00046">game_timer.c:46</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a7c1b38b6a6342df233fdcafe702b5a0f"><div class="ttname"><a href="game__timer_8c.html#a7c1b38b6a6342df233fdcafe702b5a0f">game_process_timer_command</a></div><div class="ttdeci">esp_err_t game_process_timer_command(const chess_move_command_t *cmd)</div><div class="ttdoc">Zpracuj timer prikazy z fronty.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00129">game_timer.c:129</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a7d42316d2411ec24cc4ccbae29fa3cd9"><div class="ttname"><a href="game__timer_8c.html#a7d42316d2411ec24cc4ccbae29fa3cd9">game_get_available_time_controls</a></div><div class="ttdeci">uint32_t game_get_available_time_controls(time_control_config_t *controls, uint32_t max_count)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00247">game_timer.c:247</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a7fb22aa3cdacc593dccf7d95db908750"><div class="ttname"><a href="game__timer_8c.html#a7fb22aa3cdacc593dccf7d95db908750">game_get_current_time_control_type</a></div><div class="ttdeci">time_control_type_t game_get_current_time_control_type(void)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00275">game_timer.c:275</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a917f1907b236e1476e75bb033e2a3165"><div class="ttname"><a href="game__timer_8c.html#a917f1907b236e1476e75bb033e2a3165">game_init_timer_system</a></div><div class="ttdeci">esp_err_t game_init_timer_system(void)</div><div class="ttdoc">Inicializuj timer system v game tasku.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00115">game_timer.c:115</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_a95937d38b6f9490371d95bd51ec8460c"><div class="ttname"><a href="game__timer_8c.html#a95937d38b6f9490371d95bd51ec8460c">game_end_timer_move</a></div><div class="ttdeci">esp_err_t game_end_timer_move(void)</div><div class="ttdoc">Ukonci timer pro tah.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00064">game_timer.c:64</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_aa1855cbe07e70ad38d0fbd163e7e9746"><div class="ttname"><a href="game__timer_8c.html#aa1855cbe07e70ad38d0fbd163e7e9746">game_resume_timer</a></div><div class="ttdeci">esp_err_t game_resume_timer(void)</div><div class="ttdoc">Obnov herni timer.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00082">game_timer.c:82</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_aab2504466c50dfa9455e1414810bc073"><div class="ttname"><a href="game__timer_8c.html#aab2504466c50dfa9455e1414810bc073">game_update_timer_display</a></div><div class="ttdeci">esp_err_t game_update_timer_display(void)</div><div class="ttdoc">Aktualizuj zobrazeni timeru a overi varovani.</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00238">game_timer.c:238</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_aac9b313d5314a9f9c948b466052c1e06"><div class="ttname"><a href="game__timer_8c.html#aac9b313d5314a9f9c948b466052c1e06">game_check_timer_timeout</a></div><div class="ttdeci">bool game_check_timer_timeout(void)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00100">game_timer.c:100</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_af09ae67f3a64e8d2865bac5eb0d7e3ca"><div class="ttname"><a href="game__timer_8c.html#af09ae67f3a64e8d2865bac5eb0d7e3ca">game_get_timer_state</a></div><div class="ttdeci">esp_err_t game_get_timer_state(chess_timer_t *timer_data)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00106">game_timer.c:106</a></div></div>
+<div class="ttc" id="agame__timer_8c_html_af61ca7975c281efd16bd95628b65bd5e"><div class="ttname"><a href="game__timer_8c.html#af61ca7975c281efd16bd95628b65bd5e">game_get_timer_stats</a></div><div class="ttdeci">esp_err_t game_get_timer_stats(uint32_t *total_moves, uint32_t *avg_move_time)</div><div class="ttdef"><b>Definition</b> <a href="game__timer_8c_source.html#l00261">game_timer.c:261</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html"><div class="ttname"><a href="structchess__move__command__t.html">chess_move_command_t</a></div><div class="ttdoc">Struktura prikazu pro sachovy tah pres UART.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00309">chess_types.h:309</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html_a19b5d713be6ea325b1121180f0382263"><div class="ttname"><a href="structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263">chess_move_command_t::time_control_type</a></div><div class="ttdeci">uint8_t time_control_type</div><div class="ttdoc">Typ casove kontroly (pro GAME_CMD_SET_TIME_CONTROL)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00323">chess_types.h:323</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html_a87f810beeb0b0322d2b99c87d5a7c91c"><div class="ttname"><a href="structchess__move__command__t.html#a87f810beeb0b0322d2b99c87d5a7c91c">chess_move_command_t::type</a></div><div class="ttdeci">uint8_t type</div><div class="ttdoc">Typ prikazu (game_command_type_t)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00310">chess_types.h:310</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html_aa66efcd3b24e2c130ede000aca79466d"><div class="ttname"><a href="structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d">chess_move_command_t::custom_increment</a></div><div class="ttdeci">uint32_t custom_increment</div><div class="ttdoc">Vlastni increment (pro vlastni casovou kontrolu)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00327">chess_types.h:327</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html_ab1469d3613ac521e6521da4c7fabad75"><div class="ttname"><a href="structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75">chess_move_command_t::custom_minutes</a></div><div class="ttdeci">uint32_t custom_minutes</div><div class="ttdoc">Vlastni minuty (pro vlastni casovou kontrolu)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00326">chess_types.h:326</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html_abc20d01f1671fc29d42d4d8db0db995a"><div class="ttname"><a href="structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a">chess_move_command_t::timer_data</a></div><div class="ttdeci">union chess_move_command_t::@2 timer_data</div><div class="ttdoc">Union pro timer data.</div></div>
+<div class="ttc" id="astructchess__move__command__t_html_ae11cf70c150b12252583c69cf68c4f5e"><div class="ttname"><a href="structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e">chess_move_command_t::timer_config</a></div><div class="ttdeci">struct chess_move_command_t::@2::@3 timer_config</div><div class="ttdoc">Konfigurace timeru.</div></div>
+<div class="ttc" id="astructchess__timer__t_html"><div class="ttname"><a href="structchess__timer__t.html">chess_timer_t</a></div><div class="ttdoc">Stav casoveho systemu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8h_source.html#l00074">timer_system.h:74</a></div></div>
+<div class="ttc" id="astructchess__timer__t_html_a5fbbe88e66de5ea14c6570f5526a39ae"><div class="ttname"><a href="structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae">chess_timer_t::is_white_turn</a></div><div class="ttdeci">bool is_white_turn</div><div class="ttdoc">Je-li na tahu bily.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8h_source.html#l00083">timer_system.h:83</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html"><div class="ttname"><a href="structtime__control__config__t.html">time_control_config_t</a></div><div class="ttdoc">Konfigurace casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8h_source.html#l00062">timer_system.h:62</a></div></div>
+<div class="ttc" id="astructtime__control__config__t_html_ac5f05a43dfc9af7383b21d26235c8425"><div class="ttname"><a href="structtime__control__config__t.html#ac5f05a43dfc9af7383b21d26235c8425">time_control_config_t::name</a></div><div class="ttdeci">char name[32]</div><div class="ttdoc">Nazev casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8h_source.html#l00066">timer_system.h:66</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a0812f137aa77d3f66c950c1b98505e20"><div class="ttname"><a href="timer__system_8h.html#a0812f137aa77d3f66c950c1b98505e20">timer_is_active</a></div><div class="ttdeci">bool timer_is_active(void)</div><div class="ttdoc">Kontroluje zda je casova kontrola aktivni.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00836">timer_system.c:836</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a10198b60b509490f91eee1685ba0d980"><div class="ttname"><a href="timer__system_8h.html#a10198b60b509490f91eee1685ba0d980">timer_get_state</a></div><div class="ttdeci">esp_err_t timer_get_state(chess_timer_t *timer_data)</div><div class="ttdoc">Ziska aktualni stav timeru.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00519">timer_system.c:519</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a11ab1bc968801095ba83fad279c4d282"><div class="ttname"><a href="timer__system_8h.html#a11ab1bc968801095ba83fad279c4d282">timer_set_custom_time_control</a></div><div class="ttdeci">esp_err_t timer_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds)</div><div class="ttdoc">Nastavi vlastni casovou kontrolu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00864">timer_system.c:864</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a158cdf2baa4bc74c696f82e8c610737d"><div class="ttname"><a href="timer__system_8h.html#a158cdf2baa4bc74c696f82e8c610737d">timer_set_time_control</a></div><div class="ttdeci">esp_err_t timer_set_time_control(const time_control_config_t *config)</div><div class="ttdoc">Nastavi casovou kontrolu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00193">timer_system.c:193</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a1e23fdb509bdce625a0de3e5ce093fba"><div class="ttname"><a href="timer__system_8h.html#a1e23fdb509bdce625a0de3e5ce093fba">timer_get_total_moves</a></div><div class="ttdeci">uint32_t timer_get_total_moves(void)</div><div class="ttdoc">Ziska celkovy pocet tahu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00822">timer_system.c:822</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a23265b63c17ea7990a7362a4d497d6d9"><div class="ttname"><a href="timer__system_8h.html#a23265b63c17ea7990a7362a4d497d6d9">timer_start_move</a></div><div class="ttdeci">esp_err_t timer_start_move(bool is_white_turn)</div><div class="ttdoc">Spusti timer pro tah.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00237">timer_system.c:237</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a3129dee6f4627aead1732185abca4395"><div class="ttname"><a href="timer__system_8h.html#a3129dee6f4627aead1732185abca4395">timer_get_remaining_time</a></div><div class="ttdeci">uint32_t timer_get_remaining_time(bool is_white_turn)</div><div class="ttdoc">Ziska zbyvajici cas pro hrace.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00574">timer_system.c:574</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a48d538badd51ca6eca88b2f54ae3f7fe"><div class="ttname"><a href="timer__system_8h.html#a48d538badd51ca6eca88b2f54ae3f7fe">timer_resume</a></div><div class="ttdeci">esp_err_t timer_resume(void)</div><div class="ttdoc">Obnovi timer.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00381">timer_system.c:381</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a></div><div class="ttdeci">time_control_type_t</div><div class="ttdoc">Typy casovych kontrol.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8h_source.html#l00040">timer_system.h:40</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0"><div class="ttname"><a href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97ad913e6fe488ef15d0d74676c2f09cef0">TIME_CONTROL_CUSTOM</a></div><div class="ttdeci">@ TIME_CONTROL_CUSTOM</div><div class="ttdoc">Vlastni nastaveni.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8h_source.html#l00055">timer_system.h:55</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a66030ee8356a62eed7bbe0717cbd5f22"><div class="ttname"><a href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a></div><div class="ttdeci">esp_err_t timer_pause(void)</div><div class="ttdoc">Pozastavi timer.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00352">timer_system.c:352</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a737397401ab70e21a2979653e14837e6"><div class="ttname"><a href="timer__system_8h.html#a737397401ab70e21a2979653e14837e6">timer_get_available_controls</a></div><div class="ttdeci">uint32_t timer_get_available_controls(time_control_config_t *controls, uint32_t max_count)</div><div class="ttdoc">Ziska seznam dostupnych casovych kontrol.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00690">timer_system.c:690</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a89c7235662a4eeb08b1d5e8b77c58492"><div class="ttname"><a href="timer__system_8h.html#a89c7235662a4eeb08b1d5e8b77c58492">timer_end_move</a></div><div class="ttdeci">esp_err_t timer_end_move(void)</div><div class="ttdoc">Ukonci tah a prida increment.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00278">timer_system.c:278</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a8ad517573ace8a78289a8305b9acb3ea"><div class="ttname"><a href="timer__system_8h.html#a8ad517573ace8a78289a8305b9acb3ea">timer_system_init</a></div><div class="ttdeci">esp_err_t timer_system_init(void)</div><div class="ttdoc">Inicializuje timer system.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00164">timer_system.c:164</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a918dfb50c8da934336dc81cf36c28a08"><div class="ttname"><a href="timer__system_8h.html#a918dfb50c8da934336dc81cf36c28a08">timer_get_average_move_time</a></div><div class="ttdeci">uint32_t timer_get_average_move_time(void)</div><div class="ttdoc">Ziska prumerny cas na tah.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00808">timer_system.c:808</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_aaa24fcf316f295f7a17bf2ff5ed8dd5e"><div class="ttname"><a href="timer__system_8h.html#aaa24fcf316f295f7a17bf2ff5ed8dd5e">timer_check_timeout</a></div><div class="ttdeci">bool timer_check_timeout(void)</div><div class="ttdoc">Kontroluje vyprseni casu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00444">timer_system.c:444</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_ac52afa2de7a6af69f2f67d86af351a05"><div class="ttname"><a href="timer__system_8h.html#ac52afa2de7a6af69f2f67d86af351a05">timer_reset</a></div><div class="ttdeci">esp_err_t timer_reset(void)</div><div class="ttdoc">Resetuje timer na pocatecni hodnoty.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00415">timer_system.c:415</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_acc36d1000e481c6d6062135a9f115d40"><div class="ttname"><a href="timer__system_8h.html#acc36d1000e481c6d6062135a9f115d40">timer_get_config_by_type</a></div><div class="ttdeci">esp_err_t timer_get_config_by_type(time_control_type_t type, time_control_config_t *config)</div><div class="ttdoc">Ziska konfiguraci casove kontroly podle typu.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00604">timer_system.c:604</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_af9ad41921ea1477b929f7dd703b71adc"><div class="ttname"><a href="timer__system_8h.html#af9ad41921ea1477b929f7dd703b71adc">timer_get_current_type</a></div><div class="ttdeci">time_control_type_t timer_get_current_type(void)</div><div class="ttdoc">Ziska typ aktualni casove kontroly.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00850">timer_system.c:850</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__timer_8c.html">game_timer.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

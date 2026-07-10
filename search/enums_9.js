@@ -3,5 +3,5 @@ var searchData=
   ['piece_5ft_0',['piece_t',['../chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2',1,'chess_types.h']]],
   ['player_5ft_1',['player_t',['../chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1',1,'chess_types.h']]],
   ['promotion_5fchoice_5ft_2',['promotion_choice_t',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237',1,'chess_types.h']]],
-  ['puzzle_5ffeedback_5ft_3',['puzzle_feedback_t',['../game__task_8c.html#a3d8b7bd72f649980cf9a4432e3523705',1,'game_task.c']]]
+  ['puzzle_5ffeedback_5ft_3',['puzzle_feedback_t',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705',1,'game_task_internal.h']]]
 ];

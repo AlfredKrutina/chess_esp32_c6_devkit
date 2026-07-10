@@ -1,0 +1,716 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_timer.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__timer_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_timer.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Timer system integration wrappers and timeout handling.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;../../timer_system/include/timer_system.h&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_timer.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__timer_8c__incl.png" border="0" usemap="#agame__timer_8c" alt=""/></div>
+<map name="agame__timer_8c" id="agame__timer_8c">
+<area shape="rect" title="Timer system integration wrappers and timeout handling." alt="" coords="838,5,949,31"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="631,86,793,111"/>
+<area shape="poly" title=" " alt="" coords="868,33,752,83,750,78,866,28"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="428,167,535,192"/>
+<area shape="poly" title=" " alt="" coords="838,27,734,45,676,60,620,81,587,98,555,119,505,159,502,155,552,115,584,94,617,76,674,55,733,40,837,22"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="977,167,1106,192"/>
+<area shape="poly" title=" " alt="" coords="885,32,870,50,858,73,852,96,853,107,858,117,879,138,905,154,934,165,964,171,962,176,933,170,903,159,876,143,854,120,848,108,846,96,853,71,866,47,880,29"/>
+<area shape="rect" title=" " alt="" coords="868,79,1047,119"/>
+<area shape="poly" title=" " alt="" coords="905,29,935,66,931,70,901,33"/>
+<area shape="rect" title=" " alt="" coords="1071,86,1155,111"/>
+<area shape="poly" title=" " alt="" coords="926,28,1069,79,1067,84,924,33"/>
+<area shape="rect" title=" " alt="" coords="1180,86,1279,111"/>
+<area shape="poly" title=" " alt="" coords="949,27,1052,48,1169,76,1181,80,1180,85,1167,81,1050,54,948,33"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="253,247,368,273"/>
+<area shape="poly" title=" " alt="" coords="631,110,526,130,470,147,417,169,369,203,331,239,327,235,365,198,415,164,468,142,525,125,630,105"/>
+<area shape="rect" title=" " alt="" coords="1013,328,1163,353"/>
+<area shape="poly" title=" " alt="" coords="793,109,856,116,992,119,1218,122,1336,126,1440,134,1520,146,1548,154,1564,165,1585,193,1592,223,1586,252,1567,282,1548,293,1513,302,1411,318,1177,337,1177,332,1410,312,1512,297,1546,288,1563,278,1581,250,1587,223,1580,195,1561,169,1545,159,1519,151,1440,139,1335,131,1218,127,992,124,856,121,792,114"/>
+<area shape="rect" title=" " alt="" coords="730,328,859,353"/>
+<area shape="poly" title=" " alt="" coords="793,109,856,116,987,119,1205,122,1318,126,1419,134,1496,146,1522,155,1538,165,1558,194,1564,223,1558,253,1537,282,1455,295,1271,310,874,337,873,332,1271,305,1454,289,1534,278,1553,251,1559,223,1553,196,1534,169,1519,160,1494,152,1418,139,1318,132,1205,127,987,124,856,121,793,114"/>
+<area shape="rect" title=" " alt="" coords="364,328,447,353"/>
+<area shape="poly" title=" " alt="" coords="791,109,1206,173,1401,210,1464,225,1494,238,1503,260,1501,271,1493,282,1452,290,1354,298,1052,315,461,340,461,335,1052,310,1354,293,1451,285,1490,278,1496,269,1498,261,1490,242,1462,230,1400,215,1205,179,790,114"/>
+<area shape="rect" title=" " alt="" coords="105,328,175,353"/>
+<area shape="poly" title=" " alt="" coords="630,107,474,119,288,143,199,161,119,183,56,210,33,225,15,242,10,251,8,259,16,279,30,296,49,310,92,327,90,332,47,314,27,300,11,281,3,260,5,249,11,238,29,221,54,205,118,178,197,155,287,138,474,113,630,101"/>
+<area shape="rect" title=" " alt="" coords="545,247,682,273"/>
+<area shape="poly" title=" " alt="" coords="707,113,630,237,626,234,703,110"/>
+<area shape="rect" title=" " alt="" coords="707,247,837,273"/>
+<area shape="poly" title=" " alt="" coords="719,110,765,233,760,235,714,112"/>
+<area shape="poly" title=" " alt="" coords="679,114,529,165,527,160,678,109"/>
+<area shape="rect" title=" " alt="" coords="229,328,310,353"/>
+<area shape="poly" title=" " alt="" coords="307,274,284,317,279,315,302,272"/>
+<area shape="poly" title=" " alt="" coords="368,265,488,277,999,328,998,333,488,283,368,270"/>
+<area shape="poly" title=" " alt="" coords="368,268,717,324,716,329,368,273"/>
+<area shape="poly" title=" " alt="" coords="326,271,382,317,379,321,323,275"/>
+<area shape="poly" title=" " alt="" coords="287,275,178,325,176,320,285,270"/>
+<area shape="poly" title=" " alt="" coords="458,194,349,244,347,239,455,190"/>
+<area shape="poly" title=" " alt="" coords="428,182,329,183,212,191,156,198,106,209,66,223,40,242,35,251,33,259,41,278,63,289,107,302,216,326,215,332,106,308,61,294,37,282,27,260,30,249,37,238,64,219,105,204,155,193,212,185,329,178,427,177"/>
+<area shape="poly" title=" " alt="" coords="486,191,500,235,514,259,533,278,557,287,600,296,724,311,999,332,999,337,724,316,600,301,556,292,530,282,510,262,495,237,481,193"/>
+<area shape="poly" title=" " alt="" coords="481,192,476,234,479,258,490,278,504,289,526,299,583,315,651,326,716,332,716,337,650,331,582,320,524,304,501,294,486,282,474,260,470,235,475,192"/>
+<area shape="poly" title=" " alt="" coords="473,194,456,215,440,241,424,280,413,315,408,314,419,278,435,239,452,212,469,191"/>
+<area shape="poly" title=" " alt="" coords="428,186,194,206,84,222,46,232,27,242,21,251,20,259,28,279,40,294,56,307,93,325,91,330,53,312,36,298,23,281,15,260,16,249,23,238,44,227,83,217,193,201,428,181"/>
+<area shape="poly" title=" " alt="" coords="502,190,584,238,581,243,499,194"/>
+<area shape="poly" title=" " alt="" coords="524,189,717,241,716,246,523,195"/>
+<area shape="rect" title=" " alt="" coords="861,247,979,273"/>
+<area shape="poly" title=" " alt="" coords="536,185,678,206,850,237,867,241,866,247,849,243,677,211,535,190"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="51,240,229,280"/>
+<area shape="poly" title=" " alt="" coords="432,195,236,239,235,234,431,189"/>
+<area shape="poly" title=" " alt="" coords="173,278,240,319,237,323,170,282"/>
+<area shape="poly" title=" " alt="" coords="204,277,354,321,352,327,203,283"/>
+<area shape="poly" title=" " alt="" coords="143,280,143,314,137,314,137,280"/>
+<area shape="poly" title=" " alt="" coords="977,190,382,254,381,248,976,185"/>
+<area shape="poly" title=" " alt="" coords="1047,192,1053,235,1049,260,1036,282,1020,292,994,300,916,312,815,319,702,324,483,327,352,331,324,334,323,329,352,325,483,322,701,319,815,314,916,306,992,295,1018,287,1033,278,1044,259,1048,235,1042,193"/>
+<area shape="poly" title=" " alt="" coords="1107,188,1152,206,1172,220,1189,239,1196,260,1189,281,1166,307,1138,325,1135,320,1163,303,1184,279,1191,260,1184,241,1169,224,1149,210,1105,193"/>
+<area shape="poly" title=" " alt="" coords="1077,190,1110,209,1126,222,1138,239,1146,260,1144,271,1138,282,1120,296,1094,307,1026,324,948,334,873,340,873,334,947,329,1025,319,1093,302,1117,291,1134,278,1139,269,1141,261,1134,241,1122,226,1107,213,1074,194"/>
+<area shape="poly" title=" " alt="" coords="1056,191,1073,209,1089,233,1096,258,1094,270,1087,282,1059,291,1001,300,824,316,460,339,460,334,824,311,1001,295,1058,286,1084,278,1089,269,1091,258,1084,235,1069,213,1052,194"/>
+<area shape="poly" title=" " alt="" coords="1042,193,1027,238,1013,262,992,282,972,291,941,298,851,309,608,321,363,326,216,331,189,334,189,329,216,325,363,321,608,316,851,304,940,293,970,286,989,278,1009,259,1022,236,1037,192"/>
+<area shape="poly" title=" " alt="" coords="977,193,695,243,675,247,673,242,694,237,976,188"/>
+<area shape="poly" title=" " alt="" coords="1003,195,825,246,823,241,1001,189"/>
+<area shape="poly" title=" " alt="" coords="1025,194,951,242,948,238,1022,190"/>
+<area shape="rect" title=" " alt="" coords="1256,247,1352,273"/>
+<area shape="poly" title=" " alt="" coords="1080,189,1253,241,1252,246,1079,195"/>
+<area shape="rect" title=" " alt="" coords="1376,247,1480,273"/>
+<area shape="poly" title=" " alt="" coords="1106,188,1227,209,1365,237,1379,241,1377,246,1363,243,1226,214,1105,193"/>
+</map>
+</div>
+</div>
+<p><a href="game__timer_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a3784bb9de91bf60f6bff17c25c220c37" id="r_a3784bb9de91bf60f6bff17c25c220c37"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a3784bb9de91bf60f6bff17c25c220c37">game_set_time_control</a> (const <a class="el" href="structtime__control__config__t.html">time_control_config_t</a> *config)</td></tr>
+<tr class="separator:a3784bb9de91bf60f6bff17c25c220c37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76220c211d4e21aa36ac90a00761f698" id="r_a76220c211d4e21aa36ac90a00761f698"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a76220c211d4e21aa36ac90a00761f698">game_start_timer_move</a> (bool is_white_turn)</td></tr>
+<tr class="memdesc:a76220c211d4e21aa36ac90a00761f698"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spust timer pro tah aktualniho hrace.  <br /></td></tr>
+<tr class="separator:a76220c211d4e21aa36ac90a00761f698"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95937d38b6f9490371d95bd51ec8460c" id="r_a95937d38b6f9490371d95bd51ec8460c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a95937d38b6f9490371d95bd51ec8460c">game_end_timer_move</a> (void)</td></tr>
+<tr class="memdesc:a95937d38b6f9490371d95bd51ec8460c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ukonci timer pro tah.  <br /></td></tr>
+<tr class="separator:a95937d38b6f9490371d95bd51ec8460c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25364833eb80653b4d30414376f3fe35" id="r_a25364833eb80653b4d30414376f3fe35"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a25364833eb80653b4d30414376f3fe35">game_pause_timer</a> (void)</td></tr>
+<tr class="memdesc:a25364833eb80653b4d30414376f3fe35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pozastav herni timer.  <br /></td></tr>
+<tr class="separator:a25364833eb80653b4d30414376f3fe35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1855cbe07e70ad38d0fbd163e7e9746" id="r_aa1855cbe07e70ad38d0fbd163e7e9746"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#aa1855cbe07e70ad38d0fbd163e7e9746">game_resume_timer</a> (void)</td></tr>
+<tr class="memdesc:aa1855cbe07e70ad38d0fbd163e7e9746"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obnov herni timer.  <br /></td></tr>
+<tr class="separator:aa1855cbe07e70ad38d0fbd163e7e9746"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0df29c9e5d4723c41477e530799976b0" id="r_a0df29c9e5d4723c41477e530799976b0"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a0df29c9e5d4723c41477e530799976b0">game_reset_timer</a> (void)</td></tr>
+<tr class="memdesc:a0df29c9e5d4723c41477e530799976b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuj herni timer.  <br /></td></tr>
+<tr class="separator:a0df29c9e5d4723c41477e530799976b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac9b313d5314a9f9c948b466052c1e06" id="r_aac9b313d5314a9f9c948b466052c1e06"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#aac9b313d5314a9f9c948b466052c1e06">game_check_timer_timeout</a> (void)</td></tr>
+<tr class="separator:aac9b313d5314a9f9c948b466052c1e06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58b489e87078e33ccf75b35d892bb4fe" id="r_a58b489e87078e33ccf75b35d892bb4fe"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a58b489e87078e33ccf75b35d892bb4fe">game_get_remaining_time</a> (bool is_white_turn)</td></tr>
+<tr class="memdesc:a58b489e87078e33ccf75b35d892bb4fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej zbyvajici cas hrace.  <br /></td></tr>
+<tr class="separator:a58b489e87078e33ccf75b35d892bb4fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af09ae67f3a64e8d2865bac5eb0d7e3ca" id="r_af09ae67f3a64e8d2865bac5eb0d7e3ca"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#af09ae67f3a64e8d2865bac5eb0d7e3ca">game_get_timer_state</a> (<a class="el" href="structchess__timer__t.html">chess_timer_t</a> *timer_data)</td></tr>
+<tr class="separator:af09ae67f3a64e8d2865bac5eb0d7e3ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a917f1907b236e1476e75bb033e2a3165" id="r_a917f1907b236e1476e75bb033e2a3165"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a917f1907b236e1476e75bb033e2a3165">game_init_timer_system</a> (void)</td></tr>
+<tr class="memdesc:a917f1907b236e1476e75bb033e2a3165"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj timer system v game tasku.  <br /></td></tr>
+<tr class="separator:a917f1907b236e1476e75bb033e2a3165"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c1b38b6a6342df233fdcafe702b5a0f" id="r_a7c1b38b6a6342df233fdcafe702b5a0f"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a7c1b38b6a6342df233fdcafe702b5a0f">game_process_timer_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a7c1b38b6a6342df233fdcafe702b5a0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj timer prikazy z fronty.  <br /></td></tr>
+<tr class="separator:a7c1b38b6a6342df233fdcafe702b5a0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b6831d8d640dff74119ccdb4f9ff9d2" id="r_a3b6831d8d640dff74119ccdb4f9ff9d2"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a3b6831d8d640dff74119ccdb4f9ff9d2">game_handle_time_expiration</a> (void)</td></tr>
+<tr class="memdesc:a3b6831d8d640dff74119ccdb4f9ff9d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zpracuj vyprseni casu.  <br /></td></tr>
+<tr class="separator:a3b6831d8d640dff74119ccdb4f9ff9d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab2504466c50dfa9455e1414810bc073" id="r_aab2504466c50dfa9455e1414810bc073"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#aab2504466c50dfa9455e1414810bc073">game_update_timer_display</a> (void)</td></tr>
+<tr class="memdesc:aab2504466c50dfa9455e1414810bc073"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aktualizuj zobrazeni timeru a overi varovani.  <br /></td></tr>
+<tr class="separator:aab2504466c50dfa9455e1414810bc073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d42316d2411ec24cc4ccbae29fa3cd9" id="r_a7d42316d2411ec24cc4ccbae29fa3cd9"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a7d42316d2411ec24cc4ccbae29fa3cd9">game_get_available_time_controls</a> (<a class="el" href="structtime__control__config__t.html">time_control_config_t</a> *controls, uint32_t max_count)</td></tr>
+<tr class="separator:a7d42316d2411ec24cc4ccbae29fa3cd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66ce03930668ef5869101bef9e2a8474" id="r_a66ce03930668ef5869101bef9e2a8474"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a66ce03930668ef5869101bef9e2a8474">game_set_custom_time_control</a> (uint32_t minutes, uint32_t increment_seconds)</td></tr>
+<tr class="separator:a66ce03930668ef5869101bef9e2a8474"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af61ca7975c281efd16bd95628b65bd5e" id="r_af61ca7975c281efd16bd95628b65bd5e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#af61ca7975c281efd16bd95628b65bd5e">game_get_timer_stats</a> (uint32_t *total_moves, uint32_t *avg_move_time)</td></tr>
+<tr class="separator:af61ca7975c281efd16bd95628b65bd5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f01e5a8d282157e3cd8bd5a03b9c8b5" id="r_a2f01e5a8d282157e3cd8bd5a03b9c8b5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a2f01e5a8d282157e3cd8bd5a03b9c8b5">game_is_timer_active</a> (void)</td></tr>
+<tr class="memdesc:a2f01e5a8d282157e3cd8bd5a03b9c8b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je timer aktivni.  <br /></td></tr>
+<tr class="separator:a2f01e5a8d282157e3cd8bd5a03b9c8b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fb22aa3cdacc593dccf7d95db908750" id="r_a7fb22aa3cdacc593dccf7d95db908750"><td class="memItemLeft" align="right" valign="top"><a class="el" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a7fb22aa3cdacc593dccf7d95db908750">game_get_current_time_control_type</a> (void)</td></tr>
+<tr class="separator:a7fb22aa3cdacc593dccf7d95db908750"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__timer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_TIMER&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Timer system integration wrappers and timeout handling. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="aac9b313d5314a9f9c948b466052c1e06" name="aac9b313d5314a9f9c948b466052c1e06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aac9b313d5314a9f9c948b466052c1e06">&#9670;&#160;</a></span>game_check_timer_timeout()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_check_timer_timeout </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00100">100</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a95937d38b6f9490371d95bd51ec8460c" name="a95937d38b6f9490371d95bd51ec8460c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95937d38b6f9490371d95bd51ec8460c">&#9670;&#160;</a></span>game_end_timer_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_end_timer_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ukonci timer pro tah. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00064">64</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a7d42316d2411ec24cc4ccbae29fa3cd9" name="a7d42316d2411ec24cc4ccbae29fa3cd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d42316d2411ec24cc4ccbae29fa3cd9">&#9670;&#160;</a></span>game_get_available_time_controls()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_available_time_controls </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structtime__control__config__t.html">time_control_config_t</a> *&#160;</td>
+          <td class="paramname"><em>controls</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>max_count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00247">247</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a7fb22aa3cdacc593dccf7d95db908750" name="a7fb22aa3cdacc593dccf7d95db908750"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7fb22aa3cdacc593dccf7d95db908750">&#9670;&#160;</a></span>game_get_current_time_control_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="timer__system_8h.html#a5f46eb643558022bf40c897c5d752f97">time_control_type_t</a> game_get_current_time_control_type </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00275">275</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a58b489e87078e33ccf75b35d892bb4fe" name="a58b489e87078e33ccf75b35d892bb4fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58b489e87078e33ccf75b35d892bb4fe">&#9670;&#160;</a></span>game_get_remaining_time()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_remaining_time </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>is_white_turn</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej zbyvajici cas hrace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">is_white_turn</td><td>Je na tahu bily? </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Zbyvajici cas v milisekundach </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00102">102</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="af09ae67f3a64e8d2865bac5eb0d7e3ca" name="af09ae67f3a64e8d2865bac5eb0d7e3ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af09ae67f3a64e8d2865bac5eb0d7e3ca">&#9670;&#160;</a></span>game_get_timer_state()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_get_timer_state </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structchess__timer__t.html">chess_timer_t</a> *&#160;</td>
+          <td class="paramname"><em>timer_data</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00106">106</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="af61ca7975c281efd16bd95628b65bd5e" name="af61ca7975c281efd16bd95628b65bd5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af61ca7975c281efd16bd95628b65bd5e">&#9670;&#160;</a></span>game_get_timer_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_get_timer_stats </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>total_moves</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>avg_move_time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00261">261</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a3b6831d8d640dff74119ccdb4f9ff9d2" name="a3b6831d8d640dff74119ccdb4f9ff9d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3b6831d8d640dff74119ccdb4f9ff9d2">&#9670;&#160;</a></span>game_handle_time_expiration()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_handle_time_expiration </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj vyprseni casu. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00193">193</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a917f1907b236e1476e75bb033e2a3165" name="a917f1907b236e1476e75bb033e2a3165"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a917f1907b236e1476e75bb033e2a3165">&#9670;&#160;</a></span>game_init_timer_system()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_init_timer_system </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj timer system v game tasku. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00115">115</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f01e5a8d282157e3cd8bd5a03b9c8b5" name="a2f01e5a8d282157e3cd8bd5a03b9c8b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f01e5a8d282157e3cd8bd5a03b9c8b5">&#9670;&#160;</a></span>game_is_timer_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_timer_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je timer aktivni. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je timer aktivni </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00273">273</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a25364833eb80653b4d30414376f3fe35" name="a25364833eb80653b4d30414376f3fe35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25364833eb80653b4d30414376f3fe35">&#9670;&#160;</a></span>game_pause_timer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_pause_timer </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pozastav herni timer. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00073">73</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a7c1b38b6a6342df233fdcafe702b5a0f" name="a7c1b38b6a6342df233fdcafe702b5a0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c1b38b6a6342df233fdcafe702b5a0f">&#9670;&#160;</a></span>game_process_timer_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_process_timer_command </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramname"><em>cmd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zpracuj timer prikazy z fronty. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Game prikaz s timer operaci </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00129">129</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a0df29c9e5d4723c41477e530799976b0" name="a0df29c9e5d4723c41477e530799976b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0df29c9e5d4723c41477e530799976b0">&#9670;&#160;</a></span>game_reset_timer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_reset_timer </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuj herni timer. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00091">91</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="aa1855cbe07e70ad38d0fbd163e7e9746" name="aa1855cbe07e70ad38d0fbd163e7e9746"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1855cbe07e70ad38d0fbd163e7e9746">&#9670;&#160;</a></span>game_resume_timer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_resume_timer </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Obnov herni timer. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00082">82</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a66ce03930668ef5869101bef9e2a8474" name="a66ce03930668ef5869101bef9e2a8474"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a66ce03930668ef5869101bef9e2a8474">&#9670;&#160;</a></span>game_set_custom_time_control()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_set_custom_time_control </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>minutes</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>increment_seconds</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00256">256</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a3784bb9de91bf60f6bff17c25c220c37" name="a3784bb9de91bf60f6bff17c25c220c37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3784bb9de91bf60f6bff17c25c220c37">&#9670;&#160;</a></span>game_set_time_control()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_set_time_control </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structtime__control__config__t.html">time_control_config_t</a> *&#160;</td>
+          <td class="paramname"><em>config</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00022">22</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="a76220c211d4e21aa36ac90a00761f698" name="a76220c211d4e21aa36ac90a00761f698"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76220c211d4e21aa36ac90a00761f698">&#9670;&#160;</a></span>game_start_timer_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_start_timer_move </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>is_white_turn</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spust timer pro tah aktualniho hrace. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">is_white_turn</td><td>Je na tahu bily? </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00046">46</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="aab2504466c50dfa9455e1414810bc073" name="aab2504466c50dfa9455e1414810bc073"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab2504466c50dfa9455e1414810bc073">&#9670;&#160;</a></span>game_update_timer_display()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t game_update_timer_display </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Aktualizuj zobrazeni timeru a overi varovani. </p>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00238">238</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;GAME_TIMER&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__timer_8c_source.html#l00015">15</a> v souboru <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__timer_8c.html">game_timer.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

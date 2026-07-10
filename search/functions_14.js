@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['validate_5fchess_5fsquares_0',['validate_chess_squares',['../uart__task_8c.html#a86e9ed02bc7633c27662831ea262f799',1,'uart_task.c']]],
+  ['validate_5fchess_5fsquares_0',['validate_chess_squares',['../uart__parse_8c.html#a86e9ed02bc7633c27662831ea262f799',1,'validate_chess_squares(const char *from, const char *to):&#160;uart_parse.c'],['../uart__parse_8h.html#a86e9ed02bc7633c27662831ea262f799',1,'validate_chess_squares(const char *from, const char *to):&#160;uart_parse.c']]],
   ['validate_5fgpio_5fpin_1',['validate_gpio_pin',['../freertos__chess_8c.html#a1ceecb2e00128b59e0224f35608eaf6c',1,'freertos_chess.c']]],
   ['visual_5ferror_5fcheck_5fnot_5fresolved_2',['visual_error_check_not_resolved',['../visual__error__system_8h.html#a0f02317b17f5b0281f661f19deae1499',1,'visual_error_system.h']]],
   ['visual_5ferror_5fclear_3',['visual_error_clear',['../visual__error__system_8h.html#a314097cc7e5312622bbd6ad0981a7ece',1,'visual_error_system.h']]],

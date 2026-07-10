@@ -120,6 +120,7 @@ $(document).ready(function(){initNavTree('freertos__chess_8c.html',''); initResi
 <code>#include &quot;<a class="el" href="streaming__output_8h_source.html">streaming_output.h</a>&quot;</code><br />
 <code>#include &lt;stdarg.h&gt;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;inttypes.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
@@ -128,95 +129,97 @@ Graf závislostí na vkládaných souborech pro freertos_chess.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="freertos__chess_8c__incl.png" border="0" usemap="#afreertos__chess_8c" alt=""/></div>
 <map name="afreertos__chess_8c" id="afreertos__chess_8c">
-<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Implementace FreeRTOS Chess komponenty." alt="" coords="1298,5,1426,31"/>
-<area shape="rect" title=" " alt="" coords="230,225,326,251"/>
-<area shape="poly" title=" " alt="" coords="1297,22,1183,25,1032,33,863,51,778,64,694,81,583,113,476,152,314,222,312,217,474,147,582,108,693,76,777,59,863,46,1032,28,1183,19,1297,17"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="877,152,1007,177"/>
-<area shape="poly" title=" " alt="" coords="1306,33,1221,53,1128,81,1046,115,977,148,974,143,1043,110,1126,76,1220,48,1304,28"/>
-<area shape="rect" title=" " alt="" coords="1912,299,1993,324"/>
-<area shape="poly" title=" " alt="" coords="1426,17,1597,20,1809,29,1911,36,1998,46,2064,60,2086,68,2099,77,2114,88,2127,94,2138,99,2143,109,2138,125,2121,152,2044,252,2019,276,1991,294,1988,290,2016,272,2040,249,2117,149,2133,123,2137,110,2134,103,2125,98,2111,92,2096,81,2084,72,2062,65,1998,52,1910,42,1809,34,1597,25,1426,22"/>
-<area shape="rect" title=" " alt="" coords="593,299,723,324"/>
-<area shape="poly" title=" " alt="" coords="1298,22,1062,24,736,32,409,50,274,63,173,81,82,100,48,118,33,133,17,153,9,173,10,189,18,203,32,214,69,234,107,248,146,260,197,271,325,287,462,298,580,304,579,310,462,303,325,292,196,276,144,265,105,253,67,238,29,219,14,206,5,191,4,172,13,151,29,129,45,114,80,95,172,76,274,58,409,44,735,26,1062,19,1298,17"/>
-<area shape="rect" title=" " alt="" coords="934,299,1017,324"/>
-<area shape="poly" title=" " alt="" coords="1298,23,1054,32,893,43,724,61,559,87,482,103,411,122,348,144,294,169,251,196,220,227,215,238,220,249,235,258,260,266,338,278,440,286,555,290,777,293,910,296,921,297,920,303,910,301,777,298,555,295,440,291,337,283,259,271,232,263,216,252,210,238,216,224,247,192,291,164,346,139,409,117,481,98,558,82,723,56,893,38,1054,26,1298,17"/>
-<area shape="rect" title=" " alt="" coords="1459,299,1529,324"/>
-<area shape="poly" title=" " alt="" coords="1426,19,1554,25,1704,37,1834,53,1879,64,1904,77,1909,91,1904,105,1889,126,1867,147,1808,189,1744,227,1694,253,1615,283,1543,303,1542,298,1614,278,1691,248,1742,222,1805,185,1864,143,1885,122,1899,103,1904,91,1900,80,1877,69,1833,58,1703,42,1553,31,1426,24"/>
-<area shape="rect" title=" " alt="" coords="350,225,454,251"/>
-<area shape="poly" title=" " alt="" coords="1298,22,1196,25,1065,35,919,52,775,81,675,113,580,151,435,221,433,216,577,146,673,108,773,76,918,47,1064,29,1196,20,1298,17"/>
-<area shape="rect" title=" " alt="" coords="1127,225,1264,251"/>
-<area shape="poly" title=" " alt="" coords="1299,30,1250,48,1229,62,1211,80,1195,112,1189,147,1189,182,1192,212,1187,212,1184,183,1183,147,1190,110,1206,77,1225,58,1248,43,1297,25"/>
-<area shape="rect" title=" " alt="" coords="1289,225,1406,251"/>
-<area shape="poly" title=" " alt="" coords="1299,33,1258,50,1240,64,1225,80,1218,99,1218,118,1226,137,1239,156,1276,190,1315,216,1312,221,1273,194,1235,159,1222,140,1213,119,1212,98,1221,77,1236,60,1255,46,1297,28"/>
-<area shape="rect" title=" " alt="" coords="529,225,659,251"/>
-<area shape="poly" title=" " alt="" coords="1298,26,1114,44,1003,60,892,81,780,106,734,124,679,154,642,184,613,216,609,213,638,180,676,150,732,119,779,101,891,76,1002,54,1113,38,1297,21"/>
-<area shape="rect" href="uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="27,152,201,177"/>
-<area shape="poly" title=" " alt="" coords="1298,23,1048,28,712,39,399,57,286,68,220,81,195,94,172,110,135,144,131,140,169,105,192,89,218,76,285,63,398,51,711,34,1048,23,1298,18"/>
-<area shape="rect" href="button__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Button Task Hlavicka." alt="" coords="903,79,1013,104"/>
-<area shape="poly" title=" " alt="" coords="1298,33,1027,81,1026,75,1297,28"/>
-<area shape="rect" title=" " alt="" coords="1400,79,1484,104"/>
-<area shape="poly" title=" " alt="" coords="1376,29,1420,68,1417,72,1373,33"/>
-<area shape="rect" title=" " alt="" coords="1509,79,1621,104"/>
-<area shape="poly" title=" " alt="" coords="1395,28,1520,72,1518,77,1394,33"/>
-<area shape="rect" title=" " alt="" coords="1645,79,1767,104"/>
-<area shape="poly" title=" " alt="" coords="1418,28,1637,73,1636,78,1417,33"/>
-<area shape="rect" title=" " alt="" coords="1791,79,1890,104"/>
-<area shape="poly" title=" " alt="" coords="1426,25,1778,76,1777,81,1426,30"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="1235,79,1324,104"/>
-<area shape="poly" title=" " alt="" coords="1350,33,1305,72,1301,67,1347,29"/>
-<area shape="rect" title=" " alt="" coords="1965,79,2060,104"/>
-<area shape="poly" title=" " alt="" coords="1426,22,1656,43,1946,76,1951,77,1951,82,1946,81,1655,48,1426,27"/>
-<area shape="rect" href="shared__buffer__pool_8h.html" title="ESP32&#45;C6 Chess System &#45; Hlavicka Shared Buffer Poolu." alt="" coords="1756,225,1915,251"/>
-<area shape="poly" title=" " alt="" coords="1426,17,1592,21,1796,30,1893,37,1977,47,2040,60,2061,68,2074,77,2089,102,2086,127,2069,149,2042,168,1972,201,1898,224,1896,219,1970,196,2040,164,2066,145,2081,125,2084,103,2071,80,2059,73,2038,65,1976,53,1893,43,1796,35,1592,26,1426,23"/>
-<area shape="rect" href="streaming__output_8h.html" title="ESP32&#45;C6 Chess System &#45; Hlavicka Streaming Output Systemu." alt="" coords="1531,225,1681,251"/>
-<area shape="poly" title=" " alt="" coords="1365,31,1372,66,1379,85,1391,102,1413,121,1435,130,1459,137,1488,150,1539,183,1582,214,1579,219,1536,187,1486,154,1458,142,1433,135,1410,126,1387,106,1375,87,1367,67,1360,32"/>
-<area shape="rect" title=" " alt="" coords="2186,79,2261,104"/>
-<area shape="poly" title=" " alt="" coords="1426,19,1746,35,1955,52,2168,76,2172,77,2171,82,2167,81,1955,57,1745,40,1426,24"/>
-<area shape="rect" title=" " alt="" coords="2285,79,2351,104"/>
-<area shape="poly" title=" " alt="" coords="1426,17,1575,20,1783,28,2023,46,2271,76,2271,81,2023,52,1782,34,1575,25,1426,22"/>
-<area shape="rect" title=" " alt="" coords="2376,79,2447,104"/>
-<area shape="poly" title=" " alt="" coords="1426,17,1588,19,1818,27,2086,45,2225,59,2363,76,2362,82,2225,64,2086,50,1818,33,1588,24,1426,22"/>
-<area shape="poly" title=" " alt="" coords="877,173,644,193,340,228,339,223,644,187,877,168"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="835,225,950,251"/>
-<area shape="poly" title=" " alt="" coords="936,179,910,216,906,213,932,176"/>
-<area shape="poly" title=" " alt="" coords="1007,163,1228,164,1518,171,1659,179,1783,189,1876,204,1908,213,1929,223,1941,236,1948,252,1955,285,1950,286,1943,254,1936,239,1926,227,1906,218,1875,209,1782,195,1659,184,1518,177,1228,169,1007,168"/>
-<area shape="rect" title=" " alt="" coords="747,299,897,324"/>
-<area shape="poly" title=" " alt="" coords="894,180,856,198,839,211,825,227,819,240,817,255,818,285,813,285,812,255,814,239,821,224,835,207,853,193,892,175"/>
-<area shape="poly" title=" " alt="" coords="915,180,810,228,690,294,688,289,807,223,913,175"/>
-<area shape="poly" title=" " alt="" coords="949,177,964,225,975,284,970,285,959,226,944,178"/>
-<area shape="poly" title=" " alt="" coords="957,175,1005,212,1037,232,1071,248,1120,265,1172,278,1276,296,1371,304,1445,307,1445,313,1370,310,1275,301,1171,283,1119,270,1069,253,1034,237,1002,217,953,180"/>
-<area shape="poly" title=" " alt="" coords="877,177,468,231,467,225,876,172"/>
-<area shape="poly" title=" " alt="" coords="983,175,1141,219,1140,224,982,180"/>
-<area shape="poly" title=" " alt="" coords="1007,175,1275,221,1274,227,1006,180"/>
-<area shape="poly" title=" " alt="" coords="886,180,664,225,663,220,885,175"/>
-<area shape="poly" title=" " alt="" coords="950,240,1898,304,1898,309,950,246"/>
-<area shape="poly" title=" " alt="" coords="883,253,845,291,841,287,879,249"/>
-<area shape="poly" title=" " alt="" coords="856,253,710,297,708,292,854,248"/>
-<area shape="poly" title=" " alt="" coords="908,249,953,287,949,292,904,253"/>
-<area shape="poly" title=" " alt="" coords="950,243,1445,302,1445,307,950,249"/>
-<area shape="poly" title=" " alt="" coords="114,178,111,214,115,233,125,249,143,259,172,267,261,280,377,287,508,291,759,293,910,296,921,297,920,303,910,301,759,298,508,296,377,292,260,285,171,272,140,264,121,253,110,235,106,214,108,178"/>
-<area shape="poly" title=" " alt="" coords="958,105,950,139,945,138,953,104"/>
-<area shape="poly" title=" " alt="" coords="1014,95,1549,153,1823,191,1913,208,1941,216,1956,223,1964,238,1967,254,1963,286,1958,285,1962,255,1959,240,1952,227,1939,221,1912,213,1822,196,1548,158,1013,101"/>
-<area shape="poly" title=" " alt="" coords="903,103,802,120,685,147,629,164,580,183,542,204,519,227,514,238,518,249,545,261,598,274,733,296,732,301,597,279,543,266,515,253,509,238,514,224,539,200,578,178,628,159,684,142,801,115,902,98"/>
-<area shape="poly" title=" " alt="" coords="902,96,741,104,640,112,534,124,432,141,340,163,267,192,240,209,220,227,215,238,220,249,243,266,279,280,323,290,374,298,482,306,580,309,580,314,482,312,373,303,322,296,277,285,241,271,216,252,210,238,216,224,236,204,265,187,338,158,430,136,533,119,639,107,741,99,902,91"/>
-<area shape="poly" title=" " alt="" coords="936,106,892,131,847,167,830,186,819,207,817,228,825,249,839,261,863,273,921,293,919,298,861,278,836,265,821,252,812,229,814,206,826,183,844,163,889,127,933,102"/>
-<area shape="poly" title=" " alt="" coords="972,102,1021,150,1047,180,1065,205,1085,227,1116,248,1143,259,1179,268,1268,284,1445,304,1445,309,1268,289,1178,273,1141,264,1114,253,1082,231,1061,209,1043,183,1017,154,968,106"/>
-<area shape="poly" title=" " alt="" coords="980,102,1065,150,1168,215,1165,220,1062,154,978,106"/>
-<area shape="poly" title=" " alt="" coords="990,102,1304,218,1303,223,988,107"/>
-<area shape="poly" title=" " alt="" coords="903,105,820,124,730,154,670,186,621,219,618,215,667,182,727,150,818,119,901,100"/>
-<area shape="poly" title=" " alt="" coords="1235,105,1010,152,1009,147,1234,99"/>
-<area shape="poly" title=" " alt="" coords="1324,95,1586,123,1794,149,1865,158,1924,162,1950,168,1976,178,2000,196,2024,224,2030,243,2022,262,2006,279,1987,294,1984,289,2002,275,2017,259,2024,243,2019,227,1997,200,1973,183,1949,173,1923,167,1864,164,1794,155,1585,128,1324,100"/>
-<area shape="poly" title=" " alt="" coords="1304,102,1351,128,1399,165,1418,186,1430,208,1431,230,1420,252,1393,272,1352,287,1302,298,1246,305,1129,313,1031,314,1030,309,1129,307,1246,300,1301,292,1351,282,1390,267,1416,249,1426,229,1425,209,1414,189,1396,169,1348,133,1302,106"/>
-<area shape="poly" title=" " alt="" coords="1325,99,1405,121,1441,135,1464,150,1484,182,1494,219,1499,254,1499,285,1493,285,1493,255,1489,220,1479,185,1460,154,1438,139,1403,126,1324,104"/>
-<area shape="poly" title=" " alt="" coords="1855,248,1923,289,1920,294,1853,253"/>
-<area shape="poly" title=" " alt="" coords="1756,249,1031,308,1030,303,1756,243"/>
-<area shape="poly" title=" " alt="" coords="1781,253,1543,303,1542,297,1780,248"/>
-<area shape="rect" title=" " alt="" coords="1683,299,1758,324"/>
-<area shape="poly" title=" " alt="" coords="1818,253,1752,294,1749,289,1815,248"/>
-<area shape="poly" title=" " alt="" coords="1662,248,1899,296,1898,302,1661,253"/>
-<area shape="poly" title=" " alt="" coords="1531,247,1108,274,737,301,736,296,1108,269,1531,241"/>
-<area shape="poly" title=" " alt="" coords="1531,250,1030,307,1030,301,1531,245"/>
-<area shape="poly" title=" " alt="" coords="1589,253,1525,293,1523,289,1586,248"/>
-<area shape="poly" title=" " alt="" coords="1626,248,1692,289,1689,294,1623,253"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Implementace FreeRTOS Chess komponenty." alt="" coords="1244,5,1372,31"/>
+<area shape="rect" title=" " alt="" coords="110,225,206,251"/>
+<area shape="poly" title=" " alt="" coords="1243,23,1132,28,987,38,824,55,661,81,527,114,397,153,201,223,199,218,396,148,526,108,660,76,824,50,987,33,1132,23,1243,18"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="752,152,882,177"/>
+<area shape="poly" title=" " alt="" coords="1244,25,1153,32,1048,43,952,59,914,69,886,81,869,93,854,109,831,142,827,138,850,106,865,89,884,76,912,64,951,54,1048,38,1152,26,1243,20"/>
+<area shape="rect" title=" " alt="" coords="1384,299,1466,324"/>
+<area shape="poly" title=" " alt="" coords="1372,20,1490,27,1628,38,1746,55,1787,65,1809,77,1832,106,1833,120,1823,136,1800,155,1761,179,1625,253,1550,283,1480,302,1478,297,1549,278,1622,248,1758,175,1797,150,1819,132,1828,119,1827,108,1806,81,1785,70,1745,60,1627,44,1490,32,1372,25"/>
+<area shape="rect" title=" " alt="" coords="423,299,552,324"/>
+<area shape="poly" title=" " alt="" coords="1243,22,979,26,620,34,442,42,285,52,164,65,122,73,95,81,70,94,52,109,39,127,27,153,23,176,23,205,28,232,36,249,61,266,99,279,145,289,198,297,309,306,409,308,409,313,309,311,197,302,144,295,97,284,59,270,32,252,23,233,18,205,18,175,22,151,35,124,49,105,67,90,93,76,121,68,164,60,285,47,442,37,620,29,979,20,1243,17"/>
+<area shape="rect" title=" " alt="" coords="852,299,934,324"/>
+<area shape="poly" title=" " alt="" coords="1243,22,1023,25,722,34,422,51,299,65,205,81,115,100,81,118,65,133,50,153,17,209,10,229,9,243,14,254,28,261,82,271,313,276,499,282,740,296,838,303,837,309,739,301,499,287,312,282,81,276,26,266,11,257,4,244,5,228,12,207,45,151,61,129,78,114,113,95,204,76,298,59,422,46,722,28,1022,20,1243,17"/>
+<area shape="rect" title=" " alt="" coords="1731,299,1802,324"/>
+<area shape="poly" title=" " alt="" coords="1372,17,1534,21,1733,30,1828,38,1909,48,1970,60,1991,68,2004,77,2020,101,2025,124,2022,147,2010,169,1972,211,1925,253,1900,271,1871,285,1816,304,1814,298,1869,280,1897,266,1922,249,1969,207,2006,166,2016,145,2020,124,2015,103,2000,81,1989,73,1969,66,1909,53,1827,43,1733,36,1534,26,1372,23"/>
+<area shape="rect" title=" " alt="" coords="230,225,334,251"/>
+<area shape="poly" title=" " alt="" coords="1243,25,1028,41,895,57,761,81,634,114,510,153,323,223,321,218,509,148,633,109,760,76,894,52,1028,36,1243,19"/>
+<area shape="rect" title=" " alt="" coords="1007,225,1144,251"/>
+<area shape="poly" title=" " alt="" coords="1244,25,1210,32,1176,42,1143,58,1115,80,1095,111,1083,147,1078,182,1077,212,1072,212,1073,181,1078,145,1090,109,1111,77,1140,53,1174,37,1209,26,1243,20"/>
+<area shape="rect" title=" " alt="" coords="1169,225,1286,251"/>
+<area shape="poly" title=" " alt="" coords="1244,25,1213,31,1182,42,1154,58,1131,80,1123,98,1122,116,1128,134,1138,153,1169,188,1201,215,1198,219,1165,191,1134,156,1123,137,1117,117,1118,97,1127,77,1150,53,1180,37,1211,26,1243,20"/>
+<area shape="rect" title=" " alt="" coords="409,225,540,251"/>
+<area shape="poly" title=" " alt="" coords="1244,26,1065,43,958,59,851,81,795,97,752,113,657,154,511,222,509,217,654,150,750,108,793,92,850,76,957,54,1065,38,1243,20"/>
+<area shape="rect" href="uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="60,152,233,177"/>
+<area shape="poly" title=" " alt="" coords="1243,23,1011,29,702,41,415,58,312,69,252,81,227,94,204,110,167,144,163,140,201,105,225,89,251,76,311,64,415,53,701,35,1010,24,1243,18"/>
+<area shape="rect" href="button__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Button Task Hlavicka." alt="" coords="896,79,1007,104"/>
+<area shape="poly" title=" " alt="" coords="1251,33,1021,79,1020,74,1250,28"/>
+<area shape="rect" title=" " alt="" coords="1306,79,1390,104"/>
+<area shape="poly" title=" " alt="" coords="1316,30,1337,65,1332,68,1312,32"/>
+<area shape="rect" title=" " alt="" coords="1414,79,1526,104"/>
+<area shape="poly" title=" " alt="" coords="1335,28,1432,71,1430,75,1333,33"/>
+<area shape="rect" title=" " alt="" coords="1550,79,1673,104"/>
+<area shape="poly" title=" " alt="" coords="1357,28,1550,73,1549,78,1356,33"/>
+<area shape="rect" title=" " alt="" coords="1697,79,1796,104"/>
+<area shape="poly" title=" " alt="" coords="1372,26,1684,76,1683,81,1371,32"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="1140,79,1230,104"/>
+<area shape="poly" title=" " alt="" coords="1289,33,1218,74,1215,69,1286,28"/>
+<area shape="rect" title=" " alt="" coords="1871,79,1966,104"/>
+<area shape="poly" title=" " alt="" coords="1372,22,1585,44,1852,76,1857,77,1856,82,1851,81,1585,49,1371,28"/>
+<area shape="rect" href="shared__buffer__pool_8h.html" title="ESP32&#45;C6 Chess System &#45; Hlavicka Shared Buffer Poolu." alt="" coords="1687,225,1846,251"/>
+<area shape="poly" title=" " alt="" coords="1372,18,1529,22,1720,31,1889,49,1948,61,1968,68,1980,77,1994,101,1991,125,1976,146,1952,166,1887,199,1821,224,1819,219,1885,195,1949,162,1972,143,1986,123,1989,102,1976,80,1965,73,1946,66,1889,54,1720,37,1528,27,1372,23"/>
+<area shape="rect" href="streaming__output_8h.html" title="ESP32&#45;C6 Chess System &#45; Hlavicka Streaming Output Systemu." alt="" coords="1462,225,1612,251"/>
+<area shape="poly" title=" " alt="" coords="1303,32,1291,66,1290,85,1296,103,1312,119,1327,128,1362,133,1401,135,1422,140,1445,150,1487,181,1520,213,1516,217,1483,185,1442,154,1421,145,1400,140,1361,139,1325,133,1308,123,1292,105,1285,86,1286,65,1298,30"/>
+<area shape="rect" title=" " alt="" coords="2092,79,2166,104"/>
+<area shape="poly" title=" " alt="" coords="1372,19,1675,36,1873,53,2073,76,2078,77,2077,82,2073,81,1873,58,1675,41,1372,24"/>
+<area shape="rect" title=" " alt="" coords="2191,79,2278,104"/>
+<area shape="poly" title=" " alt="" coords="1372,18,1712,33,1941,50,2177,76,2177,81,1941,56,1712,39,1372,23"/>
+<area shape="rect" title=" " alt="" coords="2302,79,2369,104"/>
+<area shape="poly" title=" " alt="" coords="1372,16,1531,18,1757,27,2019,44,2155,58,2289,76,2288,81,2154,64,2018,50,1756,32,1531,24,1372,22"/>
+<area shape="rect" title=" " alt="" coords="2394,79,2464,104"/>
+<area shape="poly" title=" " alt="" coords="1372,16,1545,18,1792,26,2082,44,2232,58,2380,76,2380,82,2232,63,2082,49,1792,31,1545,23,1372,22"/>
+<area shape="poly" title=" " alt="" coords="752,173,521,193,220,228,220,223,521,188,752,168"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="665,225,780,251"/>
+<area shape="poly" title=" " alt="" coords="803,179,750,219,747,215,800,175"/>
+<area shape="poly" title=" " alt="" coords="826,176,856,213,877,233,901,248,939,262,992,273,1122,290,1259,301,1371,306,1370,311,1259,306,1122,296,991,279,938,267,898,253,873,237,852,217,822,179"/>
+<area shape="rect" title=" " alt="" coords="576,299,727,324"/>
+<area shape="poly" title=" " alt="" coords="753,175,726,181,699,192,675,207,655,227,649,240,646,255,648,285,642,285,640,255,643,239,651,224,671,203,697,187,724,176,752,169"/>
+<area shape="poly" title=" " alt="" coords="777,180,712,200,641,228,575,261,519,293,516,289,572,256,638,223,710,195,775,175"/>
+<area shape="poly" title=" " alt="" coords="823,177,834,210,851,249,876,286,872,289,847,252,829,212,818,178"/>
+<area shape="poly" title=" " alt="" coords="837,175,905,213,950,233,996,248,1093,270,1177,283,1251,289,1320,291,1466,288,1551,290,1652,296,1717,302,1717,308,1651,301,1551,295,1466,294,1320,296,1250,295,1176,289,1092,276,995,253,948,238,903,218,834,180"/>
+<area shape="poly" title=" " alt="" coords="752,177,348,231,347,225,751,172"/>
+<area shape="poly" title=" " alt="" coords="859,175,1021,219,1020,224,858,180"/>
+<area shape="poly" title=" " alt="" coords="882,175,1156,222,1155,227,881,180"/>
+<area shape="poly" title=" " alt="" coords="762,180,543,225,542,220,761,175"/>
+<area shape="poly" title=" " alt="" coords="780,242,1371,302,1370,307,779,248"/>
+<area shape="poly" title=" " alt="" coords="712,253,674,291,671,287,709,249"/>
+<area shape="poly" title=" " alt="" coords="685,253,539,297,538,292,684,248"/>
+<area shape="poly" title=" " alt="" coords="751,248,854,291,852,296,749,253"/>
+<area shape="poly" title=" " alt="" coords="780,240,900,248,1276,270,1652,296,1717,302,1717,307,1651,301,1276,275,899,253,780,246"/>
+<area shape="poly" title=" " alt="" coords="133,179,116,195,101,213,94,232,95,241,100,248,838,303,837,309,97,253,90,243,89,232,97,211,112,191,129,176"/>
+<area shape="poly" title=" " alt="" coords="931,106,852,148,850,143,929,102"/>
+<area shape="poly" title=" " alt="" coords="991,102,1129,149,1215,183,1299,223,1354,256,1400,288,1397,292,1352,260,1297,228,1213,188,1127,154,989,107"/>
+<area shape="poly" title=" " alt="" coords="896,100,773,114,621,138,548,155,483,176,432,200,413,213,399,227,394,238,399,249,420,259,462,271,571,294,570,299,461,276,418,264,395,252,389,238,395,224,409,209,429,195,481,171,547,150,620,133,772,108,896,95"/>
+<area shape="poly" title=" " alt="" coords="896,95,692,95,423,101,292,108,178,119,94,134,66,144,49,154,34,174,28,192,30,208,39,222,54,236,75,248,131,268,199,283,273,293,409,305,409,310,272,299,198,288,129,273,72,253,51,240,34,226,25,210,23,191,30,172,46,150,63,139,92,129,178,114,292,103,423,96,692,89,896,89"/>
+<area shape="poly" title=" " alt="" coords="951,105,902,286,897,284,946,104"/>
+<area shape="poly" title=" " alt="" coords="1007,96,1495,155,1741,192,1822,209,1860,223,1866,234,1867,245,1856,264,1835,281,1809,295,1807,290,1832,277,1852,261,1862,244,1861,236,1856,227,1821,214,1740,197,1494,161,1007,101"/>
+<area shape="poly" title=" " alt="" coords="959,103,977,137,1004,176,1049,215,1045,219,1000,179,973,140,955,106"/>
+<area shape="poly" title=" " alt="" coords="972,102,1105,175,1192,217,1189,222,1102,180,970,106"/>
+<area shape="poly" title=" " alt="" coords="910,107,742,155,523,224,521,219,740,149,909,102"/>
+<area shape="poly" title=" " alt="" coords="1141,104,890,152,889,147,1140,99"/>
+<area shape="poly" title=" " alt="" coords="1230,97,1324,118,1367,133,1395,150,1415,182,1426,219,1430,255,1430,285,1425,285,1425,255,1421,220,1410,184,1391,154,1365,138,1323,123,1229,103"/>
+<area shape="poly" title=" " alt="" coords="1206,102,1245,129,1286,167,1302,188,1311,209,1311,231,1300,252,1276,270,1239,284,1195,295,1144,302,1039,311,948,313,948,308,1038,305,1144,297,1194,290,1238,279,1273,266,1296,249,1306,230,1306,210,1297,190,1282,170,1242,133,1203,106"/>
+<area shape="poly" title=" " alt="" coords="1230,95,1392,115,1606,146,1710,164,1801,183,1868,203,1890,213,1904,224,1912,238,1911,251,1903,263,1890,273,1855,290,1816,302,1814,297,1853,285,1887,269,1899,259,1906,249,1906,239,1900,227,1888,218,1866,208,1799,188,1709,169,1606,151,1392,120,1229,100"/>
+<area shape="poly" title=" " alt="" coords="1712,253,1479,301,1478,296,1711,248"/>
+<area shape="poly" title=" " alt="" coords="1687,248,948,308,948,303,1687,243"/>
+<area shape="poly" title=" " alt="" coords="1769,251,1769,285,1764,285,1764,251"/>
+<area shape="rect" title=" " alt="" coords="1565,299,1640,324"/>
+<area shape="poly" title=" " alt="" coords="1741,253,1642,296,1640,291,1739,248"/>
+<area shape="poly" title=" " alt="" coords="1520,253,1456,293,1454,289,1517,248"/>
+<area shape="poly" title=" " alt="" coords="1462,246,1016,270,762,286,566,301,566,296,762,280,1015,264,1462,240"/>
+<area shape="poly" title=" " alt="" coords="1462,250,948,307,947,301,1461,245"/>
+<area shape="poly" title=" " alt="" coords="1575,248,1718,292,1717,297,1573,253"/>
+<area shape="poly" title=" " alt="" coords="1550,249,1584,287,1580,290,1546,253"/>
 </map>
 </div>
 </div>
@@ -471,7 +474,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00136">136</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00137">137</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -519,7 +522,7 @@ Proměnné</h2></td></tr>
 <li>Po button scan: <a class="el" href="matrix__task_8h.html#a8162927b4230f6777b1d42deec017797" title="Znovu aktivuj matrix row piny pro matrix scanning.">matrix_acquire_pins()</a> (pripravi pro dalsi cyklus) </li>
 </ol>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00797">797</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00798">798</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -548,7 +551,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00866">866</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00867">867</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -568,7 +571,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01391">1391</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01392">1392</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -588,7 +591,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00496">496</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00497">497</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -608,7 +611,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01365">1365</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01366">1366</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -628,7 +631,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01137">1137</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01138">1138</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -652,7 +655,7 @@ Proměnné</h2></td></tr>
 <p>Vytvori vsechny potrebne mutexy pro thread-safe pristup k datum.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00756">756</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00757">757</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -676,7 +679,7 @@ Proměnné</h2></td></tr>
 <p>Vytvori vsechny potrebne fronty pro komunikaci mezi tasky.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00574">574</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00575">575</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -700,7 +703,7 @@ Proměnné</h2></td></tr>
 <p>Vytvori periodicke timery pro skenovani matice, tlacitek a systemu.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00900">900</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00901">901</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -720,7 +723,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01023">1023</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01024">1024</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -740,7 +743,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01415">1415</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01416">1416</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -760,7 +763,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01405">1405</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01406">1406</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -780,7 +783,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01410">1410</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01411">1411</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -811,7 +814,7 @@ Proměnné</h2></td></tr>
 <p>Inicializuje vsechny GPIO piny pro matrix, tlacitka a LED. Validuje bezpecnost pinu a nastavuje pull-up/pull-down rezistory.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00209">209</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00210">210</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -835,7 +838,7 @@ Proměnné</h2></td></tr>
 <p>Inicializuje GPIO piny, LED pasek a ostatni hardware komponenty.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00517">517</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00518">518</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -865,7 +868,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01297">1297</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01298">1298</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -885,7 +888,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01270">1270</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01271">1271</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -905,7 +908,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00450">450</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00451">451</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -952,7 +955,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01261">1261</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01262">1262</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1006,7 +1009,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01244">1244</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01245">1245</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1026,7 +1029,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01279">1279</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01280">1280</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1055,7 +1058,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01351">1351</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01352">1352</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1075,7 +1078,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00472">472</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00473">473</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1095,7 +1098,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01346">1346</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01347">1347</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1115,7 +1118,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01319">1319</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01320">1320</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1139,7 +1142,7 @@ Proměnné</h2></td></tr>
 <p>Inicializuje buffer pool a streaming output pro efektivni vyuziti pameti.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01424">1424</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01425">1425</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1163,7 +1166,7 @@ Proměnné</h2></td></tr>
 <p>Kontroluje zda vsechny tasky bezi spravne a zda nejsou zablokovane.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pokud vsechny tasky bezi spravne, chybovy kod pri problemu </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01156">1156</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01157">1157</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1183,7 +1186,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01070">1070</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01071">1071</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1206,7 +1209,7 @@ Proměnné</h2></td></tr>
 <p>Vypise systemove informace. </p>
 <p>Vypise informace o verzi systemu, konfiguraci GPIO pinu, velikostech front a priority tasku. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01169">1169</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01170">1170</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1230,7 +1233,7 @@ Proměnné</h2></td></tr>
 <p>Spusti periodicke timery vytvorene funkci <a class="el" href="freertos__chess_8h.html#ad4a9b6f60cb5280918a47885121ea229" title="Vytvori vsechny FreeRTOS timery.">chess_create_timers()</a>.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00955">955</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00956">956</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1254,7 +1257,7 @@ Proměnné</h2></td></tr>
 <p>Tato funkce inicializuje cely sachovy system vcetne hardware, front, mutexu a timeru. Vola vsechny potrebne inicializacni funkce.</p>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01086">1086</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01087">1087</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1295,7 +1298,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01220">1220</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01221">1221</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1324,7 +1327,7 @@ Proměnné</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Návratová hodnota</dt><dd>ESP_OK pri uspechu, chybovy kod pri selhani </dd></dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01207">1207</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l01208">1208</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1355,7 +1358,7 @@ Proměnné</h2></td></tr>
 <p>Coordinated time-multiplexing task (25ms cycle) </p>
 <p>Runs OUTSIDE of "Tmr Svc" with sufficient stack, so scanning can safely call into game/HA/logging paths. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00814">814</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00815">815</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1383,7 +1386,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00891">891</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00892">892</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1412,7 +1415,7 @@ Proměnné</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00877">877</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00878">878</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1450,7 +1453,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00167">167</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00168">168</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1469,7 +1472,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro animation prikazy (start, stop, pause) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00095">95</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00096">96</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1487,7 +1490,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro animation status (stav animaci) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00096">96</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00097">97</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1505,7 +1508,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro button prikazy (reset, status, test) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00084">84</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00085">85</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1523,7 +1526,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro button udalosti (press, release, long press) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00083">83</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00084">84</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1541,7 +1544,7 @@ Proměnné</h2></td></tr>
 
 <p>Mutex pro button operace (ochrana button stavu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00117">117</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00118">118</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1561,7 +1564,7 @@ Proměnné</h2></td></tr>
 </div><!-- fragment -->
 <p>Timer pro periodicke skenovani tlacitek. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00124">124</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00125">125</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1585,7 +1588,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00135">135</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00136">136</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1609,7 +1612,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00130">130</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00131">131</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1633,7 +1636,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00141">141</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00142">142</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1651,7 +1654,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro game prikazy (new game, move, status) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00091">91</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00092">92</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1669,7 +1672,7 @@ Proměnné</h2></td></tr>
 
 <p>Mutex pro game operace (ochrana game stavu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00118">118</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00119">119</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1687,7 +1690,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro game status (stav hry) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00092">92</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00093">93</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1711,7 +1714,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00140">140</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00141">141</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1729,7 +1732,7 @@ Proměnné</h2></td></tr>
 
 <p>Mutex pro LED operace (ochrana LED stavu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00115">115</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00116">116</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1745,7 +1748,7 @@ Proměnné</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00126">126</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00127">127</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1774,7 +1777,7 @@ Proměnné</h2></td></tr>
 </div><!-- fragment -->
 <p>Pole GPIO pinu pro sloupce matice (8 vstupu s pull-up) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00148">148</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00149">149</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1792,7 +1795,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro matrix prikazy (scan, reset, test) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00079">79</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00080">80</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1810,7 +1813,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro matrix udalosti (piece lifted/placed) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00078">78</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00079">79</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1828,7 +1831,7 @@ Proměnné</h2></td></tr>
 
 <p>Mutex pro matrix operace (ochrana matrix stavu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00116">116</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00117">117</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1846,7 +1849,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro matrix odpovedi (odpovedi ze systemu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00080">80</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00081">81</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1875,7 +1878,7 @@ Proměnné</h2></td></tr>
 </div><!-- fragment -->
 <p>Pole GPIO pinu pro radky matice (8 vystupu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00144">144</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00145">145</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1895,7 +1898,7 @@ Proměnné</h2></td></tr>
 </div><!-- fragment -->
 <p>Timer pro periodicke skenovani matice. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00122">122</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00123">123</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1919,7 +1922,7 @@ Proměnné</h2></td></tr>
 </div><!-- fragment -->
 <p>Pole GPIO pinu pro promotion tlacitka A (4 tlacitka) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00152">152</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00153">153</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1937,7 +1940,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro screen saver prikazy (activate, deactivate) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00099">99</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00100">100</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1955,7 +1958,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro screen saver status (stav screen saveru) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00100">100</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00101">101</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1973,7 +1976,7 @@ Proměnné</h2></td></tr>
 
 <p>Timer pro periodicke kontroly zdravi systemu. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00127">127</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00128">128</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -1997,7 +2000,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00139">139</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00140">140</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2015,7 +2018,7 @@ Proměnné</h2></td></tr>
 
 <p>Mutex pro systemove operace (globalni systemova ochrana) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00119">119</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00120">120</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2039,7 +2042,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00067">67</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00068">68</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2058,7 +2061,7 @@ Proměnné</h2></td></tr>
 <p>Fronta pro test prikazy (run, status, reset) </p>
 <p>Test command queue handle. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00112">112</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00113">113</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2076,7 +2079,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro UART prikazy (komunikace se systemem) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00087">87</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00088">88</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2094,7 +2097,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro UART odpovedi (odpovedi ze systemu) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00088">88</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00089">89</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2112,7 +2115,7 @@ Proměnné</h2></td></tr>
 
 <p>Fronta pro web prikazy (start, stop, config) </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00107">107</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="freertos__chess_8c_source.html#l00108">108</a> v souboru <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2136,7 +2139,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00292">292</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00272">272</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -2160,7 +2163,7 @@ Proměnné</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00291">291</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="web__server__task_8c_source.html#l00271">271</a> v souboru <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>

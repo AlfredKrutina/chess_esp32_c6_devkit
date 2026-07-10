@@ -1,7 +1,21 @@
 var searchData=
 [
-  ['ota_5fui_5fdone_0',['OTA_UI_DONE',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a80c82c1e766f99d26ad08dec920a5e85',1,'ota_update.c']]],
-  ['ota_5fui_5fdownloading_1',['OTA_UI_DOWNLOADING',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a77206536280149132246748d2115fe16',1,'ota_update.c']]],
-  ['ota_5fui_5ferror_2',['OTA_UI_ERROR',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a094d4e711e73edd642b32fd4fef07102',1,'ota_update.c']]],
-  ['ota_5fui_5fidle_3',['OTA_UI_IDLE',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109ab1639cb0a30d63e6250a08c360e9b7d5',1,'ota_update.c']]]
+  ['opening_5ffeedback_5fcheckpoint_0',['OPENING_FEEDBACK_CHECKPOINT',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea093593c01385d5d7555911de87ea1504',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fcomplete_1',['OPENING_FEEDBACK_COMPLETE',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea4f92f3e9db7f875ed8892a20822642f9',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fcorrect_2',['OPENING_FEEDBACK_CORRECT',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea0f87dc16741f2269f6ffa6c79e529cd0',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fillegal_3',['OPENING_FEEDBACK_ILLEGAL',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea5f990a4ad5caf4076b19b56e53c13c58',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fmistake_5fhint_4',['OPENING_FEEDBACK_MISTAKE_HINT',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea7ac66001ecc5a8bcba3b92d3108a9b49',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fnone_5',['OPENING_FEEDBACK_NONE',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea7a80eec8ddd115cf2c13374e42397227',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fopponent_5fturn_6',['OPENING_FEEDBACK_OPPONENT_TURN',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea0539cf8cc1a54baea109e8edf71c9721',1,'game_opening_trainer.c']]],
+  ['opening_5ffeedback_5fwrong_7',['OPENING_FEEDBACK_WRONG',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449ceaacf2b93cb3dcb18f28ca7773ec5679fe',1,'game_opening_trainer.c']]],
+  ['opening_5fmode_5fdrill_8',['OPENING_MODE_DRILL',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6ca250d704d1abd70b7ec7ffafa91ddc97a',1,'game_opening_trainer.c']]],
+  ['opening_5fmode_5flearn_9',['OPENING_MODE_LEARN',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6cae45281160d5027b64b3140fefc4f8d22',1,'game_opening_trainer.c']]],
+  ['opening_5fmode_5fmirror_10',['OPENING_MODE_MIRROR',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6caaf455295de6e9d77bf2b2d2ec7850a41',1,'game_opening_trainer.c']]],
+  ['opening_5fmode_5ftimed_11',['OPENING_MODE_TIMED',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6cac86a3d8306fac9450227e62d4958c312',1,'game_opening_trainer.c']]],
+  ['opening_5fopponent_5fphysical_12',['OPENING_OPPONENT_PHYSICAL',['../game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956',1,'game_opening_trainer.c']]],
+  ['opening_5fopponent_5fvirtual_13',['OPENING_OPPONENT_VIRTUAL',['../game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8aa56bd49a0a27b4bc2c6e753700292b5d',1,'game_opening_trainer.c']]],
+  ['ota_5fui_5fdone_14',['OTA_UI_DONE',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a80c82c1e766f99d26ad08dec920a5e85',1,'ota_update.c']]],
+  ['ota_5fui_5fdownloading_15',['OTA_UI_DOWNLOADING',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a77206536280149132246748d2115fe16',1,'ota_update.c']]],
+  ['ota_5fui_5ferror_16',['OTA_UI_ERROR',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a094d4e711e73edd642b32fd4fef07102',1,'ota_update.c']]],
+  ['ota_5fui_5fidle_17',['OTA_UI_IDLE',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109ab1639cb0a30d63e6250a08c360e9b7d5',1,'ota_update.c']]]
 ];

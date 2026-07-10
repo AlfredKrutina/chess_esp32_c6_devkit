@@ -25,7 +25,7 @@
 var NAVTREE =
 [
   [ "CZECHMATE", "index.html", [
-    [ "CZECHMATE firmware <strong>1.8.0</strong>", "index.html", "index" ],
+    [ "web_server_task", "index.html", "index" ],
     [ "Seznam zastaralých prvků", "deprecated.html", null ],
     [ "Datové struktury", "annotated.html", [
       [ "Datové struktury", "annotated.html", "annotated_dup" ],
@@ -53,22 +53,24 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "animation__task_8c.html",
-"chess__piece__http_8c_source.html",
-"config__manager_8h.html#a738c632d7567c38a428c149e9b60c78c",
-"freertos__chess_8h.html#a2194cd55ef55fe74673eff35a72c2b4b",
-"game__led__animations_8h.html#aff587ca038d004104b274391cb221113",
-"game__task_8c.html#a715422f9b34ce3aff72a852b7951ebba",
-"game__task_8h.html#a25364833eb80653b4d30414376f3fe35",
-"ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a",
-"led__state__manager_8h.html#a48277ad0ecc8bc035e62eeb7541a1936aa34c61bac9de4434917e72883a3f6bfb",
-"led__unified__api_8h.html#a8987a69d33df1353af6077ff67dfea28",
-"shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69",
-"structchess__move__extended__t.html#a287d533872003ff749138ed16e12d299",
-"structled__layer__state__t.html#a2a85c68f064e0ea31442bf6a2ad2bb13",
-"test__task_8h.html#ac078516cdae5c2a8616a70773c5b82fd",
-"uart__task_8c.html#a6196f7e1db4cb31f634fb82f481f1965",
-"unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6ac05057ec5b13965afd7265b2794b1f1c",
-"web__server__task_8c.html#a9aed8f59f75d856e2916530518eff586"
+"chess__types_8h.html",
+"config__manager_8h.html#aa686528527fc11f58962e83e0b12683e",
+"freertos__chess_8h.html#a28eeb53d2d0b05fd6f19dd85f101b40e",
+"game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025",
+"game__move__validate_8h_source.html",
+"game__task_8c.html#a5d18dd08e04b69848244304316e48083",
+"game__task_8h.html#adfadcaa188627a4767d8963abe6e55d9",
+"globals_eval_b.html",
+"led__state__manager_8c.html#a80147ffbd0f8c6fe9e9390dd710195e3",
+"led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc",
+"reset__button__task_8c.html#a06d02f46f762a840863c8353f7e7f506",
+"structcastling__positions__t.html#a327b358b5219956a1a4c1a17cadb9363",
+"structking__resignation__state__t.html#ad466ba868c959c1683c6d3a8545380d0",
+"test__task_8c.html#a5124dc52ed577e8d54bbf4615c8c51cb",
+"uart__handlers__debug_8c.html#afed806feda00e8b2e6122fbba6a0800d",
+"uart__task_8h.html#a5b73406393efc0efe0786fc87e571a22",
+"visual__error__system_8c_source.html",
+"web__server__task_8c.html#ac16f4afbf3b99fa63b395c4f03e720d8"
 ];
 
 var SYNCONMSG = 'zakázat synchronizaci panelů';

@@ -40,7 +40,7 @@ var chess__piece__http_8c =
     [ "blob_PieceWhitePawn", "chess__piece__http_8c.html#a0caf2b6a39101f3c33b3be4356182043", null ],
     [ "blob_PieceWhiteQueen", "chess__piece__http_8c.html#a5290735090d366e51ac05abd294037ab", null ],
     [ "blob_PieceWhiteRook", "chess__piece__http_8c.html#a47e65c2e75639d975a3b93efeac839f5", null ],
-    [ "s_piece_routes", "chess__piece__http_8c.html#a5a40d435088cfe9d1c4ce06fa394c53d", null ],
+    [ "s_piece_routes", "chess__piece__http_8c.html#aaa57cd52c623b047eee3cb9e8a06aa9b", null ],
     [ "TAG_PIECE", "chess__piece__http_8c.html#a3c450755e960ed96a1a2c65f15d75f5e", null ],
     [ "uri", "chess__piece__http_8c.html#a69ec24fb2d0a5f5e532deb9adaab81d6", null ]
 ];

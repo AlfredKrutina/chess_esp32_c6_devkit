@@ -98,24 +98,24 @@ $(document).ready(function(){initNavTree('board__api__auth_8h.html',''); initRes
 
 <p>Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy.  
 <a href="#details">...</a></p>
-<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
+<div class="textblock"><code>#include &quot;sdkconfig.h&quot;</code><br />
+<code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
-<code>#include &quot;esp_http_server.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Graf závislostí na vkládaných souborech pro board_api_auth.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="board__api__auth_8h__incl.png" border="0" usemap="#aboard__api__auth_8h" alt=""/></div>
 <map name="aboard__api__auth_8h" id="aboard__api__auth_8h">
-<area shape="rect" title="Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy." alt="" coords="136,5,271,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,87,104"/>
-<area shape="poly" title=" " alt="" coords="179,33,85,75,83,71,177,28"/>
-<area shape="rect" title=" " alt="" coords="111,79,194,104"/>
-<area shape="poly" title=" " alt="" coords="197,33,171,69,167,66,193,29"/>
-<area shape="rect" title=" " alt="" coords="218,79,293,104"/>
-<area shape="poly" title=" " alt="" coords="214,29,241,66,237,69,210,33"/>
-<area shape="rect" title=" " alt="" coords="317,79,455,104"/>
-<area shape="poly" title=" " alt="" coords="234,28,344,71,342,76,232,33"/>
+<area shape="rect" title="Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy." alt="" coords="153,5,287,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,101,104"/>
+<area shape="poly" title=" " alt="" coords="194,33,94,76,92,71,192,28"/>
+<area shape="rect" title=" " alt="" coords="126,79,207,104"/>
+<area shape="poly" title=" " alt="" coords="213,33,186,69,181,66,209,29"/>
+<area shape="rect" title=" " alt="" coords="232,79,315,104"/>
+<area shape="poly" title=" " alt="" coords="231,29,259,66,254,69,227,33"/>
+<area shape="rect" title=" " alt="" coords="339,79,413,104"/>
+<area shape="poly" title=" " alt="" coords="246,28,339,70,337,75,244,33"/>
 </map>
 </div>
 </div>
@@ -126,9 +126,6 @@ Funkce</h2></td></tr>
 <tr class="memitem:ae69414b0bf5b1f31145e0fdbc4816aa6" id="r_ae69414b0bf5b1f31145e0fdbc4816aa6"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth_init</a> (void)</td></tr>
 <tr class="memdesc:ae69414b0bf5b1f31145e0fdbc4816aa6"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS inicializace / generace tokenu při prvním spuštění.  <br /></td></tr>
 <tr class="separator:ae69414b0bf5b1f31145e0fdbc4816aa6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba5d37160ecb20a0c8016bb5f864c413" id="r_aba5d37160ecb20a0c8016bb5f864c413"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#aba5d37160ecb20a0c8016bb5f864c413">board_api_auth_admin_http_denied</a> (httpd_req_t *req)</td></tr>
-<tr class="memdesc:aba5d37160ecb20a0c8016bb5f864c413"><td class="mdescLeft">&#160;</td><td class="mdescRight">HTTP admin akce: zkontroluje Bearer token vs NVS a web lock.  <br /></td></tr>
-<tr class="separator:aba5d37160ecb20a0c8016bb5f864c413"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0630014db3572ad88deb3e622229de3" id="r_af0630014db3572ad88deb3e622229de3"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#af0630014db3572ad88deb3e622229de3">board_api_auth_get_token_hex</a> (char *out_hex, size_t cap)</td></tr>
 <tr class="memdesc:af0630014db3572ad88deb3e622229de3"><td class="mdescLeft">&#160;</td><td class="mdescRight">UART / diagnostika: hex řetězec (64 znaků) + '\0'.  <br /></td></tr>
 <tr class="separator:af0630014db3572ad88deb3e622229de3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,29 +150,6 @@ BLE (viz ble_task_conn_is_encrypted)</h2>
 
 <p class="definition">Definice v souboru <a class="el" href="board__api__auth_8h_source.html">board_api_auth.h</a>.</p>
 </div><h2 class="groupheader">Dokumentace funkcí</h2>
-<a id="aba5d37160ecb20a0c8016bb5f864c413" name="aba5d37160ecb20a0c8016bb5f864c413"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba5d37160ecb20a0c8016bb5f864c413">&#9670;&#160;</a></span>board_api_auth_admin_http_denied()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool board_api_auth_admin_http_denied </td>
-          <td>(</td>
-          <td class="paramtype">httpd_req_t *&#160;</td>
-          <td class="paramname"><em>req</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>HTTP admin akce: zkontroluje Bearer token vs NVS a web lock. </p>
-<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud už byl odeslán 403 a handler má vrátit ESP_OK. </dd></dl>
-
-<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00172">172</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
-
-</div>
-</div>
 <a id="af0630014db3572ad88deb3e622229de3" name="af0630014db3572ad88deb3e622229de3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af0630014db3572ad88deb3e622229de3">&#9670;&#160;</a></span>board_api_auth_get_token_hex()</h2>
 
@@ -204,7 +178,7 @@ BLE (viz ble_task_conn_is_encrypted)</h2>
 
 <p>UART / diagnostika: hex řetězec (64 znaků) + '\0'. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00102">102</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00105">105</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
 
 </div>
 </div>
@@ -226,7 +200,7 @@ BLE (viz ble_task_conn_is_encrypted)</h2>
 
 <p>NVS inicializace / generace tokenu při prvním spuštění. </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00064">64</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00067">67</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
 
 </div>
 </div>
@@ -248,7 +222,7 @@ BLE (viz ble_task_conn_is_encrypted)</h2>
 
 <p>Vygeneruje nový token (starý přestane platit). </p>
 
-<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00113">113</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+<p class="definition">Definice je uvedena na řádku <a class="el" href="board__api__auth_8c_source.html#l00116">116</a> v souboru <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
 
 </div>
 </div>

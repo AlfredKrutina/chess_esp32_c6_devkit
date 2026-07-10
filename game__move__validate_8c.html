@@ -1,0 +1,855 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_move_validate.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__move__validate_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_move_validate.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Move validation (piece rules, castling, en passant, check simulation).  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="game__move__validate_8h_source.html">game_move_validate.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_move_validate.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__move__validate_8c__incl.png" border="0" usemap="#agame__move__validate_8c" alt=""/></div>
+<map name="agame__move__validate_8c" id="agame__move__validate_8c">
+<area shape="rect" title="Move validation (piece rules, castling, en passant, check simulation)." alt="" coords="999,5,1173,31"/>
+<area shape="rect" href="game__move__validate_8h.html" title="Move validation (internal to game_task component)." alt="" coords="5,152,180,177"/>
+<area shape="poly" title=" " alt="" coords="1008,33,185,153,184,147,1007,28"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="931,79,1094,104"/>
+<area shape="poly" title=" " alt="" coords="1076,33,1036,71,1033,67,1072,29"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="786,152,893,177"/>
+<area shape="poly" title=" " alt="" coords="1036,33,979,52,921,81,885,111,858,142,854,139,882,107,918,76,977,47,1035,28"/>
+<area shape="rect" title=" " alt="" coords="1119,79,1203,104"/>
+<area shape="poly" title=" " alt="" coords="1100,29,1140,67,1137,71,1096,33"/>
+<area shape="rect" title=" " alt="" coords="1227,79,1297,104"/>
+<area shape="poly" title=" " alt="" coords="1115,28,1221,71,1219,76,1113,33"/>
+<area shape="rect" title=" " alt="" coords="1321,79,1392,104"/>
+<area shape="poly" title=" " alt="" coords="1130,28,1308,75,1307,80,1129,33"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="490,233,605,258"/>
+<area shape="poly" title=" " alt="" coords="180,174,321,194,479,223,495,227,494,232,477,228,320,199,180,179"/>
+<area shape="rect" title=" " alt="" coords="209,313,291,339"/>
+<area shape="poly" title=" " alt="" coords="104,176,138,215,183,263,226,302,223,306,179,267,134,219,100,179"/>
+<area shape="rect" title=" " alt="" coords="507,313,588,339"/>
+<area shape="poly" title=" " alt="" coords="550,258,550,299,545,299,545,258"/>
+<area shape="rect" title=" " alt="" coords="783,313,933,339"/>
+<area shape="poly" title=" " alt="" coords="593,255,800,307,799,313,592,261"/>
+<area shape="rect" title=" " alt="" coords="957,313,1087,339"/>
+<area shape="poly" title=" " alt="" coords="605,254,944,309,943,314,605,259"/>
+<area shape="poly" title=" " alt="" coords="506,261,479,268,305,313,304,308,477,263,504,255"/>
+<area shape="rect" title=" " alt="" coords="663,313,733,339"/>
+<area shape="poly" title=" " alt="" coords="571,256,665,305,662,309,568,261"/>
+<area shape="poly" title=" " alt="" coords="958,107,871,127,775,155,672,193,586,229,584,224,670,188,773,149,870,122,957,101"/>
+<area shape="poly" title=" " alt="" coords="1095,100,1236,123,1293,136,1324,150,1343,180,1349,209,1343,238,1324,267,1296,287,1256,300,1207,308,1153,311,1041,313,947,316,947,311,1041,308,1153,306,1207,302,1255,295,1294,282,1320,263,1338,236,1344,209,1338,182,1320,154,1292,141,1235,128,1094,106"/>
+<area shape="poly" title=" " alt="" coords="1095,101,1269,126,1341,139,1374,150,1393,179,1400,209,1393,238,1375,267,1356,282,1330,293,1259,310,1178,320,1101,325,1101,320,1177,315,1258,305,1328,288,1354,277,1371,264,1389,236,1394,209,1389,182,1371,154,1339,145,1269,132,1094,106"/>
+<area shape="poly" title=" " alt="" coords="931,97,761,105,660,113,556,126,456,143,368,165,297,193,270,209,251,227,242,243,239,262,244,300,239,301,234,262,237,242,247,224,267,205,294,188,366,160,455,137,555,120,659,108,761,100,931,91"/>
+<area shape="poly" title=" " alt="" coords="1064,102,1149,126,1194,142,1235,162,1269,184,1291,209,1296,223,1296,237,1291,252,1280,267,1268,275,1248,282,1191,292,1031,305,770,316,747,319,747,314,770,311,1031,300,1190,287,1247,277,1265,270,1276,263,1286,250,1291,236,1291,224,1286,211,1265,188,1232,166,1192,147,1147,131,1063,107"/>
+<area shape="rect" title=" " alt="" coords="973,233,1111,258"/>
+<area shape="poly" title=" " alt="" coords="1017,104,1040,219,1035,220,1012,105"/>
+<area shape="rect" title=" " alt="" coords="1135,233,1266,258"/>
+<area shape="poly" title=" " alt="" coords="1028,102,1177,222,1174,226,1025,106"/>
+<area shape="poly" title=" " alt="" coords="986,106,881,149,879,144,984,102"/>
+<area shape="poly" title=" " alt="" coords="798,180,604,232,602,227,796,175"/>
+<area shape="poly" title=" " alt="" coords="793,180,732,199,669,228,573,306,569,302,666,223,730,194,791,175"/>
+<area shape="poly" title=" " alt="" coords="845,177,855,225,860,299,855,300,850,226,840,178"/>
+<area shape="poly" title=" " alt="" coords="854,175,1000,302,996,306,851,179"/>
+<area shape="poly" title=" " alt="" coords="786,171,655,178,495,189,353,206,304,216,277,227,265,243,257,261,252,300,246,299,252,260,260,240,274,223,302,211,352,201,495,184,655,172,786,166"/>
+<area shape="poly" title=" " alt="" coords="841,178,834,220,825,245,811,267,781,293,747,311,745,306,778,289,807,264,820,242,828,219,836,177"/>
+<area shape="poly" title=" " alt="" coords="870,175,1001,225,999,230,868,180"/>
+<area shape="poly" title=" " alt="" coords="894,174,1123,223,1141,227,1140,232,1121,228,893,179"/>
+<area shape="rect" title=" " alt="" coords="679,233,797,258"/>
+<area shape="poly" title=" " alt="" coords="826,180,766,226,762,222,823,175"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="287,225,466,265"/>
+<area shape="poly" title=" " alt="" coords="786,177,480,228,479,222,785,172"/>
+<area shape="poly" title=" " alt="" coords="419,263,511,305,509,310,416,268"/>
+<area shape="poly" title=" " alt="" coords="347,268,281,308,279,304,345,263"/>
+<area shape="poly" title=" " alt="" coords="454,263,650,310,649,315,453,268"/>
+</map>
+</div>
+</div>
+<p><a href="game__move__validate_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a20c746cc968a038cbdf28e01a9dd8307" id="r_a20c746cc968a038cbdf28e01a9dd8307"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a20c746cc968a038cbdf28e01a9dd8307">game_is_valid_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a20c746cc968a038cbdf28e01a9dd8307"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuj tah podle typu figurky.  <br /></td></tr>
+<tr class="separator:a20c746cc968a038cbdf28e01a9dd8307"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefd2619f5dc787e72db00b8c24ecc405" id="r_aefd2619f5dc787e72db00b8c24ecc405"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#aefd2619f5dc787e72db00b8c24ecc405">game_is_valid_move_bool</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="separator:aefd2619f5dc787e72db00b8c24ecc405"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c589b4bfa6cd43ea3582050e37c1cc4" id="r_a2c589b4bfa6cd43ea3582050e37c1cc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a2c589b4bfa6cd43ea3582050e37c1cc4">game_validate_piece_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:a2c589b4bfa6cd43ea3582050e37c1cc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rozsirena validace tahu pro figurku.  <br /></td></tr>
+<tr class="separator:a2c589b4bfa6cd43ea3582050e37c1cc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7cbb1bf49cc0ab8394c2015b2adbaa1" id="r_ae7cbb1bf49cc0ab8394c2015b2adbaa1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#ae7cbb1bf49cc0ab8394c2015b2adbaa1">game_validate_piece_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:ae7cbb1bf49cc0ab8394c2015b2adbaa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fd338ce879b00b98ddb9d6b6988e5a1" id="r_a9fd338ce879b00b98ddb9d6b6988e5a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a9fd338ce879b00b98ddb9d6b6988e5a1">game_validate_pawn_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:a9fd338ce879b00b98ddb9d6b6988e5a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuje tah pesce s rozsirenou detekci chyb.  <br /></td></tr>
+<tr class="separator:a9fd338ce879b00b98ddb9d6b6988e5a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cd825eb0de3ca38648e5543dad28d45" id="r_a9cd825eb0de3ca38648e5543dad28d45"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a9cd825eb0de3ca38648e5543dad28d45">game_validate_pawn_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:a9cd825eb0de3ca38648e5543dad28d45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a530c17b05f532aeaaa64d8bdb77ca665" id="r_a530c17b05f532aeaaa64d8bdb77ca665"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a530c17b05f532aeaaa64d8bdb77ca665">game_validate_knight_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a530c17b05f532aeaaa64d8bdb77ca665"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuj tah kone.  <br /></td></tr>
+<tr class="separator:a530c17b05f532aeaaa64d8bdb77ca665"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d3594a8fc5be27b2309559f535ed67d" id="r_a5d3594a8fc5be27b2309559f535ed67d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a5d3594a8fc5be27b2309559f535ed67d">game_validate_knight_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="separator:a5d3594a8fc5be27b2309559f535ed67d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94bb4afd94650885459c130f6c3a811d" id="r_a94bb4afd94650885459c130f6c3a811d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a94bb4afd94650885459c130f6c3a811d">game_validate_bishop_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a94bb4afd94650885459c130f6c3a811d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuje tah strelce s rozsirenou detekci chyb.  <br /></td></tr>
+<tr class="separator:a94bb4afd94650885459c130f6c3a811d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d303839b2a0088558c5b56452232f4b" id="r_a6d303839b2a0088558c5b56452232f4b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a6d303839b2a0088558c5b56452232f4b">game_validate_bishop_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="separator:a6d303839b2a0088558c5b56452232f4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b858d85c199815887890cf595969c75" id="r_a4b858d85c199815887890cf595969c75"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a4b858d85c199815887890cf595969c75">game_validate_rook_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a4b858d85c199815887890cf595969c75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuj tah veze.  <br /></td></tr>
+<tr class="separator:a4b858d85c199815887890cf595969c75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad41adafacc7ea4384a6b7337ddea7299" id="r_ad41adafacc7ea4384a6b7337ddea7299"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#ad41adafacc7ea4384a6b7337ddea7299">game_validate_rook_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="separator:ad41adafacc7ea4384a6b7337ddea7299"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb3d6c97b1ab4160a2ed398cfa3b5b52" id="r_acb3d6c97b1ab4160a2ed398cfa3b5b52"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#acb3d6c97b1ab4160a2ed398cfa3b5b52">game_validate_queen_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:acb3d6c97b1ab4160a2ed398cfa3b5b52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuj tah damy.  <br /></td></tr>
+<tr class="separator:acb3d6c97b1ab4160a2ed398cfa3b5b52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29083b28e0ddc03048382e5c8e73c200" id="r_a29083b28e0ddc03048382e5c8e73c200"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a29083b28e0ddc03048382e5c8e73c200">game_validate_queen_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="separator:a29083b28e0ddc03048382e5c8e73c200"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a210042709363b26c91b23a04ccac022a" id="r_a210042709363b26c91b23a04ccac022a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a210042709363b26c91b23a04ccac022a">game_validate_king_move_enhanced</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a210042709363b26c91b23a04ccac022a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuje tah krale s rozsirenou detekci chyb.  <br /></td></tr>
+<tr class="separator:a210042709363b26c91b23a04ccac022a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0a42f4f2685e64e790a1eb2a5df5530" id="r_ab0a42f4f2685e64e790a1eb2a5df5530"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#ab0a42f4f2685e64e790a1eb2a5df5530">game_validate_king_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="separator:ab0a42f4f2685e64e790a1eb2a5df5530"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6d73d7ab8a4c7b188d690a5177a0072" id="r_af6d73d7ab8a4c7b188d690a5177a0072"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#af6d73d7ab8a4c7b188d690a5177a0072">game_would_move_leave_king_in_check</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:af6d73d7ab8a4c7b188d690a5177a0072"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kontroluje zda by tah ponechal krale v sachu.  <br /></td></tr>
+<tr class="separator:af6d73d7ab8a4c7b188d690a5177a0072"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a175e65acc9f386834730a86b25d6190a" id="r_a175e65acc9f386834730a86b25d6190a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a175e65acc9f386834730a86b25d6190a">game_is_en_passant_possible</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a175e65acc9f386834730a86b25d6190a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kontroluje zda je en passant mozny pro dany tah.  <br /></td></tr>
+<tr class="separator:a175e65acc9f386834730a86b25d6190a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7169001872522d780e6e67a15d86a47e" id="r_a7169001872522d780e6e67a15d86a47e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a7169001872522d780e6e67a15d86a47e">game_validate_castling</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a7169001872522d780e6e67a15d86a47e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validuje rosadu (castling) s komplexni kontrolou vsech podminek.  <br /></td></tr>
+<tr class="separator:a7169001872522d780e6e67a15d86a47e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_VALIDATE&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Move validation (piece rules, castling, en passant, check simulation). </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a175e65acc9f386834730a86b25d6190a" name="a175e65acc9f386834730a86b25d6190a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a175e65acc9f386834730a86b25d6190a">&#9670;&#160;</a></span>game_is_en_passant_possible()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_en_passant_possible </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kontroluje zda je en passant mozny pro dany tah. </p>
+<p>Overi zda je en passant mozny.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Ukazatel na strukturu tahu k otestovani </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je en passant platny, false pokud neni mozny</dd></dl>
+<p>En passant (brani mimochodem) je mozne pouze pokud:</p><ol type="1">
+<li>Posledni tah byl pesec pohybujici se o 2 pole</li>
+<li>Utocici pesec je na stejnem radku jako prave pohnuty pesec</li>
+<li>Utocici pesec je primo vedle prave pohnuteho pesce</li>
+<li>Cilove pole je uprostred mezi start a cil pozici protivnikova pesce </li>
+</ol>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00567">567</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a20c746cc968a038cbdf28e01a9dd8307" name="a20c746cc968a038cbdf28e01a9dd8307"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20c746cc968a038cbdf28e01a9dd8307">&#9670;&#160;</a></span>game_is_valid_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_is_valid_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuj tah podle typu figurky. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Tah k validaci </td></tr>
+    <tr><td class="paramname">piece</td><td>Figurka ktera se pohybuje </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00021">21</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="aefd2619f5dc787e72db00b8c24ecc405" name="aefd2619f5dc787e72db00b8c24ecc405"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefd2619f5dc787e72db00b8c24ecc405">&#9670;&#160;</a></span>game_is_valid_move_bool()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_valid_move_bool </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00128">128</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a6d303839b2a0088558c5b56452232f4b" name="a6d303839b2a0088558c5b56452232f4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d303839b2a0088558c5b56452232f4b">&#9670;&#160;</a></span>game_validate_bishop_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_bishop_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00366">366</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a94bb4afd94650885459c130f6c3a811d" name="a94bb4afd94650885459c130f6c3a811d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94bb4afd94650885459c130f6c3a811d">&#9670;&#160;</a></span>game_validate_bishop_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_bishop_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuje tah strelce s rozsirenou detekci chyb. </p>
+<p>Validuj tah strelce.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Ukazatel na strukturu tahu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pokud je tah platny, jinak kod chyby</dd></dl>
+<p>Strelec se pohybuje pouze diagonalne. Funkce kontroluje:</p><ul>
+<li>Validni diagonalni pohyb (abs_row_diff == abs_col_diff)</li>
+<li>Blokovani cesty mezi start a cil pozici</li>
+<li>Vsechna pole na ceste musi byt prazdna</li>
+</ul>
+<dl class="section note"><dt>Poznámka</dt><dd>Opraveno v2.4.1:<ul>
+<li>BUG #2: While loop nyni pouziva OR misto AND pro spravnou kontrolu az do cile</li>
+<li>Pridana safety kontrola proti nekonecnemu loopu (max 8 kroku)</li>
+<li>Pridany diagnosticke logy pro blokovani </li>
+</ul>
+</dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00321">321</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a7169001872522d780e6e67a15d86a47e" name="a7169001872522d780e6e67a15d86a47e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7169001872522d780e6e67a15d86a47e">&#9670;&#160;</a></span>game_validate_castling()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_castling </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuje rosadu (castling) s komplexni kontrolou vsech podminek. </p>
+<p>Validuj rosadu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Ukazatel na strukturu tahu (kral taha o 2 pole vodorovne) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pokud je rosada platna, jinak kod chyby</dd></dl>
+<p>Rosada musi splnovat vsechny tyto podminky:</p><ol type="1">
+<li>Figurka musi byt kral</li>
+<li>Kral se jeste nepohyboval</li>
+<li>Vez se jeste nepohybovala</li>
+<li>Vez existuje na spravne pozici</li>
+<li>Cesta mezi kralem a vezi je prazdna</li>
+<li>Kral neni v sachu</li>
+<li>Kral neprojde sachovanyym polem</li>
+<li>Kral neskonci v sachu</li>
+</ol>
+<p>Rosada je mozna:</p><ul>
+<li>Kingside (O-O): kral e1-&gt;g1, vez h1-&gt;f1</li>
+<li>Queenside (O-O-O): kral e1-&gt;c1, vez a1-&gt;d1 </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00654">654</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="ab0a42f4f2685e64e790a1eb2a5df5530" name="ab0a42f4f2685e64e790a1eb2a5df5530"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab0a42f4f2685e64e790a1eb2a5df5530">&#9670;&#160;</a></span>game_validate_king_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_king_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00474">474</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a210042709363b26c91b23a04ccac022a" name="a210042709363b26c91b23a04ccac022a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a210042709363b26c91b23a04ccac022a">&#9670;&#160;</a></span>game_validate_king_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_king_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuje tah krale s rozsirenou detekci chyb. </p>
+<p>Validuj tah krale.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Ukazatel na strukturu tahu </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pokud je tah platny, jinak kod chyby</dd></dl>
+<p>Kral se muze pohybovat o 1 pole libovolnym smerem nebo delat rosadu. Funkce kontroluje:</p><ul>
+<li>Pohyb o 1 pole (8 smeru)</li>
+<li>Pohyb o 2 pole vodorovne (rosada)</li>
+<li>Tah musi byt nenulovy (nelze tahnout na stejne pole)</li>
+</ul>
+<p>Pro rosadu deleguje validaci na <a class="el" href="game__task_8h.html#a7169001872522d780e6e67a15d86a47e" title="Validuj rosadu.">game_validate_castling()</a>. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00451">451</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a5d3594a8fc5be27b2309559f535ed67d" name="a5d3594a8fc5be27b2309559f535ed67d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d3594a8fc5be27b2309559f535ed67d">&#9670;&#160;</a></span>game_validate_knight_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_knight_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00299">299</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a530c17b05f532aeaaa64d8bdb77ca665" name="a530c17b05f532aeaaa64d8bdb77ca665"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a530c17b05f532aeaaa64d8bdb77ca665">&#9670;&#160;</a></span>game_validate_knight_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_knight_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuj tah kone. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Tah k validaci </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00283">283</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a9cd825eb0de3ca38648e5543dad28d45" name="a9cd825eb0de3ca38648e5543dad28d45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9cd825eb0de3ca38648e5543dad28d45">&#9670;&#160;</a></span>game_validate_pawn_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_pawn_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00279">279</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a9fd338ce879b00b98ddb9d6b6988e5a1" name="a9fd338ce879b00b98ddb9d6b6988e5a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9fd338ce879b00b98ddb9d6b6988e5a1">&#9670;&#160;</a></span>game_validate_pawn_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_pawn_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuje tah pesce s rozsirenou detekci chyb. </p>
+<p>Validuj tah pescu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Ukazatel na strukturu tahu </td></tr>
+    <tr><td class="paramname">piece</td><td>Typ figurky (PIECE_WHITE_PAWN nebo PIECE_BLACK_PAWN) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pokud je tah platny, jinak kod chyby</dd></dl>
+<p>Tato funkce validuje vsechny typy tahu pesce:</p><ul>
+<li>Pohyb vpred o 1 pole</li>
+<li>Pohyb vpred o 2 pole ze startovni pozice</li>
+<li>Brani diagonalne (1 pole diagonalne s nepratelem)</li>
+<li>En passant (specialni brani mimochodem)</li>
+</ul>
+<p>Funkce take kontroluje:</p><ul>
+<li>Blokovani cesty (bile i cerne pesce)</li>
+<li>Zpetne tahy (invalidi)</li>
+<li>Diagonalni tahy na prazdna pole (bez en passant)</li>
+</ul>
+<dl class="section note"><dt>Poznámka</dt><dd>Opraveno v2.4.1:<ul>
+<li>BUG #1: Blokovani cesty nyni funguje pro bile i cerne pesce (abs(row_diff))</li>
+<li>BUG #8: Zpetne tahy jsou nyni detekovany jako INVALID_PATTERN</li>
+<li>Pridany diagnosticke logy pro debugging </li>
+</ul>
+</dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00198">198</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="ae7cbb1bf49cc0ab8394c2015b2adbaa1" name="ae7cbb1bf49cc0ab8394c2015b2adbaa1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7cbb1bf49cc0ab8394c2015b2adbaa1">&#9670;&#160;</a></span>game_validate_piece_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_piece_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00170">170</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a2c589b4bfa6cd43ea3582050e37c1cc4" name="a2c589b4bfa6cd43ea3582050e37c1cc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c589b4bfa6cd43ea3582050e37c1cc4">&#9670;&#160;</a></span>game_validate_piece_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_piece_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rozsirena validace tahu pro figurku. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Tah k validaci </td></tr>
+    <tr><td class="paramname">piece</td><td>Figurka </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00132">132</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a29083b28e0ddc03048382e5c8e73c200" name="a29083b28e0ddc03048382e5c8e73c200"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29083b28e0ddc03048382e5c8e73c200">&#9670;&#160;</a></span>game_validate_queen_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_queen_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00431">431</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="acb3d6c97b1ab4160a2ed398cfa3b5b52" name="acb3d6c97b1ab4160a2ed398cfa3b5b52"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb3d6c97b1ab4160a2ed398cfa3b5b52">&#9670;&#160;</a></span>game_validate_queen_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_queen_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuj tah damy. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Tah k validaci </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00412">412</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="ad41adafacc7ea4384a6b7337ddea7299" name="ad41adafacc7ea4384a6b7337ddea7299"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad41adafacc7ea4384a6b7337ddea7299">&#9670;&#160;</a></span>game_validate_rook_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_validate_rook_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00408">408</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="a4b858d85c199815887890cf595969c75" name="a4b858d85c199815887890cf595969c75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b858d85c199815887890cf595969c75">&#9670;&#160;</a></span>game_validate_rook_move_enhanced()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a> game_validate_rook_move_enhanced </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validuj tah veze. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Tah k validaci </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>MOVE_ERROR_NONE pri uspechu, jinak kod chyby </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00370">370</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="af6d73d7ab8a4c7b188d690a5177a0072" name="af6d73d7ab8a4c7b188d690a5177a0072"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6d73d7ab8a4c7b188d690a5177a0072">&#9670;&#160;</a></span>game_would_move_leave_king_in_check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_would_move_leave_king_in_check </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Kontroluje zda by tah ponechal krale v sachu. </p>
+<p>Overi zda by tah nechal krale v sachu.</p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">move</td><td>Ukazatel na strukturu tahu k otestovani </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud by tah ponechal krale v sachu, false pokud je tah bezpecny</dd></dl>
+<p>Funkce simuluje tah na desce a kontroluje zda by vysledna pozice ponechala vlastniho krale v sachu. Pouziva se pro validaci vsech tahu.</p>
+<p>Proces:</p><ol type="1">
+<li>Ulozi puvodni stav desky</li>
+<li>Provede tah docasne</li>
+<li>Kontroluje zda je kral v sachu</li>
+<li>Obnovi puvodni stav desky </li>
+</ol>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00495">495</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;GAME_VALIDATE&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__move__validate_8c_source.html#l00015">15</a> v souboru <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__move__validate_8c.html">game_move_validate.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

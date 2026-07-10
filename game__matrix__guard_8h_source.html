@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor game_matrix_guard.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function() { init_codefold(0); });
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__matrix__guard_8h_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">game_matrix_guard.h</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="game__matrix__guard_8h.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#ifndef GAME_MATRIX_GUARD_H</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#define GAME_MATRIX_GUARD_H</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="chess__types_8h.html">chess_types.h</a>&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__matrix__guard_8h.html#ae3ef4e1edc3ecb9b3de597377ee06e49">game_matrix_guard_handle_command</a>(<span class="keyword">const</span> <a class="code hl_struct" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd);</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__matrix__guard_8h.html#a13493e3cf2a463144aea5c11137e128d">game_matrix_guard_clear_both_layers</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__matrix__guard_8h.html#a3d7167ca923be48722f71e1738e49f83">game_matrix_guard_restore_after_clear</a>(<span class="keywordtype">bool</span> notify_clients);</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__matrix__guard_8h.html#a0134739549970cb17060f9a94edc3fe9">game_matrix_guard_render_leds</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__matrix__guard_8h.html#ae5d5f7bb13936a73a03b0a29a80cd4d6">game_matrix_guard_try_clear_from_matrix</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__matrix__guard_8h.html#aa2ad17091138a8d7b1df3bd238964d84">game_matrix_guard_check_resync_after_restore</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#endif </span><span class="comment">/* GAME_MATRIX_GUARD_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="achess__types_8h_html"><div class="ttname"><a href="chess__types_8h.html">chess_types.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Spolecne definice typu.</div></div>
+<div class="ttc" id="agame__matrix__guard_8h_html_a0134739549970cb17060f9a94edc3fe9"><div class="ttname"><a href="game__matrix__guard_8h.html#a0134739549970cb17060f9a94edc3fe9">game_matrix_guard_render_leds</a></div><div class="ttdeci">void game_matrix_guard_render_leds(void)</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__guard_8c_source.html#l00109">game_matrix_guard.c:109</a></div></div>
+<div class="ttc" id="agame__matrix__guard_8h_html_a13493e3cf2a463144aea5c11137e128d"><div class="ttname"><a href="game__matrix__guard_8h.html#a13493e3cf2a463144aea5c11137e128d">game_matrix_guard_clear_both_layers</a></div><div class="ttdeci">void game_matrix_guard_clear_both_layers(void)</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__guard_8c_source.html#l00089">game_matrix_guard.c:89</a></div></div>
+<div class="ttc" id="agame__matrix__guard_8h_html_a3d7167ca923be48722f71e1738e49f83"><div class="ttname"><a href="game__matrix__guard_8h.html#a3d7167ca923be48722f71e1738e49f83">game_matrix_guard_restore_after_clear</a></div><div class="ttdeci">void game_matrix_guard_restore_after_clear(bool notify_clients)</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__guard_8c_source.html#l00100">game_matrix_guard.c:100</a></div></div>
+<div class="ttc" id="agame__matrix__guard_8h_html_aa2ad17091138a8d7b1df3bd238964d84"><div class="ttname"><a href="game__matrix__guard_8h.html#aa2ad17091138a8d7b1df3bd238964d84">game_matrix_guard_check_resync_after_restore</a></div><div class="ttdeci">void game_matrix_guard_check_resync_after_restore(void)</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__guard_8c_source.html#l00189">game_matrix_guard.c:189</a></div></div>
+<div class="ttc" id="agame__matrix__guard_8h_html_ae3ef4e1edc3ecb9b3de597377ee06e49"><div class="ttname"><a href="game__matrix__guard_8h.html#ae3ef4e1edc3ecb9b3de597377ee06e49">game_matrix_guard_handle_command</a></div><div class="ttdeci">void game_matrix_guard_handle_command(const chess_move_command_t *cmd)</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__guard_8c_source.html#l00139">game_matrix_guard.c:139</a></div></div>
+<div class="ttc" id="agame__matrix__guard_8h_html_ae5d5f7bb13936a73a03b0a29a80cd4d6"><div class="ttname"><a href="game__matrix__guard_8h.html#ae5d5f7bb13936a73a03b0a29a80cd4d6">game_matrix_guard_try_clear_from_matrix</a></div><div class="ttdeci">void game_matrix_guard_try_clear_from_matrix(void)</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__guard_8c_source.html#l00230">game_matrix_guard.c:230</a></div></div>
+<div class="ttc" id="astructchess__move__command__t_html"><div class="ttname"><a href="structchess__move__command__t.html">chess_move_command_t</a></div><div class="ttdoc">Struktura prikazu pro sachovy tah pres UART.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00309">chess_types.h:309</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="dir_33cc7e91f7e0627bade559bf776868f5.html">include</a></li><li class="navelem"><a class="el" href="game__matrix__guard_8h.html">game_matrix_guard.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

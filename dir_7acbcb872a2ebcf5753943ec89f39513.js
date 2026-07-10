@@ -2,6 +2,27 @@ var dir_7acbcb872a2ebcf5753943ec89f39513 =
 [
     [ "include", "dir_33cc7e91f7e0627bade559bf776868f5.html", "dir_33cc7e91f7e0627bade559bf776868f5" ],
     [ "demo_mode_helpers.c", "demo__mode__helpers_8c.html", "demo__mode__helpers_8c" ],
+    [ "game_board_core.c", "game__board__core_8c.html", "game__board__core_8c" ],
+    [ "game_castling.c", "game__castling_8c.html", "game__castling_8c" ],
+    [ "game_cmd_handlers.c", "game__cmd__handlers_8c.html", "game__cmd__handlers_8c" ],
+    [ "game_dispatch.c", "game__dispatch_8c.html", "game__dispatch_8c" ],
+    [ "game_endgame_detect.c", "game__endgame__detect_8c.html", "game__endgame__detect_8c" ],
+    [ "game_endgame_report.c", "game__endgame__report_8c.html", "game__endgame__report_8c" ],
+    [ "game_error_recovery.c", "game__error__recovery_8c.html", "game__error__recovery_8c" ],
+    [ "game_init.c", "game__init_8c.html", "game__init_8c" ],
+    [ "game_json_export.c", "game__json__export_8c.html", "game__json__export_8c" ],
     [ "game_led_direct.c", "game__led__direct_8c.html", "game__led__direct_8c" ],
-    [ "game_task.c", "game__task_8c.html", "game__task_8c" ]
+    [ "game_matrix_guard.c", "game__matrix__guard_8c.html", "game__matrix__guard_8c" ],
+    [ "game_matrix_workflow.c", "game__matrix__workflow_8c.html", "game__matrix__workflow_8c" ],
+    [ "game_move_exec.c", "game__move__exec_8c.html", "game__move__exec_8c" ],
+    [ "game_move_gen.c", "game__move__gen_8c.html", "game__move__gen_8c" ],
+    [ "game_move_validate.c", "game__move__validate_8c.html", "game__move__validate_8c" ],
+    [ "game_opening_trainer.c", "game__opening__trainer_8c.html", "game__opening__trainer_8c" ],
+    [ "game_physical.c", "game__physical_8c.html", "game__physical_8c" ],
+    [ "game_promotion.c", "game__promotion_8c.html", "game__promotion_8c" ],
+    [ "game_puzzle.c", "game__puzzle_8c.html", "game__puzzle_8c" ],
+    [ "game_resignation.c", "game__resignation_8c.html", "game__resignation_8c" ],
+    [ "game_snapshot.c", "game__snapshot_8c.html", "game__snapshot_8c" ],
+    [ "game_task.c", "game__task_8c.html", "game__task_8c" ],
+    [ "game_timer.c", "game__timer_8c.html", "game__timer_8c" ]
 ];

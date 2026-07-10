@@ -1,0 +1,1712 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_opening_trainer.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__opening__trainer_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Datové struktury</a> &#124;
+<a href="#define-members">Definice maker</a> &#124;
+<a href="#enum-members">Výčty</a> &#124;
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_opening_trainer.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Interactive opening line trainer — multi-ply UCI validation + virtual opponent.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="matrix__task_8h_source.html">../matrix_task/include/matrix_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_opening_trainer.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__opening__trainer_8c__incl.png" border="0" usemap="#agame__opening__trainer_8c" alt=""/></div>
+<map name="agame__opening__trainer_8c" id="agame__opening__trainer_8c">
+<area shape="rect" title="Interactive opening line trainer — multi&#45;ply UCI validation + virtual opponent." alt="" coords="1898,5,2077,31"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="577,86,740,111"/>
+<area shape="poly" title=" " alt="" coords="1898,27,754,94,753,89,1898,22"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="605,167,712,192"/>
+<area shape="poly" title=" " alt="" coords="1898,33,726,173,725,167,1898,27"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="51,167,202,192"/>
+<area shape="poly" title=" " alt="" coords="1898,24,1228,41,845,58,686,69,565,81,457,99,350,122,179,165,178,160,349,117,456,94,565,76,686,64,845,53,1228,36,1898,18"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="1864,79,2004,119"/>
+<area shape="poly" title=" " alt="" coords="1982,32,1957,69,1953,66,1978,29"/>
+<area shape="rect" href="matrix__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Hlavicka." alt="" coords="1677,79,1840,119"/>
+<area shape="poly" title=" " alt="" coords="1955,33,1827,77,1825,72,1953,28"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="2062,167,2180,192"/>
+<area shape="poly" title=" " alt="" coords="1999,29,2071,117,2104,154,2100,158,2067,120,1995,33"/>
+<area shape="rect" title=" " alt="" coords="2080,86,2164,111"/>
+<area shape="poly" title=" " alt="" coords="2009,29,2092,77,2089,81,2006,33"/>
+<area shape="rect" title=" " alt="" coords="2189,86,2288,111"/>
+<area shape="poly" title=" " alt="" coords="2025,28,2190,79,2188,84,2023,33"/>
+<area shape="rect" title=" " alt="" coords="2312,86,2378,111"/>
+<area shape="poly" title=" " alt="" coords="2073,28,2182,47,2300,76,2308,79,2307,84,2299,81,2181,53,2072,33"/>
+<area shape="rect" title=" " alt="" coords="2403,86,2474,111"/>
+<area shape="poly" title=" " alt="" coords="2078,24,2225,43,2309,57,2391,76,2400,79,2399,84,2390,81,2308,63,2225,48,2077,29"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="253,247,368,273"/>
+<area shape="poly" title=" " alt="" coords="634,114,349,244,347,239,632,109"/>
+<area shape="rect" title=" " alt="" coords="80,328,231,353"/>
+<area shape="poly" title=" " alt="" coords="577,105,426,112,252,124,101,143,50,155,23,169,12,186,8,209,16,240,39,278,67,304,100,321,97,325,63,308,35,282,11,242,3,210,7,184,19,165,48,150,100,138,251,119,426,107,577,100"/>
+<area shape="rect" title=" " alt="" coords="255,328,384,353"/>
+<area shape="poly" title=" " alt="" coords="577,105,430,113,261,125,115,144,66,155,40,169,32,181,28,193,28,206,31,219,51,247,84,278,110,292,150,304,242,324,241,330,148,309,108,297,81,282,47,251,27,221,22,206,22,192,27,178,37,165,64,150,114,138,261,120,430,107,577,100"/>
+<area shape="rect" title=" " alt="" coords="450,328,533,353"/>
+<area shape="poly" title=" " alt="" coords="598,114,504,135,397,164,301,200,266,221,243,242,236,260,243,278,268,290,318,304,437,327,436,333,317,309,266,295,239,282,230,260,239,238,263,216,299,196,395,159,503,129,597,109"/>
+<area shape="rect" title=" " alt="" coords="1204,328,1275,353"/>
+<area shape="poly" title=" " alt="" coords="673,109,699,134,726,165,743,198,752,228,763,254,787,278,818,293,862,305,974,322,1093,332,1191,336,1190,341,1092,337,973,328,861,310,816,298,783,282,758,257,747,229,739,200,721,168,695,138,670,113"/>
+<area shape="rect" title=" " alt="" coords="1094,247,1231,273"/>
+<area shape="poly" title=" " alt="" coords="695,109,1114,241,1113,246,694,114"/>
+<area shape="rect" title=" " alt="" coords="938,247,1069,273"/>
+<area shape="poly" title=" " alt="" coords="684,109,967,239,965,244,682,114"/>
+<area shape="poly" title=" " alt="" coords="661,112,661,153,656,153,656,112"/>
+<area shape="rect" title=" " alt="" coords="618,328,699,353"/>
+<area shape="poly" title=" " alt="" coords="362,270,605,325,604,330,360,275"/>
+<area shape="poly" title=" " alt="" coords="289,275,192,324,190,319,286,270"/>
+<area shape="poly" title=" " alt="" coords="314,273,319,314,314,314,309,273"/>
+<area shape="poly" title=" " alt="" coords="338,270,454,320,452,325,336,275"/>
+<area shape="poly" title=" " alt="" coords="369,269,431,277,653,299,871,316,1191,334,1190,340,870,321,652,305,430,283,368,274"/>
+<area shape="poly" title=" " alt="" coords="605,195,387,243,370,247,369,241,386,237,604,189"/>
+<area shape="poly" title=" " alt="" coords="661,192,661,314,656,314,656,192"/>
+<area shape="poly" title=" " alt="" coords="605,186,513,191,403,202,301,219,260,230,230,242,210,258,193,277,169,317,164,314,189,274,207,254,228,238,258,225,299,214,402,197,512,186,605,180"/>
+<area shape="poly" title=" " alt="" coords="605,183,512,184,403,193,350,200,304,211,267,224,243,242,238,251,236,259,243,279,261,302,284,319,281,323,257,305,239,281,231,259,232,249,239,238,265,220,302,205,349,195,402,187,512,179,605,177"/>
+<area shape="poly" title=" " alt="" coords="605,190,503,209,459,224,443,232,432,242,428,251,426,260,433,280,448,300,466,317,463,321,444,304,428,283,421,261,423,249,428,238,440,228,457,219,502,204,604,184"/>
+<area shape="poly" title=" " alt="" coords="666,191,695,235,716,259,742,278,779,292,829,304,954,321,1085,331,1191,335,1191,341,1085,336,953,326,828,309,777,297,740,282,713,263,691,238,662,194"/>
+<area shape="poly" title=" " alt="" coords="712,184,878,205,1082,237,1103,242,1102,247,1081,243,877,210,712,189"/>
+<area shape="poly" title=" " alt="" coords="712,189,927,237,945,242,943,247,926,243,711,195"/>
+<area shape="rect" title=" " alt="" coords="797,247,914,273"/>
+<area shape="poly" title=" " alt="" coords="688,190,815,240,813,245,686,194"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="442,240,621,280"/>
+<area shape="poly" title=" " alt="" coords="641,194,576,235,573,230,638,190"/>
+<area shape="poly" title=" " alt="" coords="564,278,630,319,627,323,561,282"/>
+<area shape="poly" title=" " alt="" coords="524,281,506,317,502,314,520,279"/>
+<area shape="poly" title=" " alt="" coords="621,269,691,277,1191,332,1190,337,690,283,621,275"/>
+<area shape="poly" title=" " alt="" coords="154,190,272,240,270,245,152,194"/>
+<area shape="poly" title=" " alt="" coords="119,194,106,212,94,235,90,258,92,269,97,278,137,286,228,300,437,329,436,335,227,306,136,291,94,282,87,271,85,258,89,233,101,210,114,191"/>
+<area shape="poly" title=" " alt="" coords="1939,119,1944,167,1944,204,1937,234,1921,260,1891,282,1835,294,1718,304,1369,321,713,341,712,336,1369,316,1717,299,1834,289,1889,278,1917,256,1932,232,1938,203,1938,167,1934,119"/>
+<area shape="poly" title=" " alt="" coords="1923,120,1892,157,1848,203,1793,248,1762,267,1730,283,1699,291,1653,298,1522,309,1170,321,817,326,605,331,547,336,547,331,605,325,817,321,1170,315,1522,303,1652,292,1698,285,1728,277,1760,262,1790,243,1844,199,1888,154,1918,117"/>
+<area shape="poly" title=" " alt="" coords="1961,117,1977,133,1991,151,1998,172,1994,193,1970,230,1943,252,1910,267,1869,283,1818,296,1751,308,1587,325,1419,335,1289,341,1289,335,1418,330,1586,320,1750,302,1817,291,1867,277,1908,262,1940,247,1966,226,1989,191,1993,172,1986,154,1973,136,1958,121"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="1306,167,1435,192"/>
+<area shape="poly" title=" " alt="" coords="1865,119,1852,121,1634,153,1449,173,1449,168,1633,148,1851,116,1864,114"/>
+<area shape="poly" title=" " alt="" coords="1305,185,933,203,684,219,431,243,382,249,381,244,430,237,684,214,933,197,1305,180"/>
+<area shape="poly" title=" " alt="" coords="1380,191,1391,210,1399,234,1401,259,1391,282,1377,291,1354,299,1287,313,1198,323,1095,330,881,339,713,342,713,336,881,334,1095,325,1198,317,1287,307,1353,294,1375,286,1387,278,1396,258,1394,235,1386,212,1376,193"/>
+<area shape="poly" title=" " alt="" coords="1354,195,1289,242,1269,264,1260,274,1245,282,1179,296,1068,306,766,319,453,325,245,331,245,325,453,320,766,313,1067,301,1178,291,1243,278,1256,270,1265,261,1286,238,1351,190"/>
+<area shape="poly" title=" " alt="" coords="1367,194,1339,239,1316,263,1289,282,1231,297,1133,307,867,320,439,331,399,334,398,329,438,325,867,315,1132,302,1230,291,1287,278,1313,259,1334,236,1362,191"/>
+<area shape="poly" title=" " alt="" coords="1373,193,1367,237,1357,262,1340,282,1321,291,1292,299,1208,310,1100,318,978,323,605,331,547,336,547,331,605,325,978,318,1099,313,1208,305,1291,294,1319,286,1337,278,1353,259,1362,235,1368,192"/>
+<area shape="poly" title=" " alt="" coords="1436,178,1535,182,1588,187,1636,196,1676,209,1703,227,1710,239,1712,252,1707,266,1696,282,1675,293,1636,303,1524,320,1289,339,1288,334,1523,314,1635,298,1673,288,1693,278,1703,264,1707,251,1705,240,1699,231,1674,214,1635,201,1587,193,1534,187,1435,183"/>
+<area shape="poly" title=" " alt="" coords="1341,195,1206,245,1205,240,1339,190"/>
+<area shape="poly" title=" " alt="" coords="1313,195,1083,243,1065,247,1063,242,1082,237,1312,189"/>
+<area shape="poly" title=" " alt="" coords="1306,189,1134,209,927,243,909,247,908,241,926,237,1133,204,1305,184"/>
+<area shape="rect" title=" " alt="" coords="1586,247,1682,273"/>
+<area shape="poly" title=" " alt="" coords="1411,189,1575,237,1586,241,1584,246,1574,243,1410,195"/>
+<area shape="rect" title=" " alt="" coords="1458,247,1562,273"/>
+<area shape="poly" title=" " alt="" coords="1392,190,1479,238,1476,243,1390,195"/>
+<area shape="poly" title=" " alt="" coords="1773,117,1791,152,1806,196,1810,219,1810,241,1804,263,1791,282,1774,290,1741,296,1636,308,1320,325,969,336,713,341,713,336,969,331,1319,320,1636,303,1741,291,1772,285,1787,278,1799,261,1804,241,1805,219,1801,197,1786,154,1768,120"/>
+<area shape="poly" title=" " alt="" coords="1761,119,1757,155,1748,200,1728,245,1714,265,1696,282,1675,289,1636,295,1512,305,1154,319,605,331,547,336,547,331,605,325,1154,313,1512,299,1636,290,1674,284,1693,278,1710,262,1724,243,1743,199,1752,155,1755,119"/>
+<area shape="poly" title=" " alt="" coords="1795,117,1821,138,1842,165,1856,197,1863,226,1860,254,1841,282,1812,297,1758,308,1602,326,1428,336,1289,341,1289,336,1428,331,1602,320,1757,303,1810,291,1838,278,1854,252,1858,227,1851,199,1837,168,1818,141,1792,121"/>
+<area shape="poly" title=" " alt="" coords="1678,119,1441,167,1440,161,1677,114"/>
+<area shape="poly" title=" " alt="" coords="2118,194,2091,239,2070,263,2044,282,1998,295,1920,306,1702,323,1466,335,1289,341,1289,335,1466,329,1702,318,1919,301,1997,290,2041,278,2066,259,2087,235,2113,191"/>
+</map>
+</div>
+</div>
+<p><a href="game__opening__trainer_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Datové struktury</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structopening__trainer__state__t.html">opening_trainer_state_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a62ecd07b10c8688371e290c8c64df0a4" id="r_a62ecd07b10c8688371e290c8c64df0a4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a62ecd07b10c8688371e290c8c64df0a4">STAGING_LOGI</a>(tag,  fmt, ...)&#160;&#160;&#160;ESP_LOGI(tag, &quot;[STAGING] &quot; fmt, ##__VA_ARGS__)</td></tr>
+<tr class="separator:a62ecd07b10c8688371e290c8c64df0a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23c008a8661aab88b3660be1748c22e0" id="r_a23c008a8661aab88b3660be1748c22e0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a23c008a8661aab88b3660be1748c22e0">OPENING_MAX_PLIES</a>&#160;&#160;&#160;16</td></tr>
+<tr class="separator:a23c008a8661aab88b3660be1748c22e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e3c0ac173ea68d23f48c521630059a4" id="r_a7e3c0ac173ea68d23f48c521630059a4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a7e3c0ac173ea68d23f48c521630059a4">OPENING_MAX_PLAYER_PLIES</a>&#160;&#160;&#160;8</td></tr>
+<tr class="separator:a7e3c0ac173ea68d23f48c521630059a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a025be93964a879eb056034629ab2de15" id="r_a025be93964a879eb056034629ab2de15"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a025be93964a879eb056034629ab2de15">OPENING_MAX_CHECKPOINTS</a>&#160;&#160;&#160;4</td></tr>
+<tr class="separator:a025be93964a879eb056034629ab2de15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a556ed13abc2a16e2e7c3388682da8f36" id="r_a556ed13abc2a16e2e7c3388682da8f36"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a556ed13abc2a16e2e7c3388682da8f36">OPENING_LINE_ID_MAX</a>&#160;&#160;&#160;48</td></tr>
+<tr class="separator:a556ed13abc2a16e2e7c3388682da8f36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f2bb102aaa773f539da64f504eb292f" id="r_a1f2bb102aaa773f539da64f504eb292f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a1f2bb102aaa773f539da64f504eb292f">OPENING_FEN_MAX</a>&#160;&#160;&#160;120</td></tr>
+<tr class="separator:a1f2bb102aaa773f539da64f504eb292f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Výčty</h2></td></tr>
+<tr class="memitem:add2affa1f220901931edd0d4664449ce" id="r_add2affa1f220901931edd0d4664449ce"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449ce">opening_feedback_t</a> { <br />
+&#160;&#160;<a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea7a80eec8ddd115cf2c13374e42397227">OPENING_FEEDBACK_NONE</a> = 0
+, <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea0f87dc16741f2269f6ffa6c79e529cd0">OPENING_FEEDBACK_CORRECT</a>
+, <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449ceaacf2b93cb3dcb18f28ca7773ec5679fe">OPENING_FEEDBACK_WRONG</a>
+, <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea5f990a4ad5caf4076b19b56e53c13c58">OPENING_FEEDBACK_ILLEGAL</a>
+, <br />
+&#160;&#160;<a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea7ac66001ecc5a8bcba3b92d3108a9b49">OPENING_FEEDBACK_MISTAKE_HINT</a>
+, <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea4f92f3e9db7f875ed8892a20822642f9">OPENING_FEEDBACK_COMPLETE</a>
+, <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea093593c01385d5d7555911de87ea1504">OPENING_FEEDBACK_CHECKPOINT</a>
+, <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea0539cf8cc1a54baea109e8edf71c9721">OPENING_FEEDBACK_OPPONENT_TURN</a>
+<br />
+ }</td></tr>
+<tr class="separator:add2affa1f220901931edd0d4664449ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8f7b9d36dff0636b0b29e0168adab6c" id="r_aa8f7b9d36dff0636b0b29e0168adab6c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6c">opening_mode_t</a> { <a class="el" href="game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6cae45281160d5027b64b3140fefc4f8d22">OPENING_MODE_LEARN</a> = 0
+, <a class="el" href="game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6ca250d704d1abd70b7ec7ffafa91ddc97a">OPENING_MODE_DRILL</a>
+, <a class="el" href="game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6cac86a3d8306fac9450227e62d4958c312">OPENING_MODE_TIMED</a>
+, <a class="el" href="game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6caaf455295de6e9d77bf2b2d2ec7850a41">OPENING_MODE_MIRROR</a>
+ }</td></tr>
+<tr class="separator:aa8f7b9d36dff0636b0b29e0168adab6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5fa600b4f9b772a8c7b9bba0d53c83d8" id="r_a5fa600b4f9b772a8c7b9bba0d53c83d8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8">opening_opponent_mode_t</a> { <a class="el" href="game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8aa56bd49a0a27b4bc2c6e753700292b5d">OPENING_OPPONENT_VIRTUAL</a> = 0
+, <a class="el" href="game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956">OPENING_OPPONENT_PHYSICAL</a>
+ }</td></tr>
+<tr class="separator:a5fa600b4f9b772a8c7b9bba0d53c83d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:af0f5ae400b340975450b9ad270c42d2c" id="r_af0f5ae400b340975450b9ad270c42d2c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#af0f5ae400b340975450b9ad270c42d2c">opening_is_player_ply</a> (uint8_t ply)</td></tr>
+<tr class="separator:af0f5ae400b340975450b9ad270c42d2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a030fb9737bbf5c0c1f01e534a3b4651c" id="r_a030fb9737bbf5c0c1f01e534a3b4651c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a030fb9737bbf5c0c1f01e534a3b4651c">opening_is_checkpoint_ply</a> (uint8_t ply)</td></tr>
+<tr class="separator:a030fb9737bbf5c0c1f01e534a3b4651c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a188e4c5a57c1b823031005ca4af57eb7" id="r_a188e4c5a57c1b823031005ca4af57eb7"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a188e4c5a57c1b823031005ca4af57eb7">opening_parse_uci</a> (const char *uci, char *from, char *to)</td></tr>
+<tr class="separator:a188e4c5a57c1b823031005ca4af57eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f34c6cbadeae8a955ad3ab264b4961f" id="r_a0f34c6cbadeae8a955ad3ab264b4961f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a0f34c6cbadeae8a955ad3ab264b4961f">opening_play_move_led</a> (const char *from_sq, const char *to_sq)</td></tr>
+<tr class="separator:a0f34c6cbadeae8a955ad3ab264b4961f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c60a621ea27fd9ff90fd87c9e8d4881" id="r_a8c60a621ea27fd9ff90fd87c9e8d4881"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a8c60a621ea27fd9ff90fd87c9e8d4881">opening_show_opponent_physical_led</a> (bool <a class="el" href="game__task_8c.html#af81491a006e7a193e8fd657043851221">piece_lifted</a>)</td></tr>
+<tr class="separator:a8c60a621ea27fd9ff90fd87c9e8d4881"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abadfe932a50cfa6d98053a0fcb7fbc6b" id="r_abadfe932a50cfa6d98053a0fcb7fbc6b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#abadfe932a50cfa6d98053a0fcb7fbc6b">opening_show_hint_led</a> (void)</td></tr>
+<tr class="separator:abadfe932a50cfa6d98053a0fcb7fbc6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87af166bbc9f958cc3ef128d4acbeac8" id="r_a87af166bbc9f958cc3ef128d4acbeac8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a87af166bbc9f958cc3ef128d4acbeac8">opening_update_expected_move</a> (void)</td></tr>
+<tr class="separator:a87af166bbc9f958cc3ef128d4acbeac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a025e2ed812a2068f665cdc45ed6291e1" id="r_a025e2ed812a2068f665cdc45ed6291e1"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a025e2ed812a2068f665cdc45ed6291e1">opening_count_player_ply_index</a> (uint8_t ply)</td></tr>
+<tr class="separator:a025e2ed812a2068f665cdc45ed6291e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedf8e935735868eea4b830867cb369c4" id="r_aedf8e935735868eea4b830867cb369c4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#aedf8e935735868eea4b830867cb369c4">game_opening_apply_uci</a> (const char *uci)</td></tr>
+<tr class="separator:aedf8e935735868eea4b830867cb369c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1b7e483468366807fa39955f2483a34" id="r_af1b7e483468366807fa39955f2483a34"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#af1b7e483468366807fa39955f2483a34">opening_should_checkpoint_after_ply</a> (uint8_t ply)</td></tr>
+<tr class="separator:af1b7e483468366807fa39955f2483a34"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f2d9e6368d691314568fb82ab8736cb" id="r_a1f2d9e6368d691314568fb82ab8736cb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a1f2d9e6368d691314568fb82ab8736cb">opening_prepare_player_turn</a> (void)</td></tr>
+<tr class="separator:a1f2d9e6368d691314568fb82ab8736cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5beda2c4fef0829db9b01bd1a23792b1" id="r_a5beda2c4fef0829db9b01bd1a23792b1"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a5beda2c4fef0829db9b01bd1a23792b1">opening_begin_opponent_physical_turn</a> (void)</td></tr>
+<tr class="separator:a5beda2c4fef0829db9b01bd1a23792b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3989329daec4c5d549f2f8f68a4f3c35" id="r_a3989329daec4c5d549f2f8f68a4f3c35"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a3989329daec4c5d549f2f8f68a4f3c35">opening_run_until_player_turn</a> (void)</td></tr>
+<tr class="separator:a3989329daec4c5d549f2f8f68a4f3c35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe1f07baa8aab6afe8ef0061a1d478db" id="r_afe1f07baa8aab6afe8ef0061a1d478db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#afe1f07baa8aab6afe8ef0061a1d478db">game_opening_cancel</a> (void)</td></tr>
+<tr class="memdesc:afe1f07baa8aab6afe8ef0061a1d478db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opening trainer — multi-ply line with virtual opponent replies.  <br /></td></tr>
+<tr class="separator:afe1f07baa8aab6afe8ef0061a1d478db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a80c4099501d47df7f3eae3c76c411939" id="r_a80c4099501d47df7f3eae3c76c411939"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a80c4099501d47df7f3eae3c76c411939">game_is_opening_trainer_active</a> (void)</td></tr>
+<tr class="separator:a80c4099501d47df7f3eae3c76c411939"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ca1aa1383ca573ac031e05b0f69da3d" id="r_a2ca1aa1383ca573ac031e05b0f69da3d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a2ca1aa1383ca573ac031e05b0f69da3d">game_is_opening_trainer_setup_active</a> (void)</td></tr>
+<tr class="separator:a2ca1aa1383ca573ac031e05b0f69da3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac48cc510bf4fa4ae1f94e31a41a26e13" id="r_ac48cc510bf4fa4ae1f94e31a41a26e13"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ac48cc510bf4fa4ae1f94e31a41a26e13">game_opening_awaiting_opponent_physical</a> (void)</td></tr>
+<tr class="separator:ac48cc510bf4fa4ae1f94e31a41a26e13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4cf6b74e91ab15d1959e3b8184a8adc" id="r_ae4cf6b74e91ab15d1959e3b8184a8adc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ae4cf6b74e91ab15d1959e3b8184a8adc">game_opening_is_physical_opponent_mode</a> (void)</td></tr>
+<tr class="separator:ae4cf6b74e91ab15d1959e3b8184a8adc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a024b77267d49d5c16f760d6546e8ab72" id="r_a024b77267d49d5c16f760d6546e8ab72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a024b77267d49d5c16f760d6546e8ab72">game_opening_on_opponent_piece_lifted</a> (void)</td></tr>
+<tr class="separator:a024b77267d49d5c16f760d6546e8ab72"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1048bd4b1e6c1409ec9a4f4f11d77e53" id="r_a1048bd4b1e6c1409ec9a4f4f11d77e53"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a1048bd4b1e6c1409ec9a4f4f11d77e53">game_opening_physical_matches_start</a> (void)</td></tr>
+<tr class="separator:a1048bd4b1e6c1409ec9a4f4f11d77e53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1378f3ef244bb93f285f634002b92e99" id="r_a1378f3ef244bb93f285f634002b92e99"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a1378f3ef244bb93f285f634002b92e99">game_opening_enter_setup_phase</a> (void)</td></tr>
+<tr class="separator:a1378f3ef244bb93f285f634002b92e99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7bbc347c7fcfec965c16067c73ccd7e" id="r_ad7bbc347c7fcfec965c16067c73ccd7e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ad7bbc347c7fcfec965c16067c73ccd7e">game_opening_validate_checkpoint_physical</a> (void)</td></tr>
+<tr class="separator:ad7bbc347c7fcfec965c16067c73ccd7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a955740e815b996d72351f1b458b9a762" id="r_a955740e815b996d72351f1b458b9a762"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a955740e815b996d72351f1b458b9a762">game_opening_load_config</a> (const char *line_id, const char *start_fen, const char line_uci[][6], uint8_t line_uci_count, const uint8_t *player_ply_indices, uint8_t player_ply_count, const uint8_t *checkpoint_ply_indices, uint8_t checkpoint_count, uint8_t mode, uint8_t player_side_white, uint8_t opponent_mode)</td></tr>
+<tr class="separator:a955740e815b996d72351f1b458b9a762"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02fccbee9de20c284eb2a1ef82199b4b" id="r_a02fccbee9de20c284eb2a1ef82199b4b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a02fccbee9de20c284eb2a1ef82199b4b">game_opening_start</a> (void)</td></tr>
+<tr class="separator:a02fccbee9de20c284eb2a1ef82199b4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2967f6a7cc86cb0641b17e2713c9bb4c" id="r_a2967f6a7cc86cb0641b17e2713c9bb4c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a2967f6a7cc86cb0641b17e2713c9bb4c">game_opening_hint</a> (void)</td></tr>
+<tr class="separator:a2967f6a7cc86cb0641b17e2713c9bb4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad359a58d3ff87a071757e093c122fc24" id="r_ad359a58d3ff87a071757e093c122fc24"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ad359a58d3ff87a071757e093c122fc24">game_opening_checkpoint_ack</a> (void)</td></tr>
+<tr class="separator:ad359a58d3ff87a071757e093c122fc24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae93334dd3666e28c65325bfda7942712" id="r_ae93334dd3666e28c65325bfda7942712"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ae93334dd3666e28c65325bfda7942712">game_opening_validate_expected_move</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="separator:ae93334dd3666e28c65325bfda7942712"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dadcc9494f20ce55c271bc038c2d0a5" id="r_a9dadcc9494f20ce55c271bc038c2d0a5"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a9dadcc9494f20ce55c271bc038c2d0a5">game_opening_validate_opponent_pickup</a> (uint8_t from_row, uint8_t from_col)</td></tr>
+<tr class="separator:a9dadcc9494f20ce55c271bc038c2d0a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d1f8e947993abfcf91b01855fe5ab7d" id="r_a9d1f8e947993abfcf91b01855fe5ab7d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a9d1f8e947993abfcf91b01855fe5ab7d">game_opening_advance_after_opponent_physical</a> (void)</td></tr>
+<tr class="separator:a9d1f8e947993abfcf91b01855fe5ab7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0508d47a416ebb2b26b92c908ec946e4" id="r_a0508d47a416ebb2b26b92c908ec946e4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a0508d47a416ebb2b26b92c908ec946e4">game_opening_advance_after_correct</a> (void)</td></tr>
+<tr class="separator:a0508d47a416ebb2b26b92c908ec946e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a496e049cd24f49db3b53a44c05f7b7ab" id="r_a496e049cd24f49db3b53a44c05f7b7ab"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a496e049cd24f49db3b53a44c05f7b7ab">game_opening_on_correct_player_move</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="separator:a496e049cd24f49db3b53a44c05f7b7ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a447b6cfdeeefde911cc943c627184d80" id="r_a447b6cfdeeefde911cc943c627184d80"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a447b6cfdeeefde911cc943c627184d80">game_opening_on_wrong_player_move</a> (void)</td></tr>
+<tr class="separator:a447b6cfdeeefde911cc943c627184d80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a439a555c311852447895a64468333ab6" id="r_a439a555c311852447895a64468333ab6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a439a555c311852447895a64468333ab6">game_opening_record_wrong_uci</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="separator:a439a555c311852447895a64468333ab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a810d5d19738c4ef7706cf407b6079276" id="r_a810d5d19738c4ef7706cf407b6079276"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a810d5d19738c4ef7706cf407b6079276">game_opening_on_illegal_player_move</a> (void)</td></tr>
+<tr class="separator:a810d5d19738c4ef7706cf407b6079276"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7d60d2552c0876918941fd21872606a" id="r_ac7d60d2552c0876918941fd21872606a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ac7d60d2552c0876918941fd21872606a">game_opening_feedback_key</a> (void)</td></tr>
+<tr class="separator:ac7d60d2552c0876918941fd21872606a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbe9ad264b38d5f7b89a16f144d09649" id="r_adbe9ad264b38d5f7b89a16f144d09649"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#adbe9ad264b38d5f7b89a16f144d09649">game_opening_opponent_mode_key</a> (void)</td></tr>
+<tr class="separator:adbe9ad264b38d5f7b89a16f144d09649"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ce910d76e0ad0587044f6d1da905f0f" id="r_a9ce910d76e0ad0587044f6d1da905f0f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a9ce910d76e0ad0587044f6d1da905f0f">game_opening_mode_key</a> (void)</td></tr>
+<tr class="separator:a9ce910d76e0ad0587044f6d1da905f0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31434c1d712e59df254c988364c94d6c" id="r_a31434c1d712e59df254c988364c94d6c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a31434c1d712e59df254c988364c94d6c">game_opening_status_needs_matrix</a> (void)</td></tr>
+<tr class="separator:a31434c1d712e59df254c988364c94d6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d059cced881c39fff433f1fe4896150" id="r_a2d059cced881c39fff433f1fe4896150"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a2d059cced881c39fff433f1fe4896150">opening_export_active</a> (void)</td></tr>
+<tr class="separator:a2d059cced881c39fff433f1fe4896150"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0811e0841ff8936346444629481b8fb7" id="r_a0811e0841ff8936346444629481b8fb7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a0811e0841ff8936346444629481b8fb7">opening_fill_expected_occupied</a> (uint8_t out[64])</td></tr>
+<tr class="separator:a0811e0841ff8936346444629481b8fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab928faec86fa7a701f57a9c3c566289a" id="r_ab928faec86fa7a701f57a9c3c566289a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ab928faec86fa7a701f57a9c3c566289a">game_opening_export_status_json</a> (char *buf, size_t buf_size, size_t *offset)</td></tr>
+<tr class="separator:ab928faec86fa7a701f57a9c3c566289a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_OPENING&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24344f093fdca1950920b7c011ba0651" id="r_a24344f093fdca1950920b7c011ba0651"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structopening__trainer__state__t.html">opening_trainer_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a24344f093fdca1950920b7c011ba0651">opening_state</a></td></tr>
+<tr class="separator:a24344f093fdca1950920b7c011ba0651"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Interactive opening line trainer — multi-ply UCI validation + virtual opponent. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace definic maker</h2>
+<a id="a1f2bb102aaa773f539da64f504eb292f" name="a1f2bb102aaa773f539da64f504eb292f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f2bb102aaa773f539da64f504eb292f">&#9670;&#160;</a></span>OPENING_FEN_MAX</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define OPENING_FEN_MAX&#160;&#160;&#160;120</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00031">31</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a556ed13abc2a16e2e7c3388682da8f36" name="a556ed13abc2a16e2e7c3388682da8f36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a556ed13abc2a16e2e7c3388682da8f36">&#9670;&#160;</a></span>OPENING_LINE_ID_MAX</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define OPENING_LINE_ID_MAX&#160;&#160;&#160;48</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00030">30</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a025be93964a879eb056034629ab2de15" name="a025be93964a879eb056034629ab2de15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a025be93964a879eb056034629ab2de15">&#9670;&#160;</a></span>OPENING_MAX_CHECKPOINTS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define OPENING_MAX_CHECKPOINTS&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00029">29</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a7e3c0ac173ea68d23f48c521630059a4" name="a7e3c0ac173ea68d23f48c521630059a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e3c0ac173ea68d23f48c521630059a4">&#9670;&#160;</a></span>OPENING_MAX_PLAYER_PLIES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define OPENING_MAX_PLAYER_PLIES&#160;&#160;&#160;8</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00028">28</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a23c008a8661aab88b3660be1748c22e0" name="a23c008a8661aab88b3660be1748c22e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23c008a8661aab88b3660be1748c22e0">&#9670;&#160;</a></span>OPENING_MAX_PLIES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define OPENING_MAX_PLIES&#160;&#160;&#160;16</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00027">27</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a62ecd07b10c8688371e290c8c64df0a4" name="a62ecd07b10c8688371e290c8c64df0a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62ecd07b10c8688371e290c8c64df0a4">&#9670;&#160;</a></span>STAGING_LOGI</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STAGING_LOGI</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">tag, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">fmt, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;ESP_LOGI(tag, &quot;[STAGING] &quot; fmt, ##__VA_ARGS__)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00022">22</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace výčtových typů</h2>
+<a id="add2affa1f220901931edd0d4664449ce" name="add2affa1f220901931edd0d4664449ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add2affa1f220901931edd0d4664449ce">&#9670;&#160;</a></span>opening_feedback_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449ce">opening_feedback_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea7a80eec8ddd115cf2c13374e42397227" name="add2affa1f220901931edd0d4664449cea7a80eec8ddd115cf2c13374e42397227"></a>OPENING_FEEDBACK_NONE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea0f87dc16741f2269f6ffa6c79e529cd0" name="add2affa1f220901931edd0d4664449cea0f87dc16741f2269f6ffa6c79e529cd0"></a>OPENING_FEEDBACK_CORRECT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449ceaacf2b93cb3dcb18f28ca7773ec5679fe" name="add2affa1f220901931edd0d4664449ceaacf2b93cb3dcb18f28ca7773ec5679fe"></a>OPENING_FEEDBACK_WRONG&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea5f990a4ad5caf4076b19b56e53c13c58" name="add2affa1f220901931edd0d4664449cea5f990a4ad5caf4076b19b56e53c13c58"></a>OPENING_FEEDBACK_ILLEGAL&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea7ac66001ecc5a8bcba3b92d3108a9b49" name="add2affa1f220901931edd0d4664449cea7ac66001ecc5a8bcba3b92d3108a9b49"></a>OPENING_FEEDBACK_MISTAKE_HINT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea4f92f3e9db7f875ed8892a20822642f9" name="add2affa1f220901931edd0d4664449cea4f92f3e9db7f875ed8892a20822642f9"></a>OPENING_FEEDBACK_COMPLETE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea093593c01385d5d7555911de87ea1504" name="add2affa1f220901931edd0d4664449cea093593c01385d5d7555911de87ea1504"></a>OPENING_FEEDBACK_CHECKPOINT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea0539cf8cc1a54baea109e8edf71c9721" name="add2affa1f220901931edd0d4664449cea0539cf8cc1a54baea109e8edf71c9721"></a>OPENING_FEEDBACK_OPPONENT_TURN&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00033">33</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="aa8f7b9d36dff0636b0b29e0168adab6c" name="aa8f7b9d36dff0636b0b29e0168adab6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8f7b9d36dff0636b0b29e0168adab6c">&#9670;&#160;</a></span>opening_mode_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6c">opening_mode_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="aa8f7b9d36dff0636b0b29e0168adab6cae45281160d5027b64b3140fefc4f8d22" name="aa8f7b9d36dff0636b0b29e0168adab6cae45281160d5027b64b3140fefc4f8d22"></a>OPENING_MODE_LEARN&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aa8f7b9d36dff0636b0b29e0168adab6ca250d704d1abd70b7ec7ffafa91ddc97a" name="aa8f7b9d36dff0636b0b29e0168adab6ca250d704d1abd70b7ec7ffafa91ddc97a"></a>OPENING_MODE_DRILL&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aa8f7b9d36dff0636b0b29e0168adab6cac86a3d8306fac9450227e62d4958c312" name="aa8f7b9d36dff0636b0b29e0168adab6cac86a3d8306fac9450227e62d4958c312"></a>OPENING_MODE_TIMED&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="aa8f7b9d36dff0636b0b29e0168adab6caaf455295de6e9d77bf2b2d2ec7850a41" name="aa8f7b9d36dff0636b0b29e0168adab6caaf455295de6e9d77bf2b2d2ec7850a41"></a>OPENING_MODE_MIRROR&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00044">44</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a5fa600b4f9b772a8c7b9bba0d53c83d8" name="a5fa600b4f9b772a8c7b9bba0d53c83d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5fa600b4f9b772a8c7b9bba0d53c83d8">&#9670;&#160;</a></span>opening_opponent_mode_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8">opening_opponent_mode_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Hodnoty výčtu</th></tr><tr><td class="fieldname"><a id="a5fa600b4f9b772a8c7b9bba0d53c83d8aa56bd49a0a27b4bc2c6e753700292b5d" name="a5fa600b4f9b772a8c7b9bba0d53c83d8aa56bd49a0a27b4bc2c6e753700292b5d"></a>OPENING_OPPONENT_VIRTUAL&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956" name="a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956"></a>OPENING_OPPONENT_PHYSICAL&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00051">51</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="a80c4099501d47df7f3eae3c76c411939" name="a80c4099501d47df7f3eae3c76c411939"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a80c4099501d47df7f3eae3c76c411939">&#9670;&#160;</a></span>game_is_opening_trainer_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_opening_trainer_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00332">332</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a2ca1aa1383ca573ac031e05b0f69da3d" name="a2ca1aa1383ca573ac031e05b0f69da3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ca1aa1383ca573ac031e05b0f69da3d">&#9670;&#160;</a></span>game_is_opening_trainer_setup_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_opening_trainer_setup_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00334">334</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a0508d47a416ebb2b26b92c908ec946e4" name="a0508d47a416ebb2b26b92c908ec946e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0508d47a416ebb2b26b92c908ec946e4">&#9670;&#160;</a></span>game_opening_advance_after_correct()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_opening_advance_after_correct </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00554">554</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a9d1f8e947993abfcf91b01855fe5ab7d" name="a9d1f8e947993abfcf91b01855fe5ab7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d1f8e947993abfcf91b01855fe5ab7d">&#9670;&#160;</a></span>game_opening_advance_after_opponent_physical()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_opening_advance_after_opponent_physical </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00535">535</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="aedf8e935735868eea4b830867cb369c4" name="aedf8e935735868eea4b830867cb369c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aedf8e935735868eea4b830867cb369c4">&#9670;&#160;</a></span>game_opening_apply_uci()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_apply_uci </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>uci</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00218">218</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ac48cc510bf4fa4ae1f94e31a41a26e13" name="ac48cc510bf4fa4ae1f94e31a41a26e13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac48cc510bf4fa4ae1f94e31a41a26e13">&#9670;&#160;</a></span>game_opening_awaiting_opponent_physical()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_awaiting_opponent_physical </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00336">336</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="afe1f07baa8aab6afe8ef0061a1d478db" name="afe1f07baa8aab6afe8ef0061a1d478db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe1f07baa8aab6afe8ef0061a1d478db">&#9670;&#160;</a></span>game_opening_cancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_opening_cancel </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Opening trainer — multi-ply line with virtual opponent replies. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00324">324</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ad359a58d3ff87a071757e093c122fc24" name="ad359a58d3ff87a071757e093c122fc24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad359a58d3ff87a071757e093c122fc24">&#9670;&#160;</a></span>game_opening_checkpoint_ack()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_checkpoint_ack </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00487">487</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a1378f3ef244bb93f285f634002b92e99" name="a1378f3ef244bb93f285f634002b92e99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1378f3ef244bb93f285f634002b92e99">&#9670;&#160;</a></span>game_opening_enter_setup_phase()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_enter_setup_phase </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00358">358</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ab928faec86fa7a701f57a9c3c566289a" name="ab928faec86fa7a701f57a9c3c566289a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab928faec86fa7a701f57a9c3c566289a">&#9670;&#160;</a></span>game_opening_export_status_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_opening_export_status_json </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>buf_size</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>offset</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00693">693</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ac7d60d2552c0876918941fd21872606a" name="ac7d60d2552c0876918941fd21872606a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7d60d2552c0876918941fd21872606a">&#9670;&#160;</a></span>game_opening_feedback_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_opening_feedback_key </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00637">637</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a2967f6a7cc86cb0641b17e2713c9bb4c" name="a2967f6a7cc86cb0641b17e2713c9bb4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2967f6a7cc86cb0641b17e2713c9bb4c">&#9670;&#160;</a></span>game_opening_hint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_hint </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00475">475</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ae4cf6b74e91ab15d1959e3b8184a8adc" name="ae4cf6b74e91ab15d1959e3b8184a8adc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae4cf6b74e91ab15d1959e3b8184a8adc">&#9670;&#160;</a></span>game_opening_is_physical_opponent_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_is_physical_opponent_mode </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00340">340</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a955740e815b996d72351f1b458b9a762" name="a955740e815b996d72351f1b458b9a762"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a955740e815b996d72351f1b458b9a762">&#9670;&#160;</a></span>game_opening_load_config()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_load_config </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>line_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>start_fen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char&#160;</td>
+          <td class="paramname"><em>line_uci</em>[][6], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>line_uci_count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>player_ply_indices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>player_ply_count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>checkpoint_ply_indices</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>checkpoint_count</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>mode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>player_side_white</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>opponent_mode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00383">383</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a9ce910d76e0ad0587044f6d1da905f0f" name="a9ce910d76e0ad0587044f6d1da905f0f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ce910d76e0ad0587044f6d1da905f0f">&#9670;&#160;</a></span>game_opening_mode_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_opening_mode_key </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00663">663</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a496e049cd24f49db3b53a44c05f7b7ab" name="a496e049cd24f49db3b53a44c05f7b7ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a496e049cd24f49db3b53a44c05f7b7ab">&#9670;&#160;</a></span>game_opening_on_correct_player_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_on_correct_player_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00587">587</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a810d5d19738c4ef7706cf407b6079276" name="a810d5d19738c4ef7706cf407b6079276"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a810d5d19738c4ef7706cf407b6079276">&#9670;&#160;</a></span>game_opening_on_illegal_player_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_on_illegal_player_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00621">621</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a024b77267d49d5c16f760d6546e8ab72" name="a024b77267d49d5c16f760d6546e8ab72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a024b77267d49d5c16f760d6546e8ab72">&#9670;&#160;</a></span>game_opening_on_opponent_piece_lifted()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_opening_on_opponent_piece_lifted </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00344">344</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a447b6cfdeeefde911cc943c627184d80" name="a447b6cfdeeefde911cc943c627184d80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a447b6cfdeeefde911cc943c627184d80">&#9670;&#160;</a></span>game_opening_on_wrong_player_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_on_wrong_player_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00597">597</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="adbe9ad264b38d5f7b89a16f144d09649" name="adbe9ad264b38d5f7b89a16f144d09649"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbe9ad264b38d5f7b89a16f144d09649">&#9670;&#160;</a></span>game_opening_opponent_mode_key()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_opening_opponent_mode_key </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00658">658</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a1048bd4b1e6c1409ec9a4f4f11d77e53" name="a1048bd4b1e6c1409ec9a4f4f11d77e53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1048bd4b1e6c1409ec9a4f4f11d77e53">&#9670;&#160;</a></span>game_opening_physical_matches_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_physical_matches_start </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00351">351</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a439a555c311852447895a64468333ab6" name="a439a555c311852447895a64468333ab6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a439a555c311852447895a64468333ab6">&#9670;&#160;</a></span>game_opening_record_wrong_uci()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_opening_record_wrong_uci </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00613">613</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a02fccbee9de20c284eb2a1ef82199b4b" name="a02fccbee9de20c284eb2a1ef82199b4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02fccbee9de20c284eb2a1ef82199b4b">&#9670;&#160;</a></span>game_opening_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_start </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00430">430</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a31434c1d712e59df254c988364c94d6c" name="a31434c1d712e59df254c988364c94d6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31434c1d712e59df254c988364c94d6c">&#9670;&#160;</a></span>game_opening_status_needs_matrix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_status_needs_matrix </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00676">676</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ad7bbc347c7fcfec965c16067c73ccd7e" name="ad7bbc347c7fcfec965c16067c73ccd7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7bbc347c7fcfec965c16067c73ccd7e">&#9670;&#160;</a></span>game_opening_validate_checkpoint_physical()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_validate_checkpoint_physical </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00369">369</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="ae93334dd3666e28c65325bfda7942712" name="ae93334dd3666e28c65325bfda7942712"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae93334dd3666e28c65325bfda7942712">&#9670;&#160;</a></span>game_opening_validate_expected_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_validate_expected_move </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00503">503</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a9dadcc9494f20ce55c271bc038c2d0a5" name="a9dadcc9494f20ce55c271bc038c2d0a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dadcc9494f20ce55c271bc038c2d0a5">&#9670;&#160;</a></span>game_opening_validate_opponent_pickup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_opening_validate_opponent_pickup </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00526">526</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a5beda2c4fef0829db9b01bd1a23792b1" name="a5beda2c4fef0829db9b01bd1a23792b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5beda2c4fef0829db9b01bd1a23792b1">&#9670;&#160;</a></span>opening_begin_opponent_physical_turn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool opening_begin_opponent_physical_turn </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00265">265</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a025e2ed812a2068f665cdc45ed6291e1" name="a025e2ed812a2068f665cdc45ed6291e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a025e2ed812a2068f665cdc45ed6291e1">&#9670;&#160;</a></span>opening_count_player_ply_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint8_t opening_count_player_ply_index </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>ply</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00206">206</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a2d059cced881c39fff433f1fe4896150" name="a2d059cced881c39fff433f1fe4896150"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d059cced881c39fff433f1fe4896150">&#9670;&#160;</a></span>opening_export_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool opening_export_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00680">680</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a0811e0841ff8936346444629481b8fb7" name="a0811e0841ff8936346444629481b8fb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0811e0841ff8936346444629481b8fb7">&#9670;&#160;</a></span>opening_fill_expected_occupied()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_fill_expected_occupied </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>out</em>[64]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00685">685</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a030fb9737bbf5c0c1f01e534a3b4651c" name="a030fb9737bbf5c0c1f01e534a3b4651c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a030fb9737bbf5c0c1f01e534a3b4651c">&#9670;&#160;</a></span>opening_is_checkpoint_ply()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool opening_is_checkpoint_ply </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>ply</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00093">93</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="af0f5ae400b340975450b9ad270c42d2c" name="af0f5ae400b340975450b9ad270c42d2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0f5ae400b340975450b9ad270c42d2c">&#9670;&#160;</a></span>opening_is_player_ply()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool opening_is_player_ply </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>ply</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00084">84</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a188e4c5a57c1b823031005ca4af57eb7" name="a188e4c5a57c1b823031005ca4af57eb7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a188e4c5a57c1b823031005ca4af57eb7">&#9670;&#160;</a></span>opening_parse_uci()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool opening_parse_uci </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>uci</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>from</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>to</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00102">102</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a0f34c6cbadeae8a955ad3ab264b4961f" name="a0f34c6cbadeae8a955ad3ab264b4961f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f34c6cbadeae8a955ad3ab264b4961f">&#9670;&#160;</a></span>opening_play_move_led()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_play_move_led </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>from_sq</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>to_sq</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00119">119</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a1f2d9e6368d691314568fb82ab8736cb" name="a1f2d9e6368d691314568fb82ab8736cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f2d9e6368d691314568fb82ab8736cb">&#9670;&#160;</a></span>opening_prepare_player_turn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_prepare_player_turn </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00256">256</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a3989329daec4c5d549f2f8f68a4f3c35" name="a3989329daec4c5d549f2f8f68a4f3c35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3989329daec4c5d549f2f8f68a4f3c35">&#9670;&#160;</a></span>opening_run_until_player_turn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_run_until_player_turn </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00281">281</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="af1b7e483468366807fa39955f2483a34" name="af1b7e483468366807fa39955f2483a34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1b7e483468366807fa39955f2483a34">&#9670;&#160;</a></span>opening_should_checkpoint_after_ply()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool opening_should_checkpoint_after_ply </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>ply</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00251">251</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="abadfe932a50cfa6d98053a0fcb7fbc6b" name="abadfe932a50cfa6d98053a0fcb7fbc6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abadfe932a50cfa6d98053a0fcb7fbc6b">&#9670;&#160;</a></span>opening_show_hint_led()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_show_hint_led </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00164">164</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a8c60a621ea27fd9ff90fd87c9e8d4881" name="a8c60a621ea27fd9ff90fd87c9e8d4881"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8c60a621ea27fd9ff90fd87c9e8d4881">&#9670;&#160;</a></span>opening_show_opponent_physical_led()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_show_opponent_physical_led </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>piece_lifted</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00139">139</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a87af166bbc9f958cc3ef128d4acbeac8" name="a87af166bbc9f958cc3ef128d4acbeac8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a87af166bbc9f958cc3ef128d4acbeac8">&#9670;&#160;</a></span>opening_update_expected_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_update_expected_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00196">196</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a24344f093fdca1950920b7c011ba0651" name="a24344f093fdca1950920b7c011ba0651"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24344f093fdca1950920b7c011ba0651">&#9670;&#160;</a></span>opening_state</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structopening__trainer__state__t.html">opening_trainer_state_t</a> opening_state</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00082">82</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;GAME_OPENING&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__opening__trainer_8c_source.html#l00019">19</a> v souboru <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__opening__trainer_8c.html">game_opening_trainer.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

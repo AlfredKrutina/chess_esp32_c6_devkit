@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['last_5fmove_5fcastling_0',['LAST_MOVE_CASTLING',['../game__task_8c.html#a35ee807e9b8fc9f96e7a97f77e38b428a74b328b19fe88255418ae15211170d9e',1,'game_task.c']]],
-  ['last_5fmove_5fdiscovered_1',['LAST_MOVE_DISCOVERED',['../game__task_8c.html#a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635',1,'game_task.c']]],
-  ['last_5fmove_5fen_5fpassant_2',['LAST_MOVE_EN_PASSANT',['../game__task_8c.html#a35ee807e9b8fc9f96e7a97f77e38b428a5e9afb17a5a3d533a10a72f8365c2fee',1,'game_task.c']]],
-  ['last_5fmove_5fnormal_3',['LAST_MOVE_NORMAL',['../game__task_8c.html#a35ee807e9b8fc9f96e7a97f77e38b428adaa3371423259563b378fbafc75fd5d7',1,'game_task.c']]],
-  ['last_5fmove_5fpromotion_4',['LAST_MOVE_PROMOTION',['../game__task_8c.html#a35ee807e9b8fc9f96e7a97f77e38b428af03c0fabe13195d12257c4e19af68013',1,'game_task.c']]],
+  ['last_5fmove_5fcastling_0',['LAST_MOVE_CASTLING',['../game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a74b328b19fe88255418ae15211170d9e',1,'game_task_internal.h']]],
+  ['last_5fmove_5fdiscovered_1',['LAST_MOVE_DISCOVERED',['../game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635',1,'game_task_internal.h']]],
+  ['last_5fmove_5fen_5fpassant_2',['LAST_MOVE_EN_PASSANT',['../game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a5e9afb17a5a3d533a10a72f8365c2fee',1,'game_task_internal.h']]],
+  ['last_5fmove_5fnormal_3',['LAST_MOVE_NORMAL',['../game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428adaa3371423259563b378fbafc75fd5d7',1,'game_task_internal.h']]],
+  ['last_5fmove_5fpromotion_4',['LAST_MOVE_PROMOTION',['../game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428af03c0fabe13195d12257c4e19af68013',1,'game_task_internal.h']]],
   ['led_5fcmd_5fanim_5fcastle_5',['LED_CMD_ANIM_CASTLE',['../chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dac134d8980d40f9fc8a12f683b967b187',1,'chess_types.h']]],
   ['led_5fcmd_5fanim_5fcheck_6',['LED_CMD_ANIM_CHECK',['../chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da09320b788323ec0c6c037fbe5405fc94',1,'chess_types.h']]],
   ['led_5fcmd_5fanim_5fcheckmate_7',['LED_CMD_ANIM_CHECKMATE',['../chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66daa88ade2b1617bd7e2dbb98a0fd8f93ea',1,'chess_types.h']]],

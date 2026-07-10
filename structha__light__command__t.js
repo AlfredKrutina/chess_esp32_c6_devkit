@@ -6,6 +6,6 @@ var structha__light__command__t =
     [ "r", "structha__light__command__t.html#a3e086a18624effe55d318b717328c9fb", null ],
     [ "state", "structha__light__command__t.html#a2490cf50d9626c13eb15864b189e7037", null ],
     [ "type", "structha__light__command__t.html#aa655a0a61f12692c31c68803ae070fcf", null ],
-    [ "u", "structha__light__command__t.html#adb3be7db485e5a7dda579c4f16a5add2", null ],
-    [ "web_lamp", "structha__light__command__t.html#a8410dd75a73f315e1f23b55ca98b492b", null ]
+    [ "u", "structha__light__command__t.html#a9a39e226d1f3c4ce95c506d9818a50dd", null ],
+    [ "web_lamp", "structha__light__command__t.html#a2127103c4d36ddef14dff58f21d50112", null ]
 ];

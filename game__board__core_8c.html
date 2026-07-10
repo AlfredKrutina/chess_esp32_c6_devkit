@@ -1,0 +1,618 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_board_core.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__board__core_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_board_core.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Board setup, FEN parsing, and piece/position helpers.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_board_core.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__board__core_8c__incl.png" border="0" usemap="#agame__board__core_8c" alt=""/></div>
+<map name="agame__board__core_8c" id="agame__board__core_8c">
+<area shape="rect" title="Board setup, FEN parsing, and piece/position helpers." alt="" coords="917,5,1066,31"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="5,152,156,177"/>
+<area shape="poly" title=" " alt="" coords="920,33,166,153,165,147,919,28"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="910,79,1073,104"/>
+<area shape="poly" title=" " alt="" coords="994,31,994,65,989,65,989,31"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="765,152,871,177"/>
+<area shape="poly" title=" " alt="" coords="972,33,937,54,900,81,866,112,838,143,835,139,862,108,896,77,934,49,969,28"/>
+<area shape="rect" title=" " alt="" coords="1097,79,1181,104"/>
+<area shape="poly" title=" " alt="" coords="1016,28,1104,70,1102,75,1014,33"/>
+<area shape="rect" title=" " alt="" coords="1205,79,1276,104"/>
+<area shape="poly" title=" " alt="" coords="1032,28,1193,74,1191,79,1031,33"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="469,233,583,258"/>
+<area shape="poly" title=" " alt="" coords="156,173,297,193,457,223,474,227,473,232,456,228,296,199,156,178"/>
+<area shape="rect" title=" " alt="" coords="187,313,270,339"/>
+<area shape="poly" title=" " alt="" coords="91,176,121,216,161,263,205,303,201,307,157,267,116,219,87,179"/>
+<area shape="rect" title=" " alt="" coords="485,313,567,339"/>
+<area shape="poly" title=" " alt="" coords="529,258,529,299,523,299,523,258"/>
+<area shape="rect" title=" " alt="" coords="761,313,912,339"/>
+<area shape="poly" title=" " alt="" coords="572,255,779,307,778,313,571,261"/>
+<area shape="rect" title=" " alt="" coords="936,313,1065,339"/>
+<area shape="poly" title=" " alt="" coords="584,254,923,309,922,314,583,259"/>
+<area shape="poly" title=" " alt="" coords="485,261,457,268,284,313,283,308,456,263,483,255"/>
+<area shape="rect" title=" " alt="" coords="641,313,712,339"/>
+<area shape="poly" title=" " alt="" coords="549,256,644,305,641,309,547,261"/>
+<area shape="poly" title=" " alt="" coords="937,107,850,127,753,155,650,193,564,229,562,224,648,188,752,149,849,122,936,101"/>
+<area shape="poly" title=" " alt="" coords="1073,100,1214,123,1272,136,1302,150,1321,180,1328,209,1322,238,1303,267,1275,287,1235,300,1186,308,1132,311,1020,313,926,316,926,311,1020,308,1131,306,1185,302,1233,295,1272,282,1299,263,1317,236,1323,209,1316,182,1299,154,1270,141,1213,128,1073,106"/>
+<area shape="poly" title=" " alt="" coords="1073,101,1248,126,1319,139,1353,150,1372,179,1378,209,1372,238,1353,267,1335,282,1308,293,1238,310,1156,320,1080,325,1079,320,1156,315,1237,305,1307,288,1332,277,1349,264,1367,236,1373,209,1367,182,1350,154,1318,145,1247,132,1073,106"/>
+<area shape="poly" title=" " alt="" coords="910,97,740,105,638,113,534,126,435,143,346,165,275,193,249,209,229,227,221,243,218,262,223,300,218,301,212,262,216,242,225,224,246,205,273,188,345,160,434,137,534,120,638,108,740,100,910,91"/>
+<area shape="poly" title=" " alt="" coords="1043,102,1127,126,1172,142,1214,162,1247,184,1269,209,1274,223,1275,237,1270,252,1259,267,1246,275,1227,282,1169,292,1010,305,749,316,726,319,725,314,748,311,1009,300,1169,287,1226,277,1244,270,1255,263,1265,250,1269,236,1269,224,1265,211,1244,188,1211,166,1170,147,1126,131,1042,107"/>
+<area shape="rect" title=" " alt="" coords="952,233,1089,258"/>
+<area shape="poly" title=" " alt="" coords="996,104,1018,219,1013,220,991,105"/>
+<area shape="rect" title=" " alt="" coords="1114,233,1245,258"/>
+<area shape="poly" title=" " alt="" coords="1007,102,1156,222,1153,226,1004,106"/>
+<area shape="poly" title=" " alt="" coords="964,106,860,149,858,144,962,102"/>
+<area shape="poly" title=" " alt="" coords="776,180,582,232,581,227,775,175"/>
+<area shape="poly" title=" " alt="" coords="772,180,711,199,647,228,551,306,548,302,645,223,709,194,770,175"/>
+<area shape="poly" title=" " alt="" coords="824,177,834,225,839,299,834,300,829,226,819,178"/>
+<area shape="poly" title=" " alt="" coords="833,175,979,302,975,306,829,179"/>
+<area shape="poly" title=" " alt="" coords="764,171,634,178,474,189,332,206,282,216,256,227,243,243,236,261,230,300,225,299,231,260,239,240,252,223,281,211,331,201,473,184,633,172,764,166"/>
+<area shape="poly" title=" " alt="" coords="820,178,812,220,803,245,789,267,760,293,726,311,723,306,757,289,785,264,798,242,807,219,815,177"/>
+<area shape="poly" title=" " alt="" coords="848,175,980,225,978,230,847,180"/>
+<area shape="poly" title=" " alt="" coords="872,174,1101,223,1120,227,1118,232,1100,228,871,179"/>
+<area shape="rect" title=" " alt="" coords="658,233,775,258"/>
+<area shape="poly" title=" " alt="" coords="805,180,744,226,741,222,801,175"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="266,225,445,265"/>
+<area shape="poly" title=" " alt="" coords="765,177,459,228,458,222,764,172"/>
+<area shape="poly" title=" " alt="" coords="397,263,490,305,488,310,395,268"/>
+<area shape="poly" title=" " alt="" coords="326,268,260,308,257,304,323,263"/>
+<area shape="poly" title=" " alt="" coords="433,263,629,310,628,315,432,268"/>
+</map>
+</div>
+</div>
+<p><a href="game__board__core_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a9b4b4ef6ba4260c09a59192fc68be834" id="r_a9b4b4ef6ba4260c09a59192fc68be834"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a9b4b4ef6ba4260c09a59192fc68be834">game_initialize_board</a> (void)</td></tr>
+<tr class="memdesc:a9b4b4ef6ba4260c09a59192fc68be834"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inicializuj sachovnici do vychozi pozice.  <br /></td></tr>
+<tr class="separator:a9b4b4ef6ba4260c09a59192fc68be834"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a079591ca02ed34677c282d5f1bbb6c1f" id="r_a079591ca02ed34677c282d5f1bbb6c1f"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a079591ca02ed34677c282d5f1bbb6c1f">game_parse_piece_from_fen</a> (char c, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *out_piece)</td></tr>
+<tr class="separator:a079591ca02ed34677c282d5f1bbb6c1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bee90ad546979bc31ca65dfde7d94af" id="r_a2bee90ad546979bc31ca65dfde7d94af"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a2bee90ad546979bc31ca65dfde7d94af">game_load_position_from_fen</a> (const char *fen, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> *active_player)</td></tr>
+<tr class="separator:a2bee90ad546979bc31ca65dfde7d94af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93dee8ccd518ae0092501007a420e4bb" id="r_a93dee8ccd518ae0092501007a420e4bb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a93dee8ccd518ae0092501007a420e4bb">game_is_valid_position</a> (int row, int col)</td></tr>
+<tr class="memdesc:a93dee8ccd518ae0092501007a420e4bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je pozice platna na sachovnici.  <br /></td></tr>
+<tr class="separator:a93dee8ccd518ae0092501007a420e4bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1f6294f23b24a27514d95c3b0ca0a4d" id="r_ab1f6294f23b24a27514d95c3b0ca0a4d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#ab1f6294f23b24a27514d95c3b0ca0a4d">game_get_piece</a> (int row, int col)</td></tr>
+<tr class="memdesc:ab1f6294f23b24a27514d95c3b0ca0a4d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej figurku na dane pozici.  <br /></td></tr>
+<tr class="separator:ab1f6294f23b24a27514d95c3b0ca0a4d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fc7b98c71a5a479e4f1965cb8229074" id="r_a3fc7b98c71a5a479e4f1965cb8229074"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a3fc7b98c71a5a479e4f1965cb8229074">game_set_piece</a> (int row, int col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:a3fc7b98c71a5a479e4f1965cb8229074"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f77ab43a39a2a3ebc640df092f9cdc1" id="r_a2f77ab43a39a2a3ebc640df092f9cdc1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a2f77ab43a39a2a3ebc640df092f9cdc1">game_is_empty</a> (int row, int col)</td></tr>
+<tr class="memdesc:a2f77ab43a39a2a3ebc640df092f9cdc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je pozice prazdna.  <br /></td></tr>
+<tr class="separator:a2f77ab43a39a2a3ebc640df092f9cdc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f69768eebdeba16538566a535f25351" id="r_a8f69768eebdeba16538566a535f25351"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a8f69768eebdeba16538566a535f25351">game_is_white_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:a8f69768eebdeba16538566a535f25351"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je figurka bila.  <br /></td></tr>
+<tr class="separator:a8f69768eebdeba16538566a535f25351"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a304560a99cb8733e12bdcd9461b66926" id="r_a304560a99cb8733e12bdcd9461b66926"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a304560a99cb8733e12bdcd9461b66926">game_is_black_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:a304560a99cb8733e12bdcd9461b66926"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda je figurka cerna.  <br /></td></tr>
+<tr class="separator:a304560a99cb8733e12bdcd9461b66926"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd3cb102b201b005212505e9fcc86612" id="r_afd3cb102b201b005212505e9fcc86612"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#afd3cb102b201b005212505e9fcc86612">game_is_same_color</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece1, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece2)</td></tr>
+<tr class="memdesc:afd3cb102b201b005212505e9fcc86612"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi zda jsou dve figurky stejne barvy.  <br /></td></tr>
+<tr class="separator:afd3cb102b201b005212505e9fcc86612"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f6d6a865d66f62cfe46e3e29212f872" id="r_a7f6d6a865d66f62cfe46e3e29212f872"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a7f6d6a865d66f62cfe46e3e29212f872">game_is_opponent_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player)</td></tr>
+<tr class="separator:a7f6d6a865d66f62cfe46e3e29212f872"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_BOARD&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Board setup, FEN parsing, and piece/position helpers. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="ab1f6294f23b24a27514d95c3b0ca0a4d" name="ab1f6294f23b24a27514d95c3b0ca0a4d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1f6294f23b24a27514d95c3b0ca0a4d">&#9670;&#160;</a></span>game_get_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> game_get_piece </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej figurku na dane pozici. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek (0-7) </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec (0-7) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>Typ figurky na pozici </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00173">173</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a9b4b4ef6ba4260c09a59192fc68be834" name="a9b4b4ef6ba4260c09a59192fc68be834"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9b4b4ef6ba4260c09a59192fc68be834">&#9670;&#160;</a></span>game_initialize_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_initialize_board </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Inicializuj sachovnici do vychozi pozice. </p>
+<p>Nastavi vsechny figurky do standardni startovni pozice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00016">16</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a304560a99cb8733e12bdcd9461b66926" name="a304560a99cb8733e12bdcd9461b66926"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a304560a99cb8733e12bdcd9461b66926">&#9670;&#160;</a></span>game_is_black_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_black_piece </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je figurka cerna. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">piece</td><td>Figurka k overeni </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je figurka cerna </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00195">195</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f77ab43a39a2a3ebc640df092f9cdc1" name="a2f77ab43a39a2a3ebc640df092f9cdc1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f77ab43a39a2a3ebc640df092f9cdc1">&#9670;&#160;</a></span>game_is_empty()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_empty </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je pozice prazdna. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek (0-7) </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec (0-7) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pozice prazdna </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00187">187</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f6d6a865d66f62cfe46e3e29212f872" name="a7f6d6a865d66f62cfe46e3e29212f872"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f6d6a865d66f62cfe46e3e29212f872">&#9670;&#160;</a></span>game_is_opponent_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_opponent_piece </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a>&#160;</td>
+          <td class="paramname"><em>player</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00207">207</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="afd3cb102b201b005212505e9fcc86612" name="afd3cb102b201b005212505e9fcc86612"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd3cb102b201b005212505e9fcc86612">&#9670;&#160;</a></span>game_is_same_color()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_same_color </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda jsou dve figurky stejne barvy. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">piece1</td><td>Prvni figurka </td></tr>
+    <tr><td class="paramname">piece2</td><td>Druha figurka </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud jsou figurky stejne barvy </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00199">199</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a93dee8ccd518ae0092501007a420e4bb" name="a93dee8ccd518ae0092501007a420e4bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93dee8ccd518ae0092501007a420e4bb">&#9670;&#160;</a></span>game_is_valid_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_valid_position </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je pozice platna na sachovnici. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">row</td><td>Radek (0-7) </td></tr>
+    <tr><td class="paramname">col</td><td>Sloupec (0-7) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je pozice platna </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00169">169</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a8f69768eebdeba16538566a535f25351" name="a8f69768eebdeba16538566a535f25351"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f69768eebdeba16538566a535f25351">&#9670;&#160;</a></span>game_is_white_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_white_piece </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Overi zda je figurka bila. </p>
+<dl class="params"><dt>Parametry</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">piece</td><td>Figurka k overeni </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Návratová hodnota</dt><dd>true pokud je figurka bila </dd></dl>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00191">191</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a2bee90ad546979bc31ca65dfde7d94af" name="a2bee90ad546979bc31ca65dfde7d94af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bee90ad546979bc31ca65dfde7d94af">&#9670;&#160;</a></span>game_load_position_from_fen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_load_position_from_fen </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> *&#160;</td>
+          <td class="paramname"><em>active_player</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00114">114</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a079591ca02ed34677c282d5f1bbb6c1f" name="a079591ca02ed34677c282d5f1bbb6c1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a079591ca02ed34677c282d5f1bbb6c1f">&#9670;&#160;</a></span>game_parse_piece_from_fen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool game_parse_piece_from_fen </td>
+          <td>(</td>
+          <td class="paramtype">char&#160;</td>
+          <td class="paramname"><em>c</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *&#160;</td>
+          <td class="paramname"><em>out_piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00068">68</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a3fc7b98c71a5a479e4f1965cb8229074" name="a3fc7b98c71a5a479e4f1965cb8229074"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fc7b98c71a5a479e4f1965cb8229074">&#9670;&#160;</a></span>game_set_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_set_piece </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00180">180</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;GAME_BOARD&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__board__core_8c_source.html#l00014">14</a> v souboru <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__board__core_8c.html">game_board_core.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

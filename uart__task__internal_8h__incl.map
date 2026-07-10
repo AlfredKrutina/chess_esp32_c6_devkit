@@ -1,0 +1,18 @@
+<map id="uart_task_internal.h" name="uart_task_internal.h">
+<area shape="rect" id="Node000001" title="Internal API between uart_task.c and sibling source files." alt="" coords="322,5,474,31"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="294,79,409,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="393,32,369,69,364,66,388,30"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
+<area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="371,33,87,149,85,144,369,28"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="439,152,522,177"/>
+<area shape="poly" id="edge8_Node000001_Node000006" title=" " alt="" coords="407,30,470,139,465,141,402,32"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="547,152,617,177"/>
+<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="415,29,558,141,555,145,411,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="303,107,101,153,100,148,302,101"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="264,152,415,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="352,105,346,139,341,138,347,104"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="111,152,240,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="324,106,218,149,216,144,322,102"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="373,102,448,143,446,147,371,106"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="389,101,535,146,533,151,388,107"/>
+</map>

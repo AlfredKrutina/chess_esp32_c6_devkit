@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_matrix_guard.h</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__matrix__guard_8h.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#func-members">Funkce</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_matrix_guard.h</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Matrix guard — pause play when physical board disagrees with logic.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_matrix_guard.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__matrix__guard_8h__incl.png" border="0" usemap="#agame__matrix__guard_8h" alt=""/></div>
+<map name="agame__matrix__guard_8h" id="agame__matrix__guard_8h">
+<area shape="rect" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="398,5,563,31"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="311,79,426,104"/>
+<area shape="poly" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
+<area shape="rect" title=" " alt="" coords="439,152,522,177"/>
+<area shape="poly" title=" " alt="" coords="483,31,483,138,478,138,478,31"/>
+<area shape="rect" title=" " alt="" coords="547,152,617,177"/>
+<area shape="poly" title=" " alt="" coords="491,30,568,139,564,142,487,33"/>
+<area shape="rect" title=" " alt="" coords="5,152,87,177"/>
+<area shape="poly" title=" " alt="" coords="317,107,101,154,99,149,316,101"/>
+<area shape="rect" title=" " alt="" coords="111,152,261,177"/>
+<area shape="poly" title=" " alt="" coords="340,107,230,149,228,144,338,102"/>
+<area shape="rect" title=" " alt="" coords="285,152,415,177"/>
+<area shape="poly" title=" " alt="" coords="368,105,359,140,354,138,363,104"/>
+<area shape="poly" title=" " alt="" coords="388,102,452,142,449,147,385,106"/>
+<area shape="poly" title=" " alt="" coords="404,101,535,145,534,150,402,107"/>
+</map>
+</div>
+</div>
+<p><a href="game__matrix__guard_8h_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:ae3ef4e1edc3ecb9b3de597377ee06e49" id="r_ae3ef4e1edc3ecb9b3de597377ee06e49"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__guard_8h.html#ae3ef4e1edc3ecb9b3de597377ee06e49">game_matrix_guard_handle_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
+<tr class="separator:ae3ef4e1edc3ecb9b3de597377ee06e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13493e3cf2a463144aea5c11137e128d" id="r_a13493e3cf2a463144aea5c11137e128d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__guard_8h.html#a13493e3cf2a463144aea5c11137e128d">game_matrix_guard_clear_both_layers</a> (void)</td></tr>
+<tr class="separator:a13493e3cf2a463144aea5c11137e128d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d7167ca923be48722f71e1738e49f83" id="r_a3d7167ca923be48722f71e1738e49f83"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__guard_8h.html#a3d7167ca923be48722f71e1738e49f83">game_matrix_guard_restore_after_clear</a> (bool notify_clients)</td></tr>
+<tr class="separator:a3d7167ca923be48722f71e1738e49f83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0134739549970cb17060f9a94edc3fe9" id="r_a0134739549970cb17060f9a94edc3fe9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__guard_8h.html#a0134739549970cb17060f9a94edc3fe9">game_matrix_guard_render_leds</a> (void)</td></tr>
+<tr class="separator:a0134739549970cb17060f9a94edc3fe9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5d5f7bb13936a73a03b0a29a80cd4d6" id="r_ae5d5f7bb13936a73a03b0a29a80cd4d6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__guard_8h.html#ae5d5f7bb13936a73a03b0a29a80cd4d6">game_matrix_guard_try_clear_from_matrix</a> (void)</td></tr>
+<tr class="separator:ae5d5f7bb13936a73a03b0a29a80cd4d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2ad17091138a8d7b1df3bd238964d84" id="r_aa2ad17091138a8d7b1df3bd238964d84"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__guard_8h.html#aa2ad17091138a8d7b1df3bd238964d84">game_matrix_guard_check_resync_after_restore</a> (void)</td></tr>
+<tr class="separator:aa2ad17091138a8d7b1df3bd238964d84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Matrix guard — pause play when physical board disagrees with logic. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__matrix__guard_8h_source.html">game_matrix_guard.h</a>.</p>
+</div><h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="aa2ad17091138a8d7b1df3bd238964d84" name="aa2ad17091138a8d7b1df3bd238964d84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2ad17091138a8d7b1df3bd238964d84">&#9670;&#160;</a></span>game_matrix_guard_check_resync_after_restore()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_matrix_guard_check_resync_after_restore </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__matrix__guard_8c_source.html#l00189">189</a> v souboru <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a13493e3cf2a463144aea5c11137e128d" name="a13493e3cf2a463144aea5c11137e128d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13493e3cf2a463144aea5c11137e128d">&#9670;&#160;</a></span>game_matrix_guard_clear_both_layers()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_matrix_guard_clear_both_layers </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__matrix__guard_8c_source.html#l00089">89</a> v souboru <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3ef4e1edc3ecb9b3de597377ee06e49" name="ae3ef4e1edc3ecb9b3de597377ee06e49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3ef4e1edc3ecb9b3de597377ee06e49">&#9670;&#160;</a></span>game_matrix_guard_handle_command()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_matrix_guard_handle_command </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramname"><em>cmd</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__matrix__guard_8c_source.html#l00139">139</a> v souboru <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a0134739549970cb17060f9a94edc3fe9" name="a0134739549970cb17060f9a94edc3fe9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0134739549970cb17060f9a94edc3fe9">&#9670;&#160;</a></span>game_matrix_guard_render_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_matrix_guard_render_leds </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__matrix__guard_8c_source.html#l00109">109</a> v souboru <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a3d7167ca923be48722f71e1738e49f83" name="a3d7167ca923be48722f71e1738e49f83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3d7167ca923be48722f71e1738e49f83">&#9670;&#160;</a></span>game_matrix_guard_restore_after_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_matrix_guard_restore_after_clear </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>notify_clients</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__matrix__guard_8c_source.html#l00100">100</a> v souboru <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="ae5d5f7bb13936a73a03b0a29a80cd4d6" name="ae5d5f7bb13936a73a03b0a29a80cd4d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5d5f7bb13936a73a03b0a29a80cd4d6">&#9670;&#160;</a></span>game_matrix_guard_try_clear_from_matrix()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_matrix_guard_try_clear_from_matrix </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__matrix__guard_8c_source.html#l00230">230</a> v souboru <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="dir_33cc7e91f7e0627bade559bf776868f5.html">include</a></li><li class="navelem"><a class="el" href="game__matrix__guard_8h.html">game_matrix_guard.h</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

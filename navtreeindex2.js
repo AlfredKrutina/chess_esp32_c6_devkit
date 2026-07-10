@@ -1,8 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"config__manager_8h.html#a738c632d7567c38a428c149e9b60c78c":[3,0,0,3,0,0,1],
-"config__manager_8h.html#a7a1556a5e46704a83988a2b86b205d95":[3,0,0,3,0,0,16],
-"config__manager_8h.html#aa0028fc365e89e240fa5fbf5fd10dc80":[3,0,0,3,0,0,5],
 "config__manager_8h.html#aa686528527fc11f58962e83e0b12683e":[3,0,0,3,0,0,21],
 "config__manager_8h.html#aab4af7f40409b93d0b746f2d59f6272c":[3,0,0,3,0,0,6],
 "config__manager_8h.html#ab761ad48a054d663ba21852111fdc330":[3,0,0,3,0,0,0],
@@ -249,5 +246,8 @@ var NAVTREEINDEX2 =
 "freertos__chess_8h.html#a1e15a8ac2f944de5c675aa81c1c653c4":[3,0,0,5,0,1,68],
 "freertos__chess_8h.html#a1f265b8287aba27035f07a200c7ddfec":[3,0,0,5,0,1,115],
 "freertos__chess_8h.html#a203c5698d5ed09c06220f3f660867903":[3,0,0,5,0,1,60],
-"freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a":[3,0,0,5,0,1,15]
+"freertos__chess_8h.html#a204a7ee69d817206b7510c6ffc47643a":[3,0,0,5,0,1,15],
+"freertos__chess_8h.html#a2194cd55ef55fe74673eff35a72c2b4b":[3,0,0,5,0,1,39],
+"freertos__chess_8h.html#a21c1cebc5db393a9f06dfb6266a65241":[3,0,0,5,0,1,72],
+"freertos__chess_8h.html#a26f828d1911fdbed9f5a190d38b869f4":[3,0,0,5,0,1,42]
 };

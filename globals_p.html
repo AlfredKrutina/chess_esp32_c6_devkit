@@ -95,11 +95,10 @@ $(document).ready(function(){initNavTree('globals_p.html',''); initResizable(); 
 <h3><a id="index_p" name="index_p"></a>- p -</h3><ul>
 <li>parse_hex32()&#160;:&#160;<a class="el" href="board__api__auth_8c.html#a16ba81f6c1dfa44c1eb12e87c9768947">board_api_auth.c</a></li>
 <li>parse_king_position()&#160;:&#160;<a class="el" href="uart__commands__extended_8c.html#a077345de50407d4102d48247f457f88a">uart_commands_extended.c</a></li>
-<li>parse_move_notation()&#160;:&#160;<a class="el" href="uart__task_8c.html#a5375af563f4375b03e16cb5516f3e06f">uart_task.c</a></li>
+<li>parse_move_notation()&#160;:&#160;<a class="el" href="uart__parse_8c.html#a5375af563f4375b03e16cb5516f3e06f">uart_parse.c</a>, <a class="el" href="uart__parse_8h.html#a5375af563f4375b03e16cb5516f3e06f">uart_parse.h</a></li>
 <li>password&#160;:&#160;<a class="el" href="ha__light__task_8c.html#ae3a23efe266762659e03567d6afc26dd">ha_light_task.c</a></li>
 <li>peak_usage&#160;:&#160;<a class="el" href="shared__buffer__pool_8c.html#a82e071b75d18efa8bb95688becb3cbcd">shared_buffer_pool.c</a></li>
-<li>pending&#160;:&#160;<a class="el" href="game__task_8c.html#a39f16d585c4531d2bf2562631a775d73">game_task.c</a></li>
-<li>pending_castle_move&#160;:&#160;<a class="el" href="game__task_8c.html#aec956796e1629a92f299b1725070b1c2">game_task.c</a></li>
+<li>pending_castle_move&#160;:&#160;<a class="el" href="game__castling_8c.html#aec956796e1629a92f299b1725070b1c2">game_castling.c</a></li>
 <li>PIECE_BLACK_BISHOP&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86">chess_types.h</a></li>
 <li>PIECE_BLACK_KING&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6">chess_types.h</a></li>
 <li>PIECE_BLACK_KNIGHT&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60">chess_types.h</a></li>
@@ -107,12 +106,11 @@ $(document).ready(function(){initNavTree('globals_p.html',''); initResizable(); 
 <li>PIECE_BLACK_QUEEN&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238">chess_types.h</a></li>
 <li>PIECE_BLACK_ROOK&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584">chess_types.h</a></li>
 <li>PIECE_EMPTY&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1">chess_types.h</a></li>
-<li>piece_lifted&#160;:&#160;<a class="el" href="game__task_8c.html#af81491a006e7a193e8fd657043851221">game_task.c</a></li>
-<li>piece_moved&#160;:&#160;<a class="el" href="game__task_8c.html#a32ed58d8bde5af2ffdbdb87e51758601">game_task.c</a></li>
-<li>piece_symbols&#160;:&#160;<a class="el" href="game__task_8c.html#ae9609d2c6acb49bcfdc4a72a4ee02d06">game_task.c</a></li>
+<li>piece_lifted&#160;:&#160;<a class="el" href="game__task__internal_8h.html#af81491a006e7a193e8fd657043851221">game_task_internal.h</a>, <a class="el" href="game__task_8c.html#af81491a006e7a193e8fd657043851221">game_task.c</a></li>
+<li>piece_moved&#160;:&#160;<a class="el" href="game__task_8c.html#a32ed58d8bde5af2ffdbdb87e51758601">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a32ed58d8bde5af2ffdbdb87e51758601">game_task_internal.h</a></li>
+<li>piece_symbols&#160;:&#160;<a class="el" href="game__task_8c.html#ae9609d2c6acb49bcfdc4a72a4ee02d06">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#ae9609d2c6acb49bcfdc4a72a4ee02d06">game_task_internal.h</a></li>
 <li>piece_t&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">chess_types.h</a></li>
-<li>piece_to_char()&#160;:&#160;<a class="el" href="game__task_8c.html#a18410c1d6d949a27fc7b6440dcf2dc72">game_task.c</a></li>
-<li>piece_type&#160;:&#160;<a class="el" href="game__task_8c.html#a60252451b47846f576a0ceb38633b917">game_task.c</a></li>
+<li>piece_to_char()&#160;:&#160;<a class="el" href="game__task_8c.html#a2f0344775e155aaaaa2c896a13453228">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a2f0344775e155aaaaa2c896a13453228">game_task_internal.h</a></li>
 <li>piece_values&#160;:&#160;<a class="el" href="game__task_8c.html#a0f99785951affb36a4998ea958983b86">game_task.c</a></li>
 <li>PIECE_WHITE_BISHOP&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992">chess_types.h</a></li>
 <li>PIECE_WHITE_KING&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411">chess_types.h</a></li>
@@ -120,25 +118,24 @@ $(document).ready(function(){initNavTree('globals_p.html',''); initResizable(); 
 <li>PIECE_WHITE_PAWN&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">chess_types.h</a></li>
 <li>PIECE_WHITE_QUEEN&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc">chess_types.h</a></li>
 <li>PIECE_WHITE_ROOK&#160;:&#160;<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42">chess_types.h</a></li>
-<li>player&#160;:&#160;<a class="el" href="game__task_8c.html#ac5a8201c5f6bbce303ec36500d67b6d8">game_task.c</a></li>
 <li>PLAYER_BLACK&#160;:&#160;<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e">chess_types.h</a></li>
 <li>player_t&#160;:&#160;<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">chess_types.h</a></li>
 <li>PLAYER_WHITE&#160;:&#160;<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">chess_types.h</a></li>
 <li>pool_initialized&#160;:&#160;<a class="el" href="shared__buffer__pool_8c.html#a5c84208b4e9d308124c7e5f9097eacd0">shared_buffer_pool.c</a></li>
 <li>port&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">ha_light_task.c</a></li>
 <li>position_history&#160;:&#160;<a class="el" href="game__task_8c.html#aacd4de9dfd40491ca20038a933dfdda4">game_task.c</a></li>
-<li>position_history_count&#160;:&#160;<a class="el" href="game__task_8c.html#aa2cf15d7d0808a9a22c4eb6462c9153d">game_task.c</a></li>
+<li>position_history_count&#160;:&#160;<a class="el" href="game__task_8c.html#aa2cf15d7d0808a9a22c4eb6462c9153d">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#aa2cf15d7d0808a9a22c4eb6462c9153d">game_task_internal.h</a></li>
 <li>position_to_string()&#160;:&#160;<a class="el" href="uart__commands__extended_8c.html#a2a78e4f624df8fcd55e57d48360a10e0">uart_commands_extended.c</a></li>
 <li>previous_led_states&#160;:&#160;<a class="el" href="led__task_8c.html#a2bebe3e1fd5e0641080d3872b0cc55fc">led_task.c</a></li>
 <li>print_error_detail()&#160;:&#160;<a class="el" href="game__task_8c.html#a8025d8136c027e3884d5e8cbe8ee147a">game_task.c</a></li>
-<li>print_report_header()&#160;:&#160;<a class="el" href="game__task_8c.html#a195ade6830068f1a49821f3d0e8f24db">game_task.c</a></li>
-<li>print_report_line()&#160;:&#160;<a class="el" href="game__task_8c.html#ae0a6f0bdd7eec3bac8e5f7c50d811214">game_task.c</a></li>
-<li>print_separator()&#160;:&#160;<a class="el" href="game__task_8c.html#a1ec13300bc78171b6fcd9dd28e89ecb5">game_task.c</a></li>
-<li>process_promotion_choice()&#160;:&#160;<a class="el" href="promotion__button__task_8c.html#a8e3a45fc9ac9fcda6e243449b9de66ff">promotion_button_task.c</a>, <a class="el" href="promotion__button__task_8h.html#a8e3a45fc9ac9fcda6e243449b9de66ff">promotion_button_task.h</a></li>
+<li>print_report_header()&#160;:&#160;<a class="el" href="game__endgame__report_8c.html#a195ade6830068f1a49821f3d0e8f24db">game_endgame_report.c</a></li>
+<li>print_report_line()&#160;:&#160;<a class="el" href="game__endgame__report_8c.html#ae0a6f0bdd7eec3bac8e5f7c50d811214">game_endgame_report.c</a></li>
+<li>print_separator()&#160;:&#160;<a class="el" href="game__endgame__report_8c.html#a1ec13300bc78171b6fcd9dd28e89ecb5">game_endgame_report.c</a></li>
+<li>process_promotion_choice()&#160;:&#160;<a class="el" href="promotion__button__task_8h.html#a8e3a45fc9ac9fcda6e243449b9de66ff">promotion_button_task.h</a>, <a class="el" href="promotion__button__task_8c.html#a8e3a45fc9ac9fcda6e243449b9de66ff">promotion_button_task.c</a></li>
 <li>process_reset_request()&#160;:&#160;<a class="el" href="reset__button__task_8h.html#a828ddd0ce9a37f1fbe484e6663d96a57">reset_button_task.h</a>, <a class="el" href="reset__button__task_8c.html#a828ddd0ce9a37f1fbe484e6663d96a57">reset_button_task.c</a></li>
 <li>project()&#160;:&#160;<a class="el" href="CMakeLists_8txt.html#a8442513d5cb81801df10824e5606c17e">CMakeLists.txt</a></li>
 <li>PROMOTION_BISHOP&#160;:&#160;<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060">chess_types.h</a></li>
-<li>promotion_button_get_event_count()&#160;:&#160;<a class="el" href="promotion__button__task_8h.html#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_task.h</a>, <a class="el" href="promotion__button__task_8c.html#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_task.c</a></li>
+<li>promotion_button_get_event_count()&#160;:&#160;<a class="el" href="promotion__button__task_8c.html#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_task.c</a>, <a class="el" href="promotion__button__task_8h.html#acc92043a584171d17f29d9e0ae9bbd1a">promotion_button_task.h</a></li>
 <li>promotion_button_initialized&#160;:&#160;<a class="el" href="promotion__button__task_8c.html#abbaaee3316ba8718fb74559d7c93df9b">promotion_button_task.c</a></li>
 <li>promotion_button_is_initialized()&#160;:&#160;<a class="el" href="promotion__button__task_8h.html#af6e9bc64868813a9a0c6134a471aefc9">promotion_button_task.h</a>, <a class="el" href="promotion__button__task_8c.html#af6e9bc64868813a9a0c6134a471aefc9">promotion_button_task.c</a></li>
 <li>promotion_button_pins_a&#160;:&#160;<a class="el" href="freertos__chess_8c.html#aa13f5879e99176ffada8295c49c67b6c">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#aa13f5879e99176ffada8295c49c67b6c">freertos_chess.h</a></li>
@@ -149,25 +146,25 @@ $(document).ready(function(){initNavTree('globals_p.html',''); initResizable(); 
 <li>PROMOTION_BUTTON_TASK_STACK_SIZE&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a0777cbb816d50dcb813a9bf1b98dd46e">freertos_chess.h</a></li>
 <li>promotion_choice_t&#160;:&#160;<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237">chess_types.h</a></li>
 <li>PROMOTION_KNIGHT&#160;:&#160;<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910">chess_types.h</a></li>
-<li>promotion_mutex&#160;:&#160;<a class="el" href="game__task_8c.html#a63a7da38fbec25e9b4ca6591dbc94966">game_task.c</a></li>
+<li>promotion_mutex&#160;:&#160;<a class="el" href="game__task_8c.html#a63a7da38fbec25e9b4ca6591dbc94966">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a63a7da38fbec25e9b4ca6591dbc94966">game_task_internal.h</a></li>
 <li>PROMOTION_QUEEN&#160;:&#160;<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237ace7ae3bfdb598aeffb32c01d08805045">chess_types.h</a></li>
 <li>PROMOTION_ROOK&#160;:&#160;<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85">chess_types.h</a></li>
-<li>promotion_state&#160;:&#160;<a class="el" href="game__task_8c.html#a812cc46f47593bd91d43cd25ccc548ca">game_task.c</a></li>
+<li>promotion_state&#160;:&#160;<a class="el" href="game__task_8c.html#a01e6c7c9c3dc69b748bb08d3602d89f5">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a01e6c7c9c3dc69b748bb08d3602d89f5">game_task_internal.h</a></li>
 <li>pulse_frame&#160;:&#160;<a class="el" href="animation__task_8c.html#a63913cf3472539c76d9f3b05a1a49361">animation_task.c</a></li>
-<li>puzzle_active&#160;:&#160;<a class="el" href="game__task_8c.html#af54fe97fc72c8bb8cdd95225e554599c">game_task.c</a></li>
-<li>puzzle_active_id&#160;:&#160;<a class="el" href="game__task_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">game_task.c</a></li>
-<li>puzzle_feedback&#160;:&#160;<a class="el" href="game__task_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">game_task.c</a></li>
-<li>PUZZLE_FEEDBACK_ILLEGAL&#160;:&#160;<a class="el" href="game__task_8c.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628">game_task.c</a></li>
-<li>PUZZLE_FEEDBACK_NONE&#160;:&#160;<a class="el" href="game__task_8c.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">game_task.c</a></li>
-<li>PUZZLE_FEEDBACK_SOLVED&#160;:&#160;<a class="el" href="game__task_8c.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56">game_task.c</a></li>
-<li>puzzle_feedback_t&#160;:&#160;<a class="el" href="game__task_8c.html#a3d8b7bd72f649980cf9a4432e3523705">game_task.c</a></li>
-<li>PUZZLE_FEEDBACK_WRONG&#160;:&#160;<a class="el" href="game__task_8c.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c">game_task.c</a></li>
-<li>puzzle_setup_active&#160;:&#160;<a class="el" href="game__task_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">game_task.c</a></li>
-<li>puzzle_setup_id&#160;:&#160;<a class="el" href="game__task_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">game_task.c</a></li>
-<li>puzzle_solution_from_col&#160;:&#160;<a class="el" href="game__task_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13">game_task.c</a></li>
-<li>puzzle_solution_from_row&#160;:&#160;<a class="el" href="game__task_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957">game_task.c</a></li>
-<li>puzzle_solution_to_col&#160;:&#160;<a class="el" href="game__task_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49">game_task.c</a></li>
-<li>puzzle_solution_to_row&#160;:&#160;<a class="el" href="game__task_8c.html#a07df2d15b38d935c5873364f85ac349c">game_task.c</a></li>
+<li>puzzle_active&#160;:&#160;<a class="el" href="game__task__internal_8h.html#af54fe97fc72c8bb8cdd95225e554599c">game_task_internal.h</a>, <a class="el" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">game_puzzle.c</a></li>
+<li>puzzle_active_id&#160;:&#160;<a class="el" href="game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#ad9d9faa3fdcbe380c1268dba84d53d4d">game_task_internal.h</a></li>
+<li>puzzle_feedback&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a02bbcd8447ffc1d9d2294e3a6b733724">game_task_internal.h</a></li>
+<li>PUZZLE_FEEDBACK_ILLEGAL&#160;:&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628">game_task_internal.h</a></li>
+<li>PUZZLE_FEEDBACK_NONE&#160;:&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">game_task_internal.h</a></li>
+<li>PUZZLE_FEEDBACK_SOLVED&#160;:&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56">game_task_internal.h</a></li>
+<li>puzzle_feedback_t&#160;:&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705">game_task_internal.h</a></li>
+<li>PUZZLE_FEEDBACK_WRONG&#160;:&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c">game_task_internal.h</a></li>
+<li>puzzle_setup_active&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a4ea810bbf4735d36120aea3a27d9e54e">game_task_internal.h</a></li>
+<li>puzzle_setup_id&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a420f16ad1e12caae7150b33be0f6c0d0">game_task_internal.h</a></li>
+<li>puzzle_solution_from_col&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a8e5f8bda1bc85a27f938ef5e2e066f13">game_task_internal.h</a></li>
+<li>puzzle_solution_from_row&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a9ca41717eae71fdb2f9ba8ee3e204957">game_task_internal.h</a></li>
+<li>puzzle_solution_to_col&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a80c5947d0b8cf7c2327105aaa9cebe49">game_task_internal.h</a></li>
+<li>puzzle_solution_to_row&#160;:&#160;<a class="el" href="game__puzzle_8c.html#a07df2d15b38d935c5873364f85ac349c">game_puzzle.c</a>, <a class="el" href="game__task__internal_8h.html#a07df2d15b38d935c5873364f85ac349c">game_task_internal.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

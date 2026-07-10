@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['0_20strong_0',['CZECHMATE firmware &lt;strong&gt;1.8.0&lt;/strong&gt;',['../index.html',1,'']]]
+  ['prvků_0',['Seznam zastaralých prvků',['../deprecated.html',1,'']]]
 ];

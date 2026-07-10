@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['8_200_20strong_0',['CZECHMATE firmware &lt;strong&gt;1.8.0&lt;/strong&gt;',['../index.html',1,'']]]
+  ['web_5fserver_5ftask_0',['web_server_task',['../index.html',1,'']]]
 ];

@@ -1,0 +1,486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor game_endgame_detect.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function() { init_codefold(0); });
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__endgame__detect_8c_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">game_endgame_detect.c</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="game__endgame__detect_8c.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="game__task__internal_8h.html">game_task_internal.h</a>&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;<a class="code" href="game__task_8h.html">game_task.h</a>&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;../../timer_system/include/timer_system.h&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;esp_log.h&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;inttypes.h&gt;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">   15</a></span><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = <span class="stringliteral">&quot;GAME_ENDGAME&quot;</span>;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">// END-GAME DETECTION</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">// ============================================================================</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="foldopen" id="foldopen00026" data-start="{" data-end="}">
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno"><a class="line" href="game__endgame__detect_8c.html#a737d8907ff7e0ea86e3c46e70f3c3614">   26</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__endgame__detect_8c.html#a737d8907ff7e0ea86e3c46e70f3c3614">game_is_king_in_check</a>(<a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player) {</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>  <span class="comment">// Find king position</span></div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>  <span class="keywordtype">int</span> king_row = -1, king_col = -1;</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>  <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> king_piece =</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>      (player == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411">PIECE_WHITE_KING</a> : <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6">PIECE_BLACK_KING</a>;</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> row = 0; row &lt; 8; row++) {</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> col = 0; col &lt; 8; col++) {</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>      <span class="keywordflow">if</span> (<a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[row][col] == king_piece) {</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        king_row = row;</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        king_col = col;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>      }</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    }</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordflow">if</span> (king_row != -1)</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>      <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  }</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>  <span class="keywordflow">if</span> (king_row == -1)</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>; <span class="comment">// King not found</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>  <span class="comment">// Check if any opponent piece can capture the king</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>  <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> opponent_pieces_start =</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>      (player == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b">PIECE_BLACK_PAWN</a> : <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">PIECE_WHITE_PAWN</a>;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>  <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> opponent_pieces_end =</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>      (player == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6">PIECE_BLACK_KING</a> : <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411">PIECE_WHITE_KING</a>;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> row = 0; row &lt; 8; row++) {</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> col = 0; col &lt; 8; col++) {</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>      <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece = <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[row][col];</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>      <span class="keywordflow">if</span> (piece &gt;= opponent_pieces_start &amp;&amp; piece &lt;= opponent_pieces_end) {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="comment">// Create temporary move to check if it can capture king</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <a class="code hl_struct" href="structchess__move__t.html">chess_move_t</a> temp_move = {.<a class="code hl_variable" href="structchess__move__t.html#a87e6934d4b28fea1a59c341d6cbe9eb7">from_row</a> = row,</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>                                  .from_col = col,</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>                                  .to_row = king_row,</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                  .to_col = king_col,</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                                  .piece = piece,</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>                                  .captured_piece = king_piece,</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>                                  .timestamp = 0};</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span> </div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        <span class="comment">// Check if this move is valid (would capture king)</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        <span class="keywordflow">if</span> (<a class="code hl_function" href="game__move__validate_8c.html#a2c589b4bfa6cd43ea3582050e37c1cc4">game_validate_piece_move_enhanced</a>(&amp;temp_move, piece) ==</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            <a class="code hl_enumvalue" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60">MOVE_ERROR_NONE</a>) {</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>          <span class="keywordflow">return</span> <span class="keyword">true</span>; <span class="comment">// King is in check</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        }</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>      }</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    }</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  }</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>}</div>
+</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
+<div class="foldopen" id="foldopen00083" data-start="{" data-end="}">
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="game__endgame__detect_8c.html#a90e272f6928e9145d30671ce523ff35e">   83</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__endgame__detect_8c.html#a90e272f6928e9145d30671ce523ff35e">game_has_legal_moves</a>(<a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player) {</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>  <span class="comment">// Use existing move generation system instead of brute force</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>  uint32_t moves_count = <a class="code hl_function" href="game__move__gen_8c.html#a0108839d1688d03bc9eba3f1c581788e">game_generate_legal_moves</a>(player);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>  <span class="keywordflow">return</span> (moves_count &gt; 0);</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>}</div>
+</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="foldopen" id="foldopen00097" data-start="{" data-end="}">
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno"><a class="line" href="chess__types_8h.html#a4a1fae8d66a8db2dd28a091a3b11279c">   97</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__endgame__detect_8c.html#a4a1fae8d66a8db2dd28a091a3b11279c">game_is_enemy_piece</a>(<a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> player) {</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keywordflow">if</span> (piece == <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1">PIECE_EMPTY</a>)</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>  <span class="keywordflow">return</span> (player == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_function" href="game__board__core_8c.html#a304560a99cb8733e12bdcd9461b66926">game_is_black_piece</a>(piece)</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>                                  : <a class="code hl_function" href="game__board__core_8c.html#a8f69768eebdeba16538566a535f25351">game_is_white_piece</a>(piece);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>}</div>
+</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="foldopen" id="foldopen00104" data-start="{" data-end="}">
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno"><a class="line" href="game__endgame__detect_8c.html#a93a1f0d6a82af5e13f78ebecc8a5ed8c">  104</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__endgame__detect_8c.html#a93a1f0d6a82af5e13f78ebecc8a5ed8c">game_is_insufficient_material</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>  <span class="keywordtype">int</span> white_pieces = 0, black_pieces = 0;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  <span class="keywordtype">int</span> white_minors = 0, black_minors = 0; <span class="comment">// Knights and bishops</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keywordtype">bool</span> white_has_bishop = <span class="keyword">false</span>, black_has_bishop = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>  <span class="keywordtype">bool</span> white_has_knight = <span class="keyword">false</span>, black_has_knight = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  <span class="keywordtype">bool</span> white_bishop_color = <span class="keyword">false</span>,</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>       black_bishop_color = <span class="keyword">false</span>; <span class="comment">// false = light, true = dark</span></div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <span class="comment">// Count pieces and analyze material</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> row = 0; row &lt; 8; row++) {</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> col = 0; col &lt; 8; col++) {</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>      <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece = <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[row][col];</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>      <span class="keywordflow">switch</span> (piece) {</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">PIECE_WHITE_PAWN</a>:</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42">PIECE_WHITE_ROOK</a>:</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc">PIECE_WHITE_QUEEN</a>:</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        white_pieces++;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992">PIECE_WHITE_BISHOP</a>:</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        white_pieces++;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        white_minors++;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        white_has_bishop = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        white_bishop_color = ((row + col) % 2 == 0); <span class="comment">// Light squares = false</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c">PIECE_WHITE_KNIGHT</a>:</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        white_pieces++;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        white_minors++;</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        white_has_knight = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b">PIECE_BLACK_PAWN</a>:</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584">PIECE_BLACK_ROOK</a>:</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238">PIECE_BLACK_QUEEN</a>:</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>        black_pieces++;</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86">PIECE_BLACK_BISHOP</a>:</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        black_pieces++;</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>        black_minors++;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>        black_has_bishop = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>        black_bishop_color = ((row + col) % 2 == 0); <span class="comment">// Light squares = false</span></div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>      <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60">PIECE_BLACK_KNIGHT</a>:</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>        black_pieces++;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>        black_minors++;</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        black_has_knight = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>      <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>        <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>      }</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    }</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>  }</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>  <span class="comment">// King vs King - always insufficient</span></div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  <span class="keywordflow">if</span> (white_pieces == 0 &amp;&amp; black_pieces == 0) {</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>  }</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  <span class="comment">// King + minor vs King - insufficient</span></div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  <span class="keywordflow">if</span> ((white_pieces == 1 &amp;&amp; black_pieces == 0) ||</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>      (white_pieces == 0 &amp;&amp; black_pieces == 1)) {</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  }</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  <span class="comment">// King + Bishop vs King + Bishop (same color) - insufficient</span></div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  <span class="keywordflow">if</span> (white_pieces == 1 &amp;&amp; black_pieces == 1 &amp;&amp; white_has_bishop &amp;&amp;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>      black_has_bishop &amp;&amp; white_bishop_color == black_bishop_color) {</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  }</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  <span class="comment">// King + Knight vs King + Knight - insufficient</span></div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>  <span class="keywordflow">if</span> (white_pieces == 1 &amp;&amp; black_pieces == 1 &amp;&amp; white_has_knight &amp;&amp;</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>      black_has_knight) {</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  }</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  <span class="comment">// King + 2 Knights vs King - insufficient (very rare, but technically</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <span class="comment">// insufficient)</span></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <span class="keywordflow">if</span> ((white_pieces == 2 &amp;&amp; black_pieces == 0 &amp;&amp; white_minors == 2 &amp;&amp;</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>       white_has_knight) ||</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>      (white_pieces == 0 &amp;&amp; black_pieces == 2 &amp;&amp; black_minors == 2 &amp;&amp;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>       black_has_knight)) {</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>  }</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  <span class="keywordflow">return</span> <span class="keyword">false</span>; <span class="comment">// Sufficient material for checkmate</span></div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>}</div>
+</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
+<div class="foldopen" id="foldopen00219" data-start="{" data-end="}">
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno"><a class="line" href="game__endgame__detect_8c.html#a3cd556600affcd7945ded58e0a05c9c3">  219</a></span><a class="code hl_enumeration" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a> <a class="code hl_function" href="game__endgame__detect_8c.html#a3cd556600affcd7945ded58e0a05c9c3">game_check_end_game_conditions</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  <span class="comment">// Check if current player is in check</span></div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keywordtype">bool</span> in_check = <a class="code hl_function" href="game__endgame__detect_8c.html#a737d8907ff7e0ea86e3c46e70f3c3614">game_is_king_in_check</a>(<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a>);</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span> </div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>  <span class="comment">// Check if current player has legal moves</span></div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>  <span class="keywordtype">bool</span> has_moves = <a class="code hl_function" href="game__endgame__detect_8c.html#a90e272f6928e9145d30671ce523ff35e">game_has_legal_moves</a>(<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a>);</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span> </div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  <span class="keywordflow">if</span> (in_check &amp;&amp; !has_moves) {</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="comment">// Checkmate - určit typ podle posledního tahu</span></div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    <a class="code hl_variable" href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    <a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a> = (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990">RESULT_BLACK_WINS</a></div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>                                                           : <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602">RESULT_WHITE_WINS</a>;</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span> </div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>    <span class="comment">// Rozlišit typ šachmatu podle posledního tahu</span></div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keywordflow">switch</span> (<a class="code hl_variable" href="game__task_8c.html#a4310fc073a4924b686ab768c91bb6766">last_move_type</a>) {</div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a5e9afb17a5a3d533a10a72f8365c2fee">LAST_MOVE_EN_PASSANT</a>:</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>      <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa9103a2521e362b42cd1b9a8505075242">ENDGAME_REASON_CHECKMATE_EN_PASSANT</a>;</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>      ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 CHECKMATE BY EN PASSANT! %s wins in %&quot;</span> PRIu32 <span class="stringliteral">&quot; moves!&quot;</span>,</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>               (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;Black&quot;</span> : <span class="stringliteral">&quot;White&quot;</span>,</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>               <a class="code hl_variable" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a>);</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>      <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>    <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a74b328b19fe88255418ae15211170d9e">LAST_MOVE_CASTLING</a>:</div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span>      <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa2b9fe119a75eb59424c83b9120108ac9">ENDGAME_REASON_CHECKMATE_CASTLING</a>;</div>
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span>      ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 CHECKMATE BY CASTLING! %s wins in %&quot;</span> PRIu32 <span class="stringliteral">&quot; moves!&quot;</span>,</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>               (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;Black&quot;</span> : <span class="stringliteral">&quot;White&quot;</span>,</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>               <a class="code hl_variable" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a>);</div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>      <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>    <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428af03c0fabe13195d12257c4e19af68013">LAST_MOVE_PROMOTION</a>:</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>      <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa82859e0109b9e57299d8f20b6abf0801">ENDGAME_REASON_CHECKMATE_PROMOTION</a>;</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>      ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 CHECKMATE BY PROMOTION! %s wins in %&quot;</span> PRIu32 <span class="stringliteral">&quot; moves!&quot;</span>,</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>               (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;Black&quot;</span> : <span class="stringliteral">&quot;White&quot;</span>,</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>               <a class="code hl_variable" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a>);</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>      <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>    <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635">LAST_MOVE_DISCOVERED</a>:</div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>      <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caabde34381022074969ecde98b6f33583c">ENDGAME_REASON_CHECKMATE_DISCOVERED</a>;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>      ESP_LOGI(</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>          <a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>          <span class="stringliteral">&quot;🎯 CHECKMATE BY DISCOVERED CHECK! %s wins in %&quot;</span> PRIu32 <span class="stringliteral">&quot; moves!&quot;</span>,</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>          (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;Black&quot;</span> : <span class="stringliteral">&quot;White&quot;</span>, <a class="code hl_variable" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a>);</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>      <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>    <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>      <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa52cd39edd88b14727c7fad1cef6ee7d2">ENDGAME_REASON_CHECKMATE</a>;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>      ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🎯 CHECKMATE! %s wins in %&quot;</span> PRIu32 <span class="stringliteral">&quot; moves!&quot;</span>,</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>               (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <span class="stringliteral">&quot;Black&quot;</span> : <span class="stringliteral">&quot;White&quot;</span>,</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>               <a class="code hl_variable" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a>);</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>      <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>    }</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <a class="code hl_function" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a>(<a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a>);</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>    <a class="code hl_variable" href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a> = <span class="keyword">true</span>; <span class="comment">// Požadavek na report</span></div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span> </div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>    <span class="comment">// Zastavit timer (hra skončila)</span></div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>    <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span> </div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>    <span class="comment">// UNIFIED VICTORY ANIMATION</span></div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>    <span class="comment">// Checkmate = Victory for current_player (who delivered mate? No wait.)</span></div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>    <span class="comment">// Logic: if current_player is in check &amp; no moves, they LOST.</span></div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>    <span class="comment">// Winner is the OPPONENT.</span></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>    <a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> winner =</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        (<a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> == <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>) ? <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e">PLAYER_BLACK</a> : <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>;</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>    <a class="code hl_function" href="game__task_8c.html#a8ffc3e4b7385ec855b4098504e6637f6">game_trigger_victory_animation</a>(winner);</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span> </div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    <span class="keywordflow">return</span> <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (!in_check &amp;&amp; !has_moves) {</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>    <span class="comment">// Stalemate</span></div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>    <a class="code hl_variable" href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>    <a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e">RESULT_DRAW_STALEMATE</a>;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>    <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa06fe60e50aa01b44d380419d81f1db15">ENDGAME_REASON_STALEMATE</a>; <span class="comment">// Označit jako stalemate</span></div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <a class="code hl_function" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a>(<a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a>);</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <a class="code hl_variable" href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a> = <span class="keyword">true</span>; <span class="comment">// Požadavek na report</span></div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>    <span class="comment">// Zastavit timer (hra skončila)</span></div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>    <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span> </div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🤝 STALEMATE! Game drawn in %&quot;</span> PRIu32 <span class="stringliteral">&quot; moves&quot;</span>, <a class="code hl_variable" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a>);</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>    <span class="keywordflow">return</span> <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>  }</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>  <span class="comment">// BUG #13: Check for draw conditions</span></div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>  <span class="comment">// 50-move rule: 50 plných tahů = 100 půltahů (half-moves/ply)</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>  <span class="comment">// moves_without_capture počítá půltahy, takže &gt;= 100</span></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="game__task_8c.html#a371c1b2d4cadfc3079414c671ed85847">moves_without_capture</a> &gt;= 100) {</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    <a class="code hl_variable" href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b">RESULT_DRAW_50_MOVE</a>;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> =</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa5808c364da6d0b918d480194b6b052de">ENDGAME_REASON_50_MOVE</a>; <span class="comment">// Označit jako 50-move rule</span></div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>    <a class="code hl_function" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a>(<a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a>);</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>    <a class="code hl_variable" href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a> = <span class="keyword">true</span>; <span class="comment">// Požadavek na report</span></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    <span class="comment">// Zastavit timer (hra skončila)</span></div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span> </div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🤝 DRAW! 50 moves without capture (50-move rule)&quot;</span>);</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    <span class="keywordflow">return</span> <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>  }</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>  <span class="keywordflow">if</span> (<a class="code hl_function" href="game__task_8c.html#a009d7069912fb2689b7443575d3def38">game_is_position_repeated</a>()) {</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    <a class="code hl_variable" href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208">RESULT_DRAW_REPETITION</a>;</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> =</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>        <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caac48674036719b12ebdccbcaef0724ef8">ENDGAME_REASON_REPETITION</a>; <span class="comment">// Označit jako threefold repetition</span></div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    <a class="code hl_function" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a>(<a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a>);</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>    <a class="code hl_variable" href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a> = <span class="keyword">true</span>; <span class="comment">// Požadavek na report</span></div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="comment">// Zastavit timer (hra skončila)</span></div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🤝 DRAW! Position repeated (draw by repetition)&quot;</span>);</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    <span class="keywordflow">return</span> <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>  }</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>  <span class="comment">// Check for insufficient material</span></div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>  <span class="keywordflow">if</span> (<a class="code hl_function" href="game__endgame__detect_8c.html#a93a1f0d6a82af5e13f78ebecc8a5ed8c">game_is_insufficient_material</a>()) {</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <a class="code hl_variable" href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>    <a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad">RESULT_DRAW_INSUFFICIENT</a>;</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>    <a class="code hl_variable" href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a> =</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>        <a class="code hl_enumvalue" href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa07cc538fbe0da7f3c53e2a65dc4cb764">ENDGAME_REASON_INSUFFICIENT</a>; <span class="comment">// Označit jako insufficient material</span></div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    <a class="code hl_function" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a>(<a class="code hl_variable" href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a>);</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    <a class="code hl_variable" href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a> = <span class="keyword">true</span>; <span class="comment">// Požadavek na report</span></div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span> </div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <span class="comment">// Zastavit timer (hra skončila)</span></div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    <a class="code hl_function" href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a>();</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>    ESP_LOGI(<a class="code hl_variable" href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;🤝 DRAW! Insufficient material to checkmate&quot;</span>);</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    <span class="keywordflow">return</span> <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a>;</div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>  }</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>  <span class="keywordflow">return</span> <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c">GAME_STATE_ACTIVE</a>;</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>}</div>
+</div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a></div><div class="ttdeci">player_t</div><div class="ttdoc">Definice hracu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00097">chess_types.h:97</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a></div><div class="ttdeci">@ PLAYER_WHITE</div><div class="ttdoc">Bily hrac.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00098">chess_types.h:98</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1af8db5eba569f0a6497497bf46037c98e">PLAYER_BLACK</a></div><div class="ttdeci">@ PLAYER_BLACK</div><div class="ttdoc">Cerny hrac.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00100">chess_types.h:99</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208">RESULT_DRAW_REPETITION</a></div><div class="ttdeci">@ RESULT_DRAW_REPETITION</div><div class="ttdoc">Remiza - opakovani pozice.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00112">chess_types.h:112</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e">RESULT_DRAW_STALEMATE</a></div><div class="ttdeci">@ RESULT_DRAW_STALEMATE</div><div class="ttdoc">Remiza - pat (stalemate)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00110">chess_types.h:110</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990">RESULT_BLACK_WINS</a></div><div class="ttdeci">@ RESULT_BLACK_WINS</div><div class="ttdoc">Cerny vitezi.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00109">chess_types.h:109</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad">RESULT_DRAW_INSUFFICIENT</a></div><div class="ttdeci">@ RESULT_DRAW_INSUFFICIENT</div><div class="ttdoc">Remiza - nedostatecny material.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00114">chess_types.h:113</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b">RESULT_DRAW_50_MOVE</a></div><div class="ttdeci">@ RESULT_DRAW_50_MOVE</div><div class="ttdoc">Remiza - pravidlo 50 tahu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00111">chess_types.h:111</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602">RESULT_WHITE_WINS</a></div><div class="ttdeci">@ RESULT_WHITE_WINS</div><div class="ttdoc">Bily vitezi.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00108">chess_types.h:108</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4edce1ca040716922b6e4a79be4e414d"><div class="ttname"><a href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a></div><div class="ttdeci">game_state_t</div><div class="ttdoc">Stavy sachove hry.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00078">chess_types.h:78</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c"><div class="ttname"><a href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c">GAME_STATE_ACTIVE</a></div><div class="ttdeci">@ GAME_STATE_ACTIVE</div><div class="ttdoc">Aktivni hra.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00081">chess_types.h:81</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2"><div class="ttname"><a href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da605d180d86561f11b5015a52dbf6d9f2">GAME_STATE_FINISHED</a></div><div class="ttdeci">@ GAME_STATE_FINISHED</div><div class="ttdoc">Ukoncena hra.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00083">chess_types.h:83</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></div><div class="ttdeci">piece_t</div><div class="ttdoc">Typy sachovych figurek.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00050">chess_types.h:50</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a01fd9d2b562a7147017fd02542bd1411">PIECE_WHITE_KING</a></div><div class="ttdeci">@ PIECE_WHITE_KING</div><div class="ttdoc">Bily kral.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00058">chess_types.h:58</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a026ec390a91a6f3858e8819b550c1fe6">PIECE_BLACK_KING</a></div><div class="ttdeci">@ PIECE_BLACK_KING</div><div class="ttdoc">Cerny kral.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00066">chess_types.h:65</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a153df31a0a287a4198f917f52a56be1b">PIECE_BLACK_PAWN</a></div><div class="ttdeci">@ PIECE_BLACK_PAWN</div><div class="ttdoc">Cerny pesec.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00060">chess_types.h:60</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a26b69f7adf92c62bfa744b9e77907584">PIECE_BLACK_ROOK</a></div><div class="ttdeci">@ PIECE_BLACK_ROOK</div><div class="ttdoc">Cerna vez.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00063">chess_types.h:63</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a29e99921b92026f4b6bbeacf08289238">PIECE_BLACK_QUEEN</a></div><div class="ttdeci">@ PIECE_BLACK_QUEEN</div><div class="ttdoc">Cerna dama.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00064">chess_types.h:64</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a3888c0ae958fcf54d7b4f77a26bdaa60">PIECE_BLACK_KNIGHT</a></div><div class="ttdeci">@ PIECE_BLACK_KNIGHT</div><div class="ttdoc">Cerny kun.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00061">chess_types.h:61</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a4c99e4617db8d3f21a4dd23e497d0b0c">PIECE_WHITE_KNIGHT</a></div><div class="ttdeci">@ PIECE_WHITE_KNIGHT</div><div class="ttdoc">Bily kun.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00054">chess_types.h:54</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a6d9b099ad26f6f85108b90494697d5dc">PIECE_WHITE_QUEEN</a></div><div class="ttdeci">@ PIECE_WHITE_QUEEN</div><div class="ttdoc">Bila dama.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00057">chess_types.h:57</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2a78c1cf9cdf8f00b3f94fcc2f867180f1">PIECE_EMPTY</a></div><div class="ttdeci">@ PIECE_EMPTY</div><div class="ttdoc">Prazdne pole (zadna figurka)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00051">chess_types.h:51</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac403d9dfd1cf2dc0be0217a0a54c0a42">PIECE_WHITE_ROOK</a></div><div class="ttdeci">@ PIECE_WHITE_ROOK</div><div class="ttdoc">Bila vez.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00056">chess_types.h:56</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ac5624ba607e63e7a6f7ebdab4b322992">PIECE_WHITE_BISHOP</a></div><div class="ttdeci">@ PIECE_WHITE_BISHOP</div><div class="ttdoc">Bily strelec.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00055">chess_types.h:55</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2ae844e749448cbcaae2fda6a56bb70b86">PIECE_BLACK_BISHOP</a></div><div class="ttdeci">@ PIECE_BLACK_BISHOP</div><div class="ttdoc">Cerny strelec.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00062">chess_types.h:62</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2af13b4b9f9748aed2bca41c5700956f2d">PIECE_WHITE_PAWN</a></div><div class="ttdeci">@ PIECE_WHITE_PAWN</div><div class="ttdoc">Bily pesec.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00053">chess_types.h:53</a></div></div>
+<div class="ttc" id="achess__types_8h_html_ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60"><div class="ttname"><a href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60">MOVE_ERROR_NONE</a></div><div class="ttdeci">@ MOVE_ERROR_NONE</div><div class="ttdoc">Zadna chyba.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00123">chess_types.h:123</a></div></div>
+<div class="ttc" id="agame__board__core_8c_html_a304560a99cb8733e12bdcd9461b66926"><div class="ttname"><a href="game__board__core_8c.html#a304560a99cb8733e12bdcd9461b66926">game_is_black_piece</a></div><div class="ttdeci">bool game_is_black_piece(piece_t piece)</div><div class="ttdoc">Overi zda je figurka cerna.</div><div class="ttdef"><b>Definition</b> <a href="game__board__core_8c_source.html#l00195">game_board_core.c:195</a></div></div>
+<div class="ttc" id="agame__board__core_8c_html_a8f69768eebdeba16538566a535f25351"><div class="ttname"><a href="game__board__core_8c.html#a8f69768eebdeba16538566a535f25351">game_is_white_piece</a></div><div class="ttdeci">bool game_is_white_piece(piece_t piece)</div><div class="ttdoc">Overi zda je figurka bila.</div><div class="ttdef"><b>Definition</b> <a href="game__board__core_8c_source.html#l00191">game_board_core.c:191</a></div></div>
+<div class="ttc" id="agame__endgame__detect_8c_html_a3cd556600affcd7945ded58e0a05c9c3"><div class="ttname"><a href="game__endgame__detect_8c.html#a3cd556600affcd7945ded58e0a05c9c3">game_check_end_game_conditions</a></div><div class="ttdeci">game_state_t game_check_end_game_conditions(void)</div><div class="ttdoc">Kontroluje podminky pro konec hry (sachmat, pat, remizy)</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__detect_8c_source.html#l00219">game_endgame_detect.c:219</a></div></div>
+<div class="ttc" id="agame__endgame__detect_8c_html_a4a1fae8d66a8db2dd28a091a3b11279c"><div class="ttname"><a href="game__endgame__detect_8c.html#a4a1fae8d66a8db2dd28a091a3b11279c">game_is_enemy_piece</a></div><div class="ttdeci">bool game_is_enemy_piece(piece_t piece, player_t player)</div><div class="ttdoc">Check if current position has insufficient material for checkmate.</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__detect_8c_source.html#l00097">game_endgame_detect.c:97</a></div></div>
+<div class="ttc" id="agame__endgame__detect_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="game__endgame__detect_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__detect_8c_source.html#l00015">game_endgame_detect.c:15</a></div></div>
+<div class="ttc" id="agame__endgame__detect_8c_html_a737d8907ff7e0ea86e3c46e70f3c3614"><div class="ttname"><a href="game__endgame__detect_8c.html#a737d8907ff7e0ea86e3c46e70f3c3614">game_is_king_in_check</a></div><div class="ttdeci">bool game_is_king_in_check(player_t player)</div><div class="ttdoc">Check if king is in check.</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__detect_8c_source.html#l00026">game_endgame_detect.c:26</a></div></div>
+<div class="ttc" id="agame__endgame__detect_8c_html_a90e272f6928e9145d30671ce523ff35e"><div class="ttname"><a href="game__endgame__detect_8c.html#a90e272f6928e9145d30671ce523ff35e">game_has_legal_moves</a></div><div class="ttdeci">bool game_has_legal_moves(player_t player)</div><div class="ttdoc">Check if player has any legal moves (optimized version)</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__detect_8c_source.html#l00083">game_endgame_detect.c:83</a></div></div>
+<div class="ttc" id="agame__endgame__detect_8c_html_a93a1f0d6a82af5e13f78ebecc8a5ed8c"><div class="ttname"><a href="game__endgame__detect_8c.html#a93a1f0d6a82af5e13f78ebecc8a5ed8c">game_is_insufficient_material</a></div><div class="ttdeci">bool game_is_insufficient_material(void)</div><div class="ttdoc">Overi nedostatecny material pro mat.</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__detect_8c_source.html#l00104">game_endgame_detect.c:104</a></div></div>
+<div class="ttc" id="agame__endgame__report_8c_html_a9b4cb898b4bc25bca38d4533fc6ff025"><div class="ttname"><a href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a></div><div class="ttdeci">void game_update_endgame_statistics(game_result_type_t result_type)</div><div class="ttdoc">Update endgame statistics (centralized function)</div><div class="ttdef"><b>Definition</b> <a href="game__endgame__report_8c_source.html#l00027">game_endgame_report.c:27</a></div></div>
+<div class="ttc" id="agame__move__gen_8c_html_a0108839d1688d03bc9eba3f1c581788e"><div class="ttname"><a href="game__move__gen_8c.html#a0108839d1688d03bc9eba3f1c581788e">game_generate_legal_moves</a></div><div class="ttdeci">uint32_t game_generate_legal_moves(player_t player)</div><div class="ttdoc">Generate all legal moves for current player.</div><div class="ttdef"><b>Definition</b> <a href="game__move__gen_8c_source.html#l00554">game_move_gen.c:554</a></div></div>
+<div class="ttc" id="agame__move__validate_8c_html_a2c589b4bfa6cd43ea3582050e37c1cc4"><div class="ttname"><a href="game__move__validate_8c.html#a2c589b4bfa6cd43ea3582050e37c1cc4">game_validate_piece_move_enhanced</a></div><div class="ttdeci">move_error_t game_validate_piece_move_enhanced(const chess_move_t *move, piece_t piece)</div><div class="ttdoc">Rozsirena validace tahu pro figurku.</div><div class="ttdef"><b>Definition</b> <a href="game__move__validate_8c_source.html#l00132">game_move_validate.c:132</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a009d7069912fb2689b7443575d3def38"><div class="ttname"><a href="game__task_8c.html#a009d7069912fb2689b7443575d3def38">game_is_position_repeated</a></div><div class="ttdeci">bool game_is_position_repeated(void)</div><div class="ttdoc">Check if current position has been repeated three times (threefold repetition)</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00713">game_task.c:713</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a154fb9029ef76390cf7a42e2672c397b"><div class="ttname"><a href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">move_count</a></div><div class="ttdeci">uint32_t move_count</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00260">game_task.c:260</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a371c1b2d4cadfc3079414c671ed85847"><div class="ttname"><a href="game__task_8c.html#a371c1b2d4cadfc3079414c671ed85847">moves_without_capture</a></div><div class="ttdeci">uint32_t moves_without_capture</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00627">game_task.c:627</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a39560fbeaa9a251526561b4f2a86eac1"><div class="ttname"><a href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a></div><div class="ttdeci">player_t current_player</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00259">game_task.c:259</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a4276036f284fa3441e791279608a4ffa"><div class="ttname"><a href="game__task_8c.html#a4276036f284fa3441e791279608a4ffa">current_result_type</a></div><div class="ttdeci">game_result_type_t current_result_type</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00637">game_task.c:637</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a4310fc073a4924b686ab768c91bb6766"><div class="ttname"><a href="game__task_8c.html#a4310fc073a4924b686ab768c91bb6766">last_move_type</a></div><div class="ttdeci">last_move_type_t last_move_type</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00463">game_task.c:463</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a5e3dc04c60e763a8338084ef2d20d34f"><div class="ttname"><a href="game__task_8c.html#a5e3dc04c60e763a8338084ef2d20d34f">game_result</a></div><div class="ttdeci">game_state_t game_result</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00636">game_task.c:636</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a8ffc3e4b7385ec855b4098504e6637f6"><div class="ttname"><a href="game__task_8c.html#a8ffc3e4b7385ec855b4098504e6637f6">game_trigger_victory_animation</a></div><div class="ttdeci">void game_trigger_victory_animation(player_t winner)</div><div class="ttdoc">Trigger unified victory animation (Wave from Winner King - Green/Red/Blue)</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l01906">game_task.c:1906</a></div></div>
+<div class="ttc" id="agame__task_8c_html_acd8995588803c845a38aeae9849f7be8"><div class="ttname"><a href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a></div><div class="ttdeci">piece_t board[8][8]</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00277">game_task.c:277</a></div></div>
+<div class="ttc" id="agame__task_8c_html_ada50d1ec543170004c480c898a2718c6"><div class="ttname"><a href="game__task_8c.html#ada50d1ec543170004c480c898a2718c6">endgame_report_requested</a></div><div class="ttdeci">bool endgame_report_requested</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00459">game_task.c:459</a></div></div>
+<div class="ttc" id="agame__task_8c_html_adef591657b12c25bdfa613166b89f076"><div class="ttname"><a href="game__task_8c.html#adef591657b12c25bdfa613166b89f076">current_endgame_reason</a></div><div class="ttdeci">endgame_reason_t current_endgame_reason</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00461">game_task.c:461</a></div></div>
+<div class="ttc" id="agame__task_8h_html"><div class="ttname"><a href="game__task_8h.html">game_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Game Task Hlavicka.</div></div>
+<div class="ttc" id="agame__task__internal_8h_html"><div class="ttname"><a href="game__task__internal_8h.html">game_task_internal.h</a></div><div class="ttdoc">Internal API between game_task.c and sibling source files in this component.</div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635"><div class="ttname"><a href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635">LAST_MOVE_DISCOVERED</a></div><div class="ttdeci">@ LAST_MOVE_DISCOVERED</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00120">game_task_internal.h:119</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a35ee807e9b8fc9f96e7a97f77e38b428a5e9afb17a5a3d533a10a72f8365c2fee"><div class="ttname"><a href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a5e9afb17a5a3d533a10a72f8365c2fee">LAST_MOVE_EN_PASSANT</a></div><div class="ttdeci">@ LAST_MOVE_EN_PASSANT</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00116">game_task_internal.h:116</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a35ee807e9b8fc9f96e7a97f77e38b428a74b328b19fe88255418ae15211170d9e"><div class="ttname"><a href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428a74b328b19fe88255418ae15211170d9e">LAST_MOVE_CASTLING</a></div><div class="ttdeci">@ LAST_MOVE_CASTLING</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00117">game_task_internal.h:117</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a35ee807e9b8fc9f96e7a97f77e38b428af03c0fabe13195d12257c4e19af68013"><div class="ttname"><a href="game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428af03c0fabe13195d12257c4e19af68013">LAST_MOVE_PROMOTION</a></div><div class="ttdeci">@ LAST_MOVE_PROMOTION</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00118">game_task_internal.h:118</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa06fe60e50aa01b44d380419d81f1db15"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa06fe60e50aa01b44d380419d81f1db15">ENDGAME_REASON_STALEMATE</a></div><div class="ttdeci">@ ENDGAME_REASON_STALEMATE</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00071">game_task_internal.h:71</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa07cc538fbe0da7f3c53e2a65dc4cb764"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa07cc538fbe0da7f3c53e2a65dc4cb764">ENDGAME_REASON_INSUFFICIENT</a></div><div class="ttdeci">@ ENDGAME_REASON_INSUFFICIENT</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00074">game_task_internal.h:74</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa2b9fe119a75eb59424c83b9120108ac9"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa2b9fe119a75eb59424c83b9120108ac9">ENDGAME_REASON_CHECKMATE_CASTLING</a></div><div class="ttdeci">@ ENDGAME_REASON_CHECKMATE_CASTLING</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00068">game_task_internal.h:68</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa52cd39edd88b14727c7fad1cef6ee7d2"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa52cd39edd88b14727c7fad1cef6ee7d2">ENDGAME_REASON_CHECKMATE</a></div><div class="ttdeci">@ ENDGAME_REASON_CHECKMATE</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00066">game_task_internal.h:66</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa5808c364da6d0b918d480194b6b052de"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa5808c364da6d0b918d480194b6b052de">ENDGAME_REASON_50_MOVE</a></div><div class="ttdeci">@ ENDGAME_REASON_50_MOVE</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00072">game_task_internal.h:72</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa82859e0109b9e57299d8f20b6abf0801"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa82859e0109b9e57299d8f20b6abf0801">ENDGAME_REASON_CHECKMATE_PROMOTION</a></div><div class="ttdeci">@ ENDGAME_REASON_CHECKMATE_PROMOTION</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00069">game_task_internal.h:69</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caa9103a2521e362b42cd1b9a8505075242"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa9103a2521e362b42cd1b9a8505075242">ENDGAME_REASON_CHECKMATE_EN_PASSANT</a></div><div class="ttdeci">@ ENDGAME_REASON_CHECKMATE_EN_PASSANT</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00067">game_task_internal.h:67</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caabde34381022074969ecde98b6f33583c"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caabde34381022074969ecde98b6f33583c">ENDGAME_REASON_CHECKMATE_DISCOVERED</a></div><div class="ttdeci">@ ENDGAME_REASON_CHECKMATE_DISCOVERED</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00070">game_task_internal.h:70</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_ac2c530ea32ce9318e13d562eb6ed63caac48674036719b12ebdccbcaef0724ef8"><div class="ttname"><a href="game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caac48674036719b12ebdccbcaef0724ef8">ENDGAME_REASON_REPETITION</a></div><div class="ttdeci">@ ENDGAME_REASON_REPETITION</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00073">game_task_internal.h:73</a></div></div>
+<div class="ttc" id="astructchess__move__t_html"><div class="ttname"><a href="structchess__move__t.html">chess_move_t</a></div><div class="ttdoc">Zakladni struktura sachoveho tahu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00174">chess_types.h:174</a></div></div>
+<div class="ttc" id="astructchess__move__t_html_a87e6934d4b28fea1a59c341d6cbe9eb7"><div class="ttname"><a href="structchess__move__t.html#a87e6934d4b28fea1a59c341d6cbe9eb7">chess_move_t::from_row</a></div><div class="ttdeci">uint8_t from_row</div><div class="ttdoc">Zdrojovy radek (0-7)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00175">chess_types.h:175</a></div></div>
+<div class="ttc" id="atimer__system_8h_html_a66030ee8356a62eed7bbe0717cbd5f22"><div class="ttname"><a href="timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22">timer_pause</a></div><div class="ttdeci">esp_err_t timer_pause(void)</div><div class="ttdoc">Pozastavi timer.</div><div class="ttdef"><b>Definition</b> <a href="timer__system_8c_source.html#l00352">timer_system.c:352</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__endgame__detect_8c.html">game_endgame_detect.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

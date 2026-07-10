@@ -1,0 +1,768 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Dokumentace souboru game_init.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__init_8c.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#define-members">Definice maker</a> &#124;
+<a href="#func-members">Funkce</a> &#124;
+<a href="#var-members">Proměnné</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentace souboru game_init.c</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Game reset, new game, board setup tutorial, and state revision.  
+<a href="#details">...</a></p>
+<div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__snapshot_8h_source.html">game_snapshot.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__matrix__guard_8h_source.html">game_matrix_guard.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="matrix__task_8h_source.html">../matrix_task/include/matrix_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="unified__animation__manager_8h_source.html">../unified_animation_manager/include/unified_animation_manager.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__state__notify_8h_source.html">../game_hooks/include/game_state_notify.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
+<code>#include &quot;esp_log.h&quot;</code><br />
+<code>#include &quot;esp_timer.h&quot;</code><br />
+<code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
+<code>#include &quot;freertos/task.h&quot;</code><br />
+<code>#include &lt;string.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Graf závislostí na vkládaných souborech pro game_init.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__init_8c__incl.png" border="0" usemap="#agame__init_8c" alt=""/></div>
+<map name="agame__init_8c" id="agame__init_8c">
+<area shape="rect" title="Game reset, new game, board setup tutorial, and state revision." alt="" coords="1794,5,1893,31"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="482,93,645,119"/>
+<area shape="poly" title=" " alt="" coords="1794,23,1618,26,1352,36,1038,53,717,81,635,94,634,88,717,76,1038,48,1352,30,1618,21,1794,17"/>
+<area shape="rect" title=" " alt="" coords="366,343,516,368"/>
+<area shape="poly" title=" " alt="" coords="1794,22,1505,22,1072,28,842,35,626,46,440,61,300,81,217,94,150,105,121,114,92,129,65,151,37,183,18,212,9,239,12,266,28,293,49,308,80,321,164,339,261,348,352,352,352,357,261,354,163,344,79,326,46,313,24,296,7,267,4,238,13,209,32,180,61,147,90,124,119,109,149,99,216,89,299,76,439,56,625,41,842,30,1071,23,1505,17,1794,16"/>
+<area shape="rect" title=" " alt="" coords="476,262,614,287"/>
+<area shape="poly" title=" " alt="" coords="1794,23,1622,29,1388,39,1155,57,1058,68,986,81,925,99,864,120,747,169,648,218,577,257,575,253,646,214,745,164,862,115,923,94,984,76,1057,63,1154,51,1388,34,1622,23,1794,18"/>
+<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="800,181,906,207"/>
+<area shape="poly" title=" " alt="" coords="1794,22,1680,24,1522,32,1342,50,1250,64,1160,81,1083,102,1009,128,890,178,888,173,1007,124,1082,97,1159,76,1249,58,1341,45,1522,27,1680,19,1794,16"/>
+<area shape="rect" title=" " alt="" coords="1094,262,1212,287"/>
+<area shape="poly" title=" " alt="" coords="1805,33,1653,81,1390,180,1194,259,1192,254,1388,175,1651,76,1803,28"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="324,181,475,207"/>
+<area shape="poly" title=" " alt="" coords="1794,23,1065,41,668,58,535,69,493,75,472,81,450,99,432,122,410,169,405,167,428,119,446,95,469,76,492,70,534,64,668,53,1065,36,1794,18"/>
+<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="2450,262,2587,287"/>
+<area shape="poly" title=" " alt="" coords="1893,17,2056,20,2267,29,2369,36,2458,46,2524,60,2546,68,2560,77,2574,97,2580,120,2580,144,2575,168,2557,215,2536,252,2532,249,2552,212,2570,167,2574,143,2574,121,2569,99,2557,81,2544,72,2523,65,2457,52,2369,42,2267,34,2056,25,1893,22"/>
+<area shape="rect" href="game__matrix__guard_8h.html" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="134,181,300,207"/>
+<area shape="poly" title=" " alt="" coords="1794,23,1499,28,1068,39,657,56,507,68,419,81,368,100,320,125,244,175,241,171,317,121,366,95,418,76,506,63,657,51,1068,34,1499,23,1794,17"/>
+<area shape="rect" href="matrix__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Hlavicka." alt="" coords="2026,86,2189,126"/>
+<area shape="poly" title=" " alt="" coords="1880,28,2037,79,2035,84,1879,33"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="1491,181,1620,207"/>
+<area shape="poly" title=" " alt="" coords="1826,33,1588,177,1585,172,1823,28"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="2214,86,2354,126"/>
+<area shape="poly" title=" " alt="" coords="1894,23,2033,43,2202,76,2216,80,2214,85,2200,81,2032,48,1893,28"/>
+<area shape="rect" href="unified__animation__manager_8h.html" title="Unified Animation Manager &#45; Jednotna sprava vsech LED animaci." alt="" coords="1816,79,2002,133"/>
+<area shape="poly" title=" " alt="" coords="1855,29,1883,66,1879,69,1850,32"/>
+<area shape="rect" href="game__state__notify_8h.html" title="Tenký hook z game_task — notifikace změny stavu (WebSocket push apod.)." alt="" coords="2378,86,2546,126"/>
+<area shape="poly" title=" " alt="" coords="1893,20,2100,38,2233,54,2367,76,2386,80,2385,85,2366,81,2233,60,2100,43,1893,25"/>
+<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="1828,181,2006,207"/>
+<area shape="poly" title=" " alt="" coords="1836,32,1821,52,1807,78,1800,106,1801,119,1806,132,1829,157,1860,174,1857,178,1826,161,1802,135,1796,121,1794,106,1802,76,1816,49,1831,29"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="2622,181,2740,207"/>
+<area shape="poly" title=" " alt="" coords="1893,18,2063,24,2285,36,2488,53,2561,64,2604,76,2628,95,2648,120,2674,167,2670,170,2644,123,2625,99,2601,81,2560,69,2488,58,2284,41,2062,30,1893,23"/>
+<area shape="rect" title=" " alt="" coords="2672,93,2756,119"/>
+<area shape="poly" title=" " alt="" coords="1893,18,2276,36,2495,53,2585,64,2654,76,2681,85,2679,90,2652,81,2585,69,2494,58,2276,41,1893,24"/>
+<area shape="rect" title=" " alt="" coords="2781,93,2880,119"/>
+<area shape="poly" title=" " alt="" coords="1893,18,2077,23,2331,33,2585,51,2690,62,2770,76,2797,85,2795,90,2768,81,2689,67,2584,56,2330,39,2077,28,1893,23"/>
+<area shape="rect" title=" " alt="" coords="2904,93,2975,119"/>
+<area shape="poly" title=" " alt="" coords="1894,17,2099,18,2389,26,2540,33,2681,44,2802,58,2893,76,2912,84,2910,89,2891,81,2801,63,2680,49,2540,39,2389,31,2099,24,1894,22"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="286,262,401,287"/>
+<area shape="poly" title=" " alt="" coords="559,121,531,163,511,187,488,209,441,238,394,260,392,255,439,234,485,205,507,183,527,159,555,118"/>
+<area shape="poly" title=" " alt="" coords="483,110,370,114,243,125,183,135,130,147,87,163,59,183,40,210,32,238,36,265,54,293,73,307,101,320,178,337,268,347,352,351,352,356,267,352,177,342,99,325,70,312,50,296,31,267,27,237,35,208,55,179,85,159,128,142,182,129,242,120,370,109,482,105"/>
+<area shape="rect" title=" " alt="" coords="590,343,719,368"/>
+<area shape="poly" title=" " alt="" coords="482,110,374,114,253,126,196,135,146,148,107,163,80,183,62,211,56,238,62,266,80,292,270,314,576,344,576,349,270,319,77,297,57,268,51,238,57,209,76,180,104,159,145,142,195,130,253,120,374,109,482,105"/>
+<area shape="rect" title=" " alt="" coords="1125,343,1208,368"/>
+<area shape="poly" title=" " alt="" coords="482,112,384,117,277,129,226,139,182,151,147,165,124,183,116,196,112,210,112,223,116,237,135,265,168,292,210,302,302,311,577,328,1111,350,1111,355,577,333,302,316,210,307,165,297,131,269,111,239,106,224,106,209,111,194,120,180,145,161,181,146,225,133,276,124,384,112,482,106"/>
+<area shape="rect" title=" " alt="" coords="1520,343,1591,368"/>
+<area shape="poly" title=" " alt="" coords="563,120,547,161,521,208,505,223,490,232,477,240,466,256,459,276,460,284,465,292,506,300,605,308,913,325,1507,350,1506,355,913,330,605,313,505,305,462,297,455,286,454,276,461,253,473,236,487,227,502,219,516,205,542,159,558,118"/>
+<area shape="poly" title=" " alt="" coords="572,118,585,158,588,182,585,207,576,231,564,252,559,250,571,229,580,206,582,182,579,159,567,120"/>
+<area shape="rect" title=" " alt="" coords="1236,262,1366,287"/>
+<area shape="poly" title=" " alt="" coords="622,116,919,179,1224,252,1241,256,1240,261,1223,257,918,184,620,121"/>
+<area shape="poly" title=" " alt="" coords="604,116,802,175,800,180,602,121"/>
+<area shape="rect" title=" " alt="" coords="2270,343,2351,368"/>
+<area shape="poly" title=" " alt="" coords="402,284,464,292,634,304,859,315,1396,332,2256,350,2256,356,1396,338,859,320,633,309,463,297,401,289"/>
+<area shape="poly" title=" " alt="" coords="360,285,418,332,414,336,356,290"/>
+<area shape="poly" title=" " alt="" coords="390,285,597,337,595,342,388,290"/>
+<area shape="poly" title=" " alt="" coords="385,285,420,292,619,318,815,335,1111,350,1111,355,815,340,618,323,419,297,384,290"/>
+<area shape="poly" title=" " alt="" coords="385,285,420,292,607,307,927,323,1507,349,1506,355,927,329,606,312,419,297,384,290"/>
+<area shape="poly" title=" " alt="" coords="800,206,464,257,415,265,414,260,463,252,799,201"/>
+<area shape="poly" title=" " alt="" coords="900,204,962,224,1029,252,1045,263,1056,274,1067,284,1083,292,1156,306,1281,317,1627,335,1994,345,2256,351,2256,356,1993,351,1627,340,1281,323,1155,311,1082,297,1064,288,1053,278,1042,267,1026,257,960,229,898,209"/>
+<area shape="poly" title=" " alt="" coords="816,209,757,230,692,257,659,277,626,297,562,322,500,342,499,336,560,317,624,292,656,273,689,252,755,225,815,204"/>
+<area shape="poly" title=" " alt="" coords="823,209,780,229,736,257,699,294,671,332,667,329,695,291,733,253,777,224,821,204"/>
+<area shape="poly" title=" " alt="" coords="831,209,803,228,790,241,781,256,774,276,775,284,780,293,802,309,835,322,925,340,1025,348,1111,351,1111,357,1024,354,924,345,834,327,800,314,776,296,770,286,769,275,776,253,786,238,800,224,828,205"/>
+<area shape="poly" title=" " alt="" coords="882,204,930,225,983,252,1011,274,1022,284,1039,292,1079,304,1132,314,1263,330,1507,349,1507,354,1262,335,1131,319,1078,309,1037,297,1020,288,1007,278,980,257,928,230,880,209"/>
+<area shape="poly" title=" " alt="" coords="809,209,604,261,602,256,808,204"/>
+<area shape="poly" title=" " alt="" coords="907,200,1051,221,1224,252,1244,256,1243,261,1223,257,1050,227,906,205"/>
+<area shape="poly" title=" " alt="" coords="897,204,1097,256,1096,261,896,209"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="790,255,969,295"/>
+<area shape="poly" title=" " alt="" coords="860,206,871,241,866,243,854,208"/>
+<area shape="poly" title=" " alt="" coords="970,285,1039,292,1403,317,1758,334,2256,350,2256,356,1758,339,1402,322,1038,297,969,290"/>
+<area shape="poly" title=" " alt="" coords="949,292,1113,337,1111,342,948,297"/>
+<area shape="poly" title=" " alt="" coords="970,289,988,292,1282,326,1506,347,1506,353,1281,332,987,297,969,295"/>
+<area shape="poly" title=" " alt="" coords="394,208,362,252,358,249,389,205"/>
+<area shape="poly" title=" " alt="" coords="347,209,307,227,290,240,277,256,269,276,270,284,276,293,311,303,391,313,633,330,1112,350,1111,355,632,336,390,318,310,308,273,297,265,286,264,275,272,253,287,236,305,222,344,204"/>
+<area shape="poly" title=" " alt="" coords="2489,290,2354,340,2353,335,2487,285"/>
+<area shape="poly" title=" " alt="" coords="2450,283,1222,353,1222,348,2449,277"/>
+<area shape="poly" title=" " alt="" coords="237,205,315,252,312,257,234,209"/>
+<area shape="poly" title=" " alt="" coords="208,209,193,228,179,250,174,273,176,284,182,293,194,298,221,304,311,315,581,332,885,344,1111,350,1111,355,884,349,581,337,310,320,220,309,192,303,178,297,171,285,169,273,174,248,188,224,203,206"/>
+<area shape="poly" title=" " alt="" coords="222,206,240,250,255,274,276,292,326,299,446,307,814,324,1507,350,1507,355,814,329,446,312,325,304,273,297,251,277,235,253,217,208"/>
+<area shape="poly" title=" " alt="" coords="2177,124,2203,131,2408,182,2533,219,2578,237,2602,253,2611,269,2614,283,2611,296,2604,307,2579,325,2543,337,2499,346,2452,352,2365,357,2364,351,2451,347,2498,341,2541,332,2577,320,2600,303,2606,294,2608,283,2606,270,2598,256,2576,242,2532,224,2407,187,2202,136,2175,129"/>
+<area shape="poly" title=" " alt="" coords="2105,127,2091,165,2069,212,2037,259,2016,280,1993,297,1957,305,1883,313,1662,330,1222,354,1222,349,1662,325,1883,308,1956,300,1991,292,2013,276,2032,256,2064,209,2087,163,2100,125"/>
+<area shape="poly" title=" " alt="" coords="2117,125,2127,161,2133,207,2129,254,2121,277,2107,297,2080,310,2031,321,1891,338,1733,349,1605,355,1605,350,1732,344,1890,333,2030,316,2078,305,2103,293,2116,274,2124,253,2128,207,2122,162,2112,127"/>
+<area shape="poly" title=" " alt="" coords="2046,129,2015,136,1913,154,1810,169,1635,189,1634,183,1809,164,1912,149,2014,131,2045,123"/>
+<area shape="poly" title=" " alt="" coords="1491,199,1060,214,765,232,464,257,415,264,414,258,463,252,764,226,1059,209,1491,194"/>
+<area shape="poly" title=" " alt="" coords="1611,204,2257,340,2256,345,1609,209"/>
+<area shape="poly" title=" " alt="" coords="1523,209,1475,229,1424,257,1412,267,1403,278,1394,288,1379,297,1305,319,1209,332,1100,340,983,343,754,342,577,345,530,349,530,344,577,340,754,337,983,337,1099,334,1209,327,1304,313,1377,292,1391,284,1399,275,1408,264,1421,252,1473,224,1521,204"/>
+<area shape="poly" title=" " alt="" coords="1541,209,1475,257,1451,279,1440,289,1423,297,1365,314,1287,327,1095,344,895,353,733,356,733,351,895,348,1095,339,1286,321,1364,308,1421,292,1437,284,1447,275,1471,253,1538,205"/>
+<area shape="poly" title=" " alt="" coords="1552,208,1523,252,1501,277,1474,297,1411,326,1343,344,1277,353,1222,357,1222,352,1277,348,1342,339,1409,321,1472,292,1497,273,1519,249,1548,205"/>
+<area shape="poly" title=" " alt="" coords="1558,207,1558,329,1553,329,1553,207"/>
+<area shape="poly" title=" " alt="" coords="1491,203,779,257,628,269,627,264,778,252,1491,198"/>
+<area shape="poly" title=" " alt="" coords="1520,209,1352,260,1351,255,1518,204"/>
+<area shape="poly" title=" " alt="" coords="1491,208,1367,229,1224,257,1208,261,1206,256,1223,252,1366,224,1490,203"/>
+<area shape="rect" title=" " alt="" coords="1593,262,1689,287"/>
+<area shape="poly" title=" " alt="" coords="1570,205,1620,251,1616,254,1567,209"/>
+<area shape="rect" title=" " alt="" coords="1713,262,1817,287"/>
+<area shape="poly" title=" " alt="" coords="1587,204,1723,255,1721,260,1585,209"/>
+<area shape="poly" title=" " alt="" coords="2343,124,2502,179,2547,193,2584,203,2617,219,2632,233,2646,253,2654,275,2652,286,2646,296,2627,311,2598,323,2524,340,2440,350,2365,355,2365,350,2439,345,2523,335,2597,318,2624,307,2642,293,2647,284,2649,276,2641,256,2628,237,2613,224,2582,208,2545,199,2500,184,2341,129"/>
+<area shape="poly" title=" " alt="" coords="2268,128,2230,166,2174,213,2107,260,2071,281,2033,297,1983,308,1899,317,1665,334,1222,355,1221,349,1665,329,1898,312,1982,302,2031,292,2068,276,2104,256,2171,209,2226,162,2265,124"/>
+<area shape="poly" title=" " alt="" coords="2277,128,2257,165,2226,212,2185,259,2161,280,2134,297,2090,314,2030,327,1881,345,1726,354,1605,356,1605,351,1726,348,1881,340,2029,322,2089,309,2132,292,2158,276,2181,255,2222,209,2252,162,2273,125"/>
+<area shape="poly" title=" " alt="" coords="2231,129,2202,136,2089,152,1933,167,1635,190,1634,185,1933,162,2088,147,2201,131,2229,123"/>
+<area shape="poly" title=" " alt="" coords="1995,131,2049,152,2102,179,2159,217,2212,258,2291,331,2288,335,2209,262,2156,221,2100,184,2047,157,1993,136"/>
+<area shape="poly" title=" " alt="" coords="1970,131,1999,152,2021,180,2027,201,2025,220,2017,238,2004,255,1974,281,1949,297,1906,309,1831,320,1624,337,1222,355,1222,350,1624,331,1831,314,1905,304,1947,292,1971,277,2001,251,2012,236,2020,219,2022,201,2016,183,1995,156,1967,136"/>
+<area shape="poly" title=" " alt="" coords="1990,131,2044,154,2065,167,2078,180,2095,211,2101,240,2096,268,2078,297,2053,309,2007,320,1875,337,1726,348,1605,355,1605,349,1726,343,1875,332,2006,315,2051,304,2074,293,2091,266,2096,240,2090,213,2074,183,2061,171,2041,159,1988,136"/>
+<area shape="poly" title=" " alt="" coords="1816,133,1617,181,1615,175,1815,127"/>
+<area shape="poly" title=" " alt="" coords="1946,204,2270,335,2268,340,1944,209"/>
+<area shape="poly" title=" " alt="" coords="1913,209,1882,254,1859,278,1830,297,1796,308,1745,316,1600,329,1414,336,1208,340,814,343,577,345,530,349,530,343,577,340,814,337,1208,335,1414,331,1600,323,1745,311,1795,302,1828,292,1855,274,1878,250,1909,206"/>
+<area shape="poly" title=" " alt="" coords="1925,206,1938,249,1937,274,1925,297,1894,307,1828,316,1628,333,1221,354,1221,349,1627,327,1828,311,1893,302,1922,293,1932,273,1932,250,1920,208"/>
+<area shape="poly" title=" " alt="" coords="1934,205,1955,223,1974,246,1984,271,1983,284,1976,296,1950,315,1912,330,1864,340,1810,348,1699,356,1606,357,1606,352,1699,350,1810,343,1863,335,1910,324,1948,311,1972,293,1978,283,1979,272,1970,249,1951,227,1931,209"/>
+<area shape="poly" title=" " alt="" coords="1828,209,1381,266,1380,261,1827,204"/>
+<area shape="poly" title=" " alt="" coords="2678,209,2650,253,2628,278,2601,297,2577,305,2540,313,2434,325,2142,343,1831,352,1605,356,1605,351,1830,347,2142,338,2434,320,2539,308,2575,300,2599,292,2624,274,2646,250,2673,206"/>
+</map>
+</div>
+</div>
+<p><a href="game__init_8c_source.html">Zobrazit zdrojový text tohoto souboru.</a></p>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definice maker</h2></td></tr>
+<tr class="memitem:a62ecd07b10c8688371e290c8c64df0a4" id="r_a62ecd07b10c8688371e290c8c64df0a4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a62ecd07b10c8688371e290c8c64df0a4">STAGING_LOGI</a>(tag,  fmt, ...)&#160;&#160;&#160;ESP_LOGI(tag, &quot;[STAGING] &quot; fmt, ##__VA_ARGS__)</td></tr>
+<tr class="separator:a62ecd07b10c8688371e290c8c64df0a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cd0de82d0e7794bb260865bc7f752d4" id="r_a6cd0de82d0e7794bb260865bc7f752d4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a6cd0de82d0e7794bb260865bc7f752d4">GAME_START_POS_MATRIX_SAMPLES</a>&#160;&#160;&#160;5</td></tr>
+<tr class="memdesc:a6cd0de82d0e7794bb260865bc7f752d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vzorků matice při kontrole výchozí pozice (reed kontakty často „klepou“).  <br /></td></tr>
+<tr class="separator:a6cd0de82d0e7794bb260865bc7f752d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20f13d61cef5da223c6badbb79cd776b" id="r_a20f13d61cef5da223c6badbb79cd776b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a20f13d61cef5da223c6badbb79cd776b">GAME_START_POS_MAJORITY_VOTES</a>&#160;&#160;&#160;3</td></tr>
+<tr class="separator:a20f13d61cef5da223c6badbb79cd776b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkce</h2></td></tr>
+<tr class="memitem:a92ab6d37e65b318227781a9a373d68c3" id="r_a92ab6d37e65b318227781a9a373d68c3"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a92ab6d37e65b318227781a9a373d68c3">game_board_starting_occupancy_matches</a> (const uint8_t <a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>[64])</td></tr>
+<tr class="separator:a92ab6d37e65b318227781a9a373d68c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f505d8c3d13006db89ae96ce02a7562" id="r_a2f505d8c3d13006db89ae96ce02a7562"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a2f505d8c3d13006db89ae96ce02a7562">game_log_first_startpos_mismatch</a> (const uint8_t <a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>[64])</td></tr>
+<tr class="separator:a2f505d8c3d13006db89ae96ce02a7562"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a61279af62daccb66de022b6dde85b962" id="r_a61279af62daccb66de022b6dde85b962"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a61279af62daccb66de022b6dde85b962">game_is_board_in_starting_position</a> (void)</td></tr>
+<tr class="memdesc:a61279af62daccb66de022b6dde85b962"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if board is physically in starting position (occupancy only)  <br /></td></tr>
+<tr class="separator:a61279af62daccb66de022b6dde85b962"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe64830444e345d32ae5d59716f0e8a3" id="r_abe64830444e345d32ae5d59716f0e8a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#abe64830444e345d32ae5d59716f0e8a3">game_show_missing_pieces_led</a> (void)</td></tr>
+<tr class="memdesc:abe64830444e345d32ae5d59716f0e8a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zobrazí červené LED na polích, kde chybí figurky v počáteční pozici.  <br /></td></tr>
+<tr class="separator:abe64830444e345d32ae5d59716f0e8a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a744706605188af32879a63ca501c64d9" id="r_a744706605188af32879a63ca501c64d9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a744706605188af32879a63ca501c64d9">game_bump_revision_and_notify</a> (void)</td></tr>
+<tr class="separator:a744706605188af32879a63ca501c64d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a375acd459e7c55628ec06413beb33cd7" id="r_a375acd459e7c55628ec06413beb33cd7"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a375acd459e7c55628ec06413beb33cd7">game_get_state_revision</a> (void)</td></tr>
+<tr class="memdesc:a375acd459e7c55628ec06413beb33cd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Monotónní verze stavu hry (ETag / If-None-Match na snapshotu).  <br /></td></tr>
+<tr class="separator:a375acd459e7c55628ec06413beb33cd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac75becc8b5888b8fa31045d7c28c085e" id="r_ac75becc8b5888b8fa31045d7c28c085e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e">game_reset_game</a> (void)</td></tr>
+<tr class="memdesc:ac75becc8b5888b8fa31045d7c28c085e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resetuje hru do vychoziho stavu.  <br /></td></tr>
+<tr class="separator:ac75becc8b5888b8fa31045d7c28c085e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd68c0d1573a2763db175487730c6b7d" id="r_abd68c0d1573a2763db175487730c6b7d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#abd68c0d1573a2763db175487730c6b7d">game_apply_empty_logical_board_after_full_reset</a> (void)</td></tr>
+<tr class="memdesc:abd68c0d1573a2763db175487730c6b7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Po <a class="el" href="game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e" title="Resetuje hru do vychoziho stavu.">game_reset_game()</a>: vyprázdní logiku a IDLE — společné pro vstup/výstup z tutoriálu rozestavení.  <br /></td></tr>
+<tr class="separator:abd68c0d1573a2763db175487730c6b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada10039da851223d09819c9ec9559aad" id="r_ada10039da851223d09819c9ec9559aad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#ada10039da851223d09819c9ec9559aad">game_enter_board_setup_tutorial</a> (void)</td></tr>
+<tr class="memdesc:ada10039da851223d09819c9ec9559aad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Web tutoriál rozestavení z prázdné desky (LED + návod).  <br /></td></tr>
+<tr class="separator:ada10039da851223d09819c9ec9559aad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac112cfa006edc7798db4f5a03b7bd317" id="r_ac112cfa006edc7798db4f5a03b7bd317"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#ac112cfa006edc7798db4f5a03b7bd317">game_exit_board_setup_tutorial</a> (bool apply_full_start_position)</td></tr>
+<tr class="separator:ac112cfa006edc7798db4f5a03b7bd317"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2135fc63230a13bf4cfd0154726e4187" id="r_a2135fc63230a13bf4cfd0154726e4187"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a2135fc63230a13bf4cfd0154726e4187">game_is_board_setup_tutorial_active</a> (void)</td></tr>
+<tr class="separator:a2135fc63230a13bf4cfd0154726e4187"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99628b9a3f971e886a43a4ad8484749e" id="r_a99628b9a3f971e886a43a4ad8484749e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a99628b9a3f971e886a43a4ad8484749e">game_is_physical_board_starting_occupancy</a> (void)</td></tr>
+<tr class="memdesc:a99628b9a3f971e886a43a4ad8484749e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fyzická obsazenost řádků 0–1 a 6–7 plné, 2–5 prázdné (matrix).  <br /></td></tr>
+<tr class="separator:a99628b9a3f971e886a43a4ad8484749e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfadcaa188627a4767d8963abe6e55d9" id="r_adfadcaa188627a4767d8963abe6e55d9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#adfadcaa188627a4767d8963abe6e55d9">game_finish_board_setup_tutorial_from_web</a> (void)</td></tr>
+<tr class="memdesc:adfadcaa188627a4767d8963abe6e55d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ukončí tutoriál a spustí novou hru jen pokud fyzická pozice sedí.  <br /></td></tr>
+<tr class="separator:adfadcaa188627a4767d8963abe6e55d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57e990b9360540c1ba82ea3d5a32cf44" id="r_a57e990b9360540c1ba82ea3d5a32cf44"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44">game_start_new_game</a> (void)</td></tr>
+<tr class="memdesc:a57e990b9360540c1ba82ea3d5a32cf44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Spusti novou hru.  <br /></td></tr>
+<tr class="separator:a57e990b9360540c1ba82ea3d5a32cf44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa74e40d5d2135727cdaf43e72e8c1db5" id="r_aa74e40d5d2135727cdaf43e72e8c1db5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#aa74e40d5d2135727cdaf43e72e8c1db5">game_start_new_game_from_fen</a> (const char *fen)</td></tr>
+<tr class="memdesc:aa74e40d5d2135727cdaf43e72e8c1db5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nová hra z FEN (jen rozestavení + strana na tahu).  <br /></td></tr>
+<tr class="separator:aa74e40d5d2135727cdaf43e72e8c1db5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Proměnné</h2></td></tr>
+<tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__init_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_INIT&quot;</td></tr>
+<tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailní popis</h2>
+<div class="textblock"><p>Game reset, new game, board setup tutorial, and state revision. </p>
+
+<p class="definition">Definice v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+</div><h2 class="groupheader">Dokumentace definic maker</h2>
+<a id="a20f13d61cef5da223c6badbb79cd776b" name="a20f13d61cef5da223c6badbb79cd776b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20f13d61cef5da223c6badbb79cd776b">&#9670;&#160;</a></span>GAME_START_POS_MAJORITY_VOTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define GAME_START_POS_MAJORITY_VOTES&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00042">42</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a6cd0de82d0e7794bb260865bc7f752d4" name="a6cd0de82d0e7794bb260865bc7f752d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6cd0de82d0e7794bb260865bc7f752d4">&#9670;&#160;</a></span>GAME_START_POS_MATRIX_SAMPLES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define GAME_START_POS_MATRIX_SAMPLES&#160;&#160;&#160;5</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vzorků matice při kontrole výchozí pozice (reed kontakty často „klepou“). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00041">41</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a62ecd07b10c8688371e290c8c64df0a4" name="a62ecd07b10c8688371e290c8c64df0a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62ecd07b10c8688371e290c8c64df0a4">&#9670;&#160;</a></span>STAGING_LOGI</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STAGING_LOGI</td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">tag, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname">fmt, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td>&#160;&#160;&#160;ESP_LOGI(tag, &quot;[STAGING] &quot; fmt, ##__VA_ARGS__)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00031">31</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace funkcí</h2>
+<a id="abd68c0d1573a2763db175487730c6b7d" name="abd68c0d1573a2763db175487730c6b7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abd68c0d1573a2763db175487730c6b7d">&#9670;&#160;</a></span>game_apply_empty_logical_board_after_full_reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_apply_empty_logical_board_after_full_reset </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Po <a class="el" href="game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e" title="Resetuje hru do vychoziho stavu.">game_reset_game()</a>: vyprázdní logiku a IDLE — společné pro vstup/výstup z tutoriálu rozestavení. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00361">361</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a92ab6d37e65b318227781a9a373d68c3" name="a92ab6d37e65b318227781a9a373d68c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a92ab6d37e65b318227781a9a373d68c3">&#9670;&#160;</a></span>game_board_starting_occupancy_matches()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool game_board_starting_occupancy_matches </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>state</em>[64]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00044">44</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a744706605188af32879a63ca501c64d9" name="a744706605188af32879a63ca501c64d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a744706605188af32879a63ca501c64d9">&#9670;&#160;</a></span>game_bump_revision_and_notify()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_bump_revision_and_notify </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00191">191</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="ada10039da851223d09819c9ec9559aad" name="ada10039da851223d09819c9ec9559aad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada10039da851223d09819c9ec9559aad">&#9670;&#160;</a></span>game_enter_board_setup_tutorial()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_enter_board_setup_tutorial </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Web tutoriál rozestavení z prázdné desky (LED + návod). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00378">378</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="ac112cfa006edc7798db4f5a03b7bd317" name="ac112cfa006edc7798db4f5a03b7bd317"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac112cfa006edc7798db4f5a03b7bd317">&#9670;&#160;</a></span>game_exit_board_setup_tutorial()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_exit_board_setup_tutorial </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>apply_full_start_position</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00391">391</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="adfadcaa188627a4767d8963abe6e55d9" name="adfadcaa188627a4767d8963abe6e55d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfadcaa188627a4767d8963abe6e55d9">&#9670;&#160;</a></span>game_finish_board_setup_tutorial_from_web()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_finish_board_setup_tutorial_from_web </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ukončí tutoriál a spustí novou hru jen pokud fyzická pozice sedí. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00411">411</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a375acd459e7c55628ec06413beb33cd7" name="a375acd459e7c55628ec06413beb33cd7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a375acd459e7c55628ec06413beb33cd7">&#9670;&#160;</a></span>game_get_state_revision()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_state_revision </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Monotónní verze stavu hry (ETag / If-None-Match na snapshotu). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00202">202</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a61279af62daccb66de022b6dde85b962" name="a61279af62daccb66de022b6dde85b962"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a61279af62daccb66de022b6dde85b962">&#9670;&#160;</a></span>game_is_board_in_starting_position()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_board_in_starting_position </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks if board is physically in starting position (occupancy only) </p>
+<p>Uses RAW SENSOR DATA from Matrix Task. Rows 0–1 a 6–7 plné, 2–5 prázdné. Více vzorků + většinové hlasování kvůli šumu u reedů při dokončení tutorialu. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00118">118</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a2135fc63230a13bf4cfd0154726e4187" name="a2135fc63230a13bf4cfd0154726e4187"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2135fc63230a13bf4cfd0154726e4187">&#9670;&#160;</a></span>game_is_board_setup_tutorial_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_board_setup_tutorial_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00403">403</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a99628b9a3f971e886a43a4ad8484749e" name="a99628b9a3f971e886a43a4ad8484749e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99628b9a3f971e886a43a4ad8484749e">&#9670;&#160;</a></span>game_is_physical_board_starting_occupancy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_physical_board_starting_occupancy </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Fyzická obsazenost řádků 0–1 a 6–7 plné, 2–5 prázdné (matrix). </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00407">407</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f505d8c3d13006db89ae96ce02a7562" name="a2f505d8c3d13006db89ae96ce02a7562"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f505d8c3d13006db89ae96ce02a7562">&#9670;&#160;</a></span>game_log_first_startpos_mismatch()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void game_log_first_startpos_mismatch </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>state</em>[64]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00069">69</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="ac75becc8b5888b8fa31045d7c28c085e" name="ac75becc8b5888b8fa31045d7c28c085e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac75becc8b5888b8fa31045d7c28c085e">&#9670;&#160;</a></span>game_reset_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_reset_game </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resetuje hru do vychoziho stavu. </p>
+<p>Resetuj hru do pocatecniho stavu.</p>
+<p>Tato funkce resetuje hru do vychoziho stavu. Vymaze vsechny tahy, resetuje stavy hry a inicializuje novou hru.</p>
+<p>Funkce resetuje:</p><ul>
+<li>Stav hry na IDLE</li>
+<li>Aktualni hrace na WHITE</li>
+<li>Pocet tahu na 0</li>
+<li>Vsechny castling flagy</li>
+<li>En passant stav</li>
+<li>Historie tahu</li>
+<li>Error recovery stav </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00220">220</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="abe64830444e345d32ae5d59716f0e8a3" name="abe64830444e345d32ae5d59716f0e8a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe64830444e345d32ae5d59716f0e8a3">&#9670;&#160;</a></span>game_show_missing_pieces_led()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_show_missing_pieces_led </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Zobrazí červené LED na polích, kde chybí figurky v počáteční pozici. </p>
+<p>Používá se ve stavu GAME_STATE_WAITING_FOR_BOARD_SETUP pro indikaci uživateli, která pole musí obsadit figurkami. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00150">150</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="a57e990b9360540c1ba82ea3d5a32cf44" name="a57e990b9360540c1ba82ea3d5a32cf44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57e990b9360540c1ba82ea3d5a32cf44">&#9670;&#160;</a></span>game_start_new_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_start_new_game </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Spusti novou hru. </p>
+<p>Spust novou hru.</p>
+<p>Tato funkce spusti novou sachovou hru. Inicializuje sachovnici, resetuje vsechny stavy a pripravi hru pro hrani.</p>
+<p>Funkce:</p><ul>
+<li>Inicializuje sachovnici do vychoziho stavu</li>
+<li>Resetuje vsechny stavy hry</li>
+<li>Nastavi prvni hrace na WHITE</li>
+<li>Zastavi vsechny animace</li>
+<li>Aktualizuje LED feedback</li>
+<li>Zvysi pocet her </li>
+</ul>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00458">458</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<a id="aa74e40d5d2135727cdaf43e72e8c1db5" name="aa74e40d5d2135727cdaf43e72e8c1db5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa74e40d5d2135727cdaf43e72e8c1db5">&#9670;&#160;</a></span>game_start_new_game_from_fen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_start_new_game_from_fen </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fen</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Nová hra z FEN (jen rozestavení + strana na tahu). </p>
+<p>Bez kontroly fyzické výchozí pozice. </p>
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00573">573</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentace proměnných</h2>
+<a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* TAG = &quot;GAME_INIT&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definice je uvedena na řádku <a class="el" href="game__init_8c_source.html#l00028">28</a> v souboru <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+
+</div>
+</div>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__init_8c.html">game_init.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>

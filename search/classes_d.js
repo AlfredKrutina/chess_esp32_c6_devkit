@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['rgb_5fcolor_5ft_0',['rgb_color_t',['../structrgb__color__t.html',1,'']]]
+  ['piece_5fblob_5ft_0',['piece_blob_t',['../structpiece__blob__t.html',1,'']]]
 ];

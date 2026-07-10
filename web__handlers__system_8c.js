@@ -1,0 +1,28 @@
+var web__handlers__system_8c =
+[
+    [ "CZECHMATE_FACTORY_RESET_CONFIRM", "web__handlers__system_8c.html#a6007756a024b786edf8beafd4216bcad", null ],
+    [ "factory_reset_schedule", "web__handlers__system_8c.html#ab95692cae58f6eb06039c9bc4bc772d8", null ],
+    [ "factory_reset_worker", "web__handlers__system_8c.html#a4f626b683b460ee7f6ee8001acabd07a", null ],
+    [ "http_get_demo_status_handler", "web__handlers__system_8c.html#a358cae33d20fe64b8797c7a728bc8d01", null ],
+    [ "http_get_mqtt_status_handler", "web__handlers__system_8c.html#ac6454c6a8860b8ffa9ec039b7d58b62b", null ],
+    [ "http_get_settings_start_pos_check_handler", "web__handlers__system_8c.html#aed7bc5c78c6cdb2b4db093145c573643", null ],
+    [ "http_get_settings_ui_handler", "web__handlers__system_8c.html#aa3f3c2be493ad5b3ca646ce7eb37af37", null ],
+    [ "http_get_web_lock_status_handler", "web__handlers__system_8c.html#a2db3d78da9725248ce69a92d8942a02a", null ],
+    [ "http_post_demo_config_handler", "web__handlers__system_8c.html#a49e76efcca45222b5f264c1408e47447", null ],
+    [ "http_post_demo_start_handler", "web__handlers__system_8c.html#af2944ac25620190c78e0671d83226e3a", null ],
+    [ "http_post_factory_reset_handler", "web__handlers__system_8c.html#a5bcff3768af4a7c265caeab004e5f53e", null ],
+    [ "http_post_light_command_handler", "web__handlers__system_8c.html#a65fd67e695fe76ac6ad9e82386037a1d", null ],
+    [ "http_post_light_game_mode_handler", "web__handlers__system_8c.html#aa39b20be8257e6b466f27e154cc9684e", null ],
+    [ "http_post_mqtt_config_handler", "web__handlers__system_8c.html#ab1b822177843080888b87856e1861b73", null ],
+    [ "http_post_settings_auto_lamp_timeout_handler", "web__handlers__system_8c.html#a9f7663f3ece27cb7da8009321d3983a1", null ],
+    [ "http_post_settings_brightness_handler", "web__handlers__system_8c.html#a878505bfd1d1a8ed7d68809beab4224c", null ],
+    [ "http_post_settings_guided_hints_handler", "web__handlers__system_8c.html#afbba31bd50c7d1b975c05d55f86d0778", null ],
+    [ "http_post_settings_led_guidance_handler", "web__handlers__system_8c.html#accae4f36c6e999b035bcacc93f64c863", null ],
+    [ "http_post_settings_start_pos_check_handler", "web__handlers__system_8c.html#a785ee24f1073fe582f8ebdf2d8606da5", null ],
+    [ "http_post_settings_ui_handler", "web__handlers__system_8c.html#a73d18e8885d72a75e2cdc7f9a2f3330d", null ],
+    [ "is_demo_mode_enabled", "web__handlers__system_8c.html#ad190bb08e29e63b6f04a3715dae88706", null ],
+    [ "json_body_has_factory_confirm", "web__handlers__system_8c.html#a16250fed4400f3db7fb72db41e0fac22", null ],
+    [ "set_demo_speed_ms", "web__handlers__system_8c.html#a570c98f23cd91c36ce62964733732cdf", null ],
+    [ "toggle_demo_mode", "web__handlers__system_8c.html#a6e05201e522856e3cd984bade768be7e", null ],
+    [ "TAG", "web__handlers__system_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
+];

@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="cs">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CZECHMATE: Zdrojový soubor game_puzzle.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
+   </div>
+   <div id="projectbrief">CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Vygenerováno programem Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Hledat');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function() { init_codefold(0); });
+/* @license-end */
+</script>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(document).ready(function(){initNavTree('game__puzzle_8c_source.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Načítám...</div>
+<div class="SRStatus" id="Searching">Vyhledávám...</div>
+<div class="SRStatus" id="NoMatches">Nebylo nic nalezeno</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="headertitle"><div class="title">game_puzzle.c</div></div>
+</div><!--header-->
+<div class="contents">
+<a href="game__puzzle_8c.html">Zobrazit dokumentaci tohoto souboru.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;<a class="code" href="game__task__internal_8h.html">game_task_internal.h</a>&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;<a class="code" href="game__board__core_8h.html">game_board_core.h</a>&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;<a class="code" href="game__task_8h.html">game_task.h</a>&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;../matrix_task/include/matrix_task.h&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;../led_task/include/led_task.h&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="led__mapping_8h.html">led_mapping.h</a>&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;esp_log.h&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;esp_timer.h&quot;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &quot;freertos/FreeRTOS.h&quot;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="preprocessor">#include &lt;string.h&gt;</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">   19</a></span><span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_variable" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = <span class="stringliteral">&quot;GAME_PUZZLE&quot;</span>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="preprocessor">#ifndef NDEBUG</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a62ecd07b10c8688371e290c8c64df0a4">   22</a></span><span class="preprocessor">#define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, &quot;[STAGING] &quot; fmt, ##__VA_ARGS__)</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#else</span></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#define STAGING_LOGI(tag, fmt, ...) ((void)0)</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="foldopen" id="foldopen00027" data-start="{" data-end="};">
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">   27</a></span><span class="keyword">static</span> <span class="keyword">const</span> <a class="code hl_struct" href="structgame__puzzle__definition__t.html">game_puzzle_definition_t</a> <a class="code hl_variable" href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">game_puzzles</a>[] = {</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    {1, 1, <span class="stringliteral">&quot;Mat 1 – Dáma na poslední řadě&quot;</span>,</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>     <span class="stringliteral">&quot;Klasický motiv: otevřený f-sloupec, dáma dá mat na f8.&quot;</span>,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>     <span class="stringliteral">&quot;7k/7p/8/8/8/8/5Q2/6K1 w - - 0 1&quot;</span>, <span class="stringliteral">&quot;f2&quot;</span>, <span class="stringliteral">&quot;f8&quot;</span>},</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    {2, 2, <span class="stringliteral">&quot;Mat 1 – Dáma po sloupci&quot;</span>,</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>     <span class="stringliteral">&quot;Útok po ose: dáma stoupá z b2 na b8.&quot;</span>,</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>     <span class="stringliteral">&quot;6k1/5ppp/8/8/8/8/1Q6/6K1 w - - 0 1&quot;</span>, <span class="stringliteral">&quot;b2&quot;</span>, <span class="stringliteral">&quot;b8&quot;</span>},</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    {3, 3, <span class="stringliteral">&quot;Mat 1 – Věž bere věž&quot;</span>,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>     <span class="stringliteral">&quot;Taktika zadní řady: bílá věž sebere černou na e8 a matuje krále.&quot;</span>,</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>     <span class="stringliteral">&quot;4r1k1/5ppp/8/8/8/8/4R3/4K3 w - - 0 1&quot;</span>, <span class="stringliteral">&quot;e2&quot;</span>, <span class="stringliteral">&quot;e8&quot;</span>},</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    {4, 4, <span class="stringliteral">&quot;Mat 1 – Školácký mat&quot;</span>,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>     <span class="stringliteral">&quot;Známá ukázková pozice: střelec na c4, dáma na h5 — mat na f7.&quot;</span>,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>     <span class="stringliteral">&quot;r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1&quot;</span>,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>     <span class="stringliteral">&quot;h5&quot;</span>, <span class="stringliteral">&quot;f7&quot;</span>},</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    {5, 5, <span class="stringliteral">&quot;Mat 1 – Dáma na d8&quot;</span>,</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>     <span class="stringliteral">&quot;Centrální úder: dáma z d4 uzavře mat na poli d8.&quot;</span>,</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>     <span class="stringliteral">&quot;6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1&quot;</span>, <span class="stringliteral">&quot;d4&quot;</span>, <span class="stringliteral">&quot;d8&quot;</span>},</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>};</div>
+</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">   45</a></span><span class="keywordtype">bool</span> <a class="code hl_variable" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">puzzle_active</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">   47</a></span><span class="keywordtype">bool</span> <a class="code hl_variable" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">   48</a></span>uint8_t <a class="code hl_variable" href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">puzzle_setup_id</a> = 0;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">   49</a></span>uint8_t <a class="code hl_variable" href="game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">puzzle_active_id</a> = 0;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957">   50</a></span>uint8_t <a class="code hl_variable" href="game__puzzle_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957">puzzle_solution_from_row</a> = 0;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13">   51</a></span>uint8_t <a class="code hl_variable" href="game__puzzle_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13">puzzle_solution_from_col</a> = 0;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a07df2d15b38d935c5873364f85ac349c">   52</a></span>uint8_t <a class="code hl_variable" href="game__puzzle_8c.html#a07df2d15b38d935c5873364f85ac349c">puzzle_solution_to_row</a> = 0;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49">   53</a></span>uint8_t <a class="code hl_variable" href="game__puzzle_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49">puzzle_solution_to_col</a> = 0;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">   54</a></span><a class="code hl_enumeration" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705">puzzle_feedback_t</a> <a class="code hl_variable" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">puzzle_feedback</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a>;</div>
+<div class="foldopen" id="foldopen00055" data-start="{" data-end="}">
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd">   55</a></span><span class="keyword">const</span> <a class="code hl_struct" href="structgame__puzzle__definition__t.html">game_puzzle_definition_t</a> *<a class="code hl_function" href="game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd">game_get_puzzle_definition</a>(uint8_t puzzle_id) {</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>  <span class="keywordflow">for</span> (<span class="keywordtype">size_t</span> i = 0; i &lt; (<span class="keyword">sizeof</span>(<a class="code hl_variable" href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">game_puzzles</a>) / <span class="keyword">sizeof</span>(<a class="code hl_variable" href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">game_puzzles</a>[0])); i++) {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">game_puzzles</a>[i].<span class="keywordtype">id</span> == puzzle_id) {</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>      <span class="keywordflow">return</span> &amp;<a class="code hl_variable" href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">game_puzzles</a>[i];</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    }</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>  }</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <span class="keywordflow">return</span> NULL;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>}</div>
+</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="foldopen" id="foldopen00065" data-start="{" data-end="}">
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#afc7075159c285231f9157728a4819011">   65</a></span><span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#afc7075159c285231f9157728a4819011">game_fen_expected_occupancy_64</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *fen, uint8_t exp[64]) {</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  memset(exp, 0, 64);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">if</span> (fen == NULL) {</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  }</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  <span class="keywordtype">int</span> row = 7;</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keywordtype">int</span> col = 0;</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *p = fen;</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  <span class="keywordflow">while</span> (*p != <span class="charliteral">&#39;\0&#39;</span> &amp;&amp; *p != <span class="charliteral">&#39; &#39;</span>) {</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordflow">if</span> (*p == <span class="charliteral">&#39;/&#39;</span>) {</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>      <span class="keywordflow">if</span> (col != 8) {</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>      }</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>      row--;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>      col = 0;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>      p++;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>      <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>    }</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    <span class="keywordflow">if</span> (*p &gt;= <span class="charliteral">&#39;1&#39;</span> &amp;&amp; *p &lt;= <span class="charliteral">&#39;8&#39;</span>) {</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>      col += (*p - <span class="charliteral">&#39;0&#39;</span>);</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>      <span class="keywordflow">if</span> (col &gt; 8) {</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>      }</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>      p++;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>      <span class="keywordflow">continue</span>;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>    }</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>    <span class="keywordflow">if</span> (row &lt; 0 || row &gt; 7 || col &lt; 0 || col &gt; 7) {</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    }</div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    exp[row * 8 + col] = 1;</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>    col++;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>    p++;</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>  }</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>  <span class="keywordflow">return</span> (row == 0 &amp;&amp; col == 8 &amp;&amp; *p == <span class="charliteral">&#39; &#39;</span>);</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>}</div>
+</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="foldopen" id="foldopen00101" data-start="{" data-end="}">
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#ad22efb0260b6734fc6f8bd0eda3e6a91">  101</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#ad22efb0260b6734fc6f8bd0eda3e6a91">game_puzzle_physical_matches_fen</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *fen) {</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="game__puzzle_8c.html#a70c7e309649ce8464d1850b9e68f50f4">game_physical_matrix_matches_fen</a>(fen);</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
+</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="foldopen" id="foldopen00105" data-start="{" data-end="}">
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a70c7e309649ce8464d1850b9e68f50f4">  105</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#a70c7e309649ce8464d1850b9e68f50f4">game_physical_matrix_matches_fen</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *fen) {</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>  uint8_t exp[64];</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>  <span class="keywordflow">if</span> (!<a class="code hl_function" href="game__puzzle_8c.html#afc7075159c285231f9157728a4819011">game_fen_expected_occupancy_64</a>(fen, exp)) {</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>  }</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>  uint8_t phys[64];</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>  <a class="code hl_function" href="matrix__task_8h.html#a62798e0c14260b016d8d1739dedc2056">matrix_get_state</a>(phys);</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>  <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; 64; i++) {</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    uint8_t want = exp[i] ? (uint8_t)1 : (uint8_t)0;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    uint8_t got = phys[i] ? (uint8_t)1 : (uint8_t)0;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keywordflow">if</span> (want != got) {</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>      <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    }</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>  }</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>}</div>
+</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
+<div class="foldopen" id="foldopen00122" data-start="{" data-end="}">
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a1518cea04e69b31f017b63ce7025c96d">  122</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#a1518cea04e69b31f017b63ce7025c96d">game_puzzle_enter_setup</a>(uint8_t puzzle_id) {</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>  <span class="keyword">const</span> <a class="code hl_struct" href="structgame__puzzle__definition__t.html">game_puzzle_definition_t</a> *puzzle = <a class="code hl_function" href="game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd">game_get_puzzle_definition</a>(puzzle_id);</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>  <span class="keywordflow">if</span> (puzzle == NULL) {</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>  }</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>  <span class="keywordflow">if</span> (<a class="code hl_function" href="game__init_8c.html#a2135fc63230a13bf4cfd0154726e4187">game_is_board_setup_tutorial_active</a>()) {</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <a class="code hl_function" href="game__init_8c.html#ac112cfa006edc7798db4f5a03b7bd317">game_exit_board_setup_tutorial</a>(<span class="keyword">false</span>);</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>  }</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>  <a class="code hl_function" href="game__opening__trainer_8c.html#afe1f07baa8aab6afe8ef0061a1d478db">game_opening_cancel</a>();</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>  <a class="code hl_function" href="game__puzzle_8c.html#abfce4f49606128cf55f4a12cc3bd2a61">game_puzzle_cancel</a>();</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>  <a class="code hl_function" href="game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e">game_reset_game</a>();</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>  <a class="code hl_function" href="game__init_8c.html#abd68c0d1573a2763db175487730c6b7d">game_apply_empty_logical_board_after_full_reset</a>();</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">puzzle_setup_id</a> = puzzle_id;</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>  <a class="code hl_function" href="led__task_8h.html#ab245ceabb580934b6117f59343c6d9a2">led_clear_board_only</a>();</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>  <a class="code hl_define" href="game__puzzle_8c.html#a62ecd07b10c8688371e290c8c64df0a4">STAGING_LOGI</a>(<a class="code hl_variable" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;puzzle: enter setup id=%u&quot;</span>, (<span class="keywordtype">unsigned</span>)puzzle_id);</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>}</div>
+</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a9a17f30ab5e966f7966d9775f28ccb43">  141</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#a9a17f30ab5e966f7966d9775f28ccb43">game_is_puzzle_setup_active</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> <a class="code hl_variable" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a>; }</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
+<div class="foldopen" id="foldopen00143" data-start="{" data-end="}">
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a6e01269522b8d4fabfaf010b22089f8f">  143</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#a6e01269522b8d4fabfaf010b22089f8f">game_puzzle_start</a>(uint8_t puzzle_id) {</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  <span class="keyword">const</span> <a class="code hl_struct" href="structgame__puzzle__definition__t.html">game_puzzle_definition_t</a> *puzzle = <a class="code hl_function" href="game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd">game_get_puzzle_definition</a>(puzzle_id);</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>  <span class="keywordflow">if</span> (puzzle == NULL) {</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>  }</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  <a class="code hl_function" href="game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e">game_reset_game</a>();</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span> </div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>  <a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> fen_player = <a class="code hl_enumvalue" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a>;</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>  <span class="keywordflow">if</span> (!<a class="code hl_function" href="game__board__core_8c.html#a2bee90ad546979bc31ca65dfde7d94af">game_load_position_from_fen</a>(puzzle-&gt;<a class="code hl_variable" href="structgame__puzzle__definition__t.html#ae4735316e9b2d1fde3079a1f59229d82">fen</a>, &amp;fen_player)) {</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    ESP_LOGE(<a class="code hl_variable" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;puzzle: failed to load FEN for id=%u&quot;</span>, (<span class="keywordtype">unsigned</span>)puzzle_id);</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>  }</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>  uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>  <span class="keywordflow">if</span> (!<a class="code hl_function" href="game__task_8c.html#a20b79ef4675f25cd3f39ddcdaf65243c">convert_notation_to_coords</a>(puzzle-&gt;<a class="code hl_variable" href="structgame__puzzle__definition__t.html#aaf563946d5781d8c882d2def2cb39926">solution_from</a>, &amp;from_row, &amp;from_col) ||</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>      !<a class="code hl_function" href="game__task_8c.html#a20b79ef4675f25cd3f39ddcdaf65243c">convert_notation_to_coords</a>(puzzle-&gt;<a class="code hl_variable" href="structgame__puzzle__definition__t.html#adfab5126f873497c0f95fcfd521a9dbc">solution_to</a>, &amp;to_row, &amp;to_col)) {</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    ESP_LOGE(<a class="code hl_variable" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;puzzle: invalid solution notation for id=%u&quot;</span>,</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>             (<span class="keywordtype">unsigned</span>)puzzle_id);</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  }</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  <a class="code hl_variable" href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a> = fen_player;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  <a class="code hl_variable" href="game__task_8c.html#a6b5f091d5551e8348e4b43edde98e03f">current_game_state</a> = <a class="code hl_enumvalue" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c">GAME_STATE_ACTIVE</a>;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>  <a class="code hl_variable" href="game__task_8c.html#ab2f53c552730de70a774cd254de77ff1">game_active</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>  <a class="code hl_variable" href="game__task_8c.html#ad42240bf8319b29277fbf734cb427aa5">game_start_time</a> = esp_timer_get_time() / 1000;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  <a class="code hl_variable" href="game__task_8c.html#a88728ddbe481a763027b941da8297c87">last_move_time</a> = <a class="code hl_variable" href="game__task_8c.html#ad42240bf8319b29277fbf734cb427aa5">game_start_time</a>;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>  <a class="code hl_variable" href="game__task_8c.html#abad3ef8ced077e74a12ade1c36c77df0">board_setup_tutorial_active</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">puzzle_setup_id</a> = 0;</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>  <a class="code hl_variable" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">puzzle_active</a> = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>  <a class="code hl_variable" href="game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">puzzle_active_id</a> = puzzle_id;</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957">puzzle_solution_from_row</a> = from_row;</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13">puzzle_solution_from_col</a> = from_col;</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a07df2d15b38d935c5873364f85ac349c">puzzle_solution_to_row</a> = to_row;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49">puzzle_solution_to_col</a> = to_col;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">puzzle_feedback</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a>;</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  <a class="code hl_function" href="led__task_8h.html#ab245ceabb580934b6117f59343c6d9a2">led_clear_board_only</a>();</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  <a class="code hl_function" href="game__matrix__workflow_8c.html#a484415c76302e466ea7b01ecb2edee09">game_highlight_movable_pieces</a>();</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  <a class="code hl_define" href="game__puzzle_8c.html#a62ecd07b10c8688371e290c8c64df0a4">STAGING_LOGI</a>(<a class="code hl_variable" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;puzzle: started id=%u difficulty=%u&quot;</span>,</div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>               (<span class="keywordtype">unsigned</span>)puzzle-&gt;<a class="code hl_variable" href="structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf">id</a>, (<span class="keywordtype">unsigned</span>)puzzle-&gt;<a class="code hl_variable" href="structgame__puzzle__definition__t.html#a0cdcd3138bab36c4445f93d90c363b02">difficulty</a>);</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>  <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>}</div>
+</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
+<div class="foldopen" id="foldopen00187" data-start="{" data-end="}">
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#abfce4f49606128cf55f4a12cc3bd2a61">  187</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="game__puzzle_8c.html#abfce4f49606128cf55f4a12cc3bd2a61">game_puzzle_cancel</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>  <span class="keywordtype">bool</span> was = <a class="code hl_variable" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">puzzle_active</a> || <a class="code hl_variable" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a>;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>  <a class="code hl_variable" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">puzzle_active</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>  <a class="code hl_variable" href="game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">puzzle_active_id</a> = 0;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a> = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">puzzle_setup_id</a> = 0;</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>  <a class="code hl_variable" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">puzzle_feedback</a> = <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a>;</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  <span class="keywordflow">if</span> (was) {</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <a class="code hl_define" href="game__puzzle_8c.html#a62ecd07b10c8688371e290c8c64df0a4">STAGING_LOGI</a>(<a class="code hl_variable" href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;puzzle: cancelled&quot;</span>);</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  }</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>}</div>
+</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
+<div class="foldopen" id="foldopen00199" data-start="{" data-end="}">
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#aaa780f6901abda22ff80c49e2d851d49">  199</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__puzzle_8c.html#aaa780f6901abda22ff80c49e2d851d49">game_is_puzzle_active</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>  <span class="keywordflow">return</span> <a class="code hl_variable" href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">puzzle_active</a>;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>}</div>
+</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="foldopen" id="foldopen00203" data-start="{" data-end="}">
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#a5ee101d1cc5320cd1a144ef1ca5a4ae7">  203</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="game__puzzle_8c.html#a5ee101d1cc5320cd1a144ef1ca5a4ae7">game_puzzle_feedback_key</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keywordflow">switch</span> (<a class="code hl_variable" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">puzzle_feedback</a>) {</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c">PUZZLE_FEEDBACK_WRONG</a>:</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;wrong&quot;</span>;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56">PUZZLE_FEEDBACK_SOLVED</a>:</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;solved&quot;</span>;</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628">PUZZLE_FEEDBACK_ILLEGAL</a>:</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;illegal&quot;</span>;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a>:</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>  <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;none&quot;</span>;</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  }</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>}</div>
+</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
+<div class="foldopen" id="foldopen00217" data-start="{" data-end="}">
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno"><a class="line" href="game__puzzle_8c.html#ac6a40a379006af60343a24bfee8d1922">  217</a></span><span class="keyword">const</span> <span class="keywordtype">char</span> *<a class="code hl_function" href="game__puzzle_8c.html#ac6a40a379006af60343a24bfee8d1922">game_puzzle_feedback_message</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  <span class="keywordflow">switch</span> (<a class="code hl_variable" href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">puzzle_feedback</a>) {</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c">PUZZLE_FEEDBACK_WRONG</a>:</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;To neni spravne reseni, vrat figurku na puvodni pole.&quot;</span>;</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56">PUZZLE_FEEDBACK_SOLVED</a>:</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Spravne! Puzzle je vyresene.&quot;</span>;</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628">PUZZLE_FEEDBACK_ILLEGAL</a>:</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;Nelegalni tah, zkus jiny.&quot;</span>;</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>  <span class="keywordflow">case</span> <a class="code hl_enumvalue" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a>:</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>  <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    <span class="keywordflow">return</span> <span class="stringliteral">&quot;&quot;</span>;</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>  }</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>}</div>
+</div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a></div><div class="ttdeci">player_t</div><div class="ttdoc">Definice hracu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00097">chess_types.h:97</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1a3fc75a745f989dff2b00f6b96f5baa9f">PLAYER_WHITE</a></div><div class="ttdeci">@ PLAYER_WHITE</div><div class="ttdoc">Bily hrac.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00098">chess_types.h:98</a></div></div>
+<div class="ttc" id="achess__types_8h_html_a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c"><div class="ttname"><a href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da073e32e8ef26903af9aab57f672e893c">GAME_STATE_ACTIVE</a></div><div class="ttdeci">@ GAME_STATE_ACTIVE</div><div class="ttdoc">Aktivni hra.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00081">chess_types.h:81</a></div></div>
+<div class="ttc" id="agame__board__core_8c_html_a2bee90ad546979bc31ca65dfde7d94af"><div class="ttname"><a href="game__board__core_8c.html#a2bee90ad546979bc31ca65dfde7d94af">game_load_position_from_fen</a></div><div class="ttdeci">bool game_load_position_from_fen(const char *fen, player_t *active_player)</div><div class="ttdef"><b>Definition</b> <a href="game__board__core_8c_source.html#l00114">game_board_core.c:114</a></div></div>
+<div class="ttc" id="agame__board__core_8h_html"><div class="ttname"><a href="game__board__core_8h.html">game_board_core.h</a></div><div class="ttdoc">Board initialization, FEN load, and piece helpers (internal + public API in game_task....</div></div>
+<div class="ttc" id="agame__init_8c_html_a2135fc63230a13bf4cfd0154726e4187"><div class="ttname"><a href="game__init_8c.html#a2135fc63230a13bf4cfd0154726e4187">game_is_board_setup_tutorial_active</a></div><div class="ttdeci">bool game_is_board_setup_tutorial_active(void)</div><div class="ttdef"><b>Definition</b> <a href="game__init_8c_source.html#l00403">game_init.c:403</a></div></div>
+<div class="ttc" id="agame__init_8c_html_abd68c0d1573a2763db175487730c6b7d"><div class="ttname"><a href="game__init_8c.html#abd68c0d1573a2763db175487730c6b7d">game_apply_empty_logical_board_after_full_reset</a></div><div class="ttdeci">void game_apply_empty_logical_board_after_full_reset(void)</div><div class="ttdoc">Po game_reset_game(): vyprázdní logiku a IDLE — společné pro vstup/výstup z tutoriálu rozestavení.</div><div class="ttdef"><b>Definition</b> <a href="game__init_8c_source.html#l00361">game_init.c:361</a></div></div>
+<div class="ttc" id="agame__init_8c_html_ac112cfa006edc7798db4f5a03b7bd317"><div class="ttname"><a href="game__init_8c.html#ac112cfa006edc7798db4f5a03b7bd317">game_exit_board_setup_tutorial</a></div><div class="ttdeci">void game_exit_board_setup_tutorial(bool apply_full_start_position)</div><div class="ttdef"><b>Definition</b> <a href="game__init_8c_source.html#l00391">game_init.c:391</a></div></div>
+<div class="ttc" id="agame__init_8c_html_ac75becc8b5888b8fa31045d7c28c085e"><div class="ttname"><a href="game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e">game_reset_game</a></div><div class="ttdeci">void game_reset_game(void)</div><div class="ttdoc">Resetuje hru do vychoziho stavu.</div><div class="ttdef"><b>Definition</b> <a href="game__init_8c_source.html#l00220">game_init.c:220</a></div></div>
+<div class="ttc" id="agame__matrix__workflow_8c_html_a484415c76302e466ea7b01ecb2edee09"><div class="ttname"><a href="game__matrix__workflow_8c.html#a484415c76302e466ea7b01ecb2edee09">game_highlight_movable_pieces</a></div><div class="ttdeci">void game_highlight_movable_pieces(void)</div><div class="ttdoc">Highlight all movable pieces for current player.</div><div class="ttdef"><b>Definition</b> <a href="game__matrix__workflow_8c_source.html#l00749">game_matrix_workflow.c:749</a></div></div>
+<div class="ttc" id="agame__opening__trainer_8c_html_afe1f07baa8aab6afe8ef0061a1d478db"><div class="ttname"><a href="game__opening__trainer_8c.html#afe1f07baa8aab6afe8ef0061a1d478db">game_opening_cancel</a></div><div class="ttdeci">void game_opening_cancel(void)</div><div class="ttdoc">Opening trainer — multi-ply line with virtual opponent replies.</div><div class="ttdef"><b>Definition</b> <a href="game__opening__trainer_8c_source.html#l00324">game_opening_trainer.c:324</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a02bbcd8447ffc1d9d2294e3a6b733724"><div class="ttname"><a href="game__puzzle_8c.html#a02bbcd8447ffc1d9d2294e3a6b733724">puzzle_feedback</a></div><div class="ttdeci">puzzle_feedback_t puzzle_feedback</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00054">game_puzzle.c:54</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a07df2d15b38d935c5873364f85ac349c"><div class="ttname"><a href="game__puzzle_8c.html#a07df2d15b38d935c5873364f85ac349c">puzzle_solution_to_row</a></div><div class="ttdeci">uint8_t puzzle_solution_to_row</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00052">game_puzzle.c:52</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a1518cea04e69b31f017b63ce7025c96d"><div class="ttname"><a href="game__puzzle_8c.html#a1518cea04e69b31f017b63ce7025c96d">game_puzzle_enter_setup</a></div><div class="ttdeci">bool game_puzzle_enter_setup(uint8_t puzzle_id)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00122">game_puzzle.c:122</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a420f16ad1e12caae7150b33be0f6c0d0"><div class="ttname"><a href="game__puzzle_8c.html#a420f16ad1e12caae7150b33be0f6c0d0">puzzle_setup_id</a></div><div class="ttdeci">uint8_t puzzle_setup_id</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00048">game_puzzle.c:48</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a4ea810bbf4735d36120aea3a27d9e54e"><div class="ttname"><a href="game__puzzle_8c.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a></div><div class="ttdeci">bool puzzle_setup_active</div><div class="ttdoc">Příprava fyzické pozice před game_puzzle_start (prázdná logika, matrix v JSON).</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00047">game_puzzle.c:47</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="game__puzzle_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00019">game_puzzle.c:19</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a5ee101d1cc5320cd1a144ef1ca5a4ae7"><div class="ttname"><a href="game__puzzle_8c.html#a5ee101d1cc5320cd1a144ef1ca5a4ae7">game_puzzle_feedback_key</a></div><div class="ttdeci">const char * game_puzzle_feedback_key(void)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00203">game_puzzle.c:203</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a62ecd07b10c8688371e290c8c64df0a4"><div class="ttname"><a href="game__puzzle_8c.html#a62ecd07b10c8688371e290c8c64df0a4">STAGING_LOGI</a></div><div class="ttdeci">#define STAGING_LOGI(tag, fmt,...)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00022">game_puzzle.c:22</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a6e01269522b8d4fabfaf010b22089f8f"><div class="ttname"><a href="game__puzzle_8c.html#a6e01269522b8d4fabfaf010b22089f8f">game_puzzle_start</a></div><div class="ttdeci">bool game_puzzle_start(uint8_t puzzle_id)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00143">game_puzzle.c:143</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a70c7e309649ce8464d1850b9e68f50f4"><div class="ttname"><a href="game__puzzle_8c.html#a70c7e309649ce8464d1850b9e68f50f4">game_physical_matrix_matches_fen</a></div><div class="ttdeci">bool game_physical_matrix_matches_fen(const char *fen)</div><div class="ttdoc">Compare reed matrix occupancy (0/1) to FEN piece placement.</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00105">game_puzzle.c:105</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a80c5947d0b8cf7c2327105aaa9cebe49"><div class="ttname"><a href="game__puzzle_8c.html#a80c5947d0b8cf7c2327105aaa9cebe49">puzzle_solution_to_col</a></div><div class="ttdeci">uint8_t puzzle_solution_to_col</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00053">game_puzzle.c:53</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a8e5f8bda1bc85a27f938ef5e2e066f13"><div class="ttname"><a href="game__puzzle_8c.html#a8e5f8bda1bc85a27f938ef5e2e066f13">puzzle_solution_from_col</a></div><div class="ttdeci">uint8_t puzzle_solution_from_col</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00051">game_puzzle.c:51</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a9a17f30ab5e966f7966d9775f28ccb43"><div class="ttname"><a href="game__puzzle_8c.html#a9a17f30ab5e966f7966d9775f28ccb43">game_is_puzzle_setup_active</a></div><div class="ttdeci">bool game_is_puzzle_setup_active(void)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00141">game_puzzle.c:141</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_a9ca41717eae71fdb2f9ba8ee3e204957"><div class="ttname"><a href="game__puzzle_8c.html#a9ca41717eae71fdb2f9ba8ee3e204957">puzzle_solution_from_row</a></div><div class="ttdeci">uint8_t puzzle_solution_from_row</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00050">game_puzzle.c:50</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_aaa780f6901abda22ff80c49e2d851d49"><div class="ttname"><a href="game__puzzle_8c.html#aaa780f6901abda22ff80c49e2d851d49">game_is_puzzle_active</a></div><div class="ttdeci">bool game_is_puzzle_active(void)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00199">game_puzzle.c:199</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_abfce4f49606128cf55f4a12cc3bd2a61"><div class="ttname"><a href="game__puzzle_8c.html#abfce4f49606128cf55f4a12cc3bd2a61">game_puzzle_cancel</a></div><div class="ttdeci">void game_puzzle_cancel(void)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00187">game_puzzle.c:187</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_ac6a40a379006af60343a24bfee8d1922"><div class="ttname"><a href="game__puzzle_8c.html#ac6a40a379006af60343a24bfee8d1922">game_puzzle_feedback_message</a></div><div class="ttdeci">const char * game_puzzle_feedback_message(void)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00217">game_puzzle.c:217</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_acf826ca4ea1225da1fd85055b68b64fd"><div class="ttname"><a href="game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd">game_get_puzzle_definition</a></div><div class="ttdeci">const game_puzzle_definition_t * game_get_puzzle_definition(uint8_t puzzle_id)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00055">game_puzzle.c:55</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_ad18d693b607bddd95e3222583bd3e80d"><div class="ttname"><a href="game__puzzle_8c.html#ad18d693b607bddd95e3222583bd3e80d">game_puzzles</a></div><div class="ttdeci">static const game_puzzle_definition_t game_puzzles[]</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00027">game_puzzle.c:27</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_ad22efb0260b6734fc6f8bd0eda3e6a91"><div class="ttname"><a href="game__puzzle_8c.html#ad22efb0260b6734fc6f8bd0eda3e6a91">game_puzzle_physical_matches_fen</a></div><div class="ttdeci">bool game_puzzle_physical_matches_fen(const char *fen)</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00101">game_puzzle.c:101</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_ad9d9faa3fdcbe380c1268dba84d53d4d"><div class="ttname"><a href="game__puzzle_8c.html#ad9d9faa3fdcbe380c1268dba84d53d4d">puzzle_active_id</a></div><div class="ttdeci">uint8_t puzzle_active_id</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00049">game_puzzle.c:49</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_af54fe97fc72c8bb8cdd95225e554599c"><div class="ttname"><a href="game__puzzle_8c.html#af54fe97fc72c8bb8cdd95225e554599c">puzzle_active</a></div><div class="ttdeci">bool puzzle_active</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00045">game_puzzle.c:45</a></div></div>
+<div class="ttc" id="agame__puzzle_8c_html_afc7075159c285231f9157728a4819011"><div class="ttname"><a href="game__puzzle_8c.html#afc7075159c285231f9157728a4819011">game_fen_expected_occupancy_64</a></div><div class="ttdeci">static bool game_fen_expected_occupancy_64(const char *fen, uint8_t exp[64])</div><div class="ttdoc">Očekávaná obsazenost (0/1) z FEN — jen placement, bez typů figurek.</div><div class="ttdef"><b>Definition</b> <a href="game__puzzle_8c_source.html#l00065">game_puzzle.c:65</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a20b79ef4675f25cd3f39ddcdaf65243c"><div class="ttname"><a href="game__task_8c.html#a20b79ef4675f25cd3f39ddcdaf65243c">convert_notation_to_coords</a></div><div class="ttdeci">bool convert_notation_to_coords(const char *notation, uint8_t *row, uint8_t *col)</div><div class="ttdoc">Convert chess notation to board coordinates.</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l01969">game_task.c:1969</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a39560fbeaa9a251526561b4f2a86eac1"><div class="ttname"><a href="game__task_8c.html#a39560fbeaa9a251526561b4f2a86eac1">current_player</a></div><div class="ttdeci">player_t current_player</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00259">game_task.c:259</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a6b5f091d5551e8348e4b43edde98e03f"><div class="ttname"><a href="game__task_8c.html#a6b5f091d5551e8348e4b43edde98e03f">current_game_state</a></div><div class="ttdeci">game_state_t current_game_state</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00258">game_task.c:258</a></div></div>
+<div class="ttc" id="agame__task_8c_html_a88728ddbe481a763027b941da8297c87"><div class="ttname"><a href="game__task_8c.html#a88728ddbe481a763027b941da8297c87">last_move_time</a></div><div class="ttdeci">uint32_t last_move_time</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00467">game_task.c:467</a></div></div>
+<div class="ttc" id="agame__task_8c_html_ab2f53c552730de70a774cd254de77ff1"><div class="ttname"><a href="game__task_8c.html#ab2f53c552730de70a774cd254de77ff1">game_active</a></div><div class="ttdeci">bool game_active</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00365">game_task.c:365</a></div></div>
+<div class="ttc" id="agame__task_8c_html_abad3ef8ced077e74a12ade1c36c77df0"><div class="ttname"><a href="game__task_8c.html#abad3ef8ced077e74a12ade1c36c77df0">board_setup_tutorial_active</a></div><div class="ttdeci">bool board_setup_tutorial_active</div><div class="ttdoc">Web „základní postavení“: prázdná logika, matrix guard potlačen.</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00914">game_task.c:914</a></div></div>
+<div class="ttc" id="agame__task_8c_html_ad42240bf8319b29277fbf734cb427aa5"><div class="ttname"><a href="game__task_8c.html#ad42240bf8319b29277fbf734cb427aa5">game_start_time</a></div><div class="ttdeci">uint32_t game_start_time</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00466">game_task.c:466</a></div></div>
+<div class="ttc" id="agame__task_8h_html"><div class="ttname"><a href="game__task_8h.html">game_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Game Task Hlavicka.</div></div>
+<div class="ttc" id="agame__task__internal_8h_html"><div class="ttname"><a href="game__task__internal_8h.html">game_task_internal.h</a></div><div class="ttdoc">Internal API between game_task.c and sibling source files in this component.</div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a3d8b7bd72f649980cf9a4432e3523705"><div class="ttname"><a href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705">puzzle_feedback_t</a></div><div class="ttdeci">puzzle_feedback_t</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00234">game_task_internal.h:234</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c"><div class="ttname"><a href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a></div><div class="ttdeci">@ PUZZLE_FEEDBACK_NONE</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00235">game_task_internal.h:235</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56"><div class="ttname"><a href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56">PUZZLE_FEEDBACK_SOLVED</a></div><div class="ttdeci">@ PUZZLE_FEEDBACK_SOLVED</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00237">game_task_internal.h:237</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628"><div class="ttname"><a href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628">PUZZLE_FEEDBACK_ILLEGAL</a></div><div class="ttdeci">@ PUZZLE_FEEDBACK_ILLEGAL</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00239">game_task_internal.h:238</a></div></div>
+<div class="ttc" id="agame__task__internal_8h_html_a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c"><div class="ttname"><a href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c">PUZZLE_FEEDBACK_WRONG</a></div><div class="ttdeci">@ PUZZLE_FEEDBACK_WRONG</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00236">game_task_internal.h:236</a></div></div>
+<div class="ttc" id="aled__mapping_8h_html"><div class="ttname"><a href="led__mapping_8h.html">led_mapping.h</a></div><div class="ttdoc">ESP32-C6 Chess System - LED Mapovani funkce.</div></div>
+<div class="ttc" id="aled__task_8h_html_ab245ceabb580934b6117f59343c6d9a2"><div class="ttname"><a href="led__task_8h.html#ab245ceabb580934b6117f59343c6d9a2">led_clear_board_only</a></div><div class="ttdeci">void led_clear_board_only(void)</div><div class="ttdoc">Vymaz pouze sachovnicove LED (0-63), zachovej tlacitka.</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l02860">led_task.c:2860</a></div></div>
+<div class="ttc" id="amatrix__task_8h_html_a62798e0c14260b016d8d1739dedc2056"><div class="ttname"><a href="matrix__task_8h.html#a62798e0c14260b016d8d1739dedc2056">matrix_get_state</a></div><div class="ttdeci">void matrix_get_state(uint8_t *state_buffer)</div><div class="ttdoc">Ziskej stav matice.</div><div class="ttdef"><b>Definition</b> <a href="matrix__task_8c_source.html#l00806">matrix_task.c:806</a></div></div>
+<div class="ttc" id="astructgame__puzzle__definition__t_html"><div class="ttname"><a href="structgame__puzzle__definition__t.html">game_puzzle_definition_t</a></div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00241">game_task_internal.h:241</a></div></div>
+<div class="ttc" id="astructgame__puzzle__definition__t_html_a0cdcd3138bab36c4445f93d90c363b02"><div class="ttname"><a href="structgame__puzzle__definition__t.html#a0cdcd3138bab36c4445f93d90c363b02">game_puzzle_definition_t::difficulty</a></div><div class="ttdeci">uint8_t difficulty</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00243">game_task_internal.h:243</a></div></div>
+<div class="ttc" id="astructgame__puzzle__definition__t_html_a7134e6b932f8a5ceef6c408a73540cdf"><div class="ttname"><a href="structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf">game_puzzle_definition_t::id</a></div><div class="ttdeci">uint8_t id</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00242">game_task_internal.h:242</a></div></div>
+<div class="ttc" id="astructgame__puzzle__definition__t_html_aaf563946d5781d8c882d2def2cb39926"><div class="ttname"><a href="structgame__puzzle__definition__t.html#aaf563946d5781d8c882d2def2cb39926">game_puzzle_definition_t::solution_from</a></div><div class="ttdeci">const char * solution_from</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00247">game_task_internal.h:247</a></div></div>
+<div class="ttc" id="astructgame__puzzle__definition__t_html_adfab5126f873497c0f95fcfd521a9dbc"><div class="ttname"><a href="structgame__puzzle__definition__t.html#adfab5126f873497c0f95fcfd521a9dbc">game_puzzle_definition_t::solution_to</a></div><div class="ttdeci">const char * solution_to</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00248">game_task_internal.h:248</a></div></div>
+<div class="ttc" id="astructgame__puzzle__definition__t_html_ae4735316e9b2d1fde3079a1f59229d82"><div class="ttname"><a href="structgame__puzzle__definition__t.html#ae4735316e9b2d1fde3079a1f59229d82">game_puzzle_definition_t::fen</a></div><div class="ttdeci">const char * fen</div><div class="ttdef"><b>Definition</b> <a href="game__task__internal_8h_source.html#l00246">game_task_internal.h:246</a></div></div>
+</div><!-- fragment --></div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_7acbcb872a2ebcf5753943ec89f39513.html">game_task</a></li><li class="navelem"><a class="el" href="game__puzzle_8c.html">game_puzzle.c</a></li>
+    <li class="footer">Vygenerováno programem <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+  </ul>
+</div>
+</body>
+</html>
