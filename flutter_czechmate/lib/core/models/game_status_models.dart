@@ -165,6 +165,8 @@ class OpeningTrainingStatusJson {
   const OpeningTrainingStatusJson({
     this.active,
     this.setupPhase,
+    this.opponentMode,
+    this.awaitingOpponentPhysical,
     this.feedback,
     this.playerPlyIndex,
     this.playerPlyTotal,
@@ -179,6 +181,8 @@ class OpeningTrainingStatusJson {
 
   final bool? active;
   final bool? setupPhase;
+  final String? opponentMode;
+  final bool? awaitingOpponentPhysical;
   final String? feedback;
   final int? playerPlyIndex;
   final int? playerPlyTotal;
@@ -194,6 +198,8 @@ class OpeningTrainingStatusJson {
     return OpeningTrainingStatusJson(
       active: json['active'] as bool?,
       setupPhase: json['setup_phase'] as bool?,
+      opponentMode: json['opponent_mode'] as String?,
+      awaitingOpponentPhysical: json['awaiting_opponent_physical'] as bool?,
       feedback: json['feedback'] as String?,
       playerPlyIndex: (json['player_ply_index'] as num?)?.toInt(),
       playerPlyTotal: (json['player_ply_total'] as num?)?.toInt(),

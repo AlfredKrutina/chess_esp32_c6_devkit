@@ -44,22 +44,54 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
     final progress = progressRepo.progressFor(line.id);
     final mirrorId = line.mirrorLineId;
     final mirrorOk = progressRepo.mirrorUnlocked(line.id, mirrorLineId: mirrorId);
+    var opponentMode = 'physical';
 
     final mode = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(line.nameCs, style: Theme.of(ctx).textTheme.titleMedium),
-                Text('ECO ${line.eco} · ${line.side} · ★${progress.stars}/4'),
-                const SizedBox(height: 12),
-                ListTile(
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(line.nameCs, style: Theme.of(ctx).textTheme.titleMedium),
+                    Text('ECO ${line.eco} · ${line.side} · ★${progress.stars}/4'),
+                    const SizedBox(height: 12),
+                    Text('Soupeř', style: Theme.of(ctx).textTheme.titleSmall),
+                    const SizedBox(height: 4),
+                    SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(
+                          value: 'physical',
+                          label: Text('Fyzicky'),
+                          icon: Icon(Icons.pan_tool_alt_outlined),
+                        ),
+                        ButtonSegment(
+                          value: 'virtual',
+                          label: Text('Virtuálně'),
+                          icon: Icon(Icons.smart_toy_outlined),
+                        ),
+                      ],
+                      selected: {opponentMode},
+                      onSelectionChanged: (s) {
+                        setSheetState(() => opponentMode = s.first);
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, bottom: 12),
+                      child: Text(
+                        opponentMode == 'physical'
+                            ? 'LED ukáže tah soupeře — figurku přesuneš sám (jako proti botovi).'
+                            : 'Soupeř táhne na logické desce — po tahu může být potřeba srovnat fyzickou desku.',
+                        style: Theme.of(ctx).textTheme.bodySmall,
+                      ),
+                    ),
+                    ListTile(
                   leading: const Icon(Icons.school_outlined),
                   title: const Text('Učení'),
                   subtitle: const Text('Komentáře ke každému tahu'),
@@ -109,6 +141,8 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
             ),
           ),
         );
+          },
+        );
       },
     );
 
@@ -124,6 +158,7 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
         builder: (_) => OpeningTrainerScreen(
           lineId: lineId,
           mode: mode,
+          opponentMode: opponentMode,
         ),
       ),
     );

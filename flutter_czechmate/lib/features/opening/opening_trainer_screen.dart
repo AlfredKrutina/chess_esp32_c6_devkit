@@ -13,10 +13,16 @@ import '../setup/board_setup_wizard_screen.dart';
 import 'opening_catalog_repository.dart';
 
 class OpeningTrainerScreen extends ConsumerStatefulWidget {
-  const OpeningTrainerScreen({super.key, required this.lineId, this.mode = 'learn'});
+  const OpeningTrainerScreen({
+    super.key,
+    required this.lineId,
+    this.mode = 'learn',
+    this.opponentMode = 'virtual',
+  });
 
   final String lineId;
   final String mode;
+  final String opponentMode;
 
   bool get isDrillLike => mode == 'drill' || mode == 'timed' || mode == 'mirror';
 
@@ -140,7 +146,10 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     try {
       await ref
           .read(boardSessionNotifierProvider.notifier)
-          .postOpeningAction(line.toStartPayload(mode: widget.mode));
+          .postOpeningAction(line.toStartPayload(
+            mode: widget.mode,
+            opponentMode: widget.opponentMode,
+          ));
       final opening = ref
           .read(boardSessionNotifierProvider)
           .snapshot
@@ -286,13 +295,16 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
           unawaited(_openSetupWizard(_line!));
         }
         _syncHintRefresh(
-          opening.active == true && opening.setupPhase != true,
+          (opening.active == true || opening.feedback == 'opponent_turn') &&
+              opening.setupPhase != true,
           opening.feedback == 'checkpoint' || opening.awaitingCheckpointAck == true,
         );
       });
     }
 
     final isSetupPhase = opening?.setupPhase == true && opening?.active != true;
+    final isOpponentTurn = _feedback == 'opponent_turn' ||
+        opening?.awaitingOpponentPhysical == true;
     final isMistakeHint = _feedback == 'mistake_hint';
     final isCheckpoint =
         _feedback == 'checkpoint' || opening?.awaitingCheckpointAck == true;
@@ -375,6 +387,24 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                         if (opening?.wrongMoveCount != null &&
                             opening!.wrongMoveCount! > 0)
                           Text('Špatné pokusy: ${opening.wrongMoveCount}'),
+                        if (isOpponentTurn) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            'Tah soupeře — zvedni figurku z ${opening?.expectedFrom ?? '?'} '
+                            'a polož ji na ${opening?.expectedTo ?? '?'}',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.opponentMode == 'physical'
+                                ? 'Fyzický režim — stejně jako proti botovi na desce.'
+                                : 'Virtuální režim soupeře.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                         if (isSetupPhase) ...[
                           const SizedBox(height: 16),
                           Text(
@@ -449,7 +479,7 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                             ),
                           ),
                         const SizedBox(height: 8),
-                        if (!isCheckpoint && !isSetupPhase && !isMistakeHint)
+                        if (!isCheckpoint && !isSetupPhase && !isMistakeHint && !isOpponentTurn)
                           OutlinedButton(
                             onPressed: _busy ? null : _hint,
                             child: const Text('LED nápověda'),

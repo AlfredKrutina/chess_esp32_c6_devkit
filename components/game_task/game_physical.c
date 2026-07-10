@@ -476,6 +476,26 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
+  // Opening trainer: opponent physically moves their pieces (bot-style).
+  if (game_is_opening_trainer_active() && game_opening_awaiting_opponent_physical()) {
+    if (game_opening_validate_opponent_pickup(from_row, from_col)) {
+      piece_lifted = true;
+      lifted_piece_row = from_row;
+      lifted_piece_col = from_col;
+      lifted_piece = piece;
+      game_opening_on_opponent_piece_lifted();
+      game_send_response_to_uart(
+          "✅ Zvedni figurku soupeře — polož na zvýrazněné pole.", false,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+    game_show_invalid_move_error_with_blink(from_row, from_col);
+    game_send_response_to_uart(
+        "⚠️ Tah soupeře: zvedni figurku ze správného pole (LED nápověda).", true,
+        (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
   // Check if piece belongs to current player
   bool is_white_piece =
       (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
@@ -1607,7 +1627,31 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     ESP_LOGI(TAG, "✅ Valid move detected");
 
     if (game_is_opening_trainer_active()) {
-      if (!game_opening_validate_expected_move(lifted_piece_row, lifted_piece_col,
+      if (game_opening_awaiting_opponent_physical()) {
+        if (!game_opening_validate_expected_move(lifted_piece_row, lifted_piece_col,
+                                                 to_row, to_col)) {
+          bool already_in_error = error_recovery_state.waiting_for_move_correction;
+          game_opening_on_wrong_player_move();
+          STAGING_LOGI(TAG, "opening: wrong opponent move %c%d -> %c%d",
+                       'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
+                       to_row + 1);
+          error_recovery_state.waiting_for_move_correction = true;
+          error_recovery_state.has_invalid_piece = true;
+          error_recovery_state.piece_type = lifted_piece;
+          error_recovery_state.invalid_row = to_row;
+          error_recovery_state.invalid_col = to_col;
+          if (!already_in_error) {
+            error_recovery_state.original_valid_row = lifted_piece_row;
+            error_recovery_state.original_valid_col = lifted_piece_col;
+          }
+          board[lifted_piece_row][lifted_piece_col] = PIECE_EMPTY;
+          board[to_row][to_col] = lifted_piece;
+          lifted_piece_row = to_row;
+          lifted_piece_col = to_col;
+          game_show_invalid_move_error_with_blink(to_row, to_col);
+          return;
+        }
+      } else if (!game_opening_validate_expected_move(lifted_piece_row, lifted_piece_col,
                                                to_row, to_col)) {
         bool already_in_error = error_recovery_state.waiting_for_move_correction;
         game_opening_on_wrong_player_move();
@@ -1719,7 +1763,11 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         STAGING_LOGI(TAG, "puzzle: solved id=%u", (unsigned)puzzle_active_id);
       }
       if (game_is_opening_trainer_active()) {
-        game_opening_advance_after_correct();
+        if (game_opening_awaiting_opponent_physical()) {
+          game_opening_advance_after_opponent_physical();
+        } else {
+          game_opening_advance_after_correct();
+        }
         if (error_recovery_state.waiting_for_move_correction) {
           game_reset_error_recovery_state();
         }

@@ -477,10 +477,16 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
                               uint8_t player_ply_count,
                               const uint8_t *checkpoint_ply_indices,
                               uint8_t checkpoint_count, uint8_t mode,
-                              uint8_t player_side_white);
+                              uint8_t player_side_white,
+                              uint8_t opponent_mode);
 bool game_opening_start(void);
 bool game_opening_hint(void);
 bool game_opening_checkpoint_ack(void);
+bool game_opening_awaiting_opponent_physical(void);
+bool game_opening_is_physical_opponent_mode(void);
+bool game_opening_validate_opponent_pickup(uint8_t from_row, uint8_t from_col);
+void game_opening_on_opponent_piece_lifted(void);
+void game_opening_advance_after_opponent_physical(void);
 bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
                                          uint8_t to_row, uint8_t to_col);
 void game_opening_advance_after_correct(void);
@@ -490,6 +496,7 @@ bool game_opening_apply_uci(const char *uci);
 bool game_opening_validate_checkpoint_physical(void);
 bool game_opening_status_needs_matrix(void);
 const char *game_opening_feedback_key(void);
+const char *game_opening_opponent_mode_key(void);
 void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset);
 
 /**

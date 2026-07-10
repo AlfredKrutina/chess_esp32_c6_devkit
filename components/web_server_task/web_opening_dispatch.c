@@ -48,6 +48,7 @@ static esp_err_t opening_load_start_config(cJSON *root) {
       cJSON_GetObjectItemCaseSensitive(root, "checkpoint_ply_indices");
   cJSON *mode_j = cJSON_GetObjectItemCaseSensitive(root, "mode");
   cJSON *side_j = cJSON_GetObjectItemCaseSensitive(root, "side");
+  cJSON *opponent_j = cJSON_GetObjectItemCaseSensitive(root, "opponent_mode");
 
   if (!cJSON_IsString(line_id_j) || !cJSON_IsString(fen_j) ||
       !cJSON_IsArray(uci_j) || !cJSON_IsArray(player_j)) {
@@ -107,11 +108,18 @@ static esp_err_t opening_load_start_config(cJSON *root) {
   if (cJSON_IsString(side_j) && side_j->valuestring != NULL) {
     side_white = (strcmp(side_j->valuestring, "white") == 0);
   }
+  uint8_t opponent_mode = 0;
+  if (cJSON_IsString(opponent_j) && opponent_j->valuestring != NULL) {
+    if (strcmp(opponent_j->valuestring, "physical") == 0) {
+      opponent_mode = 1;
+    }
+  }
 
   if (!game_opening_load_config(line_id_j->valuestring, fen_j->valuestring,
                                 line_uci, (uint8_t)uci_count, player_idx,
                                 (uint8_t)player_count, checkpoint_idx,
-                                checkpoint_count, mode, side_white)) {
+                                checkpoint_count, mode, side_white,
+                                opponent_mode)) {
     return ESP_ERR_INVALID_ARG;
   }
   return ESP_OK;

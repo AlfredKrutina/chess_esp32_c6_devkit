@@ -37,7 +37,8 @@ typedef enum {
   OPENING_FEEDBACK_ILLEGAL,
   OPENING_FEEDBACK_MISTAKE_HINT,
   OPENING_FEEDBACK_COMPLETE,
-  OPENING_FEEDBACK_CHECKPOINT
+  OPENING_FEEDBACK_CHECKPOINT,
+  OPENING_FEEDBACK_OPPONENT_TURN
 } opening_feedback_t;
 
 typedef enum {
@@ -47,10 +48,16 @@ typedef enum {
   OPENING_MODE_MIRROR
 } opening_mode_t;
 
+typedef enum {
+  OPENING_OPPONENT_VIRTUAL = 0,
+  OPENING_OPPONENT_PHYSICAL
+} opening_opponent_mode_t;
+
 typedef struct {
   bool active;
   bool setup_phase;
   opening_mode_t mode;
+  opening_opponent_mode_t opponent_mode;
   char line_id[OPENING_LINE_ID_MAX];
   char start_fen[OPENING_FEN_MAX];
   char line_uci[OPENING_MAX_PLIES][6];
@@ -67,6 +74,7 @@ typedef struct {
   opening_feedback_t feedback;
   player_t player_side;
   bool awaiting_checkpoint_ack;
+  bool awaiting_opponent_physical;
   uint8_t wrong_move_count;
 } opening_trainer_state_t;
 
@@ -127,8 +135,34 @@ static void opening_play_move_led(const char *from_sq, const char *to_sq) {
   led_execute_command_new(&move_path_cmd);
 }
 
+static void opening_show_opponent_physical_led(bool piece_lifted) {
+  if (!opening_state.active || !opening_state.awaiting_opponent_physical) {
+    return;
+  }
+  if (opening_state.expected_from[0] == '\0' || opening_state.expected_to[0] == '\0') {
+    return;
+  }
+  uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
+  if (!convert_notation_to_coords(opening_state.expected_to, &to_row, &to_col)) {
+    return;
+  }
+  uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
+  uint8_t from_led = 64;
+  if (!piece_lifted &&
+      convert_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
+    from_led = chess_pos_to_led_index(from_row, from_col);
+  }
+  led_command_t hint_cmd = {
+      .type = LED_CMD_HIGHLIGHT_HINT,
+      .led_index = from_led,
+      .data = &to_led,
+  };
+  led_execute_command_new(&hint_cmd);
+}
+
 static void opening_show_hint_led(void) {
-  if (!opening_state.active || opening_state.awaiting_checkpoint_ack) {
+  if (!opening_state.active || opening_state.awaiting_checkpoint_ack ||
+      opening_state.awaiting_opponent_physical) {
     return;
   }
   if (opening_state.expected_from[0] == '\0' || opening_state.expected_to[0] == '\0') {
@@ -213,31 +247,77 @@ bool game_opening_apply_uci(const char *uci) {
   return game_execute_move(&move);
 }
 
-static void opening_run_virtual_until_player(void) {
+static bool opening_should_checkpoint_after_ply(uint8_t ply) {
+  return opening_state.opponent_mode == OPENING_OPPONENT_VIRTUAL &&
+         opening_is_checkpoint_ply(ply);
+}
+
+static void opening_prepare_player_turn(void) {
+  opening_state.awaiting_opponent_physical = false;
+  opening_state.player_ply_index =
+      opening_count_player_ply_index(opening_state.ply_index);
+  opening_update_expected_move();
+  opening_state.feedback = OPENING_FEEDBACK_NONE;
+  opening_show_hint_led();
+}
+
+static bool opening_begin_opponent_physical_turn(void) {
+  if (opening_state.ply_index >= opening_state.line_uci_count) {
+    return false;
+  }
+  const char *uci = opening_state.line_uci[opening_state.ply_index];
+  opening_parse_uci(uci, opening_state.expected_from, opening_state.expected_to);
+  strncpy(opening_state.last_opponent_uci, uci,
+          sizeof(opening_state.last_opponent_uci) - 1);
+  opening_state.awaiting_opponent_physical = true;
+  opening_state.feedback = OPENING_FEEDBACK_OPPONENT_TURN;
+  opening_show_opponent_physical_led(false);
+  STAGING_LOGI(TAG, "opponent physical ply=%u uci=%s", (unsigned)opening_state.ply_index,
+               uci);
+  return true;
+}
+
+static void opening_run_until_player_turn(void) {
   while (opening_state.active &&
-         opening_state.ply_index < opening_state.line_uci_count &&
-         !opening_is_player_ply(opening_state.ply_index)) {
+         opening_state.ply_index < opening_state.line_uci_count) {
+    if (opening_is_player_ply(opening_state.ply_index)) {
+      opening_prepare_player_turn();
+      return;
+    }
+
+    if (opening_state.opponent_mode == OPENING_OPPONENT_PHYSICAL) {
+      opening_begin_opponent_physical_turn();
+      return;
+    }
+
     const char *uci = opening_state.line_uci[opening_state.ply_index];
     char from[3], to[3];
     opening_parse_uci(uci, from, to);
     if (game_opening_apply_uci(uci)) {
-      strncpy(opening_state.last_opponent_uci, uci, sizeof(opening_state.last_opponent_uci) - 1);
+      strncpy(opening_state.last_opponent_uci, uci,
+              sizeof(opening_state.last_opponent_uci) - 1);
       opening_play_move_led(from, to);
-      STAGING_LOGI(TAG, "virtual reply ply=%u uci=%s", (unsigned)opening_state.ply_index, uci);
+      STAGING_LOGI(TAG, "virtual reply ply=%u uci=%s", (unsigned)opening_state.ply_index,
+                   uci);
     } else {
       ESP_LOGE(TAG, "virtual uci failed: %s", uci);
       break;
     }
     opening_state.ply_index++;
-    if (opening_is_checkpoint_ply(opening_state.ply_index - 1)) {
+    if (opening_should_checkpoint_after_ply(opening_state.ply_index - 1)) {
       opening_state.awaiting_checkpoint_ack = true;
       opening_state.feedback = OPENING_FEEDBACK_CHECKPOINT;
       return;
     }
   }
-  opening_state.player_ply_index = opening_count_player_ply_index(opening_state.ply_index);
-  opening_update_expected_move();
-  opening_show_hint_led();
+
+  if (opening_state.ply_index >= opening_state.line_uci_count) {
+    opening_state.active = false;
+    opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
+    led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
+    led_execute_command_new(&end_cmd);
+    STAGING_LOGI(TAG, "line complete id=%s", opening_state.line_id);
+  }
 }
 
 void game_opening_cancel(void) {
@@ -251,6 +331,21 @@ void game_opening_cancel(void) {
 bool game_is_opening_trainer_active(void) { return opening_state.active; }
 
 bool game_is_opening_trainer_setup_active(void) { return opening_state.setup_phase; }
+
+bool game_opening_awaiting_opponent_physical(void) {
+  return opening_state.active && opening_state.awaiting_opponent_physical;
+}
+
+bool game_opening_is_physical_opponent_mode(void) {
+  return opening_state.opponent_mode == OPENING_OPPONENT_PHYSICAL;
+}
+
+void game_opening_on_opponent_piece_lifted(void) {
+  if (!opening_state.awaiting_opponent_physical) {
+    return;
+  }
+  opening_show_opponent_physical_led(true);
+}
 
 bool game_opening_physical_matches_start(void) {
   if (opening_state.start_fen[0] == '\0') {
@@ -290,7 +385,8 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
                               uint8_t player_ply_count,
                               const uint8_t *checkpoint_ply_indices,
                               uint8_t checkpoint_count, uint8_t mode,
-                              uint8_t player_side_white) {
+                              uint8_t player_side_white,
+                              uint8_t opponent_mode) {
   if (line_id == NULL || start_fen == NULL || line_uci == NULL ||
       line_uci_count == 0 || line_uci_count > OPENING_MAX_PLIES ||
       player_ply_count == 0 || player_ply_count > OPENING_MAX_PLAYER_PLIES) {
@@ -314,11 +410,18 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
     opening_state.checkpoint_ply_indices[i] = checkpoint_ply_indices[i];
   }
   opening_state.mode = (opening_mode_t)mode;
+  opening_state.opponent_mode =
+      opponent_mode == 1 ? OPENING_OPPONENT_PHYSICAL : OPENING_OPPONENT_VIRTUAL;
   opening_state.player_side = player_side_white ? PLAYER_WHITE : PLAYER_BLACK;
   opening_state.feedback = OPENING_FEEDBACK_NONE;
   opening_state.wrong_move_count = 0;
+  opening_state.awaiting_opponent_physical = false;
   opening_state.setup_phase = false;
-  STAGING_LOGI(TAG, "load line=%s plies=%u", line_id, (unsigned)line_uci_count);
+  STAGING_LOGI(TAG, "load line=%s plies=%u opponent=%s", line_id,
+               (unsigned)line_uci_count,
+               opening_state.opponent_mode == OPENING_OPPONENT_PHYSICAL
+                   ? "physical"
+                   : "virtual");
   return true;
 }
 
@@ -353,12 +456,13 @@ bool game_opening_start(void) {
   opening_state.ply_index = 0;
   opening_state.player_ply_index = 0;
   opening_state.awaiting_checkpoint_ack = false;
+  opening_state.awaiting_opponent_physical = false;
   opening_state.feedback = OPENING_FEEDBACK_NONE;
   opening_state.last_opponent_uci[0] = '\0';
   opening_state.wrong_move_count = 0;
   led_clear_board_only();
 
-  opening_run_virtual_until_player();
+  opening_run_until_player_turn();
   STAGING_LOGI(TAG, "started line=%s ply=%u", opening_state.line_id,
                (unsigned)opening_state.ply_index);
   return true;
@@ -367,6 +471,10 @@ bool game_opening_start(void) {
 bool game_opening_hint(void) {
   if (!opening_state.active || opening_state.awaiting_checkpoint_ack) {
     return false;
+  }
+  if (opening_state.awaiting_opponent_physical) {
+    opening_show_opponent_physical_led(false);
+    return true;
   }
   opening_show_hint_led();
   return true;
@@ -393,15 +501,49 @@ bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
   if (!opening_state.active || opening_state.awaiting_checkpoint_ack) {
     return false;
   }
-  if (!opening_is_player_ply(opening_state.ply_index)) {
+  if (opening_state.ply_index >= opening_state.line_uci_count) {
     return false;
   }
   char from_notation[3] = {0};
   char to_notation[3] = {0};
   snprintf(from_notation, sizeof(from_notation), "%c%d", 'a' + from_col, from_row + 1);
   snprintf(to_notation, sizeof(to_notation), "%c%d", 'a' + to_col, to_row + 1);
+  if (opening_state.awaiting_opponent_physical) {
+    return (strcmp(from_notation, opening_state.expected_from) == 0 &&
+            strcmp(to_notation, opening_state.expected_to) == 0);
+  }
+  if (!opening_is_player_ply(opening_state.ply_index)) {
+    return false;
+  }
   return (strcmp(from_notation, opening_state.expected_from) == 0 &&
           strcmp(to_notation, opening_state.expected_to) == 0);
+}
+
+bool game_opening_validate_opponent_pickup(uint8_t from_row, uint8_t from_col) {
+  if (!opening_state.awaiting_opponent_physical) {
+    return false;
+  }
+  char from_notation[3] = {0};
+  snprintf(from_notation, sizeof(from_notation), "%c%d", 'a' + from_col, from_row + 1);
+  return strcmp(from_notation, opening_state.expected_from) == 0;
+}
+
+void game_opening_advance_after_opponent_physical(void) {
+  if (!opening_state.active || !opening_state.awaiting_opponent_physical) {
+    return;
+  }
+  opening_state.awaiting_opponent_physical = false;
+  opening_state.wrong_move_count = 0;
+  opening_state.ply_index++;
+  if (opening_state.ply_index >= opening_state.line_uci_count) {
+    opening_state.active = false;
+    opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
+    led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
+    led_execute_command_new(&end_cmd);
+    STAGING_LOGI(TAG, "line complete id=%s", opening_state.line_id);
+    return;
+  }
+  opening_run_until_player_turn();
 }
 
 void game_opening_advance_after_correct(void) {
@@ -419,18 +561,19 @@ void game_opening_advance_after_correct(void) {
     STAGING_LOGI(TAG, "line complete id=%s", opening_state.line_id);
     return;
   }
-  if (opening_is_checkpoint_ply(opening_state.ply_index - 1)) {
+  if (opening_should_checkpoint_after_ply(opening_state.ply_index - 1)) {
     opening_state.awaiting_checkpoint_ack = true;
     opening_state.feedback = OPENING_FEEDBACK_CHECKPOINT;
     return;
   }
-  opening_run_virtual_until_player();
+  opening_run_until_player_turn();
   if (opening_state.ply_index >= opening_state.line_uci_count) {
     opening_state.active = false;
     opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
     led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
     led_execute_command_new(&end_cmd);
-  } else if (!opening_state.awaiting_checkpoint_ack) {
+  } else if (!opening_state.awaiting_checkpoint_ack &&
+             !opening_state.awaiting_opponent_physical) {
     opening_state.feedback = OPENING_FEEDBACK_NONE;
   }
 }
@@ -491,9 +634,16 @@ const char *game_opening_feedback_key(void) {
     return "complete";
   case OPENING_FEEDBACK_CHECKPOINT:
     return "checkpoint";
+  case OPENING_FEEDBACK_OPPONENT_TURN:
+    return "opponent_turn";
   default:
     return "none";
   }
+}
+
+const char *game_opening_opponent_mode_key(void) {
+  return opening_state.opponent_mode == OPENING_OPPONENT_PHYSICAL ? "physical"
+                                                                  : "virtual";
 }
 
 const char *game_opening_mode_key(void) {
@@ -537,16 +687,18 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
   int n = snprintf(
       buf + *offset, buf_size - *offset,
       ",\"opening_training\":{\"active\":%s,\"setup_phase\":%s,\"mode\":\"%s\","
-      "\"line_id\":\"%s\",\"ply_index\":%u,\"ply_total\":%u,"
+      "\"opponent_mode\":\"%s\",\"line_id\":\"%s\",\"ply_index\":%u,\"ply_total\":%u,"
       "\"player_ply_index\":%u,\"player_ply_total\":%u,"
       "\"player_side\":\"%s\",\"feedback\":\"%s\","
       "\"expected_from\":\"%s\",\"expected_to\":\"%s\","
       "\"last_opponent_uci\":\"%s\","
       "\"checkpoint_required\":%s,\"awaiting_checkpoint_ack\":%s,"
+      "\"awaiting_opponent_physical\":%s,"
       "\"physical_synced\":%s,\"physical_match\":%s,"
       "\"wrong_move_count\":%u",
       opening_state.active ? "true" : "false",
       opening_state.setup_phase ? "true" : "false", game_opening_mode_key(),
+      game_opening_opponent_mode_key(),
       opening_state.line_id, (unsigned)opening_state.ply_index,
       (unsigned)opening_state.line_uci_count,
       (unsigned)opening_state.player_ply_index,
@@ -556,6 +708,7 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       opening_state.expected_to, opening_state.last_opponent_uci,
       opening_state.awaiting_checkpoint_ack ? "true" : "false",
       opening_state.awaiting_checkpoint_ack ? "true" : "false",
+      opening_state.awaiting_opponent_physical ? "true" : "false",
       game_opening_validate_checkpoint_physical() ? "true" : "false",
       physical_match ? "true" : "false",
       (unsigned)opening_state.wrong_move_count);

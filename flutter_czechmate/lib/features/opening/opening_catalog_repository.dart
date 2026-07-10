@@ -70,10 +70,14 @@ class OpeningLine {
     return stepCommentsCs[ply];
   }
 
-  Map<String, dynamic> toStartPayload({String mode = 'learn'}) => {
+  Map<String, dynamic> toStartPayload({
+    String mode = 'learn',
+    String opponentMode = 'virtual',
+  }) => {
         'action': 'start',
         'line_id': id,
         'mode': mode,
+        'opponent_mode': opponentMode,
         'side': side,
         'start_fen': startFen,
         'line_uci': lineUci,

@@ -34,4 +34,21 @@ void main() {
     expect(status.expectedTo, 'e4');
     expect(status.wrongMoveCount, 3);
   });
+
+  test('OpeningTrainingStatusJson decodes opponent physical turn', () {
+    final status = OpeningTrainingStatusJson.fromJson({
+      'active': true,
+      'opponent_mode': 'physical',
+      'awaiting_opponent_physical': true,
+      'feedback': 'opponent_turn',
+      'expected_from': 'e7',
+      'expected_to': 'e5',
+    });
+
+    expect(status.opponentMode, 'physical');
+    expect(status.awaitingOpponentPhysical, true);
+    expect(status.feedback, 'opponent_turn');
+    expect(status.expectedFrom, 'e7');
+    expect(status.expectedTo, 'e5');
+  });
 }

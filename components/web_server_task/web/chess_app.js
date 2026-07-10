@@ -1212,11 +1212,12 @@
         return OPENING_LINES.filter(function (x) { return x.id === id; })[0] || null;
     }
 
-    function openingStartPayload(line, mode) {
+    function openingStartPayload(line, mode, opponentMode) {
         var body = {
             action: 'start',
             line_id: line.id,
             mode: mode || 'learn',
+            opponent_mode: opponentMode || 'physical',
             side: line.side,
             start_fen: line.start_fen,
             line_uci: line.line_uci,
@@ -1359,7 +1360,7 @@
 
     function openingIsActive(status) {
         var ot = status && status.opening_training;
-        return !!(ot && ot.active);
+        return !!(ot && (ot.active || ot.feedback === 'opponent_turn'));
     }
 
     function openingIsSetupPhase(status) {
@@ -1420,6 +1421,10 @@
             subEl.textContent = 'Po 3 chybách — ' +
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
             if (ot.active) openingStartHintRefresh();
+        } else if (ot.feedback === 'opponent_turn' || ot.awaiting_opponent_physical) {
+            subEl.textContent = 'Tah soupeře — zvedni z ' +
+                (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?');
+            if (ot.opponent_mode === 'physical') openingStartHintRefresh();
         } else {
             subEl.textContent = 'Táhni na desce: ' +
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
@@ -1474,10 +1479,10 @@
         }
     }
 
-    async function openingStartLesson(lineId, mode) {
+    async function openingStartLesson(lineId, mode, opponentMode) {
         var line = global.findOpeningById ? global.findOpeningById(lineId) : null;
         if (!line) throw new Error('Opening not found: ' + lineId);
-        var body = global.openingStartPayload(line, mode || 'learn');
+        var body = global.openingStartPayload(line, mode || 'learn', opponentMode || 'physical');
         await openingPostAction(body);
         openingActiveLineId = lineId;
         openingActiveMode = mode || 'learn';

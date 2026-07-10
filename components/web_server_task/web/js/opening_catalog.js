@@ -624,11 +624,12 @@
         return OPENING_LINES.filter(function (x) { return x.id === id; })[0] || null;
     }
 
-    function openingStartPayload(line, mode) {
+    function openingStartPayload(line, mode, opponentMode) {
         var body = {
             action: 'start',
             line_id: line.id,
             mode: mode || 'learn',
+            opponent_mode: opponentMode || 'physical',
             side: line.side,
             start_fen: line.start_fen,
             line_uci: line.line_uci,
