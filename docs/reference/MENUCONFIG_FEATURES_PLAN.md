@@ -420,9 +420,9 @@ flowchart TD
 
 ```bash
 idf.py menuconfig
-# CzechMate firmware → Gameplay safety & LED
-#   Gameplay safety profile → Developer (no matrix guard)
-#   nebo ručně: Matrix guard → [ ] Enable
+# CzechMate firmware → Herní bezpečnost a LED nápovědy
+#   Preset → DEV (bez matrix guardu)
+#   nebo ručně: ① Matrix guard → [ ] Detekovat nesoulad
 
 idf.py fullclean reconfigure build flash monitor
 ```
