@@ -35,7 +35,8 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 ### 2.2 Velikost „god souborů“
 
 ```
-game_task.c              10 083 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical)
+game_task.c               9 873 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical, puzzle)
+game_puzzle.c               ~224 ř.
 uart_task.c               4 408 ř.  (split: commands_table, parse, handlers_game/wifi/debug)
 web_server_task.c         3 707 ř.  (split: routes ~350, game ~1230, wifi ~340, system ~865, ws ~186)
 web_routes.c                ~350 ř.
@@ -200,8 +201,8 @@ Většina je v PR #4; po merge doplnit:
 | 3A.4 | `game_move_validate.c` | ~781 | `game_validate_*`, check detection | 3A.3 | **hotovo** (PR #7) |
 | 3A.5 | `game_move_exec.c` | ~866 | `game_execute_move*`, history | 3A.4 | **hotovo** (PR #7) |
 | 3A.6 | `game_physical.c` | ~2684 | pickup/drop/castle/promote command processing | 3A.5 | **hotovo** (PR #7) |
-| 3A.7 | `game_bot.c` | ~? | Stockfish integrace | 3A.5 |
-| 3A.8 | `game_puzzle.c` | ~300 | puzzle setup/start | 3A.3 |
+| 3A.7 | `game_bot.c` | — | **N/A** (Stockfish jen v `chess_app.js`, ne ve firmware) |
+| 3A.8 | `game_puzzle.c` | ~234 | puzzle setup/start | 3A.3 | **hotovo** (PR #7) |
 | 3A.9 | `game_task.c` (zbytek) | ~2000 | task loop, queue dispatch, orchestrace | vše |
 
 **Cíl:** `game_task.c` < 3 000 ř.

@@ -187,6 +187,28 @@ typedef enum {
   PUZZLE_FEEDBACK_ILLEGAL = 3
 } puzzle_feedback_t;
 
+typedef struct {
+  uint8_t id;
+  uint8_t difficulty;
+  const char *title;
+  const char *teaser;
+  const char *fen;
+  const char *solution_from;
+  const char *solution_to;
+} game_puzzle_definition_t;
+
+extern bool puzzle_setup_active;
+extern uint8_t puzzle_setup_id;
+extern bool board_setup_tutorial_active;
+extern uint32_t game_start_time;
+
+void game_apply_empty_logical_board_after_full_reset(void);
+
+const game_puzzle_definition_t *game_get_puzzle_definition(uint8_t puzzle_id);
+bool game_puzzle_physical_matches_fen(const char *fen);
+const char *game_puzzle_feedback_key(void);
+const char *game_puzzle_feedback_message(void);
+
 extern bool puzzle_active;
 extern uint8_t puzzle_active_id;
 extern uint8_t puzzle_solution_from_row;
