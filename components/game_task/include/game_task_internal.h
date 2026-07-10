@@ -109,6 +109,7 @@ char piece_to_char(piece_t piece);
 esp_err_t game_task_wdt_reset_safe(void);
 void game_trigger_victory_animation(player_t winner);
 void game_process_promotion_button(uint8_t button_id);
+bool game_execute_promotion(promotion_choice_t choice);
 
 typedef enum {
   LAST_MOVE_NORMAL = 0,
