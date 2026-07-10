@@ -15,6 +15,7 @@
 #define JSON_BUFFER_SIZE 8192
 #define SNAPSHOT_BUFFER_SIZE 20480
 #define TIMER_HTTP_JSON_MAX 1024
+#define WIFI_STATUS_JSON_MAX 640
 
 extern char json_buffer[JSON_BUFFER_SIZE];
 extern char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
@@ -29,6 +30,8 @@ void inject_web_status_fields(char *buf, size_t buf_size);
 void setup_tutorial_reset_finish_cooldown(void);
 bool setup_tutorial_finish_in_cooldown(void);
 void setup_tutorial_note_finish_conflict(void);
+
+esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size);
 
 esp_err_t http_get_advantage_handler(httpd_req_t *req);
 esp_err_t http_get_board_handler(httpd_req_t *req);
