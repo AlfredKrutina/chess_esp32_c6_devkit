@@ -2,7 +2,7 @@
 idf_component_register(
     SRCS "board_api_auth.c" "ota_update.c" "web_server_task.c" "web_routes.c"
           "web_handlers_game.c" "web_handlers_wifi.c" "web_handlers_system.c"
-          "chess_piece_http.c"
+          "web_ws.c" "chess_piece_http.c"
     INCLUDE_DIRS "include"
     EMBED_FILES
         "web/piece_assets/PieceWhiteKing.png"

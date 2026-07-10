@@ -8,6 +8,7 @@
 #include "esp_err.h"
 #include "esp_http_server.h"
 #include "freertos/semphr.h"
+#include "freertos/queue.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -33,6 +34,13 @@ void setup_tutorial_note_finish_conflict(void);
 
 bool json_body_has_factory_confirm(const char *json);
 esp_err_t factory_reset_schedule(void);
+
+httpd_handle_t web_server_get_httpd_handle(void);
+void czechmate_ensure_snapshot_notify_queue(void);
+void ws_broadcast_snapshot(void);
+void web_ws_shutdown(void);
+
+extern QueueHandle_t snapshot_notify_queue;
 
 esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size);
 
