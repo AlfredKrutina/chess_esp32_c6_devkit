@@ -8,6 +8,7 @@
 #include "game_move_validate.h"
 
 #include "../led_task/include/led_task.h"
+#include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "led_mapping.h"
 #include "freertos_chess.h"
 
@@ -21,6 +22,8 @@
 #include <string.h>
 
 static const char *TAG = "GAME_MATRIX";
+
+void game_highlight_opponent_pieces(void);
 
 // ============================================================================
 // MATRIX LED WORKFLOW IMPLEMENTATION
@@ -765,7 +768,7 @@ void game_highlight_movable_pieces(void) {
 
   if (!game_led_guidance_show_movable_yellow()) {
     ESP_LOGD(TAG, "Movable piece highlights skipped (LED guidance level %u)",
-             (unsigned)led_guidance_level);
+             (unsigned)game_get_led_guidance_level());
     return;
   }
 
