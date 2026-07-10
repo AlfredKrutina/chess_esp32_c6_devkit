@@ -121,6 +121,24 @@
             4
         ],
         "mirror_line_id": "sicilian_odb_black",
+        "common_mistakes": [
+            {
+                "wrong_uci": "f1b5",
+                "at_ply_index": 4,
+                "hint": {
+                    "cs": "Nejdřív c4 — španělská je jiná lekce.",
+                    "en": "Play c4 first — the Spanish is a separate lesson."
+                }
+            },
+            {
+                "wrong_uci": "f1c4",
+                "at_ply_index": 2,
+                "hint": {
+                    "cs": "Nejdřív Nf3 — střelec až po jezdci.",
+                    "en": "Develop the knight to f3 before the bishop."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Nejklidnější italská — c3 a rozvoj bez ostré teorie.",
@@ -178,6 +196,16 @@
             3
         ],
         "mirror_line_id": "italian_giuoco_white",
+        "common_mistakes": [
+            {
+                "wrong_uci": "g8f6",
+                "at_ply_index": 3,
+                "hint": {
+                    "cs": "Nejdřív ...d6 — typická sicílie, ne ...Nf6 tak brzy.",
+                    "en": "Play ...d6 first — typical Sicilian, not ...Nf6 so early."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Nejčastější sicilská — boj o centrum bez okamžitého taktického rizika.",
@@ -233,6 +261,16 @@
         ],
         "checkpoint_ply_indices": [
             4
+        ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "c2c4",
+                "at_ply_index": 2,
+                "hint": {
+                    "cs": "Londýn drží d4 + Bf4, ne klasické c4 hned.",
+                    "en": "London keeps d4 + Bf4, not an early c4."
+                }
+            }
         ],
         "rationale": {
             "summary": {
@@ -290,6 +328,16 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "f1c4",
+                "at_ply_index": 4,
+                "hint": {
+                    "cs": "Ve čtyřech jezdcích je typické d4, ne Bc4.",
+                    "en": "In Four Knights d4 is typical, not Bc4."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Symetrický rozvoj — bez gambitů a překvapení.",
@@ -346,6 +394,16 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "f2f4",
+                "at_ply_index": 2,
+                "hint": {
+                    "cs": "Ve vídeňské nejdřív Nc3, pak až f4.",
+                    "en": "In the Vienna play Nc3 before f4."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Nc3 + fianchetto — plán mimo hlavní beaten path.",
@@ -397,6 +455,16 @@
         ],
         "checkpoint_ply_indices": [
             4
+        ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "f1c4",
+                "at_ply_index": 4,
+                "hint": {
+                    "cs": "V berlínské španělské hrajeme Bb5, ne Bc4.",
+                    "en": "In the Berlin Spanish we play Bb5, not Bc4."
+                }
+            }
         ],
         "rationale": {
             "summary": {
@@ -452,6 +520,16 @@
         ],
         "checkpoint_ply_indices": [
             4
+        ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "d2d3",
+                "at_ply_index": 0,
+                "hint": {
+                    "cs": "Dámský gambit začíná d4, ne d3.",
+                    "en": "The Queen's Gambit starts with d4, not d3."
+                }
+            }
         ],
         "rationale": {
             "summary": {
@@ -509,6 +587,16 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "g8f6",
+                "at_ply_index": 3,
+                "hint": {
+                    "cs": "Nejdřív ...d5 v karu — ne ...Nf6 před pevným centrem.",
+                    "en": "Play ...d5 in the Caro first — not ...Nf6 before a solid center."
+                }
+            }
+        ],
         "rationale": {
             "summary": {
                 "cs": "Solidní štít proti 1.e4 — c6 a …d5.",
@@ -564,6 +652,16 @@
         ],
         "checkpoint_ply_indices": [
             3
+        ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "d7d6",
+                "at_ply_index": 3,
+                "hint": {
+                    "cs": "V petrově pokračuj ...Nf6, ne ...d6.",
+                    "en": "In the Petrov continue ...Nf6, not ...d6."
+                }
+            }
         ],
         "rationale": {
             "summary": {
@@ -1023,6 +1121,16 @@
         ],
         "checkpoint_ply_indices": [
             4
+        ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "f1b5",
+                "at_ply_index": 4,
+                "hint": {
+                    "cs": "Ve skotské hře je d4 klíčové, ne Bb5.",
+                    "en": "In the Scotch d4 is key, not Bb5."
+                }
+            }
         ],
         "rationale": {
             "summary": {
@@ -1491,6 +1599,16 @@
         ],
         "checkpoint_ply_indices": [
             3
+        ],
+        "common_mistakes": [
+            {
+                "wrong_uci": "g8f6",
+                "at_ply_index": 3,
+                "hint": {
+                    "cs": "Ve slavské ...c6 drží strukturu, ne ...Nf6 hned.",
+                    "en": "In the Slav ...c6 holds the structure, not ...Nf6 so soon."
+                }
+            }
         ],
         "rationale": {
             "summary": {

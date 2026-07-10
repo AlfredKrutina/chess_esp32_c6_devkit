@@ -15,6 +15,7 @@ void main() {
     expect(italian.playerPlyIndices, [0, 2, 4, 6]);
     expect(italian.mirrorLineId, 'sicilian_odb_black');
     expect(italian.toStartPayload()['action'], 'start');
+    expect(italian.commonMistakes.length, greaterThanOrEqualTo(1));
   });
 
   test('curricula reference existing line ids', () async {

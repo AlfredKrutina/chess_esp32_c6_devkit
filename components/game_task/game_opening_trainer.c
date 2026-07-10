@@ -71,6 +71,7 @@ typedef struct {
   char expected_from[3];
   char expected_to[3];
   char last_opponent_uci[6];
+  char last_wrong_uci[6];
   opening_feedback_t feedback;
   player_t player_side;
   bool awaiting_checkpoint_ack;
@@ -415,6 +416,7 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
   opening_state.player_side = player_side_white ? PLAYER_WHITE : PLAYER_BLACK;
   opening_state.feedback = OPENING_FEEDBACK_NONE;
   opening_state.wrong_move_count = 0;
+  opening_state.last_wrong_uci[0] = '\0';
   opening_state.awaiting_opponent_physical = false;
   opening_state.setup_phase = false;
   STAGING_LOGI(TAG, "load line=%s plies=%u opponent=%s", line_id,
@@ -459,6 +461,8 @@ bool game_opening_start(void) {
   opening_state.awaiting_opponent_physical = false;
   opening_state.feedback = OPENING_FEEDBACK_NONE;
   opening_state.last_opponent_uci[0] = '\0';
+  opening_state.last_wrong_uci[0] = '\0';
+  opening_state.last_wrong_uci[0] = '\0';
   opening_state.wrong_move_count = 0;
   led_clear_board_only();
 
@@ -533,6 +537,7 @@ void game_opening_advance_after_opponent_physical(void) {
     return;
   }
   opening_state.awaiting_opponent_physical = false;
+  opening_state.last_wrong_uci[0] = '\0';
   opening_state.wrong_move_count = 0;
   opening_state.ply_index++;
   if (opening_state.ply_index >= opening_state.line_uci_count) {
@@ -550,6 +555,7 @@ void game_opening_advance_after_correct(void) {
   if (!opening_state.active) {
     return;
   }
+  opening_state.last_wrong_uci[0] = '\0';
   opening_state.wrong_move_count = 0;
   opening_state.feedback = OPENING_FEEDBACK_CORRECT;
   opening_state.ply_index++;
@@ -602,6 +608,14 @@ bool game_opening_on_wrong_player_move(void) {
     opening_state.feedback = OPENING_FEEDBACK_WRONG;
   }
   return true;
+}
+
+void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
+                                     uint8_t to_row, uint8_t to_col) {
+  snprintf(opening_state.last_wrong_uci, sizeof(opening_state.last_wrong_uci),
+           "%c%d%c%d", 'a' + from_col, from_row + 1, 'a' + to_col, to_row + 1);
+  STAGING_LOGI(TAG, "wrong uci recorded %s ply=%u", opening_state.last_wrong_uci,
+               (unsigned)opening_state.ply_index);
 }
 
 bool game_opening_on_illegal_player_move(void) {
@@ -695,7 +709,7 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       "\"checkpoint_required\":%s,\"awaiting_checkpoint_ack\":%s,"
       "\"awaiting_opponent_physical\":%s,"
       "\"physical_synced\":%s,\"physical_match\":%s,"
-      "\"wrong_move_count\":%u",
+      "\"wrong_move_count\":%u,\"last_wrong_uci\":\"%s\"",
       opening_state.active ? "true" : "false",
       opening_state.setup_phase ? "true" : "false", game_opening_mode_key(),
       game_opening_opponent_mode_key(),
@@ -711,7 +725,8 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
       opening_state.awaiting_opponent_physical ? "true" : "false",
       game_opening_validate_checkpoint_physical() ? "true" : "false",
       physical_match ? "true" : "false",
-      (unsigned)opening_state.wrong_move_count);
+      (unsigned)opening_state.wrong_move_count,
+      opening_state.last_wrong_uci[0] != '\0' ? opening_state.last_wrong_uci : "");
   if (n <= 0 || (size_t)n >= buf_size - *offset) {
     return;
   }

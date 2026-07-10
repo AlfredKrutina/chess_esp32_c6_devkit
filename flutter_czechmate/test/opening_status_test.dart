@@ -51,4 +51,17 @@ void main() {
     expect(status.expectedFrom, 'e7');
     expect(status.expectedTo, 'e5');
   });
+
+  test('OpeningTrainingStatusJson decodes last_wrong_uci and ply_index', () {
+    final status = OpeningTrainingStatusJson.fromJson({
+      'active': true,
+      'feedback': 'wrong',
+      'ply_index': 4,
+      'last_wrong_uci': 'f1b5',
+      'wrong_move_count': 1,
+    });
+    expect(status.plyIndex, 4);
+    expect(status.lastWrongUci, 'f1b5');
+    expect(status.feedback, 'wrong');
+  });
 }

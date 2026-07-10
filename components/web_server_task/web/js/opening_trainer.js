@@ -169,6 +169,19 @@
         return parts.join(' · ');
     }
 
+    function openingCommonMistakeHint(line, ot) {
+        if (!line || !line.common_mistakes || !ot || !ot.last_wrong_uci) return '';
+        var ply = ot.ply_index;
+        var wrong = String(ot.last_wrong_uci).toLowerCase();
+        for (var i = 0; i < line.common_mistakes.length; i++) {
+            var m = line.common_mistakes[i];
+            if (m.at_ply_index === ply && String(m.wrong_uci).toLowerCase() === wrong) {
+                return (m.hint && m.hint.cs) ? m.hint.cs : '';
+            }
+        }
+        return '';
+    }
+
     function openingUpdatePanel(status) {
         var panel = document.getElementById('opening-trainer-panel');
         var textEl = document.getElementById('opening-trainer-text');
@@ -202,6 +215,7 @@
         var title = line && line.name ? (line.name.cs || line.id) : (ot.line_id || 'Opening');
         textEl.textContent = title + ' — tah ' +
             String((ot.player_ply_index || 0) + 1) + '/' + String(ot.player_ply_total || '?');
+        var mistakeHint = openingCommonMistakeHint(line, ot);
 
         if (openingIsSetupPhase(status)) {
             subEl.textContent = ot.physical_match === false
@@ -235,6 +249,9 @@
         } else {
             subEl.textContent = 'Táhni na desce: ' +
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
+            if ((ot.feedback === 'wrong' || ot.feedback === 'illegal') && mistakeHint) {
+                subEl.textContent = mistakeHint;
+            }
             if (ot.active) openingStartHintRefresh();
         }
     }

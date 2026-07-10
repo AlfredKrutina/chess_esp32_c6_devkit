@@ -153,6 +153,46 @@ def validate_physical_rules(data: dict) -> None:
             raise ValueError(f"{oid}: line too long ({len(line)} > 12)")
 
 
+def validate_common_mistakes(data: dict) -> None:
+    try:
+        import chess
+    except ImportError:
+        print("WARN: python-chess not installed — skipping common_mistakes", file=sys.stderr)
+        return
+
+    for opening in data["openings"]:
+        oid = opening["id"]
+        mistakes = opening.get("common_mistakes") or []
+        if len(mistakes) > 4:
+            raise ValueError(f"{oid}: too many common_mistakes ({len(mistakes)} > 4)")
+        line = opening["line_uci"]
+        player_set = set(opening["player_ply_indices"])
+        board = chess.Board(opening["start_fen"])
+        for entry in mistakes:
+            wrong = entry["wrong_uci"]
+            ply = entry["at_ply_index"]
+            if not UCI_RE.match(wrong):
+                raise ValueError(f"{oid}: bad common_mistakes uci {wrong}")
+            if ply not in player_set:
+                raise ValueError(f"{oid}: common_mistakes ply {ply} not a player ply")
+            if ply >= len(line):
+                raise ValueError(f"{oid}: common_mistakes ply {ply} out of range")
+            expected = line[ply]
+            if wrong == expected:
+                raise ValueError(f"{oid}: common_mistake {wrong} equals expected at ply {ply}")
+            b = board.copy()
+            for i in range(ply):
+                b.push(chess.Move.from_uci(line[i]))
+            move = chess.Move.from_uci(wrong)
+            if move not in b.legal_moves:
+                raise ValueError(
+                    f"{oid}: common_mistake {wrong} illegal at ply {ply} ({b.fen()})"
+                )
+            hint = entry.get("hint") or {}
+            if not hint.get("cs") or not hint.get("en"):
+                raise ValueError(f"{oid}: common_mistake hint missing cs/en at ply {ply}")
+
+
 def validate_ids(data: dict) -> None:
     ids = [o["id"] for o in data["openings"]]
     if len(ids) != len(set(ids)):
@@ -212,6 +252,8 @@ def write_web_catalog_js(data: dict) -> None:
         }
         if o.get("mirror_line_id"):
             entry["mirror_line_id"] = o["mirror_line_id"]
+        if o.get("common_mistakes"):
+            entry["common_mistakes"] = o["common_mistakes"]
         if o.get("rationale"):
             entry["rationale"] = o["rationale"]
         compact.append(entry)
@@ -279,6 +321,7 @@ def main() -> int:
         validate_schema(data)
         validate_ids(data)
         validate_chess_moves(data)
+        validate_common_mistakes(data)
         rationale = load_rationale()
         validate_rationale_coverage(data, rationale)
         if args.physical_rules:

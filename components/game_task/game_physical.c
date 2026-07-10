@@ -1631,6 +1631,8 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         if (!game_opening_validate_expected_move(lifted_piece_row, lifted_piece_col,
                                                  to_row, to_col)) {
           bool already_in_error = error_recovery_state.waiting_for_move_correction;
+          game_opening_record_wrong_uci(lifted_piece_row, lifted_piece_col, to_row,
+                                        to_col);
           game_opening_on_wrong_player_move();
           STAGING_LOGI(TAG, "opening: wrong opponent move %c%d -> %c%d",
                        'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
@@ -1654,6 +1656,8 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       } else if (!game_opening_validate_expected_move(lifted_piece_row, lifted_piece_col,
                                                to_row, to_col)) {
         bool already_in_error = error_recovery_state.waiting_for_move_correction;
+        game_opening_record_wrong_uci(lifted_piece_row, lifted_piece_col, to_row,
+                                      to_col);
         game_opening_on_wrong_player_move();
         STAGING_LOGI(TAG, "opening: wrong move %c%d -> %c%d",
                      'a' + lifted_piece_col, lifted_piece_row + 1, 'a' + to_col,
@@ -1963,6 +1967,8 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       puzzle_feedback = PUZZLE_FEEDBACK_ILLEGAL;
     }
     if (game_is_opening_trainer_active()) {
+      game_opening_record_wrong_uci(lifted_piece_row, lifted_piece_col, to_row,
+                                    to_col);
       game_opening_on_illegal_player_move();
     }
 

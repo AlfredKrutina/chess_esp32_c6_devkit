@@ -491,6 +491,8 @@ bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
                                          uint8_t to_row, uint8_t to_col);
 void game_opening_advance_after_correct(void);
 bool game_opening_on_wrong_player_move(void);
+void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
+                                   uint8_t to_row, uint8_t to_col);
 bool game_opening_on_illegal_player_move(void);
 bool game_opening_apply_uci(const char *uci);
 bool game_opening_validate_checkpoint_physical(void);

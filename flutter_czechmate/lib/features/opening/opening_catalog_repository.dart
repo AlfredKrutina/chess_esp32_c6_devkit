@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
+import 'opening_common_mistake.dart';
 import 'opening_rationale.dart';
 
 class OpeningCurriculum {
@@ -44,6 +45,7 @@ class OpeningLine {
     this.ideaEn,
     this.rationale,
     this.mirrorLineId,
+    this.commonMistakes = const [],
     this.stepCommentsCs = const {},
     this.stepCommentsEn = const {},
   });
@@ -62,6 +64,7 @@ class OpeningLine {
   final String? ideaEn;
   final OpeningRationale? rationale;
   final String? mirrorLineId;
+  final List<OpeningCommonMistake> commonMistakes;
   final Map<int, String> stepCommentsCs;
   final Map<int, String> stepCommentsEn;
 
@@ -117,6 +120,10 @@ class OpeningLine {
     final idea = json['idea'] as Map<String, dynamic>?;
     final rationaleJson = json['rationale'] as Map<String, dynamic>?;
     final steps = json['steps'] as List<dynamic>? ?? [];
+    final mistakesRaw = json['common_mistakes'] as List<dynamic>? ?? [];
+    final mistakes = mistakesRaw
+        .map((e) => OpeningCommonMistake.fromJson(e as Map<String, dynamic>))
+        .toList();
     final commentsCs = <int, String>{};
     final commentsEn = <int, String>{};
     for (final raw in steps) {
@@ -147,6 +154,7 @@ class OpeningLine {
           ? OpeningRationale.fromJson(rationaleJson)
           : null,
       mirrorLineId: json['mirror_line_id'] as String?,
+      commonMistakes: mistakes,
       stepCommentsCs: commentsCs,
       stepCommentsEn: commentsEn,
     );

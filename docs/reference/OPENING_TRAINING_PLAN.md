@@ -122,7 +122,7 @@
 | Volitelný HTTP build | ✅ | `CONFIG_CHESS_ENABLE_WEB_SERVER` — PR #10 |
 | `steps[]` locale v UI | ✅ | JSON 192/192; Flutter `commentForPlayerPly(locale)` |
 | `mirror_line_id` páry | 🟡 | 2/41 — ★★★★ omezený; **oba páry jsou cross-family** (ne opačná barva stejné linie) |
-| `common_mistakes` v UI | ⬜ | 0/41 v masteru; schema + UI backlog |
+| `common_mistakes` v UI | ✅ | 11/41 linií; FW `last_wrong_uci` + Flutter/web hint |
 | UX lekce (bez debug stavů) | ✅ | Flutter §8.9 `OpeningFeedbackL10n`; PR 5a |
 | Rationale jen ply 0 (Learn) | ✅ | Flutter `_playerPly == 0`; web už měl |
 | Katalog filtry (side/ECO/search) | ✅ | `opening_catalog_screen.dart` PR 5a |
@@ -1335,14 +1335,14 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 
 **Acceptance:** Learn lekce bez technických stavů; rationale viditelné jen na úvodu.
 
-### Fáze 5b — `common_mistakes` (priorita 2) ⬜
+### Fáze 5b — `common_mistakes` (priorita 2) ✅
 
-- [ ] Obsah: min. 10 linií v `openings_master.json` (0/41 dnes)
-- [ ] Validace na klientovi před odesláním tahu (Flutter + web)
-- [ ] UI hint při shodě `wrong_uci` + `at_ply_index`
-- [ ] CI: schema validace `common_mistakes[]` struktury
+- [x] Obsah: 11 linií v `openings_master.json` (12 záznamů)
+- [x] FW export `last_wrong_uci` při špatném tahu
+- [x] UI hint při shodě `wrong_uci` + `at_ply_index` (Flutter + web)
+- [x] CI: `validate_common_mistakes` v `sync_catalog.py` + schema
 
-**Acceptance:** Špatná varianta (např. `f1b5` místo `f1c4`) ukáže pedagogický hint bez FW změny.
+**Acceptance:** Špatná varianta (např. `f1b5` místo `f1c4`) ukáže pedagogický hint.
 
 ### Fáze 5c — Miniboard v lekci (priorita 3) ⬜
 
@@ -1519,7 +1519,7 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 | Web `chess_app.js` | `concat_web_js.py` | ✅ |
 | Learn screen → opening | `learn_screen.dart` | ✅ |
 | Katalog 41 linií CI | `opening_catalog_test.dart`, `opening_rationale_test.dart` | ✅ |
-| `common_mistakes` v UI | grep klient | ⬜ Backlog Fáze 5b |
+| `common_mistakes` v UI | grep klient + sync | ✅ Fáze 5b |
 | Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5c |
 | `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
 | `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — oba cross-family; Fáze 5d |

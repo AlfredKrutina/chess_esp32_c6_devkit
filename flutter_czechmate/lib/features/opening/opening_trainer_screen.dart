@@ -11,6 +11,7 @@ import '../../core/utils/board_setup_fen_steps.dart';
 import '../connection/board_session_notifier.dart';
 import '../setup/board_setup_wizard_screen.dart';
 import 'opening_catalog_repository.dart';
+import 'opening_common_mistake.dart';
 import 'opening_feedback_l10n.dart';
 import 'opening_rationale.dart';
 
@@ -364,6 +365,15 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     );
     final opponentHint =
         OpeningFeedbackL10n.opponentModeHint(locale, widget.opponentMode);
+    final mistakeHint = openingCommonMistakeHint(
+      mistakes: line?.commonMistakes ?? const [],
+      plyIndex: opening?.plyIndex,
+      lastWrongUci: opening?.lastWrongUci,
+      locale: locale,
+    );
+    final showMistakePedagogy = (_feedback == 'wrong' || _feedback == 'illegal') &&
+        mistakeHint != null &&
+        mistakeHint.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -406,6 +416,16 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                         ),
+                        if (showMistakePedagogy) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            mistakeHint!,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ],
                         if (!widget.isDrillLike && idea != null && idea.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(idea, style: Theme.of(context).textTheme.bodyLarge),

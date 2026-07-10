@@ -176,6 +176,8 @@ class OpeningTrainingStatusJson {
     this.physicalSynced,
     this.physicalMatch,
     this.wrongMoveCount,
+    this.plyIndex,
+    this.lastWrongUci,
     this.checkpointExpectedOccupied,
   });
 
@@ -186,8 +188,10 @@ class OpeningTrainingStatusJson {
   final String? feedback;
   final int? playerPlyIndex;
   final int? playerPlyTotal;
+  final int? plyIndex;
   final String? expectedFrom;
   final String? expectedTo;
+  final String? lastWrongUci;
   final bool? awaitingCheckpointAck;
   final bool? physicalSynced;
   final bool? physicalMatch;
@@ -203,8 +207,10 @@ class OpeningTrainingStatusJson {
       feedback: json['feedback'] as String?,
       playerPlyIndex: (json['player_ply_index'] as num?)?.toInt(),
       playerPlyTotal: (json['player_ply_total'] as num?)?.toInt(),
+      plyIndex: (json['ply_index'] as num?)?.toInt(),
       expectedFrom: json['expected_from'] as String?,
       expectedTo: json['expected_to'] as String?,
+      lastWrongUci: json['last_wrong_uci'] as String?,
       awaitingCheckpointAck: json['awaiting_checkpoint_ack'] as bool?,
       physicalSynced: json['physical_synced'] as bool?,
       physicalMatch: json['physical_match'] as bool?,
