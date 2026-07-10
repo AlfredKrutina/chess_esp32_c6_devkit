@@ -47,7 +47,7 @@ Web UI (`chess_app.js`) a Flutter (`MatrixGuardBanner`) zobrazují návod podle 
 
 ## Menuconfig (od PR #20)
 
-Matrix guard lze vypnout nebo omezit přes `idf.py menuconfig` → **CzechMate firmware** → **Gameplay safety & LED** → **Matrix guard**.
+Matrix guard lze vypnout nebo omezit přes `idf.py menuconfig` → **CzechMate firmware** → **Herní bezpečnost a LED nápovědy** → **① Matrix guard**.
 
 | Volba | Výchozí (FULL) | Účel |
 |-------|----------------|------|
