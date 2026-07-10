@@ -121,7 +121,7 @@
 | PGN import | ✅ | `tools/openings/pgn_to_catalog.py` |
 | Volitelný HTTP build | ✅ | `CONFIG_CHESS_ENABLE_WEB_SERVER` — PR #10 |
 | `steps[]` locale v UI | ✅ | JSON 192/192; Flutter `commentForPlayerPly(locale)` |
-| `mirror_line_id` páry | 🟡 | 2/41 — ★★★★ omezený; **oba páry jsou cross-family** (ne opačná barva stejné linie) |
+| `mirror_line_id` páry | ✅ | 10 symetrických párů §8.8; CI `--mirror-symmetric`; PR 5d |
 | `common_mistakes` v UI | ✅ | 11/41 linií; FW `last_wrong_uci` + Flutter/web hint |
 | UX lekce (bez debug stavů) | ✅ | Flutter §8.9 `OpeningFeedbackL10n`; PR 5a |
 | Rationale jen ply 0 (Learn) | ✅ | Flutter `_playerPly == 0`; web už měl |
@@ -133,7 +133,7 @@
 | Větvení `branches[]` | ⬜ | v1.1 |
 | FW-native LED pulz | ⬜ | Fáze 6 backlog |
 
-**Zbývá pro v1.0 polish:** §14 Fáze 5a–5d → gate §21.
+**Zbývá pro v1.0 polish:** §21 release gate (HW checklist, manuální E2E).
 
 ---
 
@@ -331,7 +331,7 @@ flowchart TB
 | Stav | Detail |
 |------|--------|
 | Implementace režimu | ✅ Samostatná párová linie přes `mirror_line_id` |
-| Obsah | 🟡 Pouze **2/41** linií má `mirror_line_id` |
+| Obsah | ✅ **10/10** symetrických párů §8.8 |
 | Kvalita párů | ⚠️ Oba existující páry jsou **špatně**: `italian_giuoco_white` ↔ `sicilian_odb_black` (cross-family, ne stejná varianta z opačné barvy) |
 | Dopad | ★★★★ je pro většinu linií nedosažitelná; u 2 linií vede na nesouvisející lekci |
 
@@ -662,7 +662,7 @@ flutter_czechmate/assets/data/openings_catalog.json
 - `common_mistakes` = **jen klient** v1 (porovnání před odesláním tahu); FW v1.1.
 - Pro `side: "black"`: první bílé ply v `line_uci` se auto-playne virtuálně; hráč začíná na `player_ply_indices[0]`.
 
-> **Stav dat (2026-07-10):** Příklad výše je cílový tvar. V `openings_master.json` má `mirror_line_id` jen 2 linie a obě ukazují na **nesouvisející** linii (`italian_giuoco_white` ↔ `sicilian_odb_black`). `common_mistakes` a `opponent_annotations` jsou v masteru prázdné (0/41).
+> **Stav dat (2026-07-10):** `mirror_line_id` — 10 symetrických repertoárových párů §8.8 (20 linií). `common_mistakes` v 11 liniích.
 
 ### 8.5 Validace obsahu (CI + python-chess)
 
@@ -1353,16 +1353,16 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 
 **Acceptance:** Hráč vidí pozici i bez pohledu na fyzickou desku.
 
-### Fáze 5d — Mirror páry + polish (priorita 4) 🟡
+### Fáze 5d — Mirror páry + polish (priorita 4) ✅
 
 - [x] Rationale CS/EN kompletní (sidecar) — Fáze 4b
-- [ ] Opravit 2 existující **špatné** páry (`italian_giuoco_white` ↔ `sicilian_odb_black`)
-- [ ] Implementovat 10 párů dle §8.8 + `--mirror-symmetric` v sync
+- [x] Odstraněn špatný cross-family pár (`italian_giuoco_white` ↔ `sicilian_odb_black`)
+- [x] Implementováno 10 párů dle §8.8 + `--mirror-symmetric` v sync + CI
 - [ ] Checkpoint „srovnej desku“ UI — základ hotový, polish
 - [ ] Stockfish „proč tento tah“ (read-only, Learn only) — **v1.1**, ne blocker
 - [ ] Rozšířit `MANUAL_TEST_CHECKLIST.md` (vč. BLE-only build)
 
-**Acceptance:** ★★★★ dosažitelná u ≥10 linií; 5 uživatelů dokončí lekci bez dokumentace.
+**Acceptance:** ★★★★ dosažitelná u ≥10 linií; mirror páry symetrické a opačné barvy.
 
 ---
 
@@ -1522,7 +1522,7 @@ Detail konfigurace: §3.1. Při `n` zůstává `web_server_task` jako **remote b
 | `common_mistakes` v UI | grep klient + sync | ✅ Fáze 5b |
 | Miniboard v lekci | `opening_trainer_screen.dart`, `opening_trainer.js` | ✅ Fáze 5c |
 | `CONFIG_CHESS_ENABLE_WEB_SERVER=n` build | `main/Kconfig.projbuild`, CMake | ✅ PR #10; CI job doporučen |
-| `mirror_line_id` ≥10 párů | `openings_master.json` | ⬜ 2/41 — oba cross-family; Fáze 5d |
+| `mirror_line_id` ≥10 párů | `openings_master.json` | ✅ 10 symetrických párů §8.8; PR 5d |
 | Flutter rationale ply 0 | `opening_trainer_screen.dart` | ✅ PR 5a |
 | L10/L12 default opponent | `learn_screen.dart` | ✅ mode picker |
 
@@ -1570,4 +1570,4 @@ Všechny body musí být ✅ před označením opening traineru za **v1.0 produk
 
 ---
 
-*Plán v2.4 — živý dokument (2026-07-10). Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) · PR [#11](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/11) · PR [#12](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/12). Další práce: §14.1 Fáze 5d.*
+*Plán v2.4 — živý dokument (2026-07-10). Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · PR [#10](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/10) · PR [#11](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/11) · PR [#12](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/12) · PR [#13](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/13). Další: §21 release gate.*

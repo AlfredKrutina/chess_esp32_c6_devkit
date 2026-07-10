@@ -193,6 +193,43 @@ def validate_common_mistakes(data: dict) -> None:
                 raise ValueError(f"{oid}: common_mistake hint missing cs/en at ply {ply}")
 
 
+def validate_mirror_symmetric(data: dict) -> None:
+    """Each mirror_line_id must exist, opposite side, and reciprocal link."""
+    by_id = {o["id"]: o for o in data["openings"]}
+    seen: set[tuple[str, str]] = set()
+
+    for opening in data["openings"]:
+        oid = opening["id"]
+        mirror_id = opening.get("mirror_line_id")
+        if not mirror_id:
+            continue
+        pair = tuple(sorted((oid, mirror_id)))
+        if pair in seen:
+            continue
+        seen.add(pair)
+
+        partner = by_id.get(mirror_id)
+        if partner is None:
+            raise ValueError(f"{oid}: mirror_line_id not in catalog: {mirror_id}")
+
+        side = opening.get("side")
+        partner_side = partner.get("side")
+        if side == partner_side:
+            raise ValueError(
+                f"{oid}: mirror pair {mirror_id} must be opposite side "
+                f"(both {side})"
+            )
+        if partner.get("mirror_line_id") != oid:
+            raise ValueError(
+                f"{oid} -> {mirror_id} but {mirror_id} -> "
+                f"{partner.get('mirror_line_id')!r} (expected {oid})"
+            )
+
+    pair_count = len(seen)
+    if pair_count < 10:
+        raise ValueError(f"mirror pairs: expected at least 10, got {pair_count}")
+
+
 def validate_ids(data: dict) -> None:
     ids = [o["id"] for o in data["openings"]]
     if len(ids) != len(set(ids)):
@@ -308,6 +345,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--validate", action="store_true", help="Validate master JSON")
     parser.add_argument("--physical-rules", action="store_true", help="Enforce v1 physical constraints")
+    parser.add_argument(
+        "--mirror-symmetric",
+        action="store_true",
+        help="Require reciprocal mirror_line_id pairs with opposite side (§8.8)",
+    )
     parser.add_argument("--copy", action="store_true", help="Copy to web + flutter assets")
     args = parser.parse_args()
 
@@ -326,6 +368,8 @@ def main() -> int:
         validate_rationale_coverage(data, rationale)
         if args.physical_rules:
             validate_physical_rules(data)
+        if args.mirror_symmetric:
+            validate_mirror_symmetric(data)
     except Exception as exc:
         print(f"VALIDATION FAILED: {exc}", file=sys.stderr)
         return 1

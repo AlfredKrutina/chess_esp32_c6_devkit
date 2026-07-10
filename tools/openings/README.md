@@ -4,8 +4,8 @@
 
 ```bash
 pip install jsonschema python-chess   # optional but recommended for CI
-python3 tools/openings/sync_catalog.py --validate --physical-rules
-python3 tools/openings/sync_catalog.py --validate --physical-rules --copy
+python3 tools/openings/sync_catalog.py --validate --physical-rules --mirror-symmetric
+python3 tools/openings/sync_catalog.py --validate --physical-rules --mirror-symmetric --copy
 ```
 
 - **Source of truth:** `data/openings_master.json`

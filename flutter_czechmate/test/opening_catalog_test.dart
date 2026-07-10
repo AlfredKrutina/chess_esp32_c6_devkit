@@ -13,7 +13,7 @@ void main() {
     final italian = lines.firstWhere((l) => l.id == 'italian_giuoco_white');
     expect(italian.lineUci.length, 8);
     expect(italian.playerPlyIndices, [0, 2, 4, 6]);
-    expect(italian.mirrorLineId, 'sicilian_odb_black');
+    expect(italian.mirrorLineId, 'petrov_black');
     expect(italian.toStartPayload()['action'], 'start');
     expect(italian.commonMistakes.length, greaterThanOrEqualTo(1));
   });
@@ -29,5 +29,29 @@ void main() {
         expect(ids.contains(id), isTrue, reason: 'missing $id in ${c.id}');
       }
     }
+  test('mirror_line_id pairs are symmetric with opposite sides', () async {
+    final repo = OpeningCatalogRepository();
+    final lines = await repo.loadAll();
+    final byId = {for (final l in lines) l.id: l};
+    var pairCount = 0;
+    final seen = <String>{};
+
+    for (final line in lines) {
+      final mirrorId = line.mirrorLineId;
+      if (mirrorId == null || mirrorId.isEmpty) continue;
+      final key = [line.id, mirrorId]..sort();
+      final pairKey = key.join('|');
+      if (seen.contains(pairKey)) continue;
+      seen.add(pairKey);
+
+      final partner = byId[mirrorId];
+      expect(partner, isNotNull, reason: 'missing mirror target $mirrorId');
+      expect(line.side, isNot(equals(partner!.side)),
+          reason: '${line.id} and $mirrorId must differ in side');
+      expect(partner.mirrorLineId, line.id,
+          reason: '$mirrorId must mirror back to ${line.id}');
+      pairCount++;
+    }
+    expect(pairCount, greaterThanOrEqualTo(10));
   });
 }

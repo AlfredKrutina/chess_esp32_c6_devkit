@@ -119,7 +119,6 @@
       "checkpoint_ply_indices": [
         4
       ],
-      "mirror_line_id": "sicilian_odb_black",
       "steps": [
         {
           "ply_index": 0,
@@ -168,6 +167,7 @@
           }
         }
       ],
+      "mirror_line_id": "petrov_black",
       "rationale": {
         "summary": {
           "cs": "Nejklidnější italská — c3 a rozvoj bez ostré teorie.",
@@ -229,7 +229,6 @@
       "checkpoint_ply_indices": [
         3
       ],
-      "mirror_line_id": "italian_giuoco_white",
       "steps": [
         {
           "ply_index": 1,
@@ -270,6 +269,7 @@
           }
         }
       ],
+      "mirror_line_id": "spanish_berlin_white",
       "rationale": {
         "summary": {
           "cs": "Nejčastější sicilská — boj o centrum bez okamžitého taktického rizika.",
@@ -371,6 +371,7 @@
           }
         }
       ],
+      "mirror_line_id": "slav_defence_black",
       "rationale": {
         "summary": {
           "cs": "Systém nezávislý na pořadí tahů — Bf4 + e3.",
@@ -472,6 +473,7 @@
           }
         }
       ],
+      "mirror_line_id": "caro_kann_classical_black",
       "rationale": {
         "summary": {
           "cs": "Symetrický rozvoj — bez gambitů a překvapení.",
@@ -573,6 +575,7 @@
           }
         }
       ],
+      "mirror_line_id": "alekhine_defence_black",
       "rationale": {
         "summary": {
           "cs": "Nc3 + fianchetto — plán mimo hlavní beaten path.",
@@ -663,6 +666,7 @@
           }
         }
       ],
+      "mirror_line_id": "sicilian_odb_black",
       "rationale": {
         "summary": {
           "cs": "Krátká španělská — Berlin bez dlouhé teorie.",
@@ -763,6 +767,7 @@
           }
         }
       ],
+      "mirror_line_id": "queens_gambit_declined_black",
       "rationale": {
         "summary": {
           "cs": "Klasické d4 + c4 — učí dámský gambit od základu.",
@@ -864,6 +869,7 @@
           }
         }
       ],
+      "mirror_line_id": "four_knights_white",
       "rationale": {
         "summary": {
           "cs": "Solidní štít proti 1.e4 — c6 a …d5.",
@@ -966,6 +972,7 @@
           }
         }
       ],
+      "mirror_line_id": "italian_giuoco_white",
       "rationale": {
         "summary": {
           "cs": "Symetrie proti 1.e4 e5 — bez slabiny f7.",
@@ -1057,6 +1064,7 @@
           }
         }
       ],
+      "mirror_line_id": "scotch_game_white",
       "rationale": {
         "summary": {
           "cs": "Hypermoderní g6 — útok bílého se odráží.",
@@ -1450,6 +1458,7 @@
           }
         }
       ],
+      "mirror_line_id": "queens_gambit_white",
       "rationale": {
         "summary": {
           "cs": "…e6 drží pěšce — klasická odpověď na c4.",
@@ -1651,6 +1660,7 @@
           }
         }
       ],
+      "mirror_line_id": "reti_opening_white",
       "rationale": {
         "summary": {
           "cs": "Bb4 kontroluje e4 — aktivní d4 odpověď.",
@@ -1752,6 +1762,7 @@
           }
         }
       ],
+      "mirror_line_id": "pirc_classical_black",
       "rationale": {
         "summary": {
           "cs": "d4 v italské — otevřené centrum bez okamžité výměny.",
@@ -1853,6 +1864,7 @@
           }
         }
       ],
+      "mirror_line_id": "dutch_defence_black",
       "rationale": {
         "summary": {
           "cs": "e3 + Bd3 — útok na královském křídle později.",
@@ -2456,6 +2468,7 @@
           }
         }
       ],
+      "mirror_line_id": "vienna_white",
       "rationale": {
         "summary": {
           "cs": "Nf6 provokuje e5 — černý útočí centrum později.",
@@ -2567,6 +2580,7 @@
           }
         }
       ],
+      "mirror_line_id": "london_system_white",
       "rationale": {
         "summary": {
           "cs": "c6 podporuje d5 — velmi solidní d4 odpověď.",
@@ -2669,6 +2683,7 @@
           }
         }
       ],
+      "mirror_line_id": "english_four_knights_white",
       "rationale": {
         "summary": {
           "cs": "g6 + Bg7 — protihra na královském křídle.",
@@ -2770,6 +2785,7 @@
           }
         }
       ],
+      "mirror_line_id": "colle_system_white",
       "rationale": {
         "summary": {
           "cs": "f5 — okamžitá kontrola e4 a křídla.",
@@ -3175,6 +3191,7 @@
           }
         }
       ],
+      "mirror_line_id": "nimzo_indian_black",
       "rationale": {
         "summary": {
           "cs": "Nf3 + c4 — hypermoderní kontrola centra.",
@@ -3276,6 +3293,7 @@
           }
         }
       ],
+      "mirror_line_id": "kings_indian_black",
       "rationale": {
         "summary": {
           "cs": "c4 + jezdci — anglická s e5 symetrií.",

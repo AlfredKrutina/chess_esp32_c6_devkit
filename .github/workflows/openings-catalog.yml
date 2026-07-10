@@ -25,5 +25,5 @@ jobs:
         run: pip install jsonschema python-chess
       - name: Validate and sync catalog
         run: |
-          python3 tools/openings/sync_catalog.py --validate --physical-rules --copy
+          python3 tools/openings/sync_catalog.py --validate --physical-rules --mirror-symmetric --copy
           git diff --exit-code components/web_server_task/web/data/openings_catalog.json flutter_czechmate/assets/data/openings_catalog.json

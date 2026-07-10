@@ -120,7 +120,7 @@
         "checkpoint_ply_indices": [
             4
         ],
-        "mirror_line_id": "sicilian_odb_black",
+        "mirror_line_id": "petrov_black",
         "common_mistakes": [
             {
                 "wrong_uci": "f1b5",
@@ -195,7 +195,7 @@
         "checkpoint_ply_indices": [
             3
         ],
-        "mirror_line_id": "italian_giuoco_white",
+        "mirror_line_id": "spanish_berlin_white",
         "common_mistakes": [
             {
                 "wrong_uci": "g8f6",
@@ -262,6 +262,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "slav_defence_black",
         "common_mistakes": [
             {
                 "wrong_uci": "c2c4",
@@ -328,6 +329,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "caro_kann_classical_black",
         "common_mistakes": [
             {
                 "wrong_uci": "f1c4",
@@ -394,6 +396,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "alekhine_defence_black",
         "common_mistakes": [
             {
                 "wrong_uci": "f2f4",
@@ -456,6 +459,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "sicilian_odb_black",
         "common_mistakes": [
             {
                 "wrong_uci": "f1c4",
@@ -521,6 +525,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "queens_gambit_declined_black",
         "common_mistakes": [
             {
                 "wrong_uci": "d2d3",
@@ -587,6 +592,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "four_knights_white",
         "common_mistakes": [
             {
                 "wrong_uci": "g8f6",
@@ -653,6 +659,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "italian_giuoco_white",
         "common_mistakes": [
             {
                 "wrong_uci": "d7d6",
@@ -718,6 +725,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "scotch_game_white",
         "rationale": {
             "summary": {
                 "cs": "Hypermoderní g6 — útok bílého se odráží.",
@@ -949,6 +957,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "queens_gambit_white",
         "rationale": {
             "summary": {
                 "cs": "…e6 drží pěšce — klasická odpověď na c4.",
@@ -1066,6 +1075,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "reti_opening_white",
         "rationale": {
             "summary": {
                 "cs": "Bb4 kontroluje e4 — aktivní d4 odpověď.",
@@ -1122,6 +1132,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "pirc_classical_black",
         "common_mistakes": [
             {
                 "wrong_uci": "f1b5",
@@ -1191,6 +1202,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "dutch_defence_black",
         "rationale": {
             "summary": {
                 "cs": "e3 + Bd3 — útok na královském křídle později.",
@@ -1541,6 +1553,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "vienna_white",
         "rationale": {
             "summary": {
                 "cs": "Nf6 provokuje e5 — černý útočí centrum později.",
@@ -1600,6 +1613,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "london_system_white",
         "common_mistakes": [
             {
                 "wrong_uci": "g8f6",
@@ -1669,6 +1683,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "english_four_knights_white",
         "rationale": {
             "summary": {
                 "cs": "g6 + Bg7 — protihra na královském křídle.",
@@ -1728,6 +1743,7 @@
         "checkpoint_ply_indices": [
             3
         ],
+        "mirror_line_id": "colle_system_white",
         "rationale": {
             "summary": {
                 "cs": "f5 — okamžitá kontrola e4 a křídla.",
@@ -1963,6 +1979,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "nimzo_indian_black",
         "rationale": {
             "summary": {
                 "cs": "Nf3 + c4 — hypermoderní kontrola centra.",
@@ -2022,6 +2039,7 @@
         "checkpoint_ply_indices": [
             4
         ],
+        "mirror_line_id": "kings_indian_black",
         "rationale": {
             "summary": {
                 "cs": "c4 + jezdci — anglická s e5 symetrií.",
