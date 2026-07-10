@@ -1,7 +1,8 @@
 # Plán v2: Interaktivní trénink zahájení (Opening Trainer)
 
-**Verze:** 2.1 (sanity review 2026-07-10)  
-**Stav:** schválený návrh — ověřeno proti firmware 1.8.0  
+**Verze:** 2.2 (implementační review 2026-07-10)  
+**Stav:** **v1.0 v implementaci** — FW + Flutter + web parita hotové; katalog 41 linií; rationale sidecar; fyzický/virtuální soupeř  
+**Aktivní PR:** [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) (`cursor/opening-opponent-physical-8fdd`)  
 **Cíl:** Krok-za-krokem výuka slavných zahájení pro **bílé i černé**, s fyzickou deskou, LED nápovědou a jednotným UX na webu + Flutter.  
 **Vstupní dokumentace:** [docs/README.md](../README.md) · [MATRIX_GUARD.md](MATRIX_GUARD.md) · [WEB_UI_DEPLOY.md](WEB_UI_DEPLOY.md) · [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md)
 
@@ -15,8 +16,10 @@
 | Deska | „virtuální soupeř“ zmíněn | **Model synchronizace fyzické vs logické desky** (§6) |
 | LED | statické cyan/orange | **Reuse `LED_CMD_ANIM_MOVE_PATH`** + nový pulzní hint (§9) |
 | API | jeden endpoint | **Plný kontrakt** včetně chyb, BLE, snapshot (§10) |
-| Obsah | 24 zahájení tabulka | **30 linií + učební cesty + rodiny ECO** (§8, §12) |
-| Fáze | 6 hrubých fází | **9 fází** s checklistem souborů a acceptance (§14) |
+| Obsah | 24 zahájení tabulka | **41 linií + učební cesty + rationale sidecar** (§8, §12) |
+| Soupeř | jen virtuální model | **Volitelný fyzický soupeř** (`opponent_mode`) — parita s botem (§3 D10, §6.6) |
+| Pedagogika | `idea` + `steps` | **`rationale`** — proč varianta, místo čeho, kdy hrát (§8.6) |
+| Fáze | 6 hrubých fází | **9 fází + stav implementace** s checklistem (§14) |
 | Inventář kódu | obecný | **Konkrétní soubory, funkce, mezery** (§5) |
 | Progress | localStorage zmínka | **Hvězdičky, spaced repetition, curriculum unlock** (§11) |
 | Sanity | — | **§20 — ověření proti kódu + HW** (matrix guard, setup, captures) |
@@ -37,6 +40,48 @@
 
 ---
 
+## 0.2 Changelog v2.1 → v2.2 (implementační review)
+
+| Změna | Proč |
+|--------|------|
+| Katalog **41 linií** (9+9+12+11) | Původní cíl 30 splněn a rozšířen; §12 synchronizováno s `openings_master.json` |
+| **`opponent_mode`**: `physical` \| `virtual` | Hráč může přesouvat figurky soupeře sám (LED jako u bota); default `physical` |
+| **`openings_rationale.json`** sidecar | Pedagogika oddělená od tahů; merge při `sync_catalog.py --copy` |
+| Setup phase **nesmí** zrušit opening config | `game_enter_board_setup_tutorial()` zachová aktivní linii |
+| Status JSON: `setup_phase`, `physical_match`, `mistake_hint`, `wrong_move_count` | Parita Flutter + web setup wizard a retry |
+| Web embed **obnoven** | `concat_web_js.py` → `chess_app.js`; opening moduly v `web/js/` |
+| Learn screen **naviguje** do katalogu / lekce | L10/L12 → `OpeningTrainerScreen` |
+
+---
+
+## 0.3 Stav implementace (živý přehled)
+
+| Oblast | Stav | Důkaz / poznámka |
+|--------|------|------------------|
+| Schema + validátor | ✅ | `sync_catalog.py --validate --physical-rules` |
+| FW `game_opening_trainer.c` | ✅ | start/cancel/hint/checkpoint, auto-reply |
+| Matrix guard OFF v opening | ✅ | D8 v `game_task_matrix_guard_mode_conflict_active` |
+| `opponent_mode` physical/virtual | ✅ | `game_physical.c` validace tahu soupeře |
+| HTTP `POST /api/game/opening` | ✅ | `web_opening_dispatch.c` |
+| Status `opening_training` | ✅ | `game_json_export.c` + Flutter modely |
+| Katalog 41 linií | ✅ | `data/openings_master.json` |
+| Rationale 41 záznamů CS/EN | ✅ | `data/openings_rationale.json` |
+| Flutter katalog + lekce | ✅ | `opening_catalog_screen.dart`, `opening_trainer_screen.dart` |
+| Web opening moduly | ✅ | `opening_catalog.js`, `opening_trainer.js` |
+| Režimy Learn/Drill/Timed/Mirror | ✅ | Hvězdičky + curriculum unlock |
+| Setup wizard + retry | ✅ | `setup_phase` flow obě platformy |
+| PGN import | ✅ | `tools/openings/pgn_to_catalog.py` |
+| `common_mistakes` v UI | ⬜ | Schema připraveno, obsah/UI backlog |
+| Miniboard sync v lekci | ⬜ | Text + progress bar; plný miniboard backlog |
+| Stockfish „proč tento tah“ | ⬜ | Fáze 5 backlog |
+| Spaced repetition notifikace | ⬜ | Fronta due lines hotová; push notif backlog |
+| Větvení `branches[]` | ⬜ | v1.1 |
+| FW-native LED pulz | ⬜ | Fáze 6 backlog |
+
+**Zbývá pro v1.0 polish:** §14 Fáze 5 (common_mistakes, miniboard, manuální UX test 5 uživatelů).
+
+---
+
 ## 1. Shrnutí a design principy
 
 CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepare) a **ukázat tah na LED** (`hint_highlight`). Opening Trainer spojí tyto bloky do režimu **`opening_trainer`**:
@@ -44,7 +89,7 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 1. Katalog **slavných linií** (JSON na klientu).
 2. **Setup** výchozí FEN (reuse wizardu).
 3. **Řetězec tahů** s validací UCI na fyzické desce.
-4. **Virtuální soupeř** na logické desce + LED trace — hráč fyzicky hýbe jen svými tahy.
+4. **Soupeř** — volitelně virtuální (logická deska) **nebo fyzický** (`opponent_mode: physical`, LED ukáže tah).
 5. **Postupné režimy** Learn → Drill → Timed → Mirror (obě strany).
 
 ### Principy kvality (nezpochybnitelné)
@@ -66,7 +111,7 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 
 | ID | Cíl | Metrika |
 |----|-----|---------|
-| G1 | **30 linií** (15 bílých + 15 černých) | 100 % legální UCI v CI |
+| G1 | **41 linií** (21 bílých + 20 černých v 4 kurikulech) | 100 % legální UCI + rationale v CI |
 | G2 | Krok za krokem: setup → linie → dokončení | E2E HW test 3 linie |
 | G3 | Fyzická deska + LED | 0 regressí matrix guard |
 | G4 | Learn / Drill / Timed / Mirror | Každý režim má HW checklist |
@@ -91,13 +136,15 @@ CZECHMATE už umí **skládat pozici po krocích** (setup tutorial, puzzle prepa
 |---|------------|----------|------|
 | D1 | Kde žije katalog | **Klient** (`openings_catalog.json`) | Flash ESP ušetříme; obsah updatuje se s app/web bez OTA |
 | D2 | Formát linie | **Plná `line_uci[]`** + `player_ply_indices[]` | FW jednoduše iteruje ply; soupeř i hráč ve stejném poli |
-| D3 | Soupeř | **Virtuálně na logické desce** + `led_anim_move_path` | Rychlejší lekce; vyžaduje D8 a checkpoint resync |
+| D3 | Soupeř | **`opponent_mode`**: `virtual` (logika) nebo `physical` (hráč přesune figurku) | Default `physical` = stejné UX jako bot; `virtual` = rychlejší, vyžaduje checkpoint |
 | D4 | Režim FW | **Samostatný `opening_trainer`** | Puzzle = 1 tah; opening = stavový stroj s auto-reply — jiná semantika |
 | D5 | Setup startovní pozice | **Standardní FEN: přeskočit empty prepare** | Pokud `game_is_physical_board_starting_occupancy()` → rovnou `start`; jinak setup wizard (32 kroků). Empty-board `prepare` jen pro mid-line FEN (v1.1) |
 | D6 | Hint LED | **Klient refresh 600 ms** + FW internal hint po auto-reply | Reuse `SETUP_TUTORIAL_REFRESH_MS`; FW-native pulz = Fáze 6 |
 | D7 | `GAME_CMD` slot | **`GAME_CMD_OPENING_TRAINER`** v `chess_types.h` | Konzistentní s puzzle/setup pattern |
-| D8 | Matrix guard | **Vypnutý po celou aktivní lekci** | `opening_trainer` v `game_task_matrix_guard_mode_conflict_active()` — **povinné**, ne volitelné |
+| D8 | Matrix guard | **Vypnutý po celou aktivní lekci** (`virtual` soupeř) | Při `physical` soupeři deska zůstává synchronní — guard stále off kvůli konzistenci režimu |
 | D9 | Validace tahu | **Nejdřív expected UCI, pak `game_is_valid_move`** | Špatná destinace = opening feedback; legalita z logické desky |
+| D10 | Volba soupeře | **`opponent_mode` v `start` requestu** | `physical`: FW čeká pickup/drop soupeře, feedback `opponent_turn`; `virtual`: auto-reply na logice |
+| D11 | Pedagogika variant | **Sidecar `openings_rationale.json`** | Merge do exportu; master drží tahy, rationale editovatelné bez dotyku UCI |
 
 ---
 
@@ -124,8 +171,8 @@ stateDiagram-v2
 
 | Režim | Chování | LED | UI |
 |-------|---------|-----|-----|
-| **Learn** | Komentář ke každému hráčovu ply; auto-reply po 1,5 s | Zlatý pulz `to`; cyan `from` po pickup | Velký text + miniboard |
-| **Drill** | Jen „Tah N/M“; bez komentářů | Jen `to`; po 3 chybách „Ukázat řešení“ | Minimální panel |
+| **Learn** | Komentář ke každému hráčovu ply; rationale na úvodu; soupeř dle `opponent_mode` | Zlatý pulz `to`; cyan `from` po pickup; u physical i LED tah soupeře | Velký text + rationale panel + progress |
+| **Drill** | Jen „Tah N/M“; bez komentářů | Jen `to`; po 3 chybách `mistake_hint` | Minimální panel |
 | **Timed** | Drill + časovač (celá linie nebo/tah) | Stejné + červený pulz pod 5 s | Timer ring |
 | **Mirror** | Samostatná **párová linie** (`mirror_line_id`, typicky opačná barva) | Stejné LED | Badge „Trénuješ černou proti 1.e4“ |
 | **Review** | Prohlížení dokončené linie bez HW | Animace na miniboardu | Pouze app (bez FW) |
@@ -141,10 +188,37 @@ stateDiagram-v2
 
 Progress klíč: `opening_progress_v1` → `{ "line_id": { "stars": 3, "best_drill_errors": 1, "last_completed_at": "ISO" } }`.
 
-### 4.3 Spaced repetition (Fáze 7)
+### 4.4 Režim soupeře (`opponent_mode`)
 
-- Linie s ★★ se řadí do fronty „opakovat za 3 dny“.
-- Notifikace ve Flutteru (lokální); web = banner při otevření Learn.
+| Režim | Kdo hýbe figurkou soupeře | Logická deska | Matrix | Typické použití |
+|-------|---------------------------|---------------|--------|-----------------|
+| **`physical`** (default) | Hráč — LED ukáže `from`→`to` | Tah se provede po fyzickém dropu | **Synchronní** s logikou | Klubová praxe, začátečníci, parita s botem |
+| **`virtual`** | FW auto-reply | Soupeř táhne virtuálně | **Může divergovat** (ghost) | Rychlejší drill; vyžaduje checkpoint resync |
+
+Volba v **mode pickeru** (Flutter SegmentedButton; web stejný kontrakt v `openingStartPayload`).
+
+---
+
+### 4.5 Zdůvodnění variant (`rationale`)
+
+Každá linie = jedna varianta. Kromě `idea` (strategický motiv) má exportovaný katalog blok **`rationale`**:
+
+| Pole | Účel v UI |
+|------|-----------|
+| `summary` | Subtitle v seznamu katalogu (1 věta) |
+| `why_this_line` | Proč učíme právě tuto linii |
+| `instead_of` | Hlavní alternativa a proč ne |
+| `when_to_play` | Praktický kontext (turnaj, klub, styl) |
+| `related_line_ids` | Klikatelné související linie v mode pickeru |
+
+Zdroj: `data/openings_rationale.json` (sidecar). Detail §8.6.
+
+---
+
+### 4.6 Spaced repetition (Fáze 7)
+
+- Linie s ★★ se řadí do fronty „opakovat za 3 dny“ (`OpeningCurriculumUnlock.linesDueForReview`).
+- Notifikace ve Flutteru (lokální) — **backlog**; web = banner při otevření katalogu.
 
 ---
 
@@ -173,18 +247,18 @@ Progress klíč: `opening_progress_v1` → `{ "line_id": { "stars": 3, "best_dri
 | BLE parita | `ble_czechmate_client.dart` | `postSetupTutorial`, `postHintHighlightDestinationOnly` |
 | ECO popisky | `opening_eco.dart` | Rozšířit mapování pro katalog karty |
 
-### 5.2 Kritické mezery (musí Fáze 1 vyřešit)
+### 5.2 Kritické mezery — původní (Fáze 1) → stav v2.2
 
-| Mezera | Detail |
-|--------|--------|
-| Žádný `game_opening_trainer.c` | Nový modul |
-| Žádný `POST /api/game/opening` | Nový handler + `GAME_CMD_OPENING_TRAINER` |
-| Puzzle = 1 tah | `game_physical.c` porovnává jen `puzzle_solution_*` |
-| LED hint = statický | Chybí pulz, green flash, opponent trace z FW |
-| Flutter nevolá puzzle API | Opening musí mít vlastní `postOpeningAction()` od začátku |
-| `learn_screen.dart` | Placeholder — L10–L12 locked, jen snackbar |
-| Status JSON | Chybí `opening_training` blok |
-| `openings_catalog.json` | Neexistuje |
+| Mezera (původně) | Stav v2.2 |
+|-------------------|-----------|
+| Žádný `game_opening_trainer.c` | ✅ Implementováno |
+| Žádný `POST /api/game/opening` | ✅ `web_opening_dispatch.c` |
+| Puzzle = 1 tah | ✅ Větev v `game_physical.c` |
+| Flutter nevolá opening API | ✅ `postOpeningAction` |
+| Status JSON bez `opening_training` | ✅ Export + parita |
+| `openings_catalog.json` neexistuje | ✅ 41 linií + rationale v assets |
+
+**Zbývající mezery (polish):** `common_mistakes` ve FW/klientu, plný miniboard v lekci, FW-native LED pulz.
 
 ### 5.3 Vzácná vyloučení režimů a matrix guard
 
@@ -229,7 +303,8 @@ Blokovat současně: normální hra, puzzle, setup tutorial, bot tah, Stockfish 
 |------|---------------|------------------------|
 | **Setup** | `game_load_position_from_fen(start_fen)` po potvrzení fyzické shody | Hráč má figurky na startovní pozici (wizard jen pokud nesedí) |
 | **Hráčův tah** | Očekává se UCI tah hráče | Pickup/drop musí sedět s `expected_from/to` |
-| **Soupeřův tah** | `game_opening_apply_uci()` na logice | **Žádná změna matrix** |
+| **Soupeřův tah (`virtual`)** | `game_opening_apply_uci()` na logice | **Žádná změna matrix** |
+| **Soupeřův tah (`physical`)** | Po fyzickém dropu hráče | **Matrix i logika se mění** — feedback `opponent_turn` |
 | **Checkpoint** | FEN po `ply_index` | **Hráč fyzicky srovná** podle LED diff wizardu |
 | **Po checkpointu** | Shoda logika = matrix (0/1) | Pokračuje další hráčův tah |
 
@@ -264,15 +339,18 @@ sequenceDiagram
   M->>L: checkpoint_ack (shoda)
 ```
 
-### 6.3 Proč ne fyzický soupeř
+### 6.3 Proč dva režimy soupeře
 
-| Alternativa | Problém |
-|-------------|---------|
-| Hráč přesouvá i černé | 2× pohybů, zmatení v drillu, delší lekce |
-| Reset desky po každém ply | Nepřijatelné UX |
-| **Virtuální soupeř + checkpoint** | Nejkratší cesta k 30 liniím na V1 HW |
+| Režim | Výhoda | Nevýhoda |
+|-------|--------|----------|
+| **`physical`** | Stejné UX jako hra proti botovi; deska = logika; žádné ghost figurky | Více fyzických pohybů |
+| **`virtual`** | Méně pohybů; rychlejší průchod linií | Ghost figurky mezi checkpointy; nutný D8 |
 
-### 6.4 Matrix guard — povinná integrace
+### 6.4 Proč ne vynutit jen fyzického soupeře
+
+V1 ponechává **obě volby** — začátečníci preferují `physical`, pokročilí drill mohou zvolit `virtual`.
+
+### 6.5 Matrix guard — povinná integrace
 
 ```c
 // game_matrix_guard.c — existující chování (ř. ~151):
@@ -291,7 +369,7 @@ if (game_is_opening_trainer_active() || game_is_opening_trainer_setup_active()) 
 }
 ```
 
-### 6.5 Omezení tahů v katalogu (v1)
+### 6.6 Omezení tahů v katalogu (v1)
 
 | Typ tahu | Povoleno v1? | Podmínka |
 |----------|--------------|----------|
@@ -310,6 +388,7 @@ if (game_is_opening_trainer_active() || game_is_opening_trainer_setup_active()) 
 flowchart TB
   subgraph content [Content layer — repo]
     Master[data/openings_master.json]
+    Rationale[data/openings_rationale.json]
     Script[tools/openings/sync_catalog.py]
     Schema[openings_catalog.schema.json]
   end
@@ -329,6 +408,7 @@ flowchart TB
     LED[led_task.c]
   end
   Master --> Script
+  Rationale --> Script
   Script --> WebData[web/data/openings_catalog.json]
   Script --> FlAssets[flutter assets]
   Schema --> CI[CI validator]
@@ -361,10 +441,12 @@ Firmware **nezná** názvy zahájení — dostane `line_uci[]`, `player_ply_indi
 ### 8.1 Umístění souborů
 
 ```
-data/openings_master.json              # zdroj pravdy (git)
-data/openings_catalog.schema.json    # JSON Schema draft-07
-tools/openings/sync_catalog.py       # validace + kopie
-tools/openings/pgn_to_catalog.py     # import z PGN
+data/openings_master.json              # zdroj pravdy — tahy, kurikula (git)
+data/openings_rationale.json           # sidecar — pedagogika variant (git)
+data/openings_rationale.schema.json    # schema rationale
+data/openings_catalog.schema.json      # JSON Schema draft-07 (export + master)
+tools/openings/sync_catalog.py         # validace + merge rationale + kopie
+tools/openings/pgn_to_catalog.py       # import z PGN
 components/web_server_task/web/data/openings_catalog.json
 flutter_czechmate/assets/data/openings_catalog.json
 ```
@@ -449,21 +531,50 @@ Kromě §8.4 pipeline přidat kontroly:
 
 Skript: `tools/openings/sync_catalog.py --validate --physical-rules`
 
-### 8.3 Učební cesty (curricula)
+### 8.3 Učební cesty (curricula) — 41 linií
 
-| ID | Název | Obsah | Odemčení |
-|----|-------|-------|----------|
-| `basics_white` | Bílé základy | Italian, London, Four Knights | Vždy |
-| `basics_black` | Černé základy | Sicilian ODB, Caro-Kann, Scandinavian | Po 2× `basics_white` ★ |
-| `classical_deep` | Klasika hlouběji | Spanish, QGD, Vienna, Scotch | Po `basics_*` ★★ |
-| `systems` | Systémová hra | London, Stonewall, KID setup, Nimzo | Po 5 liniích ★★ |
+| ID | Název | Počet linií | Odemčení |
+|----|-------|-------------|----------|
+| `basics_white` | Bílé základy | 9 | Vždy |
+| `basics_black` | Černé základy | 9 | Po 2× `basics_white` ★ |
+| `classical_deep` | Klasika hlouběji | 12 | Po `basics_*` ★★ |
+| `systems` | Systémová hra | 11 | Po 5 liniích ★★ celkem |
+
+### 8.6 Sidecar rationale (pedagogika variant)
+
+**Proč sidecar:** autorské texty se mění často; UCI linie zůstávají stabilní. CI validuje pokrytí 1:1.
+
+```json
+{
+  "version": 1,
+  "entries": {
+    "italian_giuoco_white": {
+      "summary": { "cs": "Nejklidnější italská…", "en": "The calmest Italian…" },
+      "why_this_line": { "cs": "…", "en": "…" },
+      "instead_of": { "cs": "Místo Two Knights…", "en": "Instead of Two Knights…" },
+      "when_to_play": { "cs": "…", "en": "…" },
+      "related_line_ids": ["italian_two_knights_white", "spanish_berlin_white"]
+    }
+  }
+}
+```
+
+**Pipeline:**
+
+```bash
+python3 tools/openings/sync_catalog.py --validate --physical-rules  # kontrola rationale coverage
+python3 tools/openings/sync_catalog.py --copy                       # merge → web + Flutter
+python3 components/web_server_task/tools/concat_web_js.py           # web bundle
+```
+
+**UI mapování:** viz §4.5. Soubory: `opening_rationale.dart`, `OpeningRationalePanel`.
 
 ### 8.4 Pipeline obsahu
 
 ```bash
-# Lokální validace
-python3 tools/openings/sync_catalog.py --validate
-python3 tools/openings/sync_catalog.py --copy   # → web + flutter assets
+# Lokální validace (včetně rationale sidecar)
+python3 tools/openings/sync_catalog.py --validate --physical-rules
+python3 tools/openings/sync_catalog.py --copy   # → web + flutter assets (+ rationale merge)
 
 # Import z PGN studie
 python3 tools/openings/pgn_to_catalog.py --pgn studies/italian.pgn --id italian_giuoco_white
@@ -472,10 +583,11 @@ python3 tools/openings/pgn_to_catalog.py --pgn studies/italian.pgn --id italian_
 **CI job `openings-catalog`:**
 
 1. JSON Schema validate `data/openings_master.json`
-2. python-chess: každý UCI tah legální od `start_fen`
-3. `player_ply_indices` ⊆ `[0, len(line_uci))`
-4. Duplicitní `id` = fail
-5. Soubory web/flutter **shodné hash** s výstupem skriptu
+2. Rationale coverage: každý `opening.id` ∈ `openings_rationale.json`
+3. python-chess: každý UCI tah legální od `start_fen`
+4. `--physical-rules`: capture/rosada/ghost pravidla
+5. Duplicitní `id` = fail
+6. Soubory web/flutter **shodné hash** s výstupem skriptu
 
 ---
 
@@ -554,9 +666,10 @@ sequenceDiagram
 
 ```json
 {
-  "action": "prepare",
+  "action": "start",
   "line_id": "italian_giuoco_white",
   "mode": "learn",
+  "opponent_mode": "physical",
   "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
   "line_uci": ["e2e4", "e7e5", "g1f3", "b8c6", "f1c4", "f8c5", "c2c3", "g8f6"],
   "player_ply_indices": [0, 2, 4, 6],
@@ -582,6 +695,7 @@ sequenceDiagram
     "active": true,
     "setup_phase": false,
     "mode": "learn",
+    "opponent_mode": "physical",
     "line_id": "italian_giuoco_white",
     "ply_index": 2,
     "ply_total": 8,
@@ -594,14 +708,16 @@ sequenceDiagram
     "expected_to": "f3",
     "checkpoint_required": false,
     "awaiting_checkpoint_ack": false,
-    "physical_synced": true
+    "physical_synced": true,
+    "wrong_move_count": 0,
+    "mistake_hint": false
   }
 }
 ```
 
-`physical_synced`: `true` pokud matrix occupancy odpovídá logické desce (0/1) — obzvlášť důležité při checkpointu.
+**Feedback hodnoty:** `none` | `correct` | `wrong` | `mistake_hint` | `complete` | `illegal` | `checkpoint` | `opponent_turn`
 
-**Feedback hodnoty:** `none` | `correct` | `wrong` | `mistake_hint` | `complete` | `illegal` | `checkpoint`
+Při `opponent_mode: physical` a tahu soupeře: `feedback: "opponent_turn"`, `awaiting_opponent_physical: true`, `expected_from` / `expected_to` pro LED.
 
 **Chyby:**
 
@@ -642,7 +758,7 @@ Nový blok (vedle `puzzle`, `board_setup_tutorial`):
 ### 10.4 BLE parita
 
 ```json
-{ "cmd": "opening", "action": "start", "line_id": "...", "line_uci": ["..."], "player_ply_indices": [0,2,4] }
+{ "cmd": "opening", "action": "start", "line_id": "...", "opponent_mode": "physical", "line_uci": ["..."], "player_ply_indices": [0,2,4] }
 ```
 
 Implementace: `ble_nimble_impl.c` → stejný parser jako HTTP (`web_server_apply_opening_json_body` — nová shared funkce vedle hint).
@@ -675,6 +791,8 @@ Learn (home)
 ├── Curriculum cards (4 cesty)
 ├── Opening catalog (filtr: side / difficulty / tag)
 │   └── Opening detail card
+│       ├── Rationale panel („Proč tato varianta?“)
+│       ├── Volba opponent_mode (Fyzicky / Virtuálně)
 │       ├── Start Learn
 │       ├── Start Drill (locked until ★)
 │       └── Párová linie (mirror_line_id) — locked until ★★
@@ -690,15 +808,14 @@ Opening lesson (fullscreen)
 
 ### 11.2 Web moduly
 
-> **Stav repa (2026-07):** HTTP handler `/chess_app.js` vrací `browser_ui_removed` (404).  
-> **Fáze 2:** buď obnovit embed (`embed_chess_js.py`), nebo **Flutter-first MVP** a web až po obnově UI.
+> **Stav repa (2026-07-10):** `chess_app.js` generován `concat_web_js.py`; opening moduly v `web/js/`.
 
 | Soubor | Úkol |
 |--------|------|
-| `web/js/opening_trainer.js` | Stav lekce, API, progress, checkpoint |
-| `web/js/opening_catalog.js` | Načtení JSON, filtry, curriculum |
-| `web/js/app_main.js` | Learn panel wiring, hint gating rozšíření |
-| `web/data/openings_catalog.json` | Generovaný asset |
+| `web/js/opening_trainer.js` | Stav lekce, API, progress, checkpoint, rationale (ply 0) |
+| `web/js/opening_catalog.js` | Katalog + rationale v exportu (generovaný) |
+| `web/js/app_main.js` | Hint gating, setup tutorial hook |
+| `web/data/openings_catalog.json` | Generovaný asset (s rationale) |
 
 Reuse konstant: `SETUP_TUTORIAL_REFRESH_MS = 600`, `SETUP_TUTORIAL_FAST_POLL_MS = 400`, `SETUP_TUTORIAL_OCC_STABLE_TICKS = 2`.
 
@@ -708,9 +825,9 @@ Reuse konstant: `SETUP_TUTORIAL_REFRESH_MS = 600`, `SETUP_TUTORIAL_FAST_POLL_MS 
 |--------|------|
 | `lib/features/opening/opening_trainer_screen.dart` | Hlavní lekce |
 | `lib/features/opening/opening_catalog_screen.dart` | Katalog + filtry |
-| `lib/features/opening/opening_catalog_repository.dart` | Parse JSON |
-| `lib/features/opening/models/opening_line.dart` | Typy |
-| `lib/features/learn/learn_screen.dart` | Curriculum → navigace |
+| `lib/features/opening/opening_catalog_repository.dart` | Parse JSON + rationale |
+| `lib/features/opening/opening_rationale.dart` | Model + `OpeningRationalePanel` |
+| `lib/features/learn/learn_screen.dart` | Curriculum → katalog / přímá lekce L10/L12 |
 | `board_setup_wizard_screen.dart` | `BoardSetupWizardKind.openingStart` |
 | `board_session_notifier.dart` | `postOpeningAction` |
 
@@ -731,49 +848,71 @@ Reuse konstant: `SETUP_TUTORIAL_REFRESH_MS = 600`, `SETUP_TUTORIAL_FAST_POLL_MS 
 
 ---
 
-## 12. Katalog v1 — 30 linií
+## 12. Katalog v1 — 41 linií
 
-### 12.1 Bílá (15)
+> **Zdroj pravdy:** `data/openings_master.json` · pedagogika: `data/openings_rationale.json`  
+> Každá linie: **6–12 plných tahů**, checkpoint dle `checkpoint_ply_indices`, bez rosady v1.
 
-| ID | ECO | Název | Plies | Obtížnost |
-|----|-----|-------|-------|-----------|
-| `italian_giuoco_white` | C50 | Italská — Giuoco Piano | 8 | 2 |
-| `italian_evans_white` | C51 | Italská — Evans gambit (zkrác.) | 8 | 3 |
-| `spanish_berlin_white` | C60 | Španělská — Berlin | 6 | 3 |
-| `spanish_morphy_white` | C77 | Španělská — Morphy | 8 | 3 |
-| `scotch_game_white` | C45 | Scotch | 8 | 2 |
-| `vienna_white` | C25 | Vienna | 8 | 2 |
-| `four_knights_white` | C47 | Four Knights | 8 | 1 |
-| `london_system_white` | D02 | London System | 8 | 1 |
-| `queens_gambit_white` | D06 | Dámský gambit přijatý | 8 | 2 |
-| `english_reversed_white` | A13 | Anglická 1.c4 (reversed London) | 8 | 2 |
-| `kings_gambit_white` | C33 | Královský gambit přijatý | 8 | 4 |
-| `dutch_stonewall_white` | A80 | Stonewall / Dutch setup | 8 | 3 |
-| `italian_two_knights_white` | C57 | Two Knights — Fried Liver intro | 6 | 4 |
-| `catalan_white` | E00 | Catalan (základ) | 8 | 3 |
-| `trompowsky_white` | A45 | Trompowsky | 6 | 2 |
+### 12.1 `basics_white` (9)
 
-### 12.2 Černá (15)
+| ID | ECO | Plies |
+|----|-----|-------|
+| `italian_giuoco_white` | C50 | 8 |
+| `london_system_white` | D02 | 8 |
+| `four_knights_white` | C47 | 8 |
+| `vienna_white` | C25 | 8 |
+| `scotch_game_white` | C45 | 8 |
+| `colle_system_white` | D05 | 10 |
+| `italian_two_knights_white` | C55 | 10 |
+| `reti_opening_white` | A06 | 10 |
+| `english_four_knights_white` | A28 | 10 |
 
-| ID | Proti | Název | Plies | Obtížnost |
-|----|-------|-------|-------|-----------|
-| `sicilian_odb_black` | 1.e4 | Sicilská — ODB | 10 | 3 |
-| `sicilian_najdorf_intro_black` | 1.e4 | Sicilská — Najdorf úvod | 10 | 4 |
-| `caro_kann_classical_black` | 1.e4 | Caro-Kann klasická | 8 | 2 |
-| `french_advance_black` | 1.e4 | Francouzská — Advance | 10 | 3 |
-| `french_classical_black` | 1.e4 | Francouzská — klasická | 8 | 3 |
-| `alekhine_black` | 1.e4 | Aljechinova | 8 | 3 |
-| `pirc_classical_black` | 1.e4 | Pirc | 8 | 2 |
-| `scandinavian_black` | 1.e4 | Skandinávská | 6 | 1 |
-| `petrov_black` | 1.e4 | Petrova | 8 | 2 |
-| `slav_main_black` | 1.d4 | Slav | 10 | 3 |
-| `queens_gambit_declined_black` | 1.d4 | QGD | 8 | 2 |
-| `kings_indian_setup_black` | 1.d4 | King's Indian setup | 10 | 3 |
-| `nimzo_indian_black` | 1.d4 | Nimzo-Indian | 8 | 3 |
-| `london_vs_black` | 1.d4 | Proti Londonu (…d5, Bf4) | 8 | 2 |
-| `english_symmetrical_black` | 1.c4 | Symetrická anglická | 8 | 2 |
+### 12.2 `basics_black` (9)
 
-Každá linie: **6–12 plných tahů**, 2–5 minut Learn, checkpoint po 4. ply pokud `ply_total > 6`.
+| ID | ECO | Plies |
+|----|-----|-------|
+| `sicilian_odb_black` | B50 | 8 |
+| `caro_kann_classical_black` | B12 | 8 |
+| `petrov_black` | C42 | 8 |
+| `pirc_classical_black` | B07 | 8 |
+| `alekhine_defence_black` | B03 | 10 |
+| `slav_defence_black` | D10 | 10 |
+| `dutch_defence_black` | A80 | 10 |
+| `philidor_black` | C41 | 10 |
+| `modern_defence_black` | B06 | 10 |
+
+### 12.3 `classical_deep` (12)
+
+| ID | ECO | Plies |
+|----|-----|-------|
+| `spanish_berlin_white` | C60 | 6 |
+| `queens_gambit_white` | D06 | 8 |
+| `queens_gambit_declined_black` | D30 | 10 |
+| `french_classical_black` | C11 | 10 |
+| `nimzo_indian_black` | E20 | 10 |
+| `torre_attack_white` | A46 | 10 |
+| `ruy_lopez_classical_white` | C78 | 10 |
+| `queens_indian_black` | E12 | 10 |
+| `kings_indian_black` | E60 | 10 |
+| `kings_gambit_declined_white` | C30 | 10 |
+| `sicilian_closed_black` | B23 | 10 |
+| `semi_slav_black` | D45 | 10 |
+
+### 12.4 `systems` (11)
+
+| ID | ECO | Plies |
+|----|-----|-------|
+| `english_reversed_white` | A13 | 9 |
+| `catalan_white` | E00 | 9 |
+| `trompowsky_white` | A45 | 8 |
+| `english_symmetrical_white` | A35 | 10 |
+| `london_vs_kid_white` | A47 | 10 |
+| `bogo_indian_black` | E11 | 10 |
+| `grunfeld_black` | D70 | 10 |
+| `catalan_vs_slav_white` | E00 | 10 |
+| `sicilian_alapin_white` | B22 | 10 |
+| `chigorin_black` | D07 | 10 |
+| `owen_defence_black` | B00 | 10 |
 
 ---
 
@@ -875,89 +1014,90 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 
 ## 14. Implementační roadmap
 
-### Fáze 0a — Schema a validátor (PR `opening-trainer-phase0a`)
+> **Legenda:** ✅ hotovo · 🟡 částečně · ⬜ backlog
 
-- [ ] `data/openings_catalog.schema.json`
-- [ ] `data/openings_master.json` — 3 linie (Italian white, Sicilian black, London white)
-- [ ] `tools/openings/sync_catalog.py` včetně `--physical-rules`
-- [ ] CI job `openings-catalog`
+### Fáze 0a — Schema a validátor ✅
 
-**Acceptance:** `sync_catalog.py --validate --physical-rules` exit 0; 3 linie bez capture/rosady problémů.
+- [x] `data/openings_catalog.schema.json`
+- [x] `data/openings_master.json` — 41 linií
+- [x] `tools/openings/sync_catalog.py` včetně `--physical-rules` + rationale merge
+- [x] CI job `openings-catalog`
 
-### Fáze 0b — PGN import (PR `opening-trainer-phase0b`)
+### Fáze 0b — PGN import ✅
 
-- [ ] `tools/openings/pgn_to_catalog.py`
-- [ ] Dokumentace v `tools/openings/README.md`
+- [x] `tools/openings/pgn_to_catalog.py`
+- [x] Dokumentace v `tools/openings/README.md`
 
-**Acceptance:** import jedné PGN studie → validní JSON záznam.
+### Fáze 1a — Firmware core ✅
 
-### Fáze 1a — Firmware core (PR `opening-trainer-phase1a`)
+- [x] `game_opening_trainer.c` — prepare/start/cancel/hint
+- [x] `game_physical.c` — opening větev
+- [x] `GAME_CMD_OPENING_TRAINER` + dispatch
+- [x] `opening_training` v status JSON
+- [x] Matrix guard rozšíření
 
-- [ ] `game_opening_trainer.c` — prepare/start/cancel/hint
-- [ ] `game_physical.c` — opening větev
-- [ ] `GAME_CMD_OPENING_TRAINER` + dispatch
-- [ ] `opening_training` v status JSON
-- [ ] Matrix guard rozšíření + **skip** v `game_matrix_guard_check_resync_after_restore`
+### Fáze 1b — Auto-reply + LED ✅
 
-**Acceptance:** curl script `scripts/test_opening_api.sh` — prepare → start → 3 UCI; UART log `[STAGING]`.
+- [x] `game_opening_advance_after_correct` + `led_anim_move_path`
+- [x] Checkpoint stav + `checkpoint_ack`
+- [x] BLE `opening` cmd
 
-### Fáze 1b — Auto-reply + LED (PR `opening-trainer-phase1b`)
+### Fáze 1c — Fyzický soupeř ✅ (PR #9)
 
-- [ ] `game_opening_advance_after_correct` + `led_anim_move_path`
-- [ ] Checkpoint stav + `checkpoint_ack`
-- [ ] BLE `opening` cmd
+- [x] `opponent_mode` v API a FW
+- [x] `opponent_turn` feedback + validace v `game_physical.c`
+- [x] Flutter + web volba Fyzicky/Virtuálně (default physical)
+- [x] Setup phase preserve opening config
 
-**Acceptance:** HW checklist 1 linie Italian — LED opponent trace viditelná.
+### Fáze 2 — Web parita ✅
 
-### Fáze 2 — Web MVP nebo Flutter-first (PR `opening-trainer-phase2`)
+- [x] `web/js/opening_trainer.js`, `opening_catalog.js`
+- [x] `concat_web_js.py` → `chess_app.js`
+- [x] `localStorage` progress
 
-- [ ] `web/js/opening_trainer.js`, `opening_catalog.js` — **nebo odložit** pokud web embed stále 404
-- [ ] 10 linií v katalogu
-- [ ] Learn panel v UI (web) **nebo** přeskočit při Flutter-first
-- [ ] `localStorage` progress (web) — volitelné
+### Fáze 3 — Flutter parita ✅
 
-**Acceptance:** kompletní lekce na fyzické desce z **alespoň jednoho** klienta.
+- [x] `OpeningTrainerScreen`, repository, rationale model
+- [x] `postOpeningAction` v notifier + BLE
+- [x] Learn screen navigace L10, L12 + katalog
+- [x] SharedPreferences progress
 
-### Fáze 3 — Flutter parita (PR `opening-trainer-phase3`) — doporučeno před webem
+### Fáze 4 — Plný katalog + režimy ✅
 
-- [ ] `OpeningTrainerScreen`, repository, models
-- [ ] `postOpeningAction` v notifier + BLE
-- [ ] Learn screen navigace L10, L12
-- [ ] SharedPreferences progress
+- [x] 41 linií v `openings_master.json`
+- [x] Drill + Timed + Mirror
+- [x] Curriculum unlock logika
+- [x] Hvězdičky
 
-**Acceptance:** stejná lekce jako web z Flutteru (Wi‑Fi i BLE).
+### Fáze 4b — Rationale pedagogika ✅ (PR #9)
 
-### Fáze 4 — Plný katalog + režimy (PR `opening-trainer-phase4`)
+- [x] `data/openings_rationale.json` — 41 CS/EN záznamů
+- [x] Merge do exportu; Flutter + web UI
+- [x] `opening_rationale_test.dart`
 
-- [ ] 30 linií v `openings_master.json`
-- [ ] Drill + Timed + Mirror
-- [ ] Curriculum unlock logika
-- [ ] Hvězdičky
+### Fáze 5 — Pedagogika a polish 🟡
 
-**Acceptance:** CI catalog green; všechny linie HW smoke na 3 vzorcích.
-
-### Fáze 5 — Pedagogika a polish (PR `opening-trainer-phase5`)
-
-- [ ] CS/EN komentáře kompletní
-- [ ] `common_mistakes` u 10 linií
-- [ ] Miniboard sync
-- [ ] Checkpoint „srovnej desku“ UI
+- [x] Rationale CS/EN kompletní (sidecar)
+- [ ] `steps[]` komentáře u všech hráčových ply (částečně)
+- [ ] `common_mistakes` u 10+ linií + UI
+- [ ] Miniboard sync v lekci
+- [ ] Checkpoint „srovnej desku“ UI — základ hotový, polish
 - [ ] Stockfish „proč tento tah“ (read-only, Learn only)
 - [ ] Rozšířit `MANUAL_TEST_CHECKLIST.md`
 
 **Acceptance:** 5 uživatelů dokončí lekci bez nápovědy dokumentace.
 
-### Fáze 6 — Obsah v1.1 (backlog)
+### Fáze 6 — Obsah v1.1 ⬜
 
 - Mid-line FEN start (kratší setup)
 - Větvení variant (`branches[]` v JSON)
 - SPIFFS mirror katalogu na ESP
 - `LED_CMD_HIGHLIGHT_HINT_PULSE` ve FW
 
-### Fáze 7 — Spaced repetition (backlog)
+### Fáze 7 — Spaced repetition 🟡
 
-- Opakování fronta
-- Lokální notifikace Flutter
+- [x] Opakování fronta (`linesDueForReview`)
+- [ ] Lokální notifikace Flutter
 
 ---
 
@@ -992,7 +1132,7 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 | Matrix nezná typ figury | Špatná figura při setupu | Snapshot `/api/board` + text „dáma na d1“ |
 | Hráčův capture na ghost figuru | Nemožný tah | §8.5 CI `--physical-rules`; checkpoint před capture |
 | LED přepsány jiným režimem | Ztráta hintu | 600 ms refresh; mode conflict guard |
-| Web UI 404 | Žádný browser klient | Flutter-first Fáze 2; §11.2 |
+| Web UI 404 | Žádný browser klient | ✅ Obnoveno `concat_web_js.py` |
 | Příliš dlouhé linie | Únava | Max 12 plies; checkpoint |
 | Flutter/web drift | Jiné chování | §10 API kontrakt; shared JSON |
 | Flash overflow | Build fail | Katalog jen klient; FW max 16 plies buffer |
@@ -1049,33 +1189,29 @@ V `game_process_drop_command`, **před** puzzle větví (~ř. 1609):
 
 ---
 
-## 20. Sanity review — checklist (ověřeno proti kódu)
+## 20. Sanity review — checklist (ověřeno 2026-07-10)
 
 | Tvrzení v plánu | Ověření v repu | Verdikt |
 |-----------------|----------------|---------|
-| Setup tutorial + matrix poll funguje | `app_main.js` SETUP_TUTORIAL_*, `board_setup_wizard_screen.dart` | ✅ Reuse OK |
-| Puzzle = 1 tah, feedback enum | `game_puzzle.c`, `game_physical.c` ~1609 | ✅ Rozšířit, ne nahradit |
-| `hint_highlight` cyan/orange | `led_task.c` `LED_CMD_HIGHLIGHT_HINT` | ✅ Reuse |
-| Animace tahu soupeře | `LED_CMD_ANIM_MOVE_PATH` / `led_anim_move_path` | ✅ Reuse |
-| `convert_notation_to_coords` pro UCI | `game_task.c`, `game_puzzle.c` | ✅ Split UCI 4/5 znaků |
-| `game_load_position_from_fen` | `game_board_core.c` | ✅ Jako puzzle_start |
-| Matrix guard ignoruje special modes | `game_matrix_guard.c` ~151 + `game_task.c` ~1801 | ✅ Opening musí do seznamu |
-| Virtuální tah → guard bez D8 | Logika ≠ matrix po e7e5 | ⚠️ D8 povinné |
-| `game_execute_move_uci` existuje | grep v `components/game_task` | ❌ → `game_opening_apply_uci` |
-| Flutter volá puzzle API | `board_api_client.dart` | ❌ Vlastní opening API |
-| Web serving chess_app.js | `web_server_task.c` `browser_ui_removed` | ⚠️ Flutter-first |
-| Learn screen funkční | `learn_screen.dart` | ❌ Placeholder |
-| Starting position detect | `game_is_physical_board_starting_occupancy()` | ✅ Skip setup |
-| Reed matrix = occupancy only | `MATRIX_GUARD.md` | ✅ §6.5 omezení |
+| Setup tutorial + matrix poll funguje | `app_main.js`, `board_setup_wizard_screen.dart` | ✅ |
+| Puzzle = 1 tah, opening rozšíření | `game_puzzle.c`, `game_physical.c` | ✅ |
+| `game_opening_trainer.c` existuje | `components/game_task/` | ✅ |
+| Matrix guard ignoruje opening | `game_task_matrix_guard_mode_conflict_active` | ✅ |
+| `opponent_mode` physical/virtual | `game_opening_trainer.c`, `web_opening_dispatch.c` | ✅ |
+| Rationale sidecar 41/41 | `openings_rationale.json` + sync merge | ✅ |
+| Flutter opening API | `board_session_notifier.dart` | ✅ |
+| Web `chess_app.js` | `concat_web_js.py` | ✅ |
+| Learn screen → opening | `learn_screen.dart` | ✅ |
+| Katalog 41 linií CI | `opening_catalog_test.dart`, `opening_rationale_test.dart` | ✅ |
+| `common_mistakes` v UI | grep klient | ⬜ Backlog Fáze 5 |
+| Miniboard v lekci | `opening_trainer_screen.dart` | ⬜ Backlog Fáze 5 |
 
-### Doporučené pořadí (nejmenší riziko)
+### Doporučené pořadí (další práce)
 
-1. Fáze 0a — validátor + 3 quiet-move linie  
-2. Fáze 1a+1b — FW + D8 + checkpoint + HW Italian  
-3. **Fáze 3** — Flutter (setup wizard + BLE už hotové)  
-4. Fáze 2 — Web po obnově embed  
-5. Fáze 4+ — 30 linií až po ověření checkpoint UX
+1. **Fáze 5** — `steps[]` doplnit, `common_mistakes`, miniboard, manuální HW checklist  
+2. **Fáze 7** — push notifikace pro spaced repetition  
+3. **Fáze 6** — větvení variant (`branches[]`) až po UX feedbacku z v1.0
 
 ---
 
-*Plán v2.1 — živý dokument. Implementace: větev `cursor/opening-trainer-phase0a-8fdd` po merge cleanup PR #7.*
+*Plán v2.2 — živý dokument. Implementace: PR [#9](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/9) · větev `cursor/opening-opponent-physical-8fdd`.*

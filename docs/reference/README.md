@@ -10,7 +10,7 @@ Tady držím delší „jednorázové“ texty — spíš aby bylo jasné, jak s
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Ladění, známé problémy, UART nápověda |
 | [PROJECT_NOTES.md](PROJECT_NOTES.md) | Učení, výzvy, verze 1.8.0, autoři, licence |
 | [PROFESSIONAL_CLEANUP_PLAN.md](PROFESSIONAL_CLEANUP_PLAN.md) | Plán profesionalizace kódu — fáze, PR sekvence, rizika |
-| [OPENING_TRAINING_PLAN.md](OPENING_TRAINING_PLAN.md) | Interaktivní trénink zahájení — LED, fyzická deska, web + Flutter |
+| [OPENING_TRAINING_PLAN.md](OPENING_TRAINING_PLAN.md) | Trénink zahájení v2.2 — 41 linií, rationale, physical/virtual soupeř |
 | [KOMUNIKACE_MEZI_TASKY.md](KOMUNIKACE_MEZI_TASKY.md) | Fronty, mutexy, hardware ↔ tasky |
 | [MATRIX_GUARD.md](MATRIX_GUARD.md) | Pozastavení hry při rozporu senzor vs logika |
 | [coordinates_system.md](coordinates_system.md) | Notace ↔ row/col, LED |
