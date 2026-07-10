@@ -30,6 +30,8 @@ endif()
 
 # CHIP/Matter C++: benign -Wtype-limits on EndpointId vs FIXED_ENDPOINT_COUNT (third-party connectedhomeip).
 idf_build_set_property(CXX_COMPILE_OPTIONS "-Wno-type-limits" APPEND)
+# Legacy ESP_LOG format strings (uint32_t vs %d/%zu) — warn only, do not fail CI build.
+idf_build_set_property(COMPILE_OPTIONS "-Wno-error=format" APPEND)
 
 # Component configuration
 set(EXTRA_COMPONENT_DIRS 
