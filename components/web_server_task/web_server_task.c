@@ -333,11 +333,6 @@ static esp_err_t web_server_apply_hint_highlight_json_body(const char *buf);
 #if CONFIG_HTTPD_WS_SUPPORT
 #endif
 
-// HTTP handlery
-static esp_err_t
-http_get_chess_js_handler(httpd_req_t *req); // chess_app.js file
-static esp_err_t
-http_get_favicon_handler(httpd_req_t *req); // Favicon handler (204 No Content)
 // static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
 // je 100% READ-ONLY
 
