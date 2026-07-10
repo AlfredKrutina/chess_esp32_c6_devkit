@@ -1,7 +1,7 @@
 # components/web_server_task/CMakeLists.txt
 idf_component_register(
     SRCS "board_api_auth.c" "ota_update.c" "web_server_task.c" "web_routes.c"
-          "chess_piece_http.c"
+          "web_handlers_game.c" "chess_piece_http.c"
     INCLUDE_DIRS "include"
     EMBED_FILES
         "web/piece_assets/PieceWhiteKing.png"

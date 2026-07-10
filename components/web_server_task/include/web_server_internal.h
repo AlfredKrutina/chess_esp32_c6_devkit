@@ -5,7 +5,30 @@
 #ifndef WEB_SERVER_INTERNAL_H
 #define WEB_SERVER_INTERNAL_H
 
+#include "esp_err.h"
 #include "esp_http_server.h"
+#include "freertos/semphr.h"
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#define JSON_BUFFER_SIZE 8192
+#define SNAPSHOT_BUFFER_SIZE 20480
+#define TIMER_HTTP_JSON_MAX 1024
+
+extern char json_buffer[JSON_BUFFER_SIZE];
+extern char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
+extern SemaphoreHandle_t snapshot_build_mutex;
+extern uint8_t cached_brightness;
+extern bool cached_brightness_valid;
+
+esp_err_t web_server_task_wdt_reset_safe(void);
+esp_err_t build_snapshot_json(size_t *out_len);
+esp_err_t web_server_apply_hint_highlight_json_body(const char *buf);
+void inject_web_status_fields(char *buf, size_t buf_size);
+void setup_tutorial_reset_finish_cooldown(void);
+bool setup_tutorial_finish_in_cooldown(void);
+void setup_tutorial_note_finish_conflict(void);
 
 esp_err_t http_get_advantage_handler(httpd_req_t *req);
 esp_err_t http_get_board_handler(httpd_req_t *req);
