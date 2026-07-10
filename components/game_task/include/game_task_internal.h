@@ -279,7 +279,14 @@ extern bool game_saved;
 extern char saved_game_name[32];
 extern uint32_t position_history_count;
 
+extern const int8_t knight_moves[8][2];
+extern chess_move_extended_t legal_moves_buffer[128];
+extern uint32_t legal_moves_count;
+
 extern const char *piece_symbols[];
+
+bool game_is_valid_square(int row, int col);
+bool game_is_own_piece(piece_t piece, player_t player);
 
 void game_stop_error_blink(void);
 void game_update_error_blink(void);
