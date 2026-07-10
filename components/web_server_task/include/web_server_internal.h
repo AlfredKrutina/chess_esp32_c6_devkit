@@ -31,6 +31,9 @@ void setup_tutorial_reset_finish_cooldown(void);
 bool setup_tutorial_finish_in_cooldown(void);
 void setup_tutorial_note_finish_conflict(void);
 
+bool json_body_has_factory_confirm(const char *json);
+esp_err_t factory_reset_schedule(void);
+
 esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size);
 
 esp_err_t http_get_advantage_handler(httpd_req_t *req);

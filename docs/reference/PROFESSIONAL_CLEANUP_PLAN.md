@@ -12,7 +12,7 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 
 | Oblast | Problém | Dopad |
 |--------|---------|-------|
-| **Monolity** | `game_task.c` ~10 083 ř., `uart_task.c` ~4 408, `web_server_task.c` ~4 677 (+ `web_routes.c` ~350, `web_handlers_game.c` ~1 230, `web_handlers_wifi.c` ~340), `chess_app.js` ~4 726 | těžké review, riziko regresí |
+| **Monolity** | `game_task.c` ~10 083 ř., `uart_task.c` ~4 408, `web_server_task.c` ~3 862 (+ split moduly), `chess_app.js` ~4 726 | těžké review, riziko regresí |
 | **CMake / git** | mrtvé cesty (`screen_saver_task`, `matter_task`), build artefakty v historii | matoucí onboarding, pomalý clone |
 | **CI** | jen diagramy + Flutter release + Pages | žádná automatická kontrola firmware buildu |
 | **Legacy komponenty** | `enhanced_castling_system`, `animation_task`, `visual_error_system` | nejasná „pravda“ v kódu |
@@ -37,10 +37,11 @@ Projekt funguje, ale má typický dluh rychlého vývoje:
 ```
 game_task.c              10 083 ř.  (split: matrix_guard, snapshot, board_core, move_validate, move_exec, physical)
 uart_task.c               4 408 ř.  (split: commands_table, parse, handlers_game/wifi/debug)
-web_server_task.c         4 677 ř.  (split: web_routes.c ~350, web_handlers_game.c ~1230, web_handlers_wifi.c ~340)
+web_server_task.c         3 862 ř.  (split: routes ~350, game ~1230, wifi ~340, system ~850)
 web_routes.c                ~350 ř.
 web_handlers_game.c       ~1 230 ř.
 web_handlers_wifi.c         ~340 ř.
+web_handlers_system.c       ~850 ř.
 chess_app.js              4 726 ř.
 board_session_notifier    1 520 ř.
 matrix_task.c             1 184 ř.
@@ -222,7 +223,7 @@ Tabulka příkazů začíná ~řádek 2562 — největší okamžitý win.
 | 3C.1 | `web_routes.c` | registrace URI | **hotovo** (PR #7) |
 | 3C.2 | `web_handlers_game.c` | `/api/game/*`, snapshot | **hotovo** (PR #7) |
 | 3C.3 | `web_handlers_wifi.c` | `/api/wifi/*` | **hotovo** (PR #7) |
-| 3C.4 | `web_handlers_system.c` | OTA, factory reset, demo |
+| 3C.4 | `web_handlers_system.c` | OTA, factory reset, demo, settings, MQTT | **hotovo** (PR #7) |
 | 3C.5 | `web_ws.c` | WebSocket |
 
 **Acceptance criteria (každý PR Phase 3)**
