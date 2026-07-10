@@ -193,6 +193,27 @@ def validate_common_mistakes(data: dict) -> None:
                 raise ValueError(f"{oid}: common_mistake hint missing cs/en at ply {ply}")
 
 
+def validate_opponent_annotations(data: dict) -> None:
+    for opening in data["openings"]:
+        oid = opening["id"]
+        annotations = opening.get("opponent_annotations") or []
+        if len(annotations) > 4:
+            raise ValueError(f"{oid}: too many opponent_annotations ({len(annotations)} > 4)")
+        player_set = set(opening["player_ply_indices"])
+        ply_count = len(opening["line_uci"])
+        for entry in annotations:
+            ply = entry["ply_index"]
+            if ply in player_set:
+                raise ValueError(
+                    f"{oid}: opponent_annotations ply {ply} must not be a player ply"
+                )
+            if ply < 0 or ply >= ply_count:
+                raise ValueError(f"{oid}: opponent_annotations ply {ply} out of range")
+            comment = entry.get("comment") or {}
+            if not comment.get("cs") or not comment.get("en"):
+                raise ValueError(f"{oid}: opponent_annotations missing cs/en at ply {ply}")
+
+
 def validate_mirror_symmetric(data: dict) -> None:
     """Each mirror_line_id must exist, opposite side, and reciprocal link."""
     by_id = {o["id"]: o for o in data["openings"]}
@@ -291,6 +312,8 @@ def write_web_catalog_js(data: dict) -> None:
             entry["mirror_line_id"] = o["mirror_line_id"]
         if o.get("common_mistakes"):
             entry["common_mistakes"] = o["common_mistakes"]
+        if o.get("opponent_annotations"):
+            entry["opponent_annotations"] = o["opponent_annotations"]
         if o.get("rationale"):
             entry["rationale"] = o["rationale"]
         compact.append(entry)
@@ -364,6 +387,7 @@ def main() -> int:
         validate_ids(data)
         validate_chess_moves(data)
         validate_common_mistakes(data)
+        validate_opponent_annotations(data)
         rationale = load_rationale()
         validate_rationale_coverage(data, rationale)
         if args.physical_rules:

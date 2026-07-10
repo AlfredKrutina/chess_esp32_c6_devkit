@@ -182,6 +182,19 @@
         return '';
     }
 
+    function openingOpponentAnnotation(line, ot) {
+        if (!line || !line.opponent_annotations || !ot) return '';
+        var ply = ot.ply_index;
+        if (ply == null) return '';
+        for (var i = 0; i < line.opponent_annotations.length; i++) {
+            var a = line.opponent_annotations[i];
+            if (a.ply_index === ply) {
+                return (a.comment && a.comment.cs) ? a.comment.cs : '';
+            }
+        }
+        return '';
+    }
+
     function openingEnsureMiniboardStyles() {
         if (document.getElementById('opening-miniboard-styles')) return;
         var style = document.createElement('style');
@@ -379,8 +392,12 @@
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
             if (ot.active) openingStartHintRefresh();
         } else if (ot.feedback === 'opponent_turn' || ot.awaiting_opponent_physical) {
-            subEl.textContent = 'Tah soupeře — zvedni z ' +
-                (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?');
+            var oppNote = openingOpponentAnnotation(line, ot);
+            subEl.textContent = oppNote
+                ? oppNote + ' — zvedni z ' +
+                    (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?')
+                : 'Tah soupeře — zvedni z ' +
+                    (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?');
             if (ot.opponent_mode === 'physical') openingStartHintRefresh();
         } else {
             subEl.textContent = 'Táhni na desce: ' +

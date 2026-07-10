@@ -48,6 +48,8 @@ class OpeningLine {
     this.commonMistakes = const [],
     this.stepCommentsCs = const {},
     this.stepCommentsEn = const {},
+    this.opponentCommentsCs = const {},
+    this.opponentCommentsEn = const {},
   });
 
   final String id;
@@ -67,6 +69,8 @@ class OpeningLine {
   final List<OpeningCommonMistake> commonMistakes;
   final Map<int, String> stepCommentsCs;
   final Map<int, String> stepCommentsEn;
+  final Map<int, String> opponentCommentsCs;
+  final Map<int, String> opponentCommentsEn;
 
   String nameForLocale(String locale) =>
       locale.startsWith('cs') ? nameCs : nameEn;
@@ -89,6 +93,14 @@ class OpeningLine {
       return stepCommentsCs[ply] ?? stepCommentsEn[ply];
     }
     return stepCommentsEn[ply] ?? stepCommentsCs[ply];
+  }
+
+  String? commentForOpponentPly(int? plyIndex, [String locale = 'cs']) {
+    if (plyIndex == null) return null;
+    if (locale.startsWith('cs')) {
+      return opponentCommentsCs[plyIndex] ?? opponentCommentsEn[plyIndex];
+    }
+    return opponentCommentsEn[plyIndex] ?? opponentCommentsCs[plyIndex];
   }
 
   String? subtitleForLocale(String locale) {
@@ -121,11 +133,14 @@ class OpeningLine {
     final rationaleJson = json['rationale'] as Map<String, dynamic>?;
     final steps = json['steps'] as List<dynamic>? ?? [];
     final mistakesRaw = json['common_mistakes'] as List<dynamic>? ?? [];
+    final opponentRaw = json['opponent_annotations'] as List<dynamic>? ?? [];
     final mistakes = mistakesRaw
         .map((e) => OpeningCommonMistake.fromJson(e as Map<String, dynamic>))
         .toList();
     final commentsCs = <int, String>{};
     final commentsEn = <int, String>{};
+    final opponentCs = <int, String>{};
+    final opponentEn = <int, String>{};
     for (final raw in steps) {
       final step = raw as Map<String, dynamic>;
       final ply = (step['ply_index'] as num?)?.toInt();
@@ -133,6 +148,15 @@ class OpeningLine {
       if (ply != null && comment != null) {
         commentsCs[ply] = comment['cs'] as String? ?? '';
         commentsEn[ply] = comment['en'] as String? ?? '';
+      }
+    }
+    for (final raw in opponentRaw) {
+      final entry = raw as Map<String, dynamic>;
+      final ply = (entry['ply_index'] as num?)?.toInt();
+      final comment = entry['comment'] as Map<String, dynamic>?;
+      if (ply != null && comment != null) {
+        opponentCs[ply] = comment['cs'] as String? ?? '';
+        opponentEn[ply] = comment['en'] as String? ?? '';
       }
     }
     return OpeningLine(
@@ -157,6 +181,8 @@ class OpeningLine {
       commonMistakes: mistakes,
       stepCommentsCs: commentsCs,
       stepCommentsEn: commentsEn,
+      opponentCommentsCs: opponentCs,
+      opponentCommentsEn: opponentEn,
     );
   }
 }
