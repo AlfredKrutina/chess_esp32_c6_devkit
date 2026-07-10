@@ -115,7 +115,7 @@ static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
  * Uses RAW SENSOR DATA from Matrix Task. Rows 0–1 a 6–7 plné, 2–5 prázdné.
  * Více vzorků + většinové hlasování kvůli šumu u reedů při dokončení tutorialu.
  */
-static bool game_is_board_in_starting_position(void) {
+bool game_is_board_in_starting_position(void) {
   uint8_t votes[64] = {0};
 
   for (int s = 0; s < GAME_START_POS_MATRIX_SAMPLES; s++) {
