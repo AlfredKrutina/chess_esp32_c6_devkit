@@ -9,6 +9,7 @@
 #include "game_snapshot.h"
 #include "freertos_chess.h"
 
+#include "../led_task/include/led_task.h"
 #include "../button_task/include/button_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../freertos_chess/include/streaming_output.h"

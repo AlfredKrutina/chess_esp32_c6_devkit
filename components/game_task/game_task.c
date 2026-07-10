@@ -459,7 +459,7 @@ static void resignation_animation_timer_callback(TimerHandle_t xTimer)
 void resignation_start(player_t player, uint8_t row, uint8_t col);
 void resignation_stop(bool finalize);
 static void resignation_update_button_leds(uint32_t elapsed_ms);
-static void resignation_tick(void);
+void resignation_tick(void);
 static void resignation_finalize_timeout(void);
 bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
 
@@ -2777,9 +2777,6 @@ void game_send_response_to_uart(const char *message, bool is_error,
   }
 }
 
-
-// Function removed - using game_send_board_to_uart(QueueHandle_t) instead
-
 bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd) {
   if (cmd == NULL) {
     return false;
@@ -3629,7 +3626,7 @@ static void resignation_finalize_timeout(void) {
 /**
  * @brief Periodic resignation processing (runs in game_task context)
  */
-static void resignation_tick(void) {
+void resignation_tick(void) {
   if (!resignation_state.active) {
     return;
   }

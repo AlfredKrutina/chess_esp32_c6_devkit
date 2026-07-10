@@ -262,6 +262,19 @@ extern bool auto_new_game_blocked_until_move;
 extern const char *piece_symbols[];
 
 void game_stop_error_blink(void);
+void game_update_error_blink(void);
+void resignation_tick(void);
+
+void game_process_evaluate_command(const chess_move_command_t *cmd);
+void game_process_save_command(const chess_move_command_t *cmd);
+void game_process_load_command(const chess_move_command_t *cmd);
+void game_process_component_off_command(const chess_move_command_t *cmd);
+void game_process_component_on_command(const chess_move_command_t *cmd);
+void game_process_endgame_white_command(const chess_move_command_t *cmd);
+void game_process_endgame_black_command(const chess_move_command_t *cmd);
+void game_process_list_games_command(const chess_move_command_t *cmd);
+void game_process_delete_game_command(const chess_move_command_t *cmd);
+void game_process_promotion_command(const chess_move_command_t *cmd);
 void game_update_promotion_anchor_led(void);
 
 void game_send_response_to_uart(const char *message, bool is_error,
