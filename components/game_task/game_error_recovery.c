@@ -69,7 +69,7 @@ void game_handle_invalid_move_smart(const chess_move_t *move,
                 "highlighted.");
 
   // 6. Nastavit internal stav "waiting for correction"
-  error_recovery_state.waiting_for_move_correction = true;
+  chess_policy_error_recovery_enter_lock();
   error_recovery_state.invalid_row = move->from_row;
   error_recovery_state.invalid_col = move->from_col;
 }

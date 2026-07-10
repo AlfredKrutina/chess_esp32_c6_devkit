@@ -6,6 +6,7 @@
 #include "game_task_internal.h"
 #include "game_board_core.h"
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 #include "../matrix_task/include/matrix_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"

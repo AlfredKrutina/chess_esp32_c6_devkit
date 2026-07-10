@@ -738,12 +738,13 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
 
         // Check if this is a castling move - zobrazit jako modré
         if (suggestions[i].is_castling) {
-          // Blue for castling moves (special move - rošáda)
-          led_set_pixel_safe(led_index, 0, 0, 255);
-          ESP_LOGI(TAG,
-                   "🏰 Castling move highlighted at %c%d (blue) during "
-                   "resignation pickup",
-                   'a' + dest_col, dest_row + 1);
+          if (chess_policy_move_hints_castling_blue()) {
+            led_set_pixel_safe(led_index, 0, 0, 255);
+            ESP_LOGI(TAG,
+                     "🏰 Castling move highlighted at %c%d (blue) during "
+                     "resignation pickup",
+                     'a' + dest_col, dest_row + 1);
+          }
         } else {
           // Normal move handling
           piece_t dest_piece = board[dest_row][dest_col];
@@ -851,10 +852,11 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
 
       // Check if this is a castling move - zobrazit jako speciální tah
       if (suggestions[i].is_castling) {
-        // Blue for castling moves (special move - rošáda)
-        led_set_pixel_safe(led_index, 0, 0, 255);
-        ESP_LOGI(TAG, "🏰 Castling move highlighted at %c%d (blue)",
-                 'a' + dest_col, dest_row + 1);
+        if (chess_policy_move_hints_castling_blue()) {
+          led_set_pixel_safe(led_index, 0, 0, 255);
+          ESP_LOGI(TAG, "🏰 Castling move highlighted at %c%d (blue)",
+                   'a' + dest_col, dest_row + 1);
+        }
       } else {
         // Normal move handling (existing code)
         piece_t dest_piece = board[dest_row][dest_col];
