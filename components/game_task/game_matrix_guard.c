@@ -5,6 +5,7 @@
 
 #include "game_matrix_guard.h"
 #include "game_task_internal.h"
+#include "chess_gameplay_policy.h"
 
 #include "freertos_chess.h"
 #include "game_task.h"
@@ -56,7 +57,12 @@ static void game_board_to_occupancy(uint8_t out[64]) {
   }
 }
 
-bool game_is_matrix_guard_active(void) { return matrix_guard_pause_state.active; }
+bool game_is_matrix_guard_active(void) {
+  if (!chess_policy_matrix_guard_enabled()) {
+    return false;
+  }
+  return matrix_guard_pause_state.active;
+}
 
 uint8_t game_get_matrix_guard_conflict_count(void) {
   return matrix_guard_pause_state.conflict_count;
@@ -100,7 +106,7 @@ void game_matrix_guard_clear_both_layers(void) {
 void game_matrix_guard_restore_after_clear(bool notify_clients) {
   game_matrix_guard_clear_both_layers();
   led_clear_board_only();
-  game_highlight_movable_pieces();
+  chess_policy_highlight_movable_if_enabled();
   if (notify_clients) {
     game_bump_revision_and_notify();
   }
@@ -108,6 +114,9 @@ void game_matrix_guard_restore_after_clear(bool notify_clients) {
 
 void game_matrix_guard_render_leds(void) {
   if (!matrix_guard_pause_state.active) {
+    return;
+  }
+  if (!chess_policy_matrix_guard_led_enabled()) {
     return;
   }
 
@@ -125,12 +134,18 @@ void game_matrix_guard_render_leds(void) {
     }
 
     if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0);
+      if (chess_policy_mg_led_white_yellow()) {
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255, 0);
+      }
     } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 0, 255);
+      if (chess_policy_mg_led_black_blue()) {
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 0, 255);
+      }
     } else if (phys[square] != 0) {
-      led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 140, 0);
-    } else {
+      if (chess_policy_mg_led_ghost_orange()) {
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 140, 0);
+      }
+    } else if (chess_policy_mg_led_missing_white()) {
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 220, 220, 220);
     }
   }
@@ -145,6 +160,12 @@ void game_matrix_guard_handle_command(const chess_move_command_t *cmd) {
   if (action == 0) {
     game_matrix_guard_restore_after_clear(true);
     STAGING_LOGI(TAG, "Matrix guard cleared");
+    return;
+  }
+
+  if (!chess_policy_matrix_guard_enabled()) {
+    STAGING_LOGI(TAG, "Matrix guard command ignored (disabled in menuconfig)");
+    matrix_abort_ambiguous_guard_baseline();
     return;
   }
 
@@ -175,7 +196,9 @@ void game_matrix_guard_handle_command(const chess_move_command_t *cmd) {
       matrix_guard_pause_state.lifted_mask_high |
           matrix_guard_pause_state.dropped_mask_high);
 
-  game_task_matrix_guard_freeze_move_flow();
+  if (chess_policy_matrix_guard_should_freeze()) {
+    game_task_matrix_guard_freeze_move_flow();
+  }
 
   uint8_t expected[64];
   game_board_to_occupancy(expected);
@@ -187,6 +210,10 @@ void game_matrix_guard_handle_command(const chess_move_command_t *cmd) {
 }
 
 void game_matrix_guard_check_resync_after_restore(void) {
+  if (!chess_policy_matrix_guard_enabled() ||
+      !chess_policy_matrix_guard_nvs_resync_enabled()) {
+    return;
+  }
   if (game_is_opening_trainer_active() || game_is_opening_trainer_setup_active()) {
     return;
   }
@@ -228,6 +255,9 @@ void game_matrix_guard_check_resync_after_restore(void) {
 }
 
 void game_matrix_guard_try_clear_from_matrix(void) {
+  if (!chess_policy_matrix_guard_auto_clear_enabled()) {
+    return;
+  }
   if (!matrix_guard_pause_state.active) {
     return;
   }

@@ -110,6 +110,7 @@
 #include "stm32_i2c_bl.h"
 #endif
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "chess_types.h"
 #include "driver/gpio.h"
@@ -593,6 +594,11 @@ static void matrix_send_guard_command(uint32_t lifted_mask_low,
                                       uint8_t action) {
   extern QueueHandle_t game_command_queue;
 
+  if (action != 0 && !chess_policy_matrix_guard_enabled()) {
+    ESP_LOGD(TAG, "Matrix guard detection disabled — skipping activate");
+    return;
+  }
+
   if (game_command_queue == NULL) {
     ESP_LOGW(TAG, "game_command_queue not available - cannot send GUARD command");
     return;
@@ -683,6 +689,11 @@ void matrix_detect_moves(void) {
 
   if (ambiguous_state) {
     if (!matrix_guard_mode_active) {
+      if (!chess_policy_matrix_guard_enabled()) {
+        ESP_LOGW(TAG,
+                 "Ambiguous matrix state ignored (matrix guard disabled)");
+        return;
+      }
       // Snapshot expected board occupancy before anomaly; game_task realigns to
       // board[] when handling GAME_CMD_MATRIX_GUARD.
       memcpy(matrix_guard_expected_state, matrix_previous,

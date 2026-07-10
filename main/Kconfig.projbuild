@@ -24,4 +24,162 @@ config CHESS_ENABLE_WEB_SERVER
         Use BLE + UART builds for factory test or minimal firmware profiles.
         Reconfigure after change: idf.py fullclean reconfigure build
 
+menu "Gameplay safety & LED"
+
+choice CHESS_GAMEPLAY_PROFILE
+    prompt "Gameplay safety profile"
+    default CHESS_GAMEPLAY_PROFILE_FULL
+    help
+        Preset bundles matrix guard, error recovery, and move-hint behaviour.
+        Individual options below can override preset defaults after reconfigure.
+
+config CHESS_GAMEPLAY_PROFILE_FULL
+    bool "Full (production — guard + error lock + hints)"
+
+config CHESS_GAMEPLAY_PROFILE_DEV
+    bool "Developer (no matrix guard, keep error hints)"
+
+config CHESS_GAMEPLAY_PROFILE_LITE
+    bool "Lite (no guard, no error lock, minimal LED)"
+
+config CHESS_GAMEPLAY_PROFILE_FACTORY
+    bool "Factory test (detection log only, no lock, no LED)"
+
+endchoice
+
+menu "Matrix guard"
+
+config CHESS_MG_ENABLE
+    bool "Enable matrix guard detection"
+    default y if CHESS_GAMEPLAY_PROFILE_FULL
+    default n
+    help
+        Pause play when physical sensors disagree with logical board state.
+
+config CHESS_MG_FREEZE_MOVES
+    bool "Freeze move flow when guard active"
+    depends on CHESS_MG_ENABLE
+    default y
+
+config CHESS_MG_AUTO_CLEAR
+    bool "Auto-clear guard when board matches logic"
+    depends on CHESS_MG_ENABLE
+    default y
+
+config CHESS_MG_NVS_RESYNC
+    bool "NVS restore resync via matrix guard"
+    depends on CHESS_MG_ENABLE
+    default y
+
+menu "Matrix guard LED colors"
+    depends on CHESS_MG_ENABLE
+
+config CHESS_MG_LED_ENABLE
+    bool "Enable matrix guard LED feedback"
+    default y
+
+config CHESS_MG_LED_WHITE_YELLOW
+    bool "White pieces: yellow on mismatch"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+config CHESS_MG_LED_BLACK_BLUE
+    bool "Black pieces: blue on mismatch"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+config CHESS_MG_LED_GHOST_ORANGE
+    bool "Ghost pieces: orange on mismatch"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+config CHESS_MG_LED_MISSING_WHITE
+    bool "Missing pieces: white on mismatch"
+    depends on CHESS_MG_LED_ENABLE
+    default y
+
+endmenu
+
+endmenu
+
+menu "Invalid move recovery"
+
+config CHESS_ER_ENABLE
+    bool "Enable invalid move detection"
+    default y
+    help
+        Detect illegal physical moves. Lock and LED sub-options apply when enabled.
+
+config CHESS_ER_LOCK_GAME
+    bool "Lock game until move corrected"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_ER_MUTATE_BOARD
+    bool "Mirror invalid piece on logical board"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_ER_LED_RED_PERSIST
+    bool "Keep red LED on invalid square"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_ER_LED_RED_BLINK
+    bool "Blink red LED on invalid move"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_ER_LED_VALID_BLUE
+    bool "Blue hint for valid recovery moves"
+    depends on CHESS_ER_ENABLE
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+endmenu
+
+menu "Move hints (normal play)"
+
+config CHESS_MH_ENABLE
+    bool "Enable move hints"
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+config CHESS_MH_LEGAL_MOVES_BLUE
+    bool "Blue LEDs for legal destinations"
+    depends on CHESS_MH_ENABLE
+    default y
+
+config CHESS_MH_CASTLING_BLUE
+    bool "Blue LEDs during castling guidance"
+    depends on CHESS_MH_ENABLE
+    default y
+
+config CHESS_MH_PROMOTION_BLUE
+    bool "Blue LEDs on promotion buttons"
+    depends on CHESS_MH_ENABLE
+    default y
+
+config CHESS_MH_MOVABLE_YELLOW
+    bool "Yellow LEDs on movable pieces"
+    depends on CHESS_MH_ENABLE
+    default y
+
+endmenu
+
+menu "Diagnostics"
+
+config CHESS_DIAG_UART_ERROR_DETAIL
+    bool "Verbose UART invalid-move explanations"
+    default y if CHESS_GAMEPLAY_PROFILE_FULL || CHESS_GAMEPLAY_PROFILE_DEV
+    default n
+
+endmenu
+
+endmenu
+
 endmenu

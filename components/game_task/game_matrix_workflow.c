@@ -5,6 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
+#include "chess_gameplay_policy.h"
 #include "game_move_validate.h"
 
 #include "../led_task/include/led_task.h"
@@ -747,6 +748,9 @@ bool game_execute_promotion(promotion_choice_t choice) {
  * @brief Highlight all movable pieces for current player
  */
 void game_highlight_movable_pieces(void) {
+  if (!chess_policy_move_hints_movable_yellow()) {
+    return;
+  }
   // Do not highlight pieces if system is booting
   if (led_is_booting()) {
     return;

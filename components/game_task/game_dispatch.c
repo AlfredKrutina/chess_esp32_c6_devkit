@@ -6,6 +6,7 @@
 #include "game_task_internal.h"
 #include "game_task.h"
 #include "game_matrix_guard.h"
+#include "chess_gameplay_policy.h"
 #include "game_snapshot.h"
 #include "freertos_chess.h"
 
@@ -322,7 +323,7 @@ static bool game_undo_last_move_impl(void) {
   game_matrix_guard_check_resync_after_restore();
   if (!game_is_matrix_guard_active()) {
     led_clear_board_only();
-    game_highlight_movable_pieces();
+    chess_policy_highlight_movable_if_enabled();
   } else {
     STAGING_LOGI(TAG,
                  "undo: matrix guard active — highlight squares until physical "
