@@ -19,7 +19,9 @@
             "vienna_white",
             "scotch_game_white",
             "colle_system_white",
-            "italian_two_knights_white"
+            "italian_two_knights_white",
+            "reti_opening_white",
+            "english_four_knights_white"
         ]
     },
     {
@@ -35,7 +37,9 @@
             "pirc_classical_black",
             "alekhine_defence_black",
             "slav_defence_black",
-            "dutch_defence_black"
+            "dutch_defence_black",
+            "philidor_black",
+            "modern_defence_black"
         ]
     },
     {
@@ -53,7 +57,10 @@
             "torre_attack_white",
             "ruy_lopez_classical_white",
             "queens_indian_black",
-            "kings_indian_black"
+            "kings_indian_black",
+            "kings_gambit_declined_white",
+            "sicilian_closed_black",
+            "semi_slav_black"
         ]
     },
     {
@@ -69,7 +76,11 @@
             "english_symmetrical_white",
             "london_vs_kid_white",
             "bogo_indian_black",
-            "grunfeld_black"
+            "grunfeld_black",
+            "catalan_vs_slav_white",
+            "sicilian_alapin_white",
+            "chigorin_black",
+            "owen_defence_black"
         ]
     }
 ];
@@ -1135,6 +1146,413 @@
             "f8g7",
             "g1f3",
             "c7c6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "reti_opening_white",
+        "eco": "A06",
+        "name": {
+            "cs": "Retiho zahájení",
+            "en": "Réti Opening"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "Nf3, c4 a fianchetto — kontrola centra z boku.",
+            "en": "Nf3, c4, and fianchetto — flank control of the center."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "g1f3",
+            "d7d5",
+            "c2c4",
+            "e7e6",
+            "g2g3",
+            "g8f6",
+            "f1g2",
+            "f8e7",
+            "e2e3",
+            "c7c6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "english_four_knights_white",
+        "eco": "A28",
+        "name": {
+            "cs": "Anglická — čtyři jezdci",
+            "en": "English — Four Knights"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "c4 a symetrický rozvoj jezců.",
+            "en": "c4 with symmetrical knight development."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "c2c4",
+            "e7e5",
+            "b1c3",
+            "g8f6",
+            "g1f3",
+            "b8c6",
+            "e2e3",
+            "f8b4",
+            "f1e2",
+            "d7d6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "kings_gambit_declined_white",
+        "eco": "C30",
+        "name": {
+            "cs": "Královský gambit — odmítnutý",
+            "en": "King's Gambit Declined"
+        },
+        "side": "white",
+        "difficulty": 3,
+        "idea": {
+            "cs": "f4 bez brání e5 — rychlý rozvoj figur.",
+            "en": "f4 without taking on e5 — rapid piece play."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "e7e5",
+            "f2f4",
+            "f8c5",
+            "g1f3",
+            "d7d6",
+            "f1c4",
+            "g8f6",
+            "c2c3",
+            "b8c6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "catalan_vs_slav_white",
+        "eco": "E00",
+        "name": {
+            "cs": "Katalánská proti slovanské",
+            "en": "Catalan vs Slav"
+        },
+        "side": "white",
+        "difficulty": 3,
+        "idea": {
+            "cs": "g3 a Bg2 proti ...Bf5 ve slovanské.",
+            "en": "g3 and Bg2 against ...Bf5 in the Slav."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "d7d5",
+            "c2c4",
+            "c7c6",
+            "g1f3",
+            "g8f6",
+            "g2g3",
+            "c8f5",
+            "f1g2",
+            "e7e6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "sicilian_alapin_white",
+        "eco": "B22",
+        "name": {
+            "cs": "Sicilská — Alapin",
+            "en": "Sicilian — Alapin"
+        },
+        "side": "white",
+        "difficulty": 2,
+        "idea": {
+            "cs": "c3 a d4 proti sicilské bez teorie Dragonu.",
+            "en": "c3 and d4 against the Sicilian without Dragon theory."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "c7c5",
+            "c2c3",
+            "d7d6",
+            "d2d4",
+            "c5d4",
+            "c3d4",
+            "g8f6",
+            "b1c3",
+            "a7a6"
+        ],
+        "player_ply_indices": [
+            0,
+            2,
+            4,
+            6,
+            8
+        ],
+        "checkpoint_ply_indices": [
+            4
+        ]
+    },
+    {
+        "id": "philidor_black",
+        "eco": "C41",
+        "name": {
+            "cs": "Philidorova obrana",
+            "en": "Philidor Defence"
+        },
+        "side": "black",
+        "difficulty": 2,
+        "idea": {
+            "cs": "d6 a Nd7 — pevná struktura proti 1.e4.",
+            "en": "d6 and ...Nd7 — solid structure against 1.e4."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "e7e5",
+            "g1f3",
+            "d7d6",
+            "d2d4",
+            "b8d7",
+            "b1c3",
+            "g8f6",
+            "f1e2",
+            "f8e7"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "modern_defence_black",
+        "eco": "B06",
+        "name": {
+            "cs": "Moderní obrana",
+            "en": "Modern Defence"
+        },
+        "side": "black",
+        "difficulty": 2,
+        "idea": {
+            "cs": "g6 a Bg7 proti jakémukoli bílému plánu.",
+            "en": "g6 and Bg7 against any white setup."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "g7g6",
+            "d2d4",
+            "f8g7",
+            "b1c3",
+            "d7d6",
+            "g1f3",
+            "c7c5",
+            "f1e2",
+            "b8d7"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "owen_defence_black",
+        "eco": "B00",
+        "name": {
+            "cs": "Owenova obrana",
+            "en": "Owen's Defence"
+        },
+        "side": "black",
+        "difficulty": 2,
+        "idea": {
+            "cs": "b6 a Bb7 — netradiční fianchetto.",
+            "en": "b6 and Bb7 — unusual fianchetto."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "b7b6",
+            "d2d4",
+            "c8b7",
+            "b1c3",
+            "e7e6",
+            "g1f3",
+            "g8f6",
+            "f1e2",
+            "f8e7"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "semi_slav_black",
+        "eco": "D45",
+        "name": {
+            "cs": "Semi-slovanská",
+            "en": "Semi-Slav Defence"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "c6 + e6 — velmi solidní dámský gambit.",
+            "en": "c6 + e6 — very solid against the Queen's Gambit."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "d7d5",
+            "c2c4",
+            "e7e6",
+            "b1c3",
+            "c7c6",
+            "g1f3",
+            "g8f6",
+            "e2e3",
+            "f8d6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "sicilian_closed_black",
+        "eco": "B23",
+        "name": {
+            "cs": "Sicilská — uzavřená",
+            "en": "Sicilian — Closed"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "e6 a ...a6 v uzavřené sicilské.",
+            "en": "e6 and ...a6 in the Closed Sicilian."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "e2e4",
+            "c7c5",
+            "g1f3",
+            "e7e6",
+            "d2d4",
+            "c5d4",
+            "f3d4",
+            "a7a6",
+            "b1c3",
+            "g8f6"
+        ],
+        "player_ply_indices": [
+            1,
+            3,
+            5,
+            7,
+            9
+        ],
+        "checkpoint_ply_indices": [
+            3
+        ]
+    },
+    {
+        "id": "chigorin_black",
+        "eco": "D07",
+        "name": {
+            "cs": "Čigorinova obrana",
+            "en": "Chigorin Defence"
+        },
+        "side": "black",
+        "difficulty": 3,
+        "idea": {
+            "cs": "Nc6 místo e6 — aktivní vývoj proti dámskému gambitu.",
+            "en": "Nc6 instead of ...e6 — active play against the QG."
+        },
+        "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "line_uci": [
+            "d2d4",
+            "d7d5",
+            "c2c4",
+            "b8c6",
+            "b1c3",
+            "g8f6",
+            "c1f4",
+            "c8f5",
+            "e2e3",
+            "e7e6"
         ],
         "player_ply_indices": [
             1,

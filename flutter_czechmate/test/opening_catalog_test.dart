@@ -4,10 +4,10 @@ import 'package:flutter_czechmate/features/opening/opening_catalog_repository.da
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('opening catalog loads 30 validated lines', () async {
+  test('opening catalog loads 41 validated lines', () async {
     final repo = OpeningCatalogRepository();
     final lines = await repo.loadAll();
-    expect(lines.length, 30);
+    expect(lines.length, 41);
     expect(lines.any((l) => l.id == 'italian_giuoco_white'), isTrue);
     expect(lines.any((l) => l.id == 'spanish_berlin_white'), isTrue);
     final italian = lines.firstWhere((l) => l.id == 'italian_giuoco_white');
