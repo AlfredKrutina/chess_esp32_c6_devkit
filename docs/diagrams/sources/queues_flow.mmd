@@ -1,7 +1,7 @@
-%% Herní fronty — barvy: producenti zelená · fronty oranžová · spotřebitel modrá
+%% Game queues — colors: producers green · queues orange · consumer blue
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','primaryBorderColor':'#64748b','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
-  subgraph PROD["Do front"]
+  subgraph PROD["Into queues"]
     MT[matrix_task]:::taskN
     BTN[button_task]:::taskN
     UART[uart_task]:::taskN
@@ -15,7 +15,7 @@ flowchart TB
 
   MT -->|pickup/drop| GQ
   BTN -->|button_event_t| BQ
-  UART -->|tah / příkaz| GQ
+  UART -->|move / command| GQ
   WEB -->|HTTP| GQ
   BQ --> GT
   GQ --> GT

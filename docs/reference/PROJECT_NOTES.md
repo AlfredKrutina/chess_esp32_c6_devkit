@@ -1,96 +1,84 @@
-# Poznámky k projektu
+# Project notes
 
-Delší texty z původního kořenového README — učení, výzvy, verze, autoři, licence. Technický rozcestník: [docs/README.md](../README.md).
+Longer text from the original root README — lessons learned, challenges, versions, license. Technical index: [docs/README.md](../README.md).
 
 ---
 
-## Co jsme se naučili
+## What I learned
 
-### Embedded programování
-- **FreeRTOS** — tasky, priority, plánování
+### Embedded programming
+- **FreeRTOS** — tasks, priorities, scheduling
 - **GPIO** — pull-up/pull-down, multiplexing
-- **Interrupt handling**, paměť (stack vs heap), **watchdog**
+- **Interrupt handling**, memory (stack vs heap), **watchdog**
 
-### Šachová logika
-- Pravidla FIDE včetně en passant, rošády, promoce
-- Validace tahů, šach/mat, reprezentace desky
+### Chess logic
+- FIDE rules including en passant, castling, promotion
+- Move validation, check/mate, board representation
 
-### Web na MCU
-- HTTP server ESP-IDF, WebSocket `/ws` (pokud `CONFIG_HTTPD_WS_SUPPORT`)
-- Embedded JS, REST API pro klienty
+### Web on MCU
+- ESP-IDF HTTP server, WebSocket `/ws` (if `CONFIG_HTTPD_WS_SUPPORT`)
+- Embedded JS, REST API for clients
 
-### Architektura
-- Moduly v `components/`, fronty a mutexy mezi tasky
-- Recovery a logování — viz [diagramy](../diagrams/README.md)
+### Architecture
+- Modules in `components/`, queues and mutexes between tasks
+- Recovery and logging — see [diagrams](../diagrams/README.md)
 
 ### Hardware
-- Reed matice, WS2812B timing, time-multiplexing pinů, spotřeba LED
+- Reed matrix, WS2812B timing, pin time-multiplexing, LED power draw
 
 ---
 
-## Výzvy
+## Challenges
 
 ### Hardware
-- **Reed matice** — 64 spínačů, správné piny a kontakt
-- **Napájení LED** — až ~4,5 A u 73 WS2812B, externí 5 V + společná zem
-- **Fyzická deska** — bez Matějovy práce nemá firmware co číst
+- **Reed matrix** — 64 switches, correct pins and contact
+- **LED power** — up to ~4.5 A for 73 WS2812B, external 5 V + common ground
+- **Physical board** — firmware needs a working sensor matrix to read moves
 
 ### Software
-- **Multiplex ~25 ms** — střídání matice a tlačítek bez kolizí stavů
-- **Šachová logika** — hraniční případy (en passant…)
-- **FreeRTOS** — fronty, mutexy, přestavby architektury
-- **LED animace** — `unified_animation_manager` jako centrální řidič
-- **Web na MCU** — úsporný embed JS a HTTP stack
-- **Debugging** — multimetr + UART log
+- **Multiplex ~25 ms** — matrix and buttons without state collisions
+- **Chess logic** — edge cases (en passant…)
+- **FreeRTOS** — queues, mutexes, architecture refactors
+- **LED animation** — `unified_animation_manager` as central driver
+- **Web on MCU** — compact embed JS and HTTP stack
+- **Debugging** — multimeter + UART log
 
 ---
 
-## Historie verzí
+## Version history
 
-### 1.8.0 — aktuální (firmware + aplikace v repu, 2026)
+### 1.8.0 — current (firmware + app in repo, 2026)
 
 Semver **`1.8.0`**: `CMakeLists.txt` (`PROJECT_VERSION`), `firmware/version.json`, Doxygen, Flutter `pubspec.yaml` **`1.8.0+3`**.
 
-- Kompletní šachová logika; web s real-time aktualizací
-- LED animace, unified animation manager, visual error system
-- FreeRTOS, time-multiplexing GPIO (V1 reed)
-- Matrix V1; příprava Hall/I2C V2 (`firmware/stm32_hall_c031/`)
-- Bot (Stockfish), výuka, Flutter klient
-- Vypnutý samostatný `animation_task`
-- MQTT / HA (`ha_light_task`), BLE přes NimBLE
+- Full chess logic; web with real-time updates
+- LED animation, unified animation manager, visual error system
+- FreeRTOS, GPIO time-multiplexing (V1 reed)
+- Matrix V1; Hall/I2C V2 prep (`firmware/stm32_hall_c031/`)
+- Bot (Stockfish), training, Flutter client
+- Standalone `animation_task` disabled
+- MQTT / HA (`ha_light_task`), BLE via NimBLE
 
-Starší interní označení „v2.4 / v2.5“ už nesledujeme paralelně — vše pod **1.8.0**.
-
----
-
-## Možné další směry
-
-- Trvalejší historie her ve flash
-- Offline AI (prakticky přes telefon/API)
-- Statistiky, opening book, tablebases
-- Hlasové příkazy (experimentální)
+Older internal labels “v2.4 / v2.5” are no longer tracked in parallel — everything under **1.8.0**.
 
 ---
 
-## Autoři
+## Possible future directions
 
-### Alfred Krutina — software & firmware
-
-FreeRTOS, šachová logika, web server, dokumentace, flow zařízení.
-
-### Matěj Jager — hardware
-
-**V1:** Reed matice, LED, multiplexing. **V2:** Hall, kompaktnější deska. Testování na fyzické desce.
+- Persistent game history in flash
+- Offline AI (practically via phone/API)
+- Statistics, opening book, tablebases
+- Voice commands (experimental)
 
 ---
 
-## Licence
+## License
 
-Kód je **veřejně dostupný**, ale **není klasická OSI open-source licence**. Hardware podklady **nejsou v repu** a nejsou open source. Bez **písemného souhlasu** nelze kód použít jako základ komerčního produktu nebo široce šířeného odvozeného díla. Prohlížení a studium vítáme; výjimky (škola, výzkum) po domluvě.
+Code is **publicly available**, but **not under a classic OSI open-source license**. Hardware design files **are not in the repo** and are not open source. Without **written consent** the code may not be used as the basis for a commercial product or widely distributed derivative. Browsing and study are welcome; exceptions (school, research) by agreement.
 
 ---
 
-## Užitečné odkazy
+## Useful links
 
 - [ESP-IDF](https://docs.espressif.com/projects/esp-idf/)
 - [ESP32-C6 datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf)
@@ -99,14 +87,14 @@ Kód je **veřejně dostupný**, ale **není klasická OSI open-source licence**
 
 ---
 
-## Poděkování
+## Acknowledgments
 
-Učitelé, ESP-IDF tým, Shawn Hymel (YouTube — ESP-IDF/FreeRTOS), Perplexity AI (brainstorm), komunita ESP32 a open source.
+Teachers, ESP-IDF team, Shawn Hymel (YouTube — ESP-IDF/FreeRTOS), Perplexity AI (brainstorm), ESP32 and open source community.
 
 ---
 
-## Závěrečné myšlenky
+## Closing thoughts
 
-Projekt spojuje embedded, RTOS, web na MCU, šachy a hardware v jednom. Největší odměna je moment, kdy LED, matice a logika sedí dohromady. Spolupráce s Matějem: FW ↔ dráty. AI nástroje jako turbo na nápady — do produkce jen to, co rozumím a ověřím v kódu.
+The project combines embedded, RTOS, web on MCU, chess, and hardware in one place. The best reward is when LEDs, matrix, and logic finally align. AI tools act as a turbo for ideas — only what I understand and verify in code goes to production.
 
-Otázky a postřehy vítáme.
+Questions and feedback are welcome.

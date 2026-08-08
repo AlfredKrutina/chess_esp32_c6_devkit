@@ -1,76 +1,76 @@
 # Matrix guard
 
-[Rozcestník reference](README.md) · [Diagram flow](../diagrams/sources/chess_flow_matrix_guard.mmd)
+[Reference index](README.md) · [Flow diagram](../diagrams/sources/chess_flow_matrix_guard.mmd)
 
-Matrix guard pozastaví hru, když senzorová matice a logická `board[]` nejsou v souladu — typicky po zvednutí více figurek najednou, po rychlém capture, nebo po obnově hry z NVS.
+Matrix guard pauses the game when the sensor matrix and logical `board[]` disagree — typically after lifting multiple pieces, a fast capture, or restoring a game from NVS.
 
-## LED legenda (na desce)
+## LED legend (on the board)
 
-| Barva | Význam |
-|-------|--------|
-| Žlutá | V logice je bílá figurka, fyzicky nesedí |
-| Modrá | V logice je černá figurka, fyzicky nesedí |
-| Oranžová | Senzor hlásí figurku, logika má prázdno |
-| Bílá | Podle logiky má být figurka, senzor je prázdný |
+| Color | Meaning |
+|-------|---------|
+| Yellow | White piece in logic, physical mismatch |
+| Blue | Black piece in logic, physical mismatch |
+| Orange | Sensor reports a piece, logic says empty |
+| White | Logic expects a piece, sensor is empty |
 
-## Jak se guard zruší
+## How to clear the guard
 
-1. Srovnejte **všechny** figurky podle LED (ne jen poslední tah).
-2. Nechte desku ~2 s v klidu (žádné další zvedání).
-3. Hra automaticky pokračuje — obě vrstvy (`matrix_task` + `game_task`) se čistí společně.
+1. Align **all** pieces per the LEDs (not just the last move).
+2. Leave the board quiet for ~2 s (no more lifts).
+3. Play resumes automatically — both layers (`matrix_task` + `game_task`) clear together.
 
-## Když to pořád nejde
+## If it still fails
 
-- **Nová hra** / UART `GAME_RESET` / tlačítko reset (GPIO15).
-- **Nouzové vyčištění guardu** (jen když je deska fyzicky srovnaná):
+- **New game** / UART `GAME_RESET` / reset button (GPIO15).
+- **Emergency guard clear** (only when the board is physically aligned):
   - UART: `GUARD_CLEAR` (alias `MATRIX_GUARD_CLEAR`)
   - HTTP: `POST /api/game/guard_clear`
-- Zkontrolujte `/api/status`: `matrix_guard_active`, `matrix_guard_conflicts`.
-- Režim **Lampa** může přebít herní LED — přepněte na Šachovnice.
+- Check `/api/status`: `matrix_guard_active`, `matrix_guard_conflicts`.
+- **Lamp** mode can override game LEDs — switch to Chessboard.
 
-## Stav v API / UI
+## API / UI state
 
-| Pole | Význam |
+| Field | Meaning |
 |------|--------|
-| `matrix_guard_active` | Hra pozastavena |
-| `matrix_guard_conflicts` | Počet nesedících polí |
-| `matrix_guard_*_mask_*` | Bitmasky anomálií (web/Flutter banner) |
-| `restore_state.resync_required` | Guard po startu / NVS restore |
+| `matrix_guard_active` | Game paused |
+| `matrix_guard_conflicts` | Count of mismatched squares |
+| `matrix_guard_*_mask_*` | Anomaly bitmasks (web/Flutter banner) |
+| `restore_state.resync_required` | Guard after boot / NVS restore |
 
-Web UI (`chess_app.js`) a Flutter (`MatrixGuardBanner`) zobrazují návod podle těchto polí.
+Web UI (`chess_app.js`) and Flutter (`MatrixGuardBanner`) show guidance from these fields.
 
-## Implementace (od PR #5)
+## Implementation (from PR #5)
 
-- Recovery cíl = logická `board[]` (`matrix_guard_apply_expected_occupancy`).
-- `game_matrix_guard_restore_after_clear()` — sjednocené LED + `state_version` bump pro klienty
-- Druhé zvednutí při capture toleruje race přes `matrix_get_pending_lift_square()`.
+- Recovery target = logical `board[]` (`matrix_guard_apply_expected_occupancy`).
+- `game_matrix_guard_restore_after_clear()` — unified LEDs + `state_version` bump for clients
+- Second lift during capture tolerates race via `matrix_get_pending_lift_square()`.
 
-## Menuconfig (od PR #20)
+## Menuconfig (from PR #20)
 
-Matrix guard lze vypnout nebo omezit přes `idf.py menuconfig` → **CzechMate firmware** → **Herní bezpečnost a LED nápovědy** → **① Matrix guard**.
+Matrix guard can be disabled or limited via `idf.py menuconfig` → **CzechMate firmware** → **Gameplay safety & LED hints** → **① Matrix guard**.
 
-| Volba | Výchozí (FULL) | Účel |
-|-------|----------------|------|
-| `CHESS_MG_ENABLE` | y | Detekce nesouladu matice vs. logika |
-| `CHESS_MG_FREEZE_MOVES` | y | Pozastavení tahového flow |
-| `CHESS_MG_AUTO_CLEAR` | y | Auto-clear po srovnání desky |
-| `CHESS_MG_NVS_RESYNC` | y | Guard po obnově z NVS |
-| `CHESS_MG_LED_*` | y | Barevná legenda výše |
+| Option | Default (FULL) | Purpose |
+|-------|----------------|--------|
+| `CHESS_MG_ENABLE` | y | Detect matrix vs logic mismatch |
+| `CHESS_MG_FREEZE_MOVES` | y | Pause move flow |
+| `CHESS_MG_AUTO_CLEAR` | y | Auto-clear after board aligned |
+| `CHESS_MG_NVS_RESYNC` | y | Guard after NVS restore |
+| `CHESS_MG_LED_*` | y | Color legend above |
 
-### Presety
+### Presets
 
-| Profil | Matrix guard | Typické použití |
-|--------|--------------|-----------------|
-| **FULL** | zapnuto | Produkce (default) |
-| **DEV** | vypnuto | Opening HW vývoj bez falešných guardů |
-| **LITE** | vypnuto | Factory / tichý režim |
-| **FACTORY** | vypnuto | Jen log, bez LED a locku |
+| Profile | Matrix guard | Typical use |
+|--------|--------------|-------------|
+| **FULL** | on | Production (default) |
+| **DEV** | off | Opening HW dev without false guards |
+| **LITE** | off | Factory / quiet mode |
+| **FACTORY** | off | Log only, no LED or lock |
 
-Build profily: `sdkconfig.defaults.gameplay_dev`, `sdkconfig.defaults.gameplay_lite`.
+Build profiles: `sdkconfig.defaults.gameplay_dev`, `sdkconfig.defaults.gameplay_lite`.
 
-Při `CHESS_MG_ENABLE=n`:
-- `matrix_guard_active` v JSON je vždy `false`
-- `matrix_send_guard_command()` neaktivuje guard (ambiguous stav se loguje)
-- Opening virtual / puzzle / setup stále ignorují guard přes `mode_conflict_active()` i když je MG zapnutý
+When `CHESS_MG_ENABLE=n`:
+- `matrix_guard_active` in JSON is always `false`
+- `matrix_send_guard_command()` does not activate guard (ambiguous state is logged)
+- Opening virtual / puzzle / setup still ignore guard via `mode_conflict_active()` even when MG is on
 
-Viz [MENUCONFIG_FEATURES_PLAN.md](MENUCONFIG_FEATURES_PLAN.md) pro celou taxonomii MG / ER / MH.
+See [MENUCONFIG_FEATURES_PLAN.md](MENUCONFIG_FEATURES_PLAN.md) for the full MG / ER / MH taxonomy.

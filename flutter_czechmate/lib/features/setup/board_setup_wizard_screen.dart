@@ -18,7 +18,7 @@ enum BoardSetupWizardKind { standardStart, fenGuided }
 
 enum _WizardPhase { idle, running, validating, completed, failed }
 
-/// Parita iOS `BoardSetupManager` + sheet UI — LED na cílové pole, matice / figurka ze snapshotu.
+/// Parity iOS `BoardSetupManager` + sheet UI — LED on target field, matrix / figure from snapshot.
 class BoardSetupWizardScreen extends ConsumerStatefulWidget {
   const BoardSetupWizardScreen({
     super.key,

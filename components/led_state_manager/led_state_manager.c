@@ -1,19 +1,19 @@
 /**
  * @file led_state_manager.c
- * @brief Implementace LED State Manageru
+ * @brief LED State Manager implementation
  * 
- * Tento modul spravuje stav LED systemu a poskytuje pokrocile
- * funkce pro ovladani LED. Umožnuje vrstveni efektu a spravu
- * priority zobrazeni.
+ * This module manages the status of the LED system and provides advanced
+ * LED control function. Allows layering effect and management
+ * display priorities.
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-06
  * 
  * @details
- * LED State Manager je centralni system pro spravu stavu LED.
- * Umožnuje vrstveni ruznych efektu, spravu priority a pokrocile
- * funkce pro ovladani LED systemu.
+ * LED State Manager is a central system for LED state management.
+ * Allows layering of different effects, manage priority and advanced
+ * function for controlling the LED system.
  */
 
 #include "led_state_manager.h"
@@ -670,16 +670,16 @@ esp_err_t led_set_transition_duration(uint32_t duration_ms) {
 }
 
 // ============================================================================
-// INTERNI POMOCNE FUNKCE
+// INTERNAL HELP FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Provede kompozici vsech vrstev pro jeden LED pixel
+ * @brief Composes all layers for a single LED pixel
  * 
- * Slouci vsechny aktivni vrstvy (od nejnizsi po nejvyssi) do finalniho
- * RGB pixelu. Pouziva alpha blending pro spravu pruhlednosti vrstev.
+ * Merge all active layers (from lowest to highest) into the final one
+ * RGB pixel. Uses alpha blending to manage layer transparency.
  * 
- * @param led_index Index LED pixelu (0-72)
+ * @param led_index LED pixel index (0-72)
  */
 static void led_composite_pixel(uint8_t led_index) {
     if (led_index >= 73) {
@@ -741,15 +741,15 @@ static void led_composite_pixel(uint8_t led_index) {
 }
 
 /**
- * @brief Aplikuje jas na RGB hodnoty
+ * @brief Applies brightness to RGB values
  * 
- * Aplikuje globalni jas i jas specificky pro dany pixel.
- * Hodnoty jsou zmenseny proporcionalne podle nastaveni jasu.
+ * Applies both global brightness and pixel-specific brightness.
+ * The values ​​are scaled proportionally according to the brightness setting.
  * 
- * @param led_index Index LED pixelu (0-72)
- * @param[in,out] r Ukazatel na cervenou komponentu
- * @param[in,out] g Ukazatel na zelenou komponentu
- * @param[in,out] b Ukazatel na modrou komponentu
+ * @param led_index LED pixel index (0-72)
+ * @param[in,out] r Pointer to the red component
+ * @param[in,out] g Pointer to the green component
+ * @param[in,out] b A pointer to the blue component
  */
 static void led_apply_brightness(uint8_t led_index, uint8_t* r, uint8_t* g, uint8_t* b) {
     if (!r || !g || !b) {
@@ -762,9 +762,9 @@ static void led_apply_brightness(uint8_t led_index, uint8_t* r, uint8_t* g, uint
 }
 
 /**
- * @brief Oznaci pixel jako dirty (potrebuje update)
+ * @brief Mark pixel as dirty (needs update)
  * 
- * @param led_index Index LED pixelu (0-72)
+ * @param led_index LED pixel index (0-72)
  */
 static void led_mark_dirty(uint8_t led_index) {
     if (led_index < 73) {
@@ -773,7 +773,7 @@ static void led_mark_dirty(uint8_t led_index) {
 }
 
 /**
- * @brief Vymaze dirty flag pro pixel
+ * @brief Clears the dirty flag for a pixel
  * 
  * @param led_index Index LED pixelu (0-72)
  */
@@ -784,10 +784,10 @@ static void led_clear_dirty(uint8_t led_index) {
 }
 
 /**
- * @brief Overi zda je vrstva aktivni
+ * @brief Verify if the layer is active
  * 
- * @param layer Vrstva k overeni
- * @return true pokud je vrstva aktivni
+ * @param layer The layer to verify
+ * @return true if the layer is active
  */
 static bool led_is_layer_enabled(led_layer_t layer) {
     if (layer >= LED_LAYER_COUNT) {

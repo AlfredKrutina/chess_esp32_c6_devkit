@@ -1,5 +1,5 @@
 # main/CMakeLists.txt - ESP32-C6 Chess v1.8.0
-# test_task jen pokud CONFIG_CHESS_ENABLE_TEST_TASK=y (jinak se komponenta vůbec nenalinkuje).
+# Link test_task only when CONFIG_CHESS_ENABLE_TEST_TASK=y (otherwise the component is not linked).
 set(MAIN_REQUIRES
     freertos_chess
     led_task

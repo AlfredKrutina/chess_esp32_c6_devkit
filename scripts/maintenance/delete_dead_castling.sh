@@ -1,6 +1,6 @@
 #!/bin/bash
-# DEPRECATED (2026-07): enhanced_castling_system už není linkovaný z game_task.
-# Komponenta zůstává v repu — před smazáním ověř, že ji nikdo nevolá.
+# DEPRECATED (2026-07): enhanced_castling_system is no longer linked from game_task.
+# Component remains in the repo — before deleting, verify nothing still calls it.
 # Run from project root: bash scripts/maintenance/delete_dead_castling.sh
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

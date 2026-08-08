@@ -1,6 +1,6 @@
 # STM32C031 — Hall I2C slave + 2× CD74HC4067 (KiCad matrix): I2C1 PB6/PB7 (TSSOP20).
-# Flash: F4/x4 = 16K → make FLASH_KB=16 ; F6/C6 = 32K (výchozí).
-# Vyžaduje: arm-none-eabi-gcc, inicializované submoduly v ../STM32CubeC0.
+# Flash: F4/x4 = 16K → make FLASH_KB=16 ; F6/C6 = 32K (default).
+# Requires: arm-none-eabi-gcc, initialized submodules in ../STM32CubeC0.
 
 CUBE := ../STM32CubeC0
 TPL := $(CUBE)/Projects/STM32C0316-DK/Templates_LL
@@ -18,15 +18,15 @@ FLASH_KB ?= 32
 LDSCRIPT := $(if $(filter 16,$(FLASH_KB)),STM32C031_FLASH_16K.ld,STM32C031C6TX_FLASH.ld)
 
 HALL_I2C_OWNADDR7BIT ?= 0x30
-# NUCLEO-C031C6: USER (PC13) → LD4 (PA5). Oddělené od Czechmate (PA5 = mux).
+# NUCLEO-C031C6: USER (PC13) → LD4 (PA5). Separate from Czechmate (PA5 = mux).
 BOARD_NUCLEO_C031 ?= 0
-# Demo: stejný I²C Hall protokol, syntetická data (bez ADC/mux). Viz make demo-embedded.
+# Demo: same I²C Hall protocol, synthetic data (no ADC/mux). See make demo-embedded.
 BOARD_HALL_I2C_DEMO ?= 0
 
 STUB_INC := $(abspath toolchain_include)
 
 CPU := -mcpu=cortex-m0plus -mthumb
-# Brew arm-none-eabi-gcc často nemá newlib sysroot — vlastní minimální hlavičky + bez systémových include.
+# Brew arm-none-eabi-gcc often has no newlib sysroot — use our minimal headers + no system includes.
 INCLUDES := -nostdinc \
 	-isystem $(STUB_INC) \
 	-IInc \
@@ -49,7 +49,7 @@ CFLAGS := $(CPU) $(DEFS) $(INCLUDES) -Og -g \
 
 ASMFLAGS := $(CPU) $(DEFS) $(INCLUDES)
 
-# Brew toolchain bez nano.specs — jen libgcc (+ vlastní syscalls/memset).
+# Brew toolchain without nano.specs — libgcc only (+ our own syscalls/memset).
 LDFLAGS := $(CPU) -T$(LDSCRIPT) -nostartfiles \
 	-Wl,-Map=$(BUILD_DIR)/stm32_hall_c031.map -Wl,--gc-sections \
 	-nostdlib
@@ -82,11 +82,11 @@ all: $(ELF) bin size
 
 bin: $(BIN)
 
-# Volitelně překopírovat firmware pro ESP oddíl stm32_fw (kořen repozitáře ../../embedded/).
+# Optionally copy firmware into the ESP stm32_fw partition (repo root ../../embedded/).
 copy-embedded: $(BIN)
 	cp $(BIN) ../../embedded/stm32_fw_embedded.bin
 
-# Demo binárka do oddílu stm32_fw — vyžaduje arm-none-eabi-gcc + STM32CubeC0 (viz README_STM32_FW.txt).
+# Demo binary into the stm32_fw partition — needs arm-none-eabi-gcc + STM32CubeC0 (see README_STM32_FW.txt).
 demo-embedded:
 	$(MAKE) BOARD_HALL_I2C_DEMO=1 BOARD_NUCLEO_C031=0 clean all copy-embedded
 

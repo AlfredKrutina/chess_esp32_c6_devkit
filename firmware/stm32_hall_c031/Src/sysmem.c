@@ -1,7 +1,7 @@
 /**
  ******************************************************************************
  * @file      sysmem.c
- * @brief     Vychází ze STM32CubeIDE šablony; přidán stddef pro bare-metal libc stub.
+ * @brief     Based on the STM32CubeIDE template; stddef added for bare-metal libc stub.
  ******************************************************************************
  */
 

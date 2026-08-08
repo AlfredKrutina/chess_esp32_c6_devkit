@@ -1,117 +1,117 @@
-# CzechMate — co potřebuju z Blenderu na marketing / Pages
+# CzechMate — what I need from Blender for marketing / Pages
 
-Tenhle text je spíš brief pro mě nebo pro někoho, kdo mi pomůže s videi na [`downloads.html`](../../gh-pages-ready/downloads.html). Doplňuje statické WebP exporty z komentáře v hlavičce té stránky.
+This brief is for me or anyone helping with videos on [`downloads.html`](../../gh-pages-ready/downloads.html). It complements static WebP exports noted in that page header.
 
 ---
 
-## Společné technické požadavky
+## Shared technical requirements
 
-| Parametr | Co od toho chci | Proč |
+| Parameter | What I want | Why |
 |----------|-----------------|------|
-| **Formát na self-host Pages** | **WebM** (VP9 nebo AV1 pokud encoder dává smysl), sekundárně **H.264 MP4** v jednom souboru | Pages běžně ty MIME types zvládne; WebM bývá menší než MP4 při podobné kvalitě. |
-| **Velikost souboru** | ideálně **pod 8–12 MB** na krátký klip; **max. ~15 MB** | velké binárky zpomalují klon a načítání; GitHub hard stop je **100 MB**. |
-| **Rozlišení** | **1920×1080** nebo **1600×900** (16∶9) pro hero; sekční klipy klidně **1280×720** | stačí na hero na webu; 4K do gitu necpat. |
-| **FPS** | **24** nebo **30** | jednotně v projektu; 24 působí „filmověji“. |
-| **Délka** | podle konkrétního videa — typicky **6–20 s** | krátká smyčka + fade pro `<video loop muted playsinline>`. |
-| **Zvuk** | **bez audio stopy** (nebo hudba zvlášť později) | autoplay v prohlížeči stejně chce `muted`; jednodušší je němé video. |
-| **Barevný prostor** | **sRGB**, gamma „standard“ pro web | sedí k WebP screenshotům. |
-| **Smyčka** | první a poslední snímek **vizuálně sedí**, případně **crossfade** ve strihu | HTML `loop` bez škoku. |
-| **Alternativa mimo git** | **YouTube / Vimeo** embed | když je scéna dlouhá nebo bitrate vysoký — nemusím cpát binárku do repa. |
+| **Format for self-hosted Pages** | **WebM** (VP9 or AV1 if the encoder makes sense), secondarily **H.264 MP4** in one file | Pages usually serves those MIME types; WebM is often smaller than MP4 at similar quality. |
+| **File size** | ideally **under 8–12 MB** per short clip; **max ~15 MB** | large binaries slow clone and load; GitHub hard stop is **100 MB**. |
+| **Resolution** | **1920×1080** or **1600×900** (16∶9) for hero; section clips **1280×720** OK | enough for web hero; don’t put 4K in git. |
+| **FPS** | **24** or **30** | consistent in the project; 24 feels more “cinematic”. |
+| **Length** | per video — typically **6–20 s** | short loop + fade for `<video loop muted playsinline>`. |
+| **Audio** | **no audio track** (or music added later) | autoplay in browser wants `muted`; silent video is simpler. |
+| **Color space** | **sRGB**, standard web gamma | matches WebP screenshots. |
+| **Loop** | first and last frame **match visually**, optional **crossfade** in edit | HTML `loop` without a jump. |
+| **Alternative outside git** | **YouTube / Vimeo** embed | when the scene is long or bitrate high — no need to store binary in repo. |
 
-### Pojmenování souborů (návrh)
+### File naming (proposal)
 
-Cílová složka po exportu: [`gh-pages-ready/landing/assets/`](../../gh-pages-ready/landing/assets/).
+Target folder after export: [`gh-pages-ready/landing/assets/`](../../gh-pages-ready/landing/assets/).
 
-| Soubor | Obsah |
+| File | Content |
 |--------|--------|
-| `hero-loop.webm` | hlavní hero smyčka |
-| `hero-loop.mp4` | fallback Safari / starší engine (volitelné druhé `<source>`) |
-| `board-detail-loop.webm` | detail desky / LED |
-| `app-ui-loop.webm` | mock zařízení s UI (volitelné) |
+| `hero-loop.webm` | main hero loop |
+| `hero-loop.mp4` | Safari / older engine fallback (optional second `<source>`) |
+| `board-detail-loop.webm` | board / LED detail |
+| `app-ui-loop.webm` | device mock with UI (optional) |
 
-Statické obrázky držím zvlášť: `board-render.webp`, `app-mock.webp` podle [`downloads.html`](../../gh-pages-ready/downloads.html).
+Static images stay separate: `board-render.webp`, `app-mock.webp` per [`downloads.html`](../../gh-pages-ready/downloads.html).
 
 ---
 
-## Video 1 — Hero: „CzechMate v prostoru“
+## Video 1 — Hero: “CzechMate in space”
 
-**Účel:** první dojem na [`downloads.html`](../../gh-pages-ready/downloads.html) — nahradit textový placeholder v hero / pozadí za titulkem.
+**Purpose:** first impression on [`downloads.html`](../../gh-pages-ready/downloads.html) — replace text hero / background behind the title.
 
-| Položka | Specifikace |
+| Item | Specification |
 |---------|-------------|
-| **Pracovní název** | `hero-loop` |
-| **Stopáž** | **10–16 s** na smyčku |
-| **Formát obrazu** | **16∶9** (1920×1080 nebo 1600×900) |
-| **Obsah** | celkový shot **fyzické šachovnice** (CAD / blok model): pole, rámeček, náznak **tlačítkové řady**; volitelně malý **ESP modul** v pozadí (ne dominantní). |
-| **Světlo** | noční / studiová — **RGB akcent** v souladu s brandem (cyan–modrá, jemný bloom na LED); **low-key**, čitelná silueta desky. |
-| **Kamera** | pomalý **orbit** (15–30°) **nebo** jemný **dolly in**; žádný agresivní handheld. |
-| **LED** | krátká **sekvence**: okraj pole → **highlight tahu** (např. e2→e4 jako dvě zářící pole) → návrat do klidu; zacyklitelné. |
-| **Post** | lehký **glare / bloom** jen na LED; **grain** jen hodně slabě. |
-| **Export** | WebM VP9, ideálně **2-pass**, cíl **≤ 10 MB**; volitelně H.264 pro Safari. |
+| **Working title** | `hero-loop` |
+| **Duration** | **10–16 s** loop |
+| **Aspect** | **16∶9** (1920×1080 or 1600×900) |
+| **Content** | wide shot of **physical chessboard** (CAD / block model): squares, frame, hint of **button row**; optional small **ESP module** in background (not dominant). |
+| **Lighting** | night / studio — **RGB accent** on brand (cyan–blue, soft bloom on LEDs); **low-key**, readable board silhouette. |
+| **Camera** | slow **orbit** (15–30°) **or** gentle **dolly in**; no aggressive handheld. |
+| **LED** | short **sequence**: edge squares → **move highlight** (e.g. e2→e4 as two glowing squares) → back to idle; loopable. |
+| **Post** | light **glare / bloom** on LEDs only; **grain** very subtle. |
+| **Export** | WebM VP9, ideally **2-pass**, target **≤ 10 MB**; optional H.264 for Safari. |
 
-**Storyboard (hrubě):**
+**Storyboard (rough):**
 
-1. **0–3 s:** široký záběr, deska ve stínu, první LED „probudit“.
-2. **3–8 s:** kamera se posune / otočí; highlight tahu.
-3. **8–konec:** klidová pozice — **sedí** s framem 0 pro loop (nebo krátký fade).
+1. **0–3 s:** wide shot, board in shadow, first LEDs “wake up”.
+2. **3–8 s:** camera moves / rotates; move highlight.
+3. **8–end:** rest position — **matches** frame 0 for loop (or short fade).
 
 ---
 
-## Video 2 — Detail hardware: „LED pole a hloubka“
+## Video 2 — Hardware detail: “LED square and depth”
 
-**Účel:** sekce kolem hardware — loop vedle textu nebo pod statickým WebP.
+**Purpose:** hardware section — loop beside text or under static WebP.
 
-| Položka | Specifikace |
+| Item | Specification |
 |---------|-------------|
-| **Pracovní název** | `board-detail-loop` |
-| **Stopáž** | **8–12 s** |
-| **Formát** | **16∶9** nebo **4∶3** (musí sedět s CSS kontejnerem na webu — split často ~4∶3) |
-| **Obsah** | **makro** na pole: WS2812 / difuzér, řez modelem nebo mělká DOF. |
-| **Animace** | pomalý **scan** barvy po řádku/sloupci nebo **pulz** „šach“ na jednom poli. |
-| **Kamera** | statika nebo mikro **pan**. |
-| **Export** | WebM, cíl **≤ 6–8 MB** (klidně 1280×720). |
+| **Working title** | `board-detail-loop` |
+| **Duration** | **8–12 s** |
+| **Aspect** | **16∶9** or **4∶3** (must fit web CSS container — split often ~4∶3) |
+| **Content** | **macro** on a square: WS2812 / diffuser, section cut or shallow DOF. |
+| **Animation** | slow color **scan** along row/column or **pulse** “check” on one square. |
+| **Camera** | static or micro **pan**. |
+| **Export** | WebM, target **≤ 6–8 MB** (1280×720 OK). |
 
-**Storyboard:** tma → rozsvícení řady → změna jedné buňky → návrat do klidu → sedí s začátkem smyčky.
+**Storyboard:** dark → row lights up → one cell changes → back to idle → matches loop start.
 
 ---
 
-## Video 3 — Aplikace v zařízení: „Mock glass UI“
+## Video 3 — App on device: “Mock glass UI”
 
-**Účel:** sekce **Aplikace** — doplněk k [`app-mock.webp`](../../gh-pages-ready/landing/assets/app-placeholder.svg).
+**Purpose:** **App** section — complement to [`app-mock.webp`](../../gh-pages-ready/landing/assets/app-placeholder.svg).
 
-| Položka | Specifikace |
+| Item | Specification |
 |---------|-------------|
-| **Pracovní název** | `app-ui-loop` |
-| **Stopáž** | **12–18 s** |
-| **Formát** | **16∶9** (telefon uprostřed letterboxu) nebo **9∶16** vložené do 16∶9 s tmavým pozadím |
-| **Obsah** | model **telefonu**; na display jednoduchý shader / UV animovaná textura s několika „obrazovkami“ (partie, připojení, nastavení). Nemusí být pixel-perfect — stačí **podobná paleta** a Material-like typografie. |
-| **Animace** | pomalý **scroll** nebo **crossfade** mezi 2–3 stavy; jemný **lesk** rámečku. |
-| **Export** | WebM, cíl **≤ 10 MB**. |
+| **Working title** | `app-ui-loop` |
+| **Duration** | **12–18 s** |
+| **Aspect** | **16∶9** (phone centered letterbox) or **9∶16** inside 16∶9 with dark background |
+| **Content** | **phone** model; display simple shader / UV animated texture with a few “screens” (game, connection, settings). Need not be pixel-perfect — **similar palette** and Material-like typography enough. |
+| **Animation** | slow **scroll** or **crossfade** between 2–3 states; subtle **frame gloss**. |
+| **Export** | WebM, target **≤ 10 MB**. |
 
-**Storyboard:** splash CzechMate → připojení (BLE/Wi‑Fi abstraktně) → šachovnice v app → zpět na klid → loop.
+**Storyboard:** CzechMate splash → connection (BLE/Wi‑Fi abstract) → board in app → back to idle → loop.
 
 ---
 
-## Video 4 (volitelné) — „Spojení deska ↔ telefon“
+## Video 4 (optional) — “Board ↔ phone link”
 
-**Účel:** teaser na sociálně sítě / druhou stránku.
+**Purpose:** social teaser / second page.
 
-| Položka | Specifikace |
+| Item | Specification |
 |---------|-------------|
-| **Pracovní název** | `sync-concept` |
-| **Stopáž** | **6–10 s** |
-| **Obsah** | split frame nebo grafická „linka“ mezi deskou a telefonem — symbolika toku dat. |
-| **Styl** | abstraktnější než V1–3. |
-| **Export** | WebM **≤ 5 MB** nebo čistě **YouTube**. |
+| **Working title** | `sync-concept` |
+| **Duration** | **6–10 s** |
+| **Content** | split frame or graphic “line” between board and phone — data flow symbolism. |
+| **Style** | more abstract than V1–3. |
+| **Export** | WebM **≤ 5 MB** or **YouTube** only. |
 
 ---
 
-## Distribuce na webu
+## Web distribution
 
-### Varianta A — soubor v repu (krátké smyčky)
+### Option A — file in repo (short loops)
 
-1. WebM (± MP4) do [`gh-pages-ready/landing/assets/`](../../gh-pages-ready/landing/assets/).
-2. V [`downloads.html`](../../gh-pages-ready/downloads.html) hero např.:
+1. WebM (± MP4) into [`gh-pages-ready/landing/assets/`](../../gh-pages-ready/landing/assets/).
+2. In [`downloads.html`](../../gh-pages-ready/downloads.html) hero e.g.:
 
 ```html
 <video class="hero__video" data-hero-video autoplay muted loop playsinline>
@@ -120,30 +120,30 @@ Statické obrázky držím zvlášť: `board-render.webp`, `app-mock.webp` podle
 </video>
 ```
 
-3. [`landing.js`](../../gh-pages-ready/landing/landing.js) už umí `prefers-reduced-motion` u `data-hero-video`.
+3. [`landing.js`](../../gh-pages-ready/landing/landing.js) already handles `prefers-reduced-motion` for `data-hero-video`.
 
-### Varianta B — YouTube / Vimeo
+### Option B — YouTube / Vimeo
 
-- video jako **Neveřejné** / **Neuvedené v seznamu**
-- iframe podle komentáře v `downloads.html`
-- bez velkého binárního souboru v gitu
-
----
-
-## Než to pošlu do gitu
-
-- [ ] délka a velikost souboru v rozumném rozmezí  
-- [ ] smyčka bez rušivého skoku  
-- [ ] bez audio tracku (nebo vědomě vypnutý v `<video>`)  
-- [ ] názvy souborů sedí s [`downloads.html`](../../gh-pages-ready/downloads.html)  
-- [ ] na velkém monitoru i na mobilu je hlavní motiv čitelný  
+- video as **Unlisted** / **Not listed**
+- iframe per comment in `downloads.html`
+- no large binary in git
 
 ---
 
-## Související
+## Before committing to git
+
+- [ ] length and file size in reasonable range  
+- [ ] loop without jarring jump  
+- [ ] no audio track (or consciously muted in `<video>`)  
+- [ ] filenames match [`downloads.html`](../../gh-pages-ready/downloads.html)  
+- [ ] main subject readable on large monitor and mobile  
+
+---
+
+## Related
 
 - [`gh-pages-ready/downloads.html`](../../gh-pages-ready/downloads.html)  
 - [`gh-pages-ready/README.md`](../../gh-pages-ready/README.md)  
 - [`docs/README.md`](../README.md)  
 
-Verze briefu: **1.0** — doplňuju podle reálných exportů (bitrate, finální názvy).
+Brief version: **1.0** — updated from real exports (bitrate, final names).

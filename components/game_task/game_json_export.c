@@ -213,7 +213,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                             "0,\"piece\":\" \",\"notation\":\"\"}");
   }
 
-  /* Rošáda na 2 tahy: web musí vědět, že má čekat na tah věže (deska je mezistav). */
+  /* Casting for 2 turns: the web must know to wait for the rook's turn (the board is an intermediate state). */
   if (castling_state.in_progress) {
     char cf[4] = {0}, ct[4] = {0};
     convert_coords_to_notation(castling_state.rook_from_row,
@@ -228,14 +228,14 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     GAME_STATUS_JSON_APPEND(",\"castling_in_progress\":false");
   }
 
-  // Game end information - použít current_endgame_reason pro přesné
-  // rozlišení
+  // Game end information - use current_endgame_reason for exact
+  // distinction
   if (current_game_state == GAME_STATE_FINISHED) {
     const char *end_reason = "Unknown";
     const char *winner = "None";
     const char *loser = "None";
 
-    // Nejprve určit vítěze
+    // First determine the winner
     if (current_result_type == RESULT_WHITE_WINS) {
       winner = "White";
       loser = "Black";
@@ -247,7 +247,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
       loser = "Draw";
     }
 
-    // Pak určit důvod podle current_endgame_reason
+    // Then determine the reason by current_endgame_reason
     switch (current_endgame_reason) {
     case ENDGAME_REASON_CHECKMATE:
       end_reason = "Checkmate";
@@ -292,7 +292,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                             "\"winner\":\"\",\"loser\":\"\"}");
   }
 
-  // Error recovery state pro vizuální indikaci na webu
+  // Error recovery state for visual indication on the website
   if (error_recovery_state.waiting_for_move_correction) {
     char invalid_notation[4] = {0};
     char original_notation[4] = {0};
@@ -310,8 +310,8 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                             invalid_notation, original_notation,
                             error_recovery_state.error_count);
   } else {
-    /* Uzavřít objekt error_state — dříve chybějící } rozbíjelo JSON (restore_state
-     * vnořený do error_state). */
+    /* Close error_state object — previously missing } was breaking JSON (restore_state
+     * nested in error_state). */
     GAME_STATUS_JSON_APPEND(",\"error_state\":{\"active\":false}");
   }
 
@@ -529,7 +529,7 @@ esp_err_t game_get_advantage_json(char *buffer, size_t size) {
   offset += snprintf(buffer + offset, size - offset, "],\"count\":%" PRIu32,
                      advantage_history_count);
 
-  // Přidat další statistiky
+  // Add more statistics
   offset += snprintf(buffer + offset, size - offset,
                      ",\"white_checks\":%" PRIu32 ",\"black_checks\":%" PRIu32,
                      white_checks, black_checks);
@@ -538,7 +538,7 @@ esp_err_t game_get_advantage_json(char *buffer, size_t size) {
                ",\"white_castles\":%" PRIu32 ",\"black_castles\":%" PRIu32,
                white_castles, black_castles);
 
-  // Průměrný čas na tah
+  // Average time per move
   uint32_t current_time = esp_timer_get_time() / 1000;
   uint32_t game_duration =
       (game_start_time > 0) ? (current_time - game_start_time) : 0;

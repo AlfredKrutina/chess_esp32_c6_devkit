@@ -25,10 +25,10 @@ static const char *TAG = "GAME_PROMOTION";
 /**
  * @brief Keep promotion square visually anchored while promotion is pending
  *
- * UX goal (swap_then_choose, swap volitelný):
- * - Hráč vždy vidí, na kterém poli probíhá promoce (a kde může případně
- * swapovat)
- * - Nesahá na ostatní LED (jen 1 políčko na šachovnici)
+ * UX goal (swap_then_choose, swap optional):
+ * - The player always sees on which square the graduation takes place (and where he can
+ * swap)
+ * - Does not extend to other LEDs (only 1 square on the board)
  */
 void game_update_promotion_anchor_led(void) {
   if (!promotion_state.pending) {
@@ -58,22 +58,22 @@ void game_update_promotion_anchor_led(void) {
 }
 
 /**
- * @brief Zkontroluje zda je promoce mozna a aktualizuje LED indikaci tlacitek
+ * @brief Checks whether graduation is possible and updates the LED indication of the buttons
  *
- * Tato funkce kontroluje vsechny pesce na promotion squares (row 0 a 7)
- * a aktualizuje promotion_state. Nasledne aktualizuje LED indikaci vsech
- * promotion tlacitek (zelena = aktivni, modra = neaktivni).
+ * This function checks all pesce on promotion squares (row 0 and 7)
+ * and updates the promotion_state. Next, it updates the LED indication of all
+ * promotion buttons (green = active, blue = inactive).
  *
  * @details
- * Funkce by mela byt volana:
- * - Po kazdem tahu
- * - Po promoci
- * - Pri inicializaci hry
+ * The function should be the steering wheel:
+ * - After each turn
+ * - After graduation
+ * - When initializing the game
  *
- * LED indikace:
- * - Zelena (0,255,0): Promoce je mozna pro aktualniho hrace
- * - Modra (0,0,255): Promoce neni mozna
- * - Reset tlacitko (LED 72): Vzdy zelena
+ * LED indication:
+ * - Green (0,255,0): Graduation is possible for the current player
+ * - Blue (0,0,255): Graduation is not possible
+ * - Reset button (LED 72): Always green
  */
 void game_check_promotion_needed(void) {
   // Reset promotion state
@@ -208,22 +208,22 @@ void game_check_promotion_needed(void) {
 }
 
 /**
- * @brief Zpracuje button event pro promoci
+ * @brief Handles the graduation button event
  *
- * @param button_id ID tlacitka (0-7 pro promotion, 8 pro reset)
+ * @param button_id Button ID (0-7 for promotion, 8 for reset)
  *
  * @details
- * Mapovani tlacitek:
+ * Button Mapping:
  * - 0-3: White promotion (Queen, Rook, Bishop, Knight)
  * - 4-7: Black promotion (Queen, Rook, Bishop, Knight)
  * - 8: Reset button
  *
- * Fyzicky jsou jen 4 tlacitka (QUEEN, ROOK, BISHOP, KNIGHT),
- * ktere se mapuji na 0-3 nebo 4-7 podle current_player.
+ * There are only 4 physical buttons (QUEEN, ROOK, BISHOP, KNIGHT),
+ * which maps to 0-3 or 4-7 according to current_player.
  */
 void game_process_promotion_button(uint8_t button_id) {
   // #2 & #3: Atomic check with mutex
-  // Použít recursive mutex funkce (promotion_mutex je recursive mutex)
+  // Use a recursive mutex function (promotion_mutex is a recursive mutex)
   if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) != pdTRUE) {
     ESP_LOGE(TAG, "❌ Failed to acquire promotion mutex");
     return;
@@ -303,8 +303,8 @@ void game_process_promotion_button(uint8_t button_id) {
     current_player =
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-    // Po dokončení promoce už žádná figurka není zvednutá – aby se zobrazily
-    // movable pieces (game_highlight_movable_pieces nesmí skipnout kvůli
+    // After completing the graduation, no more figures are raised - to show them
+    // movable pieces (game_highlight_movable_pieces must not skip due to
     // piece_lifted).
     piece_lifted = false;
     lifted_piece_row = 0;
@@ -320,14 +320,14 @@ void game_process_promotion_button(uint8_t button_id) {
     game_end_timer_move();
     game_start_timer_move(current_player == PLAYER_WHITE);
 
-    // KRITICKÉ: Endgame kontrola PŘED player change animací!
-    // Pokud je endgame, player change se NESPOUŠTÍ
+    // CRITICAL: Endgame check BEFORE player change animations!
+    // If endgame, player change will NOT start
     game_state_t end_game_result = game_check_end_game_conditions();
     if (end_game_result == GAME_STATE_FINISHED) {
       current_game_state = GAME_STATE_FINISHED;
       game_active = false;
 
-      // Najít pozici krále vítěze pro endgame animaci
+      // Find the position of the winning king for the endgame animation
       player_t winner =
           (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
       uint8_t king_pos = 28; // default e4
@@ -345,7 +345,7 @@ void game_process_promotion_button(uint8_t button_id) {
                "at position %d",
                king_pos);
 
-      // Spustit endgame animaci (wave z krále vítěze)
+      // Start the endgame animation (wave from king winner)
       led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
                                    .led_index = king_pos,
                                    .red = 255,
@@ -359,19 +359,19 @@ void game_process_promotion_button(uint8_t button_id) {
           TAG,
           "✅ Endgame animation started - player change animation SKIPPED");
     } else {
-      // Není endgame - spustit player change animaci
+      // It is not endgame - start the player change animation
       uint8_t player_color =
           (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
       led_command_t player_change_cmd = {
-          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Použít
-                                              // ANIM_PLAYER_CHANGE místo
+          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
+                                              // ANIM_PLAYER_CHANGE instead
                                               // PLAYER_CHANGE
           .led_index = 0,
           .red = 0,
           .green = 0,
           .blue = 0,
           .duration_ms = 0,
-          .data = &player_color // Předat barvu hráče
+          .data = &player_color // Pass the player's color
       };
       led_execute_command_new(&player_change_cmd);
 
@@ -382,10 +382,10 @@ void game_process_promotion_button(uint8_t button_id) {
                                     // right after player change animation
     }
 
-    // Zkontrolovat, zda je nový hráč v šachu
+    // Check if the new player is in check
     bool in_check = game_is_king_in_check(current_player);
     if (in_check) {
-      // Najít pozici krále
+      // Find the position of the king
       int king_row = -1, king_col = -1;
       piece_t king_piece = (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING
                                                             : PIECE_BLACK_KING;
@@ -404,14 +404,14 @@ void game_process_promotion_button(uint8_t button_id) {
       if (king_row != -1 && king_col != -1) {
         if (game_led_guidance_show_check_anim()) {
           uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-          // Spustit check animaci - růžové svícení na králi
+          // Start the check animation - pink lighting on the king
           led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
                                      .led_index = king_led_index,
                                      .red = 0,
                                      .green = 0,
                                      .blue = 0,
                                      .duration_ms =
-                                         0, // Trvalé až do dalšího tahu
+                                         0, // Permanent until next turn
                                      .data = NULL};
           led_execute_command_new(&check_cmd);
           ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",

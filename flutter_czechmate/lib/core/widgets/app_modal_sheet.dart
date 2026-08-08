@@ -58,7 +58,7 @@ Widget _wrapEscapeDismiss(BuildContext sheetContext, Widget child, bool on) {
   );
 }
 
-/// Jednotné otevírání bottom sheetů (drag handle, desktop max šířka, volitelně Esc).
+/// Uniform opening of bottom sheets (drag handle, desktop max width, optional Esc).
 Future<T?> showAppModalBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -68,7 +68,7 @@ Future<T?> showAppModalBottomSheet<T>({
   Color? backgroundColor,
   BoxConstraints? constraints,
 
-  /// Na desktopu zavře list Escape (např. výběr času). Pro provisioning Wi‑Fi nechte `false`.
+  /// Closes the Escape sheet on the desktop (eg time selection). Leave `false` for Wi‑Fi provisioning.
   bool escapeToDismiss = true,
 }) {
   final merged = _mergeDesktopSheetConstraints(context, constraints);

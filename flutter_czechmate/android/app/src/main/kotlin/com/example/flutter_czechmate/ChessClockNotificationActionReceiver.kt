@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 
 /**
- * Akce z ongoing notifikace — viz plán Fáze C (PendingIntent → Flutter přes [NotificationActionBridge]).
+ * Actions from the ongoing notification — see plan Phase C (PendingIntent → Flutter via [NotificationActionBridge]).
  */
 class ChessClockNotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {

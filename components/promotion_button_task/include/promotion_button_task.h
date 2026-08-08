@@ -1,22 +1,22 @@
 /**
- * @file   promotion_button_task.h
- * @brief  Promotion Button Task hlavicka pro ESP32-C6 sachovy projekt
+ * @file promotion_button_task.h
+ * @brief Promotion Button Task header for ESP32-C6 sach project
  *
- * Tato hlavicka definuje rozhrani pro promotion button task:
- * - Inicializace promotion button tasku a FreeRTOS komponent
- * - Zpracovani tlacitek pro volbu promoci (dama, vez, strelec, kun)
- * - Simulacni rezim bez hardware (pro development)
- * - Integrace s game taskem pro promoci
- * - 4 tlacitka pro ruzne typy promoci
+ * This header defines the interface for the promotion button task:
+ * - Initialization of the promotion button task and FreeRTOS components
+ * - Processing of buttons for choosing graduation (queen, queen, archer, king)
+ * - Simulation mode without hardware (for development)
+ * - Integration with game task for graduation
+ * - 4 buttons for different types of graduation
  *
  * @author Alfred Krutina
  * @version 1.8.0
- * @date   2025-08-16
+ * @date 2025-08-16
  * 
  * @details
- * Tento task zpracovava tlacitka pro promoci pescu. Kdyz pesec
- * dojde na konec sachovnice, hrac muze vybrat na co ho promenit
- * pomoci tlacitek (dama, vez, strelec, kun).
+ * This task is processed by the sand graduation button. When the dog
+ * reaches the end of the box, the player can choose what to change it to
+ * using the keys (queen, queen, shooter, king).
  */
 #ifndef PROMOTION_BUTTON_TASK_H
 #define PROMOTION_BUTTON_TASK_H
@@ -37,7 +37,7 @@ extern "C" {
 // KONSTANTY A TYPY
 // ============================================================================
 
-/** @brief Priorita promotion button tasku */
+/** @brief Promotion button task priority */
 #define PROMOTION_BUTTON_TASK_PRIORITY   3
 
 // ============================================================================
@@ -45,55 +45,55 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Inicializuje promotion button task
+ * @brief Initializes the promotion button task
  * 
- * Vytvori FreeRTOS task pro zpracovani promotion tlacitek.
+ * Create a FreeRTOS task for processing promotion buttons.
  * 
- * @return ESP_OK pri uspechu, ESP_ERR_NO_MEM pri nedostatku pameti
+ * @return ESP_OK on success, ESP_ERR_NO_MEM on lack of memory
  */
 esp_err_t promotion_button_task_init(void);
 
 /**
- * @brief Hlavni funkce promotion button tasku
+ * @brief The main function of the promotion button task
  * 
- * Bezi v nekonecne smycce a zpracovava promotion tlacitka.
- * V simulacnim rezimu pouze loguje udalosti.
+ * Runs in an infinite loop and processes promotion buttons.
+ * Only logs events in simulation mode.
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void promotion_button_task(void *pvParameters);
 
 /**
- * @brief Zpracuj volbu promoci
+ * @brief Process graduation choice
  * 
- * Zpracuje volbu hrace pro promoci pescu (dama, vez, strelec, kun).
+ * Processes the choice of player for the graduation of the pesca (queen, queen, shooter, king).
  * 
- * @param choice Volba promoci (PROMOTION_QUEEN, PROMOTION_ROOK, atd.)
- * @return ESP_OK pri uspechu, ESP_ERR_INVALID_STATE pokud task neni inicializovan
+ * @param choice Choice of promotion (PROMOTION_QUEEN, PROMOTION_ROOK, etc.)
+ * @return ESP_OK on success, ESP_ERR_INVALID_STATE if the task is not initialized
  */
 esp_err_t process_promotion_choice(promotion_choice_t choice);
 
 /**
- * @brief Simuluj stisknuti promotion tlacitka
+ * @brief Simulate pressing the promotion button
  * 
- * Pro testovani - simuluje stisknuti jednoho ze 4 promotion tlacitek.
+ * For testing - simulates pressing one of the 4 promotion buttons.
  * 
- * @param button_index Index tlacitka (0-3: dama, vez, strelec, kun)
- * @return ESP_OK pri uspechu, ESP_ERR_INVALID_ARG pri neplatnem indexu
+ * @param button_index Index of the button (0-3: queen, queen, bishop, king)
+ * @return ESP_OK on success, ESP_ERR_INVALID_ARG on invalid index
  */
 esp_err_t simulate_promotion_button_press(uint8_t button_index);
 
 /**
- * @brief Overi zda je promotion button task inicializovan
+ * @brief Verify if the promotion button task is initialized
  * 
- * @return true pokud je task inicializovan
+ * @return true if the task is initialized
  */
 bool promotion_button_is_initialized(void);
 
 /**
- * @brief Ziskej pocet zpracovanych button udalosti
+ * @brief Get the number of button events processed
  * 
- * @return Pocet zpracovanych udalosti od startu
+ * @return Number of processed events since start
  */
 uint32_t promotion_button_get_event_count(void);
 

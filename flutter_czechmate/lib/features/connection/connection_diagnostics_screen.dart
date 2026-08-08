@@ -5,7 +5,7 @@ import '../../core/localization/context_l10n.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import 'board_session_notifier.dart';
 
-/// Parita `AdvancedConnectionDiagnosticsView` — REST poll / WS souhrn.
+/// Parity `AdvancedConnectionDiagnosticsView` — REST poll / WS summary.
 class ConnectionDiagnosticsScreen extends ConsumerWidget {
   const ConnectionDiagnosticsScreen({super.key});
 

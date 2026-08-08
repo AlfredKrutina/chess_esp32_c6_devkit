@@ -1,6 +1,6 @@
 import '../models/game_snapshot.dart';
 
-/// Parita `GameEndReportTiming.swift` / `EndgameThinkPlyPoint`.
+/// Parity `GameEndReportTiming.swift` / `EndgameThinkPlyPoint`.
 class GameEndThinkPlyPoint {
   const GameEndThinkPlyPoint({
     required this.plyIndex,
@@ -21,7 +21,7 @@ class GameEndCumulativePoint {
 }
 
 class GameEndReportTiming {
-  /// Oříznutí nesmyslných intervalů (chyba hodin / reboot desky) — graf bez vertikálních artifactů.
+  /// Trimming of meaningless intervals (clock error / board reboot) — graph without vertical artifacts.
   static const double maxPlausibleMoveSeconds = 3600;
 
   static double? _sanitizeMoveDeltaSec(double raw) {

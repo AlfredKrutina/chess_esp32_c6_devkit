@@ -13,7 +13,7 @@ import '../../core/models/board_timer_state.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-/// Ruční URL, test spojení a příkazy **Wi‑Fi STA / NVS** (`/api/wifi/*`) — HTTP na desku.
+/// Manual URL, connection test and commands **Wi‑Fi STA / NVS** (`/api/wifi/*`) — HTTP on board.
 class ManualConnectionScreen extends ConsumerStatefulWidget {
   const ManualConnectionScreen({super.key});
 
@@ -301,17 +301,17 @@ class _ManualConnectionScreenState
                 Text(
                   devMode
                       ? 'STA: ${_wifiStatus!.staSsid.isEmpty ? '—' : _wifiStatus!.staSsid} · ${_wifiStatus!.staIp} · ${_wifiStatus!.staConnected ? "online" : "offline"}'
-                          '${_wifiStatus!.staBlkOct.isEmpty ? '' : ' · DHCP blok 3. okt.: ${_wifiStatus!.staBlkOct}'}'
+                          '${_wifiStatus!.staBlkOct.isEmpty ? '' : ' · DHCP block 3rd oct.: ${_wifiStatus!.staBlkOct}'}'
                       : 'STA: ${_wifiStatus!.staConnected ? "online" : "offline"}',
                 ),
                 Text(
                   devMode
                       ? (_wifiStatus!.apActive
-                          ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? '—' : _wifiStatus!.apSsid} · ${_wifiStatus!.apIp} · klientů: ${_wifiStatus!.apClients}'
-                          : 'AP: vypnutý (hotspot na desce nevysílá)')
+                          ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? '—' : _wifiStatus!.apSsid} · ${_wifiStatus!.apIp} · clients: ${_wifiStatus!.apClients}'
+                          : 'AP: off (board hotspot not broadcasting)')
                       : (_wifiStatus!.apActive
-                          ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? 'zapnutý' : _wifiStatus!.apSsid} · klientů: ${_wifiStatus!.apClients}'
-                          : 'AP: vypnutý — zapni hotspot z obrazovky Najít desku přes Bluetooth'),
+                          ? 'AP: ${_wifiStatus!.apSsid.isEmpty ? 'on' : _wifiStatus!.apSsid} · clients: ${_wifiStatus!.apClients}'
+                          : 'AP: off — enable hotspot from Find board via Bluetooth'),
                 ),
                 const SizedBox(height: 8),
               ],

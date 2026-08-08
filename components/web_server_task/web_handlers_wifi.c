@@ -21,16 +21,16 @@ static const char *TAG = "WEB_WIFI";
 // ============================================================================
 
 /**
- * @brief Handler pro POST /api/wifi/config
+ * @brief Handler for POST /api/wifi/config
  *
- * Ulozi WiFi konfiguraci (SSID a heslo) do NVS.
+ * Saves WiFi configuration (SSID and password) to NVS.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Ocekava JSON: {"ssid": "...", "password": "..."}
- * Vraci JSON: {"success": true/false, "message": "..."}
+ * Expects JSON: {"ssid": "...", "password": "..."}
+ * Returns JSON: {"success": true/false, "message": "..."}
  */
 esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/config");
@@ -39,7 +39,7 @@ esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  // Nacist JSON z request body
+  // Extract JSON from request body
   char content[256] = {0};
   int ret = httpd_req_recv(req, content, sizeof(content) - 1);
   if (ret <= 0) {
@@ -158,15 +158,15 @@ esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/wifi/connect
+ * @brief Handler for POST /api/wifi/connect
  *
- * Pripoji ESP32 k WiFi site s ulozenou konfiguraci.
+ * I connect the ESP32 to a WiFi site with a saved configuration.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Vraci JSON: {"success": true/false, "message": "..."}
+ * Returns JSON: {"success": true/false, "message": "..."}
  */
 esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/connect");
@@ -197,7 +197,7 @@ esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
     char error_msg[256];
     const char *user_message = NULL;
 
-    // Prevest ESP error kody na uzivatelsky pristupne zpravy
+    // Convert ESP error codes to user accessible messages
     if (err == ESP_ERR_INVALID_STATE) {
       user_message = "Connection already in progress. Please wait...";
     } else if (err == ESP_ERR_NOT_FOUND) {
@@ -232,15 +232,15 @@ esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/wifi/disconnect
+ * @brief Handler for POST /api/wifi/disconnect
  *
- * Odpoji ESP32 od WiFi site.
+ * Disconnect the ESP32 from the WiFi site.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Vraci JSON: {"success": true/false, "message": "..."}
+ * Returns JSON: {"success": true/false, "message": "..."}
  */
 esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/disconnect");
@@ -270,15 +270,15 @@ esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/wifi/clear
+ * @brief Handler for POST /api/wifi/clear
  *
- * Vymaze ulozenou WiFi konfiguraci z NVS.
+ * Deletes saved WiFi configuration from NVS.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Vraci JSON: {"success": true/false, "message": "..."}
+ * Returns JSON: {"success": true/false, "message": "..."}
  */
 esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/clear");
@@ -287,7 +287,7 @@ esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  // Odpojit STA pokud je pripojeny
+  // Disconnect the STA if it is connected
   if (wifi_is_sta_connected()) {
     wifi_disconnect_sta();
   }
@@ -313,15 +313,15 @@ esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro GET /api/wifi/status
+ * @brief Handler for GET /api/wifi/status
  *
- * Vrati aktualni stav WiFi (AP i STA).
+ * Return the current WiFi status (AP and STA).
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Vraci JSON s informacemi o AP a STA statusu.
+ * Returns JSON with AP and STA status information.
  */
 esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/wifi/status");

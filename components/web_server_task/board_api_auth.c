@@ -178,7 +178,7 @@ bool board_api_auth_admin_http_denied(httpd_req_t *req) {
     return false;
   }
   if (!web_is_locked()) {
-    /* WEB_LOCK OFF: stejný model důvěry jako veřejné GET — OTA/Wi‑Fi admin z LAN bez tokenu. */
+    /* WEB_LOCK OFF: same trust model as public GET — OTA/Wi‑Fi admin from LAN without token. */
     return false;
   }
   send_auth_error(

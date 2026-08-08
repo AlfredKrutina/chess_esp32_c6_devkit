@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/localization/context_l10n.dart';
 
-/// Rozhodnutí uživatele když HTTPS OTA vyžaduje STA s internetem.
+/// User decision when HTTPS OTA requires STA with Internet.
 enum OtaHttpsStaGateChoice {
   abort,
   bleUpload,

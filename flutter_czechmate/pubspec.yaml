@@ -1,5 +1,5 @@
 name: czechmate
-description: CzechMate — Flutter port (ESP šachovnice + BLE/HTTP/WS).
+description: CzechMate — Flutter port (ESP chessboard + BLE/HTTP/WS).
 publish_to: "none"
 version: 1.8.0+5
 

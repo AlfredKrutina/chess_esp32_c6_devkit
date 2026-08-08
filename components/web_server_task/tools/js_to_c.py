@@ -2,7 +2,7 @@
 """
 Convert web/chess_app.js to C string array for embedding in web_server_task.c (stdout).
 
-Spuštění z kořene repa:
+Run from the repository root:
   python3 components/web_server_task/tools/js_to_c.py
 """
 

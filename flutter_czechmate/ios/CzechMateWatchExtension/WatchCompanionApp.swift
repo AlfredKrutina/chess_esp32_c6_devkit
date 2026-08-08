@@ -100,16 +100,16 @@ struct WatchRootView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 10) {
         if !model.phoneReachable {
-          Label("Zařízení nedostupné", systemImage: "wifi.slash")
+          Label("Device unavailable", systemImage: "wifi.slash")
             .font(.caption2)
             .foregroundStyle(.secondary)
         }
 
         if model.phase == "no_game" {
-          Text("Žádná aktivní partie")
+          Text("No active game")
             .font(.headline)
         } else if model.phase == "no_timer" {
-          Text("Čekání na časomíru")
+          Text("Waiting for clock")
             .font(.headline)
         } else {
           HStack {
@@ -133,13 +133,13 @@ struct WatchRootView: View {
             .foregroundStyle(.secondary)
 
           HStack(spacing: 8) {
-            Button("Pauza") {
+            Button("Pause") {
               model.sendPause()
             }
             .buttonStyle(.bordered)
             .disabled(!model.phoneReachable || model.gamePaused)
 
-            Button("Pokračovat") {
+            Button("Resume") {
               model.sendResume()
             }
             .buttonStyle(.borderedProminent)

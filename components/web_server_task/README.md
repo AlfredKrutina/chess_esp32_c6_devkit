@@ -1,8 +1,8 @@
 # web_server_task
 
-HTTP server, REST API, embedded web UI a PNG figurek.
+HTTP server, REST API, embedded web UI, and piece PNG assets.
 
-## Struktura
+## Structure
 
 ```
 web_server_task/
@@ -12,18 +12,18 @@ web_server_task/
 ├── chess_piece_http.c
 ├── include/
 ├── web/
-│   ├── chess_app.js       # generovaný výstup — concat_web_js.py
+│   ├── chess_app.js       # generated output — concat_web_js.py
 │   ├── js/
 │   │   ├── matrix_guard.js
 │   │   ├── api.js
 │   │   ├── prefs.js
-│   │   └── app_main.js    # hlavní logika (editovat zde)
-│   └── piece_assets/      # PNG pro EMBED_FILES v CMakeLists.txt
+│   │   └── app_main.js    # main logic (edit here)
+│   └── piece_assets/      # PNGs for EMBED_FILES in CMakeLists.txt
 └── tools/
     ├── concat_web_js.py   # web/js/* → chess_app.js
-    ├── embed_chess_js.py  # přepíše JS pole v web_server_task.c
-    ├── js_to_c.py         # stdout náhled C pole
-    ├── update_js_in_c.py  # alternativní updater
+    ├── embed_chess_js.py  # rewrites JS array in web_server_task.c
+    ├── js_to_c.py         # stdout preview of C array
+    ├── update_js_in_c.py  # alternative updater
     ├── process_piece_pngs.py
     └── mqtt_panel_snippet.txt
 ```

@@ -1,74 +1,74 @@
 /**
  * @file uart_task.c
- * @brief UART Terminal Task - Interaktivni prikazovy radek pro ovladani sachu
+ * @brief UART Terminal Task - interactive command line for chess control
  *
  * @details
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT THIS FILE DOES
  * =============================================================================
  *
- * Tento task je "terminal" sachovnice. Umoznuje ovladani pres UART:
- * 1. Prikazovy radek s editaci (backspace, historie prikazu)
- * 2. 50+ prikazu pro ovladani (move, board, status, wifi, timer...)
- * 3. Barevny vystup (ANSI barvy) pro lepsi prehlednost
- * 4. Debug vypisy vsech tasku (tasks, heap, queues...)
- * 5. WiFi konfigurace a management
- * 6. Testovaci prikazy pro LED, matrix, animace
+ * This task is the chessboard "terminal". It enables control over UART:
+ * 1. Command line with editing (backspace, command history)
+ * 2. 50+ control commands (move, board, status, wifi, timer...)
+ * 3. Colored output (ANSI colors) for clearer readability
+ * 4. Debug dumps of all tasks (tasks, heap, queues...)
+ * 5. WiFi configuration and management
+ * 6. Test commands for LED, matrix, animations
  *
  * =============================================================================
- * JAK TO FUNGUJE?
+ * HOW IT WORKS
  * =============================================================================
  *
  * STARTUP:
- * - Inicializace UART (115200 baud)
- * - Vytvoreni input bufferu (256 znaku)
- * - Zobrazeni welcome logo
+ * - Initialize UART (115200 baud)
+ * - Create input buffer (256 characters)
+ * - Show welcome logo
  * - Command prompt: "chess> _"
  *
- * HLAVNI SMYCKA:
+ * MAIN LOOP:
  * while (1) {
- *     1. Cti znak z UART (blocking)
- *     2. Zpracuj vstup:
- *        - Normalni znak -> pridej do bufferu
- *        - ENTER -> parsuj a proved prikaz
- *        - BACKSPACE -> smaz znak
- *        - SIPKA NAHORU -> historie prikazu
- *     3. Proved prikaz z tabulky prikazu
- *     4. Vypis vysledek
+ *     1. Read character from UART (blocking)
+ *     2. Process input:
+ *        - Normal character -> append to buffer
+ *        - ENTER -> parse and execute command
+ *        - BACKSPACE -> delete character
+ *        - UP ARROW -> command history
+ *     3. Execute command from the command table
+ *     4. Print result
  * }
  *
  * =============================================================================
- * KOMUNIKACE (FIFOS & MUTEXY)
+ * COMMUNICATION (FIFOS & MUTEXES)
  * =============================================================================
  *
- * FRONTY (QUEUES) - Poslani prikazu jinym taskum:
- * - game_command_queue -> Prikazy pro game_task (move, reset...)
- * - web_server_queue -> Prikazy pro web server (wifi config...)
- * - LED se ovladaji primymi volanimi (fronta byla odstranena)
+ * QUEUES - Sending commands to other tasks:
+ * - game_command_queue -> Commands for game_task (move, reset...)
+ * - web_server_queue -> Commands for web server (wifi config...)
+ * - LEDs are controlled by direct calls (queue was removed)
  *
- * MUTEXY - Ochrana sdilenych zdroju:
- * - uart_mutex -> Ochrana UART vystupu (aby se neprekryvaly vypisy)
- *   DULEZITE: Vzdy pouzij pri printf/uart_write!
+ * MUTEXES - Protecting shared resources:
+ * - uart_mutex -> Protects UART output (prevent overlapping prints)
+ *   IMPORTANT: Always take it for printf/uart_write!
  *
- * PRISTUP:
+ * ACCESS:
  * @code
- * xSemaphoreTake(uart_mutex, portMAX_DELAY);  // Zamkni
- * printf("Muj vystup\\n");                      // Pis
- * xSemaphoreGive(uart_mutex);                  // Odemkni
+ * xSemaphoreTake(uart_mutex, portMAX_DELAY);  // Lock
+ * printf("My output\\n");                      // Write
+ * xSemaphoreGive(uart_mutex);                  // Unlock
  * @endcode
  *
  * =============================================================================
- * TABULKA PRIKAZU (COMMAND TABLE)
+ * COMMAND TABLE
  * =============================================================================
  *
- * Prikazy jsou organizovane v tabulce s function pointery:
- * - cmd_name: Jmeno prikazu (napr. "move")
- * - cmd_handler: Ukazatel na funkci (napr. uart_cmd_move)
- * - cmd_help: Kratka napoveda
- * - cmd_priority: Priorita (HIGH/MEDIUM/LOW)
+ * Commands are organized in a table with function pointers:
+ * - cmd_name: Command name (e.g. "move")
+ * - cmd_handler: Function pointer (e.g. uart_cmd_move)
+ * - cmd_help: Short help text
+ * - cmd_priority: Priority (HIGH/MEDIUM/LOW)
  *
- * Kategorie prikazu:
- * - Sachovnice: move, board, status, reset, undo
+ * Command categories:
+ * - Chessboard: move, board, status, reset, undo
  * - System: help, tasks, heap, version
  * - WiFi: wifi_scan, wifi_connect, wifi_status
  * - Timer: timer_start, timer_stop, timer_status
@@ -76,49 +76,49 @@
  * - Debug: matrix_debug, queue_stats
  *
  * =============================================================================
- * TABLE OF CONTENTS (NAVIGACE)
+ * TABLE OF CONTENTS
  * =============================================================================
  *
- * Sekce 1:  WDT Wrapper Functions ................... radek 70
- * Sekce 2:  UART Driver Functions ................... radek 160
- * Sekce 3:  Input Buffer & History .................. radek 250
- * Sekce 4:  Command Table Definition ................ radek 760
- * Sekce 5:  Command Handlers (50+ funkci) .......... radek 1800
- * Sekce 6:  Formatting & Output Functions ........... radek 350
- * Sekce 7:  Main UART Task .......................... radek 6200
+ * Section 1:  WDT Wrapper Functions ................... line 70
+ * Section 2:  UART Driver Functions ................... line 160
+ * Section 3:  Input Buffer & History .................. line 250
+ * Section 4:  Command Table Definition ................ line 760
+ * Section 5:  Command Handlers (50+ functions) ........ line 1800
+ * Section 6:  Formatting & Output Functions ........... line 350
+ * Section 7:  Main UART Task .......................... line 6200
  *
- * TIP: Ctrl+G pro skok na radek
+ * TIP: Ctrl+G to jump to a line
  *
  * =============================================================================
  * DEPENDENCIES
  * =============================================================================
  *
- * - game_task: Posilame prikazy (move, reset...)
- * - led_task: Test LED, animace
- * - web_server_task: WiFi konfigurace
- * - timer_system: Start/stop casovace
- * - config_manager: Ulozeni/nacteni konfigurace (NVS)
+ * - game_task: We send commands (move, reset...)
+ * - led_task: LED tests, animations
+ * - web_server_task: WiFi configuration
+ * - timer_system: Start/stop clock
+ * - config_manager: Save/load configuration (NVS)
  *
  * =============================================================================
- * KRITICKA PRAVIDLA
+ * CRITICAL RULES
  * =============================================================================
  *
- * @warning CO SE NESMI DELAT:
+ * @warning DO NOT:
  *
- * 1. NIKDY nevypisuj bez uart_mutex!
- *    ❌ printf("text");  // SPATNE - muze se prekriti s jinym taskem
+ * 1. NEVER print without uart_mutex!
+ *    ❌ printf("text");  // RACE - can overlap with another task
  *    ✅ xSemaphoreTake(uart_mutex, ...); printf("text"); xSemaphoreGive(...);
  *
- * 2. NIKDY nevolej blocking operace s dlouhym timeout!
- *    ❌ xQueueSend(queue, &data, portMAX_DELAY);  // Muze zablokovat WDT
+ * 2. NEVER call blocking operations with a long timeout!
+ *    ❌ xQueueSend(queue, &data, portMAX_DELAY);  // May block WDT
  *    ✅ xQueueSend(queue, &data, pdMS_TO_TICKS(1000));  // Max 1s
  *
- * 3. NIKDY nepristupuj primo k jinym taskum!
- *    ❌ game_board[0][0] = PIECE_KING;  // Primo pristup - NEBEZPECNE
- *    ✅ Pouzij fronty (game_command_queue)
+ * 3. NEVER access other tasks' data directly!
+ *    ❌ game_board[0][0] = PIECE_KING;  // Direct access - UNSAFE
+ *    ✅ Use queues (game_command_queue)
  *
- * 4. VZDY resetuj WDT v dlouhych smyckach!
- *    ✅ uart_task_wdt_reset_safe();  // Kazd ych par sekund
+ * 4. ALWAYS reset WDT in long loops!
+ *    ✅ uart_task_wdt_reset_safe();  // Every few seconds
  *
  * =============================================================================
  *
@@ -127,13 +127,13 @@
  * @date 2025-12-22
  *
  * @note
- * - Task priorita: 3 (nizsi nez game_task)
+ * - Task priority: 3 (lower than game_task)
  * - Stack size: 8KB
- * - Pouziva WDT (watchdog timer)
+ * - Uses WDT (watchdog timer)
  *
- * @see game_task.c - Sachova logika
- * @see led_task.c - LED ovladani
- * @see web_server_task.c - Web rozhrani
+ * @see game_task.c - Chess logic
+ * @see led_task.c - LED control
+ * @see web_server_task.c - Web interface
  */
 
 #include "esp_chip_info.h"
@@ -191,18 +191,18 @@ extern SemaphoreHandle_t uart_mutex;
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
+ * @brief Safe WDT reset with WARNING instead of ERROR logging for
  * ESP_ERR_NOT_FOUND
  *
- * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
- * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * This function safely resets the Task Watchdog Timer. If the task is not yet
+ * registered (which is normal during startup), WARNING is logged instead of ERROR.
  *
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
- * (WARNING pouze)
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
+ * (WARNING only)
  *
  * @details
- * Funkce je pouzivana pro bezpecny reset watchdog timeru behem UART operaci.
- * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ * The function is used to safely reset the watchdog timer during UART operation.
+ * Prevents startup errors when the task is not yet registered.
  */
 esp_err_t uart_task_wdt_reset_safe(void) {
   esp_err_t ret = esp_task_wdt_reset();
@@ -257,7 +257,7 @@ static const char *TAG = "UART_TASK";
     }                                                                          \
   } while (0)
 
-// Univerzální chunked printf makro podle návrhu
+// Universal chunked printf macro by design
 #define CHUNKED_PRINTF(format, ...)                                            \
   do {                                                                         \
     printf(format, ##__VA_ARGS__);                                             \
@@ -266,10 +266,10 @@ static const char *TAG = "UART_TASK";
     vTaskDelay(pdMS_TO_TICKS(1));                                              \
   } while (0)
 
-// Optimalizované konstanty pro ESP32-C6
-#define CHUNK_DELAY_MS 2                     // Minimální delay
+// Optimized constants for ESP32-C6
+#define CHUNK_DELAY_MS 2                     // Minimal delay
 #define MAX_CHUNK_SIZE UART_MESSAGE_TEXT_MAX /* uart_queue_message.h */
-#define STACK_SAFETY_LIMIT 512               // Minimální volný stack
+#define STACK_SAFETY_LIMIT 512               // Minimum free stack
 
 // UART configuration - only use if UART is enabled
 #if CONFIG_ESP_CONSOLE_UART_NUM >= 0
@@ -292,16 +292,16 @@ static void uart_fputs(const char *str);
 void uart_send_line(const char *str);
 
 /**
- * @brief Nahradi fputs s ESP-IDF UART driverem
+ * @brief Replace fputs with ESP-IDF UART driver
  *
- * Tato funkce posila string pres UART. Pouziva ESP-IDF UART driver
- * nebo USB Serial JTAG podle konfigurace.
+ * This function sends a string via UART. It uses the ESP-IDF UART driver
+ * or USB Serial JTAG depending on configuration.
  *
- * @param str String k poslani pres UART
+ * @param str String to send via UART
  *
  * @details
- * Funkce automaticky detekuje zda je UART povolen a pouzije
- * odpovidajici metodu pro poslani dat.
+ * The function automatically detects whether the UART is enabled and uses it
+ * the corresponding method for sending data.
  */
 static void uart_fputs(const char *str) {
   if (UART_ENABLED) {
@@ -313,16 +313,16 @@ static void uart_fputs(const char *str) {
 }
 
 /**
- * @brief Zapise jeden znak s okamzitym flush
+ * @brief Writes one character with immediate flush
  *
- * Tato funkce zapise jeden znak do UART s okamzitym flush.
- * Pouziva ESP-IDF UART driver nebo USB Serial JTAG podle konfigurace.
+ * This function writes one character to the UART with an immediate flush.
+ * Uses ESP-IDF UART driver or USB Serial JTAG depending on configuration.
  *
- * @param ch Znak k zapsani
+ * @param ch Character to write
  *
  * @details
- * Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky
- * detekuje zda je UART povolen.
+ * The function uses a mutex for safe operations from multiple fibers and automatically
+ * detects if UART is enabled.
  */
 void uart_write_char_immediate(char ch) {
   if (uart_mutex != NULL) {
@@ -342,16 +342,16 @@ void uart_write_char_immediate(char ch) {
 }
 
 /**
- * @brief Zapise string s okamzitym flush
+ * @brief Writes a string with immediate flush
  *
- * Tato funkce zapise cely string do UART s okamzitym flush.
- * Pouziva ESP-IDF UART driver nebo USB Serial JTAG podle konfigurace.
+ * This function writes the entire string to the UART with immediate flush.
+ * Uses ESP-IDF UART driver or USB Serial JTAG depending on configuration.
  *
- * @param str String k zapsani
+ * @param str String to write
  *
  * @details
- * Funkce pouziva mutex pro bezpecne operace z vice vlaken a automaticky
- * detekuje zda je UART povolen. Je optimalizovana pro rychle zapisovani.
+ * The function uses a mutex for safe operations from multiple fibers and automatically
+ * detects if UART is enabled. It is optimized for fast writing.
  */
 void uart_write_string_immediate(const char *str) {
   if (uart_mutex != NULL) {
@@ -374,8 +374,8 @@ void uart_write_string_immediate(const char *str) {
 // ENHANCED INPUT BUFFERING AND LINE EDITING
 // ============================================================================
 
-/* Paměť: dříve 20×256 = 5120 B + vstup; nyní 8×192 + 192 ≈ 1728 B (~3,4 KiB
- * úspora BSS) */
+/* Memory: previously 20×256 = 5120 B + input; now 8×192 + 192 ≈ 1728 B (~3.4 KiB
+ * BSS savings) */
 #define UART_CMD_BUFFER_SIZE 192
 #define UART_CMD_HISTORY_SIZE 8
 #define UART_MAX_ARGS 10
@@ -441,8 +441,8 @@ static system_config_t system_config;
 // Arrow key navigation state
 typedef enum {
   ESC_STATE_NONE,
-  ESC_STATE_ESC,    // ESC znak přijat
-  ESC_STATE_BRACKET // ESC[ přijato, čekáme na finální znak
+  ESC_STATE_ESC,    // ESC character accepted
+  ESC_STATE_BRACKET // ESC[ accepted, waiting for final character
 } esc_state_t;
 
 static esc_state_t esc_state = ESC_STATE_NONE;
@@ -467,17 +467,17 @@ uint32_t last_command_time = 0;
 // ============================================================================
 
 /**
- * @brief Zobrazi působive welcome logo s ANSI barvami
+ * @brief Display an impressive welcome logo with ANSI colors
  */
 /**
- * @brief Posle welcome logo pres UART
+ * @brief Send welcome logo via UART
  *
- * Tato funkce posle pekny ASCII logo systemu pres UART.
- * Logo obsahuje nazev systemu a je barevne zformatovane.
+ * This function follows the nice ASCII logo of the system via UART.
+ * The logo contains the name of the system and is colored.
  *
  * @details
- * Funkce pouziva mutex pro thread-safe operace a posila
- * ASCII art logo s barevnym formatovanim pro lepsi vzhled.
+ * The function uses a mutex for thread-safe operations and reinforcement
+ * ASCII art logo with color formatting for a better look.
  */
 void uart_send_welcome_logo(void) {
   if (uart_mutex != NULL) {
@@ -639,22 +639,22 @@ void uart_send_welcome_logo(void) {
 }
 
 /**
- * @brief Zobrazi animovany progress bar
+ * @brief Show an animated progress bar
  *
- * Tato funkce zobrazi animovany progress bar s labelem a procenty.
- * Progress bar je barevny a plynule animovany.
+ * This function will display an animated progress bar with a label and percentages.
+ * Progress bar is colorful and smoothly animated.
  *
- * @param label Popisek progress baru
- * @param max_value Maximalni hodnota (100 = 100%)
- * @param duration_ms Doba trvani v milisekundach
+ * @param label Progress bar label
+ * @param max_value Maximum value (100 = 100%)
+ * @param duration_ms The duration in milliseconds
  *
  * @details
- * Funkce vytvori pekny animovany progress bar s barevnym formatovanim.
- * Pouziva mutex pro thread-safe operace a plynule animuje progress.
+ * The function creates a nice animated progress bar with color formatting.
+ * Uses mutex for thread-safe operations and smoothly animates progress.
  */
 void uart_show_progress_bar(const char *label, uint32_t max_value,
                             uint32_t duration_ms) {
-  // Zamykání mutexu pro celou progress bar operaci
+  // Locking the mutex for the entire progress bar operation
   if (uart_mutex != NULL) {
     xSemaphoreTake(uart_mutex, portMAX_DELAY);
   }
@@ -717,24 +717,24 @@ void uart_show_progress_bar(const char *label, uint32_t max_value,
 
   uart_write_string_immediate("\n");
 
-  // Uvolnění mutexu až po dokončení progress bar
+  // Release the mutex only after the progress bar is completed
   if (uart_mutex != NULL) {
     xSemaphoreGive(uart_mutex);
   }
 }
 
 /**
- * @brief Posle barevny text pres UART
+ * @brief Send colored text via UART
  *
- * Tato funkce posle text s barevnym formatovanim pres UART.
- * Pouziva ANSI escape sekvence pro barvy.
+ * This function sends text with color formatting via UART.
+ * Uses ANSI escape sequences for colors.
  *
- * @param color ANSI escape sekvence pro barvu
- * @param message Text k poslani
+ * @param color ANSI escape sequence for color
+ * @param message The text to send
  *
  * @details
- * Funkce automaticky pridava reset barvy na konec textu
- * a pouziva mutex pro thread-safe operace.
+ * The function automatically adds a color reset to the end of the text
+ * and uses a mutex for thread-safe operations.
  */
 void uart_send_colored(const char *color, const char *message) {
   // Use ESP-IDF UART driver with mutex
@@ -757,17 +757,17 @@ void uart_send_colored(const char *color, const char *message) {
 }
 
 /**
- * @brief Posle barevny text s novym radkem pres UART
+ * @brief Send colored text with a new line via UART
  *
- * Tato funkce posle text s barevnym formatovanim a novym radkem pres UART.
- * Pouziva ANSI escape sekvence pro barvy.
+ * This function sends text with color formatting and a new line via UART.
+ * Uses ANSI escape sequences for colors.
  *
- * @param color ANSI escape sekvence pro barvu
- * @param message Text k poslani
+ * @param color ANSI escape sequence for color
+ * @param message The text to send
  *
  * @details
- * Funkce automaticky pridava novy radek a reset barvy na konec textu
- * a pouziva mutex pro thread-safe operace.
+ * The function automatically adds new lines and resets the color to the end of the text
+ * and uses a mutex for thread-safe operations.
  */
 void uart_send_colored_line(const char *color, const char *message) {
   // Use ESP-IDF UART driver with mutex
@@ -790,104 +790,104 @@ void uart_send_colored_line(const char *color, const char *message) {
 }
 
 /**
- * @brief Posle chybovou zpravu pres UART
+ * @brief Send an error message via UART
  *
- * Tato funkce posle chybovou zpravu s cervenou barvou pres UART.
+ * This function will send an error message with red color via UART.
  *
- * @param message Chybova zprava k poslani
+ * @param message The error message to send
  */
 void uart_send_error(const char *message) {
   uart_send_colored_line(COLOR_ERROR, message);
 }
 
 /**
- * @brief Posle uspesnou zpravu pres UART
+ * @brief Send success message via UART
  *
- * Tato funkce posle uspesnou zpravu se zelenou barvou pres UART.
+ * This function will send a successful message with green color via UART.
  *
- * @param message Uspesna zprava k poslani
+ * @param message The successful message to send
  */
 void uart_send_success(const char *message) {
   uart_send_colored_line(COLOR_SUCCESS, message);
 }
 
 /**
- * @brief Posle varovnou zpravu pres UART
+ * @brief Send warning message via UART
  *
- * Tato funkce posle varovnou zpravu se zlutou barvou pres UART.
+ * This function will send a yellow warning message via UART.
  *
- * @param message Varovna zprava k poslani
+ * @param message Warning right to send
  */
 void uart_send_warning(const char *message) {
   uart_send_colored_line(COLOR_WARNING, message);
 }
 
 /**
- * @brief Posle informacni zpravu pres UART
+ * @brief Send information message via UART
  *
- * Tato funkce posle informacni zpravu s modrou barvou pres UART.
+ * This function sends an information message with blue color via UART.
  *
- * @param message Informacni zprava k poslani
+ * @param message Informational message to send
  */
 void uart_send_info(const char *message) {
   uart_send_colored_line(COLOR_INFO, message);
 }
 
 /**
- * @brief Posle zpravu o tahu pres UART
+ * @brief Send pull message via UART
  *
- * Tato funkce posle zpravu o tahu s specialni barvou pres UART.
+ * This function sends a pull message with a special color via UART.
  *
- * @param message Zprava o tahu k poslani
+ * @param message The move message to send
  */
 void uart_send_move(const char *message) {
   uart_send_colored_line(COLOR_MOVE, message);
 }
 
 /**
- * @brief Posle status zpravu pres UART
+ * @brief Send status message via UART
  *
- * Tato funkce posle status zpravu s specialni barvou pres UART.
+ * This function sends a status message with a special color via UART.
  *
- * @param message Status zprava k poslani
+ * @param message Status right to send
  */
 void uart_send_status(const char *message) {
   uart_send_colored_line(COLOR_STATUS, message);
 }
 
 /**
- * @brief Posle debug zpravu pres UART
+ * @brief Send debug message via UART
  *
- * Tato funkce posle debug zpravu s specialni barvou pres UART.
+ * This function sends a debug message with a special color via UART.
  *
- * @param message Debug zprava k poslani
+ * @param message Debug right to send
  */
 void uart_send_debug(const char *message) {
   uart_send_colored_line(COLOR_DEBUG, message);
 }
 
 /**
- * @brief Posle help zpravu pres UART
+ * @brief Send help message via UART
  *
- * Tato funkce posle help zpravu s specialni barvou pres UART.
+ * This function sends a help message with a special color via UART.
  *
- * @param message Help zprava k poslani
+ * @param message Help right to send
  */
 void uart_send_help(const char *message) {
   uart_send_colored_line(COLOR_HELP, message);
 }
 
 /**
- * @brief Posle formatovanou zpravu pres UART
+ * @brief Send a formatted message via UART
  *
- * Tato funkce posle formatovanou zpravu s printf-style formatovanim pres UART.
+ * This function sends a formatted message with printf-style formatting via UART.
  *
- * @param format Format string pro printf
- * @param ... Argumenty pro format string
+ * @param format Format string for printf
+ * @param ... Arguments for the format string
  *
  * @details
- * Funkce pouziva vsnprintf pro bezpecne formatovani a automaticky
- * pridava novy radek na konec zpravy.
+ * The function uses vsnprintf for safe formatting and automatically
+ * adds a newline to the end of the message.
  */
 void uart_send_formatted(const char *format, ...) {
   va_list args;
@@ -901,16 +901,16 @@ void uart_send_formatted(const char *format, ...) {
 }
 
 /**
- * @brief Posle radek textu pres UART
+ * @brief Send lines of text via UART
  *
- * Tato funkce posle radek textu s novym radkem pres UART.
- * Pouziva mutex pro thread-safe operace.
+ * This function appends lines of text with a new line via UART.
+ * Uses mutex for thread-safe operations.
  *
- * @param str String k poslani
+ * @param str String to send
  *
  * @details
- * Funkce automaticky pridava novy radek na konec textu
- * a pouziva kratky timeout pro mutex aby se zabranilo WDT problemum.
+ * The function automatically adds new lines to the end of the text
+ * and uses short mutex timeouts to prevent WDT problems.
  */
 void uart_send_line(const char *str) {
   if (str == NULL)
@@ -968,9 +968,9 @@ void uart_send_string(const char *str) {
 // ============================================================================
 
 /**
- * @brief Posle zpravu do UART vystupni fronty (bezpecne z vice vlaken)
+ * @brief Send a message to the UART output queue (safe from multiple fibers)
  * @param type Message type (determines color)
- * @param add_newline Whether to add newline
+ * @param add_newline Whether to add a newline
  * @param format Format string
  * @param ... Format arguments
  */
@@ -1228,7 +1228,7 @@ void command_history_show(command_history_t *history) {
  * @brief Refresh input display in terminal
  */
 static void refresh_input_display(void) {
-  // Vymazat aktuální řádek
+  // Clear the current line
   if (UART_ENABLED) {
     if (uart_mutex != NULL) {
       xSemaphoreTake(uart_mutex, pdMS_TO_TICKS(100));
@@ -1264,19 +1264,19 @@ static void refresh_input_display(void) {
  */
 static void handle_arrow_up(void) {
   if (command_history.count == 0) {
-    return; // Žádná historie
+    return; // No history
   }
 
-  // Pokud jsme na začátku navigace, začneme od posledního příkazu
+  // If we are at the beginning of the navigation, we start from the last command
   if (history_navigation_index < 0) {
     history_navigation_index = command_history.count - 1;
   } else if (history_navigation_index > 0) {
     history_navigation_index--;
   }
 
-  // Získat příkaz z historie (circular buffer)
-  // Nejnovější příkaz je na pozici (current - 1) % max_size
-  // Starší příkazy jsou na (current - 2) % max_size, atd.
+  // Get command from history (circular buffer)
+  // The most recent command is at position (current - 1) % max_size
+  // Older commands are at (current - 2) % max_size, etc.
   int start_idx = (command_history.current - command_history.count +
                    command_history.max_size) %
                   command_history.max_size;
@@ -1287,14 +1287,14 @@ static void handle_arrow_up(void) {
     return;
   }
 
-  // Zobrazit příkaz v input bufferu
+  // Display the command in the input buffer
   input_buffer_clear(&input_buffer);
   strncpy(input_buffer.buffer, cmd, UART_CMD_BUFFER_SIZE - 1);
   input_buffer.buffer[UART_CMD_BUFFER_SIZE - 1] = '\0';
   input_buffer.length = strlen(input_buffer.buffer);
   input_buffer.pos = input_buffer.length;
 
-  // Aktualizovat zobrazení v terminálu
+  // Refresh the display in the terminal
   refresh_input_display();
 }
 
@@ -1303,24 +1303,24 @@ static void handle_arrow_up(void) {
  */
 static void handle_arrow_down(void) {
   if (command_history.count == 0) {
-    return; // Žádná historie
+    return; // No history
   }
 
   if (history_navigation_index < 0) {
-    return; // Už jsme na konci
+    return; // We're at the end
   }
 
   history_navigation_index++;
 
   if (history_navigation_index >= command_history.count) {
-    // Jsme na konci historie - vyčistit input
+    // We are at the end of history - clear the input
     history_navigation_index = -1;
     input_buffer_clear(&input_buffer);
     refresh_input_display();
     return;
   }
 
-  // Získat příkaz z historie
+  // Retrieve command from history
   int start_idx = (command_history.current - command_history.count +
                    command_history.max_size) %
                   command_history.max_size;
@@ -1331,14 +1331,14 @@ static void handle_arrow_down(void) {
     return;
   }
 
-  // Zobrazit příkaz v input bufferu
+  // Display the command in the input buffer
   input_buffer_clear(&input_buffer);
   strncpy(input_buffer.buffer, cmd, UART_CMD_BUFFER_SIZE - 1);
   input_buffer.buffer[UART_CMD_BUFFER_SIZE - 1] = '\0';
   input_buffer.length = strlen(input_buffer.buffer);
   input_buffer.pos = input_buffer.length;
 
-  // Aktualizovat zobrazení v terminálu
+  // Refresh the display in the terminal
   refresh_input_display();
 }
 
@@ -1455,7 +1455,7 @@ command_result_t uart_cmd_help(const char *args) {
 }
 
 /**
- * @brief Zobrazi hlavni help menu s kategoriemi
+ * @brief Shows the main help menu with categories
  */
 void uart_display_main_help(void) {
   // Logo already displayed by boot animation
@@ -1673,7 +1673,7 @@ void uart_cmd_help_system(void) {
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_send_formatted("  VERBOSE ON/OFF - Control logging verbosity");
   uart_send_formatted(
-      "  QUIET / Q      - Toggle quiet mode (zkratka Q; stejné jako příkaz Q)");
+      "  QUIET / Q - Toggle quiet mode (abbreviation Q; same as Q command)");
   uart_send_formatted("  CONFIG         - Show/set system configuration");
   uart_send_formatted("  CONFIG show    - Show current configuration");
   uart_send_formatted("  CONFIG key value - Set configuration key=value");
@@ -1840,7 +1840,7 @@ void uart_cmd_help_beginner(void) {
 }
 
 /**
- * @brief Zobrazi help pro web rozhrani
+ * @brief Display help for the web interface
  */
 void uart_cmd_help_web(void) {
   if (color_enabled)
@@ -1851,7 +1851,7 @@ void uart_cmd_help_web(void) {
   uart_send_formatted(
       "═══════════════════════════════════════════════════════════════");
 
-  // Získat IP adresy
+  // Get IP addresses
   char sta_ip_str[16] = "Disconnected";
   if (wifi_is_sta_connected()) {
     wifi_get_sta_ip(sta_ip_str, sizeof(sta_ip_str));
@@ -1947,7 +1947,7 @@ void uart_cmd_help_web(void) {
 }
 
 /**
- * @brief Mobilni aplikace CZECHMATE a Bluetooth LE — uzivatele + vyvojari
+ * @brief CZECHMATE and Bluetooth LE mobile applications — users + developers
  */
 void uart_cmd_help_app(void) {
   if (color_enabled)
@@ -1968,7 +1968,7 @@ void uart_cmd_help_app(void) {
   uart_send_formatted(
       "  • S deskou: stejny JSON snapshot jako GET /api/game/snapshot");
   uart_send_formatted(
-      "  • Wi‑Fi alternativa: REST (HELP WEB), vetsi payload, nastaveni site");
+      "• Wi‑Fi alternative: REST (HELP WEB), larger payload, site settings");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -1981,7 +1981,7 @@ void uart_cmd_help_app(void) {
   uart_send_formatted(
       "  Snapshot: READ + NOTIFY — UTF-8 JSON GameSnapshot (Swift decoder)");
   uart_send_formatted(
-      "  Command:  WRITE (s odpovedi) — UTF-8 JSON {\"cmd\":...}");
+      "Command: WRITE (with response) — UTF-8 JSON {\"cmd\":...}");
   uart_send_formatted(
       "  Push: po subscribe na NOTIFY se posila pri zmene hry (hook z game)");
 
@@ -2009,7 +2009,7 @@ void uart_cmd_help_app(void) {
   uart_send_formatted("");
   if (color_enabled)
     uart_write_string_immediate("\033[1;33m"); // bold yellow
-  uart_send_formatted("⌨️  Priklady JSON prikazu (command char):");
+  uart_send_formatted("⌨️ Examples of JSON command (command char):");
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_send_formatted("  {\"cmd\":\"ping\"}");
@@ -2023,7 +2023,7 @@ void uart_cmd_help_app(void) {
   uart_send_formatted("");
   if (color_enabled)
     uart_write_string_immediate("\033[1;34m"); // bold blue
-  uart_send_formatted("🛠  UART prikazy:");
+  uart_send_formatted("🛠 UART commands:");
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_send_formatted(
@@ -2036,9 +2036,9 @@ void uart_cmd_help_app(void) {
   if (color_enabled)
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_send_formatted(
-      "  idf.py menuconfig: zapnout Bluetooth + NimBLE (CONFIG_BT_ENABLED=y)");
+      "idf.py menuconfig: enable Bluetooth + NimBLE (CONFIG_BT_ENABLED=y)");
   uart_send_formatted(
-      "  Bez BT: GATT se nekompiluje do aktivniho stacku — pouzij HELP WEB");
+      "Without BT: GATT does not compile into the active stack — use HELP WEB");
 
   uart_send_formatted("");
   if (color_enabled)
@@ -2223,7 +2223,7 @@ command_result_t uart_cmd_status(const char *args) {
                       esp_get_minimum_free_heap_size());
   uart_send_formatted("Active Tasks: %d", uxTaskGetNumberOfTasks());
 
-  // Sledování stacku pro všechny tasky
+  // Stack trace for all tasks
   uart_send_formatted("Task Stack Usage:");
   uart_send_formatted("  UART Task: %u bytes free",
                       uxTaskGetStackHighWaterMark(NULL));
@@ -2331,7 +2331,7 @@ command_result_t uart_cmd_history(const char *args) {
 command_result_t uart_cmd_clear(const char *args) {
   (void)args; // Unused parameter
 
-  // Reset watchdog timeru před UART operacemi
+  // Reset watchdog timer before UART operations
   SAFE_WDT_RESET();
 
   // Simple clear without mutex to avoid WDT issues
@@ -2339,7 +2339,7 @@ command_result_t uart_cmd_clear(const char *args) {
       "\033[2J\033[H"); // Clear screen and move cursor to top
   uart_write_string_immediate("Screen cleared\r\n");
 
-  // Reset watchdog timeru po UART operacích
+  // Reset watchdog timer after UART operations
   SAFE_WDT_RESET();
 
   return CMD_SUCCESS;
@@ -2511,7 +2511,7 @@ command_result_t uart_cmd_start_pos_check(const char *args) {
 // ============================================================================
 
 /**
- * @brief Zobrazi vyhodnoceni pozice
+ * @brief Show the evaluation of the position
  */
 command_result_t uart_cmd_eval(const char *args) {
   SAFE_WDT_RESET();
@@ -2585,7 +2585,7 @@ command_result_t uart_cmd_eval(const char *args) {
   uart_send_formatted("  • Control central squares");
   uart_send_formatted("  • Consider pawn breaks");
 
-  // Reset watchdog timeru po dokončení
+  // Reset watchdog timer after completion
   SAFE_WDT_RESET();
 
   ESP_LOGI(TAG, "✅ Position evaluation completed successfully (local)");
@@ -2611,7 +2611,7 @@ command_result_t uart_cmd_ledtest(const char *args) {
                            .duration_ms = 0,
                            .data = NULL};
 
-  // Přímé volání LED funkce
+  // Direct call of the LED function
   led_set_pixel_safe(led_cmd.led_index, led_cmd.red, led_cmd.green,
                      led_cmd.blue);
   uart_send_formatted("✅ LED test executed directly");
@@ -2624,7 +2624,7 @@ command_result_t uart_cmd_ledtest(const char *args) {
 }
 
 /**
- * @brief Zobrazi systemove metrik výkonu
+ * @brief Show system performance metrics
  */
 command_result_t uart_cmd_performance(const char *args) {
   SAFE_WDT_RESET();
@@ -2680,34 +2680,34 @@ command_result_t uart_cmd_performance(const char *args) {
 }
 
 /**
- * @brief Zobrazi nebo nastavi systemovou konfiguraci
+ * @brief Show or set the system configuration
  *
- * Tento prikaz umoznuje zobrazit aktualni systemovou konfiguraci nebo nastavit
- * jednotlive konfiguracni hodnoty. Vsechny zmeny se ukladaji do NVS flash
- * a aplikuji se okamzite.
+ * This command allows you to display the current system configuration or set it
+ * individual configuration values. All changes are saved in NVS flash
+ * and apply immediately.
  *
- * @param args Argumenty prikazu:
- *   - Bez argumentu: Zobrazi vsechny konfiguracni hodnoty
- *   - "show": Zobrazi vsechny konfiguracni hodnoty (stejne jako bez argumentu)
- *   - "<key> <value>": Nastavi konfiguracni hodnotu
+ * @param args Command arguments:
+ * - No argument: Displays all configuration values
+ * - "show": Shows all configuration values (same as without argument)
+ * - "<key> <value>": Set configuration value
  *
- * @return CMD_SUCCESS pri uspechu, chybovy kod pri selhani
+ * @return CMD_SUCCESS on success, error code on failure
  *
  * @details
- * Podporovane konfiguracni klice:
- * - verbose: Zapne/vypne verbose mode (on/off)
- * - quiet: Zapne/vypne quiet mode (on/off)
- * - log_level: Nastavi uroven logovani (NONE, ERROR, WARN, INFO, DEBUG,
- * VERBOSE)
- * - timeout: Nastavi timeout prikazu v milisekundach (1-60000)
- * - echo: Zapne/vypne echo znaku (on/off)
+ * Supported configuration keys:
+ * - verbose: Enables/disables verbose mode (on/off)
+ * - quiet: Enables/disables quiet mode (on/off)
+ * - log_level: Set logging level (NONE, ERROR, WARN, INFO, DEBUG,
+ *VERBOSE)
+ * - timeout: Set command timeout in milliseconds (1-60000)
+ * - echo: Enables/disables character echo (on/off)
  *
- * Pri zmene konfiguracni hodnoty se automaticky:
- * 1. Ulozi hodnota do NVS flash pomoci config_save_to_nvs()
- * 2. Aplikuje se na system pomoci config_apply_settings()
+ * When changing the configuration value, automatically:
+ * 1. Save the value to NVS flash using config_save_to_nvs()
+ * 2. It is applied to the system using config_apply_settings()
  *
- * @note Verbose a quiet mode jsou vzajemne exkluzivni - zapnuti jednoho
- *       automaticky vypne druhy.
+ * @note Verbose and quiet mode are mutually exclusive - turn one on
+ * automatically turns species off.
  */
 command_result_t uart_cmd_config(const char *args) {
   SAFE_WDT_RESET();
@@ -2999,7 +2999,7 @@ command_result_t uart_cmd_component_off(const char *args) {
     //     .duration_ms = 0,
     //     .data = NULL
     // };
-    // Přímé volání LED funkce
+    // Direct call of the LED function
     led_clear_all_safe();
     led_component_enabled = false;
     uart_send_formatted("✅ LED component turned OFF");
@@ -3164,7 +3164,7 @@ command_result_t uart_cmd_endgame_white(const char *args) {
   uart_send_formatted("");
   uart_send_formatted("🏆 Congratulations to White player!");
 
-  // Reset watchdog timeru po dokončení
+  // Reset watchdog timer after completion
   SAFE_WDT_RESET();
 
   ESP_LOGI(TAG, "✅ Endgame report completed successfully (local)");
@@ -3233,7 +3233,7 @@ command_result_t uart_cmd_endgame_black(const char *args) {
   uart_send_formatted("");
   uart_send_formatted("🏆 Congratulations to Black player!");
 
-  // Reset watchdog timeru po dokončení
+  // Reset watchdog timer after completion
   SAFE_WDT_RESET();
 
   ESP_LOGI(TAG, "✅ Endgame report completed successfully (local)");
@@ -3241,7 +3241,7 @@ command_result_t uart_cmd_endgame_black(const char *args) {
 }
 
 // ============================================================================
-// ROBUSTNI ZPRACOVANI CHYB A OBNOVENI
+// ROBUST ERROR HANDLING AND RECOVERY
 // ============================================================================
 
 /**
@@ -3252,7 +3252,7 @@ esp_err_t uart_check_memory_health(void) {
   size_t free_heap = esp_get_free_heap_size();
   size_t min_free_heap = esp_get_minimum_free_heap_size();
 
-  /* ESP32-C6 + WiFi + BLE + HTTP: běžně ~15–30 KiB volných — nebrat jako chybu
+  /* ESP32-C6 + WiFi + BLE + HTTP: usually ~15-30 KiB free — don't take it as a bug
    */
   enum {
     heap_critical = 5120,
@@ -3285,7 +3285,7 @@ esp_err_t uart_check_memory_health(void) {
 void uart_task_recover_from_error(void) {
   ESP_LOGW(TAG, "🔄 UART task recovery initiated...");
 
-  // Okamžitý reset watchdog timeru pro prevenci dalších timeoutů
+  // Immediate reset of the watchdog timer to prevent further timeouts
   SAFE_WDT_RESET();
 
   // Clear any corrupted input buffer
@@ -3314,7 +3314,7 @@ void uart_task_recover_from_error(void) {
   uart_send_warning("💡 You can now continue typing commands normally");
   // Prompt removed
 
-  // Finální reset watchdog timeru
+  // Final watchdog timer reset
   SAFE_WDT_RESET();
 
   ESP_LOGI(TAG, "✅ UART task recovery completed");
@@ -3350,18 +3350,18 @@ bool uart_task_health_check(void) {
 // ============================================================================
 
 void uart_process_input(char c) {
-  // ARROW KEY SUPPORT: Zpracování ANSI escape sekvencí pro šipky
+  // ARROW KEY SUPPORT: Handling of ANSI escape sequences for arrows
   if (esc_state == ESC_STATE_NONE && c == CHAR_ESC) {
     esc_state = ESC_STATE_ESC;
-    return; // Čekáme na další znak
+    return; // We are waiting for the next sign
   }
 
   if (esc_state == ESC_STATE_ESC) {
     if (c == '[') {
       esc_state = ESC_STATE_BRACKET;
-      return; // Čekáme na finální znak
+      return; // We are waiting for the final sign
     } else {
-      // Neplatná escape sekvence, resetovat a pokračovat normálním zpracováním
+      // Invalid escape sequence, reset and continue normal processing
       esc_state = ESC_STATE_NONE;
     }
   }
@@ -3370,15 +3370,15 @@ void uart_process_input(char c) {
     esc_state = ESC_STATE_NONE; // Resetovat stav
 
     if (c == 'A') {
-      // Arrow Up - předchozí příkaz z historie
+      // Arrow Up - previous command from history
       handle_arrow_up();
       return;
     } else if (c == 'B') {
-      // Arrow Down - následující příkaz z historie
+      // Arrow Down - next command from history
       handle_arrow_down();
       return;
     }
-    // Jiná escape sekvence - ignorovat
+    // Other escape sequence - ignore
     return;
   }
 
@@ -3396,11 +3396,11 @@ void uart_process_input(char c) {
       // Clear buffer
       input_buffer_clear(&input_buffer);
 
-      // Resetovat navigační index při zadání příkazu
+      // Reset the navigation index when the command is entered
       history_navigation_index = -1;
     }
 
-    // BEZPECNY PROMPT: Pouzit mutex pro UART operace
+    // SAFE PROMPT: Use mutex for UART operations
     if (UART_ENABLED) {
       if (uart_mutex != NULL) {
         xSemaphoreTake(uart_mutex, portMAX_DELAY);
@@ -3448,7 +3448,7 @@ void uart_process_input(char c) {
 // ============================================================================
 
 /**
- * @brief Ziska Unicode symbol pro sachovou figurku
+ * @brief Gain Unicode symbol for chess piece
  * @param piece Piece type from game_task.h
  * @return Unicode symbol string
  */
@@ -3484,7 +3484,7 @@ const char *get_unicode_piece_symbol(piece_t piece) {
 }
 
 /**
- * @brief Ziska ASCII symbol pro sachovou figurku (zalozni varianta)
+ * @brief Ziska ASCII symbol for chess piece (base variant)
  * @param piece Piece type from game_task.h
  * @return ASCII symbol string
  */
@@ -3594,7 +3594,7 @@ void uart_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "  • Radkovy vstup s editaci");
   ESP_LOGI(TAG, "  • Command history and aliases");
   ESP_LOGI(TAG, "  • NVS configuration persistence");
-  ESP_LOGI(TAG, "  • Robustni zpracovani chyb");
+  ESP_LOGI(TAG, "• Robust error handling");
   ESP_LOGI(TAG, "  • Resource optimization");
 
   task_running = true;
@@ -3636,13 +3636,13 @@ void uart_task_legacy_loop(void) {
   TickType_t last_wake_time = xTaskGetTickCount();
 
   for (;;) {
-    // Reset watchdog timeru pro UART task v každé iteraci
+    // Reset the watchdog timer for the UART task in each iteration
     esp_err_t wdt_reset_ret = uart_task_wdt_reset_safe();
     if (wdt_reset_ret != ESP_OK && wdt_reset_ret != ESP_ERR_NOT_FOUND) {
       // WDT reset failed - this might indicate system issues
     }
 
-    // Zpracování output queue jako první pro plynulý výstup
+    // Output queue processing first for smooth output
     uart_process_output_queue();
 
     // Read and process input with minimal timeout for responsiveness
@@ -3652,7 +3652,7 @@ void uart_task_legacy_loop(void) {
     // ROBUST ERROR HANDLING: Wrap input reading in try-catch equivalent
     bool input_error = false;
 
-    // Vždy použití USB Serial JTAG metody pro konzistenci
+    // Always use the USB Serial JTAG method for consistency
     // This ensures the same input method is used before and after WDT errors
     if (UART_ENABLED) {
       // Only use UART if explicitly configured (not USB Serial JTAG)
@@ -3672,7 +3672,7 @@ void uart_task_legacy_loop(void) {
     } else {
       // For USB Serial JTAG (CONFIG_ESP_CONSOLE_UART_NUM=-1), use getchar
       // This is the consistent method used before and after WDT errors
-      // Použití non-blocking přístupu pro prevenci WDT timeoutů
+      // Using a non-blocking approach to prevent WDT timeouts
 
       // Kontrola recovery módu po WDT
       static bool wdt_recovery_mode = false;
@@ -3757,14 +3757,14 @@ void uart_task_legacy_loop(void) {
       }
     }
 
-    /* Paměť/log: kontrola ~1×/30 s (1 ms tick × 30000), ne každou sekundu */
+    /* Memory/log: check ~1x/30s (1ms tick × 30000), not every second */
     if (loop_count % 30000 == 0) {
       uart_task_health_check();
       uart_check_memory_health();
     }
 
-    /* Status řádku: při 1 ms smyčce = každých ~6 s (dřívější komentář „60 s“
-     * byl nepřesný) */
+    /* Line status: at 1ms loop = every ~6s (earlier comment "60s"
+     * was inaccurate) */
     if (loop_count % 6000 == 0) {
       ESP_LOGI(TAG, "UART Task Status: Commands=%lu, Errors=%lu", command_count,
                error_count);
@@ -3793,7 +3793,7 @@ void uart_display_led_board(void) {
 
   // Display board LEDs (0-63) row by row
   for (int row = 7; row >= 0; row--) {
-    // Reset watchdog timeru každých několik řádků
+    // Reset the watchdog timer every few lines
     if (row % 2 == 0) {
       SAFE_WDT_RESET();
     }
@@ -3803,7 +3803,7 @@ void uart_display_led_board(void) {
     int pos = snprintf(row_buffer, sizeof(row_buffer), "%d |", row + 1);
 
     for (int col = 0; col < 8; col++) {
-      // Reset watchdog timeru každých několik sloupců
+      // Reset the watchdog timer every few columns
       if (col % 4 == 0) {
         SAFE_WDT_RESET();
       }
@@ -3916,7 +3916,7 @@ void uart_display_led_board(void) {
   uart_send_formatted("  • ⚫ Black:  Black piece/Off");
   uart_send_formatted("  • 🟣 Purple: Special state");
 
-  // Finální reset watchdog timeru
+  // Final watchdog timer reset
   SAFE_WDT_RESET();
 }
 
@@ -4104,7 +4104,7 @@ void uart_display_advantage_graph(uint32_t move_count, bool white_wins) {
     }
   }
 
-  // Finální reset watchdog timeru
+  // Final watchdog timer reset
   SAFE_WDT_RESET();
 }
 

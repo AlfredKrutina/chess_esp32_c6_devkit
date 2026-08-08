@@ -1,6 +1,6 @@
-# 4 MiB flash — dvě OTA aplikace (max ~0x1F0000 na slot kvůli zarovnání app na 64 KiB).
-# Použít jen pokud esp32_chess_v24.bin vejde do každého slotu (viz app_check_size).
-# Aktuální plná build (~0x23a200) sem NEVEJDE — výchozí zůstává partitions.csv (factory).
+# 4 MiB flash — two OTA apps (max ~0x1F0000 per slot due to 64 KiB app alignment).
+# Use only if esp32_chess_v24.bin fits each slot (see app_check_size).
+# Current full build (~0x23a200) does NOT fit — default remains partitions.csv (factory).
 # Name,   Type, SubType, Offset,  Size, Flags
 nvs,      data, nvs,     0x9000,  0x6000,
 phy_init, data, phy,     0xf000,  0x1000,

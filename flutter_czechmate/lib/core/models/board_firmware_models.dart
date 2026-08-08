@@ -1,4 +1,4 @@
-/// Parita `GET /api/system/firmware`, `GET /api/system/ota/status` a hostovaného `version.json`.
+/// Parity of `GET /api/system/firmware`, `GET /api/system/ota/status` and hosted `version.json`.
 class BoardFirmwareInfo {
   const BoardFirmwareInfo({
     required this.version,
@@ -17,13 +17,13 @@ class BoardFirmwareInfo {
   /// From `GET /api/system/firmware` (`ota_supported`). Null if absent (older firmware).
   final bool? otaSupported;
 
-  /// `GET /api/system/firmware` — bootloader vrátil předchozí slot po pádu nového obrazu.
+  /// `GET /api/system/firmware` — bootloader returned the previous slot after dropping the new image.
   final bool? otaLastBootFailed;
 
-  /// Semver z hlavičky neúspěšného slotu (`ota_failed_firmware_version`).
+  /// Semver from the failed slot header (`ota_failed_firmware_version`).
   final String? otaFailedFirmwareVersion;
 
-  /// Např. `ota_0` / `ota_1` (`ota_failed_slot`).
+  /// E.g. `ota_0` / `ota_1` (`ota_failed_slot`).
   final String? otaFailedSlot;
 
   factory BoardFirmwareInfo.fromJson(Map<String, dynamic> json) {
@@ -82,7 +82,7 @@ class FirmwareManifest {
   }
 }
 
-/// Volné porovnání `1.0.10` vs `v1.2` (doplňuje nuly).
+/// Free comparison of `1.0.10` vs `v1.2` (padding zeros).
 int compareSemverLoose(String a, String b) {
   String norm(String s) {
     var t = s.trim();

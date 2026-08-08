@@ -1,11 +1,11 @@
-/// JSON servírovaný z větve **gh-pages** (URL `github.io`), nikoli přímo z `main`.
-/// Zdroj v repu je `gh-pages-ready/app_update.json`; na web se dostane až po úspěšném
-/// běhu [`.github/workflows/gh-pages.yml`](../../../../.github/workflows/gh-pages.yml) (push na `main` / `master` s relevantními cestami, nebo `workflow_dispatch`).
-/// Po změně `version` v aplikaci srovnej manifest v `gh-pages-ready/` a pushni — dokud
-/// workflow nenasadí nový build, klienti vidí starý manifest.
+/// JSON served from the **gh-pages** branch (URL `github.io`), not directly from `main`.
+/// The source in the repo is `gh-pages-ready/app_update.json`; it gets to the website only after success
+/// runtime [`.github/workflows/gh-pages.yml`](../../../../.github/workflows/gh-pages.yml) (push to `main` / `master` with relevant paths, or `workflow_dispatch`).
+/// After changing the `version` in the application, compare the manifest in `gh-pages-ready/` and push — until
+/// workflow does not deploy the new build, clients see the old manifest.
 const kAppUpdateJsonUrl =
     'https://alfredkrutina.github.io/chess_esp32_c6_devkit/app_update.json';
 
-/// Výchozí stránka ke stažení / poznámkám k verzi, pokud JSON nemá vlastní `release_page_url`.
+/// Default downloads / release notes page if JSON doesn't have its own `release_page_url`.
 const kDefaultAppReleasePageUrl =
     'https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html';

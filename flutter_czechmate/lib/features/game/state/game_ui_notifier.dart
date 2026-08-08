@@ -155,7 +155,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       invalidDestinationPulseSquare: square.trim().toLowerCase(),
       invalidDestinationPulseLit: true,
     );
-    // Krátká zpětná vazba (~0,8 s) — dřív 10×300 ms působilo zbytečně dlouho.
+    // Short feedback (~0.8 s) — previously 10×300 ms seemed unnecessarily long.
     _invalidDestinationPulseTimer =
         Timer.periodic(const Duration(milliseconds: 200), (t) {
       ticks++;
@@ -268,7 +268,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     _ref.read(prefsRepositoryProvider).setLayoutMode(m);
   }
 
-  /// Parita iOS „Obnovit výchozí zobrazení desky“.
+  /// iOS Parity "Restore Default Board View".
   Future<void> resetBoardDisplayDefaults() async {
     final p = _ref.read(prefsRepositoryProvider);
     await p.setBoardStyleRaw('wooden');
@@ -288,7 +288,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   }
 
   void enterSandbox(GameSnapshot? snap) {
-    // Konflikt s dvojitým výběrem (remote) / náhledem historie — jinak sandbox ukazuje špatnou pozici.
+    // Conflict with double selection (remote) / history preview — otherwise the sandbox shows the wrong position.
     _remoteFrom = null;
     state = state.copyWith(
       sandboxMode: true,
@@ -315,7 +315,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     );
   }
 
-  /// Parita `loadPuzzlePosition(fromFEN:)` — náhled puzzlu v sandboxu z libovolného FEN.
+  /// Parity `loadPuzzlePosition(fromFEN:)` — sandboxed puzzle preview from any FEN.
   void enterSandboxFromCustomFen(String fenRaw) {
     final fen = fenRaw.trim();
     if (fen.isEmpty) return;
@@ -367,13 +367,13 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     );
   }
 
-  /// Z puzzlu / sandboxu zpět na živou partii podle snapshotu (např. po „Zkusit na obrazovce“).
+  /// From the puzzle / sandbox back to the live game according to the snapshot (e.g. after "Try on the screen").
   Future<void> returnToLiveGame() async {
     exitSandbox();
     await _ref.read(boardSessionNotifierProvider.notifier).refreshNow();
   }
 
-  /// Puzzle bez vyhodnocování — jen zavře kontrolu, pozice zůstane.
+  /// Puzzle without evaluation — just closes the check, the position remains.
   void exitPuzzleChallenge() {
     _puzzleTintTimer?.cancel();
     state = state.copyWith(
@@ -394,7 +394,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     state = state.copyWith(clearPuzzleCelebration: true);
   }
 
-  /// Načte pozici a zapne kontrolu řešení podle UCI linky (prázdná = jen sandbox).
+  /// Loads the position and turns on the solution check according to the UCI line (empty = sandbox only).
   void enterPuzzleChallenge({
     required String fen,
     required String title,
@@ -808,7 +808,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     return _needsPromotion(chess, from, to);
   }
 
-  /// `null` = výběr OK; jinak důvod pro snack / transient (remote tahy z aplikace).
+  /// `null` = selection OK; otherwise reason for snack / transient (remote moves from the application).
   String? _remoteFirstTapReject(GameSnapshot? snap, String algebraic) {
     if (snap == null) return null;
     final chess = ch.Chess();
@@ -844,7 +844,7 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     }
     final from = _remoteFrom!;
     final to = algebraic;
-    // Stejné pole znovu = zrušení výběru (neodesílat d1→d1 — firmware hlásí MOVE_ERROR_DESTINATION_OCCUPIED / zmizí figurka v UI).
+    // Same field again = deselect (don't send d1→d1 — firmware reports MOVE_ERROR_DESTINATION_OCCUPIED / figure in UI disappears).
     if (from == to) {
       _remoteFrom = null;
       state = state.copyWith(clearSelection: true);

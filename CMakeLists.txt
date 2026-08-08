@@ -1,18 +1,18 @@
 # ESP32-C6 CZECHMATE — CMakeLists.txt
 # Complete chess system with WS2812B + 8x8 Matrix + Button LED Feedback
 # Author: Alfred Krutina
-# Verze firmware (esp_app_desc / API): baseline pro OTA testy z mobilu — zvyšuj manifest v aplikaci.
-# Binární název projektu zůstává esp32_chess_v24 kvůli CI/partition zvyklostem.
+# Firmware version (esp_app_desc / API): baseline for mobile OTA tests — bump the app manifest accordingly.
+# Binary project name stays esp32_chess_v24 for CI / partition conventions.
 
 cmake_minimum_required(VERSION 3.16)
 
 # Project configuration
 set(PROJECT_NAME "esp32_chess_v24")
-# Normální release: 1.8.0. Pro OTA test z aplikace: přeflashuj desku buildem se starší
-# verzí v esp_app_desc — CHESS_OTA_TEST_OLD_VER (manifest v aplikaci nechte vyšší než simulovaná deska).
+# Normal release: 1.8.0. For app OTA testing: flash a build with an older
+# esp_app_desc version via CHESS_OTA_TEST_OLD_VER (keep the app manifest higher than the simulated board).
 set(PROJECT_VERSION "1.8.0")
 
-# -DCHESS_OTA_TEST_OLD_VER=ON → PROJECT_VER / API hlásí 1.1.1, zbytek kódu současný (vhodné jen na stole).
+# -DCHESS_OTA_TEST_OLD_VER=ON → PROJECT_VER / API report 1.1.1; rest of the code stays current (bench-only).
 if(DEFINED CHESS_OTA_TEST_OLD_VER AND CHESS_OTA_TEST_OLD_VER)
   set(PROJECT_VERSION "1.1.1")
 endif()
@@ -23,7 +23,7 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 # Set project name and version
 project(${PROJECT_NAME} VERSION ${PROJECT_VERSION})
 
-# Oddíl stm32_fw: při `idf.py flash` zapíše STM32 .bin (ESP pak může STM přes I2C ROM BL nabootstrakovat).
+# stm32_fw partition: `idf.py flash` writes the STM32 .bin (ESP can then bootstrap STM via I2C ROM BL).
 if(EXISTS "${CMAKE_SOURCE_DIR}/embedded/stm32_fw_embedded.bin")
   esptool_py_flash_to_partition(flash stm32_fw "${CMAKE_SOURCE_DIR}/embedded/stm32_fw_embedded.bin")
 endif()
@@ -57,10 +57,10 @@ set(EXTRA_COMPONENT_DIRS
     components/stm32_i2c_bootloader
 )
 
-# Project-wide compile definitions (sladěno s PROJECT_VERSION / esp_app_desc).
-# CHESS_VERSION_STRING musí být bez mezer — řetězec s mezerami rozbije -D na gcc CLI.
+# Project-wide compile definitions (aligned with PROJECT_VERSION / esp_app_desc).
+# CHESS_VERSION_STRING must have no spaces — a spaced string breaks -D on the gcc CLI.
 if(DEFINED CHESS_OTA_TEST_OLD_VER AND CHESS_OTA_TEST_OLD_VER)
-  message(STATUS "CHESS_OTA_TEST_OLD_VER=ON → simulace starší verze 1.1.1 pro OTA z aplikace")
+  message(STATUS "CHESS_OTA_TEST_OLD_VER=ON → simulating older version 1.1.1 for app OTA")
   add_compile_definitions(
     CHESS_VERSION_MAJOR=1
     CHESS_VERSION_MINOR=1

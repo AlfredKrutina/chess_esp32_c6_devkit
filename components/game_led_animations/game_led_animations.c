@@ -1,21 +1,21 @@
 /**
  * @file game_led_animations.c
- * @brief ESP32-C6 Chess System - Pokrocile LED animace
+ * @brief ESP32-C6 Chess System - Advanced LED animation
  *
- * Kompletni implementace pokrocilych LED animaci pro sachovy system:
- * - 5 endgame animaci vcetne vlnove animace
- * - Jemne animace pro figurky a tlacitka
- * - Plny error handling
- * - RGB optimalizace pro hezke barevne prechody
+ * Complete implementation of advanced LED animations for the Sacha system:
+ * - 5 endgame animations including wave animation
+ * - Soft animations for figurines and buttons
+ * - Full error handling
+ * - RGB optimization for nice color transitions
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-04
  *
  * @details
- * Tento modul obsahuje vsechny pokrocile LED animace pro sachovy system.
- * Obsahuje endgame animace, jemne efekty a optimalizovane barevne prechody.
- * Vsechny animace jsou plynule a efektivne z hlediska pameti.
+ * This module contains all advanced LED animations for the sach system.
+ * Contains endgame animations, smooth effects and optimized color transitions.
+ * All animations are smooth and memory efficient.
  */
 
 #include "game_led_animations.h"
@@ -33,10 +33,10 @@
 static const char *TAG = "GAME_LED_ANIMATIONS";
 
 // ============================================================================
-// GLOBÁLNÍ PROMĚNNÉ PRO ANIMACE
+// GLOBAL VARIABLES FOR ANIMATIONS
 // ============================================================================
 
-// Stav animačního systému
+// The state of the animation system
 static bool animation_system_active = false;
 static bool endgame_animation_running = false;
 static endgame_animation_type_t current_endgame_animation =
@@ -50,7 +50,7 @@ static TimerHandle_t subtle_animation_timer = NULL;
 // Stav pro vlnovou animaci
 static wave_animation_state_t wave_state = {0};
 
-// Jemné animace
+// Smooth animations
 static subtle_animation_state_t subtle_pieces[64] = {0};
 static subtle_animation_state_t subtle_buttons[9] = {0};
 
@@ -58,7 +58,7 @@ static subtle_animation_state_t subtle_buttons[9] = {0};
 // BARVY A PALETY PRO ANIMACE
 // ============================================================================
 
-// Základní RGB barvy
+// Basic RGB colors
 static const rgb_color_t COLOR_RED = {255, 0, 0};
 static const rgb_color_t COLOR_GREEN = {0, 255, 0};
 static const rgb_color_t COLOR_BLUE = {0, 0, 255};
@@ -70,35 +70,35 @@ static const rgb_color_t COLOR_GOLD = {255, 215, 0};
 
 // Palety pro vlnovou animaci
 static const rgb_color_t wave_blue_palette[] = {
-    {0, 100, 255},   // Světle modrá
-    {0, 150, 255},   // Modrá
-    {0, 200, 255},   // Intenzivní modrá
-    {100, 220, 255}, // Světlá modrá
+    {0, 100, 255},   // Light blue
+    {0, 150, 255},   // Blue
+    {0, 200, 255},   // Intense blue
+    {100, 220, 255}, // Light blue
     {0, 255, 255}    // Cyan
 };
 
 static const rgb_color_t enemy_red_palette[] = {
-    {255, 0, 0},    // Červená
-    {255, 50, 0},   // Oranžovo-červená
-    {255, 100, 0},  // Oranžová
-    {255, 150, 0},  // Světle oranžová
-    {255, 200, 100} // Krémová
+    {255, 0, 0},    // Red
+    {255, 50, 0},   // Orange-red
+    {255, 100, 0},  // Orange
+    {255, 150, 0},  // Light orange
+    {255, 200, 100} // Creamy
 };
 
 // ============================================================================
-// POMOCNÉ FUNKCE PRO BAREVNÉ PŘECHODY
+// HELPFUL FUNCTIONS FOR COLOR GRADES
 // ============================================================================
 
 /**
- * @brief Interpolace mezi dvěma barvami
+ * @brief Interpolate between two colors
  *
- * Pomocna funkce pro plynuly prechod mezi dvema barvami.
- * Zatim nepouzivana, ale pripr avena pro budouci rozsireni animaci.
+ * Auxiliary function for a smooth transition between two colors.
+ * Then not used, but prepared for future extended animation.
  *
- * @param from Pocatecni barva
- * @param to Koncova barva
- * @param progress Pokrok (0.0-1.0)
- * @return Interpolovana barva
+ * @param from Initial color
+ * @param the End color
+ * @param progress Progress (0.0-1.0)
+ * @return The interpolated color
  */
 __attribute__((unused)) static rgb_color_t
 interpolate_color(rgb_color_t from, rgb_color_t to, float progress) {
@@ -122,7 +122,7 @@ static esp_err_t apply_color_safe(uint8_t led_index, rgb_color_t color) {
 }
 
 /**
- * @brief Získá vzdálenost mezi dvěma pozicemi na šachovnici
+ * @brief Gets the distance between two positions on the chessboard
  */
 static float get_board_distance(uint8_t pos1, uint8_t pos2) {
   uint8_t row1, col1, row2, col2;
@@ -135,15 +135,15 @@ static float get_board_distance(uint8_t pos1, uint8_t pos2) {
 }
 
 // ============================================================================
-// ENDGAME ANIMACE - IMPLEMENTACE VŠECH 5 TYPŮ
+// ENDGAME ANIMATION - IMPLEMENTATION OF ALL 5 TYPES
 // ============================================================================
 
 /**
- * @brief 1. Victory Wave - Vlna vítězství od krále
+ * @brief 1. Victory Wave - Victory wave from the king
  */
 static void endgame_animation_victory_wave(uint32_t frame) {
   if (wave_state.frame == 0) {
-    // Inicializace vlny
+    // Wave initialization
     wave_state.center_pos = winning_king_position;
     wave_state.max_radius = 10.0f;
     wave_state.current_radius = 0.0f;
@@ -151,7 +151,7 @@ static void endgame_animation_victory_wave(uint32_t frame) {
     wave_state.active_waves = 3;
 
     for (int i = 0; i < MAX_WAVES; i++) {
-      wave_state.waves[i].radius = -2.0f * i; // Postupné spouštění vln
+      wave_state.waves[i].radius = -2.0f * i; // Gradual launch of waves
       wave_state.waves[i].active = true;
     }
 
@@ -159,14 +159,14 @@ static void endgame_animation_victory_wave(uint32_t frame) {
              winning_king_position);
   }
 
-  // Aktualizace všech vln
+  // Update all waves
   for (int wave_idx = 0; wave_idx < wave_state.active_waves; wave_idx++) {
     if (!wave_state.waves[wave_idx].active)
       continue;
 
     wave_state.waves[wave_idx].radius += wave_state.wave_speed;
 
-    // Vlna je aktivní pouze pokud má pozitivní rádius
+    // A wave is only active if it has a positive radius
     if (wave_state.waves[wave_idx].radius < 0)
       continue;
 
@@ -202,18 +202,18 @@ static void endgame_animation_victory_wave(uint32_t frame) {
         }
 
         if (is_enemy) {
-          // Použij červenou paletu pro nepřátelské figurky
+          // Use the red palette for enemy pieces
           int palette_idx = wave_idx % (sizeof(enemy_red_palette) /
                                         sizeof(enemy_red_palette[0]));
           wave_color = enemy_red_palette[palette_idx];
         } else {
-          // Použij modrou paletu pro normální vlnu (a přátelské figurky)
+          // Use blue palette for normal wave (and friendly figures)
           int palette_idx = wave_idx % (sizeof(wave_blue_palette) /
                                         sizeof(wave_blue_palette[0]));
           wave_color = wave_blue_palette[palette_idx];
         }
 
-        // Fade efekt pro hezčí vlnu
+        // Fade effect for a nicer wave
         float fade = 1.0f - fabsf(distance - wave_radius) / 0.5f;
         wave_color.r *= fade;
         wave_color.g *= fade;
@@ -223,7 +223,7 @@ static void endgame_animation_victory_wave(uint32_t frame) {
       }
     }
 
-    // Deaktivace vlny pokud je mimo board
+    // Wave deactivation if off board
     if (wave_state.waves[wave_idx].radius > wave_state.max_radius) {
       wave_state.waves[wave_idx].active = false;
     }
@@ -231,7 +231,7 @@ static void endgame_animation_victory_wave(uint32_t frame) {
 
   wave_state.frame++;
 
-  // Restart animace když všechny vlny dorazily na okraj
+  // Restart animation when all waves have reached the edge
   bool any_active = false;
   for (int i = 0; i < wave_state.active_waves; i++) {
     if (wave_state.waves[i].active) {
@@ -241,20 +241,20 @@ static void endgame_animation_victory_wave(uint32_t frame) {
   }
 
   if (!any_active) {
-    // Restart s malým zpožděním
+    // Restart with a slight delay
     wave_state.frame = 0;
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
 /**
- * @brief 2. Victory Circles - Expandující kruhy
+ * @brief 2. Victory Circles - Expanding circles
  */
 static void endgame_animation_victory_circles(uint32_t frame) {
   static float circle_radius = 0.0f;
   static int circle_phase = 0;
 
-  // Vyčisti board
+  // Clear the board
   led_clear_all_safe();
 
   circle_radius += 0.2f;
@@ -262,7 +262,7 @@ static void endgame_animation_victory_circles(uint32_t frame) {
   for (int led = 0; led < 64; led++) {
     float distance = get_board_distance(winning_king_position, led);
 
-    // Několik kruhů s různými fázemi
+    // Several circles with different phases
     for (int c = 0; c < 3; c++) {
       float circle_r = circle_radius - c * 1.5f;
       if (circle_r <= 0)
@@ -271,7 +271,7 @@ static void endgame_animation_victory_circles(uint32_t frame) {
       if (fabsf(distance - circle_r) < 0.7f) {
         rgb_color_t color = COLOR_GOLD;
 
-        // Různé barvy pro různé kruhy
+        // Different colors for different circles
         switch (c) {
         case 0:
           color = COLOR_GOLD;
@@ -295,7 +295,7 @@ static void endgame_animation_victory_circles(uint32_t frame) {
     }
   }
 
-  // Reset když kruhy dorazí na okraj
+  // Reset when the circles reach the edge
   if (circle_radius > 10.0f) {
     circle_radius = 0.0f;
     circle_phase++;
@@ -304,13 +304,13 @@ static void endgame_animation_victory_circles(uint32_t frame) {
 }
 
 /**
- * @brief 3. Victory Cascade - Kaskádové padání
+ * @brief 3. Victory Cascade - Cascading fall
  */
 static void endgame_animation_victory_cascade(uint32_t frame) {
   static int cascade_row = 7;
   static int cascade_phase = 0;
 
-  // Aplikuj kaskádu řádek po řádku
+  // Apply the cascade line by line
   for (int col = 0; col < 8; col++) {
     uint8_t led = chess_pos_to_led_index(cascade_row, col);
 
@@ -330,46 +330,46 @@ static void endgame_animation_victory_cascade(uint32_t frame) {
     apply_color_safe(led, cascade_color);
   }
 
-  // Pohni se na další řádek
+  // Move to the next line
   cascade_row--;
   if (cascade_row < 0) {
     cascade_row = 7;
     cascade_phase++;
 
-    // Vyčisti board mezi fázemi
+    // Clear the board between phases
     led_clear_all_safe();
     vTaskDelay(pdMS_TO_TICKS(300));
   }
 }
 
 /**
- * @brief 4. Victory Fireworks - Ohňostroj
+ * @brief 4. Victory Fireworks
  */
 static void endgame_animation_victory_fireworks(uint32_t frame) {
   static firework_t fireworks[MAX_FIREWORKS];
   static bool fireworks_initialized = false;
 
   if (!fireworks_initialized) {
-    // Inicializace ohňostrojů
+    // Initialization of fireworks
     for (int i = 0; i < MAX_FIREWORKS; i++) {
       fireworks[i].center_x = rand() % 8;
       fireworks[i].center_y = rand() % 8;
       fireworks[i].radius = 0.0f;
       fireworks[i].max_radius = 2.0f + (rand() % 3);
       fireworks[i].color_idx = rand() % 3;
-      fireworks[i].active = (i == 0); // Spusť první ohňostroj
-      fireworks[i].delay = i * 10;    // Postupné spouštění
+      fireworks[i].active = (i == 0); // Set off the first fireworks
+      fireworks[i].delay = i * 10;    // Gradual launch
     }
     fireworks_initialized = true;
   }
 
-  // Vyčisti board
+  // Clear the board
   led_clear_all_safe();
 
-  // Aktualizace ohňostrojů
+  // Fireworks update
   for (int f = 0; f < MAX_FIREWORKS; f++) {
     if (!fireworks[f].active) {
-      // Aktivace s zpožděním
+      // Delayed activation
       if (fireworks[f].delay > 0) {
         fireworks[f].delay--;
       } else if (fireworks[f].radius == 0) {
@@ -380,7 +380,7 @@ static void endgame_animation_victory_fireworks(uint32_t frame) {
 
     fireworks[f].radius += 0.15f;
 
-    // Vykreslení ohňostroje
+    // Rendering of fireworks
     for (int led = 0; led < 64; led++) {
       uint8_t led_x, led_y;
       led_index_to_chess_pos(led, &led_y, &led_x);
@@ -416,12 +416,12 @@ static void endgame_animation_victory_fireworks(uint32_t frame) {
       }
     }
 
-    // Deaktivace když ohňostroj dorazí na maximum
+    // Deactivation when fireworks reach maximum
     if (fireworks[f].radius > fireworks[f].max_radius) {
       fireworks[f].active = false;
       fireworks[f].radius = 0.0f;
 
-      // Restart s novými parametry
+      // Restart with new parameters
       fireworks[f].center_x = rand() % 8;
       fireworks[f].center_y = rand() % 8;
       fireworks[f].max_radius = 2.0f + (rand() % 3);
@@ -432,7 +432,7 @@ static void endgame_animation_victory_fireworks(uint32_t frame) {
 }
 
 /**
- * @brief 5. Victory Crown - Korunka pro vítěze
+ * @brief 5. Victory Crown - Crown for the winner
  */
 static void endgame_animation_victory_crown(uint32_t frame) {
   static int crown_phase = 0;
@@ -445,7 +445,7 @@ static void endgame_animation_victory_crown(uint32_t frame) {
   crown_pattern[4] = chess_pos_to_led_index(7, 4);
   crown_pattern[5] = chess_pos_to_led_index(7, 5);
   crown_pattern[6] = chess_pos_to_led_index(7, 6);
-  crown_pattern[7] = chess_pos_to_led_index(7, 7); // Horní řádek
+  crown_pattern[7] = chess_pos_to_led_index(7, 7); // Top line
   crown_pattern[8] = chess_pos_to_led_index(6, 1);
   crown_pattern[9] = chess_pos_to_led_index(6, 3);
   crown_pattern[10] = chess_pos_to_led_index(6, 5);
@@ -460,17 +460,17 @@ static void endgame_animation_victory_crown(uint32_t frame) {
   crown_pattern[19] = chess_pos_to_led_index(5, 5);
   crown_pattern[20] = chess_pos_to_led_index(5, 6); // Spodek korunky
 
-  // Vyčisti board
+  // Clear the board
   led_clear_all_safe();
 
-  // Nakreslí korunku postupně
+  // Draw the crown step by step
   int crown_size = sizeof(crown_pattern) / sizeof(crown_pattern[0]);
   int visible_parts = (frame / 3) % (crown_size + 10);
 
   for (int i = 0; i < visible_parts && i < crown_size; i++) {
     rgb_color_t crown_color;
 
-    // Různé barvy podle fáze
+    // Different colors according to phase
     switch (crown_phase % 4) {
     case 0:
       crown_color = COLOR_GOLD;
@@ -486,7 +486,7 @@ static void endgame_animation_victory_crown(uint32_t frame) {
       break;
     }
 
-    // Blikání pro dramatický efekt
+    // Flashing for dramatic effect
     if ((frame / 5) % 2 == 0) {
       crown_color.r = crown_color.r * 0.7f;
       crown_color.g = crown_color.g * 0.7f;
@@ -496,7 +496,7 @@ static void endgame_animation_victory_crown(uint32_t frame) {
     apply_color_safe(crown_pattern[i], crown_color);
   }
 
-  // Změna fáze
+  // Phase change
   if (visible_parts >= crown_size) {
     crown_phase++;
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -504,11 +504,11 @@ static void endgame_animation_victory_crown(uint32_t frame) {
 }
 
 // ============================================================================
-// JEMNÉ ANIMACE PRO FIGURKY A TLAČÍTKA
+// SMOOTH ANIMATIONS FOR FIGURES AND BUTTONS
 // ============================================================================
 
 /**
- * @brief Spuštění jemné animace pro figurku
+ * @brief Start a soft animation for the figurine
  */
 esp_err_t start_subtle_piece_animation(uint8_t piece_position,
                                        subtle_anim_type_t anim_type) {
@@ -520,7 +520,7 @@ esp_err_t start_subtle_piece_animation(uint8_t piece_position,
   subtle_pieces[piece_position].type = anim_type;
   subtle_pieces[piece_position].frame = 0;
   subtle_pieces[piece_position].base_color =
-      COLOR_YELLOW; // Základní barva pro pohyblivé figurky
+      COLOR_YELLOW; // Basic color for moving figures
 
   ESP_LOGD(TAG, "Started subtle animation for piece at %d, type %d",
            piece_position, anim_type);
@@ -528,7 +528,7 @@ esp_err_t start_subtle_piece_animation(uint8_t piece_position,
 }
 
 /**
- * @brief Spuštění jemné animace pro tlačítko
+ * @brief Start a soft animation for the button
  */
 esp_err_t start_subtle_button_animation(uint8_t button_id,
                                         subtle_anim_type_t anim_type) {
@@ -540,7 +540,7 @@ esp_err_t start_subtle_button_animation(uint8_t button_id,
   subtle_buttons[button_id].type = anim_type;
   subtle_buttons[button_id].frame = 0;
   subtle_buttons[button_id].base_color =
-      COLOR_GREEN; // Základní barva pro dostupná tlačítka
+      COLOR_GREEN; // Base color for available buttons
 
   ESP_LOGD(TAG, "Started subtle animation for button %d, type %d", button_id,
            anim_type);
@@ -560,29 +560,29 @@ static void apply_subtle_animation(uint8_t led_index,
 
   switch (anim->type) {
   case SUBTLE_ANIM_GENTLE_WAVE:
-    // Jemná vlna - mírné změny v sytosti
+    // Soft wave - slight changes in saturation
     result_color.r = anim->base_color.r * (0.9f + 0.1f * wave_progress);
     result_color.g = anim->base_color.g * (0.9f + 0.1f * wave_progress);
     result_color.b = anim->base_color.b * (0.9f + 0.1f * wave_progress);
     break;
 
   case SUBTLE_ANIM_WARM_GLOW:
-    // Teplé záření - směs se žlutou/oranžovou
+    // Warm radiation - mixed with yellow/orange
     float glow_intensity = (wave_progress + 1.0f) / 2.0f * 0.15f;
     result_color.r = anim->base_color.r + 40 * glow_intensity;
     result_color.g = anim->base_color.g + 20 * glow_intensity;
-    // Modrá zůstává stejná
+    // The blue remains the same
     break;
 
   case SUBTLE_ANIM_COOL_PULSE:
-    // Chladné pulzování - směs s modrou/fialovou
+    // Cool pulsing - mixed with blue/purple
     float pulse_intensity = (wave_progress + 1.0f) / 2.0f * 0.1f;
     result_color.b = anim->base_color.b + 30 * pulse_intensity;
     result_color.r = anim->base_color.r * (1.0f - pulse_intensity * 0.2f);
     break;
 
   case SUBTLE_ANIM_WHITE_WINS:
-    // Bílý vítězí - bílá animace s jemným pulzováním
+    // White wins - white animation with gentle pulsation
     float white_intensity = (wave_progress + 1.0f) / 2.0f * 0.2f;
     result_color.r = 255 * (0.8f + white_intensity);
     result_color.g = 255 * (0.8f + white_intensity);
@@ -590,7 +590,7 @@ static void apply_subtle_animation(uint8_t led_index,
     break;
 
   case SUBTLE_ANIM_BLACK_WINS:
-    // Černý vítězí - černá animace s jemným pulzováním
+    // Black wins - black animation with subtle pulsation
     float black_intensity = (wave_progress + 1.0f) / 2.0f * 0.1f;
     result_color.r = 50 * (0.5f + black_intensity);
     result_color.g = 50 * (0.5f + black_intensity);
@@ -598,7 +598,7 @@ static void apply_subtle_animation(uint8_t led_index,
     break;
 
   case SUBTLE_ANIM_DRAW:
-    // Remíza - neutrální animace s šedou
+    // Draw - neutral animation with gray
     float draw_intensity = (wave_progress + 1.0f) / 2.0f * 0.15f;
     result_color.r = 128 * (0.8f + draw_intensity);
     result_color.g = 128 * (0.8f + draw_intensity);
@@ -606,7 +606,7 @@ static void apply_subtle_animation(uint8_t led_index,
     break;
   }
 
-  // Omez barvy na validní rozsah
+  // Limit colors to valid range
   result_color.r = fminf(255, fmaxf(0, result_color.r));
   result_color.g = fminf(255, fmaxf(0, result_color.g));
   result_color.b = fminf(255, fmaxf(0, result_color.b));
@@ -616,17 +616,17 @@ static void apply_subtle_animation(uint8_t led_index,
 }
 
 /**
- * @brief Timer callback pro jemné animace
+ * @brief Timer callback for fine animations
  */
 static void subtle_animation_timer_callback(TimerHandle_t timer) {
-  // Aplikuj jemné animace na figurky
+  // Apply subtle animations to figures
   for (int i = 0; i < 64; i++) {
     if (subtle_pieces[i].active) {
       apply_subtle_animation(i, &subtle_pieces[i]);
     }
   }
 
-  // Aplikuj jemné animace na tlačítka
+  // Apply subtle animations to buttons
   for (int i = 0; i < 9; i++) {
     if (subtle_buttons[i].active) {
       apply_subtle_animation(64 + i, &subtle_buttons[i]);
@@ -635,7 +635,7 @@ static void subtle_animation_timer_callback(TimerHandle_t timer) {
 }
 
 // ============================================================================
-// HLAVNÍ ANIMAČNÍ FUNKCE
+// MAIN ANIMATION FEATURE
 // ============================================================================
 
 /**
@@ -678,7 +678,7 @@ static void animation_timer_callback(TimerHandle_t timer) {
 }
 
 // ============================================================================
-// VEŘEJNÉ API FUNKCE
+// PUBLIC API FUNCTIONS
 // ============================================================================
 
 esp_err_t game_led_animations_init(void) {
@@ -689,16 +689,16 @@ esp_err_t game_led_animations_init(void) {
 
   ESP_LOGI(TAG, "Initializing advanced LED animation system...");
 
-  // Vytvoř timery pro animace
+  // Create timers for animations
   animation_timer =
       xTimerCreate("EndgameAnim",
-                   pdMS_TO_TICKS(100), // 100ms interval pro plynulé animace
+                   pdMS_TO_TICKS(100), // 100ms interval for smooth animations
                    pdTRUE,             // Auto-reload
                    NULL, animation_timer_callback);
 
   subtle_animation_timer =
       xTimerCreate("SubtleAnim",
-                   pdMS_TO_TICKS(50), // 50ms interval pro jemné animace
+                   pdMS_TO_TICKS(50), // 50ms interval for smooth animations
                    pdTRUE, NULL, subtle_animation_timer_callback);
 
   if (!animation_timer || !subtle_animation_timer) {
@@ -706,12 +706,12 @@ esp_err_t game_led_animations_init(void) {
     return ESP_ERR_NO_MEM;
   }
 
-  // Inicializuj stavy
+  // Initialize states
   memset(&wave_state, 0, sizeof(wave_state));
   memset(subtle_pieces, 0, sizeof(subtle_pieces));
   memset(subtle_buttons, 0, sizeof(subtle_buttons));
 
-  // Spusť timer pro jemné animace
+  // Start a timer for gentle animations
   xTimerStart(subtle_animation_timer, 0);
 
   animation_system_active = true;
@@ -740,7 +740,7 @@ esp_err_t start_endgame_animation(endgame_animation_type_t animation_type,
   ESP_LOGI(TAG, "🎬 Starting endgame animation %d from position %d",
            animation_type, king_position);
 
-  // Zastaví předchozí animaci pokud běží
+  // Stops the previous animation if it is running
   if (endgame_animation_running) {
     stop_endgame_animation();
   }
@@ -749,10 +749,10 @@ esp_err_t start_endgame_animation(endgame_animation_type_t animation_type,
   winning_king_position = king_position;
   endgame_animation_running = true;
 
-  // Reset stavů pro novou animaci
+  // Reset states for new animation
   memset(&wave_state, 0, sizeof(wave_state));
 
-  // Spustí timer
+  // Starts a timer
   xTimerStart(animation_timer, 0);
 
   return ESP_OK;
@@ -768,7 +768,7 @@ esp_err_t stop_endgame_animation(void) {
   endgame_animation_running = false;
   xTimerStop(animation_timer, 0);
 
-  // Vyčisti board
+  // Clear the board
   led_clear_all_safe();
 
   return ESP_OK;

@@ -1,23 +1,23 @@
 /**
  * @file promotion_button_task.c
- * @brief Promotion button task: ovladani tlacitek pro promoci pescu
+ * @brief Promotion button task: control of promotion buttons
  *
- * Tento modul implementuje:
- *  - Inicializaci promotion button tasku a FreeRTOS komponent
- *  - Zpracovani tlacitek pro volbu promoci (dama, vez, strelec, kun)
- *  - Simulacni rezim bez hardware (pro development)
- *  - Integration s game taskem pro promoci
- *  - 4 tlacitka pro ruzne typy promoci
+ * This module implements:
+ * - Initialization of promotion button task and FreeRTOS components
+ * - Processing of buttons for choosing graduation (queen, queen, archer, king)
+ * - Simulation mode without hardware (for development)
+ * - Integration with game task for graduation
+ * - 4 buttons for different types of graduation
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-16
  * 
  * @details
- * Tento task zpracovava tlacitka pro promoci pescu. Kdyz pesec
- * dojde na konec sachovnice, hrac muze vybrat na co ho promenit
- * pomoci tlacitek. Task detekuje stisknuti tlacitek a posila
- * informaci do game tasku.
+ * This task is processed by the sand graduation button. When the dog
+ * reaches the end of the box, the player can choose what to change it to
+ * help buttons. Task detects a button press and sends it
+ * information in the game task.
  */
 
 #include "promotion_button_task.h"
@@ -26,22 +26,22 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#include "freertos_chess.h"  // OPRAVENO: Přidán include pro konstanty
+#include "freertos_chess.h"  // FIXED: Added include for constants
 
 static const char *TAG = "PROMOTION_BUTTON_TASK";  // Tag pro ESP-IDF logovani
 
 // Promotion button task status
-static bool promotion_button_initialized = false;   // Stav inicializace promotion button tasku
-static uint32_t button_event_count = 0;            // Pocet zpracovanych tlacitkovych udalosti
+static bool promotion_button_initialized = false;   // Promotion button task initialization status
+static uint32_t button_event_count = 0;            // The number of processed button events
 
 /**
- * @brief Inicializuj promotion button task
+ * @brief Initialize the promotion button task
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t promotion_button_task_init(void)
 {
-    if (promotion_button_initialized) {  // Kontrola ze task uz neni inicializovan
+    if (promotion_button_initialized) {  // Check that the task is no longer initialized
         return ESP_OK;
     }
     
@@ -49,29 +49,29 @@ esp_err_t promotion_button_task_init(void)
     
     // Create promotion button task
     BaseType_t task_created = xTaskCreate(
-        promotion_button_task,                    // Funkce promotion button tasku
+        promotion_button_task,                    // Function promotion button task
         "promotion_button_task",                  // Nazev tasku
-        PROMOTION_BUTTON_TASK_STACK_SIZE,         // OPRAVENO: Místo hardcodované 2048 - velikost stacku
+        PROMOTION_BUTTON_TASK_STACK_SIZE,         // FIXED: Instead of hardcoded 2048 - stack size
         NULL,                                     // Task parameters (unused)
-        PROMOTION_BUTTON_TASK_PRIORITY,           // OPRAVENO: Místo hardcodované 3 - priorita tasku
+        PROMOTION_BUTTON_TASK_PRIORITY,           // FIXED: Instead of hardcoded 3 - task priority
         NULL                                      // Task handle (unused)
     );
     
-    if (task_created != pdPASS) {  // Kontrola ze task byl vytvoren uspesne
+    if (task_created != pdPASS) {  // Check from the task was created successfully
         ESP_LOGE(TAG, "Failed to create promotion button task");
-        return ESP_ERR_NO_MEM;  // Chyba: nedostatek pameti
+        return ESP_ERR_NO_MEM;  // Error: out of memory
     }
     
-    promotion_button_initialized = true;  // Označení ze task je inicializovan
+    promotion_button_initialized = true;  // The tag from the task is initialized
     ESP_LOGI(TAG, "Promotion button task initialized successfully (SIMULATION MODE)");
     
-    return ESP_OK;  // Uspech
+    return ESP_OK;  // Success
 }
 
 /**
- * @brief Hlavni funkce promotion button tasku
+ * @brief The main function of the promotion button task
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void promotion_button_task(void *pvParameters)
 {
@@ -91,33 +91,33 @@ void promotion_button_task(void *pvParameters)
 }
 
 /**
- * @brief Zpracuj volbu promoci
+ * @brief Process graduation choice
  * 
- * @param choice Typ promoci (QUEEN, ROOK, BISHOP, KNIGHT)
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param choice Graduation type (QUEEN, ROOK, BISHOP, KNIGHT)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t process_promotion_choice(promotion_choice_t choice)
 {
-    if (!promotion_button_initialized) {  // Kontrola inicializace promotion button tasku
+    if (!promotion_button_initialized) {  // Checking the initialization of the promotion button task
         return ESP_ERR_INVALID_STATE;
     }
     
     ESP_LOGI(TAG, "Processing promotion choice: %d", choice);
     
     switch (choice) {
-        case PROMOTION_QUEEN:  // Promoce na damu
+        case PROMOTION_QUEEN:  // Graduation to a lady
             ESP_LOGI(TAG, "Promotion choice: QUEEN");
             break;
-        case PROMOTION_ROOK:   // Promoce na vez
+        case PROMOTION_ROOK:   // Graduation on
             ESP_LOGI(TAG, "Promotion choice: ROOK");
             break;
-        case PROMOTION_BISHOP: // Promoce na strelce
+        case PROMOTION_BISHOP: // Graduation on shooter
             ESP_LOGI(TAG, "Promotion choice: BISHOP");
             break;
-        case PROMOTION_KNIGHT: // Promoce na kune
+        case PROMOTION_KNIGHT: // Graduation on kune
             ESP_LOGI(TAG, "Promotion choice: KNIGHT");
             break;
-        default:  // Neznamy typ promoce
+        default:  // We do not know the type of graduation
             ESP_LOGW(TAG, "Unknown promotion choice: %d", choice);
             return ESP_ERR_INVALID_ARG;
     }
@@ -125,14 +125,14 @@ esp_err_t process_promotion_choice(promotion_choice_t choice)
     // TODO: Send promotion choice to game task
     // For now, just log the choice
     
-    return ESP_OK;  // Uspech
+    return ESP_OK;  // Success
 }
 
 /**
- * @brief Simuluj stisknuti promotion tlacitka (pro testovani)
+ * @brief Simulate pressing the promotion button (for testing)
  * 
- * @param button_index Index tlacitka (0=QUEEN, 1=ROOK, 2=BISHOP, 3=KNIGHT)
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param button_index Button index (0=QUEEN, 1=ROOK, 2=BISHOP, 3=KNIGHT)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t simulate_promotion_button_press(uint8_t button_index)
 {
@@ -162,9 +162,9 @@ esp_err_t simulate_promotion_button_press(uint8_t button_index)
 }
 
 /**
- * @brief Overi zda je promotion button task inicializovan
+ * @brief Verify if the promotion button task is initialized
  * 
- * @return True pokud je task inicializovan
+ * @return True if the task is initialized
  */
 bool promotion_button_is_initialized(void)
 {
@@ -172,9 +172,9 @@ bool promotion_button_is_initialized(void)
 }
 
 /**
- * @brief Ziskej pocet zpracovanych tlacitkovych udalosti
+ * @brief Get the number of processed button events
  * 
- * @return Pocet udalosti
+ * @return Event count
  */
 uint32_t promotion_button_get_event_count(void)
 {

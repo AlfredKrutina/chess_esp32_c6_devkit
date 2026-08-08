@@ -1,8 +1,8 @@
-# Flutter klient (`flutter_czechmate/`)
+# Flutter client (`flutter_czechmate/`)
 
-[Rozcestník celého repa](../README.md).
+[Full repo index](../README.md).
 
-Aplikace umí **BLE** nebo **HTTP / WebSocket**, stav držím přes **Riverpod**. Na **Windows** je v této codebase jen síťová větev (BLE stack chybí ve `flutter_blue_plus`). Partie sama o sobě žije ve firmware [`game_task`](../../components/game_task/) — klient v Dartu synchronizuje snapshoty a API; balíček `chess` používám tam, kde pomůže UI, ne jako náhradu celého `game_task`.
+The app supports **BLE** or **HTTP / WebSocket**; state is held via **Riverpod**. On **Windows**, this codebase only implements the network path (no BLE stack in `flutter_blue_plus`). The game itself runs in firmware [`game_task`](../../components/game_task/) — the Dart client synchronizes snapshots and API calls; the `chess` package is used where it helps the UI, not as a replacement for the entire `game_task`.
 
 ```bash
 cd flutter_czechmate && flutter pub get && flutter run
@@ -10,24 +10,24 @@ cd flutter_czechmate && flutter pub get && flutter run
 
 ### Windows desktop
 
-- **Předpoklady:** Windows 10/11, [Flutter](https://docs.flutter.dev/get-started/install/windows) na stable kanálu, **Visual Studio 2022** s úlohou *Desktop development with C++* (CMake, MSVC, Windows SDK).
-- **Spuštění:** `flutter pub get && flutter run -d windows`.
-- **Release:** `flutter build windows` — spustitelná aplikace typicky v `build/windows/x64/runner/Release/` (zkopíruj celou složku včetně dat DLL).
-- **Bluetooth:** knihovna `flutter_blue_plus` v tomto projektu **nemá** backend pro Windows. Klient BLE API nevolá; připojení k desce je přes **HTTP / WebSocket** (stejná síť jako počítač, URL z webového rozhraní desky nebo z telefonu po zprovoznění Wi‑Fi). BLE sken a OTA přes GATT vyžadují Android / iOS / macOS / Linux.
-- **CI instalátor:** při pushi na `main`/`master`, který mění `flutter_czechmate/**`, běží [`.github/workflows/flutter-app-release.yml`](../../.github/workflows/flutter-app-release.yml) na GitHub Actions — job `windows` udělá `flutter build windows --release` a zabalí výstup Inno Setup skriptem `flutter_czechmate/installer/windows/CzechMateSetup.iss` do `czechmate-<ver>-windows-setup.exe` na Releases.
+- **Prerequisites:** Windows 10/11, [Flutter](https://docs.flutter.dev/get-started/install/windows) on the stable channel, **Visual Studio 2022** with the *Desktop development with C++* workload (CMake, MSVC, Windows SDK).
+- **Run:** `flutter pub get && flutter run -d windows`.
+- **Release:** `flutter build windows` — the executable is typically in `build/windows/x64/runner/Release/` (copy the entire folder including DLL data).
+- **Bluetooth:** the `flutter_blue_plus` library has **no** Windows backend in this project. The client does not call the BLE API; board connection is via **HTTP / WebSocket** (same network as the PC, URL from the board web UI or from the phone after Wi‑Fi setup). BLE scan and OTA over GATT require Android / iOS / macOS / Linux.
+- **CI installer:** on push to `main`/`master` that changes `flutter_czechmate/**`, [`.github/workflows/flutter-app-release.yml`](../../.github/workflows/flutter-app-release.yml) runs on GitHub Actions — the `windows` job runs `flutter build windows --release` and packages the output with the Inno Setup script `flutter_czechmate/installer/windows/CzechMateSetup.iss` into `czechmate-<ver>-windows-setup.exe` on Releases.
 
-Hotové buildy: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
+Release builds: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
 
-Nápady na nové diagramy si píšu lokálně do `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`, vzor je [DIAGRAM_BACKLOG.local.example.md](../diagrams/DIAGRAM_BACKLOG.local.example.md).
+New diagram ideas can be tracked locally in `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`; the template is [DIAGRAM_BACKLOG.local.example.md](../diagrams/DIAGRAM_BACKLOG.local.example.md).
 
 ---
 
-## Vrstvy
+## Layers
 
-![Vrstvy klienta](../diagrams/client_app_layers.svg)  
+![Client layers](../diagrams/client_app_layers.svg)  
 Mermaid: [client_app_layers.mmd](../diagrams/sources/client_app_layers.mmd)
 
-Širší mapa `lib/`: [flutter_app_structure.svg](../diagrams/flutter_app_structure.svg) · [flutter_app_structure.mmd](../diagrams/sources/flutter_app_structure.mmd)
+Broader `lib/` map: [flutter_app_structure.svg](../diagrams/flutter_app_structure.svg) · [flutter_app_structure.mmd](../diagrams/sources/flutter_app_structure.mmd)
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'lineColor':'#a78bfa','clusterBkg':'#0f172a','clusterBorder':'#334155','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
@@ -64,21 +64,21 @@ flowchart TB
 
 ## `lib/`
 
-| Složka | Role |
+| Folder | Role |
 |--------|------|
-| `features/game/` | Partie, šachovnice, hodiny, report |
+| `features/game/` | Game, board, clock, report |
 | `features/connection/` | Scan, session |
 | `features/coach/` | AI chat, LLM |
-| `features/analysis/` | Evaluace |
-| `features/settings/` | Zařízení, MQTT/HA, OTA (`firmware_update_section`, `firmware_ota_runner`, manifest) |
+| `features/analysis/` | Evaluation |
+| `features/settings/` | Device, MQTT/HA, OTA (`firmware_update_section`, `firmware_ota_runner`, manifest) |
 | `core/services/` | `ble_czechmate_client`, `board_api_client`, `firmware_phone_host_ota`, WS, Stockfish, … |
-| `core/models/` | Snapshot, enumy |
-| `app_providers.dart` | Providery |
-| `app_navigation.dart` | Routy |
+| `core/models/` | Snapshot, enums |
+| `app_providers.dart` | Providers |
+| `app_navigation.dart` | Routes |
 
 ---
 
-## Tok příkazu na desku
+## Command flow to the board
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'actorBkg':'#1e293b','actorBorder':'#c084fc','actorTextColor':'#f1f5f9','signalColor':'#cbd5e1'}}}%%
@@ -88,10 +88,10 @@ sequenceDiagram
     participant N as Notifier
     participant X as BLE / HTTP
     participant D as ESP32
-    W->>N: akce
-    N->>X: příkaz
-    X->>D: GATT nebo HTTP
-    D-->>X: odpověď / snapshot
+    W->>N: action
+    N->>X: command
+    X->>D: GATT or HTTP
+    D-->>X: response / snapshot
     X-->>N: parse
     N-->>W: rebuild
   end
@@ -99,12 +99,12 @@ sequenceDiagram
 
 ---
 
-## BLE vs HTTP na desce
+## BLE vs HTTP on the board
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
 flowchart LR
-  subgraph Phone["Telefon"]
+  subgraph Phone["Phone"]
     APP[Flutter]:::p
   end
   subgraph Board["ESP32"]
@@ -121,17 +121,17 @@ flowchart LR
   classDef g fill:#7c2d12,stroke:#fb923c,stroke-width:2px,color:#fed7aa
 ```
 
-JSON z BLE často končí ve `web_server_ble_command_dispatch` — stejná logika jako část web API.
+JSON from BLE often ends up in `web_server_ble_command_dispatch` — same logic as part of the web API.
 
 ---
 
-## OTA firmwaru ESP32
+## ESP32 firmware OTA
 
-[docs/ota_architecture.md](../ota_architecture.md) — HTTPS se STA, HTTP z telefonu, BLE chunky `OB`, REST, Bearer.
+[docs/ota_architecture.md](../ota_architecture.md) — HTTPS with STA, HTTP from phone, BLE `OB` chunks, REST, Bearer.
 
 Dart: `BoardSessionNotifier.requestFirmwareOta` / `uploadFirmwareOtaBle`, `FirmwareOtaRunner`, `FirmwarePhoneHostOta`, `BleCzechmateClient.uploadFirmwareBle`.
 
-E2E poznámky k OTA si lze vést lokálně (např. vlastní checklist); veřejný popis kanálů a API je v [`docs/ota_architecture.md`](../ota_architecture.md).
+E2E OTA notes can be kept locally (e.g. a custom checklist); the public channel and API description is in [`docs/ota_architecture.md`](../ota_architecture.md).
 
 ---
 
@@ -140,14 +140,14 @@ E2E poznámky k OTA si lze vést lokálně (např. vlastní checklist); veřejn�
 ```mermaid
 %%{init: {'theme':'dark'}}%%
 stateDiagram-v2
-  [*] --> Hledání
-  Hledání --> Připojuji: výběr zařízení
-  Připojuji --> Ve_hře: handshake OK
-  Ve_hře --> Ve_hře: tahy
-  Ve_hře --> Hledání: výpadek / zpět
+  [*] --> Searching
+  Searching --> Connecting: device selected
+  Connecting --> InGame: handshake OK
+  InGame --> InGame: moves
+  InGame --> Searching: disconnect / back
 ```
 
-Kód: `board_session_notifier.dart`, `features/connection/`.
+Code: `board_session_notifier.dart`, `features/connection/`.
 
 ---
 
@@ -167,17 +167,17 @@ flowchart LR
 
 ---
 
-## Nativní vrstvy
+## Native layers
 
-| Platforma | |
+| Platform | |
 |-----------|--|
 | iOS | Live Activities, Watch |
-| Android | Wear, notifikace |
+| Android | Wear, notifications |
 
 ---
 
-## Firmware diagramy
+## Firmware diagrams
 
-[diagrams/README.md](../diagrams/README.md) — tasky, boot, LED pipeline.
+[diagrams/README.md](../diagrams/README.md) — tasks, boot, LED pipeline.
 
-[flutter_czechmate/README.md](../../flutter_czechmate/README.md) — krátký start z kořene aplikace.
+[flutter_czechmate/README.md](../../flutter_czechmate/README.md) — short start guide from the app root.

@@ -1,21 +1,21 @@
-# Hall V2 + STM32 auto-flash profil (testovací / výrobní deska s I2C Hall segmenty).
-# Použití:
+# Hall V2 + STM32 auto-flash profile (test / production board with I2C Hall segments).
+# Usage:
 #   idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
 #
-# GPIO níže jsou pro V2 desku bez reed multiplexu na SDA/SCL — NEPOUŽÍVAT na V1 LaskaKit
-# (tam jsou GPIO10/11 řádky matice). Viz docs/reference/ZAPOJENI_ESP_STM4.md
+# GPIOs below are for the V2 board without reed multiplex on SDA/SCL — DO NOT USE on V1 LaskaKit
+# (there GPIO10/11 are matrix rows). See docs/reference/WIRING_ESP_STM4.md
 
-# Matrix vstup přes I2C Hall (STM32 slave)
+# Matrix input via I2C Hall (STM32 slave)
 # CONFIG_CHESS_MATRIX_INPUT_GPIO_REED is not set
 CONFIG_CHESS_MATRIX_INPUT_I2C_HALL=y
 
-# Hall I2C — dedikované piny (bez kolize s reed řádky 10/11)
+# Hall I2C — dedicated pins (no clash with reed rows 10/11)
 CONFIG_CHESS_HALL_I2C_SDA_GPIO=12
 CONFIG_CHESS_HALL_I2C_SCL_GPIO=13
 CONFIG_CHESS_HALL_I2C_FREQ_HZ=100000
 CONFIG_CHESS_HALL_SEGMENT_COUNT=1
 
-# STM32 ROM bootloader z ESP (AN4221)
+# STM32 ROM bootloader from ESP (AN4221)
 CONFIG_CHESS_STM32_I2C_BL_ENABLE=y
 CONFIG_CHESS_STM32_BL_SHARE_I2C_HALL=y
 CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ=100000

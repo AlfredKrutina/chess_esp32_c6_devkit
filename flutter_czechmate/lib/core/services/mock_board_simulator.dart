@@ -7,7 +7,7 @@ import '../utils/fen_board_parser.dart';
 import '../utils/fen_from_board.dart';
 import 'board_api_exception.dart';
 
-/// Konfigurace času podle firmware `type` (HTTP `timer_config`), včetně 14 custom.
+/// Time configuration according to firmware `type` (HTTP `timer_config`), including 14 custom.
 TimerConfigPart mockTimerConfigForFirmware({
   required int type,
   int? customMinutes,
@@ -157,7 +157,7 @@ GameStatus mockStatusForNewGame(
   );
 }
 
-/// Výsledek simulovaného tahu v demo režimu.
+/// The result of a simulated move in demo mode.
 class MockRemoteMoveResult {
   MockRemoteMoveResult({
     required this.snapshot,
@@ -168,7 +168,7 @@ class MockRemoteMoveResult {
   final BoardTimerState? timer;
 }
 
-/// Důvod zamítnutí tahu z aplikace (stejná pravidla jako [mockApplyRemoteMove]).
+/// The reason for rejecting the move from the application (same rules as [mockApplyRemoteMove]).
 enum RemoteMoveReject {
   finished,
   badFen,
@@ -176,7 +176,7 @@ enum RemoteMoveReject {
   illegal,
 }
 
-/// Ověření legality tahu proti [snap] před odesláním na desku (BLE nevrací 400).
+/// Check legality of move against [snap] before sending to board (BLE does not return 400).
 RemoteMoveReject? validateRemoteMoveLegality({
   required GameSnapshot snap,
   required String from,
@@ -251,7 +251,7 @@ GameSnapshot _snapshotAfterApply({
   );
 }
 
-/// Lokální „deska“: aplikuje tah a vrátí nový snapshot + čas (nebo vyhodí [BoardApiException] 400).
+/// Local "board": applies a move and returns a new snapshot + time (or throws [BoardApiException] 400).
 MockRemoteMoveResult mockApplyRemoteMove({
   required GameSnapshot snap,
   required BoardTimerState? timer,

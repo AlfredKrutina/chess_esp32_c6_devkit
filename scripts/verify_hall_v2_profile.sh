@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Statická kontrola Hall V2 + STM32 auto-flash profilu (bez HW).
+# Static check of Hall V2 + STM32 auto-flash profile (no HW).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROFILE="$ROOT/sdkconfig.defaults.hall_v2"
@@ -43,7 +43,7 @@ check grep -q 'stm32_fw' "$PART"
 check test "$(wc -c < "$BIN")" -ge 256
 
 if [[ "$FAIL" -ne 0 ]]; then
-  echo "verify_hall_v2_profile: CHYBA"
+  echo "verify_hall_v2_profile: FAILED"
   exit 1
 fi
-echo "verify_hall_v2_profile: vše OK"
+echo "verify_hall_v2_profile: all OK"

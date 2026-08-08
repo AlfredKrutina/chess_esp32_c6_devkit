@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Ořez figurek CzechMate: odstranění světlého pozadí, trim průhledných okrajů,
-zmenšení pro web (embed) + přepsání iOS Assets.
+Trim CzechMate piece images: remove light backgrounds, trim transparent edges,
+shrink for web (embed) + overwrite iOS Assets.
 
-Vyžaduje: pip install pillow
+Requires: pip install pillow
 
-Spuštění z kořene repozitáře:
+Run from the repository root:
   python3 components/web_server_task/tools/process_piece_pngs.py
 """
 
@@ -21,7 +21,7 @@ except ImportError:
     print("Install Pillow: pip install pillow", file=sys.stderr)
     sys.exit(1)
 
-# Relativně ke kořeni repozitáře (parent parent ... z tohoto souboru)
+# Relative to the repository root (walk up from this file)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", ".."))
 
@@ -41,12 +41,12 @@ PIECES = [
 ]
 
 MAX_SIDE = 192
-# Pixely „jako pozadí“: světlé / šedé — zprůhlednit
+# Pixels treated as background: light / gray — make transparent
 BG_THRESHOLD = 38
 
 
 def remove_flat_background_rgba(im: Image.Image) -> Image.Image:
-    """RGB(A) -> RGBA; světlé okrajové pozadí zprůhlednit + jemný práh na tělo figurky."""
+    """RGB(A) -> RGBA; make light edge background transparent + soft threshold on piece body."""
     im = im.convert("RGBA")
     px = im.load()
     w, h = im.size
@@ -55,7 +55,7 @@ def remove_flat_background_rgba(im: Image.Image) -> Image.Image:
             r, g, b, a = px[x, y]
             if a == 0:
                 continue
-            # odstranit téměř bílé / světle šedé (typické u AI pozadí)
+            # remove near-white / light gray (typical AI backgrounds)
             mx = max(r, g, b)
             mn = min(r, g, b)
             if mx >= 250 and (mx - mn) <= 12:
@@ -64,14 +64,14 @@ def remove_flat_background_rgba(im: Image.Image) -> Image.Image:
             if mx > 235 and (mx - mn) < 25 and (r + g + b) > 680:
                 px[x, y] = (r, g, b, 0)
                 continue
-            # velmi světlé krémové pozadí
+            # very light cream background
             if r > 230 and g > 225 and b > 210 and (r - b) < 45:
                 px[x, y] = (r, g, b, 0)
     return im
 
 
 def trim_alpha(im: Image.Image, pad: int = 2) -> Image.Image:
-    """Ořez podle alfa kanálu."""
+    """Crop by alpha channel."""
     im = im.convert("RGBA")
     alpha = im.split()[3]
     bbox = alpha.getbbox()
@@ -135,7 +135,7 @@ def main() -> None:
         dst_ios = os.path.join(ios_base, f"{name}.imageset", f"{name}.png")
         dst_web = os.path.join(out_web, f"{name}.png")
         process_one(src, dst_ios)
-        # stejné pixely do piece_assets (kopie po zpracování)
+        # same pixels into piece_assets (copy after processing)
         im = Image.open(dst_ios)
         os.makedirs(out_web, exist_ok=True)
         im.save(dst_web, format="PNG", optimize=True, compress_level=9)

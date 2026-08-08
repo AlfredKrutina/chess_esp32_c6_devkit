@@ -1,7 +1,7 @@
 #!/bin/bash
-# Jednoduchý skript pro vytvoření PDF z RTF pomocí macOS
+# Simple script to create PDF from RTF using macOS
 # ESP32-C6 Chess v2.4
-# Spouštěj z kořene repa: ./scripts/docs/create_pdf_simple.sh  (nebo ./create_pdf_simple.sh)
+# Run from repo root: ./scripts/docs/create_pdf_simple.sh  (or ./create_pdf_simple.sh)
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
@@ -9,39 +9,38 @@ cd "$ROOT"
 RTF_FILE="docs/doxygen/rtf/refman.rtf"
 PDF_OUTPUT="docs/doxygen/esp32_chess_v24_documentation.pdf"
 
-echo "Vytváření PDF z RTF..."
+echo "Creating PDF from RTF..."
 echo ""
 
 if [ ! -f "$RTF_FILE" ]; then
-    echo "CHYBA: RTF soubor nenalezen: $RTF_FILE"
-    echo "Nejprve spusťte: ./generate_docs.sh"
+    echo "ERROR: RTF file not found: $RTF_FILE"
+    echo "Run first: ./generate_docs.sh"
     exit 1
 fi
 
-# Metoda 1: Použít cupsfilter (pokud je dostupný)
+# Method 1: Use cupsfilter (if available)
 if command -v cupsfilter &> /dev/null; then
-    echo "Použití cupsfilter pro konverzi..."
+    echo "Using cupsfilter for conversion..."
     cupsfilter "$RTF_FILE" > "$PDF_OUTPUT" 2>/dev/null
     if [ -f "$PDF_OUTPUT" ] && [ -s "$PDF_OUTPUT" ]; then
-        echo "✓ PDF vytvořen: $PDF_OUTPUT"
+        echo "✓ PDF created: $PDF_OUTPUT"
         exit 0
     fi
 fi
 
-# Metoda 2: Otevřít v TextEdit a použít tisk do PDF
-echo "Otevření RTF v TextEdit..."
-echo "Postup:"
-echo "1. TextEdit se otevře s RTF souborem"
-echo "2. Stiskněte Cmd+P (Tisk)"
-echo "3. V levém dolním rohu klikněte na 'PDF' -> 'Uložit jako PDF'"
-echo "4. Uložte jako: $PDF_OUTPUT"
+# Method 2: Open in TextEdit and use print to PDF
+echo "Opening RTF in TextEdit..."
+echo "Steps:"
+echo "1. TextEdit opens with the RTF file"
+echo "2. Press Cmd+P (Print)"
+echo "3. In the lower-left corner click 'PDF' -> 'Save as PDF'"
+echo "4. Save as: $PDF_OUTPUT"
 echo ""
-echo "Otevírám TextEdit..."
+echo "Opening TextEdit..."
 open -a TextEdit "$RTF_FILE"
 
 echo ""
-echo "Alternativně můžete použít Microsoft Word:"
+echo "Alternatively you can use Microsoft Word:"
 echo "  open -a 'Microsoft Word' $RTF_FILE"
-echo "  (Pak: Soubor -> Uložit jako -> PDF)"
+echo "  (Then: File -> Save As -> PDF)"
 echo ""
-

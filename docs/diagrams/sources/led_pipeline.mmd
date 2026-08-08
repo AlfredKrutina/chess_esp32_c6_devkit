@@ -1,8 +1,8 @@
-%% LED batch — zjednodušený tok (led_task)
+%% LED batch — simplified flow (led_task)
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart LR
-  GT[game_task · volání API]:::g
-  LT[led_task smyčka]:::l
+  GT[game_task · API calls]:::g
+  LT[led_task loop]:::l
   MU[(led_unified_mutex)]:::m
   BUF[(pending / batch)]:::b
   HW[WS2812B GPIO7]:::h

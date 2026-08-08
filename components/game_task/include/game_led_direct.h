@@ -1,20 +1,20 @@
 /**
  * @file game_led_direct.h
- * @brief PRIME LED FUNKCE PRO GAME TASK - Zadny Queue Hell
+ * @brief PRIME LED FUNCTION FOR GAME TASK - Back Queue Hell
  * 
- * RESENI: Misto xQueueSend(led_command_queue) pouzivat prime LED volani
- * - Zadny queue hell
- * - Zadne timing problemy
- * - Okamzite LED aktualizace
+ * RESOLUTION: Use prime LED call instead of xQueueSend(led_command_queue).
+ * - Back queue hell
+ * - No timing problems
+ * - Instant LED updates
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-02
  * 
  * @details
- * Tento modul poskytuje prime LED funkce pro game task bez pouziti front.
- * Eliminuje queue hell a timing problemy tim, ze vola LED funkce primo.
- * Vsechny funkce jsou thread-safe diky pouziti mutexu v led_task.
+ * This module provides prime LED functions for game tasks without using queues.
+ * Eliminates queue hell and timing problems by calling the LED function directly.
+ * All functions are thread-safe thanks to the use of a mutex in led_task.
  */
 
 #ifndef GAME_LED_DIRECT_H
@@ -28,132 +28,132 @@ extern "C" {
 #endif
 
 // ============================================================================
-// PRIME LED FUNKCE - ZADNY QUEUE HELL
+// PRIME LED FUNCTION - REAR QUEUE HELL
 // ============================================================================
 
 /**
- * @brief Zobraz tah s primymi LED volanimi
+ * @brief Display a move with direct LED calls
  * 
- * Zobrazi animaci tahu s postupnym svicenim zdrojoveho a ciloveho pole.
- * Pouziva barvy: zluta (zdroj), zelena (cil), cervena (capture).
+ * Displays a move animation with the source and target fields gradually lighting up.
+ * Uses colors: yellow (source), green (target), red (capture).
  * 
- * @param from_row Zdrojovy radek (0-7)
- * @param from_col Zdrojovy sloupec (0-7)
- * @param to_row Cilovy radek (0-7)
- * @param to_col Cilovy sloupec (0-7)
+ * @param from_row Source rows (0-7)
+ * @param from_col Source column (0-7)
+ * @param to_row Target rows (0-7)
+ * @param to_col Target column (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col);
 
 /**
- * @brief Zobraz zvednuti figurky s primymi LED volanimi
+ * @brief Display raised figures with prime LED calls
  * 
- * Zobrazi jemnou pulzujici zluto-oranzovou animaci na pozici zvednute figurky.
+ * Displays a gentle pulsating yellow-orange animation at the raised figure position.
  * 
- * @param row Radek figurky (0-7)
- * @param col Sloupec figurky (0-7)
+ * @param row Row of figurines (0-7)
+ * @param col Column of the figure (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_piece_lift_direct(uint8_t row, uint8_t col);
 
 /**
- * @brief Zobraz platne tahy s primymi LED volanimi
+ * @brief Display valid moves with direct LED calls
  * 
- * Zobrazi jemnou zelenou vlnu na vsech pozicich kam muze figurka tahn out.
+ * Displays a soft green wave at all positions where the figure can pull out.
  * 
- * @param valid_positions Pole LED indexu platnych pozic
- * @param count Pocet platnych pozic
+ * @param valid_positions LED index array of valid positions
+ * @param count Number of valid positions
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count);
 
 /**
- * @brief Zobraz chybu s primymi LED volanimi
+ * @brief Display error with LED prime calls
  * 
- * Zobrazi cervenou LED na pozici kde doslo k chybe.
+ * Displays a red LED at the position where the error occurred.
  * 
- * @param row Radek chyby (0-7)
- * @param col Sloupec chyby (0-7)
+ * @param row Error row (0-7)
+ * @param col Error column (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_error_direct(uint8_t row, uint8_t col);
 
 /**
- * @brief Vymaz zvyrazneni s primymi LED volanimi
+ * @brief Clear highlighting with direct LED calls
  * 
- * Vymaze vsechna LED zvyrazneni na sachovnici (zachova tlacitka).
+ * Clears all LED highlights on the box (save button).
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_clear_highlights_direct(void);
 
 /**
- * @brief Zobraz stav hry s primymi LED volanimi
+ * @brief Show game state with prime LED calls
  * 
- * Zobrazi aktualni pozici vsech figurek na sachovnici pomoci LED.
- * Bile figurky = bila barva, cerne figurky = modra barva.
+ * Displays the current position of all pieces on the chest with the help of LEDs.
+ * White figures = white color, black figures = blue color.
  * 
- * @param board Ukazatel na pole stavu sachovnice (64 prvku)
+ * @param board Pointer to the inbox state array (64 elements)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_state_direct(piece_t *board);
 
 /**
- * @brief Zobraz sach s primymi LED volanimi
+ * @brief Display sach with prime LED calls
  * 
- * Zobrazi cervenou blikajici LED na pozici krale v sachu.
+ * Displays a red flashing LED on the king position in chess.
  * 
- * @param king_row Radek krale (0-7)
- * @param king_col Sloupec krale (0-7)
+ * @param king_row King row (0-7)
+ * @param king_col King column (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_check_direct(uint8_t king_row, uint8_t king_col);
 
 /**
- * @brief Zobraz mat s primymi LED volanimi
+ * @brief Show checkmate with prime LED calls
  * 
- * Zobrazi intenzivni cervenou blikajici animaci na pozici krale v matu.
+ * Displays an intense red flashing animation at the checkmate king position.
  * 
- * @param king_row Radek krale (0-7)
- * @param king_col Sloupec krale (0-7)
+ * @param king_row King row (0-7)
+ * @param king_col King column (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_checkmate_direct(uint8_t king_row, uint8_t king_col);
 
 /**
- * @brief Zobraz promoci s primymi LED volanimi
+ * @brief Show graduation with prime LED calls
  * 
- * Zobrazi zlato-bilou blikajici animaci na pozici promovaneho pescu.
+ * Displays a gold-white flashing animation at the position of the graduated sand.
  * 
- * @param row Radek promoci (0-7)
- * @param col Sloupec promoci (0-7)
+ * @param row Graduation row (0-7)
+ * @param col Graduation column (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_promotion_direct(uint8_t row, uint8_t col);
 
 /**
- * @brief Zobraz rosadu s primymi LED volanimi
+ * @brief Display a row with prime LED calls
  * 
- * Zobrazi animaci rosady - pohyb krale a veze.
+ * Show rosady animation - king and rook movement.
  * 
- * @param king_from_row Zdrojovy radek krale (0-7)
- * @param king_from_col Zdrojovy sloupec krale (0-7)
- * @param king_to_row Cilovy radek krale (0-7)
- * @param king_to_col Cilovy sloupec krale (0-7)
- * @param rook_from_row Zdrojovy radek veze (0-7)
- * @param rook_from_col Zdrojovy sloupec veze (0-7)
- * @param rook_to_row Cilovy radek veze (0-7)
- * @param rook_to_col Cilovy sloupec veze (0-7)
+ * @param king_from_row King source rows (0-7)
+ * @param king_from_col Source king column (0-7)
+ * @param king_to_row Target rows of the king (0-7)
+ * @param king_to_col Target column of the king (0-7)
+ * @param rook_from_row Source rows rook (0-7)
+ * @param rook_from_col Source column of rook (0-7)
+ * @param rook_to_row Target rook rows (0-7)
+ * @param rook_to_col Destination column of rook (0-7)
  * 
- * @note PRIME VOLANI - zadny queue
+ * @note PRIME CALLS - no queue
  */
 void game_show_castling_direct(uint8_t king_from_row, uint8_t king_from_col, 
                                uint8_t king_to_row, uint8_t king_to_col,

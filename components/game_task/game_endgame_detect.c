@@ -189,32 +189,32 @@ bool game_is_insufficient_material(void) {
 }
 
 /**
- * @brief Kontroluje podminky pro konec hry (sachmat, pat, remizy)
+ * @brief Checks the conditions for ending the game (check, stalemate, draw)
  *
- * @return GAME_STATE_FINISHED pokud hra skoncila, GAME_STATE_ACTIVE pokud
- * pokracuje
+ * @return GAME_STATE_FINISHED if game finished, GAME_STATE_ACTIVE if
+ * continues
  *
  * @details
- * Funkce kontroluje vsechny mozne zpusoby konce hry:
+ * The function checks all possible ways to end the game:
  *
- * Vyherne podminky:
- * - Sachmat: kral v sachu && zadne validni tahy
+ * Win conditions:
+ * - Chess: king in chess && makes valid moves
  *
- * Remizove podminky:
- * - Pat (Stalemate): kral NENI v sachu && zadne validni tahy
- * - 50-Move Rule: 100 pultahu bez brani nebo posunu pesce
- * - Threefold Repetition: stejna pozice 3x opakována
- * - Insufficient Material: nedostatecny material pro mat
+ * Draw conditions:
+ * - Stalemate: the king is NOT in check && makes valid moves
+ * - 50-Move Rule: 100 pultahu without defending or moving pesce
+ * - Threefold Repetition: the same position is repeated 3 times
+ * - Insufficient Material: insufficient material for mat
  *
- * Funkce take:
- * - Aktualizuje statistiky
- * - Zastavuje timer
- * - Generuje endgame report
- * - Rozlisuje typy sachmatu (en passant, castling, promotion, discovered)
+ * Take function:
+ * - Updates statistics
+ * - Stops the timer
+ * - Generates an endgame report
+ * - Distinguishes types of chess (en passant, castling, promotion, discovered)
  *
- * @note Opraveno v2.4.1:
- * - BUG #13: 50-Move Rule nyni kontroluje >= 100 pultahu (50 tahu na stranu)
- * - Puvodni kontrola >= 50 byla spatna (polovicni pocet)
+ * @note Fixed in v2.4.1:
+ * - BUG #13: 50-Move Rule now checks for >= 100 counters (50 moves per side)
+ * - Original check >= 50 was bad (half count)
  */
 game_state_t game_check_end_game_conditions(void) {
   // Check if current player is in check
@@ -224,12 +224,12 @@ game_state_t game_check_end_game_conditions(void) {
   bool has_moves = game_has_legal_moves(current_player);
 
   if (in_check && !has_moves) {
-    // Checkmate - určit typ podle posledního tahu
+    // Checkmate - determine the type according to the last move
     game_result = GAME_STATE_FINISHED;
     current_result_type = (current_player == PLAYER_WHITE) ? RESULT_BLACK_WINS
                                                            : RESULT_WHITE_WINS;
 
-    // Rozlišit typ šachmatu podle posledního tahu
+    // Distinguish the type of chess according to the last move
     switch (last_move_type) {
     case LAST_MOVE_EN_PASSANT:
       current_endgame_reason = ENDGAME_REASON_CHECKMATE_EN_PASSANT;
@@ -265,9 +265,9 @@ game_state_t game_check_end_game_conditions(void) {
     }
 
     game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Požadavek na report
+    endgame_report_requested = true; // Report request
 
-    // Zastavit timer (hra skončila)
+    // Stop timer (game over)
     timer_pause();
 
     // UNIFIED VICTORY ANIMATION
@@ -283,11 +283,11 @@ game_state_t game_check_end_game_conditions(void) {
     // Stalemate
     game_result = GAME_STATE_FINISHED;
     current_result_type = RESULT_DRAW_STALEMATE;
-    current_endgame_reason = ENDGAME_REASON_STALEMATE; // Označit jako stalemate
+    current_endgame_reason = ENDGAME_REASON_STALEMATE; // Mark as stalemate
     game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Požadavek na report
+    endgame_report_requested = true; // Report request
 
-    // Zastavit timer (hra skončila)
+    // Stop timer (game over)
     timer_pause();
 
     ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn in %" PRIu32 " moves", move_count);
@@ -295,17 +295,17 @@ game_state_t game_check_end_game_conditions(void) {
   }
 
   // BUG #13: Check for draw conditions
-  // 50-move rule: 50 plných tahů = 100 půltahů (half-moves/ply)
-  // moves_without_capture počítá půltahy, takže >= 100
+  // 50-move rule: 50 full moves = 100 half-moves/ply
+  // moves_without_capture counts half moves so >= 100
   if (moves_without_capture >= 100) {
     game_result = GAME_STATE_FINISHED;
     current_result_type = RESULT_DRAW_50_MOVE;
     current_endgame_reason =
-        ENDGAME_REASON_50_MOVE; // Označit jako 50-move rule
+        ENDGAME_REASON_50_MOVE; // Mark as 50-move rule
     game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Požadavek na report
+    endgame_report_requested = true; // Report request
 
-    // Zastavit timer (hra skončila)
+    // Stop timer (game over)
     timer_pause();
 
     ESP_LOGI(TAG, "🤝 DRAW! 50 moves without capture (50-move rule)");
@@ -316,11 +316,11 @@ game_state_t game_check_end_game_conditions(void) {
     game_result = GAME_STATE_FINISHED;
     current_result_type = RESULT_DRAW_REPETITION;
     current_endgame_reason =
-        ENDGAME_REASON_REPETITION; // Označit jako threefold repetition
+        ENDGAME_REASON_REPETITION; // Mark as threefold repetition
     game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Požadavek na report
+    endgame_report_requested = true; // Report request
 
-    // Zastavit timer (hra skončila)
+    // Stop timer (game over)
     timer_pause();
 
     ESP_LOGI(TAG, "🤝 DRAW! Position repeated (draw by repetition)");
@@ -332,11 +332,11 @@ game_state_t game_check_end_game_conditions(void) {
     game_result = GAME_STATE_FINISHED;
     current_result_type = RESULT_DRAW_INSUFFICIENT;
     current_endgame_reason =
-        ENDGAME_REASON_INSUFFICIENT; // Označit jako insufficient material
+        ENDGAME_REASON_INSUFFICIENT; // Mark as insufficient material
     game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Požadavek na report
+    endgame_report_requested = true; // Report request
 
-    // Zastavit timer (hra skončila)
+    // Stop timer (game over)
     timer_pause();
 
     ESP_LOGI(TAG, "🤝 DRAW! Insufficient material to checkmate");

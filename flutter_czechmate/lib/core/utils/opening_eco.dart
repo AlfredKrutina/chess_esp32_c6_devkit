@@ -1,8 +1,8 @@
-/// Parita `OpeningECO.swift` — jednoduchý offline název zahájení podle prefixu FEN.
+/// Parity `OpeningECO.swift` — simple offline opening name by FEN prefix.
 class OpeningEco {
   OpeningEco._();
 
-  /// Vrací název zahájení nebo `null` — pouze několik běžných vzorů.
+  /// Returns the start name or `null` — just a few common patterns.
   static String? titleForFen(String fen) {
     final t = fen.trim().toLowerCase();
     final parts = t.split(RegExp(r'\s+'));

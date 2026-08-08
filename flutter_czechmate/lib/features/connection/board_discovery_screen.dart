@@ -34,7 +34,7 @@ class BoardDiscoveryScreen extends ConsumerStatefulWidget {
       _BoardDiscoveryScreenState();
 }
 
-/// Deska inzeruje UUID služby v ADV nebo jméno v ADV / po Scan Response (iOS).
+/// The board advertises the service UUID in ADV or the name in ADV / after Scan Response (iOS).
 bool _looksLikeCzechmateBoard(ScanResult r) {
   final pn = r.device.platformName.toUpperCase();
   final an = r.advertisementData.advName.toUpperCase();
@@ -103,7 +103,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     return ok;
   }
 
-  /// Po startu aplikace často chvíli trvá, než systém hlásí `BluetoothAdapterState.on`.
+  /// After starting the application, it often takes a while before the system reports `BluetoothAdapterState.on`.
   Future<bool> _ensureBluetoothPoweredOn() async {
     if (!isFlutterBluePlusHostSupported) {
       if (mounted) {
@@ -140,7 +140,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
           .timeout(const Duration(seconds: 10))
           .first;
     } catch (_) {
-      // Timeout nebo stream — uživatel má BT vypnutý / nepřipravené.
+      // Timeout or stream — user has BT turned off / not ready.
     }
 
     if (!mounted) return false;
@@ -178,7 +178,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     connDebugLog(
         'BLE scan start', 'timeout=12s client-side filtr CZECHMATE/service');
     if (AppEnvironment.staging) {
-      debugPrint('[staging] BLE scan start (Najít desku)');
+      debugPrint('[staging] BLE scan start (Find board)');
     }
     try {
       _scanSub = FlutterBluePlus.scanResults.listen((list) {
@@ -191,8 +191,8 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
         }
         if (mounted) setState(() {});
       });
-      // Bez `withServices`: na iOS filtr podle UUID v inzerátu často nevrátí žádné
-      // výsledky; filtrujeme client-side (jméno + service UUID z ADV).
+      // Without `withServices`: on iOS, a filter by UUID in an ad often returns none
+      // results; we filter client-side (name + service UUID from ADV).
       await FlutterBluePlus.startScan(
         timeout: const Duration(seconds: 12),
       );
@@ -227,7 +227,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     try {
       await FlutterBluePlus.stopScan();
     } catch (_) {
-      // Žádný probíhající scan nebo stack už ukonšuje — ignorovat.
+      // No ongoing scan or stack is already terminating — ignore.
     }
     await _scanSub?.cancel();
     _scanSub = null;

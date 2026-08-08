@@ -1,5 +1,5 @@
 // ============================================================================
-// OPENING TRAINER UI (HTTP /api/game/opening — parita s Flutter + BLE)
+// OPENING TRAINER UI (HTTP /api/game/opening — parity with Flutter + BLE)
 // ============================================================================
 (function (global) {
     'use strict';
@@ -81,11 +81,11 @@
             if (matrix[i] !== expected[i]) {
                 var sq = openingSquareFromIndex(i);
                 if (expected[i] === 1 && matrix[i] === 0) {
-                    out.push('Polož figurku na ' + sq);
+                    out.push('Place a piece on ' + sq);
                 } else if (expected[i] === 0 && matrix[i] === 1) {
-                    out.push('Zvedni figurku z ' + sq);
+                    out.push('Lift the piece from ' + sq);
                 } else {
-                    out.push('Uprav pole ' + sq);
+                    out.push('Fix square ' + sq);
                 }
             }
         }
@@ -152,20 +152,23 @@
         return el;
     }
 
+    function openingLocaleText(obj) {
+        if (!obj || typeof obj !== 'object') return '';
+        return obj.en || obj.cs || '';
+    }
+
     function openingRationaleText(line) {
         if (!line || !line.rationale) return '';
         var r = line.rationale;
         var parts = [];
-        if (r.summary && r.summary.cs) parts.push(r.summary.cs);
-        if (r.why_this_line && r.why_this_line.cs) {
-            parts.push(r.why_this_line.cs);
-        }
-        if (r.instead_of && r.instead_of.cs) {
-            parts.push('Místo: ' + r.instead_of.cs);
-        }
-        if (r.when_to_play && r.when_to_play.cs) {
-            parts.push('Kdy: ' + r.when_to_play.cs);
-        }
+        var summary = openingLocaleText(r.summary);
+        var why = openingLocaleText(r.why_this_line);
+        var instead = openingLocaleText(r.instead_of);
+        var when = openingLocaleText(r.when_to_play);
+        if (summary) parts.push(summary);
+        if (why) parts.push(why);
+        if (instead) parts.push('Instead of: ' + instead);
+        if (when) parts.push('When: ' + when);
         return parts.join(' · ');
     }
 
@@ -176,7 +179,7 @@
         for (var i = 0; i < line.common_mistakes.length; i++) {
             var m = line.common_mistakes[i];
             if (m.at_ply_index === ply && String(m.wrong_uci).toLowerCase() === wrong) {
-                return (m.hint && m.hint.cs) ? m.hint.cs : '';
+                return openingLocaleText(m.hint);
             }
         }
         return '';
@@ -189,7 +192,7 @@
         for (var i = 0; i < line.opponent_annotations.length; i++) {
             var a = line.opponent_annotations[i];
             if (a.ply_index === ply) {
-                return (a.comment && a.comment.cs) ? a.comment.cs : '';
+                return openingLocaleText(a.comment);
             }
         }
         return '';
@@ -251,7 +254,7 @@
             el = document.createElement('div');
             el.id = 'opening-trainer-board';
             el.className = 'opening-trainer-board';
-            el.setAttribute('aria-label', 'Miniboard — logická pozice lekce');
+            el.setAttribute('aria-label', 'Miniboard — lesson logical position');
             var textEl = document.getElementById('opening-trainer-text');
             if (textEl && textEl.parentNode) {
                 textEl.parentNode.insertBefore(el, textEl);
@@ -361,15 +364,17 @@
                 rationaleEl.style.display = 'none';
             }
         }
-        var title = line && line.name ? (line.name.cs || line.id) : (ot.line_id || 'Opening');
-        textEl.textContent = title + ' — tah ' +
+        var title = line && line.name
+            ? (openingLocaleText(line.name) || line.id)
+            : (ot.line_id || 'Opening');
+        textEl.textContent = title + ' — move ' +
             String((ot.player_ply_index || 0) + 1) + '/' + String(ot.player_ply_total || '?');
         var mistakeHint = openingCommonMistakeHint(line, ot);
 
         if (openingIsSetupPhase(status)) {
             subEl.textContent = ot.physical_match === false
-                ? 'Deska nesedí se startem — použij průvodce rozestavením, pak „Zkusit znovu“.'
-                : 'Kontroluji fyzickou desku…';
+                ? 'Board does not match the start — use the setup guide, then “Try again”.'
+                : 'Checking the physical board…';
             openingStopHintRefresh();
             return;
         }
@@ -377,30 +382,30 @@
         if (openingIsCheckpoint(status)) {
             var mismatches = openingCheckpointMismatches(status);
             if (ot.physical_synced) {
-                subEl.textContent = 'Deska sedí — potvrď a pokračuj.';
+                subEl.textContent = 'Board matches — confirm and continue.';
             } else if (mismatches.length === 0) {
-                subEl.textContent = 'Srovnej fyzickou desku s logickou pozicí…';
+                subEl.textContent = 'Align the physical board with the logical position…';
             } else {
                 subEl.textContent = mismatches.slice(0, 6).join(' · ');
             }
             openingStopHintRefresh();
         } else if (ot.feedback === 'complete') {
-            subEl.textContent = 'Linie dokončena.';
+            subEl.textContent = 'Line completed.';
             openingStopHintRefresh();
         } else if (ot.feedback === 'mistake_hint') {
-            subEl.textContent = 'Po 3 chybách — ' +
+            subEl.textContent = 'After 3 mistakes — ' +
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
             if (ot.active) openingStartHintRefresh();
         } else if (ot.feedback === 'opponent_turn' || ot.awaiting_opponent_physical) {
             var oppNote = openingOpponentAnnotation(line, ot);
             subEl.textContent = oppNote
-                ? oppNote + ' — zvedni z ' +
-                    (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?')
-                : 'Tah soupeře — zvedni z ' +
-                    (ot.expected_from || '?') + ' a polož na ' + (ot.expected_to || '?');
+                ? oppNote + ' — lift from ' +
+                    (ot.expected_from || '?') + ' and place on ' + (ot.expected_to || '?')
+                : 'Opponent move — lift from ' +
+                    (ot.expected_from || '?') + ' and place on ' + (ot.expected_to || '?');
             if (ot.opponent_mode === 'physical') openingStartHintRefresh();
         } else {
-            subEl.textContent = 'Táhni na desce: ' +
+            subEl.textContent = 'Play on the board: ' +
                 (ot.expected_from || '?') + ' → ' + (ot.expected_to || '?');
             if ((ot.feedback === 'wrong' || ot.feedback === 'illegal') && mistakeHint) {
                 subEl.textContent = mistakeHint;
@@ -435,7 +440,7 @@
         var hintBtn = document.getElementById('hint-btn');
         if (hintBtn && openingIsActive(status)) {
             hintBtn.disabled = true;
-            hintBtn.title = 'Běží trénink zahájení';
+            hintBtn.title = 'Opening training in progress';
         }
     }
 

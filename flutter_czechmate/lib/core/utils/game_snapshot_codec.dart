@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../models/game_snapshot.dart';
 import 'game_json_repair.dart';
 
-/// Dekód + normalizace řádků desky — `GameSnapshot+BoardNormalization.swift`.
+/// Decode + Board Line Normalization — `GameSnapshot+BoardNormalization.swift`.
 class GameSnapshotCodec {
   static GameSnapshot decodeRepairingAndNormalizing(String raw) {
     final repaired = GameJsonRepair.repairStatusString(raw);

@@ -1,1 +1,1 @@
-// Dříve lokální `GameState` — nahrazeno `BoardSessionState` + `GameUiState`.
+// Formerly local `GameState` — replaced by `BoardSessionState` + `GameUiState`.

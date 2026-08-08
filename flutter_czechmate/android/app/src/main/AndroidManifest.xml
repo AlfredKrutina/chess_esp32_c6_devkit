@@ -11,13 +11,13 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <!-- SSID / Wi‑Fi helpers bez přístupu k poloze (Android 13+) -->
+    <!-- SSID / Wi‑Fi helpers without location access (Android 13+) -->
     <uses-permission
         android:name="android.permission.NEARBY_WIFI_DEVICES"
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="33" />
 
-    <!-- Android 11 a níž -->
+    <!-- Android 11 and below -->
     <uses-permission
         android:name="android.permission.BLUETOOTH"
         android:maxSdkVersion="30" />
@@ -56,7 +56,7 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Otevření aplikace klepnutím na domovský widget (home_widget). -->
+            <!-- Open the app by tapping the home screen widget (home_widget). -->
             <intent-filter>
                 <action android:name="es.antonborri.home_widget.action.LAUNCH" />
             </intent-filter>

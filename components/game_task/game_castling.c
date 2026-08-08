@@ -36,27 +36,27 @@ static bool rook_animation_active = false;
 void game_detect_and_handle_castling(const chess_move_t *move) {
   piece_t piece = move->piece;
 
-  // Je to král a pohybuje se o 2 pole?
+  // Is it a king and moves 2 squares?
   if ((piece == PIECE_WHITE_KING || piece == PIECE_BLACK_KING) &&
       abs((int)move->to_col - (int)move->from_col) == 2) {
 
     ESP_LOGI(TAG, "🏰 CASTLING DETECTED! King moved 2 squares");
 
-    // Nastavit stav rošády
+    // Set cast status
     castling_state.in_progress = true;
     castling_state.player = current_player;
 
-    // Vypočítat pozice věže
+    // Calculate tower positions
     bool is_kingside = (move->to_col == 6);
     castling_state.rook_from_row = move->to_row;
     castling_state.rook_from_col = is_kingside ? 7 : 0;
     castling_state.rook_to_row = move->to_row;
     castling_state.rook_to_col = is_kingside ? 5 : 3;
 
-    // Zobrazit LED guidance pro věž
+    // Show LED guidance for tower
     game_show_castling_rook_guidance();
 
-    // NEZMĚNIT HRÁČE - čekat na dokončení rošády
+    // DO NOT CHANGE PLAYERS - wait for casting to complete
     ESP_LOGI(TAG, "⏳ Waiting for rook move to complete castling...");
   }
 }
@@ -65,19 +65,19 @@ void game_detect_and_handle_castling(const chess_move_t *move) {
  * @brief Show LED guidance for castling rook move
  */
 void game_show_castling_rook_guidance() {
-  // Vyčistit board
+  // Clear the board
   led_clear_board_only();
 
-  // Postupná animace od věže k cíli
+  // A gradual animation from the tower to the goal
   uint8_t rook_from_led = chess_pos_to_led_index(castling_state.rook_from_row,
                                                  castling_state.rook_from_col);
   uint8_t rook_to_led = chess_pos_to_led_index(castling_state.rook_to_row,
                                                castling_state.rook_to_col);
 
-  // Zvýraznit věž (žlutá)
-  led_set_pixel_safe(rook_from_led, 255, 255, 0); // Žlutá - zvedni odtud
+  // Highlight tower (yellow)
+  led_set_pixel_safe(rook_from_led, 255, 255, 0); // Yellow - lift from here
 
-  // Postupně rozsvítit pole od věže k cíli
+  // Gradually light up the field from the tower to the target
   int from_col = castling_state.rook_from_col;
   int to_col = castling_state.rook_to_col;
   int step = (to_col > from_col) ? 1 : -1;
@@ -85,12 +85,12 @@ void game_show_castling_rook_guidance() {
   for (int col = from_col + step; col != to_col + step; col += step) {
     uint8_t led_index =
         chess_pos_to_led_index(castling_state.rook_from_row, col);
-    led_set_pixel_safe(led_index, 0, 255, 0); // Zelená - cesta
+    led_set_pixel_safe(led_index, 0, 255, 0); // Green - the way
     vTaskDelay(pdMS_TO_TICKS(300));
   }
 
-  // Zvýraznit cíl (zelená)
-  led_set_pixel_safe(rook_to_led, 0, 255, 0); // Zelená - polož sem
+  // Highlight target (green)
+  led_set_pixel_safe(rook_to_led, 0, 255, 0); // Green - put it here
 
   ESP_LOGI(TAG, "💡 Move rook from %c%d to %c%d to complete castling",
            'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
@@ -106,7 +106,7 @@ bool game_check_castling_completion(const chess_move_t *move) {
   if (!castling_state.in_progress)
     return false;
 
-  // Je to správný tah věže?
+  // Is this the correct move of the tower?
   if (move->from_row == castling_state.rook_from_row &&
       move->from_col == castling_state.rook_from_col &&
       move->to_row == castling_state.rook_to_row &&
@@ -114,12 +114,12 @@ bool game_check_castling_completion(const chess_move_t *move) {
 
     ESP_LOGI(TAG, "✅ CASTLING COMPLETED! Rook moved correctly");
 
-    // Provedeme posun věže v board[][]
+    // We will move the tower in the board[][]
     board[move->to_row][move->to_col] = move->piece;
     board[castling_state.rook_from_row][castling_state.rook_from_col] =
         PIECE_EMPTY;
 
-    // Aktualizovat příznaky pro krále a věž
+    // Update flags for king and rook
     if (castling_state.player == PLAYER_WHITE) {
       white_king_moved = true;
       if (castling_state.rook_from_col == 7)
@@ -134,21 +134,21 @@ bool game_check_castling_completion(const chess_move_t *move) {
         black_rook_a_moved = true;
     }
 
-    // Zlatá animace dokončení rošády
+    // Golden cast completion animation
     show_castling_completion_animation();
 
-    // Změnit hráče TEPRVE TEĎ
+    // Change players RIGHT NOW
     current_player =
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-    // KRITICKÉ: Endgame kontrola PŘED player change animací!
-    // Pokud je endgame, player change se NESPOUŠTÍ
+    // CRITICAL: Endgame check BEFORE player change animations!
+    // If endgame, player change will NOT start
     game_state_t end_game_result = game_check_end_game_conditions();
     if (end_game_result == GAME_STATE_FINISHED) {
       current_game_state = GAME_STATE_FINISHED;
       game_active = false;
 
-      // Najít pozici krále vítěze pro endgame animaci
+      // Find the position of the winning king for the endgame animation
       player_t winner =
           (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
       uint8_t king_pos = 28; // default e4
@@ -166,7 +166,7 @@ bool game_check_castling_completion(const chess_move_t *move) {
                "animation at position %d",
                king_pos);
 
-      // Spustit endgame animaci (wave z krále vítěze)
+      // Start the endgame animation (wave from king winner)
       led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
                                    .led_index = king_pos,
                                    .red = 255,
@@ -180,36 +180,36 @@ bool game_check_castling_completion(const chess_move_t *move) {
           TAG,
           "✅ Endgame animation started - player change animation SKIPPED");
     } else {
-      // Není endgame - spustit player change animaci
+      // It is not endgame - start the player change animation
       uint8_t player_color =
           (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
       led_command_t player_change_cmd = {
-          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Použít
-                                              // ANIM_PLAYER_CHANGE místo
+          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
+                                              // ANIM_PLAYER_CHANGE instead
                                               // PLAYER_CHANGE
           .led_index = 0,
           .red = 0,
           .green = 0,
           .blue = 0,
           .duration_ms = 0,
-          .data = &player_color // Předat barvu hráče
+          .data = &player_color // Pass the player's color
       };
       led_execute_command_new(&player_change_cmd);
 
-      // Vyčistit stav rošády
+      // Clear cast status
       memset(&castling_state, 0, sizeof(castling_state));
 
-      // Zobrazit pohyblivé figury pro nového hráče
+      // Show moveable figures for new player
       led_clear_board_only();
       chess_policy_highlight_movable_if_enabled();
 
       ESP_LOGI(TAG, "🏰 Castling completed! %s to move",
                (current_player == PLAYER_WHITE) ? "White" : "Black");
 
-      // Zkontrolovat, zda je nový hráč v šachu
+      // Check if the new player is in check
       bool in_check = game_is_king_in_check(current_player);
       if (in_check) {
-        // Najít pozici krále
+        // Find the position of the king
         int king_row = -1, king_col = -1;
         piece_t king_piece = (current_player == PLAYER_WHITE)
                                  ? PIECE_WHITE_KING
@@ -229,14 +229,14 @@ bool game_check_castling_completion(const chess_move_t *move) {
         if (king_row != -1 && king_col != -1) {
           if (game_led_guidance_show_check_anim()) {
             uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-            // Spustit check animaci - růžové svícení na králi
+            // Start the check animation - pink lighting on the king
             led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
                                        .led_index = king_led_index,
                                        .red = 0,
                                        .green = 0,
                                        .blue = 0,
                                        .duration_ms =
-                                           0, // Trvalé až do dalšího tahu
+                                           0, // Permanent until next turn
                                        .data = NULL};
             led_execute_command_new(&check_cmd);
             ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
@@ -248,7 +248,7 @@ bool game_check_castling_completion(const chess_move_t *move) {
 
     return true;
   } else {
-    // Nesprávný tah věže - ukázat znovu guidance
+    // Incorrect tower move - show guidance again
     ESP_LOGI(TAG, "❌ Incorrect rook move for castling");
     game_show_castling_rook_guidance();
     return false;
@@ -296,7 +296,7 @@ void game_start_castle_animation(const chess_move_extended_t *move) {
   // Clear board and start repeating rook move animation
   led_clear_board_only();
 
-  // Spustit opakující se animaci pohybu věže
+  // Start a repeating tower movement animation
   game_start_repeating_rook_animation();
 
   // Show initial animation immediately
@@ -434,7 +434,7 @@ bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
 
     ESP_LOGI(TAG, "✅ Castle animation completed! Rook moved correctly.");
 
-    // Skutečně přesunout věž až když hráč udělá správný tah
+    // Only move the tower when the player makes the correct move
     piece_t rook_piece = board[rook_from_row][rook_from_col];
     board[rook_from_row][rook_from_col] = PIECE_EMPTY;
     board[rook_to_row][rook_to_col] = rook_piece;
@@ -450,7 +450,7 @@ bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
     current_player =
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-    // Po úspěšné rošádě spustit animaci změny hráče
+    // After a successful roll, start the player change animation
     game_show_player_change_animation(previous_player, current_player);
 
     // Clear board and show movable pieces for new player

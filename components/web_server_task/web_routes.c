@@ -24,21 +24,21 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
 
   ESP_LOGI(TAG, "Registering URI handlers...");
 
-  // Handler pro Chess JavaScript soubor
+  // Handler for Chess JavaScript file
   httpd_uri_t chess_js_uri = {.uri = "/chess_app.js",
                               .method = HTTP_GET,
                               .handler = http_get_chess_js_handler,
                               .user_ctx = NULL};
   httpd_register_uri_handler(handle, &chess_js_uri);
 
-  // Handler pro root (JSON — aplikace místo prohlížeče)
+  // Handler for root (JSON — application instead of browser)
   httpd_uri_t root_uri = {.uri = "/",
                           .method = HTTP_GET,
                           .handler = http_get_root_handler,
                           .user_ctx = NULL};
   httpd_register_uri_handler(handle, &root_uri);
 
-  // Handlery pro API
+  // Handlers for APIs
   httpd_uri_t board_uri = {.uri = "/api/board",
                            .method = HTTP_GET,
                            .handler = http_get_board_handler,
@@ -75,14 +75,14 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                .user_ctx = NULL};
   httpd_register_uri_handler(handle, &advantage_uri);
 
-  // Handlery pro Timer API
+  // Handlers for the Timer API
   httpd_uri_t timer_uri = {.uri = "/api/timer",
                            .method = HTTP_GET,
                            .handler = http_get_timer_handler,
                            .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_uri);
 
-  // Handler pro favicon.ico (silence 404 warnings)
+  // Handler for favicon.ico (silence 404 warnings)
   httpd_uri_t favicon_uri = {.uri = "/favicon.ico",
                              .method = HTTP_GET,
                              .handler = http_get_favicon_handler,
@@ -123,7 +123,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_led_guidance_uri);
 
-  // Handlery pro Start Position Check nastaveni
+  // Handlers for Start Position Check settings
   httpd_uri_t settings_start_pos_check_get_uri = {
       .uri = "/api/settings/start_pos_check",
       .method = HTTP_GET,
@@ -156,7 +156,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_reset_uri);
 
-  // Handlery pro WiFi API
+  // Handlers for the WiFi API
   httpd_uri_t wifi_config_uri = {.uri = "/api/wifi/config",
                                  .method = HTTP_POST,
                                  .handler = http_post_wifi_config_handler,
@@ -201,7 +201,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &wifi_status_uri);
 
-  // Handler pro web lock status
+  // Handler for web lock status
   httpd_uri_t web_lock_status_uri = {.uri = "/api/web/lock-status",
                                      .method = HTTP_GET,
                                      .handler =
@@ -209,7 +209,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                      .user_ctx = NULL};
   httpd_register_uri_handler(handle, &web_lock_status_uri);
 
-  // Handlery pro Demo Mode
+  // Handlers for Demo Mode
   httpd_uri_t demo_config_uri = {.uri = "/api/demo/config",
                                  .method = HTTP_POST,
                                  .handler = http_post_demo_config_handler,
@@ -228,14 +228,14 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &demo_status_uri);
 
-  // Handler pro Tahy
+  // Handler for Moves
   httpd_uri_t move_uri = {.uri = "/api/move",
                           .method = HTTP_POST,
                           .handler = http_post_game_move_handler,
                           .user_ctx = NULL};
   httpd_register_uri_handler(handle, &move_uri);
 
-  // Handler pro Virtual Actions (Remote Control)
+  // Handler for Virtual Actions (Remote Control)
   httpd_uri_t virtual_action_uri = {.uri = "/api/game/virtual_action",
                                     .method = HTTP_POST,
                                     .handler =
@@ -243,14 +243,14 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &virtual_action_uri);
 
-  // Handler pro New Game
+  // Handler for New Game
   httpd_uri_t new_game_uri = {.uri = "/api/game/new",
                               .method = HTTP_POST,
                               .handler = http_post_game_new_handler,
                               .user_ctx = NULL};
   httpd_register_uri_handler(handle, &new_game_uri);
 
-  // Handler pro Hint highlight (LED)
+  // Handler for Hint highlight (LED)
   httpd_uri_t hint_highlight_uri = {.uri = "/api/game/hint_highlight",
                                     .method = HTTP_POST,
                                     .handler =
@@ -301,7 +301,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_ui_post_uri);
 
-  // Handlery pro lampu (režim Lampa z webu)
+  // Lamp Handlers (Lamp Mode from Web)
   httpd_uri_t light_command_uri = {.uri = "/api/light/command",
                                    .method = HTTP_POST,
                                    .handler = http_post_light_command_handler,
@@ -314,7 +314,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &light_game_mode_uri);
 
-  // Handlery pro MQTT API
+  // Handlers for the MQTT API
   httpd_uri_t mqtt_status_uri = {.uri = "/api/mqtt/status",
                                  .method = HTTP_GET,
                                  .handler = http_get_mqtt_status_handler,
@@ -347,8 +347,8 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
   web_server_websocket_init();
 #else
   ESP_LOGW(TAG,
-           "HTTP server on port %d: WebSocket /ws NENÍ v buildu — zapni "
-           "CONFIG_HTTPD_WS_SUPPORT (iOS/watchOS WS jinak padá na -1011)",
+           "HTTP server on port %d: WebSocket /ws NOT in build — enable "
+           "CONFIG_HTTPD_WS_SUPPORT (iOS/watchOS WS otherwise falls to -1011)",
            WEB_HTTP_SERVER_PORT);
 #endif
 

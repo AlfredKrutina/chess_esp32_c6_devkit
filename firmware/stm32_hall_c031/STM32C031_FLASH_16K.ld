@@ -1,5 +1,5 @@
 /*
- * STM32C031F4/x4 — kopie Cube linker script bez /DISCARD/ libc.a (brew toolchain libc nemá).
+ * STM32C031F4/x4 — Cube linker script copy without /DISCARD/ libc.a (brew toolchain has no libc).
  */
 ENTRY(Reset_Handler)
 

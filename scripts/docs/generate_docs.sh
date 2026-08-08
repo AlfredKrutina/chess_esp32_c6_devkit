@@ -1,76 +1,76 @@
 #!/bin/bash
-# Skript pro generování Doxygen dokumentace
+# Script to generate Doxygen documentation
 # ESP32-C6 Chess v2.4
-# Spouštěj z kořene repa: ./scripts/docs/generate_docs.sh  (nebo ./generate_docs.sh)
+# Run from repo root: ./scripts/docs/generate_docs.sh  (or ./generate_docs.sh)
 
 set -e
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-# Barvy pro výstup
+# Output colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}ESP32-C6 Chess v2.4 - Doxygen Dokumentace${NC}"
+echo -e "${GREEN}ESP32-C6 Chess v2.4 - Doxygen Documentation${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
-# Zkontrolovat, jestli je Doxygen nainstalovaný
+# Check whether Doxygen is installed
 if ! command -v doxygen &> /dev/null; then
-    echo -e "${RED}CHYBA: Doxygen není nainstalovaný!${NC}"
+    echo -e "${RED}ERROR: Doxygen is not installed!${NC}"
     echo ""
-    echo "Instalace na macOS:"
+    echo "Install on macOS:"
     echo "  brew install doxygen"
     echo ""
-    echo "Instalace na Linux:"
+    echo "Install on Linux:"
     echo "  sudo apt-get install doxygen  # Debian/Ubuntu"
     echo "  sudo yum install doxygen     # RHEL/CentOS"
     echo ""
     exit 1
 fi
 
-# Zkontrolovat verzi Doxygen
+# Check Doxygen version
 DOXYGEN_VERSION=$(doxygen --version)
-echo -e "${GREEN}✓ Doxygen nalezen: verze ${DOXYGEN_VERSION}${NC}"
+echo -e "${GREEN}✓ Doxygen found: version ${DOXYGEN_VERSION}${NC}"
 echo ""
 
-# Zkontrolovat, jestli existuje Doxyfile
+# Check whether Doxyfile exists
 if [ ! -f "Doxyfile" ]; then
-    echo -e "${RED}CHYBA: Doxyfile nenalezen!${NC}"
+    echo -e "${RED}ERROR: Doxyfile not found!${NC}"
     exit 1
 fi
 
-# Vytvořit výstupní adresář
-echo "Vytváření výstupního adresáře..."
+# Create output directory
+echo "Creating output directory..."
 mkdir -p docs/doxygen
-echo -e "${GREEN}✓ Adresář vytvořen${NC}"
+echo -e "${GREEN}✓ Directory created${NC}"
 echo ""
 
-# Vygenerovat dokumentaci
-echo "Generování dokumentace..."
-echo "To může trvat několik minut..."
+# Generate documentation
+echo "Generating documentation..."
+echo "This may take several minutes..."
 echo ""
 
 if doxygen Doxyfile 2>&1 | tee docs/doxygen/generation.log; then
     echo ""
     echo -e "${GREEN}========================================${NC}"
-    echo -e "${GREEN}✓ Dokumentace úspěšně vygenerována!${NC}"
+    echo -e "${GREEN}✓ Documentation generated successfully!${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo ""
     
-    # Zkusit zkompilovat LaTeX do PDF (pokud je LaTeX nainstalovaný)
+    # Try to compile LaTeX to PDF (if LaTeX is installed)
     if [ -d "docs/doxygen/latex" ] && command -v pdflatex &> /dev/null; then
-        echo "Kompilace LaTeX do PDF..."
+        echo "Compiling LaTeX to PDF..."
         cd docs/doxygen/latex
         if pdflatex -interaction=nonstopmode refman.tex > /dev/null 2>&1; then
             if makeindex refman.idx > /dev/null 2>&1; then
                 pdflatex -interaction=nonstopmode refman.tex > /dev/null 2>&1
                 if [ -f "refman.pdf" ]; then
                     mv refman.pdf ../esp32_chess_v24_documentation.pdf
-                    echo -e "${GREEN}✓ PDF úspěšně vygenerován!${NC}"
+                    echo -e "${GREEN}✓ PDF generated successfully!${NC}"
                 fi
             fi
         fi
@@ -78,63 +78,62 @@ if doxygen Doxyfile 2>&1 | tee docs/doxygen/generation.log; then
         echo ""
     fi
     
-    echo "Výstupní soubory:"
-    echo "  - HTML dokumentace (lokální): ${GREEN}docs/doxygen/html/index.html${NC} (více souborů)"
+    echo "Output files:"
+    echo "  - HTML documentation (local): ${GREEN}docs/doxygen/html/index.html${NC} (multiple files)"
     if [ -f "docs/doxygen/rtf/refman.rtf" ]; then
-        echo "  - RTF dokumentace:  ${GREEN}docs/doxygen/rtf/refman.rtf${NC} (JEDEN SOUBOR - Word kompatibilní)"
+        echo "  - RTF documentation:  ${GREEN}docs/doxygen/rtf/refman.rtf${NC} (SINGLE FILE - Word compatible)"
     fi
     if [ -f "docs/doxygen/esp32_chess_v24_documentation.pdf" ]; then
-        echo "  - PDF dokumentace: ${GREEN}docs/doxygen/esp32_chess_v24_documentation.pdf${NC} (JEDEN SOUBOR)"
+        echo "  - PDF documentation: ${GREEN}docs/doxygen/esp32_chess_v24_documentation.pdf${NC} (SINGLE FILE)"
     fi
-    echo "  - Log soubor:       docs/doxygen/generation.log"
-    echo "  - Varování:         docs/doxygen/doxygen_warnings.log"
+    echo "  - Log file:           docs/doxygen/generation.log"
+    echo "  - Warnings:           docs/doxygen/doxygen_warnings.log"
     echo ""
     
-    # Zkontrolovat varování
+    # Check warnings
     if [ -f "docs/doxygen/doxygen_warnings.log" ]; then
         WARNING_COUNT=$(grep -c "warning:" docs/doxygen/doxygen_warnings.log 2>/dev/null || echo "0")
         if [ "$WARNING_COUNT" -gt 0 ]; then
-            echo -e "${YELLOW}⚠ Nalezeno ${WARNING_COUNT} varování${NC}"
-            echo "  Podívejte se na: docs/doxygen/doxygen_warnings.log"
+            echo -e "${YELLOW}⚠ Found ${WARNING_COUNT} warnings${NC}"
+            echo "  See: docs/doxygen/doxygen_warnings.log"
         else
-            echo -e "${GREEN}✓ Žádná varování${NC}"
+            echo -e "${GREEN}✓ No warnings${NC}"
         fi
     fi
     
     echo ""
-    echo "Otevření dokumentace:"
+    echo "Open documentation:"
     echo ""
-    echo "  JEDEN SOUBOR (kompletní dokumentace):"
+    echo "  SINGLE FILE (complete documentation):"
     if [ -f "docs/doxygen/esp32_chess_v24_documentation.pdf" ]; then
         echo "    PDF:  ${GREEN}docs/doxygen/esp32_chess_v24_documentation.pdf${NC}"
         echo "      open docs/doxygen/esp32_chess_v24_documentation.pdf  # macOS"
         echo "      xdg-open docs/doxygen/esp32_chess_v24_documentation.pdf  # Linux"
     else
-        echo "    PDF:  ${YELLOW}Není k dispozici${NC}"
-        echo "      Spusťte: ${GREEN}./create_pdf.sh${NC} pro vytvoření PDF"
+        echo "    PDF:  ${YELLOW}Not available${NC}"
+        echo "      Run: ${GREEN}./create_pdf.sh${NC} to create a PDF"
     fi
     if [ -f "docs/doxygen/rtf/refman.rtf" ]; then
         RTF_SIZE=$(ls -lh docs/doxygen/rtf/refman.rtf | awk '{print $5}')
-        echo "    RTF:  ${GREEN}docs/doxygen/rtf/refman.rtf${NC} (Word kompatibilní, $RTF_SIZE)"
+        echo "    RTF:  ${GREEN}docs/doxygen/rtf/refman.rtf${NC} (Word compatible, $RTF_SIZE)"
         echo "      open docs/doxygen/rtf/refman.rtf  # macOS"
         echo "      xdg-open docs/doxygen/rtf/refman.rtf  # Linux"
-        echo "      ${YELLOW}Poznámka:${NC} Pokud RTF nejde otevřít, zkuste:"
-        echo "        - Otevřít v TextEdit: open -a TextEdit docs/doxygen/rtf/refman.rtf"
-        echo "        - Otevřít v Microsoft Word (pokud je nainstalovaný)"
-        echo "        - Vytvořit PDF: ./create_pdf.sh"
+        echo "      ${YELLOW}Note:${NC} If RTF will not open, try:"
+        echo "        - Open in TextEdit: open -a TextEdit docs/doxygen/rtf/refman.rtf"
+        echo "        - Open in Microsoft Word (if installed)"
+        echo "        - Create PDF: ./create_pdf.sh"
     fi
     echo ""
-    echo "  HTML (více souborů, interaktivní):"
-    echo "    Lokální:  open docs/doxygen/html/index.html  # macOS"
+    echo "  HTML (multiple files, interactive):"
+    echo "    Local:  open docs/doxygen/html/index.html  # macOS"
     echo "             xdg-open docs/doxygen/html/index.html  # Linux"
     echo ""
 else
     echo ""
     echo -e "${RED}========================================${NC}"
-    echo -e "${RED}✗ Chyba při generování dokumentace!${NC}"
+    echo -e "${RED}✗ Error generating documentation!${NC}"
     echo -e "${RED}========================================${NC}"
     echo ""
-    echo "Zkontrolujte log: docs/doxygen/generation.log"
+    echo "Check the log: docs/doxygen/generation.log"
     exit 1
 fi
-

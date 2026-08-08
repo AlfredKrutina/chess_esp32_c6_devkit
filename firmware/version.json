@@ -1,5 +1,5 @@
 {
   "version": "1.8.0",
   "url": "https://raw.githubusercontent.com/alfredkrutina/chess_esp32_c6_devkit/gh-pages/firmware/esp32_chess_v24.bin",
-  "changelog": "1.8.0: koordinovaný bump `PROJECT_VERSION` / `esp_app_desc` s Flutter `pubspec` (1.8.0+3). Pro simulaci starší desky zůstává `-DCHESS_OTA_TEST_OLD_VER=ON` → hlášená 1.1.1."
+  "changelog": "1.8.0: coordinated bump of `PROJECT_VERSION` / `esp_app_desc` with Flutter `pubspec` (1.8.0+3). To simulate an older board, `-DCHESS_OTA_TEST_OLD_VER=ON` still reports 1.1.1."
 }

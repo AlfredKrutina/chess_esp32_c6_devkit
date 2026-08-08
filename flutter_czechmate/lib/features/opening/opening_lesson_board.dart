@@ -6,7 +6,7 @@ import '../connection/board_session_notifier.dart';
 import '../game/board/chess_board_widget.dart';
 import 'opening_catalog_repository.dart';
 
-/// Miniboard v opening lekci — sync logické pozice ze snapshotu (fallback start FEN).
+/// Miniboard in the opening lesson — sync logical positions from the snapshot (fallback start FEN).
 class OpeningLessonBoardPreview extends ConsumerWidget {
   const OpeningLessonBoardPreview({
     super.key,

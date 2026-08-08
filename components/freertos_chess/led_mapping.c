@@ -1,14 +1,14 @@
 /**
  * @file led_mapping.c  
- * @brief Spravne mapovani sachovnicove pozice na LED index (serpentine layout)
+ * @brief Correct mapping of the box position to the LED index (serpentine layout)
  * 
- * Tento modul obsahuje funkce pro prevod sachovnicovych pozic na LED indexy.
- * Pouziva serpentine layout pro optimalni rozlozeni LED na sachovnici.
+ * This module contains functions for converting drawer positions to LED indexes.
+ * Uses a serpentine layout for optimal LED distribution on the box.
  * 
  * @details
- * Serpentine layout znamena ze LED jsou rozlozeny v hadovitem vzoru:
- * a1,b1,c1,d1,e1,f1,g1,h1, h2,g2,f2,e2,d2,c2,b2,a2, a3,b3,c3...
- * Toto rozlozeni umoznuje jednoduchy prevod pozic na LED indexy.
+ * Serpentine layout LED signs are laid out in a serpentine pattern:
+ * a1,b1,c1,d1,e1,f1,g1,h1,h2,g2,f2,e2,d2,c2,b2,a2,a3,b3,c3...
+ * This layout enables easy conversion of positions to LED indexes.
  */
 
 #include "led_mapping.h"
@@ -19,13 +19,13 @@
 static const char *TAG = "LED_MAPPING";
 
 /**
- * @brief Prevod sachovnicove pozice na LED index (serpentine layout)
+ * @brief Conversion of the box position to LED index (serpentine layout)
  * 
- * Layout: a1,b1,c1,d1,e1,f1,g1,h1, h2,g2,f2,e2,d2,c2,b2,a2, a3,b3,c3...
- * Sachovnice je otocena po Y ose (a1 je na h1 pozici).
+ * Layout: a1,b1,c1,d1,e1,f1,g1,h1,h2,g2,f2,e2,d2,c2,b2,a2,a3,b3,c3...
+ * The box is rotated along the Y axis (a1 is at h1 position).
  * 
- * @param row Radek (0-7, kde 0=rank 1, 7=rank 8)  
- * @param col Sloupec (0-7, kde 0=a, 7=h)
+ * @param row Row (0-7, where 0=rank 1, 7=rank 8)  
+ * @param col Column (0-7 where 0=a, 7=h)
  * @return LED index (0-63)
  */
 uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
@@ -35,8 +35,8 @@ uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
         return 0;
     }
     
-    // Sachovnice je otocena po Y ose (a1 je na h1 pozici)
-    // Takze col=0 (a) musi byt mapovano na LED pozici 7 (h)
+    // The box is rotated along the Y axis (a1 is at h1 position)
+    // So col=0 (a) must be mapped to LED position 7 (h)
     uint8_t mapped_col = 7 - col;
     
     if (row % 2 == 0) {
@@ -49,14 +49,14 @@ uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
 }
 
 /**
- * @brief Prevod LED indexu na sachovnicovou pozici (serpentine layout)
+ * @brief Conversion of the LED index to a box position (serpentine layout)
  * 
- * Obracenou operaci k chess_pos_to_led_index(). Ze LED indexu vypocita
- * pozici radku a sloupce na sachovnici.
+ * Reverse operation to chess_pos_to_led_index(). Calculation from the LED index
+ * the position of the row and column on the drawer.
  * 
  * @param led_index LED index (0-63)
- * @param[out] row Ukazatel na radek (0-7)
- * @param[out] col Ukazatel na sloupec (0-7)
+ * @param[out] row Pointer to row (0-7)
+ * @param[out] col Pointer to column (0-7)
  */
 void led_index_to_chess_pos(uint8_t led_index, uint8_t* row, uint8_t* col)
 {
@@ -80,13 +80,13 @@ void led_index_to_chess_pos(uint8_t led_index, uint8_t* row, uint8_t* col)
 }
 
 /**
- * @brief Prevod sachove notace na LED index
+ * @brief Conversion of Sacha notation to LED index
  * 
- * Preklada sachovou notaci (napr. "e2", "a1") na LED index.
- * Notace musi byt ve formatu [a-h][1-8].
+ * Translates Sacha notation (e.g. "e2", "a1") to LED index.
+ * Notation must be in [a-h][1-8] format.
  * 
- * @param notation Sachova notace (napr. "e2")
- * @return LED index (0-63) nebo 0 pri chybe
+ * @param notation Sach's notation (eg "e2")
+ * @return LED index (0-63) or 0 on error
  */
 uint8_t chess_notation_to_led_index(const char* notation)
 {
@@ -110,16 +110,16 @@ uint8_t chess_notation_to_led_index(const char* notation)
 }
 
 /**
- * @brief Test LED mapovani
+ * @brief LED mapping test
  * 
- * Testuje funkcnost LED mapovani na znamych pozicich.
- * Kontroluje prevody notace->LED a LED->pozice.
+ * Tests the LED mapping functionality at known positions.
+ * Checks notation->LED and LED->position conversions.
  */
 void test_led_mapping(void)
 {
     ESP_LOGI(TAG, "=== LED MAPPING TEST ===");
     
-    // Test znamych pozic
+    // Test of known positions
     struct {
         const char* notation;
         uint8_t expected_row;

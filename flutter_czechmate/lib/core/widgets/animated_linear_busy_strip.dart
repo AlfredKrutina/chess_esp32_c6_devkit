@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_motion.dart';
 
-/// [LinearProgressIndicator] s jemným náběhem/výběhem při přepínání [busy].
+/// [LinearProgressIndicator] with smooth ramp-in/out when switching [buses].
 class AnimatedLinearBusyStrip extends StatelessWidget {
   const AnimatedLinearBusyStrip({
     super.key,

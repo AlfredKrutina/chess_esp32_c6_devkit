@@ -1,4 +1,4 @@
-// Parita s GameStatus.swift / BoardHTTPModels — JSON ze snapshot.status.
+// Parity with GameStatus.swift / BoardHTTPModels — JSON ze snapshot.status.
 
 class GameEndStatus {
   const GameEndStatus({
@@ -380,7 +380,7 @@ class GameStatus {
     );
   }
 
-  /// Sloučení přechodného `light_state: false` po HTTP změně lampy (Swift parita).
+  /// Merge transient `light_state: false` after HTTP lamp change (Swift parity).
   GameStatus coalescingTransientLampOff(GameStatus previous) {
     if (previous.lightState != true || lightState != false) return this;
     return GameStatus(
@@ -422,7 +422,7 @@ class GameStatus {
     );
   }
 
-  /// Po převrácení řádků `board` MCU→rank8: zrcadlit `piece_lifted.row`.
+  /// After flipping `board` rows MCU→rank8: mirror `piece_lifted.row`.
   GameStatus withPieceLiftedRowMirroredVertically() {
     final pl = pieceLifted;
     if (pl == null || !pl.lifted) return this;

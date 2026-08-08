@@ -1,52 +1,52 @@
-# Web UI — jak znovu zabalím JS do firmware
+# Web UI — how I repackage JS into firmware
 
-## Po úpravách `web/chess_app.js`
+## After editing `web/chess_app.js`
 
-Zdrojový kód je rozdělený v `web/js/` (Phase 4A). **`chess_app.js` se generuje** — neupravuj ho ručně:
+Source is split under `web/js/` (Phase 4A). **`chess_app.js` is generated** — do not edit it by hand:
 
 ```bash
 python3 components/web_server_task/tools/concat_web_js.py
 ```
 
-Moduly (pořadí concat): `matrix_guard.js` → `api.js` → `prefs.js` → `app_main.js`.
+Modules (concat order): `matrix_guard.js` → `api.js` → `prefs.js` → `app_main.js`.
 
-Pro embed do firmware (pokud znovu zapneš browser UI handler):
+For embed into firmware (if browser UI handler is re-enabled):
 
 ```bash
 python3 components/web_server_task/tools/concat_web_js.py
 python3 components/web_server_task/tools/embed_chess_js.py
 ```
 
-## Build a flash
+## Build and flash
 
 ```bash
 idf.py build
 idf.py flash monitor
 ```
 
-## Nápověda (Stockfish) na webu
+## Hint (Stockfish) on the web
 
-- Tlačítko **Nápověda** v záložce Hra (vedle Nová hra a Zkusit tahy) ukáže aktuálnímu hráči nejlepší tah.
-- **FEN** skládám na klientu z `/api/board`, `/api/status` a `/api/history` (zjednodušeně castling/en passant). Před odesláním kontroluju rozumnou pozici (8×8 board, délka FEN).
-- **Stockfish API:** používám **Chess-API.com** (starší Stockfish.online `/api/single` už mi vracelo 404).
-  - Endpoint: `POST https://chess-api.com/v1`, tělo: `{ "fen": "...", "depth": 10 }` (depth max 18).
-  - **Formát odpovědi**, který parser umí: tah buď `from` + `to` (řetězce), nebo `move` (4 znaky). Eval: `eval`, případně `centipawns`/`cp`, nebo `evaluation`/`score`. Volitelně `text`, `san`, `continuationArr`, `mate`, `winChance`. Odpověď může být v kořeni JSON nebo pod `data` / `result`. Odpověď chess-api.com typicky `{ "from": "e2", "to": "e4", "move": "e2e4", "eval": ..., ... }` — eval je z pohledu bílého (záporné = líp černý).
-- **Chyby:** timeout 15 s (AbortController), kontrola `res.ok`, JSON s fallbackem. Při selhání na tlačítku krátce „Nedostupné“, při špatné pozici „Chyba pozice“, při výjimce „Chyba“. Loguju `[Hint]` do konzole.
-- **Web:** po návratu tahu přidám `.hint-from` / `.hint-to`; při dalším `fetchData` / `updateBoard` hint zmizí.
-- **LED:** po hintu posílám **POST /api/game/hint_highlight** s `{ "from": "e2", "to": "e4" }` → backend přepíše na LED indexy a `LED_CMD_HIGHLIGHT_HINT`.
-- **CORS / rate limit:** kdyby mě něco blokovalo z prohlížeče, šlo by přidat proxy přes ESP32. Při HTTP 429 ukážu „Nedostupné“ — spamování tlačítkem nedává smysl.
+- **Hint** button on the Game tab (next to New game and Try moves) shows the best move for the current player.
+- **FEN** is built on the client from `/api/board`, `/api/status`, and `/api/history` (castling/en passant simplified). Before send I validate a reasonable position (8×8 board, FEN length).
+- **Stockfish API:** I use **Chess-API.com** (older Stockfish.online `/api/single` returned 404).
+  - Endpoint: `POST https://chess-api.com/v1`, body: `{ "fen": "...", "depth": 10 }` (depth max 18).
+  - **Response format** the parser accepts: move as `from` + `to` (strings), or `move` (4 chars). Eval: `eval`, or `centipawns`/`cp`, or `evaluation`/`score`. Optional `text`, `san`, `continuationArr`, `mate`, `winChance`. JSON may be at root or under `data` / `result`. chess-api.com typically `{ "from": "e2", "to": "e4", "move": "e2e4", "eval": ..., ... }` — eval from White’s view (negative = better for Black).
+- **Errors:** 15 s timeout (AbortController), check `res.ok`, JSON with fallback. On failure button briefly shows “Unavailable”; bad position “Position error”; exception “Error”. I log `[Hint]` to the console.
+- **Web:** after a hint I add `.hint-from` / `.hint-to`; on next `fetchData` / `updateBoard` the hint clears.
+- **LED:** after hint I send **POST /api/game/hint_highlight** with `{ "from": "e2", "to": "e4" }` → backend maps to LED indices and `LED_CMD_HIGHLIGHT_HINT`.
+- **CORS / rate limit:** if blocked from the browser, a proxy via ESP32 could be added. On HTTP 429 I show “Unavailable” — spamming the button is pointless.
 
-## Rychlý checklist před releasem web části
+## Quick checklist before web release
 
-- [ ] Záložka **Hra** — šachovnice, čas, stav, Nová hra, Nápověda, Zkusit tahy, historie
-- [ ] Záložka **Nastavení** — LED, WiFi, stav webu, dálkové ovládání, zvednutá figurka, demo, MQTT
-- [ ] Přepínání záložek bez červených chyb v konzoli
-- [ ] Timer, Nová hra, sandbox, historie, review
-- [ ] Na Nastavení: WiFi, demo checkbox a rychlost, uložení MQTT
-- [ ] Bannery (Review, Sandbox, Endgame) nepřekrývají záložky
-- [ ] Nápověda — za běžné partie načte Stockfish, ukáže se na webu i na LED
+- [ ] **Game** tab — board, clock, state, New game, Hint, Try moves, history
+- [ ] **Settings** tab — LED, WiFi, web status, remote control, lifted piece, demo, MQTT
+- [ ] Tab switching without red console errors
+- [ ] Timer, New game, sandbox, history, review
+- [ ] On Settings: WiFi, demo checkbox and speed, save MQTT
+- [ ] Banners (Review, Sandbox, Endgame) do not cover tabs
+- [ ] Hint — during a normal game loads Stockfish, shows on web and LEDs
 
-## Poznámky
+## Notes
 
-- `embed_chess_js.py` v `tools/` nahrazuje blok od řádku s `// TEST PAGE - MINIMAL TIMER TEST` do řádku před `static esp_err_t http_get_chess_js_handler`.
-- Starší `js_to_c.py` (také v `tools/`) jen vypisuje C pole na stdout; pro automatický zápis do `.c` používám `embed_chess_js.py`.
+- `embed_chess_js.py` in `tools/` replaces the block from the line with `// TEST PAGE - MINIMAL TIMER TEST` to the line before `static esp_err_t http_get_chess_js_handler`.
+- Older `js_to_c.py` (also in `tools/`) only prints a C array to stdout; for automatic write to `.c` I use `embed_chess_js.py`.

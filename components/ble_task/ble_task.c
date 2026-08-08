@@ -1,9 +1,9 @@
 /**
  * @file ble_task.c
- * @brief BLE vrstva — NimBLE při CONFIG_BT_ENABLED (viz ble_nimble_impl.c).
+ * @brief BLE layer — NimBLE when CONFIG_BT_ENABLED (see ble_nimble_impl.c).
  *
- * Samostatný FreeRTOS task „BLE“ v tomto souboru není — host běží v tasku
- * vytvořeném z nimble_port_freertos_init(ble_host_task) v ble_nimble_stack_init().
+ * The separate FreeRTOS task "BLE" is not in this file — the guest runs in the task
+ * created from nimble_port_freertos_init(ble_host_task) in ble_nimble_stack_init().
  */
 #include "ble_task.h"
 #include "esp_log.h"
@@ -20,6 +20,6 @@ void ble_task_init(void) {
   ble_nimble_stack_init();
   ESP_LOGD(TAG, "[STAGING] ble_task_init: nimble_port_init + host task queued");
 #else
-  ESP_LOGD(TAG, "BLE vypnuto — nastav CONFIG_BT_ENABLED=y pro GATT");
+  ESP_LOGD(TAG, "BLE disabled — set CONFIG_BT_ENABLED=y for GATT");
 #endif
 }

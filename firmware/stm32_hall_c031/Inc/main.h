@@ -20,7 +20,7 @@ extern "C" {
 #define HALL_I2C_OWNADDR7BIT 0x30u
 #endif
 
-/** Hodnota OA1[7:1] ve formátu STM32 LL (7bit << 1). */
+/** OA1[7:1] value in STM32 LL format (7bit << 1). */
 #define HALL_I2C_ADDR_MATCH ((uint32_t)((uint32_t)HALL_I2C_OWNADDR7BIT << 1))
 
 void SystemClock_Config(void);

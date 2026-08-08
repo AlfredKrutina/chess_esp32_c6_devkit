@@ -1,29 +1,29 @@
 /**
  * @file animation_task.c
- * @brief ESP32-C6 Chess System v1.8.0 - Implementace Animation tasku
+ * @brief ESP32-C6 Chess System v1.8.0 - Implementation of Animation task
  * 
- * Tento task zpracovava LED animace a vzory:
- * - Animace pohybu sachovych figurek
- * - Animace stavu hry
- * - Animace feedback tlacitek
- * - Animace stavu systemu
- * - Vlastni vzory animaci
+ * This task handles LED animations and patterns:
+ * - Animation of chess pieces movement
+ * - Game state animation
+ * - Animation of feedback buttons
+ * - System status animation
+ * - Custom animation patterns
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * Tento task je zodpovedny za vsechny LED animace v systemu.
- * Obsahuje 20+ animacnich vzoru pro ruzne situace v hre.
- * Animace jsou plynule a efektivne z hlediska pameti.
+ * This task is responsible for all LED animations in the system.
+ * Contains 20+ animation patterns for different situations in the game.
+ * Animations are smooth and memory efficient.
  * 
- * Funkce:
- * - 20+ animacnich vzoru
- * - Konfigurovatelny timing a barvy
- * - Plynule prechody
- * - Efektivni ulozeni framu
- * - Real-time ovladani animaci
+ * Features:
+ * - 20+ animation patterns
+ * - Configurable timing and colors
+ * - Smooth transitions
+ * - Efficient frame saving
+ * - Real-time animation control
  */
 
 
@@ -138,7 +138,7 @@ void animation_initialize_system(void)
     active_animation_count = 0;
     current_animation_index = 0;
     
-    // Vytvořit mutex pro přerušení animací
+    // Create a mutex to interrupt animations
     animation_interrupt_mutex = xSemaphoreCreateMutex();
     if (animation_interrupt_mutex == NULL) {
         ESP_LOGE(TAG, "Failed to create animation interrupt mutex");
@@ -378,20 +378,20 @@ chess_position_t* calculate_knight_path(uint8_t from_row, uint8_t from_col,
     chess_position_t* path = malloc(sizeof(chess_position_t) * 4);
     *path_length = 0;
     
-    // Začátek
+    // Beginning
     path[(*path_length)++] = (chess_position_t){from_row, from_col};
     
-    // Určit směr L-pohybu
+    // Determine the direction of L-motion
     int row_diff = to_row - from_row;
     int col_diff = to_col - from_col;
     
     if (abs(row_diff) == 2) {
-        // 2 pole vertikálně, 1 horizontálně
+        // 2 fields vertically, 1 horizontally
         path[(*path_length)++] = (chess_position_t){from_row + row_diff/2, from_col};
         path[(*path_length)++] = (chess_position_t){from_row + row_diff, from_col};
         path[(*path_length)++] = (chess_position_t){to_row, to_col};
     } else {
-        // 2 pole horizontálně, 1 vertikálně  
+        // 2 fields horizontally, 1 vertically  
         path[(*path_length)++] = (chess_position_t){from_row, from_col + col_diff/2};
         path[(*path_length)++] = (chess_position_t){from_row, from_col + col_diff};
         path[(*path_length)++] = (chess_position_t){to_row, to_col};
@@ -499,7 +499,7 @@ void animate_piece_move_natural(uint8_t from_row, uint8_t from_col,
     chess_position_t* path = NULL;
     int path_length = 0;
     
-    // Určit typ animace podle figury
+    // Specify animation type by figure
     switch (piece) {
         case PIECE_WHITE_KNIGHT:
         case PIECE_BLACK_KNIGHT:
@@ -517,7 +517,7 @@ void animate_piece_move_natural(uint8_t from_row, uint8_t from_col,
             break;
             
         default:
-            // Ostatní figury - přímá cesta
+            // Other figures - direct path
             path = calculate_direct_path(from_row, from_col, to_row, to_col, &path_length);
             break;
     }
@@ -539,32 +539,32 @@ void animate_path_with_interruption(chess_position_t* path, int path_length, pie
 {
     animation_interrupted = false;
     
-    // Získat barvy figury
+    // Get the colors of the figure
     uint8_t r = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) ? 0 : 255;
     uint8_t g = 255;
     uint8_t b = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) ? 255 : 0;
     
     for (int i = 0; i < path_length && !animation_interrupted; i++) {
-        // Vymazat předchozí
+        // Delete the previous one
         if (i > 0) {
             uint8_t prev_led = chess_pos_to_led_index(path[i-1].row, path[i-1].col);
             led_set_pixel_safe(prev_led, 0, 0, 0);
         }
         
-        // Rosvítit aktuální
+        // Highlight current
         uint8_t led_index = chess_pos_to_led_index(path[i].row, path[i].col);
         led_set_pixel_safe(led_index, r, g, b);
         
-        // Krátká pauza s kontrolou přerušení
+        // Short pause with interrupt check
         for (int wait = 0; wait < 20 && !animation_interrupted; wait++) {
             vTaskDelay(pdMS_TO_TICKS(25));  // 25ms x 20 = 500ms celkem
             
-            // Kontrola nového tahu během animace
+            // Check for new move during animation
             check_for_move_interruption();
         }
     }
     
-    // Vyčistit na konci
+    // Clean up at the end
     led_clear_all_safe();
 }
 
@@ -573,8 +573,8 @@ void animate_path_with_interruption(chess_position_t* path, int path_length, pie
  */
 void check_for_move_interruption()
 {
-    // Kontrola, jestli hráč nezačal nový tah
-    // (implementace závisí na způsobu detekce tahů)
+    // Checking if the player has started a new move
+    // (implementation depends on stroke detection method)
     if (new_move_detected()) {
         animation_interrupted = true;
         ESP_LOGI(TAG, "🏃 Animation interrupted by new move");
@@ -616,7 +616,7 @@ void animation_execute_frame(animation_task_t* anim)
         return;
     }
     
-    // Kontrola přerušení na začátku každého framu
+    // Interrupt check at the start of each frame
     if (animation_interrupt_mutex) {
         xSemaphoreTake(animation_interrupt_mutex, portMAX_DELAY);
         bool should_interrupt = animation_interrupted;

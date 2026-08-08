@@ -193,7 +193,7 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
             builder: (context, c) {
               final w = c.maxWidth;
               final naturalPreviewH = w / ar;
-              // Řádek má omezenou výšku + přístupnost (velký text); náhled omezit.
+              // The line has limited height + accessibility (large text); reduce preview.
               const maxPreviewH = 40.0;
               final previewH = math.min(naturalPreviewH, maxPreviewH);
               return Column(

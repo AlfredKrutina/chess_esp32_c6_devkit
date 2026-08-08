@@ -1,18 +1,18 @@
 /**
  * @file uart_commands_extended.c
- * @brief ESP32-C6 Chess System - Rozsirene UART prikazy pro LED animace
+ * @brief ESP32-C6 Chess System - Extended UART commands for LED animations
  * 
- * Implementace novych prikazu pro endgame animace a jemne efekty.
- * Obsahuje prikazy pro ovladani pokrocilych LED animaci a efektu.
+ * Implementation of new commands for endgame animations and subtle effects.
+ * Contains commands for controlling advanced LED animations and effects.
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-04
  * 
  * @details
- * Tento modul rozsiruje zakladni UART prikazy o pokrocile funkce
- * pro ovladani LED animaci. Obsahuje prikazy pro endgame animace,
- * jemne efekty a pokrocile vzory.
+ * This module extends basic UART commands with advanced functions
+ * for controlling LED animation. Contains commands for endgame animations,
+ * subtle effects and advanced patterns.
  */
 
 #include "uart_commands_extended.h"
@@ -27,11 +27,11 @@
 static const char *TAG = "UART_EXT";
 
 // ============================================================================
-// POMOCNÉ FUNKCE
+// HELPFUL FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Parsuje pozici krále ze stringu (např. "e4" -> 28)
+ * @brief Parses king position from string (eg "e4" -> 28)
  */
 static uint8_t parse_king_position(const char* pos_str) {
     if (!pos_str || strlen(pos_str) != 2) {
@@ -52,7 +52,7 @@ static uint8_t parse_king_position(const char* pos_str) {
 }
 
 /**
- * @brief Vrátí string reprezentaci pozice (např. 28 -> "e4")
+ * @brief Returns a string representation of the position (eg 28 -> "e4")
  */
 static void position_to_string(uint8_t pos, char* out_str) {
     if (pos >= 64) {
@@ -71,100 +71,100 @@ static void position_to_string(uint8_t pos, char* out_str) {
 }
 
 // ============================================================================
-// IMPLEMENTACE PŘÍKAZŮ
+// IMPLEMENTATION OF COMMANDS
 // ============================================================================
 
 esp_err_t cmd_endgame_animations(int argc, char **argv, char *response, size_t response_size) {
     if (argc != 1) {
         snprintf(response, response_size,
-                "📋 ENDGAME ANIMATIONS - Dostupné animace:\n"
+                "📋 ENDGAME ANIMATIONS - Animations available:\n"
                 "\n"
-                "1. Victory Wave - Vlna od vítězného krále\n"
-                "   Modré vlny šířící se od krále, červená modulace pro protihráče\n"
-                "   Pokračuje dokud se nezastaví reset tlačítkem nebo novou hrou\n"
+                "1. Victory Wave - Wave from the victorious king\n"
+                "   Blue waves spreading from the king, red modulation for opponents\n"
+                "   It continues until the reset is stopped by a button or a new game\n"
                 "\n"
-                "2. Victory Circles - Expandující kruhy\n"
-                "   Tři barevné kruhy expandující ze středu šachovnice\n"
-                "   Zlatá, oranžová a bílá barva v rotaci\n"
+                "2. Victory Circles - Expanding circles\n"
+                "   Three colored circles expanding from the center of the chessboard\n"
+                "   Gold, orange and white color in rotation\n"
                 "\n"
-                "3. Victory Cascade - Kaskádové padání\n"
-                "   Diagonální vlna procházející šachovnicí\n"
-                "   Efekt padajících figur s barevnými stíny\n"
+                "3. Victory Cascade - Cascade falling\n"
+                "   A diagonal wave passing through a checkerboard\n"
+                "   Effect of falling figures with colored shadows\n"
                 "\n"
-                "4. Victory Fireworks - Ohňostroj\n"
-                "   Náhodné ohňostroje v různých barvách\n"
-                "   Expandující kruhy simulující výbuchy\n"
+                "4. Victory Fireworks\n"
+                "   Random fireworks in different colors\n"
+                "   Expanding circles simulating explosions\n"
                 "\n"
-                "5. Victory Crown - Korunka vítěze\n"
-                "   Zlatá korunka kolem vítězného krále\n"
-                "   Pulsující efekt se středem na králi\n"
+                "5. Victory Crown - Crown of the winner\n"
+                "   Golden crown around the victorious king\n"
+                "   Pulsating effect centered on the king\n"
                 "\n"
-                "🎮 Použití: 'endgame animation X [pozice]'\n"
+                "🎮 Usage: 'endgame animation X [position]'\n"
                 "   X = 1-5 (typ animace)\n"
-                "   pozice = např. 'e1', 'e8' (pozice krále, nepovinné)\n"
+                "   position = eg 'e1', 'e8' (king position, optional)\n"
                 "\n"
-                "Příklady:\n"
+                "Examples:\n"
                 "• endgame animation 1 e1  - Victory Wave od e1\n"
-                "• endgame animation 4     - Victory Fireworks (bez krále)\n"
+                "• endgame animation 4 - Victory Fireworks (no king)\n"
                 "• endgame animation 5 d8  - Victory Crown kolem d8");
         return ESP_OK;
     }
 
-    ESP_LOGW(TAG, "endgame animations příkaz vyžaduje přesně 0 argumentů, obdrženo: %d", argc);
-    snprintf(response, response_size, "❌ Použití: 'endgame animations' (bez argumentů)");
+    ESP_LOGW(TAG, "endgame animations command requires exactly 0 arguments, received: %d", argc);
+    snprintf(response, response_size, "❌ Usage: 'endgame animations' (no arguments)");
     return ESP_ERR_INVALID_ARG;
 }
 
 esp_err_t cmd_endgame_animation(int argc, char **argv, char *response, size_t response_size) {
     if (argc < 1 || argc > 2) {
         snprintf(response, response_size,
-                "❌ Nesprávný počet argumentů!\n"
+                "❌ Incorrect number of arguments!\n"
                 "\n"
-                "🎮 Použití: 'endgame animation X [pozice]'\n"
+                "🎮 Usage: 'endgame animation X [position]'\n"
                 "   X = 1-5 (typ animace)\n"
-                "   pozice = nepovinná pozice krále (např. 'e1')\n"
+                "   position = optional king position (eg 'e1')\n"
                 "\n"
-                "💡 Pro seznam všech animací použijte: 'endgame animations'");
+                "💡 To list all animations use: 'endgame animations'");
         return ESP_ERR_INVALID_ARG;
     }
 
-    // Parsování typu animace
+    // Animation type parsing
     int animation_type = atoi(argv[0]);
     if (animation_type < 1 || animation_type >= ENDGAME_ANIM_MAX) {
         snprintf(response, response_size,
-                "❌ Neplatný typ animace: %d\n"
+                "❌ Invalid animation type: %d\n"
                 "\n"
-                "✅ Dostupné typy: 1-5\n"
-                "💡 Pro detaily použijte: 'endgame animations'", animation_type);
+                "✅ Available types: 1-5\n"
+                "💡 For details use: 'endgame animations'", animation_type);
         return ESP_ERR_INVALID_ARG;
     }
 
-    // Parsování pozice krále (pokud je zadána)
-    uint8_t king_pos = 28; // Default e4 (střed šachovnice)
+    // Parsing the king's position (if given)
+    uint8_t king_pos = 28; // Default e4 (center of the board)
     
     if (argc == 2) {
         king_pos = parse_king_position(argv[1]);
         if (king_pos == 255) {
             snprintf(response, response_size,
-                    "❌ Neplatná pozice krále: '%s'\n"
+                    "❌ Invalid king position: '%s'\n"
                     "\n"
-                    "✅ Formát: písmeno a-h + číslice 1-8\n"
-                    "💡 Příklady: e1, e8, d4, h7", argv[1]);
+                    "✅ Format: letter a-h + numbers 1-8\n"
+                    "💡 Examples: e1, e8, d4, h7", argv[1]);
             return ESP_ERR_INVALID_ARG;
         }
     }
 
-    ESP_LOGI(TAG, "Spouštím endgame animaci typu %d na pozici %d", animation_type, king_pos);
+    ESP_LOGI(TAG, "I am running an endgame animation of type %d at position %d", animation_type, king_pos);
 
-    // Zastavíme předchozí animaci pokud běží
+    // We will stop the previous animation if it is running
     if (is_endgame_animation_running()) {
-        ESP_LOGI(TAG, "Zastavuji předchozí endgame animaci");
+        ESP_LOGI(TAG, "Stopping the previous endgame animation");
         stop_endgame_animation();
-        // Krátká pauza pro vyčištění
+        // A short break to clean up
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 
-    // Spustíme novou animaci
+    // Let's start a new animation
     esp_err_t result = start_endgame_animation((endgame_animation_type_t)animation_type, king_pos);
     
     if (result == ESP_OK) {
@@ -172,59 +172,59 @@ esp_err_t cmd_endgame_animation(int argc, char **argv, char *response, size_t re
         position_to_string(king_pos, pos_str);
         
         snprintf(response, response_size,
-                "🎬 Endgame animace spuštěna!\n"
+                "🎬 Endgame animation launched!\n"
                 "\n"
                 "📱 Typ: %s\n"
-                "👑 Pozice krále: %s\n"
-                "⏱️  Animace poběží dokud nebude zastavena\n"
+                "👑 King position: %s\n"
+                "⏱️ The animation will run until stopped\n"
                 "\n"
-                "🛑 Pro zastavení: 'led clear' nebo 'new game'\n"
-                "💡 Pro jiné animace: 'endgame animations'",
+                "🛑 To stop: 'led clear' or 'new game'\n"
+                "💡 For other animations: 'endgame animations'",
                 get_endgame_animation_name((endgame_animation_type_t)animation_type),
                 pos_str);
     } else {
         snprintf(response, response_size,
-                "❌ Nepodařilo se spustit endgame animaci!\n"
+                "❌ Failed to start endgame animation!\n"
                 "\n"
-                "🔧 Možné příčiny:\n"
-                "• Animační systém není inicializován\n"
-                "• Nedostatek paměti pro timer\n"
-                "• Systémová chyba\n"
+                "🔧 Possible causes:\n"
+                "• The animation system is not initialized\n"
+                "• Out of memory for timer\n"
+                "• System error\n"
                 "\n"
-                "💡 Zkuste restart systému: 'reboot'");
+                "💡 Try rebooting the system: 'reboot'");
     }
 
     return result;
 }
 
 esp_err_t cmd_stop_animations(int argc, char **argv, char *response, size_t response_size) {
-    ESP_LOGI(TAG, "Zastavuji všechny animace");
+    ESP_LOGI(TAG, "I stop all animations");
 
     bool was_running = is_endgame_animation_running();
     
-    // Zastavíme endgame animace
+    // We will stop the endgame animations
     stop_endgame_animation();
     
-    // Zastavíme jemné animace
+    // Let's stop the soft animations
     stop_all_subtle_animations();
 
     if (was_running) {
         snprintf(response, response_size,
-                "🛑 Všechny animace zastaveny!\n"
+                "🛑 All animations stopped!\n"
                 "\n"
                 "✅ Endgame animace: zastavena\n"
-                "✅ Jemné animace: zastaveny\n"
-                "✅ Šachovnice: vyčištěna\n"
+                "✅ Smooth animations: stopped\n"
+                "✅ Chessboard: cleaned\n"
                 "\n"
-                "💡 Pro nové animace použijte: 'endgame animations'");
+                "💡 For new animations use: 'endgame animations'");
     } else {
         snprintf(response, response_size,
-                "ℹ️  Žádné animace neběžely\n"
+                "ℹ️ No animations were running\n"
                 "\n"
-                "✅ Jemné animace: zastaveny (pro jistotu)\n"
-                "✅ Šachovnice: vyčištěna\n"
+                "✅ Fine animations: stopped (just in case)\n"
+                "✅ Chessboard: cleaned\n"
                 "\n"
-                "💡 Pro spuštění animací: 'endgame animations'");
+                "💡 To run animations: 'endgame animations'");
     }
 
     return ESP_OK;
@@ -234,41 +234,41 @@ esp_err_t cmd_animation_status(int argc, char **argv, char *response, size_t res
     bool endgame_running = is_endgame_animation_running();
     
     snprintf(response, response_size,
-            "📊 STAV ANIMAČNÍHO SYSTÉMU\n"
+            "📊 STATE OF THE ANIMATION SYSTEM\n"
             "\n"
             "🎬 Endgame animace: %s\n"
-            "🎨 Jemné animace: aktivní podle potřeby\n"
-            "⚡ Animační systém: %s\n"
+            "🎨 Subtle animations: active as needed\n"
+            "⚡ Animation system: %s\n"
             "🔄 Refresh rate: 20 FPS (50ms frame)\n"
             "\n"
             "%s"
             "\n"
-            "💡 Dostupné příkazy:\n"
-            "• endgame animations     - seznam animací\n"
-            "• endgame animation X    - spustit animaci X\n"
-            "• stop animations        - zastavit vše\n"
-            "• animation status       - tento přehled",
-            endgame_running ? "🟢 BĚŽÍ" : "🔴 VYPNUTO",
-            "🟢 INICIALIZOVÁN", // Předpokládáme, že je inicializován pokud se příkaz spouští
+            "💡 Available commands:\n"
+            "• endgame animations - list of animations\n"
+            "• endgame animation X - start animation X\n"
+            "• stop animations - stop everything\n"
+            "• animation status - this overview",
+            endgame_running ? "🟢 RUNNING" : "🔴 VYPNUTO",
+            "🟢 INITIALIZED", // We assume that it is initialized when the command is executed
             endgame_running ? 
-                "🎭 Animace běží na pozadí a automaticky se obnovuje" :
-                "😴 Žádná endgame animace neběží");
+                "🎭 The animation runs in the background and refreshes automatically" :
+                "😴 No endgame animation is running");
 
     return ESP_OK;
 }
 
 // ============================================================================
-// REGISTRACE PŘÍKAZŮ
+// REGISTRATION OF ORDERS
 // ============================================================================
 
 esp_err_t register_extended_uart_commands(void) {
     // Simple registration - commands are handled by uart_task.c directly
-    ESP_LOGI(TAG, "✅ Rozšířené UART příkazy připraveny pro uart_task.c");
+    ESP_LOGI(TAG, "✅ Extended UART commands prepared for uart_task.c");
     return ESP_OK;
 }
 
 // ============================================================================
-// DISPATCHER FUNKCE PRO ESP CONSOLE
+// DISPATCHER FUNCTIONS FOR ESP CONSOLE
 // ============================================================================
 
 int uart_endgame_command_dispatcher(int argc, char **argv) {
@@ -276,7 +276,7 @@ int uart_endgame_command_dispatcher(int argc, char **argv) {
     esp_err_t result;
     
     if (argc < 1) {
-        printf("❌ Nedostatek argumentů! Použijte: endgame animations nebo endgame animation X\n");
+        printf("❌ Lack of arguments! Use: endgame animations or endgame animation X\n");
         return 1;
     }
     
@@ -285,12 +285,12 @@ int uart_endgame_command_dispatcher(int argc, char **argv) {
     } else if (strcmp(argv[0], "animation") == 0) {
         result = cmd_endgame_animation(argc - 1, &argv[1], response, sizeof(response));
     } else {
-        printf("❌ Neznámý podpříkaz: '%s'\n"
-               "💡 Použijte: 'endgame animations' nebo 'endgame animation X'\n", argv[0]);
+        printf("❌ Unknown subcommand: '%s'\n"
+               "💡 Use: 'endgame animations' or 'endgame animation X'\n", argv[0]);
         return 1;
     }
     
-    // Vypíšeme odpověď
+    // We will write the answer
     printf("%s\n", response);
     
     return (result == ESP_OK) ? 0 : 1;
@@ -300,7 +300,7 @@ int uart_stop_command_dispatcher(int argc, char **argv) {
     char response[512];
     
     if (argc < 1 || strcmp(argv[0], "animations") != 0) {
-        printf("❌ Použijte: 'stop animations'\n");
+        printf("❌ Use: 'stop animations'\n");
         return 1;
     }
     
@@ -315,7 +315,7 @@ int uart_animation_command_dispatcher(int argc, char **argv) {
     char response[1024];
     
     if (argc < 1 || strcmp(argv[0], "status") != 0) {
-        printf("❌ Použijte: 'animation status'\n");
+        printf("❌ Use: 'animation status'\n");
         return 1;
     }
     
@@ -391,11 +391,11 @@ void handle_led_pattern_command(char* argv[], int argc) {
             int hue = (i * 360) / 64;
             
             // HSV -> RGB konverze (zjednodusena verze)
-            // Cervena: 0-60° plna, 60-120° klesa, jinak 0
+            // Red: 0-60° full, 60-120° dim, otherwise 0
             int r = (hue < 60) ? 255 : (hue < 120) ? 255 - ((hue - 60) * 255) / 60 : 0;
-            // Zelena: 0-60° roste, 60-180° plna, 180-240° klesa, jinak 0
+            // Green: 0-60° rising, 60-180° full, 180-240° falling, otherwise 0
             int g = (hue < 60) ? (hue * 255) / 60 : (hue < 180) ? 255 : 255 - ((hue - 180) * 255) / 60;
-            // Modra: 0-120° vypnuta, 120-240° roste, 240-360° plna
+            // Blue: 0-120° off, 120-240° rising, 240-360° full
             int b = (hue < 120) ? 0 : (hue < 240) ? ((hue - 120) * 255) / 120 : 255;
             
             led_set_pixel_safe(i, r, g, b);

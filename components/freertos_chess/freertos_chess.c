@@ -1,12 +1,12 @@
 /**
  * @file freertos_chess.c
- * @brief ESP32-C6 Chess System v1.8.0 - Implementace FreeRTOS Chess komponenty
+ * @brief ESP32-C6 Chess System v1.8.0 - Implementation of the FreeRTOS Chess component
  *
- * Tato komponenta poskytuje zakladni FreeRTOS infrastrukturu pro sachovy
+ * This component provides the basic FreeRTOS infrastructure for storage
  * system:
- * - Inicializace hardware a GPIO konfigurace
- * - Vytvareni a sprava front a mutexu
- * - Systemove utility funkce
+ * - Initialization of hardware and GPIO configuration
+ * - Creating and managing queues and mutexes
+ * - System utility functions
  * - Hardware abstraction layer
  *
  * @author Alfred Krutina
@@ -14,30 +14,30 @@
  * @date 2025-08-24
  *
  * @details
- * Tato komponenta je srdcem FreeRTOS infrastruktury sachoveho systemu.
- * Obsahuje inicializaci vsech hardware komponent, vytvareni front
- * a mutexu, a poskytuje utility funkce pro cely system.
+ * This component is the heart of the FreeRTOS infrastructure of the sach system.
+ * Contains initialization of all hardware components, creation of queues
+ * and mutex, and provides utility functions for the entire system.
  *
- * Hardware funkce:
- * - WS2812B LED paska (73 LED: 64 sachovnice + 9 tlacitek)
- * - 8x8 Reed Switch matice pro detekci figurek
- * - Tlacitkove LED feedback system
- * - Time-multiplexed GPIO sdileni
- * - USB Serial JTAG konzole
+ * Hardware features:
+ * - WS2812B LED strip (73 LEDs: 64 boxes + 9 buttons)
+ * - 8x8 Reed Switch matrix for figure detection
+ * - Button LED feedback system
+ * - Time-multiplexed GPIO sharing
+ * - USB Serial JTAG console
  *
- * GPIO mapovani (ESP32-C6 DevKit):
- * - LED Data: GPIO7 (WS2812B) - Bezpecny pin
- * - Matrix Rows: GPIO10,11,18,19,20,21,22,23 (8 vystupu)
- * - Matrix Columns: GPIO0,1,2,3,6,14,16,17 (8 vstupu s pull-up)
- * - Tlacitkove piny: Sdilene s matrix columns (time-multiplexed)
- * - Status LED: GPIO5 (samostatny od matice - GPIO8 je boot strapping pin)
- * - Reset tlacitko: GPIO15 (samostatny pin)
- * - UART: USB Serial JTAG (vestavene, zadne externi piny)
+ * GPIO mapping (ESP32-C6 DevKit):
+ * - LED Data: GPIO7 (WS2812B) - Safe pin
+ * - Matrix Rows: GPIO10,11,18,19,20,21,22,23 (8 output)
+ * - Matrix Columns: GPIO0,1,2,3,6,14,16,17 (8 inputs with pull-up)
+ * - Button pins: Shared with matrix columns (time-multiplexed)
+ * - Status LED: GPIO5 (separate from the matrix - GPIO8 is a boot strapping pin)
+ * - Reset button: GPIO15 (separate pin)
+ * - UART: USB Serial JTAG (built-in, no external pins)
  *
- * Time-Multiplexing (25ms cyklus):
- * - 0-20ms: Matrix skenovani (8x8 reed switchu)
- * - 20-25ms: Tlacitkove skenovani (9 tlacitek)
- * - LED aktualizace probiha nezavisle mimo multiplexing cyklus
+ * Time-Multiplexing (25ms cycle):
+ * - 0-20ms: Matrix scan (8x8 reed switch)
+ * - 20-25ms: Button scanning (9 buttons)
+ * - LED update takes place independently outside the multiplexing cycle
  */
 
 #include "sdkconfig.h"
@@ -124,10 +124,10 @@ TimerHandle_t matrix_scan_timer =
     NULL; // LEGACY - not used with coordinated system
 TimerHandle_t button_scan_timer =
     NULL; // LEGACY - not used with coordinated system
-TimerHandle_t led_update_timer = NULL; // Timer pro periodické obnovení LED
+TimerHandle_t led_update_timer = NULL; // Timer for periodic LED refresh
 TimerHandle_t system_health_timer = NULL;
 
-// Koordinovaný time-multiplexing timer (perioda 25ms)
+// Coordinated time-multiplexing timer (25ms period)
 static TimerHandle_t coordinated_multiplex_timer = NULL;
 
 // PRODUCTION STABILITY:
@@ -153,9 +153,9 @@ const gpio_num_t matrix_col_pins[8] = {MATRIX_COL_0, MATRIX_COL_1, MATRIX_COL_2,
 const gpio_num_t promotion_button_pins_a[4] = {BUTTON_QUEEN, BUTTON_ROOK,
                                                BUTTON_BISHOP, BUTTON_KNIGHT};
 
-// NEPOUZIVANO: Toto pole se nikde v kódu nepoužívá!
-// Původně bylo navrženo pro druhou sadu promotion tlačítek, ale systém
-// používá pouze promotion_button_pins_a (4 sdílená tlačítka pro oba hráče).
+// NOT USED: This field is not used anywhere in the code!
+// It was originally designed for a second set of promotion buttons, but the system
+// only uses promotion_button_pins_a (4 shared buttons for both players).
 // const gpio_num_t promotion_button_pins_b[4] = {
 //     BUTTON_PROMOTION_QUEEN, BUTTON_PROMOTION_ROOK, BUTTON_PROMOTION_BISHOP,
 //     BUTTON_PROMOTION_KNIGHT};
@@ -210,7 +210,7 @@ static esp_err_t validate_gpio_pin(gpio_num_t pin, const char *pin_name) {
 esp_err_t chess_gpio_init(void) {
   ESP_LOGI(TAG, "Initializing GPIO pins...");
 
-  // DEBUG: Ověření definice pinů
+  // DEBUG: Pin definition verification
   ESP_LOGI(TAG, "DEBUG: STATUS_LED_PIN = GPIO%d, BUTTON_RESET = GPIO%d",
            STATUS_LED_PIN, BUTTON_RESET);
   ESP_LOGI(TAG, "DEBUG: LED_DATA_PIN = GPIO%d", LED_DATA_PIN);
@@ -230,8 +230,8 @@ esp_err_t chess_gpio_init(void) {
     return ret;
 
 #ifndef CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-  // Validate matrix row pins (reed multiplex); u I2C Hall jsou řádkové piny
-  // neobsazené nebo SDA/SCL.
+  // Validate matrix row pins (reed multiplex); at I2C Hall are row pins
+  // unoccupied or SDA/SCL.
   for (int i = 0; i < 8; i++) {
     ret = validate_gpio_pin(matrix_row_pins[i], "MATRIX_ROW");
     if (ret != ESP_OK)
@@ -291,9 +291,9 @@ esp_err_t chess_gpio_init(void) {
   // Configure matrix column pins as inputs with pull-up
   ESP_LOGI(TAG, "DEBUG: Starting matrix column configuration loop");
   for (int i = 0; i < 8; i++) {
-    // WDT reset odstraněn během inicializace
+    // WDT reset removed during initialization
 
-    // Bitová maska s explicitním přetypováním
+    // Bitmask with explicit casting
     uint32_t pin_number = (uint32_t)matrix_col_pins[i];
     uint64_t pin_mask = (1ULL << pin_number);
 
@@ -311,7 +311,7 @@ esp_err_t chess_gpio_init(void) {
                pin_number);
       ESP_LOGI(TAG, "Matrix column pin %d skipped (strapping pin)", i);
       ESP_LOGI(TAG, "DEBUG: About to continue to next iteration");
-      continue; // Přeskočení strapping pinu
+      continue; // Skipping the strapping pin
     }
 
     ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%" PRIu32 " configuration", pin_number);
@@ -337,7 +337,7 @@ esp_err_t chess_gpio_init(void) {
       vTaskDelay(pdMS_TO_TICKS(5));
     }
 
-    // WDT reset odstraněn během inicializace
+    // WDT reset removed during initialization
 
     // Configure all matrix column pins as INPUT with pull-up (standard configuration)
     gpio_config_t io_conf = {.pin_bit_mask = pin_mask,
@@ -374,17 +374,17 @@ esp_err_t chess_gpio_init(void) {
   ESP_LOGI(TAG, "DEBUG: Matrix column configuration loop completed");
 
   // Configure status LED pin
-  // WDT reset removed during initialization  // Reset před status LED config
+  // WDT reset removed during initialization // Reset before status LED config
   ESP_LOGI(TAG, "DEBUG: About to configure STATUS_LED");
 
-  // Správná bitová maska s explicitním castem
+  // Correct bitmask with explicit cast
   uint32_t status_led_pin = (uint32_t)STATUS_LED_PIN;
   uint64_t status_led_mask = (1ULL << status_led_pin);
 
   ESP_LOGI(TAG, "Configuring STATUS_LED (GPIO%" PRIu32 ", mask=0x%llx)...",
            status_led_pin, status_led_mask);
 
-  // Reset před gpio_config()
+  // Reset before gpio_config()
   // WDT reset removed during initialization
 
   gpio_config_t status_led_conf = {.pin_bit_mask = status_led_mask,
@@ -408,7 +408,7 @@ esp_err_t chess_gpio_init(void) {
   if (chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
     ESP_LOGW(TAG,
              "RESET_BUTTON GPIO%u je STM32 NRST (stm32_i2c_bootloader) — "
-             "vstup tlačítka se nekonfiguruje (NRST řídí výhradně bootloader)",
+             "the button input is not configurable (NRST only controls the bootloader)",
              (unsigned)reset_button_pin);
   } else {
     uint64_t reset_button_mask = (1ULL << reset_button_pin);
@@ -432,12 +432,12 @@ esp_err_t chess_gpio_init(void) {
     ESP_LOGI(TAG, "Reset button configured successfully");
   }
 
-  // PŘIDAT: Finální reset
+  // ADD: Final reset
   // WDT reset removed during initialization
 
   ESP_LOGI(TAG, "✓ GPIO pins initialized successfully");
 
-  // Dokončení GPIO konfigurace
+  // Completing the GPIO configuration
   // WDT reset removed during initialization
 
   // Fallback: If any GPIO configuration failed, log warning but continue
@@ -451,13 +451,13 @@ esp_err_t chess_gpio_init(void) {
 esp_err_t chess_led_init(void) {
   ESP_LOGI(TAG, "🔧 Initializing WS2812B LED system...");
 
-  // Reset watchdog timeru před inicializací LED
+  // Reset watchdog timer before LED initialization
   esp_err_t wdt_ret = esp_task_wdt_reset();
   if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
     // Task not registered with TWDT yet - this is normal during startup
   }
 
-  // Inicializace WS2812B hardwaru
+  // WS2812B hardware initialization
   // This function will be called by led_task.c during hardware initialization
   // We just ensure the system is ready for LED operations
 
@@ -473,7 +473,7 @@ esp_err_t chess_led_init(void) {
 esp_err_t chess_matrix_init(void) {
   ESP_LOGI(TAG, "Initializing matrix system...");
 
-  // WDT reset pro matrix inicializaci
+  // WDT reset for matrix initialization
   // WDT reset removed during initialization
 
   // Matrix is already configured in GPIO init
@@ -497,7 +497,7 @@ esp_err_t chess_matrix_init(void) {
 esp_err_t chess_button_init(void) {
   ESP_LOGI(TAG, "Initializing button system...");
 
-  // WDT reset pro button inicializaci
+  // WDT reset for button initialization
   // WDT reset removed during initialization
 
   // Buttons are already configured in GPIO init
@@ -578,12 +578,12 @@ esp_err_t chess_create_queues(void) {
   ESP_LOGI(TAG, "Min free heap: %" PRIu32 " bytes", esp_get_minimum_free_heap_size());
   ESP_LOGI(TAG, "========================================");
 
-  // WDT reset pro vytváření front
+  // WDT reset for creating queues
   // WDT reset removed during initialization
 
   // CRITICAL: Check heap availability before creating queues
   uint32_t free_heap = esp_get_free_heap_size();
-  /* Pocatecni rezerva pred alokaci front (~50 KiB); pri zmene poctu tasku upravit. */
+  /* Initial reserve before queue allocation (~50 KiB); when changing the number, edit the task. */
   if (free_heap < 50000) {
     ESP_LOGE(
         TAG,
@@ -776,24 +776,24 @@ esp_err_t chess_create_mutexes(void) {
 // ============================================================================
 
 /**
- * @brief Hlavni coordinated multiplexing timer callback
+ * @brief Main coordinated multiplexing timer callback
  *
- * Tato funkce ridi 25ms multiplexing cyklus:
- * - 0-20ms:  Matrix scan window (matrix ma kontrolu nad GPIO)
- * - 20-25ms: Button scan window (button ma kontrolu nad GPIO)
+ * This function ridi 25ms multiplexing cycle:
+ * - 0-20ms: Matrix scan window (matrix has control over GPIO)
+ * - 20-25ms: Button scan window (button has control over GPIO)
  *
  * @param xTimer Timer handle
  *
  * @details
- * Tento timer je KRITICKA cast time-multiplexing systemu.
- * Matrix a button tasky sdilejí stejne GPIO piny (MATRIX_COL_0-7),
- * proto MUSI byt jejich pristup k pinum synchronizovan.
+ * This timer is CRITICAL to the cast time-multiplexing system.
+ * Matrix and button tasks share the same GPIO pins (MATRIX_COL_0-7),
+ * therefore their access to the pin MUST be synchronized.
  *
- * Casovani:
- * 1. Matrix scan vola matrix_scan_all() primo v callbacku (rychle)
- * 2. Po matrix scan: matrix_release_pins() uvolni row piny
- * 3. Button scan vola button_scan_all() (rychle)
- * 4. Po button scan: matrix_acquire_pins() (pripravi pro dalsi cyklus)
+ * Timing:
+ * 1. Matrix scan calls matrix_scan_all() directly in the callback (fast)
+ * 2. After matrix scan: matrix_release_pins() release row pins
+ * 3. Button scan calls button_scan_all() (fast)
+ * 4. After button scan: matrix_acquire_pins() (prepare for next cycle)
  */
 static void __attribute__((unused))
 coordinated_multiplex_timer_callback(TimerHandle_t xTimer) {
@@ -893,7 +893,7 @@ void led_update_timer_callback(TimerHandle_t xTimer) {
   // NOTE: Timer callbacks run in timer service task context
   // which is not registered with TWDT, so we don't call WDT reset
 
-  // Periodické obnovení LED pro prevenci bílého blikání
+  // Periodic LED refresh to prevent white flashing
   // This ensures LED strip gets regular updates even when no commands are sent
   led_force_immediate_update();
 }
@@ -933,7 +933,7 @@ esp_err_t chess_create_timers(void) {
     ESP_LOGW(TAG, "Failed to create legacy button scan timer (not critical)");
   }
 
-  // Timer pro periodické obnovení LED
+  // Timer for periodic LED refresh
   led_update_timer = xTimerCreate("LEDUpdate", pdMS_TO_TICKS(25), pdTRUE, NULL,
                                   led_update_timer_callback);
   if (led_update_timer == NULL) {
@@ -1254,7 +1254,7 @@ esp_err_t chess_led_set_pixel(uint8_t led_index, uint8_t red, uint8_t green,
   ESP_LOGI(TAG, "LED Set Pixel: index=%d, RGB=(%d,%d,%d)", led_index, red,
            green, blue);
 
-  // Přímé volání LED funkce
+  // Direct call of the LED function
   led_set_pixel_safe(led_index, red, green, blue);
   return ESP_OK;
 }
@@ -1263,7 +1263,7 @@ esp_err_t chess_led_set_all(uint8_t red, uint8_t green, uint8_t blue) {
   // In simulation mode, log the LED command
   ESP_LOGI(TAG, "LED Set All: RGB=(%d,%d,%d)", red, green, blue);
 
-  // Přímé volání LED funkce
+  // Direct call of the LED function
   led_set_all_safe(red, green, blue);
   return ESP_OK;
 }
@@ -1272,7 +1272,7 @@ esp_err_t chess_led_clear(void) {
   // In simulation mode, log the LED command
   ESP_LOGI(TAG, "LED Clear All");
 
-  // Přímé volání LED funkce
+  // Direct call of the LED function
   led_clear_all_safe();
   return ESP_OK;
 }
@@ -1281,7 +1281,7 @@ esp_err_t chess_led_show_board(void) {
   // In simulation mode, log the LED command
   ESP_LOGI(TAG, "LED Show Chess Board Pattern");
 
-  // Přímé volání LED funkce
+  // Direct call of the LED function
   // Show chess board pattern (alternating black/white squares)
   for (int i = 0; i < 64; i++) {
     int row = i / 8;
@@ -1306,7 +1306,7 @@ esp_err_t chess_led_button_feedback(uint8_t button_id, bool available) {
   ESP_LOGI(TAG, "Button LED Feedback: button=%d, available=%s", button_id,
            available ? "true" : "false");
 
-  // Přímé volání LED funkce
+  // Direct call of the LED function
   uint8_t led_index =
       button_id + CHESS_LED_COUNT_BOARD; // Button LEDs start at index 64
   if (available) {

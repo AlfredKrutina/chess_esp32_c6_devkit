@@ -1,7 +1,7 @@
 /**
  * @file ota_update.c
- * OTA: HTTPS z internetu (STA + CA bundle), nebo HTTP z LAN (např. telefon na AP
- * 192.168.4.x hostí .bin — STA nepotřeba).
+ * OTA: HTTPS from the Internet (STA + CA bundle), or HTTP from the LAN (e.g. phone on AP
+ * 192.168.4.x hosts .bin — STA not needed).
  */
 #include "ota_update.h"
 
@@ -74,7 +74,7 @@ static char s_last_err[128];
 typedef enum {
   BLE_OTA_IDLE = 0,
   BLE_OTA_RX,
-  BLE_OTA_SUSPENDED, /**< Link lost; esp_ota handle držíme, návrat do RX při dalším chunku */
+  BLE_OTA_SUSPENDED, /**< Link lost; we hold the esp_ota handle, return to RX at the next chunk */
 } ble_ota_rx_state_t;
 
 static ble_ota_rx_state_t s_ble_ota_rx = BLE_OTA_IDLE;
@@ -88,13 +88,13 @@ static bool s_ble_ota_have_chunk_meta;
 
 static esp_timer_handle_t s_ble_ota_suspend_timer;
 
-/** Po 24 h bez spojení zruší session (uvolní semafor + esp_ota_abort). */
+/** After 24 h without a connection, the session will be canceled (free the semaphore + esp_ota_abort). */
 #define BLE_OTA_SUSPEND_TIMEOUT_US (24ULL * 3600ULL * 1000000ULL)
 
 #define BLE_OTA_MAGIC0 ((uint8_t)'O')
 #define BLE_OTA_MAGIC1 ((uint8_t)'B')
 
-/** Max tělo POST `/api/system/ota` (JSON + dlouhé HTTPS URL). */
+/** Max POST body `/api/system/ota` (JSON + long HTTPS URL). */
 #define OTA_HTTP_POST_BODY_CAP 4096
 
 static void ble_ota_suspend_timer_cancel(void) {
@@ -182,7 +182,7 @@ static esp_err_t ble_ota_finalize_and_restart(void) {
   return ESP_OK;
 }
 
-/** Standardní HTTPS OTA potřebuje ota_0 i ota_1 (factory-only tabulka na 4 MB flash → vypnuto). */
+/** Standard HTTPS OTA needs both ota_0 and ota_1 (factory-only table on 4 MB flash → disabled). */
 static bool ota_partition_layout_ok(void) {
   const esp_partition_t *p0 = esp_partition_find_first(
       ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
@@ -307,7 +307,7 @@ static void ota_https_worker_task(void *arg) {
 }
 
 /**
- * Stahování obrazu po čistém HTTP (bez TLS) — typicky telefon jako server na AP subnetu.
+ * Image download over pure HTTP (no TLS) — typically phone as server on AP subnet.
  */
 static void ota_http_worker_task(void *arg) {
   char *url = (char *)arg;
@@ -468,7 +468,7 @@ static esp_err_t schedule_ota(const char *url) {
   }
   if (url_is_https(url)) {
     if (!wifi_is_sta_connected()) {
-      /* Odděleně od „busy“ (semafor) — HTTP klient mapuje na 428. */
+      /* Separate from "buses" (semaphore) — HTTP client maps to 428. */
       return ESP_ERR_NOT_ALLOWED;
     }
   } else if (!url_is_http(url)) {
@@ -499,8 +499,8 @@ static esp_err_t schedule_ota(const char *url) {
 }
 
 /**
- * Rollback po neúspěšném startu nového obrazu: jiný slot má stav invalid,
- * běží předchozí firmware. Klient (Flutter) může uživateli zobrazit varování.
+ * Rollback after a failed start of a new image: another slot has an invalid status,
+ * running previous firmware. The client (Flutter) can display a warning to the user.
  */
 static void firmware_json_add_rollback_fields(cJSON *root) {
   if (!ota_partition_layout_ok()) {
@@ -686,7 +686,7 @@ esp_err_t ota_update_register_http_handlers(httpd_handle_t hd) {
 
   if (!ota_partition_layout_ok()) {
     ESP_LOGW(TAG,
-             "HTTPS OTA nedostupné: v tabulce oddílů chybí ota_0+ota_1 (např. 4 MB factory layout)");
+             "HTTPS OTA unavailable: partition table missing ota_0+ota_1 (e.g. 4 MB factory layout)");
   }
 
   httpd_uri_t get_fw = {.uri = "/api/system/firmware",

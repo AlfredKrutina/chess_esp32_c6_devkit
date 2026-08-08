@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-/** Registruje GET /static/piece/Piece*.png (12 souborů z embed). */
+/** Registers GET /static/piece/Piece*.png (12 files from embed). */
 esp_err_t chess_piece_register_http_uris(httpd_handle_t hd);
 
 #ifdef __cplusplus

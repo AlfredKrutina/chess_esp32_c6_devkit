@@ -12,7 +12,7 @@ import '../board_session_notifier.dart';
 import '../board_session_state.dart';
 import 'board_wifi_provision_fields.dart';
 
-/// Spodní list: provisioning domácí Wi‑Fi přes BLE po připojení k desce.
+/// Bottom sheet: provisioning home Wi-Fi via BLE after connecting to the board.
 Future<void> showBoardWifiProvisionSheet(BuildContext context) async {
   await showAppModalBottomSheet<void>(
     context: context,

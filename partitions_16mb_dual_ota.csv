@@ -1,5 +1,5 @@
-# Záloha: dvě OTA aplikace po 3 MiB — vyžaduje fyzicky ≥ ~8 MiB flash kvůli dvěma slotům + systém.
-# Použití: přejmenuj na partitions.csv nebo nastav CUSTOM_FILENAME, pokud máš modul s velkým flash.
+# Backup: two OTA apps at 3 MiB each — needs physically ≥ ~8 MiB flash for two slots + system.
+# Usage: rename to partitions.csv or set CUSTOM_FILENAME if you have a large-flash module.
 # Name,   Type, SubType, Offset,  Size, Flags
 nvs,      data, nvs,     ,        0x6000,
 otadata,  data, ota,     ,        0x2000,

@@ -1,8 +1,8 @@
 /**
- * NUCLEO-C031C6 (MB1717): USER tlačítko B1 a LED řízená z MCU.
+ * NUCLEO-C031C6 (MB1717): USER button B1 and MCU-driven LED.
  *
- * LD1 u micro-USB je COM indikátor ST-LINK — z firmware STM32 nejde rozsvítit.
- * Zelená uživatelská LED u MCU je LD4 na PA5 (active high).
+ * LD1 near micro-USB is the ST-LINK COM indicator — STM32 firmware cannot light it.
+ * The green user LED by the MCU is LD4 on PA5 (active high).
  */
 #pragma once
 

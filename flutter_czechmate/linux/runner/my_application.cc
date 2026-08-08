@@ -52,7 +52,7 @@ static void my_application_activate(GApplication* application) {
     gtk_window_set_title(window, "CzechMate");
   }
 
-  // Parita s macOS / Windows — výchozí a minimální velikost (DESKTOP_UI_MASTER_PLAN).
+  // Parity with macOS / Windows — default and minimum size (DESKTOP_UI_MASTER_PLAN).
   gtk_window_set_default_size(window, 1320, 860);
   GdkGeometry geom{};
   geom.min_width = 940;

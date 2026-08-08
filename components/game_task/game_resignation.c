@@ -26,12 +26,12 @@ static const char *TAG = "GAME_RESIGN";
 /**
  * @brief Update button LEDs with fade animation
  * @param elapsed_ms Milliseconds elapsed since resignation start
- * 0–4 s: tlačítka se nemění (zůstávají původní barvy).
- * 4–5 s: tlačítka přejdou na plnou oranžovou.
- * 5–9 s: fade v pořadí LED (Queen → Rook → Bishop → Knight na obou stranách).
+ * 0-4s: the buttons do not change (the original colors remain).
+ * 4-5s: buttons turn solid orange.
+ * 5-9s: fade in LED order (Queen → Rook → Bishop → Knight on both sides).
  */
 static void resignation_update_button_leds(uint32_t elapsed_ms) {
-  const uint32_t ORANGE_START_MS = 4000; // Barva na oranžovou až po 4 s
+  const uint32_t ORANGE_START_MS = 4000; // Color to orange up to 4 s
   if (elapsed_ms < ORANGE_START_MS)
     return;
 
@@ -78,7 +78,7 @@ static void resignation_animation_timer_callback(TimerHandle_t xTimer) {
 }
 
 /**
- * @brief Hlavni timer callback - vola se po 10 sekundach
+ * @brief Main timer callback - called after 10 seconds
  */
 static void resignation_main_timer_callback(TimerHandle_t xTimer) {
   // See comment in `resignation_animation_timer_callback()`.
@@ -101,7 +101,7 @@ static void resignation_finalize_timeout(void) {
 
   ESP_LOGI(TAG, "🏳️ %s resigned! %s wins!", player_name, winner_name);
 
-  // Ukončit hru
+  // End the game
   current_game_state = GAME_STATE_FINISHED;
   game_result = GAME_STATE_FINISHED;
   current_result_type = (resignation_state.player == PLAYER_WHITE)
@@ -116,7 +116,7 @@ static void resignation_finalize_timeout(void) {
 
   timer_pause();
 
-  // Spustit victory animaci pro vítěze
+  // Run the victory animation for the winner
   player_t winner_player =
       (resignation_state.player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
   game_trigger_victory_animation(winner_player);
@@ -146,10 +146,10 @@ void resignation_tick(void) {
 }
 
 /**
- * @brief Spustit king resignation timer
+ * @brief Start the king resignation timer
  */
 void resignation_start(player_t player, uint8_t row, uint8_t col) {
-  // Zastavit existující timer pokud běží (restart = tichý cleanup)
+  // Stop an existing timer if it is running (restart = silent cleanup)
   if (resignation_state.active) {
     resignation_stop(true);
   }
@@ -160,7 +160,7 @@ void resignation_start(player_t player, uint8_t row, uint8_t col) {
   printf("👑 Resignation timer started for %s player\r\n", player_name);
   printf("🎨 Button LED animation started (8 buttons, both sides)\r\n\r\n");
 
-  // Inicializovat stav
+  // Initialize state
   resignation_state.active = true;
   resignation_state.player = player;
   resignation_state.king_row = row;
@@ -168,17 +168,17 @@ void resignation_start(player_t player, uint8_t row, uint8_t col) {
   resignation_state.start_time_ms = esp_timer_get_time() / 1000;
   resignation_state.last_countdown_sec = 10;
 
-  // Odstranit krále z boardu (jako normální pickup)
-  // Jinak drop kód očekává prázdné pole a spadne
+  // Remove the king from the board (like a normal pickup)
+  // Otherwise, the drop code expects an empty field and drops
   board[row][col] = PIECE_EMPTY;
   ESP_LOGI(TAG, "✅ King removed from board[%d][%d] for resignation", row, col);
 
-  // Kombinace červené (varování) a žluté (source square)
-  // Oranžovo-červená mix místo jen červené
+  // Combination of red (warning) and yellow (source square)
+  // Orange-red mix instead of just red
   led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 128, 0);
 
-  // Tlačítka se na oranžovou změní až po 4 s (v resignation_update_button_leds)
-  // – prvních 4 s zůstávají v původní barvě
+  // Buttons turn orange only after 4s (in resignation_update_button_leds)
+  // – the first 4 seconds remain in the original color
 
   // PRODUCTION STABILITY:
   // Do NOT run resignation logic from FreeRTOS timer callbacks ("Tmr Svc").
@@ -188,9 +188,9 @@ void resignation_start(player_t player, uint8_t row, uint8_t col) {
 }
 
 /**
- * @brief Zastavit king resignation timer
- * @param finalize false = uživatel zrušil (položil krále), vrátit krále +
- * hlášky. true  = finalized (timeout / reset / restart), jen tiché cleanup.
+ * @brief Stop the king resignation timer
+ * @param finalize false = user canceled (placed king), return king +
+ * announcements. true = finalized (timeout / reset / restart), just silent cleanup.
  */
 void resignation_stop(bool finalize) {
   if (!resignation_state.active)
@@ -205,7 +205,7 @@ void resignation_stop(bool finalize) {
              "🔄 [STAGING] Resignation finalized (cleanup, no cancel msgs)");
   }
 
-  // Pouze při zrušení uživatelem: vrátit krále na původní pozici
+  // Only when canceled by the user: return the king to its original position
   if (!finalize) {
     piece_t king_piece = (resignation_state.player == PLAYER_WHITE)
                              ? PIECE_WHITE_KING
@@ -246,16 +246,16 @@ void resignation_stop(bool finalize) {
   }
 
   if (finalize) {
-    // Při dokončení rezignace (timeout) vypnout button LEDs
+    // When the resignation is complete (timeout), turn off the button LEDs
     for (int i = 0; i < 8; i++) {
       button_set_led_color(64 + i, 0, 0, 0);
     }
   } else {
-    // Při zrušení (král položen zpět) obnovit normální stav tlačítek
-    // (zelená/modrá podle promoce, LED 72 zelená)
+    // When canceling (king laid back) restore the normal state of the buttons
+    // (green/blue according to graduation, LED 72 green)
     game_check_promotion_needed();
   }
 
-  // Reset stavu
+  // Status reset
   resignation_state.active = false;
 }

@@ -1,6 +1,6 @@
 const kFiles = 'abcdefgh';
 
-/// `screenRow` 0 = horní okraj widgetu, `screenCol` 0 = vlevo.
+/// `screenRow` 0 = top of widget, `screenCol` 0 = left.
 String algebraicAt({
   required bool flipped,
   required int screenRow,

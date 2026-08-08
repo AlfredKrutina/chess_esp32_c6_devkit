@@ -30,12 +30,12 @@ extern bool is_demo_mode_enabled(void);
 static const char *TAG = "WEB_SYSTEM";
 
 /**
- * @brief Handler pro GET /api/web/lock-status
+ * @brief Handler for GET /api/web/lock-status
  *
- * Vraci JSON s lock statusem web rozhrani.
+ * Returns JSON with the lock status of the web interface.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/web/lock-status");
@@ -60,15 +60,15 @@ esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
 // ============================================================================
 
 /**
- * @brief Handler pro GET /api/mqtt/status
+ * @brief Handler for GET /api/mqtt/status
  *
- * Vrátí JSON s aktuálním stavem MQTT konfigurace a připojení.
+ * Returns a JSON with the current state of the MQTT configuration and connection.
  *
  * @param req HTTP request
- * @return ESP_OK při úspěchu, chybový kód při chybě
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Vrací JSON:
+ * Returns JSON:
  * {"host":"...","port":1883,"username":"...","connected":true/false,"mode":"game/ha"}
  */
 esp_err_t http_get_mqtt_status_handler(httpd_req_t *req) {
@@ -126,16 +126,16 @@ esp_err_t http_get_mqtt_status_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/mqtt/config
+ * @brief Handler for POST /api/mqtt/config
  *
- * Uloží MQTT konfiguraci (host, port, username, password) do NVS.
+ * Saves MQTT configuration (host, port, username, password) in NVS.
  *
  * @param req HTTP request
- * @return ESP_OK při úspěchu, chybový kód při chybě
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Očekává JSON: {"host":"...","port":1883,"username":"...","password":"..."}
- * Vrací JSON: {"success": true/false, "message": "..."}
+ * Expects JSON: {"host":"...","port":1883,"username":"...","password":"..."}
+ * Returns JSON: {"success": true/false, "message": "..."}
  */
 esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/mqtt/config");
@@ -152,7 +152,7 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  // Načíst JSON z request body
+  // Retrieve JSON from request body
   char content[512] = {0};
   int ret = httpd_req_recv(req, content, sizeof(content) - 1);
   if (ret <= 0) {
@@ -170,12 +170,12 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
   char username[64] = {0};
   char password[64] = {0};
 
-  // Najít "host"
+  // Find "guest"
   const char *host_start = strstr(content, "\"host\"");
   if (host_start != NULL) {
     host_start = strchr(host_start, ':');
     if (host_start != NULL) {
-      host_start++; // Přeskočit ':'
+      host_start++; // Skip ':'
       while (*host_start == ' ' || *host_start == '\"')
         host_start++;
       const char *host_end = strchr(host_start, '\"');
@@ -189,12 +189,12 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
     }
   }
 
-  // Najít "port"
+  // Find "port"
   const char *port_start = strstr(content, "\"port\"");
   if (port_start != NULL) {
     port_start = strchr(port_start, ':');
     if (port_start != NULL) {
-      port_start++; // Přeskočit ':'
+      port_start++; // Skip ':'
       while (*port_start == ' ')
         port_start++;
       uint32_t port_val = strtoul(port_start, NULL, 10);
@@ -204,12 +204,12 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
     }
   }
 
-  // Najít "username" (volitelné)
+  // Find "username" (optional)
   const char *username_start = strstr(content, "\"username\"");
   if (username_start != NULL) {
     username_start = strchr(username_start, ':');
     if (username_start != NULL) {
-      username_start++; // Přeskočit ':'
+      username_start++; // Skip ':'
       while (*username_start == ' ' || *username_start == '\"')
         username_start++;
       const char *username_end = strchr(username_start, '\"');
@@ -223,12 +223,12 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
     }
   }
 
-  // Najít "password" (volitelné)
+  // Find "password" (optional)
   const char *password_start = strstr(content, "\"password\"");
   if (password_start != NULL) {
     password_start = strchr(password_start, ':');
     if (password_start != NULL) {
-      password_start++; // Přeskočit ':'
+      password_start++; // Skip ':'
       while (*password_start == ' ' || *password_start == '\"')
         password_start++;
       const char *password_end = strchr(password_start, '\"');
@@ -253,7 +253,7 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  // Uložit do NVS
+  // Save to NVS
   const char *username_ptr = (strlen(username) > 0) ? username : NULL;
   const char *password_ptr = (strlen(password) > 0) ? password : NULL;
 
@@ -341,12 +341,12 @@ esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
         config.brightness_level = (uint8_t)brightness_val;
         config_save_to_nvs(&config);
       } else {
-        // Config neexistuje, vytvorit novy s defaulty a novym jasem
+        // Config does not exist, create new ones with defaults and new brightness
         config.brightness_level = (uint8_t)brightness_val;
-        // Ostatni defaulty (pokud config_load selhal, config struct je
+        // The last defaults (if config_load failed, the config struct is
         // nedefinovany, ale my ukladame jen brightness do NVS v teto verzi
         // config_manageru? Ne, config_manager uklada celou struct?
-        // config_save_to_nvs uklada key-value pairs. Takze je to bezpecne.
+        // config_save_to_nvs saves key-value pairs. So it's safe.
         config_save_to_nvs(&config);
       }
 
@@ -498,9 +498,9 @@ esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro GET /api/settings/start_pos_check
+ * @brief Handler for GET /api/settings/start_pos_check
  *
- * Vrati stav hlidani pocatecni pozice (enabled true/false).
+ * Return the status of the guard to the initial position (enabled true/false).
  */
 esp_err_t http_get_settings_start_pos_check_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/settings/start_pos_check");
@@ -515,10 +515,10 @@ esp_err_t http_get_settings_start_pos_check_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/settings/start_pos_check
+ * @brief Handler for POST /api/settings/start_pos_check
  *
- * Nastavi stav hlidani pocatecni pozice a ulozi do NVS.
- * Body: {"enabled": true/false}
+ * Set the status of the guard to the initial position and save it in the NVS.
+ * Points: {"enabled": true/false}
  */
 esp_err_t http_post_settings_start_pos_check_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/start_pos_check");
@@ -693,7 +693,7 @@ esp_err_t http_get_demo_status_handler(httpd_req_t *req) {
 // FACTORY RESET HELPERS (shared with BLE dispatch)
 // ============================================================================
 
-/** Musí přesně sedět s webem (POST /api/system/factory_reset) a iOS. */
+/** Must sit exactly with web (POST /api/system/factory_reset) and iOS. */
 #define CZECHMATE_FACTORY_RESET_CONFIRM "erase_all_nvs"
 
 bool json_body_has_factory_confirm(const char *json) {
@@ -743,7 +743,7 @@ esp_err_t factory_reset_schedule(void) {
 // ============================================================================
 
 /**
- * GET /api/settings/ui — JSON preference z NVS (nebo vychozi).
+ * GET /api/settings/ui — JSON preferences from NVS (or default).
  */
 esp_err_t http_get_settings_ui_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/settings/ui");
@@ -761,7 +761,7 @@ esp_err_t http_get_settings_ui_handler(httpd_req_t *req) {
 }
 
 /**
- * POST /api/settings/ui — ulozeni web UI JSON do NVS.
+ * POST /api/settings/ui — save web UI JSON to NVS.
  */
 esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/ui");
@@ -813,8 +813,8 @@ esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
 /**
  * @brief POST /api/system/factory_reset
  *
- * Smaže celý NVS oddíl (raw erase) a restartuje MCU. Neřeší web lock — záchranná
- * cesta. Tělo musí obsahovat: {"confirm":"erase_all_nvs"}
+ * Deletes the entire NVS partition (raw erase) and restarts the MCU. Does not solve web lock — rescue
+ * path The body must contain: {"confirm":"erase_all_nvs"}
  */
 esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/system/factory_reset");

@@ -1,30 +1,30 @@
 /**
  * @file game_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Game Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Game Task Header
  *
- * Tato hlavicka definuje rozhrani pro game task:
- * - Typy a struktury stavu hry
- * - Prototypy funkci game tasku
- * - Funkce pro ovladani a stav hry
+ * This header defines the interface for the game task:
+ * - Game state types and structures
+ * - Prototypes of the game task function
+ * - Functions for control and game state
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
- * Game task je stredem sachoveho systemu. Spravuje cely stav hry,
- * provadi validaci tahu, vynucuje sachova pravidla a komunikuje
- * s ostatnimi tasky pres fronty.
+ * Game task is the center of the game system. Manages the entire game state,
+ * performs move validation, enforces sach rules and communicates
+ * with the last tasks through the queues.
  *
- * Hlavni funkce:
- * - Standardni sachova pravidla (vsechny figur ky)
- * - Specialni tahy (rosada, en passant, promoce)
- * - Detekce sachu, matu a patu
- * - Historie tahu a undo funkcionalita
- * - Statistiky hry a materialni rovnovaha
- * - Integrace s LED pro vizualni zpetnou vazbu
- * - Integrace s casovym systemem
- * - JSON export pro webove rozhrani
+ * Main functions:
+ * - Standard Sacha rules (all pieces)
+ * - Special moves (castling, en passant, promotion)
+ * - Detection of sach, mat and heel
+ * - Drag history and undo functionality
+ * - Game statistics and material balance
+ * - Integration with LEDs for visual feedback
+ * - Integration with the time system
+ * - JSON export for web interface
  */
 
 #ifndef GAME_TASK_H
@@ -56,98 +56,98 @@
 // ============================================================================
 
 /**
- * @brief Prevede sachovou notaci na souradnice sachovnice
+ * @brief Converts chess notation to chessboard coordinates
  *
- * @param notation Sachova notace (napr. "e2")
- * @param[out] row Vystupni radek (0-7)
- * @param[out] col Vystupni sloupec (0-7)
- * @return true pokud je prevod uspesny, false pri chybe
+ * @param notation Sach's notation (eg "e2")
+ * @param[out] row Output row (0-7)
+ * @param[out] col Output column (0-7)
+ * @return true if the conversion is successful, false on error
  */
 bool convert_notation_to_coords(const char *notation, uint8_t *row,
                                 uint8_t *col);
 
 /**
- * @brief Prevede souradnice sachovnice na sachovou notaci
+ * @brief Converts chessboard coordinates to chess notation
  *
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @param[out] notation Vystupni buffer pro notaci (min. 3 znaky)
- * @return true pokud je prevod uspesny, false pri chybe
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @param[out] notation Output buffer for notation (min. 3 characters)
+ * @return true if the conversion is successful, false on error
  */
 bool convert_coords_to_notation(uint8_t row, uint8_t col, char *notation);
 
 /**
- * @brief Zpracuj sachovy tah z UART prikazu
+ * @brief Process sach move from UART command
  *
- * @param cmd Prikaz s tahem
+ * @param cmd Display with stroke
  */
 void game_process_chess_move(const chess_move_command_t *cmd);
 
 // ============================================================================
-// JSON EXPORT FUNKCE PRO WEB SERVER
+// JSON EXPORT FUNCTION FOR WEB SERVER
 // ============================================================================
 
 /**
- * @brief Exportuj stav sachovnice do JSON retezce
+ * @brief Export the state of the inbox to a JSON string
  *
- * @param[out] buffer Vystupni buffer pro JSON retezec
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param[out] buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_board_json(char *buffer, size_t size);
 
 /**
- * @brief Exportuj stav hry do JSON retezce
+ * @brief Export game state to JSON string
  *
- * @param[out] buffer Vystupni buffer pro JSON retezec
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param[out] buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 /**
- * @brief Vrati aktualni pocet tahu (thread-safe)
- * @return Aktualni pocet tahu od zacatku hry
+ * @brief Return the current number of turns (thread-safe)
+ * @return The current number of turns since the start of the game
  */
 uint32_t game_get_move_count(void);
 
 /**
- * @brief Exportuj stav hry do JSON retezce
+ * @brief Export game state to JSON string
  *
- * @param[out] buffer Vystupni buffer pro JSON retezec
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param[out] buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_status_json(char *buffer, size_t size);
 
 /**
- * @brief Vynuceny refresh LED podle stavu hry (highlight, sach, chyby, promoce).
- * @details Volat po navratu z HA, po fade-out bootu pri obnove NVS (main), apod.
+ * @brief Forced LED refresh according to the state of the game (highlight, sach, errors, graduation).
+ * @details Call after returning from HA, after fade-out boot when restoring NVS (main), etc.
  */
 void game_refresh_leds(void);
 
 /**
- * @brief Exportuj historii tahu do JSON retezce
+ * @brief Export the pull history to a JSON string
  *
- * @param[out] buffer Vystupni buffer pro JSON retezec
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param[out] buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_history_json(char *buffer, size_t size);
 
 /**
- * @brief Exportuj sebrane figurky do JSON retezce
+ * @brief Export the collected figures to a JSON string
  *
- * @param[out] buffer Vystupni buffer pro JSON retezec
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param[out] buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_captured_json(char *buffer, size_t size);
 
 /**
- * @brief Exportuj historii materialni vyhody do JSON (pro graf vyhody)
+ * @brief Export the history of material benefits to JSON (for the benefits chart)
  *
- * @param[out] buffer Vystupni buffer pro JSON retezec
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param[out] buffer Output buffer for JSON string
+ * @param size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_get_advantage_json(char *buffer, size_t size);
 
@@ -156,305 +156,305 @@ esp_err_t game_get_advantage_json(char *buffer, size_t size);
 // ============================================================================
 
 /**
- * @brief Spusti game task
+ * @brief Start game task
  *
- * Hlavni funkce game tasku. Inicializuje sachovnici a bezi v nekonecne
- * smycce zpracovani prikazu a udalosti.
+ * The main functions of the game task. Initializes the inbox and runs indefinitely
+ * command and event processing loops.
  *
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void game_task_start(void *pvParameters);
 
 // ============================================================================
-// INICIALIZACNI FUNKCE HRY
+// GAME INITIALIZATION FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializuj sachovnici do vychozi pozice
+ * @brief Initialize the inbox to the default position
  *
- * Nastavi vsechny figurky do standardni startovni pozice.
+ * Set all pieces to the standard starting position.
  */
 void game_initialize_board(void);
 
 /**
- * @brief Resetuj hru do pocatecniho stavu
+ * @brief Reset the game to its initial state
  *
- * Vymaze historii, resetuje statistiky a znovu inicializuje sachovnici.
+ * Clears history, resets statistics, and reinitializes the inbox.
  */
 void game_reset_game(void);
 
 /**
- * @brief Spust novou hru
+ * @brief Start a new game
  *
- * Kompletni reset hry vcetne timer systemu.
+ * Complete reset of the game including the system timer.
  */
 void game_start_new_game(void);
 
 /**
- * @brief Nová hra z FEN (jen rozestavení + strana na tahu). Bez kontroly fyzické výchozí pozice.
+ * @brief New game from FEN (only setup + turn side). Without checking the physical default position.
  */
 void game_start_new_game_from_fen(const char *fen);
 
 /**
- * @brief Monotónní verze stavu hry (ETag / If-None-Match na snapshotu).
+ * @brief Monotone version of game state (ETag / If-None-Match on snapshot).
  */
 uint32_t game_get_state_revision(void);
 
 /**
- * @brief Vynuluje stav error recovery (vraceni figurky na blikajici pole).
- * Volat napr. pri zapnuti demo modu, aby demo mohlo hrat i po predchozim
- * chybnem tahu uzivatele.
+ * @brief Resets the error recovery state (returning pieces to the flashing field).
+ * Call, for example, when the demo mode is turned on, so that the demo can play even after the previous one
+ * wrong move by the user.
  */
 void game_reset_error_recovery_state(void);
 
 // ============================================================================
-// UTILITY FUNKCE PRO SACHOVNICI
+// UTILITY FUNCTIONS FOR CABINET
 // ============================================================================
 
 /**
- * @brief Overi zda je pozice platna na sachovnici
+ * @brief Verify if the position is valid on the inbox
  *
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @return true pokud je pozice platna
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @return true if position is valid
  */
 bool game_is_valid_position(int row, int col);
 
 /**
- * @brief Ziskej figurku na dane pozici
+ * @brief Get a figure for the given position
  *
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @return Typ figurky na pozici
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @return The type of the figure at the position
  */
 piece_t game_get_piece(int row, int col);
 
 /**
- * @brief Overi zda je pozice prazdna
+ * @brief Check if the position is empty
  *
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @return true pokud je pozice prazdna
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @return true if position is empty
  */
 bool game_is_empty(int row, int col);
 
 /**
- * @brief Overi zda je figurka bila
+ * @brief Check if the figure is beaten
  *
- * @param piece Figurka k overeni
- * @return true pokud je figurka bila
+ * @param piece The piece to verify
+ * @return true if the figure was beaten
  */
 bool game_is_white_piece(piece_t piece);
 
 /**
- * @brief Overi zda je figurka cerna
+ * @brief Check if the figure is black
  *
- * @param piece Figurka k overeni
- * @return true pokud je figurka cerna
+ * @param piece The piece to verify
+ * @return true if the figure is black
  */
 bool game_is_black_piece(piece_t piece);
 
 /**
- * @brief Overi zda jsou dve figurky stejne barvy
+ * @brief Check if two figures are of the same color
  *
- * @param piece1 Prvni figurka
- * @param piece2 Druha figurka
- * @return true pokud jsou figurky stejne barvy
+ * @param piece1 The first piece
+ * @param piece2 The second piece
+ * @return true if the pieces are the same color
  */
 bool game_is_same_color(piece_t piece1, piece_t piece2);
 
 // ============================================================================
-// FUNKCE PRO VALIDACI TAHU
+// PUSH VALIDATION FUNCTION
 // ============================================================================
 
 /**
- * @brief Validuj tah podle typu figurky
+ * @brief Validate move based on figure type
  *
- * @param move Tah k validaci
- * @param piece Figurka ktera se pohybuje
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @param piece The figure that moves
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_is_valid_move(const chess_move_t *move);
 
 /**
- * @brief Rozsirena validace tahu pro figurku
+ * @brief Expanded move validation for figure
  *
- * @param move Tah k validaci
- * @param piece Figurka
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @param piece The figurine
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_validate_piece_move_enhanced(const chess_move_t *move,
                                                piece_t piece);
 
 /**
- * @brief Validuj tah pescu
+ * @brief Validate sand move
  *
- * @param move Tah k validaci
- * @param piece Pesec
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @param piece The piece
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_validate_pawn_move_enhanced(const chess_move_t *move,
                                               piece_t piece);
 
 /**
- * @brief Validuj tah kone
+ * @brief Validate the horse's move
  *
- * @param move Tah k validaci
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_validate_knight_move_enhanced(const chess_move_t *move);
 
 /**
- * @brief Validuj tah strelce
+ * @brief Validate shooter move
  *
- * @param move Tah k validaci
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_validate_bishop_move_enhanced(const chess_move_t *move);
 
 /**
- * @brief Validuj tah veze
+ * @brief Validate wire pull
  *
- * @param move Tah k validaci
- * @return MOVE_ERROR_NONE pri uspechu, jinak kod chyby
+ * @param move Move to validate
+ * @return MOVE_ERROR_NONE on success, otherwise error code
  */
 move_error_t game_validate_rook_move_enhanced(const chess_move_t *move);
 
 /**
- * @brief Validuj tah damy
+ * @brief Validate a checker move
  *
- * @param move Tah k validaci
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_validate_queen_move_enhanced(const chess_move_t *move);
 
 /**
- * @brief Validuj tah krale
+ * @brief Validate the king's move
  *
- * @param move Tah k validaci
- * @return MOVE_ERROR_NONE pri platnem tahu, jinak kod chyby
+ * @param move Move to validate
+ * @return MOVE_ERROR_NONE for a valid move, otherwise error code
  */
 move_error_t game_validate_king_move_enhanced(const chess_move_t *move);
 
-// Pomocne funkce pro rozsirenou validaci
+// Helper functions for extended validation
 
 /**
- * @brief Overi zda by tah nechal krale v sachu
+ * @brief Check if the move would leave the king in check
  *
- * @param move Tah k overeni
- * @return true pokud by tah nechal krale v sachu
+ * @param move The move to verify
+ * @return true if the move would leave the king in check
  */
 bool game_would_move_leave_king_in_check(const chess_move_t *move);
 
 /**
- * @brief Overi zda je en passant mozny
+ * @brief Verify if en passant is possible
  *
- * @param move Tah k overeni
- * @return true pokud je en passant mozny
+ * @param move The move to verify
+ * @return true if en passant is possible
  */
 bool game_is_en_passant_possible(const chess_move_t *move);
 
 /**
- * @brief Validuj rosadu
+ * @brief Validate dew
  *
- * @param move Tah rosady k validaci
- * @return MOVE_ERROR_NONE pri platne rosade, jinak kod chyby
+ * @param move Dew move to validate
+ * @return MOVE_ERROR_NONE if the cast is valid, otherwise an error code
  */
 move_error_t game_validate_castling(const chess_move_t *move);
 
 /**
- * @brief Overi nedostatecny material pro mat
+ * @brief Verify insufficient mat material
  *
- * @return true pokud je nedostatecny material (automaticka remiza)
+ * @return true if there is insufficient material (automatic draw)
  */
 bool game_is_insufficient_material(void);
 
-// Zobrazeni navodu pro tahy
+// Showing move instructions
 
 /**
- * @brief Zobraz navrzene tahy pro figurku
+ * @brief Display suggested moves for the figure
  *
- * @param row Radek figurky (0-7)
- * @param col Sloupec figurky (0-7)
+ * @param row Row of figurines (0-7)
+ * @param col Column of the figure (0-7)
  */
 void game_show_move_suggestions(uint8_t row, uint8_t col);
 
 /**
- * @brief Ziskej dostupne tahy pro figurku
+ * @brief Get available moves for a figure
  *
- * @param row Radek figurky (0-7)
- * @param col Sloupec figurky (0-7)
- * @param[out] suggestions Pole pro navrzene tahy
- * @param max_suggestions Maximalni pocet navrhu
- * @return Pocet nalezenych tahu
+ * @param row Row of figurines (0-7)
+ * @param col Column of the figure (0-7)
+ * @param[out] suggestions Field for suggested moves
+ * @param max_suggestions Maximum number of suggestions
+ * @return The number of moves found
  */
 uint32_t game_get_available_moves(uint8_t row, uint8_t col,
                                   move_suggestion_t *suggestions,
                                   uint32_t max_suggestions);
 
 // ============================================================================
-// FUNKCE PRO PROVEDENI TAHU
+// FUNCTION TO MAKE A MOVE
 // ============================================================================
 
 /**
- * @brief Proved sachovy tah
+ * @brief Made a sach move
  *
- * Provede tah pokud je platny. Aktualizuje sachovnici, historii
- * a posle LED feedback.
+ * Performs the move if valid. Updates inbox, history
+ * and post LED feedback.
  *
- * @param move Tah k provedeni
- * @return true pokud byl tah uspesne proveden
+ * @param move The move to perform
+ * @return true if the move was made successfully
  */
 bool game_execute_move(const chess_move_t *move);
 
 // ============================================================================
-// FUNKCE PRO STAV HRY
+// GAME STATE FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Ziskej aktualni stav hry
+ * @brief Get the current state of the game
  *
- * @return Aktualni stav hry (GAME_STATE_IDLE, GAME_STATE_PLAYING, atd.)
+ * @return The current state of the game (GAME_STATE_IDLE, GAME_STATE_PLAYING, etc.)
  */
 game_state_t game_get_state(void);
 
 /**
- * @brief Ziskej aktualniho hrace na tahu
+ * @brief Get the current player on a turn
  *
- * @return Aktualni hrac (PLAYER_WHITE nebo PLAYER_BLACK)
+ * @return The current player (PLAYER_WHITE or PLAYER_BLACK)
  */
 player_t game_get_current_player(void);
 
 /**
- * @brief Zapne/vypne LED nápovědu guided capture (herní logika zůstává aktivní)
+ * @brief Turns guided capture LED on/off (game logic remains active)
  */
 void game_set_guided_capture_hints_enabled(bool enabled);
 
 /**
- * @brief Vrátí stav LED nápovědy guided capture
+ * @brief Returns the state of the guided capture help LED
  */
 bool game_get_guided_capture_hints_enabled(void);
 
 /**
- * @brief Matrix: povolit druhé UP v řadě (oběť v ruce + útočník, nebo 3-krokové braní).
- * @details Bez toho matrix_detect_moves() vyhodnotí stav jako ambiguous a zapne guard.
+ * @brief Matrix: enable second UP in a row (victim in hand + attacker, or 3-step take).
+ * @details Without it, matrix_detect_moves() evaluates the status as ambiguous and turns on the guard.
  */
 bool game_matrix_allow_second_sequential_lift(void);
 
 /**
- * @brief Úroveň LED nápovědy při hře (1 = minimum … 5 = plná).
- * @details Řídí zvýraznění tahů, šachu na LED, guided capture atd.
+ * @brief Level of LED help while playing (1 = minimum … 5 = full).
+ * @details Controls move highlighting, LED chess, guided capture, etc.
  */
 void game_set_led_guidance_level(uint8_t level);
 uint8_t game_get_led_guidance_level(void);
 
-/** Web tutoriál rozestavení z prázdné desky (LED + návod). */
+/** Web tutorial assembly from a blank board (LED + instructions). */
 void game_enter_board_setup_tutorial(void);
 void game_exit_board_setup_tutorial(bool apply_full_start_position);
 bool game_is_board_setup_tutorial_active(void);
-/** Fyzická obsazenost řádků 0–1 a 6–7 plné, 2–5 prázdné (matrix). */
+/** Physical occupancy of rows 0–1 and 6–7 full, 2–5 empty (matrix). */
 bool game_is_physical_board_starting_occupancy(void);
-/** Ukončí tutoriál a spustí novou hru jen pokud fyzická pozice sedí. */
+/** Ends the tutorial and starts a new game only if the physical position fits. */
 bool game_finish_board_setup_tutorial_from_web(void);
 bool game_puzzle_start(uint8_t puzzle_id);
 void game_puzzle_cancel(void);
@@ -502,13 +502,13 @@ const char *game_opening_opponent_mode_key(void);
 void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset);
 
 /**
- * @brief Matrix guard: aktivni pauza pri nesouladu matice s logickou deskou.
- * @details true = uzivatel musi srovnat fyzickou desku pred dalsimi tahy.
+ * @brief Matrix guard: active pause when the matrix does not match the logic board.
+ * @details true = user must flatten the physical board before further moves.
  */
 bool game_is_matrix_guard_active(void);
 
 /**
- * @brief Pocet poli s konfliktem (matice vs. ocekavany stav po obnove).
+ * @brief Count of fields with conflict (array vs. expected state after refresh).
  */
 uint8_t game_get_matrix_guard_conflict_count(void);
 
@@ -522,31 +522,31 @@ uint32_t game_get_matrix_guard_dropped_mask_low(void);
 uint32_t game_get_matrix_guard_dropped_mask_high(void);
 
 /**
- * @brief Nouzové zrušení matrix guard (game + matrix vrstva) a obnovení LED nápovědy.
- * @details Použij jen když je deska fyzicky srovnaná, ale guard zůstal viset.
- *          Preferuj automatické vyčištění po srovnání figurek.
+ * @brief Emergency cancel matrix guard (game + matrix layer) and restore LED hint.
+ * @details Use only when the board is physically level, but the guard is left hanging.
+ * Prefer automatic cleaning after comparing figures.
  */
 void game_force_clear_matrix_guard(void);
 
 /**
- * @brief true pokud game_load_snapshot_from_nvs() v game_task_start uspesne nacetl hru.
+ * @brief true if game_load_snapshot_from_nvs() in game_task_start successfully loaded the game.
  * @see game_was_boot_new_game_triggered()
  */
 bool game_was_snapshot_loaded_on_boot(void);
 
 /**
- * @brief true pokud byl pouzit minimalni snapshot (min) misto plneho (full).
+ * @brief true if a minimal snapshot (min) was used instead of a full one (full).
  */
 bool game_is_snapshot_fallback_used(void);
 
-/** @brief Selhani obnovy snapshotu (CRC / format). */
+/** @brief Snapshot restore failure (CRC / format). */
 bool game_has_snapshot_restore_failure(void);
 
-/** @brief Posledni ulozeni snapshotu do NVS selhalo. */
+/** @brief Last snapshot save to NVS failed. */
 bool game_has_snapshot_save_failure(void);
 
 /**
- * @brief Po obnove z NVS: fyzicka deska nesedi s ulozenou pozici (vyzva k resync).
+ * @brief After restoring from NVS: the physical board does not fit the saved position (prompt to resync).
  */
 bool game_is_resync_required_after_restore(void);
 
@@ -556,42 +556,42 @@ bool game_is_resync_required_after_restore(void);
 bool game_was_boot_new_game_triggered(void);
 
 /**
- * @brief Ziskej pocet provedenych tahu
+ * @brief Get the number of moves made
  *
- * @return Pocet tahu od zacatku hry
+ * @return The number of turns since the start of the game
  */
 uint32_t game_get_move_count(void);
 
 /**
- * @brief Vypis aktualni pozici sachovnice
+ * @brief List the current position of the inbox
  *
- * Zobrazi sachovnici v ASCII formatu s popisky.
+ * Displays the inbox in ASCII format with labels.
  */
 void game_print_board(void);
 
 /**
- * @brief Ziskej jmeno figurky jako retezec
+ * @brief Get the figure name as a string
  *
- * @param piece Figurka
- * @return Nazev figurky (napr. "Bily pesec", "Cerna dama")
+ * @param piece The figurine
+ * @return Name of the figure (e.g. "Bily pesec", "Black lady")
  */
 const char *game_get_piece_name(piece_t piece);
 
 // ============================================================================
-// FUNKCE PRO ZPRACOVANI PRIKAZU
+// COMMAND PROCESSING FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Zpracuj game prikazy z fronty
+ * @brief Process game commands from the queue
  *
- * Cte prikazy z game_command_queue a vykonava je.
+ * Reads commands from game_command_queue and executes them.
  */
 void game_process_commands(void);
 
 /**
  * @brief Zpracuj neplatny tah
  *
- * Zobrazi chybovou zpravu a LED feedback pro neplatny tah.
+ * Displays an error message and LED feedback for an invalid move.
  *
  * @param error Typ chyby
  * @param move Neplatny tah
@@ -599,86 +599,86 @@ void game_process_commands(void);
 void game_handle_invalid_move(move_error_t error, const chess_move_t *move);
 
 /**
- * @brief Zobraz animaci zmeny hrace
+ * @brief Display the game change animation
  *
- * @param previous_player Predchozi hrac
- * @param current_player Aktualni hrac
+ * @param previous_player Previous player
+ * @param current_player The current player
  */
 void game_show_player_change_animation(player_t previous_player,
                                        player_t current_player);
 
 // ============================================================================
-// TESTOVACI FUNKCE PRO ANIMACE
+// TEST FUNCTIONS FOR ANIMATIONS
 // ============================================================================
 
-/** @brief Testuj animaci tahu */
+/** @brief Test the move animation */
 void game_test_move_animation(void);
-/** @brief Testuj animaci zmeny hrace */
+/** @brief Test the player change animation */
 void game_test_player_change_animation(void);
-/** @brief Testuj animaci rosady */
+/** @brief Test dewdrop animation */
 void game_test_castle_animation(void);
-/** @brief Testuj animaci promoci */
+/** @brief Test graduation animation */
 void game_test_promote_animation(void);
 /** @brief Testuj animaci konce hry */
 void game_test_endgame_animation(void);
 
 // ============================================================================
-// PRIME LED FUNKCE (bez front) - POUZIVANO V game_led_direct.c
+// PRIME LED FEATURE (no queues) - USED IN game_led_direct.c
 // ============================================================================
 
-/** @brief Zobraz tah primo pres LED */
+/** @brief Show move directly via LED */
 void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row,
                            uint8_t to_col);
-/** @brief Zobraz sach primo pres LED */
+/** @brief Show check directly via LED */
 void game_show_check_direct(uint8_t king_row, uint8_t king_col);
-/** @brief Zobraz zmenu hrace primo pres LED */
+/** @brief Display the game change directly via LED */
 void game_show_player_change_direct(player_t current_player);
-/** @brief Vymaz zvyrazneni primo pres LED */
+/** @brief Clear highlight directly via LED */
 void game_clear_highlights_direct(void);
 
 // ============================================================================
-// JEMNE ANIMACNI FUNKCE - POUZIVANO V game_led_direct.c
+// SMOOTH ANIMATION FEATURE - USED IN game_led_direct.c
 // ============================================================================
 
-/** @brief Zobraz zvednuti figurky primo pres LED */
+/** @brief Display the raised figure directly through the LED */
 void game_show_piece_lift_direct(uint8_t row, uint8_t col);
-/** @brief Zobraz platne tahy primo pres LED */
+/** @brief Display valid moves directly via LED */
 void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count);
 
 // ============================================================================
-// ERROR HANDLING LED FUNKCE - POUZIVANO V game_led_direct.c
+// ERROR HANDLING LED FUNCTION - USED IN game_led_direct.c
 // ============================================================================
 
-/** @brief Zobraz chybu neplatneho tahu */
+/** @brief Display an invalid move error */
 void game_show_invalid_move_error(uint8_t from_row, uint8_t from_col,
                                   uint8_t to_row, uint8_t to_col);
-/** @brief Zobraz chybu tlacitka */
+/** @brief Show button error */
 void game_show_button_error(uint8_t button_id);
-/** @brief Zobraz navod pro rosadu */
+/** @brief Show instructions for dew */
 void game_show_castling_guidance(uint8_t king_row, uint8_t king_col,
                                  uint8_t rook_row, uint8_t rook_col,
                                  bool is_kingside);
 
 /**
- * @brief Overi podminky sachu/matu
+ * @brief Verify checkmate/checkmate conditions
  *
- * Kontroluje zda je kral v sachu, matu nebo patu.
+ * Checks whether the king is in check, checkmate or tail.
  */
 void game_check_game_conditions(void);
 
 /**
- * @brief Prevede souradnice sachovnice na retezec pole
+ * @brief Converts the coordinates of a box to an array string
  *
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @param[out] square Vystupni retezec pole (napr. "e2")
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @param[out] square Output array string (eg "e2")
  */
 void game_coords_to_square(uint8_t row, uint8_t col, char *square);
 
 /**
- * @brief Vypis stav hry
+ * @brief List the state of the game
  *
- * Zobrazi detailni informace o stavu hry (hrac na tahu, pocet tahu, atd.).
+ * Displays detailed information about the state of the game (player on turn, number of turns, etc.).
  */
 void game_print_status(void);
 
@@ -696,50 +696,50 @@ uint32_t game_get_black_wins(void);
 uint32_t game_get_draws(void);
 /** @brief Ziskej celkovy pocet her */
 uint32_t game_get_total_games(void);
-/** @brief Ziskej textovy retezec stavu hry */
+/** @brief Get the game state text string */
 const char *game_get_game_state_string(void);
-/** @brief Vypocitej hash pozice pro detekci opakovani */
+/** @brief Compute hash positions for repetition detection */
 uint32_t game_calculate_position_hash(void);
-/** @brief Overi zda byla pozice opakovana */
+/** @brief Verify if the position has been repeated */
 bool game_is_position_repeated(void);
-/** @brief Pridej pozici do historie pro detekci opakovani */
+/** @brief Add position to history for repeat detection */
 void game_add_position_to_history(void);
 /** @brief Vypocitej materialovou rovnovahu */
 int game_calculate_material_balance(int *white_material, int *black_material);
 /** @brief Ziskej textovy retezec material balance */
 void game_get_material_string(char *buffer, size_t buffer_size);
-/** @brief Overi zda je kral v sachu */
+/** @brief Check if the king is in chess */
 bool game_is_king_in_check(player_t player);
-/** @brief Overi zda ma hrac legalni tahy */
+/** @brief Check if the player has legal moves */
 bool game_has_legal_moves(player_t player);
 /** @brief Overi podminky konce hry */
 game_state_t game_check_end_game_conditions(void);
 
 // ============================================================================
-// ZPRACOVANI MATRIX UDALOSTI
+// EVENT MATRIX PROCESSED
 // ============================================================================
 
 /**
- * @brief Zpracuj matrix udalosti (tahy)
+ * @brief Process event matrix (turns)
  *
- * Cte udalosti z matrix_event_queue a zpracovava detekci tahu.
+ * Reads events from matrix_event_queue and handles pull detection.
  */
 void game_process_matrix_events(void);
 
 /**
- * @brief Zvyrazni vsechny pohyblive figurky aktualniho hrace
+ * @brief Highlight all moving pieces of the current player
  *
- * Zobrazi jemnou zlutou animaci na vsech figurkach ktere se mohou hybat.
+ * Display a soft yellow animation on all figures that can move.
  */
 void game_highlight_movable_pieces(void);
 
 /**
- * @brief Detekuj zda jsou figurky ve vychozi pozici
+ * @brief Detect if the figures are in their default position
  *
- * Kontroluje zda jsou figurky rozlozeny v radcich 1, 2, 7, 8 (startovni
- * pozice).
+ * Checks whether the pieces are spread out in rows 1, 2, 7, 8 (starting room
+ * position).
  *
- * @return true pokud jsou figurky ve vychozich pozicich
+ * @return true if the pieces are in their default positions
  */
 bool game_detect_new_game_setup(void);
 
@@ -748,33 +748,33 @@ bool game_detect_new_game_setup(void);
 // ============================================================================
 
 /**
- * @brief Overi zda je aktivni animace rosady
+ * @brief Check if dewdrop animation is active
  *
- * @return true pokud ceka na tah vezeanimace rosady
+ * @return true if it is waiting for the turn of the dew animation
  */
 bool game_is_castle_animation_active(void);
 
 /**
- * @brief Overi zda se ocekava rosada
+ * @brief Check if dew is expected
  *
- * @return true pokud je kral zvednuti a chysta se rosada
+ * @return true if the king is up and about to rosa
  */
 bool game_is_castling_expected(void);
 
 /**
- * @brief Dokonci animaci rosady pri tahu vezeм
+ * @brief Complete the dewdrop animation when moving
  *
- * @param from_row Zdrojovy radek veze (0-7)
- * @param from_col Zdrojovy sloupec veze (0-7)
- * @param to_row Cilovy radek veze (0-7)
- * @param to_col Cilovy sloupec veze (0-7)
- * @return true pokud byla rosada uspesne dokoncena
+ * @param from_row The source rows of the vehicle (0-7)
+ * @param from_col The source column of the carrier (0-7)
+ * @param to_row Destination rows (0-7)
+ * @param to_col The destination column of the carriage (0-7)
+ * @return true if the rosa was completed successfully
  */
 bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
                                     uint8_t to_row, uint8_t to_col);
 
 /**
- * @brief Spust opakovani animace veze pro rosadu
+ * @brief Start looping the rope animation for the dewdrop
  */
 void game_start_repeating_rook_animation(void);
 
@@ -784,24 +784,24 @@ void game_start_repeating_rook_animation(void);
 void game_stop_repeating_rook_animation(void);
 
 /**
- * @brief Zpracuj DROP prikaz (DN)
+ * @brief Process the DROP command (DN)
  *
- * @param cmd Drop prikaz s pozici
+ * @param cmd Drop command with position
  */
 void game_process_drop_command(const chess_move_command_t *cmd);
 
 /**
- * @brief Zpracuj PICKUP prikaz (UP)
+ * @brief Process the PICKUP display (UP)
  */
 void game_process_pickup_command(const chess_move_command_t *cmd);
 
 /**
- * @brief Zpracuj CASTLE prikaz
+ * @brief Process the CASTLE statement
  */
 void game_process_castle_command(const chess_move_command_t *cmd);
 
 /**
- * @brief Zpracuj PROMOTE prikaz
+ * @brief Process the PROMOTE command
  */
 void game_process_promote_command(const chess_move_command_t *cmd);
 
@@ -825,32 +825,32 @@ void rook_animation_timer_callback(TimerHandle_t xTimer);
 void game_highlight_invalid_target_area(uint8_t row, uint8_t col);
 
 /**
- * @brief Zvyrazni platne tahy pro specifickou figurku
+ * @brief Highlight valid moves for a specific figure
  *
- * @param row Radek figurky (0-7)
- * @param col Sloupec figurky (0-7)
+ * @param row Row of figurines (0-7)
+ * @param col Column of the figure (0-7)
  */
 void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col);
 
 // ============================================================================
-// ENHANCED CASTLING SYSTEM FUNKCE
+// ENHANCED CASTLING SYSTEM FEATURES
 // ============================================================================
 
 /**
- * @brief Zobraz LED navod pro tah veze pri rosade
+ * @brief Display the LED guide for the cable pull during the rosade
  */
 void game_show_castling_rook_guidance();
 
 /**
- * @brief Zobraz animaci dokonceni rosady
+ * @brief Show an animation of the finished dewdrop
  */
 void show_castling_completion_animation();
 
 /**
- * @brief Zobraz blikajici cervenou LED pro chybu neplatneho tahu
+ * @brief Display a flashing red LED for an invalid move error
  *
- * @param error_row Radek neplatne pozice (0-7)
- * @param error_col Sloupec neplatne pozice (0-7)
+ * @param error_row Row invalid position (0-7)
+ * @param error_col Invalid position column (0-7)
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row,
                                              uint8_t error_col);
@@ -860,117 +860,117 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row,
 // ============================================================================
 
 /**
- * @brief Exportuj stav timeru do JSON retezce
+ * @brief Export the timer state to a JSON string
  *
- * @param[out] buffer Vystupni buffer pro JSON
- * @param size Velikost bufferu
- * @return ESP_OK pri uspechu
+ * @param[out] buffer Output buffer for JSON
+ * @param size Buffer size
+ * @return ESP_OK on success
  */
 esp_err_t game_get_timer_json(char *buffer, size_t size);
 
 /**
- * @brief Spust timer pro tah aktualniho hrace
+ * @brief Start the timer for the current player's turn
  *
- * @param is_white_turn Je na tahu bily?
- * @return ESP_OK pri uspechu
+ * @param is_white_turn Is the white on turn?
+ * @return ESP_OK on success
  */
 esp_err_t game_start_timer_move(bool is_white_turn);
 
 /**
- * @brief Ukonci timer pro tah
+ * @brief End the timer for the turn
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_end_timer_move(void);
 
 /**
- * @brief Pozastav herni timer
+ * @brief Pause the game timer
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_pause_timer(void);
 
 /**
- * @brief Obnov herni timer
+ * @brief Reset game timer
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_resume_timer(void);
 
 /**
- * @brief Resetuj herni timer
+ * @brief Reset the game timer
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_reset_timer(void);
 
 /**
- * @brief Ziskej zbyvajici cas hrace
+ * @brief Get the player's remaining time
  *
- * @param is_white_turn Je na tahu bily?
- * @return Zbyvajici cas v milisekundach
+ * @param is_white_turn Is the white on turn?
+ * @return The remaining time in milliseconds
  */
 uint32_t game_get_remaining_time(bool is_white_turn);
 
 /**
- * @brief Inicializuj timer system v game tasku
+ * @brief Initialize the timer system in the game task
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_init_timer_system(void);
 
 /**
- * @brief Zpracuj timer prikazy z fronty
+ * @brief Process timer commands from the queue
  *
- * @param cmd Game prikaz s timer operaci
- * @return ESP_OK pri uspechu
+ * @param cmd Game command with timer operation
+ * @return ESP_OK on success
  */
 esp_err_t game_process_timer_command(const chess_move_command_t *cmd);
 
 /**
- * @brief Zpracuj vyprseni casu
+ * @brief Handle the timeout
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_handle_time_expiration(void);
 
 /**
- * @brief Aktualizuj zobrazeni timeru a overi varovani
+ * @brief Update the timer display and verify the warning
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t game_update_timer_display(void);
 
 /**
- * @brief Overi zda je timer aktivni
+ * @brief Verify if the timer is active
  *
- * @return true pokud je timer aktivni
+ * @return true if the timer is active
  */
 bool game_is_timer_active(void);
 
 /**
- * @brief Zjisti zda je pro hrace dostupna promoce
+ * @brief Find out if graduation is available for players
  *
- * @param player Hrac (PLAYER_WHITE nebo PLAYER_BLACK)
- * @return true pokud promoce ceka na dokonceni pro daneho hrace
+ * @param player Player (PLAYER_WHITE or PLAYER_BLACK)
+ * @return true if graduation is pending completion for the given player
  */
 bool game_is_promotion_available(player_t player);
 
 // ============================================================================
-// NASTAVENI HLÍDÁNÍ POČÁTEČNÍ POZICE
+// INITIAL POSITION MONITORING SETUP
 // ============================================================================
 
 /**
- * @brief Nastaví hlídání počáteční pozice
+ * @brief Sets the initial position watch
  *
- * @param enabled true pro zapnutí, false pro vypnutí
+ * @param enabled true to enable, false to disable
  */
 void game_set_starting_position_check(bool enabled);
 
 /**
- * @brief Vrací stav hlídání počáteční pozice
+ * @brief Returns the initial position guard status
  *
- * @return true pokud je hlídání zapnuto, jinak false
+ * @return true if watchdog is on, false otherwise
  */
 bool game_get_starting_position_check(void);
 

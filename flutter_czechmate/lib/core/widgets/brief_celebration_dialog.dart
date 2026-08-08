@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_motion.dart';
 
-/// Krátký dialog úspěchu (scale + fade) — stejný jazyk animace jako puzzle oslava.
+/// Short success dialog (scale + fade) — same animation language as puzzle celebration.
 Future<void> showBriefCelebrationDialog({
   required BuildContext context,
   required Widget icon,

@@ -136,7 +136,7 @@ static void ws_broadcast_timer_cb(void *arg) {
 #endif /* CONFIG_HTTPD_WS_SUPPORT */
 
 // ============================================================================
-// WEBSOCKET (snapshot push — stejný JSON jako GET /api/game/snapshot)
+// WEBSOCKET (snapshot push — same JSON as GET /api/game/snapshot)
 // ============================================================================
 
 void web_server_websocket_init(void) {
@@ -160,7 +160,7 @@ void web_server_websocket_init(void) {
   }
   czechmate_ensure_snapshot_notify_queue();
   ESP_LOGI(TAG,
-           "WebSocket: watchdog broadcast 3 s + okamžitý push při změně stavu");
+           "WebSocket: watchdog broadcast 3 s + immediate push on state change");
 #else
   ESP_LOGD(TAG, "WebSocket disabled (CONFIG_HTTPD_WS_SUPPORT)");
 #endif

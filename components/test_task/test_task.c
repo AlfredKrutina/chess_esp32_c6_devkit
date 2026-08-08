@@ -1,29 +1,29 @@
 /**
  * @file test_task.c
- * @brief ESP32-C6 Chess System v1.8.0 - Implementace Test tasku
+ * @brief ESP32-C6 Chess System v1.8.0 - Implementation of Test taska
  * 
- * Tento task poskytuje komplexni testovaci schopnosti systemu:
- * - Testovani hardware komponent
- * - Testovani systemove integrace
+ * This task provides comprehensive system testing capabilities:
+ * - Testing of hardware components
+ * - System integration testing
  * - Performance benchmarking
- * - Diagnosticke funkce
- * - Reportovani vysledku testu
+ * - Diagnostic function
+ * - Test result reporting
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * Tento task obsahuje vsechny testy pro overeni funkcnosti systemu.
- * Umoznuje testovani jednotlivych komponent i celeho systemu.
- * Poskytuje detailni metriky a diagnostiku problemu.
+ * This task contains all tests for verifying the functionality of the system.
+ * Enables testing of individual components and the entire system.
+ * Provides detailed metrics and problem diagnosis.
  * 
- * Funkce:
- * - Automatizovane testovaci sady
- * - Manualni vykonavani testu
- * - Performance metriky
- * - Detekce a reportovani chyb
- * - Logovani vysledku testu
+ * Features:
+ * - Automated test suites
+ * - Manual execution of the test
+ * - Performance metrics
+ * - Error detection and reporting
+ * - Logging the test result
  */
 
 

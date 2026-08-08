@@ -1,5 +1,5 @@
-# Doxyfile pro ESP32-C6 CZECHMATE v1.8.0
-# Generování finální dokumentace projektu (číslo verze sladit s README / CMake při release)
+# Doxyfile for ESP32-C6 CZECHMATE v1.8.0
+# Generate final project documentation (keep version number aligned with README / CMake on release)
 
 #---------------------------------------------------------------------------
 # Project related configuration options
@@ -7,12 +7,12 @@
 
 PROJECT_NAME           = "CZECHMATE"
 PROJECT_NUMBER         = "1.8.0"
-PROJECT_BRIEF          = "CzechMate — šachový systém (FW 1.8.0): LED deska, V1 reed matice v repu a na videu; komerční V2 s Hall senzory — viz docs/reference/HARDWARE_VERZE.md"
+PROJECT_BRIEF          = "CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md"
 PROJECT_LOGO           = 
 OUTPUT_DIRECTORY       = docs/doxygen
 CREATE_SUBDIRS         = NO
 ALLOW_UNICODE_NAMES     = NO
-OUTPUT_LANGUAGE        = Czech
+OUTPUT_LANGUAGE        = English
 BRIEF_MEMBER_DESC      = YES
 REPEAT_BRIEF           = YES
 ABBREVIATE_BRIEF       = "The $name class" \

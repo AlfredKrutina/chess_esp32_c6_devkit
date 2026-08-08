@@ -1,30 +1,30 @@
 /**
  * @file streaming_output.h
- * @brief ESP32-C6 Chess System - Hlavicka Streaming Output Systemu
+ * @brief ESP32-C6 Chess System - Streaming Output System header
  * 
- * Nahradi pameti intenzivni budovani stringu primym streaming vystupem:
- * - Eliminuje potrebu velkych bufferu (usetri 2KB+ na velky vystup)
- * - Snizuje fragmentaci pameti
- * - Umoznuje real-time postupny vystup
- * - Podporuje vice vystupnich cilu (UART, Web, Queue)
+ * Replace memory-intensive string building with direct streaming output:
+ * - Eliminates the need for large buffers (save 2KB+ for large output)
+ * - Reduces memory fragmentation
+ * - Enables real-time step-by-step output
+ * - Supports multiple output targets (UART, Web, Queue)
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-01-27
  * 
  * @details
- * Streaming Output System umoznuje efektivni vypis velkych textu bez
- * budovani velkych stringu v pameti. Posila data primo do vystupu,
- * coz eliminuje potrebu velkych bufferu a zlepsuje performance.
+ * Streaming Output System enables efficient output of large texts without
+ * building large strings in memory. It sends data directly to the output,
+ * which eliminates the need for large buffers and improves performance.
  * 
- * @par Priklad pouziti:
+ * @par Example to use:
  * @code
- *   streaming_output_init();
- *   stream_board_header();
- *   for (int row = 7; row >= 0; row--) {
- *       stream_board_row(row, piece_chars);
- *   }
- *   stream_board_footer();
+ * streaming_output_init();
+ * stream_board_header();
+ * for (int row = 7; row >= 0; row--) {
+ * stream_board_row(row, piece_chars);
+ * }
+ * stream_board_footer();
  * @endcode
  */
 
@@ -47,7 +47,7 @@ extern "C" {
 
 /** @brief Velikost radkoveho bufferu (misto velkych bufferu) */
 #define STREAM_LINE_BUFFER_SIZE     256
-/** @brief Maximalni pocet soucastnych vystupnich cilu */
+/** @brief Maximum number of current output targets */
 #define STREAM_MAX_OUTPUT_TARGETS   4
 
 // ============================================================================
@@ -55,12 +55,12 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Typy vystupnich proudu
+ * @brief Output current types
  */
 typedef enum {
-    STREAM_UART = 0,    ///< UART/USB Serial JTAG vystup
-    STREAM_WEB,         ///< Web server HTTP odpoved
-    STREAM_QUEUE        ///< FreeRTOS fronta vystup
+    STREAM_UART = 0,    ///< UART/USB Serial JTAG output
+    STREAM_WEB,         ///< Web server HTTP response
+    STREAM_QUEUE        ///< FreeRTOS queue exit
 } stream_type_t;
 
 /**
@@ -72,14 +72,14 @@ typedef enum {
 } stream_line_ending_t;
 
 /**
- * @brief Konfigurace streaming vystupu
+ * @brief Configuration of streaming output
  */
 typedef struct {
-    stream_type_t type;              ///< Typ vystupniho proudu
+    stream_type_t type;              ///< Output current type
     int uart_port;                   ///< Cislo UART portu (pro UART proudy)
     void* web_client;                ///< Handle web klienta (pro web proudy)
     QueueHandle_t queue;             ///< Handle fronty (pro queue proudy)
-    bool auto_flush;                 ///< Automaticky flush po zapisu
+    bool auto_flush;                 ///< Auto flush after write
     stream_line_ending_t line_ending;///< Typ konce radku
 } streaming_output_t;
 
@@ -95,197 +95,197 @@ typedef struct {
 } streaming_stats_t;
 
 // ============================================================================
-// INICIALIZACNI FUNKCE
+// INITIALIZATION FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializuj streaming output system
+ * @brief Initialize the streaming output system
  * 
- * Vytvori mutex pro thread-safe pristup a nastavi vychozi vystup na UART.
+ * Create a mutex for thread-safe access and set the default output to the UART.
  * 
- * @return ESP_OK pri uspechu, ESP_ERR_NO_MEM pri selhani vytvoreni mutexu
+ * @return ESP_OK on success, ESP_ERR_NO_MEM on failure of mutex creation
  */
 esp_err_t streaming_output_init(void);
 
 /**
  * @brief Deinicializuj streaming output system
  * 
- * Uvolni mutex a vymaze interni stav.
+ * Release the mutex and clear the internal state.
  */
 void streaming_output_deinit(void);
 
 // ============================================================================
-// FUNKCE PRO KONFIGURACI VYSTUPU
+// OUTPUT CONFIGURATION FUNCTION
 // ============================================================================
 
 /**
- * @brief Nastav UART jako vystupni cil
+ * @brief Set UART as output target
  * 
- * @param uart_port Cislo UART portu (obvykle 0 pro USB Serial JTAG)
- * @return ESP_OK pri uspechu, ESP_ERR_TIMEOUT pri selhani ziskani mutexu
+ * @param uart_port UART port number (usually 0 for USB Serial JTAG)
+ * @return ESP_OK on success, ESP_ERR_TIMEOUT on mutex acquisition failure
  */
 esp_err_t streaming_set_uart_output(int uart_port);
 
 /**
- * @brief Nastav web klienta jako vystupni cil
+ * @brief Set the client website as the output target
  * 
- * @param web_client Handle web klienta (implementacne specificky)
- * @return ESP_OK pri uspechu, ESP_ERR_TIMEOUT pri selhani ziskani mutexu
+ * @param web_client Web client handle (implementation specific)
+ * @return ESP_OK on success, ESP_ERR_TIMEOUT on mutex acquisition failure
  */
 esp_err_t streaming_set_web_output(void* web_client);
 
 /**
- * @brief Nastav FreeRTOS frontu jako vystupni cil
+ * @brief Set the FreeRTOS queue as output target
  * 
- * @param queue Handle fronty pro posilani vystupnich zprav
- * @return ESP_OK pri uspechu, ESP_ERR_TIMEOUT pri selhani ziskani mutexu
+ * @param queue Handle of the queue for sending outgoing messages
+ * @return ESP_OK on success, ESP_ERR_TIMEOUT on mutex acquisition failure
  */
 esp_err_t streaming_set_queue_output(QueueHandle_t queue);
 
 // ============================================================================
-// ZAKLADNI STREAMING FUNKCE
+// ESTABLISH STREAMING FEATURE
 // ============================================================================
 
 /**
- * @brief Zapis formatovany retezec do aktualniho vystupniho proudu
+ * @brief Write the formatted string to the current output stream
  * 
- * @param format Formatovaci retezec (printf styl)
- * @param ... Promenne argumenty pro formatovaci retezec
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param format Format string (printf style)
+ * @param ... Variable arguments for the format string
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_printf(const char* format, ...) __attribute__((format(printf, 1, 2)));
 
 /**
- * @brief Zapis surova data do aktualniho vystupniho proudu
+ * @brief Write raw data to the current output stream
  * 
- * @param data Data k zapsani
- * @param len Delka dat v bajtech
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param data Data to write
+ * @param len Data length in bytes
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_write(const char* data, size_t len);
 
 /**
- * @brief Zapis retezec s koncem radku do aktualniho vystupniho proudu
+ * @brief Writes a line-ending string to the current output stream
  * 
- * @param data Retezec k zapsani (bez konce radku)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param data String to write (no end of line)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_writeln(const char* data);
 
 // ============================================================================
-// UTILITY FUNKCE
+// UTILITY FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Flush vystupni proud
+ * @brief Flush flush the stream
  * 
- * Zajisti ze vsechna data jsou poslana do vystupu.
+ * Ensure that all data is sent to the output.
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_flush(void);
 
 /**
- * @brief Zapni/vypni automaticky flush po kazdem zapisu
+ * @brief Enable/disable automatic flush after each write
  * 
- * @param enabled true pro zapnuti auto-flush, false pro vypnuti
- * @return ESP_OK pri uspechu
+ * @param enabled true to enable auto-flush, false to disable
+ * @return ESP_OK on success
  */
 esp_err_t stream_set_auto_flush(bool enabled);
 
 /**
- * @brief Nastav typ konce radku pro writeln operace
+ * @brief Set the end-of-line type for writeln operations
  * 
- * @param ending Typ konce radku (STREAM_LF nebo STREAM_CRLF)
- * @return ESP_OK pri uspechu
+ * @param ending Line ending type (STREAM_LF or STREAM_CRLF)
+ * @return ESP_OK on success
  */
 esp_err_t stream_set_line_ending(stream_line_ending_t ending);
 
 // ============================================================================
-// VYSOKOUROVNOVE SACHOVE SPECIFICKE STREAMING FUNKCE
+// HIGH-LEVEL SACH SPECIFIC STREAMING FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Streamuj hlavicku sachovnice (popisky sloupcu a horni okraj)
+ * @brief Stream inbox header (column labels and top border)
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_board_header(void);
 
 /**
- * @brief Streamuj jeden radek sachovnice
+ * @brief Stream a single row of a box
  * 
- * @param row Cislo radku (0-7, kde 0=rank 1, 7=rank 8)
- * @param pieces Retezec 8 znaku reprezentujicich figurky v tomto radku
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param row Row number (0-7, where 0=rank 1, 7=rank 8)
+ * @param pieces A string of 8 characters representing the pieces in this row
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_board_row(int row, const char* pieces);
 
 /**
- * @brief Streamuj paticku sachovnice (spodni okraj a popisky sloupcu)
+ * @brief Stream the box footer (bottom border and column labels)
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_board_footer(void);
 
 /**
- * @brief Streamuj hlavicku LED sachovnice s emoji indikatory
+ * @brief Stream LED box header with emoji indicators
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_led_board_header(void);
 
 /**
- * @brief Streamuj jeden radek LED sachovnice s barevnymi emoji indikatory
+ * @brief Stream a single line LED box with colorful emoji indicators
  * 
- * @param row Cislo radku (0-7)
- * @param led_colors Pole 64 LED barev (RGB hodnoty)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param row Row number (0-7)
+ * @param led_colors Array of 64 LED colors (RGB values)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t stream_led_board_row(int row, const uint32_t* led_colors);
 
 // ============================================================================
-// STATUS A STATISTICKE FUNKCE
+// STATUS AND STATISTICAL FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Vypis statistiky streaming vystupu do logu
+ * @brief Output of streaming output statistics to the log
  */
 void streaming_print_stats(void);
 
 /**
- * @brief Ziskej statistiky streaming vystupu
+ * @brief Get streaming performance statistics
  * 
- * @return Struktura s aktualnimi statistikami
+ * @return Structure with current statistics
  */
 streaming_stats_t streaming_get_stats(void);
 
 /**
- * @brief Resetuj vsechny statisticke citace
+ * @brief Reset all statistical citations
  */
 void streaming_reset_stats(void);
 
 /**
- * @brief Overi zda je streaming output system ve zdravem stavu
+ * @brief Verify if the streaming output system is in a healthy state
  * 
- * @return true pokud je zdravy, false pokud jsou detekovany problemy
+ * @return true if healthy, false if problems are detected
  */
 bool streaming_is_healthy(void);
 
 // ============================================================================
-// MAKRA PRO OPTIMALIZACI PAMETI
+// MACROS FOR MEMORY OPTIMIZATION
 // ============================================================================
 
 /**
- * @brief Pomocne makro pro streamovani sachovnice z pole figurek
+ * @brief Helper macro for streaming a box from a figure array
  * 
- * Pouziti:
+ * Use:
  * @code
- *   piece_t board[8][8];
- *   STREAM_CHESS_BOARD(board);
+ * piece_t board[8][8];
+ * STREAM_CHESS_BOARD(board);
  * @endcode
  * 
- * Toto makro eliminuje potrebu docasnych string bufferu.
+ * This macro eliminates the need for temporary string buffers.
  */
 #define STREAM_CHESS_BOARD(board_array) do { \
     stream_board_header(); \
@@ -302,15 +302,15 @@ bool streaming_is_healthy(void);
 } while(0)
 
 /**
- * @brief Pomocne makro pro streamovani LED sachovnice z pole LED stavu
+ * @brief A helper macro for streaming the inbox LED from the status LED field
  * 
- * Pouziti:
+ * Use:
  * @code
- *   uint32_t led_states[64];
- *   STREAM_LED_BOARD(led_states);
+ * uint32_t led_states[64];
+ * STREAM_LED_BOARD(led_states);
  * @endcode
  * 
- * Toto makro eliminuje potrebu velkych string bufferu.
+ * This macro eliminates the need for large string buffers.
  */
 #define STREAM_LED_BOARD(led_array) do { \
     stream_led_board_header(); \
@@ -323,18 +323,18 @@ bool streaming_is_healthy(void);
 } while(0)
 
 /**
- * @brief Pomocne makro pro streamovani velkych reportu po castech
+ * @brief Helpful macro for streaming large reports in parts
  * 
- * Pouziti:
+ * Use:
  * @code
- *   STREAM_CHUNKED_REPORT("Nazev Reportu") {
- *       stream_printf("Radek 1: %s\n", data1);
- *       stream_printf("Radek 2: %d\n", data2);
- *       // ... dalsi radky
- *   }
+ * STREAM_CHUNKED_REPORT("Report Name") {
+ * stream_printf("Line 1: %s\n", data1);
+ * stream_printf("Line 2: %d\n", data2);
+ * // ... more lines
+ * }
  * @endcode
  * 
- * Toto makro automaticky zpracovava watchdog resety a kontrolu chyb.
+ * This macro automatically handles watchdog resets and error checking.
  */
 #define STREAM_CHUNKED_REPORT(title) \
     do { \

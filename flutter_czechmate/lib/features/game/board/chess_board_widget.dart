@@ -12,7 +12,7 @@ import '../../connection/board_session_notifier.dart';
 import '../state/game_ui_notifier.dart';
 import 'board_pieces_animator.dart';
 
-/// Stabilní klíč animatoru figurek: mění se při tahu / změně pozice / sandboxu — ne při každém `stateVersion` z poll (což by rušilo animace).
+/// Fixed figure animator key: changes on move / reposition / sandbox — not on every `stateVersion` from poll (which would break animations).
 String _boardPlacementSig(List<List<String>> cells) {
   final b = StringBuffer();
   for (final row in cells) {
@@ -298,14 +298,14 @@ class _BoardPainter extends CustomPainter {
   final String? lastFrom;
   final String? lastTo;
 
-  /// Pole s neplatně postavenou figurkou (snapshot `error_state`).
+  /// A field with an invalidly built figure (snapshot `error_state`).
   final String? serverInvalidSquare;
 
-  /// 0–1 z [AnimationController] — červené „pod“ polem.
+  /// 0-1 of [AnimationController] — red "below" box.
   final double serverInvalidPulseT;
   final String? originalSquare;
 
-  /// Lokální zpětná vazba po zamítnutém tahu z aplikace.
+  /// Local feedback after a rejected move from the app.
   final String? clientInvalidSquare;
   final bool clientInvalidLit;
   final String? hintFrom;
@@ -393,7 +393,7 @@ Color _coordTextColor(BoardStyleColors t, bool dark) {
   return dark ? const Color(0xE6FFFFFF) : const Color(0x8A000000);
 }
 
-/// Parita iOS `ChessBoardView`: řady jen ve sloupci **a**, soubory jen na **1. řadě**, uvnitř buňky, pod figurami.
+/// iOS `ChessBoardView` parity: rows only in column **a**, files only on **1. row**, inside the cell, below the figures.
 class _CoordinateOverlay extends StatelessWidget {
   const _CoordinateOverlay({
     required this.size,
@@ -531,7 +531,7 @@ class _CoordinateOverlay extends StatelessWidget {
   }
 }
 
-/// Statický náhled pozice z FEN (puzzle, knihovna) — stejné barvy/styl jako na Play.
+/// Static view of position from FEN (puzzle, library) — same colors/style as on Play.
 class FenBoardPreview extends ConsumerWidget {
   const FenBoardPreview({
     super.key,

@@ -1,6 +1,6 @@
 /**
  * @file ble_task.h
- * @brief BLE rozhraní CZECHMATE — NimBLE GATT při CONFIG_BT_ENABLED.
+ * @brief BLE interface CZECHMATE — NimBLE GATT when CONFIG_BT_ENABLED.
  */
 #pragma once
 
@@ -15,38 +15,38 @@ extern "C" {
 
 void ble_task_init(void);
 
-/** True pokud je aktivní GATT spojení se zapnutým link encryption (SMP). */
+/** True if there is an active GATT connection with enabled link encryption (SMP). */
 bool ble_task_conn_is_encrypted(void);
 
 /**
- * True, pokud je BLE link aktivní a centrál má zapnuté notify na snapshot CCC.
- * Jinak je push snapshot no-op — web server nemusí každé 3 s skládat JSON jen „do prázdna“.
+ * True if the BLE link is active and the central office has CCC snapshot notifications turned on.
+ * Otherwise, push snapshot is a no-op — the web server doesn't have to compose JSON just "into the void" every 3 seconds.
  */
 bool ble_task_should_push_snapshot(void);
 
 /**
- * Odešle JSON snapshot připojenému centrálu (chunkovaně, hlavička CM).
- * Bez CONFIG_BT_ENABLED nebo bez BLE spojení je no-op.
+ * Sends a JSON snapshot to the connected central office (chunked, CM header).
+ * Without CONFIG_BT_ENABLED or without BLE connection is a no-op.
  */
 void ble_task_push_snapshot_json(const uint8_t *data, size_t len);
 
 /**
- * Odešle network info (IP, SSID, online status) připojenému centrálu.
- * Volat při změně IP adresy nebo WiFi statusu.
- * Bez CONFIG_BT_ENABLED nebo bez BLE spojení je no-op.
+ * Sends network info (IP, SSID, online status) to the connected central office.
+ * Call when the IP address or WiFi status changes.
+ * Without CONFIG_BT_ENABLED or without BLE connection is a no-op.
  */
 void ble_task_push_network_info(void);
 
-/** Jedna řádka stavu BLE (NimBLE / GATT) pro UART příkaz BLE. */
+/** One BLE status line (NimBLE / GATT) for UART BLE command. */
 void ble_task_format_status(char *buf, size_t cap);
 
 /**
- * Po zpracování GATT zápisu na CMD charakteristiku odešle JSON na cmd_ack notify
- * (pokud je centrál přihlášen k notifikacím). Viz kanál "cmd_ack" v protokolu.
+ * After processing GATT write to CMD characteristic sends JSON to cmd_ack notify
+ * (if the central office is logged in to notifications). See the "cmd_ack" channel in the log.
  */
 void ble_task_notify_command_result(esp_err_t err, const char *json_body);
 
-/** Celý JSON pro cmd_ack notify (např. wifi_survey až ~2 KiB). Použití jen z web_server BLE dispatch. */
+/** Full JSON for cmd_ack notify (e.g. wifi_survey up to ~2 KiB). Use only from web_server BLE dispatch. */
 void ble_task_notify_cmd_ack_json(const char *json_utf8);
 
 #ifdef __cplusplus

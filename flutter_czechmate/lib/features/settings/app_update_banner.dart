@@ -81,7 +81,7 @@ Future<void> launchAppReleasePage(AppUpdateManifest manifest) async {
   }
 }
 
-/// První karta v Nastavení — dostupná novější verze aplikace z GitHub Pages.
+/// First tab in Settings — newer version of app available from GitHub Pages.
 class AppUpdateSettingsCallout extends ConsumerWidget {
   const AppUpdateSettingsCallout({super.key});
 
@@ -186,7 +186,7 @@ class AppUpdateSettingsCallout extends ConsumerWidget {
   }
 }
 
-/// Kompaktní řádek na stránce O aplikaci.
+/// A compact line on the About page.
 class AppUpdateAboutHint extends ConsumerWidget {
   const AppUpdateAboutHint({super.key});
 

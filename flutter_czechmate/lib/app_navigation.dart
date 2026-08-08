@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_providers.dart';
 import 'features/connection/board_discovery_screen.dart';
 
-/// Stejné pořadí jako iOS `AppMainTab` (`MainTabView.swift`).
+/// Same order as iOS `AppMainTab` (`MainTabView.swift`).
 class AppMainTab {
   AppMainTab._();
   static const int game = 0;
@@ -14,7 +14,7 @@ class AppMainTab {
   static const int settings = 4;
 }
 
-/// Jako `BoardDiscoveryView` v sheetu z karty Hra — není spodní záložka.
+/// Like `BoardDiscoveryView` in the sheet from the Game tab — not the bottom tab.
 Future<void> pushBoardDiscoveryRoute(
   BuildContext context, {
   bool autoStartBleScan = true,

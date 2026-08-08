@@ -7,8 +7,8 @@ import com.google.android.gms.wearable.Wearable
 import org.json.JSONObject
 
 /**
- * Wear OS Data Layer — stejný payload jako Live Activity mirror (plán §6).
- * Neprovádí nic závažného, pokud nejsou spárované hodinky / Play Services.
+ * Wear OS Data Layer — same payload as the Live Activity mirror (plan §6).
+ * Does nothing significant if there are no paired watch / Play Services.
  */
 object WearDataLayerMirror {
     private const val TAG = "WearDataLayerMirror"

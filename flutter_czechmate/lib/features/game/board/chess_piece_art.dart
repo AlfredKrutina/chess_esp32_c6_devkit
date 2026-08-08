@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Stejné názvy a PNG jako iOS `ChessPieceGlyph.assetImageName` / ESP `piece_assets`.
+/// Same names and PNG as iOS `ChessPieceGlyph.assetImageName` / ESP `piece_assets`.
 String? piecePngAssetPath(String fenGlyph) {
   if (fenGlyph.isEmpty) return null;
   final c = fenGlyph.substring(0, 1);
@@ -40,7 +40,7 @@ bool pieceIsWhiteFromFen(String fenGlyph) {
   return u >= 65 && u <= 90;
 }
 
-/// Spodní pravý roh (h1) je světlé pole — shodně s běžnou šachovnicí a iOS stínem.
+/// The lower right corner (h1) is a light field — identical to a regular checkerboard and iOS shadow.
 bool isLightAlgebraicSquare(String algebraic) {
   if (algebraic.length < 2) return true;
   final file = algebraic.codeUnitAt(0) - 97;
@@ -80,7 +80,7 @@ String _unicodePiece(String p) {
   }
 }
 
-/// Parita s iOS `ChessPieceArtView`: PNG Staunton + stín podle barvy figury a pole.
+/// Parity with iOS `ChessPieceArtView`: PNG Staunton + shadow by piece and field color.
 class ChessPieceArt extends StatelessWidget {
   const ChessPieceArt({
     super.key,

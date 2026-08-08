@@ -1,6 +1,6 @@
 ; CzechMate — Inno Setup 6 (Windows x64).
-; CI: viz .github/workflows/flutter-app-release.yml
-; Lokálně po `flutter build windows --release`:
+; CI: see .github/workflows/flutter-app-release.yml
+; Locally after `flutter build windows --release`:
 ;   "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" ^
 ;     /DMyAppDisplayVersion=1.8.0 ^
 ;     /DMyAppOutputVersion=1.8.0-3 ^
@@ -28,7 +28,7 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
-; Kořen repa (flutter_czechmate/installer/windows → ../../../)
+; Repo root (flutter_czechmate/installer/windows → ../../../)
 OutputDir=..\..\..
 OutputBaseFilename=czechmate-{#MyAppOutputVersion}-windows-setup
 Compression=lzma2

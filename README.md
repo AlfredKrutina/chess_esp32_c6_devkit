@@ -1,49 +1,49 @@
-# CZECHMATE firmware **1.8.0**
+# CzechMate firmware **1.8.0**
 
-Ahoj, tady je **CzechMate**, náš šachový systém — firmware na ESP32-C6, web v prohlížeči a aplikace ve Flutteru (`flutter_czechmate/`).
+**CzechMate** is a smart physical chess system — ESP32-C6 firmware, a browser UI, and a Flutter app (`flutter_czechmate/`).
 
-**Verze a hardware:** Firmware i dokumentace **`1.8.0`** — prototyp **V1** s **reed switch** maticí ([YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** = **Hall senzory**, komerční deska — [HARDWARE_VERZE.md](docs/reference/HARDWARE_VERZE.md).
+**Version & hardware:** Firmware and docs at **`1.8.0`** — prototype **V1** with a **reed-switch** matrix ([YouTube](https://youtu.be/_MS6OP3x6Z4)). **V2.0** targets **Hall sensors** and a commercial board — [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md).
 
-**Stáhnout aplikaci:** [downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — APK, DMG, Windows instalátor na [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest). **Windows:** BLE sken není — připojení přes Wi‑Fi URL ([docs/flutter/README.md](docs/flutter/README.md)). **iOS / iPad** připravujeme.
+**Download the app:** [downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) — APK, DMG, and Windows installer on [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases/latest). **Windows:** no BLE scan — connect via Wi‑Fi URL ([docs/flutter/README.md](docs/flutter/README.md)). **iOS / iPad** support is in progress.
 
-*Šachmat z Česka*
+*Checkmate from Czechia*
 
-**Dokumentace:** [docs/README.md](docs/README.md) — diagramy, Flutter, OTA, reference. **Rozložení repa:** [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md). **Řešení problémů:** [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md).
-
----
-
-## O projektu
-
-Šachový systém na ESP32-C6: FreeRTOS, fyzická detekce figurek, LED zpětná vazba, web a Flutter klient. **Spolupráce:** Matěj — hardware, Alfred — firmware, aplikace, logika.
-
-Delší poznámky (učení, autoři, licence): [docs/reference/PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md).
+**Docs:** [docs/README.md](docs/README.md) — diagrams, Flutter, OTA, reference. **Repo layout:** [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md). **Troubleshooting:** [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md).
 
 ---
 
-## Co CzechMate umí
+## About
 
-**V1:** reed matice 8×8 (obsazeno/volno). **V2:** Hall — typ figurky. **73× WS2812B** (64 + 9 u tlačítek). Hra přes **aplikaci** (`flutter_czechmate/`), **web** nebo **UART** konzoli.
+ESP32-C6 chess system: FreeRTOS, physical piece detection, LED feedback, web UI, and Flutter client — firmware, hardware, app, and game logic in one project.
 
-| Oblast | Popis |
-|--------|--------|
-| Šach | Rošáda, en passant, promoce, šach, mat |
-| LED | Tahy, šach, mat, chyby, animace |
-| Web | HTTP, REST, volitelně WebSocket `/ws` |
-| Klient | Flutter — BLE (mobil), Wi‑Fi (desktop) |
-| Bot / výuka | Stockfish, ELO, nápovědy, hodnocení tahů |
-| Integrace | MQTT Home Assistant (`ha_light_task`) |
-| Auto nová hra | Základní postavení stabilní ~2 s → nová partie |
+Longer notes (learning log, license): [docs/reference/PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md).
 
 ---
 
-## Hardware (V1 stručně)
+## Features
 
-*HW: Matěj Jager* — detail [HARDWARE_VERZE.md](docs/reference/HARDWARE_VERZE.md).
+**V1:** 8×8 reed matrix (occupied / empty). **V2:** Hall sensors — piece type. **73× WS2812B** (64 squares + 9 near the buttons). Play via the **app** (`flutter_czechmate/`), **web**, or **UART** console.
 
-- ESP32-C6 DevKit, 73× WS2812B, 8×8 reed matice
-- 4× promoce + 1× reset, USB Serial JTAG, externí 5 V pro LED
+| Area | Description |
+|------|-------------|
+| Chess | Castling, en passant, promotion, check, mate |
+| LED | Moves, check, mate, errors, animations |
+| Web | HTTP, REST, optional WebSocket `/ws` |
+| Client | Flutter — BLE (mobile), Wi‑Fi (desktop) |
+| Bot / training | Stockfish, ELO, hints, move evaluation |
+| Integration | MQTT Home Assistant (`ha_light_task`) |
+| Auto new game | Starting position stable ~2 s → new game |
 
-**GPIO (sladěno se softwarem):**
+---
+
+## Hardware (V1 overview)
+
+Hardware details: [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md).
+
+- ESP32-C6 DevKit, 73× WS2812B, 8×8 reed matrix
+- 4× promotion + 1× reset, USB Serial JTAG, external 5 V for LEDs
+
+**GPIO (matches the firmware):**
 
 ```
 LED Data:        GPIO7
@@ -55,11 +55,11 @@ Reset Button:    GPIO15
 
 ---
 
-## Architektura
+## Architecture
 
-Multitasking FreeRTOS — priority, fronty a mutexy: [KOMUNIKACE_MEZI_TASKY.md](docs/reference/KOMUNIKACE_MEZI_TASKY.md). Diagramy: [docs/diagrams/README.md](docs/diagrams/README.md).
+FreeRTOS multitasking — priorities, queues, and mutexes: [TASK_COMMUNICATION.md](docs/reference/TASK_COMMUNICATION.md). Diagrams: [docs/diagrams/README.md](docs/diagrams/README.md).
 
-| Task / runtime | Priorita | Stack |
+| Task / runtime | Priority | Stack |
 |----------------|----------|-------|
 | `led_task` | 7 | 8 KB |
 | `matrix_task` | 6 | 4 KB |
@@ -67,14 +67,14 @@ Multitasking FreeRTOS — priority, fronty a mutexy: [KOMUNIKACE_MEZI_TASKY.md](
 | `game_task` | 4 | 6 KB |
 | `uart_task`, `web_server_task`, `ha_light_task` | 3 | 5–20 KB |
 | `test_task` (menuconfig) | 1 | 4 KB |
-| **NimBLE host** | ESP-IDF | BLE přes `ble_task_init()` |
+| **NimBLE host** | ESP-IDF | BLE via `ble_task_init()` |
 
-`animation_task` je **vypnutý** — animace v `led_task` / `unified_animation_manager`.
+`animation_task` is **disabled** — animations run in `led_task` / `unified_animation_manager`.
 
 ```mermaid
 %%{init: {'theme':'dark','themeVariables':{'clusterBkg':'#0f172a','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','titleColor':'#f8fafc'}}}%%
 flowchart LR
-  subgraph IN["Vstupy"]
+  subgraph IN["Inputs"]
     MT[matrix]:::t
     BTN[button]:::t
     SER[uart]:::t
@@ -99,58 +99,58 @@ flowchart LR
   classDef g fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
 ```
 
-Komponenty ve `components/`: přehled skupin v [REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md).
+Components under `components/`: group overview in [REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md).
 
 ---
 
-## Build a flash
+## Build & flash
 
 ```bash
 . $IDF_PATH/export.sh
-idf.py menuconfig    # volitelně
+idf.py menuconfig    # optional
 idf.py build
 idf.py -p PORT flash
 idf.py -p PORT monitor
 ```
 
-**Home Assistant:** MQTT RGB světlo — broker výchozí `homeassistant.local:1883`, NVS namespace `mqtt_config`. Discovery topic `homeassistant/light/esp32_chess_light_<MAC>/config`.
+**Home Assistant:** MQTT RGB light — default broker `homeassistant.local:1883`, NVS namespace `mqtt_config`. Discovery topic `homeassistant/light/esp32_chess_light_<MAC>/config`.
 
 ---
 
-## Použití
+## Usage
 
-| Kanál | Jak |
-|-------|-----|
+| Channel | How |
+|---------|-----|
 | **UART** | 115200 baud — `help`, `move e2e4`, `board`, `reset` |
-| **Web** | `http://<IP>/` po Wi‑Fi (IP v logu) |
+| **Web** | `http://<IP>/` after Wi‑Fi (IP in the log) |
 | **Flutter** | `cd flutter_czechmate && flutter pub get && flutter run` |
 | **Releases** | [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases) |
 
-**Fyzická hra:** zvednutí figurky → LED zdroj; položení → validace. Zelená = OK, červená = chyba, modrá = šach.
+**Physical play:** lift a piece → LED on the source square; place → validation. Green = OK, red = error, blue = check.
 
-**Bot / výuka na webu:** Stockfish (chess-api.com), ELO 1–8, nápovědy, barevné hodnocení tahů (Best → Blunder).
+**Bot / training on the web:** Stockfish (chess-api.com), ELO 1–8, hints, color-coded move quality (Best → Blunder).
 
 ---
 
-## Dokumentace
+## Documentation
 
-| Dokument | Obsah |
-|----------|--------|
-| [docs/README.md](docs/README.md) | Rozcestník |
+| Document | Contents |
+|----------|----------|
+| [docs/README.md](docs/README.md) | Index |
 | [docs/diagrams/README.md](docs/diagrams/README.md) | Mermaid / SVG |
-| [docs/flutter/README.md](docs/flutter/README.md) | Aplikace |
-| [docs/ota_architecture.md](docs/ota_architecture.md) | OTA firmware |
-| [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md) | Inventář repa |
-| [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md) | Ladění, známé problémy |
-| [docs/reference/PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md) | Verze, autoři, licence |
+| [docs/flutter/README.md](docs/flutter/README.md) | App |
+| [docs/ota_architecture.md](docs/ota_architecture.md) | Firmware OTA |
+| [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md) | Repo inventory |
+| [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md) | Debugging, known issues |
+| [docs/reference/PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md) | Version history, license |
 
 **Doxygen:** `./generate_docs.sh` → `docs/doxygen/html/index.html`  
-**Diagramy:** `./scripts/render_docs.sh`
+**Diagrams:** `./scripts/render_docs.sh`
 
-**GitHub Pages:** [alfredkrutina.github.io/chess_esp32_c6_devkit](https://alfredkrutina.github.io/chess_esp32_c6_devkit/) — postup [gh-pages-ready/README.md](gh-pages-ready/README.md).
+**GitHub Pages:** [alfredkrutina.github.io/chess_esp32_c6_devkit](https://alfredkrutina.github.io/chess_esp32_c6_devkit/) — how-to in [gh-pages-ready/README.md](gh-pages-ready/README.md).
 
-**Formuláře V2:** [předobjednávka](https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform) · [průzkum](https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform)
+**V2 forms:** [preorder](https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform) · [survey](https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform)
 
 ---
 
-**Verze README:** 1.8.0 · **2026**
+**README version:** 1.8.0 · **2026**

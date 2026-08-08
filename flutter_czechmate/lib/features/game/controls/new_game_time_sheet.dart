@@ -13,7 +13,7 @@ import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 import '../state/game_ui_notifier.dart';
 
-/// Bottom sheet — časová kontrola + `timer_config` + `new_game`.
+/// Bottom sheet — time control + `timer_config` + `new_game`.
 Future<void> showNewGameWithTimeSheet(BuildContext context) async {
   await showAppModalBottomSheet<void>(
     context: context,

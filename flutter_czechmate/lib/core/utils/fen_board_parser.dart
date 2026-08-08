@@ -1,4 +1,4 @@
-/// První pole FEN → `board[][]` (řádek 0 = rank 8).
+/// First field FEN → `board[][]` (row 0 = rank 8).
 List<List<String>> boardFromPlacementFen(String fen) {
   final placement = fen.split(' ').first;
   final ranks = placement.split('/');
@@ -27,7 +27,7 @@ List<List<String>> boardFromPlacementFen(String fen) {
   return board;
 }
 
-/// Snapshot `board[row][col]` po normalizaci (řádek 0 = rank 1) → placement FEN (řádek 0 = rank 8).
+/// Snapshot `board[row][col]` after normalization (row 0 = rank 1) → placement FEN (row 0 = rank 8).
 String placementFenFromSnapshotBoard(List<List<String>> board) {
   if (board.length != 8) return '';
   final rows = <String>[];

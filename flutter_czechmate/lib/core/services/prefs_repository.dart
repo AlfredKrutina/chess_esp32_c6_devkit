@@ -20,7 +20,7 @@ class PrefsRepository {
   final SharedPreferences _p;
 
   static const keyBaseUrl = 'czechmate.boardBaseURL';
-  /// 64 hex znaků — Bearer pro HTTP admin na desce (UART `API_TOKEN`).
+  /// 64 hex characters — Bearer for HTTP admin on board (UART `API_TOKEN`).
   static const keyBoardApiToken = 'czechmate.boardApiToken';
   static const keyMock = 'czechmate.useMockBoard';
   static const keyCoachKey = 'czechmate.coachApiKey';
@@ -36,11 +36,11 @@ class PrefsRepository {
   static const keyCoachOllamaBase = 'czechmate.coach.ollamaBaseUrl';
   static const keyCoachOllamaModel = 'czechmate.coach.ollamaModel';
   static const keyConnectionMode = 'czechmate.connectionMode';
-  /// Jednorázově vynutí `wifi_only` / `ble_only` pro příští pokus o připojení; po dokončení
-  /// `connectWifi` / `connectBle` / `connectMock` se smaže v `BoardSessionNotifier`.
+  /// One-shot force of `wifi_only` / `ble_only` for the next connection attempt; cleared after
+  /// `connectWifi` / `connectBle` / `connectMock` in `BoardSessionNotifier`.
   static const keyNextConnectionTransportOnce =
       'czechmate.nextConnectionTransportOnce';
-  /// CSV třetích oktetů IPv4 k zamítnutí pro Wi‑Fi URL (`88` → `x.x.88.x`). Klíč chybí → výchozí `{88}`.
+  /// CSV of third IPv4 octets to reject for Wi‑Fi URL (`88` → `x.x.88.x`). Key missing → default `{88}`.
   static const keyWifiBlockedThirdOctets = 'czechmate.wifiBlockedThirdOctets';
   static const keyLastBleId = 'czechmate.lastBleRemoteId';
   static const keyPreferBluetoothOnly = 'czechmate.preferBluetoothOnly';
@@ -65,7 +65,7 @@ class PrefsRepository {
   static const keyBoardStyle = 'czechmate.boardStyleRaw';
   static const keyLedGuidance = 'czechmate.ledGuidanceLevel';
   static const keyGuidedCapturePref = 'czechmate.guidedCapturePref';
-  /// Parita `AppDebugLog.coachTraceLogsDefaultsKey` na iOS.
+  /// Parity `AppDebugLog.coachTraceLogsDefaultsKey` on iOS.
   static const keyCoachTraceLogs = 'czechmate.coachTraceLogsEnabled';
   static const keyUseWebSocket = 'czechmate.useWebSocket';
   static const keyStockfishBase = 'czechmate.stockfishApiBaseUrl';
@@ -74,26 +74,26 @@ class PrefsRepository {
   static const keyLastLinkKind = 'czechmate.lastBoardLinkKind';
   static const keyLiveActivity = 'czechmate.liveActivityEnabled';
   static const keyWatchCompanionMirror = 'czechmate.watchCompanionMirrorEnabled';
-  /// Wear OS Data Layer mirror ze spárovaného Android zařízení (`WearDataLayerMirror`).
+  /// Wear OS Data Layer mirror from a paired Android device (`WearDataLayerMirror`).
   static const keyWearDataLayerMirror = 'czechmate.wearDataLayerMirrorEnabled';
   static const keyPuzzleLibraryJson = 'czechmate.puzzleLibraryJson';
   static const keyPuzzleTrainingPool = 'czechmate.puzzleTrainingPoolMode';
   static const keyPuzzleTrainingSessions = 'czechmate.puzzleTrainingSessionsStarted';
   static const keyStatsPeakMoveCount = 'czechmate.statsPeakMoveCount';
-  /// `p:<presetEnumName>` nebo `c:<minutes>:<incrementSec>` — parita iOS `lastNewGameTimeSelection`.
+  /// `p:<presetEnumName>` or `c:<minutes>:<incrementSec>` — parity with iOS `lastNewGameTimeSelection`.
   static const keyLastNewGameTimeControl = 'czechmate.lastNewGameTimeControlV1';
-  /// Raw URL na hostovaný `version.json` (GitHub Pages / raw.githubusercontent.com).
+  /// Raw URL to hosted `version.json` (GitHub Pages / raw.githubusercontent.com).
   static const keyFirmwareManifestUrl = 'czechmate.firmwareManifestUrl';
   static const keyFirmwareUpdateReminders = 'czechmate.firmwareUpdateRemindersEnabled';
-  /// ISO den `YYYY-MM-DD` — naposledy uživatel ťukl „Teď ne“ u nabídky aktualizace.
+  /// ISO day `YYYY-MM-DD` — the last time the user tapped "Not Now" on the update menu.
   static const keyFirmwareReminderDismissDay = 'czechmate.firmwareReminderDismissDay';
-  /// Absolutní cesta k uloženému `.bin` v ApplicationSupport (`firmware_cache/`).
+  /// Absolute path to the stored `.bin` in ApplicationSupport (`firmware_cache/`).
   static const keyFirmwareCachedBinPath = 'czechmate.firmwareCachedBinPath';
   static const keyFirmwareCachedVersion = 'czechmate.firmwareCachedVersion';
-  /// HTTPS URL `.bin` z manifestu v době stažení (volitelné HTTPS OTA z nastavení).
+  /// HTTPS URL `.bin` from manifest at download time (optional HTTPS OTA from settings).
   static const keyFirmwareCachedBinSourceUrl =
       'czechmate.firmwareCachedBinSourceUrl';
-  /// Verze z `app_update.json`, pro kterou uživatel zavřel banner „nová appka“.
+  /// The version from `app_update.json` for which the user closed the "new app" banner.
   static const keyAppUpdateBannerDismissedLatest =
       'czechmate.appUpdateBannerDismissedLatest';
   static const keyPuzzleElo = 'czechmate.profile.puzzleElo';
@@ -113,7 +113,7 @@ class PrefsRepository {
     }
   }
 
-  /// Aktivní množina blokovaných 3. oktetů; klíč v prefs chybí → `{88}`.
+  /// Active set of blocked 3rd octets; key in prefs is missing → `{88}`.
   Set<int> get wifiBlockedThirdOctets {
     if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
       return {88};
@@ -122,7 +122,7 @@ class PrefsRepository {
     return parseWifiBlockedThirdOctetsCsv(raw);
   }
 
-  /// Text do pole v Pokročilém připojení (prázdný řetězec = uživatel vypnul filtr).
+  /// Text to field in Advanced Connection (empty string = user has disabled filter).
   String wifiBlockedThirdOctetsEditingText() {
     if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
       return '88';
@@ -130,7 +130,7 @@ class PrefsRepository {
     return _p.getString(keyWifiBlockedThirdOctets) ?? '';
   }
 
-  /// Uloží CSV z UI; prázdný řetězec = žádné blokování (klíč zůstane s prázdnou hodnotou).
+  /// Saves CSV from UI; empty string = no blocking (key is left with an empty value).
   Future<void> setWifiBlockedThirdOctetsFromUi(String csv) async {
     final t = csv.trim();
     if (!_p.containsKey(keyWifiBlockedThirdOctets) && t == '88') {
@@ -139,12 +139,12 @@ class PrefsRepository {
     await _p.setString(keyWifiBlockedThirdOctets, t);
   }
 
-  /// Odstraní klíč → opět výchozí blokace oktetu 88.
+  /// Removes the key → default blocking of octet 88 again.
   Future<void> clearWifiBlockedThirdOctetsToDefault() async {
     await _p.remove(keyWifiBlockedThirdOctets);
   }
 
-  /// CSV pro BLE příkaz `wifi_sta_ip_block` na desce — dokud uživatel nic neuložil, `88`.
+  /// CSV for BLE command `wifi_sta_ip_block` on board — until user saved anything, `88`.
   String wifiStaIpBlockCsvForBle() {
     if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
       return '88';
@@ -334,13 +334,13 @@ class PrefsRepository {
     }
   }
 
-  /// Uložený základní režim (`auto` po [migrateLegacyConnectionModeToAutoIfNeeded]).
+  /// Saved base mode (`auto` after [migrateLegacyConnectionModeToAutoIfNeeded]).
   ///
-  /// Pro rozhodování při připojení používej [effectiveConnectionMode] — zohlední
-  /// jednorázový přepis [nextConnectionTransportOnce].
+  /// Use [effectiveConnectionMode] for connection decisions — takes into account
+  /// one-time override [nextConnectionTransportOnce].
   ///
-  /// Starý příznak [keyPreferBluetoothOnly] se bere v úvahu jen pokud není uložen
-  /// platný řetězec v [keyConnectionMode] — pak se mapuje na `ble_only`.
+  /// The old flag [keyPreferBluetoothOnly] is only taken into account if it is not saved
+  /// valid string in [keyConnectionMode] — then maps to `ble_only`.
   String get connectionMode {
     final raw = _p.getString(keyConnectionMode)?.trim();
     if (raw != null &&
@@ -353,7 +353,7 @@ class PrefsRepository {
     return 'auto';
   }
 
-  /// `wifi_only` | `ble_only` | null — jen příští pokus o připojení (pak se smaže).
+  /// `wifi_only` | `ble_only` | null — only next connection attempt (then deleted).
   String? get nextConnectionTransportOnce {
     final v = _p.getString(keyNextConnectionTransportOnce)?.trim();
     if (v == 'wifi_only' || v == 'ble_only') return v;
@@ -373,11 +373,11 @@ class PrefsRepository {
     }
   }
 
-  /// Reálný režim pro připojení: jednorázový přepis má přednost, jinak vždy `auto`.
+  /// Real mode for connection: one-time override takes precedence, otherwise always `auto`.
   String get effectiveConnectionMode =>
       nextConnectionTransportOnce ?? 'auto';
 
-  /// Staré trvalé `wifi_only` / `ble_only` převede na `auto`; uživatele tak nic „nezasekne“.
+  /// Old persistent `wifi_only` / `ble_only` will convert to `auto`; so nothing "gets stuck" on the user.
   Future<void> migrateLegacyConnectionModeToAutoIfNeeded() async {
     final raw = _p.getString(keyConnectionMode)?.trim();
     final legacyBleFlag = _p.getBool(keyPreferBluetoothOnly) ?? false;
@@ -410,7 +410,7 @@ class PrefsRepository {
     }
   }
 
-  /// Jednorázové vynucení jen BLE pro příští připojení.
+  /// One-time enforcement of BLE only for next connection.
   bool get preferBluetoothOnly => effectiveConnectionMode == 'ble_only';
 
   Future<void> setPreferBluetoothOnly(bool v) async {
@@ -445,7 +445,7 @@ class PrefsRepository {
     await _p.setString(keyLayoutMode, normalized);
   }
 
-  /// Desktop Play — zda je zobrazený pravý sloupec „AI trenér“ (tam kde je dost šířky).
+  /// Desktop Play — whether the right "AI trainer" column is displayed (where there is enough width).
   bool get desktopCoachRailVisible =>
       _p.getBool(keyDesktopCoachRailVisible) ?? true;
 
@@ -533,7 +533,7 @@ class PrefsRepository {
   Future<void> setWearDataLayerMirrorEnabled(bool v) =>
       _p.setBool(keyWearDataLayerMirror, v);
 
-  /// JSON pole uložených puzzlů `[{id,fen,title,solution,themes,rating}]`.
+  /// JSON array of saved puzzles `[{id,fen,title,solution,themes,rating}]`.
   String? get puzzleLibraryJson => _p.getString(keyPuzzleLibraryJson);
   Future<void> setPuzzleLibraryJson(String? v) async {
     if (v == null || v.isEmpty) {
@@ -543,7 +543,7 @@ class PrefsRepository {
     }
   }
 
-  /// `mixed` | `bundledOnly` | `libraryOnly` — parita iOS `PuzzleTrainingPoolMode`.
+  /// `mixed` | `bundledOnly` | `libraryOnly` — parity iOS `PuzzleTrainingPoolMode`.
   String get puzzleTrainingPoolMode => _p.getString(keyPuzzleTrainingPool) ?? 'mixed';
   Future<void> setPuzzleTrainingPoolMode(String v) => _p.setString(keyPuzzleTrainingPool, v);
 
@@ -552,7 +552,7 @@ class PrefsRepository {
     await _p.setInt(keyPuzzleTrainingSessions, puzzleTrainingSessionsStarted + 1);
   }
 
-  /// Max. pozorovaný `move_count` z desky (parita `StatsRecorder.peakMoveCount` na iOS).
+  /// Max. observed `move_count` from the board (parity `StatsRecorder.peakMoveCount` on iOS).
   int get statsPeakMoveCount => _p.getInt(keyStatsPeakMoveCount) ?? 0;
   Future<void> setStatsPeakMoveCountIfHigher(int moveCount) async {
     if (moveCount > statsPeakMoveCount) {
@@ -578,8 +578,8 @@ class PrefsRepository {
     }
   }
 
-  /// Prázdná prefs → výchozí manifest z [kDefaultFirmwareManifestUrl].
-  /// Uložená hodnota se normalizuje (oprava zkrácených GitHub Pages URL).
+  /// Empty prefs → default manifest from [kDefaultFirmwareManifestUrl].
+  /// Stored value is normalized (fix shortened GitHub Pages URLs).
   String get firmwareManifestUrlEffective {
     final u = firmwareManifestUrl?.trim();
     if (u == null || u.isEmpty) return kDefaultFirmwareManifestUrl;
@@ -643,13 +643,13 @@ class PrefsRepository {
     }
   }
 
-  /// Puzzle-only Elo (oddělené od případného online ratingu).
+  /// Puzzle-only Elo (separate from any online rating).
   int get puzzleElo => _p.getInt(keyPuzzleElo) ?? 1200;
 
   Future<void> setPuzzleElo(int v) =>
       _p.setInt(keyPuzzleElo, v.clamp(100, 4000));
 
-  /// Očekávané body za výhru nad „soupeřem“ = obtížnost puzzlu.
+  /// Expected points for winning over the "opponent" = difficulty of the puzzle.
   Future<int> applyPuzzleSolveElo({int? puzzleRating}) async {
     final user = puzzleElo.toDouble();
     final opp = (puzzleRating ?? 1500).clamp(400, 3500).toDouble();
@@ -666,7 +666,7 @@ class PrefsRepository {
           ? _p.getString(keyProfileDisplayName)!.trim()
           : 'Player';
 
-  /// Uložené jméno z profilu, nebo `null` když uživatel nic nezadal (UI pak použije výchozí „Player“).
+  /// The saved name from the profile, or `null` if the user has not entered anything (the UI will then use the default "Player").
   String? get profileDisplayNameStoredOrNull {
     final s = _p.getString(keyProfileDisplayName)?.trim();
     if (s == null || s.isEmpty) return null;
@@ -682,14 +682,14 @@ class PrefsRepository {
     }
   }
 
-  /// `default:0` … `default:4` nebo `file:<absolutní cesta>`.
+  /// `default:0` … `default:4` or `file:<absolute path>`.
   String get profileAvatarSpec =>
       _p.getString(keyProfileAvatarSpec) ?? 'default:0';
 
   Future<void> setProfileAvatarSpec(String spec) =>
       _p.setString(keyProfileAvatarSpec, spec);
 
-  /// Mapa `YYYY-MM-DD` → `{s: vyřešeno, f: špatně}`.
+  /// Map `YYYY-MM-DD` → `{s: solved, f: wrong}`.
   Future<void> recordPuzzleActivity({required bool solved}) async {
     final day = DateTime.now().toIso8601String().split('T').first;
     final map = <String, dynamic>{};
@@ -816,8 +816,8 @@ class PrefsRepository {
     return ChartPaletteColors.forPreset(preset, colorScheme);
   }
 
-  /// Smaže lokální data aplikace: `SharedPreferences`, cache staženého firmwaru
-  /// (`ApplicationSupport/…/firmware_cache`). **Nemění** firmware ani nastavení na desce.
+  /// Deletes local application data: `SharedPreferences`, cache of downloaded firmware
+  /// (`ApplicationSupport/…/firmware_cache`). **Does not change** the firmware or settings on the board.
   Future<void> factoryResetApplicationLocalState() async {
     final legacyBin = firmwareCachedBinPath;
     try {

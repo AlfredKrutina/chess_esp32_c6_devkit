@@ -1,5 +1,5 @@
 # Launch screen (iOS)
 
-Tady držím obrázky úvodní obrazovky. Když chci vlastní grafiku, nahradím soubory v téhle složce stejnými jmény a rozlišeními.
+Place launch-screen images here. To use custom artwork, replace the files in this folder with the same names and resolutions.
 
-Alternativa je otevřít projekt v Xcode (`open ios/Runner.xcworkspace`), v navigátoru vybrat `Runner/Assets.xcassets` a obrázky jen přetáhnout do asset katalogu — Xcode mi pak drží správné varianty pro různé displeje.
+Alternatively, open the project in Xcode (`open ios/Runner.xcworkspace`), select `Runner/Assets.xcassets` in the navigator, and drop images into the asset catalog — Xcode keeps the correct variants for different displays.

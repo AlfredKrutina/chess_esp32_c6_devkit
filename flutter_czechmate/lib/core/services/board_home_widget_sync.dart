@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 
-/// Domovský widget (iOS / Android) — data přes `home_widget`; viz nativní `ChessBoardHomeWidget` / `ChessBoardHomeWidgetProvider`.
+/// Home widget (iOS / Android) — data via `home_widget`; see native `ChessBoardHomeWidget` / `ChessBoardHomeWidgetProvider`.
 class BoardHomeWidgetSync {
   BoardHomeWidgetSync();
 
-  /// Musí odpovídat App Group na iOS + entitlements u Runner a ChessLiveActivityExtension.
+  /// Must match App Group on iOS + entitlements on Runner and ChessLiveActivityExtension.
   static const appGroupId = 'group.com.example.flutterCzechmate.widget';
 
   static const _androidProvider =
@@ -28,7 +28,7 @@ class BoardHomeWidgetSync {
     _initialized = true;
   }
 
-  /// Stejný slovník jako [LiveActivityService.extensionPayload].
+  /// Same dictionary as [LiveActivityService.extensionPayload].
   Future<void> syncPayload(Map<String, dynamic> payload) async {
     if (kIsWeb || !(Platform.isIOS || Platform.isAndroid)) return;
     await ensureInitialized();

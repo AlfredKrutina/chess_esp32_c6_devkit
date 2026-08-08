@@ -110,7 +110,7 @@ struct ChessBoardHomeWidgetEntryView: View {
   private var noGameView: some View {
     VStack(alignment: .leading, spacing: 6) {
       header
-      Text("Otevři aplikaci a připoj desku.")
+      Text("Open the app and connect the board.")
         .font(.subheadline)
         .foregroundStyle(.secondary)
     }
@@ -122,10 +122,10 @@ struct ChessBoardHomeWidgetEntryView: View {
     VStack(alignment: .leading, spacing: 6) {
       header
       if entry.gameFinished {
-        Text("Partie ukončena")
+        Text("Game finished")
           .font(.headline)
       } else {
-        Text("Tahů: \(entry.totalMoves)")
+        Text("Moves: \(entry.totalMoves)")
           .font(.subheadline)
           .foregroundStyle(.secondary)
       }
@@ -138,12 +138,12 @@ struct ChessBoardHomeWidgetEntryView: View {
     VStack(alignment: .leading, spacing: 8) {
       header
       if entry.gameFinished {
-        Text("Partie ukončena")
+        Text("Game finished")
           .font(.title3)
           .fontWeight(.semibold)
       } else if family == .systemSmall {
         VStack(alignment: .leading, spacing: 4) {
-          Text(entry.whiteTurn ? "Na tahu ♔" : "Na tahu ♚")
+          Text(entry.whiteTurn ? "To move ♔" : "To move ♚")
             .font(.caption)
             .foregroundStyle(.secondary)
           Text(czFmtMs(entry.whiteTurn ? entry.whiteMs : entry.blackMs))
@@ -196,13 +196,13 @@ struct ChessBoardHomeWidgetEntryView: View {
   private var secondaryLine: some View {
     HStack {
       if entry.gamePaused {
-        Label("Pauza", systemImage: "pause.circle.fill")
+        Label("Paused", systemImage: "pause.circle.fill")
           .font(.caption2)
       } else if entry.timerRunning {
-        Label("Běží", systemImage: "play.circle.fill")
+        Label("Running", systemImage: "play.circle.fill")
           .font(.caption2)
       } else {
-        Label("Čeká", systemImage: "clock")
+        Label("Waiting", systemImage: "clock")
           .font(.caption2)
       }
       Spacer()
@@ -235,7 +235,7 @@ struct ChessBoardHomeWidget: Widget {
       }
     }
     .configurationDisplayName("CzechMate")
-    .description("Stav partie a časomíry na desce.")
+    .description("Game and clock status on the board.")
     .supportedFamilies([.systemSmall, .systemMedium])
   }
 }

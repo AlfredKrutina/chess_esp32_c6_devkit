@@ -57,8 +57,8 @@ class SnapshotWebSocketClient {
       onDone: onDisconnect,
       cancelOnError: true,
     );
-    // Bez await na [WebSocketChannel.ready] může selhat handshake (timeout mimo LAN)
-    // jako nezachycená async chyba — viz WebSocketChannelException v konzoli.
+    // Without await on [WebSocketChannel.ready] handshake may fail (timeout outside LAN)
+    // as an uncaught async error — see WebSocketChannelException in the console.
     unawaited(_awaitHandshake(ch, onError, onDisconnect));
   }
 

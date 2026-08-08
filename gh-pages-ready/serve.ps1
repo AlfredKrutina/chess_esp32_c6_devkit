@@ -1,5 +1,5 @@
-# Lokální náhled downloads.html přes HTTP (PowerShell).
-# Použití: .\serve.ps1   nebo   .\serve.ps1 -Port 9000
+# Local preview of downloads.html over HTTP (PowerShell).
+# Usage: .\serve.ps1   or   .\serve.ps1 -Port 9000
 param([int]$Port = 8765)
 Set-Location $PSScriptRoot
 if (Get-Command python -ErrorAction SilentlyContinue) {
@@ -7,6 +7,6 @@ if (Get-Command python -ErrorAction SilentlyContinue) {
 } elseif (Get-Command py -ErrorAction SilentlyContinue) {
   py -m http.server $Port
 } else {
-  Write-Error "Není Python. Nainstaluj Python 3 nebo: npx --yes serve -s . -l $Port"
+  Write-Error "Python not found. Install Python 3 or: npx --yes serve -s . -l $Port"
   exit 1
 }

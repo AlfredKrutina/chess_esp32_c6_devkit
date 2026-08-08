@@ -17,11 +17,11 @@ import '../connection/board_session_state.dart';
 class FirmwareOtaRunner {
   /// `null` = success (or connection lost after reboot). Otherwise an error message.
   ///
-  /// [boardHttpBaseUrlOverride] — např. `http://192.168.4.1` na hotspotu; když chybí,
-  /// použije se session/prefs. Musí sedět s `POST /api/system/ota` (transport Wi‑Fi).
+  /// [boardHttpBaseUrlOverride] — eg `http://192.168.4.1` on hotspot; when missing
+  /// session/prefs will be used. Must sit with `POST /api/system/ota` (Wi‑Fi transport).
   ///
-  /// [preferHttpOtaStartCommand] — když toto zařízení hostuje .bin, vždy `true`: příkaz startu OTA
-  /// pošle přímo HTTP na desku (funguje na AP i když je aktivní BLE transport).
+  /// [preferHttpOtaStartCommand] — always `true` when this device hosts .bin: OTA start command
+  /// sends direct HTTP to the board (works on AP even if BLE transport is active).
   static Future<String?> execute({
     required WidgetRef ref,
     required String binUrl,
@@ -42,8 +42,8 @@ class FirmwareOtaRunner {
     if (baseUrl == null || baseUrl.isEmpty) {
       return strings.errOtaBoardHttpMissingDetail;
     }
-    /* Zařízení na Wi‑Fi hotspotu desky (192.168.4.x) — API je na gateway 192.168.4.1:80,
-     * ne na zastaralé STA URL z prefs (stejná logika jako hostované OTA v UI). */
+    /* Device on the board Wi‑Fi hotspot (192.168.4.x) — API is at gateway 192.168.4.1:80,
+     * not a stale STA URL from prefs (same logic as hosted OTA in the UI). */
     if (await FirmwarePhoneHostOta.ipv4OnBoardApSubnet() != null) {
       final ap = normalizeBoardHttpBaseUrl('http://192.168.4.1');
       if (ap != null) {

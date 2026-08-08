@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_motion.dart';
 
-/// Jemný scale při stisku — obaluje tlačítko; pointer události neblokují tap na dítěti.
+/// Fine scale when pressed — envelops the button; pointer events do not block tap on the child.
 class PressableScale extends StatefulWidget {
   const PressableScale({
     super.key,

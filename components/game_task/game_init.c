@@ -38,7 +38,7 @@ static const char *TAG = "GAME_INIT";
 // GAME INITIALIZATION FUNCTIONS
 // ============================================================================
 
-/** Vzorků matice při kontrole výchozí pozice (reed kontakty často „klepou“). */
+/** Matrix samples when checking the default position (reed contacts often "knock"). */
 #define GAME_START_POS_MATRIX_SAMPLES 5
 #define GAME_START_POS_MAJORITY_VOTES 3
 
@@ -113,8 +113,8 @@ static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
 /**
  * @brief Checks if board is physically in starting position (occupancy only)
  *
- * Uses RAW SENSOR DATA from Matrix Task. Rows 0–1 a 6–7 plné, 2–5 prázdné.
- * Více vzorků + většinové hlasování kvůli šumu u reedů při dokončení tutorialu.
+ * Uses RAW SENSOR DATA from Matrix Task. Rows 0–1 and 6–7 full, 2–5 empty.
+ * More samples + majority voting due to reed noise when completing the tutorial.
  */
 bool game_is_board_in_starting_position(void) {
   uint8_t votes[64] = {0};
@@ -143,26 +143,26 @@ bool game_is_board_in_starting_position(void) {
 }
 
 /**
- * @brief Zobrazí červené LED na polích, kde chybí figurky v počáteční pozici
+ * @brief Show a red LED on spaces where pieces are missing in the starting position
  * 
- * Používá se ve stavu GAME_STATE_WAITING_FOR_BOARD_SETUP pro indikaci
- * uživateli, která pole musí obsadit figurkami.
+ * Used in GAME_STATE_WAITING_FOR_BOARD_SETUP state for indication
+ * the user, which fields must be filled with figures.
  */
 void game_show_missing_pieces_led(void) {
   uint8_t matrix_state[64] = {0};
   matrix_get_state(matrix_state);
   
-  // Vyčistit desku
+  // Clean the board
   led_clear_board_only();
   
-  // Definice očekávané počáteční pozice (row-major order)
-  // Rows 0-1 a 6-7 by měly být obsazené, rows 2-5 prázdné
+  // Definition of expected starting position (row-major order)
+  // Rows 0-1 and 6-7 should be occupied, rows 2-5 empty
   for (int row = 0; row < 2; row++) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
       if (matrix_state[idx] == 0) {
-        // Chybí figurka na bílém základním řádku
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Červená
+        // A figure is missing on the white baseline
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
       }
     }
   }
@@ -170,8 +170,8 @@ void game_show_missing_pieces_led(void) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
       if (matrix_state[idx] == 0) {
-        // Chybí figurka na černém základním řádku
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Červená
+        // A figure is missing on the black baseline
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
       }
     }
   }
@@ -179,8 +179,8 @@ void game_show_missing_pieces_led(void) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
       if (matrix_state[idx] != 0) {
-        // Náhodná figurka uprostřed desky - také červeně
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Červená
+        // A random figure in the middle of the board - also in red
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
       }
     }
   }
@@ -203,25 +203,25 @@ void game_bump_revision_and_notify(void) {
 uint32_t game_get_state_revision(void) { return game_state_revision; }
 
 /**
- * @brief Resetuje hru do vychoziho stavu
+ * @brief Resets the game to its default state
  *
- * Tato funkce resetuje hru do vychoziho stavu. Vymaze vsechny tahy,
- * resetuje stavy hry a inicializuje novou hru.
+ * This function resets the game to its default state. Erases all strokes,
+ * resets game states and initializes a new game.
  *
  * @details
- * Funkce resetuje:
- * - Stav hry na IDLE
- * - Aktualni hrace na WHITE
- * - Pocet tahu na 0
- * - Vsechny castling flagy
- * - En passant stav
- * - Historie tahu
- * - Error recovery stav
+ * The function resets:
+ * - Game state on IDLE
+ * - Current games on WHITE
+ * - Number of moves to 0
+ * - All castling flags
+ * - En passant status
+ * - History of move
+ * - Error recovery status
  */
 void game_reset_game(void) {
   ESP_LOGI(TAG, "Resetting game...");
 
-  // Zastavit resignation timer pokud běží (tichý cleanup, hra se resetuje)
+  // Stop resignation timer if it is running (silent cleanup, game resets)
   if (resignation_state.active) {
     resignation_stop(true);
   }
@@ -278,7 +278,7 @@ void game_reset_game(void) {
   // Clear last move tracking
   has_last_move = false;
 
-  // Kompletní reset error recovery state
+  // Complete reset error recovery state
   error_recovery_state.has_invalid_piece = false;
   error_recovery_state.invalid_row = 0;
   error_recovery_state.invalid_col = 0;
@@ -330,9 +330,9 @@ void game_reset_game(void) {
   lifted_piece_col = 0;
   lifted_piece = PIECE_EMPTY;
 
-  /* Každý plný reset hry končí tutoriál rozestavení; vstup do tutoriálu ho hned
-   * znovu zapne (game_enter_board_setup_tutorial). Dřív zůstával true po „Nová
-   * hra“ z webu → ignorovaný matrix guard a zamrzlá detekce z matice. */
+  /* Each full game reset ends with a setup tutorial; enter the tutorial now
+   * turns on again (game_enter_board_setup_tutorial). It used to remain true after “New
+   * game” from the web → ignored matrix guard and frozen detection from the matrix. */
   board_setup_tutorial_active = false;
 
   // Reset auto-new game detection flags.
@@ -343,7 +343,7 @@ void game_reset_game(void) {
   auto_new_game_blocked_until_move = false; // Reset block flag too
   ESP_LOGI(TAG, "✅ Auto new game detection flags reset in game_reset_game()");
 
-  // Zastavit endgame animaci při resetu hry
+  // Stop endgame animation on game reset
   led_stop_endgame_animation();
 
   // Reinitialize board
@@ -356,8 +356,8 @@ void game_reset_game(void) {
 }
 
 /**
- * Po game_reset_game(): vyprázdní logiku a IDLE — společné pro vstup/výstup z
- * tutoriálu rozestavení.
+ * After game_reset_game(): flush logic and IDLE — common for input/output from
+ * setup tutorial.
  */
 void game_apply_empty_logical_board_after_full_reset(void) {
   memset(board, 0, sizeof(board));
@@ -442,19 +442,19 @@ bool game_finish_board_setup_tutorial_from_web(void) {
 
 
 /**
- * @brief Spusti novou hru
+ * @brief Start a new game
  *
- * Tato funkce spusti novou sachovou hru. Inicializuje sachovnici,
- * resetuje vsechny stavy a pripravi hru pro hrani.
+ * This function will start a new chess game. Initializes the inbox,
+ * resets all states and prepares the game for play.
  *
  * @details
- * Funkce:
- * - Inicializuje sachovnici do vychoziho stavu
- * - Resetuje vsechny stavy hry
- * - Nastavi prvni hrace na WHITE
- * - Zastavi vsechny animace
- * - Aktualizuje LED feedback
- * - Zvysi pocet her
+ * Features:
+ * - Initializes the inbox to the default state
+ * - Resets all game states
+ * - Set the first game to WHITE
+ * - Stop all animations
+ * - Updates LED feedback
+ * - Increase the number of games
  */
 void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
@@ -469,17 +469,17 @@ void game_start_new_game(void) {
   game_reset_game();
   game_task_wdt_reset_safe();
 
-  // Reset timer před novou hrou
+  // Reset the timer before a new game
   game_reset_timer();
   ESP_LOGI(TAG, "Timer reset for new game");
 
-  // BUG FIX 1: Kontrola fyzické desky před aktivací hry (pouze pokud je hlídání zapnuto)
+  // BUG FIX 1: Checking the physical board before activating the game (only if watchdog is on)
   if (starting_position_check_enabled && !game_is_board_in_starting_position()) {
-    // Deska není fyzicky připravena - přejít do stavu čekání
+    // The board is not physically ready - go to waiting state
     current_game_state = GAME_STATE_WAITING_FOR_BOARD_SETUP;
     game_active = false;
     
-    // LED indikace: červené blikání chybějících polí
+    // LED indication: red flashing of missing fields
     game_show_missing_pieces_led();
     
     // Notify web
@@ -489,7 +489,7 @@ void game_start_new_game(void) {
     return;
   }
 
-  // Set game state - pouze když je deska OK
+  // Set game state - only when the board is OK
   current_game_state = GAME_STATE_ACTIVE;
   game_active = true;
   game_start_time = esp_timer_get_time() / 1000;
@@ -526,13 +526,13 @@ void game_start_new_game(void) {
 
   // Boot sequence: first game vs. restart.
   if (total_games > 1) {
-    // Restart hry - zastavit všechny animace
+    // Restart the game - stop all animations
     unified_animation_stop_all();
     led_stop_endgame_animation(); // Legacy endgame animations
     stop_endgame_animation();     // Stop NEW endgame animations system
     ESP_LOGI(TAG, "✅ All animations stopped for new game (restart)");
   } else {
-    // První hra - boot sequence stále probíhá
+    // First game - boot sequence still in progress
     ESP_LOGI(TAG, "⏸️  Boot sequence: Skipping animation stop (first game)");
   }
 
@@ -554,16 +554,16 @@ void game_start_new_game(void) {
   ESP_LOGI(TAG, "✅ Auto new game detection flags reset for new game");
 
   // Boot sequence: first game vs. restart.
-  if (total_games >= 1) { // Povolit highlight i pro první hru!
-    // Restart hry - zvýraznit pohyblivé figurky
-    vTaskDelay(pdMS_TO_TICKS(100)); // Krátká pauza pro stabilizaci
+  if (total_games >= 1) { // Enable highlight even for the first game!
+    // Restart the game - highlight moving pieces
+    vTaskDelay(pdMS_TO_TICKS(100)); // A short pause for stabilization
     game_task_wdt_reset_safe();
     chess_policy_highlight_movable_if_enabled();
     game_task_wdt_reset_safe();
     ESP_LOGI(TAG,
              "✅ Highlighted movable pieces for starting player (restart)");
   } else {
-    // První hra - boot sequence stále probíhá, skipnout highlight
+    // First game - boot sequence still in progress, skip highlight
     ESP_LOGI(
         TAG,
         "⏸️  Boot sequence: Skipping movable pieces highlight (first game)");

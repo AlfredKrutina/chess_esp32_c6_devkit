@@ -1,22 +1,22 @@
 /**
  * @file reset_button_task.c
- * @brief Reset button task: ovladani reset tlacitka pro restart hry
+ * @brief Reset button task: control the reset button to restart the game
  *
- * Tento modul implementuje:
- *  - Inicializaci reset button tasku a FreeRTOS komponent
- *  - Zpracovani reset tlacitka pro restart hry
- *  - Simulacni rezim bez hardware (pro development)
- *  - Integration s game taskem pro reset
- *  - Jedno tlacitko pro reset cele hry
+ * This module implements:
+ * - Initialization of reset button task and FreeRTOS components
+ * - Processing of the reset button to restart the game
+ * - Simulation mode without hardware (for development)
+ * - Integration with game task for reset
+ * - One button to reset the entire game
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-16
  * 
  * @details
- * Tento task zpracovava reset tlacitko pro restart hry. Kdyz hrac
- * stiskne reset tlacitko, hra se restartuje do vychoziho stavu.
- * Task detekuje stisknuti tlacitka a posila prikaz do game tasku.
+ * This task processes the reset button to restart the game. When the player
+ * press the reset button, the game restarts to the default state.
+ * Task detects a button press and sends a command to the game task.
  */
 
 #include "reset_button_task.h"
@@ -25,7 +25,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#include "freertos_chess.h"  // OPRAVENO: Přidán include pro konstanty
+#include "freertos_chess.h"  // FIXED: Added include for constants
 
 static const char *TAG = "RESET_BUTTON_TASK";
 
@@ -34,9 +34,9 @@ static bool reset_button_initialized = false;
 static uint32_t button_event_count = 0;
 
 /**
- * @brief Inicializuj reset button task
+ * @brief Initialize the reset button task
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t reset_button_task_init(void)
 {
@@ -50,9 +50,9 @@ esp_err_t reset_button_task_init(void)
     BaseType_t task_created = xTaskCreate(
         reset_button_task,
         "reset_button_task",
-        RESET_BUTTON_TASK_STACK_SIZE,  // OPRAVENO: Místo hardcodované 2048
+        RESET_BUTTON_TASK_STACK_SIZE,  // FIXED: Instead of hardcoded 2048
         NULL,
-        RESET_BUTTON_TASK_PRIORITY,    // OPRAVENO: Místo hardcodované 3
+        RESET_BUTTON_TASK_PRIORITY,    // FIXED: Hardcoded location 3
         NULL
     );
     
@@ -68,9 +68,9 @@ esp_err_t reset_button_task_init(void)
 }
 
 /**
- * @brief Hlavni funkce reset button tasku
+ * @brief The main function of the reset button task
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void reset_button_task(void *pvParameters)
 {
@@ -90,10 +90,10 @@ void reset_button_task(void *pvParameters)
 }
 
 /**
- * @brief Zpracuj pozadavek na reset hry
+ * @brief Process game reset request
  * 
- * @param reset_request True pokud ma byt hra resetovana
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param reset_request True if the game should be reset
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t process_reset_request(bool reset_request)
 {
@@ -113,10 +113,10 @@ esp_err_t process_reset_request(bool reset_request)
 }
 
 /**
- * @brief Simuluj stisknuti reset tlacitka (pro testovani)
+ * @brief Simulate pressing the reset button (for testing)
  * 
- * @param pressed True pokud je tlacitko stisknuto
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param pressed True if the button is pressed
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t simulate_reset_button_press(bool pressed)
 {
@@ -132,9 +132,9 @@ esp_err_t simulate_reset_button_press(bool pressed)
 }
 
 /**
- * @brief Overi zda je reset button task inicializovan
+ * @brief Verify that the reset button task is initialized
  * 
- * @return True pokud je task inicializovan
+ * @return True if the task is initialized
  */
 bool reset_button_is_initialized(void)
 {
@@ -142,9 +142,9 @@ bool reset_button_is_initialized(void)
 }
 
 /**
- * @brief Ziskej pocet zpracovanych tlacitkovych udalosti
+ * @brief Get the number of processed button events
  * 
- * @return Pocet udalosti
+ * @return Event count
  */
 uint32_t reset_button_get_event_count(void)
 {

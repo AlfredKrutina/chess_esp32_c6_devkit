@@ -2,7 +2,7 @@ import Flutter
 import Foundation
 import WatchConnectivity
 
-/// Forwarduje stav partie na Apple Watch a předává příkazy z hodinek do Flutteru.
+/// Forwards game state to Apple Watch and passes commands from the watch into Flutter.
 final class WatchBridge: NSObject, WCSessionDelegate {
   static let shared = WatchBridge()
 
@@ -23,7 +23,7 @@ final class WatchBridge: NSObject, WCSessionDelegate {
     session.activate()
   }
 
-  /// Klíče odpovídají mapě z Flutteru (`ChessLivePayload`).
+  /// Keys match the map from Flutter (`ChessLivePayload`).
   func mirrorGameState(_ payload: [String: Any]) {
     guard WCSession.isSupported() else { return }
     let session = WCSession.default

@@ -1,7 +1,7 @@
 import 'board_timer_state.dart';
 import 'game_status_models.dart';
 
-/// Odpověď `GET /api/game/snapshot` / BLE / WS — `GameSnapshot.swift`.
+/// Response `GET /api/game/snapshot` / BLE / WS — `GameSnapshot.swift`.
 class GameSnapshot {
   const GameSnapshot({
     this.stateVersion,

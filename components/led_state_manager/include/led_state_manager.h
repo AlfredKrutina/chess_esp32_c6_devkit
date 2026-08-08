@@ -1,29 +1,29 @@
 /**
  * @file led_state_manager.h
- * @brief LED State Manager - Pokrocila sprava LED stavu a vrstev
+ * @brief LED State Manager - Advanced LED state and layer management
  * 
- * Tento modul poskytuje komplexni spravu LED stavu:
- * - Vrstvovy system pro LED efekty
- * - Prioritni spravce LED
- * - Perzistentni LED stav
- * - Optimalizovane aktualizace
- * - Podpora pro kompozitni efekty
+ * This module provides comprehensive LED status management:
+ * - Layer system for LED effects
+ * - Priority LED manager
+ * - Persistent LED status
+ * - Optimized updates
+ * - Support for composite effects
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * LED State Manager poskytuje pokrocily system pro spravu LED stavu.
- * Umoznuje kombinovat vice efektu najednou pomoci vrstvoveho systemu,
- * kde kazda vrstva ma svou prioritu a blending mode.
+ * LED State Manager provides an advanced system for managing the LED state.
+ * Allows you to combine several effects at once with the help of a layer system,
+ * where each layer has its own priority and blending mode.
  * 
- * Vyhody:
- * - Vrstvovy kompoziting (sachovnice + efekty + GUI)
- * - Prioritni system s alpha blendingem
- * - Optimalizovane dirty-pixel updates
- * - Thread-safe pristup ke stavu
- * - Perzistence mezi aktualizacemi
+ * Advantages:
+ * - Layer compositing (box + effects + GUI)
+ * - Priority system with alpha blending
+ * - Optimized dirty-pixel updates
+ * - Thread-safe access to state
+ * - Persistence between updates
  */
 
 #ifndef LED_STATE_MANAGER_H
@@ -47,16 +47,16 @@ extern "C" {
 /**
  * @brief LED vrstvy (layers)
  * 
- * Nizsi cislo = nizsi vrstva (pozadi), vyssi cislo = vyssi vrstva (popredi)
+ * Lower number = lower layer (background), higher number = higher layer (foreground)
  */
 typedef enum {
     LED_LAYER_BACKGROUND = 0,     ///< Pozadi (board base color)
-    LED_LAYER_PIECES = 1,         ///< Figurky
-    LED_LAYER_MOVES = 2,          ///< Legalni tahy
-    LED_LAYER_SELECTION = 3,      ///< Vyber figurky
+    LED_LAYER_PIECES = 1,         ///< Figurines
+    LED_LAYER_MOVES = 2,          ///< Legal moves
+    LED_LAYER_SELECTION = 3,      ///< Select figures
     LED_LAYER_ANIMATION = 4,      ///< Animace (tah, capture, atd.)
     LED_LAYER_STATUS = 5,         ///< Status (check, checkmate)
-    LED_LAYER_ERROR = 6,          ///< Chybove indikace
+    LED_LAYER_ERROR = 6,          ///< Error indication
     LED_LAYER_GUI = 7,            ///< GUI overlay (buttons, atd.)
     LED_LAYER_COUNT               ///< Pocet vrstev
 } led_layer_t;
@@ -82,7 +82,7 @@ typedef enum {
  */
 typedef struct {
     uint8_t max_brightness;             ///< Maximalni jas (0-255)
-    uint8_t default_brightness;         ///< Vychozi jas (0-255)
+    uint8_t default_brightness;         ///< Default brightness (0-255)
     bool enable_smooth_transitions;     ///< Povolit plynule prechody
     bool enable_layer_compositing;      ///< Povolit vrstvove slozeni
     uint8_t update_frequency_hz;        ///< Frekvence aktualizaci (Hz)
@@ -100,7 +100,7 @@ typedef struct {
     uint8_t r, g, b;      ///< RGB barva
     uint8_t alpha;        ///< Alpha kanal (0-255)
     uint8_t brightness;   ///< Jas pixelu (0-255)
-    bool dirty;           ///< Pixel potrebuje update?
+    bool dirty;           ///< Pixel needs an update?
     uint32_t last_update; ///< Cas posledniho update (ms)
 } led_pixel_t;
 
@@ -108,188 +108,188 @@ typedef struct {
  * @brief LED vrstva
  */
 typedef struct {
-    led_pixel_t pixels[73];  ///< 73 pixelu (64 sachovnice + 9 tlacitek)
+    led_pixel_t pixels[73];  ///< 73 pixels (64 boxes + 9 buttons)
     blend_mode_t blend_mode; ///< Blending mode
     bool enabled;            ///< Je vrstva povolena? (legacy)
     bool layer_enabled;      ///< Je vrstva povolena?
     uint8_t master_alpha;    ///< Master alpha pro celou vrstvu (legacy)
     uint8_t layer_opacity;   ///< Opacity vrstvy (0-255)
-    bool dirty;              ///< Je vrstva dirty (potrebuje update)?
-    bool needs_composite;    ///< Potrebuje prekompozici?
+    bool dirty;              ///< Is the layer dirty (needs update)?
+    bool needs_composite;    ///< Does it need precomposition?
 } led_layer_state_t;
 
 /**
- * @brief Kompletni LED stav (vsechny vrstvy)
+ * @brief Complete LED status (all layers)
  */
 typedef struct {
-    led_layer_state_t layers[LED_LAYER_COUNT]; ///< Vsechny vrstvy
+    led_layer_state_t layers[LED_LAYER_COUNT]; ///< All layers
     led_pixel_t composite[64];                 ///< Finalni slozeny obraz
     bool dirty_pixels[64];                     ///< Dirty pixel mapa
-    bool needs_update;                         ///< Potrebuje update?
+    bool needs_update;                         ///< Does it need an update?
     uint32_t last_update_time;                 ///< Cas posledniho update
     SemaphoreHandle_t mutex;                   ///< Mutex pro thread-safety
 } led_state_t;
 
 // ============================================================================
-// INICIALIZACE A ZAKLADNI FUNKCE
+// INITIALIZE AND BASE FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializuj LED state manager
+ * @brief Initialize the LED state manager
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_init(void);
 
 /**
- * @brief Inicializuj LED manager s konfiguraci
+ * @brief Initialize LED manager with configuration
  * 
- * @param config Konfigurace manageru
- * @return ESP_OK pri uspechu
+ * @param config Manager configuration
+ * @return ESP_OK on success
  */
 esp_err_t led_manager_init(const led_manager_config_t* config);
 
 /**
- * @brief Deinicializuj LED state manager
+ * @brief Deinitialize the LED state manager
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_deinit(void);
 
 /**
- * @brief Deinicializuj LED manager
+ * @brief Deinitialize the LED manager
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_manager_deinit(void);
 
 /**
- * @brief Nastav konfiguraci LED manageru
+ * @brief Set the LED manager configuration
  * 
- * @param config Nova konfigurace
- * @return ESP_OK pri uspechu
+ * @param config The new configuration
+ * @return ESP_OK on success
  */
 esp_err_t led_set_config(const led_manager_config_t* config);
 
 /**
- * @brief Nastav frekvenci aktualizace
+ * @brief Set the update frequency
  * 
- * @param frequency_hz Frekvence v Hz (1-60)
- * @return ESP_OK pri uspechu
+ * @param frequency_hz Frequency in Hz (1-60)
+ * @return ESP_OK on success
  */
 esp_err_t led_set_update_frequency(uint8_t frequency_hz);
 
 /**
- * @brief Nastav delku prechodu
+ * @brief Set the length of the transition
  * 
- * @param duration_ms Delka v ms
- * @return ESP_OK pri uspechu
+ * @param duration_ms Duration in ms
+ * @return ESP_OK on success
  */
 esp_err_t led_set_transition_duration(uint32_t duration_ms);
 
 /**
- * @brief HSV to RGB konverze
+ * @brief HSV to RGB conversion
  * 
  * @param h Hue (0.0-1.0)
  * @param s Saturation (0.0-1.0)
  * @param v Value (0.0-1.0)
- * @param r Vystupni Red (0-255)
- * @param g Vystupni Green (0-255)
- * @param b Vystupni Blue (0-255)
- * @return ESP_OK pri uspechu
+ * @param r Output Red (0-255)
+ * @param g Exit Green (0-255)
+ * @param b Exit Blue (0-255)
+ * @return ESP_OK on success
  */
 esp_err_t led_hsv_to_rgb(float h, float s, float v, uint8_t* r, uint8_t* g, uint8_t* b);
 
 // ============================================================================
-// FUNKCE PRO SPRAVU VRSTEV
+// FUNCTIONS FOR MANAGING LAYERS
 // ============================================================================
 
 /**
- * @brief Nastav pixel ve vrstve
+ * @brief Set the pixel in the layer
  * 
- * @param layer Vrstva
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @param r Cervena (0-255)
- * @param g Zelena (0-255)
- * @param b Modra (0-255)
+ * @param layer The layer
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @param r Red (0-255)
+ * @param g Green (0-255)
+ * @param b Blue (0-255)
  * @param alpha Alpha (0-255)
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_set_pixel(led_layer_t layer, uint8_t row, uint8_t col,
                                uint8_t r, uint8_t g, uint8_t b, uint8_t alpha);
 
 /**
- * @brief Nastav pixel ve vrstve primo podle LED indexu
+ * @brief Set pixel in the given layer according to LED index
  * 
- * @param layer Vrstva
+ * @param layer The layer
  * @param led_index LED index (0-72)
- * @param r Cervena (0-255)
- * @param g Zelena (0-255)
- * @param b Modra (0-255)
- * @return ESP_OK pri uspechu
+ * @param r Red (0-255)
+ * @param g Green (0-255)
+ * @param b Blue (0-255)
+ * @return ESP_OK on success
  */
 esp_err_t led_set_pixel_layer(led_layer_t layer, uint8_t led_index, uint8_t r, uint8_t g, uint8_t b);
 
 /**
- * @brief Ziskej pixel z vrstvy
+ * @brief Get the pixel from the layer
  * 
- * @param layer Vrstva
- * @param row Radek (0-7)
- * @param col Sloupec (0-7)
- * @param[out] pixel Output pixel
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @param row Row (0-7)
+ * @param col Column (0-7)
+ * @param[out] pixel The output pixel
+ * @return ESP_OK on success
  */
 esp_err_t led_state_get_pixel(led_layer_t layer, uint8_t row, uint8_t col,
                                led_pixel_t* pixel);
 
 /**
- * @brief Vymaz vrstvu (nastav vsechny pixely na transparent)
+ * @brief Clear layer (set all pixels to banner)
  * 
- * @param layer Vrstva
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @return ESP_OK on success
  */
 esp_err_t led_state_clear_layer(led_layer_t layer);
 
 /**
- * @brief Vymaz vrstvu (alias pro led_state_clear_layer)
+ * @brief Clear layer (alias for led_state_clear_layer)
  * 
- * @param layer Vrstva
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @return ESP_OK on success
  */
 esp_err_t led_clear_layer(led_layer_t layer);
 
 /**
- * @brief Vymaz vsechny vrstvy
+ * @brief Clear all layers
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_clear_all_layers(void);
 
 /**
- * @brief Povol/zakaz vrstvu
+ * @brief Enable/disable layer
  * 
- * @param layer Vrstva
- * @param enabled Povolit?
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @param enabled Enable?
+ * @return ESP_OK on success
  */
 esp_err_t led_state_set_layer_enabled(led_layer_t layer, bool enabled);
 
 /**
- * @brief Nastav blending mode vrstvy
+ * @brief Set the layer's blending mode
  * 
- * @param layer Vrstva
+ * @param layer The layer
  * @param mode Blending mode
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_set_blend_mode(led_layer_t layer, blend_mode_t mode);
 
 /**
- * @brief Nastav master alpha vrstvy
+ * @brief Set master layer alpha
  * 
- * @param layer Vrstva
+ * @param layer The layer
  * @param alpha Master alpha (0-255)
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_set_layer_alpha(led_layer_t layer, uint8_t alpha);
 
@@ -298,9 +298,9 @@ esp_err_t led_state_set_layer_alpha(led_layer_t layer, uint8_t alpha);
 // ============================================================================
 
 /**
- * @brief Zkomponuj vsechny vrstvy do finalniho obrazu
+ * @brief Compose all layers into the final image
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_compose(void);
 
@@ -322,27 +322,27 @@ void led_state_blend_pixel(const led_pixel_t* bottom,
 // ============================================================================
 
 /**
- * @brief Aktualizuj pouze dirty pixely na hardware
+ * @brief Only update dirty pixels to hardware
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_update_dirty(void);
 
 /**
- * @brief Aktualizuj cely obraz na hardware
+ * @brief Update the entire image to the hardware
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_state_update_all(void);
 
 /**
- * @brief Vynuc okamzity full update vsech LED
- * @return ESP_OK pri uspechu
+ * @brief Force immediate full update of all LEDs
+ * @return ESP_OK on success
  */
 esp_err_t led_force_full_update(void);
 
 /**
- * @brief Oznac pixel jako dirty
+ * @brief Mark pixel as dirty
  * 
  * @param row Radek (0-7)
  * @param col Sloupec (0-7)
@@ -350,54 +350,54 @@ esp_err_t led_force_full_update(void);
 void led_state_mark_dirty(uint8_t row, uint8_t col);
 
 /**
- * @brief Oznac vsechny pixely jako dirty
+ * @brief Mark all pixels as dirty
  */
 void led_state_mark_all_dirty(void);
 
 /**
- * @brief Vymazat dirty flagy
+ * @brief Clear dirty flags
  */
 void led_state_clear_dirty_flags(void);
 
 // ============================================================================
-// POKROCILE FUNKCE
+// ADVANCED FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Nastav celou vrstvu najednou
+ * @brief Set the entire layer at once
  * 
- * @param layer Vrstva
- * @param pixels Pole 64 pixelu
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @param pixels An array of 64 pixels
+ * @return ESP_OK on success
  */
 esp_err_t led_state_set_layer_bulk(led_layer_t layer, const led_pixel_t* pixels);
 
 /**
- * @brief Fade vrstvu in/out
+ * @brief Fade layer in/out
  * 
- * @param layer Vrstva
- * @param target_alpha Cilove alpha
- * @param duration_ms Delka fade v ms
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @param target_alpha The target's alpha
+ * @param duration_ms Length of fade in ms
+ * @return ESP_OK on success
  */
 esp_err_t led_state_fade_layer(led_layer_t layer, uint8_t target_alpha, 
                                uint32_t duration_ms);
 
 /**
- * @brief Aplikuj gamma korekci na vrstvu
+ * @brief Apply gamma correction to the layer
  * 
- * @param layer Vrstva
- * @param gamma Gamma hodnota (1.0 = zadna korekce, 2.2 = typicke)
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @param gamma Gamma value (1.0 = no correction, 2.2 = typical)
+ * @return ESP_OK on success
  */
 esp_err_t led_state_apply_gamma(led_layer_t layer, float gamma);
 
 /**
- * @brief Aplikuj jas na vrstvu
+ * @brief Apply brightness to the layer
  * 
- * @param layer Vrstva
- * @param brightness Jas (0-255)
- * @return ESP_OK pri uspechu
+ * @param layer The layer
+ * @param brightness Brightness (0-255)
+ * @return ESP_OK on success
  */
 esp_err_t led_state_apply_brightness(led_layer_t layer, uint8_t brightness);
 
@@ -418,9 +418,9 @@ void led_state_print_status(void);
 void led_state_print_layer(led_layer_t layer);
 
 /**
- * @brief Ziskej globalni LED stav (pro read-only pristup)
+ * @brief Get global LED status (for read-only access)
  * 
- * @return Ukazatel na globalni stav
+ * @return A pointer to the global state
  */
 const led_state_t* led_state_get_global(void);
 

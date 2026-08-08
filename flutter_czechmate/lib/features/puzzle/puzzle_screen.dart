@@ -171,7 +171,7 @@ Widget _themeChips(BuildContext context, List<String> themes) {
   );
 }
 
-/// Parita iOS `PuzzleView` — Denní (Lichess), Knihovna (prefs), Trénink (vestavěné + mix).
+/// Parity iOS `PuzzleView` — Daily (Lichess), Library (prefs), Training (built-in + mix).
 class PuzzleScreen extends ConsumerStatefulWidget {
   const PuzzleScreen({super.key});
 

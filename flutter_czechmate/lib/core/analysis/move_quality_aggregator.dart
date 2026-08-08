@@ -1,6 +1,6 @@
 import 'move_evaluation.dart';
 
-/// Parita `MoveQualityAggregator` / `MoveQualitySummary.swift`.
+/// Parity `MoveQualityAggregator` / `MoveQualitySummary.swift`.
 class MoveQualityWindowStats {
   const MoveQualityWindowStats({
     required this.count,

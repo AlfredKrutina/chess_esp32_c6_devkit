@@ -214,7 +214,7 @@ Win32Window::MessageHandler(HWND hwnd,
       return 0;
 
     case WM_GETMINMAXINFO: {
-      // Parita s macOS MainFlutterWindow — minimální client ~940×640 (DESKTOP_UI_MASTER_PLAN).
+      // Parity with macOS MainFlutterWindow — minimum client ~940×640 (DESKTOP_UI_MASTER_PLAN).
       auto* mmi = reinterpret_cast<MINMAXINFO*>(lparam);
       constexpr LONG kMinClientW = 940;
       constexpr LONG kMinClientH = 640;

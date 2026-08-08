@@ -1,22 +1,22 @@
 /**
  * @file timer_system.c
- * @brief ESP32-C6 Chess System v1.8.0 - Timer System implementace
+ * @brief ESP32-C6 Chess System v1.8.0 - Timer System implementation
  * 
- * Tato komponenta implementuje casovy system pro sachovou hru:
- * - Presne mereni casu s ESP32 timer API
- * - Thread-safe operace s casem
- * - Ruzne typy casovych kontrol
- * - JSON API pro web rozhrani
- * - NVS persistence nastaveni
+ * This component implements the time system for a chess game:
+ * - Accurate time measurement with ESP32 timer API
+ * - Thread-safe operations with case
+ * - Different types of time checks
+ * - JSON API for web interface
+ * - NVS persistence settings
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-01-XX
  * 
  * @details
- * Timer system pouziva ESP32 timer API pro presne mereni casu.
- * Vsechny operace jsou thread-safe s pouzitim mutexu.
- * Podporuje standardni casove kontroly a vlastni nastaveni.
+ * Timer system uses ESP32 timer API for accurate time measurement.
+ * All operations are thread-safe using mutex.
+ * Supports standard time controls and custom settings.
  */
 
 #include "include/timer_system.h"
@@ -41,29 +41,29 @@ static const char* TAG = "TIMER_SYSTEM";
 // Mutex pro thread-safe operace
 static SemaphoreHandle_t timer_mutex = NULL;
 
-// Aktualni stav timeru
+// Current timer status
 static chess_timer_t current_timer = {0};
 
-// Předdefinované konfigurace časových kontrol
+// Predefined configuration of time checks
 static const time_control_config_t TIME_CONTROLS[] = {
-    {TIME_CONTROL_NONE, 0, 0, "Bez času", "Hra bez časové kontroly", false},
-    {TIME_CONTROL_BULLET_1_0, 60000, 0, "Bullet 1+0", "1 minuta bez incrementu", true},
+    {TIME_CONTROL_NONE, 0, 0, "No clock", "Game without time control", false},
+    {TIME_CONTROL_BULLET_1_0, 60000, 0, "Bullet 1+0", "1 minuta without increment", true},
     {TIME_CONTROL_BULLET_1_1, 60000, 1000, "Bullet 1+1", "1 minuta + 1s increment", true},
     {TIME_CONTROL_BULLET_2_1, 120000, 1000, "Bullet 2+1", "2 minuty + 1s increment", true},
-    {TIME_CONTROL_BLITZ_3_0, 180000, 0, "Blitz 3+0", "3 minuty bez incrementu", true},
+    {TIME_CONTROL_BLITZ_3_0, 180000, 0, "Blitz 3+0", "3 minuty without increment", true},
     {TIME_CONTROL_BLITZ_3_2, 180000, 2000, "Blitz 3+2", "3 minuty + 2s increment", true},
-    {TIME_CONTROL_BLITZ_5_0, 300000, 0, "Blitz 5+0", "5 minut bez incrementu", true},
+    {TIME_CONTROL_BLITZ_5_0, 300000, 0, "Blitz 5+0", "5 minut without increment", true},
     {TIME_CONTROL_BLITZ_5_3, 300000, 3000, "Blitz 5+3", "5 minut + 3s increment", true},
-    {TIME_CONTROL_RAPID_10_0, 600000, 0, "Rapid 10+0", "10 minut bez incrementu", false},
+    {TIME_CONTROL_RAPID_10_0, 600000, 0, "Rapid 10+0", "10 minut without increment", false},
     {TIME_CONTROL_RAPID_10_5, 600000, 5000, "Rapid 10+5", "10 minut + 5s increment", false},
     {TIME_CONTROL_RAPID_15_10, 900000, 10000, "Rapid 15+10", "15 minut + 10s increment", false},
-    {TIME_CONTROL_RAPID_30_0, 1800000, 0, "Rapid 30+0", "30 minut bez incrementu", false},
-    {TIME_CONTROL_CLASSICAL_60_0, 3600000, 0, "Classical 60+0", "1 hodina bez incrementu", false},
+    {TIME_CONTROL_RAPID_30_0, 1800000, 0, "Rapid 30+0", "30 minut without increment", false},
+    {TIME_CONTROL_CLASSICAL_60_0, 3600000, 0, "Classical 60+0", "1 hodina without increment", false},
     {TIME_CONTROL_CLASSICAL_90_30, 5400000, 30000, "Classical 90+30", "90 minut + 30s increment", false},
-    {TIME_CONTROL_CUSTOM, 0, 0, "Vlastní", "Vlastní nastavení času", false}
+    {TIME_CONTROL_CUSTOM, 0, 0, "Custom", "Custom time settings", false}
 };
 
-// NVS namespace pro timer nastaveni
+// NVS namespace for timer settings
 #define TIMER_NVS_NAMESPACE "timer_settings"
 
 // ============================================================================
@@ -71,9 +71,9 @@ static const time_control_config_t TIME_CONTROLS[] = {
 // ============================================================================
 
 /**
- * @brief Bezpecne ziska mutex
+ * @brief Gain mutex safely
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 static esp_err_t timer_lock(void)
 {
@@ -100,10 +100,10 @@ static void timer_unlock(void)
 }
 
 /**
- * @brief Aktualizuje cas hrace na tahu
+ * @brief Updates the game time per turn
  * 
- * @param is_white_turn Je-li na tahu bily
- * @param elapsed_ms Ubehly cas v milisekundach
+ * @param is_white_turn If there is a white on the turn
+ * @param elapsed_ms Elapsed time in milliseconds
  */
 static void timer_update_player_time(bool is_white_turn, uint32_t elapsed_ms)
 {
@@ -125,10 +125,10 @@ static void timer_update_player_time(bool is_white_turn, uint32_t elapsed_ms)
 }
 
 /**
- * @brief Kontroluje upozorneni na nizky cas
+ * @brief Checks for low time notification
  * 
- * @param time_ms Cas v milisekundach
- * @param is_white_turn Je-li na tahu bily
+ * @param time_ms Time in milliseconds
+ * @param is_white_turn If there is a white on the turn
  */
 static void timer_check_warnings(uint32_t time_ms, bool is_white_turn)
 {
@@ -165,14 +165,14 @@ esp_err_t timer_system_init(void)
 {
     ESP_LOGI(TAG, "Initializing timer system...");
     
-    // Vytvorit mutex
+    // Create a mutex
     timer_mutex = xSemaphoreCreateMutex();
     if (timer_mutex == NULL) {
         ESP_LOGE(TAG, "Failed to create timer mutex");
         return ESP_FAIL;
     }
     
-    // Inicializovat timer strukturu
+    // Initialize the timer structure
     memset(&current_timer, 0, sizeof(chess_timer_t));
     current_timer.config = TIME_CONTROLS[TIME_CONTROL_NONE];
     current_timer.timer_running = false;
@@ -180,7 +180,7 @@ esp_err_t timer_system_init(void)
     current_timer.game_paused = false;
     current_timer.time_expired = false;
     
-    // Nacist nastaveni z NVS
+    // Clear settings from NVS
     esp_err_t ret = timer_load_settings();
     if (ret != ESP_OK) {
         ESP_LOGW(TAG, "Failed to load timer settings, using defaults");
@@ -205,7 +205,7 @@ esp_err_t timer_set_time_control(const time_control_config_t* config)
     // Kopirovat konfiguraci
     memcpy(&current_timer.config, config, sizeof(time_control_config_t));
     
-    // Nastavit pocatecni casy
+    // Set start times
     current_timer.white_time_ms = config->initial_time_ms;
     current_timer.black_time_ms = config->initial_time_ms;
     
@@ -224,11 +224,11 @@ esp_err_t timer_set_time_control(const time_control_config_t* config)
     ESP_LOGI(TAG, "Time control set: %s (%lu ms + %lu ms increment)", 
              config->name, config->initial_time_ms, config->increment_ms);
     
-    // Uložit nastavení do NVS
+    // Save settings to NVS
     esp_err_t save_ret = timer_save_settings();
     if (save_ret != ESP_OK) {
         ESP_LOGW(TAG, "Failed to save timer settings to NVS: %s", esp_err_to_name(save_ret));
-        // Necháme to projít - uložení není kritické
+        // We'll let it pass - storage isn't critical
     }
     
     return ESP_OK;
@@ -241,13 +241,13 @@ esp_err_t timer_start_move(bool is_white_turn)
         return ret;
     }
     
-    // Kontrola zda je casova kontrola aktivni
+    // Checking whether time control is active
     if (current_timer.config.type == TIME_CONTROL_NONE) {
         timer_unlock();
         return ESP_OK; // Bez casove kontroly
     }
     
-    // Kontrola zda hra neni pozastavena
+    // Check if the game is not paused
     if (current_timer.game_paused) {
         timer_unlock();
         return ESP_OK; // Hra je pozastavena
@@ -259,10 +259,10 @@ esp_err_t timer_start_move(bool is_white_turn)
         return ESP_OK; // Cas uz vyprsel
     }
     
-    // Nastavit aktualniho hrace
+    // Set current player
     current_timer.is_white_turn = is_white_turn;
     
-    // Spustit timer
+    // Start the timer
     current_timer.move_start_time = esp_timer_get_time() / 1000; // Convert to milliseconds
     current_timer.timer_running = true;
     
@@ -282,7 +282,7 @@ esp_err_t timer_end_move(void)
         return ret;
     }
     
-    // Kontrola zda je casova kontrola aktivni
+    // Checking whether time control is active
     if (current_timer.config.type == TIME_CONTROL_NONE) {
         timer_unlock();
         return ESP_OK; // Bez casove kontroly
@@ -298,14 +298,14 @@ esp_err_t timer_end_move(void)
     uint64_t current_time = esp_timer_get_time() / 1000; // Convert to milliseconds
     uint32_t elapsed_ms = (uint32_t)(current_time - current_timer.move_start_time);
     
-    // Ulozit ktereho hrace jsme odpoctavali (pred aktualizaci)
+    // Save which player we counted (before update)
     bool was_white_turn = current_timer.is_white_turn;
     uint32_t time_before = was_white_turn ? current_timer.white_time_ms : current_timer.black_time_ms;
     
-    // Aktualizovat cas hrace
+    // Update game time
     timer_update_player_time(was_white_turn, elapsed_ms);
     
-    // Pridat increment pokud je nastaven
+    // Add increment if set
     if (current_timer.config.increment_ms > 0) {
         if (was_white_turn) {
             current_timer.white_time_ms += current_timer.config.increment_ms;
@@ -330,7 +330,7 @@ esp_err_t timer_end_move(void)
     current_timer.timer_running = false;
     current_timer.last_move_time = current_time;
     
-    // Resetovat upozorneni pro dalsiho hrace
+    // Reset notification for another player
     timer_reset_warnings();
     
     timer_unlock();
@@ -356,12 +356,12 @@ esp_err_t timer_pause(void)
         return ret;
     }
     
-    // Pokud timer bezi, ulozit elapsed time a odečíst ho
+    // If the timer is running, save the elapsed time and subtract it
     if (current_timer.timer_running && current_timer.config.type != TIME_CONTROL_NONE) {
         uint64_t current_time = esp_timer_get_time() / 1000; // Convert to milliseconds
         uint32_t elapsed_ms = (uint32_t)(current_time - current_timer.move_start_time);
         
-        // Odečíst elapsed time od aktuálního hráče
+        // Subtract the elapsed time from the current player
         timer_update_player_time(current_timer.is_white_turn, elapsed_ms);
         
         ESP_LOGI(TAG, "⏸️ Timer paused: %s time saved (elapsed: %lums)", 
@@ -385,7 +385,7 @@ esp_err_t timer_resume(void)
         return ret;
     }
     
-    // Kontrola zda je casova kontrola aktivni
+    // Checking whether time control is active
     if (current_timer.config.type == TIME_CONTROL_NONE) {
         timer_unlock();
         ESP_LOGW(TAG, "Cannot resume: no time control set");
@@ -401,7 +401,7 @@ esp_err_t timer_resume(void)
     
     current_timer.game_paused = false;
     
-    // Spustit timer znovu pro aktuálního hráče
+    // Restart the timer for the current player
     current_timer.move_start_time = esp_timer_get_time() / 1000; // Convert to milliseconds
     current_timer.timer_running = true;
     
@@ -419,7 +419,7 @@ esp_err_t timer_reset(void)
         return ret;
     }
     
-    // Resetovat casy na pocatecni hodnoty
+    // Reset times to initial values
     current_timer.white_time_ms = current_timer.config.initial_time_ms;
     current_timer.black_time_ms = current_timer.config.initial_time_ms;
     
@@ -448,13 +448,13 @@ bool timer_check_timeout(void)
         return false;
     }
     
-    // Kontrola zda je casova kontrola aktivni
+    // Checking whether time control is active
     if (current_timer.config.type == TIME_CONTROL_NONE) {
         timer_unlock();
         return false; // Bez casove kontroly
     }
     
-    // Kontrola zda hra neni pozastavena
+    // Check if the game is not paused
     if (current_timer.game_paused) {
         timer_unlock();
         return false; // Hra je pozastavena
@@ -463,14 +463,14 @@ bool timer_check_timeout(void)
     // Kontrola zda timer bezi
     if (!current_timer.timer_running) {
         timer_unlock();
-        return current_timer.time_expired; // Vratit aktualni stav
+        return current_timer.time_expired; // Return the current state
     }
     
     // Vypocitat ubehly cas
     uint64_t current_time = esp_timer_get_time() / 1000; // Convert to milliseconds
     uint32_t elapsed_ms = (uint32_t)(current_time - current_timer.move_start_time);
     
-    // Aktualizovat cas hrace
+    // Update game time
     uint32_t current_player_time = current_timer.is_white_turn ? 
         current_timer.white_time_ms : current_timer.black_time_ms;
     
@@ -490,7 +490,7 @@ bool timer_check_timeout(void)
         ESP_LOGW(TAG, "⏰ Time expired for %s!", 
                  current_timer.is_white_turn ? "White" : "Black");
         
-        // Spustit timeout animaci - blikani cervenou barvou
+        // Start timeout animation - flashing red
         led_command_t timeout_cmd = {
             .type = LED_CMD_ANIM_CHECK,  // Pouzit check animaci pro timeout (blikani cervenou)
             .led_index = 0,
@@ -528,17 +528,17 @@ esp_err_t timer_get_state(chess_timer_t* timer_data)
         return ret;
     }
     
-    // Kopirovat aktualni stav
+    // Copy current state
     memcpy(timer_data, &current_timer, sizeof(chess_timer_t));
     
-    // Aktualizovat casy pokud timer bezi nebo pokud je casova kontrola nastavena
+    // Update times if timer is running or if time control is set
     if (current_timer.config.type != TIME_CONTROL_NONE && !current_timer.game_paused) {
         if (current_timer.timer_running) {
-            // Timer bezi - vypocitat aktualni zbývající cas
+            // Timer running - calculate the current remaining time
             uint64_t current_time = esp_timer_get_time() / 1000; // Convert to milliseconds
             uint32_t elapsed_ms = (uint32_t)(current_time - current_timer.move_start_time);
             
-            // Pouzit ORIGINALNI hodnoty z current_timer (ne z kopie)
+            // Use ORIGINAL values ​​from current_timer (not from copy)
             uint32_t original_white = current_timer.white_time_ms;
             uint32_t original_black = current_timer.black_time_ms;
             
@@ -562,8 +562,8 @@ esp_err_t timer_get_state(chess_timer_t* timer_data)
                 timer_data->white_time_ms = original_white;
             }
         }
-        // Pokud timer nebezi, casy zustavaji stejne (ulozene hodnoty)
-        // To umozni zobrazení času i když timer ještě neběží
+        // If the timer is not running, the times remain the same (saved values)
+        // This allows the time to be displayed even if the timer is not running yet
     }
     
     timer_unlock();
@@ -581,7 +581,7 @@ uint32_t timer_get_remaining_time(bool is_white_turn)
     uint32_t remaining_time = is_white_turn ? 
         current_timer.white_time_ms : current_timer.black_time_ms;
     
-    // Aktualizovat cas pokud timer bezi
+    // Update the time if the timer is running
     if (current_timer.timer_running && !current_timer.game_paused && 
         current_timer.config.type != TIME_CONTROL_NONE &&
         current_timer.is_white_turn == is_white_turn) {
@@ -632,7 +632,7 @@ esp_err_t timer_get_json(char* buffer, size_t buffer_size)
         return ret;
     }
     
-    // Vytvorit JSON
+    // Create JSON
     int written = snprintf(buffer, buffer_size,
         "{"
         "\"white_time_ms\":%" PRIu32 ","
@@ -711,7 +711,7 @@ esp_err_t timer_save_settings(void)
         return ret;
     }
     
-    // Ulozit aktualni konfiguraci (max 15 chars for NVS key)
+    // Save current configuration (max 15 chars for NVS key)
     ret = nvs_set_u8(nvs_handle, "tc_type", (uint8_t)current_timer.config.type);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to save time control type: %s", esp_err_to_name(ret));
@@ -719,7 +719,7 @@ esp_err_t timer_save_settings(void)
         return ret;
     }
     
-    // Pokud je custom time control, ulozit take custom values
+    // If there is a custom time control, also store custom values
     if (current_timer.config.type == TIME_CONTROL_CUSTOM) {
         uint32_t custom_minutes = current_timer.config.initial_time_ms / 60000;
         uint32_t custom_increment = current_timer.config.increment_ms / 1000;
@@ -734,7 +734,7 @@ esp_err_t timer_save_settings(void)
             ESP_LOGE(TAG, "Failed to save custom increment: %s", esp_err_to_name(ret));
         }
     } else {
-        // Pro non-custom, smazat custom hodnoty z NVS
+        // For non-custom, delete custom values ​​from NVS
         nvs_erase_key(nvs_handle, "tc_min");
         nvs_erase_key(nvs_handle, "tc_inc");
     }
@@ -761,14 +761,14 @@ esp_err_t timer_load_settings(void)
         return ret;
     }
     
-    // Nacist typ casove kontroly (max 15 chars for NVS key)
+    // Clear time control type (max 15 chars for NVS key)
     uint8_t time_control_type = TIME_CONTROL_NONE;
     
     ret = nvs_get_u8(nvs_handle, "tc_type", &time_control_type);
     if (ret == ESP_OK) {
         // Nastavit casovou kontrolu
         if (time_control_type == TIME_CONTROL_CUSTOM) {
-            // Pro custom, nacist custom hodnoty
+            // For custom, Nazi custom values
             uint32_t custom_minutes = 10;
             uint32_t custom_increment = 0;
             
@@ -781,11 +781,11 @@ esp_err_t timer_load_settings(void)
                 ESP_LOGI(TAG, "Timer settings loaded: Custom %" PRIu32 "+%" PRIu32, custom_minutes, custom_increment);
             } else {
                 ESP_LOGW(TAG, "Custom time control type found but values missing, using defaults");
-                // Pouzit default custom
+                // Use default custom
                 ret = timer_set_custom_time_control(10, 0);
             }
         } else {
-            // Předdefinovaná časová kontrola
+            // Predefined time control
             time_control_config_t config;
             ret = timer_get_config_by_type((time_control_type_t)time_control_type, &config);
             if (ret == ESP_OK) {
@@ -873,14 +873,14 @@ esp_err_t timer_set_custom_time_control(uint32_t minutes, uint32_t increment_sec
         return ESP_ERR_INVALID_ARG;
     }
     
-    // Vytvorit vlastni konfiguraci
+    // Create your own configuration
     time_control_config_t custom_config = TIME_CONTROLS[TIME_CONTROL_CUSTOM];
     custom_config.initial_time_ms = minutes * 60 * 1000; // Convert to milliseconds
     custom_config.increment_ms = increment_seconds * 1000; // Convert to milliseconds
     
     snprintf(custom_config.name, sizeof(custom_config.name), "Custom %" PRIu32 "+%" PRIu32, minutes, increment_seconds);
     snprintf(custom_config.description, sizeof(custom_config.description), 
-             "Vlastní nastavení: %" PRIu32 " minut + %" PRIu32 " sekund increment", minutes, increment_seconds);
+             "Custom settings: %" PRIu32 " minut + %" PRIu32 " sekund increment", minutes, increment_seconds);
     custom_config.is_fast = (minutes < 10);
     
     ESP_LOGI(TAG, "Setting custom time control: %" PRIu32 " minutes + %" PRIu32 " seconds increment", 
@@ -911,7 +911,7 @@ esp_err_t timer_system_deinit(void)
 {
     ESP_LOGI(TAG, "Deinitializing timer system...");
     
-    // Ulozit nastaveni
+    // Save settings
     timer_save_settings();
     
     // Uvolnit mutex

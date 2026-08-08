@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Generování HTML a export jednotlivých Mermaid diagramů z docs/diagrams/mermaid_diagrams.txt.
+Generate HTML and export individual Mermaid diagrams from docs/diagrams/mermaid_diagrams.txt.
 
-mermaid_diagrams.txt NENÍ jeden diagram — obsahuje komentáře (#) a 26 bloků sequenceDiagram.
-Celý soubor do mermaid.live / náhledu editoru vložit nelze (UnknownDiagramError).
-Použijte diagrams_mermaid.html, nebo export: python generate_mermaid_html.py --export-dir ...
+mermaid_diagrams.txt is NOT a single diagram — it contains comments (#) and 26 sequenceDiagram blocks.
+Pasting the whole file into mermaid.live / an editor preview will fail (UnknownDiagramError).
+Use diagrams_mermaid.html, or export: python generate_mermaid_html.py --export-dir ...
 """
 
 import argparse
@@ -14,12 +14,12 @@ from pathlib import Path
 
 
 def _is_txt_section_rule_line(line_stripped):
-    """Oddělovač sekcí v mermaid_diagrams.txt (# jen znaky =). Nesmí se vkládat do Mermaid."""
+    """Section separator in mermaid_diagrams.txt (# followed only by =). Must not be injected into Mermaid."""
     return bool(re.match(r"^#\s*=+\s*$", line_stripped))
 
 
 def parse_mermaid_file(filename):
-    """Parsuje soubor s Mermaid diagramy a vrací strukturovaná data"""
+    """Parse a Mermaid diagrams file and return structured data."""
     with open(filename, 'r', encoding='utf-8') as f:
         content = f.read()
     
@@ -30,8 +30,8 @@ def parse_mermaid_file(filename):
     while i < len(lines):
         line = lines[i]
         
-        # Sekce: # ČÁST A: NÁZEV
-        section_match = re.match(r'^# ČÁST ([A-J]): (.+)$', line)
+        # Section: # PART A: NAME  (also legacy Czech: # ČÁST A: …)
+        section_match = re.match(r'^# (?:PART|ČÁST) ([A-J]): (.+)$', line)
         if section_match:
             section = {
                 'letter': section_match.group(1),
@@ -42,13 +42,13 @@ def parse_mermaid_file(filename):
             i += 1
             continue
         
-        # Podsekce: # A1. Název
+        # Subsection: # A1. Name
         subsection_match = re.match(r'^# ([A-J][0-9]+)\. (.+)$', line)
         if subsection_match and sections:
             subsection_id = subsection_match.group(1)
             subsection_name = subsection_match.group(2)
             
-            # Najít komentář popis (řádky po nadpisu, které začínají #)
+            # Collect description comments (lines after the heading that start with #)
             description_lines = []
             i += 1
             while i < len(lines) and lines[i].startswith('#'):
@@ -57,30 +57,30 @@ def parse_mermaid_file(filename):
                     description_lines.append(desc_line[2:].strip())
                 i += 1
             
-            # Najít Mermaid kód (sequenceDiagram až do dalšího # nebo konce)
+            # Find Mermaid code (sequenceDiagram until the next # or end of file)
             mermaid_code = []
             while i < len(lines):
                 if lines[i].strip().startswith('sequenceDiagram'):
-                    # Začátek Mermaid kódu
+                    # Start of Mermaid code
                     mermaid_code.append(lines[i])
                     i += 1
-                    # Pokračovat až do dalšího # (kromě komentářů v kódu)
+                    # Continue until the next # (except comments inside the code)
                     while i < len(lines):
                         line_stripped = lines[i].strip()
                         if _is_txt_section_rule_line(line_stripped):
                             break
-                        # Pokud je to nová sekce/podsekce (začíná # a není to pokračování kódu)
+                        # New section/subsection (# …) that is not a continuation of Mermaid code
                         if line_stripped.startswith('# ') and not line_stripped.startswith('#    '):
-                            # Zkontrolovat, jestli to není komentář v kódu (začíná na začátku řádku)
+                            # Skip Mermaid-style comments that start at column 0
                             if not line_stripped.startswith('# =') and not line_stripped.startswith('# -'):
-                                # Možná nová sekce/podsekce, ale zkontrolovat kontext
+                                # Possible new section/subsection — check context
                                 if not any(c in line_stripped for c in ['participant', 'Note over', '->>', '-->>', 'activate', 'deactivate', 'loop', 'alt', 'opt', 'rect']):
                                     break
                         mermaid_code.append(lines[i])
                         i += 1
                     break
                 elif lines[i].strip() and not lines[i].strip().startswith('#'):
-                    # Ne-prázdný řádek, který není komentář - možná začátek kódu
+                    # Non-empty non-comment line — maybe the start of code
                     if 'sequenceDiagram' in lines[i] or lines[i].strip().startswith('sequenceDiagram'):
                         mermaid_code.append(lines[i])
                         i += 1
@@ -117,7 +117,7 @@ def parse_mermaid_file(filename):
 
 
 def iter_diagrams(sections):
-    """Všechny podsekce (A1, B1, …) jako (id, name, mermaid_code)."""
+    """All subsections (A1, B1, …) as (id, name, mermaid_code)."""
     for section in sections:
         for sub in section["subsections"]:
             yield sub["id"], sub["name"], sub["mermaid_code"]
@@ -147,10 +147,10 @@ def export_diagrams_to_dir(sections, output_dir: Path) -> int:
 
 
 def generate_html(sections, output_file):
-    """Generuje HTML stránku s diagramy"""
+    """Generate an HTML page with the diagrams."""
     
-    # Generovat navigaci (TOC)
-    toc_html = ['<nav class="toc">', '<h2>Navigace</h2>', '<ul>']
+    # Build navigation (TOC)
+    toc_html = ['<nav class="toc">', '<h2>Navigation</h2>', '<ul>']
     
     for section in sections:
         section_id = f"section-{section['letter'].lower()}"
@@ -166,14 +166,14 @@ def generate_html(sections, output_file):
     toc_html.extend(['</ul>', '</nav>'])
     toc_html_str = '\n'.join(toc_html)
     
-    # Generovat obsah
+    # Build content
     content_html = ['<main class="content">']
-    content_html.append('<h1>CZECHMATE firmware — sekvenční diagramy</h1>')
+    content_html.append('<h1>CZECHMATE firmware — sequence diagrams</h1>')
     content_html.append(
-        '<p class="intro">Sekvence z <code>mermaid_diagrams.txt</code> (zdroj není jeden Mermaid blok — '
-        'pro mermaid.live použijte <code>extracted/*.mmd</code> po '
+        '<p class="intro">Sequences from <code>mermaid_diagrams.txt</code> (the source is not a single Mermaid block — '
+        'for mermaid.live use <code>extracted/*.mmd</code> after '
         '<code>python generate_mermaid_html.py --export-dir docs/diagrams/extracted</code>). '
-        'Obrázky tasků: <a href="README.md">README.md</a>. Verze firmware: kořenový '
+        'Task diagrams: <a href="README.md">README.md</a>. Firmware version: root '
         '<code>CMakeLists.txt</code>.</p>'
     )
     
@@ -205,13 +205,13 @@ def generate_html(sections, output_file):
     content_html.append('</main>')
     content_html_str = '\n'.join(content_html)
     
-    # Kompletní HTML
+    # Full HTML
     html_template = f'''<!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CZECHMATE — Mermaid diagramy (sekvenční)</title>
+    <title>CZECHMATE — Mermaid diagrams (sequence)</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * {{
@@ -409,47 +409,47 @@ def generate_html(sections, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html_template)
     
-    print(f"HTML stránka vygenerována: {output_file}")
+    print(f"HTML page generated: {output_file}")
 
 def _build_arg_parser():
     p = argparse.ArgumentParser(
-        description="HTML z mermaid_diagrams.txt nebo export jednoho diagramu (.mmd)."
+        description="HTML from mermaid_diagrams.txt, or export a single diagram (.mmd)."
     )
     p.add_argument(
         "--input",
         default="docs/diagrams/mermaid_diagrams.txt",
-        help="Zdrojový soubor s diagramy",
+        help="Source file with diagrams",
     )
     p.add_argument(
         "--output",
         default="docs/diagrams/diagrams_mermaid.html",
-        help="Výstupní HTML (výchozí režim)",
+        help="Output HTML (default mode)",
     )
     p.add_argument(
         "--export-dir",
         metavar="DIR",
-        help="Export všech diagramů jako samostatné .mmd (pro mermaid.live / mmdc)",
+        help="Export all diagrams as separate .mmd files (for mermaid.live / mmdc)",
     )
     p.add_argument(
         "--extract",
         metavar="ID",
-        help="Vytisknout jeden diagram (např. A1) na stdout",
+        help="Print one diagram (e.g. A1) to stdout",
     )
     p.add_argument(
         "-o",
         "--out-file",
         metavar="FILE",
-        help="Uložit --extract do souboru",
+        help="Write --extract output to a file",
     )
     p.add_argument(
         "--list",
         action="store_true",
-        help="Vypsat ID všech diagramů",
+        help="List IDs of all diagrams",
     )
     p.add_argument(
         "--html-only",
         action="store_true",
-        help="Jen HTML, bez souhrnu sekcí",
+        help="HTML only, no section summary",
     )
     return p
 
@@ -457,7 +457,7 @@ def _build_arg_parser():
 def main():
     args = _build_arg_parser().parse_args()
     input_path = Path(args.input)
-    print(f"Parsování {input_path}...")
+    print(f"Parsing {input_path}...")
     sections = parse_mermaid_file(str(input_path))
 
     if args.list:
@@ -469,38 +469,38 @@ def main():
         found = find_diagram_by_id(sections, args.extract)
         if not found:
             known = ", ".join(d[0] for d in iter_diagrams(sections))
-            raise SystemExit(f"Diagram '{args.extract}' nenalezen. Dostupné: {known}")
+            raise SystemExit(f"Diagram '{args.extract}' not found. Available: {known}")
         text = found["mermaid_code"] + "\n"
         if args.out_file:
             Path(args.out_file).write_text(text, encoding="utf-8")
-            print(f"Uloženo: {args.out_file}")
+            print(f"Saved: {args.out_file}")
         else:
             print(text, end="")
         return
 
     if args.export_dir:
         n = export_diagrams_to_dir(sections, Path(args.export_dir))
-        print(f"Exportováno {n} diagramů do {args.export_dir}/")
+        print(f"Exported {n} diagrams to {args.export_dir}/")
         if not args.html_only:
             generate_html(sections, args.output)
             print(f"HTML: {args.output}")
         return
 
     if not args.html_only:
-        print(f"Nalezeno {len(sections)} sekcí:")
+        print(f"Found {len(sections)} sections:")
         total = 0
         for section in sections:
             count = len(section["subsections"])
             total += count
-            print(f"  {section['letter']}: {section['name']} ({count} diagramů)")
-        print(f"\nCelkem {total} diagramů")
+            print(f"  {section['letter']}: {section['name']} ({count} diagrams)")
+        print(f"\nTotal {total} diagrams")
 
-    print(f"\nGenerování HTML do {args.output}...")
+    print(f"\nGenerating HTML to {args.output}...")
     generate_html(sections, args.output)
     export_dir = Path("docs/diagrams/extracted")
     n = export_diagrams_to_dir(sections, export_dir)
-    print(f"Export {n}× .mmd → {export_dir}/")
-    print("Hotovo!")
+    print(f"Export {n}x .mmd -> {export_dir}/")
+    print("Done!")
 
 
 if __name__ == "__main__":

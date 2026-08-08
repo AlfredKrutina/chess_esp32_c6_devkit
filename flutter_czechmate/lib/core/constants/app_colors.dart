@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Základní chess-themed paleta — doladit podle `CZECHMATE/Support/Theme.swift`.
+/// Basic chess-themed palette — tweak according to `CZECHMATE/Support/Theme.swift`.
 abstract final class AppColors {
   static const lightSquare = Color(0xFFEED9B5);
   static const darkSquare = Color(0xFFB58863);

@@ -1,10 +1,10 @@
 # Flutter CzechMate
 
-V gitu je hlavní mobilní / desktop klient pro **CzechMate** (ESP32 šachovnice). Nativní Xcode projekt `CZECHMATE/` záměrně není v tomhle remote — držím ho jen lokálně.
+The main mobile / desktop client for **CzechMate** (ESP32 chess board) lives in this repo. The native Xcode project `CZECHMATE/` is intentionally not in this remote — I keep it locally only.
 
-[`docs/README.md`](../docs/README.md) — zbytek dokumentace.
+[`docs/README.md`](../docs/README.md) — rest of the documentation.
 
-## Spuštění
+## Run
 
 ```bash
 cd flutter_czechmate
@@ -14,10 +14,10 @@ flutter run
 
 ## Stack
 
-Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP + případně WebSocket, balíček `chess` pro pravidla na zařízení.
+Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP + optional WebSocket, `chess` package for on-device rules.
 
-## Kam dál číst
+## Further reading
 
-- [`docs/flutter/README.md`](../docs/flutter/README.md) — struktura klienta, BLE/HTTP, diagramy
-- [`docs/ota_architecture.md`](../docs/ota_architecture.md) — OTA firmwaru desky
-- [`docs/README.md`](../docs/README.md) — firmware diagramy, reference, …
+- [`docs/flutter/README.md`](../docs/flutter/README.md) — client structure, BLE/HTTP, diagrams
+- [`docs/ota_architecture.md`](../docs/ota_architecture.md) — board firmware OTA
+- [`docs/README.md`](../docs/README.md) — firmware diagrams, reference, …

@@ -1,32 +1,32 @@
 /**
  * @file shared_buffer_pool.h
- * @brief ESP32-C6 Chess System - Hlavicka Shared Buffer Poolu
+ * @brief ESP32-C6 Chess System - Shared Buffer Pool header
  * 
- * Centralizovany buffer pool pro nahrazeni malloc/free volani a eliminaci
- * problemuS fragmentace heapu v prikazech jako led_board a endgame_white.
+ * Centralized buffer pool to replace malloc/free calls and elimination
+ * heap fragmentation problem in commands like led_board and endgame_white.
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-01-27
  * 
  * @details
- * Shared Buffer Pool poskytuje predalokavane buffery misto dynamicke alokace.
- * Eliminuje fragmentaci heapu a zlepsuje performance alokace pameti.
- * Obsahuje 4 buffery o velikosti 2KB kazdy (celkem 8KB).
+ * Shared Buffer Pool provides pre-allocated buffers instead of dynamic allocation.
+ * Eliminates heap fragmentation and improves memory allocation performance.
+ * Contains 4 buffers of 2KB size each (total 8KB).
  * 
- * Vyh ody:
- * - Eliminace fragmentace heapu
- * - Rychlejsi alokace (bez malloc overhead)
- * - Prevence memory leaku (automaticke sledovani)
- * - Detekce buffer leaku
+ * Advantages:
+ * - Eliminate heap fragmentation
+ * - Faster allocation (no malloc overhead)
+ * - Memory leak prevention (automatic monitoring)
+ * - Buffer leak detection
  * 
- * Priklad pouziti:
+ * Example of use:
  * @code
  * char* buffer = get_shared_buffer(1536);
  * if (buffer != NULL) {
- *     sprintf(buffer, "Hello World");
- *     printf("%s\n", buffer);
- *     release_shared_buffer(buffer);
+ * sprintf(buffer, "Hello World");
+ * printf("%s\n", buffer);
+ * release_shared_buffer(buffer);
  * }
  * @endcode
  */
@@ -48,12 +48,12 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Ziskej sdileny buffer s automatickym sledovanim souboru/radky
+ * @brief Get a shared buffer with automatic file/line tracking
  * 
- * @param size Minimalni pozadovana velikost bufferu v bajtech
- * @return Ukazatel na buffer nebo NULL pri selhani
+ * @param size Minimum required buffer size in bytes
+ * @return Pointer to buffer or NULL on failure
  * 
- * @note Pouziva makra __FILE__ a __LINE__ pro debug sledovani
+ * @note Uses __FILE__ and __LINE__ macros for debug tracing
  */
 #define get_shared_buffer(size) get_shared_buffer_debug(size, __FILE__, __LINE__)
 
@@ -62,103 +62,103 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Struktura statistik buffer poolu
+ * @brief Buffer pool statistics structure
  * 
- * Obsahuje informace o pouziti buffer poolu (velikost, pouziti, selhani).
+ * Contains information about buffer pool usage (size, usage, failures).
  */
 typedef struct {
     uint32_t pool_size;          ///< Celkovy pocet bufferu v poolu
     uint32_t buffer_size;        ///< Velikost jednoho bufferu v bajtech
-    uint32_t current_usage;      ///< Aktualne alokovane buffery
+    uint32_t current_usage;      ///< Currently allocated buffers
     uint32_t peak_usage;         ///< Maximalni dosazen e pouziti
     uint32_t total_allocations;  ///< Celkovy pocet alokaci
     uint32_t total_releases;     ///< Celkovy pocet uvolneni
-    uint32_t allocation_failures;///< Pocet selhanych alokaci
+    uint32_t allocation_failures;///< Number of failed allocations
 } buffer_pool_stats_t;
 
 // ============================================================================
-// INICIALIZACNI FUNKCE
+// INITIALIZATION FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializuje shared buffer pool
+ * @brief Initializes the shared buffer pool
  * 
- * Vytvori mutex pro thread-safe pristup a inicializuje vsechny
- * buffery jako volne. Resetuje statistiky.
+ * Creates a mutex for thread-safe access and initializes all
+ * buffers as free. Resets stats.
  * 
- * @return ESP_OK pri uspechu, ESP_ERR_NO_MEM pri selhani vytvoreni mutexu
+ * @return ESP_OK on success, ESP_ERR_NO_MEM on failure of mutex creation
  */
 esp_err_t buffer_pool_init(void);
 
 /**
  * @brief Deinicializuje buffer pool a uvolni prostredky
  * 
- * Kontroluje zda nejsou neuvolnene buffery (leak detection)
+ * Checks whether buffers have not been released (leak detection)
  * a uvolni mutex.
  */
 void buffer_pool_deinit(void);
 
 // ============================================================================
-// FUNKCE PRO ALOKACI/UVOLNENI BUFFERU
+// BUFFER ALLOCATION/RELEASE FUNCTION
 // ============================================================================
 
 /**
- * @brief Ziskej sdileny buffer z poolu (interni funkce)
+ * @brief Get the shared buffer from the pool (internal function)
  * 
- * Hleda volny buffer v poolu a oznaci ho jako pouzivany.
- * Loguje informace o alokaci pro debug ucely.
+ * Searches for a free buffer in the pool and marks it as used.
+ * Logs allocation information for debug purposes.
  * 
- * @param min_size Minimalni pozadovana velikost bufferu v bajtech
- * @param file Nazev zdrojoveho souboru (pro debug)
- * @param line Cislo radky (pro debug)
- * @return Ukazatel na buffer nebo NULL pokud alokace selhala
+ * @param min_size Minimum required buffer size in bytes
+ * @param file Source file name (for debug)
+ * @param line Line number (for debug)
+ * @return Pointer to buffer or NULL if allocation failed
  * 
- * @note Nepouzivejte primo - pouzijte makro get_shared_buffer()
+ * @note Don't use directly - use get_shared_buffer() macro
  */
 char* get_shared_buffer_debug(size_t min_size, const char* file, int line);
 
 /**
- * @brief Uvolni sdileny buffer zpet do poolu
+ * @brief Release the shared buffer back into the pool
  * 
- * Oznaci buffer jako volny a muze byt pouzit jinymi tasky.
+ * Marks the buffer as free and can be used by other tasks.
  * 
- * @param buffer Ukazatel na buffer k uvolneni
- * @return ESP_OK pri uspechu, ESP_ERR_INVALID_ARG pokud buffer je neplatny
+ * @param buffer Pointer to the buffer to free
+ * @return ESP_OK on success, ESP_ERR_INVALID_ARG if the buffer is invalid
  */
 esp_err_t release_shared_buffer(char* buffer);
 
 // ============================================================================
-// UTILITY A STATUS FUNKCE
+// UTILITIES AND FUNCTION STATUS
 // ============================================================================
 
 /**
  * @brief Vypis detailni status buffer poolu do konzole
  * 
- * Zobrazuje vsechny buffery, jejich stav (volny/pouzivany),
+ * Displays all buffers, their status (free/used),
  * vlastnika a statistiky.
  */
 void buffer_pool_print_status(void);
 
 /**
- * @brief Ziskej statistiky buffer poolu
+ * @brief Get buffer pool statistics
  * 
- * @return Struktura s aktualnimi statistikami
+ * @return Structure with current statistics
  */
 buffer_pool_stats_t buffer_pool_get_stats(void);
 
 /**
- * @brief Overi zda je buffer pool ve zdravem stavu
+ * @brief Verify that the buffer pool is in a healthy state
  * 
- * Kontroluje zda nejsou preteceni, leaky nebo jine problemy.
+ * Checks whether there are overflows, leaks or other problems.
  * 
- * @return true pokud je pool zdravy, false pokud jsou detekovany problemy
+ * @return true if the pool is healthy, false if problems are detected
  */
 bool buffer_pool_is_healthy(void);
 
 /**
  * @brief Detekuj potencialni buffer leaky
  * 
- * Loguje varovani pro buffery drzene dele nez je ocekavano.
+ * Logs warnings for buffers held longer than expected.
  * Pomaha identifikovat zapomnute uvolneni bufferu.
  */
 void buffer_pool_detect_leaks(void);
@@ -168,17 +168,17 @@ void buffer_pool_detect_leaks(void);
 // ============================================================================
 
 /**
- * @brief Bezpecna alokace bufferu s kontrolou velikosti
+ * @brief Safe buffer allocation with size control
  * 
- * Pouziti: SAFE_GET_BUFFER(ptr, size, cleanup_label)
+ * Use: SAFE_GET_BUFFER(ptr, size, cleanup_label)
  * 
- * @par Priklad:
+ * @par Example:
  * @code
- * char* buffer;
+ * char * buffer;
  * SAFE_GET_BUFFER(buffer, 1536, cleanup);
- * // ... pouzij buffer ...
+ * // ... use buffer ...
  * cleanup:
- *     release_shared_buffer(buffer);
+ * release_shared_buffer(buffer);
  * @endcode
  */
 #define SAFE_GET_BUFFER(ptr, size, cleanup_label) do { \
@@ -190,9 +190,9 @@ void buffer_pool_detect_leaks(void);
 } while(0)
 
 /**
- * @brief Bezpecne uvolneni bufferu s kontrolou NULL
+ * @brief Safe release of buffer with NULL check
  * 
- * Pouziti: SAFE_RELEASE_BUFFER(ptr)
+ * Use: SAFE_RELEASE_BUFFER(ptr)
  */
 #define SAFE_RELEASE_BUFFER(ptr) do { \
     if (ptr != NULL) { \

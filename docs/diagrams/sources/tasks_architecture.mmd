@@ -1,16 +1,16 @@
-%% Pořadí xTaskCreate z main.c · runtime šipky na fronty · barvy: init / task / queue / disabled
+%% xTaskCreate order from main.c · runtime arrows to queues · colors: init / task / queue / disabled
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','primaryBorderColor':'#64748b','secondaryColor':'#334155','tertiaryColor':'#1e293b','edgeLabelBackground':'#1e293b','mainBkg':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
   subgraph SYS["main_system_init()"]
     direction TB
     CH["chess_system_init"]
-    TM["timery · kontrola front"]
-    EG["endgame anim · UART příkazy"]
+    TM["timers · queue checks"]
+    EG["endgame anim · UART commands"]
     BLE["ble_task_init → NimBLE"]
     CH --> TM --> EG --> BLE
   end
 
-  subgraph OFF["main.c nevytváří task"]
+  subgraph OFF["main.c does not create task"]
     AN[animation_task]
     MA[matter_task]
   end

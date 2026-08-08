@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-/// Apple Watch (WatchConnectivity) + rezerva pro Wear OS Data Layer.
+/// Apple Watch (WatchConnectivity) + reserved for Wear OS Data Layer.
 ///
-/// Inbound příkazy z hodinek: [ensureWatchInboundBinding] v `watch_command_binding.dart`.
+/// Inbound commands from watch: [ensureWatchInboundBinding] in `watch_command_binding.dart`.
 /// Viz `context/WATCH_AND_LIVE_ACTIVITIES_PLAN.md`.
 class WatchConnectivityService {
   WatchConnectivityService();
@@ -29,7 +29,7 @@ class WatchConnectivityService {
     }
   }
 
-  /// Odeslání příkazu na hodinky / příjem z hodinek — rozšíří se v nativní vrstvě.
+  /// Send command to watch / receive from watch — will be extended in the native layer.
   Future<void> sendGameMirror(Map<String, dynamic> payload) async {
     try {
       await _channel.invokeMethod<void>('mirrorGameState', payload);

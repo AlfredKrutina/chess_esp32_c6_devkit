@@ -178,8 +178,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   }
 
   Widget _framedBoard(double side) {
-    // Bez Material: žádný outline (desktop BorderSide), žádný stín ani surfaceTint (M3),
-    // které vypadaly jako „rámeček“ pod deskou i při stejné barvě výplně.
+    // Without Material: no outline (desktop BorderSide), no shadow or surfaceTint (M3),
+    // which looked like a "frame" under the board even with the same fill color.
     final shell = Theme.of(context).scaffoldBackgroundColor;
     return ClipRRect(
       borderRadius: BorderRadius.circular(14),
@@ -196,7 +196,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  /// Kompaktní panel pod šachovnicí — nesnižuje viditelnou plochu figurek (žádný overlay nahoře).
+  /// Compact panel below the board — does not reduce the visible area of ​​the pieces (no overlay on top).
   Widget _puzzleGlassHud(PuzzleChallengeState pc) {
     final l10n = context.l10n;
     final cs = Theme.of(context).colorScheme;
@@ -264,14 +264,14 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     );
   }
 
-  /// [edgeToEdge] — „Jen deska“. [expandInParent] — vyplní výšku řádku (Row); v Column scroll nesmí být true.
+  /// [edgeToEdge] — "Just a board". [expandInParent] — fills the row height (Row); in a Column, scroll must not be true.
   Widget _boardPane(
     BoxConstraints c,
     double zoom, {
     bool edgeToEdge = false,
     bool expandInParent = false,
 
-    /// V „Jen deska“ je HUD vytažený do spodního sloupce Stacku, aby ho nepřekryla „Nová hra“.
+    /// In "Just the Board", the HUD is pulled to the bottom column of the Stack so that it is not covered by the "New Game".
     bool embedPuzzleHudInBoardPane = true,
   }) {
     final ui = ref.watch(gameUiNotifierProvider);
@@ -404,7 +404,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       if (next.lastBusy) return;
       final msg = next.lastMessage;
       if (msg == null || msg.isEmpty) return;
-      // Nový výsledek = skončilo počítání (busy→hotovo) nebo nová zpráva po předchozím běhu.
+      // New result = finished counting (busy→done) or new message after previous run.
       final completedRun = prev?.lastBusy == true && next.lastBusy == false;
       final newText = prev?.lastMessage != next.lastMessage;
       if (!completedRun && !newText) return;

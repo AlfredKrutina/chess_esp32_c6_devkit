@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
-# Přegeneruje diagramy a HTML dokumentaci v repu (bez Doxygenu).
-# Použití: z kořene repa ./scripts/render_docs.sh
-# Volitelně SVG/PNG: npm i -g @mermaid-js/mermaid-cli  → příkaz mmdc
+# Regenerate diagrams and HTML documentation in the repo (without Doxygen).
+# Usage: from repo root ./scripts/render_docs.sh
+# Optional SVG/PNG: npm i -g @mermaid-js/mermaid-cli  → mmdc command
 
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-# Puppeteer (mmdc) na GitHub Actions: bez user namespace → „No usable sandbox“.
+# Puppeteer (mmdc) on GitHub Actions: without user namespace → "No usable sandbox".
 MERMAID_PUPPETEER_CFG=""
 if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
   MERMAID_PUPPETEER_CFG="$ROOT/scripts/mermaid-puppeteer-ci.json"
   if [[ -f "$MERMAID_PUPPETEER_CFG" ]]; then
-    echo "==> CI: mermaid-cli použije $MERMAID_PUPPETEER_CFG (--no-sandbox)"
+    echo "==> CI: mermaid-cli will use $MERMAID_PUPPETEER_CFG (--no-sandbox)"
   fi
 fi
 
 echo "==> scripts/docs/generate_mermaid_html.py → diagrams_mermaid.html + extracted/*.mmd"
 python3 scripts/docs/generate_mermaid_html.py --export-dir docs/diagrams/extracted
 
-echo "==> kopie Mermaid HTML pro gh-pages / doxygen (pokud složky existují)"
+echo "==> copy Mermaid HTML for gh-pages / doxygen (if directories exist)"
 if [[ -d gh-pages-ready ]]; then
   cp -f docs/diagrams/diagrams_mermaid.html gh-pages-ready/diagrams_mermaid.html
   echo "    gh-pages-ready/diagrams_mermaid.html"
@@ -28,7 +28,7 @@ if [[ -f docs/doxygen/html/index.html ]]; then
   cp -f docs/diagrams/diagrams_mermaid.html docs/doxygen/html/diagrams_mermaid.html
   echo "    docs/doxygen/html/diagrams_mermaid.html"
 elif [[ -d docs/doxygen ]]; then
-  echo "    (přeskočeno: vygeneruj nejdřív Doxygen — ./scripts/docs/generate_docs.sh)"
+  echo "    (skipped: generate Doxygen first — ./scripts/docs/generate_docs.sh)"
 fi
 
 render_mmd() {
@@ -51,7 +51,7 @@ render_mmd() {
     npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$svg" -b transparent
     npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
   else
-    echo "==> Přeskočeno SVG/PNG pro $base (nainstaluj mermaid-cli nebo npx)"
+    echo "==> Skipped SVG/PNG for $base (install mermaid-cli or npx)"
     return 0
   fi
 }
@@ -63,7 +63,7 @@ done
 shopt -u nullglob
 
 if ! command -v mmdc >/dev/null 2>&1 && ! command -v npx >/dev/null 2>&1; then
-  echo "==> Celkově přeskočeny SVG/PNG (chybí mmdc i npx)"
+  echo "==> Overall SVG/PNG skipped (mmdc and npx missing)"
 fi
 
-echo "Hotovo."
+echo "Done."

@@ -29,7 +29,7 @@ esp_err_t game_set_time_control(const time_control_config_t *config) {
   if (ret == ESP_OK) {
     ESP_LOGI(TAG, "Time control set: %s", config->name);
 
-    // Pokud je hra aktivní, spustit timer pro aktuálního hráče
+    // If the game is active, start the timer for the current player
     if (current_game_state == GAME_STATE_ACTIVE) {
       ESP_LOGI(TAG, "Game is active, starting timer for current player");
       timer_start_move(current_player == PLAYER_WHITE);
@@ -141,12 +141,12 @@ esp_err_t game_process_timer_command(const chess_move_command_t *cmd) {
         (time_control_type_t)cmd->timer_data.timer_config.time_control_type;
 
     if (type == TIME_CONTROL_CUSTOM) {
-      // Vlastní časová kontrola
+      // Custom time control
       ret = timer_set_custom_time_control(
           cmd->timer_data.timer_config.custom_minutes,
           cmd->timer_data.timer_config.custom_increment);
     } else {
-      // Předdefinovaná časová kontrola
+      // Predefined time control
       ret = timer_get_config_by_type(type, &config);
       if (ret == ESP_OK) {
         ret = timer_set_time_control(&config);
@@ -173,7 +173,7 @@ esp_err_t game_process_timer_command(const chess_move_command_t *cmd) {
     break;
 
   case GAME_CMD_GET_TIMER_STATE:
-    // Timer state je získáván přes JSON API
+    // Timer state is retrieved via JSON API
     ret = ESP_OK;
     break;
 
@@ -193,7 +193,7 @@ esp_err_t game_process_timer_command(const chess_move_command_t *cmd) {
 esp_err_t game_handle_time_expiration(void) {
   ESP_LOGW(TAG, "⏰ Time expired! Handling timeout...");
 
-  // Získat stav timeru
+  // Get the timer status
   chess_timer_t timer_data;
   esp_err_t ret = timer_get_state(&timer_data);
   if (ret != ESP_OK) {
@@ -201,7 +201,7 @@ esp_err_t game_handle_time_expiration(void) {
     return ret;
   }
 
-  // Určit vítěze
+  // Determine the winner
   player_t winner = timer_data.is_white_turn ? PLAYER_BLACK : PLAYER_WHITE;
   const char *winner_name = (winner == PLAYER_WHITE) ? "White" : "Black";
   const char *loser_name = (winner == PLAYER_WHITE) ? "Black" : "White";
@@ -209,14 +209,14 @@ esp_err_t game_handle_time_expiration(void) {
   ESP_LOGW(TAG, "🏆 %s wins by timeout! %s ran out of time.", winner_name,
            loser_name);
 
-  // Ukončit hru
+  // End the game
   current_game_state = GAME_STATE_FINISHED;
   game_result = GAME_STATE_FINISHED;
   current_result_type =
       (winner == PLAYER_WHITE) ? RESULT_WHITE_WINS : RESULT_BLACK_WINS;
-  current_endgame_reason = ENDGAME_REASON_TIMEOUT; // Označit jako timeout
+  current_endgame_reason = ENDGAME_REASON_TIMEOUT; // Mark as timeout
 
-  // Požadavek na endgame report (stejný fix jako u resignation)
+  // Endgame report request (same fix as resignation)
   game_update_endgame_statistics(current_result_type);
   endgame_report_requested = true;
 
@@ -224,8 +224,8 @@ esp_err_t game_handle_time_expiration(void) {
   // Timeout = Winner determined above
   game_trigger_victory_animation(winner);
 
-  // Zobrazit výsledek na LED (použít existující LED funkce)
-  // led_show_game_result(game_result); // Funkce neexistuje
+  // Display result on LED (use existing LED functions)
+  // led_show_game_result(game_result); // The function does not exist
 
   // Pozastavit timer
   timer_pause();

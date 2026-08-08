@@ -22,7 +22,7 @@ static void Matrix_ADC_Activate(void);
 static void MX_Nucleo_UserIo_Init(void);
 #endif
 
-/* Konzervativní prodleva mezi kalibrací a ENABLE (ST příklad ×32 pro async). */
+/* Conservative delay between calibration and ENABLE (ST example ×32 for async). */
 #define ADC_DELAY_CALIB_ENABLE_CPU_CYCLES                                              \
   ((uint32_t)(LL_ADC_DELAY_CALIB_ENABLE_ADC_CYCLES * 32U))
 
@@ -49,7 +49,7 @@ static void Matrix_GPIO_SetMuxAddress(unsigned ch) {
 /** ic 0 = U37 (COM1→PA0), 1 = U38 (COM2→PA1). */
 static void Matrix_MuxSelect(unsigned ic, unsigned ch4) {
   Matrix_GPIO_SetMuxAddress(ch4 & 15u);
-  /* Nejprve oba muxy vypnuté (E=H). */
+  /* Disable both muxes first (E=H). */
   LL_GPIO_SetOutputPin(MATRIX_ADC_COM1_PORT,
                        MATRIX_MUX_E_U37_PIN | MATRIX_MUX_E_U38_PIN);
   for (volatile unsigned w = 0U; w < 80U; w++) {
@@ -268,9 +268,9 @@ void SystemClock_Config(void) {
 void Hall_RefreshPayload(void) {
 #if defined(BOARD_HALL_I2C_DEMO)
   /*
-   * I²C stejné jako produkční Hall slave — bez ADC/muxů.
-   * Generuje vzorky tak, aby ESP (CHESS_HALL_PAIR_DIFF_THRESHOLD ~120) viděl
-   * měnící se „obsazenost“ polí: |s0−s1| buď 0 nebo 350.
+   * Same I²C as the production Hall slave — no ADC/muxes.
+   * Generates samples so ESP (CHESS_HALL_PAIR_DIFF_THRESHOLD ~120) sees
+   * changing square “occupancy”: |s0−s1| is either 0 or 350.
    */
   static uint32_t s_demo_ctr;
   uint8_t packed[HALL_I2C_PAYLOAD_BYTES];
@@ -338,7 +338,7 @@ int main(void) {
   SystemClock_Config();
 
 #if defined(BOARD_HALL_I2C_DEMO)
-  /* PB6/PB7 I2C — žádný mux/ADC. */
+  /* PB6/PB7 I2C — no mux/ADC. */
 #elif !defined(BOARD_NUCLEO_C031)
   MX_MATRIX_GPIO_Init();
   MX_ADC1_Init();

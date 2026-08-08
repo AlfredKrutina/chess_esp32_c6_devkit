@@ -1,56 +1,56 @@
-%% CzechMate poster — squircle, fw v1.8, plynulejsi sipky a lepsi kompozice
+%% CzechMate poster — squircle, fw v1.8, smoother arrows and better composition
 %%{init: {'theme':'base','flowchart':{'curve':'basis','padding':16,'htmlLabels':true,'nodeSpacing':25,'rankSpacing':35},'themeVariables':{'fontFamily':'Segoe UI, Nunito, sans-serif','fontSize':'10px','background':'#f8fafc','lineColor':'#455a64','primaryTextColor':'#1a2332'}}}%%
 flowchart TB
-  APP(["Mobilni app · Flutter"]):::extN
+  APP(["Mobile app · Flutter"]):::extN
 
-  subgraph KOM["B · Sit a komunikace"]
+  subgraph KOM["B · Network and communication"]
     direction TB
-    WIF("WiFi STA<br/><i>volitelne AP</i>"):::netN
+    WIF("WiFi STA<br/><i>optional AP</i>"):::netN
     WEBN("web_server_task<br/><i>HTTP :80 · REST · WS</i>"):::netN
     BLEU("NimBLE<br/><i>GAP adv · GATT</i>"):::netN
-    UART("uart_task<br/><i>konzole</i>"):::netN
+    UART("uart_task<br/><i>console</i>"):::netN
   end
 
-  subgraph HW["A · Fyzicka deska"]
+  subgraph HW["A · Physical board"]
     direction TB
     IN("8x8 reed / Hall<br/><i>Kconfig</i>"):::inN
-    RD("cteni stavu<br/><i>Hall I2C · STM32</i>"):::procN
+    RD("state readout<br/><i>Hall I2C · STM32</i>"):::procN
     DET("matrix_detect_moves<br/><i>PICKUP · DROP · GUARD</i>"):::procN
     IN --> RD --> DET
   end
 
-  GQ[("game_command_queue<br/><i>24 slotu</i>")]:::queueN
+  GQ[("game_command_queue<br/><i>24 slots</i>")]:::queueN
 
-  subgraph CORE["C · Logika a sprava"]
+  subgraph CORE["C · Logic and management"]
     direction TB
-    GAME("game_task · 100 ms<br/><i>sach · validace · NVS</i><br/><i>Management · tutorial</i>"):::gameN
+    GAME("game_task · 100 ms<br/><i>chess · validation · NVS</i><br/><i>Management · tutorial</i>"):::gameN
     MTX("matrix_task<br/><i>STM32 flash</i>"):::sideN
   end
 
-  subgraph VYS["D · LED vystup"]
+  subgraph VYS["D · LED output"]
     direction TB
     LEDT("led_task · 30 FPS<br/><i>led_set_pixel_safe</i>"):::ledN
     OUT("WS2812B GPIO7<br/><i>64+9 LED</i>"):::outN
     LEDT --> OUT
   end
 
-  subgraph OPT["E · Volitelne"]
+  subgraph OPT["E · Optional"]
     direction LR
     HLT(["ha_light<br/><i>MQTT</i>"]):::optN
     TST(["test_task"]):::optN
   end
 
-  subgraph LEG["Legenda"]
+  subgraph LEG["Legend"]
     direction LR
     LA1(" "):::legN
     LA2(" "):::legN
     LB1(" "):::legN
     LB2(" "):::legN
-    LA1 -->|hlavni tok| LA2
-    LB1 -.->|vol. spojeni| LB2
+    LA1 -->|main flow| LA2
+    LB1 -.->|opt. link| LB2
   end
 
-  %% Propojeni
+  %% Wiring
   APP -->|HTTP| WEBN
   APP -.->|BLE · net| BLEU
   
@@ -63,11 +63,11 @@ flowchart TB
   GAME --> LEDT
   GAME -.-> MTX
 
-  %% Zarovnani nepripojenych casti dospod
+  %% Align unconnected parts to bottom
   VYS ~~~ OPT
   OPT ~~~ LEG
 
-  %% Definice trid a stylu
+  %% Class and style definitions
   classDef inN fill:#64b5f6,stroke:#1565c0,color:#0d47a1,stroke-width:2px,rx:24,ry:24
   classDef procN fill:#66bb6a,stroke:#2e7d32,color:#1b5e20,stroke-width:2px,rx:24,ry:24
   classDef netN fill:#79a8dc,stroke:#37474f,color:#102030,stroke-width:2px,rx:24,ry:24

@@ -15,7 +15,7 @@ import '../../connection/board_session_state.dart';
 int _colorChannelByte(double normalized) =>
     (normalized * 255.0).round().clamp(0, 255);
 
-/// Barva + štítek pro předvolby (Hue-like scény).
+/// Color + label for presets (Hue-like scenes).
 class BoardLampPreset {
   const BoardLampPreset(this.label, this.r, this.g, this.b, this.icon);
 
@@ -44,7 +44,7 @@ List<BoardLampPreset> boardLampPresets(AppLocalizations l10n) => [
           l10n.lampPresetAmber, 255, 180, 32, Icons.light_mode_outlined),
     ];
 
-/// Čtyři doplňkové barvy k předvolbám (12 swatchů celkem).
+/// Four complementary colors to presets (12 swatches in total).
 const _lampGridExtraRgb = [
   [255, 255, 255],
   [0, 255, 255],
@@ -52,7 +52,7 @@ const _lampGridExtraRgb = [
   [140, 140, 155],
 ];
 
-/// Disk hue × saturace (střed = bílá, okraj = plná barva), hodnota V zvlášť.
+/// Hue × saturation disk (center = white, edge = solid color), V value separately.
 class _HueSatDiskPainter extends CustomPainter {
   _HueSatDiskPainter({required this.step});
 
@@ -135,7 +135,7 @@ class _HueSatThumbPainter extends CustomPainter {
       oldDelegate.diskRadius != diskRadius;
 }
 
-/// Náhled 8×8 — odhad rozptylu RGB pod desku (ne přesné LED mapování).
+/// 8×8 preview — RGB dispersion estimate under the board (not exact LED mapping).
 class _BoardGlowPreview extends StatelessWidget {
   const _BoardGlowPreview({
     required this.rgb,
@@ -225,7 +225,7 @@ class _GlowSquaresPainter extends CustomPainter {
       oldDelegate.glow != glow || oldDelegate.blend != blend;
 }
 
-/// Hue-like studio pro lampu desky — výběr barvy, jas, náhled, předvolby.
+/// Hue-like studio for board lamp — color selection, brightness, preview, presets.
 class BoardLampStudioPanel extends ConsumerStatefulWidget {
   const BoardLampStudioPanel({super.key});
 

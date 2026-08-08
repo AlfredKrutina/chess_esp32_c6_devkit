@@ -827,8 +827,8 @@ void game_process_endgame_black_command(const chess_move_command_t *cmd) {
   stream_writeln("\n🎉 Congratulations to White player!");
   stream_writeln("🏆 White wins with brilliant endgame technique!");
 
-  // Použít LED_CMD_ANIM_ENDGAME místo start_endgame_animation()
-  // Najít pozici bílého krále
+  // Use LED_CMD_ANIM_ENDGAME instead of start_endgame_animation()
+  // Find the position of the white king
   uint8_t king_pos = 27; // default fallback (d4)
   for (int i = 0; i < 64; i++) {
     int r = i / 8;
@@ -941,8 +941,8 @@ void game_process_list_games_command(const chess_move_command_t *cmd) {
     }
   }
 
-  // Použít LED_CMD_ANIM_ENDGAME místo start_endgame_animation()
-  // Najít pozici černého krále
+  // Use LED_CMD_ANIM_ENDGAME instead of start_endgame_animation()
+  // Find the position of the black king
   uint8_t king_pos = 27; // default fallback (d4)
   for (int i = 0; i < 64; i++) {
     int r = i / 8;

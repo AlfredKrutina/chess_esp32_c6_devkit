@@ -82,11 +82,11 @@ typedef struct {
  * @brief Stav vlnove animace
  */
 typedef struct {
-    uint8_t center_pos;      // Pozice stredu (vitezny kral)
+    uint8_t center_pos;      // Center Position (King of Knights)
     float max_radius;        // Maximalni radius vlny
-    float current_radius;    // Aktualni radius
+    float current_radius;    // Current radius
     float wave_speed;        // Rychlost vlny
-    int active_waves;        // Pocet aktivnich vln
+    int active_waves;        // Number of active waves
     wave_t waves[MAX_WAVES]; // Jednotlive vlny
     uint32_t frame;          // Citac snimku
 } wave_animation_state_t;
@@ -96,50 +96,50 @@ typedef struct {
  */
 typedef struct {
     uint8_t center_x, center_y;  // Stred ohnostroje
-    float radius;                // Aktualni radius
+    float radius;                // Current radius
     float max_radius;            // Maximalni radius
     uint8_t color_idx;           // Index barvy
-    bool active;                 // Aktivni stav
-    int delay;                   // Zpozdeni pred startem
+    bool active;                 // Active status
+    int delay;                   // Delayed before the start
 } firework_t;
 
 /**
  * @brief Stav jemne animace
  */
 typedef struct {
-    bool active;                 // Aktivni stav
+    bool active;                 // Active status
     subtle_anim_type_t type;     // Typ animace
     uint32_t frame;              // Citac snimku
     rgb_color_t base_color;      // Zakladni barva
 } subtle_animation_state_t;
 
 // ============================================================================
-// HLAVNÍ API FUNKCE
+// MAIN API FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializace animacniho systemu
- * @return ESP_OK pri uspechu, error kod pri selhani
+ * @brief Initialization of the animation system
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t game_led_animations_init(void);
 
 /**
- * @brief Spusteni endgame animace
- * @param animation_type Typ animace (1-5)
- * @param king_position Pozice vitezneho krale (0-63)
- * @return ESP_OK pri uspechu, error kod pri selhani
+ * @brief Start the endgame animation
+ * @param animation_type Animation type (1-5)
+ * @param king_position Position of the knight king (0-63)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t start_endgame_animation(endgame_animation_type_t animation_type, uint8_t king_position);
 
 /**
- * @brief Zastaveni endgame animace
- * @return ESP_OK pri uspechu
+ * @brief Stop endgame animation
+ * @return ESP_OK on success
  */
 esp_err_t stop_endgame_animation(void);
 
 /**
- * @brief Kontrola zda bezi endgame animace
- * @return true pokud bezi animace
+ * @brief Check if the endgame animation is running
+ * @return true if the animation is running
  */
 bool is_endgame_animation_running(void);
 
@@ -155,44 +155,44 @@ const char* get_endgame_animation_name(endgame_animation_type_t animation_type);
 // ============================================================================
 
 /**
- * @brief Spusteni jemne animace pro figurku
- * @param piece_position Pozice figurky (0-63)
- * @param anim_type Typ jemne animace
- * @return ESP_OK pri uspechu, error kod pri selhani
+ * @brief Start a soft animation for the figurine
+ * @param piece_position Piece position (0-63)
+ * @param anim_type Fine animation type
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t start_subtle_piece_animation(uint8_t piece_position, subtle_anim_type_t anim_type);
 
 /**
- * @brief Spusteni jemne animace pro tlacitko
- * @param button_id ID tlacitka (0-8)
- * @param anim_type Typ jemne animace
- * @return ESP_OK pri uspechu, error kod pri selhani
+ * @brief Start a soft animation for the button
+ * @param button_id Button ID (0-8)
+ * @param anim_type Fine animation type
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t start_subtle_button_animation(uint8_t button_id, subtle_anim_type_t anim_type);
 
 /**
- * @brief Zastaveni vsech jemnych animaci
- * @return ESP_OK pri uspechu
+ * @brief Stop all fine animations
+ * @return ESP_OK on success
  */
 esp_err_t stop_all_subtle_animations(void);
 
 // ============================================================================
-// HELPER FUNKCE PRO INTEGRACI
+// HELPER FUNCTIONS FOR INTEGRATION
 // ============================================================================
 
 /**
- * @brief Aktivace jemnych animaci pro pohyblive figurky
- * @param movable_positions Pole pozic pohyblivych figur
- * @param count Pocet pozic
- * @return ESP_OK pri uspechu
+ * @brief Enable soft animations for moving figures
+ * @param movable_positions Array of movable figure positions
+ * @param count Number of positions
+ * @return ESP_OK on success
  */
 esp_err_t activate_subtle_animations_for_movable_pieces(uint8_t* movable_positions, uint8_t count);
 
 /**
- * @brief Aktivace jemnych animaci pro dostupna tlacitka
- * @param available_buttons Pole dostupnych tlacitek
- * @param count Pocet tlacitek
- * @return ESP_OK pri uspechu
+ * @brief Enable soft animations for available buttons
+ * @param available_buttons Array of available buttons
+ * @param count Number of buttons
+ * @return ESP_OK on success
  */
 esp_err_t activate_subtle_animations_for_buttons(uint8_t* available_buttons, uint8_t count);
 

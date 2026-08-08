@@ -1,160 +1,158 @@
 
 /**
  * @file game_task.c
- * @brief Game Task - Sachova logika a sprava stavu hry
+ * @brief Game Task - chess logic and game-state management
  *
  * @details
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT THIS FILE DOES
  * =============================================================================
  *
- * Tento task je "mozek" sachovnice. Spravuje celou logiku hry:
- * 1. Sachova pravidla (standardni FIDE pravidla)
- * 2. Validace tahu (legalni/nelegalni tahy)
- * 3. Detekce specialnich tahu (rosada, en passant, promoc)
- * 4. Detekce konce hry (mat, pat, remiza)
- * 5. Sprava casovace (timer system integration)
- * 6. Historie tahu a analyza pozice
- * 7. Error recovery (cervene/modre LED)
- * 8. Komunikace s fyzickou deskou (matrix_task)
+ * This task is the "brain" of the chessboard. It manages all game logic:
+ * 1. Chess rules (standard FIDE rules)
+ * 2. Move validation (legal/illegal moves)
+ * 3. Special-move detection (castling, en passant, promotion)
+ * 4. End-of-game detection (checkmate, stalemate, draw)
+ * 5. Clock management (timer system integration)
+ * 6. Move history and position analysis
+ * 7. Error recovery (red/blue LEDs)
+ * 8. Communication with the physical board (matrix_task)
  *
  *
  * =============================================================================
- * JAK TO FUNGUJE?
+ * HOW IT WORKS
  * =============================================================================
  *
  * STARTUP:
- * - Inicializace sachovnice (pocatecni pozice)
- * - Registrace s WDT (watchdog timer)
- * - Inicializace timer systemu
- * - Start hlavni smycky (100ms cyklus)
+ * - Initialize chessboard (starting position)
+ * - Register with WDT (watchdog timer)
+ * - Initialize timer system
+ * - Start main loop (100 ms cycle)
  *
- * HLAVNI SMYCKA (100ms cyklus):
+ * MAIN LOOP (100 ms cycle):
  * while (1) {
  *     1. Reset WDT
- *     2. Zpracuj prikazy z fronty (game_command_queue)
- *     3. Zpracuj matrix eventy (UP/DN signaly z fyzicke desky)
- *     4. Aktualizuj timer display
- *     5. Proved periodicke kontroly
- *     6. Cekej 100ms (vTaskDelayUntil)
+ *     2. Process commands from queue (game_command_queue)
+ *     3. Process matrix events (UP/DN signals from physical board)
+ *     4. Update timer display
+ *     5. Run periodic checks
+ *     6. Wait 100 ms (vTaskDelayUntil)
  * }
  *
- * ZPRACOVANI TAHU:
- * 1. Matrix: UP signal (figurka zvednuta) -> uloz pozici
- * 2. Matrix: DN signal (figurka polozena) -> validuj tah
- * 3. Pokud validni: proved tah, aktualizuj stav, LED animace
- * 4. Pokud nevalidni: error recovery (cervene/modre LED)
- * 5. Zkontroluj konec hry (mat/pat)
+ * MOVE PROCESSING:
+ * 1. Matrix: UP signal (piece lifted) -> store position
+ * 2. Matrix: DN signal (piece placed) -> validate move
+ * 3. If valid: execute move, update state, LED animation
+ * 4. If invalid: error recovery (red/blue LEDs)
+ * 5. Check end of game (mate/stalemate)
  *
  * =============================================================================
- * KOMUNIKACE (FIFOS & MUTEXY)
+ * COMMUNICATION (FIFOS & MUTEXES)
  * =============================================================================
  *
- * FRONTY (QUEUES) - Prijem prikazu:
- * - game_command_queue -> Prikazy z UART/Web (move, reset, status...)
- * - matrix_event_queue -> UP/DN eventy z fyzicke desky
+ * QUEUES - Receiving commands:
+ * - game_command_queue -> Commands from UART/Web (move, reset, status...)
+ * - matrix_event_queue -> UP/DN events from physical board
  *
- * FRONTY (QUEUES) - Odeslani prikazu:
- * - response_queue -> Odpovedi na prikazy (status, board...)
- * - LED se ovladaji primymi volanimi (fronta byla odstranena)
+ * QUEUES - Sending responses:
+ * - response_queue -> Replies to commands (status, board...)
+ * - LEDs are controlled by direct calls (queue was removed)
  *
- * MUTEXY - Ochrana sdilenych zdroju:
- * - game_mutex -> Ochrana stavu hry (board, current_player, move_count...)
- *   DULEZITE: Vzdy pouzij pri pristupu ke game state!
+ * MUTEXES - Protecting shared resources:
+ * - game_mutex -> Protects game state (board, current_player, move_count...)
+ *   IMPORTANT: Always take it when accessing game state!
  *
- * PRISTUP:
+ * ACCESS:
  * @code
- * xSemaphoreTake(game_mutex, portMAX_DELAY);  // Zamkni
- * // Prace se stavem hry
- * xSemaphoreGive(game_mutex);                  // Odemkni
+ * xSemaphoreTake(game_mutex, portMAX_DELAY);  // Lock
+ * // Work with game state
+ * xSemaphoreGive(game_mutex);                  // Unlock
  * @endcode
  *
  * =============================================================================
- * SACHOVCE PRAVIDLA IMPLEMENTOVANA
+ * CHESS RULES IMPLEMENTED
  * =============================================================================
  *
- * ZAKLADNI TAHY:
- * - Pesec: 1 nebo 2 pole dopredu z vychoziho radku, bere sikmo
- * - Vez: Horizontalne/vertikalne
- * - Kun: L-tvar (2+1 pole)
- * - Strelec: Diagonalne
- * - Dama: Kombinace vez + strelec
- * - Kral: 1 pole libovolnym smerem
+ * BASIC MOVES:
+ * - Pawn: 1 or 2 squares forward from start rank, captures diagonally
+ * - Rook: Horizontally/vertically
+ * - Knight: L-shape (2+1 squares)
+ * - Bishop: Diagonally
+ * - Queen: Combination of rook + bishop
+ * - King: 1 square in any direction
  *
- * SPECIALNI TAHY:
- * - Rosada (kratka i dlouha) - implementovano s kontrolou pravidel
- * - En Passant - detekce a provedeni
- * - Promoc pescu - automaticka na damu (moznost prepnout v budoucnu)
+ * SPECIAL MOVES:
+ * - Castling (kingside and queenside) - with rule checks
+ * - En passant - detection and execution
+ * - Pawn promotion - automatic to queen (switchable later)
  *
- * KONEC HRY:
- * - Mat (checkmate) - kral v sachu, zadne legalni tahy
- * - Pat (stalemate) - neni v sachu, ale zadne legalni tahy
- * - 50-move rule - 50 tahu bez brани nebo tahu pescem
- * - Threefold repetition - 3x stejna pozice
- * - Insufficient material - nedostatek materialu na mat
+ * END OF GAME:
+ * - Checkmate - king in check, no legal moves
+ * - Stalemate - not in check, but no legal moves
+ * - 50-move rule - 50 moves without capture or pawn move
+ * - Threefold repetition - same position 3 times
+ * - Insufficient material - not enough material to mate
  *
  * =============================================================================
- * TABLE OF CONTENTS (NAVIGACE)
+ * TABLE OF CONTENTS
  * =============================================================================
  *
- * Sekce 1:  Global Variables & State ............... radek 100
- * Sekce 2:  Board Initialization .................... radek 1070
- * Sekce 3:  Move Validation ......................... radek 2000
- * Sekce 4:  Special Moves (Castle, En Passant) ...... radek 3500
- * Sekce 5:  Move Execution .......................... radek 4500
- * Sekce 6:  Endgame Detection ....................... radek 5500
- * Sekce 7:  Command Processing ...................... radek 6500
- * Sekce 8:  Main Game Task Loop ..................... radek 7964
- * Sekce 9:  JSON API Functions ...................... radek 11477
+ * Section 1:  Global Variables & State ............... line 100
+ * Section 2:  Board Initialization .................... line 1070
+ * Section 3:  Move Validation ......................... line 2000
+ * Section 4:  Special Moves (Castle, En Passant) ...... line 3500
+ * Section 5:  Move Execution .......................... line 4500
+ * Section 6: Endgame Detection ...................... line 5500
+ * Section 7: Command Processing ...................... line 6500
+ * Section 8: Main Game Task Loop ..................... line 7964
+ * Section 9: JSON API Functions ...................... line 11477
  *
- * TIP: Ctrl+G pro skok na radek
+ * TIP: Ctrl+G to jump to a line
  *
  * =============================================================================
  * DEPENDENCIES
  * =============================================================================
  *
- * - matrix_task: Prijem UP/DN eventu z fyzicke desky
- * - led_task: Ovladani LED (highlight, animace)
- * - timer_system: Casovac pro hru
- * - uart_task: Prikazy z terminalu
- * - web_server_task: Prikazy z webu
- * - unified_animation_manager: Animace tahu
+ * - matrix_task: Receive UP/DN event from physical board
+ * - led_task: LED control (highlight, animation)
+ * - timer_system: Timer for the game
+ * - uart_task: Commands from the terminal
+ * - web_server_task: Commands from the web
+ * - unified_animation_manager: Move animation
  *
  * =============================================================================
- * KRITICKA PRAVIDLA
+ * CRITICAL RULES
  * =============================================================================
  *
- * @warning CO SE NESMI DELAT:
+ * @warning DO NOT:
  *
- * 1. NIKDY nepristupuj ke stavu hry bez game_mutex!
- *    ❌ current_player = PLAYER_WHITE;  // SPATNE - muze zpusobit race
-condition
- *    ✅ xSemaphoreTake(game_mutex, ...); current_player = PLAYER_WHITE;
-xSemaphoreGive(...);
+ * 1. NEVER access game state without game_mutex!
+ *    ❌ current_player = PLAYER_WHITE;  // RACE - can corrupt state
+ *    ✅ xSemaphoreTake(game_mutex, ...); current_player = PLAYER_WHITE; xSemaphoreGive(...);
  *
- * 2. NIKDY nedrzи mutex prilis dlouho!
- *    ❌ xSemaphoreTake(...); dlouha_operace(); xSemaphoreGive(...);
- *    ✅ Proved jen nezbytne operace s mutexem
+ * 2. NEVER hold a mutex too long!
+ *    ❌ xSemaphoreTake(...); long_operation(); xSemaphoreGive(...);
+ *    ✅ Perform only necessary operations under the mutex
  *
- * 3. NIKDY nevolej blocking operace s dlouhym timeout!
- *    ❌ xQueueReceive(queue, ..., portMAX_DELAY);  // Muze zablokovat WDT
+ * 3. NEVER call a blocking operation with a long timeout!
+ *    ❌ xQueueReceive(queue, ..., portMAX_DELAY);  // May block WDT
  *    ✅ xQueueReceive(queue, ..., pdMS_TO_TICKS(100));  // Max 100ms
  *
- * 4. VZDY resetuj WDT v hlavni smycce!
- *    ✅ game_task_wdt_reset_safe();  // V kazdem cyklu 100ms
+ * 4. ALWAYS reset the WDT in the main loop!
+ *    ✅ game_task_wdt_reset_safe();  // In each 100ms cycle
  *
- * 5. VZDY kontroluj navratove hodnoty!
- *    ❌ xQueueSend(...);  // Ignoruje chybu
- *    ✅ if (xQueueSend(...) != pdTRUE) { handle error }
+ * 5. ALWAYS check return values!
+ *    ❌ xQueueSend(...);  // Ignores the error
+ *    ✅ if (xQueueSend(...) != pdTRUE) { /* handle error */ }
  *
  * @author Alfred Krutina
  * @version 1.8.0
  *
- * @note Priorita tasku 4; hlavní smyčka cca 100 ms; WDT reset ve smyčce.
- * @see matrix_task.c Detekce pohybu figurek
- * @see led_task.c LED animace
- * @see uart_task.c Terminál
- * @see web_server_task.c Web rozhraní
+ * @note Task priority 4; main loop approx. 100 ms; WDT reset in loop.
+ * @see matrix_task.c Figure movement detection
+ * @see led_task.c LED animation
+ * @see uart_task.c Terminal
+ * @see web_server_task.c Web interface
  */
 
 #include "game_task.h"
@@ -213,18 +211,18 @@ static const char *TAG = "GAME_TASK";
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
+ * @brief Safe WDT reset with WARNING instead of ERROR logging for
  * ESP_ERR_NOT_FOUND
  *
- * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
- * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * This function safely resets the Task Watchdog Timer. If the task is not yet
+ * registered (which is normal during startup), WARNING is logged instead of ERROR.
  *
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
- * (WARNING pouze)
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
+ * (WARNING only)
  *
  * @details
- * Funkce je pouzivana pro bezpecny reset watchdog timeru behem game operaci.
- * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ * The function is used to safely reset the watchdog timer during game operation.
+ * Prevents startup errors when the task is not yet registered.
  */
 esp_err_t game_task_wdt_reset_safe(void) {
   esp_err_t ret = esp_task_wdt_reset();
@@ -260,7 +258,7 @@ game_state_t current_game_state = GAME_STATE_IDLE;
 player_t current_player = PLAYER_WHITE;
 uint32_t move_count = 0;
 bool resync_required_after_restore = false;
-/** Monotónní verze stavu pro klienty (ETag / If-None-Match, delta). */
+/** Monotonic version of state for clients (ETag / If-None-Match, delta). */
 uint32_t game_state_revision = 0;
 // New logic: Block auto-new game until at least one move is made
 bool auto_new_game_blocked_until_move = false;
@@ -285,14 +283,14 @@ uint8_t lifted_piece_col = 0;
 piece_t lifted_piece = PIECE_EMPTY;
 
 // 3-step capture flow state.
-bool capture_in_progress = false; // Je rozpracovaný capture?
-uint8_t capture_target_row = 0;   // Kam se má položit vlastní figurka
+bool capture_in_progress = false; // Is capture in progress?
+uint8_t capture_target_row = 0;   // Where to place your own figure
 uint8_t capture_target_col = 0;
-piece_t capture_removed_piece = PIECE_EMPTY; // Jaká figurka byla odebrána
+piece_t capture_removed_piece = PIECE_EMPTY; // What figure was taken
 
 guided_capture_state_t guided_capture_state = {0};
 static bool guided_capture_hints_enabled = true;
-/** 1 = jen zdroj zvednutí … 5 = plná nápověda vč. guided capture na LED */
+/** 1 = lift source only … 5 = full help incl. guided capture on LED */
 static uint8_t led_guidance_level = 5;
 
 bool game_led_guidance_show_destinations(void) {
@@ -321,8 +319,8 @@ uint8_t opponent_current_col = 0;
 /**
  * @brief Auto new game detection state
  *
- * Detekuje kdyz jsou vsechny figurky v pocatecni pozici po dobu 2 sekund
- * a automaticky spusti novou hru. Zabranuje nekonecnemu resetu.
+ * Detects when all pieces are in the starting position for 2 seconds
+ * and automatically start a new game. Prevents infinite reset.
  */
 bool auto_new_game_in_starting_position = false;
 uint32_t auto_new_game_timer_start = 0;
@@ -365,7 +363,7 @@ uint32_t history_index = 0;
 static bool task_running = false;
 bool game_active = false;
 
-//  Error handling - pamatování posledního validního pole
+//  Error handling - remembering the last valid field
 // Enhanced error recovery state for smart error handling
 game_task_error_recovery_t error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
 
@@ -388,16 +386,16 @@ static non_blocking_blink_state_t blink_state = {false, 0,   0,    10,
 // ============================================================================
 
 /**
- * @brief Hlídání počáteční pozice - zapnuto/vypnuto
+ * @brief Start position watch - on/off
  *
- * Pokud je zapnuto, systém hlídá zda jsou figurky správně rozestaveny
- * před začátkem hry. Defaultně vypnuto (false).
+ * If it is turned on, the system monitors whether the figures are placed correctly
+ * before the start of the game. Disabled by default (false).
  */
 bool starting_position_check_enabled = false;
 
 /**
- * @brief Nastaví hlídání počáteční pozice
- * @param enabled true pro zapnutí, false pro vypnutí
+ * @brief Sets the initial position watch
+ * @param enabled true to enable, false to disable
  */
 void game_set_starting_position_check(bool enabled) {
   starting_position_check_enabled = enabled;
@@ -406,8 +404,8 @@ void game_set_starting_position_check(bool enabled) {
 }
 
 /**
- * @brief Vrací stav hlídání počáteční pozice
- * @return true pokud je hlídání zapnuto, jinak false
+ * @brief Returns the initial position guard status
+ * @return true if watchdog is on, false otherwise
  */
 bool game_get_starting_position_check(void) {
   return starting_position_check_enabled;
@@ -418,10 +416,10 @@ bool game_get_starting_position_check(void) {
 // ============================================================================
 
 /**
- * @brief Stav promoce pesce
+ * @brief Pesce graduation status
  *
- * Sleduje zda je promoce mozna a kde se nachazi pesec k promoci.
- * Pouziva se pro rizeni LED indikace tlacitek a zpracovani button eventu.
+ * Monitors whether graduation is possible and where the graduation dog is located.
+ * It is used for controlling the LED indication of the buttons and processing the button event.
  */
 game_task_promotion_state_t promotion_state = {false, 0, 0, PLAYER_WHITE};
 
@@ -429,8 +427,8 @@ game_task_promotion_state_t promotion_state = {false, 0, 0, PLAYER_WHITE};
 // Prevents concurrent access from web, UART, button, and matrix tasks
 SemaphoreHandle_t promotion_mutex = NULL;
 
-/** Nastaveno v game_process_chess_move před game_execute_move; spotřebuje se na
- * začátku game_execute_move (okamžitá promoce z API místo promotion pending). */
+/** Set in game_process_chess_move before game_execute_move; is consumed on
+ * start of game_execute_move (immediate promotion from API instead of promotion pending). */
 bool s_uart_move_immediate_promotion;
 promotion_choice_t s_uart_move_immediate_promotion_piece;
 
@@ -456,7 +454,7 @@ uint32_t white_wins = 0;
 uint32_t black_wins = 0;
 uint32_t draws = 0;
 
-// Flag pro endgame report request (místo volání z timer callbacku)
+// Flag for endgame report request (instead of calling from a timer callback)
 bool endgame_report_requested = false;
 
 endgame_reason_t current_endgame_reason = ENDGAME_REASON_CHECKMATE;
@@ -485,7 +483,7 @@ uint32_t black_captured_count = 0;
 uint32_t white_captured_index = 0;
 uint32_t black_captured_index = 0;
 
-// Material advantage tracking (pro graf výhody v průběhu hry)
+// Material advantage tracking (for in-game advantage chart)
 int8_t material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
 uint32_t advantage_history_count = 0;
 
@@ -526,14 +524,14 @@ char piece_to_char(piece_t piece) {
 }
 
 /**
- * @brief Vypocitat aktualni materialovou vyhodu na boardu
- * @return Materialova vyhoda (kladna = White vede, zaporna = Black vede)
+ * @brief Calculate the current material yield on the board
+ * @return Material's advantage (positive = White leads, negative = Black leads)
  */
 static int8_t game_calculate_material_advantage(void) {
   int white_material = 0;
   int black_material = 0;
 
-  // Hodnoty figur
+  // Figure values
   const int pawn_value = 1;
   const int knight_value = 3;
   const int bishop_value = 3;
@@ -592,7 +590,7 @@ static int8_t game_calculate_material_advantage(void) {
 }
 
 /**
- * @brief Ulozit aktualni materialovou vyhodu do historie
+ * @brief Save the current material output to history
  */
 void game_record_material_advantage(void) {
   if (advantage_history_count >= GAME_TASK_MAX_ADVANTAGE_HISTORY) {
@@ -636,7 +634,7 @@ bool game_saved = false;
 char saved_game_name[32] = "";
 game_state_t game_result = GAME_STATE_IDLE;
 game_result_type_t current_result_type =
-    RESULT_WHITE_WINS; // Aktuální typ konce hry
+    RESULT_WHITE_WINS; // Current end game type
 
 // Castling flags and en passant state
 // (declared later in the file)
@@ -911,7 +909,7 @@ bool has_last_move = false;
 // Tutorial mode state
 static bool tutorial_mode_active = false;
 static bool show_hints = true;
-/** Web „základní postavení“: prázdná logika, matrix guard potlačen. */
+/** "baseline" web: empty logic, matrix guard suppressed. */
 bool board_setup_tutorial_active = false;
 // Game analysis flags (for future use)
 // static bool show_warnings = true;
@@ -945,15 +943,15 @@ const char *piece_symbols[] = {
 // ============================================================================
 
 /**
- * @brief Helper funkce pro konzistentni formatovani error detail radku
+ * @brief Helper function for consistent formatting of the error detail line
  *
- * @param label Nazev pole (napr. "Reason", "Solution", "Hint")
+ * @param label Field name (eg "Reason", "Solution", "Hint")
  * @param fmt Printf-style format string
- * @param ... Variable arguments pro format string
+ * @param ... Variable arguments for the format string
  *
  * @details
- * Tato funkce zajistuje konzistentni formatovani vsech error zprav.
- * Vyhodi variadickou funkci s printf-style argumenty.
+ * This function ensures consistent formatting of all error messages.
+ * Dumps a variadic function with printf-style arguments.
  */
 static void print_error_detail(const char *label, const char *fmt, ...) {
   if (!chess_policy_uart_error_detail_enabled()) {
@@ -978,22 +976,22 @@ static void print_error_detail(const char *label, const char *fmt, ...) {
 }
 
 /**
- * @brief Zobrazi detailni chybovou zpravu s reasoning pro neplatny tah
+ * @brief Display a detailed error message with reasoning for an invalid move
  *
- * @param error Typ chyby tahu (MOVE_ERROR_*)
- * @param move Ukazatel na tah ktery zpusobil chybu
+ * @param error Type of move error (MOVE_ERROR_*)
+ * @param move Pointer to the move that caused the error
  *
  * @details
- * Funkce zobrazi barevne formatovanou chybovou zpravu vcetne:
- * - Duvodu proc je tah neplatny
- * - Napovedy proc tah selhal
- * - Navrhu reseni
- * - Stavu ciloveho pole
+ * The function displays a color-formatted error message including:
+ * - The reason why the move is invalid
+ * - Hints why the move failed
+ * - Suggested solution
+ * - Status of target field
  *
- * Specialni reasoning pro pesce:
- * - Rozlisuje mezi prazdnym polem a vlastni figurkou
- * - Vysvetluje proc pesec nemuze jit diagonalne na prazdne pole
- * - Vysvetluje proc pesec nemuze brat vpred
+ * Special reasoning for fish:
+ * - Distinguishes between an empty field and your own figure
+ * - Explains why the pawn cannot go diagonally to an empty square
+ * - Explains why the dog cannot move forward
  *
  */
 void game_display_move_error(move_error_t error, const chess_move_t *move) {
@@ -1034,7 +1032,7 @@ void game_display_move_error(move_error_t error, const chess_move_t *move) {
     break;
 
   case MOVE_ERROR_INVALID_PATTERN:
-    // VYLEPŠENÉ REASONING pro pěšce
+    // IMPROVED REASONING for pawns
     if (source_piece == PIECE_WHITE_PAWN || source_piece == PIECE_BLACK_PAWN) {
       int col_diff = abs((int)move->to_col - (int)move->from_col);
       bool is_diagonal = (col_diff == 1);
@@ -1199,21 +1197,21 @@ const char *game_get_piece_name(piece_t piece) {
 // ============================================================================
 
 /**
- * @brief Helper funkce pro pridani square do CSV listu
+ * @brief Helper function for adding a square to a CSV sheet
  *
- * @param buffer Cilovy buffer
- * @param size Maximalni velikost bufferu
- * @param pos Aktualni write pozice
- * @param square Square notace k pridani (napr. "e4")
- * @return Nova pozice po pridani
+ * @param buffer Target buffer
+ * @param size Maximum buffer size
+ * @param pos Current write position
+ * @param square Square notation to add (eg "e4")
+ * @return New position after adding
  *
  * @details
- * Funkce automaticky prida carku pokud uz buffer obsahuje data.
- * Pouziva se pro budovani CSV listu tahu.
+ * The function automatically adds a check mark if the buffer already contains data.
+ * It is used for building the CSV sheet of the move.
  */
 static int append_square(char *buffer, size_t size, int pos,
                          const char *square) {
-  // Pridat separator pokud uz neco v bufferu je
+  // Add a separator if something is already in the buffer
   if (pos > 0) {
     pos += snprintf(buffer + pos, size - pos, ", ");
   }
@@ -1310,12 +1308,12 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
 
   piece_t piece = board[row][col];
 
-  // Pokud je piece prázdné a resignation timer je aktivní pro tuto pozici,
-  // použít uloženou pozici krále z resignation_state
+  // If the piece is empty and the resignation timer is active for that position,
+  // use saved king position from resignation_state
   if (piece == PIECE_EMPTY) {
     if (resignation_state.active && resignation_state.king_row == row &&
         resignation_state.king_col == col) {
-      // Král je zvednutý během resignation timeru - použít typ krále z
+      // King is raised during resignation timer - use king type z
       // resignation_state.player
       piece = (resignation_state.player == PLAYER_WHITE) ? PIECE_WHITE_KING
                                                          : PIECE_BLACK_KING;
@@ -1330,7 +1328,7 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
 
   uint32_t count = 0;
 
-  // Pokud je rošáda v progress a zvedá se věž z rook_from, přidat tah na
+  // If the rook is in progress and the rook is being raised from rook_from, add move to
   // rook_to jako valid move
   if (castling_state.in_progress) {
     ESP_LOGI(
@@ -1343,7 +1341,7 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
     if (row == castling_state.rook_from_row &&
         col == castling_state.rook_from_col &&
         (piece == PIECE_WHITE_ROOK || piece == PIECE_BLACK_ROOK)) {
-      // Toto je věž pro rošádu - přidat tah na rook_to jako valid move
+      // This is a rook for rook - add move to rook_to as a valid move
       ESP_LOGI(TAG,
                "🏰 Castling rook detected at %c%d - adding valid move to %c%d",
                'a' + col, row + 1, 'a' + castling_state.rook_to_col,
@@ -1366,7 +1364,7 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
             "🏰 Castling rook: Added valid move from %c%d to %c%d (count=%" PRIu32 ")",
             'a' + col, row + 1, 'a' + castling_state.rook_to_col,
             castling_state.rook_to_row + 1, count);
-        return count; // Vrátit pouze tento tah - ostatní tahy jsou blokované
+        return count; // Return only this move - other moves are blocked
       } else {
         ESP_LOGW(
             TAG,
@@ -1782,9 +1780,9 @@ void game_send_response_to_uart(const char *message, bool is_error,
       .timestamp = esp_timer_get_time() / 1000};
   strcpy(response.data, response_message);
 
-  /* Bez game_mutex: odeslání do fronty jen kopíruje připravený řetězec; mutex by
-   * mohl deadlocknout (game_task × HTTP GET držící mutex pro JSON) nebo zdvojit
-   * nest-rekurzivní zámek. Čtení stavu pro UART je vždy přes předaný `message`. */
+  /* Without game_mutex: send to queue just copies the prepared string; the mutex would
+   * could deadlock (game_task × HTTP GET holding mutex for JSON) or duplicate
+   * nest-recursive lock. Reading the status for the UART is always via the passed `message`. */
   if (xQueueSend(response_queue, &response, pdMS_TO_TICKS(100)) != pdTRUE) {
     ESP_LOGW(TAG,
              "Failed to send response to UART task (queue full or timeout)");
@@ -1833,7 +1831,7 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row,
        !chess_policy_error_recovery_led_red_persist())) {
     return;
   }
-  // Přerušit předchozí blikání
+  // Abort previous flashing
   game_stop_error_blink();
 
   ESP_LOGI(TAG, "🚨 Starting non-blocking blink at %c%d", 'a' + error_col,
@@ -1848,7 +1846,7 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row,
   blink_state.blink_interval_ms = 300;
   blink_state.led_state = false;
 
-  // Spustit první toggle
+  // Run the first toggle
   game_update_error_blink();
 }
 
@@ -1869,21 +1867,21 @@ void game_update_error_blink(void) {
 
     // Toggle LED
     if (blink_state.led_state) {
-      // Vypnout LED
+      // Turn off the LED
       led_set_pixel_safe(blink_state.led_index, 0, 0, 0);
       blink_state.led_state = false;
     } else {
-      // Zapnout LED
-      led_set_pixel_safe(blink_state.led_index, 255, 0, 0); // Červená
+      // Turn on the LED
+      led_set_pixel_safe(blink_state.led_index, 255, 0, 0); // Red
       blink_state.led_state = true;
     }
 
     blink_state.last_toggle_time = current_time;
 
-    // Kontrola ukončení blikání
+    // Blinking termination check
     if (blink_state.blink_count >= blink_state.max_blinks) {
       blink_state.active = false;
-      // Nechat LED rozsvícenou na konci
+      // Leave the LED on at the end
       led_set_pixel_safe(blink_state.led_index, 255, 0, 0);
       ESP_LOGI(TAG, "✅ Error blink completed");
     }
@@ -1896,7 +1894,7 @@ void game_update_error_blink(void) {
 void game_stop_error_blink(void) {
   if (blink_state.active) {
     blink_state.active = false;
-    led_set_pixel_safe(blink_state.led_index, 0, 0, 0); // Vypnout LED
+    led_set_pixel_safe(blink_state.led_index, 0, 0, 0); // Turn off the LED
     ESP_LOGI(TAG, "🛑 Error blink interrupted by user action");
   }
 }
@@ -1930,13 +1928,13 @@ void game_trigger_victory_animation(player_t winner) {
   ESP_LOGI(TAG, "🏆 Triggering Victory Animation for %s (King at %d)",
            (winner == PLAYER_WHITE) ? "White" : "Black", king_pos);
 
-  // Použít LED_CMD_ANIM_ENDGAME místo start_endgame_animation()
-  // Toto volá led_anim_endgame() v led_task.c, která má správné barvy
-  // (zelená pro vítěze, červená pro poraženého, modrá pro prázdná pole)
+  // Use LED_CMD_ANIM_ENDGAME instead of start_endgame_animation()
+  // This calls led_anim_endgame() in led_task.c which has the correct colors
+  // (green for winner, red for loser, blue for empty fields)
   led_command_t endgame_cmd = {
       .type = LED_CMD_ANIM_ENDGAME,
       .led_index = king_pos,
-      .red = 0, // Barvy nejsou použity - animace si je určí sama
+      .red = 0, // Colors are not used - the animation determines them by itself
       .green = 0,
       .blue = 0,
       .duration_ms = 0, // Endless
@@ -2190,9 +2188,9 @@ void game_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "  • 1 second game loop cycle");
 
   // #2: Initialize promotion mutex for concurrency protection
-  // Použít recursive mutex, protože game_execute_move() může být volána
-  // reentrantně (např. z capture flow, který volá game_execute_move(), který
-  // může detekovat promotion)
+  // Use a recursive mutex because game_execute_move() can be called
+  // reentrantly (eg from a capture flow that calls game_execute_move() which
+  // can detect promotion)
   promotion_mutex = xSemaphoreCreateRecursiveMutex();
   if (promotion_mutex == NULL) {
     ESP_LOGE(TAG, "❌ CRITICAL: Failed to create promotion mutex!");
@@ -2222,12 +2220,12 @@ void game_task_start(void *pvParameters) {
   }
 
   /*
-   * Start logicke hry: vychozi deska, pak NVS nebo boot tracker.
-   * - Platny klic v NVS: vypnout nucenou novou hru z boot trackeru, nacist snapshot,
-   *   game_matrix_guard_check_resync_after_restore() pri nesouladu matice.
-   * - Jinak: boot_new_game_triggered z game_boot_tracker_should_force_new_game();
-   *   pri true volat game_start_new_game() (main pak neposle druhy NEW_GAME).
-   * - Pri uspesnem nacteni snapshotu nastavi game_load_snapshot_from_nvs() i game_active.
+   * Start the logic game: the board starts, then NVS or boot tracker.
+   * - Valid key in NVS: disable forced new game from boot tracker, Nazi snapshot,
+   * game_matrix_guard_check_resync_after_restore() on matrix mismatch.
+   * - Otherwise: boot_new_game_triggered from game_boot_tracker_should_force_new_game();
+   * when true, call game_start_new_game() (main will then not send any NEW_GAME).
+   * - Set game_load_snapshot_from_nvs() and game_active on successful snapshot loading.
    */
   game_initialize_board();
   game_snapshot_restore_on_boot();
@@ -2238,16 +2236,16 @@ void game_task_start(void *pvParameters) {
 
   for (;;) {
     // =========================================================================
-    // 🛑 BOOT ANIMATION PROTECTION - BLOKUJE VŠECHNY GAME OPERACE BĚHEM BOOT
+    // 🛑 BOOT ANIMATION PROTECTION - BLOCKS ALL GAME OPERATIONS DURING BOOT
     // =========================================================================
-    // Pokud běží boot animace (řízená z main.c), game task NESMÍ dělat NIC!
-    // Auto new game detection, LED operace, cokoliv by mohlo přerušit
+    // If the boot animation (controlled from main.c) is running, the game task MUST NOT do ANYTHING!
+    // Auto new game detection, LED operation, anything could interrupt
     // animaci.
     if (led_is_booting()) {
-      // Reset WDT aby task nespadl, ale nic nedělat
+      // Reset WDT so that the task does not crash, but do nothing
       game_task_wdt_reset_safe();
-      vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - rychlé probuzení po fade_out!
-      continue;                      // Přeskočit zbytek smyčky
+      vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - quick wakeup after fade_out!
+      continue;                      // Skip the rest of the loop
     }
     // =========================================================================
 
@@ -2261,36 +2259,36 @@ void game_task_start(void *pvParameters) {
     // Process game commands
     game_process_commands();
 
-    // BUG FIX 1: Automatický přechod z WAITING_FOR_BOARD_SETUP do ACTIVE
+    // BUG FIX 1: Automatic transition from WAITING_FOR_BOARD_SETUP to ACTIVE
     if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
-      // Pokud je hlídání počáteční pozice vypnuto, přejdeme rovnou do ACTIVE
+      // If monitoring of the initial position is switched off, we go directly to ACTIVE
       bool should_check_position = starting_position_check_enabled;
       bool position_ok = should_check_position ? game_is_board_in_starting_position() : true;
       
       if (position_ok) {
-        // Deska je připravena (nebo hlídání je vypnuto) - aktivovat hru
+        // The board is ready (or guarding is off) - activate the game
         current_game_state = GAME_STATE_ACTIVE;
         game_active = true;
         game_start_time = esp_timer_get_time() / 1000;
         last_move_time = game_start_time;
         
-        // Zastavit případné běžící animace
+        // Stop any running animations
         unified_animation_stop_all();
         led_stop_endgame_animation();
         stop_endgame_animation();
         
-        // Vyčistit LED
+        // Clear the LED
         led_clear_board_only();
         
-        // Aktualizovat promotion LED indikace
+        // Update the promotion LED indication
         game_check_promotion_needed();
         
-        // Spustit timer pro bílého hráče pokud je aktivní
+        // Start the timer for the white player if it is active
         if (game_is_timer_active()) {
           game_start_timer_move(true);
         }
         
-        // Zvýraznit pohyblivé figurky
+        // Highlight moving figures
         chess_policy_highlight_movable_if_enabled();
         
         // Notify web
@@ -2302,10 +2300,10 @@ void game_task_start(void *pvParameters) {
           ESP_LOGI(TAG, "✅ Game ACTIVE (starting position check disabled), White to move");
         }
       } else {
-        // Periodicky aktualizovat LED indikaci chybějících figur
+        // Periodically update the LED indication of missing figures
         static uint32_t last_led_update = 0;
         uint32_t now = esp_timer_get_time() / 1000;
-        if (now - last_led_update > 500) { // Každých 500ms
+        if (now - last_led_update > 500) { // Every 500ms
           game_show_missing_pieces_led();
           last_led_update = now;
         }
@@ -2319,16 +2317,16 @@ void game_task_start(void *pvParameters) {
     // Update timer display and check for timeout
     game_update_timer_display();
 
-    // Zpracovat endgame report request (s dostatečným stackem 10KB)
+    // Process endgame report request (with enough stack 10KB)
     if (endgame_report_requested) {
       endgame_report_requested = false; // Reset flag
       game_print_endgame_report_uart(current_result_type);
     }
 
-    // Auto new game detection (kdyz jsou figurky v pocatecni pozici 2s)
+    // Auto new game detection (when pieces are in initial position 2s)
     // Logic update: Must not be blocked (require 1 move)
-    // BUG FIX 1: Během WAITING_FOR_BOARD_SETUP nesmí auto-new game zasáhnout
-    // BUG FIX 2: Auto-new game jen když je hlídání počáteční pozice zapnuto
+    // BUG FIX 1: Auto-new game must not hit during WAITING_FOR_BOARD_SETUP
+    // BUG FIX 2: Auto-new game only when starting position watch is on
     bool in_start_pos =
         starting_position_check_enabled &&
         !board_setup_tutorial_active && 

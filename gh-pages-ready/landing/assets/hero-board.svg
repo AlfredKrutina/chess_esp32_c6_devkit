@@ -10,7 +10,7 @@
     </filter>
   </defs>
   <rect width="800" height="680" fill="url(#glow)"/>
-  <!-- 8×8 čtvercová síť: 70×70 px na pole (560×560), dříve 560×320 dělalo obdélníková „pole“ -->
+  <!-- 8×8 square grid: 70×70 px per square (560×560); earlier 560×320 made rectangular “squares” -->
   <g opacity="0.5" stroke="#6fa986" stroke-width="0.75" filter="url(#blur)">
     <g transform="translate(120 72)">
       <rect x="0" y="0" width="560" height="560" rx="4" fill="none"/>

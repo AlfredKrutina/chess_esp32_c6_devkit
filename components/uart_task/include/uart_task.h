@@ -1,26 +1,26 @@
 /**
  * @file uart_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - UART Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - UART Task Header
  * 
- * Tato hlavicka definuje rozhrani UART tasku:
- * - USB Serial JTAG konzolove rozhrani
- * - Znakovy vstup bez blokovani
- * - Parsovani a vykonavani prikazu
- * - Systemove testovani a diagnostika
- * - Formatovani a vystup odpovedi
+ * This header defines the UART task interface:
+ * - USB Serial JTAG console interface
+ * - Character input without blocking
+ * - Parsing and executing the command
+ * - System testing and diagnostics
+ * - Formatting and output of the response
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-01-27
  * 
  * @details
- * UART Task zpracovava vsechnu komunikaci s uzivatelem pres USB Serial JTAG.
- * Poskytuje radkovy terminal s histori, automatickym dokoncenim a barevnym vystupem.
+ * UART Task processes all communication with the user via USB Serial JTAG.
+ * Provides a line terminal with history, auto-completion and color output.
  * 
- * Klicova vylepseni:
- * - I/O bez blokovani
- * - Lepsi zpracovani chyb
- * - Zjednodusene zpracovani vstupu
+ * Klicova improvements:
+ * - Non-blocking I/O
+ * - Better error handling
+ * - Simplified input processing
  */
 
 #ifndef UART_TASK_LINENOISE_H
@@ -42,22 +42,22 @@ extern "C" {
 // Poznamka: chess_move_command_t je definovan v chess_types.h
 
 // ============================================================================
-// TYPY VYSLEDKU PRIKAZU
+// COMMAND RESULT TYPES
 // ============================================================================
 
 /**
- * @brief Typy vysledku prikazu
+ * @brief The result types of the command
  */
 typedef enum {
-    CMD_SUCCESS = 0,                  ///< Uspesne provedeno
+    CMD_SUCCESS = 0,                  ///< Done successfully
     CMD_ERROR_INVALID_SYNTAX = -1,    ///< Neplatna syntaxe
     CMD_ERROR_INVALID_PARAMETER = -2, ///< Neplatny parameter
-    CMD_ERROR_SYSTEM_ERROR = -3,      ///< Systemova chyba
-    CMD_ERROR_NOT_FOUND = -4          ///< Prikaz nenalezen
+    CMD_ERROR_SYSTEM_ERROR = -3,      ///< System error
+    CMD_ERROR_NOT_FOUND = -4          ///< Command not found
 } command_result_t;
 
 /**
- * @brief Typ handleru prikazu (funkce pro zpracovani prikazu)
+ * @brief Command handler type (command processing function)
  */
 typedef command_result_t (*command_handler_t)(const char* args);
 
@@ -66,13 +66,13 @@ typedef command_result_t (*command_handler_t)(const char* args);
 // ============================================================================
 
 /**
- * @brief Struktura UART prikazu
+ * @brief UART command structure
  */
 typedef struct {
-    const char* name;             ///< Nazev prikazu
-    command_handler_t handler;    ///< Funkce pro zpracovani
-    const char* description;      ///< Popis prikazu
-    const char* usage;            ///< Pouziti prikazu
+    const char* name;             ///< Command name
+    command_handler_t handler;    ///< Function for processing
+    const char* description;      ///< Command description
+    const char* usage;            ///< Use command
     bool requires_args;           ///< Vyzaduje argumenty?
     const char* aliases[5];       ///< Max 5 aliasu
 } uart_command_t;
@@ -81,7 +81,7 @@ typedef struct {
 // EXTERNI PROMENNE
 // ============================================================================
 
-/** @brief Fronta pro UART vystup */
+/** @brief Queue for UART output */
 extern QueueHandle_t uart_output_queue;
 
 // ============================================================================
@@ -89,94 +89,94 @@ extern QueueHandle_t uart_output_queue;
 // ============================================================================
 
 /**
- * @brief Hlavni funkce UART tasku
+ * @brief The main functions of the UART task
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void uart_task_start(void *pvParameters);
 
 // ============================================================================
-// FUNKCE PRO LINE-BASED VSTUP
+// FEATURE FOR LINE-BASED INPUT
 // ============================================================================
 
 /**
- * @brief Zapis retezec okamzite do UART
+ * @brief Write string immediately to UART
  * 
- * @param str Retezec k zapsani
+ * @param str The string to write
  */
 void uart_write_string_immediate(const char* str);
 
 /**
- * @brief Zapis znak okamzite do UART
+ * @brief Write character immediately to UART
  * 
- * @param c Znak k zapsani
+ * @param c The character to write
  */
 void uart_write_char_immediate(char c);
 
 // ============================================================================
-// FUNKCE PRO PRIKAZY
+// FUNCTIONS FOR COMMANDS
 // ============================================================================
 
-/** @brief Prikaz help */
+/** @brief Display help */
 command_result_t uart_cmd_help(const char* args);
-/** @brief Prikaz verbose */
+/** @brief Display verbose */
 command_result_t uart_cmd_verbose(const char* args);
-/** @brief Prikaz quiet */
+/** @brief Display quiet */
 command_result_t uart_cmd_quiet(const char* args);
-/** @brief Prikaz status */
+/** @brief Show status */
 command_result_t uart_cmd_status(const char* args);
-/** @brief Prikaz version */
+/** @brief Display version */
 command_result_t uart_cmd_version(const char* args);
-/** @brief Prikaz memory */
+/** @brief Display memory */
 command_result_t uart_cmd_memory(const char* args);
-/** @brief Prikaz history */
+/** @brief Show history */
 command_result_t uart_cmd_history(const char* args);
-/** @brief Jednotný CLI panel — viz též `HELP CLI` */
+/** @brief Unified CLI panel — see also `HELP CLI` */
 command_result_t uart_cmd_cli(const char* args);
 void uart_cli_print_help(void);
-/** @brief Prikaz clear */
+/** @brief Display clear */
 command_result_t uart_cmd_clear(const char* args);
-/** @brief Prikaz reset */
+/** @brief Show reset */
 command_result_t uart_cmd_reset(const char* args);
-/** @brief Prikaz move */
+/** @brief Show move */
 command_result_t uart_cmd_move(const char* args);
-/** @brief Prikaz up (zvedni figurku) */
+/** @brief Command up (raise the figure) */
 command_result_t uart_cmd_up(const char* args);
-/** @brief Prikaz dn (poloz figurku) */
+/** @brief Command dn (place figure) */
 command_result_t uart_cmd_dn(const char* args);
-/** @brief Prikaz led_board */
+/** @brief Show led_board */
 command_result_t uart_cmd_led_board(const char* args);
-/** @brief Prikaz board */
+/** @brief Board display */
 command_result_t uart_cmd_board(const char* args);
-/** @brief Prikaz game_new */
+/** @brief Showing game_new */
 command_result_t uart_cmd_game_new(const char* args);
-/** @brief Prikaz game_reset */
+/** @brief Showing game_reset */
 command_result_t uart_cmd_game_reset(const char* args);
-/** @brief Prikaz show_moves */
+/** @brief Display show_moves */
 command_result_t uart_cmd_show_moves(const char* args);
-/** @brief Prikaz undo */
+/** @brief Display undo */
 command_result_t uart_cmd_undo(const char* args);
-/** @brief Prikaz game_history */
+/** @brief Show game_history */
 command_result_t uart_cmd_game_history(const char* args);
-/** @brief Prikaz benchmark */
+/** @brief Benchmark display */
 command_result_t uart_cmd_benchmark(const char* args);
-/** @brief Prikaz show_tasks */
+/** @brief Display show_tasks */
 command_result_t uart_cmd_show_tasks(const char* args);
-/** @brief Prikaz self_test */
+/** @brief Show self_test */
 command_result_t uart_cmd_self_test(const char* args);
-/** @brief Prikaz test_game */
+/** @brief Display test_game */
 command_result_t uart_cmd_test_game(const char* args);
-/** @brief Prikaz debug_status */
+/** @brief Show debug_status */
 command_result_t uart_cmd_debug_status(const char* args);
-/** @brief Prikaz debug_game */
+/** @brief Show debug_game */
 command_result_t uart_cmd_debug_game(const char* args);
-/** @brief Prikaz debug_board */
+/** @brief Show debug_board */
 command_result_t uart_cmd_debug_board(const char* args);
-/** @brief Prikaz memcheck */
+/** @brief Show memcheck */
 command_result_t uart_cmd_memcheck(const char* args);
-/** @brief Prikaz show_mutexes */
+/** @brief Display show_mutexes */
 command_result_t uart_cmd_show_mutexes(const char* args);
-/** @brief Prikaz show_fifos */
+/** @brief Display show_fifos */
 command_result_t uart_cmd_show_fifos(const char* args);
 
 /* Game / matrix handlers (uart_handlers_game.c) */
@@ -230,7 +230,7 @@ command_result_t uart_cmd_mqtt_status(const char* args);
 command_result_t uart_cmd_mqtt_test(const char* args);
 
 // ============================================================================
-// POMOCNE FUNKCE
+// HELPFUL FUNCTIONS
 // ============================================================================
 
 void uart_send_error(const char* message);
@@ -238,17 +238,17 @@ void uart_send_formatted(const char* format, ...);
 void uart_send_line(const char* str);
 
 /**
- * @brief Zobraz hlavni help
+ * @brief Show main help
  */
 void uart_display_main_help(void);
 
 /**
- * @brief Help pro game prikazy
+ * @brief Help for game commands
  */
 void uart_cmd_help_game(void);
 
 /**
- * @brief Help pro systemove prikazy
+ * @brief Help for system commands
  */
 void uart_cmd_help_system(void);
 
@@ -258,49 +258,49 @@ void uart_cmd_help_system(void);
 void uart_cmd_help_beginner(void);
 
 /**
- * @brief Help pro debug prikazy
+ * @brief Help for debug commands
  */
 void uart_cmd_help_debug(void);
 
 // ============================================================================
-// FUNKCE PRO ZOBRAZENI
+// DISPLAY FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Zobraz animaci tahu
+ * @brief Display the stroke animation
  * 
- * @param from Zdrojova notace
- * @param to Cilova notace
+ * @param from Source's notation
+ * @param the target notation
  */
 void uart_display_move_animation(const char* from, const char* to);
 
 /**
- * @brief Zobraz rozsirenou sachovnici
+ * @brief Display the expanded inbox
  */
 void uart_display_enhanced_board(void);
 
 /**
- * @brief Zobraz LED sachovnici
+ * @brief Display the LED box
  */
 void uart_display_led_board(void);
 
 // ============================================================================
-// UTILITY FUNKCE
+// UTILITY FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Overi platnost notace tahu
+ * @brief Validate stroke notation
  * 
- * @param move Notace tahu (napr. "e2e4")
- * @return true pokud je notace platna
+ * @param move Move notation (eg "e2e4")
+ * @return true if the notation is valid
  */
 bool is_valid_move_notation(const char* move);
 
 /**
- * @brief Overi platnost notace pole
+ * @brief Validate array notation
  * 
- * @param square Notace pole (napr. "e2")
- * @return true pokud je notace platna
+ * @param square Square notation (eg "e2")
+ * @return true if the notation is valid
  */
 bool is_valid_square_notation(const char* square);
 

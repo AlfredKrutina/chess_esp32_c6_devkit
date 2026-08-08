@@ -26,7 +26,7 @@ struct ChessLiveActivityWidget: Widget {
       DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
           VStack(alignment: .leading) {
-            Text("♔ Bílý")
+            Text("♔ White")
               .font(.caption2)
               .foregroundStyle(.secondary)
             Text(czFormatMs(context.state.whiteTimeMs))
@@ -36,7 +36,7 @@ struct ChessLiveActivityWidget: Widget {
         }
         DynamicIslandExpandedRegion(.trailing) {
           VStack(alignment: .trailing) {
-            Text("♚ Černý")
+            Text("♚ Black")
               .font(.caption2)
               .foregroundStyle(.secondary)
             Text(czFormatMs(context.state.blackTimeMs))
@@ -46,10 +46,10 @@ struct ChessLiveActivityWidget: Widget {
         }
         DynamicIslandExpandedRegion(.bottom) {
           HStack {
-            Text(context.state.timeControlLabel.isEmpty ? "Časomíra" : context.state.timeControlLabel)
+            Text(context.state.timeControlLabel.isEmpty ? "Clock" : context.state.timeControlLabel)
               .font(.caption)
             Spacer()
-            Text("Tahy: \(context.state.totalMoves)")
+            Text("Moves: \(context.state.totalMoves)")
               .font(.caption)
           }
           .padding(.top, 4)
@@ -89,17 +89,17 @@ private struct ChessLockScreenView: View {
       }
 
       if state.phase == "no_timer" {
-        Text("Čekání na časomíru · tahů \(state.totalMoves)")
+        Text("Waiting for clock · \(state.totalMoves) moves")
           .font(.subheadline)
           .foregroundStyle(.secondary)
       } else if state.gameFinished {
-        Text("Partie ukončena")
+        Text("Game finished")
           .font(.title3)
           .fontWeight(.semibold)
       } else {
         HStack(spacing: 16) {
           VStack(alignment: .leading, spacing: 4) {
-            Text("♔ Bílý")
+            Text("♔ White")
               .font(.caption)
               .foregroundStyle(.secondary)
             Text(czFormatMs(state.whiteTimeMs))
@@ -108,7 +108,7 @@ private struct ChessLockScreenView: View {
           }
           Spacer()
           VStack(alignment: .trailing, spacing: 4) {
-            Text("♚ Černý")
+            Text("♚ Black")
               .font(.caption)
               .foregroundStyle(.secondary)
             Text(czFormatMs(state.blackTimeMs))
@@ -119,17 +119,17 @@ private struct ChessLockScreenView: View {
 
         HStack {
           if state.gamePaused {
-            Label("Pauza", systemImage: "pause.circle.fill")
+            Label("Paused", systemImage: "pause.circle.fill")
               .font(.caption)
           } else if state.timerRunning {
-            Label("Běží", systemImage: "play.circle.fill")
+            Label("Running", systemImage: "play.circle.fill")
               .font(.caption)
           } else {
-            Label("Čeká", systemImage: "clock")
+            Label("Waiting", systemImage: "clock")
               .font(.caption)
           }
           Spacer()
-          Text("Tahy: \(state.totalMoves)")
+          Text("Moves: \(state.totalMoves)")
             .font(.caption)
             .foregroundStyle(.secondary)
         }

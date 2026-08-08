@@ -72,10 +72,10 @@
             shell.innerHTML =
                 '<div class="matrix-guard-shell__head">' +
                 '<span class="matrix-guard-shell__icon" aria-hidden="true">▦</span>' +
-                '<div><p class="matrix-guard-shell__title">Srovnejte desku</p></div></div>' +
+                '<div><p class="matrix-guard-shell__title">Align the board</p></div></div>' +
                 '<div class="matrix-guard-shell__foot">' +
-                '<button type="button" id="matrix-guard-clear-btn" class="matrix-guard-shell__action">Obnovit hru</button>' +
-                '<p class="matrix-guard-shell__hint">Jen když jsou figurky fyzicky srovnané</p></div>';
+                '<button type="button" id="matrix-guard-clear-btn" class="matrix-guard-shell__action">Resume game</button>' +
+                '<p class="matrix-guard-shell__hint">Only when pieces are physically aligned</p></div>';
             castlingMsg.parentNode.insertBefore(shell, castlingMsg);
             shell.insertBefore(castlingMsg, shell.querySelector('.matrix-guard-shell__foot'));
             castlingMsg.classList.add('matrix-guard-shell__message');
@@ -106,9 +106,9 @@
         var hint = all.length > 0 ? ' (' + all.join(', ') + ')' : '';
         var resync = status.restore_state && status.restore_state.resync_required;
         if (resync) {
-            return 'Po startu nesedí fyzická deska s uloženou hrou. Srovnejte figurky podle LED' + hint + '.';
+            return 'After startup the physical board does not match the saved game. Align the pieces using the LEDs' + hint + '.';
         }
-        return 'Hra je pozastavena. Srovnejte figurky podle LED na desce' + hint + ' — hra pokračuje automaticky.';
+        return 'Game paused. Align the pieces using the board LEDs' + hint + ' — the game resumes automatically.';
     }
 
     global.matrixGuardMaskToSquares = matrixGuardMaskToSquares;
@@ -117,4 +117,3 @@
     global.matrixGuardShowPanel = matrixGuardShowPanel;
     global.matrixGuardBuildMessage = matrixGuardBuildMessage;
 })(typeof window !== 'undefined' ? window : globalThis);
-

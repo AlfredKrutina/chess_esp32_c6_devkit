@@ -49,12 +49,12 @@ class BoardSessionState {
   final int wsMessageCount;
   final DateTime? lastSuccessfulPoll;
 
-  /// Poslední STA metadata z BLE network char (notify/read).
+  /// Last STA metadata from BLE network char (notify/read).
   final String? bleStaIp;
   final String? bleStaSsid;
   final bool bleStaConnected;
 
-  /// Hotspot desky (AP) podle posledního BLE network JSON (`ap_active`).
+  /// Hotspot boards (AP) according to the latest BLE network JSON (`ap_active`).
   final bool bleApBroadcasting;
   final String? bleApSsid;
 

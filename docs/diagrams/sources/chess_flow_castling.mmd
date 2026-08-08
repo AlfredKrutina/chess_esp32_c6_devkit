@@ -1,19 +1,19 @@
-%% Rošáda — dvoufázový tah na fyzické desce game_task.c
+%% Castling — two-phase move on the physical board game_task.c
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TD
-  A[Tah krále o 2 pole e→g / e→c] --> B[game_validate_castling — král/věž · prázdná cesta · král ne v šachu · pole po cestě neútočena]
-  B -->|chyba| E[MOVE_ERROR_CASTLING_BLOCKED …]
+  A[King move by 2 squares e→g / e→c] --> B[game_validate_castling — king/rook · empty path · king not in check · path squares not attacked]
+  B -->|error| E[MOVE_ERROR_CASTLING_BLOCKED …]
   B -->|OK| C[game_execute_move → MOVE_TYPE_CASTLE_*]
 
-  C --> D[game_execute_move_enhanced: přesune jen KRÁLE · věž NECHÁ na a/h]
-  D --> F[castling_state.in_progress = true · rook_from/to · LED návod]
-  F --> G[Hráč se NEPŘEPÍNÁ — čeká se druhý tah věže]
+  C --> D[game_execute_move_enhanced: moves only KING · rook STAYS on a/h]
+  D --> F[castling_state.in_progress = true · rook_from/to · LED guide]
+  F --> G[Player does NOT switch — waiting for second rook move]
 
-  G --> H[Další tah: game_is_valid_move]
-  H --> I{Je to přesně tah věže rook_from → rook_to?}
-  I -->|ano| J[Výjimka v validaci — přeskočí geometrii věže · šach test]
-  I -->|král jinam| K[Možné zrušení rošády — castling_state = false viz kód]
-  I -->|jinak| L[Čekání / chyba]
+  G --> H[Next move: game_is_valid_move]
+  H --> I{Exactly rook move rook_from → rook_to?}
+  I -->|yes| J[Validation exception — skip rook geometry · check test]
+  I -->|king elsewhere| K[Possible castling cancel — castling_state = false see code]
+  I -->|else| L[Waiting / error]
 
-  J --> M[game_execute_move dokončení: zapíše věž do board · in_progress = false · příznaky king/rook moved]
-  M --> N[Přepnutí hráče · timery · highlight / šach animace]
+  J --> M[game_execute_move finish: write rook to board · in_progress = false · king/rook moved flags]
+  M --> N[Switch player · timers · highlight / check animation]

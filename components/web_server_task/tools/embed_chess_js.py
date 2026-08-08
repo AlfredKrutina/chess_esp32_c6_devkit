@@ -2,7 +2,7 @@
 """
 Re-embed web/chess_app.js into web_server_task.c (replaces chess_app_js_content array).
 
-Spuštění z kořene repa:
+Run from the repository root:
   python3 components/web_server_task/tools/embed_chess_js.py
 """
 import os

@@ -1,7 +1,7 @@
 import '../models/game_snapshot.dart';
 import 'fen_from_board.dart';
 
-/// Jednoduchý PGN z historie desky (SAN pokud je ve snapshotu, jinak UCI).
+/// Simple PGN from the history of the board (SAN if it is in the snapshot, otherwise UCI).
 String buildPgnFromSnapshot(
   GameSnapshot snap, {
   required String eventHeader,

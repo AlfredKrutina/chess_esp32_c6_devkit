@@ -1,31 +1,31 @@
-Sestavení (z tohoto adresáře):
+Build (from this directory):
   make
 
-NUCLEO-C031C6 (USER B1 → zelená LD4 u MCU; LD1 u USB je ST-LINK, neřídí STM32):
+NUCLEO-C031C6 (USER B1 → green LD4 at MCU; LD1 at USB is ST-LINK, does not drive STM32):
   make BOARD_NUCLEO_C031=1
 
-Velikost Flash (schéma používá STM32C031F4 = 16 KiB → povinné):
+Flash size (schema uses STM32C031F4 = 16 KiB → required):
   make FLASH_KB=16
 
-32 KiB (např. STM32C031F6 / C6 na Nucleu):
+32 KiB (e.g. STM32C031F6 / C6 on Nucleo):
   make
-  nebo explicitně: make FLASH_KB=32
+  or explicitly: make FLASH_KB=32
 
-7bit I2C adresa segmentu (výchozí 0x30 = segment 0):
+7-bit I2C segment address (default 0x30 = segment 0):
   make HALL_I2C_OWNADDR7BIT=0x31
 
-HW mapování (KiCad matrix / TSSOP20, viz Inc/board_matrix_pins.h):
-  I2C1: PB6=SCL, PB7=SDA (pin 20 / 1 u FxP podle DS STM32C031).
+Hardware mapping (KiCad matrix / TSSOP20, see Inc/board_matrix_pins.h):
+  I2C1: PB6=SCL, PB7=SDA (pin 20 / 1 on FxP per STM32C031 DS).
   U37: PA0=COM1 (ADC_IN0), PA6=E.
   U38: PA1=COM2 (ADC_IN1), PA7=E.
-  Adresa muxů: PA2=S0 … PA5=S3 (CD74HC4067). E aktivní LOW.
+  Mux address: PA2=S0 … PA5=S3 (CD74HC4067). E active LOW.
 
-STM32CubeC0 musí mít stažené submoduly:
+STM32CubeC0 must have submodules checked out:
   cd ../STM32CubeC0 && git submodule update --init --recursive
 
-Homebrew arm-none-eabi-gcc je bez newlib — projekt používá toolchain_include/ a vlastní link bez libc.
+Homebrew arm-none-eabi-gcc ships without newlib — the project uses toolchain_include/ and custom linking without libc.
 
-Binárka: build/stm32_hall_c031.bin
+Binary: build/stm32_hall_c031.bin
 
-Zkopírovat do ESP oddílu stm32_fw (pro auto-flash z ESP):
+Copy into ESP stm32_fw partition (for auto-flash from ESP):
   make copy-embedded

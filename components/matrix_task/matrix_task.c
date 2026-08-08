@@ -1,93 +1,93 @@
 /**
  * @file matrix_task.c
- * @brief Matrix Scanning Task - Detekce fyzickych figurek na sachovnici
+ * @brief Matrix Scanning Task - Detection of physical figures on a chest of drawers
  *
  * @details
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT DID THIS FILE DO?
  * =============================================================================
  *
- * Tento task skenujesachovnici a detekuje pohyb figurek:
- * 1. Multiplexovany sken 8x8 matrix (Jazyckove kontakty pod kazdym polem)
- * 2. Debouncing (ignoruje "zatraseni" pri zvedani/kladeni figurky)
- * 3. Detekce UP/DN udalosti (figurka zvedla/polozila)
- * 4. Poslani tahu do game_task (kdyz detekuje kompletni tah)
- * 5. Error detection (spatny sled eventu)
+ * This task scans the chest and detects the movement of pieces:
+ * 1. Multiplexed 8x8 matrix scan (Language contacts under each field)
+ * 2. Debouncing (ignores the "shaking" when lifting/placing the figure)
+ * 3. UP/DN event detection (piece raised/placed)
+ * 4. Send the move to game_task (when it detects a complete move)
+ * 5. Error detection (bad sequence of events)
  *
  * =============================================================================
- * JAK TO FUNGUJE?
+ * HOW DOES IT WORK?
  * =============================================================================
  *
  * MULTIPLEX SCANNING:
- * - Aktivuj radek 0 (row select GPIO)
- * - Cti 8 sloupcu (column read GPIO)
- * - Uloz stav -> matrix_state[0][0-7]
- * - Deaktivuj radek 0
- * - Opakuj pro radky 1-7
- * - Celkovy cas: ~10ms (cely sken)
+ * - Activate row 0 (row select GPIO)
+ * - Honor 8 columns (column read GPIO)
+ * - Save state -> matrix_state[0][0-7]
+ * - Deactivate row 0
+ * - Repeat for rows 1-7
+ * - Total time: ~10ms (full scan)
  *
  * DEBOUNCING:
- * - Kazdy senzor musi byt stabilni 3 skeny za sebou
- * - Pak teprve detekujeme zmenu (UP/DN)
- * - Ignoruje "chveni" pri manipulaci
+ * - Each sensor must be stable for 3 scans in a row
+ * - Only then do we detect the change (UP/DN)
+ * - Ignores "shudder" during manipulation
  *
  * PIECE TRACKING:
- * - Stav: IDLE -> PIECE_UP -> PIECE_DN -> IDLE
- * - UP na e2 -> cekame na DN nekde jinde
- * - DN na e4 -> tah e2-e4 detekovan!
- * - Posli do game_command_queue
+ * - State: IDLE -> PIECE_UP -> PIECE_DN -> IDLE
+ * - UP on e2 -> we wait for DN somewhere else
+ * - DN on e4 -> move e2-e4 detected!
+ * - Send to game_command_queue
  *
  * =============================================================================
- * KOMUNIKACE (FIFOS)
+ * COMMUNICATION (FIFOS)
  * =============================================================================
  *
- * FRONTA - Posilame detkovane tahy:
- * - game_command_queue -> Poslani tahu typu GAME_CMD_MOVE_DETECTED
+ * QUEUE - We send detected moves:
+ * - game_command_queue -> Send a move of type GAME_CMD_MOVE_DETECTED
  *
- * ZADNE MUTEXY - Task je read-only (jen cte GPIO)
+ * NO MUTEX - Task is read-only (only read GPIO)
  *
  * =============================================================================
  * HARDWARE (GPIO MAPPING)
  * =============================================================================
  *
- * ROW SELECT (8 pinu, aktivni LOW):
- * - GPIO 10-17: Vyber radku sachovnice
+ * ROW SELECT (8 pin, active LOW):
+ * - GPIO 10-17: Select the box row
  *
- * COLUMN READ (8 pinu, pull-up):
- * - GPIO 18-25: Cteni Jazyckovych kontaktu (Reed switches)
+ * COLUMN READ (8 pin, pull-up):
+ * - GPIO 18-25: Reading language contacts (Reed switches)
  *
- * Jazyckove kontakty: Detekuji magnet ve figurce
- * - LOW = Figurka pritomna
- * - HIGH = Prazdne pole
+ * Language contacts: I detect the magnet in the figurine
+ * - LOW = Figure present
+ * - HIGH = Empty field
  *
  * =============================================================================
- * KRITICKA PRAVIDLA
+ * CRITIC OF RULES
  * =============================================================================
  *
- * @warning CO SE NESMI DELAT:
+ * @warning WHAT NOT TO DO:
  *
- * 1. NIKDY nemaz debounce delay!
- *    Bez debounce bude detekovat "chveni" jako desitky eventu
+ * 1. NEVER have debounce delay!
+ * Without debounce it will detect "shakes" as tens of events
  *
- * 2. NIKDY neskrацуй scan interval pod 10ms!
- *    GPIO multiplex potrebuje cas na ustabilizovani
+ * 2. NEVER shorten the scan interval below 10ms!
+ * GPIO multiplex needs time to stabilize
  *
- * 3. NIKDY neposilej tah primo do game_execute_move!
- *    ❌ game_execute_move(&move);  // Pristup z jineho tasku!
- *    ✅ xQueueSend(game_command_queue, &cmd, ...);  // Pres frontu
+ * 3. NEVER send a move directly to game_execute_move!
+ * ❌ game_execute_move(&move);  // Access from another task!
+ * ✅ xQueueSend(game_command_queue, &cmd, ...);  // Pass the queue
  *
- * 4. VZDY kontroluj queue overflow!
- *    Pokud game_task je zahlcen, fronta se muze naplnit
+ * 4. ALWAYS check queue overflow!
+ * If game_task is busy, the queue may fill up
  *
  * =============================================================================
  * TABLE OF CONTENTS
  * =============================================================================
  *
- * Sekce 1:  GPIO Init ............................ radek 80
- * Sekce 2:  Matrix Scanning ...................... radek 200
- * Sekce 3:  Debouncing Logic ..................... radek 350
- * Sekce 4:  Event Detection ...................... radek 500
- * Sekce 5:  Main Matrix Task ..................... radek 750
+ * Section 1: GPIO Init ............................ line 80
+ * Section 2: Matrix Scanning ...................... line 200
+ * Section 3: Debouncing Logic ..................... line 350
+ * Section 4: Event Detection ...................... line 500
+ * Section 5: Main Matrix Task ..................... line 750
  *
  * =============================================================================
  *
@@ -96,11 +96,11 @@
  * @date 2025-12-22
  *
  * @note
- * - Task priorita: 6 (vyssi nez game - realtime  detection)
+ * - Task priority: 6 (higher than game - realtime detection)
  * - Scan interval: 10ms
- * - Debounce: 3 skeny (30ms)
+ * - Debounce: 3 scans (30ms)
  *
- * @see game_task.c - Prijima detkovane tahy
+ * @see game_task.c - Accepts detked moves
  */
 
 #include "sdkconfig.h"
@@ -141,25 +141,25 @@ static const char *TAG = "MATRIX_TASK";
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
+ * @brief Safe WDT reset with WARNING instead of ERROR logging for
  * ESP_ERR_NOT_FOUND
  *
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
- * (WARNING pouze)
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
+ * (WARNING only)
  *
  * @details
- * Funkce je pouzivana pro bezpecny reset watchdog timeru behem matrix operaci.
- * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ * The function is used to safely reset the watchdog timer during matrix operation.
+ * Prevents startup errors when the task is not yet registered.
  */
 static esp_err_t matrix_task_wdt_reset_safe(void) {
   esp_err_t ret = esp_task_wdt_reset();
 
   if (ret == ESP_ERR_NOT_FOUND) {
-    // Logovat jako WARNING misto ERROR - task jeste neni registrovany
+    // Log in as WARNING instead of ERROR - task not yet registered
     ESP_LOGW(
         TAG,
         "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Povazovat za uspech pro nase ucely
+    return ESP_OK; // Consider it a success for our purposes
   } else if (ret != ESP_OK) {
     ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
     return ret;
@@ -172,30 +172,30 @@ static esp_err_t matrix_task_wdt_reset_safe(void) {
 // LOKALNI PROMENNE A KONSTANTY
 // ============================================================================
 
-// Stav matice
-static uint8_t matrix_state[64] = {0};    // Aktualni stav matice
-static uint8_t matrix_previous[64] = {0}; // Predchozi stav matice
+// Matrix status
+static uint8_t matrix_state[64] = {0};    // The current state of the matrix
+static uint8_t matrix_previous[64] = {0}; // Antecedent state of the matrix
 static uint8_t matrix_changes[64] = {0};  // Detekce zmen
 
 // Stav tasku
 static bool task_running = false;
 static bool simulation_mode = false; // Zmeneno na false pro realny hardware
-bool matrix_scanning_enabled = true; // Skenovani matice povoleno ve vychozim
-                                     // nastaveni (extern pro timer callback)
+bool matrix_scanning_enabled = true; // Matrix scanning enabled by default
+                                     // settings (external for timer callback)
 
 // Stav skenovani
 static uint8_t current_row = 0;
 static uint32_t last_scan_time = 0;
 static uint32_t scan_count = 0;
 
-// Detekce tahu
-static uint8_t last_piece_lifted = 255; // Zadna figurka
-static uint8_t last_piece_placed = 255; // Zadna figurka
+// Thrust detection
+static uint8_t last_piece_lifted = 255; // Rear figure
+static uint8_t last_piece_placed = 255; // Rear figure
 static uint32_t move_detection_timeout = 0;
 static bool matrix_guard_mode_active = false;
 static uint8_t matrix_guard_expected_state[64] = {0};
 
-// Vzory matice pro simulaci
+// Matrix patterns for simulation
 static const uint8_t simulation_patterns[][64] = {
     // Pattern 0: Empty board
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -215,39 +215,39 @@ static const uint8_t simulation_patterns[][64] = {
 static uint8_t current_pattern = 1; // Zacit s vzorem 1
 
 // ============================================================================
-// FUNKCE PRO SKENOVANI MATICE
+// MATRIX SCAN FUNCTION
 // ============================================================================
 
 /**
- * @brief Skenuje jeden radek matice (interni funkce bez mutexu)
+ * @brief Scans one row of a matrix (mutexless internal functions)
  *
- * Tato funkce skenuje jeden radek 8x8 reed switch matice. Pred skenovanim
- * nastavi vsechny row piny na HIGH (neaktivni), pak aktivuje aktualni radek
- * nastavenim na LOW, ceka 5 ms pro stabilizaci signalu, precte column piny
- * a nastavi radek zpet na HIGH.
+ * This function scans one row of an 8x8 reed switch matrix. Before scanning
+ * sets all row pins to HIGH (inactive), then activates the current row
+ * set to LOW, wait 5 ms for signal stabilization, clean column pins
+ * and set the line back to HIGH.
  *
- * @param row Cislo radku (0-7)
+ * @param row Row number (0-7)
  *
  * @details
- * Hardware logika:
- * - Row piny jsou DRIVE (vystupni) - aktivne nastavujes stav
- * - Column piny jsou SENSE (vstupni s pull-up) - ctes je
- * - Aktivni row = LOW (stahne column pin na LOW pokud je figurka/reed switch
- * uzavreny)
- * - Neaktivni row = HIGH (column pin zustane HIGH pokud neni figurka)
+ * Hardware logic:
+ * - Row pins are DRIVE (outputs) - you actively set the state
+ * - Column pins are SENSE (input with pull-up) - read them
+ * - Active row = LOW (pulls the column pin to LOW if there is a piece/reed switch
+ * closed)
+ * - Inactive row = HIGH (column pin remains HIGH if there is no figure)
  *
- * Pred aktivaci aktualniho radku se vsechny row piny nastavi
- * na HIGH. Toto zajistuje, ze ostatni row piny nebudou interferovat s ctenim
- * column pinu. Bez tohoto by figurkami v jednom sloupci na ruznych radcich
- * mohly zpusobit falesnou detekci (pokud by row pin zustal LOW, column pin
- * by byl LOW i kdyz skenujeme jiny radek).
+ * Before activating the current row, all row pins are set
+ * to HIGH. This ensures that the other row pins do not interfere with reading
+ * column pin. Without this, the figures would be in one column on different boards
+ * could cause false detection (if row pin remains LOW, column pin
+ * would be LOW even when we scan other rows).
  *
- * Stabilizacni cekani: Po aktivaci row pinu na LOW se ceka 5 ms pro spravne
- * ustaleni napetoveho stavu. Bez tohoto cekani by mohlo dochazet k nespravnemu
- * cteni stavu column pinu kvuli elektromagnetickym interferencim a kapacitnim
- * efektum.
+ * Stabilization wait: After activating the row pin to LOW, it waits 5 ms for correct
+ * establishing the voltage state. Without this waiting, something could go wrong
+ * reading the status of the column pin due to electromagnetic interference and capacitance
+ * effect.
  *
- * @note Volajici musi drzet matrix_mutex pred volanim teto funkce
+ * @note Callers must hold the matrix_mutex before calling this function
  */
 static void matrix_scan_row_internal(uint8_t row) {
   if (row >= 8)
@@ -258,9 +258,9 @@ static void matrix_scan_row_internal(uint8_t row) {
   return;
 #else
 
-  // IMPROVED: Přepni všechny řádky na INPUT před aktivací aktuálního řádku
-  // Toto je bezpečnější než jen nastavení HIGH, protože zabraňuje konfliktům
-  // při přepínání mezi řádky (jako v referenčním kódu)
+  // IMPROVED: Switch all lines to INPUT before activating the current line
+  // This is safer than just setting it to HIGH because it prevents conflicts
+  // when switching between lines (as in the reference code)
   for (int i = 0; i < 8; i++) {
     gpio_config_t io_conf = {.pin_bit_mask = (1ULL << matrix_row_pins[i]),
                              .mode = GPIO_MODE_INPUT,
@@ -270,21 +270,21 @@ static void matrix_scan_row_internal(uint8_t row) {
     gpio_config(&io_conf);
   }
 
-  // IMPROVED: Použij esp_rom_delay_us místo vTaskDelay (timer callback
+  // IMPROVED: Use esp_rom_delay_us instead of vTaskDelay (timer callback
   // context)
   extern void esp_rom_delay_us(uint32_t us);
   esp_rom_delay_us(20); // 20us settling time (reduced from 1ms)
 
-  // Nastav aktuální řádek na OUTPUT a LOW (aktivace)
-  // Toto stáhne column pin na LOW pokud je na tomto křížení figurka (reed
-  // switch uzavřený)
+  // Set current line to OUTPUT and LOW (activation)
+  // This pulls the column pin LOW if there is a piece (reed
+  // switch closed)
   gpio_config_t io_conf = {.pin_bit_mask = (1ULL << matrix_row_pins[row]),
                            .mode = GPIO_MODE_OUTPUT,
                            .pull_up_en = GPIO_PULLUP_DISABLE,
                            .pull_down_en = GPIO_PULLDOWN_DISABLE,
                            .intr_type = GPIO_INTR_DISABLE};
   gpio_config(&io_conf);
-  gpio_set_level(matrix_row_pins[row], 0); // LOW = aktivní
+  gpio_set_level(matrix_row_pins[row], 0); // LOW = active
 
   // GPIO settling time: 200us for signal stabilization (long wires support)
   // For digital signals with long cables (capacitance), we need more time
@@ -292,12 +292,12 @@ static void matrix_scan_row_internal(uint8_t row) {
   esp_rom_delay_us(200);
 
   // Read all column pins for this row
-  // Column piny mají pull-up, takže bez figury budou HIGH
-  // Pokud je figurka (reed switch uzavřený), column pin bude LOW
+  // Column pins have a pull-up, so they will be HIGH without the figure
+  // If the figure is (reed switch closed), the column pin will be LOW
   
   // Read all column pins for this row
-  // Column piny mají pull-up, takže bez figury budou HIGH
-  // Pokud je figurka (reed switch uzavřený), column pin bude LOW
+  // Column pins have a pull-up, so they will be HIGH without the figure
+  // If the figure is (reed switch closed), the column pin will be LOW
   
   for (int col = 0; col < 8; col++) {
     // Invert column index to fix GPIO physical wiring (H→A instead of
@@ -317,8 +317,8 @@ static void matrix_scan_row_internal(uint8_t row) {
       matrix_state[index] = simulation_patterns[current_pattern][index];
     } else {
       // Real hardware: reed switch closed = piece present
-      // pin_level == 0 znamená, že column pin je stažený na LOW (figurka je
-      // přítomna)
+      // pin_level == 0 means that the column pin is pulled to LOW (the figure is
+      // present)
       // NOTE: GPIO17 is configured with pull-down for debug testing
       // Normal logic still applies, but we'll log values for analysis
       matrix_state[index] = (pin_level == 0) ? 1 : 0;
@@ -337,12 +337,12 @@ static void matrix_scan_row_internal(uint8_t row) {
     }
   }
 
-  // IMPROVED: Přepni řádek zpět na INPUT po scanování (bezpečnější)
+  // IMPROVED: Switch line back to INPUT after scan (safer)
   io_conf.pin_bit_mask = (1ULL << matrix_row_pins[row]);
   io_conf.mode = GPIO_MODE_INPUT;
   gpio_config(&io_conf);
 
-  // Malé čekání před dalším řádkem pro stabilizaci
+  // A small wait before the next line for stabilization
   esp_rom_delay_us(20); // 20us delay (reduced from 2ms)
 #endif
 }
@@ -368,10 +368,10 @@ void matrix_scan_row(uint8_t row) {
 
 /*
  * Kconfig CHESS_MATRIX_INPUT:
- * - GPIO_REED: níže smyčka matrix_scan_row_internal(0..7) — multiplex řádků.
- * - I2C_HALL: hall_i2c_matrix_fill_state() (čtení ze STM slave adres).
- * STM32 flash přes I2C při zapnutém CHESS_STM32_I2C_BL_ENABLE: bootloader si sám
- * pozastaví scan (matrix_scanning_enabled v stm32_i2c_bl.c), dokud neproběhne flash.
+ * - GPIO_REED: matrix_scan_row_internal(0..7) loop below — row multiplex.
+ * - I2C_HALL: hall_i2c_matrix_fill_state() (read from STM slave addresses).
+ * STM32 flash over I2C when CHESS_STM32_I2C_BL_ENABLE is on: bootloader on its own
+ * suspend scan (matrix_scanning_enabled in stm32_i2c_bl.c) until flash is done.
  */
 void matrix_scan_all(void) {
   uint32_t current_time = esp_timer_get_time() / 1000;
@@ -675,8 +675,8 @@ void matrix_detect_moves(void) {
     }
   }
 
-  // Dvě UP za sebou: normálně ambiguous (matrix guard), ale guided capture
-  // (nejdřív oběť, pak útočník) a 3-krokové braní (vlastní → soupeř) to vyžadují.
+  // Two UP in a row: normally ambiguous (matrix guard), but guided capture
+  // (victim first, then attacker) and 3-step defense (own → opponent) require it.
   bool multi_change = (lift_count > 1) || (drop_count > 1);
   bool pending_lift_and_new_up =
       (last_piece_lifted != 255 && lift_count > 0);
@@ -1049,15 +1049,15 @@ void matrix_abort_ambiguous_guard_baseline(void) {
 // ============================================================================
 
 /**
- * @brief Uvolni matrix row piny pro button scanning
+ * @brief Release matrix row pins for button scanning
  *
- * Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task
- * mohl cist column piny bez interference.
+ * Set all row pins to HIGH (inactive state) to button task
+ * could clean column pins without interference.
  *
  * @details
- * Tato funkce je volana pred button scan window (20-25ms).
- * Vsechny row piny jsou nastaveny na HIGH (pulled up) takze
- * column piny mohou byt bezpecne cteny pro button detection.
+ * This function is called before the button scan window (20-25ms).
+ * All row pins are set to HIGH (pulled up) so
+ * column pins can be safely read for button detection.
  */
 void matrix_release_pins(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -1071,13 +1071,13 @@ void matrix_release_pins(void) {
 }
 
 /**
- * @brief Znovu aktivuj matrix row piny pro matrix scanning
+ * @brief Re-enable matrix row pins for matrix scanning
  *
- * Obnovi normalni matrix scanning rezim po button scan window.
+ * Restore normal matrix scanning mode after button scan window.
  *
  * @details
- * Tato funkce je volana po button scan window. Matrix muze pokracovat
- * v normalnim skenovani.
+ * This function is called after button scan window. The Matrix can continue
+ * in normal scanning.
  */
 void matrix_acquire_pins(void) {
   // Matrix scanning can resume normally
@@ -1088,9 +1088,9 @@ void matrix_acquire_pins(void) {
 }
 
 /**
- * @brief Overi zda jsou matrix piny uvolnene
+ * @brief Verify if the matrix pins are released
  *
- * @return true pokud jsou vsechny row piny HIGH (uvolnene)
+ * @return true if all row pins are HIGH (released)
  */
 bool matrix_pins_released(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -1115,14 +1115,14 @@ void matrix_task_start(void *pvParameters) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   esp_err_t hi = hall_i2c_matrix_init();
   if (hi != ESP_OK) {
-    ESP_LOGE(TAG, "Hall I2C init failed: %s — matrix reads budou prázdné",
+    ESP_LOGE(TAG, "Hall I2C init failed: %s — matrix reads will be empty",
              esp_err_to_name(hi));
   }
 #endif
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
   ESP_LOGI(TAG,
-           "STM32 I2C bootloader: po I2C init spouštím případný auto-flash "
+           "STM32 I2C bootloader: after I2C init I start the possible auto-flash "
            "(logy STM32_I2C_BL / STM32_AUTO)");
   stm32_i2c_bl_maybe_auto_flash_on_boot();
 #endif

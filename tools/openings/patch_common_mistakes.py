@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-shot patch: add validated common_mistakes to openings_master.json (Fáze 5b)."""
+"""One-shot patch: add validated common_mistakes to openings_master.json (Phase 5b)."""
 
 from __future__ import annotations
 

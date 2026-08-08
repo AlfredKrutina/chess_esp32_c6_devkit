@@ -1,4 +1,4 @@
-/// Parsuje CSV hodnot 0–255 pro filtrování IPv4 podle 3. oktetu (např. `88` → `192.168.88.*`).
+/// Parses CSV values ​​0-255 to filter IPv4 by 3rd octet (eg `88` → `192.168.88.*`).
 Set<int> parseWifiBlockedThirdOctetsCsv(String csv) {
   final out = <int>{};
   for (final part in csv.split(',')) {
@@ -12,7 +12,7 @@ Set<int> parseWifiBlockedThirdOctetsCsv(String csv) {
   return out;
 }
 
-/// Vrací 3. oktet pro čisté IPv4 `a.b.c.d`, jinak null (hostname, IPv6, neplatné).
+/// Returns the 3rd octet for pure IPv4 `a.b.c.d`, otherwise null (hostname, IPv6, void).
 int? parseIpv4ThirdOctet(String host) {
   var h = host.trim();
   if (h.isEmpty) return null;

@@ -4,13 +4,13 @@
 (function (global) {
     'use strict';
 
-    /** Zabrání souběhu několika fetchData na pomalé síti / přetíženém HTTPD. */
+    /** Prevents overlapping fetchData calls on a slow network / overloaded HTTPD. */
     global.fetchDataInFlight = false;
 
     /**
-     * Hlavičky pro admin POST — doplní Bearer z localStorage `czechmate_api_token`
-     * (64 hex z UART `API_TOKEN`), pokud je uložen.
-     * @param {Object.<string,string>} [base] základní hlavičky (např. Content-Type)
+     * Headers for admin POST — adds Bearer from localStorage `czechmate_api_token`
+     * (64 hex from UART `API_TOKEN`) when stored.
+     * @param {Object.<string,string>} [base] base headers (e.g. Content-Type)
      */
     function boardApiAuthHeaders(base) {
         const h = {};
@@ -29,7 +29,7 @@
     }
 
     /**
-     * GET JSON s jednoduchým error handlingem.
+     * GET JSON with simple error handling.
      * @param {string} url
      * @returns {Promise<*>}
      */
@@ -42,7 +42,7 @@
     }
 
     /**
-     * POST JSON — vrací parsed body nebo {} při ne-JSON odpovědi.
+     * POST JSON — returns parsed body or {} for non-JSON responses.
      * @param {string} url
      * @param {*} body
      * @param {Object.<string,string>} [extraHeaders]
@@ -60,7 +60,7 @@
     }
 
     /**
-     * Načte herní snapshot (preferuje /api/game/snapshot, fallback na 4 endpointy).
+     * Loads game snapshot (prefers /api/game/snapshot, falls back to 4 endpoints).
      * @returns {Promise<{board: *, status: *, history: *, captured: *, clock: *|null, fromSnapshot: boolean}>}
      */
     async function fetchGameSnapshot() {

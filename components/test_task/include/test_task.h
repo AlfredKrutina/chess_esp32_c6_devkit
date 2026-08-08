@@ -1,23 +1,23 @@
 /**
  * @file test_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Test Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Test Task Head
  * 
- * Tato hlavicka definuje rozhrani pro test task:
- * - Typy a struktury testu
- * - Prototypy funkci test tasku
- * - Funkce pro ovladani a stav testu
+ * This header defines the interface for the test task:
+ * - Test types and structures
+ * - Test task function prototypes
+ * - Functions for control and test status
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * Test Task poskytuje komplexni testovaci schopnosti pro system:
- * - Hardware testy (LED, matrix, GPIO, WS2812B, reed switche)
- * - Systemove testy (FreeRTOS, fronty, mutexy, timery)
+ * Test Task provides comprehensive testing capabilities for the system:
+ * - Hardware tests (LED, matrix, GPIO, WS2812B, reed switches)
+ * - System tests (FreeRTOS, queues, mutexes, timers)
  * - Performance benchmarking
- * - Integracni testy
- * - Detailni reportovani vysledku
+ * - Integration tests
+ * - Detailed reporting of the result
  */
 
 #ifndef TEST_TASK_H
@@ -43,18 +43,18 @@
  */
 typedef enum {
     TEST_RESULT_PASS = 0,   ///< Test prosel
-    TEST_RESULT_FAIL,       ///< Test selhal
+    TEST_RESULT_FAIL,       ///< Test failed
     TEST_RESULT_SKIP,       ///< Test preskocen
-    TEST_RESULT_ERROR       ///< Chyba pri testu
+    TEST_RESULT_ERROR       ///< Test error
 } test_result_t;
 
 /**
- * @brief Typy test prikazu
+ * @brief Test command types
  */
 typedef enum {
-    TEST_CMD_RUN_ALL,     ///< Spust vsechny testy
-    TEST_CMD_RUN_SUITE,   ///< Spust specifickou test sadu
-    TEST_CMD_RUN_SINGLE,  ///< Spust jednotlivy test
+    TEST_CMD_RUN_ALL,     ///< Run all tests
+    TEST_CMD_RUN_SUITE,   ///< Run specific test suite
+    TEST_CMD_RUN_SINGLE,  ///< Run single test
     TEST_CMD_GET_STATUS   ///< Ziskej status testu
 } test_command_type_t;
 
@@ -63,26 +63,26 @@ typedef enum {
 // ============================================================================
 
 /**
- * @brief Spusti test task
+ * @brief Run the test task
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void test_task_start(void *pvParameters);
 
 // ============================================================================
-// INICIALIZACNI FUNKCE TEST SAD
+// INITIALIZATION FUNCTION TEST SET
 // ============================================================================
 
 /**
- * @brief Inicializuj test system
+ * @brief Initialize the test system
  */
 void test_initialize_system(void);
 
 /**
- * @brief Vytvor novou test sadu
+ * @brief Create a new test suite
  * 
- * @param name Nazev sady
- * @return ID sady nebo 0xFF pri selhani
+ * @param name The name of the set
+ * @return set ID or 0xFF on failure
  */
 uint8_t test_create_suite(const char* name);
 
@@ -96,7 +96,7 @@ uint8_t test_create_suite(const char* name);
 void test_add_test(uint8_t suite_id, const char* name, bool enabled);
 
 // ============================================================================
-// FUNKCE PRO NAPLNENI TEST SAD
+// FUNCTION FOR FILLING TEST SETS
 // ============================================================================
 
 /**
@@ -120,23 +120,23 @@ void test_add_performance_tests(void);
 void test_add_integration_tests(void);
 
 // ============================================================================
-// FUNKCE PRO SPUSTENI TESTU
+// TEST RUN FUNCTION
 // ============================================================================
 
 /**
- * @brief Spust vsechny test sady
+ * @brief Run all test suites
  */
 void test_run_all_suites(void);
 
 /**
- * @brief Spust specifickou test sadu
+ * @brief Run a specific test suite
  * 
  * @param suite_id ID sady k spusteni
  */
 void test_run_suite(uint8_t suite_id);
 
 /**
- * @brief Spust jednotlivy test
+ * @brief Run the test individually
  * 
  * @param suite_id ID sady
  * @param test_id ID testu
@@ -144,7 +144,7 @@ void test_run_suite(uint8_t suite_id);
 void test_run_single_test(uint8_t suite_id, uint8_t test_id);
 
 /**
- * @brief Dokonci vsechny test sady
+ * @brief Complete all test suites
  */
 void test_complete_all_suites(void);
 
@@ -152,49 +152,49 @@ void test_complete_all_suites(void);
 // IMPLEMENTACE JEDNOTLIVYCH TESTU
 // ============================================================================
 
-/** @brief Proved LED matrix test */
+/** @brief Performed LED matrix test */
 test_result_t test_execute_led_matrix_test(void);
-/** @brief Proved button test */
+/** @brief Performed button test */
 test_result_t test_execute_button_test(void);
-/** @brief Proved GPIO test */
+/** @brief Performed GPIO test */
 test_result_t test_execute_gpio_test(void);
-/** @brief Proved WS2812B test */
+/** @brief Performed WS2812B test */
 test_result_t test_execute_ws2812b_test(void);
-/** @brief Proved reed switch test */
+/** @brief Performed reed switch test */
 test_result_t test_execute_reed_switch_test(void);
-/** @brief Proved power test */
+/** @brief Performed power test */
 test_result_t test_execute_power_test(void);
-/** @brief Proved clock test */
+/** @brief Performed clock test */
 test_result_t test_execute_clock_test(void);
-/** @brief Proved memory test */
+/** @brief Performed memory test */
 test_result_t test_execute_memory_test(void);
-/** @brief Proved FreeRTOS test */
+/** @brief Performed FreeRTOS test */
 test_result_t test_execute_freertos_test(void);
-/** @brief Proved queue test */
+/** @brief Performed queue test */
 test_result_t test_execute_queue_test(void);
-/** @brief Proved mutex test */
+/** @brief Performed mutex test */
 test_result_t test_execute_mutex_test(void);
-/** @brief Proved timer test */
+/** @brief Performed timer test */
 test_result_t test_execute_timer_test(void);
-/** @brief Proved interrupt test */
+/** @brief Interrupt test performed */
 test_result_t test_execute_interrupt_test(void);
-/** @brief Proved error handling test */
+/** @brief Performed error handling test */
 test_result_t test_execute_error_handling_test(void);
-/** @brief Proved logging test */
+/** @brief Performed logging test */
 test_result_t test_execute_logging_test(void);
-/** @brief Proved configuration test */
+/** @brief Conducted configuration test */
 test_result_t test_execute_configuration_test(void);
-/** @brief Proved performance test */
+/** @brief Performed a performance test */
 test_result_t test_execute_performance_test(void);
-/** @brief Proved integracni test */
+/** @brief Performed an integration test */
 test_result_t test_execute_integration_test(void);
 
 // ============================================================================
-// FUNKCE PRO ZPRACOVANI PRIKAZU
+// COMMAND PROCESSING FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Zpracuj test prikazy z fronty
+ * @brief Process test commands from the queue
  */
 void test_process_commands(void);
 
@@ -214,7 +214,7 @@ void test_print_detailed_results(void);
 void test_reset_results(void);
 
 /**
- * @brief Spust performance benchmark
+ * @brief Run performance benchmark
  */
 void test_run_performance_benchmark(void);
 

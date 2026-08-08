@@ -1,21 +1,21 @@
 /**
  * @file enhanced_castling_system.c
- * @brief Implementace Enhanced Castling Systemu
+ * @brief Enhanced Casting System implementation
  * 
- * Tento modul implementuje komplexni system pro rochadu s:
- * - Centralizovanou spravou stavu
- * - Pokrocilym LED navodem a indikaci chyb
- * - Inteligentnim error recovery
+ * This module implements a complex system for dealing with:
+ * - Centralized status management
+ * - Advanced LED guidance and error indication
+ * - Intelligent error recovery
  * - Timeout handling
- * - Vizualnim navodem pro hrace
+ * - Visual cues for players
  * 
  * @author ESP32 Chess Team
  * @date 2024
  * 
  * @details
- * Enhanced Castling System je pokrocily system pro spravu rochady
- * v sachovem systemu. Poskytuje vizualni navod pro hrace a pomaha
- * s provedenim rochady podle pravidel.
+ * Enhanced Castling System is an advanced castling management system
+ * in the Sacha system. Provides visual guidance for toys and help
+ * with the implementation of rochada according to the rules.
  */
 
 #include "enhanced_castling_system.h"
@@ -35,17 +35,17 @@ enhanced_castling_system_t castling_system = {0};
 // LED configuration with default values
 castling_led_config_t castling_led_config = {
     .colors = {
-        .king_highlight = {.r = 255, .g = 215, .b = 0},      // Zlatá
-        .king_destination = {.r = 0, .g = 255, .b = 0},      // Zelená
-        .rook_highlight = {.r = 192, .g = 192, .b = 192},    // Stříbrná
-        .rook_destination = {.r = 0, .g = 0, .b = 255},      // Modrá
-        .error_indication = {.r = 255, .g = 0, .b = 0},      // Červená
-        .path_guidance = {.r = 255, .g = 255, .b = 0}        // Žlutá
+        .king_highlight = {.r = 255, .g = 215, .b = 0},      // Golden
+        .king_destination = {.r = 0, .g = 255, .b = 0},      // Green
+        .rook_highlight = {.r = 192, .g = 192, .b = 192},    // Silver
+        .rook_destination = {.r = 0, .g = 0, .b = 255},      // Blue
+        .error_indication = {.r = 255, .g = 0, .b = 0},      // Red
+        .path_guidance = {.r = 255, .g = 255, .b = 0}        // Amber
     },
     .timing = {
         .pulsing_speed = 500,                 // 500ms
         .guidance_speed = 300,                // 300ms
-        .error_flash_count = 3,               // 3x bliknutí
+        .error_flash_count = 3,               // 3 flashes
         .completion_celebration_duration = 2000 // 2s
     }
 };
@@ -366,16 +366,16 @@ void enhanced_castling_update_phase(castling_phase_t new_phase)
     // Set timeout according to phase
     switch (new_phase) {
         case CASTLING_STATE_KING_LIFTED:
-            castling_system.phase_timeout_ms = 30000; // 30s na přemístění krále
+            castling_system.phase_timeout_ms = 30000; // 30s to move the king
             break;
         case CASTLING_STATE_KING_MOVED_WAITING_ROOK:
-            castling_system.phase_timeout_ms = 60000; // 60s na věž
+            castling_system.phase_timeout_ms = 60000; // 60s per tower
             break;
         case CASTLING_STATE_ROOK_LIFTED:
-            castling_system.phase_timeout_ms = 30000; // 30s na přemístění věže
+            castling_system.phase_timeout_ms = 30000; // 30s to move the tower
             break;
         default:
-            castling_system.phase_timeout_ms = 10000; // Výchozí timeout
+            castling_system.phase_timeout_ms = 10000; // Default timeout
             break;
     }
     

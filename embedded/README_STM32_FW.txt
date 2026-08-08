@@ -1,18 +1,18 @@
-Oddíl stm32_fw (flash ESP @ 0x380000, viz partitions.csv)
+stm32_fw partition (ESP flash @ 0x380000, see partitions.csv)
 ============================================================
 
-Soubor: embedded/stm32_fw_embedded.bin
+File: embedded/stm32_fw_embedded.bin
 
-- Při `idf.py flash` se tento soubor automaticky zapíše do oddílu stm32_fw (CMake: esptool_py_flash_to_partition).
-- Výchozí obsah je stub z `firmware/stm32_hall_c031` (`make copy-embedded`). Pro vlastní build ho nahraď svým .bin.
-- Zapojení ESP ↔ STM (BOOT0, NRST, I²C): viz docs/reference/ZAPOJENI_ESP_STM4.md
+- On `idf.py flash`, this file is written automatically to the stm32_fw partition (CMake: esptool_py_flash_to_partition).
+- Default content is a stub from `firmware/stm32_hall_c031` (`make copy-embedded`). Replace with your own .bin for a custom build.
+- ESP ↔ STM wiring (BOOT0, NRST, I²C): see docs/reference/WIRING_ESP_STM4.md
 
-Nahrazení firmwaru STM32:
-  cp /cesta/k/tvemu_firmware.bin embedded/stm32_fw_embedded.bin
+Replace STM32 firmware:
+  cp /path/to/your_firmware.bin embedded/stm32_fw_embedded.bin
   idf.py flash
 
-Demo (syntetická Hall data přes I²C, stejný protokol jako produkce — bez ADC/muxů na STM):
+Demo (synthetic Hall data over I²C, same protocol as production — no ADC/mux on STM):
   cd firmware/stm32_hall_c031 && make demo-embedded
-  → zkopíruje build/stm32_hall_c031.bin do embedded/stm32_fw_embedded.bin ; pak idf.py flash
+  → copies build/stm32_hall_c031.bin to embedded/stm32_fw_embedded.bin ; then idf.py flash
 
-Velikost oddílu je 0x80000 (512 KiB); bin může být kratší — zbytek typicky 0xFF.
+Partition size is 0x80000 (512 KiB); the bin may be shorter — remainder is typically 0xFF.

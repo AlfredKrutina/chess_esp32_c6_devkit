@@ -6,7 +6,7 @@ import 'opening_catalog_repository.dart';
 import 'opening_rationale.dart';
 import 'opening_trainer_screen.dart';
 
-/// Sdílený výběr režimu a soupeře před startem lekce (katalog + Learn L10/L12).
+/// Shared selection of mode and opponent before the start of the lesson (catalogue + Learn L10/L12).
 Future<void> pickOpeningModeAndStart({
   required BuildContext context,
   required WidgetRef ref,

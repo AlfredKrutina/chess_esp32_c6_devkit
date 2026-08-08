@@ -1,82 +1,82 @@
 /**
  * @file button_task.c
- * @brief Button Task - Zpracovani tlacitek a event detection
+ * @brief Button Task - Button processing and event detection
  *
  * @details
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT DID THIS FILE DO?
  * =============================================================================
  *
- * Tento task zpracovava VSECHNA tlacitka:
- * 1. 4 fyzicka promotion tlacitka (Queen, Rook, Bishop, Knight)
- * 2. 1 fyzicke reset tlacitko
- * 3. 4 virtualni promotion tlacitka (jen LED indikace)
- * 4. Debouncing (ignoruje "zatraseni")
+ * This task processes ALL buttons:
+ * 1. 4 physical promotion buttons (Queen, Rook, Bishop, Knight)
+ * 2. 1 physical reset button
+ * 3. 4 virtual promotion buttons (only LED indication)
+ * 4. Debouncing (ignores "shaking")
  * 5. Event detection (press, release, long press, double press)
- * 6. Posilani eventu do fronty
+ * 6. Sending the event to the queue
  *
  * =============================================================================
- * JAK TO FUNGUJE?
+ * HOW DOES IT WORK?
  * =============================================================================
  *
  * HARDWARE:
- * - 4 promotion tlacitka: GPIO sdilene s matrix cols (time-multiplexed)
- * - 1 reset tlacitko: GPIO15 (dedicated pin)
- * - 9 LED indikaci: LED indexy 64-72 (WS2812B)
+ * - 4 promotion buttons: GPIO shared with matrix cols (time-multiplexed)
+ * - 1 reset button: GPIO15 (dedicated pin)
+ * - 9 LED indication: LED indexes 64-72 (WS2812B)
  *
- * HLAVNI SMYCKA (5ms cyklus):
+ * MAIN LOOP (5ms cycle):
  * while (1) {
- *     1. Scan all button GPIO
- *     2. Debounce (50ms stability required)
- *     3. Detect events (press/release/long/double)
- *     4. Send events to button_event_queue
- *     5. Wait 5ms
+ * 1. Scan all GPIO buttons
+ * 2. Debounce (50ms stability required)
+ * 3. Detect events (press/release/long/double)
+ * 4. Send events to button_event_queue
+ * 5. Wait 5ms
  * }
  *
  * DEBOUNCING:
- * - Tlacitko musi byt stabilni 50ms
- * - Pak teprve detekujeme zmenu stavu
- * - Ignoruje mechanicke "chveni" kontaktu
+ * - The button must be stable for 50ms
+ * - Only then do we detect a state change
+ * - Ignores the mechanical "vibration" of the contact
  *
  * EVENT TYPES:
- * - PRESS: Tlacitko zmacknuto
- * - RELEASE: Tlacitko pusteno
- * - LONG_PRESS: Drzeno >1000ms
- * - DOUBLE_PRESS: 2x stisk do 300ms
+ * - PRESS: Button pressed
+ * - RELEASE: Button released
+ * - LONG_PRESS: Held >1000ms
+ * - DOUBLE_PRESS: 2x press within 300ms
  *
  * =============================================================================
- * KOMUNIKACE (FIFOS)
+ * COMMUNICATION (FIFOS)
  * =============================================================================
  *
- * FRONTY - Posilame button eventy:
- * - button_event_queue -> Eventy pro game_task (promotion choice, reset)
+ * QUEUES - We send button events:
+ * - button_event_queue -> Events for game_task (promotion choice, reset)
  *
- * ZADNE MUTEXY - Task jen scanuje GPIO a posila eventy
+ * BACK MUTEXY - Task only scans GPIO and sends events
  *
  * =============================================================================
- * KRITICKA PRAVIDLA
+ * CRITIC OF RULES
  * =============================================================================
  *
- * @warning CO SE NESMI DELAT:
+ * @warning WHAT NOT TO DO:
  *
- * 1. NIKDY neskracuj debounce delay!
- *    Bez 50ms debounce bude detekovat "chveni" jako mnohonásobné stisky
+ * 1. NEVER shorten the debounce delay!
+ * Without 50ms debounce it will detect "jitter" as multiple presses
  *
- * 2. NIKDY neblokuj v button handleru!
- *    ❌ vTaskDelay(1000);  // Zablokuje scanning
- *    ✅ Proved jen detekci a posli event
+ * 2. NEVER block in the button handler!
+ * ❌ vTaskDelay(1000);  // Blocks scanning
+ * ✅ Only detect and send the event
  *
- * 3. VZDY kontroluj queue overflow!
- *    Pokud fronta je plna, eventy se ztrati
+ * 3. ALWAYS check queue overflow!
+ * If the queue is full, the events will be lost
  *
  * =============================================================================
  * TABLE OF CONTENTS
  * =============================================================================
  *
- * Sekce 1:  Button Scanning ..................... radek 136
- * Sekce 2:  Event Processing ..................... radek 260
- * Sekce 3:  LED Feedback ......................... radek 391
- * Sekce 4:  Main Button Task ..................... radek 509
+ * Section 1: Button Scanning ..................... line 136
+ * Section 2: Event Processing ..................... line 260
+ * Section 3: LED Feedback ........................ line 391
+ * Section 4: Main Button Task ..................... line 509
  *
  * =============================================================================
  *
@@ -85,14 +85,14 @@
  * @date 2025-12-23
  *
  * @note
- * - Task priorita: 5 (vyssi nez game - realtime input)
+ * - Task priority: 5 (higher than game - realtime input)
  * - Stack size: 3KB
  * - Scan interval: 5ms
  * - Debounce: 50ms
- * - Button count: 9 (4 physical + 1 reset + 4 virtual LED)
+ * - Button count: 9 (4 physical + 1 reset + 4 virtual LEDs)
  *
- * @see game_task.c - Prijima button eventy
- * @see led_task.c - LED feedback pro tlacitka
+ * @see game_task.c - Accepts button events
+ * @see led_task.c - LED feedback for buttons
  */
 
 #include "button_task.h"
@@ -121,25 +121,25 @@ static const char *TAG = "BUTTON_TASK";
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
+ * @brief Safe WDT reset with WARNING instead of ERROR logging for
  * ESP_ERR_NOT_FOUND
  *
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
- * (WARNING pouze)
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
+ * (WARNING only)
  *
  * @details
- * Funkce je pouzivana pro bezpecny reset watchdog timeru behem button operaci.
- * Zabranuje chybam pri startupu kdy task jeste neni registrovany.
+ * The function is used to safely reset the watchdog timer during button operation.
+ * Prevents startup errors when the task is not yet registered.
  */
 static esp_err_t button_task_wdt_reset_safe(void) {
   esp_err_t ret = esp_task_wdt_reset();
 
   if (ret == ESP_ERR_NOT_FOUND) {
-    // Logovat jako WARNING misto ERROR - task jeste neni registrovany
+    // Log in as WARNING instead of ERROR - task not yet registered
     ESP_LOGW(
         TAG,
         "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Povazovat za uspech pro nase ucely
+    return ESP_OK; // Consider it a success for our purposes
   } else if (ret != ESP_OK) {
     ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
     return ret;
@@ -152,18 +152,18 @@ static esp_err_t button_task_wdt_reset_safe(void) {
 // LOKALNI PROMENNE A KONSTANTY
 // ============================================================================
 
-// Konfigurace tlacitek
+// Button configuration
 #define BUTTON_DEBOUNCE_MS 50      // Cas debounce
 #define BUTTON_LONG_PRESS_MS 1000  // Prah dlouheho stisku
 #define BUTTON_DOUBLE_PRESS_MS 300 // Okno pro dvojity stisk
 
-// Sledovani stavu tlacitek
+// Button status monitoring
 static bool button_states[CHESS_BUTTON_COUNT] = {
-    false}; // Aktualni stavy tlacitek
+    false}; // Current button states
 static bool button_previous[CHESS_BUTTON_COUNT] = {
-    false}; // Predchozi stavy tlacitek
+    false}; // Previous button states
 static uint32_t button_press_time[CHESS_BUTTON_COUNT] = {
-    0}; // Cas zacatku stisku
+    0}; // Press start time
 static uint32_t button_release_time[CHESS_BUTTON_COUNT] = {0}; // Cas uvolneni
 static uint8_t button_press_count[CHESS_BUTTON_COUNT] = {
     0}; // Pocet stisku pro dvojity stisk
@@ -174,8 +174,8 @@ static bool button_long_press_sent[CHESS_BUTTON_COUNT] = {
 static bool task_running = false;
 static bool simulation_mode = false; // Zmeneno na false pro realny hardware
 
-// Nazvy tlacitek pro logovani
-// 8 promotion tlacitek (4 pro kazdeho hrace) + 1 reset tlacitko
+// Names of the login buttons
+// 8 promotion buttons (4 for each player) + 1 reset button
 static const char *button_names[] = {
     "White Promotion Queen",
     "White Promotion Rook",

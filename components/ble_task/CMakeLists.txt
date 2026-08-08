@@ -1,6 +1,6 @@
-# NimBLE GATT je v ble_nimble_impl.c pod #if CONFIG_BT_ENABLED — Kconfig musí být
-# v CMake viditelný: if(CONFIG_BT_ENABLED) v podkomponentě někdy nevyhodnotí správně,
-# proto je bt vždy v PRIV_REQUIRES (viz ESP-IDF kontrola include z bt).
+# NimBLE GATT lives in ble_nimble_impl.c under #if CONFIG_BT_ENABLED — Kconfig must be
+# visible to CMake: if(CONFIG_BT_ENABLED) in a subcomponent sometimes does not evaluate correctly,
+# so bt is always in PRIV_REQUIRES (see ESP-IDF include checks from bt).
 idf_component_register(
     SRCS "ble_task.c" "ble_nimble_impl.c"
     INCLUDE_DIRS "include"

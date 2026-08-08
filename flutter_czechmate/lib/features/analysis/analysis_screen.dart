@@ -142,7 +142,7 @@ Widget _buildQualityBlock(
   );
 }
 
-/// Parita iOS `AnalysisView` — graf evaluace, kvalita tahů, historie, druhá varianta, vlastní FEN.
+/// Parity iOS `AnalysisView` — evaluation chart, move quality, history, second variant, custom FEN.
 class AnalysisScreen extends ConsumerStatefulWidget {
   const AnalysisScreen({super.key});
 
@@ -419,7 +419,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                  'Stav: ${snap.status.gameState} · Na tahu: ${snap.status.currentPlayer} · ${snap.history.moves.length} tahů'),
+                                  'Status: ${snap.status.gameState} · To move: ${snap.status.currentPlayer} · ${snap.history.moves.length} moves'),
                               const SizedBox(height: 4),
                               Builder(builder: (ctx) {
                                 final fenLine = fenFromSnapshot(snap);

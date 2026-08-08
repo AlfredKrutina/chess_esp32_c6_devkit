@@ -4,20 +4,20 @@
  *
  * @details
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT DID THIS FILE DO?
  * =============================================================================
  *
- * Tento task integruje sachovnici jako RGB svetlo do Home Assistant pres MQTT.
- * Po pripojeni na WiFi STA se board automaticky prepne do HA modu po 5 minutach
- * necinosti. V HA modu se vsechny LED desky chovaji jako jedno RGB svetlo.
+ * This task integrates the box as an RGB light into the Home Assistant via MQTT.
+ * After connecting to the WiFi STA, the board automatically switches to HA mode after 5 minutes
+ * idleness. In HA mode, all LED boards behave as one RGB light.
  *
- * Rezimy:
- * - GAME MODE: LED zobrazuji sachovnici (vychozi)
- * - HA MODE: Vsech 64 LED jako RGB svetlo ovladane pres HA (po 5 min necinosti)
+ * Modes:
+ * - GAME MODE: LED displays chest (default)
+ * - HA MODE: All 64 LEDs as RGB light controlled via HA (after 5 min of inactivity)
  *
- * Automaticke prepinani:
- * - GAME -> HA: Po 5 minutach bez aktivity (pohyb figurky nebo herni prikaz)
- * - HA -> GAME: Okamzite pri detekci pohybu figurky (PICKUP/DROP)
+ * Automatic switching:
+ * - GAME -> HA: After 5 minutes of no activity (figure movement or game command)
+ * - HA -> GAME: Immediately upon detection of piece movement (PICKUP/DROP)
  *
  * @author Alfred Krutina
  * @version 1.8.0
@@ -48,9 +48,9 @@
 
 static const char *TAG = "HA_LIGHT_TASK";
 
-/** Min. volný heap před esp_mqtt_client_start (interní úloha + zásobník). */
+/** Min. free heap before esp_mqtt_client_start (internal task + stack). */
 #define HA_MQTT_MIN_FREE_HEAP_BYTES (18 * 1024)
-/** Pod tímto prahem ukončíme MQTT klienta (uvolní sockety / úlohy) — prevence
+/** Below this threshold, we terminate the MQTT client (frees sockets / tasks) — prevention
  * errno 11 / RST. */
 #define HA_MQTT_STOP_HEAP_BYTES (10 * 1024)
 
@@ -58,14 +58,14 @@ static const char *TAG = "HA_LIGHT_TASK";
 // NVS KONFIGURACE PRO MQTT
 // ============================================================================
 
-// NVS namespace a klíče pro MQTT konfiguraci
+// NVS namespace and keys for MQTT configuration
 #define MQTT_NVS_NAMESPACE "mqtt_config"
 #define MQTT_NVS_KEY_HOST "broker_host"
 #define MQTT_NVS_KEY_PORT "broker_port"
 #define MQTT_NVS_KEY_USERNAME "broker_username"
 #define MQTT_NVS_KEY_PASSWORD "broker_password"
 
-// NVS pro ulozeni stavu lampy (web / lokální režim)
+// NVS to save lamp state (web / local mode)
 #define LAMP_NVS_NAMESPACE "lamp_cfg"
 #define LAMP_NVS_KEY_STATE "state"
 #define LAMP_NVS_KEY_R "r"
@@ -73,26 +73,26 @@ static const char *TAG = "HA_LIGHT_TASK";
 #define LAMP_NVS_KEY_B "b"
 #define LAMP_NVS_KEY_AUTO_TIMEOUT_SEC "auto_sec"
 
-// Rozsah pro automatické přepnutí do režimu lampa: 5 s .. 120 min (7200 s)
+// Range for automatic switching to lamp mode: 5 s .. 120 min (7200 s)
 #define HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC 5
 #define HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC 7200
 #define HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC 300
 
-// Default hodnoty pro MQTT konfiguraci
+// Default values ​​for MQTT configuration
 #define MQTT_DEFAULT_HOST "homeassistant.local"
 #define MQTT_DEFAULT_PORT 1883
 #define MQTT_DEFAULT_USERNAME ""
 #define MQTT_DEFAULT_PASSWORD ""
 
 // ============================================================================
-// GLOBALNI PROMENNE A STAV
+// GLOBAL VARIABLES AND STATUS
 // ============================================================================
 
 // Task state
 static bool task_running = false;
 static ha_mode_t current_mode = HA_MODE_GAME;
 
-// Activity tracking – doba (s) po které se přepne do režimu lampa (načteno z
+// Activity tracking – time (s) after which the lamp switches to mode (read from
 // NVS)
 static uint32_t activity_timeout_auto_sec =
     HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC;
@@ -118,13 +118,13 @@ static struct {
                     .b = 255,
                     .effect = "solid"};
 
-// MQTT konfigurace (načítá se z NVS)
+// MQTT configuration (loaded from NVS)
 static struct {
   char host[128];    // Broker hostname/IP
   uint16_t port;     // Broker port
-  char username[64]; // MQTT username (prázdné = bez auth)
-  char password[64]; // MQTT password (prázdné = bez auth)
-  bool loaded;       // Zda byla konfigurace načtena z NVS
+  char username[64]; // MQTT username (empty = no auth)
+  char password[64]; // MQTT password (empty = no auth)
+  bool loaded;       // Whether the configuration was loaded from NVS
 } mqtt_config = {.host = MQTT_DEFAULT_HOST,
                  .port = MQTT_DEFAULT_PORT,
                  .username = MQTT_DEFAULT_USERNAME,
@@ -135,7 +135,7 @@ static struct {
 extern QueueHandle_t game_command_queue;
 extern QueueHandle_t matrix_event_queue;
 
-// Interní fronta pro HA task
+// Internal queue for HA task
 static QueueHandle_t ha_light_cmd_queue = NULL;
 
 // Mutex pro thread-safe pristup k ha_light_state (HTTP handler cte, HA task
@@ -163,7 +163,7 @@ static void lamp_nvs_save(void);
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT
+ * @brief Safe reset WDT
  */
 static esp_err_t ha_light_task_wdt_reset_safe(void) {
   esp_err_t ret = esp_task_wdt_reset();
@@ -177,7 +177,7 @@ static esp_err_t ha_light_task_wdt_reset_safe(void) {
   return ESP_OK;
 }
 
-/** Handle hlavní smyčky — esp_task_wdt_reset jen z ha_light_task (ne z MQTT).
+/** Main loop handle — esp_task_wdt_reset only from ha_light_task (not from MQTT).
  */
 static TaskHandle_t s_ha_light_task_hdl;
 
@@ -193,9 +193,9 @@ static void ha_light_wdt_feed_if_own_task(void) {
 // ============================================================================
 
 /**
- * @brief Zkontroluj zda je WiFi STA pripojeno
+ * @brief Check if WiFi STA is connected
  *
- * @return true pokud je STA pripojeno a ma IP, false jinak
+ * @return true if the STA is connected and has an IP, false otherwise
  */
 static bool ha_light_check_wifi_sta_connected(void) {
   esp_netif_t *sta_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
@@ -222,10 +222,10 @@ static bool ha_light_check_wifi_sta_connected(void) {
 // ============================================================================
 
 /**
- * @brief Monitoruje aktivitu hry a resetuje timer
+ * @brief Monitors game activity and resets the timer
  *
- * Tato funkce se spoléhá na ha_light_report_activity() volané z jiných tasků.
- * Samotné monitorování front zde neděláme, abychom nekonzumovali příkazy.
+ * This function relies on ha_light_report_activity() called from other tasks.
+ * We do not monitor the queues here, so as not to consume commands.
  */
 static void ha_light_monitor_game_activity(void) {
   // Activity monitoring is done via ha_light_report_activity() calls from:
@@ -235,7 +235,7 @@ static void ha_light_monitor_game_activity(void) {
 }
 
 /**
- * @brief Zprava o aktivity hry (volano z jinych tasku)
+ * @brief Game activity report (called from other tasks)
  */
 void ha_light_report_activity(const char *activity_type) {
   if (!task_running) {
@@ -246,9 +246,9 @@ void ha_light_report_activity(const char *activity_type) {
   // Mode switching and LED refresh must happen in HA task context.
   last_activity_time_ms = esp_timer_get_time() / 1000;
 
-  /* Rate limit: max 1 queued activity / 500 ms (šetří frontu a MQTT).
-   * Výjimka: POST /api/light/game_mode — musí vždy projít, jinak uživatel
-   * nevrátí desku z režimu lampy po rychlé sérii jiných událostí. */
+  /* Rate limit: max 1 queued activity / 500 ms (saves the queue and MQTT).
+   * Exception: POST /api/light/game_mode — must always pass, otherwise the user
+   * will not bring the board back from lamp mode after a rapid series of other events. */
   static uint32_t last_report_time = 0;
   uint32_t current_time = esp_timer_get_time() / 1000;
   const bool force_queue =
@@ -304,9 +304,9 @@ static void ha_light_check_activity_timeout(void) {
 // ============================================================================
 
 /**
- * @brief Prepne do HA modu
+ * @brief Switches to HA mode
  *
- * Vsech 64 LED desky se nastavi na barvu z ha_light_state.
+ * All 64 LED boards will be set to the color from ha_light_state.
  */
 static void ha_light_switch_to_ha_mode(void) {
   ha_light_wdt_feed_if_own_task();
@@ -346,9 +346,9 @@ static void ha_light_switch_to_ha_mode(void) {
 }
 
 /**
- * @brief Prepne do herniho modu
+ * @brief Switches to game mode
  *
- * Obnovi sachovnici (led_show_chess_board).
+ * Restore the chessboard (led_show_chess_board).
  */
 static void ha_light_switch_to_game_mode(void) {
   if (current_mode == HA_MODE_GAME) {
@@ -363,7 +363,7 @@ static void ha_light_switch_to_game_mode(void) {
   game_refresh_leds();
   ha_light_wdt_feed_if_own_task();
 
-  // Obnovit tlačítka (zelená/modrá/červená podle dostupnosti a stisku)
+  // Reset buttons (green/blue/red depending on availability and press)
   led_refresh_all_button_leds();
   ha_light_wdt_feed_if_own_task();
 
@@ -373,21 +373,21 @@ static void ha_light_switch_to_game_mode(void) {
 }
 
 // ============================================================================
-// MQTT NVS KONFIGURACE FUNKCE
+// MQTT NVS CONFIGURATION FUNCTION
 // ============================================================================
 
 /**
- * @brief Načte MQTT konfiguraci z NVS
+ * @brief Loads MQTT configuration from NVS
  *
- * @param host Buffer pro broker host (min 128 bytes)
- * @param host_len Velikost host bufferu
- * @param port Ukazatel na port (1-65535)
- * @param username Buffer pro username (min 64 bytes, může být prázdné)
- * @param username_len Velikost username bufferu
- * @param password Buffer pro password (min 64 bytes, může být prázdné)
- * @param password_len Velikost password bufferu
- * @return ESP_OK při úspěchu, ESP_ERR_NOT_FOUND pokud není v NVS (vrátí
- * defaults)
+ * @param host Buffer for broker host (min 128 bytes)
+ * @param host_len Host buffer size
+ * @param port Pointer to port (1-65535)
+ * @param username Buffer for username (min 64 bytes, can be empty)
+ * @param username_len The size of the username buffer
+ * @param password Buffer for password (min 64 bytes, can be empty)
+ * @param password_len Password buffer size
+ * @return ESP_OK on success, ESP_ERR_NOT_FOUND if not in NVS (return
+ *defaults)
  */
 static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
                                            uint16_t *port, char *username,
@@ -403,7 +403,7 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
   esp_err_t ret = nvs_open(MQTT_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
   if (ret != ESP_OK) {
     ESP_LOGD(TAG, "MQTT config not found in NVS, using defaults");
-    // Vrátit default hodnoty
+    // Return default values
     strncpy(host, MQTT_DEFAULT_HOST, host_len - 1);
     host[host_len - 1] = '\0';
     *port = MQTT_DEFAULT_PORT;
@@ -411,10 +411,10 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
     username[username_len - 1] = '\0';
     strncpy(password, MQTT_DEFAULT_PASSWORD, password_len - 1);
     password[password_len - 1] = '\0';
-    return ESP_ERR_NOT_FOUND; // Není v NVS, ale vrátil defaults
+    return ESP_ERR_NOT_FOUND; // Not in NVS, but returned defaults
   }
 
-  // Načíst host
+  // Load guest
   size_t required_size = host_len;
   ret = nvs_get_str(nvs_handle, MQTT_NVS_KEY_HOST, host, &required_size);
   if (ret != ESP_OK) {
@@ -423,7 +423,7 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
     host[host_len - 1] = '\0';
   }
 
-  // Načíst port
+  // Load the port
   uint32_t port_val = MQTT_DEFAULT_PORT;
   ret = nvs_get_u32(nvs_handle, MQTT_NVS_KEY_PORT, &port_val);
   if (ret != ESP_OK || port_val == 0 || port_val > 65535) {
@@ -432,7 +432,7 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
   }
   *port = (uint16_t)port_val;
 
-  // Načíst username (volitelné - může být prázdné)
+  // Load username (optional - can be empty)
   required_size = username_len;
   ret =
       nvs_get_str(nvs_handle, MQTT_NVS_KEY_USERNAME, username, &required_size);
@@ -442,7 +442,7 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
     username[username_len - 1] = '\0';
   }
 
-  // Načíst password (volitelné - může být prázdné)
+  // Load password (optional - can be empty)
   required_size = password_len;
   ret =
       nvs_get_str(nvs_handle, MQTT_NVS_KEY_PASSWORD, password, &required_size);
@@ -460,13 +460,13 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
 }
 
 /**
- * @brief Uloží MQTT konfiguraci do NVS
+ * @brief Saves MQTT configuration to NVS
  *
  * @param host Broker hostname/IP
  * @param port Broker port (1-65535)
- * @param username MQTT username (NULL nebo prázdné = bez auth)
- * @param password MQTT password (NULL nebo prázdné = bez auth)
- * @return ESP_OK při úspěchu, chybový kód při chybě
+ * @param username MQTT username (NULL or empty = no auth)
+ * @param password MQTT password (NULL or empty = no auth)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
                                   const char *username, const char *password) {
@@ -481,7 +481,7 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
     return ESP_ERR_INVALID_ARG;
   }
 
-  // Validovat username/password pokud jsou nastavené
+  // Validate username/password if set
   if (username != NULL) {
     size_t username_len = strlen(username);
     if (username_len > 63) {
@@ -505,7 +505,7 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
     return ret;
   }
 
-  // Uložit host
+  // Save guest
   ret = nvs_set_str(nvs_handle, MQTT_NVS_KEY_HOST, host);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to set MQTT host in NVS: %s", esp_err_to_name(ret));
@@ -513,7 +513,7 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
     return ret;
   }
 
-  // Uložit port
+  // Save port
   ret = nvs_set_u32(nvs_handle, MQTT_NVS_KEY_PORT, (uint32_t)port);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to set MQTT port in NVS: %s", esp_err_to_name(ret));
@@ -521,7 +521,7 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
     return ret;
   }
 
-  // Uložit username (pokud je nastavený, jinak uložit prázdný string)
+  // Save username (if set, otherwise save empty string)
   const char *username_to_save =
       (username != NULL && strlen(username) > 0) ? username : "";
   ret = nvs_set_str(nvs_handle, MQTT_NVS_KEY_USERNAME, username_to_save);
@@ -532,7 +532,7 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
     return ret;
   }
 
-  // Uložit password (pokud je nastavený, jinak uložit prázdný string)
+  // Save password (if set, otherwise save empty string)
   const char *password_to_save =
       (password != NULL && strlen(password) > 0) ? password : "";
   ret = nvs_set_str(nvs_handle, MQTT_NVS_KEY_PASSWORD, password_to_save);
@@ -694,7 +694,7 @@ static void ha_light_mqtt_event_handler(void *handler_args,
 }
 
 /**
- * @brief Zpracuje MQTT prikaz
+ * @brief Processes an MQTT command
  */
 static void ha_light_handle_mqtt_command(const char *topic, const char *data,
                                          int data_len) {
@@ -888,7 +888,7 @@ static void ha_light_publish_state(void) {
 }
 
 /**
- * @brief Načte MQTT konfiguraci z NVS (pokud ještě nebyla načtena)
+ * @brief Loads MQTT configuration from NVS (if not already loaded)
  */
 static void mqtt_ensure_config_loaded(void) {
   if (mqtt_config.loaded) {
@@ -923,9 +923,9 @@ static void mqtt_ensure_config_loaded(void) {
 }
 
 /**
- * @brief Inicializuje MQTT klienta
+ * @brief Initializes the MQTT client
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 static esp_err_t ha_light_init_mqtt(void) {
   // Prevent multiple clients/memory leaks
@@ -1086,7 +1086,7 @@ static void lamp_nvs_save_auto_timeout(void) {
 // ============================================================================
 
 /**
- * @brief Ziskej aktualni rezim
+ * @brief Get the current regime
  */
 ha_mode_t ha_light_get_mode(void) { return current_mode; }
 
@@ -1109,7 +1109,7 @@ esp_err_t ha_light_set_activity_timeout_sec(uint32_t sec) {
 }
 
 /**
- * @brief Ziskej aktualni stav lampy (thread-safe pro HTTP handler)
+ * @brief Get the current state of the lamp (thread-safe for HTTP handlers)
  */
 void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *brightness,
                         bool *state) {
@@ -1144,9 +1144,9 @@ void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *brightness,
 }
 
 /**
- * @brief Pozadavek na nastaveni lampy z webu
- * @return true pokud prikaz odeslan do fronty, false pokud fronta NULL nebo
- * plna
+ * @brief Lamp setup request from web
+ * @return true if the command is sent to the queue, false if the queue is NULL or
+ * full
  */
 bool ha_light_request_web_lamp(bool state, uint8_t r, uint8_t g, uint8_t b) {
   ha_light_command_t cmd;
@@ -1163,12 +1163,12 @@ bool ha_light_request_web_lamp(bool state, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 /**
- * @brief Zjisti zda je HA rezim dostupny (WiFi STA pripojeno)
+ * @brief Check if HA mode is available (WiFi STA connected)
  */
 bool ha_light_is_available(void) { return ha_light_check_wifi_sta_connected(); }
 
 /**
- * @brief Získá MQTT konfiguraci (načte z NVS pokud ještě nebyla načtena)
+ * @brief Gets MQTT configuration (will load from NVS if not already loaded)
  */
 esp_err_t mqtt_get_config(char *host, size_t host_len, uint16_t *port,
                           char *username, size_t username_len, char *password,
@@ -1194,14 +1194,14 @@ esp_err_t mqtt_get_config(char *host, size_t host_len, uint16_t *port,
 }
 
 /**
- * @brief Zjisti zda je MQTT klient pripojen
+ * @brief Check if the MQTT client is connected
  */
 bool ha_light_is_mqtt_connected(void) { return mqtt_connected; }
 
 /**
- * @brief Odpoji a reinicializuje MQTT klienta s aktualni konfiguraci z NVS
+ * @brief Disconnects and reinitializes the MQTT client with the current configuration from NVS
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t ha_light_reinit_mqtt(void) {
   // Check WiFi STA connection
@@ -1238,7 +1238,7 @@ esp_err_t ha_light_reinit_mqtt(void) {
 // ============================================================================
 
 /**
- * @brief Hlavni funkce HA Light tasku
+ * @brief The main functions of the HA Light task
  */
 void ha_light_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Starting HA Light Task...");
@@ -1272,13 +1272,13 @@ void ha_light_task_start(void *pvParameters) {
 
   for (;;) {
     // =========================================================================
-    // 🛑 BOOT ANIMATION PROTECTION - BLOKUJE HA OPERACE BĚHEM BOOT
+    // 🛑 BOOT ANIMATION PROTECTION - BLOCKS HA OPERATION DURING BOOT
     // =========================================================================
-    // Pokud běží boot animace, HA task nesmí posílat LED příkazy!
-    // (např. "zhasni světlo" při rychlém WiFi připojení)
+    // If the boot animation is running, the HA task must not send LED commands!
+    // (e.g. "turn off the light" on a fast WiFi connection)
     if (led_is_booting()) {
       ha_light_task_wdt_reset_safe();
-      vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - rychlé probuzení po fade_out!
+      vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - quick wakeup after fade_out!
       continue;
     }
     // =========================================================================
@@ -1367,8 +1367,8 @@ void ha_light_task_start(void *pvParameters) {
         ha_light_task_wdt_reset_safe();
         ha_light_init_mqtt();
       } else if (wifi_connected && sta_connected && mqtt_client == NULL) {
-        /* Opakovat po uvolnění heap; při NO_MEM nečastěji než 1×/30 s (šetří
-         * CPU a WDT) */
+        /* Repeat after freeing the heap; with NO_MEM no more often than 1×/30 s (saves
+         *CPU and WDT) */
         if (current_time_ms - last_mqtt_retry_ms >= 30000) {
           last_mqtt_retry_ms = current_time_ms;
           ha_light_task_wdt_reset_safe();

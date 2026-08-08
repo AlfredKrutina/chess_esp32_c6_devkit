@@ -1,29 +1,29 @@
 /**
  * @file unified_animation_manager.h
- * @brief Unified Animation Manager - Jednotna sprava vsech LED animaci
+ * @brief Unified Animation Manager - Unified management of all LED animations
  * 
- * Tento modul poskytuje jednoduche rozhrani pro vsechny LED animace:
- * - Centraliz ovana sprava animaci
- * - Prioritni system pro konfliktni animace
- * - Jednoduche API pro rychle pouziti
- * - Podpora pro vice soucasne bezicich animaci
- * - Plynule prechody mezi animacemi
+ * This module provides a simple interface for all LED animations:
+ * - Centralized animation management
+ * - Priority system for conflict animations
+ * - Simple API to use quickly
+ * - Support for multiple animations running simultaneously
+ * - Smooth transitions between animations
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * Unified Animation Manager poskytuje centralizovany system pro spravu
- * vsech LED animaci v systemu. Poskytuje prioritni system, podpora pro
- * vice soucasne bezicich animaci a plynule prechody.
+ * Unified Animation Manager provides a centralized system for management
+ * all LED animations in the system. It provides a priority system, support for
+ * multiple simultaneous running animations and smooth transitions.
  * 
- * Vyhody:
- * - Jednoduche API: animation_start(ANIM_MOVE, from, to, duration)
- * - Automaticke conflict resolution s prioritami
- * - Podpora pro stackovani animaci (napr. check + move)
- * - Plynule fade-in/fade-out prechody
- * - Thread-safe pristup
+ * Advantages:
+ * - Simple API: animation_start(ANIM_MOVE, from, to, duration)
+ * - Automatic conflict resolution with priorities
+ * - Support for stacking animation (e.g. check + move)
+ * - Smooth fade-in/fade-out transitions
+ * - Thread-safe approach
  */
 
 #ifndef UNIFIED_ANIMATION_MANAGER_H
@@ -45,14 +45,14 @@ extern "C" {
 /**
  * @brief Priority levels pro animace
  * 
- * Vyssi cislo = vyssi priorita, animace prerusuji nizsi priority.
+ * Higher number = higher priority; animations interrupt lower priorities.
  */
 typedef enum {
     ANIM_PRIORITY_BACKGROUND = 0,    ///< Pozadi / screen saver (nejnizsi)
-    ANIM_PRIORITY_LOW = 10,          ///< Nizka priorita
-    ANIM_PRIORITY_MEDIUM = 20,       ///< Stredni priorita
-    ANIM_PRIORITY_HIGH = 30,         ///< Vysoka priorita
-    ANIM_PRIORITY_CRITICAL = 50,     ///< Kriticke animace (nejvetsi priorita)
+    ANIM_PRIORITY_LOW = 10,          ///< Low priority
+    ANIM_PRIORITY_MEDIUM = 20,       ///< Medium priority
+    ANIM_PRIORITY_HIGH = 30,         ///< High priority
+    ANIM_PRIORITY_CRITICAL = 50,     ///< Critical animations (highest priority)
     // Aliases pro kompatibilitu
     ANIM_PRIORITY_AMBIENT = 10,      ///< Alias pro LOW
     ANIM_PRIORITY_GAME = 20,         ///< Alias pro MEDIUM
@@ -68,17 +68,17 @@ typedef enum {
  * @brief Typy animaci v unified systemu
  */
 typedef enum {
-    // Zakladni herni animace (PRIORITY_GAME)
-    ANIM_TYPE_MOVE_PATH = 0,     ///< Animace cesty tahu
-    ANIM_TYPE_PIECE_GUIDANCE,    ///< Navod pro figurku
-    ANIM_TYPE_VALID_MOVES,       ///< Zobrazeni platnych tahu
+    // Basic game animations (PRIORITY_GAME)
+    ANIM_TYPE_MOVE_PATH = 0,     ///< Stroke path animation
+    ANIM_TYPE_PIECE_GUIDANCE,    ///< Instructions for the figurine
+    ANIM_TYPE_VALID_MOVES,       ///< Show valid moves
     ANIM_TYPE_ERROR_FLASH,       ///< Chybove bliknuti
     ANIM_TYPE_CAPTURE_EFFECT,    ///< Efekt sebrani
     ANIM_TYPE_CHECK_WARNING,     ///< Varovani sachu
     ANIM_TYPE_GAME_END,          ///< Konec hry
-    ANIM_TYPE_PLAYER_CHANGE,     ///< Zmena hrace
-    ANIM_TYPE_CASTLE,            ///< Rosada
-    ANIM_TYPE_PROMOTION,         ///< Promoce
+    ANIM_TYPE_PLAYER_CHANGE,     ///< Game change
+    ANIM_TYPE_CASTLE,            ///< Castling
+    ANIM_TYPE_PROMOTION,         ///< Graduation
     ANIM_TYPE_CONFIRMATION,      ///< Potvrzeni
     
     // Endgame animace
@@ -104,7 +104,7 @@ typedef struct {
     uint8_t update_frequency_hz;          ///< Frekvence aktualizaci v Hz
     bool enable_smooth_interpolation;     ///< Povolit plynule interpolace
     bool enable_trail_effects;            ///< Povolit sledujici efekty
-    uint32_t default_duration_ms;         ///< Vychozi delka animace v ms
+    uint32_t default_duration_ms;         ///< Default animation length in ms
 } animation_config_t;
 
 // ============================================================================
@@ -120,99 +120,99 @@ typedef struct animation_state_struct animation_state_t;
 struct animation_state_struct {
     uint32_t id;                       ///< Unikatni ID animace
     animation_type_t type;             ///< Typ animace
-    animation_priority_t priority;     ///< Priorita
-    bool active;                       ///< Je aktivni?
+    animation_priority_t priority;     ///< Priority
+    bool active;                       ///< Is it active?
     bool looping;                      ///< Opakuje se?
     uint32_t start_time;               ///< Cas spusteni
     uint32_t duration_ms;              ///< Delka v ms (0 = nekonecna)
-    uint32_t current_frame;            ///< Aktualni snimek
+    uint32_t current_frame;            ///< Current snapshot
     float progress;                    ///< Pokrok animace (0.0-1.0)
     
-    // LED pozice
+    // LED position
     uint8_t from_led;                  ///< Zdrojova LED
     uint8_t to_led;                    ///< Cilova LED
     uint8_t center_led;                ///< Stredova LED (pro endgame)
     uint8_t trail_length;              ///< Delka sledujiciho efektu
     
-    // Pozice a parametry (legacy)
-    uint8_t from_row, from_col;        ///< Zdrojova pozice
-    uint8_t to_row, to_col;            ///< Cilova pozice
-    uint8_t affected_positions[64];    ///< Ovlivnene pozice
-    uint8_t affected_count;            ///< Pocet ovlivnenych pozic
+    // Positions and parameters (legacies)
+    uint8_t from_row, from_col;        ///< Source position
+    uint8_t to_row, to_col;            ///< Target position
+    uint8_t affected_positions[64];    ///< Position affected
+    uint8_t affected_count;            ///< Number of positions affected
     
     // Barvy (inline struktury)
-    struct { uint8_t r, g, b; } color_start;     ///< Pocatecni barva RGB
+    struct { uint8_t r, g, b; } color_start;     ///< Initial RGB color
     struct { uint8_t r, g, b; } color_end;       ///< Koncova barva RGB
     struct { uint8_t r, g, b; } color_primary;   ///< Primarni barva RGB (legacy)
     struct { uint8_t r, g, b; } color_secondary; ///< Sekundarni barva RGB (legacy)
     
-    // Animacni parametry
+    // Animation parameters
     uint8_t speed;                     ///< Rychlost (0-255)
     uint8_t intensity;                 ///< Intenzita (0-255)
     uint8_t winner_color;              ///< Barva viteze (0=white, 1=black)
     
-    // Update funkce  
-    bool (*update_func)(animation_state_t* anim); ///< Update funkce
+    // Update function
+    bool (*update_func)(animation_state_t* anim); ///< Update function
     
     // Callbacks
-    void (*on_complete)(uint32_t id);  ///< Callback pri dokonceni
+    void (*on_complete)(uint32_t id);  ///< Completion callback
     void (*on_frame)(uint32_t id, uint32_t frame); ///< Callback pro snimek
 };
 // typedef uz byl v forward declaration
 
 // ============================================================================
-// INICIALIZACE A ZAKLADNI OVLADANI
+// INITIALIZATION AND BASIC CONTROLS
 // ============================================================================
 
 /**
- * @brief Inicializuj unified animation manager
+ * @brief Initialize the unified animation manager
  * 
- * @param config Konfigurace manageru
- * @return ESP_OK pri uspechu
+ * @param config Manager configuration
+ * @return ESP_OK on success
  */
 esp_err_t animation_manager_init(const animation_config_t* config);
 
 /**
- * @brief Deinicializuj unified animation manager
+ * @brief Deinitialize the unified animation manager
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t animation_manager_deinit(void);
 
 /**
- * @brief Vytvor novou animaci (alokuj slot)
+ * @brief Create new animation (allocate slot)
  * 
- * @param type Typ animace
- * @param priority Priorita animace
- * @return ID animace nebo 0 pri chybe
+ * @param type The animation type
+ * @param priority The priority of the animation
+ * @return animation ID or 0 on error
  */
 uint32_t unified_animation_create(animation_type_t type, animation_priority_t priority);
 
 /**
- * @brief Zastav animaci
+ * @brief Stop the animation
  * 
- * @param anim_id ID animace
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @return ESP_OK on success
  */
 esp_err_t unified_animation_stop(uint32_t anim_id);
 
 /**
- * @brief Zastav vsechny animace
+ * @brief Stop all animations
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t unified_animation_stop_all(void);
 
 /**
- * @brief Spust animaci
+ * @brief Start the animation
  * 
- * @param type Typ animace
- * @param from_row Zdrojovy radek (pokud relevantni)
- * @param from_col Zdrojovy sloupec (pokud relevantni)
- * @param to_row Cilovy radek (pokud relevantni)
- * @param to_col Cilovy sloupec (pokud relevantni)
- * @param duration_ms Delka animace v ms (0 = default)
- * @return ID animace nebo 0 pri selhani
+ * @param type The animation type
+ * @param from_row Source rows (if relevant)
+ * @param from_col Source column (if relevant)
+ * @param to_row Target rows (if relevant)
+ * @param to_col Target column (if relevant)
+ * @param duration_ms Duration of the animation in ms (0 = default)
+ * @return animation ID or 0 on failure
  */
 uint32_t animation_start(animation_type_t type, 
                          uint8_t from_row, uint8_t from_col,
@@ -220,7 +220,7 @@ uint32_t animation_start(animation_type_t type,
                          uint32_t duration_ms);
 
 /**
- * @brief Spust jednoduchou animaci na jednom poli
+ * @brief Run a simple animation on a single field
  * 
  * @param type Typ animace
  * @param row Radek
@@ -233,84 +233,84 @@ uint32_t animation_start_simple(animation_type_t type,
                                 uint32_t duration_ms);
 
 /**
- * @brief Zastav animaci
+ * @brief Stop the animation
  * 
- * @param animation_id ID animace k zastaveni
- * @return ESP_OK pri uspechu
+ * @param animation_id The ID of the animation to stop
+ * @return ESP_OK on success
  */
 esp_err_t animation_stop(uint32_t animation_id);
 
 /**
- * @brief Zastav vsechny animace daneho typu
+ * @brief Stop all animations of the given type
  * 
- * @param type Typ animaci k zastaveni
- * @return ESP_OK pri uspechu
+ * @param type Type of animation to stop
+ * @return ESP_OK on success
  */
 esp_err_t animation_stop_all_of_type(animation_type_t type);
 
 /**
- * @brief Zastav vsechny animace nizsi nebo rovno priority
+ * @brief Stop all animations of lower or equal priority
  * 
- * @param max_priority Maximalni priorita k zastaveni
- * @return ESP_OK pri uspechu
+ * @param max_priority Maximum priority to stop
+ * @return ESP_OK on success
  */
 esp_err_t animation_stop_all_up_to_priority(animation_priority_t max_priority);
 
 /**
- * @brief Zastav vsechny animace
+ * @brief Stop all animations
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t animation_stop_all(void);
 
 // ============================================================================
-// POKROCILE OVLADANI ANIMACI
+// ADVANCED ANIMATION CONTROL
 // ============================================================================
 
 /**
- * @brief Nastav parametry animace
+ * @brief Set animation parameters
  * 
- * @param animation_id ID animace
- * @param speed Rychlost (0-255)
- * @param intensity Intenzita (0-255)
- * @param looping Ma se opakovat?
- * @return ESP_OK pri uspechu
+ * @param animation_id The ID of the animation
+ * @param speed Speed (0-255)
+ * @param intensity Intensity (0-255)
+ * @param looping Should I repeat?
+ * @return ESP_OK on success
  */
 esp_err_t animation_set_params(uint32_t animation_id, 
                                 uint8_t speed, uint8_t intensity, 
                                 bool looping);
 
 /**
- * @brief Nastav barvy animace
+ * @brief Set animation colors
  * 
- * @param animation_id ID animace
- * @param r_primary Cervena primarni (0-255)
- * @param g_primary Zelena primarni (0-255)
- * @param b_primary Modra primarni (0-255)
- * @param r_secondary Cervena sekundarni (0-255)
- * @param g_secondary Zelena sekundarni (0-255)
- * @param b_secondary Modra sekundarni (0-255)
- * @return ESP_OK pri uspechu
+ * @param animation_id The ID of the animation
+ * @param r_primary Red primary (0-255)
+ * @param g_primary Primary green (0-255)
+ * @param b_primary Blue primary (0-255)
+ * @param r_secondary Red secondary (0-255)
+ * @param g_secondary Green secondary (0-255)
+ * @param b_secondary Blue secondary (0-255)
+ * @return ESP_OK on success
  */
 esp_err_t animation_set_colors(uint32_t animation_id, 
                                 uint8_t r_primary, uint8_t g_primary, uint8_t b_primary,
                                 uint8_t r_secondary, uint8_t g_secondary, uint8_t b_secondary);
 
 /**
- * @brief Fade out animace
+ * @brief Fade out animation
  * 
- * @param animation_id ID animace
- * @param fade_duration_ms Delka fade out v ms
- * @return ESP_OK pri uspechu
+ * @param animation_id The ID of the animation
+ * @param fade_duration_ms Length of fade out in ms
+ * @return ESP_OK on success
  */
 esp_err_t animation_fade_out(uint32_t animation_id, uint32_t fade_duration_ms);
 
 /**
- * @brief Nastav callback pro dokonceni
+ * @brief Set callback for completion
  * 
- * @param animation_id ID animace
- * @param callback Callback funkce
- * @return ESP_OK pri uspechu
+ * @param animation_id The ID of the animation
+ * @param callback The callback function
+ * @return ESP_OK on success
  */
 esp_err_t animation_set_completion_callback(uint32_t animation_id, 
                                              void (*callback)(uint32_t));
@@ -320,24 +320,24 @@ esp_err_t animation_set_completion_callback(uint32_t animation_id,
 // ============================================================================
 
 /**
- * @brief Overi zda je animace aktivni
+ * @brief Verify if the animation is active
  * 
- * @param animation_id ID animace
- * @return true pokud je animace aktivni
+ * @param animation_id The ID of the animation
+ * @return true if the animation is active
  */
 bool animation_is_active(uint32_t animation_id);
 
 /**
- * @brief Pocet aktivnich animaci
+ * @brief Number of active animations
  * 
- * @return Pocet bezicich animaci
+ * @return Number of running animations
  */
 uint8_t animation_get_active_count(void);
 
 /**
  * @brief Pocet animaci s danou prioritou
  * 
- * @param priority Priorita
+ * @param priority Priority
  * @return Pocet animaci
  */
 uint8_t animation_get_count_by_priority(animation_priority_t priority);
@@ -348,120 +348,120 @@ uint8_t animation_get_count_by_priority(animation_priority_t priority);
 void animation_print_status(void);
 
 /**
- * @brief Aktualizuj vsechny aktivni animace (volat periodicky)
+ * @brief Update all active animations (call periodically)
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t animation_update_all(void);
 
 /**
- * @brief Aktualizuj animation manager (alias pro animation_update_all)
+ * @brief Update animation manager (alias for animation_update_all)
  */
 void animation_manager_update(void);
 
 // ============================================================================
-// ZAKLADNI ANIMACNI FUNKCE
+// BASIC ANIMATION FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Spust move animaci
+ * @brief Start the move animation
  * 
- * @param anim_id ID animace
- * @param from_led Zdrojova LED
- * @param to_led Cilova LED
- * @param duration_ms Delka animace
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param from_led Source LED
+ * @param to_led Target LED
+ * @param duration_ms Duration of the animation
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_move(uint32_t anim_id, uint8_t from_led, uint8_t to_led, uint32_t duration_ms);
 
 /**
- * @brief Spust guidance animaci
+ * @brief Start the guidance animation
  * 
- * @param anim_id ID animace
- * @param led_array Pole LED k zvyrazneni
- * @param count Pocet LED
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param led_array The LED array to highlight
+ * @param count Number of LEDs
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_guidance(uint32_t anim_id, uint8_t* led_array, uint8_t count);
 
 /**
- * @brief Spust error animaci
+ * @brief Start the error animation
  * 
- * @param anim_id ID animace
- * @param led_index LED pozice
- * @param flash_count Pocet bliknuti
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param led_index LED position
+ * @param flash_count Number of flashes
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_error(uint32_t anim_id, uint8_t led_index, uint32_t flash_count);
 
 /**
- * @brief Spust promotion animaci
+ * @brief Start the promotion animation
  * 
- * @param anim_id ID animace
- * @param promotion_led LED pozice promoce
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param promotion_led LED position of the promotion
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_promotion(uint32_t anim_id, uint8_t promotion_led);
 
 // ============================================================================
-// ENDGAME ANIMACNI FUNKCE
+// ENDGAME ANIMATION FEATURE
 // ============================================================================
 
 /**
- * @brief Spust endgame wave animaci
+ * @brief Start the endgame wave animation
  * 
- * @param anim_id ID animace (ziskane z unified_animation_create)
- * @param center_led Stredova LED pozice (kral)
- * @param winner_color Barva viteze (0=white, 1=black)
- * @return ESP_OK pri uspechu
+ * @param anim_id Animation ID (obtained from unified_animation_create)
+ * @param center_led Center LED position (king)
+ * @param winner_color Color of the knight (0=white, 1=black)
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_endgame_wave(uint32_t anim_id, uint8_t center_led, uint8_t winner_color);
 
 /**
- * @brief Spust endgame circles animaci
+ * @brief Start the endgame circles animation
  * 
- * @param anim_id ID animace
- * @param center_led Stredova LED pozice
- * @param winner_color Barva viteze
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param center_led Center LED position
+ * @param winner_color The color of the knight
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_endgame_circles(uint32_t anim_id, uint8_t center_led, uint8_t winner_color);
 
 /**
- * @brief Spust endgame cascade animaci
+ * @brief Start the endgame cascade animation
  * 
- * @param anim_id ID animace
- * @param center_led Stredova LED pozice
- * @param winner_color Barva viteze
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param center_led Center LED position
+ * @param winner_color The color of the knight
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_endgame_cascade(uint32_t anim_id, uint8_t center_led, uint8_t winner_color);
 
 /**
- * @brief Spust endgame fireworks animaci
+ * @brief Start the endgame fireworks animation
  * 
- * @param anim_id ID animace
- * @param center_led Stredova LED pozice
- * @param winner_color Barva viteze
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param center_led Center LED position
+ * @param winner_color The color of the knight
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_endgame_fireworks(uint32_t anim_id, uint8_t center_led, uint8_t winner_color);
 
 /**
- * @brief Spust endgame draw spiral animaci (pro remi)
+ * @brief Start endgame draw spiral animation (for draw)
  * 
- * @param anim_id ID animace
- * @param center_led Stredova LED pozice
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param center_led Center LED position
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_endgame_draw_spiral(uint32_t anim_id, uint8_t center_led);
 
 /**
- * @brief Spust endgame draw pulse animaci (pro remi)
+ * @brief Start endgame draw pulse animation (for draw)
  * 
- * @param anim_id ID animace
- * @param center_led Stredova LED pozice
- * @return ESP_OK pri uspechu
+ * @param anim_id the ID of the animation
+ * @param center_led Center LED position
+ * @return ESP_OK on success
  */
 esp_err_t animation_start_endgame_draw_pulse(uint32_t anim_id, uint8_t center_led);
 

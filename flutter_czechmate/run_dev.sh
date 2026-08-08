@@ -18,7 +18,7 @@ pick_flutter() {
       return
     fi
   done
-  echo "Chybí Flutter v PATH. Viz context/flutter_czechmate_port/INSTALACE_FLUTTER.txt" >&2
+  echo "Flutter not found in PATH. See context/flutter_czechmate_port/INSTALACE_FLUTTER.txt" >&2
   exit 127
 }
 

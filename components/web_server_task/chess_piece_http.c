@@ -1,6 +1,6 @@
 /**
  * @file chess_piece_http.c
- * @brief GET /static/piece/[name].png — PNG figurky (embed), stejné jako v iOS Assets.
+ * @brief GET /static/piece/[name].png — PNG figures (embed), same as in iOS Assets.
  */
 
 #include "chess_piece_http.h"

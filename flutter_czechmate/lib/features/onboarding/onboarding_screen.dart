@@ -25,7 +25,7 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   static const _introCount = 5;
   static const _totalSteps =
-      2 + _introCount; // jméno, oprávnění, pak úvodní slidů
+      2 + _introCount; // name, permissions, then introductory slides
 
   int _step = 0;
   late final TextEditingController _nameCtrl;
@@ -50,7 +50,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   bool get _isMobileNative => _isAndroid || _isIos;
 
-  /// Karty BLE v onboarding (mobil + desktop s flutter_blue_plus).
+  /// BLE cards in onboarding (mobile + desktop with flutter_blue_plus).
   bool get _showsBleOnboardingCards =>
       _isAndroid || _isIos || _isMacOs || _isLinux;
 

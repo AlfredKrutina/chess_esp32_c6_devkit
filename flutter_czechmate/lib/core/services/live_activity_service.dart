@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../features/connection/board_session_state.dart';
 
-/// iOS Live Activity (ActivityKit) + Android ongoing notification (stejný kanál z herní obrazovky).
+/// iOS Live Activity (ActivityKit) + Android ongoing notification (same channel from game screen).
 ///
 /// Detail platform: `context/WATCH_AND_LIVE_ACTIVITIES_PLAN.md`.
 class LiveActivityService {
@@ -14,7 +14,7 @@ class LiveActivityService {
   DateTime? _lastNativePush;
   String? _lastSignature;
 
-  /// Rychlý dotaz z UI / nastavení.
+  /// Quick query from UI / settings.
   Future<bool> isIosLiveActivityFrameworkSupported() async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.iOS) return false;
     try {
@@ -35,7 +35,7 @@ class LiveActivityService {
     }
   }
 
-  /// Při změně session pošle payload na iOS (až bude Widget Extension, objeví se na Lock Screen).
+  /// When the session changes, it sends the payload to iOS (it will appear on the Lock Screen when the Widget Extension is available).
   Future<void> syncFromBoardSession(
     BoardSessionState session, {
     required bool enabled,
@@ -75,7 +75,7 @@ class LiveActivityService {
     } catch (_) {}
   }
 
-  /// Android ongoing notifikace — Pauza / Pokračovat z shade (BroadcastReceiver).
+  /// Android ongoing notifications — Pause / Resume from shade (BroadcastReceiver).
   Future<String?> consumePendingAndroidClockAction() async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return null;
     try {
@@ -87,7 +87,7 @@ class LiveActivityService {
     }
   }
 
-  /// Stejná mapa jako pro Live Activity — vhodná i pro WatchConnectivity mirror.
+  /// Same map as for Live Activity — also suitable for WatchConnectivity mirror.
   Map<String, dynamic> extensionPayload(BoardSessionState session) =>
       _buildPayload(session);
 

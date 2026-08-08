@@ -1,9 +1,9 @@
 /**
  * @file uart_queue_message.h
- * @brief Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof).
+ * @brief Common message type for UART output queue (one true for sizeof).
  *
- * freertos_chess.c vytvari frontu s item size = sizeof(uart_message_t).
- * uart_task.c posila/prijima stejny typ — nesmi se rozchazet s magickymi cisly.
+ * freertos_chess.c creates a queue with item size = sizeof(uart_message_t).
+ * uart_task.c sends/receives the same type — mustn't mess with magic numbers.
  */
 #pragma once
 

@@ -64,7 +64,7 @@ void game_update_endgame_statistics(game_result_type_t result_type) {
  *
  * @details
  * Tiskne hlavicku reportu s dvojitym ohranicenim (═══).
- * Pouziva se na zacatku reportu nebo sekci.
+ * Used at the start of a report or section.
  */
 static void print_report_header(const char *title) {
   printf("\r\n");
@@ -91,12 +91,12 @@ static void print_separator(void) {
  * @param ... Variable arguments for format string
  *
  * @details
- * Tiskne jednotliv radek reportu ve formatu "  • Label: Value".
- * Podporuje printf-style formatovani hodnot.
+ * Prints a single line of the report in the format " • Label: Value".
+ * Supports printf-style formatting of values.
  *
- * Priklad:
- *   print_report_line("Winner", "%s", winner);
- *   print_report_line("Total Moves", "%u", move_count);
+ * Example:
+ * print_report_line("Winner", "%s", winner);
+ * print_report_line("Total Moves", "%u", move_count);
  */
 static void print_report_line(const char *label, const char *fmt, ...) {
   printf("  • %s: ", label);
@@ -119,12 +119,12 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
   // Print endgame announcement
   print_report_header("🏆 ENDGAME REPORT");
 
-  // Určit výsledek a typ ukončení podle current_endgame_reason
+  // Determine outcome and end type by current_endgame_reason
   const char *winner = "";
   const char *loser = "";
   const char *end_reason = "";
 
-  // Nejprve určíme vítěze z result_type
+  // First we determine the winner from the result_type
   if (result_type == RESULT_WHITE_WINS) {
     winner = "White";
     loser = "Black";
@@ -136,7 +136,7 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
     loser = "Draw";
   }
 
-  // Pak určíme důvod konce hry a vytiskneme výsledek
+  // Then we determine the reason for the end of the game and print the result
   switch (current_endgame_reason) {
   // === CHECKMATE VARIATIONS ===
   case ENDGAME_REASON_CHECKMATE:
@@ -210,7 +210,7 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
   print_report_line("Game Duration", "%" PRIu32 ":%02" PRIu32 " (mm:ss)",
                     minutes, seconds);
 
-  // Vypočítat material advantage
+  // Calculate material advantage
   int white_material = 0, black_material = 0;
   for (uint32_t i = 0; i < white_captured_count; i++) {
     piece_t p = white_captured_pieces[i];
@@ -261,7 +261,7 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
   print_report_line("White Checks", "%" PRIu32, white_checks);
   print_report_line("Black Checks", "%" PRIu32, black_checks);
 
-  // Captured pieces vizuálně
+  // Captured pieces visually
   if (white_captured_count > 0) {
     printf("  • White Captured: ");
     for (uint32_t i = 0; i < white_captured_count && i < GAME_TASK_MAX_CAPTURED_PIECES;
@@ -300,7 +300,7 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
   printf("═══════════════════════════════════════════════════════════════\r\n");
   printf("\r\n");
 
-  // Flush stdout pro okamžité zobrazení
+  // Flush stdout for immediate display
   fflush(stdout);
 }
 

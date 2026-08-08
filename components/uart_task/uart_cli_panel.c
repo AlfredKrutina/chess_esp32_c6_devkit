@@ -1,6 +1,6 @@
 /**
  * @file uart_cli_panel.c
- * @brief Jednotný CLI panel — flash, oddíly, web fronta, OTA, BLE příkazy, snapshot.
+ * @brief Unified CLI panel — flash, partitions, web queue, OTA, BLE commands, snapshot.
  */
 #include "uart_cli_panel.h"
 
@@ -136,18 +136,18 @@ static void cli_web_command(const char *sub_args) {
   if (!strcasecmp(verb, "START")) {
     esp_err_t e = web_server_enqueue_command(WEB_CMD_START_SERVER);
     if (e == ESP_OK) {
-      uart_send_success("WEB START zařazeno (web_server task)");
+      uart_send_success("WEB START included (web_server task)");
     } else {
-      uart_send_formatted("WEB START chyba: %s", esp_err_to_name(e));
+      uart_send_formatted("WEB START error: %s", esp_err_to_name(e));
     }
     return;
   }
   if (!strcasecmp(verb, "STOP")) {
     esp_err_t e = web_server_enqueue_command(WEB_CMD_STOP_SERVER);
     if (e == ESP_OK) {
-      uart_send_success("WEB STOP zařazeno");
+      uart_send_success("WEB STOP included");
     } else {
-      uart_send_formatted("WEB STOP chyba: %s", esp_err_to_name(e));
+      uart_send_formatted("WEB STOP error: %s", esp_err_to_name(e));
     }
     return;
   }
@@ -205,12 +205,12 @@ static void cli_lock_command(const char *sub_args) {
 static void cli_ble_json(const char *json_line) {
   const char *j = skip_leading_ws(json_line);
   if (*j == '\0') {
-    uart_send_error("CLI BLE <json>  (stejné jako Zápis do GATT)");
+    uart_send_error("CLI BLE <json> (same as Write to GATT)");
     return;
   }
   esp_err_t e = web_server_ble_command_dispatch(j, strlen(j));
   if (e == ESP_OK) {
-    uart_send_success("BLE příkaz vykonán");
+    uart_send_success("BLE command executed");
   } else {
     uart_send_formatted("BLE dispatch: %s", esp_err_to_name(e));
   }
@@ -253,7 +253,7 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
     uart_send_line(
         "  CLI STM32 FLASH_PART <seg> <partition_label> [BOOT]");
     uart_send_line(
-        "NRST/BOOT0 GPIO + sdílený I2C s Hall viz menuconfig STM32 BL.");
+        "NRST/BOOT0 GPIO + shared I2C with Hall see menuconfig STM32 BL.");
     return CMD_SUCCESS;
   }
 
@@ -296,7 +296,7 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
       uart_send_formatted("ERASE: %s", esp_err_to_name(e));
       return CMD_ERROR_SYSTEM_ERROR;
     }
-    uart_send_success("Mass erase dokončen (nebo částečný OK)");
+    uart_send_success("Mass erase complete (or partial OK)");
     return CMD_SUCCESS;
   }
 
@@ -312,7 +312,7 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
     uint8_t raw[256];
     size_t ln = cli_hex_to_bin(hexbuf, raw, sizeof(raw));
     if (ln == 0) {
-      uart_send_error("špatná hex data (sudý počet znaků, max 512 hex znaků)");
+      uart_send_error("bad hex data (even number of characters, max 512 hex characters)");
       return CMD_ERROR_INVALID_SYNTAX;
     }
     esp_err_t e =
@@ -339,12 +339,12 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
         esp_partition_find_first(ESP_PARTITION_TYPE_ANY,
                                  ESP_PARTITION_SUBTYPE_ANY, label);
     if (!part) {
-      uart_send_formatted("oddíl '%s' nenalezen", label);
+      uart_send_formatted("partition '%s' not found", label);
       return CMD_ERROR_INVALID_PARAMETER;
     }
     size_t psz = part->size;
     if (psz > 512 * 1024) {
-      uart_send_error("oddíl příliš velký (>512 KiB) — bezpečnostní limit");
+      uart_send_error("partition too large (>512 KiB) — safety limit");
       return CMD_ERROR_INVALID_PARAMETER;
     }
     uint8_t *buf = (uint8_t *)malloc(psz);
@@ -370,7 +370,7 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
     return CMD_SUCCESS;
   }
 
-  uart_send_error("neznámý STM32 příkaz — CLI STM32 HELP");
+  uart_send_error("unknown STM32 command — CLI STM32 HELP");
   return CMD_ERROR_INVALID_SYNTAX;
 }
 #endif /* CONFIG_CHESS_STM32_I2C_BL_ENABLE */
@@ -385,8 +385,8 @@ static command_result_t cli_hall_tail(const char *tail) {
   }
 
   if (!strcasecmp(verb, "HELP") || !strcasecmp(verb, "?")) {
-    uart_send_line("Hall I2C matice (STM32 slave @ 0x30…)");
-    uart_send_line("  CLI HALL PROBE <seg>   (0–3, krátký read pointeru 0x00)");
+    uart_send_line("Hall I2C matrix (STM32 slave @ 0x30…)");
+    uart_send_line("  CLI HALL PROBE <seg> (0-3, short read pointer 0x00)");
     return CMD_SUCCESS;
   }
 
@@ -410,7 +410,7 @@ static command_result_t cli_hall_tail(const char *tail) {
     return CMD_SUCCESS;
   }
 
-  uart_send_error("neznámý HALL příkaz — CLI HALL HELP");
+  uart_send_error("unknown HALL command — CLI HALL HELP");
   return CMD_ERROR_INVALID_SYNTAX;
 }
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
@@ -420,7 +420,7 @@ static void cli_snapshot(void) {
   size_t len = 0;
   esp_err_t e = web_server_build_game_snapshot_json_shared(&json, &len);
   if (e != ESP_OK || json == NULL || len == 0) {
-    uart_send_formatted("SNAPSHOT chyba: %s", esp_err_to_name(e));
+    uart_send_formatted("SNAPSHOT error: %s", esp_err_to_name(e));
     return;
   }
   uart_send_colored_line(COLOR_INFO, "Snapshot JSON");
@@ -441,18 +441,18 @@ static void cli_snapshot(void) {
 }
 
 void uart_cli_print_help(void) {
-  uart_send_colored_line(COLOR_INFO, "CLI — jednotný panel");
+  uart_send_colored_line(COLOR_INFO, "CLI — unified panel");
   uart_send_line("  CLI HELP");
   uart_send_line("  CLI PARTITIONS | FLASH | CHIP | APP | HEAP");
   uart_send_line("  CLI WEB START | STOP | STATUS");
   uart_send_line("  CLI LOCK ON | OFF");
   uart_send_line("  CLI OTA INFO");
-  uart_send_line("  CLI OTA <https://…>   (vyžaduje STA + ota_0/ota_1)");
+  uart_send_line("  CLI OTA <https://…> (requires STA + ota_0/ota_1)");
   uart_send_line("  CLI BLE {\"cmd\":\"…\"}   (jako CZECHMATE GATT)");
   uart_send_line("  CLI SNAP              (game snapshot JSON)");
   uart_send_line("  CLI RESET             (esp_restart)");
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
-  uart_send_line("  CLI STM32 HELP        (STM32 ROM bootloader přes I2C)");
+  uart_send_line("  CLI STM32 HELP (STM32 ROM bootloader via I2C)");
 #endif
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   uart_send_line("  CLI HALL HELP         (Hall I2C segment probe)");
@@ -538,7 +538,7 @@ command_result_t uart_cmd_cli(const char *args) {
     }
     esp_err_t oe = ota_update_try_start_url(p);
     if (oe == ESP_OK) {
-      uart_send_success("OTA stažení spuštěno na pozadí");
+      uart_send_success("OTA download running in background");
     } else {
       uart_send_formatted("OTA start: %s", esp_err_to_name(oe));
       ESP_LOGW(TAG, "OTA URL rejected: %s", esp_err_to_name(oe));
@@ -577,6 +577,6 @@ command_result_t uart_cmd_cli(const char *args) {
     return CMD_SUCCESS;
   }
 
-  uart_send_error("Neznámý CLI podpříkaz — zadej CLI HELP");
+  uart_send_error("Unknown CLI subcommand — type CLI HELP");
   return CMD_ERROR_INVALID_SYNTAX;
 }

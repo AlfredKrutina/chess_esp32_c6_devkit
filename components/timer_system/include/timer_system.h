@@ -1,22 +1,22 @@
 /**
  * @file timer_system.h
- * @brief ESP32-C6 Chess System v1.8.0 - Timer System komponenta
+ * @brief ESP32-C6 Chess System v1.8.0 - Timer System component
  * 
- * Tato komponenta spravuje casovy system pro sachovou hru:
- * - Ruzne typy casovych kontrol (bullet, blitz, rapid, classical)
- * - Presne mereni casu s ESP32 timer API
- * - Thread-safe operace s casem
- * - Integrace s game taskem
- * - Web API pro ovladani casu
+ * This component manages the time system for the chess game:
+ * - Different types of time checks (bullet, blitz, rapid, classical)
+ * - Accurate time measurement with ESP32 timer API
+ * - Thread-safe operations with case
+ * - Integration with game task
+ * - Web API for time control
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-01-XX
  * 
  * @details
- * Timer system poskytuje kompletni casovou kontrolu pro sachovou hru.
- * Podporuje standardni casove kontroly a vlastni nastaveni.
- * Vsechny operace jsou thread-safe a optimalizovane pro ESP32.
+ * Timer system provides complete time control for chess game.
+ * Supports standard time controls and custom settings.
+ * All operations are thread-safe and optimized for ESP32.
  */
 
 #ifndef TIMER_SYSTEM_H
@@ -52,7 +52,7 @@ typedef enum {
     TIME_CONTROL_RAPID_30_0,         ///< Rapid 30+0 (30 minut)
     TIME_CONTROL_CLASSICAL_60_0,     ///< Classical 60+0 (1 hodina)
     TIME_CONTROL_CLASSICAL_90_30,     ///< Classical 90+30 (90 min + 30s increment)
-    TIME_CONTROL_CUSTOM,             ///< Vlastni nastaveni
+    TIME_CONTROL_CUSTOM,             ///< Custom settings
     TIME_CONTROL_MAX
 } time_control_type_t;
 
@@ -61,10 +61,10 @@ typedef enum {
  */
 typedef struct {
     time_control_type_t type;        ///< Typ casove kontroly
-    uint32_t initial_time_ms;       ///< Pocatecni cas v milisekundach
-    uint32_t increment_ms;          ///< Increment po tahu v milisekundach
+    uint32_t initial_time_ms;       ///< Initial time in milliseconds
+    uint32_t increment_ms;          ///< Increment after stroke in milliseconds
     char name[32];                  ///< Nazev casove kontroly
-    char description[64];           ///< Popis pro uzivatele
+    char description[64];           ///< User description
     bool is_fast;                   ///< Je-li rychla hra (< 10 min)
 } time_control_config_t;
 
@@ -75,20 +75,20 @@ typedef struct {
     // Casove udaje
     uint32_t white_time_ms;         ///< Zbyvajici cas bileho
     uint32_t black_time_ms;         ///< Zbyvajici cas cerneho
-    uint32_t move_start_time;       ///< Cas zacatku tahu (esp_timer_get_time())
-    uint32_t last_move_time;        ///< Cas posledniho tahu
+    uint32_t move_start_time;       ///< Turn start time (esp_timer_get_time())
+    uint32_t last_move_time;        ///< Last move time
     
     // Stav timeru
-    bool timer_running;             ///< Je-li timer aktivni
-    bool is_white_turn;             ///< Je-li na tahu bily
+    bool timer_running;             ///< If the timer is active
+    bool is_white_turn;             ///< If there is a bill on the move
     bool game_paused;               ///< Je-li hra pozastavena
     bool time_expired;              ///< Vyprsel-li cas
     
     // Konfigurace
-    time_control_config_t config;   ///< Aktualni konfigurace
+    time_control_config_t config;   ///< Current configuration
     
     // Statistiky
-    uint32_t total_moves;           ///< Celkovy pocet tahu
+    uint32_t total_moves;           ///< Total number of moves
     uint32_t avg_move_time_ms;      ///< Prumerny cas na tah
     
     // Upozorneni
@@ -98,98 +98,98 @@ typedef struct {
 } chess_timer_t;
 
 // ============================================================================
-// VEREJNE API FUNKCE
+// PUBLIC API FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializuje timer system
+ * @brief Initializes the timer system
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_system_init(void);
 
 /**
- * @brief Nastavi casovou kontrolu
+ * @brief Set the time check
  * 
- * @param config Konfigurace casove kontroly
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param config Timing configuration
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_set_time_control(const time_control_config_t* config);
 
 /**
- * @brief Spusti timer pro tah
+ * @brief Start the timer for the move
  * 
- * @param is_white_turn Je-li na tahu bily
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param is_white_turn If there is a white on the turn
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_start_move(bool is_white_turn);
 
 /**
- * @brief Ukonci tah a prida increment
+ * @brief End move and add increment
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_end_move(void);
 
 /**
- * @brief Pozastavi timer
+ * @brief Pause the timer
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_pause(void);
 
 /**
- * @brief Obnovi timer
+ * @brief Reset the timer
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_resume(void);
 
 /**
- * @brief Resetuje timer na pocatecni hodnoty
+ * @brief Resets the timer to initial values
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_reset(void);
 
 /**
- * @brief Kontroluje vyprseni casu
+ * @brief Checks for a timeout
  * 
- * @return true pokud cas vyprsel, false jinak
+ * @return true if the time has expired, false otherwise
  */
 bool timer_check_timeout(void);
 
 /**
- * @brief Ziska aktualni stav timeru
+ * @brief Gets the current state of the timer
  * 
- * @param timer_data Ukazatel na strukturu pro data timeru
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param timer_data A pointer to the structure for the timer data
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_get_state(chess_timer_t* timer_data);
 
 /**
- * @brief Ziska zbyvajici cas pro hrace
+ * @brief Gets the remaining time for the players
  * 
- * @param is_white_turn Je-li na tahu bily
- * @return Zbyvajici cas v milisekundach
+ * @param is_white_turn If there is a white on the turn
+ * @return The remaining time in milliseconds
  */
 uint32_t timer_get_remaining_time(bool is_white_turn);
 
 /**
- * @brief Ziska konfiguraci casove kontroly podle typu
+ * @brief Gets the timing control configuration by type
  * 
- * @param type Typ casove kontroly
- * @param config Ukazatel na strukturu pro konfiguraci
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param type Time control type
+ * @param config A pointer to a structure to configure
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_get_config_by_type(time_control_type_t type, time_control_config_t* config);
 
 /**
- * @brief Vytvori JSON reprezentaci stavu casoveho systemu
+ * @brief Create a JSON representation of the time system state
  * 
- * @param buffer Buffer pro JSON data
- * @param buffer_size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param buffer Buffer for JSON data
+ * @param buffer_size Buffer size
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_get_json(char* buffer, size_t buffer_size);
 
@@ -210,69 +210,69 @@ uint32_t timer_get_available_controls_count(void);
 uint32_t timer_get_available_controls(time_control_config_t* controls, uint32_t max_count);
 
 /**
- * @brief Ulozi nastaveni timeru do NVS
+ * @brief Save timer settings to NVS
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_save_settings(void);
 
 /**
- * @brief Nacte nastaveni timeru z NVS
+ * @brief Write timer settings from NVS
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_load_settings(void);
 
 /**
- * @brief Ziska prumerny cas na tah
+ * @brief Gets the average time per turn
  * 
- * @return Prumerny cas na tah v milisekundach
+ * @return Average time per stroke in milliseconds
  */
 uint32_t timer_get_average_move_time(void);
 
 /**
- * @brief Ziska celkovy pocet tahu
+ * @brief Gain the total number of turns
  * 
- * @return Celkovy pocet tahu
+ * @return Total turn count
  */
 uint32_t timer_get_total_moves(void);
 
 /**
- * @brief Kontroluje zda je casova kontrola aktivni
+ * @brief Checks if the time check is active
  * 
- * @return true pokud je casova kontrola aktivni, false jinak
+ * @return true if time checking is active, false otherwise
  */
 bool timer_is_active(void);
 
 /**
- * @brief Ziska typ aktualni casove kontroly
+ * @brief Gets the current time control type
  * 
- * @return Typ aktualni casove kontroly
+ * @return The type of the current time control
  */
 time_control_type_t timer_get_current_type(void);
 
 /**
- * @brief Nastavi vlastni casovou kontrolu
+ * @brief Set custom time check
  * 
- * @param minutes Pocet minut
- * @param increment_seconds Increment v sekundach
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param minutes Number of minutes
+ * @param increment_seconds Increment in seconds
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_set_custom_time_control(uint32_t minutes, uint32_t increment_seconds);
 
 /**
- * @brief Ziska casovou kontrolu podle indexu
+ * @brief Gets the time check by index
  * 
- * @param index Index casove kontroly
- * @param config Ukazatel na strukturu pro konfiguraci
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param index Index of time control
+ * @param config A pointer to a structure to configure
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_get_config_by_index(uint32_t index, time_control_config_t* config);
 
 /**
- * @brief Deinicializuje timer system
+ * @brief Deinitializes the timer system
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t timer_system_deinit(void);
 

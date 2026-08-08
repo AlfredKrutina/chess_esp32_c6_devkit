@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/localization/context_l10n.dart';
 
-/// Společná pole SSID/heslo + akce pro provisioning STA přes BLE (sheet i Nastavení).
+/// Common SSID/password fields + actions for STA provisioning via BLE (sheet and Settings).
 class BoardWifiProvisionFields extends StatelessWidget {
   const BoardWifiProvisionFields({
     super.key,
@@ -18,7 +18,7 @@ class BoardWifiProvisionFields extends StatelessWidget {
     this.actionsEnabled = true,
     this.denseSubtitle = false,
 
-    /// `false` ve spodním listu po Objevování — nadpis je už v sheetu.
+    /// `false' in the bottom sheet after Discovery — the title is already in the sheet.
     this.showSectionHeader = true,
   });
 
@@ -30,10 +30,10 @@ class BoardWifiProvisionFields extends StatelessWidget {
   final bool scanBusy;
   final bool sendBusy;
 
-  /// `null` — ještě bez výsledku skenu; `true` / `false` — viditelnost aktuálního SSID pole.
+  /// `null` — no scan result yet; `true` / `false` — visibility of the current SSID field.
   final bool? surveyPhoneVisible;
 
-  /// SSID zobrazený v chipu „viditelná“ (aktuální síť zařízení / pole).
+  /// SSID displayed in the "visible" chip (current network of the device / array).
   final String? surveyDisplaySsidForChip;
   final bool actionsEnabled;
   final bool denseSubtitle;

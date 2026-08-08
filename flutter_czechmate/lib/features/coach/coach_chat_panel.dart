@@ -68,7 +68,7 @@ class _CoachChatPanelState extends ConsumerState<CoachChatPanel> {
     if (mounted) _scrollToBottom();
   }
 
-  /// Cmd+Enter (macOS) / Ctrl+Enter — odeslání bez nového řádku.
+  /// Cmd+Enter (macOS) / Ctrl+Enter — send without newline.
   void _sendViaKeyboardShortcut() {
     final chat = ref.read(coachChatProvider);
     if (chat.busy || _ctrl.text.trim().isEmpty) return;

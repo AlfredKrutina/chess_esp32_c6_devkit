@@ -19,7 +19,7 @@ class GameUiState {
     this.moveAnimationsEnabled = true,
     // Phase 3.3 — transient board message (auto-dismiss 4s)
     this.transientBoardMessage,
-    // Remote invalid destination: červené pulzování na cílovém poli (aplikace / API chyba).
+    // Remote invalid destination: red pulsing on the destination field (application / API error).
     this.invalidDestinationPulseSquare,
     this.invalidDestinationPulseLit = false,
     // Hint overlay on board
@@ -71,14 +71,14 @@ class GameUiState {
   final bool learningMode;
   final PuzzleChallengeState? puzzleChallenge;
 
-  /// 0 = žádný překryv; 0–1 síla barevného pulzu (puzzle feedback).
+  /// 0 = no overlap; 0–1 color pulse strength (puzzle feedback).
   final double puzzleBoardTint;
   final bool puzzleBoardTintGreen;
 
-  /// Jednorázová zpráva pro SnackBar (puzzle úspěch/neúspěch), po zobrazení se vyčistí.
+  /// One time message for SnackBar (puzzle success/failure), clears when displayed.
   final String? puzzleSnackText;
 
-  /// Po vyřešení puzzlu: kladné číslo = delta Elo; UI zobrazí oslavu a pak zavolá [clearPuzzleCelebration].
+  /// After solving the puzzle: positive number = delta Elo; The UI displays the celebration and then calls [clearPuzzleCelebration].
   final int? puzzleCelebrationEloDelta;
 
   GameUiState copyWith({

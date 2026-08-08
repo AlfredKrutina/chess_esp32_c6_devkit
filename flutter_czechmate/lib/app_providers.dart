@@ -10,23 +10,23 @@ import 'core/services/stockfish_api_client.dart';
 import 'core/services/watch_connectivity_service.dart';
 import 'features/opening/opening_progress_repository.dart';
 
-/// Spodní navigace (`_MainShell`) — indexy viz [AppMainTab] v `app_navigation.dart`.
+/// Bottom navigation (`_MainShell`) — see [AppMainTab] in `app_navigation.dart` for indexes.
 final mainNavTabIndexProvider = StateProvider<int>((ref) => 0);
 
-/// Po změně režimu připojení (`setConnectionMode` / `setNextConnectionTransportOnce`) —
-/// invaliduje závislé widgety (IndexedStack bez vlastního Prefs listen).
+/// After changing the connection mode (`setConnectionMode` / `setNextConnectionTransportOnce`) —
+/// invalidates dependent widgets (IndexedStack without own Prefs listen).
 final connectionModeUiRefreshProvider = StateProvider<int>((ref) => 0);
 
-/// Záložka Pokrok: 0 = Výuka, 1 = Statistiky (jako `ProgressTabView` na iOS).
+/// Progress Tab: 0 = Tutorial, 1 = Statistics (like `ProgressTabView` on iOS).
 final progressSegmentProvider = StateProvider<int>((ref) => 0);
 
-/// Přepsat v `main()` přes `ProviderScope(overrides: [...])`.
+/// Override in `main()` via `ProviderScope(overrides: [...])`.
 final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
   throw StateError('SharedPreferences — nastav override v main()');
 });
 
-/// Nesmí `watch(prefs)` — každá invalidace prefs by zavřela `http.Client` a stará
-/// reference v [BoardSessionNotifier] by pak hlásila „Client is already closed“.
+/// Must not `watch(prefs)` — any prefs invalidation would close `http.Client` and the old
+/// reference in [BoardSessionNotifier] would then report "Client is already closed".
 final boardApiClientProvider = Provider<BoardApiClient>((ref) {
   final c = BoardApiClient(
     resolveBoardApiBearerToken: () =>
@@ -64,7 +64,7 @@ final stockfishApiClientProvider = Provider<StockfishApiClient>((ref) {
   return c;
 });
 
-/// Parita `NWPathMonitor` — stav připojení pro Stockfish / upozornění na Wi‑Fi vs. data.
+/// Parity `NWPathMonitor` — connection status for Stockfish / Wi‑Fi alerts vs. data.
 final networkConnectivityProvider = StreamProvider<List<ConnectivityResult>>((ref) async* {
   final c = Connectivity();
   try {

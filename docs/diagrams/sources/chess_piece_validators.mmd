@@ -1,4 +1,4 @@
-%% game_validate_piece_move_enhanced — rozcestník podle typu figurky
+%% game_validate_piece_move_enhanced — dispatch by piece type
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TD
   VAL([game_validate_piece_move_enhanced]) --> SW{piece switch}
@@ -8,8 +8,8 @@ flowchart TD
   SW -->|bishop| B[game_validate_bishop_move_enhanced]
   SW -->|rook| Rk[game_validate_rook_move_enhanced]
   SW -->|queen| Q[game_validate_queen_move_enhanced]
-  SW -->|king| K[game_validate_king_move_enhanced — včetně rošády]
-  SW -->|jinak| X[MOVE_ERROR_INVALID_PATTERN]
+  SW -->|king| K[game_validate_king_move_enhanced — including castling]
+  SW -->|else| X[MOVE_ERROR_INVALID_PATTERN]
 
   P --> OUT([move_error_t])
   N --> OUT

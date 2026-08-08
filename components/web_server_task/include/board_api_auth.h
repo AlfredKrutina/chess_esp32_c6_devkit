@@ -1,19 +1,19 @@
 /**
  * @file board_api_auth.h
- * @brief Board REST API token (NVS) + HTTP Bearer kontrola pro citlivé endpointy.
+ * @brief Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints.
  *
  * ## Auth matrix (HTTP)
- * - Veřejné GET (bez Bearer): např. `/api/status`, `/api/board`, `/api/game/snapshot`,
- *   `/api/wifi/status`, `/api/system/firmware`, `/api/system/ota/status` (onboarding).
- * - Admin POST (`/api/system/ota`, `/api/system/factory_reset`, cesty pod `/api/wifi/`, …):
- *   platný Bearer vždy stačí. Pokud je **WEB_LOCK zapnutý** a Bearer chybí nebo neplatí → 403 `web_locked`.
- *   Pokud je **WEB_LOCK vypnutý** (výchozí), POST z LAN projde bez hlavičky (stejně jako otevřené GET API).
+ * - Public GET (No Bearer): eg `/api/status`, `/api/board`, `/api/game/snapshot`,
+ * `/api/wifi/status`, `/api/system/firmware`, `/api/system/ota/status` (onboarding).
+ * - Admin POST (`/api/system/ota`, `/api/system/factory_reset`, paths under `/api/wifi/`, …):
+ * a valid Bearer is always sufficient. If **WEB_LOCK is on** and Bearer is missing or invalid → 403 `web_locked`.
+ * If **WEB_LOCK is off** (default), POST from LAN will go through without a header (just like the open GET API).
  *
- * Token: 32 B náhodných, v hlavičce jako `Authorization: Bearer <64 hex znaků>`.
+ * Token: 32B random, in header as `Authorization: Bearer <64 hex characters>`.
  *
- * ## BLE (viz ble_task_conn_is_encrypted)
+ * ## BLE (see ble_task_conn_is_encrypted)
  * - `ota_start`, `ota_ble_begin`, `ota_ble_abort`, `ota_ble_status`, `wifi_sta_config`,
- *   `wifi_ap_set`, `factory_reset`: vyžadují aktivní šifrovaný odkaz (po SMP).
+ * `wifi_ap_set`, `factory_reset`: require an active encrypted link (after SMP).
  */
 #pragma once
 
@@ -30,21 +30,21 @@
 extern "C" {
 #endif
 
-/** NVS inicializace / generace tokenu při prvním spuštění. */
+/** NVS initialization / token generation on first boot. */
 esp_err_t board_api_auth_init(void);
 
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
 /**
- * HTTP admin akce: zkontroluje Bearer token vs NVS a web lock.
- * @return true pokud už byl odeslán 403 a handler má vrátit ESP_OK.
+ * HTTP admin action: checks Bearer token vs NVS and web lock.
+ * @return true if a 403 has already been sent and the handler should return ESP_OK.
  */
 bool board_api_auth_admin_http_denied(httpd_req_t *req);
 #endif
 
-/** UART / diagnostika: hex řetězec (64 znaků) + '\\0'. */
+/** UART / diagnostics: hex string (64 characters) + '\\0'. */
 esp_err_t board_api_auth_get_token_hex(char *out_hex, size_t cap);
 
-/** Vygeneruje nový token (starý přestane platit). */
+/** Generates a new token (the old one becomes invalid). */
 esp_err_t board_api_auth_rotate_token(void);
 
 #ifdef __cplusplus

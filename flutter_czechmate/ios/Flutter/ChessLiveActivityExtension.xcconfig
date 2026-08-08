@@ -1,5 +1,5 @@
-// Hodnoty musí sedět s hlavní aplikací (pubspec version).
-// Fallback pod `flutter clean`, dokud znovu nevznikne Generated.xcconfig (`flutter pub get` / build).
+// Values must match the main app (pubspec version).
+// Fallback under `flutter clean` until Generated.xcconfig is recreated (`flutter pub get` / build).
 FLUTTER_BUILD_NAME = 1.1.1
 FLUTTER_BUILD_NUMBER = 2
 #include? "Generated.xcconfig"

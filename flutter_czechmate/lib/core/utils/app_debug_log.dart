@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../constants/app_environment.dart';
 
-/// Detailní logy jen ve vývoji / staging — v release profilu bez výstupu.
+/// Detailed logs only in development / staging — in the release profile without output.
 bool get appVerboseLoggingEnabled => kDebugMode || AppEnvironment.staging;
 
 void appDebugLog(String message, [Object? detail]) {

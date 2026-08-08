@@ -1,19 +1,19 @@
 /**
  * @file visual_error_system.c
- * @brief Implementace Visual Error Systemu
+ * @brief Visual Error System implementation
  * 
- * Tento modul poskytuje vizualni indikaci chyb a navod pro uzivatele.
- * Zobrazuje chybove stavy pres LED animace a poskytuje textove
- * zpravy s navodem.
+ * This module provides visual error indication and user guidance.
+ * Shows error states through LED animations and provides text
+ * messages with pretext.
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-06
  * 
  * @details
- * Visual Error System je system pro vizualni indikaci chyb v sachovem
- * systemu. Pouziva LED animace pro zobrazeni typu chyby a poskytuje
- * textove zpravy s navodem pro reseni problemu.
+ * Visual Error System is a system for visual error indication in storage
+ * system. It uses LED animations to show the error type and provides
+ * text messages with instructions for solving the problem.
  */
 
 #include "visual_error_system.h"
@@ -494,21 +494,21 @@ esp_err_t error_get_led_positions_for_square(uint8_t row, uint8_t col, uint8_t* 
 }
 
 // ============================================================================
-// INTERNI POMOCNE FUNKCE
+// INTERNAL HELP FUNCTIONS
 // ============================================================================
 
 
 /**
- * @brief Blikani LED na zadanych pozicich
+ * @brief Blinking of LEDs at specified positions
  * 
- * Provede sekvenci blikani (zapnuto/vypnuto) na zadanych LED pozicich.
- * Pocet bliknuti je urcen konfiguraci (current_config.flash_count).
+ * Performs a flashing sequence (on/off) at the specified LED positions.
+ * The number of flashes is determined by the configuration (current_config.flash_count).
  * 
- * @param led_positions Pole LED pozic k blikani
- * @param count Pocet pozic
- * @param r Cervena komponenta (0-255)
- * @param g Zelena komponenta (0-255)
- * @param b Modra komponenta (0-255)
+ * @param led_positions Array of LED positions to blink
+ * @param count Number of positions
+ * @param r Red component (0-255)
+ * @param g Green component (0-255)
+ * @param b Blue component (0-255)
  */
 static void error_flash_leds(uint8_t* led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
     for (uint8_t flash = 0; flash < current_config.flash_count; flash++) {
@@ -527,16 +527,16 @@ static void error_flash_leds(uint8_t* led_positions, uint8_t count, uint8_t r, u
 }
 
 /**
- * @brief Pulzovani LED na zadanych pozicich
+ * @brief LED pulses at specified positions
  * 
- * Provede pulzovani LED na zadanych pozicich. V plne implementaci
- * pouziva animation manager pro plynuly efekt.
+ * Performs LED pulsing at specified positions. In full implementation
+ * uses animation manager for smooth effect.
  * 
- * @param led_positions Pole LED pozic k pulzovani
- * @param count Pocet pozic
- * @param r Cervena komponenta (0-255)
- * @param g Zelena komponenta (0-255)
- * @param b Modra komponenta (0-255)
+ * @param led_positions Array of LED positions to pulse
+ * @param count Number of positions
+ * @param r Red component (0-255)
+ * @param g Green component (0-255)
+ * @param b Blue component (0-255)
  */
 static void error_pulse_leds(uint8_t* led_positions, uint8_t count, uint8_t r, uint8_t g, uint8_t b) {
     // Simple pulsing - in full implementation, use animation manager
@@ -547,7 +547,7 @@ static void error_pulse_leds(uint8_t* led_positions, uint8_t count, uint8_t r, u
 }
 
 /**
- * @brief Ziska chybovou zpravu pro dany typ chyby
+ * @brief Gets the error message for the given error type
  * 
  * Vraci lidsky citelnou zpravu popisujici co se stalo.
  * 
@@ -568,12 +568,12 @@ static const char* error_get_message_for_type(visual_error_type_t type) {
 }
 
 /**
- * @brief Ziska napovedu pro dany typ chyby
+ * @brief Prediction gain for given error type
  * 
- * Vraci uzivateli uzitecnou napovedu jak chybu vyresit.
+ * Returns a useful hint to the user on how to solve the error.
  * 
- * @param type Typ vizualni chyby
- * @return Ukazatel na text napovedy (konstanta)
+ * @param type Type of visual error
+ * @return Pointer to hint text (const)
  */
 static const char* error_get_hint_for_type(visual_error_type_t type) {
     switch (type) {
@@ -589,21 +589,21 @@ static const char* error_get_hint_for_type(visual_error_type_t type) {
 }
 
 /**
- * @brief Ziska barvu LED pro dany typ chyby
+ * @brief Gets the LED color for the given error type
  * 
- * Kazdy typ chyby ma prirazenou specifickou barvu pro vizualni rozliseni:
- * - INVALID_MOVE: cervena
- * - PIECE_BLOCKING: oranzova
- * - CHECK_VIOLATION: fialova
- * - NO_PIECE: zluta
- * - WRONG_TURN: modra
- * - atd.
+ * Each type of error is assigned a specific color for visual distinction:
+ * - INVALID_MOVE: red
+ * - PIECE_BLOCKING: orange
+ * - CHECK_VIOLATION: purple
+ * - NO_PIECE: yellow
+ * - WRONG_TURN: blue
+ * - etc.
  * 
- * @param type Typ vizualni chyby
- * @param[out] r Ukazatel na cervenou komponentu
- * @param[out] g Ukazatel na zelenou komponentu
- * @param[out] b Ukazatel na modrou komponentu
- * @return ESP_OK pri uspechu, ESP_ERR_INVALID_ARG pokud jsou parametry NULL
+ * @param type Type of visual error
+ * @param[out] r A pointer to the red component
+ * @param[out] g Pointer to the green component
+ * @param[out] b A pointer to the blue component
+ * @return ESP_OK on success, ESP_ERR_INVALID_ARG if parameters are NULL
  */
 static esp_err_t error_get_color_for_type(visual_error_type_t type, uint8_t* r, uint8_t* g, uint8_t* b) {
     if (!r || !g || !b) {

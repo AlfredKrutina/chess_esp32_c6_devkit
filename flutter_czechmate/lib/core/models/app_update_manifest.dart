@@ -1,4 +1,4 @@
-/// Parita `app_update.json` na GitHub Pages ([kAppUpdateJsonUrl]).
+/// Parity with `app_update.json` on GitHub Pages ([kAppUpdateJsonUrl]).
 class AppUpdateManifest {
   const AppUpdateManifest({
     required this.latestVersion,
@@ -9,7 +9,7 @@ class AppUpdateManifest {
   final String latestVersion;
   final String? minSupportedVersion;
 
-  /// HTTPS odkaz — typicky produktovka nebo GitHub Releases.
+  /// HTTPS link — typically the product page or GitHub Releases.
   final String? releasePageUrl;
 
   bool get isValid => latestVersion.trim().isNotEmpty;

@@ -1,3 +1,3 @@
 # WEB_MEDIA_BRIEF
 
-Kompletní specifikace médií pro produktovku se typicky drží v **`context/MEDIA_DELIVERABLES.md`** (složka `context/` je v projektu často v `.gitignore` — po naklonování repa soubor nemusí existovat; zdroj pravdy pro nasazený obsah jsou stránky v `gh-pages-ready/`).
+Full media specifications for the product site are typically kept in **`context/MEDIA_DELIVERABLES.md`** (the `context/` folder is often in `.gitignore` — after cloning the repo the file may not exist; the source of truth for deployed content is the pages in `gh-pages-ready/`).

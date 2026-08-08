@@ -1,24 +1,24 @@
 /**
  * @file led_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - LED Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - LED Task Header
  *
- * Tato hlavicka definuje rozhrani LED tasku:
- * - WS2812B LED ovladani (73 LED: 64 sachovnice + 9 tlacitek)
- * - LED animace a vzory
- * - Tlacitkove LED feedback
- * - Time-multiplexed aktualizace
+ * This header defines the LED task interface:
+ * - WS2812B LED control (73 LEDs: 64 boxes + 9 buttons)
+ * - LED animations and patterns
+ * - Button LED feedback
+ * - Time-multiplexed updates
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
- * LED task je zodpovedny za vsechny LED operace v systemu:
- * - Ovladani 73 WS2812B LED (64 sachovnice + 9 tlacitek)
- * - Pokrocile animace a efekty
- * - Button LED feedback (dostupnost, press/release stavy)
- * - Error handling a visualizace
- * - Thread-safe operace s mutex ochranou
+ * The LED task is responsible for all LED operations in the system:
+ * - Control of 73 WS2812B LEDs (64 boxes + 9 buttons)
+ * - Advanced animations and effects
+ * - Button LED feedback (availability, press/release states)
+ * - Error handling and visualization
+ * - Thread-safe operation with mutex protection
  */
 
 #ifndef LED_TASK_H
@@ -38,110 +38,110 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Spusti LED task
+ * @brief Start the LED task
  *
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void led_task_start(void *pvParameters);
 
 /**
- * @brief Vymaz vsechny LED
+ * @brief Clear all LEDs
  *
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_clear_all(void);
 
 /**
- * @brief Zpracuj LED prikazy z fronty
+ * @brief Process LED commands from the queue
  */
 void led_process_commands(void);
 
 /**
- * @brief Aktualizuj LED hardware
+ * @brief Update the LED hardware
  *
- * Posle aktualni LED data do WS2812B LED pasku.
+ * Send current LED data to WS2812B LED strip.
  */
 void led_update_hardware(void);
 
 /**
- * @brief Nastav globalni jas LED
+ * @brief Set global LED brightness
  *
- * @param brightness Jas v procentech (0-100)
+ * @param brightness Brightness in percent (0-100)
  */
 void led_set_brightness_global(uint8_t brightness);
 
 /**
- * @brief Vykonaj novy LED prikaz
+ * @brief Execute a new LED command
  *
- * @param cmd Ukazatel na LED prikaz
+ * @param cmd Pointer to the LED command
  */
 void led_execute_command_new(const led_command_t *cmd);
 
 // ============================================================================
-// INTERNI LED FUNKCE
+// INTERNAL LED FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Nastav LED pixel (interni funkce bez mutex)
+ * @brief Set LED pixel (internal functions without mutex)
  *
- * @param led_index Index LED (0-72)
- * @param red Cervena (0-255)
- * @param green Zelena (0-255)
- * @param blue Modra (0-255)
+ * @param led_index LED index (0-72)
+ * @param red Red (0-255)
+ * @param green Green (0-255)
+ * @param blue Blue (0-255)
  */
 void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
                             uint8_t blue);
 
 /**
- * @brief Nastav vsechny LED (interni funkce bez mutex)
+ * @brief Set all LEDs (internal function without mutex)
  *
- * @param red Cervena (0-255)
- * @param green Zelena (0-255)
- * @param blue Modra (0-255)
+ * @param red Red (0-255)
+ * @param green Green (0-255)
+ * @param blue Blue (0-255)
  */
 void led_set_all_internal(uint8_t red, uint8_t green, uint8_t blue);
 
 /**
- * @brief Vymaz vsechny LED (interni funkce bez mutex)
+ * @brief Clear all LEDs (internal function without mutex)
  */
 void led_clear_all_internal(void);
 
 // ============================================================================
-// FUNKCE PRO ZOBRAZENI
+// DISPLAY FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Zobraz sachovnici na LED
+ * @brief Show the box on the LED
  */
 void led_show_chess_board(void);
 
 /**
- * @brief Nastav button feedback LED
+ * @brief Set button feedback LED
  *
- * @param button_id ID tlacitka (0-8)
- * @param available Je tlacitko dostupne?
+ * @param button_id Button ID (0-8)
+ * @param available Is the button available?
  */
 void led_set_button_feedback(uint8_t button_id, bool available);
 
 /**
- * @brief Nastav tlacitko jako stisknute
+ * @brief Set the button as pressed
  *
- * @param button_id ID tlacitka (0-8)
+ * @param button_id Button ID (0-8)
  */
 void led_set_button_press(uint8_t button_id);
 
 /**
- * @brief Nastav tlacitko jako uvolnene
+ * @brief Set the button as released
  *
- * @param button_id ID tlacitka (0-8)
+ * @param button_id Button ID (0-8)
  */
 void led_set_button_release(uint8_t button_id);
 
 /**
- * @brief Ziskej barvu tlacitka
+ * @brief Get the color of the button
  *
- * @param button_id ID tlacitka (0-8)
- * @return Barva jako uint32_t RGB
+ * @param button_id Button ID (0-8)
+ * @return Color as uint32_t RGB
  */
 uint32_t led_get_button_color(uint8_t button_id);
 
@@ -150,27 +150,27 @@ uint32_t led_get_button_color(uint8_t button_id);
 // ============================================================================
 
 /**
- * @brief Nastav dostupnost promocniho tlacitka
+ * @brief Set the availability of the power button
  *
- * @param button_id ID tlacitka (0-8)
- * @param available Je tlacitko dostupne pro promoci?
+ * @param button_id Button ID (0-8)
+ * @param available Is the button available for graduation?
  */
 void led_set_button_promotion_available(uint8_t button_id, bool available);
 
 /**
- * @brief Spust animaci
+ * @brief Start the animation
  *
- * @param duration_ms Doba trvani animace v milisekundach
+ * @param duration_ms Animation duration in milliseconds
  */
 void led_start_animation(uint32_t duration_ms);
 
 /**
- * @brief Zobraz testovaci vzor
+ * @brief Show the test pattern
  */
 void led_test_pattern(void);
 
 // ============================================================================
-// SMART LED REPORTING FUNKCE
+// SMART LED REPORTING FUNCTION
 // ============================================================================
 
 /**
@@ -184,43 +184,43 @@ void led_print_compact_status(void);
 void led_print_detailed_status(void);
 
 /**
- * @brief Vypis pouze zmeny LED
+ * @brief List only LED changes
  */
 void led_print_changes_only(void);
 
 /**
- * @brief Spust periodu ticheho vystupu
+ * @brief Start a quiet exit period
  *
- * @param duration_ms Doba trvani v milisekundach
+ * @param duration_ms The duration in milliseconds
  */
 void led_start_quiet_period(uint32_t duration_ms);
 
 // ============================================================================
-// BEZPECNE LED FUNKCE PRO OSTATNI KOMPONENTY
+// SAFE LED FUNCTIONS FOR OTHER COMPONENTS
 // ============================================================================
 
 /**
- * @brief Nastav LED pixel (thread-safe s mutex)
+ * @brief Set LED pixel (thread-safe with mutex)
  *
- * @param led_index Index LED (0-72)
- * @param red Cervena (0-255)
- * @param green Zelena (0-255)
- * @param blue Modra (0-255)
+ * @param led_index LED index (0-72)
+ * @param red Red (0-255)
+ * @param green Green (0-255)
+ * @param blue Blue (0-255)
  */
 void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue);
 
 /**
- * @brief Vymaz vsechny LED (thread-safe s mutex)
+ * @brief Clear all LEDs (thread-safe with mutex)
  */
 void led_clear_all_safe(void);
 
 /**
- * @brief Nastav vsechny LED (thread-safe s mutex)
+ * @brief Set all LEDs (thread-safe with mutex)
  *
- * @param red Cervena (0-255)
- * @param green Zelena (0-255)
- * @param blue Modra (0-255)
+ * @param red Red (0-255)
+ * @param green Green (0-255)
+ * @param blue Blue (0-255)
  */
 void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue);
 
@@ -230,131 +230,131 @@ void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue);
 void led_force_immediate_update(void);
 
 // ============================================================================
-// FUNKCE PRO SPRAVU LED VRSTEV
+// LED LAYER MANAGEMENT FUNCTION
 // ============================================================================
 
 /**
- * @brief Vymaz pouze sachovnicove LED (0-63), zachovej tlacitka
+ * @brief Clear only the drawer LEDs (0-63), keep the buttons
  */
 void led_clear_board_only(void);
 
 /**
- * @brief Vymaz pouze tlacitkove LED (64-72), zachovej sachovnici
+ * @brief Clear only the button LEDs (64-72), keep the case
  */
 void led_clear_buttons_only(void);
 
 /**
- * @brief Zachovej stavy tlacitek behem operaci
+ * @brief Preserve button states during operation
  */
 void led_preserve_buttons(void);
 
 /**
- * @brief Aktualizuj dostupnost tlacitek podle stavu hry
+ * @brief Update button availability based on game state
  */
 void led_update_button_availability_from_game(void);
 
 /**
- * @brief Nastav barvu vsech 64 LED desky pro HA mod
+ * @brief Set the color of all 64 LED boards for HA mod
  *
- * @param r Cervena slozka (0-255)
- * @param g Zelena slozka (0-255)
- * @param b Modra slozka (0-255)
- * @param brightness Jas (0-255) - aplikuje se na RGB
+ * @param r Red component (0-255)
+ * @param g Green component (0-255)
+ * @param b Blue component (0-255)
+ * @param brightness Brightness (0-255) - applied to RGB
  */
 void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
 
 /**
- * @brief Obnovi sachovnici po HA modu
+ * @brief Restore inbox after HA mod
  *
- * Tato funkce obnovi normalni zobrazeni sachovnice (cerna/bila pole).
+ * This function restores the normal display of the inbox (black/white field).
  */
 void led_restore_chess_board(void);
 
 /**
- * @brief Obnovi zobrazeni LED vsech tlacitek podle aktualniho stavu (dostupnost/stisk)
- * Volat po navratu z HA rezimu.
+ * @brief Reset the LED display of all buttons according to the current state (availability/press)
+ * Call after returning from HA mode.
  */
 void led_refresh_all_button_leds(void);
 
 // ============================================================================
-// ERROR HANDLING LED FUNKCE
+// ERROR HANDLING LED FUNCTION
 // ============================================================================
 
 /**
- * @brief LED chyba - neplatny tah
+ * @brief LED error - invalid move
  *
- * @param cmd LED prikaz s informacemi o chybe
+ * @param cmd LED display with error information
  */
 void led_error_invalid_move(const led_command_t *cmd);
 
 /**
- * @brief LED chyba - vrat figurku
+ * @brief LED error - return figure
  *
- * @param cmd LED prikaz s informacemi o chybe
+ * @param cmd LED display with error information
  */
 void led_error_return_piece(const led_command_t *cmd);
 
 /**
- * @brief LED animace endgame
+ * @brief LED endgame animation
  *
- * @param cmd LED prikaz s parametry animace
+ * @param cmd LED display with animation parameters
  */
 void led_anim_endgame(const led_command_t *cmd);
 
 /**
  * @brief LED error recovery
  *
- * @param cmd LED prikaz s informacemi o recovery
+ * @param cmd LED display with recovery information
  */
 void led_error_recovery(const led_command_t *cmd);
 
 /**
- * @brief Zobraz legalni tahy
+ * @brief Display legal moves
  *
- * @param cmd LED prikaz s pozicemi legalnich tahu
+ * @param cmd LED display with positions of legal moves
  */
 void led_show_legal_moves(const led_command_t *cmd);
 
 // ============================================================================
-// FUNKCE PRO INTEGRACI SE STAVEM HRY
+// FEATURES FOR INTEGRATION WITH GAME STATE
 // ============================================================================
 
 /**
- * @brief Aktualizuj LED podle stavu hry
+ * @brief Update LED based on game state
  */
 void led_update_game_state(void);
 
 /**
- * @brief Zvyrazni figurky ktere se mohou hybat
+ * @brief Highlight figures that can move
  */
 void led_highlight_pieces_that_can_move(void);
 
 /**
- * @brief Zvyrazni mozne tahy pro pole
+ * @brief Highlight possible moves for an array
  *
- * @param from_square Pole zdrojove figurky (0-63)
+ * @param from_square The square of the source figure (0-63)
  */
 void led_highlight_possible_moves(uint8_t from_square);
 
 /**
- * @brief Vymaz vsechna zvyrazneni
+ * @brief Clear all highlights
  */
 void led_clear_all_highlights(void);
 
 /**
- * @brief Animace zmeny hrace
+ * @brief Game change animation
  */
 void led_player_change_animation(void);
 
 /**
- * @brief Overi zda ma LED vyznamne zmeny
+ * @brief Check if the LED has changed
  *
- * @return true pokud jsou vyznamne zmeny
+ * @return true if there are significant changes
  */
 bool led_has_significant_changes(void);
 
 // ============================================================================
-// FUNKCE PRO PRISTUP K LED STAVU
+// FUNCTION TO ACCESS LED STATUS
 // ============================================================================
 
 /**
@@ -366,15 +366,15 @@ bool led_has_significant_changes(void);
 uint32_t led_get_led_state(uint8_t led_index);
 
 /**
- * @brief Ziskej vsechny stavy LED
+ * @brief Get all LED states
  *
- * @param[out] states Pole pro ulozeni stavu (min. 73 prvku)
- * @param max_count Maximalni pocet stavu k ziskani
+ * @param[out] states Field for storing the state (min. 73 elements)
+ * @param max_count Maximum number of state to get
  */
 void led_get_all_states(uint32_t *states, size_t max_count);
 
 /**
- * @brief Nastav animaci po endgame
+ * @brief Set animation after endgame
  */
 void led_setup_animation_after_endgame(void);
 
@@ -383,49 +383,49 @@ void led_setup_animation_after_endgame(void);
  */
 void led_stop_endgame_animation(void);
 
-// BOOT ANIMATION LED FUNKCE
+// BOOT ANIMATION LED FUNCTION
 // ============================================================================
 
 /**
- * @brief Spusti boot animaci (progresivni rozsviceni)
+ * @brief Start boot animation (progressive light up)
  */
 void led_booting_animation(void);
 
 /**
- * @brief Zjisti zda probiha boot animace
- * @return true pokud probiha boot animace
+ * @brief Find out if the boot animation is running
+ * @return true if the boot animation is in progress
  */
 bool led_is_booting(void);
 
 /**
- * @brief LED boot animation step - rozsviti LED podle progress
+ * @brief LED boot animation step - light up the LED according to progress
  *
- * @param progress_percent Progress v procentech (0-100)
+ * @param progress_percent Progress in percent (0-100)
  * @details
- * Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni
- * postupu inicializace systemu. Rozsviti LED svetle zelenou barvou.
+ * Light up the LED according to the progress of the boot process. Used for display
+ * system initialization procedure. Turn on the LED light green.
  */
 void led_boot_animation_step(uint8_t progress_percent);
 
 /**
- * @brief LED boot animation fade out - postupne ztlumi vsechny LED na 0
+ * @brief LED boot animation fade out - gradually fade all LEDs to 0
  * @details
- * Postupne ztlumi vsechny board LED z brightness 128 na 0.
- * Pouziva se na konci boot procesu pro plynule ztlumeni.
+ * Gradually dim all board LEDs from brightness 128 to 0.
+ * Used at the end of the boot process for smooth muting.
  */
 void led_boot_animation_fade_out(void);
 
 /**
- * @brief Zobrazení průběhu OTA na LED (deska + tlačítka).
+ * @brief Display of OTA progress on LED (board + buttons).
  *
- * Volat z libovolného tasku; neblokuje. Doporučené omezení frekvence (~200 ms)
- * volá ota_update (throttling).
+ * Call from any task; does not block. Recommended frequency limit (~200ms)
+ * calls ota_update (throttling).
  *
- * @param progress_percent 0–100; při 0 bez známého pokroku zobrazí „neurčitý“ režim.
+ * @param progress_percent 0-100; at 0 with no known progress it will show "indeterminate" mode.
  */
 void led_ota_progress_ui(uint8_t progress_percent);
 
-/** Obnovit šachovnici po zrušení / chybě OTA (např. BLE abort). */
+/** Restore checkerboard after OTA abort / error (eg BLE abort). */
 void led_ota_restore_board_after_update_abort(void);
 
 #ifdef __cplusplus

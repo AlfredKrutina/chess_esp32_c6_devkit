@@ -1,6 +1,6 @@
 /**
  * @file ble_nimble_impl.c
- * @brief NimBLE GATT — kompiluje se jen při CONFIG_BT_ENABLED.
+ * @brief NimBLE GATT — only compiles when CONFIG_BT_ENABLED.
  */
 #include <stddef.h>
 #include <stdint.h>
@@ -25,7 +25,7 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 
-/** NimBLE store/config — v ESP-IDF příkladech (bleprph) bez prototypu v public hlavičce. */
+/** NimBLE store/config — in ESP-IDF examples (bleprph) without a prototype in the public header. */
 void ble_store_config_init(void);
 #include "esp_task_wdt.h"
 #include "game_state_notify.h"
@@ -46,17 +46,17 @@ static const char *TAG = "BLE_NIMBLE";
 /*
  * UUID: A0B40001-9267-4AB6-BDCC-E8336F8A8D9E
  *
- * DŮLEŽITÉ: BLE_UUID128_INIT vyžaduje LITTLE-ENDIAN pořadí bajtů —
- * tedy OBRÁCENÉ oproti čitelnému UUID stringu (RFC 4122 = big-endian).
+ * IMPORTANT: BLE_UUID128_INIT requires LITTLE-ENDIAN byte order —
+ * i.e. REVERSE compared to a readable UUID string (RFC 4122 = big-endian).
  *
- * Chybná (big-endian, nefunkční):
- *   0xa0,0xb4,0x00,0x01, 0x92,0x67, 0x4a,0xb6, 0xbd,0xcc,
- * 0xe8,0x33,0x6f,0x8a,0x8d,0x9e Správná (little-endian, funkční):
- *   0x9e,0x8d,0x8a,0x6f, 0x33,0xe8, 0xcc,0xbd, 0xb6,0x4a, 0x67,0x92,
- * 0x01,0x00,0xb4,0xa0
+ * Bad (big-endian, broken):
+ * 0xa0,0xb4,0x00,0x01, 0x92,0x67, 0x4a,0xb6, 0xbd,0xcc,
+ * 0xe8,0x33,0x6f,0x8a,0x8d,0x9e Correct (little-endian, functional):
+ * 0x9e,0x8d,0x8a,0x6f, 0x33,0xe8, 0xcc,0xbd, 0xb6,0x4a, 0x67,0x92,
+ * 0x01.0x00.0xb4.0x0
  *
- * Původní big-endian verze způsobovala: iOS skenoval UUID "A0B40001-..."
- * ale ESP inzerovalo "9E8D8A6F-..." → telefon nikdy nenašel šachovnici!
+ * The original big-endian version caused: iOS to scan UUID "A0B40001-..."
+ * but ESP advertised "9E8D8A6F-..." → the phone never found the checkerboard!
  */
 static const ble_uuid128_t czechmate_svc_uuid =
     BLE_UUID128_INIT(0x9e, 0x8d, 0x8a, 0x6f, 0x33, 0xe8, 0xcc, 0xbd, 0xb6, 0x4a,
@@ -74,7 +74,7 @@ static const ble_uuid128_t czechmate_net_chr_uuid =
     BLE_UUID128_INIT(0x9e, 0x8d, 0x8a, 0x6f, 0x33, 0xe8, 0xcc, 0xbd, 0xb6, 0x4a,
                      0x67, 0x92, 0x04, 0x00, 0xb4, 0xa0);
 
-/** A0B40005-… — JSON výsledek posledního CMD (notify); iOS parsuje channel=cmd_ack */
+/** A0B40005-… — JSON result of last CMD (notify); iOS parses channel=cmd_ack */
 static const ble_uuid128_t czechmate_cmd_ack_chr_uuid =
     BLE_UUID128_INIT(0x9e, 0x8d, 0x8a, 0x6f, 0x33, 0xe8, 0xcc, 0xbd, 0xb6, 0x4a,
                      0x67, 0x92, 0x05, 0x00, 0xb4, 0xa0);
@@ -88,25 +88,25 @@ static bool s_net_notify_enabled = false;
 static bool s_cmd_ack_notify_enabled = false;
 
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
-/** Odložené opakování SMP po CONNECT — iOS někdy nereaguje na první security request. */
+/** Deferred retry of SMP after CONNECT — iOS sometimes does not respond to the first security request. */
 static struct ble_npl_callout s_sec_retry_co;
 static bool s_sec_retry_co_ready;
 static uint8_t s_sec_deferred_attempts;
 #endif
 
-/** Periodicky ověřit GAP advertising, když není žádný centrál připojený. */
+/** Periodically verify GAP advertising when no central office is connected. */
 static esp_timer_handle_t s_adv_watchdog_timer;
-/** Naplánování watchdog logiky na výchozí NimBLE event queue (GAP jen z host
- * kontextu). ble_hs_sched() není ve veřejném API ESP-IDF 5.5 / NimBLE. */
+/** Schedule watchdog logic to the default NimBLE event queue (GAP only from host
+ * context). ble_hs_sched() is not in the ESP-IDF 5.5 / NimBLE public API. */
 static struct ble_npl_event s_idle_adv_watchdog_npl_ev;
 static bool s_idle_adv_watchdog_npl_ev_inited;
 
-/** Jedno GATT write najednou na host tasku — šetří stack oproti lokálnímu tmp[768]. */
+/** One GATT write at a time per guest task — saves stack compared to local tmp[768]. */
 static char s_ble_cmd_copy[768];
 
 static int czechmate_gap_event(struct ble_gap_event *event, void *arg);
 
-/** Ponechá v cmd jen bezpečné znaky pro JSON řetězec. */
+/** Leave only safe characters for JSON string in cmd. */
 static void ble_sanitize_cmd_token(const char *src, char *dst, size_t dst_cap) {
   if (dst_cap == 0) {
     return;
@@ -163,42 +163,42 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
 
   const char *code = "internal_error";
   const char *ok_str = "false";
-  const char *msg = "Interní chyba při zpracování příkazu.";
+  const char *msg = "Internal error while processing command.";
 
   switch (err) {
   case ESP_OK:
     ok_str = "true";
     code = "ok";
-    msg = "Příkaz přijat.";
+    msg = "Command accepted.";
     break;
   case ESP_ERR_NOT_SUPPORTED:
     code = "unknown_command";
-    msg = "Deska tento příkaz nezná.";
+    msg = "Board does not recognize this command.";
     break;
   case ESP_ERR_NOT_FOUND:
     code = "missing_cmd";
-    msg = "V JSON chybí pole cmd.";
+    msg = "JSON is missing the cmd field.";
     break;
   case ESP_ERR_INVALID_ARG:
     code = "invalid_argument";
-    msg = "Neplatné parametry příkazu.";
+    msg = "Invalid command parameters.";
     break;
   case ESP_ERR_INVALID_STATE:
     code = "blocked";
-    msg = "Akce je zablokovaná (zámek webu nebo stav desky).";
+    msg = "Action is blocked (web lock or board state).";
     break;
   case ESP_ERR_NOT_FINISHED:
     code = "tutorial_finish_conflict";
     msg =
-        "Fyzická deska neodpovídá základnímu postavení (řádky 1–2 a 7–8 plné).";
+        "Physical board does not match the starting position (ranks 1-2 and 7-8 full).";
     break;
   case ESP_FAIL:
     code = "internal_error";
-    msg = "Interní chyba při zpracování příkazu.";
+    msg = "Internal error while processing command.";
     break;
   default:
     code = "error";
-    msg = "Chyba při zpracování příkazu.";
+    msg = "Error while processing command.";
     break;
   }
 
@@ -315,11 +315,11 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
   case BLE_GATT_ACCESS_OP_WRITE_CHR:
     if (attr_handle == g_cmd_val_handle) {
       /*
-       * hint_highlight / hint_clear: synchronní web_server_ble_command_dispatch v rámci
-       * ATT write; po něm cmd_ack notify na jiné charakteristice. Snapshot notify jede
-       * zvlášť (game task → ble_task_push_snapshot_json) — jiný GATT handle; NimBLE
-       * serializuje notify; dlouhé snapshot chunky mohou zpoždět další notify, ale
-       * nesmí zahodit samotný CMD (ověřovat při ladění MTU a zatížení desky).
+       * hint_highlight / hint_clear: synchronous web_server_ble_command_dispatch in frame
+       * ATT write; after it cmd_ack notify on another characteristic. Snapshot notify is running
+       * separately (game task → ble_task_push_snapshot_json) — different GATT handle; NimBLE
+       * serializes notifications; long snapshot chunks may delay further notifications, but
+       * must not drop CMD itself (verify when debugging MTU and board load).
        */
       uint16_t om_len = OS_MBUF_PKTLEN(ctxt->om);
       uint8_t tmp[768];
@@ -337,8 +337,8 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
         static const char ack_chunk_bad[] =
             "{\"cmd\":\"ota_ble_chunk\",\"ok\":false}";
         /*
-         * Úspěšný chunk: neposílat cmd_ack notify — klient OTA nečeká na ACK,
-         * jen na ATT write response; notify každý chunk zahlcuje frontu na iOS.
+         * Success chunk: don't send cmd_ack notify — OTA client doesn't wait for ACK,
+         * only on ATT write response; notify each chunk overflows the queue on iOS.
          */
         if (derr != ESP_OK) {
           ble_task_notify_command_result(derr, ack_chunk_bad);
@@ -356,7 +356,7 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
         ESP_LOGW(TAG, "OTA BLE chunk: %s", esp_err_to_name(derr));
         return BLE_ATT_ERR_UNLIKELY;
       }
-      /* Musí být v souladu s web_server_ble_command_dispatch (větší JSON: timer/virtual). */
+      /* Must conform to web_server_ble_command_dispatch (larger JSON: timer/virtual). */
       if (om_len >= sizeof(s_ble_cmd_copy)) {
         om_len = (uint16_t)(sizeof(s_ble_cmd_copy) - 1);
       }
@@ -451,11 +451,11 @@ static void czechmate_advertise(void) {
 
   /*
    * Primary ADV packet (max 31 B):
-   *   Flags:    3 B  (2 header + 1 value)
-   *   UUID128: 18 B  (2 header + 16 UUID)
-   *   = 21 B — OK, pod limit 31 B.
-   * Name přesunuto do Scan Response (uvolní místo, iOS 13+ posílá ScanReq
-   * automaticky).
+   * Flags: 3 B (2 header + 1 value)
+   * UUID128: 18 B (2 header + 16 UUID)
+   * = 21 B — OK, below the 31 B limit.
+   * Name moved to Scan Response (makes room, iOS 13+ sends ScanReq
+   * automatically).
    */
   memset(&fields, 0, sizeof(fields));
   fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
@@ -469,7 +469,7 @@ static void czechmate_advertise(void) {
     return;
   }
 
-  /* Scan Response: plné jméno (iOS ho čte jako
+  /* Scan Response: full name (iOS reads it as
    * CBAdvertisementDataLocalNameKey). */
   memset(&rsp_fields, 0, sizeof(rsp_fields));
   const char *name = "CZECHMATE";
@@ -479,7 +479,7 @@ static void czechmate_advertise(void) {
 
   rc = ble_gap_adv_rsp_set_fields(&rsp_fields);
   if (rc != 0) {
-    /* Scan response není kritický — loguj ale pokračuj */
+    /* Scan response is not critical — log but continue */
     ESP_LOGW(TAG, "adv_rsp_set_fields rc=%d", rc);
   }
 
@@ -489,7 +489,7 @@ static void czechmate_advertise(void) {
   rc = ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC, NULL, BLE_HS_FOREVER, &adv_params,
                          czechmate_gap_event, NULL);
   if (rc != 0) {
-    /* Fallback: RPA (random private address) — pokud ESP nemá platnou public BD
+    /* Fallback: RPA (random private address) — if the ESP does not have a valid public BD
      * addr. */
     ESP_LOGW(TAG, "adv_start PUBLIC rc=%d — fallback na RPA", rc);
     rc =
@@ -506,14 +506,14 @@ static void czechmate_advertise(void) {
 }
 
 /**
- * Znovu rozběhne discoverable advertising (undirected GAP).
- * Volat po pádu spoje nebo když watchdog zjistí, že ADV ustal — iOS pak desku
- * znovu uvidí ve skenu i po hodinách uptime.
+ * Discoverable advertising (undirected GAP) will start again.
+ * Call after a connection drop or when the watchdog detects that ADV has stopped — iOS then board
+ * will see again in the scan even after hours of uptime.
  */
 static void czechmate_gap_restart_advertising(void) {
   int sr = ble_gap_adv_stop();
   if (sr != 0) {
-    ESP_LOGD(TAG, "adv_stop rc=%d (typicky OK, pokud ADV už neběžel)", sr);
+    ESP_LOGD(TAG, "adv_stop rc=%d (typically OK if ADV was no longer running)", sr);
   }
   czechmate_advertise();
 }
@@ -527,7 +527,7 @@ static void czechmate_idle_adv_watchdog_host(void *param) {
     return;
   }
   ESP_LOGW(TAG,
-           "GAP: žádné BLE spojení a advertising neběží — restart GAP (viditelnost "
+           "GAP: no BLE connection and advertising is not running — restart GAP (visibility "
            "pro sken v aplikaci)");
   czechmate_gap_restart_advertising();
 }
@@ -570,15 +570,15 @@ static void czechmate_start_adv_watchdog_timer(void) {
     ESP_LOGE(TAG, "adv watchdog esp_timer_create: %s", esp_err_to_name(e));
     return;
   }
-  /* 45 s: delší než Wi‑Fi coexistence jitter; kratší než typický „zapomenu skenovat“. */
+  /* 45 s: longer than Wi‑Fi coexistence jitter; shorter than the typical "I forget to scan". */
   e = esp_timer_start_periodic(s_adv_watchdog_timer, 45 * 1000 * 1000);
   if (e != ESP_OK) {
     ESP_LOGE(TAG, "adv watchdog esp_timer_start_periodic: %s", esp_err_to_name(e));
     return;
   }
   ESP_LOGI(TAG,
-           "GAP advertising watchdog: každých 45 s kontrola (jen bez aktivního "
-           "BLE spojení = žádný „pár“/centrál)");
+           "GAP advertising watchdog: every 45 s check (only without active "
+           "BLE connection = no "pair"/central)");
 }
 
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
@@ -588,13 +588,13 @@ static void czechmate_security_retry_cb(struct ble_npl_event *ev) {
     return;
   }
   if (ble_task_conn_is_encrypted()) {
-    ESP_LOGI(TAG, "[STAGING] SMP: šifrování OK (po odloženém pokusu)");
+    ESP_LOGI(TAG, "[STAGING] SMP: encryption OK (after delayed retry)");
     s_sec_deferred_attempts = 0;
     return;
   }
   int rc = ble_gap_security_initiate(s_conn_handle);
   ESP_LOGI(TAG,
-           "[STAGING] SMP odložený pokus %u: ble_gap_security_initiate rc=%d",
+           "[STAGING] SMP deferred attempt %u: ble_gap_security_initiate rc=%d",
            (unsigned)(s_sec_deferred_attempts + 1), rc);
   s_sec_deferred_attempts++;
   if (s_sec_deferred_attempts < 6 && !ble_task_conn_is_encrypted()) {
@@ -605,7 +605,7 @@ static void czechmate_security_retry_cb(struct ble_npl_event *ev) {
     }
   } else if (!ble_task_conn_is_encrypted()) {
     ESP_LOGW(TAG,
-             "[STAGING] SMP: stále bez šifrování po %u odložených pokusech",
+             "[STAGING] SMP: still no encryption after %u retries",
              (unsigned)s_sec_deferred_attempts);
     s_sec_deferred_attempts = 0;
   }
@@ -621,9 +621,9 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
       s_conn_handle = event->connect.conn_handle;
       ESP_LOGI(TAG, "connected handle=%d", s_conn_handle);
 #if CONFIG_ESP_COEX_ENABLED
-      /* Jedno rádio Wi‑Fi + BLE: bez posunu k BLE často ATT vůbec neodpoví (iOS
-       * „0 služeb“). PREFER_BALANCE u některých C6 + AP+STA nestačilo — dáváme
-       * BLE větší váhu po dobu spoje. */
+      /* One Wi‑Fi + BLE radio: without moving to BLE, ATT often does not respond at all (iOS
+       * "0 services"). PREFER_BALANCE was not enough for some C6 + AP+STA — we give
+       * BLE more weight for the duration of the connection. */
       {
         esp_err_t ce = esp_coex_preference_set(ESP_COEX_PREFER_BT);
         if (ce != ESP_OK) {
@@ -636,9 +636,9 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
       }
 #endif
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
-      /* iOS: SMP dřív než centrál dokončí GATT discovery často končí disconnect 531 /
-       * enc_change status≠0. Aplikace typicky začíná discovery ~0,5–1,5 s po LINK —
-       * první ble_gap_security_initiate odložit (~1,8 s). */
+      /* iOS: SMP before central office completes GATT discovery often terminates disconnect 531 /
+       * enc_change status≠0. Application typically starts discovery ~0.5-1.5s after LINK —
+       * delay first ble_gap_security_initiate (~1.8s). */
       {
         s_sec_deferred_attempts = 0;
         if (s_sec_retry_co_ready) {
@@ -671,7 +671,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
   case BLE_GAP_EVENT_ENC_CHANGE:
     ESP_LOGI(TAG,
-             "GAP enc_change status=%d handle=%u (0=ok; jinak viz ble_hs_errno / "
+             "GAP enc_change status=%d handle=%u (0=ok; otherwise see ble_hs_errno /"
              "hci)",
              (int)event->enc_change.status,
              (unsigned)event->enc_change.conn_handle);
@@ -718,7 +718,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     io.action = act;
     switch (act) {
     case BLE_SM_IOACT_NUMCMP:
-      /* Headless periferie: uživatel ověří hodnotu na telefonu (iOS). */
+      /* Headless peripherals: the user verifies the value on the phone (iOS). */
       io.numcmp_accept = 1;
       break;
     case BLE_SM_IOACT_DISP:
@@ -728,7 +728,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
       io.passkey = event->passkey.params.numcmp;
       break;
     default:
-      ESP_LOGW(TAG, "PASSKEY_ACTION act=%u — nepodporováno (např. OOB)", (unsigned)act);
+      ESP_LOGW(TAG, "PASSKEY_ACTION act=%u — not supported (eg OOB)", (unsigned)act);
       return 0;
     }
     int rc = ble_sm_inject_io(event->passkey.conn_handle, &io);
@@ -745,7 +745,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     }
     s_sec_deferred_attempts = 0;
 #endif
-    /* Uvolnit probíhající BLE stream OTA — jinak visí s_ble_ota_rx + s_ota_sem. */
+    /* Release ongoing BLE OTA stream — otherwise hang s_ble_ota_rx + s_ota_sem. */
     ota_update_ble_on_disconnect();
     s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
     s_snap_notify_enabled = false;
@@ -810,10 +810,10 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
 }
 
 /**
- * Musí běžet PŘED nimble_port_freertos_init() — stejně jako ESP-IDF bleprph
- * gatt_svr_init() před host taskem. ble_gatts_start() se volá uvnitř
- * ble_hs_start() jen jednou; služby přidané až v sync_cb by se do ATT tabulky
- * nikdy nedostaly (handles snap/cmd by zůstaly 0, iOS: „0 služeb“).
+ * Must run BEFORE nimble_port_freertos_init() — same as ESP-IDF bleprph
+ * gatt_svr_init() before guest task. ble_gatts_start() is called internally
+ * ble_hs_start() only once; services added up in sync_cb would be in the ATT table
+ * never received (snap/cmd handles would remain 0, iOS: "0 services").
  */
 static void czechmate_gatt_register_before_host_start(void) {
   int rc;
@@ -825,13 +825,13 @@ static void czechmate_gatt_register_before_host_start(void) {
   assert(rc == 0);
   rc = ble_svc_gap_device_name_set("CZECHMATE");
   assert(rc == 0);
-  ESP_LOGI(TAG, "GATT defs queued (gap+gatt+CZECHMATE) — handles se nastaví v "
+  ESP_LOGI(TAG, "GATT defs queued (gap+gatt+CZECHMATE) — handles are set in "
                 "ble_gatts_start()");
 }
 
 static void ble_on_sync(void) {
   ESP_LOGI(TAG,
-           "ble_on_sync: ATT hotový — snap=%u cmd=%u net=%u ack=%u, start advertising",
+           "ble_on_sync: ATT done — snap=%u cmd=%u net=%u ack=%u, start advertising",
            (unsigned)g_snap_val_handle, (unsigned)g_cmd_val_handle,
            (unsigned)g_net_val_handle, (unsigned)g_cmd_ack_val_handle);
   czechmate_advertise();
@@ -849,9 +849,9 @@ static void ble_host_task(void *param) {
 }
 
 void ble_nimble_stack_init(void) {
-  /* ESP32-C6: nimble_port_init() inicializuje controller + host (bez
-   * esp_nimble_hci.h, které je jen při CONFIG_BT_NIMBLE_LEGACY_VHCI_ENABLE na
-   * starších cílech). */
+  /* ESP32-C6: nimble_port_init() initializes controller + host (without
+   * esp_nimble_hci.h which is only when CONFIG_BT_NIMBLE_LEGACY_VHCI_ENABLE is on
+   * older targets). */
   ESP_LOGD(TAG,
            "[STAGING] ble_nimble_stack_init: nimble_port_init + freertos host");
   ESP_ERROR_CHECK(nimble_port_init());
@@ -869,12 +869,12 @@ void ble_nimble_stack_init(void) {
       }
     }
   }
-  /* Just Works + bonding — centrál (iOS) pak používá šifrovaný ATT pro dlouhé zápisy. */
+  /* Just Works + bonding — central (iOS) then uses encrypted ATT for long writes. */
   ble_hs_cfg.sm_io_cap = BLE_SM_IO_CAP_NO_IO;
   ble_hs_cfg.sm_bonding = 1;
   ble_hs_cfg.sm_sc = 1;
   ble_hs_cfg.sm_mitm = 0;
-  /* ENC + ID — iOS při bond často očekává i identitu (viz SMP pairing_complete). */
+  /* ENC + ID — iOS often expects an identity when bonding (see SMP pairing_complete). */
   ble_hs_cfg.sm_our_key_dist |=
       (BLE_SM_PAIR_KEY_DIST_ENC | BLE_SM_PAIR_KEY_DIST_ID);
   ble_hs_cfg.sm_their_key_dist |=
@@ -883,7 +883,7 @@ void ble_nimble_stack_init(void) {
   ble_hs_cfg.sync_cb = ble_on_sync;
   czechmate_gatt_register_before_host_start();
   ble_store_config_init();
-  ESP_LOGI(TAG, "[STAGING] ble_store_config_init (SMP store callbacks — nutné pro enc/link)");
+  ESP_LOGI(TAG, "[STAGING] ble_store_config_init (SMP store callbacks — required for enc/link)");
   nimble_port_freertos_init(ble_host_task);
 }
 
@@ -944,10 +944,10 @@ void ble_task_push_network_info(void) {
 }
 
 /*
- * Jedno GATT notify = jedna ATT PDU s hodnotou max (MTU − 3) B (NimBLE/iOS).
- * Starý fixní chunk 400 + 4 B hlavička „CM“ = 404 B → na MTU 247 hodnota jen
- * 244 B → iOS usekne konec, iOS skládá zkrácené díly → rozbitý JSON („…p\",me":0…).
- * Payload = min(zbývá, ble_att_mtu − 3 − 4).
+ * One GATT notify = one ATT PDU with the value max (MTU − 3) B (NimBLE/iOS).
+ * Old fixed chunk 400 + 4 B header "CM" = 404 B → on MTU 247 value only
+ * 244 B → iOS truncates end, iOS assembles truncated parts → broken JSON ("…p\",me":0…).
+ * Payload = min(remaining, ble_att_mtu − 3 − 4).
  */
 #define SNAPSHOT_NOTIFY_CHUNK_CAP 508
 
@@ -990,7 +990,7 @@ void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
   if (total_u < 1U) {
     total_u = 1U;
   }
-  /* Protokol má part/total v uint8 — max 255 notify na jeden snapshot. */
+  /* The protocol has part/total in uint8 — max 255 notifications per snapshot. */
   if (total_u > 255U) {
     size_t need = (len + 254U) / 255U;
     if (need <= SNAPSHOT_NOTIFY_CHUNK_CAP && need + 7U <= (size_t)mtu) {
@@ -1000,15 +1000,15 @@ void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
   }
   if (total_u > 255U) {
     ESP_LOGE(TAG,
-             "push_snapshot: %u B @ mtu=%u cap=%u → %u chunků (max 255); MTU "
-             "ještě nebo moc malé",
+             "push_snapshot: %u B @ mtu=%u cap=%u → %u chunks (max 255); MTU "
+             "still or too small",
              (unsigned)len, (unsigned)mtu, (unsigned)chunk_cap,
              (unsigned)total_u);
     return;
   }
   uint8_t total = (uint8_t)total_u;
   while (off < len) {
-    /* Voláno typicky z web_server_task — dlouhá řada notify; TWDT jinak nestíhá. */
+    /* Called typically from web_server_task — a long line of notify; TWDT can't keep up otherwise. */
     (void)esp_task_wdt_reset();
     part++;
     size_t chunk = len - off;

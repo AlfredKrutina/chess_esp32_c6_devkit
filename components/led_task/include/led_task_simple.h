@@ -1,28 +1,28 @@
 /**
  * @file led_task_simple.h
- * @brief Jednoduchy LED system - Bezpecne rozhrani z vice vlaken
+ * @brief Simple LED system - Safe multi-fiber interface
  * 
- * Tato hlavicka definuje jednoduchy LED system pro ESP32-C6:
- * - Bezpecne rozhrani z vice vlaken pro ovladani LED
- * - Prime volani WS2812B driveru s mutex ochranou
- * - Optimalizovane pro ESP32-C6 RMT
- * - Jednoduche rozhrani bez slozitych fronticek
+ * This header defines a simple LED system for ESP32-C6:
+ * - Safe multi-fiber interface for LED control
+ * - Prime calls WS2812B driver with mutex protection
+ * - Optimized for ESP32-C6 RMT
+ * - Simple interface without complex fronts
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-02
  * 
  * @details
- * Jednoduchy LED system poskytuje ciste, bezpecne rozhrani z vice vlaken pro ovladani LED
- * bez slozitych fronticek a davkoveho systemu. Pouziva primo WS2812B driver
- * s mutex ochranou pro bezpecnost z vice vlaken.
+ * Simple LED system provides clean, safe multi-fiber interfaces for LED control
+ * without complex queues and a tax system. It uses the WS2812B driver directly
+ * with mutex protection for multi-fiber security.
  * 
- * Vlastnosti:
- * - Okamzite LED aktualizace bez davkoveho zpozdeni
- * - Bezpecne z vice vlaken s mutexem pro prevenci soubeznych pristupu
- * - Jednoduche rozhrani se 3 zakladnimi funkcemi
- * - Optimalizovane pro ESP32-C6 RMT
- * - Minimalni pametove naroky
+ * Features:
+ * - Instant LED updates without tax delay
+ * - Multi-thread safe with mutex to prevent concurrent access
+ * - Simple interface with 3 basic functions
+ * - Optimized for ESP32-C6 RMT
+ * - Minimum memory requirements
  */
 
 #ifndef LED_TASK_SIMPLE_H
@@ -43,60 +43,60 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Bezpecne nastaveni LED pixelu z vice vlaken
+ * @brief Safe LED pixel setup from multiple fibers
  * 
- * @param index LED index (0-72, kde 0-63 sachovnice, 64-72 tlacitka)
- * @param r Cervena komponenta (0-255)
- * @param g Zelena komponenta (0-255)
- * @param b Modra komponenta (0-255)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param index LED index (0-72, where 0-63 case, 64-72 button)
+ * @param r Red component (0-255)
+ * @param g Green component (0-255)
+ * @param b Blue component (0-255)
+ * @return ESP_OK on success, error code on failure
  * 
  * @details
- * Nastavi barvu jednoho LED pixelu. Funkce provadi okamzite aktualizace
- * bez davkoveho systemu. Pouziva mutex pro bezpecnost z vice vlaken a je optimalizovana
- * pro ESP32-C6 RMT.
+ * Set the color of a single LED pixel. The feature will update instantly
+ * without tax system. It uses mutex for multi-fiber security and is optimized
+ * for ESP32-C6 RMT.
  * 
- * @note Tato funkce je bezpecna z vice vlaken a muze byt volana z libovolneho tasku
+ * @note This function is thread-safe and can be called from any task
  */
 esp_err_t led_set_pixel_safe(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
 
 /**
- * @brief Bezpecne vymazani vsech LED z vice vlaken
+ * @brief Safely clear all LEDs from multiple fibers
  * 
- * Nastavi vsechny LED na cernou barvu (vypnuto).
+ * Set all LEDs to black (off).
  * 
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  * 
- * @note Tato funkce je bezpecna z vice vlaken
+ * @note This function is thread-safe
  */
 esp_err_t led_clear_all_safe(void);
 
 /**
- * @brief Bezpecne nastaveni vsech LED na stejnou barvu z vice vlaken
+ * @brief Safely set all LEDs to the same color from multiple fibers
  * 
- * @param r Cervena komponenta (0-255)
- * @param g Zelena komponenta (0-255)
- * @param b Modra komponenta (0-255)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param r Red component (0-255)
+ * @param g Green component (0-255)
+ * @param b Blue component (0-255)
+ * @return ESP_OK on success, error code on failure
  * 
- * @note Tato funkce je bezpecna z vice vlaken
+ * @note This function is thread-safe
  */
 esp_err_t led_set_all_safe(uint8_t r, uint8_t g, uint8_t b);
 
 /**
- * @brief Inicializuj LED system
+ * @brief Initialize the LED system
  * 
- * Inicializuje WS2812B LED driver, vytvori mutex a nastavi
- * vsechny LED na vypnuto.
+ * Initializes WS2812B LED driver, create mutex and set
+ * all LEDs to off.
  * 
- * @return ESP_OK pri uspechu, ESP_FAIL pri selhani
+ * @return ESP_OK on success, ESP_FAIL on failure
  */
 esp_err_t led_system_init(void);
 
 /**
- * @brief Overi zda je LED system inicializovan
+ * @brief Verify if the LED system is initialized
  * 
- * @return true pokud je system inicializovan a pripraven k pouziti
+ * @return true if the system is initialized and ready to use
  */
 bool led_system_is_initialized(void);
 
@@ -109,11 +109,11 @@ bool led_system_is_initialized(void);
 uint32_t led_get_color(uint8_t index);
 
 /**
- * @brief Spust jednoduchy LED task
+ * @brief Start a simple LED task
  * 
- * Toto je hlavni funkce LED tasku. Nepouzivejte primo.
+ * This is the main function of the LED bag. Do not use it directly.
  * 
- * @param pvParameters Parametry tasku
+ * @param pvParameters Task parameters
  */
 void led_task_start(void *pvParameters);
 
@@ -122,36 +122,36 @@ void led_task_start(void *pvParameters);
 // ============================================================================
 
 /**
- * @brief Kompatibilni funkce pro existujici kod
+ * @brief Compatible functions for existing code
  * 
- * Alias pro led_set_pixel_safe().
+ * Alias for led_set_pixel_safe().
  * 
  * @param index LED index (0-72)
- * @param r Cervena (0-255)
- * @param g Zelena (0-255)
- * @param b Modra (0-255)
- * @return ESP_OK pri uspechu
+ * @param r Red (0-255)
+ * @param g Green (0-255)
+ * @param b Blue (0-255)
+ * @return ESP_OK on success
  */
 esp_err_t led_set_pixel(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
 
 /**
- * @brief Kompatibilni funkce pro existujici kod
+ * @brief Compatible functions for existing code
  * 
- * Alias pro led_clear_all_safe().
+ * Alias for led_clear_all_safe().
  * 
- * @return ESP_OK pri uspechu
+ * @return ESP_OK on success
  */
 esp_err_t led_clear_all(void);
 
 /**
- * @brief Kompatibilni funkce pro existujici kod
+ * @brief Compatible functions for existing code
  * 
- * Alias pro led_set_all_safe().
+ * Alias for led_set_all_safe().
  * 
- * @param r Cervena (0-255)
- * @param g Zelena (0-255)
- * @param b Modra (0-255)
- * @return ESP_OK pri uspechu
+ * @param r Red (0-255)
+ * @param g Green (0-255)
+ * @param b Blue (0-255)
+ * @return ESP_OK on success
  */
 esp_err_t led_set_all(uint8_t r, uint8_t g, uint8_t b);
 

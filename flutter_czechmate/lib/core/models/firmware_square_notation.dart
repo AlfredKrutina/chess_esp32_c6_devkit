@@ -1,4 +1,4 @@
-/// Mapování „e2“ → indexy do `board[][]` (řádek 0 = rank 8, řádek 7 = rank 1).
+/// Mapping "e2" → indexes to `board[][]` (line 0 = rank 8, line 7 = rank 1).
 class FirmwareSquareNotation {
   static (int row, int col)? indicesFromNotation(String notation) {
     final t = notation.trim().toLowerCase();

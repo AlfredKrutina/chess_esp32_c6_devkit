@@ -1,4 +1,4 @@
-/// Parita `BoardSetupFENSteps.swift` — pořadí polí z placement části FEN (rank 8 → 1, zleva doprava).
+/// Parity `BoardSetupFENSteps.swift` — order of fields from placement part of FEN (rank 8 → 1, left to right).
 class BoardSetupFenSteps {
   BoardSetupFenSteps._();
 
@@ -31,7 +31,7 @@ class BoardSetupFenSteps {
     return out;
   }
 
-  /// Index do `matrix_occupied` (0…63), shodně s iOS `matrixIndex(forSquare:)`.
+  /// Index to `matrix_occupied` (0…63), same as iOS `matrixIndex(forSquare:)`.
   static int? matrixIndexForSquare(String notation) {
     final t = notation.trim().toLowerCase();
     if (t.length < 2) return null;
@@ -44,7 +44,7 @@ class BoardSetupFenSteps {
     return r * 8 + c;
   }
 
-  /// `snapshot.board`: řádek 0 = rank 8 (`FirmwareSquareNotation` na iOS).
+  /// `snapshot.board`: row 0 = rank 8 (`FirmwareSquareNotation` on iOS).
   static ({int row, int col})? boardIndices(String notation) {
     final t = notation.trim().toLowerCase();
     if (t.length < 2) return null;

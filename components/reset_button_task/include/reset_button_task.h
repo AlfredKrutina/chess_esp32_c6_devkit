@@ -1,22 +1,22 @@
 /**
- * @file   reset_button_task.h
- * @brief  Reset Button Task hlavicka pro ESP32-C6 sachovy projekt
+ * @file reset_button_task.h
+ * @brief Reset Button Task header for ESP32-C6 sach project
  *
- * Tato hlavicka definuje rozhrani pro reset button task:
- * - Inicializace reset button tasku a FreeRTOS komponent
- * - Zpracovani reset tlacitka pro restart hry
- * - Simulacni rezim bez hardware (pro development)
- * - Integrace s game taskem pro reset
- * - Jedno tlacitko pro reset cele hry
+ * This header defines the interface for the reset button task:
+ * - Initialization of reset button task and FreeRTOS components
+ * - Processing of the reset button to restart the game
+ * - Simulation mode without hardware (for development)
+ * - Integration with game task for reset
+ * - One button to reset the entire game
  *
  * @author Alfred Krutina
  * @version 1.8.0
- * @date   2025-08-16
+ * @date 2025-08-16
  * 
  * @details
- * Tento task zpracovava reset tlacitko pro restart hry. Kdyz hrac
- * stiskne reset tlacitko (GPIO15), hra se restartuje do vychoziho stavu.
- * Task detekuje stisknuti a posila prikaz game tasku.
+ * This task processes the reset button to restart the game. When the player
+ * press the reset button (GPIO15), the game restarts to the default state.
+ * Task detects the press and sends a command to the game task.
  */
 #ifndef RESET_BUTTON_TASK_H
 #define RESET_BUTTON_TASK_H
@@ -43,55 +43,55 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Inicializuje reset button task
+ * @brief Initializes the reset button task
  * 
- * Vytvori FreeRTOS task pro zpracovani reset tlacitka.
+ * Create a FreeRTOS task to process the reset button.
  * 
- * @return ESP_OK pri uspechu, ESP_ERR_NO_MEM pri nedostatku pameti
+ * @return ESP_OK on success, ESP_ERR_NO_MEM on lack of memory
  */
 esp_err_t reset_button_task_init(void);
 
 /**
- * @brief Hlavni funkce reset button tasku
+ * @brief The main function of the reset button task
  * 
- * Bezi v nekonecne smycce a zpracovava reset tlacitko.
- * V simulacnim rezimu pouze loguje udalosti.
+ * Runs in an infinite loop and processes the reset button.
+ * Only logs events in simulation mode.
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void reset_button_task(void *pvParameters);
 
 /**
- * @brief Zpracuj pozadavek na reset
+ * @brief Process the reset request
  * 
- * Zpracuje pozadavek hrace na reset hry (stisknuti reset tlacitka).
+ * Processes the game's request to reset the game (press the reset button).
  * 
- * @param reset_request Je pozadavek na reset aktivni?
- * @return ESP_OK pri uspechu, ESP_ERR_INVALID_STATE pokud task neni inicializovan
+ * @param reset_request Is the reset request active?
+ * @return ESP_OK on success, ESP_ERR_INVALID_STATE if the task is not initialized
  */
 esp_err_t process_reset_request(bool reset_request);
 
 /**
- * @brief Simuluj stisknuti/uvolneni reset tlacitka
+ * @brief Simulate pressing/releasing the reset button
  * 
- * Pro testovani - simuluje stisknuti nebo uvolneni reset tlacitka.
+ * For testing - simulates pressing or releasing the reset button.
  * 
- * @param pressed Je tlacitko stisknuto? (true = stisknuto, false = uvolneno)
- * @return ESP_OK pri uspechu
+ * @param pressed Is the button pressed? (true = pressed, false = released)
+ * @return ESP_OK on success
  */
 esp_err_t simulate_reset_button_press(bool pressed);
 
 /**
- * @brief Overi zda je reset button task inicializovan
+ * @brief Verify that the reset button task is initialized
  * 
- * @return true pokud je task inicializovan
+ * @return true if the task is initialized
  */
 bool reset_button_is_initialized(void);
 
 /**
- * @brief Ziskej pocet zpracovanych button udalosti
+ * @brief Get the number of button events processed
  * 
- * @return Pocet zpracovanych udalosti od startu
+ * @return Number of processed events since start
  */
 uint32_t reset_button_get_event_count(void);
 

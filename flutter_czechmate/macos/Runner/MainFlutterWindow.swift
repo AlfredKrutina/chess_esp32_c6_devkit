@@ -11,7 +11,7 @@ class MainFlutterWindow: NSWindow {
     let messenger = flutterViewController.engine.binaryMessenger
     CzechMateMacPlatformChannels.registerLiveActivityAndWatch(messenger: messenger)
 
-    // Šířka pod desktop shell (rail ≥720 + šachovnice + panel); výchozí XIB bývá 800×600 — příliš úzké.
+    // Width for the desktop shell (rail ≥720 + board + panel); default XIB is often 800×600 — too narrow.
     minSize = NSSize(width: 940, height: 640)
     var frame = self.frame
     frame.size = NSSize(width: 1320, height: 860)

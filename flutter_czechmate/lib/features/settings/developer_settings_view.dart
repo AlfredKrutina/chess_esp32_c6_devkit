@@ -29,7 +29,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
   final _ssidCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
 
-  /// Aktivní Wi‑Fi session má přednost před jen uloženou URL v prefs.
+  /// An active Wi‑Fi session takes precedence over just a saved URL in prefs.
   String? _effectiveWifiBase() {
     final session = ref.read(boardSessionNotifierProvider);
     final w = session.wifiBaseUrl?.trim().replaceAll(RegExp(r'/$'), '') ?? '';
@@ -65,7 +65,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
       if (mounted) setState(() => _wifiStatus = s);
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, 'Chyba: $e', errorStyle: true);
+        showAppSnackBar(context, 'Error: $e', errorStyle: true);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -77,7 +77,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
     if (baseUrl == null || baseUrl.isEmpty) return;
     setState(() {
       _isLoading = true;
-      _pingResult = 'Měřím...';
+      _pingResult = 'Measuring...';
     });
     final sw = Stopwatch()..start();
     try {
@@ -86,7 +86,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
       if (mounted) setState(() => _pingResult = '${sw.elapsedMilliseconds} ms');
     } catch (e) {
       sw.stop();
-      if (mounted) setState(() => _pingResult = 'Chyba: $e');
+      if (mounted) setState(() => _pingResult = 'Error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -103,11 +103,11 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
             password: _passCtrl.text,
           );
       if (mounted) {
-        showAppSnackBar(context, 'Odesláno na ESP');
+        showAppSnackBar(context, 'Sent to ESP');
       }
     } catch (e) {
       if (mounted) {
-        showAppSnackBar(context, 'Chyba: $e', errorStyle: true);
+        showAppSnackBar(context, 'Error: $e', errorStyle: true);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -125,7 +125,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Diagnostika a Vývojář'),
+        title: const Text('Diagnostics & Developer'),
         actions: [
           if (_isLoading)
             const Center(
@@ -137,11 +137,11 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text('Stockfish a FEN',
+          const Text('Stockfish and FEN',
               style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           SwitchListTile(
-            title: const Text('Eval tahů (moveEvaluationEnabled)'),
+            title: const Text('Move eval (moveEvaluationEnabled)'),
             value: prefs.moveEvaluationEnabled,
             onChanged: (v) async {
               await prefs.setMoveEvaluationEnabled(v);
@@ -149,7 +149,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
             },
           ),
           ListTile(
-            title: Text('Hloubka nápovědy (hintDepth): ${prefs.hintDepth}'),
+            title: Text('Hint depth (hintDepth): ${prefs.hintDepth}'),
             subtitle: Slider(
               min: 1,
               max: 18,
@@ -161,21 +161,21 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
               },
             ),
           ),
-          SelectableText('Aktuální FEN z desky:\n$fen',
+          SelectableText('Current FEN from board:\n$fen',
               style: const TextStyle(fontFamily: 'monospace')),
           const Divider(height: 32),
-          const Text('Síť a transport',
+          const Text('Network and transport',
               style: TextStyle(fontWeight: FontWeight.bold)),
           ListTile(
-            title: const Text('Základní URL desky (ESP)'),
-            subtitle: Text(baseUrl.isEmpty ? 'Žádná' : baseUrl),
+            title: const Text('Board base URL (ESP)'),
+            subtitle: Text(baseUrl.isEmpty ? 'None' : baseUrl),
           ),
           ListTile(
-            title: const Text('Stav spojení (Active Link)'),
+            title: const Text('Connection state (Active Link)'),
             subtitle: Text(session.transport.name.toUpperCase()),
           ),
           SwitchListTile(
-            title: const Text('Podrobné logy trenéra (coach trace)'),
+            title: const Text('Coach detailed logs (coach trace)'),
             value: prefs.coachTraceLogsEnabled,
             onChanged: (v) async {
               await prefs.setCoachTraceLogsEnabled(v);
@@ -195,19 +195,19 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                             .read(boardSessionNotifierProvider.notifier)
                             .tryResumeFromPrefs();
                         if (context.mounted) {
-                          showAppSnackBar(context, 'Obnoveno z prefs');
+                          showAppSnackBar(context, 'Resumed from prefs');
                         }
                       },
-                child: const Text('Spustit připojení'),
+                child: const Text('Start connection'),
               ),
               OutlinedButton(
                 onPressed: () {
                   ref.read(boardSessionNotifierProvider.notifier).disconnect();
                   if (context.mounted) {
-                    showAppSnackBar(context, 'Transport zastaven');
+                    showAppSnackBar(context, 'Transport stopped');
                   }
                 },
-                child: const Text('Zastavit'),
+                child: const Text('Stop'),
               ),
             ],
           ),
@@ -217,7 +217,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
             label: Text('Ping Snapshot (RTT): $_pingResult'),
           ),
           ListTile(
-            title: const Text('Diagnostika připojení (REST / WS)'),
+            title: const Text('Connection diagnostics (REST / WS)'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => Navigator.push(
               context,
@@ -237,7 +237,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                             .read(boardApiClientProvider)
                             .postWiFiDisconnect(baseUrl);
                         if (context.mounted) {
-                          showAppSnackBar(context, 'STA odpojeno');
+                          showAppSnackBar(context, 'STA disconnected');
                         }
                       } catch (e) {
                         if (context.mounted) {
@@ -253,7 +253,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                         _refreshWiFi();
                       }
                     },
-              child: const Text('Odpojit ESP od STA'),
+              child: const Text('Disconnect ESP from STA'),
             ),
             OutlinedButton(
               onPressed: _isLoading
@@ -262,15 +262,15 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                       final ok = await showDialog<bool>(
                         context: context,
                         builder: (ctx) => AlertDialog(
-                          title: const Text('Smazat Wi‑Fi z NVS?'),
-                          content: const Text('ESP ztratí uloženou síť.'),
+                          title: const Text('Clear Wi‑Fi from NVS?'),
+                          content: const Text('ESP will lose the saved network.'),
                           actions: [
                             TextButton(
                                 onPressed: () => Navigator.pop(ctx, false),
-                                child: const Text('Zrušit')),
+                                child: const Text('Cancel')),
                             TextButton(
                                 onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Smazat')),
+                                child: const Text('Clear')),
                           ],
                         ),
                       );
@@ -281,7 +281,7 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                             .read(boardApiClientProvider)
                             .postWiFiClear(baseUrl);
                         if (context.mounted) {
-                          showAppSnackBar(context, 'Wi‑Fi NVS vymazáno');
+                          showAppSnackBar(context, 'Wi‑Fi NVS cleared');
                         }
                       } catch (e) {
                         if (context.mounted) {
@@ -297,27 +297,27 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
                         _refreshWiFi();
                       }
                     },
-              child: const Text('Smazat uloženou Wi‑Fi z NVS'),
+              child: const Text('Clear saved Wi‑Fi from NVS'),
             ),
           ],
           const Divider(height: 32),
           const BoardLampBlock(showTitle: false),
           const Divider(height: 32),
-          const Text('Konfigurace Wi-Fi na desce',
+          const Text('Board Wi-Fi configuration',
               style: TextStyle(fontWeight: FontWeight.bold)),
           if (_wifiStatus != null) ...[
             Text(
                 'STA: ${_wifiStatus!.staSsid} (${_wifiStatus!.staIp}) - ${_wifiStatus!.staConnected ? "ONLINE" : "Offline"}'),
             Text(
-                'AP: ${_wifiStatus!.apSsid} (${_wifiStatus!.apIp}) - Klienti: ${_wifiStatus!.apClients}'),
+                'AP: ${_wifiStatus!.apSsid} (${_wifiStatus!.apIp}) - Clients: ${_wifiStatus!.apClients}'),
           ] else ...[
             const Text(
-                'Stav Wi-Fi není k dispozici. Lze vyčíst po stisknutí tlačítka níže.'),
+                'Wi-Fi status unavailable. Fetch it with the button below.'),
           ],
           const SizedBox(height: 8),
           ElevatedButton(
               onPressed: _isLoading ? null : _refreshWiFi,
-              child: const Text('Obnovit stav Wi-Fi')),
+              child: const Text('Refresh Wi-Fi status')),
           const SizedBox(height: 16),
           TextField(
               controller: _ssidCtrl,
@@ -327,21 +327,21 @@ class _DeveloperSettingsViewState extends ConsumerState<DeveloperSettingsView> {
           TextField(
               controller: _passCtrl,
               decoration: const InputDecoration(
-                  labelText: 'Heslo', border: OutlineInputBorder()),
+                  labelText: 'Password', border: OutlineInputBorder()),
               obscureText: true),
           const SizedBox(height: 8),
           FilledButton.tonal(
               onPressed: _isLoading ? null : _saveWiFi,
-              child: const Text('Uložit do desky a Připojit (STA)')),
+              child: const Text('Save to board and Connect (STA)')),
           const Divider(height: 32),
-          const Text('Firmware a paměť',
+          const Text('Firmware and memory',
               style: TextStyle(fontWeight: FontWeight.bold)),
           OutlinedButton(
             onPressed: () => Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (ctx) => const BoardDeviceFeaturesView())),
-            child: const Text('Detailní nástroje (Třídy NVS)'),
+            child: const Text('Detailed tools (NVS namespaces)'),
           ),
         ],
       ),

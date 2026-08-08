@@ -1,45 +1,45 @@
-# Skripty repozitáře
+# Repository scripts
 
-Všechny automatizační skripty jsou pod `scripts/`. Z kořene repa fungují i **tenké wrappery** (`./generate_docs.sh`, `./generate_mermaid_html.py`, …) pro zpětnou kompatibilitu.
+All automation scripts live under `scripts/`. From the repo root, **thin wrappers** also work (`./generate_docs.sh`, `./generate_mermaid_html.py`, …) for backward compatibility.
 
-## Dokumentace (`scripts/docs/`)
+## Documentation (`scripts/docs/`)
 
-| Skript | Účel | Příkaz z kořene |
-|--------|------|-----------------|
-| `generate_docs.sh` | Doxygen HTML/RTF/PDF | `./generate_docs.sh` nebo `./scripts/docs/generate_docs.sh` |
-| `generate_mermaid_html.py` | Mermaid HTML + export `.mmd` | `python3 generate_mermaid_html.py` nebo `python3 scripts/docs/generate_mermaid_html.py` |
-| `create_pdf.sh` | PDF z Doxygen RTF/LaTeX | `./create_pdf.sh` |
-| `create_pdf_simple.sh` | PDF z RTF (macOS) | `./create_pdf_simple.sh` |
+| Script | Purpose | Command from root |
+|--------|---------|-------------------|
+| `generate_docs.sh` | Doxygen HTML/RTF/PDF | `./generate_docs.sh` or `./scripts/docs/generate_docs.sh` |
+| `generate_mermaid_html.py` | Mermaid HTML + export `.mmd` | `python3 generate_mermaid_html.py` or `python3 scripts/docs/generate_mermaid_html.py` |
+| `create_pdf.sh` | PDF from Doxygen RTF/LaTeX | `./create_pdf.sh` |
+| `create_pdf_simple.sh` | PDF from RTF (macOS) | `./create_pdf_simple.sh` |
 
-Diagramy (Mermaid SVG/PNG + HTML): `./scripts/render_docs.sh` — volá `scripts/docs/generate_mermaid_html.py`.
+Diagrams (Mermaid SVG/PNG + HTML): `./scripts/render_docs.sh` — calls `scripts/docs/generate_mermaid_html.py`.
 
 ## Build (`scripts/`)
 
-| Skript | Účel |
-|--------|------|
+| Script | Purpose |
+|--------|---------|
 | `idf_build.sh` | ESP-IDF build wrapper |
 | `build_stm32_embedded.sh` | Demo STM32 Hall → `embedded/stm32_fw_embedded.bin` |
-| `render_docs.sh` | Přegenerování diagramů |
-| `test_opening_api.sh` | HTTP smoke test `POST /api/game/opening` na desce |
+| `render_docs.sh` | Regenerate diagrams |
+| `test_opening_api.sh` | HTTP smoke test `POST /api/game/opening` on the board |
 
-BLE-only firmware (bez HTTP):  
+BLE-only firmware (no HTTP):  
 `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only" build`
 
 Hall V2 + STM32 auto-flash:  
 `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash`  
-Zapojení: [docs/reference/ZAPOJENI_ESP_STM4.md](../docs/reference/ZAPOJENI_ESP_STM4.md)
+Wiring: [docs/reference/WIRING_ESP_STM4.md](../docs/reference/WIRING_ESP_STM4.md)
 
-## Testování HW
+## Hardware testing
 
-| Dokument | Účel |
-|----------|------|
-| [docs/testing/MANUAL_TEST_CHECKLIST.md](../docs/testing/MANUAL_TEST_CHECKLIST.md) | Opening Trainer v1.0 release gate na fyzické desce |
+| Document | Purpose |
+|----------|---------|
+| [docs/testing/MANUAL_TEST_CHECKLIST.md](../docs/testing/MANUAL_TEST_CHECKLIST.md) | Opening Trainer v1.0 release gate on physical board |
 
-## Údržba (`scripts/maintenance/`)
+## Maintenance (`scripts/maintenance/`)
 
-| Skript | Účel |
-|--------|------|
-| `delete_dead_castling.sh` | **Deprecated** — nesmazat bez schválení |
+| Script | Purpose |
+|--------|---------|
+| `delete_dead_castling.sh` | **Deprecated** — do not delete without approval |
 
 ## CI
 

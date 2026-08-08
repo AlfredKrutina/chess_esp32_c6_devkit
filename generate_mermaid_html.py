@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Kořenový launcher — skutečný skript: scripts/docs/generate_mermaid_html.py"""
+"""Root launcher — real script: scripts/docs/generate_mermaid_html.py"""
 import os
 import runpy
 import sys

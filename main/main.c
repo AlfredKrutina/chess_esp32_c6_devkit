@@ -1,36 +1,36 @@
 /**
  * @file main.c
- * @brief ESP32-C6 Chess System: vstupni bod, fronty, tasky, boot a NVS
- * spoluprace.
+ * @brief ESP32-C6 Chess System: entry point, queues, tasks, boot and NVS
+ * cooperation.
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
- * Tento soubor spousti app_main(), vytvori FreeRTOS fronty a mutexy, nastavi
- * WDT a spusti systemove tasky (LED, matrix, button, game, UART, web, test).
- * Animation task je vypnuty (LED animace v led_task). Po kratsim cekani probiha
- * centralizovana boot animace; nasleduje initialize_chess_game(), ktere
- * respektuje obnovu ulozene hry z NVS v game_task.
+ * This file will run app_main(), create FreeRTOS queues and mutexes, set
+ * WDT and run system tasks (LED, matrix, button, game, UART, web, test).
+ * Animation task is disabled (LED animation in led_task). After a short wait, it's running
+ * centralized boot animation; followed by initialize_chess_game() which
+ * respects restoring saved game from NVS in game_task.
  *
- * @subsection ss_queues Fronty
- * - game_command_queue: prikazy pro game_task (UART, matrix, web).
- * - button_event_queue: udalosti z tlacitek (ISR -> button_task).
+ * @subsection ss_queues Queues
+ * - game_command_queue: commands for game_task (UART, matrix, web).
+ * - button_event_queue: events from buttons (ISR -> button_task).
  *
- * @subsection ss_priorities Priority (orientacne)
+ * @subsection ss_priorities Priorities (indicative)
  * led_task (7) > matrix_task (6) > button_task (5) > game_task (4) >
  * uart / web (3) > test_task (1) > IDLE (0).
  *
- * @subsection ss_boot_nvs Boot a NVS
- * game_task_start() drive nez skonci boot animace: inicializuje desku, pripadne
- * nacte snapshot z NVS nebo spusti novou hru podle boot trackeru. Po fade-out
- * vola main initialize_chess_game(): pokud uz je stav nacteny z NVS nebo uz
- * bezela nucena nova hra, neposila se GAME_CMD_NEW_GAME (jinak by se prepisla
- * obnova). Pri obnove bez matrix guard se doplni LED pres game_refresh_leds().
+ * @subsection ss_boot_nvs Boot and NVS
+ * game_task_start() drive before the end of the boot animation: initializes the board, possibly
+ * load a snapshot from NVS or start a new game according to the boot tracker. After fade-out
+ * calls main initialize_chess_game(): if the state is already loaded from NVS or already
+ * new game was not forced, GAME_CMD_NEW_GAME was not sent (otherwise it would be overwritten
+ * restoration). When refreshing without matrix guard, LEDs are added via game_refresh_leds().
  *
- * @warning Fronty musi existovat pred xTaskCreate. Kontroluj navratove hodnoty
- * xQueueCreate a xTaskCreate.
+ * @warning Queues must exist before xTaskCreate. Check the return values
+ * xQueueCreate and xTaskCreate.
  */
 
 // #include "animation_task.h"  // DISABLED - animation task not used (LED v led_task)
@@ -68,7 +68,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include "matter_task.h"  // DISABLED - Matter neni podporovan touhle verzi
+// #include "matter_task.h" // DISABLED - Matter is not supported in this version
 // FW
 // #include "config_manager.h" // UNUSED
 #include "ble_task.h"
@@ -130,29 +130,29 @@ static void main_mark_ota_app_valid_if_needed(void) {
 // BOOT CYCLE COUNTER FOR DEEP SLEEP PROTECTION
 // ============================================================================
 
-/** @brief NVS namespace pro boot counter */
+/** @brief NVS namespace for boot counter */
 #define BOOT_COUNTER_NAMESPACE "boot_counter"
-/** @brief NVS klíč pro počítadlo bootů */
+/** @brief NVS key for boot count */
 #define BOOT_COUNTER_KEY "count"
-/** @brief NVS klíč pro timestamp posledního bootu */
+/** @brief NVS key for last boot timestamp */
 #define BOOT_COUNTER_TIME_KEY "last_time"
-/** @brief Počet bootů před deep sleep (10) */
+/** @brief Boot count before deep sleep (10) */
 #define BOOT_CYCLES_LIMIT 10
-/** @brief Časové okno pro počítání bootů (30 sekund) */
+/** @brief Time window for counting boots (30 seconds) */
 #define BOOT_CYCLES_WINDOW_MS 30000
 
 /**
- * @brief Struktura pro uložení stavu boot counteru
+ * @brief Structure for storing boot counter state
  */
 typedef struct {
-  uint8_t count;          ///< Počítadlo bootů
-  uint32_t last_boot_ms;  ///< Čas posledního bootu v ms
+  uint8_t count;          ///< Boot count
+  uint32_t last_boot_ms;  ///< Last boot time in ms
 } boot_counter_state_t;
 
 /**
- * @brief Načte stav boot counteru z NVS
- * @param[out] state Ukazatel na strukturu pro načtení stavu
- * @return ESP_OK při úspěchu
+ * @brief Load boot counter state from NVS
+ * @param[out] state Pointer to structure to fill with state
+ * @return ESP_OK on success
  */
 static esp_err_t boot_counter_load(boot_counter_state_t *state) {
   nvs_handle_t nvs_handle;
@@ -160,7 +160,7 @@ static esp_err_t boot_counter_load(boot_counter_state_t *state) {
   if (ret != ESP_OK) {
     state->count = 0;
     state->last_boot_ms = 0;
-    return ESP_OK; // Vrátíme defaultní hodnoty
+    return ESP_OK; // Return default values
   }
 
   uint8_t count = 0;
@@ -183,9 +183,9 @@ static esp_err_t boot_counter_load(boot_counter_state_t *state) {
 }
 
 /**
- * @brief Uloží stav boot counteru do NVS
- * @param state Ukazatel na strukturu se stavem k uložení
- * @return ESP_OK při úspěchu
+ * @brief Save boot counter state to NVS
+ * @param state Pointer to structure with state to save
+ * @return ESP_OK on success
  */
 static esp_err_t boot_counter_save(const boot_counter_state_t *state) {
   nvs_handle_t nvs_handle;
@@ -212,8 +212,8 @@ static esp_err_t boot_counter_save(const boot_counter_state_t *state) {
 }
 
 /**
- * @brief Aktualizuje boot counter a kontroluje zda by se mělo jít do deep sleep
- * @return true pokud by se mělo jít do deep sleep (překročen limit bootů)
+ * @brief Update boot counter and check whether deep sleep should be entered
+ * @return true if deep sleep should be entered (boot limit exceeded)
  */
 static bool boot_counter_check_and_update(void) {
   boot_counter_state_t state;
@@ -221,9 +221,9 @@ static bool boot_counter_check_and_update(void) {
 
   uint32_t current_time_ms = esp_timer_get_time() / 1000;
 
-  // Kontrola zda jsme v časovém okně (30s od posledního bootu)
+  // Check whether we are within the time window (30s since last boot)
   if (current_time_ms - state.last_boot_ms > BOOT_CYCLES_WINDOW_MS) {
-    // Jsme mimo okno - reset počítadla
+    // Outside window - reset counter
     state.count = 1;
     state.last_boot_ms = current_time_ms;
     boot_counter_save(&state);
@@ -231,7 +231,7 @@ static bool boot_counter_check_and_update(void) {
     return false;
   }
 
-  // Jsme v okně - inkrementovat počítadlo
+  // Inside window - increment counter
   state.count++;
   state.last_boot_ms = current_time_ms;
   boot_counter_save(&state);
@@ -239,7 +239,7 @@ static bool boot_counter_check_and_update(void) {
   ESP_LOGI(TAG, "Boot counter: count=%d/%d (within 30s window)",
            state.count, BOOT_CYCLES_LIMIT);
 
-  // Kontrola limitu
+  // Check limit
   if (state.count >= BOOT_CYCLES_LIMIT) {
     ESP_LOGW(TAG, "Boot counter: LIMIT REACHED (%d boots in 30s)",
              state.count);
@@ -250,7 +250,7 @@ static bool boot_counter_check_and_update(void) {
 }
 
 /**
- * @brief Resetuje boot counter (volat po úspěšném startu)
+ * @brief Reset boot counter (call after successful start)
  */
 static void boot_counter_reset(void) {
   boot_counter_state_t state = {0, 0};
@@ -269,14 +269,14 @@ void show_boot_animation_and_board(void);
 // ============================================================================
 
 /**
- * @brief Bezpecny reset WDT s logovanim WARNING misto ERROR pro
+ * @brief Safe WDT reset with WARNING instead of ERROR logging for
  * ESP_ERR_NOT_FOUND
  *
- * Tato funkce bezpecne resetuje Task Watchdog Timer. Pokud task neni jeste
- * registrovany (coz je normalni behem startupu), loguje se WARNING misto ERROR.
+ * This function safely resets the Task Watchdog Timer. If the task is not yet
+ * registered (which is normal during startup), WARNING is logged instead of ERROR.
  *
- * @return ESP_OK pokud uspesne, ESP_ERR_NOT_FOUND pokud task neni registrovany
- * (WARNING pouze)
+ * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
+ * (WARNING only)
  */
 static esp_err_t main_task_wdt_reset_safe(void) {
   esp_err_t ret = esp_task_wdt_reset();
@@ -295,7 +295,7 @@ static esp_err_t main_task_wdt_reset_safe(void) {
   return ESP_OK;
 }
 
-/** @brief Globalni UART mutex pro cisty vystup */
+/** @brief Global UART mutex for clean output */
 SemaphoreHandle_t uart_mutex = NULL;
 
 /** @brief Handle pro LED task */
@@ -308,7 +308,7 @@ TaskHandle_t button_task_handle = NULL;
 TaskHandle_t uart_task_handle = NULL;
 /** @brief Handle pro Game task */
 TaskHandle_t game_task_handle = NULL;
-/** @brief Handle pro Animation task (NULL pokud je task vypnuty v create_system_tasks) */
+/** @brief Handle for Animation task (NULL if task is disabled in create_system_tasks) */
 TaskHandle_t animation_task_handle = NULL;
 /** @brief Handle pro Test task */
 TaskHandle_t test_task_handle = NULL;
@@ -322,10 +322,10 @@ TaskHandle_t reset_button_task_handle = NULL;
 /** @brief Handle pro Promotion Button task */
 TaskHandle_t promotion_button_task_handle = NULL;
 
-/** @brief Konfigurace demo modu - je demo mod zapnuty */
-/** @brief Konfigurace demo modu - je demo mod zapnuty */
+/** @brief Demo mod configuration - is the demo mod enabled */
+/** @brief Demo mod configuration - is the demo mod enabled */
 static volatile bool demo_mode_enabled = false;
-/** @brief Zpozdeni mezi demo tahy v milisekundach - dynamicky meneno */
+/** @brief Delay between demo moves in milliseconds - dynamically changed */
 static uint32_t current_demo_delay_ms = 3000;
 
 // Forward declaration
@@ -399,13 +399,13 @@ static int demo_moves_count =
 // ============================================================================
 
 /**
- * @brief Inicializuje hlavni systemove komponenty aplikace
+ * @brief Initializes the main system components of the application
  *
- * Tato funkce inicializuje vsechny systemove komponenty potrebne pro chod
- * sachoveho systemu. Vytvari mutexy, inicializuje FreeRTOS chess komponentu,
- * spousti timery a overuje dostupnost vsech front.
+ * This function initializes all system components required for operation
+ * sach system. Creates mutexes, initializes the FreeRTOS chess component,
+ * starts timers and verifies the availability of all queues.
  *
- * @return ESP_OK pri uspechu, ESP_FAIL pri chybe
+ * @return ESP_OK on success, ESP_FAIL on error
  */
 esp_err_t main_system_init(void) {
   ESP_LOGI(TAG, "🔧 Initializing chess system components...");
@@ -524,26 +524,26 @@ esp_err_t main_system_init(void) {
 // ============================================================================
 
 /**
- * @brief Dokonci start hry po boot animaci: volitelny GAME_CMD_NEW_GAME, LED,
- * tlacitka.
+ * @brief Complete game start after boot animation: optional GAME_CMD_NEW_GAME, LED,
+ * button.
  *
  * @details
- * Volat az po show_boot_animation_and_board() (flag led_is_booting() je uz
- * false). game_task_start() drive nastavil desku a pripadne nacetl NVS snapshot
- * nebo game_start_new_game() podle boot trackeru.
+ * Call after show_boot_animation_and_board() (flag led_is_booting() is already
+ *false). game_task_start() drive set the board and possibly loaded the NVS snapshot
+ * or game_start_new_game() according to the boot tracker.
  *
- * - @c nvs_restored: neposilat GAME_CMD_NEW_GAME; stav pochazi z NVS. Po
- * fade-out zavolat game_refresh_leds() jen kdyz neni aktivni matrix guard
- * (ochrana LED pri nesouladu matice s ulozenou pozici).
- * - @c boot_already_new: boot tracker uz spustil novou hru v game_task;
- * neposilat duplicitni GAME_CMD_NEW_GAME.
- * - Jinak poslat GAME_CMD_NEW_GAME pro plny reset jako drive (zadny platny
+ * - @c nvs_restored: don't send GAME_CMD_NEW_GAME; the status will come from the NVS. Mon
+ * fade-out call game_refresh_leds() only when matrix guard is not active
+ * (LED protection when the nut does not match the stored position).
+ * - @c boot_already_new: boot tracker has already started a new game in game_task;
+ * don't send duplicate GAME_CMD_NEW_GAME.
+ * - Otherwise send GAME_CMD_NEW_GAME for a full reset as a drive (rear plates
  * snapshot).
  *
- * Vzdy vola led_update_button_availability_from_game().
+ * Always call led_update_button_availability_from_game().
  *
- * @note game_active po obnove NVS nastavuje game_load_snapshot_from_nvs();
- * drive to delal az prikaz NEW_GAME z teto funkce.
+ * @note game_active after NVS recovery sets game_load_snapshot_from_nvs();
+ * drive was doing it with the NEW_GAME command from this function.
  *
  * @see game_was_snapshot_loaded_on_boot()
  * @see game_was_boot_new_game_triggered()
@@ -580,7 +580,7 @@ void initialize_chess_game(void) {
   extern void led_update_button_availability_from_game(void);
   led_update_button_availability_from_game();
 
-  /* Po fade-out je deska prazdna; drive NEW_GAME spustilo highlight v
+  /* After fade-out, the board is empty; drive NEW_GAME launched highlight v
    * game_task. */
   if (nvs_restored && !game_is_matrix_guard_active()) {
     game_refresh_leds();
@@ -592,18 +592,18 @@ void initialize_chess_game(void) {
 }
 
 /**
- * @brief Prepina demo mod zapnuto/vypnuto
+ * @brief Prepina demo mod on/off
  *
- * Tato funkce umoznuje zapnout nebo vypnout demo mod, ktery automaticky
- * hraje preddefinovane tahy. Uzivatel muze zapnout demo mod prikazem
- * "DEMO ON" a vypnout prikazem "DEMO OFF".
+ * This function allows you to turn on or off the demo mod, which automatically
+ * plays predefined moves. User can enable demo mod by command
+ * "DEMO ON" and turn it off with the "DEMO OFF" command.
  *
- * @param enabled true pro zapnuti, false pro vypnuti
+ * @param enabled true to enable, false to disable
  *
  * @details
- * Demo mod umoznuje automaticke hrani preddefinovanych tahu.
- * Kdyz je zapnuty, system automaticky hraje tahy z pole DEMO_MOVES.
- * Kdyz je vypnuty, uzivatel muze hrat manualne.
+ * Demo mod allows automatic playing of predefined moves.
+ * When enabled, the system automatically plays moves from the DEMO_MOVES field.
+ * When disabled, the user can play manually.
  */
 void toggle_demo_mode(bool enabled) {
   demo_mode_enabled = enabled;
@@ -668,16 +668,16 @@ void set_demo_speed_ms(uint32_t speed_ms) {
 }
 
 /**
- * @brief Vykona jeden demo tah
+ * @brief Performs one demo move
  *
- * Tato funkce vykona jeden tah z preddefinovane sekvence demo tahu.
- * Tahy jsou ulozeny v poli DEMO_MOVES a jsou hrany postupne.
- * Po dokonceni vsech tahu se sekvence resetuje.
+ * This function will perform one move from a predefined demo move sequence.
+ * Moves are stored in the DEMO_MOVES field and are played sequentially.
+ * After all moves are completed, the sequence is reset.
  *
  * @details
- * Funkce vezme aktualni tah z pole DEMO_MOVES a posle ho do game tasku.
- * Tahy jsou ve formatu "e2e4" (z pozice e2 na pozici e4).
- * Po dokonceni vsech tahu se index resetuje na 0.
+ * The function takes the current move from the DEMO_MOVES field and sends it to the game task.
+ * Moves are in "e2e4" format (from position e2 to position e4).
+ * After all moves are completed, the index is reset to 0.
  */
 void execute_demo_move(void) {
   // Reset watchdog at function entry.
@@ -838,10 +838,10 @@ void execute_demo_move(void) {
 // ============================================================================
 
 /**
- * @brief Inicializace NVS (pro konfiguraci), konzole a UART / USB Serial JTAG.
+ * @brief NVS initialization (for configuration), console and UART / USB Serial JTAG.
  *
  * @details
- * NVS flash pro ulozeni konfigurace; esp_console pro prikazy; bez externiho
+ * NVS flash to save configuration; esp_console for commands; without external
  * UART.
  */
 static void init_console(void) {
@@ -879,27 +879,27 @@ static void init_console(void) {
 }
 
 /**
- * @brief Vytvori vsechny systemove tasky
+ * @brief Create all system tasks
  *
- * Tato funkce vytvori vsechny FreeRTOS tasky potrebne pro chod systemu.
- * Kazdy task ma svoji prioritu a velikost stacku. Po vytvoreni tasku
- * se zobrazi boot animace a inicializuje se sachova hra.
+ * This function will create all FreeRTOS tasks necessary for the system to run.
+ * Each task has its own priority and stack size. After creating the bag
+ * the boot animation will be displayed and sach's game will be initialized.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Funkce vytvori hlavni tasky:
- * - LED task: ovladani LED pasku
- * - Matrix task: skenovani 8x8 matice
- * - Button task: ovladani tlacitek
- * - UART task: komunikace pres UART
- * - Game task: logika sachove hry
- * - Test task: testovani systemu (volitelne menuconfig)
- * - Web server task: web rozhrani
- * (Animation task vypnut — viz DISABLED blok v create_system_tasks.)
+ * Functions create main tasks:
+ * - LED task: control of the LED strip
+ * - Matrix task: scan 8x8 matrix
+ * - Button task: control of buttons
+ * - UART task: communication via UART
+ * - Game task: the logic of Sacha's game
+ * - Test task: system testing (optional menuconfig)
+ * - Web server task: web interface
+ * (Animation task disabled — see DISABLED block in create_system_tasks.)
  *
- * Po vytvoreni tasku se u auto-flash STM32 synchronne pocka na dokonceni flash
- * v matrix_task (pred WiFi/web), pak boot animace a inicializace hry.
+ * After the task is created, STM32 auto-flash waits synchronously for the flash to complete
+ * in matrix_task (before WiFi/web), then boot animation and game initialization.
  */
 esp_err_t create_system_tasks(void) {
   ESP_LOGI(TAG, "Creating system tasks...");
@@ -921,8 +921,9 @@ esp_err_t create_system_tasks(void) {
            LED_TASK_STACK_SIZE / 1024);
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
-  /* Semafor před matrix_task — main počká hned po matrix_task (viz níže), ne až po WiFi,
-   * jinak web_server_task zaplaví sériovku a sdílené I²C zbytečně soupeří s bootloaderem. */
+  /* Semaphore before matrix_task — main waits right after matrix_task (see below),
+   * not after WiFi, otherwise web_server_task floods the serial log and shared I2C
+   * needlessly contends with the bootloader. */
   stm32_i2c_bl_boot_flash_sync_prepare();
 #endif
 
@@ -944,13 +945,13 @@ esp_err_t create_system_tasks(void) {
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
   ESP_LOGI(TAG,
-           "[staging] Čekám na dokončení STM32 auto-flash (hned po matrix_task, "
-           "před ostatní tasky / WiFi)…");
+           "[staging] Waiting for STM32 auto-flash to finish (right after "
+           "matrix_task, before other tasks / WiFi)...");
   stm32_i2c_bl_boot_flash_sync_wait(pdMS_TO_TICKS(120000));
   ESP_LOGI(TAG,
-           "[staging] STM32 auto-flash pokus dokončen (sync s matrix_task) — "
-           "úspěch/chyba viz STM32_AUTO / STM32_I2C_BL výše; pokračuji tasky a boot "
-           "animace");
+           "[staging] STM32 auto-flash attempt finished (sync with matrix_task) — "
+           "success/error see STM32_AUTO / STM32_I2C_BL above; continuing tasks "
+           "and boot animation");
 #endif
 
   // Create Button task
@@ -1114,7 +1115,7 @@ esp_err_t create_system_tasks(void) {
   // Sladeni s NVS: initialize_chess_game() nemusi poslat GAME_CMD_NEW_GAME.
   initialize_chess_game();
 
-  // UART bezel suspended az do konce boot animace (vystup neprerusuje logo).
+  // UART bezel suspended until the end of the boot animation (output is not interrupted by the logo).
   vTaskResume(uart_task_handle);
   ESP_LOGI(TAG, "✅ UART task resumed after boot animation");
 
@@ -1129,15 +1130,15 @@ esp_err_t create_system_tasks(void) {
 // ============================================================================
 
 /**
- * @brief Centralizovana boot animace: ASCII logo, progress bar, LED krok,
+ * @brief Centralized boot animation: ASCII logo, progress bar, LED step,
  * fade-out.
  *
  * @details
- * Volat az po vytvoreni tasku. Behem smycky vola led_boot_animation_step() a
- * WDT reset v main; na konci led_boot_animation_fade_out() vycisti desku a
- * nastavi led_booting_active = false. Nasleduje initialize_chess_game().
+ * Call after creating a task. During the loop, call led_boot_animation_step() and
+ * WDT reset in main; at the end of led_boot_animation_fade_out() clear the board and
+ * set led_booting_active = false. This is followed by initialize_chess_game().
  *
- * @note game_task behem led_is_booting() nezpracovava tahy (viz
+ * @note game_task during led_is_booting() does not process moves (see
  * game_task_start).
  */
 void show_boot_animation_and_board(void) {
@@ -1362,7 +1363,7 @@ void show_boot_animation_and_board(void) {
     printf("] %3d%% - %s", progress, status_messages[message_index]);
     fflush(stdout);
 
-    // Spustit LED boot animaci podle progress
+    // Run LED boot animation according to progress
     led_boot_animation_step((uint8_t)progress);
 
     // CRITICAL: Reset watchdog timer during loading (only if registered)
@@ -1407,22 +1408,22 @@ void show_boot_animation_and_board(void) {
 // ============================================================================
 
 /**
- * @brief Hlavni funkce aplikace
+ * @brief The main functions of the application
  *
- * Tato funkce je hlavnim vstupnim bodem aplikace. Inicializuje system,
- * vytvori tasky a spusti hlavni smycku aplikace. Obsahuje error handling
- * a safe mode pro pripady chyb.
+ * This function is the main entry point of the application. Initializes the system,
+ * create tasks and start the main application loop. Contains error handling
+ * a safe mode for errors.
  *
  * @details
- * Funkce je volana jako prvni po spusteni ESP32. Inicializuje Task Watchdog
- * Timer, vytvori vsechny systemove tasky a spusti hlavni smycku aplikace.
- * Obsahuje error handling a safe mode pro pripady chyb pri inicializaci.
+ * The function is the steering wheel as the first one after starting the ESP32. Initializes Task Watchdog
+ * Timer, create all system tasks and start the main application loop.
+ * Includes error handling and safe mode for initialization errors.
  *
- * Hlavni smycka:
- * - Resetuje watchdog timer
- * - Loguje system status kazdych 60 sekund
- * - Zpracovava demo mod pokud je zapnuty
- * - Ceka 1 sekundu mezi iteracemi
+ * Main loop:
+ * - Resets the watchdog timer
+ * - Logs system status every 60 seconds
+ * - Handles demo mods if enabled
+ * - Waits 1 second between iterations
  */
 void app_main(void) {
   ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v1.8.0 starting...");
@@ -1432,19 +1433,19 @@ void app_main(void) {
   ESP_LOGI(TAG,
            "===============================================================");
 
-  // Kontrola boot counteru - pokud je překročen limit, jít do deep sleep
+  // Check boot counter - if limit exceeded, enter deep sleep
   if (boot_counter_check_and_update()) {
     ESP_LOGW(TAG, "⚠️ Too many reboots detected! Entering deep sleep for 10 seconds...");
     ESP_LOGW(TAG, "   (This protects against boot loops)");
-    // Deep sleep pro 10 sekund
-    esp_sleep_enable_timer_wakeup(10 * 1000000); // 10 sekund v mikrosekundách
+    // Deep sleep for 10 seconds
+    esp_sleep_enable_timer_wakeup(10 * 1000000); // 10 seconds in microseconds
     esp_deep_sleep_start();
-    // Tento kód se nikdy neprovede - probudíme se z deep sleep jako nový boot
+    // This code never runs - we wake from deep sleep as a new boot
   }
 
-  // Zvyseni WDT timeout pro inicializaci
+  // Raise WDT timeout for initialization
   esp_task_wdt_config_t twdt_config = {
-      .timeout_ms = 10000, // 10 sekund pro init - optimalizovano pro web server
+      .timeout_ms = 10000, // 10 seconds for init - optimized for web server
       .idle_core_mask = 0,
       .trigger_panic = true};
   // Use reconfigure instead of init to avoid "TWDT already
@@ -1480,7 +1481,7 @@ void app_main(void) {
     ESP_LOGE(TAG, "❌ System init failed: %s", esp_err_to_name(ret));
     ESP_LOGE(TAG, "🔄 Entering safe mode - basic UART only");
 
-    // Safe mode - jen UART pro debugging
+    // Safe mode - UART only for debugging
     while (1) {
       ESP_LOGI(TAG, "💔 Safe mode: Init failed, system halted");
       // Note: No watchdog reset in safe mode - task not registered
@@ -1498,7 +1499,7 @@ void app_main(void) {
     ESP_LOGE(TAG, "❌ Task creation failed: %s", esp_err_to_name(ret));
     ESP_LOGE(TAG, "🔄 Entering safe mode - basic UART only");
 
-    // Safe mode - jen UART pro debugging
+    // Safe mode - UART only for debugging
     while (1) {
       ESP_LOGI(TAG, "💔 Safe mode: Task creation failed, system halted");
       // Note: No watchdog reset in safe mode - task not registered
@@ -1509,10 +1510,9 @@ void app_main(void) {
   // Reset watchdog AFTER task creation
   main_task_wdt_reset_safe();
 
-  // Navrat normalniho WDT timeoutu po inicializaci - optimalizovano pro
-  // web server
-  twdt_config.timeout_ms = 8000;          // Zvyseno na 8 sekund pro web server
-  esp_task_wdt_reconfigure(&twdt_config); // Pouzit reconfigure misto init
+  // Restore normal WDT timeout after init - optimized for web server
+  twdt_config.timeout_ms = 8000;          // Raised to 8 seconds for web server
+  esp_task_wdt_reconfigure(&twdt_config); // Use reconfigure instead of init
 
   // Main task is already registered with TWDT at the beginning of app_main()
   ESP_LOGI(TAG, "✓ Main task already registered with Task Watchdog Timer");
@@ -1528,7 +1528,7 @@ void app_main(void) {
 
   ESP_LOGI(TAG, "🎯 Main application loop started");
 
-  // Reset boot counter - systém úspěšně nastartoval
+  // Reset boot counter - system started successfully
   boot_counter_reset();
 
   main_mark_ota_app_valid_if_needed();

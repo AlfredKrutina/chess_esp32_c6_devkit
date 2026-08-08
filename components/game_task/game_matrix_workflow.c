@@ -40,14 +40,14 @@ bool game_detect_new_game_setup(void) {
     return false;
   }
 
-  // Zkontrolovat, jestli jsou řádky 1, 2, 7, 8 obsazené figurkami
-  // a řádky 3, 4, 5, 6 jsou prázdné
+  // Check if rows 1, 2, 7, 8 are occupied by pieces
+  // and lines 3, 4, 5, 6 are empty
 
-  // Zkontrolovat řádky 0, 1 (bílé figurky) a 6, 7 (černé figurky)
+  // Check rows 0, 1 (white pieces) and 6, 7 (black pieces)
   bool rows_0_1_6_7_occupied = true;
   bool rows_2_3_4_5_empty = true;
 
-  // Zkontrolovat řádky 0, 1, 6, 7 - musí být obsazené
+  // Check lines 0, 1, 6, 7 - they must be occupied
   for (int row = 0; row < 8; row++) {
     bool row_has_pieces = false;
     for (int col = 0; col < 8; col++) {
@@ -58,13 +58,13 @@ bool game_detect_new_game_setup(void) {
     }
 
     if ((row == 0 || row == 1 || row == 6 || row == 7)) {
-      // Tyto řádky musí být obsazené
+      // These lines must be occupied
       if (!row_has_pieces) {
         rows_0_1_6_7_occupied = false;
         break;
       }
     } else if (row >= 2 && row <= 5) {
-      // Tyto řádky musí být prázdné
+      // These lines must be empty
       if (row_has_pieces) {
         rows_2_3_4_5_empty = false;
         break;
@@ -200,9 +200,9 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col) {
     ESP_LOGI(TAG, "💡 No valid moves for piece at %c%d", 'a' + col, row + 1);
   }
 
-  // Po zvednutí figurky spustit animaci změny hráče a zobrazit
-  // pohyblivé figurky (pouze pokud není aktivní animace rosady a není
-  // očekávána rosada)
+  // After picking up the figure, start the player change animation and display
+  // moving figures (only if the dew animation is not active and is not
+  // dew expected)
   if (!game_is_castle_animation_active() && !game_is_castling_expected()) {
     // After piece is lifted, show pieces that the opponent can move
     // This completes the cycle as requested by the user
@@ -221,20 +221,20 @@ void game_handle_piece_lifted(uint8_t row, uint8_t col) {
 void game_handle_piece_placed(uint8_t row, uint8_t col) {
   ESP_LOGI(TAG, "✋ Matrix: Piece placed at %c%d", 'a' + col, row + 1);
 
-  // Detekce nové hry po endgame animaci
-  // Zkontrolovat, jestli se figurky rozestavily na startovní pozice (řádky 1,
+  // New game detection after endgame animation
+  // Check if the pieces have been placed in their starting positions (rows 1,
   // 2, 7, 8)
   if (game_detect_new_game_setup()) {
     ESP_LOGI(TAG,
              "🎮 NEW GAME DETECTED! Pieces arranged in starting positions");
 
-    // Zastavit všechny animace
+    // Stop all animations
     unified_animation_stop_all();
 
-    // Spustit novou hru
+    // Start a new game
     game_start_new_game();
 
-    return; // Ukončit - nová hra byla spuštěna
+    return; // Quit - a new game has been started
   }
 
   // Check if castle animation is active
@@ -291,9 +291,9 @@ void game_handle_piece_placed(uint8_t row, uint8_t col) {
   // Clear only board LEDs
   led_clear_board_only();
 
-  // Po umístění figurky spustit animaci změny hráče a zobrazit
-  // pohyblivé figurky (pouze pokud není aktivní animace rosady a není
-  // očekávána rosada)
+  // After placing the figure, start the player change animation and display
+  // moving figures (only if the dew animation is not active and is not
+  // dew expected)
   if (!game_is_castle_animation_active() && !game_is_castling_expected()) {
     // After piece is placed, show pieces that the opponent can move
     // This completes the cycle as requested by the user
@@ -335,12 +335,12 @@ void game_handle_matrix_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
       .to_row = to_row,
       .to_col = to_col,
 
-      .piece = board[from_row][from_col], // Skutečná figurka ze zdrojového pole
+      .piece = board[from_row][from_col], // An actual figure from the source field
       .captured_piece =
-          board[to_row][to_col], // Skutečná figurka z cílového pole
+          board[to_row][to_col], // An actual figure from the target field
       .timestamp = esp_timer_get_time() / 1000};
 
-  // KRITICKÁ OPRAVA: Validace tahu před voláním game_execute_move (stejně
+  // CRITICAL FIX: Move validation before calling game_execute_move (ditto
   // jako UART flow)
   move_error_t error = game_is_valid_move(&move);
   if (error != MOVE_ERROR_NONE) {
@@ -359,7 +359,7 @@ void game_handle_matrix_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
     return; // Reject invalid move
   }
 
-  // Detekce rosady před voláním game_execute_move
+  // Dew detection before calling game_execute_move
   bool is_castling =
       (move.piece == PIECE_WHITE_KING || move.piece == PIECE_BLACK_KING) &&
       abs((int)move.to_col - (int)move.from_col) == 2;
@@ -374,7 +374,7 @@ void game_handle_matrix_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
   if (game_execute_move(&move)) {
     ESP_LOGI(TAG, "✅ Matrix move executed successfully");
 
-    // KRITICKÁ OPRAVA: Kontrola checkmate/stalemate po každém tahu!
+    // CRITICAL FIX: Checkmate/stalemate check after every turn!
     game_state_t end_game_result = game_check_end_game_conditions();
     if (end_game_result == GAME_STATE_FINISHED) {
       current_game_state = GAME_STATE_FINISHED;
@@ -383,12 +383,12 @@ void game_handle_matrix_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
     }
 
     if (is_castling) {
-      // Pro rosadu nespouštět game_highlight_opponent_pieces
+      // Don't run game_highlight_opponent_pieces for rosadu
       ESP_LOGI(TAG, "🏰 Castling move completed - waiting for rook animation");
     } else {
-      // Po úspěšném tahu spustit animaci změny hráče a zobrazit
-      // pohyblivé figurky (pouze pokud není aktivní animace rosady a není
-      // očekávána rosada)
+      // After a successful turn, start the player change animation and display
+      // moving figures (only if the dew animation is not active and is not
+      // dew expected)
       if (!game_is_castle_animation_active() && !game_is_castling_expected()) {
         // After successful move, show pieces that the opponent can move
         game_highlight_movable_pieces();
@@ -457,7 +457,7 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
   ESP_LOGI(TAG, "👑 Processing promotion command");
 
   // #2 & #3: Atomic check with mutex to prevent double execution
-  // Použít recursive mutex funkce (promotion_mutex je recursive mutex)
+  // Use a recursive mutex function (promotion_mutex is a recursive mutex)
   if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) != pdTRUE) {
     ESP_LOGE(TAG, "❌ Failed to acquire promotion mutex");
     return;
@@ -506,8 +506,8 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
     current_player =
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-    // Po dokončení promoce už žádná figurka není zvednutá – aby se zobrazily
-    // movable pieces (game_highlight_movable_pieces nesmí skipnout kvůli
+    // After completing the graduation, no more figures are raised - to show them
+    // movable pieces (game_highlight_movable_pieces must not skip due to
     // piece_lifted).
     piece_lifted = false;
     lifted_piece_row = 0;
@@ -521,14 +521,14 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
     game_end_timer_move();
     game_start_timer_move(current_player == PLAYER_WHITE);
 
-    // KRITICKÉ: Endgame kontrola PŘED player change animací!
-    // Pokud je endgame, player change se NESPOUŠTÍ
+    // CRITICAL: Endgame check BEFORE player change animations!
+    // If endgame, player change will NOT start
     game_state_t end_game_result = game_check_end_game_conditions();
     if (end_game_result == GAME_STATE_FINISHED) {
       current_game_state = GAME_STATE_FINISHED;
       game_active = false;
 
-      // Najít pozici krále vítěze pro endgame animaci
+      // Find the position of the winning king for the endgame animation
       player_t winner =
           (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
       uint8_t king_pos = 28; // default e4
@@ -546,7 +546,7 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
                "animation at position %d",
                king_pos);
 
-      // Spustit endgame animaci (wave z krále vítěze)
+      // Start the endgame animation (wave from king winner)
       led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
                                    .led_index = king_pos,
                                    .red = 255,
@@ -560,19 +560,19 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
           TAG,
           "✅ Endgame animation started - player change animation SKIPPED");
     } else {
-      // Není endgame - spustit player change animaci
+      // It is not endgame - start the player change animation
       uint8_t player_color =
           (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
       led_command_t player_change_cmd = {
-          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Použít
-                                              // ANIM_PLAYER_CHANGE místo
+          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
+                                              // ANIM_PLAYER_CHANGE instead
                                               // PLAYER_CHANGE
           .led_index = 0,
           .red = 0,
           .green = 0,
           .blue = 0,
           .duration_ms = 0,
-          .data = &player_color // Předat barvu hráče
+          .data = &player_color // Pass the player's color
       };
       led_execute_command_new(&player_change_cmd);
 
@@ -584,10 +584,10 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
       led_force_immediate_update(); // Commit highlight so movable pieces show
                                     // right after player change animation
 
-      // Zkontrolovat, zda je nový hráč v šachu
+      // Check if the new player is in check
       bool in_check = game_is_king_in_check(current_player);
       if (in_check) {
-        // Najít pozici krále
+        // Find the position of the king
         int king_row = -1, king_col = -1;
         piece_t king_piece = (current_player == PLAYER_WHITE)
                                  ? PIECE_WHITE_KING
@@ -607,14 +607,14 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
         if (king_row != -1 && king_col != -1) {
           if (game_led_guidance_show_check_anim()) {
             uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-            // Spustit check animaci - růžové svícení na králi
+            // Start the check animation - pink lighting on the king
             led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
                                        .led_index = king_led_index,
                                        .red = 0,
                                        .green = 0,
                                        .blue = 0,
                                        .duration_ms =
-                                           0, // Trvalé až do dalšího tahu
+                                           0, // Permanent until next turn
                                        .data = NULL};
             led_execute_command_new(&check_cmd);
             ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
@@ -629,32 +629,32 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
   }
 
   // CRITICAL: Release mutex at the end of the function to ensure it's always
-  // released Použít recursive mutex funkce (promotion_mutex je recursive mutex)
+  // released Use recursive mutex functions (promotion_mutex is a recursive mutex)
   xSemaphoreGiveRecursive(promotion_mutex);
 }
 
 /**
- * @brief Provede promoci pesce na vybranou figurku
+ * @brief Performs graduation pesce on the selected figure
  *
- * @param choice Vyber figurky pro promoci (PROMOTION_QUEEN, PROMOTION_ROOK,
+ * @param choice Choose figures for graduation (PROMOTION_QUEEN, PROMOTION_ROOK,
  * PROMOTION_BISHOP, PROMOTION_KNIGHT)
- * @return true pokud byla promoce uspesna, false pokud selha
+ * @return true if the graduation was successful, false if it failed
  *
  * @details
- * Funkce hleda pesce na promocni rade a povysuje ho na vybranou figurku:
- * - Bily pesec na 8. rade (row 7) -> povyseni
- * - Cerny pesec na 1. rade (row 0) -> povyseni
+ * The function searches for a fish on the square board and raises it to the selected piece:
+ * - They were pesac on the 8th row (row 7) -> promoted
+ * - Black sand on the 1st row (row 0) -> promotion
  *
- * Proces:
- * 1. Prevod choice na typ figurky podle barvy hrace
- * 2. Prohledani desky pro pesce na promocni rade
- * 3. Nahrazeni pesce povysenou figurkou
+ * Process:
+ * 1. Conversion of choice to the type of figure according to the color of the toy
+ * 2. Search the fish plate on the power board
+ * 3. Replaced pesce with a raised figure
  *
- * @note KRITICKA OPRAVA v2.4.1:
- * - BUG #10: Row indexing byl OBRACENY!
- * - Puvodni: WHITE row==0, BLACK row==7 (SPATNE!)
- * - Opraveno: WHITE row==7 (8. rada), BLACK row==0 (1. rada)
- * - Promoce nyni funguje 100% spravne
+ * @note CRITICAL FIX in v2.4.1:
+ * - BUG #10: Row indexing was REVERSED!
+ * - Original: WHITE row==0, BLACK row==7 (SLEEP!)
+ * - Fixed: WHITE row==7 (8th row), BLACK row==0 (1st row)
+ * - Graduation now works 100% correctly
  */
 bool game_execute_promotion(promotion_choice_t choice) {
   ESP_LOGI(TAG, "👑 Executing pawn promotion: %d", choice);
@@ -730,7 +730,7 @@ bool game_execute_promotion(promotion_choice_t choice) {
            : choice == PROMOTION_BISHOP ? "Bishop"
                                         : "Knight");
 
-  // Spustit promotion animaci
+  // Start promotion animation
   uint8_t promotion_led = chess_pos_to_led_index(row, col);
   led_command_t promote_cmd = {.type = LED_CMD_ANIM_PROMOTE,
                                .led_index = promotion_led,
@@ -764,7 +764,7 @@ void game_highlight_movable_pieces(void) {
     return;
   }
 
-  // Nespouštět highlight během rošády - rošáda má vlastní LED indikaci
+  // Do not run the highlight during casting - casting has its own LED indication
   if (castling_state.in_progress) {
     ESP_LOGD(TAG, "Highlight skipped - castling in progress");
     return;

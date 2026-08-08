@@ -27,7 +27,7 @@ bool _sessionConnectedForAdvanced(BoardSessionState s) {
   }
 }
 
-/// Wi‑Fi URL, uložené BLE a jednorázové přepnutí transportu — odděleně od hlavního skenu.
+/// Wi‑Fi URL, stored BLE, and one-time transport switching — separate from the main scan.
 class BoardDiscoveryAdvancedScreen extends ConsumerStatefulWidget {
   const BoardDiscoveryAdvancedScreen({super.key});
 

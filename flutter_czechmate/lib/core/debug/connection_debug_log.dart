@@ -3,7 +3,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../constants/app_environment.dart';
 
-/// Jednotný prefix do terminálu při `flutter run` / `--dart-define=STAGING=true`.
+/// Uniform prefix to terminal when `flutter run` / `--dart-define=STAGING=true`.
 /// Grep: `[czechmate][conn]`
 void connDebugLog(String message, [Object? detail]) {
   if (!kDebugMode && !AppEnvironment.staging) return;
@@ -14,7 +14,7 @@ void connDebugLog(String message, [Object? detail]) {
   }
 }
 
-/// Rozšířený výpis chyb BLE (FBP / obecné).
+/// Extended BLE error dump (FBP / general).
 String connBleErrorDetail(Object error) {
   if (error is FlutterBluePlusException) {
     final d = error.description;

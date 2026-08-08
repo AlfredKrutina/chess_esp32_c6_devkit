@@ -1,43 +1,43 @@
 /**
  * @file web_server_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Web Server Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Web Server Task Header
  *
- * Tato hlavicka definuje rozhrani pro web server task:
- * - Funkce pro ovladani web serveru
- * - Handlery HTTP pozadavku
- * - WebSocket funkce
- * - Konfigurace a status funkce
+ * This header defines the interface for the web server task:
+ * - Functions for controlling the web server
+ * - HTTP request handlers
+ * - WebSocket functionality
+ * - Configuration and function status
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
- * Web Server Task spravuje WiFi Access Point a HTTP server pro vzdalene
- * ovladani sachoveho systemu. Uzivatel se muze pripojit k WiFi hotspotu
- * "ESP32-CzechMate" (prip. ESP32-CzechMate_1 …) a ovladat hru pres webovy prohlizec.
+ * Web Server Task manages WiFi Access Point and HTTP server for remote
+ * control of the sach system. The user can connect to a WiFi hotspot
+ * "ESP32-CzechMate" (or ESP32-CzechMate_1...) and control the game via a web browser.
  *
- * WiFi konfigurace:
- * - SSID: ESP32-CzechMate nebo ESP32-CzechMate_N (auto podle okolnich desek)
- * - Heslo: 12345678
+ * WiFi configuration:
+ * - SSID: ESP32-CzechMate or ESP32-CzechMate_N (car according to surrounding boards)
+ * - Password: 12345678
  * - IP: 192.168.4.1
- * - Kanal: 1
- * - Max pripojeni: 4
+ * - Channel: 1
+ * - Max connections: 4
  *
- * HTTP Endpointy:
- * - GET / - Hlavni stranka s webovym rozhranim
- * - GET /api/board - Aktualni stav sachovnice (JSON)
- * - GET /api/status - Stav hry (JSON)
- * - GET /api/history - Historie tahu (JSON)
- * - GET /api/captured - Sebrane figurky (JSON)
- * - GET /api/advantage - Material advantage graf (JSON)
- * - GET /api/timer - Stav casoveho systemu (JSON)
- * - POST /api/timer/config - Konfigurace casoveho systemu
- * - POST /api/timer/pause - Pozastaveni timeru
- * - POST /api/timer/resume - Obnoveni timeru
- * - POST /api/timer/reset - Reset timeru
+ * HTTP Endpoints:
+ * - GET / - Main page with web interface
+ * - GET /api/board - Current state of the inbox (JSON)
+ * - GET /api/status - Game status (JSON)
+ * - GET /api/history - Pull history (JSON)
+ * - GET /api/captured - Captured figures (JSON)
+ * - GET /api/advantage - Material advantage chart (JSON)
+ * - GET /api/timer - Status of the time system (JSON)
+ * - POST /api/timer/config - Time system configuration
+ * - POST /api/timer/pause - Pause the timer
+ * - POST /api/timer/resume - Timer resume
+ * - POST /api/timer/reset - Timer reset
  *
- * Autentizace HTTP (Bearer token a web lock) — přehled URI viz
+ * HTTP authentication (Bearer token and web lock) — see URI overview
  * @ref board_api_auth.h (board_api_auth.h).
  */
 
@@ -57,14 +57,14 @@ extern "C" {
 #endif
 
 // ============================================================================
-// TYPY WEB SERVER PRIKAZU
+// WEB SERVER COMMAND TYPES
 // ============================================================================
 
 /**
- * @brief Typy web server prikazu
+ * @brief Web server command types
  */
 typedef enum {
-  WEB_CMD_START_SERVER, ///< Spust web server
+  WEB_CMD_START_SERVER, ///< Start web server
   WEB_CMD_STOP_SERVER,  ///< Zastav web server
   WEB_CMD_GET_STATUS,   ///< Ziskej status serveru
   WEB_CMD_SET_CONFIG    ///< Nastav konfiguraci serveru
@@ -75,92 +75,92 @@ typedef enum {
 // ============================================================================
 
 /**
- * @brief Hlavni funkce Web Server tasku
+ * @brief The main functions of the Web Server task
  *
- * Inicializuje WiFi AP, spusti HTTP server a zpracovava pozadavky.
+ * Initializes the WiFi AP, starts the HTTP server and processes requests.
  *
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void web_server_task_start(void *pvParameters);
 
-// Zpracovani prikazu
+// Order processing
 
 /**
- * @brief Zpracuj web server prikazy z fronty
+ * @brief Process web server commands from the queue
  */
 void web_server_process_commands(void);
 
 /**
- * @brief Odešle čekající game snapshot (WS + BLE) z fronty — volat z web
- * server task smyčky; nesmí z game_task.
+ * @brief Sends pending game snapshot (WS + BLE) from queue — call from web
+ * server task loop; must not from game_task.
  */
 void web_server_process_snapshot_notify_queue(void);
 
 /**
- * @brief Vykonaj web server prikaz
+ * @brief Execute the web server command
  *
- * @param command Prikaz k vykonani (web_command_type_t)
+ * @param command The command to execute (web_command_type_t)
  */
 void web_server_execute_command(uint8_t command);
 
 /**
- * @brief Zařadí příkaz do fronty web_server tasku (bezpečné z UART/jiného tasku).
+ * @brief Enqueues command to web_server task (safe from UART/other task).
  */
 esp_err_t web_server_enqueue_command(web_command_type_t cmd);
 
-// Funkce pro ovladani web serveru
+// Functions for controlling the web server
 
 /**
- * @brief Spust web server
+ * @brief Start the web server
  *
- * Inicializuje WiFi AP a spusti HTTP server.
+ * Initializes the WiFi AP and start the HTTP server.
  */
 void web_server_start(void);
 
 /**
  * @brief Zastav web server
  *
- * Zastavi HTTP server a WiFi AP.
+ * Stop HTTP server and WiFi AP.
  */
 void web_server_stop(void);
 
 /**
- * @brief Ziskej status web serveru
+ * @brief Get the web server status
  *
- * Vypise stav serveru (aktivni, pocet klientu, uptime).
+ * Lists server status (active, number of clients, uptime).
  */
 void web_server_get_status(void);
 
 /**
- * @brief Nastav konfiguraci web serveru
+ * @brief Set the web server configuration
  *
  * Zmeni konfiguraci serveru (port, max klientu, SSL).
  */
 void web_server_set_config(void);
 
-// Sprava stavu
+// Status management
 
 /**
- * @brief Aktualizuj stav web serveru
+ * @brief Update the web server status
  *
- * Periodicky aktualizuje interni stav serveru.
+ * Periodically updates the server's internal status.
  */
 void web_server_update_state(void);
 
-// HTTP request handlery
+// HTTP request handlers
 
 /**
- * @brief Zpracuj GET / (hlavni stranka)
+ * @brief Process GET / (main page)
  */
 void web_server_handle_root(void);
 
 /**
- * @brief Zpracuj GET /api/status (stav hry)
+ * @brief Handle GET /api/status (game state)
  */
 void web_server_handle_api_status(void);
 
 /**
- * @brief Zpracuj GET /api/board (sachovnice)
+ * @brief Process GET /api/board (box)
  */
 void web_server_handle_api_board(void);
 
@@ -169,10 +169,10 @@ void web_server_handle_api_board(void);
  */
 void web_server_handle_api_move(void);
 
-// WebSocket funkce
+// WebSocket function
 
 /**
- * @brief Inicializuj WebSocket
+ * @brief Initialize the WebSocket
  */
 void web_server_websocket_init(void);
 
@@ -183,36 +183,36 @@ void web_server_websocket_init(void);
  */
 void web_server_websocket_send_update(const char *data);
 
-// Utility funkce
+// Utility function
 
 /**
- * @brief Overi zda je web server aktivni
+ * @brief Verify if the web server is active
  *
- * @return true pokud server bezi
+ * @return true if the server is running
  */
 bool web_server_is_active(void);
 
 /**
- * @brief Aktualni SSID WiFi AP po startu (napr. ESP32-CzechMate nebo ESP32-CzechMate_1).
+ * @brief Current SSID WiFi AP after start (e.g. ESP32-CzechMate or ESP32-CzechMate_1).
  */
 const char *web_server_get_ap_ssid(void);
 
 /**
- * @brief Ziskej pocet pripojenych klientu
+ * @brief Get the number of connected clients
  *
- * @return Pocet aktualne pripojenych klientu
+ * @return The number of currently connected clients
  */
 uint32_t web_server_get_client_count(void);
 
 /**
- * @brief Vrati posledni chybu pri startu HTTP serveru (ESP_OK pokud bez chyby)
+ * @brief Return the last error when starting the HTTP server (ESP_OK if no error)
  */
 esp_err_t web_server_get_last_http_error(void);
 
 /**
- * @brief Ziskej uptime serveru
+ * @brief Get server uptime
  *
- * @return Uptime v milisekundach od spusteni
+ * @return Uptime in milliseconds since startup
  */
 uint32_t web_server_get_uptime(void);
 
@@ -231,19 +231,19 @@ void web_server_log_request(const char *method, const char *path);
  */
 void web_server_log_error(const char *error_message);
 
-// Konfiguracni funkce
+// Configuration functions
 
 /**
- * @brief Nastav port serveru
+ * @brief Set server port
  *
  * @param port Cislo portu (80 = HTTP standard)
  */
 void web_server_set_port(uint16_t port);
 
 /**
- * @brief Nastav maximum klientu
+ * @brief Set maximum client
  *
- * @param max_clients Maximalni pocet soucastne pripojenych klientu
+ * @param max_clients Maximum number of simultaneously connected clients
  */
 void web_server_set_max_clients(uint32_t max_clients);
 
@@ -254,12 +254,12 @@ void web_server_set_max_clients(uint32_t max_clients);
  */
 void web_server_enable_ssl(bool enable);
 
-// Funkce pro status a ovladani
+// Functions for status and control
 
 /**
- * @brief Overi zda web server task bezi
+ * @brief Check if the web server task is running
  *
- * @return true pokud task bezi
+ * @return true if the task is running
  */
 bool web_server_is_task_running(void);
 
@@ -273,137 +273,137 @@ void web_server_stop_task(void);
 /**
  * @brief Resetuj web server
  *
- * Provede kompletni reset web serveru.
+ * Performs a complete reset of the web server.
  */
 void web_server_reset(void);
 
-// WiFi funkce pro externi pouziti (UART prikazy)
+// WiFi function for external use (UART commands)
 /**
- * @brief Ulozi WiFi STA konfiguraci do NVS
+ * @brief Save WiFi STA configuration to NVS
  *
- * @param ssid SSID WiFi site (max 32 znaku)
- * @param password Heslo WiFi site (max 64 znaku)
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param ssid SSID WiFi site (max 32 characters)
+ * @param password WiFi site password (max 64 characters)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password);
 
 /**
- * @brief Pripoji ESP32 k WiFi site jako Station
+ * @brief I connect the ESP32 to the WiFi site as a Station
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t wifi_connect_sta(void);
 
 /**
- * @brief Odpoji ESP32 od WiFi site
+ * @brief Disconnect the ESP32 from the WiFi site
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t wifi_disconnect_sta(void);
 
 /**
- * @brief Vymaze WiFi STA konfiguraci z NVS
+ * @brief Clears WiFi STA configuration from NVS
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t wifi_clear_config_from_nvs(void);
 
 /**
- * @brief Zjisti zda je STA pripojeno
+ * @brief Determine if STA is connected
  *
- * @return true pokud je STA pripojeno, false jinak
+ * @return true if STA is connected, false otherwise
  */
 bool wifi_is_sta_connected(void);
 
 /**
- * @brief Zjisti, zda je web rozhrani zamcene
+ * @brief Determine if the web interface is locked
  *
- * @return true pokud je zamcene, false pokud je odemcene
+ * @return true if locked, false if unlocked
  */
 bool web_is_locked(void);
 
 /**
- * @brief Nastavi lock stav a ulozi do NVS
+ * @brief Set lock state and save to NVS
  *
- * @param locked True pro lock, false pro unlock
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param locked True for lock, false for unlock
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t web_lock_set(bool locked);
 
 /**
- * @brief Nacte lock stav z NVS
+ * @brief Nacte lock status from NVS
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t web_lock_load_from_nvs(void);
 
 /**
- * @brief Nacte WiFi STA konfiguraci z NVS (pro externi pouziti)
+ * @brief Create WiFi STA configuration from NVS (for external use)
  *
- * @param ssid Buffer pro SSID (minimalne 33 znaku)
- * @param ssid_len Velikost bufferu pro SSID
- * @param password Buffer pro heslo (minimalne 65 znaku)
- * @param password_len Velikost bufferu pro heslo
- * @return ESP_OK pri uspechu, ESP_ERR_NOT_FOUND pokud konfigurace neexistuje
+ * @param ssid Buffer for SSID (minimum 33 characters)
+ * @param ssid_len Buffer size for SSID
+ * @param password Buffer for the password (minimum 65 characters)
+ * @param password_len Buffer size for the password
+ * @return ESP_OK on success, ESP_ERR_NOT_FOUND if the configuration does not exist
  */
 esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
                                     size_t password_len);
 
 /**
- * @brief Stejný JSON jako GET /api/game/snapshot (pro BLE GATT read / interní
- * použití).
+ * @brief Same JSON as GET /api/game/snapshot (for BLE GATT read / internal
+ * use).
  */
 esp_err_t web_server_build_game_snapshot_json(char *out, size_t cap,
                                               size_t *out_len);
 
 /**
- * @brief Stejný JSON jako GET /api/game/snapshot do interního `snapshot_buffer`.
+ * @brief Same JSON as GET /api/game/snapshot to internal `snapshot_buffer`.
  *
- * Šetří ~20 KB RAM oproti druhému statickému poli v BLE — mutex je uvnitř buildu.
- * Platný ukazatel jen do dalšího volání jakéhokoli snapshot buildu (HTTP/BLE).
+ * Saves ~20KB of RAM over the second static field in BLE — the mutex is inside the build.
+ * Valid pointer only until the next call of any snapshot build (HTTP/BLE).
  */
 esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
                                                      size_t *out_len);
 
 /**
- * @brief Zpracuje UTF-8 JSON z BLE GATT zápisu na příkazovou charakteristiku
- * (cmd: ping, hint_highlight, hint_clear, brightness — stejné chování jako
- * REST kde je uvedeno).
+ * @brief Process UTF-8 JSON from BLE GATT notation to a command characteristic
+ * (cmd: ping, hint_highlight, hint_clear, brightness — same behavior as
+ * REST where indicated).
  */
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len);
 
-/** True pokud dispatch už odeslal vlastní cmd_ack (např. ota_ble_status). */
+/** True if dispatch has already sent its own cmd_ack (e.g. ota_ble_status). */
 bool web_server_ble_dispatch_custom_ack_was_sent(void);
 
 /**
- * @brief Vytáhne řetězec z pole "cmd" z BLE JSON (pro potvrzovací notify).
- * @return true pokud byl cmd nalezen a zkopírován do cmd_out
+ * @brief Extracts the string from the "cmd" field of the BLE JSON (for confirmation notifications).
+ * @return true if cmd was found and copied to cmd_out
  */
 bool web_server_ble_extract_cmd_for_ack(const char *json, char *cmd_out,
                                         size_t cmd_out_sz);
 
 /**
- * @brief Ziska aktualni IP adresu STA rozhrani
+ * @brief Get the current IP address of the STA interface
  *
- * @param buffer Buffer pro IP adresu (min 16 znaku)
- * @param max_len Velikost bufferu
- * @return ESP_OK pri uspechu
+ * @param buffer Buffer for IP address (min 16 characters)
+ * @param max_len Buffer size
+ * @return ESP_OK on success
  */
 esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len);
 
 /**
- * @brief Ziska aktualni SSID STA rozhrani
+ * @brief Get the current SSID of the STA interface
  *
- * @param buffer Buffer pro SSID (min 33 znaku)
- * @param max_len Velikost bufferu
- * @return ESP_OK pri uspechu
+ * @param buffer Buffer for SSID (min 33 characters)
+ * @param max_len Buffer size
+ * @return ESP_OK on success
  */
 esp_err_t wifi_get_sta_ssid(char *buffer, size_t max_len);
 
-/** True když deska aktuálně vysílá uživatelský hotspot (AP). */
+/** True if the board is currently broadcasting a user hotspot (AP). */
 bool wifi_ap_is_broadcasting(void);
 
-/** SSID hotspotu (konvence CzechMate), platné i když AP zrovna nevysílá. */
+/** Hotspot SSID (CzechMate convention), valid even if the AP is not currently broadcasting. */
 const char *wifi_ap_effective_ssid(void);
 
 // ============================================================================
@@ -412,7 +412,7 @@ const char *wifi_ap_effective_ssid(void);
 
 /** @brief Fronta pro web server status */
 extern QueueHandle_t web_server_status_queue;
-/** @brief Fronta pro web server prikazy */
+/** @brief Queue for web server commands */
 extern QueueHandle_t web_server_command_queue;
 
 #ifdef __cplusplus

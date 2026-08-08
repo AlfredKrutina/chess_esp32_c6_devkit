@@ -1,4 +1,4 @@
-/// Aktivní puzzle v sandboxu — porovnání s referenční UCI linkou (Lichess / knihovna).
+/// Active puzzle in sandbox — comparison with reference UCI line (Lichess / library).
 class PuzzleChallengeState {
   const PuzzleChallengeState({
     required this.title,

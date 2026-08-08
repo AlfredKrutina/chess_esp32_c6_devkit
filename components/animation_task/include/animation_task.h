@@ -1,11 +1,11 @@
 /**
  * @file animation_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Hlavicka Animation Tasku
+ * @brief ESP32-C6 Chess System v1.8.0 - Animation Task header
  * 
- * Tato hlavicka definuje rozhrani pro animation task:
- * - Typy animaci a struktury
- * - Prototypy funkci animation tasku
- * - Funkce pro ovladani animaci a stav
+ * This header defines the interface for the animation task:
+ * - Types of animation and structures
+ * - Prototypes task animation function
+ * - Functions to control animation and state
  * 
  * @author Alfred Krutina
  * @version 1.8.0
@@ -38,17 +38,17 @@ typedef enum {
     ANIM_TASK_TYPE_WAVE = 0,         // Vlnovy vzor
     ANIM_TASK_TYPE_PULSE,            // Pulzni efekt
     ANIM_TASK_TYPE_FADE,             // Prechod fade
-    ANIM_TASK_TYPE_CHESS_PATTERN,    // Sachovnicovy vzor
+    ANIM_TASK_TYPE_CHESS_PATTERN,    // Chessboard pattern
     ANIM_TASK_TYPE_RAINBOW,          // Duhove barvy
-    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Zvyrazneni cesty tahu
+    ANIM_TASK_TYPE_MOVE_HIGHLIGHT,   // Stroke path highlighting
     ANIM_TASK_TYPE_CHECK_HIGHLIGHT,  // Indikator sachu
     ANIM_TASK_TYPE_GAME_OVER,        // Vzor konce hry
     ANIM_TASK_TYPE_CUSTOM            // Vlastni animace
 } animation_task_type_t;
 
-// Typy stavu animaci (prejmenovano pro zabraneni konfliktu s unified_animation_manager)
+// Animation state types (renamed to avoid conflict with unified_animation_manager)
 typedef enum {
-    ANIM_TASK_STATE_IDLE = 0,       // Animace je neaktivni
+    ANIM_TASK_STATE_IDLE = 0,       // Animation is inactive
     ANIM_TASK_STATE_RUNNING,        // Animace bezi
     ANIM_TASK_STATE_PAUSED,         // Animace je pozastavena
     ANIM_TASK_STATE_FINISHED        // Animace je dokoncena
@@ -79,57 +79,57 @@ typedef struct {
 
 
 /**
- * @brief Spusti animation task
+ * @brief Start animation task
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void animation_task_start(void *pvParameters);
 
 
 // ============================================================================
-// INICIALIZACNI FUNKCE ANIMACI
+// ANIMATION INITIALIZATION FUNCTIONS
 // ============================================================================
 
 
 /**
- * @brief Inicializuje system animaci
+ * @brief Initializes the system animation
  */
 void animation_initialize_system(void);
 
 /**
- * @brief Vytvori novou animaci
+ * @brief Create a new animation
  * 
- * @param type Typ animace
- * @param duration_ms Delka v milisekundach
- * @param priority Priorita animace (0-255)
- * @param loop Zda animaci opakovat
- * @return ID animace nebo 0xFF pri selhani
+ * @param type The animation type
+ * @param duration_ms Duration in milliseconds
+ * @param priority Animation priority (0-255)
+ * @param loop Whether to repeat the animation
+ * @return animation ID or 0xFF on failure
  */
 uint8_t animation_create(animation_task_type_t type, uint32_t duration_ms, uint8_t priority, bool loop);
 
 /**
- * @brief Spusti animaci
+ * @brief Start the animation
  * 
- * @param animation_id ID animace ke spusteni
+ * @param animation_id ID of the animation to run
  */
 void animation_start(uint8_t animation_id);
 
 /**
- * @brief Zastavi animaci
+ * @brief Stop the animation
  * 
  * @param animation_id ID animace k zastaveni
  */
 void animation_stop(uint8_t animation_id);
 
 /**
- * @brief Pozastavi animaci
+ * @brief Pause the animation
  * 
  * @param animation_id ID animace k pozastaveni
  */
 void animation_pause(uint8_t animation_id);
 
 /**
- * @brief Obnovi animaci
+ * @brief Refresh the animation
  * 
  * @param animation_id ID animace k obnoveni
  */
@@ -137,7 +137,7 @@ void animation_resume(uint8_t animation_id);
 
 
 // ============================================================================
-// FUNKCE PRO VZORY ANIMACI
+// FUNCTIONS FOR ANIMATION PATTERNS
 // ============================================================================
 
 
@@ -170,11 +170,11 @@ void animation_generate_pulse_frame(uint32_t frame, uint32_t color, uint8_t spee
 void animation_generate_fade_frame(uint32_t frame, uint32_t from_color, uint32_t to_color, uint32_t total_frames);
 
 /**
- * @brief Generuje snimek sachovnicoveho vzoru
+ * @brief Generates a snapshot of the box pattern
  * 
- * @param frame Cislo snimku
- * @param color1 Prvni barva
- * @param color2 Druha barva
+ * @param frame Frame number
+ * @param color1 The first color
+ * @param color2 Second color
  */
 void animation_generate_chess_pattern(uint32_t frame, uint32_t color1, uint32_t color2);
 
@@ -187,7 +187,7 @@ void animation_generate_rainbow_frame(uint32_t frame);
 
 
 // ============================================================================
-// FUNKCE PRO VYKONAVANI ANIMACI
+// FUNCTIONS FOR PERFORMING ANIMATION
 // ============================================================================
 
 
@@ -206,9 +206,9 @@ void animation_execute_frame(animation_task_t* anim);
 void animation_send_frame_to_leds(const uint8_t frame[CHESS_LED_COUNT_TOTAL][3]);
 
 /**
- * @brief Vykona animaci zvyrazneni tahu
+ * @brief Perform stroke highlight animation
  * 
- * @param anim Data animace
+ * @param anim The animation data
  */
 void animation_execute_move_highlight(animation_task_t* anim);
 
@@ -228,27 +228,27 @@ void animation_execute_game_over(animation_task_t* anim);
 
 
 // ============================================================================
-// FUNKCE PRO OVLADANI ANIMACI
+// ANIMATION CONTROL FUNCTIONS
 // ============================================================================
 
 
 /**
- * @brief Zpracuje prikazy animaci z fronty
+ * @brief Process the animation commands from the queue
  */
 void animation_process_commands(void);
 
 /**
- * @brief Zastavi vsechny animace
+ * @brief Stop all animations
  */
 void animation_stop_all(void);
 
 /**
- * @brief Pozastavi vsechny animace
+ * @brief Pause all animations
  */
 void animation_pause_all(void);
 
 /**
- * @brief Obnovi vsechny animace
+ * @brief Reset all animations
  */
 void animation_resume_all(void);
 
@@ -258,16 +258,16 @@ void animation_resume_all(void);
 void animation_print_status(void);
 
 /**
- * @brief Otestuje vsechny typy animaci
+ * @brief Tests all animation types
  */
 void animation_test_all(void);
 
 /**
- * @brief Otestuje system animaci
+ * @brief Tests the animation system
  */
 void animation_test_system(void);
 
-// Funkce pro textove zobrazeni animaci
+// Function for text display animation
 const char* animation_get_name(animation_task_type_t animation_type);
 void animation_print_progress(const animation_task_t* anim);
 void animation_print_piece_move(const char* from_square, const char* to_square, 
@@ -280,13 +280,13 @@ void animation_print_summary(void);
 // ============================================================================
 
 /**
- * @brief Animuje pohyb figurky s prirozenymi pohybovymi vzory
+ * @brief Animates the figure's movement with natural movement patterns
  * 
- * @param from_row Zdrojovy radek
- * @param from_col Zdrojovy sloupec
- * @param to_row Cilovy radek
- * @param to_col Cilovy sloupec
- * @param piece Figurka ktera se pohybuje
+ * @param from_row Source rows
+ * @param from_col The source column
+ * @param to_row Target rows
+ * @param to_col Destination column
+ * @param piece The figure that moves
  */
 void animate_piece_move_natural(uint8_t from_row, uint8_t from_col, 
                                uint8_t to_row, uint8_t to_col, piece_t piece);
@@ -297,9 +297,9 @@ void animate_piece_move_natural(uint8_t from_row, uint8_t from_col,
 void animation_request_interrupt();
 
 /**
- * @brief Overi zda byla detekovana nova animace (placeholder)
+ * @brief Verify if a new animation (placeholder) was detected
  * 
- * @return true pokud byla detekovana nova animace
+ * @return true if a new animation was detected
  */
 bool new_move_detected();
 

@@ -35,10 +35,10 @@ move_error_t game_is_valid_move(const chess_move_t *move) {
   // Check if source position has a piece
   piece_t source_piece = game_get_piece(move->from_row, move->from_col);
 
-  // Pokud je source_piece prázdné (král je zvednutý během resignation timeru),
-  // použít move->piece místo source_piece
+  // If source_piece is empty (the king is raised during the resignation timer),
+  // use move->piece instead of source_piece
   if (source_piece == PIECE_EMPTY) {
-    // Pokud je resignation timer aktivní a move->piece je král, použít
+    // If resignation timer is active and move->piece is king, use
     // move->piece
     if (resignation_state.active && move->piece != PIECE_EMPTY &&
         (move->piece == PIECE_WHITE_KING || move->piece == PIECE_BLACK_KING) &&
@@ -67,9 +67,9 @@ move_error_t game_is_valid_move(const chess_move_t *move) {
     return MOVE_ERROR_DESTINATION_OCCUPIED;
   }
 
-  // KONTROLA ROŠÁDY V PROGRESS - PŘED validací pohybu figurky
-  // Pokud je to správný rošáda tah věže, přeskočit standardní validaci pohybu
-  // figurky (která by jinak zjistila, že cesta je blokovaná králem)
+  // CHECKING THE ROLL IN PROGRESS - BEFORE validating the figure's movement
+  // If it's a correct cast rook move, skip the standard move validation
+  // pieces (which would otherwise find the path blocked by the king)
   bool is_castling_rook_move = false;
   if (castling_state.in_progress) {
     ESP_LOGI(TAG, "🏰 game_is_valid_move: Castling in progress - checking if "
@@ -80,13 +80,13 @@ move_error_t game_is_valid_move(const chess_move_t *move) {
              castling_state.rook_to_row + 1, 'a' + move->from_col,
              move->from_row + 1, 'a' + move->to_col, move->to_row + 1);
 
-    // Očekáváme tah věže
+    // We expect a rook move
     if (move->from_row != castling_state.rook_from_row ||
         move->from_col != castling_state.rook_from_col) {
       ESP_LOGE(TAG, "❌ Castling in progress - expected rook move from %c%d",
                'a' + castling_state.rook_from_col,
                castling_state.rook_from_row + 1);
-      return MOVE_ERROR_CASTLING_BLOCKED; // Použijeme existující error code
+      return MOVE_ERROR_CASTLING_BLOCKED; // We will use the existing error code
     }
 
     if (move->to_row != castling_state.rook_to_row ||
@@ -94,17 +94,17 @@ move_error_t game_is_valid_move(const chess_move_t *move) {
       ESP_LOGE(
           TAG, "❌ Incorrect rook destination during castling - expected %c%d",
           'a' + castling_state.rook_to_col, castling_state.rook_to_row + 1);
-      return MOVE_ERROR_CASTLING_BLOCKED; // Použijeme existující error code
+      return MOVE_ERROR_CASTLING_BLOCKED; // We will use the existing error code
     }
 
-    // Toto je správný rošáda tah věže - přeskočit standardní validaci pohybu
-    // figurky
+    // This is a proper cast rook move - skip the standard move validation
+    // figurines
     is_castling_rook_move = true;
     ESP_LOGI(TAG, "✅ Correct rook move for castling completion - skipping "
                   "standard piece validation (path would be blocked by king)");
   }
 
-  // Validate move based on piece type (POUZE pokud NENÍ rošáda tah věže)
+  // Validate move based on piece type (ONLY if casting is NOT tower move)
   if (!is_castling_rook_move) {
     move_error_t piece_error =
         game_validate_piece_move_enhanced(move, source_piece);
@@ -172,28 +172,28 @@ bool game_validate_piece_move(const chess_move_t *move, piece_t piece) {
 }
 
 /**
- * @brief Validuje tah pesce s rozsirenou detekci chyb
+ * @brief Validates a pesce move with extended error detection
  *
- * @param move Ukazatel na strukturu tahu
- * @param piece Typ figurky (PIECE_WHITE_PAWN nebo PIECE_BLACK_PAWN)
- * @return MOVE_ERROR_NONE pokud je tah platny, jinak kod chyby
+ * @param move A pointer to a move structure
+ * @param piece Piece type (PIECE_WHITE_PAWN or PIECE_BLACK_PAWN)
+ * @return MOVE_ERROR_NONE if the move is valid, otherwise error code
  *
  * @details
- * Tato funkce validuje vsechny typy tahu pesce:
- * - Pohyb vpred o 1 pole
- * - Pohyb vpred o 2 pole ze startovni pozice
- * - Brani diagonalne (1 pole diagonalne s nepratelem)
- * - En passant (specialni brani mimochodem)
+ * This function validates all pesce move types:
+ * - Move forward 1 square
+ * - Move forward 2 squares from starting position
+ * - Defense diagonally (1 square diagonally with the enemy)
+ * - En passant
  *
- * Funkce take kontroluje:
- * - Blokovani cesty (bile i cerne pesce)
- * - Zpetne tahy (invalidi)
- * - Diagonalni tahy na prazdna pole (bez en passant)
+ * The function also checks:
+ * - Road blocking (bile i cerne pesce)
+ * - Reverse moves (invalids)
+ * - Diagonal strokes on empty fields (without en passant)
  *
- * @note Opraveno v2.4.1:
- * - BUG #1: Blokovani cesty nyni funguje pro bile i cerne pesce (abs(row_diff))
- * - BUG #8: Zpetne tahy jsou nyni detekovany jako INVALID_PATTERN
- * - Pridany diagnosticke logy pro debugging
+ * @note Fixed in v2.4.1:
+ * - BUG #1: Path blocking now works for both white and black fish (abs(row_diff))
+ * - BUG #8: Backstrokes are now detected as INVALID_PATTERN
+ * - Added diagnostic logs for debugging
  */
 move_error_t game_validate_pawn_move_enhanced(const chess_move_t *move,
                                               piece_t piece) {
@@ -301,22 +301,22 @@ bool game_validate_knight_move(const chess_move_t *move) {
 }
 
 /**
- * @brief Validuje tah strelce s rozsirenou detekci chyb
+ * @brief Validates shooter move with extended error detection
  *
- * @param move Ukazatel na strukturu tahu
- * @return MOVE_ERROR_NONE pokud je tah platny, jinak kod chyby
+ * @param move A pointer to a move structure
+ * @return MOVE_ERROR_NONE if the move is valid, otherwise error code
  *
  * @details
- * Strelec se pohybuje pouze diagonalne. Funkce kontroluje:
- * - Validni diagonalni pohyb (abs_row_diff == abs_col_diff)
- * - Blokovani cesty mezi start a cil pozici
- * - Vsechna pole na ceste musi byt prazdna
+ * The shooter only moves diagonally. The function checks for:
+ * - Valid diagonal movement (abs_row_diff == abs_col_diff)
+ * - Blocking the path between the start and finish position
+ * - All fields on the path must be empty
  *
- * @note Opraveno v2.4.1:
- * - BUG #2: While loop nyni pouziva OR misto AND pro spravnou kontrolu az do
- * cile
- * - Pridana safety kontrola proti nekonecnemu loopu (max 8 kroku)
- * - Pridany diagnosticke logy pro blokovani
+ * @note Fixed in v2.4.1:
+ * - BUG #2: While loop now uses OR instead of AND to properly check up to
+ * goals
+ * - Added safety check against infinite loop (max 8 steps)
+ * - Added diagnostic logs for blocking
  */
 move_error_t game_validate_bishop_move_enhanced(const chess_move_t *move) {
   int row_diff = move->to_row - move->from_row;
@@ -330,8 +330,8 @@ move_error_t game_validate_bishop_move_enhanced(const chess_move_t *move) {
   }
 
   // Check if path is blocked
-  // Původně: while (...&& ...) - končilo předčasně
-  // Nově: while (...|| ...) - kontroluje až do cíle
+  // Originally: while (...&& ...) - terminated prematurely
+  // New: while (...|| ...) - checks until the destination
   int row_step = (row_diff > 0) ? 1 : -1;
   int col_step = (col_diff > 0) ? 1 : -1;
 
@@ -433,19 +433,19 @@ bool game_validate_queen_move(const chess_move_t *move) {
 }
 
 /**
- * @brief Validuje tah krale s rozsirenou detekci chyb
+ * @brief Validates a king move with extended error detection
  *
- * @param move Ukazatel na strukturu tahu
- * @return MOVE_ERROR_NONE pokud je tah platny, jinak kod chyby
+ * @param move A pointer to a move structure
+ * @return MOVE_ERROR_NONE if the move is valid, otherwise error code
  *
  * @details
- * Kral se muze pohybovat o 1 pole libovolnym smerem nebo delat rosadu.
- * Funkce kontroluje:
- * - Pohyb o 1 pole (8 smeru)
- * - Pohyb o 2 pole vodorovne (rosada)
- * - Tah musi byt nenulovy (nelze tahnout na stejne pole)
+ * The king can move 1 square in any direction or make rooks.
+ * The function checks for:
+ * - Move 1 space (8 directions)
+ * - Move 2 squares horizontally (Castling)
+ * - The move must be non-zero (you cannot move on the same field)
  *
- * Pro rosadu deleguje validaci na game_validate_castling().
+ * Delegates validation to game_validate_castling() for castling.
  *
  */
 move_error_t game_validate_king_move_enhanced(const chess_move_t *move) {
@@ -455,7 +455,7 @@ move_error_t game_validate_king_move_enhanced(const chess_move_t *move) {
   int abs_col_diff = abs(col_diff);
 
   // King moves one square in any direction
-  // Musi se pohnout alespon o 1 pole (ne 0,0)
+  // Must move at least 1 square (not 0.0)
   // Puvodni: povoloval tah na stejne pole
   if (abs_row_diff <= 1 && abs_col_diff <= 1 &&
       (abs_row_diff > 0 || abs_col_diff > 0)) {
@@ -476,20 +476,20 @@ bool game_validate_king_move(const chess_move_t *move) {
 }
 
 /**
- * @brief Kontroluje zda by tah ponechal krale v sachu
+ * @brief Checks whether the move would leave the king in check
  *
- * @param move Ukazatel na strukturu tahu k otestovani
- * @return true pokud by tah ponechal krale v sachu, false pokud je tah bezpecny
+ * @param move A pointer to the move structure to test
+ * @return true if the move would leave the king in check, false if the move is safe
  *
  * @details
- * Funkce simuluje tah na desce a kontroluje zda by vysledna pozice
- * ponechala vlastniho krale v sachu. Pouziva se pro validaci vsech tahu.
+ * The function simulates a move on the board and checks whether the resulting position would
+ * she left her own king in the sack. It is used to validate all moves.
  *
- * Proces:
- * 1. Ulozi puvodni stav desky
- * 2. Provede tah docasne
- * 3. Kontroluje zda je kral v sachu
- * 4. Obnovi puvodni stav desky
+ * Process:
+ * 1. Saves the original state of the board
+ * 2. Performs the move temporarily
+ * 3. Checks whether the king is in chess
+ * 4. Restore the original state of the board
  *
  */
 bool game_would_move_leave_king_in_check(const chess_move_t *move) {
@@ -500,8 +500,8 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
   piece_t original_from_piece = board[move->from_row][move->from_col];
   piece_t original_to_piece = board[move->to_row][move->to_col];
 
-  // Pokud je from_piece prázdné (král je zvednutý během resignation timeru),
-  // použít move->piece místo original_from_piece
+  // If from_piece is empty (the king is raised during the resignation timer),
+  // use move->piece instead of original_from_piece
   if (original_from_piece == PIECE_EMPTY && move->piece != PIECE_EMPTY) {
     original_from_piece = move->piece;
     ESP_LOGD(TAG,
@@ -551,17 +551,17 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
 }
 
 /**
- * @brief Kontroluje zda je en passant mozny pro dany tah
+ * @brief Checks if en passant is possible for the given move
  *
- * @param move Ukazatel na strukturu tahu k otestovani
- * @return true pokud je en passant platny, false pokud neni mozny
+ * @param move A pointer to the move structure to test
+ * @return true if en passant is valid, false if not possible
  *
  * @details
- * En passant (brani mimochodem) je mozne pouze pokud:
- * 1. Posledni tah byl pesec pohybujici se o 2 pole
- * 2. Utocici pesec je na stejnem radku jako prave pohnuty pesec
- * 3. Utocici pesec je primo vedle prave pohnuteho pesce
- * 4. Cilove pole je uprostred mezi start a cil pozici protivnikova pesce
+ * En passant is only possible if:
+ * 1. The last move was the king moving 2 squares
+ * 2. The attacking pawn is on the same line as the right moved pawn
+ * 3. The attacking pesce is right next to the right moved pesce
+ * 4. The target field is in the middle between the start and the target position of the opponent's fish
  *
  */
 bool game_is_en_passant_possible(const chess_move_t *move) {
@@ -588,8 +588,8 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
     return false;
   }
 
-  // Zkontrolovat, zda útočící pěšec je na stejném řádku jako právě
-  // pohnutý pěšec
+  // Check if the attacking pawn is on the same row as the current one
+  // moved pawn
   if (move->from_row != last_move_to_row) {
     ESP_LOGD(TAG,
              "🔍 En passant: attacking pawn not on same row (from_row=%d, "
@@ -598,15 +598,15 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
     return false;
   }
 
-  // Zkontrolovat, zda útočící pěšec je přesně vedle právě pohnutého
-  // pěšce
+  // Check if the attacking pawn is exactly next to the currently moved one
+  // on foot
   int col_diff = abs((int)move->from_col - (int)last_move_to_col);
   if (col_diff != 1) {
     ESP_LOGD(TAG, "🔍 En passant: pawn not adjacent (col_diff=%d)", col_diff);
     return false;
   }
 
-  // En passant pole je vždy uprostřed mezi from a to (prostý průměr)
+  // En passant field is always midway between from and to (simple mean)
   int en_passant_target_row = (last_move_from_row + last_move_to_row) / 2;
 
   ESP_LOGD(TAG,
@@ -630,25 +630,25 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
 }
 
 /**
- * @brief Validuje rosadu (castling) s komplexni kontrolou vsech podminek
+ * @brief Validates castling with comprehensive control of all conditions
  *
- * @param move Ukazatel na strukturu tahu (kral taha o 2 pole vodorovne)
- * @return MOVE_ERROR_NONE pokud je rosada platna, jinak kod chyby
+ * @param move Pointer to move structure (move king 2 spaces horizontally)
+ * @return MOVE_ERROR_NONE if castling is valid, otherwise error code
  *
  * @details
- * Rosada musi splnovat vsechny tyto podminky:
- * 1. Figurka musi byt kral
- * 2. Kral se jeste nepohyboval
- * 3. Vez se jeste nepohybovala
- * 4. Vez existuje na spravne pozici
- * 5. Cesta mezi kralem a vezi je prazdna
- * 6. Kral neni v sachu
- * 7. Kral neprojde sachovanyym polem
- * 8. Kral neskonci v sachu
+ * Castling must meet all these conditions:
+ * 1. The figure must be a king
+ * 2. The king hasn't moved yet
+ * 3. She hasn't moved yet
+ * 4. Vez exists in the correct position
+ * 5. The road between the king and the prison is empty
+ * 6. The king is not in chess
+ * 7. The king does not pass through the saved square
+ * 8. The king of eternity in sax
  *
- * Rosada je mozna:
- * - Kingside (O-O): kral e1->g1, vez h1->f1
- * - Queenside (O-O-O): kral e1->c1, vez a1->d1
+ * Castling is possible:
+ * - Kingside (O-O): king e1->g1, take h1->f1
+ * - Queenside (O-O-O): king e1->c1, take a1->d1
  *
  */
 move_error_t game_validate_castling(const chess_move_t *move) {
@@ -670,16 +670,16 @@ move_error_t game_validate_castling(const chess_move_t *move) {
     return MOVE_ERROR_CASTLING_BLOCKED;
   }
 
-  // Pokud je resignation timer aktivní a král je zvednutý,
-  // použít uloženou pozici krále z resignation_state místo kontroly desky
+  // If the resignation timer is active and the king is raised,
+  // use the saved king position from resignation_state instead of checking the board
   int king_row = is_white ? 0 : 7;
   int expected_king_col = 4; // e-file
 
-  // Pokud je resignation timer aktivní a král patří aktuálnímu hráči,
-  // použít uloženou pozici krále z resignation_state
+  // If the resignation timer is active and the king belongs to the current player,
+  // use saved king position from resignation_state
   if (resignation_state.active &&
       resignation_state.player == (is_white ? PLAYER_WHITE : PLAYER_BLACK)) {
-    // Král je zvednutý - použít uloženou pozici z resignation_state
+    // King is raised - use saved position from resignation_state
     king_row = resignation_state.king_row;
     expected_king_col = resignation_state.king_col;
     ESP_LOGI(TAG,
@@ -688,8 +688,8 @@ move_error_t game_validate_castling(const chess_move_t *move) {
              'a' + expected_king_col, king_row + 1);
   }
 
-  // Kontrola, zda from_row/from_col odpovídá očekávané pozici krále
-  // (buď z desky, nebo z resignation_state)
+  // Checking that from_row/from_col matches the expected position of the king
+  // (either from board or resignation_state)
   if (move->from_row != king_row || move->from_col != expected_king_col) {
     ESP_LOGD(
         TAG,
@@ -741,7 +741,7 @@ move_error_t game_validate_castling(const chess_move_t *move) {
   }
 
   // Check if squares between king and rook are empty
-  // rook_col již definováno výše
+  // rook_col already defined above
   int start_col =
       (move->from_col < rook_col) ? move->from_col + 1 : rook_col + 1;
   int end_col = (move->from_col < rook_col) ? rook_col : move->from_col;

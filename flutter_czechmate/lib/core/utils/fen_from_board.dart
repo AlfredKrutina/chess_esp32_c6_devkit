@@ -1,7 +1,7 @@
 import '../models/game_snapshot.dart';
 
-/// Vytvoří minimální FEN z `board[][]` (řádek 0 = rank 8) + barva tahu.
-/// Castling/en-passant jsou heuristické — pro `chess` knihovnu v sandboxu.
+/// Creates a minimum FEN from `board[][]` (row 0 = rank 8) + stroke color.
+/// Castling/en-passant are heuristics — for a sandboxed `chess` library.
 String fenFromSnapshot(GameSnapshot snap) {
   final turn =
       snap.status.currentPlayer.toLowerCase().startsWith('b') ? 'b' : 'w';

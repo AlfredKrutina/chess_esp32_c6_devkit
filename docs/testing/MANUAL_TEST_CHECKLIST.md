@@ -1,227 +1,227 @@
-# Opening Trainer — manuální HW checklist (v1.0 release gate)
+# Opening Trainer — manual HW checklist (v1.0 release gate)
 
-**Účel:** Ověřit §21 release gate v [OPENING_TRAINING_PLAN.md](../reference/OPENING_TRAINING_PLAN.md) na reálné desce.  
-**HW:** ESP32-C6 CzechMate, fyzická šachovnice, LED, Flutter klient (BLE nebo Wi‑Fi).  
-**Čas:** ~45–60 min pro plný běh; minimální gate = sekce **A + B + C**.
+**Purpose:** Verify §21 release gate in [OPENING_TRAINING_PLAN.md](../reference/OPENING_TRAINING_PLAN.md) on a real board.  
+**HW:** ESP32-C6 CzechMate, physical chessboard, LED, Flutter client (BLE or Wi‑Fi).  
+**Time:** ~45–60 min for a full run; minimum gate = sections **A + B + C**.
 
 ---
 
-## Před testem
+## Before testing
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
-| 0.1 | Flash firmware z `main` (`idf.py flash`) | Boot bez WDT resetu |
-| 0.2 | Deska v **standardní startovní pozici** | Matrix = 32 figurek |
-| 0.3 | Flutter připojen (BLE nebo HTTP) | Snapshot `/api/status` nebo GATT OK |
-| 0.4 | (Volitelně) HTTP smoke: `./scripts/test_opening_api.sh http://<board-ip>` | `action: start` vrátí 200, status obsahuje `opening_training` |
+| 0.1 | Flash firmware from `main` (`idf.py flash`) | Boot without WDT reset |
+| 0.2 | Board in **standard starting position** | Matrix = 32 pieces |
+| 0.3 | Flutter connected (BLE or HTTP) | Snapshot `/api/status` or GATT OK |
+| 0.4 | (Optional) HTTP smoke: `./scripts/test_opening_api.sh http://<board-ip>` | `action: start` returns 200, status contains `opening_training` |
 
-**Poznámka:** Při virtuálním soupeři očekávej **checkpoint** — fyzická deska se musí srovnat s logickou.
-
----
-
-## A — Gate G2: 3 linie × Learn + Drill
-
-Každá linie: **Fyzický soupeř** (default), nejdřív **Učení**, pak **Drill** (po dokončení Learn).
-
-### A1 — Italská hra bílých (`italian_giuoco_white`)
-
-| Krok | Akce | Očekávání |
-|------|------|-----------|
-| 1 | Katalog → Italská hra → Fyzicky + **Učení** | Lekce startuje; rationale jen na 1. tahu |
-| 2 | Tah `e2→e4` na desce | LED + text „e2 → e4“; komentář k tahu |
-| 3 | Po `e7e5` LED ukáže tah soupeře | Přesuneš černého pěšáka |
-| 4 | Dokonči všechny 4 hráčovy tahy | `complete` + endgame LED; ★1 uložena |
-| 5 | Znovu otevři linii → **Drill** | Bez komentářů k tahům; počítadlo chyb |
-| 6 | Dokonči Drill s ≤2 chybami | ★2 |
-
-### A2 — Sicilská ODB černých (`sicilian_odb_black`)
-
-| Krok | Akce | Očekávání |
-|------|------|-----------|
-| 1 | Katalog → Sicilská → Fyzicky + **Učení** | Bílý `e4` se provede automaticky před tvým tahem |
-| 2 | První hráčův tah černých | Validace UCI na desce |
-| 3 | Dokonči Learn | ★1 |
-| 4 | Drill s ≤2 chybami | ★2 |
-
-### A3 — Španělská Berlín bílých (`spanish_berlin_white`)
-
-| Krok | Akce | Očekávání |
-|------|------|-----------|
-| 1 | Learn screen L12 nebo katalog → **Učení** | Mode picker (ne skrytý default) |
-| 2 | Projdi linii s fyzickým soupeřem | Komentáře + idea viditelné v Learn |
-| 3 | Dokonči Learn + Drill | ★1 → ★2 |
-
-**Gate G2 ✅** pokud všechny tři linie projdou Learn i Drill bez zaseknutí.
+**Note:** With a virtual opponent, expect a **checkpoint** — the physical board must match the logical position.
 
 ---
 
-## B — Gate G3/G4: Režimy, checkpoint, cancel
+## A — Gate G2: 3 lines × Learn + Drill
 
-### B1 — Virtuální soupeř + checkpoint
+Each line: **Physical opponent** (default), first **Learn**, then **Drill** (after Learn completes).
 
-| Krok | Akce | Očekávání |
+### A1 — Italian Game for White (`italian_giuoco_white`)
+
+| Step | Action | Expected result |
 |------|------|-----------|
-| 1 | `italian_giuoco_white`, **Virtuálně** + Učení | Soupeř táhne bez tvého přesunu figurek |
-| 2 | Po ~4. ply (checkpoint) | UI „Srovnej desku“; miniboard zvýrazní rozdíly |
-| 3 | Nech desku nesrovnanou → **Pokračovat** | Tlačítko disabled / 409 přes API |
-| 4 | Srovnej desku → **Deska srovnaná — pokračovat** | Lekce pokračuje |
+| 1 | Catalog → Italian Game → Physical + **Learn** | Lesson starts; rationale only on move 1 |
+| 2 | Move `e2→e4` on the board | LED + text “e2 → e4”; move comment |
+| 3 | After `e7e5` LED shows opponent move | Move the black pawn |
+| 4 | Complete all 4 player moves | `complete` + endgame LED; ★1 saved |
+| 5 | Reopen line → **Drill** | No move comments; mistake counter |
+| 6 | Complete Drill with ≤2 mistakes | ★2 |
 
-### B2 — Na čas (Timed)
+### A2 — Sicilian ODB for Black (`sicilian_odb_black`)
 
-| Krok | Akce | Očekávání |
+| Step | Action | Expected result |
 |------|------|-----------|
-| 1 | Linie s ★≥2 → **Na čas** 90 s | Odpočet v app bar |
-| 2 | Dokonči v limitu | ★3 |
-| 3 | (Volitelně) Nech vypršet čas | Lekce se ukončí, bez ★3 |
+| 1 | Catalog → Sicilian → Physical + **Learn** | White `e4` plays automatically before the first black move |
+| 2 | First black player move | UCI validation on the board |
+| 3 | Complete Learn | ★1 |
+| 4 | Drill with ≤2 mistakes | ★2 |
+
+### A3 — Spanish Berlin for White (`spanish_berlin_white`)
+
+| Step | Action | Expected result |
+|------|------|-----------|
+| 1 | Learn screen L12 or catalog → **Learn** | Mode picker (not a hidden default) |
+| 2 | Walk through the line with a physical opponent | Comments + idea visible in Learn |
+| 3 | Complete Learn + Drill | ★1 → ★2 |
+
+**Gate G2 ✅** if all three lines pass Learn and Drill without getting stuck.
+
+---
+
+## B — Gate G3/G4: Modes, checkpoint, cancel
+
+### B1 — Virtual opponent + checkpoint
+
+| Step | Action | Expected result |
+|------|------|-----------|
+| 1 | `italian_giuoco_white`, **Virtual** + Learn | Opponent moves without moving pieces manually |
+| 2 | After ~4th ply (checkpoint) | UI “Align board”; miniboard highlights differences |
+| 3 | Leave board misaligned → **Continue** | Button disabled / 409 via API |
+| 4 | Align board → **Board aligned — continue** | Lesson continues |
+
+### B2 — Timed
+
+| Step | Action | Expected result |
+|------|------|-----------|
+| 1 | Line with ★≥2 → **Timed** 90 s | Countdown in app bar |
+| 2 | Finish within limit | ★3 |
+| 3 | (Optional) Let time expire | Lesson ends, no ★3 |
 
 ### B3 — Cancel + matrix guard
 
-| Krok | Akce | Očekávání |
+| Step | Action | Expected result |
 |------|------|-----------|
-| 1 | Spusť libovolnou lekci | Opening aktivní |
-| 2 | Během lekce zvedni figuru mimo tah (ghost) při **virtuálním** soupeři | Matrix guard **nesmí** zamrznout hru |
-| 3 | Zavři lekci (×) | Návrat do normální hry |
-| 4 | Zahraj normální tah / puzzle | Matrix guard znovu funguje |
+| 1 | Start any lesson | Opening active |
+| 2 | During lesson, lift a piece off-turn (ghost) with **virtual** opponent | Matrix guard must **not** freeze the game |
+| 3 | Close lesson (×) | Return to normal game |
+| 4 | Play a normal move / puzzle | Matrix guard works again |
 
-**Gate G3/G4 ✅** pokud checkpoint, timed a cancel projdou.
+**Gate G3/G4 ✅** if checkpoint, timed, and cancel all pass.
 
 ---
 
-## C — Gate P6: 2 mirror páry (e4 + d4)
+## C — Gate P6: 2 mirror pairs (e4 + d4)
 
-Vyžaduje ★★ na hlavní linii před odemčením Mirror.
+Requires ★★ on the main line before Mirror unlocks.
 
-### C1 — e4 pár: Italská bílých ↔ Petrova černých
+### C1 — e4 pair: Italian White ↔ Petrov Black
 
-| Krok | Akce | Očekávání |
+| Step | Action | Expected result |
 |------|------|-----------|
-| 1 | `italian_giuoco_white` má ★≥2 | Mirror odemčen |
-| 2 | Zvol **Mirror — protistrana** | Načte se `petrov_black` |
-| 3 | Dokonči s ≤2 chybami | ★4 na `petrov_black` |
+| 1 | `italian_giuoco_white` has ★≥2 | Mirror unlocked |
+| 2 | Choose **Mirror — opposite side** | Loads `petrov_black` |
+| 3 | Complete with ≤2 mistakes | ★4 on `petrov_black` |
 
-### C2 — d4 pár: Londýnský systém ↔ Slav černých
+### C2 — d4 pair: London System ↔ Slav Black
 
-| Krok | Akce | Očekávání |
+| Step | Action | Expected result |
 |------|------|-----------|
-| 1 | `london_system_white` ★≥2 | Mirror odemčen |
-| 2 | Mirror → `slav_defence_black` | Protistrana d4 repertoáru |
-| 3 | Dokonči | ★4 |
+| 1 | `london_system_white` ★≥2 | Mirror unlocked |
+| 2 | Mirror → `slav_defence_black` | Opposite side of d4 repertoire |
+| 3 | Complete | ★4 |
 
-**Gate P6 ✅** pokud oba páry fungují a vedou na správnou protistranu.
+**Gate P6 ✅** if both pairs work and lead to the correct opposite side.
 
 ---
 
-## D — Pedagogika a UX (P1–P5)
+## D — Pedagogy and UX (P1–P5)
 
-| # | Test | Očekávání |
+| # | Test | Expected result |
 |---|------|-----------|
-| D1 | Špatný tah v Learn (např. `Bb5` místo `Bc4` u italštiny) | Text „Ne Bb5…“ (`common_mistakes`), ne `Stav: wrong` |
-| D2 | 3× špatný tah na stejném ply | `mistake_hint` + LED ukáže správný tah |
-| D3 | EN locale v aplikaci | Anglické `idea`, `steps`, feedback |
-| D4 | Miniboard během lekce | Pozice + hint from→to; checkpoint fialové pole |
-| D5 | Progress po restartu app | ★ zůstanou (SharedPreferences) |
+| D1 | Wrong move in Learn (e.g. `Bb5` instead of `Bc4` in Italian) | Text “Not Bb5…” (`common_mistakes`), not `Stav: wrong` |
+| D2 | 3× wrong move on the same ply | `mistake_hint` + LED shows correct move |
+| D3 | EN locale in the app | English `idea`, `steps`, feedback |
+| D4 | Miniboard during lesson | Position + hint from→to; checkpoint purple square |
+| D5 | Progress after app restart | ★ persist (SharedPreferences) |
 
 ---
 
-## E — BLE-only build (volitelný HW profil)
+## E — BLE-only build (optional HW profile)
 
-Pro desku s firmware `CONFIG_CHESS_ENABLE_WEB_SERVER=n`:
+For a board with firmware `CONFIG_CHESS_ENABLE_WEB_SERVER=n`:
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
-| E1 | Build: viz CI job `ble-only` v `firmware-build.yml` | Link bez chyb |
-| E2 | Flash BLE-only firmware | UART `WEB` hlásí HTTP disabled |
-| E3 | Flutter přes BLE: start Learn `italian_giuoco_white` | Stejná lekce jako HTTP build |
-| E4 | Hint / cancel / complete přes GATT | Parita s HTTP |
+| E1 | Build: see CI job `ble-only` in `firmware-build.yml` | Link without errors |
+| E2 | Flash BLE-only firmware | UART `WEB` reports HTTP disabled |
+| E3 | Flutter over BLE: start Learn `italian_giuoco_white` | Same lesson as HTTP build |
+| E4 | Hint / cancel / complete over GATT | Parity with HTTP |
 
 ---
 
-## F — Web parita (G5, pokud HTTP build)
+## F — Web parity (G5, if HTTP build)
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
-| F1 | Browser → board IP → Opening trainer | Katalog 41 linií |
-| F2 | Learn + Drill jedné linie | Stejné feedback texty jako Flutter |
-| F3 | `localStorage` `opening_progress_v1` | Hvězdičky po dokončení |
+| F1 | Browser → board IP → Opening trainer | Catalog of 41 lines |
+| F2 | Learn + Drill of one line | Same feedback text as Flutter |
+| F3 | `localStorage` `opening_progress_v1` | Stars after completion |
 
 ---
 
-## G — Gameplay policy profily (menuconfig, PR #20)
+## G — Gameplay policy profiles (menuconfig, PR #20)
 
-Ověření po změně Kconfig. Vyžaduje flash s příslušným `SDKCONFIG_DEFAULTS`.
+Verification after Kconfig changes. Requires flash with the corresponding `SDKCONFIG_DEFAULTS`.
 
-### G1 — FULL (produkce, default)
+### G1 — FULL (production, default)
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
 | G1.1 | Boot monitor | `GAMEPLAY_POLICY: profile=FULL MG=1 ER=1 MH=1` |
-| G1.2 | Zvedni 2 figurky najednou | Matrix guard active, žlutá/modrá LED |
-| G1.3 | Nelegální tah na desce | Červené pole + lock (`error_state.active`) |
-| G1.4 | Po validním tahu | Modré/žluté hinty podle LED guidance |
+| G1.2 | Lift 2 pieces at once | Matrix guard active, yellow/blue LED |
+| G1.3 | Illegal move on board | Red square + lock (`error_state.active`) |
+| G1.4 | After valid move | Blue/yellow hints per LED guidance |
 
 ### G2 — LITE (`sdkconfig.defaults.gameplay_lite`)
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
 | G2.1 | Boot monitor | `profile=LITE`, `MG=0` |
-| G2.2 | Zvedni 2 figurky | **Žádný** guard, hra pokračuje (UART warning) |
-| G2.3 | Nelegální tah | UART chyba, **bez** červené LED, **bez** locku |
+| G2.2 | Lift 2 pieces | **No** guard, game continues (UART warning) |
+| G2.3 | Illegal move | UART error, **no** red LED, **no** lock |
 | G2.4 | `/api/status` | `matrix_guard_active=false`, `error_state.active=false`, `gameplay_profile":"LITE"` |
 
 ### G3 — DEV (`sdkconfig.defaults.gameplay_dev`)
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
-| G3.1 | Opening Learn fyzický soupeř | Guard se **ne**aktivuje při běžných tazích |
-| G3.2 | Nelegální tah | ER lock + LED jako FULL |
-| G3.3 | Ghost figurka mimo tah | Bez guard pause (jako LITE u MG) |
+| G3.1 | Opening Learn physical opponent | Guard does **not** activate on normal moves |
+| G3.2 | Illegal move | ER lock + LED like FULL |
+| G3.3 | Ghost piece off-turn | No guard pause (like LITE for MG) |
 
-**Gate gameplay ✅** pokud G1–G3 odpovídají tabulce v [MENUCONFIG_FEATURES_PLAN.md](../reference/MENUCONFIG_FEATURES_PLAN.md) §10.
+**Gate gameplay ✅** if G1–G3 match the table in [MENUCONFIG_FEATURES_PLAN.md](../reference/MENUCONFIG_FEATURES_PLAN.md) §10.
 
 ---
 
-## H — Hall V2 + STM32 auto-flash (volitelné, HW V2)
+## H — Hall V2 + STM32 auto-flash (optional, HW V2)
 
 Build: `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash`  
-Zapojení: [ZAPOJENI_ESP_STM4.md](../reference/ZAPOJENI_ESP_STM4.md)
+Wiring: [WIRING_ESP_STM4.md](../reference/WIRING_ESP_STM4.md)
 
-| # | Kroky | Očekávání |
+| # | Steps | Expected result |
 |---|--------|-----------|
-| H1 | První boot virgin STM (nebo po `chip erase` ESP) | `STM32_AUTO` → flash z oddílu `stm32_fw` |
-| H2 | Po flashi | `STM32_I2C_BL: [hall_probe] seg0 addr 0x30 OK` |
-| H3 | Druhý boot (stejný STM) | `auto-flash přeskočen` + hall_probe OK |
-| H4 | Výměna STM / prázdný čip, NVS beze změny | `NVS … ale Hall neodpovídá — vynucuji auto-flash` |
-| H5 | Matrix scan | `HALL_I2C` bez WARN na seg0; pole reagují na magnet |
+| H1 | First boot virgin STM (or after ESP `chip erase`) | `STM32_AUTO` → flash from `stm32_fw` partition |
+| H2 | After flash | `STM32_I2C_BL: [hall_probe] seg0 addr 0x30 OK` |
+| H3 | Second boot (same STM) | `auto-flash skipped` + hall_probe OK |
+| H4 | STM swap / blank chip, NVS unchanged | `NVS … but Hall not responding — forcing auto-flash` |
+| H5 | Matrix scan | `HALL_I2C` without WARN on seg0; squares respond to magnet |
 | H6 | UART | `CLI HALL PROBE 0` → `Hall seg0 probe OK` |
 
 ---
 
-## Shrnutí gate (zaškrtni po testu)
+## Gate summary (check after test)
 
-| ID | Kritérium | HW | Poznámka / datum |
+| ID | Criterion | HW | Note / date |
 |----|-----------|-----|----------------|
 | G2 | 3× Learn + Drill | ☐ | |
-| G3 | Matrix guard bez regrese | ☐ | |
-| G4 | 4 režimy na FW | ☐ | |
+| G3 | Matrix guard without regression | ☐ | |
+| G4 | 4 modes on FW | ☐ | |
 | G5 | Flutter ≈ web | ☐ | |
 | G6 | Curriculum unlock | ☐ | auto test CI |
-| G7 | Progress po restartu | ☐ | |
-| P1 | Žádný `Stav:` v opening UI | ☐ | |
-| P2 | Rationale jen ply 0 | ☐ | |
+| G7 | Progress after restart | ☐ | |
+| P1 | No `Stav:` in opening UI | ☐ | |
+| P2 | Rationale only ply 0 | ☐ | |
 | P3 | EN locale steps | ☐ | |
-| P4 | common_mistakes ≥10 linií | ☐ | auto test CI |
+| P4 | common_mistakes ≥10 lines | ☐ | auto test CI |
 | P5 | Miniboard | ☐ | |
-| P6 | 2 mirror páry e4+d4 | ☐ | |
+| P6 | 2 mirror pairs e4+d4 | ☐ | |
 | P7 | L10/L12 mode picker | ☐ | |
 | GP | Gameplay FULL / LITE / DEV (§G) | ☐ | menuconfig PR #20 |
 
-**v1.0 release:** všechny řádky G* a P* ✅ (G6/G7/P4 částečně pokryto CI — viz `opening_release_gate_test.dart`).
+**v1.0 release:** all G* and P* rows ✅ (G6/G7/P4 partially covered by CI — see `opening_release_gate_test.dart`).
 
 ---
 
-## Automatizované doplňky (CI)
+## Automated supplements (CI)
 
-- `openings-catalog.yml` — 41 linií, UCI, mirror-symmetric, sync
+- `openings-catalog.yml` — 41 lines, UCI, mirror-symmetric, sync
 - `flutter-test.yml` — catalog, progress, curriculum, UX, release gate
-- `firmware-build.yml` — full HTTP + BLE-only + gameplay-lite + gameplay-dev + hall-v2 profily
-- `scripts/test_opening_api.sh` — HTTP smoke na desce
+- `firmware-build.yml` — full HTTP + BLE-only + gameplay-lite + gameplay-dev + hall-v2 profiles
+- `scripts/test_opening_api.sh` — HTTP smoke on the board

@@ -26,25 +26,25 @@ static const char *TAG = "GAME_PUZZLE";
 #endif
 
 static const game_puzzle_definition_t game_puzzles[] = {
-    {1, 1, "Mat 1 – Dáma na poslední řadě",
-     "Klasický motiv: otevřený f-sloupec, dáma dá mat na f8.",
+    {1, 1, "Mate in 1 – Queen on the back rank",
+     "Classic motif: open f-file, queen delivers mate on f8.",
      "7k/7p/8/8/8/8/5Q2/6K1 w - - 0 1", "f2", "f8"},
-    {2, 2, "Mat 1 – Dáma po sloupci",
-     "Útok po ose: dáma stoupá z b2 na b8.",
+    {2, 2, "Mate in 1 – Queen along the file",
+     "Attack along the file: queen rises from b2 to b8.",
      "6k1/5ppp/8/8/8/8/1Q6/6K1 w - - 0 1", "b2", "b8"},
-    {3, 3, "Mat 1 – Věž bere věž",
-     "Taktika zadní řady: bílá věž sebere černou na e8 a matuje krále.",
+    {3, 3, "Mate in 1 – Rook takes rook",
+     "Back-rank tactic: white rook takes black on e8 and mates the king.",
      "4r1k1/5ppp/8/8/8/8/4R3/4K3 w - - 0 1", "e2", "e8"},
-    {4, 4, "Mat 1 – Školácký mat",
-     "Známá ukázková pozice: střelec na c4, dáma na h5 — mat na f7.",
+    {4, 4, "Mate in 1 – Scholar's mate",
+     "Well-known demo position: bishop on c4, queen on h5 — mate on f7.",
      "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
      "h5", "f7"},
-    {5, 5, "Mat 1 – Dáma na d8",
-     "Centrální úder: dáma z d4 uzavře mat na poli d8.",
+    {5, 5, "Mate in 1 – Queen to d8",
+     "Central strike: queen from d4 delivers mate on d8.",
      "6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1", "d4", "d8"},
 };
 bool puzzle_active = false;
-/** Příprava fyzické pozice před game_puzzle_start (prázdná logika, matrix v JSON). */
+/** Preparation of physical position before game_puzzle_start (empty logic, matrix in JSON). */
 bool puzzle_setup_active = false;
 uint8_t puzzle_setup_id = 0;
 uint8_t puzzle_active_id = 0;
@@ -62,7 +62,7 @@ const game_puzzle_definition_t *game_get_puzzle_definition(uint8_t puzzle_id) {
   return NULL;
 }
 
-/** Očekávaná obsazenost (0/1) z FEN — jen placement, bez typů figurek. */
+/** Expected Occupancy (0/1) from FEN — just placement, no figure types. */
 static bool game_fen_expected_occupancy_64(const char *fen, uint8_t exp[64]) {
   memset(exp, 0, 64);
   if (fen == NULL) {
@@ -218,9 +218,9 @@ const char *game_puzzle_feedback_key(void) {
 const char *game_puzzle_feedback_message(void) {
   switch (puzzle_feedback) {
   case PUZZLE_FEEDBACK_WRONG:
-    return "To neni spravne reseni, vrat figurku na puvodni pole.";
+    return "This is not a correct solution, return the figure to the original square.";
   case PUZZLE_FEEDBACK_SOLVED:
-    return "Spravne! Puzzle je vyresene.";
+    return "Correct! Puzzle solved.";
   case PUZZLE_FEEDBACK_ILLEGAL:
     return "Nelegalni tah, zkus jiny.";
   case PUZZLE_FEEDBACK_NONE:

@@ -1,24 +1,24 @@
-%% Klienti vs firmware — co je v gitu a jak mluví s deskou
+%% Clients vs firmware — what is in git and how it talks to the board
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
-  subgraph FW["Firmware ESP-IDF — jedna aplikace na ESP32-C6"]
-    GT[game_task + šachová logika]:::core
+  subgraph FW["Firmware ESP-IDF — one application on ESP32-C6"]
+    GT[game_task + chess logic]:::core
     IO[LED · matrix · button · UART · WiFi · BLE · MQTT]:::io
     GT --- IO
   end
 
-  subgraph FL["flutter_czechmate — Dart / Flutter v tomto repu"]
+  subgraph FL["flutter_czechmate — Dart / Flutter in this repo"]
     UI[features + Riverpod]:::app
-    SVC[BLE + HTTP + WS klienti]:::app
+    SVC[BLE + HTTP + WS clients]:::app
     UI --> SVC
   end
 
-  subgraph NAT["CZECHMATE — nativní Swift Xcode"]
-    NOTE[typicky lokálně / mimo sdílený git]:::note
+  subgraph NAT["CZECHMATE — native Swift Xcode"]
+    NOTE[typically local / outside shared git]:::note
   end
 
   SVC <-->|GATT · HTTP · WS| IO
-  NAT -.->|volitelně stejné rozhraní jako Flutter| IO
+  NAT -.->|optionally same interface as Flutter| IO
 
   classDef core fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
   classDef io fill:#334155,stroke:#94a3b8,stroke-width:2px,color:#f1f5f9

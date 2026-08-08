@@ -7,7 +7,7 @@ import '../../core/utils/board_http_base_url.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-/// Stav kontroly manifestu vs deska (bez automatické sítě při build — volá [refresh]).
+/// Manifest vs board check status (no auto mesh on build — calls [refresh]).
 class FirmwareAvailState {
   const FirmwareAvailState({
     this.loading = false,
@@ -27,7 +27,7 @@ class FirmwareAvailState {
   /// Null = unknown (no HTTP info yet or older firmware without `ota_supported`).
   final bool? boardOtaSupported;
 
-  /// Deska hlásí `ota_last_boot_failed` z `GET /api/system/firmware`.
+  /// The board reports `ota_last_boot_failed` from `GET /api/system/firmware`.
   final bool? otaLastBootFailed;
   final String? otaFailedFirmwareVersion;
   final String? otaFailedSlot;
@@ -46,7 +46,7 @@ class FirmwareAvailState {
     return compareSemverLoose(m.version, b!) > 0;
   }
 
-  /// Stejná semver jako manifest (deska i manifest známé).
+  /// Same semver as manifest (plate and manifest known).
   bool get sameSemverAsManifest {
     final m = manifest;
     final b = boardVersion;
@@ -56,7 +56,7 @@ class FirmwareAvailState {
     return compareSemverLoose(m.version, b!) == 0;
   }
 
-  /// Manifest ze zdroje je starší než hlášená verze desky (oba známé).
+  /// The manifest from the source is older than the reported board version (both known).
   bool get manifestOlderThanBoard {
     final m = manifest;
     final b = boardVersion;
@@ -66,7 +66,7 @@ class FirmwareAvailState {
     return compareSemverLoose(m.version, b!) < 0;
   }
 
-  /// Manifest z Gitu je platný a buď je novější než deska, nebo verzi desky neznáme (jen BLE / bez HTTP).
+  /// The Git manifest is valid and either newer than the board or we don't know the board version (BLE only / no HTTP).
   bool get showBleGitFirmwareActions {
     final m = manifest;
     if (m == null || m.version.trim().isEmpty || m.url.trim().isEmpty) {
@@ -78,7 +78,7 @@ class FirmwareAvailState {
     return !hasBoardVersion;
   }
 
-  /// OTA akce z manifestu (včetně vývojářského znovu‑flash stejné nebo starší verze).
+  /// OTA actions from the manifest (including developer re-flash of the same or older version).
   bool showOtaFromGitWithDeveloper(bool developerUnlocked) {
     if (showBleGitFirmwareActions) {
       return true;
@@ -137,12 +137,12 @@ class FirmwareUpdateAvailabilityNotifier extends Notifier<FirmwareAvailState> {
   @override
   FirmwareAvailState build() => const FirmwareAvailState();
 
-  /// [manifestUrlOverride] — např. text z pole v nastavení ještě před uložením do prefs.
+  /// [manifestUrlOverride] — e.g. text from the field in the settings before saving to prefs.
   ///
-  /// [skipBoardHttpFetch] — jen manifest z Gitu (mobil má internet, deska jen BLE bez známé HTTP URL).
+  /// [skipBoardHttpFetch] — only manifest from Git (mobile has internet, board only BLE without known HTTP URL).
   ///
-  /// [afterBleOtaAssumeBoardMatchesManifest] — po úspěšném BLE stream OTA: znovu načte manifest, ale desku
-  /// nečte přes HTTP (restart/spojení); verzi desky nastaví na verzi z manifestu (nahrál se ten bin).
+  /// [afterBleOtaAssumeBoardMatchesManifest] — after successful BLE stream OTA: reload manifest but board
+  /// does not read via HTTP (restart/connection); it sets the version of the board to the version from the manifest (the bin was uploaded).
   Future<void> refresh({
     String? manifestUrlOverride,
     bool skipBoardHttpFetch = false,

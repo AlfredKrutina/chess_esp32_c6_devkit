@@ -1,41 +1,41 @@
 /**
  * @file web_server_task.c
- * @brief HTTP server (port 80), Wi‑Fi STA/AP dle NVS, REST API a WebSocket pro mobilní aplikaci
+ * @brief HTTP server (port 80), Wi‑Fi STA/AP according to NVS, REST API and WebSocket for mobile application
  *
  * @details
- * Prohlížečové UI na kořenové cestě není — GET `/` vrací orientační JSON; plná obsluha je v aplikaci.
- * Hotspot desky (AP) je ve výchozím stavu vypnutý; zapnutí přes BLE (`wifi_ap_set`) nebo NVS `ap_user_en`.
+ * Browser UI not on root path — GET `/` returns indicative JSON; full service is in the app.
+ * Hotspot of the board (AP) is disabled by default; enable via BLE (`wifi_ap_set`) or NVS `ap_user_en`.
  *
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT DID THIS FILE DO?
  * =============================================================================
  *
- * 1. Wi‑Fi — STA podle NVS; AP jen když ho uživatel zapne (BLE / NVS).
- * 2. HTTP server (port 80) — REST `/api/...`, kořen bez HTML rozhraní.
- * 3. WebSocket — živý snapshot pro klienty.
- * 4. Fronta `game_command_queue` — příkazy z HTTP (tah, reset, …).
+ * 1. Wi‑Fi — STA according to NVS; AP only when the user turns it on (BLE / NVS).
+ * 2. HTTP server (port 80) — REST `/api/...`, root without HTML interface.
+ * 3. WebSocket — live snapshot for clients.
+ * 4. The `game_command_queue` queue — commands from HTTP (move, reset, ...).
  *
  * =============================================================================
- * REST (orientační výpis)
+ * REST (orientation statement)
  * =============================================================================
  *
  * GET /api/status, /api/board, POST /api/move, POST /api/reset, GET /api/timer,
- * POST /api/demo/config a další — viz implementované handlery v tomto souboru.
+ * POST /api/demo/config and more — see implemented handlers in this file.
  *
  * =============================================================================
- * KOMUNIKACE (QUEUES)
+ * COMMUNICATION (QUEUES)
  * =============================================================================
  *
- * FRONTY - Posilame prikazy:
- * - game_command_queue -> Prikazy z webu (move, reset)
+ * QUEUES - We send orders:
+ * - game_command_queue -> Commands from the web (move, reset)
  *
- * VOLANI API FUNKCI:
- * - game_get_status_json() -> Ziskani JSON stavu
- * - game_get_board_json() -> Ziskani JSON desky
- * - game_get_history_json() -> Ziskani JSON historie
+ * API FUNCTION CALLS:
+ * - game_get_status_json() -> Get JSON status
+ * - game_get_board_json() -> Get board JSON
+ * - game_get_history_json() -> Get JSON history
  *
  * =============================================================================
- * REST API ENDPOINTY
+ * REST API ENDPOINTS
  * =============================================================================
  *
  * GET /api/status:
@@ -43,47 +43,47 @@
  * error_state}
  *
  * GET /api/board:
- * - JSON: {board: [[...], ...]}  // 8x8 array figurek
+ * - JSON: {board: [[...], ...]} // 8x8 array of pieces
  *
  * POST /api/move:
- * - Body: {from: "e2", to: "e4"}
+ * - Points: {from: "e2", to: "e4"}
  * - Response: {success: true/false, message: "..."}
  *
  * GET /api/timer:
  * - JSON: {white_time, black_time, running, paused}
  *
  * POST /api/demo/config:
- * - Body: {enabled: true, speed_ms: 2000}
+ * - Points: {enabled: true, speed_ms: 2000}
  *
  * =============================================================================
- * KRITICKA PRAVIDLA
+ * CRITIC OF RULES
  * =============================================================================
  *
- * @warning CO SE NESMI DELAT:
+ * @warning WHAT NOT TO DO:
  *
- * 1. NIKDY neblokuj v HTTP handleru!
- *    ❌ vTaskDelay(1000);  // Zablokuje HTTP server
- *    ✅ Proved rychle, vrat odpoved okamzite
+ * 1. NEVER block in the HTTP handler!
+ * ❌ vTaskDelay(1000);  // Blocks the HTTP server
+ * ✅ Execute quickly, return an answer immediately
  *
- * 2. NIKDY nezabud poslat HTTP response!
- *    ❌ return ESP_OK;  // Bez httpd_resp_send()
- *    ✅ httpd_resp_send(req, json, strlen(json)); return ESP_OK;
+ * 2. NEVER forget to send an HTTP response!
+ * ❌ return ESP_OK;  // Without httpd_resp_send()
+ * ✅ httpd_resp_send(req, json, strlen(json)); return ESP_OK;
  *
- * 3. VZDY kontroluj JSON buffer overflow!
- *    Buffer je 8KB - pokud JSON je vetsi, stack overflow!
+ * 3. ALWAYS check JSON buffer overflow!
+ * Buffer is 8KB - if JSON is bigger, stack overflow!
  *
- * 4. VZDY pouzij mutexу pro pristup ke game state!
- *    API funkce jako game_get_status_json() uz to delaji
+ * 4. ALWAYS use a mutex to access the game state!
+ * API functions like game_get_status_json() already do that
  *
  * =============================================================================
  * TABLE OF CONTENTS
  * =============================================================================
  *
- * Sekce 1:  WiFi Setup ........................... radek 100
- * Sekce 2:  HTTP Handlers ........................ radek 300
- * Sekce 3:  REST API Functions ................... radek 800
- * Sekce 4:  HTTP handlery a REST .................. (viz struktura souboru)
- * Sekce 5:  Main Web Server Task .................. (viz struktura souboru)
+ * Section 1: WiFi Setup .......................... line 100
+ * Section 2: HTTP Handlers ........................ line 300
+ * Section 3: REST API Functions ................... line 800
+ * Section 4: HTTP handlers and REST .................. (see file structure)
+ * Section 5: Main Web Server Task .................. (see file structure)
  *
  * =============================================================================
  *
@@ -91,9 +91,9 @@
  * @version 1.8.0
  * @date 2025-12-23
  *
- * @note Task priorita 2; stack kvůli velkým JSON bufferům; AP IP při zapnutém hotspotu typicky 192.168.4.1.
+ * @note Task priority 2; stack due to large JSON buffers; AP IP when the hotspot is on, typically 192.168.4.1.
  *
- * @see game_task.c — JSON API hry
+ * @see game_task.c — Game JSON API
  */
 
 #include "web_server_task.h"
@@ -140,7 +140,7 @@
 
 // Externi deklarace fronty
 extern QueueHandle_t game_command_queue;
-/** Z main.c — porovnání s xTaskGetCurrentTaskHandle() pro TWDT reset jen v této úloze. */
+/** From main.c — comparison with xTaskGetCurrentTaskHandle() for TWDT reset only in this task. */
 extern TaskHandle_t web_server_task_handle;
 
 // ============================================================================
@@ -155,13 +155,13 @@ static const char *TAG = "WEB_SERVER_TASK";
 // ============================================================================
 
 /**
- * @brief Reset TWDT jen pokud aktuální úloha je `web_server_task`.
+ * @brief Reset TWDT only if current task is `web_server_task`.
  *
- * `build_snapshot_json` a mutexové čekání se volají i z workerů `httpd` (GET
- * snapshot) – ty nejsou v TWDT; `esp_task_wdt_reset()` pak vrací ESP_ERR_NOT_FOUND
- * a komponenta task_wdt spamuje sériovku ERROR řádky.
+ * `build_snapshot_json` and mutex waits are also called from `httpd` workers (GET
+ * snapshot) – these are not in TWDT; `esp_task_wdt_reset()` then returns ESP_ERR_NOT_FOUND
+ * and the task_wdt component spams the serial number ERROR lines.
  *
- * Vrací ESP_OK i při přeskočení (cizí úloha nebo NULL handle).
+ * Returns ESP_OK even when skipped (foreign task or NULL handle).
  */
 esp_err_t web_server_task_wdt_reset_safe(void) {
   if (web_server_task_handle == NULL) {
@@ -184,9 +184,9 @@ esp_err_t web_server_task_wdt_reset_safe(void) {
   return ESP_OK;
 }
 
-// Konfigurace WiFi — AP SSID: nejprve sken okolí; prvni deska = jen zaklad, dalsi = zaklad_1 … zaklad_N
+// WiFi configuration — AP SSID: first neighborhood scan; first plate = base only, next = base_1 … base_N
 #define WIFI_AP_SSID_BASE "ESP32-CzechMate"
-/** Max. index suffixu _N (0 = bez pripony = prvni volny „slot“). */
+/** Max. suffix index _N (0 = no suffix = first free "slot"). */
 #define WIFI_AP_SSID_MAX_SLOTS 16
 #define WIFI_AP_PASSWORD "12345678"
 #define WIFI_AP_CHANNEL 1
@@ -200,11 +200,11 @@ esp_err_t web_server_task_wdt_reset_safe(void) {
 #define WIFI_NVS_NAMESPACE "wifi_config"
 #define WIFI_NVS_KEY_SSID "sta_ssid"
 #define WIFI_NVS_KEY_PASSWORD "sta_password"
-/** 0/1 — uživatelsky zapnutý hotspot desky (AP); výchozí NVS chybí → AP vypnutý. */
+/** 0/1 — user enabled board hotspot (AP); default NVS missing → AP disabled. */
 #define WIFI_NVS_KEY_AP_USER "ap_user_en"
-/** CSV blokovaných 3. oktetů IPv4 pro STA (např. `88` → zamítnout x.x.88.x); BLE `wifi_sta_ip_block` nebo výchozí z FW. */
+/** CSV of blocked 3rd IPv4 octets for STA (eg `88` → reject x.x.88.x); BLE `wifi_sta_ip_block` or default from FW. */
 #define WIFI_NVS_KEY_STA_BLK_OCT "sta_blk_oct"
-/** Po flashi / chybě klíče v NVS — dokud uživatel neuloží jinak přes aplikaci. */
+/** After flash / key error in NVS — until the user saves otherwise via the application. */
 #define WIFI_STA_BLK_OCT_DEFAULT_CSV "88"
 
 // NVS konfigurace pro Web Lock
@@ -217,15 +217,15 @@ esp_err_t web_server_task_wdt_reset_safe(void) {
 #define HTTP_SERVER_MAX_HEADERS 8
 #define HTTP_SERVER_MAX_CLIENTS 4
 
-/** GET /api/timer — timer_get_json (name 32 + description 64 + cisla); nesmi byt 8 KiB na stacku. */
+/** GET /api/timer — timer_get_json (name 32 + description 64 + number); there must not be 8 KiB on the stack. */
 
-// Sledovani stavu web serveru
+// Web server status monitoring
 static bool task_running = false;
 static bool web_server_active = false;
 static bool wifi_ap_active = false;
 static uint32_t web_server_start_time = 0;
 static esp_err_t last_http_start_error = ESP_OK;
-uint32_t client_count = 0; // Externi pro UART prikazy
+uint32_t client_count = 0; // External for UART commands
 
 // Handle HTTP serveru
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
@@ -240,16 +240,16 @@ static esp_netif_t *sta_netif = NULL;
 // STA status promenne
 static bool sta_connected = false;
 static bool sta_connecting =
-    false; // Flag pro sledovani stavu pripojovani (zabranuje race condition)
-/** True pokud uzivatel explicitne odpojil STA – vypne automaticke prepajeni. */
+    false; // Flag for tracking connection status (prevents race condition)
+/** True if the user has explicitly disconnected the STA - disables automatic connection. */
 static bool sta_manual_disconnect = false;
 /** Prodleva pred dalsim pokusem o STA reconnect (backoff). Reset na 3 s pri GOT_IP. */
 static uint32_t sta_reconnect_delay_ms = 3000;
 #define STA_RECONNECT_DELAY_MIN_MS  3000
 #define STA_RECONNECT_DELAY_MAX_MS  30000
 static esp_timer_handle_t sta_reconnect_timer = NULL;
-static bool web_locked = false; // Flag pro lock web rozhrani
-char sta_ip[16] = {0};          // Externi pro UART prikazy
+static bool web_locked = false; // Flag to lock the web interface
+char sta_ip[16] = {0};          // External for UART commands
 static char sta_ssid[33] = {0};
 /** Skutecny AP SSID po startu (po skenu okolnich CzechMate AP). */
 static char wifi_ap_ssid_effective[33] = {0};
@@ -259,10 +259,10 @@ static int last_disconnect_reason =
 #define STA_BLK_OCT_MAX 16
 static uint8_t s_sta_blk_oct[STA_BLK_OCT_MAX];
 static size_t s_sta_blk_oct_n;
-/** Kolikrát za sebou zamítnuta DHCP adresa (router může pořád nabízet stejnou). */
+/** How many times in a row the DHCP address has been rejected (the router can always offer the same one). */
 static unsigned s_sta_blk_reject_streak;
 
-/* Cache jasu pro GET /api/status – zabranuje NVS + CONFIG_MANAGER na kazdy
+/* Brightness cache for GET /api/status - prevents NVS + CONFIG_MANAGER on each
  * request */
 uint8_t cached_brightness = 50;
 bool cached_brightness_valid = false;
@@ -276,7 +276,7 @@ extern void toggle_demo_mode(bool enabled);
 extern void set_demo_speed_ms(uint32_t speed_ms);
 extern bool is_demo_mode_enabled(void);
 
-/** Fronta pingů — build snapshot jen v web_server_task (ne v esp_timer: malý stack). */
+/** Ping queue — build snapshot only in web_server_task (not in esp_timer: small stack). */
 QueueHandle_t snapshot_notify_queue;
 
 // ============================================================================
@@ -304,17 +304,17 @@ static void stop_http_server(void);
 // static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
 // je 100% READ-ONLY
 
-// Handler pro Tahy (Move)
+// Handler for Moves
 
-// WiFi API handlery
+// WiFi API handlers
 
-// Handlery pro Demo API
+// Handlers for the Demo API
 
-// Handler pro Virtual Actions
+// Handler for Virtual Actions
 
-// Handlery pro MQTT API
+// Handlers for the MQTT API
 
-// WiFi NVS funkce
+// WiFi NVS function
 esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
                                     size_t password_len) {
   if (ssid == NULL || password == NULL || ssid_len == 0 || password_len == 0) {
@@ -333,7 +333,7 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
     return ret;
   }
 
-  // Nacist SSID
+  // Nazi SSID
   size_t required_size = ssid_len;
   ret = nvs_get_str(nvs_handle, WIFI_NVS_KEY_SSID, ssid, &required_size);
   if (ret != ESP_OK) {
@@ -346,7 +346,7 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
     return ret;
   }
 
-  // Nacist password
+  // Nazi password
   required_size = password_len;
   ret =
       nvs_get_str(nvs_handle, WIFI_NVS_KEY_PASSWORD, password, &required_size);
@@ -366,7 +366,7 @@ esp_err_t wifi_load_config_from_nvs(char *ssid, size_t ssid_len, char *password,
   return ESP_OK;
 }
 
-// WiFi STA funkce (static pro interni pouziti)
+// WiFi STA function (static for internal use)
 
 // Gettery pro externi pouziti
 esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len) {
@@ -396,7 +396,7 @@ const char *wifi_ap_effective_ssid(void) {
   return wifi_ap_ssid_effective;
 }
 
-// Externi WiFi funkce (pro UART prikazy)
+// External WiFi function (for UART commands)
 esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password) {
   if (ssid == NULL || password == NULL) {
     ESP_LOGE(TAG, "Invalid parameters: ssid or password is NULL");
@@ -447,7 +447,7 @@ esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password) {
   nvs_close(nvs_handle);
   ESP_LOGI(TAG, "WiFi config saved to NVS: SSID=%s", ssid);
 
-  // Pokud je pripojeny a SSID se zmenil, odpojit
+  // If it is connected and the SSID has changed, disconnect
   if (sta_connected && strcmp(sta_ssid, ssid) != 0) {
     ESP_LOGI(TAG, "SSID changed from '%s' to '%s', disconnecting...", sta_ssid,
              ssid);
@@ -458,13 +458,13 @@ esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password) {
 }
 
 esp_err_t wifi_connect_sta(void) {
-  // Kontrola: pokud uz je pripojeny, vratit uspech
+  // Check: if already connected, return success
   if (sta_connected) {
     ESP_LOGI(TAG, "Already connected to WiFi: %s (IP: %s)", sta_ssid, sta_ip);
     return ESP_OK;
   }
 
-  // Kontrola: pokud se prave pripojuje, vratit chybu (race condition
+  // Check: if it is actually connecting, return an error (race condition
   // protection)
   if (sta_connecting) {
     ESP_LOGW(TAG, "WiFi connection already in progress");
@@ -474,7 +474,7 @@ esp_err_t wifi_connect_sta(void) {
   char ssid[33] = {0};
   char password[65] = {0};
 
-  // Nacist konfiguraci z NVS
+  // Clear configuration from NVS
   esp_err_t ret =
       wifi_load_config_from_nvs(ssid, sizeof(ssid), password, sizeof(password));
   if (ret != ESP_OK) {
@@ -506,19 +506,19 @@ esp_err_t wifi_connect_sta(void) {
     return ret;
   }
 
-  // Spustit pripojeni
+  // Start the connection
   ret = esp_wifi_connect();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to start WiFi connection: %s", esp_err_to_name(ret));
     return ret;
   }
 
-  // Cekat na pripojeni (max 30 sekund)
+  // Wait for connection (max 30 seconds)
   int retry_count = 0;
   const int max_retries = 30; // 30 sekund (1 sekunda per retry)
 
   while (retry_count < max_retries) {
-    // Resetovat WDT aby se zabranilo timeoutu (funkce muze blokovat az 30
+    // Reset WDT to prevent timeout (the function can block up to 30
     // sekund)
     web_server_task_wdt_reset_safe();
 
@@ -558,7 +558,7 @@ esp_err_t wifi_connect_sta(void) {
 }
 
 esp_err_t wifi_disconnect_sta(void) {
-  // Pokud neni pripojeny a nepripojuje se, vratit uspech
+  // If not connected and not connecting, return success
   if (!sta_connected && !sta_connecting) {
     ESP_LOGI(TAG, "WiFi already disconnected");
     return ESP_OK;
@@ -736,7 +736,7 @@ static void wifi_ap_user_apply_task(void *arg) {
   vTaskDelete(NULL);
 }
 
-/** Zpráva pro asynchronní STA provisioning z BLE (wifi_connect_sta může trvat až ~30 s). */
+/** Message for asynchronous STA provisioning from BLE (wifi_connect_sta can take up to ~30s). */
 typedef struct {
   char ssid[33];
   char password[65];
@@ -773,7 +773,7 @@ static void wifi_ble_prov_task(void *arg) {
   vTaskDelete(NULL);
 }
 
-/** BLE wifi_survey: aktivní scan okolí, výsledek přes cmd_ack JSON (šifrovaný odkaz). */
+/** BLE wifi_survey: active scan of the surroundings, result via cmd_ack JSON (encrypted link). */
 static void wifi_ble_survey_task(void *arg) {
   (void)arg;
 
@@ -911,14 +911,14 @@ static void wifi_ble_survey_task(void *arg) {
 bool wifi_is_sta_connected(void) { return sta_connected; }
 
 // ============================================================================
-// WEB LOCK NVS FUNKCE
+// WEB LOCK NVS FUNCTION
 // ============================================================================
 
 /**
- * @brief Ulozi lock stav do NVS
+ * @brief Save lock state to NVS
  *
- * @param locked True pro lock, false pro unlock
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param locked True for lock, false for unlock
+ * @return ESP_OK on success, error code on failure
  */
 static esp_err_t web_lock_save_to_nvs(bool locked) {
   nvs_handle_t nvs_handle;
@@ -951,15 +951,15 @@ static esp_err_t web_lock_save_to_nvs(bool locked) {
 }
 
 /**
- * @brief Nacte lock stav z NVS
+ * @brief Nacte lock status from NVS
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t web_lock_load_from_nvs(void) {
   nvs_handle_t nvs_handle;
   esp_err_t ret = nvs_open(WEB_NVS_NAMESPACE, NVS_READONLY, &nvs_handle);
   if (ret != ESP_OK) {
-    // Pokud NVS namespace neexistuje, pouzit default (unlocked)
+    // If NVS namespace does not exist, use default (unlocked)
     if (ret == ESP_ERR_NVS_NOT_FOUND) {
       web_locked = false;
       ESP_LOGI(TAG,
@@ -975,7 +975,7 @@ esp_err_t web_lock_load_from_nvs(void) {
   ret = nvs_get_blob(nvs_handle, WEB_NVS_KEY_LOCKED, &locked_value,
                      &required_size);
   if (ret == ESP_ERR_NVS_NOT_FOUND) {
-    // Klic neexistuje, pouzit default (unlocked)
+    // Key does not exist, use default (unlocked)
     web_locked = false;
     ESP_LOGI(TAG, "Web lock key not found, using default: unlocked");
     nvs_close(nvs_handle);
@@ -995,17 +995,17 @@ esp_err_t web_lock_load_from_nvs(void) {
 }
 
 /**
- * @brief Zjisti, zda je web rozhrani zamcene
+ * @brief Determine if the web interface is locked
  *
- * @return true pokud je zamcene, false pokud je odemcene
+ * @return true if locked, false if unlocked
  */
 bool web_is_locked(void) { return web_locked; }
 
 /**
- * @brief Nastavi lock stav a ulozi do NVS
+ * @brief Set lock state and save to NVS
  *
- * @param locked True pro lock, false pro unlock
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param locked True for lock, false for unlock
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t web_lock_set(bool locked) {
   web_locked = locked;
@@ -1026,8 +1026,8 @@ static void sta_reconnect_timer_cb(void *arg);
 #define WIFI_AP_SCAN_MAX_APS 64
 
 /**
- * Vrati true pokud SSID odpovida nase AP konvenci (zaklad | zaklad_N) a nastavi
- * out_slot: 0 = jen zaklad, 1..N = zaklad_N.
+ * Return true if the SSID matches our AP convention (base | base_N) and set
+ * out_slot: 0 = base only, 1..N = base_N.
  */
 static bool wifi_ap_ssid_matches_czechmate(const uint8_t *ssid_raw,
                                            size_t ssid_len, int *out_slot) {
@@ -1063,10 +1063,10 @@ static bool wifi_ap_ssid_matches_czechmate(const uint8_t *ssid_raw,
 }
 
 /**
- * @brief Jednorazovy STA sken: vybere nejnizsi volny SSID (prvni deska bez
- * pripony, dalsi _1 … _N) podle toho, co uz v okoli vysila.
+ * @brief One-time STA scan: selects the lowest free SSID (first board without
+ * suffixes, another _1 ... _N) according to what has already been broadcast in the area.
  *
- * Po navratu je WiFi zastavene; volajici nastavi APSTA a znovu spusti.
+ * Upon return, WiFi is stopped; caller set APSTA and restart.
  */
 static void wifi_select_ap_ssid_by_scan(void) {
   const char *base = WIFI_AP_SSID_BASE;
@@ -1134,7 +1134,7 @@ static void wifi_select_ap_ssid_by_scan(void) {
     }
   }
   if (chosen < 0) {
-    ESP_LOGW(TAG, "AP SSID: vsechny sloty 0..%d obsazeny — pouzit %s",
+    ESP_LOGW(TAG, "AP SSID: all slots 0..%d occupied — use %s",
              WIFI_AP_SSID_MAX_SLOTS, base);
     chosen = 0;
   }
@@ -1158,22 +1158,22 @@ static void wifi_select_ap_ssid_by_scan(void) {
 }
 
 /**
- * @brief Inicializuje WiFi Access Point a Station (APSTA)
+ * @brief Initializes WiFi Access Point and Station (APSTA)
  *
- * Tato funkce inicializuje WiFi v APSTA rezimu - soucasne jako Access Point
- * pro web server a jako Station pro pripojeni k internetu.
+ * This function initializes WiFi in APSTA mode - at the same time as an Access Point
+ * for a web server and as a Station for connecting to the Internet.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Funkce inicializuje netif, event loop, WiFi a nastavi AP i STA konfiguraci.
- * Registruje event handler pro WiFi udalosti a spusti Access Point.
- * Station interface je pripraven pro pripojeni k WiFi siti.
+ * The function initializes netif, event loop, WiFi and sets AP and STA configuration.
+ * Registers an event handler for WiFi events and starts the Access Point.
+ * The station interface is ready for connection to a WiFi network.
  */
 static esp_err_t wifi_init_apsta(void) {
   ESP_LOGI(TAG, "Initializing WiFi APSTA...");
 
-  // Dulezite: Inicializovat netif PRED vytvorenim default netif
+  // Important: Initialize netif BEFORE creating default netif
   ESP_LOGI(TAG, "Initializing netif...");
   esp_err_t ret = esp_netif_init();
   if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
@@ -1184,7 +1184,7 @@ static esp_err_t wifi_init_apsta(void) {
     ESP_LOGI(TAG, "Netif already initialized");
   }
 
-  // Dulezite: Vytvorit default event loop PRED inicializaci WiFi
+  // Important: Create a default event loop BEFORE WiFi initialization
   ESP_LOGI(TAG, "Creating default event loop...");
   ret = esp_event_loop_create_default();
   if (ret != ESP_OK && ret != ESP_ERR_INVALID_STATE) {
@@ -1198,9 +1198,9 @@ static esp_err_t wifi_init_apsta(void) {
     ESP_LOGI(TAG, "Event loop ready");
   }
 
-  /* Na ESP32-C6 (a jiných RISC-V) muze zaviset interni poradi driveru na tom,
-   * ktere default netif se vytvori prvni. Zkusime STA pred AP (snizi Load access
-   * fault v ieee80211_hostap_attach pri esp_wifi_start()). */
+  /* On the ESP32-C6 (and other RISC-V), the internal driver order may depend on
+   * which default netif will be created first. Let's try STA before AP (reduce Load access
+   * fault in ieee80211_hostap_attach at esp_wifi_start()). */
   ESP_LOGI(TAG, "Creating default WiFi STA netif...");
   sta_netif = esp_netif_create_default_wifi_sta();
   if (sta_netif == NULL) {
@@ -1215,7 +1215,7 @@ static esp_err_t wifi_init_apsta(void) {
     return ESP_FAIL;
   }
 
-  // Inicializovat WiFi s vychozi konfiguraci
+  // Initialize WiFi with default configuration
   ESP_LOGI(TAG, "Initializing WiFi...");
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ret = esp_wifi_init(&cfg);
@@ -1233,7 +1233,7 @@ static esp_err_t wifi_init_apsta(void) {
     return ret;
   }
 
-  // Registrovat IP event handler pro STA
+  // Register IP event handler for STA
   ret = esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
                                             &wifi_event_handler, NULL, NULL);
   if (ret != ESP_OK) {
@@ -1284,7 +1284,7 @@ static esp_err_t wifi_init_apsta(void) {
     return ret;
   }
 
-  /* STA-only: nastavení AP konfigurace by vrátilo ESP_ERR_WIFI_MODE — AP rozhraní neexistuje. */
+  /* STA-only: setting AP configuration would return ESP_ERR_WIFI_MODE — AP interface does not exist. */
   if (ap_on_boot) {
     ret = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
     if (ret != ESP_OK) {
@@ -1293,7 +1293,7 @@ static esp_err_t wifi_init_apsta(void) {
     }
   }
 
-  // Spustit WiFi
+  // Start WiFi
   ret = esp_wifi_start();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(ret));
@@ -1315,8 +1315,8 @@ static esp_err_t wifi_init_apsta(void) {
 }
 
 /**
- * @brief Callback jednorazoveho casovace pro automaticke prepojeni STA.
- * Vola se po WIFI_EVENT_STA_DISCONNECTED s backoffem; pouze spusti esp_wifi_connect().
+ * @brief Callback of one-time timer for automatic STA connection.
+ * Called after WIFI_EVENT_STA_DISCONNECTED with backoff; just run esp_wifi_connect().
  */
 static void sta_reconnect_timer_cb(void *arg) {
   (void)arg;
@@ -1440,7 +1440,7 @@ static esp_err_t wifi_sta_save_blocked_octets_csv(const char *csv_in) {
   if (r != ESP_OK) {
     return r;
   }
-  /* Prázdný řetězec = vypnutí filtrování (klíč musí existovat; NOT_FOUND = výchozí FW). */
+  /* Empty string = disable filtering (key must exist; NOT_FOUND = default FW). */
   if (*csv == '\0') {
     r = nvs_set_str(h, WIFI_NVS_KEY_STA_BLK_OCT, "");
     if (r != ESP_OK) {
@@ -1474,25 +1474,25 @@ static esp_err_t wifi_sta_save_blocked_octets_csv(const char *csv_in) {
 }
 
 /**
- * @brief Obsluhuje WiFi eventy
+ * @brief Handles WiFi events
  *
- * Tato funkce obsluhuje WiFi eventy pro Access Point i Station.
- * Sleduje pripojeni a odpojeni klientu k AP a stav STA pripojeni.
+ * This function handles WiFi events for both Access Point and Station.
+ * Monitors the connection and disconnection of the client to the AP and the status of the STA connection.
  *
- * @param arg Argument (nepouzivany)
- * @param event_base Typ eventu (WIFI_EVENT nebo IP_EVENT)
- * @param event_id ID eventu
- * @param event_data Data eventu
+ * @param arg Argument (not used)
+ * @param event_base Event type (WIFI_EVENT or IP_EVENT)
+ * @param event_id The ID of the event
+ * @param event_data Event data
  *
  * @details
- * Funkce sleduje:
- * - Pripojeni a odpojeni klientu k WiFi hotspotu (AP)
- * - Pripojeni a odpojeni STA k WiFi siti
- * - Ziskani IP adresy pro STA
+ * The function tracks:
+ * - Connecting and disconnecting the client to the WiFi hotspot (AP)
+ * - Connecting and disconnecting the STA to the WiFi network
+ * - Get IP address for STA
  */
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data) {
-  // AP eventy - pripojeni klientu k hotspotu
+  // AP events - connection of the client to the hotspot
   if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
     wifi_event_ap_staconnected_t *event =
         (wifi_event_ap_staconnected_t *)event_data;
@@ -1507,7 +1507,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
       client_count--;
     }
   }
-  // STA eventy - pripojeni k WiFi siti
+  // STA events - connected to a WiFi network
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
     ESP_LOGI(TAG, "STA: Started");
   } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
@@ -1579,24 +1579,24 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
 }
 
 // ============================================================================
-// WIFI NVS FUNKCE
+// WIFI NVS FUNCTION
 // ============================================================================
 
-// Duplicitni implementace odstranena - pouzivaji se externi funkce definovane
+// Duplicate implementation removed - external functions defined are used
 // vyse
 
 /**
- * @brief Vytvori JSON s WiFi statusem (AP i STA)
+ * @brief Create JSON with WiFi status (AP and STA)
  *
- * Tato funkce vytvori JSON string s aktualnim stavem WiFi (AP i STA).
+ * This function will create a JSON string with the current WiFi status (AP and STA).
  *
- * @param buffer Buffer pro JSON string
- * @param buffer_size Velikost bufferu
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @param buffer Buffer for JSON string
+ * @param buffer_size Buffer size
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Funkce vytvori JSON s informacemi o AP (SSID, IP, clients)
- * a STA (SSID, IP, connected status).
+ * Function to create JSON with AP information (SSID, IP, clients)
+ * and STA (SSID, IP, connected status).
  */
 esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
   if (buffer == NULL || buffer_size == 0) {
@@ -1615,7 +1615,7 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
     }
   }
 
-  // Ziskat STA SSID z NVS (pokud existuje)
+  // Get STA SSID from NVS (if any)
   char saved_ssid[33] = {0};
   char saved_password[65] = {0};
   esp_err_t nvs_ret = wifi_load_config_from_nvs(
@@ -1684,20 +1684,20 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
 // ============================================================================
 
 /**
- * @brief Spusti HTTP server
+ * @brief Start the HTTP server
  *
- * Tato funkce spusti HTTP server s REST API endpointy pro sachovy system.
- * Registruje vsechny potrebne handlery pro web rozhrani.
+ * This function will start an HTTP server with REST API endpoints for the sach system.
+ * Registers all necessary handlers for the web interface.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Funkce vytvori HTTP server s konfiguraci a registruje handlery pro:
- * - Hlavni stranku (/)
- * - Stav sachovnice (/board)
- * - Status hry (/status)
- * - Historie tahu (/history)
- * - Captured figurky (/captured)
+ * The function creates an HTTP server with configuration and registers handlers for:
+ * - Main page (/)
+ * - State of the board (/board)
+ * - Game status (/status)
+ * - Drag history (/history)
+ * - Captured figures (/captured)
  */
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
 static esp_err_t start_http_server(void) {
@@ -1711,8 +1711,8 @@ static esp_err_t start_http_server(void) {
   // Konfigurovat HTTP server
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.server_port = HTTP_SERVER_PORT;
-  /* Počet httpd_register_uri_handler ve start_http_server: 54+ (2026-04, vč. WS + PNG figurky).
-   * Při přidání endpointu zvýšit zásobu (HTTPD neregistruje „tiše“ navíc). */
+  /* Number of httpd_register_uri_handler in start_http_server: 54+ (2026-04, incl. WS + PNG figures).
+   * Increase stock when adding endpoint (HTTPD doesn't register "quietly" extra). */
   config.max_uri_handlers = 64;
   // Keep within LWIP limits. HTTP server internally reserves 3 sockets.
 #if CONFIG_LWIP_MAX_SOCKETS > 6
@@ -1722,14 +1722,14 @@ static esp_err_t start_http_server(void) {
 #endif
   config.lru_purge_enable = false; // CRITICAL: Disabled to prevent socket
                                    // closure during chunked transfer
-  config.recv_wait_timeout = 20;    // 20 s – stabilni pripojeni pri pomalejsi siti
+  config.recv_wait_timeout = 20;    // 20 s – stable connection with a slower network
   config.send_wait_timeout =
       5000; // 5 s – spolehlivy chunked transfer pri vykyvech
   config.max_resp_headers = 8;
   config.backlog_conn = 6;         // Vetsi fronta pri napadu klientu
   config.stack_size = 8192;        // Zvysena velikost stacku pro HTTP server task
 
-  // Spustit HTTP server
+  // Start the HTTP server
   esp_err_t ret = httpd_start(&httpd_handle, &config);
   if (ret != ESP_OK) {
     last_http_start_error = ret;
@@ -1750,13 +1750,13 @@ static esp_err_t start_http_server(void) {
 }
 
 /**
- * @brief Zastavi HTTP server
+ * @brief Stop the HTTP server
  *
- * Tato funkce zastavi HTTP server a uvolni prostredky.
+ * This function stops the HTTP server and frees the resources.
  *
  * @details
- * Funkce zastavi HTTP server a nastavi handle na NULL.
- * Pouziva se pri vypinani web serveru.
+ * The function stops the HTTP server and sets the handle to NULL.
+ * Used when shutting down the web server.
  */
 static void stop_http_server(void) {
   web_ws_shutdown();
@@ -1813,20 +1813,20 @@ bool web_server_ble_dispatch_custom_ack_was_sent(void) {
   return s_ble_dispatch_custom_ack_sent;
 }
 
-/** Jasná zpětná vazba pro klienta — odliší od web locku (stejný ESP_ERR_INVALID_STATE). */
+/** Clear feedback for the client — differentiates from web lock (same ESP_ERR_INVALID_STATE). */
 static void ble_dispatch_ack_needs_encryption(const char *cmd_literal) {
   char out[288];
   int n =
       snprintf(out, sizeof(out),
                "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"needs_encryption\","
                "\"cmd\":\"%s\","
-               "\"message\":\"Vyžadováno šifrované BLE spojení (dokončete párování).\","
+               "\"message\":\"Encrypted BLE connection required (complete pairing).\","
                "\"esp\":%d}",
                cmd_literal, (int)ESP_ERR_INVALID_STATE);
   if (n < 0 || (size_t)n >= sizeof(out)) {
     ble_task_notify_cmd_ack_json(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"needs_encryption\","
-        "\"cmd\":\"unknown\",\"message\":\"Vyžadováno šifrované BLE spojení.\","
+        "\"cmd\":\"unknown\",\"message\":\"Encrypted BLE connection required.\","
         "\"esp\":259}");
   } else {
     ble_task_notify_cmd_ack_json(out);
@@ -2201,7 +2201,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   }
 
   /* ============================================
-   * NOVÉ BLE PŘÍKAZY - Začátek
+   * NEW BLE COMMANDS - Beginning
    * ============================================ */
   if (strcmp(cmd, "move") == 0) {
     if (web_is_locked()) {
@@ -2232,7 +2232,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
         strncpy(promotion, promo_obj->valuestring, sizeof(promotion) - 1);
       }
 
-      /* Stejné pole (dvojité klepnutí v aplikaci) — neposílat do game_task (MOVE_ERROR_DESTINATION_OCCUPIED). */
+      /* Same field (double tap in app) — don't send to game_task (MOVE_ERROR_DESTINATION_OCCUPIED). */
       if (strcmp(from, to) == 0) {
         ESP_LOGW(TAG, "[BLE] move: ignored (from==to)");
         cJSON_Delete(root);
@@ -2866,7 +2866,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   }
 
   /* ============================================
-   * NOVÉ BLE PŘÍKAZY - Konec
+   * NEW BLE COMMANDS - End
    * ============================================ */
 
   ESP_LOGW(TAG, "BLE JSON: unknown cmd \"%s\"", cmd);
@@ -2889,21 +2889,21 @@ static void czechmate_push_ble_snapshot(void) {
 static bool czechmate_mdns_started = false;
 
 /**
- * Bonjour TXT „sta_ip" + „ap_ip" — iOS/watch často nevyřeší hostname .local
- * včas; přímá IPv4 v TXT umožní HTTP/WS bez závislosti na mDNS A záznamu.
+ * Bonjour TXT "sta_ip" + "ap_ip" — iOS/watch often does not resolve hostname .local
+ * on time; direct IPv4 in TXT will enable HTTP/WS without dependency on mDNS A record.
  *
- * ap_ip fix (AP hotspot): mDNS pakety ESP posílá jen přes STA rozhraní do
- * domácí sítě. Telefon připojený na AP hotspot tyto pakety nikdy nedostane,
- * protože patří do jiného L2 segmentu. Opraveno:
- *   1) TXT ap_ip = IP adresa AP rozhraní (typicky 192.168.4.1)
- *   2) mdns_netif_action na ap_netif → ESP vysílá mDNS i do AP subnetu
+ * ap_ip fix (AP hotspot): ESP only sends mDNS packets via the STA interface to
+ * home networks. A phone connected to an AP hotspot will never receive these packets,
+ * because it belongs to a different L2 segment. Fixed:
+ * 1) TXT ap_ip = IP address of the AP interface (typically 192.168.4.1)
+ * 2) mdns_netif_action on ap_netif → ESP sends mDNS to the AP subnet as well
  */
 static void czechmate_mdns_refresh_sta_txt(void) {
   if (!czechmate_mdns_started) {
     return;
   }
 
-  /* ── sta_ip: přímá STA IPv4 adresa (domácí síť) ── */
+  /* ── sta_ip: direct STA IPv4 address (home network) ── */
   if (sta_ip[0] != '\0') {
     esp_err_t e =
         mdns_service_txt_item_set("_http", "_tcp", "sta_ip", sta_ip);
@@ -2924,7 +2924,7 @@ static void czechmate_mdns_refresh_sta_txt(void) {
   }
 
   /* ── ap_ip: IP adresa AP hotspotu ESP (typicky 192.168.4.1) ──
-   * iOS precte ap_ip z TXT zaznamu a pripoji se primo bez .local resolve.
+   * iOS reads ap_ip from the TXT record and connects directly without .local resolve.
    * Aktivace mdns_netif_action na ap_netif zajisti, ze ESP vysila mDNS
    * multicasty take do AP subnetu — tak je iPhone na hotspotu najde. */
   if (ap_netif != NULL) {
@@ -2942,7 +2942,7 @@ static void czechmate_mdns_refresh_sta_txt(void) {
     } else {
       ESP_LOGI(TAG, "mDNS TXT ap_ip=%s (AP hotspot discovery)", ap_ip_str);
     }
-    /* Zapnout mDNS vysílání přes AP rozhraní */
+    /* Enable mDNS broadcast via AP interface */
     (void)mdns_netif_action(
         ap_netif, MDNS_EVENT_ENABLE_IP4 | MDNS_EVENT_ANNOUNCE_IP4);
   }
@@ -2977,7 +2977,7 @@ static void czechmate_mdns_ensure_started(void) {
              HTTP_SERVER_PORT);
   }
   czechmate_mdns_started = true;
-  /* refresh_sta_txt aktivuje mDNS na STA i AP rozhrani + plni TXT zaznamy */
+  /* refresh_sta_txt activates mDNS on both STA and AP interfaces + fill TXT records */
   czechmate_mdns_refresh_sta_txt();
 }
 #else
@@ -2986,8 +2986,8 @@ static void czechmate_mdns_ensure_started(void) {}
 #endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
 
 
-/** Fronta „ping“ z game_task — WS + BLE snapshot v web_server_task (neblokuje
- * game_task na httpd_ws_send_data / malloc). Musí být mimo #if WS — BLE vždy. */
+/** Ping queue from game_task — WS + BLE snapshot in web_server_task (does not block
+ * game_task at httpd_ws_send_data / malloc). Must be outside #if WS — BLE always. */
 
 void czechmate_ensure_snapshot_notify_queue(void) {
   if (snapshot_notify_queue != NULL) {
@@ -3011,13 +3011,13 @@ void web_server_process_snapshot_notify_queue(void) {
   if (n == 0) {
     return;
   }
-  /* Snapshot + WS odeslání může blokovat dlouho (httpd send timeout) — bez
-   * resetu TWDT hlásí web_server_task timeout. */
+  /* Snapshot + WS sending can block for a long time (httpd send timeout) — no
+   * TWDT reset reports web_server_task timeout. */
   (void)web_server_task_wdt_reset_safe();
   size_t fh = esp_get_free_heap_size();
   if (fh < 10240) {
     ESP_LOGW(TAG,
-             "low heap before snapshot push: %zu B (cíl udržet ~8–10kB+ volné)",
+             "low heap before snapshot push: %zu B (goal to keep ~8–10kB+ free)",
              fh);
   }
 #if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
@@ -3028,8 +3028,8 @@ void web_server_process_snapshot_notify_queue(void) {
   (void)web_server_task_wdt_reset_safe();
 }
 
-/** Silná implementace — přepíše slabou z game_hooks (WS + BLE, nezávislé na
- * CONFIG_HTTPD_WS_SUPPORT pro BLE). */
+/** Strong implementation — overrides weak from game_hooks (WS + BLE, independent of
+ * CONFIG_HTTPD_WS_SUPPORT for BLE). */
 void czechmate_on_game_state_changed(void) {
   czechmate_ensure_snapshot_notify_queue();
   if (snapshot_notify_queue == NULL) {
@@ -3067,7 +3067,7 @@ esp_err_t http_get_timer_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  // Zabranit cachovani timer odpovedi v prohlizeci
+  // Prevent caching of the response timer in the browser
   httpd_resp_set_hdr(req, "Cache-Control", "no-store");
   httpd_resp_set_type(req, "application/json");
   httpd_resp_send(req, local_json, strlen(local_json));
@@ -3100,7 +3100,7 @@ esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
   }
   content[ret] = '\0';
 
-  // Parsovat JSON a odeslat prikaz do game tasku
+  // Parse the JSON and send the command to the game task
   chess_move_command_t cmd = {0};
   cmd.type = GAME_CMD_SET_TIME_CONTROL;
 
@@ -3129,7 +3129,7 @@ esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
 
   cmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
 
-  // Parsovat vlastni casove hodnoty pokud je type CUSTOM
+  // Parse custom time values ​​if type is CUSTOM
   if (type_value == 14) { // TIME_CONTROL_CUSTOM
     char *minutes_str = strstr(content, "\"custom_minutes\":");
     char *increment_str = strstr(content, "\"custom_increment\":");
@@ -3160,7 +3160,7 @@ esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
       }
     }
 
-    // Overit ze byly poskytnuty vlastni hodnoty
+    // Verify that custom values ​​have been provided
     if (minutes_str == NULL || increment_str == NULL) {
       httpd_resp_set_status(req, "400 Bad Request");
       httpd_resp_send(req, "Custom time control requires minutes and increment",
@@ -3169,7 +3169,7 @@ esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
     }
   }
 
-  // Odeslat prikaz do game tasku
+  // Send the command to the game task
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to set time control", -1);
@@ -3277,7 +3277,7 @@ esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
 // ============================================================================
 // HTTP root & legacy JS paths — app-only product build (no browser dashboard).
 // REST `/api/*`, WebSocket `/ws`, and OTA handlers remain registered below.
-// ============================================================================
+// ====================================================================================
 
 static const char k_http_root_json[] =
     "{\"service\":\"czechmate\",\"client\":\"mobile_app\","
@@ -3290,7 +3290,7 @@ esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
                          HTTPD_RESP_USE_STRLEN);
 }
 
-/** GET /favicon.ico — žádné tělo; tiší 404 v logu prohlížeče při náhodném dotazu. */
+/** GET /favicon.ico — no body; silent 404 in browser log on random request. */
 esp_err_t http_get_favicon_handler(httpd_req_t *req) {
   httpd_resp_set_status(req, "204 No Content");
   return httpd_resp_send(req, "", 0);
@@ -3370,7 +3370,7 @@ void web_server_task_start(void *pvParameters) {
   // Wait for WiFi to be ready
   vTaskDelay(pdMS_TO_TICKS(2000));
 
-  // Automaticke pripojeni STA, pokud je konfigurace v NVS
+  // Automatically connected STA if the configuration is in NVS
   char ssid[33] = {0};
   char password[65] = {0};
   esp_err_t nvs_ret =
@@ -3429,7 +3429,7 @@ void web_server_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "HTTP server started");
   czechmate_mdns_ensure_started();
 
-  /* Jednorazove nacteni jasu do cache – GET /api/status pak nepristupuje k NVS
+  /* One-time loading of the brightness into the cache - GET /api/status does not access the NVS
    */
   {
     system_config_t config;

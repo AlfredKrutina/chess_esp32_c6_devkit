@@ -11,53 +11,53 @@ extern "C" {
 #endif
 
 /**
- * Inicializace: GPIO NRST/BOOT0, případně I2C driver (pokud nesdílíš sběrnici s Hall).
- * Při sdílení s Hall musí být dříve zavolán hall_i2c_matrix_init().
+ * Initialization: GPIO NRST/BOOT0, or I2C driver (if you do not share the bus with Hall).
+ * When sharing with Hall, hall_i2c_matrix_init() must be called before.
  */
 esp_err_t stm32_i2c_bl_init(void);
 
-/** Jen jeden STM má NRST uvolněný (HIGH), ostatní drženy v resetu (LOW). boot0_enter=1 nastaví BOOT0 HIGH před uvolněním. */
+/** Only one STM has NRST released (HIGH), others held in reset (LOW). boot0_enter=1 sets BOOT0 HIGH before releasing. */
 esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3, bool boot0_enter_bootloader);
 
-/** BOOT0 LOW (pokud zapojeno), NRST HIGH (+ pulz) — běh aplikace ze flash. */
+/** BOOT0 LOW (if connected), NRST HIGH (+ pulse) — application running from flash. */
 esp_err_t stm32_i2c_bl_release_all_run_app(void);
 
 esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter, uint16_t *pid_out);
 
-/** Hromadné smazání flash (special erase 0xFFFF), pokud MCU podporuje — viz AN4221. */
+/** Bulk erase flash (special erase 0xFFFF) if MCU supports — see AN4221. */
 esp_err_t stm32_i2c_bl_erase_all(uint8_t segment_0_to_3, bool boot0_enter);
 
 /**
- * Zápis do flash/RAM podle ROM bootloaderu (max 256 B na volání).
- * addr: např. 0x08000000 pro začátek flash.
+ * Write to flash/RAM according to ROM bootloader (max 256 B per call).
+ * addr: eg 0x08000000 for start flash.
  */
 esp_err_t stm32_i2c_bl_write_memory(uint8_t segment_0_to_3, bool boot0_enter,
                                     uint32_t addr, const uint8_t *data, size_t len);
 
-/** GO příkaz — skok na uživatelský vektor (addr typicky 0x08000000). */
+/** GO command — jump to user vector (addr typically 0x08000000). */
 esp_err_t stm32_i2c_bl_go(uint8_t segment_0_to_3, bool boot0_enter, uint32_t addr);
 
 /**
- * Pomocná rutina: smaže celý čip (pokud lze) a nahraje binárku od flash_base.
- * flash_base obvykle 0x08000000.
+ * Helper routine: erases the entire chip (if possible) and loads the binary from flash_base.
+ * flash_base usually 0x08000000.
  */
 esp_err_t stm32_i2c_bl_flash_binary(uint8_t segment_0_to_3, bool boot0_enter,
                                     uint32_t flash_base, const uint8_t *bin,
                                     size_t bin_len);
 
 /**
- * Jednorázově po bootu: pokud je CHESS_STM32_BL_AUTO_FLASH_ON_BOOT, nahraje STM z oddílu.
- * Volat po inicializaci sdíleného I2C (např. hned po hall_i2c_matrix_init).
+ * One time after boot: if CHESS_STM32_BL_AUTO_FLASH_ON_BOOT, flash STM from partition.
+ * Call after shared I2C initialization (e.g. right after hall_i2c_matrix_init).
  */
 void stm32_i2c_bl_maybe_auto_flash_on_boot(void);
 
 /**
- * Hlavní vlákno: volat před xTaskCreate(matrix_task), pokud je zapnutý auto-flash na bootu.
- * Zajistí, že boot_flash_sync_wait() počká na dokončení maybe_auto_flash v matrix_task.
+ * Main thread: call before xTaskCreate(matrix_task) if auto-flash is enabled on boot.
+ * Makes boot_flash_sync_wait() wait for maybe_auto_flash in matrix_task to complete.
  */
 void stm32_i2c_bl_boot_flash_sync_prepare(void);
 
-/** Hlavní vlákno: počkat na signal_done z matrix_task (timeout v tickách FreeRTOS). */
+/** Main thread: wait for signal_done from matrix_task (timeout in FreeRTOS ticks). */
 void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks);
 
 #ifdef __cplusplus

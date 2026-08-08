@@ -12,8 +12,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 
 /**
- * Ongoing notification — ekvivalent „viditelnosti“ časomíry mimo appku (viz plán Fáze C).
- * Na API 33+ je potřeba oprávnění POST_NOTIFICATIONS (uživatel ho musí povolit).
+ * Ongoing notification — equivalent of chess-clock "visibility" outside the app (see plan Phase C).
+ * On API 33+ the POST_NOTIFICATIONS permission is required (the user must grant it).
  */
 object ChessClockNotificationHelper {
     private const val CHANNEL_ID = "czechmate_chess_clock"
@@ -122,10 +122,10 @@ object ChessClockNotificationHelper {
             .setContentIntent(pending)
 
         if (!gamePaused) {
-            builder.addAction(R.drawable.ic_stat_chess_clock, "Pauza", pausePi)
+            builder.addAction(R.drawable.ic_stat_chess_clock, "Pause", pausePi)
         }
         if (gamePaused) {
-            builder.addAction(R.drawable.ic_stat_chess_clock, "Pokračovat", resumePi)
+            builder.addAction(R.drawable.ic_stat_chess_clock, "Resume", resumePi)
         }
 
         val notif = builder.build()

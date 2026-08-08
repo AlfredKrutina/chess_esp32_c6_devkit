@@ -46,8 +46,8 @@ final moveEvalNotifierProvider = StateNotifierProvider<MoveEvalNotifier, MoveEva
 
 class MoveEvalNotifier extends StateNotifier<MoveEvalState> {
   MoveEvalNotifier(this._ref) : super(const MoveEvalState()) {
-    // Bez okamžitého výstupu zůstane `_prevSnap` null až do první změny session —
-    // pak první tah na desce přijde s `prevSnap == null` a eval se přeskočí (včetně demo).
+    // Without immediate exit, `_prevSnap` will remain null until the first session change —
+    // then the first move on the board comes with `prevSnap == null` and eval is skipped (including demo).
     _ref.listen<BoardSessionState>(
       boardSessionNotifierProvider,
       _onSession,

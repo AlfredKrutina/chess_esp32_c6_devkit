@@ -34,7 +34,7 @@ static const char *TAG = "GAME_ERROR";
  * @param col Column of invalid target
  */
 void game_highlight_invalid_target_area(uint8_t row, uint8_t col) {
-  // Rosvítit červeně pole okolo nevalidního cíle
+  // Illuminate the field around an invalid target in red
   for (int dr = -1; dr <= 1; dr++) {
     for (int dc = -1; dc <= 1; dc++) {
       int new_row = row + dr;
@@ -58,7 +58,7 @@ void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col) {
   if (piece == PIECE_EMPTY)
     return;
 
-  // Najít všechny validní tahy pro tuto figurku
+  // Find all valid moves for this piece
   for (int to_row = 0; to_row < 8; to_row++) {
     for (int to_col = 0; to_col < 8; to_col++) {
       chess_move_t test_move = {.from_row = row,
@@ -70,7 +70,7 @@ void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col) {
 
       if (game_is_valid_move(&test_move) == MOVE_ERROR_NONE) {
         uint8_t led_index = chess_pos_to_led_index(to_row, to_col);
-        led_set_pixel_safe(led_index, 0, 0, 255); // Blue - validní tahy
+        led_set_pixel_safe(led_index, 0, 0, 255); // Blue - valid moves
       }
     }
   }
@@ -87,13 +87,13 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
     return;
   }
 
-  // KRITICKÁ OPRAVA: Bezpečnostní kontrola move pointeru
+  // CRITICAL FIX: Move pointer security check
   if (!move) {
     ESP_LOGE(TAG, "❌ Critical error: NULL move pointer in error handling");
     return;
   }
 
-  // Kontrola validity coordinates před použitím
+  // Checking the validity of coordinates before use
   if (move->from_row >= 8 || move->from_col >= 8 || move->to_row >= 8 ||
       move->to_col >= 8) {
     ESP_LOGE(TAG, "❌ Critical error: Invalid coordinates in move structure");
@@ -104,10 +104,10 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   ESP_LOGI(TAG, "   Move: %c%d -> %c%d", 'a' + move->from_col,
            move->from_row + 1, 'a' + move->to_col, move->to_row + 1);
 
-  // Remote / zastaralý UI může poslat tah z prázdného pole. Simulace „figurka je
-  // fyzicky na to“ kopíruje board[from] na board[to]; když je from prázdné,
-  // smaže se figurka na cíli (logicky „zmizí“). HW recovery v tomto případě
-  // nedává smysl — desku neměnit.
+  // Remote / deprecated UI can send a move from an empty field. The simulation “figure is
+  // physically to it" copies board[from] to board[to]; when from is empty,
+  // the figure on the target is deleted (logically it "disappears"). HW recovery in this case
+  // it doesn't make sense — don't change the board.
   piece_t src_piece = board[move->from_row][move->from_col];
   if (src_piece == PIECE_EMPTY) {
     ESP_LOGW(TAG,
@@ -117,25 +117,25 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
     return;
   }
 
-  // Chytrý error handling podle požadavků
+  // Smart error handling according to requirements
 
-  // 1. Nastavit červené pole na neplatné pozici
+  // 1. Set the red field to an invalid position
   error_recovery_state.has_invalid_piece = true;
   error_recovery_state.invalid_row = move->to_row;
   error_recovery_state.invalid_col = move->to_col;
   error_recovery_state.piece_type = board[move->from_row][move->from_col];
 
-  // 2. Zapamatovat si původní validní pozici (odkud byl tah)
+  // 2. Remember the original valid position (from where the move came from)
   error_recovery_state.original_valid_row = move->from_row;
   error_recovery_state.original_valid_col = move->from_col;
 
-  // 3. Přesunout figurku na neplatnou pozici (simulace HW reality)
+  // 3. Move figure to invalid position (HW reality simulation)
   if (chess_policy_error_recovery_should_mutate_board()) {
     board[move->to_row][move->to_col] = board[move->from_row][move->from_col];
     board[move->from_row][move->from_col] = PIECE_EMPTY;
   }
 
-  // 4. JASNÉ VIZUÁLNÍ UPOZORNĚNÍ - červené pole + blikání pro upoutání
+  // 4. CLEAR VISUAL ALERT - red field + flashing for attention
   // pozornosti
   if (chess_policy_error_recovery_led_red_blink() ||
       chess_policy_error_recovery_led_red_persist()) {
@@ -167,9 +167,9 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   ESP_LOGI(TAG,
            "💡 USER ACTION REQUIRED: Lift piece from red square to continue");
 
-  // KRITICKÁ OPRAVA: NON-BLOCKING error handling - žádné loops!
-  // Červené pole zůstane rozsvícené dokud se figurka nezvedne
-  // Recovery se řeší v game_process_pickup_command()
+  // CRITICAL FIX: NON-BLOCKING error handling - no loops!
+  // The red field will remain lit until the figure is picked up
+  // Recovery is handled in game_process_pickup_command()
 
   ESP_LOGI(TAG, "💡 Error recovery active - red square will stay lit until "
                 "piece is lifted");
@@ -275,11 +275,11 @@ void game_process_move_command(const void *move_cmd_ptr) {
     return;
   }
 
-  // HRÁČ SE UŽ ZMĚNIL V game_execute_move() - použít aktuálního hráče
+  // PLAYER ALREADY CHANGED In game_execute_move() - use current player
   player_t previous_player =
       (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
-  // Spustit move path animaci PŘED změnou hráče (podle starého projektu)
+  // Run move path animation BEFORE changing player (according to old project)
   uint8_t from_led =
       chess_pos_to_led_index(move_cmd->from_row, move_cmd->from_col);
   uint8_t to_led = chess_pos_to_led_index(move_cmd->to_row, move_cmd->to_col);
@@ -290,24 +290,24 @@ void game_process_move_command(const void *move_cmd_ptr) {
       .green = 255,
       .blue = 0, // Yellow
       .duration_ms = 1000,
-      .data = &to_led // Cílová pozice v data
+      .data = &to_led // Target position in data
   };
   led_execute_command_new(&move_path_cmd);
 
-  // STABILITY FIX: Animace běží asynchronně, neblokujeme zpracování
-  // Animace jsou spuštěny v led_task a běží nezávisle
-  // (vTaskDelay odstraněn pro lepší throughput)
+  // STABILITY FIX: Animation runs asynchronously, we don't block processing
+  // Animations are started in led_task and run independently
+  // (vTaskDelay removed for better throughput)
 
-  // KRITICKÉ: Endgame kontrola PŘED player change animací!
-  // Pokud je endgame, player change se NESPOUŠTÍ
+  // CRITICAL: Endgame check BEFORE player change animations!
+  // If endgame, player change will NOT start
   game_state_t end_game_result = game_check_end_game_conditions();
   if (end_game_result == GAME_STATE_FINISHED) {
     current_game_state = GAME_STATE_FINISHED;
     game_active = false;
 
-    // Najít pozici krále vítěze pro endgame animaci
+    // Find the position of the winning king for the endgame animation
     player_t winner =
-        previous_player;   // Vítěz je předchozí hráč (ten, kdo udělal tah)
+        previous_player;   // The winner is the previous player (the one who made the move)
     uint8_t king_pos = 28; // default e4
     for (int i = 0; i < 64; i++) {
       piece_t piece = board[i / 8][i % 8];
@@ -323,7 +323,7 @@ void game_process_move_command(const void *move_cmd_ptr) {
              "position %d",
              king_pos);
 
-    // Spustit endgame animaci (wave z krále vítěze)
+    // Start the endgame animation (wave from king winner)
     led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
                                  .led_index = king_pos,
                                  .red = 255,
@@ -336,27 +336,27 @@ void game_process_move_command(const void *move_cmd_ptr) {
     ESP_LOGI(TAG,
              "✅ Endgame animation started - player change animation SKIPPED");
   } else {
-    // Není endgame - spustit player change animaci s NOVÝM hráčem
+    // It is not endgame - start the player change animation with a NEW player
     // (current_player)
     uint8_t player_color =
         (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
     led_command_t player_change_cmd = {
-        .type = LED_CMD_ANIM_PLAYER_CHANGE, // Použít
-                                            // ANIM_PLAYER_CHANGE místo
+        .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
+                                            // ANIM_PLAYER_CHANGE instead
                                             // PLAYER_CHANGE
         .led_index = 0,
         .red = 0,
         .green = 0,
         .blue = 0,
         .duration_ms = 0,
-        .data = &player_color // Předat barvu NOVÉHO hráče
+        .data = &player_color // Pass the NEW player's color
     };
     led_execute_command_new(&player_change_cmd);
 
-    // Zkontrolovat, zda je nový hráč v šachu
+    // Check if the new player is in check
     bool in_check = game_is_king_in_check(current_player);
     if (in_check) {
-      // Najít pozici krále
+      // Find the position of the king
       int king_row = -1, king_col = -1;
       piece_t king_piece = (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING
                                                             : PIECE_BLACK_KING;
@@ -375,14 +375,14 @@ void game_process_move_command(const void *move_cmd_ptr) {
       if (king_row != -1 && king_col != -1) {
         if (game_led_guidance_show_check_anim()) {
           uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-          // Spustit check animaci - růžové svícení na králi
+          // Start the check animation - pink lighting on the king
           led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
                                      .led_index = king_led_index,
                                      .red = 0,
                                      .green = 0,
                                      .blue = 0,
                                      .duration_ms =
-                                         0, // Trvalé až do dalšího tahu
+                                         0, // Permanent until next turn
                                      .data = NULL};
           led_execute_command_new(&check_cmd);
           ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
@@ -690,7 +690,7 @@ void game_test_move_animation(void) {
   // variable
 
   // Progressive color animation from green to blue - ZRYCHLENO
-  for (int step = 0; step < 6; step++) { // ZRYCHLENO: z 10 na 6 kroků
+  for (int step = 0; step < 6; step++) { // SPEED UP: from 10 to 6 steps
     float progress = (float)step / 5.0f;
 
     // Calculate intermediate position
@@ -708,7 +708,7 @@ void game_test_move_animation(void) {
     vTaskDelay(pdMS_TO_TICKS(50)); // ZRYCHLENO: z 100ms na 50ms
   }
 
-  // Odstraněno modré bliknutí na konci - animace končí plynule
+  // Removed blue flashing at the end - animation ends smoothly
 }
 
 /**

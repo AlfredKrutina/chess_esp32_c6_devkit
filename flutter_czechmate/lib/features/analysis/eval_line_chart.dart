@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/analysis/move_evaluation.dart';
 
-/// Jednoduchý liniový graf evaluace (perspektiva bílého) — náhrada Swift `Chart`.
+/// Simple evaluation line graph (white perspective) — Swift `Chart` replacement.
 class EvalLineChart extends StatelessWidget {
   const EvalLineChart({
     super.key,

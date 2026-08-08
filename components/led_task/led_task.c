@@ -1,65 +1,65 @@
 /**
  * @file led_task.c
- * @brief LED Task - Ovladani WS2812B LED a animace
+ * @brief LED Task - WS2812B LED control and animation
  *
  * @details
  * =============================================================================
- * CO TENTO SOUBOR DELA?
+ * WHAT DID THIS FILE DO?
  * =============================================================================
  *
- * Tento task ovlada VSECHNY LED v systemu:
- * 1. 64 LED pro sachovnici (8x8 grid)
- * 2. 8 LED pro promotion tlacitka
- * 3. 1 LED pro reset tlacitko
- * 4. LED animace (tah, rosada, promoc, konec hry)
- * 5. LED feedback pro tlacitka (dostupne/nedostupne/zmacknute)
- * 6. Batch update system pro optimalni vykon
+ * This task controls ALL LEDs in the system:
+ * 1. 64 LEDs for the box (8x8 grid)
+ * 2. 8 LEDs for promotion buttons
+ * 3. 1 LED for reset button
+ * 4. LED animation (turn, rose, graduation, end of game)
+ * 5. LED feedback for buttons (available/unavailable/pressed)
+ * 6. Batch update system for optimal performance
  *
  * =============================================================================
- * JAK TO FUNGUJE?
+ * HOW DOES IT WORK?
  * =============================================================================
  *
  * HARDWARE:
- * - WS2812B LED paska na GPIO7
- * - 73 LED celkem (64 sachovnice + 9 tlacitek)
- * - Timing-critical protokol (nutne vypnout preruseni)
+ * - WS2812B LED strip on GPIO7
+ * - 73 LEDs in total (64 boxes + 9 buttons)
+ * - Timing-critical protocol (must disable interrupt)
  *
- * STARTUP:
- * - Inicializace ESP-IDF led_strip driveru
- * - Nastaveni sachovnice (cerne/bile pole)
- * - Inicializace button LED (zelena/modra)
- * - Registrace s WDT
+ * START UP:
+ * - Initialize the ESP-IDF led_strip driver
+ * - Box setting (black/white field)
+ * - Initialization button LED (green/blue)
+ * - Registration with WDT
  *
- * HLAVNI SMYCKA (10ms cyklus):
+ * MAIN LOOP (10ms cycle):
  * while (1) {
- *     1. Reset WDT
- *     2. Zpracuj duration timery (LED s casovym limitem)
- *     3. Zpracuj button blink animace
- *     4. Aktualizuj endgame wave animaci
- *     5. Commit pending LED zmeny (batch update)
- *     6. Cekaj 10ms
+ * 1. Reset WDT
+ * 2. Process duration timers (LED with time limit)
+ * 3. Process the button blink animation
+ * 4. Update endgame wave animation
+ * 5. Commit pending LED changes (batch update)
+ * 6. Wait 10ms
  * }
  *
  * BATCH UPDATE SYSTEM:
- * - LED zmeny se NEPOSILAJI okamzite
- * - Zmeny se SBÍRAJÍ do bufferu (led_pending_changes)
- * - Commit vsech zmen NAJEDNOU (atomicky)
- * - PROC? -> WS2812B vyzaduje timing-critical refresh
+ * - LED changes are NOT sent immediately
+ * - Changes are COLLECTED in the buffer (led_pending_changes)
+ * - Commit all changes AT ONCE (atomically)
+ * - WHY? -> WS2812B requires timing-critical refresh
  *
  * =============================================================================
- * KOMUNIKACE (FIFOS & MUTEXY)
+ * COMMUNICATION (FIFOS & MUTEXY)
  * =============================================================================
  *
- * PRIMO VOLANI (BEZ FRONTY):
- * - led_set_pixel_internal() -> Nastav 1 LED
- * - led_highlight_square() -> Zvyrazni policko
- * - led_show_chess_board() -> Zobraz sachovnici
+ * DIRECT CALLS (NO QUEUE):
+ * - led_set_pixel_internal() -> Set 1 LED
+ * - led_highlight_square() -> Highlight the shelf
+ * - led_show_chess_board() -> Show chess board
  *
- * MUTEXY - Ochrana sdilenych zdroju:
- * - led_unified_mutex -> Ochrana LED stavu (led_states[])
- *   DULEZITE: Vzdy pouzij pri zmene LED!
+ * MUTEXY - Protection of shared resources:
+ * - led_unified_mutex -> LED state protection (led_states[])
+ * IMPORTANT: Always use when changing LEDs!
  *
- * PRISTUP:
+ * ACCESS:
  * @code
  * xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS);
  * led_states[index] = color;
@@ -69,48 +69,48 @@
  * @endcode
  *
  * =============================================================================
- * LED ANIMACE
+ * LED ANIMATION
  * =============================================================================
  *
- * ZAKLADNI ANIMACE:
- * - Player change - Zbarveni okraje sachovnice podle hrace
- * - Move path - Animace cesty tahu
- * - Valid moves - Zobrazeni platnych tahu (zelena)
- * - Capture - Cervene zvyrazneni sebraných figurek
+ * BASE ANIMATION:
+ * - Player change - Color the edges of the box according to the game
+ * - Move path - Animation of the move path
+ * - Valid moves - Display of valid moves (green)
+ * - Capture - Red highlighting of collected pieces
  *
- * SPECIALNI ANIMACE:
- * - Castling - Animace rosady (kral + vez)
- * - Promotion - Animace promoci (pestry efekt)
- * - Check - Blikani krale v sachu
- * - Checkmate/Stalemate - Wave efekt pres celou desku
+ * SPECIAL ANIMATIONS:
+ * - Castling - Castling animation (king + carriage)
+ * - Promotion - Graduation animation (variegated effect)
+ * - Check - Blinking king in suit
+ * - Checkmate/Stalemate - Wave effect across the board
  *
  * ENDGAME WAVE:
- * - Non-blocking animace (bezi v pozadi)
- * - Vlnovy efekt od stredu desky
- * - Automaticky se stopne po X vterinach
+ * - Non-blocking animation (runs in the background)
+ * - Wave effect from the center of the board
+ * - Automatically stops after X seconds
  *
  * =============================================================================
- * BUTTON LED LOGIKA
+ * BUTTON LED LOGIC
  * =============================================================================
  *
- * STAVY BUTTON LED:
- * - ZELENA: Tlacitko dostupne (lze pouzit)
- * - MODRA: Tlacitko nedostupne (nelze pouzit)
- * - CERVENA: Tlacitko zmacknute
- * - BLIKANI: Feedback po pusteni tlacitka (2s)
+ * BUTTON LED STATUS:
+ * - GREEN: Button available (can be used)
+ * - BLUE: Button unavailable (cannot be used)
+ * - RED: Button pressed
+ * - FLASHING: Feedback after releasing the button (2s)
  *
- * PŘÍKLAD:
- * 1. Promoc: 8 promotion tlacitek MODRYCH (nedostupne)
- * 2. Pesec dojde na posledni radek -> ZELENE (dostupne)
- * 3. Hrac zmackne Queen button -> CERVENA
- * 4. Hrac pusti -> BLIKANI 2s -> MODRA
+ * EXAMPLE:
+ * 1. Promoc: 8 promotion buttons BLUE (not available)
+ * 2. Pesec reaches the last row -> GREEN (available)
+ * 3. The player presses the Queen button -> RED
+ * 4. Player release -> FLASH 2s -> BLUE
  *
  * =============================================================================
- * TABLE OF CONTENTS (NAVIGACE)
+ * TABLE OF CONTENTS (NAVIGATION)
  * =============================================================================
  *
- * Sekce 1:  Hardware Init & WDT ..................... radek 70
- * Sekce 2:  Global Variables ........................ radek 183
+ * Section 1: Hardware Init & WDT ..................... line 70
+ * Section 2: Global Variables ........................ radek 183
  * Sekce 3:  LED Control Functions ................... radek 292
  * Sekce 4:  Batch Update System ..................... radek 600
  * Sekce 5:  Button LED Logic ........................ radek 1200
@@ -123,34 +123,34 @@
  * DEPENDENCIES
  * =============================================================================
  *
- * - ESP-IDF led_strip driver: WS2812B ovladani
+ * - ESP-IDF led_strip driver: WS2812B control
  * - game_task: Informace o stavu hry
  * - button_task: Button press/release eventy
  * - unified_animation_manager: Koordinace animaci
  *
  * =============================================================================
- * KRITICKA PRAVIDLA
+ * CRITICAL RULES
  * =============================================================================
  *
- * @warning CO SE NESMI DELAT:
+ * @warning DO NOT:
  *
- * 1. NIKDY nevolas led_strip_refresh() primo!
- *    ❌ led_strip_refresh(led_strip);  // SPATNE - narusi batch system
- *    ✅ led_commit_pending_changes();  // SPRAVNE - commit vsech zmen
+ * 1. NEVER call led_strip_refresh() directly!
+ *    ❌ led_strip_refresh(led_strip);  // WRONG - breaks the batch system
+ *    ✅ led_commit_pending_changes();  // CORRECT - commit all changes
  *
- * 2. NIKDY nedrzи mutex prilis dlouho!
+ * 2. NEVER hold the mutex too long!
  *    ❌ xSemaphoreTake(...); vTaskDelay(100); xSemaphoreGive(...);
- *    ✅ Proved jen nezbytne operace s mutexem
+ *    ✅ Perform only necessary operations under the mutex
  *
- * 3. NIKDY nevolej blokujici animace v main loop!
- *    ❌ led_anim_endgame_blocking();  // Zablokuje system na 10s
+ * 3. NEVER call blocking animations in the main loop!
+ *    ❌ led_anim_endgame_blocking();  // Blocks the system for 10s
  *    ✅ led_update_endgame_wave();  // Non-blocking update
  *
- * 4. VZDY kontroluj LED index bounds!
- *    ❌ led_states[100] = color;  // Prehled bufferu!
+ * 4. ALWAYS check LED index bounds!
+ *    ❌ led_states[100] = color;  // Buffer overrun!
  *    ✅ if (index < CHESS_LED_COUNT_TOTAL) { led_states[index] = color; }
  *
- * 5. VZDY pouzij batch system pro vice LED!
+ * 5. ALWAYS use the batch system for multiple LEDs!
  *    ❌ for (i=0; i<64; i++) led_force_immediate_update();  // 64x refresh!
  *    ✅ for (i=0; i<64; i++) led_set_pixel();  // 64x change
  *       led_commit_pending_changes();  // 1x refresh
@@ -162,15 +162,15 @@
  * @date 2025-12-23
  *
  * @note
- * - Task priorita: 3 (strednн priorita)
+ * - Task priority: 3 (medium priority)
  * - Stack size: 4KB
- * - Pouziva WDT (watchdog timer)
- * - Cyklus: 10ms
+ * - Uses WDT (watchdog timer)
+ * - Cycle: 10ms
  * - LED count: 73 (64 board + 9 buttons)
  *
- * @see game_task.c - Stav hry pro LED
- * @see button_task.c - Button eventy
- * @see unified_animation_manager.c - Animacni koordinator
+ * @see game_task.c - Game state for LEDs
+ * @see button_task.c - Button events
+ * @see unified_animation_manager.c - Animation coordinator
  */
 
 #include "led_task.h"
@@ -245,7 +245,7 @@ static esp_err_t led_task_wdt_reset_safe(void) {
 }
 
 // ============================================================================
-// LED SYSTEM OPTIMIZATION CONSTANTS - NOVÉ PRO KOMPLETNÍ OPRAVU
+// LED SYSTEM OPTIMIZATION CONSTANTS - NEW FOR COMPLETE REPAIR
 // ============================================================================
 
 // WS2812B optimal timing constants
@@ -263,22 +263,22 @@ static esp_err_t led_task_wdt_reset_safe(void) {
   10 // Reset watchdog every N LEDs during batch update
 
 // ============================================================================
-// LED DURATION MANAGEMENT SYSTEM - NOVÝ PRO ŘEŠENÍ DURATION PROBLÉMU
+// LED DURATION MANAGEMENT SYSTEM - NEW TO SOLVE THE DURATION PROBLEM
 // ============================================================================
 
 // Duration tracking structure
 typedef struct {
   uint8_t led_index;
-  uint32_t original_color; // Barva před duration
-  uint32_t duration_color; // Barva během duration
-  uint32_t start_time;     // Začátek v ms
-  uint32_t duration_ms;    // Doba trvání
-  bool is_active;          // Aktivní duration?
-  bool restore_original;   // Obnovit původní barvu?
+  uint32_t original_color; // Color before duration
+  uint32_t duration_color; // Color during duration
+  uint32_t start_time;     // Beginning in ms
+  uint32_t duration_ms;    // Duration
+  bool is_active;          // Active duration?
+  bool restore_original;   // Restore original color?
 } led_duration_state_t;
 
 // ============================================================================
-// LED FRAME SYNCHRONIZATION SYSTEM - NOVÝ PRO STABILITU
+// LED FRAME SYNCHRONIZATION SYSTEM - NEW FOR STABILITY
 // ============================================================================
 
 // Frame buffer structure for double buffering
@@ -291,7 +291,7 @@ typedef struct {
 } led_frame_buffer_t;
 
 // ============================================================================
-// LED HEALTH MONITORING SYSTEM - NOVÝ PRO DIAGNOSTIKU
+// LED HEALTH MONITORING SYSTEM - NEW FOR DIAGNOSIS
 // ============================================================================
 
 typedef struct {
@@ -332,7 +332,7 @@ void led_clear_board_only(void);   // Clear only board LEDs (0-63)
 void led_clear_buttons_only(void); // Clear only button LEDs (64-72)
 void led_preserve_buttons(void);   // Preserve button states during operations
 
-// NOVÝ: Duration management functions
+// NEW: Duration management functions
 static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
                                         uint8_t b, uint32_t duration_ms);
 static void led_process_duration_expirations(void);
@@ -396,7 +396,7 @@ static uint32_t
 static bool led_changed_flags[CHESS_LED_COUNT_TOTAL]; // Track which LEDs
                                                       // actually changed
 
-// NOVÝ: Duration management system
+// NEW: Duration management system
 static led_duration_state_t led_durations[CHESS_LED_COUNT_TOTAL] = {0};
 static bool led_duration_system_enabled = true;
 
@@ -487,8 +487,8 @@ void led_set_brightness_global(uint8_t brightness) {
         led_changed_flags[i] = true;
       }
 
-      /* Commit nechat na LED task smyčce — volání led_commit_pending_changes()
-       * z HTTP/BLE vlákna vedlo k viditelnému „zhasnutí“ při změně jasu. */
+      /* Leave the commit on the LED task loop — calling led_commit_pending_changes()
+       * from the HTTP/BLE thread resulted in visible "fading" when changing brightness. */
       xSemaphoreGive(led_unified_mutex);
       ESP_LOGI(TAG, "Global brightness set to %d%% (deferred to LED task)",
                brightness);
@@ -658,7 +658,7 @@ void led_show_chess_board(void) {
   // Force immediate update to ensure button LEDs are visible
   led_force_immediate_update();
 
-  // Šachovnice už je nastavena výše, jen potvrdit
+  // The checkerboard is already set above, just confirm
   ESP_LOGI(TAG, "✅ Chess board pattern displayed - button LEDs preserved");
 
   // CRITICAL: Force another update to ensure button LEDs are visible
@@ -685,12 +685,12 @@ void led_show_chess_board(void) {
 }
 
 /**
- * @brief Nastav barvu všech 64 LED desky pro HA mód
+ * @brief Set the color of all 64 LED boards for HA mode
  *
- * @param r Červená složka (0-255)
- * @param g Zelená složka (0-255)
- * @param b Modrá složka (0-255)
- * @param brightness Jas (0-255) - aplikuje se na RGB
+ * @param r Red component (0-255)
+ * @param g Green folder (0-255)
+ * @param b Blue folder (0-255)
+ * @param brightness Brightness (0-255) - applied to RGB
  */
 void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
   // CRITICAL: Limit max brightness to prevent brownout
@@ -732,9 +732,9 @@ void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
 }
 
 /**
- * @brief Obnoví šachovnici po HA módu
+ * @brief Restores the board after HA mode
  *
- * Tato funkce obnoví normální zobrazení šachovnice (černá/bílá pole).
+ * This function restores the normal display of the chessboard (black/white squares).
  */
 void led_restore_chess_board(void) {
   ESP_LOGI(TAG, "Restoring chess board pattern");
@@ -742,8 +742,8 @@ void led_restore_chess_board(void) {
 }
 
 /**
- * @brief Obnoví zobrazení všech tlačítek podle aktuálního stavu (available/pressed)
- * Volá se po návratu z HA režimu, aby tlačítka zobrazovala správné barvy.
+ * @brief Resets the display of all buttons according to the current state (available/pressed)
+ * Called after returning from HA mode so that the buttons display the correct colors.
  */
 void led_refresh_all_button_leds(void) {
   for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
@@ -819,7 +819,7 @@ uint32_t led_get_button_color(uint8_t button_id) {
     return 0;
   }
 
-  // Správné mapování button ID na LED indexy
+  // Correct mapping of button IDs to LED indices
   uint8_t led_index = led_get_button_led_index(button_id);
   return led_states[led_index];
 }
@@ -1231,10 +1231,10 @@ void led_execute_command_new(const led_command_t *cmd) {
     ESP_LOGI(TAG, "💡 Hint highlight: from LED %u -> to LED %u", (unsigned)from_idx,
              (unsigned)to_idx);
     if (from_idx < 64) {
-      led_set_pixel_internal(from_idx, 0, 255, 255); /* cyan = nápověda odkud */
+      led_set_pixel_internal(from_idx, 0, 255, 255); /* cyan = hint from where */
     }
     if (to_idx < 64) {
-      led_set_pixel_internal(to_idx, 255, 140, 0); /* orange = nápověda kam */
+      led_set_pixel_internal(to_idx, 255, 140, 0); /* orange = help where */
     }
     break;
   }
@@ -1666,8 +1666,8 @@ void led_highlight_pieces_that_can_move(void) {
   // Clear all highlights first
   led_clear_all_highlights();
 
-  // Použít skutečnou game logiku místo simulace
-  // Voláme game_highlight_movable_pieces() z game_task.c
+  // Use real game logic instead of simulation
+  // We call game_highlight_movable_pieces() from game_task.c
   extern void game_highlight_movable_pieces(void);
   game_highlight_movable_pieces();
 
@@ -1971,11 +1971,11 @@ void led_task_start(void *pvParameters) {
   }
 
   // BOOTING ANIMATION: Controlled by main.c (not here!)
-  // BACKUP FIX: Animation řízena z main.c přes led_boot_animation_step()
-  // Pokud je toto odkomentováno, led_task se zablokuje na 2-3s a main.c animace
+  // BACKUP FIX: Animation controlled from main.c via led_boot_animation_step()
+  // If this is uncommented, led_task will block for 2-3s and main.c animation
   // nefunguje
   ESP_LOGI(TAG, "🌟 Boot animation ready (controlled by main.c)...");
-  // led_booting_animation(); // ← ZAKOMENTOVÁNO jako v backupu!
+  // led_booting_animation(); // ← COMMENTED as in backup!
   ESP_LOGI(TAG, "LED task started successfully (%s)",
            simulation_mode ? "SIMULATION MODE" : "HARDWARE MODE");
   ESP_LOGI(TAG, "Features:");
@@ -2058,7 +2058,7 @@ void led_task_start(void *pvParameters) {
     // Update animations
     led_update_animation();
 
-    // Update endgame wave animation (non-blocking, podle starého projektu)
+    // Update endgame wave animation (non-blocking, according to the old project)
     led_update_endgame_wave();
 
     // Process LED duration expirations (task-driven, no FreeRTOS timer)
@@ -2081,7 +2081,7 @@ void led_task_start(void *pvParameters) {
 
     loop_count++;
 
-    // Optimalizovaný cyklus - 33ms pro 30 FPS animace
+    // Optimized cycle - 33ms for 30 FPS animations
     vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(33));
   }
 }
@@ -2093,19 +2093,19 @@ static bool endgame_animation_active = false;
 // ============================================================================
 
 /**
- * @brief Player change animation - wave animation podle starého projektu
+ * @brief Player change animation - wave animation according to the old project
  *
- * Profesionální wave animace s Gaussian distribucí, která prochází přes
- * šachovnici. Animace jde od předchozího hráče k novému hráči (passing scepter
- * effect).
+ * Professional wave animation with Gaussian distribution that passes through
+ * chess board. The animation goes from the previous player to the new player (passing scepter
+ * effects).
  *
- * @param cmd LED command s data pointerem na player_t (0=white, 1=black)
+ * @param cmd LED command with data pointer to player_t (0=white, 1=black)
  */
 void led_anim_player_change(const led_command_t *cmd) {
   if (!cmd)
     return;
 
-  // Získat barvu nového hráče z data (1=white, 0=black)
+  // Get new player color from data (1=white, 0=black)
   uint8_t player_color_data = cmd->data ? (*((uint8_t *)cmd->data)) : 1;
   player_t current_player =
       (player_color_data == 1) ? PLAYER_WHITE : PLAYER_BLACK;
@@ -2213,7 +2213,7 @@ void led_anim_move_path(const led_command_t *cmd) {
 
   ESP_LOGI(TAG, "🎬 Enhanced move path animation: %d -> %d", from_led, to_led);
 
-  // Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli
+  // Use led_index_to_chess_pos() instead of simple division (due to
   // serpentine layoutu)
   uint8_t from_row, from_col, to_row, to_col;
   led_index_to_chess_pos(from_led, &from_row, &from_col);
@@ -2243,17 +2243,17 @@ void led_anim_move_path(const led_command_t *cmd) {
       uint8_t current_led =
           chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
 
-      // Modrá barva pro move animaci (podle požadavku uživatele)
-      // Modrá s různou intenzitou podle pozice v trailu
+      // Blue color for move animation (according to user request)
+      // Blue with different intensity depending on the position in the trail
       uint8_t red, green, blue;
 
-      // Modrá barva s brightness gradientem podle trail_progress
+      // Blue color with brightness gradient according to trail_progress
       float blue_intensity = 1.0f;
       if (trail_progress < 0.2f) {
-        // Začátek: tmavší modrá
+        // Start: darker blue
         blue_intensity = 0.5f + (trail_progress / 0.2f) * 0.5f; // 0.5 -> 1.0
       } else if (trail_progress > 0.8f) {
-        // Konec: jasnější modrá
+        // Finish: lighter blue
         blue_intensity = 1.0f;
       }
 
@@ -2278,7 +2278,7 @@ void led_anim_move_path(const led_command_t *cmd) {
       led_set_pixel_safe(current_led, red, green, blue);
     }
 
-    // KRITICKÉ: Okamžitě aktualizovat LED po každém frame (jako ve starém
+    // CRITICAL: Update the LED immediately after each frame (as in the old
     // projektu)
     led_force_immediate_update();
 
@@ -2292,14 +2292,14 @@ void led_anim_move_path(const led_command_t *cmd) {
 
     float breath_intensity =
         0.5f + 0.5f * sin(breath * 0.785f); // Breathing effect
-    // Modrá barva pro final destination (podle požadavku uživatele)
+    // Blue color for final destination (according to user request)
     uint8_t final_red = 0;
     uint8_t final_green = 0;
     uint8_t final_blue = (uint8_t)(255 * breath_intensity);
 
     led_set_pixel_safe(to_led, final_red, final_green, final_blue);
 
-    // KRITICKÉ: Okamžitě aktualizovat LED po každém breath frame
+    // CRITICAL: Update LED immediately after each breath frame
     led_force_immediate_update();
 
     vTaskDelay(pdMS_TO_TICKS(20)); // Optimized breathing timing
@@ -2541,7 +2541,7 @@ void led_booting_animation(void) {
   ESP_LOGI(TAG, "🌟 Booting animation completed - boot flag cleared");
 }
 
-// Endgame animation state structure (podle starého projektu)
+// Endgame animation state structure (based on old project)
 typedef struct {
   bool active;
   uint8_t win_king_led;
@@ -2558,7 +2558,7 @@ typedef struct {
 static endgame_wave_state_t endgame_wave = {0};
 
 /**
- * @brief Initialize AVR-style wave endgame animation (podle starého projektu)
+ * @brief Initialize AVR-style wave endgame animation (according to old project)
  */
 void led_anim_endgame(const led_command_t *cmd) {
   if (!cmd)
@@ -2568,7 +2568,7 @@ void led_anim_endgame(const led_command_t *cmd) {
 
   // Get winner king position from led_index
   endgame_wave.win_king_led = cmd->led_index;
-  // Použít led_index_to_chess_pos() místo jednoduchého dělení (kvůli
+  // Use led_index_to_chess_pos() instead of simple division (due to
   // serpentine layoutu)
   led_index_to_chess_pos(endgame_wave.win_king_led, &endgame_wave.win_king_row,
                          &endgame_wave.win_king_col);
@@ -2602,14 +2602,14 @@ void led_anim_endgame(const led_command_t *cmd) {
 
 /**
  * @brief Update enhanced wave endgame animation with improved colors, faster
- * animation and perfect piece highlighting (podle starého projektu)
+ * animation and perfect piece highlighting (according to the old project)
  */
 void led_update_endgame_wave(void) {
   if (!endgame_wave.active || !endgame_wave.initialized) {
     return;
   }
 
-  const uint32_t WAVE_STEP_MS = 100; // Pomalejší animace (100ms místo 30ms)
+  const uint32_t WAVE_STEP_MS = 100; // Slower animation (100ms instead of 30ms)
   const uint8_t MAX_RADIUS = 14;     // Larger radius for better coverage
   const float WAVE_THICKNESS = 1.2f; // Thinner waves for more precise effect
   const int WAVE_LAYERS = 4;         // Fewer layers but with higher FPS
@@ -2653,13 +2653,13 @@ void led_update_endgame_wave(void) {
             // Get piece at this position
             piece_t piece = game_get_piece(row, col);
 
-            // Použít intensity místo gradientu (jako ve starém
+            // Use intensities instead of gradient (as in old
             // projektu) Calculate intensity based on distance from ring center
             // (smooth gradient)
             float intensity = 1.0f - (ring_distance / WAVE_THICKNESS);
             intensity = fmaxf(0.15f, intensity); // Higher minimum brightness
 
-            // Barvy podle starého projektu - všechny barvy se násobí
+            // Colors according to the old project - all colors are multiplied
             // intensity
             uint8_t red, green, blue;
 
@@ -2704,7 +2704,7 @@ void led_update_endgame_wave(void) {
   }
 
   // Always highlight winner king in BRIGHT GOLD (mimo wave loop,
-  // jako ve starém projektu)
+  // as in the old project)
   led_set_pixel_safe(endgame_wave.win_king_led, 255, 215, 0);
 
   // Increment radius for next wave
@@ -2797,11 +2797,11 @@ void led_anim_check(const led_command_t *cmd) {
   if (!cmd)
     return;
 
-  // Získat pozici krále z cmd->led_index (předáno z game_task)
+  // Get king position from cmd->led_index (passed from game_task)
   uint8_t king_led_index = cmd->led_index;
 
-  // Růžové svícení na pozici krále (255, 192, 203) - statické, trvalé až do
-  // dalšího tahu
+  // Pink lighting on the king position (255, 192, 203) - static, permanent until
+  // next move
   led_set_pixel_safe(king_led_index, 255, 192, 203);
 
   ESP_LOGI(TAG, "⚠️ Check: Pink LED at king position %d", king_led_index);
@@ -2837,7 +2837,7 @@ void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue) {
   if (led_index >= CHESS_LED_COUNT_TOTAL)
     return;
-  /* Boot animace v main.c používá led_set_pixel_internal + force update. */
+  /* Boot animation in main.c uses led_set_pixel_internal + force update. */
   if (led_is_booting()) {
     return;
   }
@@ -3020,7 +3020,7 @@ static void led_update_button_led_state(uint8_t button_id) {
   if (button_id >= CHESS_BUTTON_COUNT)
     return;
 
-  // Správné mapování button ID na LED indexy
+  // Correct mapping of button IDs to LED indices
   uint8_t led_index = led_get_button_led_index(button_id);
   uint32_t current_time = esp_timer_get_time() / 1000;
 
@@ -3191,10 +3191,10 @@ void led_force_immediate_update(void) {
     return;
   }
 
-  // BOOT FIX: POVOLIT update i během bootování!
-  // Main.c animace MUSÍ mít přístup k LED, aby mohla vykreslit progress bar.
-  // Původní kontrola if (led_is_booting()) return; BLOKOVALA animaci.
-  // Ochrana před race condition je řešena skipováním LED operací v game_task
+  // BOOT FIX: ALLOW update even during booting!
+  // The main.c animation MUST have access to the LED to render the progress bar.
+  // Original check if (led_is_booting()) return; BLOCKED the animation.
+  // Race condition protection is solved by skipping LED operations in game_task
   // (total_games check).
 
   // FORCE COMMIT ANY PENDING CHANGES WITH MUTEX PROTECTION
@@ -3331,7 +3331,7 @@ static void led_set_pixel_with_duration(uint8_t led_index, uint8_t r, uint8_t g,
       uint32_t new_color = (r << 16) | (g << 8) | b;
       uint32_t current_time = esp_timer_get_time() / 1000;
 
-      // Uložit původní barvu pokud není aktivní duration
+      // Save the original color if the duration is not active
       if (!led_durations[led_index].is_active) {
         led_durations[led_index].original_color = led_states[led_index];
       }
@@ -3422,7 +3422,7 @@ static void led_process_duration_expirations(void) {
  * @brief Initialize duration management system
  */
 static void led_init_duration_system(void) {
-  // Vymazat všechny duration states
+  // Clear all duration states
   memset(led_durations, 0, sizeof(led_durations));
 
   // PRODUCTION STABILITY:
@@ -3643,15 +3643,15 @@ void led_ota_restore_board_after_update_abort(void) {
 // ============================================================================
 
 /**
- * @brief LED boot animation step - rozsviti LED podle progress
- * @param progress_percent Progress v procentech (0-100)
+ * @brief LED boot animation step - light up the LED according to progress
+ * @param progress_percent Progress in percent (0-100)
  * @details
- * Rozsviti LED podle progress boot procesu. Pouziva se pro zobrazeni
- * postupu inicializace systemu. Rozsviti LED svetle zelenou barvou.
- * @note Funkce je bezpecna - kontroluje inicializaci a simulation mode
+ * Light up the LED according to the progress of the boot process. Used for display
+ * system initialization procedure. Turn on the LED light green.
+ * @note The function is safe - it checks initialization and simulation mode
  */
 void led_boot_animation_step(uint8_t progress_percent) {
-  // Bezpecnostni kontroly
+  // Security checks
   if (!led_initialized || simulation_mode) {
     ESP_LOGD(TAG, "LED boot: Progress %d%% - %s", progress_percent,
              simulation_mode ? "simulation mode" : "not initialized");
@@ -3663,7 +3663,7 @@ void led_boot_animation_step(uint8_t progress_percent) {
     progress_percent = 100;
   }
 
-  // Vypocitat index LED (pouze board LEDs 0-63)
+  // Calculate LED index (only board LEDs 0-63)
   int led_index = (progress_percent * CHESS_LED_COUNT_BOARD) / 100;
   if (led_index >= CHESS_LED_COUNT_BOARD) {
     led_index = CHESS_LED_COUNT_BOARD - 1;
@@ -3672,7 +3672,7 @@ void led_boot_animation_step(uint8_t progress_percent) {
   // Rozsvitit LED svetle zelenou
   led_set_pixel_internal(led_index, 0, 128, 0);
 
-  // FORCE immediate update - batch systém by jinak držel změny
+  // FORCE immediate update - the batch system would otherwise keep the changes
   led_force_immediate_update();
 
   ESP_LOGD(TAG, "LED boot: Progress %d%% -> LED[%d] RGB(0,128,0)",
@@ -3680,14 +3680,14 @@ void led_boot_animation_step(uint8_t progress_percent) {
 }
 
 /**
- * @brief LED boot animation fade out - postupne ztlumi vsechny LED na 0
+ * @brief LED boot animation fade out - gradually fade all LEDs to 0
  * @details
- * Postupne ztlumi vsechny board LED z brightness 128 na 0.
- * Pouziva se na konci boot procesu pro plynule ztlumeni.
- * @note Funkce je bezpecna - kontroluje inicializaci a simulation mode
+ * Gradually dim all board LEDs from brightness 128 to 0.
+ * Used at the end of the boot process for smooth muting.
+ * @note The function is safe - it checks initialization and simulation mode
  */
 void led_boot_animation_fade_out(void) {
-  // Bezpecnostni kontroly
+  // Security checks
   if (!led_initialized || simulation_mode) {
     ESP_LOGD(TAG, "LED boot fade out: %s",
              simulation_mode ? "simulation mode" : "not initialized");
@@ -3696,7 +3696,7 @@ void led_boot_animation_fade_out(void) {
 
   ESP_LOGI(TAG, "🌟 Starting LED boot animation fade out...");
 
-  // Postupne ztlumeni z brightness 128 na 0
+  // Gradually muted from brightness 128 to 0
   const int fade_steps = 20;    // 20 kroku pro plynule ztlumeni
   const int step_delay_ms = 30; // 30ms mezi kroky
 
@@ -3704,12 +3704,12 @@ void led_boot_animation_fade_out(void) {
     // Vypocitat brightness (128 -> 0)
     uint8_t brightness = (step * 128) / fade_steps;
 
-    // Ztlumit vsechny board LED (0-63)
+    // Dim all board LEDs (0-63)
     for (int led_index = 0; led_index < CHESS_LED_COUNT_BOARD; led_index++) {
       led_set_pixel_internal(led_index, 0, brightness, 0);
     }
 
-    // FORCE immediate update - batch systém by jinak držel změny
+    // FORCE immediate update - the batch system would otherwise keep the changes
     led_force_immediate_update();
 
     // Kratka pauza pro plynulou animaci
@@ -3719,10 +3719,10 @@ void led_boot_animation_fade_out(void) {
     led_task_wdt_reset_safe();
   }
 
-  // Vymazat vsechny board LED
+  // Erase all board LEDs
   led_clear_board_only();
 
-  // Clear boot flag - animace dokončena (řízená z main.c)
+  // Clear boot flag - animation complete (controlled from main.c)
   led_booting_active = false;
 
   ESP_LOGI(TAG, "✅ LED boot animation fade out completed - boot flag cleared");

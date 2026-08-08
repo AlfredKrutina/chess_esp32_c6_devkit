@@ -1,26 +1,26 @@
 /**
  * @file freertos_chess.h
- * @brief ESP32-C6 Chess System v1.8.0 - Hlavni systemova hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Main system header
  *
- * Tato hlavicka obsahuje hlavni systemove definice, konstanty
- * a globalni promenne pro FreeRTOS sachovy system.
+ * This header contains the main system definitions, constants
+ * and global variables for the FreeRTOS storage system.
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2026-05-04
  *
  * @details
- * Tato hlavicka je centralni bod definic pro cely sachovy system.
- * Obsahuje vsechny klicove konstanty, GPIO definice, queue handles,
- * mutex handles, timer handles a systemove funkce.
+ * This header is the central definition point for the entire Sacha system.
+ * Contains all key constants, GPIO definitions, queue handles,
+ * mutex handles, timer handles and system functions.
  *
- * Hlavni funkce:
- * - GPIO pin definice pro ESP32-C6
- * - Systemove konstanty a velikosti
- * - FreeRTOS queue a mutex handles
- * - Inicializacni funkce systemu
+ * Main functions:
+ * - GPIO pin definition for ESP32-C6
+ * - System constants and sizes
+ * - FreeRTOS queue and mutex handles
+ * - System initialization function
  * - Hardware abstraction layer
- * - Utility funkce a makra
+ * - Utility functions and macros
  */
 
 #ifndef FREERTOS_CHESS_H
@@ -46,15 +46,15 @@ extern "C" {
 // SYSTEMOVE INFORMACE O VERZI
 // ============================================================================
 
-/** @brief Nazev sachoveho systemu */
+/** @brief The name of the sach system */
 #define CHESS_SYSTEM_NAME "ESP32-C6 Chess System"
-/** @brief Verze sachoveho systemu (CMake může přepsat -DCHESS_SYSTEM_VERSION=…) */
+/** @brief Chess system version (CMake can override -DCHESS_SYSTEM_VERSION=…) */
 #ifndef CHESS_SYSTEM_VERSION
 #define CHESS_SYSTEM_VERSION "1.8.0"
 #endif
-/** @brief Autor sachoveho systemu */
+/** @brief Author of the sach system */
 #define CHESS_SYSTEM_AUTHOR "Alfred Krutina"
-/** @brief Kompletni retezec s verzi (CMake může přepsat -DCHESS_VERSION_STRING=…) */
+/** @brief Complete version string (CMake can override -DCHESS_VERSION_STRING=…) */
 #ifndef CHESS_VERSION_STRING
 #define CHESS_VERSION_STRING "ESP32-C6 Chess System v1.8.0"
 #endif
@@ -67,57 +67,57 @@ extern "C" {
 
 /** @brief Pin pro WS2812B LED data (GPIO7) */
 #define LED_DATA_PIN GPIO_NUM_7 // WS2812B data line
-/** @brief Pin pro stavovy LED indikator (GPIO5 - bezpecny pin) */
+/** @brief Pin for status LED indicator (GPIO5 - safe pin) */
 #define STATUS_LED_PIN                                                         \
   GPIO_NUM_5 // Status indicator (safe pin - GPIO8 is boot strapping pin!)
 
-// Piny pro radky matice (vystupy) - potreba 8 pinu
-/** @brief Pin pro radek 0 matice (GPIO10 - vystup) */
+// Pins for the rows of the matrix (outputs) - need 8 pins
+/** @brief Pin for row 0 of the matrix (GPIO10 - output) */
 #define MATRIX_ROW_0 GPIO_NUM_10
-/** @brief Pin pro radek 1 matice (GPIO11 - vystup) */
+/** @brief Pin for row 1 of the matrix (GPIO11 - output) */
 #define MATRIX_ROW_1 GPIO_NUM_11
-/** @brief Pin pro radek 2 matice (GPIO18 - vystup) */
+/** @brief Pin for row 2 of the matrix (GPIO18 - output) */
 #define MATRIX_ROW_2 GPIO_NUM_18
-/** @brief Pin pro radek 3 matice (GPIO19 - vystup) */
+/** @brief Pin for row 3 of the matrix (GPIO19 - output) */
 #define MATRIX_ROW_3 GPIO_NUM_19
-/** @brief Pin pro radek 4 matice (GPIO20 - vystup) */
+/** @brief Pin for row 4 of the matrix (GPIO20 - output) */
 #define MATRIX_ROW_4 GPIO_NUM_20
-/** @brief Pin pro radek 5 matice (GPIO21 - vystup) */
+/** @brief Pin for row 5 of the matrix (GPIO21 - output) */
 #define MATRIX_ROW_5 GPIO_NUM_21
-/** @brief Pin pro radek 6 matice (GPIO22 - vystup) */
+/** @brief Pin for row 6 of the matrix (GPIO22 - output) */
 #define MATRIX_ROW_6 GPIO_NUM_22
-/** @brief Pin pro radek 7 matice (GPIO23 - vystup) */
+/** @brief Pin for row 7 of the matrix (GPIO23 - output) */
 #define MATRIX_ROW_7 GPIO_NUM_23
 
-// Piny pro sloupce matice (vstupy s pull-up) - potreba 8 pinu
-/** @brief Pin pro sloupec 0 matice (GPIO0 - vstup s pull-up, bezpecny pin) */
+// Pins for matrix columns (pull-up inputs) - need 8 pin
+/** @brief Pin for column 0 of the matrix (GPIO0 - input with pull-up, safe pin) */
 #define MATRIX_COL_0 GPIO_NUM_0 // Safe pin
-/** @brief Pin pro sloupec 1 matice (GPIO1 - vstup s pull-up, bezpecny pin) */
+/** @brief Pin for column 1 of the matrix (GPIO1 - input with pull-up, safe pin) */
 #define MATRIX_COL_1 GPIO_NUM_1 // Safe pin
-/** @brief Pin pro sloupec 2 matice (GPIO2 - vstup s pull-up, bezpecny pin) */
+/** @brief Pin for column 2 of the matrix (GPIO2 - input with pull-up, safe pin) */
 #define MATRIX_COL_2 GPIO_NUM_2 // Safe pin
-/** @brief Pin pro sloupec 3 matice (GPIO3 - vstup s pull-up, bezpecny pin) */
+/** @brief Pin for column 3 of the matrix (GPIO3 - input with pull-up, safe pin) */
 #define MATRIX_COL_3 GPIO_NUM_3 // Safe pin
-/** @brief Pin pro sloupec 4 matice (GPIO6 - vstup s pull-up, bezpecny pin) */
+/** @brief Pin for column 4 of the matrix (GPIO6 - input with pull-up, safe pin) */
 #define MATRIX_COL_4 GPIO_NUM_6 // Safe pin
-/** @brief Pin pro sloupec 5 matice (GPIO4 - vstup s pull-up, bezpecny pin,
- * zmeneno z GPIO9) */
+/** @brief Pin for column 5 of the matrix (GPIO4 - input with pull-up, safe pin,
+ * changed from GPIO9) */
 #define MATRIX_COL_5                                                           \
   GPIO_NUM_4 // Safe pin (changed from GPIO9 to GPIO4 to avoid strapping pin)
-/** @brief Pin pro sloupec 6 matice (GPIO16 - vstup s pull-up) */
+/** @brief Pin for column 6 of the matrix (GPIO16 - pull-up input) */
 #define MATRIX_COL_6 GPIO_NUM_16 // Column G
-/** @brief Pin pro sloupec 7 matice (GPIO17 - vstup s pull-up) */
+/** @brief Pin for column 7 of the matrix (GPIO17 - pull-up input) */
 #define MATRIX_COL_7 GPIO_NUM_17 // Column H
 
-/** @brief Pin pro reset tlacitko (GPIO15 - vstup s pull-up, strapping pin pro
- * ROM messages, bezpecny pro button) */
+/** @brief Pin for reset button (GPIO15 - input with pull-up, strapping pin for
+ * ROM messages, safe for button) */
 #define BUTTON_RESET                                                           \
-  GPIO_NUM_15 // Reset button (GPIO27 neni dostupny na LaskaKit desce)
+  GPIO_NUM_15 // Reset button (GPIO27 is not available on the LaskaKit board)
 
 /**
- * Pin je zároveň výstupem NRST pro stm32_i2c_bootloader — nesmí se konfigurovat
- * jako vstup reset tlačítka ani číst v button_task (jinak falešné stisky během
- * flashování a rozbitý NRST).
+ * The pin is also the NRST output for stm32_i2c_bootloader — it must not be configured
+ * as input reset button nor read in button_task (otherwise false presses during
+ * flashing and broken NRST).
  */
 static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
@@ -138,47 +138,47 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 #endif
 }
 
-// Definice tlacitek (time-multiplexed se sloupci matice)
-/** @brief Tlacitko pro promoci na damu (sdileno s MATRIX_COL_0) */
+// Button definitions (time-multiplexed with matrix columns)
+/** @brief Graduation button on checker (shared with MATRIX_COL_0) */
 #define BUTTON_QUEEN MATRIX_COL_0 // A1 square + Button Queen
-/** @brief Tlacitko pro promoci na vez (sdileno s MATRIX_COL_1) */
+/** @brief Graduation button per carriage (shared with MATRIX_COL_1) */
 #define BUTTON_ROOK MATRIX_COL_1 // B1 square + Button Rook
-/** @brief Tlacitko pro promoci na strelce (sdileno s MATRIX_COL_2) */
+/** @brief Shooter graduation button (shared with MATRIX_COL_2) */
 #define BUTTON_BISHOP MATRIX_COL_2 // C1 square + Button Bishop
-/** @brief Tlacitko pro promoci na kone (sdileno s MATRIX_COL_3) */
+/** @brief Horse graduation button (shared with MATRIX_COL_3) */
 #define BUTTON_KNIGHT MATRIX_COL_3 // D1 square + Button Knight
 
 // ============================================================================
 // NEPOUZIVANA MAKRA - ZAKOMENTOVANO
 // ============================================================================
 // POZOR: Nasledujici makra se NEPOUZIVAJI v kodu!
-// Byly puvodne navrzena pro druhou sadu promotion tlacitek, ale system
-// pouziva pouze 4 sdilena tlacitka (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP,
-// BUTTON_KNIGHT) ktera jsou spolecna pro oba hrace. Pole
-// promotion_button_pins_b take neni pouzito.
+// They were originally designed for the second set of promotion buttons, but the system
+// uses only 4 shared buttons (BUTTON_QUEEN, BUTTON_ROOK, BUTTON_BISHOP,
+// BUTTON_KNIGHT) which are common to both players. Field
+// promotion_button_pins_b is also not used.
 //
-// /** @brief Tlacitko pro promoci na damu B (sdileno s MATRIX_COL_4) */
+// /** @brief Graduation button on checker B (shared with MATRIX_COL_4) */
 // #define BUTTON_PROMOTION_QUEEN MATRIX_COL_4 // E1 square + Promotion Queen
-// /** @brief Tlacitko pro promoci na vez B (sdileno s MATRIX_COL_5) */
+// /** @brief Graduation button for row B (shared with MATRIX_COL_5) */
 // #define BUTTON_PROMOTION_ROOK MATRIX_COL_5 // F1 square + Promotion Rook
-// /** @brief Tlacitko pro promoci na strelce B (sdileno s MATRIX_COL_6) */
+// /** @brief Shooter B graduation button (shared with MATRIX_COL_6) */
 // #define BUTTON_PROMOTION_BISHOP MATRIX_COL_6 // G1 square + Promotion Bishop
-// /** @brief Tlacitko pro promoci na kone B (sdileno s MATRIX_COL_7) */
+// /** @brief Graduation button for horse B (shared with MATRIX_COL_7) */
 // #define BUTTON_PROMOTION_KNIGHT MATRIX_COL_7 // H1 square + Promotion Knight
 
 // ============================================================================
 // SYSTEMOVE CASOVE KONSTANTY
 // ============================================================================
 
-// Konfigurace time-multiplexingu (25ms celkovy cyklus - LED update odstranen)
-/** @brief Cas skenovani matice v milisekundach (0-20ms) */
+// Time-multiplexing configuration (25ms total cycle - LED update removed)
+/** @brief Matrix scan time in milliseconds (0-20ms) */
 #define MATRIX_SCAN_TIME_MS 20 // Matrix scanning time (0-20ms)
-/** @brief Cas skenovani tlacitek v milisekundach (20-25ms) */
+/** @brief Button scan time in milliseconds (20-25ms) */
 #define BUTTON_SCAN_TIME_MS 5 // Button scanning time (20-25ms)
 // #define LED_UPDATE_TIME_MS 5        //  REMOVED: No longer needed
-/** @brief Celkovy cas multiplexing cyklu v milisekundach (snizeno z 30ms) */
+/** @brief Total multiplexing cycle time in milliseconds (reduced from 30ms) */
 #define TOTAL_CYCLE_TIME_MS 25 // Total multiplexing cycle (reduced from 30ms)
-/** @brief Interval kontroly zdravi systemu v milisekundach */
+/** @brief System health check interval in milliseconds */
 #define SYSTEM_HEALTH_TIME_MS 1000 // System health check interval
 
 // ============================================================================
@@ -186,54 +186,54 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 // ============================================================================
 
 // WS2812B optimalni casove konstanty
-/** @brief Bezpecny timeout pro LED prikazy v milisekundach (500ms misto
+/** @brief Safe timeout for LED commands in milliseconds (500ms misto
  * 10-100ms) */
-#define LED_COMMAND_TIMEOUT_MS 500 // Bezpecny timeout pro prikazy
-/** @brief Timeout pro LED mutex v milisekundach (200ms) */
+#define LED_COMMAND_TIMEOUT_MS 500 // Safe timeout for commands
+/** @brief Timeout for LED mutex in milliseconds (200ms) */
 #define LED_MUTEX_TIMEOUT_MS 200 // Timeout pro mutex
-/** @brief Bezpecny interval LED aktualizace v milisekundach (300ms = 3.3Hz pro
- * lidske oko) */
+/** @brief Safe LED update interval in milliseconds (300ms = 3.3Hz for
+ * human eye) */
 #define LED_HARDWARE_UPDATE_MS                                                 \
-  300 // Bezpecny interval - 300ms (3.3Hz) pro lidske oko
-/** @brief Bezpecna mezera mezi LED framy v milisekundach (200ms) */
-#define LED_FRAME_SPACING_MS 200 // Bezpecna mezera - 200ms mezi frames
-/** @brief Bezpecny reset cas pro WS2812B v mikrosekundach (500μs = 10x vice nez
+  300 // Safe interval - 300ms (3.3Hz) for the human eye
+/** @brief Safe gap between LED frames in milliseconds (200ms) */
+#define LED_FRAME_SPACING_MS 200 // Safe gap - 200ms between frames
+/** @brief Safe reset time for WS2812B in microseconds (500μs = 10x more than
  * minimum) */
-#define LED_RESET_TIME_US 500 // Bezpecny reset - 500us (10x vice nez minimum)
+#define LED_RESET_TIME_US 500 // Safe reset - 500us (10x more than the minimum)
 
 // LED synchronizacni konstanty
-/** @brief Bezpecny timeout pro LED operace v FreeRTOS tickach */
+/** @brief Safe timeout for LED operations in FreeRTOS ticks */
 #define LED_SAFE_TIMEOUT pdMS_TO_TICKS(LED_COMMAND_TIMEOUT_MS)
-/** @brief Bezpecny mutex timeout v FreeRTOS tickach */
+/** @brief Safe mutex timeout in FreeRTOS ticks */
 #define LED_MUTEX_SAFE_TIMEOUT pdMS_TO_TICKS(LED_MUTEX_TIMEOUT_MS)
 
 // ============================================================================
 // VELIKOSTI FRONT
 // ============================================================================
 
-/** @brief Matrix: udalosti pri skenovani 8x8 (dostatecna hloubka pro burst). */
+/** @brief Matrix: events when scanning 8x8 (enough depth for burst). */
 #define MATRIX_QUEUE_SIZE 8
-/** @brief Button: udalosti z ISR (vzacne). */
+/** @brief Button: events from ISR (rare). */
 #define BUTTON_QUEUE_SIZE 5
-/** @brief UART: prikazy/odpovedi (sizeof(game_response_t) ~ 328 B na polozku). */
+/** @brief UART: commands/responses (sizeof(game_response_t) ~ 328 B per item). */
 #define UART_QUEUE_SIZE 10
-/** @brief Game: rychle tahy z webu/matice (24 × chess_move_command_t; dříve 50). */
+/** @brief Game: fast moves from web/matrix (24 × chess_move_command_t; previously 50). */
 #define GAME_QUEUE_SIZE 24
 /**
- * @brief Test: uint8 prikazy do test_task (0–5 v test_process_commands).
- * @note LED fronty se nepouzivaji (direct LED); drive byla tato hodnota
- *       mylne pojmenovana LED_QUEUE_SIZE.
+ * @brief Test: uint8 commands to test_task (0-5 in test_process_commands).
+ * @note LED queues are not used (direct LED); drive was this value
+ * erroneously named LED_QUEUE_SIZE.
  */
 #define TEST_COMMAND_QUEUE_SIZE 16
-/** @brief UART vystupni fronta (polozka = sizeof(uart_message_t), uart_queue_message.h). */
+/** @brief UART output queue(item = sizeof(uart_message_t), uart_queue_message.h). */
 #define UART_OUTPUT_QUEUE_LENGTH 20
 /** @brief Velikost animation fronty (5 prvku, snizeno z 8 na 5, jednoduche
  * animace) */
 #define ANIMATION_QUEUE_SIZE 5 // Reduced from 8 to 5 (simple animations)
 /** @brief Velikost screen saver fronty (3 prvky, nezmeneno, jiz minimalni) */
 #define SCREEN_SAVER_QUEUE_SIZE 3 // Unchanged (already minimal)
-/** @brief Velikost web server fronty (10 prvku, snizeno z 15 na 10, streaming
- * snizuje potreby) */
+/** @brief Web server queue size (10 elements, reduced from 15 to 10, streaming
+ *reduces needs) */
 #define WEB_SERVER_QUEUE_SIZE                                                  \
   10 // Reduced from 15 to 10 (streaming reduces needs)
 // #define MATTER_QUEUE_SIZE 10     // DISABLED - Matter not needed
@@ -242,12 +242,12 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 // VELIKOSTI STACKU A PRIORITY TASKU
 // ============================================================================
 
-/** @brief LED: WS2812 + animacni logika (merit high-water mark pred snizovanim). */
+/** @brief LED: WS2812 + animation logic (measure high-water mark before reducing). */
 #define LED_TASK_STACK_SIZE (8 * 1024)
 /** @brief Matrix: sken + odezvy (game_response_t). */
 #define MATRIX_TASK_STACK_SIZE (4 * 1024)
 #define BUTTON_TASK_STACK_SIZE (3 * 1024)
-/** @brief UART: radka vstupu + game_response_t pri forwardu odpovedi. */
+/** @brief UART: input line + game_response_t when forwarding response. */
 #define UART_TASK_STACK_SIZE (5 * 1024)
 #define GAME_TASK_STACK_SIZE (6 * 1024)
 /** @brief Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche
@@ -276,102 +276,102 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 #define HA_LIGHT_TASK_STACK_SIZE (8 * 1024) // 8KB
 
 // Priority tasku
-/** @brief Priorita LED tasku (7 - nejvyssi priorita pro LED timing) */
-#define LED_TASK_PRIORITY 7 // Nejvyssi priorita pro LED timing
-/** @brief Priorita Matrix tasku (6 - hardware vstup) */
+/** @brief LED task priority (7 - highest for LED timing) */
+#define LED_TASK_PRIORITY 7 // Highest priority for LED timing
+/** @brief Matrix task priority (6 - hardware input) */
 #define MATRIX_TASK_PRIORITY 6 // Hardware vstup
-/** @brief Priorita Button tasku (5 - uzivatelsky vstup) */
-#define BUTTON_TASK_PRIORITY 5 // Uzivatelsky vstup
-/** @brief Priorita UART tasku (3 - komunikace) */
+/** @brief Priority Button task (5 - user input) */
+#define BUTTON_TASK_PRIORITY 5 // User login
+/** @brief UART task priority (3 - communication) */
 #define UART_TASK_PRIORITY 3 // Komunikace
-/** @brief Priorita Game tasku (4) */
-#define GAME_TASK_PRIORITY 4 // Priorita game tasku
-/** @brief Priorita Animation tasku (3 - vizualni efekty) */
+/** @brief Game task priority (4) */
+#define GAME_TASK_PRIORITY 4 // Game task priority
+/** @brief Animation task priority (3 - visual effects) */
 #define ANIMATION_TASK_PRIORITY 3 // Vizualni efekty
-/** @brief Priorita Screen Saver tasku (2 - pozadi) */
+/** @brief Screen saver task priority (2 - background) */
 #define SCREEN_SAVER_TASK_PRIORITY 2 // Pozadi
-/** @brief Priorita Test tasku (1 - pouze pro debug) */
-#define TEST_TASK_PRIORITY 1 // Pouze pro debug
+/** @brief Priority Test task (1 - only for debug) */
+#define TEST_TASK_PRIORITY 1 // For debug only
 // #define MATTER_TASK_PRIORITY 4       // DISABLED - Matter not needed
-/** @brief Priorita Web Server tasku (3 - komunikace) */
+/** @brief Web server task priority (3 - communication) */
 #define WEB_SERVER_TASK_PRIORITY 3 // Komunikace
-/** @brief Priorita Reset Button tasku (3 - uzivatelsky vstup) */
-#define RESET_BUTTON_TASK_PRIORITY 3 // Uzivatelsky vstup
-/** @brief Priorita Promotion Button tasku (3 - uzivatelsky vstup) */
-#define PROMOTION_BUTTON_TASK_PRIORITY 3 // Uzivatelsky vstup
-/** @brief Priorita HA Light tasku (3 - komunikace) */
+/** @brief Priority Reset Button task (3 - user input) */
+#define RESET_BUTTON_TASK_PRIORITY 3 // User login
+/** @brief Priority Promotion Button taska (3 - user input) */
+#define PROMOTION_BUTTON_TASK_PRIORITY 3 // User login
+/** @brief HA light task priority (3 - communication) */
 #define HA_LIGHT_TASK_PRIORITY 3 // Komunikace
 
 // ============================================================================
-// GLOBALNI QUEUE HANDLES
+// GLOBAL QUEUE HANDLES
 // ============================================================================
 
-// LED control queues - ODSTRANENO: Pouzivaji se prime LED volani misto toho
+// LED control queues - REMOVED: Prime LED calls are used instead
 // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell eliminated
 // extern QueueHandle_t led_status_queue;   //  REMOVED: Queue hell eliminated
-/** @brief Fronta pro matrix udalosti (piece lifted/placed) */
+/** @brief Queue for event matrix (piece lifted/placed) */
 extern QueueHandle_t matrix_event_queue;
-/** @brief Fronta pro matrix prikazy (scan, reset, test) */
+/** @brief Queue for matrix commands (scan, reset, test) */
 extern QueueHandle_t matrix_command_queue;
-/** @brief Fronta pro matrix odpovedi (odpovedi ze systemu) */
+/** @brief Queue for the response matrix (responses from the system) */
 extern QueueHandle_t matrix_response_queue;
-/** @brief Fronta pro button udalosti (press, release, long press) */
+/** @brief Queue for button events (press, release, long press) */
 extern QueueHandle_t button_event_queue;
-/** @brief Fronta pro button prikazy (reset, status, test) */
+/** @brief Queue for button commands (reset, status, test) */
 extern QueueHandle_t button_command_queue;
-/** @brief Fronta pro UART prikazy (komunikace se systemem) */
+/** @brief Queue for UART commands (communication with the system) */
 extern QueueHandle_t uart_command_queue;
-/** @brief Fronta pro UART odpovedi (odpovedi ze systemu) */
+/** @brief Queue for UART responses (system responses) */
 extern QueueHandle_t uart_response_queue;
-/** @brief Fronta pro game prikazy (new game, move, status) */
+/** @brief Queue for game commands (new game, move, status) */
 extern QueueHandle_t game_command_queue;
-/** @brief Fronta pro game status (stav hry) */
+/** @brief Queue for game status (game state) */
 extern QueueHandle_t game_status_queue;
-/** @brief Fronta pro animation prikazy (start, stop, pause) */
+/** @brief Queue for animation commands (start, stop, pause) */
 extern QueueHandle_t animation_command_queue;
 /** @brief Fronta pro animation status (stav animaci) */
 extern QueueHandle_t animation_status_queue;
-/** @brief Fronta pro screen saver prikazy (activate, deactivate) */
+/** @brief Queue for screen saver commands (activate, deactivate) */
 extern QueueHandle_t screen_saver_command_queue;
 /** @brief Fronta pro screen saver status (stav screen saveru) */
 extern QueueHandle_t screen_saver_status_queue;
-/** @brief Fronta pro matter prikazy (DISABLED - Matter neni potreba) */
+/** @brief Queue for matter commands (DISABLED - Matter is not needed) */
 extern QueueHandle_t matter_command_queue;
-/** @brief Fronta pro matter status (DISABLED - Matter neni potreba) */
+/** @brief Queue for matter status (DISABLED - Matter is not needed) */
 extern QueueHandle_t matter_status_queue;
-/** @brief Fronta pro web prikazy (start, stop, config) */
+/** @brief Queue for web commands (start, stop, config) */
 extern QueueHandle_t web_command_queue;
-/** @brief Fronta pro web server prikazy (HTTP requests) */
+/** @brief Queue for web server commands (HTTP requests) */
 extern QueueHandle_t web_server_command_queue;
 /** @brief Fronta pro web server status (server state) */
 extern QueueHandle_t web_server_status_queue;
-/** @brief Fronta pro test prikazy (run, status, reset) */
+/** @brief Queue for test commands (run, status, reset) */
 extern QueueHandle_t test_command_queue;
 
 // ============================================================================
-// GLOBALNI MUTEX HANDLES
+// GLOBAL MUTEX HANDLES
 // ============================================================================
 
-/** @brief Mutex pro LED operace (ochrana LED stavu) */
+/** @brief Mutex for LED operations (protect LED state) */
 extern SemaphoreHandle_t led_mutex;
-/** @brief Mutex pro matrix operace (ochrana matrix stavu) */
+/** @brief Mutex for matrix operations (protect matrix state) */
 extern SemaphoreHandle_t matrix_mutex;
-/** @brief Mutex pro button operace (ochrana button stavu) */
+/** @brief Mutex for button operations (protect button state) */
 extern SemaphoreHandle_t button_mutex;
-/** @brief Mutex pro game operace (ochrana game stavu) */
+/** @brief Mutex for game operations (protect game state) */
 extern SemaphoreHandle_t game_mutex;
-/** @brief Mutex pro systemove operace (globalni systemova ochrana) */
+/** @brief Mutex for system operations (global system protection) */
 extern SemaphoreHandle_t system_mutex;
-/** @brief Mutex pro UART operace (ochrana UART vystupu) */
+/** @brief Mutex for UART operations (protect UART output) */
 extern SemaphoreHandle_t uart_mutex;
 
 // ============================================================================
-// GLOBALNI TIMER HANDLES
+// GLOBAL TIMER HANDLES
 // ============================================================================
 
-/** @brief Timer pro periodicke skenovani matice */
+/** @brief Timer for periodic matrix scanning */
 extern TimerHandle_t matrix_scan_timer;
-/** @brief Timer pro periodicke skenovani tlacitek */
+/** @brief Timer for periodic button scanning */
 extern TimerHandle_t button_scan_timer;
 // extern TimerHandle_t led_update_timer;  //  REMOVED: No longer needed
 /** @brief Timer pro periodicke kontroly zdravi systemu */
@@ -381,175 +381,175 @@ extern TimerHandle_t system_health_timer;
 // GPIO PIN POLE
 // ============================================================================
 
-/** @brief Pole GPIO pinu pro radky matice (8 vystupu) */
+/** @brief GPIO pin array for matrix rows (8 output) */
 extern const gpio_num_t matrix_row_pins[8];
-/** @brief Pole GPIO pinu pro sloupce matice (8 vstupu s pull-up) */
+/** @brief GPIO pin array for matrix columns (8 inputs with pull-up) */
 extern const gpio_num_t matrix_col_pins[8];
-/** @brief Pole GPIO pinu pro promotion tlacitka A (4 tlacitka) */
+/** @brief GPIO pin array for promotion button A (4 buttons) */
 extern const gpio_num_t promotion_button_pins_a[4];
 // NEPOUZIVANO: Toto pole se nikde v kodu nepouziva!
-// /** @brief Pole GPIO pinu pro promotion tlacitka B (4 tlacitka) */
+// /** @brief GPIO pin array for promotion button B (4 buttons) */
 // extern const gpio_num_t promotion_button_pins_b[4];
 
 // ============================================================================
-// SYSTEMOVE INICIALIZACNI FUNKCE
+// SYSTEM INITIALIZATION FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Inicializuje sachovy system
+ * @brief Initializes the sach system
  *
- * Tato funkce inicializuje cely sachovy system vcetne hardware, front,
- * mutexu a timeru. Vola vsechny potrebne inicializacni funkce.
+ * This function initializes the entire sach system including hardware, queue,
+ * mutex and timer. It calls all necessary initialization functions.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_system_init(void);
 
 /**
- * @brief Inicializuje pameti optimalizacni systemy
+ * @brief Initializes memory optimization systems
  *
- * Inicializuje buffer pool a streaming output pro efektivni vyuziti pameti.
+ * Initializes the buffer pool and streaming output for efficient memory usage.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_memory_systems_init(void);
 
 /**
- * @brief Inicializuje hardwarove komponenty
+ * @brief Initializes hardware components
  *
- * Inicializuje GPIO piny, LED pasek a ostatni hardware komponenty.
+ * Initializes GPIO pins, LED strip and other hardware components.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_hardware_init(void);
 
 /**
- * @brief Vytvori vsechny FreeRTOS fronty
+ * @brief Create all FreeRTOS queues
  *
- * Vytvori vsechny potrebne fronty pro komunikaci mezi tasky.
+ * Create all necessary queues for communication between tasks.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_create_queues(void);
 
 /**
- * @brief Vytvori vsechny FreeRTOS mutexy
+ * @brief Create all FreeRTOS mutexes
  *
- * Vytvori vsechny potrebne mutexy pro thread-safe pristup k datum.
+ * Create all necessary mutexes for thread-safe access to datum.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_create_mutexes(void);
 
 /**
- * @brief Vytvori vsechny FreeRTOS timery
+ * @brief Create all FreeRTOS timers
  *
- * Vytvori periodicke timery pro skenovani matice, tlacitek a systemu.
+ * Create periodic timers for matrix, button and system scans.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_create_timers(void);
 
 /**
- * @brief Spusti vsechny FreeRTOS timery
+ * @brief Start all FreeRTOS timers
  *
  * Spusti periodicke timery vytvorene funkci chess_create_timers().
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_start_timers(void);
 
 /**
- * @brief Callback funkce pro button scan timer
+ * @brief Callback function for button scan timer
  *
- * Tato funkce je volana periodicky timerem pro skenovani tlacitek.
+ * This function is called periodically by the button scan timer.
  *
- * @param xTimer Handle timeru
+ * @param xTimer Timer handle
  */
 void button_scan_timer_callback(TimerHandle_t xTimer);
 
 /**
- * @brief Callback funkce pro matrix scan timer
+ * @brief Callback function for matrix scan timer
  *
- * Tato funkce je volana periodicky timerem pro skenovani matice.
+ * This function is called periodically by the matrix scan timer.
  *
- * @param xTimer Handle timeru
+ * @param xTimer Timer handle
  */
 void matrix_scan_timer_callback(TimerHandle_t xTimer);
 
 /**
- * @brief LED update timer callback - ODSTRANENO: Pouzivaji se prime LED volani
- * @param xTimer Handle timeru
+ * @brief LED update timer callback - REMOVED: Prime LED callbacks are used
+ * @param xTimer Timer handle
  */
 // void led_update_timer_callback(TimerHandle_t xTimer);  //  REMOVED: No
 // longer needed
 
 /**
- * @brief Inicializuje GPIO piny
+ * @brief Initializes the GPIO pins
  *
- * Inicializuje vsechny GPIO piny pro matrix, tlacitka a LED.
- * Validuje bezpecnost pinu a nastavuje pull-up/pull-down rezistory.
+ * Initializes all GPIO pins for matrix, buttons and LEDs.
+ * Validates pin safety and sets pull-up/pull-down resistors.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_gpio_init(void);
 
 // ============================================================================
-// HARDWARE ABSTRACTION FUNKCE
+// HARDWARE ABSTRACTION FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Posle retezec pres UART
+ * @brief Send chain via UART
  *
- * @param str Retezec k poslani pres UART
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param str String to send via UART
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_uart_send_string(const char *str);
 
 /**
- * @brief Posle formatovany retezec pres UART
+ * @brief Send formatted string via UART
  *
- * Funguje jako printf() ale posila vystup pres UART.
+ * Works like printf() but sends output via UART.
  *
- * @param format Formatovaci retezec (printf styl)
- * @param ... Argumenty pro formatovaci retezec
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param format Format string (printf style)
+ * @param ... Arguments for the format string
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_uart_printf(const char *format, ...);
 
 /**
- * @brief Nastavi barvu LED pixelu
+ * @brief Set the LED pixel color
  *
- * @param led_index Index LED (0-72, kde 0-63 sachovnice, 64-72 tlacitka)
- * @param red Cervena komponenta (0-255)
- * @param green Zelena komponenta (0-255)
- * @param blue Modra komponenta (0-255)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param led_index LED index (0-72, where 0-63 case, 64-72 button)
+ * @param red Red component (0-255)
+ * @param green Green component (0-255)
+ * @param blue Blue component (0-255)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_led_set_pixel(uint8_t led_index, uint8_t red, uint8_t green,
                               uint8_t blue);
 
 /**
- * @brief Nastavi vsechny LED na stejnou barvu
+ * @brief Set all LEDs to the same color
  *
- * @param red Cervena komponenta (0-255)
- * @param green Zelena komponenta (0-255)
- * @param blue Modra komponenta (0-255)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @param red Red component (0-255)
+ * @param green Green component (0-255)
+ * @param blue Blue component (0-255)
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_led_set_all(uint8_t red, uint8_t green, uint8_t blue);
 
 /**
- * @brief Ziska stav matice
+ * @brief Gets the state of the matrix
  *
- * @param[out] status Vystupni buffer pro 64-prvkove pole stavu (1 = piece
+ * @param[out] status Output buffer for the 64-element status array (1 = piece
  * present, 0 = empty)
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t chess_matrix_get_status(uint8_t *status);
 
 // ============================================================================
-// SYSTEMOVE UTILITY FUNKCE
+// SYSTEM UTILITY FUNCTIONS
 // ============================================================================
 
 /**
@@ -561,11 +561,11 @@ esp_err_t chess_matrix_get_status(uint8_t *status);
 void chess_print_system_info(void);
 
 /**
- * @brief Monitoruje systemove tasky
+ * @brief Monitors system tasks
  *
- * Kontroluje zda vsechny tasky bezi spravne a zda nejsou zablokovane.
+ * Checks whether all tasks are running correctly and whether they are not blocked.
  *
- * @return ESP_OK pokud vsechny tasky bezi spravne, chybovy kod pri problemu
+ * @return ESP_OK if all tasks run correctly, error code for problem
  */
 esp_err_t chess_monitor_tasks(void);
 
@@ -581,15 +581,15 @@ bool is_demo_mode_enabled(void);
 // ============================================================================
 
 /**
- * @brief Bezpecne vytvoreni fronty s kontrolou chyb
+ * @brief Create queues safely with error checking
  *
- * Toto makro vytvori FreeRTOS frontu a automaticky kontroluje uspesnost.
- * Pokud fronta neni vytvorena, loguje chybu a vrati ESP_ERR_NO_MEM.
+ * This macro creates a FreeRTOS queue and automatically checks for success.
+ * If the queue is not created, it logs an error and returns ESP_ERR_NO_MEM.
  *
- * @param handle Promenna pro ulozeni handle fronty
- * @param size Pocet prvku ve fronte
- * @param item_size Velikost jednoho prvku ve fronte (v bajtech)
- * @param name Nazev fronty pro logovani
+ * @param handle Variable to store the handle of the queue
+ * @param size The number of elements in the queue
+ * @param item_size Size of one item in the queue (in bytes)
+ * @param name The name of the login queue
  */
 #define SAFE_CREATE_QUEUE(handle, size, item_size, name)                       \
   do {                                                                         \
@@ -602,13 +602,13 @@ bool is_demo_mode_enabled(void);
   } while (0)
 
 /**
- * @brief Bezpecne vytvoreni mutexu s kontrolou chyb
+ * @brief Create a mutex safely with error checking
  *
- * Toto makro vytvori FreeRTOS mutex a automaticky kontroluje uspesnost.
- * Pokud mutex neni vytvoren, loguje chybu a vrati ESP_ERR_NO_MEM.
+ * This macro creates a FreeRTOS mutex and automatically checks for success.
+ * If the mutex is not created, log an error and return ESP_ERR_NO_MEM.
  *
- * @param handle Promenna pro ulozeni handle mutexu
- * @param name Nazev mutexu pro logovani
+ * @param handle A variable to store the handle of the mutex
+ * @param name The name of the mutex for logging
  */
 #define SAFE_CREATE_MUTEX(handle, name)                                        \
   do {                                                                         \
@@ -640,7 +640,7 @@ extern TaskHandle_t animation_task_handle;
 extern TaskHandle_t screen_saver_task_handle;
 /** @brief Handle pro Test task */
 extern TaskHandle_t test_task_handle;
-/** @brief Handle pro Matter task (DISABLED - Matter neni potreba) */
+/** @brief Handle for Matter task (DISABLED - Matter is not needed) */
 extern TaskHandle_t matter_task_handle;
 /** @brief Handle pro Web Server task */
 extern TaskHandle_t web_server_task_handle;

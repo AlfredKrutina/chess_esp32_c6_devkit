@@ -1,5 +1,5 @@
-/// Manifest vždy z větve `main` — funguje i když GitHub Pages vrací 404.
-/// Binárka v manifestu míří na `raw.githubusercontent.com/.../gh-pages/firmware/…` po úspěšném deployi.
+/// Manifest always from the `main` branch — works even if GitHub Pages returns a 404.
+/// The binary in the manifest goes to `raw.githubusercontent.com/.../gh-pages/firmware/…` after successful deployment.
 /// Viz [.github/workflows/gh-pages.yml].
 const kDefaultFirmwareManifestUrl =
     'https://raw.githubusercontent.com/alfredkrutina/chess_esp32_c6_devkit/main/firmware/version.json';
@@ -13,8 +13,8 @@ String normalizeFirmwareManifestUrl(String raw) {
     s = s.substring(0, s.length - 1);
   }
 
-  /// Manifest musí být JSON (`version.json`). Častá chyba: vložení odkazu na `.bin`
-  /// z gh-pages — ten soubor je firmware, ne manifest (Unicode preview pak vypadá jako „čárky“).
+  /// The manifest must be JSON (`version.json`). Common error: embedding a reference to `.bin`
+  /// from gh-pages — that file is firmware, not manifest (the Unicode preview then looks like "commas").
   final rawGh = Uri.tryParse(s);
   if (rawGh != null &&
       rawGh.scheme == 'https' &&
@@ -46,12 +46,12 @@ String normalizeFirmwareManifestUrl(String raw) {
     return s;
   }
 
-  // Typická chyba z klávesnice / odkazu: jen `…github.io/chess_`
+  // Typical error from keyboard / link: just `…github.io/chess_`
   if (segments.length == 1 && seg0 == 'chess_') {
     return kDefaultFirmwareManifestUrl;
   }
 
-  // Kořen projektu bez `/firmware/version.json`
+  // Project root without `/firmware/version.json`
   if (segments.length == 1 && seg0 == 'chess_esp32_c6_devkit') {
     return kDefaultFirmwareManifestUrl;
   }

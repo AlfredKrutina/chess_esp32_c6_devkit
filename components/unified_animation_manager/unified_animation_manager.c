@@ -1,19 +1,19 @@
 /**
  * @file unified_animation_manager.c
- * @brief Implementace Unified Animation Manageru
+ * @brief Unified Animation Manager implementation
  * 
- * Tento modul poskytuje jednotne rozhrani pro vsechny LED animace.
- * Umožnuje spravovat vice animaci soucasne a poskytuje pokrocile
- * funkce pro animace.
+ * This module provides a uniform interface for all LED animations.
+ * Allows you to manage multiple animations simultaneously and provides advanced
+ * function for animations.
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-09-06
  * 
  * @details
- * Unified Animation Manager je centralni system pro spravu vsech
- * LED animaci v systemu. Umožnuje spustit vice animaci soucasne,
- * spravuje jejich zivotni cyklus a poskytuje pokrocile efekty.
+ * Unified Animation Manager is a central system for managing all
+ * LED animation in the system. Allows multiple animations to run simultaneously,
+ * manages their life cycle and provides advanced effects.
  */
 
 #include "unified_animation_manager.h"
@@ -123,7 +123,7 @@ uint32_t unified_animation_create(animation_type_t type, animation_priority_t pr
         return 0;
     }
     
-    // Zastavit všechny předchozí animace - pouze jedna současně
+    // Stop all previous animations - only one at a time
     int stopped_count = 0;
     for (int i = 0; i < current_config.max_concurrent_animations; i++) {
         if (animations[i].active) {
@@ -578,13 +578,13 @@ static bool animation_update_smooth_interpolation(animation_state_t* anim) {
 }
 
 /**
- * @brief Aktualizuje pulzujici animaci
+ * @brief Updates the pulsating animation
  * 
- * Vytvari plynuly pulzujici efekt pomoci sinus funkce.
- * Intenzita se meni mezi 30% a 100%.
+ * Create a smooth pulsating effect using the sine function.
+ * Intensity varies between 30% and 100%.
  * 
- * @param anim Ukazatel na stav animace
- * @return true pokud animace pokracuje
+ * @param anim A pointer to the state of the animation
+ * @return true if the animation continues
  */
 static bool animation_update_pulsing(animation_state_t* anim) {
     float pulse = (sinf(anim->progress * 4.0f * M_PI) + 1.0f) / 2.0f; // 0.0 to 1.0
@@ -599,12 +599,12 @@ static bool animation_update_pulsing(animation_state_t* anim) {
 }
 
 /**
- * @brief Aktualizuje blikajici animaci
+ * @brief Updates the blinking animation
  * 
- * Vytvari binarni blikajici efekt (zapnuto/vypnuto).
+ * Creates a binary flashing effect (on/off).
  * 
- * @param anim Ukazatel na stav animace
- * @return true pokud animace pokracuje
+ * @param anim A pointer to the state of the animation
+ * @return true if the animation continues
  */
 static bool animation_update_flashing(animation_state_t* anim) {
     float flash = (sinf(anim->progress * 8.0f * M_PI) + 1.0f) / 2.0f; // 0.0 to 1.0
@@ -619,15 +619,15 @@ static bool animation_update_flashing(animation_state_t* anim) {
 }
 
 /**
- * @brief Aktualizuje duhovou animaci
+ * @brief Updates the rainbow animation
  * 
- * Provadi plynuly prechod pres vse
+ * Makes a smooth transition through everything
 
-chny barvy duhy pomoci HSV->RGB konverze.
- * Obsahuje jemne pulzovani jasu pro dynamictejsi efekt.
+henna colors of the rainbow using HSV->RGB conversion.
+ * Contains subtle pulsation of brightness for a more dynamic effect.
  * 
- * @param anim Ukazatel na stav animace
- * @return true pokud animace pokracuje
+ * @param anim A pointer to the state of the animation
+ * @return true if the animation continues
  */
 static bool animation_update_rainbow(animation_state_t* anim) {
     float hue = anim->progress * 360.0f; // 0 to 360 degrees

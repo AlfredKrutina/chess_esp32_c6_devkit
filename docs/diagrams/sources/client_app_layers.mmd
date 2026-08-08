@@ -1,12 +1,12 @@
-%% Flutter klient — vrstvy (logicky, ne compile závislosti)
+%% Flutter client — layers (logical, not compile dependencies)
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,Segoe UI,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#a78bfa','primaryColor':'#1e293b','primaryTextColor':'#f1f5f9','primaryBorderColor':'#64748b','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TB
-  subgraph UI["features/ · obrazovky"]
+  subgraph UI["features/ · screens"]
     direction LR
     G[game]:::f1
     C[connection]:::f1
     CO[coach]:::f1
-    O[ostatní]:::f1
+    O[other]:::f1
   end
 
   subgraph RV["Riverpod notifiers"]
@@ -14,12 +14,12 @@ flowchart TB
   end
 
   subgraph SV["core/services"]
-    BLE[BLE klient]:::sv
+    BLE[BLE client]:::sv
     HTTP[board API · WS]:::sv
     PR[prefs · native]:::sv
   end
 
-  subgraph FW["Deska ESP32"]
+  subgraph FW["ESP32 board"]
     ESP[firmware]:::esp
   end
 

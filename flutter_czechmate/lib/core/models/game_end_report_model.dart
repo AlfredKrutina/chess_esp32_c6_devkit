@@ -53,7 +53,7 @@ class GameEndReportModel {
       }
     }
 
-    // Tahové časové razítka z firmware: esp_timer_get_time()/1000 → milisekundy od bootu.
+    // Traction timestamps from firmware: esp_timer_get_time()/1000 → milliseconds from boot.
     int tDuration = 0;
     double wAvg = 0.0;
     double bAvg = 0.0;
@@ -76,7 +76,7 @@ class GameEndReportModel {
         final t2 = moves[i].timestamp ?? 0;
         if (t2 >= t1 && t1 > 0) {
           final diffMs = t2 - t1;
-          // i=1 → tah černého (odpověď na bílý i=0)
+          // i=1 → Black's move (response to White i=0)
           if (i % 2 != 0) {
             wTotalMs += diffMs;
             wCount++;

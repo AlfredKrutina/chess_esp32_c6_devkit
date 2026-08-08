@@ -41,7 +41,7 @@ String _coachLevelTooltip(AppLocalizations l, int level) {
   };
 }
 
-/// True when four labeled segments would fit without wrapping (níže jen ✓).
+/// True when four labeled segments would fit without wrapping (only ✓ below).
 bool _coachLevelSegmentedLabelsFit(
     BuildContext context, double rowWidth, List<String> labels) {
   if (rowWidth <= 0) return false;
@@ -61,7 +61,7 @@ bool _coachLevelSegmentedLabelsFit(
   return (rowWidth / 4) >= maxLabel + insetPaddingDividerBudget;
 }
 
-/// Na úzkém displeji bez popisků (jen ✓ na aktivním), jinak klasický SegmentedButton.
+/// On a narrow display without labels (only ✓ on active), otherwise classic SegmentedButton.
 class _CoachLevelRow extends ConsumerWidget {
   const _CoachLevelRow();
 

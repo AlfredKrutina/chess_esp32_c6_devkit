@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Scrollbar / tooltip / rail tweaks pro desktopové embeddery (Win / macOS / Linux).
+/// Scrollbar / tooltip / rail tweaks for desktop embedders (Win / macOS / Linux).
 ThemeData mergeDesktopEmbedderTheme(
   ThemeData base, {
   required bool desktopEmbedder,

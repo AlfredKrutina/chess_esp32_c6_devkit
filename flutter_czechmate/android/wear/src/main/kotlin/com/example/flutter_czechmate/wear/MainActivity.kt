@@ -11,8 +11,8 @@ import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.Wearable
 
 /**
- * Minimal Wear OS companion — zobrazí JSON payload z Data Layer (`/czechmate/chess_clock`).
- * Spárované zařízení (telefon nebo tablet) posílá data z [com.example.flutter_czechmate.WearDataLayerMirror].
+ * Minimal Wear OS companion — displays the JSON payload from the Data Layer (`/czechmate/chess_clock`).
+ * The paired device (phone or tablet) sends data from [com.example.flutter_czechmate.WearDataLayerMirror].
  */
 class MainActivity : Activity(), DataClient.OnDataChangedListener {
 
@@ -23,7 +23,7 @@ class MainActivity : Activity(), DataClient.OnDataChangedListener {
         textView = TextView(this).apply {
             textSize = 13f
             setPadding(24, 24, 24, 24)
-            text = "czechmate\n\nČekám na spárované zařízení…"
+            text = "czechmate\n\nWaiting for paired device…"
         }
         val scroll = ScrollView(this)
         scroll.addView(textView)

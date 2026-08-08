@@ -1,13 +1,13 @@
-# Komplexní Mermaid Sequence Diagram — hlavní smyčka (jedna stránka)
-# Aktuální přehled tasků a menších diagramů: README.md ve stejné složce
-# Zkopírujte do https://mermaid.live/ pro vizualizaci
+# Comprehensive Mermaid Sequence Diagram — main loop (single page)
+# Current task overview and smaller diagrams: README.md in this folder
+# Copy to https://mermaid.live/ for visualization
 #
-# Tento diagram zachytává hlavní flow programu po inicializaci:
-# - Všechny hlavní tasky a jejich smyčky
-# - Komunikaci mezi tasky (fronty, mutexy, přímé volání)
-# - Hlavní flow: fyzický tah, UART tah, button eventy
-# - Timing a priority jednotlivých tasků
-# - Detailní zobrazení mutexů a důvodů komunikace
+# This diagram captures the main program flow after initialization:
+# - All main tasks and their loops
+# - Inter-task communication (queues, mutexes, direct calls)
+# - Main flows: physical move, UART move, button events
+# - Timing and priorities of individual tasks
+# - Detailed view of mutexes and communication rationale
 
 sequenceDiagram
     participant WDT as Watchdog
@@ -27,12 +27,12 @@ sequenceDiagram
     participant HW as WS2812B_Hardware
     participant GPIO as GPIO_Hardware
 
-    Note over WDT,GPIO: Hlavní flow programu po inicializaci - všechny tasky běží paralelně<br/>MUTEXY: Ochrana sdílených zdrojů (UART, LED stav, Matrix stav, Game stav)<br/>FRONTY: Asynchronní komunikace mezi tasky<br/>PŘÍMÉ VOLÁNÍ: Rychlá synchronní komunikace s mutex ochranou<br/>POZNÁMKY: Thread-safe funkce berou mutex UVNITŘ (led_set_pixel_safe, game_get_status_json, game_get_board_json, game_send_response_to_uart)<br/>game_process_* funkce běží v game_task a NEberou game_mutex (game_task má exkluzivní přístup k board[][])
+    Note over WDT,GPIO: Main program flow after init - all tasks run in parallel<br/>MUTEXES: Protect shared resources (UART, LED state, Matrix state, Game state)<br/>QUEUES: Asynchronous inter-task communication<br/>DIRECT CALL: Fast synchronous communication with mutex protection<br/>NOTES: Thread-safe functions take mutex INSIDE (led_set_pixel_safe, game_get_status_json, game_get_board_json, game_send_response_to_uart)<br/>game_process_* functions run in game_task and do NOT take game_mutex (game_task has exclusive access to board[][])
 
     rect rgb(240, 240, 255)
-        Note over LT,HW: LED TASK (Priorita 7, 33ms cyklus - 30 FPS)<br/>MUTEX: led_unified_mutex - Ochrana LED stavu (led_states[], led_pending_changes[])<br/>BATCH SYSTEM: Změny se sbírají a commitují atomicky
+        Note over LT,HW: LED TASK (Priority 7, 33ms cycle - 30 FPS)<br/>MUTEX: led_unified_mutex - Protect LED state (led_states[], led_pending_changes[])<br/>BATCH SYSTEM: Changes collected and committed atomically
         
-        loop Každých 33ms (led_task hlavní smyčka)
+        loop Every 33ms (led_task main loop)
             LT->>WDT: esp_task_wdt_reset_safe()
             LT->>LT: led_process_commands()
             LT->>LT: led_update_animation()
@@ -40,11 +40,11 @@ sequenceDiagram
             LT->>LT: led_process_button_blink_timers()
             LT->>LM: xSemaphoreTake(led_unified_mutex)
             activate LM
-            Note over LT,LM: Batch commit - atomické zpracování všech změn
+            Note over LT,LM: Batch commit - atomic processing of all changes
             LT->>LT: led_privileged_batch_commit()
-            Note over LT: Batch update systém - commit všech pending změn
-            LT->>HW: led_strip_refresh() - JEDEN refresh všech LED
-            Note over HW: WS2812B protokol - 800kHz, timing-critical
+            Note over LT: Batch update system - commit all pending changes
+            LT->>HW: led_strip_refresh() - ONE refresh of all LEDs
+            Note over HW: WS2812B protocol - 800kHz, timing-critical
             LT->>LM: xSemaphoreGive(led_unified_mutex)
             deactivate LM
             LT->>LT: vTaskDelayUntil(33ms)
@@ -52,48 +52,48 @@ sequenceDiagram
     end
 
     rect rgb(255, 240, 240)
-        Note over MT,GPIO: MATRIX TASK (Priorita 6)<br/>Timer callback ~25ms: 20ms matice + 5ms okno tlačítek; task smyčka často 10ms<br/>MUTEX: matrix_mutex
+        Note over MT,GPIO: MATRIX TASK (Priority 6)<br/>Timer callback ~25ms: 20ms matrix + 5ms button window; task loop often 10ms<br/>MUTEX: matrix_mutex
         
-        loop matrix_task smyčka (typicky 10ms)
+        loop matrix_task loop (typically 10ms)
             MT->>WDT: esp_task_wdt_reset_safe()
             MT->>MT: matrix_process_commands()
             MT->>MT: vTaskDelayUntil(10ms)
         end
         
-        Note over MT: Plný scan řádků/sloupců v timer callback (multiplex)
+        Note over MT: Full row/column scan in timer callback (multiplex)
         MT->>MM: xSemaphoreTake(matrix_mutex)
         activate MM
-        Note over MT,MM: Ochrana GPIO operací - prevence konfliktů při skenování
-        MT->>GPIO: matrix_scan_all() - Skenování 8x8 Reed Switch matice
-        loop Pro každý řádek (0-7)
-            MT->>GPIO: Aktivace řádku (GPIO set LOW)
-            MT->>GPIO: Čtení 8 sloupců (GPIO get level)
+        Note over MT,MM: Protect GPIO operations - prevent scan conflicts
+        MT->>GPIO: matrix_scan_all() - Scan 8x8 Reed Switch matrix
+        loop For each row (0-7)
+            MT->>GPIO: Activate row (GPIO set LOW)
+            MT->>GPIO: Read 8 columns (GPIO get level)
             MT->>MT: matrix_state[row*8+col] = (pin_level == 0) ? 1 : 0
-            MT->>GPIO: Deaktivace řádku
+            MT->>GPIO: Deactivate row
         end
-        MT->>MT: matrix_detect_moves() - Detekce změn (piece_lifted, piece_placed)
-        MT->>GQ: xQueueSend(GAME_CMD_PICKUP) - Figurka zvednuta
-        MT->>GQ: xQueueSend(GAME_CMD_DROP) - Figurka položena
-        Note over MT,GQ: Asynchronní komunikace - game_task zpracuje ve svém cyklu (100ms)
+        MT->>MT: matrix_detect_moves() - Detect changes (piece_lifted, piece_placed)
+        MT->>GQ: xQueueSend(GAME_CMD_PICKUP) - Piece lifted
+        MT->>GQ: xQueueSend(GAME_CMD_DROP) - Piece placed
+        Note over MT,GQ: Async communication - game_task processes in its cycle (100ms)
         MT->>MM: xSemaphoreGive(matrix_mutex)
         deactivate MM
     end
 
     rect rgb(240, 255, 240)
-        Note over BT,GPIO: BUTTON TASK (Priorita 5, 5ms cyklus)<br/>KOMUNIKACE: button_event_queue - Asynchronní zpracování button eventů
+        Note over BT,GPIO: BUTTON TASK (Priority 5, 5ms cycle)<br/>COMMUNICATION: button_event_queue - Async button event processing
         
-        loop Každých 5ms (button_task hlavní smyčka)
+        loop Every 5ms (button_task main loop)
             BT->>WDT: esp_task_wdt_reset_safe()
-            BT->>GPIO: button_scan_all() - GPIO scan všech tlačítek
-            BT->>BT: button_process_events() - Detekce změn stavu
-            alt Tlačítko stisknuto
+            BT->>GPIO: button_scan_all() - GPIO scan of all buttons
+            BT->>BT: button_process_events() - State change detection
+            alt Button pressed
                 BT->>BQ: xQueueSend(BUTTON_EVENT_PRESS)
                 activate BQ
-                Note over BT,BQ: Asynchronní komunikace - game_task zpracuje ve svém cyklu
+                Note over BT,BQ: Async communication - game_task processes in its cycle
             end
-            alt Tlačítko uvolněno
+            alt Button released
                 BT->>BQ: xQueueSend(BUTTON_EVENT_RELEASE)
-                alt Long press detekován
+                alt Long press detected
                     BT->>BQ: xQueueSend(BUTTON_EVENT_LONG_PRESS)
                 end
             end
@@ -102,70 +102,70 @@ sequenceDiagram
     end
 
     rect rgb(255, 255, 240)
-        Note over GT,GQ: GAME TASK (Priorita 4, 100ms cyklus)<br/>MUTEX: game_mutex - Ochrana game stavu (pouze v funkcích volaných z jiných tasků)<br/>FRONTY: game_command_queue, button_event_queue, uart_response_queue<br/>POZNÁMKA: game_process_* funkce běží v game_task - NEberou game_mutex (game_task má exkluzivní přístup k board[][])
+        Note over GT,GQ: GAME TASK (Priority 4, 100ms cycle)<br/>MUTEX: game_mutex - Protect game state (only in functions called from other tasks)<br/>QUEUES: game_command_queue, button_event_queue, uart_response_queue<br/>NOTE: game_process_* functions run in game_task - do NOT take game_mutex (game_task has exclusive access to board[][])
         
-        loop Každých 100ms (game_task hlavní smyčka)
+        loop Every 100ms (game_task main loop)
             GT->>WDT: esp_task_wdt_reset_safe()
             
             GT->>GQ: xQueueReceive(game_command_queue, 0)
             activate GQ
-            alt Příkaz v frontě (max 15/cyklus)
+            alt Command in queue (max 15/cycle)
                 GT->>GT: game_process_commands()
                 alt GAME_CMD_PICKUP
-                    GT->>GT: game_process_pickup() - Uložení pozice
-                    Note over GT: Funkce běží v game_task - NEbere game_mutex
+                    GT->>GT: game_process_pickup() - Save position
+                    Note over GT: Function runs in game_task - does NOT take game_mutex
                 else GAME_CMD_DROP
-                    GT->>GT: game_process_drop() - Detekce tahu
+                    GT->>GT: game_process_drop() - Detect move
                     GT->>GT: game_process_chess_move()
-                    Note over GT: Funkce běží v game_task - NEbere game_mutex
+                    Note over GT: Function runs in game_task - does NOT take game_mutex
                 else GAME_CMD_MAKE_MOVE
-                    GT->>GT: game_process_chess_move() - UART/Web tah
-                    Note over GT: Funkce běží v game_task - NEbere game_mutex<br/>game_send_response_to_uart() UVNITŘ bere game_mutex
+                    GT->>GT: game_process_chess_move() - UART/Web move
+                    Note over GT: Function runs in game_task - does NOT take game_mutex<br/>game_send_response_to_uart() takes game_mutex INSIDE
                 end
             end
             deactivate GQ
             
             GT->>BQ: xQueueReceive(button_event_queue, 0)
             activate BQ
-            alt Button event v frontě
+            alt Button event in queue
                 GT->>GT: game_process_promotion_button() / game_reset_game()
-                Note over GT: Funkce běží v game_task - NEbere game_mutex
+                Note over GT: Function runs in game_task - does NOT take game_mutex
             end
             deactivate BQ
             
-            GT->>GT: game_update_timer_display() - Aktualizace času
-            GT->>GT: Auto new game detection (počáteční pozice 2s)
+            GT->>GT: game_update_timer_display() - Update time
+            GT->>GT: Auto new game detection (starting position 2s)
             
-            GT->>LT: led_set_pixel_safe() - PŘÍMÉ VOLÁNÍ LED (thread-safe, mutex UVNITŘ)
-            Note over GT,LT: led_set_pixel_safe() interně bere led_unified_mutex<br/>Batch systém: změny se sbírají a commitují v LED tasku
+            GT->>LT: led_set_pixel_safe() - DIRECT LED call (thread-safe, mutex INSIDE)
+            Note over GT,LT: led_set_pixel_safe() internally takes led_unified_mutex<br/>Batch system: changes collected and committed in LED task
             
             GT->>GT: vTaskDelayUntil(100ms)
         end
     end
 
     rect rgb(240, 255, 255)
-        Note over UT,URQ: UART TASK (Priorita 3, 1ms cyklus)<br/>MUTEX: uart_mutex - Ochrana UART výstupu (prevence přepisování výstupu)<br/>FRONTY: uart_output_queue (vnitřní), uart_response_queue (odpovědi z game_task)
+        Note over UT,URQ: UART TASK (Priority 3, 1ms cycle)<br/>MUTEX: uart_mutex - Protect UART output (prevent output overwrite)<br/>QUEUES: uart_output_queue (internal), uart_response_queue (responses from game_task)
         
-        loop Každých 1ms (uart_task hlavní smyčka)
+        loop Every 1ms (uart_task main loop)
             UT->>WDT: esp_task_wdt_reset_safe()
             
-            UT->>UT: uart_process_output_queue() - Zpracování výstupní fronty
-            loop Pro každou zprávu v uart_output_queue
+            UT->>UT: uart_process_output_queue() - Process output queue
+            loop For each message in uart_output_queue
                 UT->>UM: xSemaphoreTake(uart_mutex)
                 activate UM
-                Note over UT,UM: Ochrana UART výstupu - prevence přepisování
-                UT->>UT: uart_write_bytes() / printf() - Zápis do UART
+                Note over UT,UM: Protect UART output - prevent overwrite
+                UT->>UT: uart_write_bytes() / printf() - Write to UART
                 UT->>UM: xSemaphoreGive(uart_mutex)
                 deactivate UM
             end
             
-            UT->>UT: uart_read_bytes() - Čtení z UART
+            UT->>UT: uart_read_bytes() - Read from UART
             UT->>UT: uart_process_input_char()
-            alt Kompletní příkaz
+            alt Complete command
                 UT->>UT: uart_parse_command()
                 alt Game command (MOVE, UP, DN, etc.)
                     UT->>GQ: xQueueSend(GAME_CMD_MAKE_MOVE / GAME_CMD_*)
-                    Note over UT,GQ: Asynchronní komunikace - game_task zpracuje ve svém cyklu
+                    Note over UT,GQ: Async communication - game_task processes in its cycle
                 end
             end
             
@@ -174,34 +174,34 @@ sequenceDiagram
     end
 
     rect rgb(255, 240, 255)
-        Note over WT,GM: WEB SERVER TASK (Priorita 3)<br/>KOMUNIKACE: Přímé volání s game_mutex ochranou<br/>MUTEX: game_mutex - Ochrana při čtení game stavu
+        Note over WT,GM: WEB SERVER TASK (Priority 3)<br/>COMMUNICATION: Direct call with game_mutex protection<br/>MUTEX: game_mutex - Protect when reading game state
         
         loop HTTP request handling
             WT->>WT: httpd_req_recv() - HTTP request
             alt POST /api/move
-                WT->>WT: http_post_move_handler() - Parsování JSON
+                WT->>WT: http_post_move_handler() - Parse JSON
                 WT->>GQ: xQueueSend(GAME_CMD_MAKE_MOVE)
-                Note over WT,GQ: Asynchronní komunikace - game_task zpracuje ve svém cyklu
+                Note over WT,GQ: Async communication - game_task processes in its cycle
                 WT->>WT: HTTP 200 OK - {"success":true}
             else GET /api/status
-                WT->>GT: game_get_status_json() - Přímé volání (thread-safe, mutex UVNITŘ)
+                WT->>GT: game_get_status_json() - Direct call (thread-safe, mutex INSIDE)
                 activate GT
                 GT->>GM: xSemaphoreTake(game_mutex)
                 activate GM
-                Note over WT,GM: Přímé volání - rychlá synchronní komunikace<br/>game_get_status_json() bere game_mutex UVNITŘ funkce
-                GT->>GT: Čtení game stavu (current_player, current_game_state, etc.)
+                Note over WT,GM: Direct call - fast synchronous communication<br/>game_get_status_json() takes game_mutex INSIDE function
+                GT->>GT: Read game state (current_player, current_game_state, etc.)
                 GT->>GM: xSemaphoreGive(game_mutex)
                 deactivate GM
                 GT-->>WT: JSON status
                 deactivate GT
                 WT->>WT: HTTP 200 OK - JSON response
             else GET /api/board
-                WT->>GT: game_get_board_json() - Přímé volání (thread-safe, mutex UVNITŘ)
+                WT->>GT: game_get_board_json() - Direct call (thread-safe, mutex INSIDE)
                 activate GT
                 GT->>GM: xSemaphoreTake(game_mutex)
                 activate GM
-                Note over WT,GM: Přímé volání - rychlá synchronní komunikace<br/>game_get_board_json() bere game_mutex UVNITŘ funkce
-                GT->>GT: Čtení board[8][8]
+                Note over WT,GM: Direct call - fast synchronous communication<br/>game_get_board_json() takes game_mutex INSIDE function
+                GT->>GT: Read board[8][8]
                 GT->>GM: xSemaphoreGive(game_mutex)
                 deactivate GM
                 GT-->>WT: JSON board[8][8]
@@ -211,66 +211,66 @@ sequenceDiagram
         end
     end
 
-    Note over GT,LT: Příklad: Fyzický tah flow
+    Note over GT,LT: Example: Physical move flow
     MT->>MM: xSemaphoreTake(matrix_mutex)
     activate MM
-    MT->>GPIO: matrix_scan_all() - Detekce zvednutí figurky (e2)
+    MT->>GPIO: matrix_scan_all() - Detect piece lift (e2)
     MT->>MM: xSemaphoreGive(matrix_mutex)
     deactivate MM
     MT->>GQ: xQueueSend(GAME_CMD_PICKUP, e2)
     GT->>GQ: xQueueReceive()
-    GT->>GT: game_process_pickup() - Uložení e2
-    Note over GT: Funkce běží v game_task - NEbere game_mutex
+    GT->>GT: game_process_pickup() - Save e2
+    Note over GT: Function runs in game_task - does NOT take game_mutex
     
     MT->>MM: xSemaphoreTake(matrix_mutex)
     activate MM
-    MT->>GPIO: matrix_scan_all() - Detekce položení figurky (e4)
+    MT->>GPIO: matrix_scan_all() - Detect piece placed (e4)
     MT->>MM: xSemaphoreGive(matrix_mutex)
     deactivate MM
     MT->>GQ: xQueueSend(GAME_CMD_DROP, e4)
     GT->>GQ: xQueueReceive()
-    GT->>GT: game_process_drop() - Detekce e2→e4
-    GT->>GT: game_is_valid_move() - Validace tahu
-    alt Tah validní
-        GT->>GT: game_execute_move() - Provedení tahu
+    GT->>GT: game_process_drop() - Detect e2→e4
+    GT->>GT: game_is_valid_move() - Validate move
+    alt Move valid
+        GT->>GT: game_execute_move() - Execute move
         GT->>GT: game_check_end_game_conditions()
-        GT->>LT: led_set_pixel_safe() - LED animace tahu (thread-safe, mutex UVNITŘ)
+        GT->>LT: led_set_pixel_safe() - Move LED animation (thread-safe, mutex INSIDE)
         LT->>HW: led_strip_refresh() - WS2812B refresh
-    else Tah nevalidní
-        GT->>GT: Error recovery (červené LED)
+    else Move invalid
+        GT->>GT: Error recovery (red LED)
     end
 
-    Note over GT,UT: Příklad: UART tah flow (s odpověďmi)
+    Note over GT,UT: Example: UART move flow (with responses)
     UT->>UT: uart_parse_command("move e2 e4")
     UT->>GQ: xQueueSend(GAME_CMD_MAKE_MOVE, e2→e4)
     GT->>GQ: xQueueReceive()
     GT->>GT: game_process_chess_move()
-    Note over GT: Funkce běží v game_task - NEbere game_mutex
+    Note over GT: Function runs in game_task - does NOT take game_mutex
     GT->>GT: game_is_valid_move()
-    alt Tah validní
+    alt Move valid
         GT->>GT: game_execute_move()
         GT->>GT: game_check_end_game_conditions()
-        GT->>GT: game_send_response_to_uart() - Odpověď (thread-safe, mutex UVNITŘ)
-        Note over GT,URQ: game_send_response_to_uart() bere game_mutex UVNITŘ a posílá do uart_response_queue
+        GT->>GT: game_send_response_to_uart() - Response (thread-safe, mutex INSIDE)
+        Note over GT,URQ: game_send_response_to_uart() takes game_mutex INSIDE and sends to uart_response_queue
         GT->>URQ: xQueueSend(response_queue, success)
-        GT->>LT: led_set_pixel_safe() - LED animace (thread-safe, mutex UVNITŘ)
+        GT->>LT: led_set_pixel_safe() - LED animation (thread-safe, mutex INSIDE)
         LT->>HW: led_strip_refresh()
-    else Tah nevalidní
-        GT->>GT: game_send_response_to_uart() - Odpověď (thread-safe, mutex UVNITŘ)
+    else Move invalid
+        GT->>GT: game_send_response_to_uart() - Response (thread-safe, mutex INSIDE)
         GT->>URQ: xQueueSend(response_queue, error)
     end
     UT->>UM: xSemaphoreTake(uart_mutex)
     activate UM
-    UT->>UT: uart_write_bytes() - Zápis odpovědi do UART
+    UT->>UT: uart_write_bytes() - Write response to UART
     UT->>UM: xSemaphoreGive(uart_mutex)
     deactivate UM
 
-    Note over BT,GT: Příklad: Button event flow (promoce)
-    BT->>GPIO: GPIO scan - Promotion button stisknuto
+    Note over BT,GT: Example: Button event flow (promotion)
+    BT->>GPIO: GPIO scan - Promotion button pressed
     BT->>BQ: xQueueSend(BUTTON_EVENT_PRESS, button_id)
     GT->>BQ: xQueueReceive()
     GT->>GT: game_process_promotion_button()
     GT->>GT: game_execute_promotion()
-    Note over GT: Funkce běží v game_task - NEbere game_mutex
-    GT->>LT: led_set_pixel_safe() - LED feedback (thread-safe, mutex UVNITŘ)
+    Note over GT: Function runs in game_task - does NOT take game_mutex
+    GT->>LT: led_set_pixel_safe() - LED feedback (thread-safe, mutex INSIDE)
     LT->>HW: led_strip_refresh()

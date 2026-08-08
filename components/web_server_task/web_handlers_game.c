@@ -35,7 +35,7 @@ char json_buffer[JSON_BUFFER_SIZE];
 char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
 SemaphoreHandle_t snapshot_build_mutex;
 
-/** Po konfliktu při finish setup tutoriálu krátce nevolat znovu validaci (BLE + HTTP). */
+/** After a conflict during the finish setup tutorial, briefly do not call validation again (BLE + HTTP). */
 static TickType_t s_setup_tutorial_finish_conflict_until_tick;
 
 void setup_tutorial_reset_finish_cooldown(void) {
@@ -53,7 +53,7 @@ void setup_tutorial_note_finish_conflict(void) {
   s_setup_tutorial_finish_conflict_until_tick =
       xTaskGetTickCount() + pdMS_TO_TICKS(900);
 }
-/** Doplnění GET /api/status o web lock, WiFi, jas, matrix guard, lampu (sdílené se snapshot). */
+/** Supplementing GET /api/status with web lock, WiFi, brightness, matrix guard, lamp (shared with snapshot). */
 void inject_web_status_fields(char *buf, size_t buf_size) {
   char *last_brace = strrchr(buf, '}');
   if (!last_brace) {
@@ -61,7 +61,7 @@ void inject_web_status_fields(char *buf, size_t buf_size) {
     return;
   }
   size_t remaining = buf_size - (size_t)(last_brace - buf);
-  /* První blok ~370 B (+ chess_hint_limit) + druhý ~120 B — při těsném bufferu raději neposlat useknutý JSON. */
+  /* The first block ~370 B (+ chess_hint_limit) + the second ~120 B — with a tight buffer, it is better not to send truncated JSON. */
   if (remaining < 430) {
     ESP_LOGE(TAG,
              "[STAGING] inject_web_status_fields: remaining=%zu B too small for "
@@ -134,8 +134,8 @@ void snapshot_build_mutex_take(void) {
   if (snapshot_build_mutex == NULL) {
     snapshot_build_mutex = xSemaphoreCreateMutex();
   }
-  /* portMAX_DELAY zde zablokoval web_server_task na mutexu (HTTP httpd drží build)
-   * → bez esp_task_wdt_reset() TWDT timeout (~10 s). Čekáme po krocích + reset. */
+  /* portMAX_DELAY here blocked web_server_task on mutex (HTTP httpd holds build)
+   * → without esp_task_wdt_reset() TWDT timeout (~10s). We are waiting after the steps + reset. */
   while (xSemaphoreTake(snapshot_build_mutex, pdMS_TO_TICKS(400)) != pdTRUE) {
     (void)web_server_task_wdt_reset_safe();
   }
@@ -147,10 +147,10 @@ void snapshot_build_mutex_give(void) {
   }
 }
 
-/** Pod `snapshot_build_mutex` — žádný paralelní build; šetří ~1 KiB stacku na NimBLE host task. */
+/** Under `snapshot_build_mutex` — no parallel build; saves ~1 KiB stack per NimBLE host task. */
 static char s_clock_json_build_scratch[TIMER_HTTP_JSON_MAX];
 
-/** Stejný JSON jako GET /api/game/snapshot — do bufferu `out` (HTTP i BLE). */
+/** Same JSON as GET /api/game/snapshot — to buffer `out` (both HTTP and BLE). */
 static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
                                                size_t *out_len) {
   snapshot_build_mutex_take();
@@ -276,7 +276,7 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
   return e;
 }
 
-/** Společná logika POST /api/game/hint_highlight a BLE příkazu hint_highlight. */
+/** Common logic of POST /api/game/hint_highlight and hint_highlight BLE command. */
 esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
   if (buf == NULL) {
     return ESP_ERR_INVALID_ARG;
@@ -341,7 +341,7 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
 esp_err_t http_get_board_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/board");
 
-  // Ziskat stav sachovnice z game tasku
+  // Get inbox status from game task
   esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -358,7 +358,7 @@ esp_err_t http_get_board_handler(httpd_req_t *req) {
 esp_err_t http_get_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/status");
 
-  // Ziskat stav hry z game tasku
+  // Get game state from game task
   esp_err_t ret = game_get_status_json(json_buffer, sizeof(json_buffer));
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -377,7 +377,7 @@ esp_err_t http_get_status_handler(httpd_req_t *req) {
 esp_err_t http_get_history_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/history");
 
-  // Ziskat historii tahu z game tasku
+  // Get move history from game task
   esp_err_t ret = game_get_history_json(json_buffer, sizeof(json_buffer));
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -394,7 +394,7 @@ esp_err_t http_get_history_handler(httpd_req_t *req) {
 esp_err_t http_get_captured_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/captured");
 
-  // Ziskat sebrane figurky z game tasku
+  // Get the collected figures from the game task
   esp_err_t ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -460,15 +460,15 @@ esp_err_t http_get_advantage_handler(httpd_req_t *req) {
 // ============================================================================
 
 /**
- * @brief Handler pro POST /api/move
+ * @brief Handler for POST /api/move
  *
- * Provede tah na sachovnici.
+ * Makes a move on the chest.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Ocekava JSON: {"from": "e2", "to": "e4", "promotion": "q"}
+ * Expected JSON: {"from": "e2", "to": "e4", "promotion": "q"}
  */
 esp_err_t http_post_game_move_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/move");
@@ -559,15 +559,15 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  /* Promoce se týká jen tahu PĚŠCE na poslední řadu. Dříve zde HTTP vracelo 400
-   * pro každý tah na řádky 1/8 bez "promotion" — to blokovalo legální tahy
-   * dámy, věže, střelce a jezdce na poslední řadu. Game task validuje tah a u
-   * pěšce spustí promotion flow (pending + volba z UI/tlačítek). */
+  /* The promotion only applies to the Pawn move on the last row. Previously, HTTP returned 400 here
+   * for every move on lines 1/8 without "promotion" — this blocked legal moves
+   * queens, rooks, bishops and knights on the last row. Game task validates the move and u
+   * Pawn starts promotion flow (pending + selection from UI/buttons). */
   bool dest_back_rank =
       (strlen(to) >= 2 && (to[1] == '1' || to[1] == '8'));
   if (!dest_back_rank && strlen(promotion) > 0) {
     ESP_LOGW(TAG,
-             "Promotion parameter for %s->%s (cíl není řádek 1/8), ignoring",
+             "Promotion parameter for %s->%s (target is not line 1/8), ignoring",
              from, to);
   }
 
@@ -603,7 +603,7 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
   }
   cmd.promotion_from_remote = (strlen(promotion) > 0) ? 1U : 0U;
 
-  // Odeslat do fronty
+  // Send to queue
   if (game_command_queue == NULL) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Game queue not available", -1);
@@ -665,15 +665,15 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/game/virtual_action
+ * @brief Handler for POST /api/game/virtual_action
  *
- * Umoznuje virtualni zvedani a pokladani figurek pres web.
+ * Enables virtual lifting and placing of figurines via the web.
  *
  * @param req HTTP request
- * @return ESP_OK pri uspechu, chybovy kod pri chybe
+ * @return ESP_OK on success, error code on failure
  *
  * @details
- * Ocekava JSON: {"action": "pickup"|"drop", "square": "e2"}
+ * Expected JSON: {"action": "pickup"|"drop", "square": "e2"}
  */
 esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/virtual_action");
@@ -690,7 +690,7 @@ esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  // Nacist JSON z request body
+  // Extract JSON from request body
   char content[128] = {0};
   int ret = httpd_req_recv(req, content, sizeof(content) - 1);
   if (ret <= 0) {
@@ -826,7 +826,7 @@ esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
       strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
   }
 
-  // Odeslat do fronty
+  // Send to queue
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to send command", -1);
@@ -842,14 +842,14 @@ esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief POST /api/game/new: fronta GAME_CMD_NEW_GAME (explicitni nova hra z webu).
+ * @brief POST /api/game/new: queue GAME_CMD_NEW_GAME (explicit new game from web).
  *
- * @param req ukazatel na httpd_req_t
- * @return ESP_OK nebo chybovy kod
+ * @param req pointer to httpd_req_t
+ * @return ESP_OK or error code
  *
  * @details
- * Bez JSON payload. Odlisne se od automatickeho NEW_GAME pri startu z main
- * (initialize_chess_game), kde se pri obnove NVS prikaz neposila.
+ * Without JSON payload. It differs from the automatic NEW_GAME when starting from main
+ * (initialize_chess_game), where the NVS command is not sent when restoring.
  */
 esp_err_t http_post_game_new_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/new");
@@ -923,10 +923,10 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/game/hint_highlight
+ * @brief Handler for POST /api/game/hint_highlight
  *
- * Body: { "to": "e4" } povinne; { "from": "e2" } volitelne.
- * Kdyz "from" chybi nebo je neplatny, posle from_led=64 takze na desce sviti jen "to".
+ * Points: { "to": "e4" } required; { "from": "e2" } optional.
+ * If "from" is missing or invalid, send from_led=64 so that only "it" lights up on the board.
  */
 esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/hint_highlight");
@@ -968,8 +968,8 @@ esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
 }
 
 /**
- * @brief Handler pro POST /api/game/hint_clear
- * Vymaze vizualizaci hintu na LED (vola se pri clearBotSuggestion).
+ * @brief Handler for POST /api/game/hint_clear
+ * Deletes the visualization of the hint on the LED (called with clearBotSuggestion).
  */
 esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req) {
   (void)req;

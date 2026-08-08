@@ -1,4 +1,4 @@
-/// `GET /api/timer` / vnořený `clock` ve snapshotu — `BoardTimerHTTPState` (Swift).
+/// `GET /api/timer` / nested `clock` in snapshot — `BoardTimerHTTPState` (Swift).
 class BoardTimerState {
   const BoardTimerState({
     required this.whiteTimeMs,
@@ -70,7 +70,7 @@ class TimerConfigPart {
   }
 }
 
-/// `GET /api/wifi/status` — zjednodušená parita s `ESPWiFiStatusJSON`.
+/// `GET /api/wifi/status` — simplified parity with `ESPWiFiStatusJSON`.
 class EspWifiStatus {
   const EspWifiStatus({
     required this.apSsid,
@@ -88,14 +88,14 @@ class EspWifiStatus {
   final String apSsid;
   final String apIp;
   final int apClients;
-  /// Firmware přidává `ap_active`; starší desky → považovat hotspot za zapnutý, pokud je `ap_ip` neprázdné.
+  /// Firmware adds `ap_active`; older boards → consider hotspot enabled if `ap_ip` is non-empty.
   final bool apActive;
   final String staSsid;
   final String staIp;
   final bool staConnected;
   final bool online;
   final bool locked;
-  /// CSV blokovaných 3. oktetů na desce (`sta_blk_oct`), nastaveno přes BLE z aplikace.
+  /// CSV of blocked 3rd octets on the board (`sta_blk_oct`), set via BLE from the app.
   final String staBlkOct;
 
   factory EspWifiStatus.fromJson(Map<String, dynamic> json) {

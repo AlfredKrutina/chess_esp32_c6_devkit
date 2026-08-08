@@ -2,20 +2,20 @@
  * @file streaming_output.c
  * @brief ESP32-C6 Chess System - Streaming Output System
  * 
- * Nahrazuje velke string building priamym streaming vystupem pro:
- * - Eliminaci potreby velkych bufferu (2KB+ stringy)
- * - Snizeni memory pressure a fragmentace
- * - Umožneni real-time vystupu pro lepsi uzivatelsky zazitek
- * - Podporu jak UART tak budoucich web server vystupu
+ * Replaces large string building with direct streaming output for:
+ * - Elimination of the need for large buffers (2KB+ strings)
+ * - Reduced memory pressure and fragmentation
+ * - Enabling real-time output for a better user experience
+ * - Support for both UART and future web server output
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-01-27
  * 
  * @details
- * Streaming Output System je system pro efektivni vypis velkych textu.
- * Misto budovani velkych stringu posila data primo do vystupu,
- * coz eliminuje potrebu velkych bufferu a zlepsuje performance.
+ * Streaming Output System is a system for efficient output of large texts.
+ * Instead of building large strings, it sends data directly to the output,
+ * which eliminates the need for large buffers and improves performance.
  */
 
 #include "freertos/FreeRTOS.h"
@@ -269,14 +269,14 @@ esp_err_t stream_writeln(const char* data)
 // ============================================================================
 
 /**
- * @brief Zapis dat do UART/USB Serial JTAG
+ * @brief Write data to UART/USB Serial JTAG
  * 
- * Interni funkce pro zapis dat primo do stdout (USB Serial JTAG nebo UART).
- * Pouziva fwrite() pro primos zapis bez buffering.
+ * Internal functions for writing data directly to stdout (USB Serial JTAG or UART).
+ * Uses fwrite() for primos writing without buffering.
  * 
- * @param data Ukazatel na data k zapsani
- * @param len Delka dat v bytech
- * @return ESP_OK pokud se zapsalo vse, ESP_FAIL pri chybe
+ * @param data Pointer to data to write
+ * @param len Length of data in bytes
+ * @return ESP_OK if everything was written, ESP_FAIL on error
  */
 static esp_err_t stream_write_uart(const char* data, size_t len)
 {
@@ -294,14 +294,14 @@ static esp_err_t stream_write_uart(const char* data, size_t len)
 }
 
 /**
- * @brief Zapis dat do web serveru
+ * @brief Writing data to the web server
  * 
- * Interni funkce pro zapis dat do web server klienta.
- * Zatim placeholder pro budouci implementaci - pouze loguje data.
+ * Internal functions for writing data to the client's web server.
+ * Then placeholder for future implementation - just logs data.
  * 
- * @param data Ukazatel na data k zapsani
- * @param len Delka dat v bytech
- * @return ESP_OK vzdy (placeholder)
+ * @param data Pointer to data to write
+ * @param len Length of data in bytes
+ * @return ESP_OK always (placeholder)
  */
 static esp_err_t stream_write_web(const char* data, size_t len)
 {
@@ -315,16 +315,16 @@ static esp_err_t stream_write_web(const char* data, size_t len)
 }
 
 /**
- * @brief Zapis dat do FreeRTOS fronty
+ * @brief Writing data to the FreeRTOS queue
  * 
- * Interni funkce pro zapis dat do FreeRTOS fronty pro mezikomponentovou komunikaci.
- * Data jsou rozdlena na bloky maximalne STREAM_QUEUE_CHUNK_SIZE a kazdy blok
- * je odeslan do fronty s timeoutem 100ms.
+ * Internal functions for writing data to the FreeRTOS queue for inter-component communication.
+ * Data is divided into blocks of maximum STREAM_QUEUE_CHUNK_SIZE and each block
+ * is sent to a queue with a timeout of 100ms.
  * 
- * @param data Ukazatel na data k zapsani
- * @param len Delka dat v bytech
- * @return ESP_OK pri uspechu, ESP_ERR_INVALID_STATE pokud fronta neni nastavena,
- *         ESP_ERR_TIMEOUT pokud se nepodari odeslat vsechna data
+ * @param data Pointer to data to write
+ * @param len Length of data in bytes
+ * @return ESP_OK on success, ESP_ERR_INVALID_STATE if the queue is not set,
+ * ESP_ERR_TIMEOUT if all data fails to be sent
  */
 static esp_err_t stream_write_queue(const char* data, size_t len)
 {

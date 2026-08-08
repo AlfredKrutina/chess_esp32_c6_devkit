@@ -1,4 +1,4 @@
-/// UCI tah z sandbox výběru (malá písmena, promo jako jedno písmeno q/r/b/n).
+/// UCI move from sandbox selection (lower case, promo as single letter q/r/b/n).
 String sandboxMoveToUci(String from, String to, [String? promotionLower]) {
   final f = from.toLowerCase().trim();
   final t = to.toLowerCase().trim();

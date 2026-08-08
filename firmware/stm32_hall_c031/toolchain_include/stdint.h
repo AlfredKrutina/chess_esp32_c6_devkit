@@ -1,6 +1,6 @@
 /**
- * Minimální stdint pro bare-metal, když toolchain nemá newlib sysroot (např. jen brew gcc).
- * Používá GCC builtin typy — kompatibilní s CMSIS.
+ * Minimal stdint for bare-metal when the toolchain has no newlib sysroot (e.g. brew gcc only).
+ * Uses GCC builtin types — CMSIS-compatible.
  */
 #ifndef STM32_HALL_TOOLCHAIN_STDINT_H
 #define STM32_HALL_TOOLCHAIN_STDINT_H

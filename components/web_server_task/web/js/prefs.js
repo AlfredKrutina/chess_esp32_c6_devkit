@@ -4,7 +4,7 @@
 (function (global) {
     'use strict';
 
-    /** Web UI preference (zdroj pravdy: NVS přes GET/POST /api/settings/ui). */
+    /** Web UI preferences (source of truth: NVS via GET/POST /api/settings/ui). */
     var devicePrefs = {
         version: 1,
         chessHintDepth: 10,
@@ -259,7 +259,7 @@
         }
     }
 
-    /** Depth for move evaluation (Zhodnocení tahu). Uses at least 12 so evals are meaningful; max 18. */
+    /** Depth for move evaluation. Uses at least 12 so evals are meaningful; max 18. */
     function getEvaluationDepth() {
         var hint = getHintDepth();
         return Math.min(18, Math.max(hint, 12));
@@ -274,7 +274,7 @@
         }
     }
 
-    /** Počet nápověd na partii (0 = neomezeno). */
+    /** Hints per game (0 = unlimited). */
     function getHintLimit() {
         try {
             var n = parseInt(devicePrefs.chessHintLimit, 10);
@@ -284,7 +284,7 @@
         }
     }
 
-    /** Přidat nápovědu za výborný tah (devicePrefs). */
+    /** Award a hint for a best move (devicePrefs). */
     function getHintAwardBest() {
         try {
             return devicePrefs.chessHintAwardBest !== false;
@@ -293,7 +293,7 @@
         }
     }
 
-    /** Přidat nápovědu za dobrý tah (localStorage). */
+    /** Award a hint for a good move (devicePrefs). */
     function getHintAwardGood() {
         try {
             return devicePrefs.chessHintAwardGood === true;
@@ -302,7 +302,7 @@
         }
     }
 
-    /** Přidat nápovědu za sebrání figurky (localStorage). */
+    /** Award a hint for a capture (devicePrefs). */
     function getHintAwardCapture() {
         try {
             return devicePrefs.chessHintAwardCapture === true;
@@ -311,7 +311,7 @@
         }
     }
 
-    /** Zobrazit blok „Výukový přehled“ (nápovědy + kvalita tahů). */
+    /** Show the teaching stats block (hints + move quality). */
     function getShowHintStats() {
         try {
             return devicePrefs.chessShowHintStats === true;
@@ -320,7 +320,7 @@
         }
     }
 
-    /** Po zvednutí figurky bota zobrazit na LED jen cílové pole (výchozí vypnuto). */
+    /** After lifting a bot piece, show only the target square on LEDs (default off). */
     function getBotLedTargetOnlyAfterLift() {
         try {
             return devicePrefs.chessBotLedTargetOnlyAfterLift === true;

@@ -1,23 +1,23 @@
 /**
  * @file button_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Button Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Button Task Header
  * 
- * Tato hlavicka definuje rozhrani pro button task:
- * - Typy a struktury button udalosti
- * - Prototypy funkci button tasku
- * - Funkce pro ovladani a stav tlacitek
+ * This header defines the interface for the button task:
+ * - Button event types and structures
+ * - Prototypes button task function
+ * - Button control and status functions
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * Button task zpracovava vsechny tlacitka v sachovem systemu:
- * - 8 promotion tlacitek (4 pro bileho + 4 pro cerneho)
- * - 1 reset tlacitko
- * - Debouncing a detekce udalosti
- * - LED feedback pro stav tlacitek
- * - Long press a double press detekce
+ * Button task processes all buttons in the sach system:
+ * - 8 promotion buttons (4 for white + 4 for black)
+ * - 1 reset button
+ * - Debouncing and event detection
+ * - LED feedback for button status
+ * - Long press and double press detection
  */
 
 #ifndef BUTTON_TASK_H
@@ -42,11 +42,11 @@
 
 
 
-/** @brief Typy button prikazu */
+/** @brief Button command types */
 typedef enum {
-    BUTTON_CMD_RESET = 0,   ///< Resetuj vsechna tlacitka
-    BUTTON_CMD_STATUS,      ///< Vypis stav tlacitek
-    BUTTON_CMD_TEST         ///< Testuj vsechna tlacitka
+    BUTTON_CMD_RESET = 0,   ///< Reset all buttons
+    BUTTON_CMD_STATUS,      ///< Print button status
+    BUTTON_CMD_TEST         ///< Test all buttons
 } button_command_t;
 
 
@@ -56,149 +56,149 @@ typedef enum {
 
 
 /**
- * @brief Spusti button task
+ * @brief Start the button task
  * 
- * Hlavni funkce button tasku. Bezi v nekonecne smycce a zpracovava
- * tlacitka kazdych 5ms. Provadi debouncing a generuje udalosti.
+ * The main function of the button pocket. It runs in an infinite loop and processes
+ * button every 5ms. Performs debouncing and generates events.
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void button_task_start(void *pvParameters);
 
 
 // ============================================================================
-// FUNKCE PRO SKENOVANI TLACITEK
+// BUTTON SCAN FUNCTION
 // ============================================================================
 
 
 /**
- * @brief Oskenuje vsechna tlacitka pro zmenu stavu
+ * @brief Scans all state change buttons
  * 
- * Cteni stavu vsech 9 tlacitek a aktualizace interniho stavu.
- * V simulacnim rezimu simuluje postupne stisknuti tlacitek.
+ * Reading the state of all 9 buttons and updating the internal state.
+ * In the simulation mode, it simulates the successive pressing of the buttons.
  */
 void button_scan_all(void);
 
 /**
- * @brief Simuluj stisknuti tlacitka (pro testovani)
+ * @brief Simulate button presses (for testing)
  * 
- * @param button_id ID tlacitka k simulaci (0-8)
+ * @param button_id ID of the button to simulate (0-8)
  */
 void button_simulate_press(uint8_t button_id);
 
 /**
- * @brief Simuluj uvolneni tlacitka (pro testovani)
+ * @brief Simulate button release (for testing)
  * 
- * @param button_id ID tlacitka k simulaci (0-8)
+ * @param button_id ID of the button to simulate (0-8)
  */
 void button_simulate_release(uint8_t button_id);
 
 
 // ============================================================================
-// FUNKCE PRO ZPRACOVANI BUTTON UDALOSTI
+// FUNCTION FOR HANDLING BUTTON EVENT
 // ============================================================================
 
 
 /**
- * @brief Zpracuj button udalosti a zmeny stavu
+ * @brief Handle button events and state changes
  * 
- * Detekuje zmeny stavu tlacitek a generuje udalosti (press, release,
+ * Detects button state changes and generates events (press, release,
  * long press, double press).
  */
 void button_process_events(void);
 
 /**
- * @brief Zpracuj udalost stisknuti tlacitka
+ * @brief Handle the button press event
  * 
- * @param button_id ID tlacitka ktere bylo stisknuto (0-8)
+ * @param button_id ID of the button that was pressed (0-8)
  */
 void button_handle_press(uint8_t button_id);
 
 /**
- * @brief Zpracuj udalost uvolneni tlacitka
+ * @brief Handle the button release event
  * 
- * @param button_id ID tlacitka ktere bylo uvolneno (0-8)
+ * @param button_id ID of the button that was released (0-8)
  */
 void button_handle_release(uint8_t button_id);
 
 /**
- * @brief Overi double press na tlacitku
+ * @brief Verify double press on button
  * 
- * Kontroluje zda bylo tlacitko stisknuto dvakrat po sobe
- * v intervalu 300ms.
+ * Checks if the button has been pressed twice in a row
+ * in an interval of 300ms.
  * 
- * @param button_id ID tlacitka k overeni (0-8)
+ * @param button_id Button ID to validate (0-8)
  */
 void button_check_double_press(uint8_t button_id);
 
 /**
- * @brief Posli button udalost do fronty
+ * @brief Send the button event to the queue
  * 
- * @param button_id ID tlacitka (0-8)
- * @param event_type Typ udalosti
- * @param duration Doba stisknuti v milisekundach
+ * @param button_id Button ID (0-8)
+ * @param event_type Event type
+ * @param duration Press time in milliseconds
  */
 void button_send_event(uint8_t button_id, button_event_type_t event_type, uint32_t duration);
 
 
 // ============================================================================
-// FUNKCE PRO LED FEEDBACK TLACITEK
+// FUNCTION FOR LED FEEDBACK BUTTONS
 // ============================================================================
 
 
 /**
- * @brief Aktualizuj LED feedback pro stav tlacitka
+ * @brief Update LED feedback for button status
  * 
- * Nastavi barvu LED tlacitka podle jeho stavu (stisknuto/uvolneno).
- * Stisknute tlacitko sviti pulzujici cervenou, uvolnene jemnou zelenou.
+ * Set the LED color of the button according to its state (pressed/released).
+ * Pressed button glows pulsating red, soft green when released.
  * 
- * @param button_id ID tlacitka (0-8)
- * @param pressed Je tlacitko stisknuto?
+ * @param button_id Button ID (0-8)
+ * @param pressed Is the button pressed?
  */
 void button_update_led_feedback(uint8_t button_id, bool pressed);
 
 /**
- * @brief Nastav barvu LED pro tlacitko
+ * @brief Set the LED color for the button
  * 
- * @param led_index Index LED (64-72 pro tlacitka)
- * @param red Cervena komponenta (0-255)
- * @param green Zelena komponenta (0-255)
- * @param blue Modra komponenta (0-255)
+ * @param led_index LED index (64-72 for buttons)
+ * @param red Red component (0-255)
+ * @param green Green component (0-255)
+ * @param blue Blue component (0-255)
  */
 void button_set_led_color(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue);
 
 
 // ============================================================================
-// FUNKCE PRO ZPRACOVANI PRIKAZU
+// COMMAND PROCESSING FUNCTIONS
 // ============================================================================
 
 
 /**
- * @brief Zpracuj button prikazy z fronty
+ * @brief Process button commands from the queue
  * 
- * Cte prikazy z button_command_queue a vykonava je (reset, status, test).
+ * Reads commands from button_command_queue and executes them (reset, status, test).
  */
 void button_process_commands(void);
 
 /**
- * @brief Resetuj vsechny stavy tlacitek
+ * @brief Reset all button states
  * 
- * Vymaze vsechny vnitrni stavy tlacitek a resetuje simulacni rezim.
+ * Clears all internal button states and resets the simulation mode.
  */
 void button_reset_all(void);
 
 /**
- * @brief Vypis stav tlacitek
+ * @brief List the status of the buttons
  * 
- * Vypise stav vsech 9 tlacitek a informace o simulacnim rezimu.
+ * Lists the status of all 9 buttons and information about the simulation mode.
  */
 void button_print_status(void);
 
 /**
- * @brief Testuj vsechna tlacitka
+ * @brief Test all buttons
  * 
- * Postupne simuluje stisknuti a uvolneni vsech 9 tlacitek
- * pro otestovani funkcnosti.
+ * It successively simulates pressing and releasing all 9 buttons
+ * for functionality testing.
  */
 void button_test_all(void);
 

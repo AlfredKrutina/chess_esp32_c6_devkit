@@ -1,8 +1,8 @@
-%% led_task_start — WS2812 + fronta příkazů
+%% led_task_start — WS2812 + command queue
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TD
-  START([led_task_start]) --> HW[led_hardware_init nebo simulation_mode]
-  HW --> MUX[led_unified_mutex · NVS jas · animation_manager_init]
+  START([led_task_start]) --> HW[led_hardware_init or simulation_mode]
+  HW --> MUX[led_unified_mutex · NVS brightness · animation_manager_init]
   MUX --> PAT[led_clear_all_internal · led_show_chess_board]
   PAT --> LOOP{{for ;;}}
 

@@ -1,5 +1,5 @@
-// Watch Container + Extension — musí sedět CFBundleShortVersionString s iOS Runnerem (pubspec).
-// Fallback před Generated.xcconfig; po `flutter pub get` / build přepíše Generated hodnoty z pubspec.
+// Watch Container + Extension — CFBundleShortVersionString must match the iOS Runner (pubspec).
+// Fallback before Generated.xcconfig; after `flutter pub get` / build, Generated values from pubspec overwrite these.
 FLUTTER_BUILD_NAME = 1.1.1
 FLUTTER_BUILD_NUMBER = 2
 #include? "Generated.xcconfig"

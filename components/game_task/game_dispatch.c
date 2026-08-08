@@ -206,9 +206,9 @@ static bool game_undo_last_move_impl(void) {
 
   bool toggle_player_after = true;
   if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
-    /* Rošáda: hráč se nemění po tahu krále; až po položení věže. Undo dokončené
-     * rošády musí zase přepnout na protihráče → toggle true jen když věž už byla
-     * v logice přesunutá na „mezilehlé“ pole. */
+    /* Cast: the player does not change after the king's turn; only after placing the tower. Undo complete
+     * casters must switch to the opponent again → toggle true only if the tower was already there
+     * in logic moved to "intermediate" field. */
     uint8_t rook_castle_col =
         (tc > fc) ? (uint8_t)(tc - 1) : (uint8_t)(tc + 1);
     piece_t rook_piece =
@@ -486,7 +486,7 @@ void game_process_commands(void) {
       case 32: // GAME_CMD_RESERVED_SLOT_32
       case 38: // GAME_CMD_RESERVED_SLOT_38
         ESP_LOGW(TAG, "Ignored legacy puzzle command: %d", chess_cmd.type);
-        game_send_response_to_uart("❌ Puzzle system neni dostupny", true,
+        game_send_response_to_uart("❌ Puzzle system is not available", true,
                                    (QueueHandle_t)chess_cmd.response_queue);
         break;
 

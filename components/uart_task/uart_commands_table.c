@@ -236,7 +236,7 @@ const uart_command_t uart_commands[] = {
      true,
      {"CFG", "SETTINGS", "", "", ""}},
 
-    // Prikazy timeru (zrcadli webove rozhrani)
+    // Timer commands (web interface mirrors)
     {"TIMER",
      uart_cmd_timer,
      "Show timer state (JSON)",
@@ -268,7 +268,7 @@ const uart_command_t uart_commands[] = {
      false,
      {"TRESET", "", "", "", ""}},
 
-    // WiFi prikazy
+    // WiFi commands
     {"WIFI",
      uart_cmd_wifi,
      "Configure WiFi STA",

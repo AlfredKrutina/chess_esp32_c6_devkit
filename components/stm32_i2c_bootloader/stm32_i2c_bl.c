@@ -88,7 +88,7 @@ static esp_err_t bl_wait_ack(uint32_t timeout_ms) {
     uint8_t b = 0;
     esp_err_t e = bl_i2c_read(&b, 1, 120);
     if (e != ESP_OK) {
-      ESP_LOGW(TAG, "[bl] čtení ACK: %s", esp_err_to_name(e));
+      ESP_LOGW(TAG, "[bl] read ACK: %s", esp_err_to_name(e));
       return e;
     }
     if (b == STM32_ACK) {
@@ -103,13 +103,13 @@ static esp_err_t bl_wait_ack(uint32_t timeout_ms) {
     }
     if (b == STM32_BUSY) {
       if ((busy_cnt % 20u) == 0u && busy_cnt > 0) {
-        ESP_LOGI(TAG, "[bl] čekám na dokončení (BUSY × %u)…", busy_cnt);
+        ESP_LOGI(TAG, "[bl] waiting for completion (BUSY × %u)…", busy_cnt);
       }
       busy_cnt++;
       vTaskDelay(pdMS_TO_TICKS(10));
       continue;
     }
-    ESP_LOGW(TAG, "[bl] neočekávaný bajt 0x%02x", b);
+    ESP_LOGW(TAG, "[bl] unexpected byte 0x%02x", b);
     if (xTaskGetTickCount() >= end) {
       ESP_LOGE(TAG, "[bl] timeout ACK/BUSY");
       return ESP_ERR_TIMEOUT;
@@ -118,12 +118,12 @@ static esp_err_t bl_wait_ack(uint32_t timeout_ms) {
 }
 
 static esp_err_t bl_send_command_byte_pair(uint8_t cmd) {
-  ESP_LOGI(TAG, "[bl] příkaz 0x%02X / ~0x%02X → I2C write", cmd,
+  ESP_LOGI(TAG, "[bl] command 0x%02X / ~0x%02X → I2C write", cmd,
            (unsigned)(uint8_t)~cmd);
   uint8_t pair[2] = {cmd, (uint8_t)~cmd};
   esp_err_t e = bl_i2c_write(pair, sizeof(pair));
   if (e != ESP_OK) {
-    ESP_LOGE(TAG, "[bl] I2C write cmd selhal: %s", esp_err_to_name(e));
+    ESP_LOGE(TAG, "[bl] I2C write cmd failed: %s", esp_err_to_name(e));
     return e;
   }
   bl_inter_frame();
@@ -136,7 +136,7 @@ static esp_err_t bl_send_command_byte_pair(uint8_t cmd) {
   return e;
 }
 
-/** GO příkaz — čip už musí být v ROM bootloaderu (bez select/release). */
+/** GO command — the chip must already be in the ROM bootloader (without select/release). */
 static esp_err_t bl_send_go_at_addr(uint32_t addr) {
   esp_err_t err = bl_send_command_byte_pair(0x21);
   if (err != ESP_OK) {
@@ -158,7 +158,7 @@ static esp_err_t bl_send_go_at_addr(uint32_t addr) {
 }
 
 /**
- * WRITE MEMORY — předpoklad: cílový segment už vybrán NRST, bez uvolnění sběrnice.
+ * WRITE MEMORY — prerequisite: target segment already selected by NRST, without freeing the bus.
  */
 static esp_err_t bl_write_memory_payload(uint32_t addr, const uint8_t *data,
                                          size_t len) {
@@ -209,7 +209,7 @@ static esp_err_t bl_write_memory_payload(uint32_t addr, const uint8_t *data,
   return err;
 }
 
-/** Po i2c_param_config / install — výslovně zapne interní pull-up na nožičkách sběrnice. */
+/** After i2c_param_config / install — explicitly turns on the internal pull-up on the bus pins. */
 static void bl_apply_bus_pullups(int sda_gpio, int scl_gpio) {
   if (sda_gpio < 0 || scl_gpio < 0) {
     return;
@@ -277,9 +277,9 @@ esp_err_t stm32_i2c_bl_init(void) {
     }
     bl_apply_bus_pullups(CONFIG_CHESS_HALL_I2C_SDA_GPIO,
                          CONFIG_CHESS_HALL_I2C_SCL_GPIO);
-    /* Driver drží hall_i2c_matrix_init(); druhý i2c_driver_install vrací ESP_FAIL. */
+    /* Driver holds hall_i2c_matrix_init(); the second i2c_driver_install returns ESP_FAIL. */
     ESP_LOGI(TAG,
-             "STM32 BL sdílí Hall I2C port %d @ %d Hz (Hall init použil %d Hz)",
+             "STM32 BL shares Hall I2C port %d @ %d Hz (Hall init used %d Hz)",
              (int)bl_port(), CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
              CONFIG_CHESS_HALL_I2C_FREQ_HZ);
   }
@@ -295,7 +295,7 @@ esp_err_t stm32_i2c_bl_init(void) {
     int p = NRST_CFG(s);
     if (p >= 0) {
       bl_configure_nrst_pin(p, true);
-      ESP_LOGI(TAG, "[init] NRST seg%u → GPIO%d (výchozí HIGH = run)", s, p);
+      ESP_LOGI(TAG, "[init] NRST seg%u → GPIO%d (default HIGH = run)", s, p);
     }
   }
 
@@ -304,9 +304,9 @@ esp_err_t stm32_i2c_bl_init(void) {
     gpio_reset_pin(bg);
     gpio_set_direction(bg, GPIO_MODE_OUTPUT);
     gpio_set_level(bg, 0);
-    ESP_LOGI(TAG, "[init] BOOT0 → GPIO%d (výchozí LOW)", CONFIG_CHESS_STM32_BL_BOOT0_GPIO);
+    ESP_LOGI(TAG, "[init] BOOT0 → GPIO%d (default LOW)", CONFIG_CHESS_STM32_BL_BOOT0_GPIO);
   } else {
-    ESP_LOGI(TAG, "[init] BOOT0 GPIO nepřiřazen (-1)");
+    ESP_LOGI(TAG, "[init] BOOT0 GPIO unassigned (-1)");
   }
 
   s_inited = true;
@@ -328,13 +328,13 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
   }
 
   /*
-   * STM vzorkuje BOOT0 při náběžné hře NRST. Pokud byl NRST už HIGH z init a jen
-   * přepneme BOOT0, čip neprojde resetem — zůstane v uživatelském bootu (u prázdného
-   * flash často „mrtvý“ stav, žádný I²C ROM bootloader). Nutný pulz NRST.
+   * STM samples BOOT0 at NRST pregame. If NRST was already HIGH from init and only
+   * we switch BOOT0, the chip will not go through a reset — it will remain in the user boot (with an empty
+   * flash often "dead" state, no I²C ROM bootloader). NRST pulse required.
    *
-   * Když AUTO_USE_BOOT0=n (BOOT0 jen hardwarově na VDD), boot0_enter_bootloader je z
-   * volajícího false, ale pulz NRST pořád potřebujeme — jinak nový čip z obchodu
-   * nikdy nevstoupí do system memory.
+   * When AUTO_USE_BOOT0=n (BOOT0 only hardware on VDD), boot0_enter_bootloader is from
+   * caller false, but we still need the NRST pulse — otherwise, a new chip from the store
+   * never enters system memory.
    */
 #if CONFIG_CHESS_STM32_BL_AUTO_USE_BOOT0
   const bool pulse_nrst = boot0_enter_bootloader;
@@ -351,8 +351,8 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
       gpio_set_level((gpio_num_t)p, 0);
     }
     ESP_LOGI(TAG,
-             "[select] NRST všech segmentů LOW (reset pulz; BOOT0=%s), 30 ms",
-             boot0_enter_bootloader ? "HIGH (ESP)" : "HW/chování AUTO_USE_BOOT0=n");
+             "[select] NRST of all segments LOW (pulse reset; BOOT0=%s), 30 ms",
+             boot0_enter_bootloader ? "HIGH (ESP)" : "HW/Behavior AUTO_USE_BOOT0=n");
     vTaskDelay(pdMS_TO_TICKS(30));
   }
 
@@ -364,17 +364,17 @@ esp_err_t stm32_i2c_bl_select_target(uint8_t segment_0_to_3,
     bool release = (s == segment_0_to_3);
     gpio_set_level((gpio_num_t)p, release ? 1 : 0);
     ESP_LOGI(TAG, "[select] seg%u GPIO%d → %s", s, p,
-             release ? "HIGH (uvolnění resetu)" : "LOW (reset držet)");
+             release ? "HIGH (reset release)" : "LOW (reset hold)");
   }
 
   vTaskDelay(pdMS_TO_TICKS(CONFIG_CHESS_STM32_BL_POST_NRST_DELAY_MS));
   ESP_LOGI(TAG,
-           "[select] aktivní segment %u, čekání %d ms po uvolnění NRST",
+           "[select] active segment %u, waiting %d ms after NRST release",
            segment_0_to_3, CONFIG_CHESS_STM32_BL_POST_NRST_DELAY_MS);
   return ESP_OK;
 }
 
-/** BOOT0 LOW; volitelný NRST pulz (BOOT0 LOW při náběžné hře) pro start aplikace z flash. */
+/** BOOT0 LOW; optional NRST pulse (BOOT0 LOW during start-up game) to start the application from flash. */
 static esp_err_t bl_release_run_app(bool pulse_nrst) {
   ESP_RETURN_ON_ERROR(stm32_i2c_bl_init(), TAG, "init");
 
@@ -409,7 +409,7 @@ static esp_err_t bl_release_run_app(bool pulse_nrst) {
 
   vTaskDelay(pdMS_TO_TICKS(CONFIG_CHESS_STM32_BL_APP_BOOT_SETTLE_MS));
   ESP_LOGI(TAG,
-           "[release] BOOT0 LOW, NRST HIGH, čekání %d ms na Hall/I2C aplikaci",
+           "[release] BOOT0 LOW, NRST HIGH, waiting %d ms for Hall/I2C application",
            CONFIG_CHESS_STM32_BL_APP_BOOT_SETTLE_MS);
   return ESP_OK;
 }
@@ -444,7 +444,7 @@ esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter,
   bl_inter_frame();
   uint8_t blk[5];
   memset(blk, 0, sizeof(blk));
-  ESP_LOGI(TAG, "[get_id] čtu 5 B odpovědi…");
+  ESP_LOGI(TAG, "[get_id] reading 5 B replies…");
   err = bl_i2c_read(blk, sizeof(blk), 400);
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "[get_id] read: %s", esp_err_to_name(err));
@@ -455,7 +455,7 @@ esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter,
            blk[2], blk[3], blk[4]);
 
   if (blk[0] != STM32_ACK) {
-    ESP_LOGE(TAG, "[get_id] první bajt není ACK (0x%02x)", blk[0]);
+    ESP_LOGE(TAG, "[get_id] first byte not ACK (0x%02x)", blk[0]);
     err = ESP_ERR_INVALID_RESPONSE;
     goto done;
   }
@@ -463,7 +463,7 @@ esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter,
   *pid_out = (uint16_t)(((uint16_t)blk[2] << 8) | blk[3]);
   ESP_LOGI(TAG, "[get_id] PID=0x%04X", (unsigned)*pid_out);
   if (blk[4] != STM32_ACK) {
-    ESP_LOGW(TAG, "[get_id] závěrečný bajt 0x%02x (oček. ACK)", blk[4]);
+    ESP_LOGW(TAG, "[get_id] final byte 0x%02x (expect. ACK)", blk[4]);
   }
 
 done:
@@ -493,7 +493,7 @@ esp_err_t stm32_i2c_bl_erase_all(uint8_t segment_0_to_3, bool boot0_enter) {
   uint8_t nblock[3] = {0xFF, 0xFF, 0x00};
   nblock[2] = bl_xor_buf(nblock, 2);
   bl_inter_frame();
-  ESP_LOGI(TAG, "[erase_all] posílám special erase 0xFFFF…");
+  ESP_LOGI(TAG, "[erase_all] sending special erase 0xFFFF…");
   err = bl_i2c_write(nblock, sizeof(nblock));
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "[erase_all] write: %s", esp_err_to_name(err));
@@ -501,11 +501,11 @@ esp_err_t stm32_i2c_bl_erase_all(uint8_t segment_0_to_3, bool boot0_enter) {
   }
 
   bl_inter_frame();
-  ESP_LOGI(TAG, "[erase_all] čekám na erase (timeout %d ms)…",
+  ESP_LOGI(TAG, "[erase_all] waiting for erase (timeout %d ms)…",
            CONFIG_CHESS_STM32_BL_ERASE_ACK_MS);
   err = bl_wait_ack(CONFIG_CHESS_STM32_BL_ERASE_ACK_MS);
   if (err == ESP_OK) {
-    ESP_LOGI(TAG, "[erase_all] dokončeno OK");
+    ESP_LOGI(TAG, "[erase_all] completed OK");
   }
 
 done:
@@ -588,16 +588,16 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
   err = bl_send_command_byte_pair(0x02);
   if (err == ESP_FAIL) {
     ESP_LOGW(TAG,
-             "[flash_bin] GET_ID 1. pokus NACK/ESP_FAIL — čekám 120 ms a opakuji…");
+             "[flash_bin] GET_ID 1st attempt NACK/ESP_FAIL — I wait 120ms and repeat…");
     vTaskDelay(pdMS_TO_TICKS(120));
     err = bl_send_command_byte_pair(0x02);
   }
   if (err != ESP_OK) {
     ESP_LOGE(TAG,
-             "[flash_bin] GET_ID write selhal (%s) na 7-bit 0x%02x — typicky NACK: STM "
-             "není v system memory nebo špatná sběrnice. Zkontroluj: kontinuitu ESP "
-             "SDA/SCL (GPIO Hall) ↔ STM PB7/PB6, společnou zem, BOOT0 při NRST↑, NRST "
-             "polaritu; jiný čip než C031 → adresa v AN2606 (C011=0x64).",
+             "[flash_bin] GET_ID write failed (%s) on 7-bit 0x%02x — typically NACK: STM"
+             "not in system memory or bad bus. Check: ESP continuity "
+             "SDA/SCL (GPIO Hall) ↔ STM PB7/PB6, common ground, BOOT0 at NRST↑, NRST "
+             "polarity; chip other than C031 → address in AN2606 (C011=0x64).",
              esp_err_to_name(err), (unsigned)bl_addr7());
     goto restore;
   }
@@ -615,8 +615,8 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
              gid[0], gid[1], gid[2], gid[3], gid[4]);
     if (gid[0] != STM32_ACK) {
       ESP_LOGE(TAG,
-               "[flash_bin] GET_ID: první bajt 0x%02x (oček. ACK 0x79) — špatný "
-               "protokol nebo jiné zařízení na sběrnici",
+               "[flash_bin] GET_ID: first byte 0x%02x (expect. ACK 0x79) — bad "
+               "protocol or other device on the bus",
                gid[0]);
       err = ESP_ERR_INVALID_RESPONSE;
       goto restore;
@@ -624,7 +624,7 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
     uint16_t pid =
         (uint16_t)(((uint16_t)gid[2] << 8) | (uint16_t)gid[3]);
     ESP_LOGI(TAG,
-             "[flash_bin] PID=0x%04X — pokračuji mass erase (0x44)",
+             "[flash_bin] PID=0x%04X — continuing mass erase (0x44)",
              (unsigned)pid);
   }
 
@@ -645,7 +645,7 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
   err = bl_wait_ack(CONFIG_CHESS_STM32_BL_ERASE_ACK_MS);
   if (err != ESP_OK) {
     ESP_LOGW(TAG,
-             "[flash_bin] mass erase: %s → zkouším page erase",
+             "[flash_bin] mass erase: %s → trying page erase",
              esp_err_to_name(err));
     err = stm32_i2c_bl_select_target(segment_0_to_3, boot0_enter);
     if (err != ESP_OK) {
@@ -654,9 +654,9 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
 
     const unsigned psize = (unsigned)CONFIG_CHESS_STM32_BL_FLASH_PAGE_SIZE;
     unsigned pages = (unsigned)((bin_len + psize - 1) / psize);
-    ESP_LOGI(TAG, "[flash_bin] page erase: %u stránek à %u B", pages, psize);
+    ESP_LOGI(TAG, "[flash_bin] page erase: %u pages à %u B", pages, psize);
     for (unsigned pg = 0; pg < pages && err == ESP_OK; pg++) {
-      ESP_LOGI(TAG, "[flash_bin] mazání stránky %u / %u…", pg + 1, pages);
+      ESP_LOGI(TAG, "[flash_bin] deleting page %u / %u…", pg + 1, pages);
       err = bl_send_command_byte_pair(0x44);
       if (err != ESP_OK) {
         break;
@@ -702,11 +702,11 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
       }
       ci++;
       ESP_LOGI(TAG,
-               "[flash_bin] zápis chunk %u / %u @ off=%u (%u B)",
+               "[flash_bin] write chunk %u / %u @ off=%u (%u B)",
                ci, total_chunks, (unsigned)off, (unsigned)n);
       err = fill(fill_ctx, off, chunk_buf, n);
       if (err != ESP_OK) {
-        ESP_LOGE(TAG, "[flash_bin] čtení zdroje @%u: %s", (unsigned)off,
+        ESP_LOGE(TAG, "[flash_bin] reading source @%u: %s", (unsigned)off,
                  esp_err_to_name(err));
         break;
       }
@@ -721,7 +721,7 @@ restore:
     esp_err_t go_err = bl_send_go_at_addr(flash_base);
     if (go_err != ESP_OK) {
       ESP_LOGW(TAG,
-               "[flash_bin] GO @0x%08" PRIx32 " selhal (%s) — záložně NRST pulz",
+               "[flash_bin] GO @0x%08" PRIx32 " failed (%s) — backup NRST pulse",
                flash_base, esp_err_to_name(go_err));
     } else {
       ESP_LOGI(TAG, "[flash_bin] GO @0x%08" PRIx32 " OK", flash_base);
@@ -731,11 +731,11 @@ restore:
 #endif
     ESP_LOGI(TAG, "[flash_bin] KONEC seg=%u OK", segment_0_to_3);
   } else {
-    ESP_LOGE(TAG, "[flash_bin] KONEC seg=%u chyba: %s", segment_0_to_3,
+    ESP_LOGE(TAG, "[flash_bin] END seg=%u error: %s", segment_0_to_3,
              esp_err_to_name(err));
   }
 
-  /* GO úspěšné → aplikace už běží, NRST nepulzovat. Jinak BOOT0 LOW + NRST↑. */
+  /* GO successful → the application is already running, do not pulse NRST. Otherwise BOOT0 LOW + NRST↑. */
   (void)bl_release_run_app(err != ESP_OK || !go_ok);
   bl_resume_scan(scan_was);
   return err;
@@ -818,7 +818,7 @@ static esp_err_t stm32_bl_fill_from_partition(void *ctx, size_t off, uint8_t *ds
   return esp_partition_read((const esp_partition_t *)ctx, off, dst, len);
 }
 
-/** Délka obsahu bez koncových 0xFF (čtení po blocích od konce — bez velkého malloc). */
+/** Content length without trailing 0xFF (read in blocks from the end — no big malloc). */
 static esp_err_t auto_part_effective_bytes(const esp_partition_t *part,
                                            size_t *effp) {
   uint8_t buf[2048];
@@ -907,7 +907,7 @@ static esp_err_t bl_probe_hall_segment_retries(uint8_t seg) {
   return last;
 }
 
-/** Ověří Hall odpověď u všech segmentů, které mají NRST GPIO. */
+/** Validates Hall response for all segments that have NRST GPIO. */
 static bool bl_probe_all_nrst_hall_segments(bool log_ok) {
   bool all_ok = true;
   bool any = false;
@@ -920,7 +920,7 @@ static bool bl_probe_all_nrst_hall_segments(bool log_ok) {
     esp_err_t pe = bl_probe_hall_segment_retries((uint8_t)seg);
     if (pe != ESP_OK) {
       ESP_LOGW(TAG,
-               "[hall_probe] seg%u addr 0x%02x neodpovídá (%s)",
+               "[hall_probe] seg%u addr 0x%02x does not match (%s)",
                seg, bl_hall_segment_addr7(seg), esp_err_to_name(pe));
       all_ok = false;
     } else if (log_ok) {
@@ -930,7 +930,7 @@ static bool bl_probe_all_nrst_hall_segments(bool log_ok) {
   }
 
   if (!any) {
-    ESP_LOGD(TAG, "[hall_probe] žádný NRST GPIO — přeskočeno");
+    ESP_LOGD(TAG, "[hall_probe] no NRST GPIO — skipped");
     return true;
   }
   return all_ok;
@@ -963,7 +963,7 @@ void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks) {
   }
   if (xSemaphoreTake(s_boot_flash_done_sem, timeout_ticks) != pdTRUE) {
     ESP_LOGW(TAG,
-             "boot_flash_sync: timeout — STM32 auto-flash nedokončeno v čase "
+             "boot_flash_sync: timeout — STM32 auto-flash not finished in time "
              "(zkontroluj I²C / NRST / BOOT0)");
   }
 }
@@ -985,17 +985,17 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     goto out;
   }
 
-  ESP_LOGI(TAG_A, "=== auto-flash on boot (oddíl '%s') ===",
+  ESP_LOGI(TAG_A, "=== auto-flash on boot (partition '%s') ===",
            CONFIG_CHESS_STM32_BL_AUTO_PARTITION_LABEL);
 
 #if CONFIG_CHESS_STM32_BL_AUTO_USE_BOOT0
   if (CONFIG_CHESS_STM32_BL_BOOT0_GPIO < 0) {
     ESP_LOGE(TAG_A,
              "AUTO_USE_BOOT0 je zapnuto, ale CHESS_STM32_BL_BOOT0_GPIO=-1. "
-             "Tovární / prázdný STM na hlavní flash nespustí tvůj Hall kód ani ROM bootloader "
-             "na sběrnici — bez vstupu do system memory (BOOT0=VDD při uvolnění NRST) ESP "
-             "neosloví bootloader na adrese 0x%02x. Nastav v menuconfig BOOT0 GPIO a zapoj "
-             "jej na pin BOOT0 MCU (nebo vypni AUTO_USE_BOOT0 a drž BOOT0 ručně jumperem).",
+             "A factory / blank STM on the main flash will not run your Hall code or ROM bootloader "
+             "on the bus — without entering the system memory (BOOT0=VDD when releasing NRST) ESP "
+             "will not address the bootloader at 0x%02x. Set BOOT0 GPIO in menuconfig and connect "
+             "it to the MCU's BOOT0 pin (or disable AUTO_USE_BOOT0 and hold BOOT0 manually with a jumper).",
              (unsigned)CONFIG_CHESS_STM32_BL_TARGET_ADDR7);
     goto out;
   }
@@ -1005,23 +1005,23 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
       ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY,
       CONFIG_CHESS_STM32_BL_AUTO_PARTITION_LABEL);
   if (part == NULL) {
-    ESP_LOGW(TAG_A, "oddíl '%s' nenalezen — auto-flash přeskočen",
+    ESP_LOGW(TAG_A, "partition '%s' not found — auto-flash skipped",
              CONFIG_CHESS_STM32_BL_AUTO_PARTITION_LABEL);
     goto out;
   }
 
-  ESP_LOGI(TAG_A, "oddíl: offset=0x%08" PRIx32 " size=%" PRIu32 " B",
+  ESP_LOGI(TAG_A, "partition: offset=0x%08" PRIx32 " size=%" PRIu32 " B",
            (uint32_t)part->address, (uint32_t)part->size);
 
   size_t eff = 0;
   esp_err_t tre = auto_part_effective_bytes(part, &eff);
   if (tre != ESP_OK) {
-    ESP_LOGE(TAG_A, "ořez konce oddílu: %s", esp_err_to_name(tre));
+    ESP_LOGE(TAG_A, "trimming end of section: %s", esp_err_to_name(tre));
     goto out;
   }
 
   if (eff < 32) {
-    ESP_LOGW(TAG_A, "image z oddílu je prázdná nebo jen 0xFF (eff=%u B)",
+    ESP_LOGW(TAG_A, "partition image is empty or just 0xFF (eff=%u B)",
              (unsigned)eff);
     goto out;
   }
@@ -1034,17 +1034,17 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
   uint32_t crc = 0;
   esp_err_t cre = auto_part_crc32(part, eff, &crc);
   if (cre != ESP_OK) {
-    ESP_LOGE(TAG_A, "CRC z oddílu: %s", esp_err_to_name(cre));
+    ESP_LOGE(TAG_A, "CRC from partition: %s", esp_err_to_name(cre));
     goto out;
   }
 
   ESP_LOGI(TAG_A,
-           "image po ořezu konce 0xFF: %" PRIu32 " B, CRC32=0x%08" PRIx32
-           " (čtení po blocích, bez malloc %" PRIu32 ")",
+           "image after cropping end 0xFF: %" PRIu32 " B, CRC32=0x%08" PRIx32
+           " (read by blocks, no malloc %" PRIu32 ")",
            (uint32_t)eff, crc, (uint32_t)part->size);
 
 #if CONFIG_CHESS_STM32_BL_AUTO_FLASH_SKIP_IF_UNCHANGED
-  /* FORCE v sdkconfig často chybí jako makro (# is not set) — nepoužívat přímo !CONFIG_FORCE */
+  /* FORCE is often missing in sdkconfig as a macro (# is not set) — don't use !CONFIG_FORCE directly */
 #if !(defined(CONFIG_CHESS_STM32_BL_AUTO_FLASH_FORCE) && CONFIG_CHESS_STM32_BL_AUTO_FLASH_FORCE)
   {
     nvs_handle_t h;
@@ -1060,13 +1060,13 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
         if (!bl_probe_all_nrst_hall_segments(false)) {
           ESP_LOGW(TAG_A,
-                   "NVS říká stejný image, ale Hall neodpovídá — "
-                   "vynucuji auto-flash (výměna STM / prázdný čip?)");
+                   "NVS says the same image, but Hall doesn't answer — "
+                   "force auto-flash (STM replacement / blank chip?)");
         } else
 #endif
         {
           ESP_LOGI(TAG_A,
-                   "auto-flash přeskočen (stejný obsah CRC=0x%08" PRIx32
+                   "auto-flash skipped (same content CRC=0x%08" PRIx32
                    ", %" PRIu32 " B)",
                    crc, (uint32_t)eff);
 #if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                            \
@@ -1100,7 +1100,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
       continue;
     }
     any_nrst = true;
-    ESP_LOGI(TAG_A, "segment %u: nahrávám %" PRIu32 " B → STM @0x%08" PRIx32,
+    ESP_LOGI(TAG_A, "segment %u: uploading %" PRIu32 " B → STM @0x%08" PRIx32,
              seg, (uint32_t)eff, base);
     esp_err_t fe = stm32_i2c_bl_flash_binary_impl(
         (uint8_t)seg, use_boot, base, eff, stm32_bl_fill_from_partition,
@@ -1115,7 +1115,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
 
   if (!any_nrst) {
     ESP_LOGW(TAG_A,
-             "žádný NRST GPIO — nastav CHESS_STM32_BL_NRST_GPIO_SEG* v menuconfig");
+             "no NRST GPIO — set CHESS_STM32_BL_NRST_GPIO_SEG* in menuconfig");
   }
 
   if (all_ok && any_nrst) {
@@ -1125,8 +1125,8 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     hall_ok = bl_probe_all_nrst_hall_segments(true);
     if (!hall_ok) {
       ESP_LOGE(TAG_A,
-               "auto-flash zápis OK, ale Hall neodpovídá — NVS se neuloží, "
-               "další boot zkusí flash znovu (NRST/BOOT0/I2C PB6/PB7)");
+               "auto-flash write OK, but Hall doesn't respond — NVS won't save, "
+               "next boot will try flash again (NRST/BOOT0/I2C PB6/PB7)");
     }
 #endif
     if (hall_ok) {
@@ -1137,12 +1137,12 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
         nvs_commit(hw);
         nvs_close(hw);
         ESP_LOGI(TAG_A,
-                 "NVS: uložen CRC+délka (další boot přeskočí při stejném obsahu)");
+                 "NVS: stored CRC+length (next boot skips with the same content)");
       }
     }
   } else if (any_nrst && !all_ok) {
     ESP_LOGE(TAG_A,
-             "auto-flash selhal na alespoň jednom segmentu — Hall čtení "
+             "auto-flash failed on at least one segment — Hall reading "
              "nebude fungovat");
   }
 

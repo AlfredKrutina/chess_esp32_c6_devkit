@@ -1,38 +1,38 @@
-# OTA firmwaru na ESP32-C6 — přehled chování
+# ESP32-C6 firmware OTA — behavior overview
 
-Deska si umí stáhnout nový aplikační obraz po **HTTPS** (internet, je potřeba STA), po **HTTP** z LAN (typicky když telefon hostuje `.bin` na hotspotu desky), nebo ten samý obraz přijmout po **BLE** jako stream chunků začínajících hlavičkou `OB`. Flutter pak jen řídí start; stav OTA se na desce typicky polluje přes HTTP (kde to dává smysl), nebo telefon posílá chunky přes GATT.
+The board can download a new application image over **HTTPS** (internet, STA required), over **HTTP** from LAN (typically when the phone hosts the `.bin` on the board hotspot), or receive the same image over **BLE** as a stream of chunks starting with the `OB` header. Flutter only controls the start; OTA state on the board is typically polled over HTTP (where it makes sense), or the phone sends chunks over GATT.
 
-STM32 na Hall segmentech tímhle protokolem neřeším — tam je jiný příběh. Když je flash jen `factory` bez `ota_0`/`ota_1`, `ota_supported` je false a HTTP OTA vrací 503; pak zbývá UART / esptool.
+STM32 on Hall segments is not handled by this protocol — that is a separate story. When flash contains only `factory` without `ota_0`/`ota_1`, `ota_supported` is false and HTTP OTA returns 503; then UART / esptool remains.
 
-**Směr do budoucna:** časem přejít z vlastní logiky v `ota_update.c` na **`esp_encrypted_img` / OTAvo styl** podle Espressif — až na to dojde, současné handlery se obalí nebo nahradí.
-
----
-
-## 1. Partition a synchronizace
-
-- `ota_partition_layout_ok()` v `components/web_server_task/ota_update.c` kontroluje, že existují **oba** oddíly `APP_OTA_0` a `APP_OTA_1`. Jinak `GET /api/system/firmware` vrátí `ota_supported: false` a `POST /api/system/ota` je **503**.
-- Po úspěchu volám `esp_ota_set_boot_partition()` a `esp_restart()` — platí pro všechny tři kanály.
-- `s_ota_sem`: současně může běžet jen jedna OTA. Druhý start → HTTP **409**, přes BLE často `ESP_ERR_INVALID_STATE` („busy“).
+**Future direction:** eventually migrate from custom logic in `ota_update.c` to **`esp_encrypted_img` / OTAvo style** per Espressif — when that happens, current handlers will be wrapped or replaced.
 
 ---
 
-## 2. Kanály
+## 1. Partition and synchronization
 
-| | URL | Kdo tahá / zapisuje | STA |
+- `ota_partition_layout_ok()` in `components/web_server_task/ota_update.c` checks that **both** partitions `APP_OTA_0` and `APP_OTA_1` exist. Otherwise `GET /api/system/firmware` returns `ota_supported: false` and `POST /api/system/ota` is **503**.
+- After success, `esp_ota_set_boot_partition()` and `esp_restart()` are called — applies to all three channels.
+- `s_ota_sem`: only one OTA can run at a time. A second start → HTTP **409**, over BLE often `ESP_ERR_INVALID_STATE` (“busy”).
+
+---
+
+## 2. Channels
+
+| | URL | Who pulls / writes | STA |
 |---|-----|---------------------|-----|
-| HTTPS | `https://…` | `esp_https_ota` + CA bundle | potřeba |
-| HTTP | `http://…` | `esp_http_client` + `esp_ota_write` | ne (LAN / AP) |
-| BLE | — | telefon posílá `OB` write na CMD char | ne |
+| HTTPS | `https://…` | `esp_https_ota` + CA bundle | required |
+| HTTP | `http://…` | `esp_http_client` + `esp_ota_write` | no (LAN / AP) |
+| BLE | — | phone sends `OB` write on CMD char | no |
 
-**Debug:** při `CHESS_DEBUG_MODE` loguju v `ota_update.c` řádky `[STAGING]`; u GATT v `ble_nimble_impl.c`. Když někdo pošle chunk bez šifrování linku, uvidím něco jako `OTA BLE chunk rejected: link not encrypted`.
+**Debug:** with `CHESS_DEBUG_MODE`, `[STAGING]` lines are logged in `ota_update.c`; for GATT in `ble_nimble_impl.c`. When a chunk is sent without link encryption, output like `OTA BLE chunk rejected: link not encrypted` appears.
 
 ---
 
-## 3. Síť
+## 3. Network
 
-- Hotspot desky (AP) bývá ve výchozím nastavení **vypnutý** — zapíná se z aplikace přes BLE; když je zapnutý, AP desky typicky `192.168.4.1` a telefon na hotspotu `192.168.4.x`. Ve Flutteru `FirmwarePhoneHostOta.ipv4OnBoardApSubnet()` vybírá IP do URL. HTTP přes **STA** („domácí“ IP desky) nevyžaduje hotspot.
-- Na domácí LAN používám `ipv4OnSameSubnet24As(boardStaIp)`, pokud telefon není na 4.x.
-- `FirmwarePhoneHostOta.startServingBin`: malý `HttpServer` na `0.0.0.0`, volný port, jen `GET /czechmate_ota.bin`, `Content-Length`, stream souboru.
+- The board hotspot (AP) is **off** by default — enabled from the app over BLE; when on, the board AP is typically `192.168.4.1` and the phone on the hotspot is `192.168.4.x`. In Flutter, `FirmwarePhoneHostOta.ipv4OnBoardApSubnet()` selects the IP for the URL. HTTP over **STA** (the board’s “home” IP) does not require the hotspot.
+- On home LAN, `ipv4OnSameSubnet24As(boardStaIp)` is used if the phone is not on 4.x.
+- `FirmwarePhoneHostOta.startServingBin`: small `HttpServer` on `0.0.0.0`, free port, only `GET /czechmate_ota.bin`, `Content-Length`, file stream.
 
 ---
 
@@ -40,91 +40,91 @@ STM32 na Hall segmentech tímhle protokolem neřeším — tam je jiný příbě
 
 ### `GET /api/system/firmware`
 
-Bez Bearer. Vracím `version`, `project_name`, `idf`, `ota_supported`.
+No Bearer. Returns `version`, `project_name`, `idf`, `ota_supported`.
 
-**Rollback (ESP-IDF):** pokud bootloader po OTA vrátil předchozí slot, protože nový obraz nedoběhl až k `esp_ota_mark_app_valid_cancel_rollback()`, je druhý slot ve stavu *invalid*. JSON doplněn o:
+**Rollback (ESP-IDF):** if the bootloader rolled back to the previous slot after OTA because the new image never reached `esp_ota_mark_app_valid_cancel_rollback()`, the other slot is in *invalid* state. JSON is extended with:
 
-| Pole | Typ | Význam |
+| Field | Type | Meaning |
 |------|-----|--------|
-| `ota_last_boot_failed` | bool | `true` pokud existuje poslední neplatný OTA slot (`esp_ota_get_last_invalid_partition`) a není to aktuálně běžící partition — typicky „vrátili jsme se na předchozí firmware“. |
-| `ota_failed_slot` | string | Např. `ota_0` / `ota_1` — kde leží neúspěšný obraz. |
-| `ota_failed_firmware_version` | string (volitelně) | `version` z hlavičky neúspěšného obrazu (`esp_ota_get_partition_description`), pokud ji lze přečíst. |
+| `ota_last_boot_failed` | bool | `true` if a last invalid OTA slot exists (`esp_ota_get_last_invalid_partition`) and it is not the currently running partition — typically “rolled back to previous firmware”. |
+| `ota_failed_slot` | string | E.g. `ota_0` / `ota_1` — where the failed image lives. |
+| `ota_failed_firmware_version` | string (optional) | `version` from the failed image header (`esp_ota_get_partition_description`), if readable. |
 
-Flutter banner v nastavení firmwaru čte tato pole po `fetchBoardFirmwareInfo`. Starší firmware pole neposílá — klient je ignoruje.
+The Flutter banner in firmware settings reads these fields after `fetchBoardFirmwareInfo`. Older firmware does not send them — the client ignores them.
 
 ### `GET /api/system/ota/status`
 
-Bez Bearer. `state`: `idle` | `downloading` | `done` | `error`; `percent`; `message` (poslední chyba z `s_last_err`). Platí i během BLE streamu — je to stejný globální stav.
+No Bearer. `state`: `idle` | `downloading` | `done` | `error`; `percent`; `message` (last error from `s_last_err`). Also valid during BLE stream — same global state.
 
 ### `POST /api/system/ota`
 
-Admin: Bearer + web lock podle `board_api_auth.h`. Tělo:
+Admin: Bearer + web lock per `board_api_auth.h`. Body:
 
 ```json
 {"url":"https://example/firmware.bin"}
 ```
 
-`http_post_ota` čte tělo do ~1536 B — držím JSON krátký.
+`http_post_ota` reads the body up to ~1536 B — keep JSON short.
 
-| Kód | Význam |
+| Code | Meaning |
 |-----|--------|
 | 202 | `schedule_ota` OK |
 | 409 | busy |
-| 428 | HTTPS bez STA |
-| 400 | prázdné / rozbitý JSON / špatná URL |
-| 503 | chybí OTA oddíly |
+| 428 | HTTPS without STA |
+| 400 | empty / broken JSON / bad URL |
+| 503 | missing OTA partitions |
 | 403 | token / web lock |
-| 500 | fronta / interní |
+| 500 | queue / internal |
 
-Worker: `ota_https_worker_task` nebo `ota_http_worker_task`.
+Worker: `ota_https_worker_task` or `ota_http_worker_task`.
 
 ---
 
-## 5. Workery na desce
+## 5. Board workers
 
-**HTTPS:** `esp_https_ota_*`, timeout klienta 120 s, progress z velikosti obrazu.
+**HTTPS:** `esp_https_ota_*`, client timeout 120 s, progress from image size.
 
-**HTTP:** `esp_http_client_open`, status 200, `esp_ota_begin` → read loop → `esp_ota_write`, timeout 300 s, progress z `Content-Length` nebo z velikosti partition.
+**HTTP:** `esp_http_client_open`, status 200, `esp_ota_begin` → read loop → `esp_ota_write`, timeout 300 s, progress from `Content-Length` or partition size.
 
-Při chybě volám `led_ota_restore_board_after_update_abort()` a `xSemaphoreGive(s_ota_sem)`.
+On error, `led_ota_restore_board_after_update_abort()` and `xSemaphoreGive(s_ota_sem)` are called.
 
 ---
 
 ## 6. BLE — JSON (`web_server_ble_command_dispatch`)
 
-Šifrovaný link je povinný (`ble_task_conn_is_encrypted`). Jinak posílám `needs_encryption` přes `ble_dispatch_ack_needs_encryption`.
+Encrypted link is required (`ble_task_conn_is_encrypted`). Otherwise `needs_encryption` is sent via `ble_dispatch_ack_needs_encryption`.
 
-| Příkaz | Akce |
+| Command | Action |
 |--------|------|
-| `ota_start` + `url` | `schedule_ota(url)` — stejné jako POST |
+| `ota_start` + `url` | `schedule_ota(url)` — same as POST |
 | `ota_ble_begin` + `size` | Stream; `size` ≥ 32 KiB, ≤ partition |
-| `ota_ble_abort` | abort + uvolnění semaforu |
-| `ota_ble_status` | JSON z `ota_update_ble_build_status_ack_json` + notify |
+| `ota_ble_abort` | abort + semaphore release |
+| `ota_ble_status` | JSON from `ota_update_ble_build_status_ack_json` + notify |
 
-`ble_task_notify_command_result` mapuje `esp_err` na `code` / `message`, v JSON je i `"esp": <číslo>`. `ESP_ERR_NOT_ALLOWED` (HTTPS bez STA) spadne do default větve — UART log je konkrétnější.
+`ble_task_notify_command_result` maps `esp_err` to `code` / `message`; JSON also includes `"esp": <number>`. `ESP_ERR_NOT_ALLOWED` (HTTPS without STA) falls into the default branch — UART log is more specific.
 
 ---
 
-## 7. BLE — chunky `OB`
+## 7. BLE — `OB` chunks
 
-Stejná GATT CMD charakteristika jako JSON.
+Same GATT CMD characteristic as JSON.
 
-| Bajt | Význam |
+| Byte | Meaning |
 |------|--------|
 | 0–1 | `'O'` `'B'` |
 | 2–3 | `chunk_idx` LE u16 |
 | 4–5 | `chunk_total` LE u16 |
 | 6+ | payload |
 
-Validace v `ota_update_ble_feed_chunk`: pořadí indexů, shoda `chunk_total`, součet payloadů = `size` z `ota_begin`, poslední chunk = `chunk_total - 1` při plném součtu.
+Validation in `ota_update_ble_feed_chunk`: index order, matching `chunk_total`, sum of payloads = `size` from `ota_begin`, last chunk = `chunk_total - 1` at full sum.
 
-**NimBLE:** prvních max 768 B z mbuf do stacku — jeden write od klienta musí vejít do ATT MTU (Flutter drží `payloadMax` konzervativně kvůli iOS).
+**NimBLE:** first max 768 B from mbuf to stack — one client write must fit ATT MTU (Flutter keeps `payloadMax` conservative for iOS).
 
-Nešifrovaný link → `INSUFFICIENT_AUTHOR`. Špatný chunk → notify `{"cmd":"ota_ble_chunk","ok":false}`; úspěšné chunky notify nemám (kvůli frontě na iOS).
+Unencrypted link → `INSUFFICIENT_AUTHOR`. Bad chunk → notify `{"cmd":"ota_ble_chunk","ok":false}`; successful chunks have no notify (due to iOS queue limits).
 
-**Stavy:** `IDLE` → `RX` po begin. Disconnect v `RX` → `SUSPENDED` + timer **24 h**; po timeoutu abort. První platný chunk po suspend → zase `RX`.
+**States:** `IDLE` → `RX` after begin. Disconnect in `RX` → `SUSPENDED` + **24 h** timer; abort after timeout. First valid chunk after suspend → back to `RX`.
 
-Klient po výpadku: reconnect, `ota_ble_status`, pokračovat od `bytes` / `next_chunk` — viz `BleCzechmateClient.uploadFirmwareBle`.
+Client after outage: reconnect, `ota_ble_status`, continue from `bytes` / `next_chunk` — see `BleCzechmateClient.uploadFirmwareBle`.
 
 ---
 
@@ -140,7 +140,7 @@ sequenceDiagram
 
   Note over UI,BLE: Phone-host + poll
   UI->>Runner: execute + preferHttpOtaStart
-  Runner->>API: firmware info, WiFi pokud https
+  Runner->>API: firmware info, WiFi if https
   Runner->>Sess: requestFirmwareOta
   Sess->>API: postBoardOtaStart
   Runner->>API: poll ota/status 500 ms
@@ -150,109 +150,109 @@ sequenceDiagram
   Sess->>BLE: uploadFirmwareBle OB chunks
 ```
 
-- **Bearer:** `BoardApiClient.resolveBoardApiBearerToken` ← `PrefsRepository.boardApiToken` (`app_providers.dart`). `postBoardOtaStart` mapuje 409, 428, 503, 403 na `BoardApiException`.
-- **`FirmwareOtaRunner.execute`:** vyřeší `baseUrl` (`board_http_base_url.dart`), zkontroluje `ota_supported`, u `https://` ověří STA přes `fetchWiFiStatus`, zavolá `requestFirmwareOta`, pak `_pollOta` (500 ms, max 1200 cyklů). Po `downloading` a výpadku HTTP mám v kódu heuristiku úspěchu po rebootu.
-- **`requestFirmwareOta`:** `preferHttpOtaStart` → HTTP POST na base URL i když jedu přes BLE session (HTTP na AP běží vedle BLE). Čistý BLE bez toho → `_ble.postOtaStart` (`ota_start`). URL z telefonu hostovaného binárku dávám spíš přes `preferHttpOtaStart`.
-- **`uploadFirmwareBle`:** MTU 517, `payloadMax` pod platformu, retry na chunk, iOS gap; resume přes `OtaBleStatus` po disconnect.
-- **UI:** `firmware_update_section.dart` — cache bin přes prefs, phone-host + `FirmwareOtaRunner`, nebo `_sendFirmwareViaBle` jen s lokálním `onProgress` (bez runner poll).
+- **Bearer:** `BoardApiClient.resolveBoardApiBearerToken` ← `PrefsRepository.boardApiToken` (`app_providers.dart`). `postBoardOtaStart` maps 409, 428, 503, 403 to `BoardApiException`.
+- **`FirmwareOtaRunner.execute`:** resolves `baseUrl` (`board_http_base_url.dart`), checks `ota_supported`, for `https://` verifies STA via `fetchWiFiStatus`, calls `requestFirmwareOta`, then `_pollOta` (500 ms, max 1200 cycles). After `downloading` and HTTP drop, reboot success heuristics exist in code.
+- **`requestFirmwareOta`:** `preferHttpOtaStart` → HTTP POST to base URL even over a BLE session (HTTP on AP runs alongside BLE). Pure BLE without that → `_ble.postOtaStart` (`ota_start`). Phone-hosted binary URL is preferably sent via `preferHttpOtaStart`.
+- **`uploadFirmwareBle`:** MTU 517, `payloadMax` per platform, chunk retry, iOS gap; resume via `OtaBleStatus` after disconnect.
+- **UI:** `firmware_update_section.dart` — cache bin via prefs, phone-host + `FirmwareOtaRunner`, or `_sendFirmwareViaBle` with local `onProgress` only (no runner poll).
 
 ---
 
-## 9. Shrnutí chování
+## 9. Behavior summary
 
-| Režim | Start | Progress v app |
+| Mode | Start | Progress in app |
 |-------|--------|----------------|
-| HTTPS | POST nebo BLE `ota_start` | `GET .../ota/status` v runneru |
-| HTTP z telefonu | POST + `preferHttpOtaStart` | stejně |
-| BLE stream | `ota_ble_begin` + OB | callback bajtů; HTTP status lze číst paralelně pokud znám base URL |
+| HTTPS | POST or BLE `ota_start` | `GET .../ota/status` in runner |
+| HTTP from phone | POST + `preferHttpOtaStart` | same |
+| BLE stream | `ota_ble_begin` + OB | byte callback; HTTP status can be read in parallel if base URL is known |
 
 ---
 
-## 10. Ladění
+## 10. Debugging
 
-| Projev | Kde hledám |
+| Symptom | Where to look |
 |--------|------------|
-| 428 | `schedule_ota`, Flutter WiFi status před startem |
-| 409 | paralelní OTA |
+| 428 | `schedule_ota`, Flutter WiFi status before start |
+| 409 | parallel OTA |
 | 403 | token / lock |
 | needs_encryption | bonding / SMP |
-| iOS GATT 8 | menší payload, delay — `ble_czechmate_client.dart` |
-| po disconnect nový begin „busy“ | 24 h suspend nebo chybějící abort — `ota_update.h` |
+| iOS GATT 8 | smaller payload, delay — `ble_czechmate_client.dart` |
+| new begin “busy” after disconnect | 24 h suspend or missing abort — `ota_update.h` |
 
 ---
 
-## 11. Dlouhodobá spolehlivost: flash, rollback a kompatibilita
+## 11. Long-term reliability: flash, rollback, and compatibility
 
-Tato kapitola shrnuje chování při **opakovaných OTA** a rizika označovaná jako **„code aging“** — tedy postupné nesoulady mezi uloženou konfigurací, velikostí obrazu a provozním prostředím (TLS, čas), nikoli pouze opotřebení paměti.
+This section summarizes behavior during **repeated OTA** and risks called **“code aging”** — gradual mismatches between stored configuration, image size, and runtime environment (TLS, time), not just memory wear.
 
-### 11.1 Dual-slot model a opotřebení flash
+### 11.1 Dual-slot model and flash wear
 
-- Tabulka oddílů v produkční konfiguraci používá **`ota_0` a `ota_1`** (viz kořenový `partitions.csv`). Espressif API **`esp_ota_get_next_update_partition`** vybírá **neaktivní** slot; úspěšná OTA tedy typicky **přepisuje druhý slot**, ne jeden pevný blok pořád dokola.
-- Jedna dokončená OTA znamená **erase + program** celého cílového aplikačního oddílu (řádově megabajty). Pro běžné uživatelské aktualizace je to **standardní a životností NOR flash přijatelné**; extrémní stress (tisíce cyklů na jednom kusu HW) už vyžaduje vlastní měření podle datasheetu konkrétního modulu flash.
-- Oddíl **`otadata`** je malý; mění se při přepnutí boot partition. Počet zápisů je **řádově jedna změna na úspěšný přechod na nový slot**, ne při každém běžném bootu celého obrazu znovu.
+- The production partition table uses **`ota_0` and `ota_1`** (see root `partitions.csv`). Espressif API **`esp_ota_get_next_update_partition`** selects the **inactive** slot; a successful OTA typically **overwrites the other slot**, not one fixed block repeatedly.
+- One completed OTA means **erase + program** of the entire target application partition (on the order of megabytes). For normal user updates this is **standard and acceptable for NOR flash lifetime**; extreme stress (thousands of cycles on one HW unit) requires measurement per the specific flash module datasheet.
+- The **`otadata`** partition is small; it changes when switching boot partition. Write count is **on the order of one change per successful slot transition**, not on every normal boot of the full image.
 
-### 11.2 Rollback a kdy se nový firmware „uzná“
+### 11.2 Rollback and when new firmware is “accepted”
 
-V `sdkconfig` / `sdkconfig.defaults` je zapnutý **OTA rollback** (`CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE`, `CONFIG_APP_ROLLBACK_ENABLE`). Po zápisu nového obrazu je partition ve stavu **pending verify**, dokud aplikace nezavolá **`esp_ota_mark_app_valid_cancel_rollback()`**.
+**OTA rollback** is enabled in `sdkconfig` / `sdkconfig.defaults` (`CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE`, `CONFIG_APP_ROLLBACK_ENABLE`). After writing a new image, the partition is in **pending verify** state until the app calls **`esp_ota_mark_app_valid_cancel_rollback()`**.
 
-V tomto projektu se potvrzení děje v **`main/main.c`** až **po úspěšném `create_system_tasks()`**, krátké prodlevě, **`boot_counter_reset()`** a těsně před vstupem do hlavní smyčky (`main_mark_ota_app_valid_if_needed()`).
+In this project, confirmation happens in **`main/main.c`** only **after successful `create_system_tasks()`**, a short delay, **`boot_counter_reset()`**, and just before entering the main loop (`main_mark_ota_app_valid_if_needed()`).
 
-Důsledky:
+Consequences:
 
-- Pokud nový firmware **spadne dřív** (např. selže inicializace tasků a firmware skončí v safe mode smyčce), **`mark_app_valid` se neprovede** → při dalším resetu může bootloader **obnovit předchozí slot**. Uživatelsky to může vypadat jako „OTA se vrátila“ nebo „update nevyšel“, přestože zápis flash proběhl.
-- Pokud systém **projde až k `mark_app_valid`**, rollback se pro tento boot **zruší** — firmware je považovaný za ověřený i tehdy, když je funkčně rozbitý **až za touto hranicí** (např. rozbitá herní logika, ale tasky běží). To je obecný kompromis modelu Espressif, ne chyba počítadla OTA.
+- If new firmware **crashes earlier** (e.g. task init fails and firmware ends in safe mode loop), **`mark_app_valid` is not called** → on next reset the bootloader may **restore the previous slot**. To the user this can look like “OTA rolled back” or “update failed” even though flash write completed.
+- If the system **reaches `mark_app_valid`**, rollback for this boot is **cancelled** — firmware is considered verified even when functionally broken **beyond that boundary** (e.g. broken game logic but tasks run). This is a general Espressif model tradeoff, not an OTA counter bug.
 
-**Anti-rollback** na úrovni eFuse (**`CONFIG_APP_ANTI_ROLLBACK`**) v tomto projektu **není** zapnutý — downgrade na starší semver přes OTA zůstává možný (flexibilita vývoje vs. tvrdá ochrana proti úmyslnému sestavení staršího obrazu).
+**Anti-rollback** at eFuse level (**`CONFIG_APP_ANTI_ROLLBACK`**) is **not** enabled in this project — downgrade to older semver over OTA remains possible (development flexibility vs. hard protection against intentionally building an older image).
 
 ```mermaid
 flowchart TD
-  O[OTA dokončena esp_ota_set_boot_partition] --> R[esp_restart]
-  R --> B{Boot nového slotu}
+  O[OTA complete esp_ota_set_boot_partition] --> R[esp_restart]
+  R --> B{Boot new slot}
   B --> T{create_system_tasks == ESP_OK}
-  T -->|ne| S[Safe mode smyčka]
-  S --> X[mark_app_valid se nevolá]
-  X --> Y[Příští reset: bootloader může vrátit předchozí app]
-  T -->|ano| M[boot_counter_reset]
+  T -->|no| S[Safe mode loop]
+  S --> X[mark_app_valid not called]
+  X --> Y[Next reset: bootloader may restore previous app]
+  T -->|yes| M[boot_counter_reset]
   M --> V[esp_ota_mark_app_valid_cancel_rollback]
-  V --> L[Hlavní smyčka – rollback pro tento obraz zrušen]
+  V --> L[Main loop – rollback cancelled for this image]
 ```
 
-### 11.3 Kompatibilita napříč verzemi („software aging“)
+### 11.3 Cross-version compatibility (“software aging”)
 
-- **Velikost `.bin` vs. oddíl:** Sloty mají **pevnou kapacitu** (aktuálně 3072 KiB na slot v hlavní tabulce). Rostoucí firmware může narazit na strop → selhání už při `esp_ota_begin` / závěru zápisu / bootu. Řešení je **sledovat velikost release buildu** a případně **nová tabulka oddílů + plánovaný přechod přes UART / jednorázový flash**, ne jen „další OTA“ ze starého layoutu.
-- **Změna tabulky oddílů nebo typu čipu:** Nekompatibilní změna vyžaduje **řízený migrační plán** (dokumentovaný postup, jedna přechodová verze, nebo nucený esptool). Automatická OTA z předchozí generace nemusí stačit.
-- **NVS:** Konfigurace přežívá OTA (Wi‑Fi preference, tokeny web API, časovač, boot counter, …). **Změna významu blobu nebo struktury bez migrace** vede k „tichým“ bugům po upgradu. Doporučený vzor: **verze schématu v NVS**, při startu **jednorázová migrace** nebo bezpečné výchozí hodnoty pro nové klíče.
-- **`stm32_fw` a Hall:** OTA ESP32 firmwaru je oddělená od příběhu STM32 — při změnách protokolu mezi ESP a STM32 musí sedět **nasazení obou stran** podle hardwarové verze (viz projektová dokumentace V1/V2).
+- **`.bin` size vs. partition:** Slots have **fixed capacity** (currently 3072 KiB per slot in the main table). Growing firmware can hit the ceiling → failure at `esp_ota_begin` / end of write / boot. Fix: **track release build size** and if needed **new partition table + planned transition via UART / one-time flash**, not just “another OTA” from the old layout.
+- **Partition table or chip type change:** Incompatible change requires a **controlled migration plan** (documented procedure, one transition version, or forced esptool). Automatic OTA from the previous generation may not suffice.
+- **NVS:** Configuration survives OTA (Wi‑Fi preferences, web API tokens, timer, boot counter, …). **Changing blob meaning or structure without migration** leads to silent bugs after upgrade. Recommended pattern: **schema version in NVS**, **one-time migration** at startup or safe defaults for new keys.
+- **`stm32_fw` and Hall:** ESP32 firmware OTA is separate from the STM32 story — when the ESP↔STM32 protocol changes, **both sides must be deployed** per hardware version (see project V1/V2 documentation).
 
-### 11.4 Provozní stárnutí kanálu HTTPS
+### 11.4 HTTPS channel operational aging
 
-Dlouhodobě je kritické zejména u **HTTPS OTA**:
+Long term, **HTTPS OTA** is especially sensitive to:
 
-- Platnost **certifikátů serveru** a důvěra vůči **CA bundle** v ESP-IDF.
-- **Správný čas** (SNTP) — bez něj TLS může selhat na „certifikát ještě neplatný / expirovaný“.
-- **DNS a dostupnost URL** hostovaného `.bin`.
+- **Server certificate** validity and trust in the **CA bundle** in ESP-IDF.
+- **Correct time** (SNTP) — without it TLS can fail with “certificate not yet valid / expired”.
+- **DNS and URL availability** of the hosted `.bin`.
 
-HTTP z LAN nebo BLE stream jsou méně citlivé na veřejný TLS, ale mají vlastní rizika (izolace hotspotu, MTU, výpadky spojení — viz výše).
+HTTP from LAN or BLE stream are less sensitive to public TLS but have their own risks (hotspot isolation, MTU, connection drops — see above).
 
-### 11.5 Bezpečnost obrazu
+### 11.5 Image security
 
-Současný řetězec předpokládá **důvěru v URL a síť** (přístup k binárce, admin token u REST). Počet OTA to neslabí; slabina je **integrita a autenticita obrazu** vůči útočníkovi s přístupem ke kanálu. Směr rozšíření zůstává **`esp_encrypted_img` / podepisování** podle Espressif (viz úvod dokumentu).
+The current chain assumes **trust in URL and network** (access to binary, admin token for REST). OTA count does not weaken this; the gap is **image integrity and authenticity** against an attacker with channel access. Extension direction remains **`esp_encrypted_img` / signing** per Espressif (see document intro).
 
-### 11.6 Kontrolní seznam před zveřejněním OTA buildu
+### 11.6 Pre-release OTA build checklist
 
-| Krok | Ověření |
+| Step | Verification |
 |------|---------|
-| Velikost | Release `.bin` má rezervu vůči velikosti `ota_0` / `ota_1` v aktivní `partitions.csv`. |
-| Verze | `firmware/version.json` (a případně CI artefakt na Pages) odpovídá semver buildu. |
-| Smoke po OTA | Po přechodu na nový slot: boot, STA podle potřeby, jedna admin akce přes HTTP, základní BLE příkaz. |
-| Rollback a UX | Pád před `mark_app_valid` může vrátit předchozí slot — incident je vhodné popsat uživateli jako možný „návrat verze“. |
-| NVS | Při změně ukládaných struktur je v kódu migrace nebo nový namespace / klíč verze. |
-| HTTPS | Ověření stažení z produkční URL na zařízení s reálným časem a DNS. |
-| Klient | Po simulovaném rollbacku `GET /api/system/firmware` obsahuje `ota_last_boot_failed` a případně `ota_failed_firmware_version` — banner ve Flutteru v nastavení firmwaru. |
+| Size | Release `.bin` has headroom vs. `ota_0` / `ota_1` size in active `partitions.csv`. |
+| Version | `firmware/version.json` (and CI artifact on Pages if used) matches build semver. |
+| Smoke after OTA | After slot switch: boot, STA if needed, one admin action over HTTP, basic BLE command. |
+| Rollback and UX | Crash before `mark_app_valid` may restore previous slot — incident should be described to the user as possible “version revert”. |
+| NVS | When stored structures change, code has migration or new namespace / version key. |
+| HTTPS | Download from production URL on device with real time and DNS. |
+| Client | After simulated rollback `GET /api/system/firmware` contains `ota_last_boot_failed` and optionally `ota_failed_firmware_version` — Flutter banner in firmware settings. |
 
 ---
 
-## 12. Soubory
+## 12. Files
 
 | FW | Dart |
 |----|------|
@@ -261,6 +261,6 @@ Současný řetězec předpokládá **důvěru v URL a síť** (přístup k bin�
 | `components/web_server_task/web_server_task.c` | `features/connection/board_session_notifier.dart` |
 | `components/ble_task/ble_nimble_impl.c` | `core/services/ble_czechmate_client.dart` |
 | `components/web_server_task/include/board_api_auth.h` | `core/services/firmware_phone_host_ota.dart` |
-| `main/main.c` | rollback: `esp_ota_mark_app_valid_cancel_rollback` po `create_system_tasks` |
-| `partitions.csv`, `sdkconfig.defaults` | tabulka oddílů, `CONFIG_*ROLLBACK*` |
+| `main/main.c` | rollback: `esp_ota_mark_app_valid_cancel_rollback` after `create_system_tasks` |
+| `partitions.csv`, `sdkconfig.defaults` | partition table, `CONFIG_*ROLLBACK*` |
 | | `features/settings/widgets/firmware_update_section.dart` |

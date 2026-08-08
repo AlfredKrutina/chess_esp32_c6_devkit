@@ -1,15 +1,15 @@
-# Lokální backlog diagramů (vzor)
+# Local diagram backlog (template)
 
-Soubor **`LOCAL_DIAGRAM_BACKLOG.md`** mám v **`.gitignore`** — dlouhé poznámky a rozpracované seznamy nepatří na remote.
+The file **`LOCAL_DIAGRAM_BACKLOG.md`** is in **`.gitignore`** — long notes and draft lists do not belong on the remote.
 
-**Jak si ho založím**
+**How to create it**
 
-1. Zkopíruju tenhle vzor:
+1. Copy this template:
 
    `cp docs/diagrams/DIAGRAM_BACKLOG.local.example.md docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`
 
-2. Do **`LOCAL_DIAGRAM_BACKLOG.md`** si dopisuju vlastní TODO (firmware / Flutter / CI / GPIO), paletu barev, zkopírovatelné `%%{init}%%` / `classDef` a odkazy na zdrojové soubory.
+2. Add custom TODO items to **`LOCAL_DIAGRAM_BACKLOG.md`** (firmware / Flutter / CI / GPIO), color palettes, copy-pasteable `%%{init}%%` / `classDef`, and links to source files.
 
-Po čistém klonu si soubor stejně musím vytvořit u sebe na disku — git ho nesdílí.
+After a clean clone, the file must still be created locally on disk — git does not share it.
 
-Veřejně v repu zůstávají hotové diagramy v **[README.md](README.md)** tady a v **`sources/*.mmd`** (+ SVG po `./scripts/render_docs.sh`). Hlavní mapa dokumentace: **[`docs/README.md`](../README.md)**.
+Finished diagrams in the public repo remain in **[README.md](README.md)** here and in **`sources/*.mmd`** (+ SVG after `./scripts/render_docs.sh`). Main documentation map: **[`docs/README.md`](../README.md)**.

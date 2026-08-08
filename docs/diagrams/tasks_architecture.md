@@ -1,7 +1,7 @@
-# Architektura tasků — jen odkaz
+# Task architecture — link only
 
-**Rozcestník:** [`docs/README.md`](../README.md).
+**Index:** [`docs/README.md`](../README.md).
 
-Veškeré tabulky, legendy a SVG k taskům jsou v **[README.md ve stejné složce](README.md)**.
+All tables, legends, and task SVGs are in **[README.md in this folder](README.md)**.
 
-SVG se generuje ze [`sources/tasks_architecture.mmd`](sources/tasks_architecture.mmd) přes `./scripts/render_docs.sh` z kořene repa.
+SVG is generated from [`sources/tasks_architecture.mmd`](sources/tasks_architecture.mmd) via `./scripts/render_docs.sh` from the repo root.

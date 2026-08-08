@@ -1,16 +1,16 @@
-# ESP32-C6 — 16 MiB flash: dual OTA (HTTP / BLE) + oddíl stm32_fw.
+# ESP32-C6 — 16 MiB flash: dual OTA (HTTP / BLE) + stm32_fw partition.
 #
-# Boot často hlásí „Detected size(16384k)“ při hlavičce 4MB — nastav
-# CONFIG_ESPTOOLPY_FLASHSIZE_16MB (sdkconfig.defaults) a případně
-# CONFIG_ESPTOOLPY_HEADER_FLASHSIZE_UPDATE, aby esptool/header seděly s čipem.
+# Boot often reports "Detected size(16384k)" with a 4MB header — set
+# CONFIG_ESPTOOLPY_FLASHSIZE_16MB (sdkconfig.defaults) and if needed
+# CONFIG_ESPTOOLPY_HEADER_FLASHSIZE_UPDATE so esptool/header match the chip.
 #
-# Po přechodu z „factory-only“ na OTA: doporučený první zápis
+# After switching from "factory-only" to OTA: recommended first write
 #   idf.py erase_flash flash monitor
-# (nebo aspoň přepsat tabulku oddílů + oba OTA sloty). `idf.py flash` nahrává
-# aplikaci do ota_0 (žádný factory oddíl).
+# (or at least rewrite the partition table + both OTA slots). `idf.py flash` loads
+# the app into ota_0 (no factory partition).
 #
-# Záloha rozložení jen factory na 4 MB: partitions_4mb_factory_only.csv
-# Malý firmware + dual OTA na 4 MB: partitions_4mb_dual_ota.csv (omezená velikost app).
+# Backup of factory-only layout on 4 MB: partitions_4mb_factory_only.csv
+# Small firmware + dual OTA on 4 MB: partitions_4mb_dual_ota.csv (limited app size).
 #
 # Name,   Type, SubType, Offset,  Size, Flags
 nvs,      data, nvs,     0x9000,  0x6000,

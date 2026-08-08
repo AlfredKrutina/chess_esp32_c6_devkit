@@ -26,7 +26,7 @@ class _BoardDeviceFeaturesViewState
   BoardUISettingsEnvelope? _settings;
   bool _isLoading = false;
 
-  /// Proč se NVS blob nenačetl (HTTP URL, BLE bez LAN, …) — ne „deska odpojená“ kvůli špatné diagnostice.
+  /// Why NVS blob failed to load (HTTP URL, BLE without LAN, …) — not "board disconnected" due to bad diagnostics.
   String? _emptyStateDetail;
 
   @override

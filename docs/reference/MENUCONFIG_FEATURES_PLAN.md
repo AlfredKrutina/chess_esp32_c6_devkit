@@ -1,80 +1,80 @@
-# Plán v2: Volitelné herní funkce přes menuconfig
+# Plan v2: Optional gameplay features via menuconfig
 
-**Verze:** 2.0 (2026-07-10)  
-**Cíl:** Zapínat/vypínat **jednotlivě** error handling, lock hry a barevné LED (modrá/žlutá/červená) přes `idf.py menuconfig`, bez rozbití JSON API pro Flutter/web.  
-**Vzor:** `CONFIG_CHESS_ENABLE_WEB_SERVER`, `CONFIG_CHESS_ENABLE_TEST_TASK`  
-**Související:** [MATRIX_GUARD.md](MATRIX_GUARD.md) · [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md)
+**Version:** 2.0 (2026-07-10)  
+**Goal:** Toggle **individually** error handling, game lock, and colored LEDs (blue/yellow/red) via `idf.py menuconfig`, without breaking JSON API for Flutter/web.  
+**Pattern:** `CONFIG_CHESS_ENABLE_WEB_SERVER`, `CONFIG_CHESS_ENABLE_TEST_TASK`  
+**Related:** [MATRIX_GUARD.md](MATRIX_GUARD.md) · [CZECHMATE_INTEGRATION_CHECKLIST.md](CZECHMATE_INTEGRATION_CHECKLIST.md)
 
 ---
 
 ## 0. Executive summary
 
-Dnes jsou „lock hry“ a LED feedback **rozptýlené** v `game_physical.c`, `game_matrix_guard.c`, `game_error_recovery.c` a `matrix_task.c`. Přímé obalení `#if CONFIG_*` na 30+ místech je křehké.
+Today “game lock” and LED feedback are **scattered** across `game_physical.c`, `game_matrix_guard.c`, `game_error_recovery.c`, and `matrix_task.c`. Wrapping 30+ sites in `#if CONFIG_*` is fragile.
 
-**Doporučený přístup:**
+**Recommended approach:**
 
-1. **PR0** — tenká vrstva `chess_gameplay_policy` (runtime no-op funkce, vždy zapnuté).
-2. **PR1** — Kconfig + presety + policy přepíná chování na jednom místě.
-3. **PR2–4** — postupně přesunout volání do policy; matrix guard → error recovery → move hints.
+1. **PR0** — thin `chess_gameplay_policy` layer (runtime no-op functions, always on).
+2. **PR1** — Kconfig + presets + policy switches behavior in one place.
+3. **PR2–4** — gradually move calls into policy; matrix guard → error recovery → move hints.
 
-Výsledek: menuconfig mění **politiku**, ne 40 `#if` v `game_physical.c`.
+Result: menuconfig changes **policy**, not 40 `#if` in `game_physical.c`.
 
 ---
 
-## 1. Taxonomie — co uživatel vlastně vypíná
+## 1. Taxonomy — what the user actually disables
 
-Každá funkce má **3 nezávislé osy** (dají se kombinovat):
+Each feature has **3 independent axes** (combinable):
 
-| Osa | Význam | Příklad |
+| Axis | Meaning | Example |
 |-----|--------|---------|
-| **D — Detection** | FW detekuje problém | Matrix ≠ logika; nelegální tah |
-| **L — Lock** | Hra pozastaví tahový flow | `freeze_move_flow`; `waiting_for_move_correction` |
-| **V — Visual (LED)** | Barevná nápověda na desce | Modrá = černá figurka / legální tah |
+| **D — Detection** | FW detects problem | Matrix ≠ logic; illegal move |
+| **L — Lock** | Game pauses move flow | `freeze_move_flow`; `waiting_for_move_correction` |
+| **V — Visual (LED)** | Colored hint on board | Blue = black piece / legal move |
 
 ```
-Příklad kombinací:
-  D+L+V  = plný produkt (default)
-  D+L    = lock bez LED (tichý režim pro klub s jasným displejem v app)
-  D+V    = varování bez locku (nebezpečné u guard — ghost tahy)
-  D only   = jen log + JSON flag, bez LED a bez locku (factory / dev)
+Example combinations:
+  D+L+V  = full product (default)
+  D+L    = lock without LED (quiet mode for club with clear app display)
+  D+V    = warning without lock (risky with guard — ghost moves)
+  D only = log + JSON flag only, no LED or lock (factory / dev)
 ```
 
-### 1.1 Přehled subsystémů
+### 1.1 Subsystem overview
 
-| ID | Název | D | L | V (barvy) | Primární soubory |
+| ID | Name | D | L | V (colors) | Primary files |
 |----|-------|---|---|-----------|------------------|
-| **MG** | Matrix guard | `matrix_task.c` | `game_matrix_guard.c` | žlutá / **modrá** / oranžová / bílá | `game_matrix_guard_render_leds()` |
-| **ER** | Error recovery (nelegální tah) | `game_physical.c`, `game_error_recovery.c` | `error_recovery_state` | červená lock + **modrá** validní tahy | `game_handle_invalid_move()` + **5× přímé nastavení v `game_physical.c`** |
-| **MH** | Move hints (normální hra) | — | — | **modrá** legální tahy, rosada, promotion | `game_highlight_movable_pieces()` (~15 call sites) |
-| **UE** | UART error text | — | — | — (jen UART) | `print_error_detail()` v `game_task.c` |
-| **VES** | Visual Error System | volitelné | volitelné | vlastní | `components/visual_error_system/` — **téměř odpojené** |
+| **MG** | Matrix guard | `matrix_task.c` | `game_matrix_guard.c` | yellow / **blue** / orange / white | `game_matrix_guard_render_leds()` |
+| **ER** | Error recovery (illegal move) | `game_physical.c`, `game_error_recovery.c` | `error_recovery_state` | red lock + **blue** legal moves | `game_handle_invalid_move()` + **5× direct sets in `game_physical.c`** |
+| **MH** | Move hints (normal play) | — | — | **blue** legal moves, castling, promotion | `game_highlight_movable_pieces()` (~15 call sites) |
+| **UE** | UART error text | — | — | — (UART only) | `print_error_detail()` in `game_task.c` |
+| **VES** | Visual Error System | optional | optional | own | `components/visual_error_system/` — **mostly disconnected** |
 
-**Důležité:** „Modré LED“ ≠ jedna věc — uživatel může myslet MG modrou, ER modrou nebo MH modrou. Kconfig je **musí** oddělit.
+**Important:** “Blue LEDs” ≠ one thing — user may mean MG blue, ER blue, or MH blue. Kconfig **must** separate them.
 
 ---
 
-## 2. Architektura (cílový stav)
+## 2. Architecture (target state)
 
 ```mermaid
 flowchart TB
-  subgraph inputs [Vstupy]
+  subgraph inputs [Inputs]
     MT[matrix_task.c\nmatrix_detect_moves]
     GP[game_physical.c\npickup/drop validate]
   end
 
-  subgraph policy [chess_gameplay_policy — NOVÝ]
+  subgraph policy [chess_gameplay_policy — NEW]
     MG_P[matrix_guard_policy_*]
     ER_P[error_recovery_policy_*]
     MH_P[move_hints_policy_*]
   end
 
-  subgraph core [game_task jádro]
+  subgraph core [game_task core]
     MGC[game_matrix_guard.c]
     ERC[game_error_recovery.c]
     LED[led_task / game_led_direct]
   end
 
-  subgraph clients [Klienti beze změny API]
+  subgraph clients [Clients unchanged API]
     JSON[web_handlers_game.c\n/api/status]
     FL[Flutter snapshot]
   end
@@ -91,14 +91,14 @@ flowchart TB
   ERC --> JSON
 ```
 
-### 2.1 Nový modul `chess_gameplay_policy`
+### 2.1 New module `chess_gameplay_policy`
 
-| Soubor | Účel |
+| File | Purpose |
 |--------|------|
-| `components/game_task/include/chess_gameplay_policy.h` | Veřejné API + Kconfig makra |
-| `components/game_task/chess_gameplay_policy.c` | Implementace presetů, boot log |
+| `components/game_task/include/chess_gameplay_policy.h` | Public API + Kconfig macros |
+| `components/game_task/chess_gameplay_policy.c` | Preset implementation, boot log |
 
-**Ukázkové API (návrh):**
+**Sample API (proposal):**
 
 ```c
 bool chess_policy_matrix_guard_enabled(void);
@@ -115,67 +115,67 @@ bool chess_policy_move_hints_legal_blue(void);
 void chess_policy_highlight_movable_if_enabled(void);
 ```
 
-**Pravidlo:** `game_physical.c` **nesmí** přímo nastavovat `waiting_for_move_correction` — jen přes `chess_policy_error_recovery_enter(...)`.
+**Rule:** `game_physical.c` **must not** set `waiting_for_move_correction` directly — only via `chess_policy_error_recovery_enter(...)`.
 
 ---
 
-## 3. Inventář hook pointů (audit repa)
+## 3. Hook point inventory (repo audit)
 
 ### 3.1 Matrix guard (MG)
 
-| Priorita | Soubor : funkce | Co dělá | Kconfig osa |
+| Priority | File : function | What it does | Kconfig axis |
 |----------|-----------------|---------|-------------|
-| P0 | `matrix_task.c` : `matrix_send_guard_command()` | Jediný vstup guard do `game_task` | D — když OFF, return hned |
-| P0 | `game_matrix_guard.c` : `game_matrix_guard_handle_command()` | Aktivuje pause + freeze | D+L |
-| P0 | `game_matrix_guard.c` : `game_matrix_guard_render_leds()` | Barevné LED | V |
-| P1 | `game_matrix_guard.c` : `game_matrix_guard_try_clear_from_matrix()` | Auto-clear po srovnání | L (podmíněně) |
+| P0 | `matrix_task.c` : `matrix_send_guard_command()` | Sole guard entry to `game_task` | D — when OFF, return immediately |
+| P0 | `game_matrix_guard.c` : `game_matrix_guard_handle_command()` | Activates pause + freeze | D+L |
+| P0 | `game_matrix_guard.c` : `game_matrix_guard_render_leds()` | Colored LEDs | V |
+| P1 | `game_matrix_guard.c` : `game_matrix_guard_try_clear_from_matrix()` | Auto-clear after align | L (conditional) |
 | P1 | `game_matrix_guard.c` : `game_matrix_guard_check_resync_after_restore()` | NVS boot resync | D |
-| P1 | `game_dispatch.c` : po tahu | `try_clear` + `highlight_movable` | L + MH |
-| P2 | `game_physical.c` : pickup/drop | early return když guard active | — |
-| P2 | `uart_handlers_game.c` : `GUARD_CLEAR` | force clear | vždy povoleno (záchrana) |
-| P2 | `web_handlers_game.c` : `guard_clear` | HTTP clear | vždy povoleno |
+| P1 | `game_dispatch.c` : after move | `try_clear` + `highlight_movable` | L + MH |
+| P2 | `game_physical.c` : pickup/drop | early return when guard active | — |
+| P2 | `uart_handlers_game.c` : `GUARD_CLEAR` | force clear | always allowed (rescue) |
+| P2 | `web_handlers_game.c` : `guard_clear` | HTTP clear | always allowed |
 
-**JSON export:** `matrix_guard_active` je v `web_handlers_game.c` (ne `game_json_export.c`).
+**JSON export:** `matrix_guard_active` is in `web_handlers_game.c` (not `game_json_export.c`).
 
-### 3.2 Error recovery (ER) — složitější než v1 plánu
+### 3.2 Error recovery (ER) — more complex than v1 plan
 
-| Priorita | Soubor : funkce | Poznámka |
+| Priority | File : function | Note |
 |----------|-----------------|----------|
-| P0 | `game_error_recovery.c` : `game_handle_invalid_move()` | Hlavní cesta z validace |
-| P0 | `game_physical.c` | **≥5 míst** přímo nastavuje `waiting_for_move_correction` (pickup/drop recovery, opponent return, guided capture) |
-| P1 | `game_physical.c` : řádky ~311–393 | Modrá + žlutá při pickup z červeného pole |
-| P1 | `game_task.c` : `game_show_invalid_move_error_with_blink()` | Alternativní červené blikání |
-| P1 | `game_json_export.c` | Export `error_state.active` (ne `error_recovery`) |
+| P0 | `game_error_recovery.c` : `game_handle_invalid_move()` | Main path from validation |
+| P0 | `game_physical.c` | **≥5 places** directly set `waiting_for_move_correction` (pickup/drop recovery, opponent return, guided capture) |
+| P1 | `game_physical.c` : lines ~311–393 | Blue + yellow on pickup from red square |
+| P1 | `game_task.c` : `game_show_invalid_move_error_with_blink()` | Alternate red blink |
+| P1 | `game_json_export.c` | Export `error_state.active` (not `error_recovery`) |
 
-**Kritický závěr:** Stačí **neobalit** jen `game_handle_invalid_move()` — většina lock logiky je v `game_physical.c`. Proto PR0 policy vrstva.
+**Critical conclusion:** Wrapping only `game_handle_invalid_move()` is **not enough** — most lock logic is in `game_physical.c`. Hence PR0 policy layer.
 
 ### 3.3 Move hints (MH)
 
-| Call site (výběr) | Kontext |
+| Call site (sample) | Context |
 |-------------------|---------|
-| `game_dispatch.c` | Po guard clear |
-| `game_physical.c` | Po validním tahu (~10×) |
-| `game_castling.c` | Po rosadě |
-| `game_promotion.c` | Modrá promotion UI |
-| `led_task.c` | Volá `game_highlight_movable_pieces()` |
-| `game_error_recovery.c` | Po recovery |
+| `game_dispatch.c` | After guard clear |
+| `game_physical.c` | After valid move (~10×) |
+| `game_castling.c` | After castling |
+| `game_promotion.c` | Blue promotion UI |
+| `led_task.c` | Calls `game_highlight_movable_pieces()` |
+| `game_error_recovery.c` | After recovery |
 
-**Doporučení:** Jediný veřejný vstup `chess_policy_highlight_movable_if_enabled()` — interně volá `game_highlight_movable_pieces()`.
+**Recommendation:** Single public entry `chess_policy_highlight_movable_if_enabled()` — internally calls `game_highlight_movable_pieces()`.
 
-### 3.4 Mrtvý / duplicitní kód (úklid ve fázi 4)
+### 3.4 Dead / duplicate code (cleanup in phase 4)
 
-| Symbol | Stav |
+| Symbol | Status |
 |--------|------|
-| `game_handle_invalid_move_smart()` | **Odstraněno** v PR #22 — nahrazeno `chess_gameplay_policy` + `game_handle_invalid_move()` |
-| `visual_error_system` | Linkováno, minimální integrace s ER → compile-out volitelně |
+| `game_handle_invalid_move_smart()` | **Removed** in PR #22 — replaced by `chess_gameplay_policy` + `game_handle_invalid_move()` |
+| `visual_error_system` | Linked, minimal ER integration → optional compile-out |
 
 ---
 
-## 4. Menuconfig — vylepšená struktura
+## 4. Menuconfig — improved structure
 
-### 4.1 Presety (choice) — hlavní UX vylepšení
+### 4.1 Presets (choice) — main UX improvement
 
-Uživatel nejdřív vybere **profil**, pak může ručně přepsat podvolby:
+User picks a **profile** first, then may override sub-options:
 
 ```
 choice CHESS_GAMEPLAY_PROFILE
@@ -192,7 +192,7 @@ config CHESS_GAMEPLAY_PROFILE_FACTORY
     bool "Factory test (detection log only, no lock, no LED)"
 ```
 
-**Mapování preset → volby:**
+**Preset → option mapping:**
 
 | Preset | MG D+L+V | ER D+L+V | MH blue | UART verbose |
 |--------|----------|----------|---------|--------------|
@@ -201,14 +201,14 @@ config CHESS_GAMEPLAY_PROFILE_FACTORY
 | LITE | ❌ | ✅❌❌ | ❌ | ❌ |
 | FACTORY | ❌ | ✅❌❌ | ❌ | ❌ |
 
-Preset se aplikuje v `chess_gameplay_policy.c` při bootu (`ESP_LOGI` jednou).
+Preset applied in `chess_gameplay_policy.c` at boot (`ESP_LOGI` once).
 
-### 4.2 Granulární přepínače (pod menu, `depends on !PRESET locked`)
+### 4.2 Granular toggles (submenu, `depends on !PRESET locked`)
 
 ```
 menu "CzechMate firmware"
-├── CHESS_ENABLE_TEST_TASK          (existuje)
-├── CHESS_ENABLE_WEB_SERVER         (existuje)
+├── CHESS_ENABLE_TEST_TASK          (exists)
+├── CHESS_ENABLE_WEB_SERVER         (exists)
 └── menu "Gameplay safety & LED"
     ├── CHESS_GAMEPLAY_PROFILE      (choice §4.1)
     │
@@ -220,7 +220,7 @@ menu "CzechMate firmware"
     │   └── menu "Matrix guard LED colors"
     │       ├── CHESS_MG_LED_ENABLE      default y  depends on ENABLE
     │       ├── CHESS_MG_LED_WHITE_YELLOW default y
-    │       ├── CHESS_MG_LED_BLACK_BLUE  default y  ← „modrá“ u guardu
+    │       ├── CHESS_MG_LED_BLACK_BLUE  default y  ← “blue” for guard
     │       ├── CHESS_MG_LED_GHOST_ORANGE default y
     │       └── CHESS_MG_LED_MISSING_WHITE default y
     │
@@ -230,7 +230,7 @@ menu "CzechMate firmware"
     │   ├── CHESS_ER_MUTATE_BOARD        default y  depends on ENABLE
     │   ├── CHESS_ER_LED_RED_PERSIST     default y  depends on ENABLE
     │   ├── CHESS_ER_LED_RED_BLINK       default y  depends on ENABLE
-    │   └── CHESS_ER_LED_VALID_BLUE      default y  depends on ENABLE  ← modrá nápověda po chybě
+    │   └── CHESS_ER_LED_VALID_BLUE      default y  depends on ENABLE  ← blue hint after error
     │
     ├── menu "Move hints (normal play)"
     │   ├── CHESS_MH_ENABLE              default y
@@ -240,56 +240,56 @@ menu "CzechMate firmware"
     │
     └── menu "Diagnostics"
         ├── CHESS_DIAG_UART_ERROR_DETAIL default y
-        └── CHESS_ENABLE_VISUAL_ERROR_SYSTEM default n  (compile-out komponenty)
+        └── CHESS_ENABLE_VISUAL_ERROR_SYSTEM default n  (compile-out component)
 ```
 
-**Zkrácený prefix:** `CHESS_MG_` / `CHESS_ER_` / `CHESS_MH_` místo dlouhých `CHESS_MATRIX_GUARD_`.
+**Short prefix:** `CHESS_MG_` / `CHESS_ER_` / `CHESS_MH_` instead of long `CHESS_MATRIX_GUARD_`.
 
 ---
 
-## 5. JSON / BLE kontrakt (neměnit názvy polí)
+## 5. JSON / BLE contract (do not rename fields)
 
-| Pole | Zdroj | Když feature OFF |
+| Field | Source | When feature OFF |
 |------|-------|------------------|
-| `matrix_guard_active` | `web_handlers_game.c` | vždy `false` |
-| `matrix_guard_conflicts` | stejné | `0` |
-| `matrix_guard_*_mask_*` | stejné | `0` |
-| `error_state.active` | `game_json_export.c` | vždy `false` |
-| `error_state.invalid_pos` | stejné | `""` |
-| `restore_state.resync_required` | stejné | `false` pokud MG_NVS_RESYNC off |
-| `matrix_occupied[]` | opening/puzzle | beze změny |
+| `matrix_guard_active` | `web_handlers_game.c` | always `false` |
+| `matrix_guard_conflicts` | same | `0` |
+| `matrix_guard_*_mask_*` | same | `0` |
+| `error_state.active` | `game_json_export.c` | always `false` |
+| `error_state.invalid_pos` | same | `""` |
+| `restore_state.resync_required` | same | `false` if MG_NVS_RESYNC off |
+| `matrix_occupied[]` | opening/puzzle | unchanged |
 
-Flutter `MatrixGuardBanner` a web `matrix_guard.js` **nepotřebují úpravu**, pokud držíme kontrakt.
+Flutter `MatrixGuardBanner` and web `matrix_guard.js` **need no change** if contract is kept.
 
-**Volitelné v2:** přidat `gameplay_profile` string do status JSON (read-only info z Kconfig) — ne blocker.
+**Optional v2:** add `gameplay_profile` string to status JSON (read-only Kconfig info) — not a blocker.
 
 ---
 
-## 6. Interakce s ostatními režimy
+## 6. Interaction with other modes
 
-| Režim | Dnes | Po změně |
+| Mode | Today | After change |
 |-------|------|----------|
-| Opening trainer (virtual) | `game_task_matrix_guard_mode_conflict_active()` guard ignoruje | Beze změny — conflict active i když MG_ENABLE=off |
-| Opening (physical) | Guard může aktivovat při ghost | DEV preset = guard off → **pozor**, jen pro vývoj |
-| Puzzle / setup | conflict active | Beze změny |
-| Board setup tutorial | conflict active | Beze změny |
-| Castling animace | conflict active | Beze změny |
+| Opening trainer (virtual) | `game_task_matrix_guard_mode_conflict_active()` ignores guard | Unchanged — conflict active even when MG_ENABLE=off |
+| Opening (physical) | Guard may activate on ghost | DEV preset = guard off → **caution**, dev only |
+| Puzzle / setup | conflict active | Unchanged |
+| Board setup tutorial | conflict active | Unchanged |
+| Castling animation | conflict active | Unchanged |
 
-**Pravidlo:** `mode_conflict_active()` **nezávisí** na Kconfig — speciální režimy nikdy nespouští MG, i když je MG zapnutý.
+**Rule:** `mode_conflict_active()` **does not depend** on Kconfig — special modes never trigger MG even when MG is on.
 
 ---
 
-## 7. Build profily a CI
+## 7. Build profiles and CI
 
-| Profil soubor | Kombinace | Účel |
+| Profile file | Combination | Purpose |
 |---------------|-----------|------|
-| `sdkconfig.defaults` | FULL | Produkce |
-| `sdkconfig.defaults.ble_only` | existuje | BLE transport |
-| `sdkconfig.defaults.gameplay_lite` | LITE preset | Menší „šum“ LED, factory |
-| `sdkconfig.defaults.gameplay_dev` | DEV preset | Opening HW dev bez guard |
+| `sdkconfig.defaults` | FULL | Production |
+| `sdkconfig.defaults.ble_only` | exists | BLE transport |
+| `sdkconfig.defaults.gameplay_lite` | LITE preset | Less LED “noise”, factory |
+| `sdkconfig.defaults.gameplay_dev` | DEV preset | Opening HW dev without guard |
 
 ```bash
-# Produkce (beze změny)
+# Production (unchanged)
 idf.py build
 
 # Lite gameplay
@@ -299,135 +299,135 @@ idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.gameplay_lit
 idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.ble_only;sdkconfig.defaults.gameplay_lite" build
 ```
 
-**CI jobs (navrhované):**
+**CI jobs (proposed):**
 
-| Job | Profil | Ověří |
+| Job | Profile | Verifies |
 |-----|--------|-------|
-| `firmware-build` (existuje) | default FULL | regrese produkce |
-| `firmware-build-ble-only` (existuje) | ble_only | linker |
-| `firmware-build-gameplay-lite` (nový) | gameplay_lite | Kconfig combinatorics |
+| `firmware-build` (exists) | default FULL | production regression |
+| `firmware-build-ble-only` (exists) | ble_only | linker |
+| `firmware-build-gameplay-lite` (new) | gameplay_lite | Kconfig combinatorics |
 
 ---
 
-## 8. Fáze implementace (revidované PR)
+## 8. Implementation phases (revised PRs)
 
 ```mermaid
 flowchart TD
-  P0[PR0 chess_gameplay_policy\nrefactor bez změny chování]
-  P1[PR1 Kconfig + presety]
-  P2[PR2 Matrix guard přes policy]
-  P3[PR3 Error recovery přes policy\ngame_physical.c migrace]
-  P4[PR4 Move hints + CI profily]
+  P0[PR0 chess_gameplay_policy\nrefactor without behavior change]
+  P1[PR1 Kconfig + presets]
+  P2[PR2 Matrix guard via policy]
+  P3[PR3 Error recovery via policy\ngame_physical.c migration]
+  P4[PR4 Move hints + CI profiles]
   P5[PR5 Docs + dead code + MANUAL]
   P0 --> P1 --> P2 --> P3 --> P4 --> P5
 ```
 
-### PR0 — Policy vrstva (chování identické) ⭐ nejdůležitější
+### PR0 — Policy layer (identical behavior) ⭐ most important
 
-- Přidat `chess_gameplay_policy.c/h` — všechny funkce zatím `return true` / delegují 1:1.
-- Nahradit **5 přímých** `waiting_for_move_correction =` v `game_physical.c` jedním voláním policy.
-- Žádný Kconfig — čistý refactor, snadný review.
+- Add `chess_gameplay_policy.c/h` — all functions return `true` / delegate 1:1 for now.
+- Replace **5 direct** `waiting_for_move_correction =` in `game_physical.c` with one policy call.
+- No Kconfig — pure refactor, easy review.
 
-**Gate:** `idf.py build` + existující flutter testy + HW smoke beze změny.
+**Gate:** `idf.py build` + existing flutter tests + HW smoke unchanged.
 
 ### PR1 — Kconfig skeleton
 
-- `main/Kconfig.projbuild` — profily + granulární volby §4.2.
-- Policy čte `CONFIG_*`; default FULL = dnešní chování.
+- `main/Kconfig.projbuild` — profiles + granular options §4.2.
+- Policy reads `CONFIG_*`; default FULL = today’s behavior.
 - Boot log: `Gameplay profile: FULL (MG=y ER=y MH=y)`.
 
 ### PR2 — Matrix guard
 
 - `matrix_send_guard_command` → policy gate.
-- `render_leds` → barvy přes `chess_policy_matrix_guard_apply_colors`.
-- `game_is_matrix_guard_active()` → false když MG_ENABLE=n.
+- `render_leds` → colors via `chess_policy_matrix_guard_apply_colors`.
+- `game_is_matrix_guard_active()` → false when MG_ENABLE=n.
 
-### PR3 — Error recovery (nejnáročnější)
+### PR3 — Error recovery (most demanding)
 
 - `game_handle_invalid_move` → policy.
-- Všechny větve v `game_physical.c` → policy enter/exit.
-- `error_state` JSON jen když ER_ENABLE.
+- All branches in `game_physical.c` → policy enter/exit.
+- `error_state` JSON only when ER_ENABLE.
 
-### PR4 — Move hints + úklid
+### PR4 — Move hints + cleanup
 
-- `chess_policy_highlight_movable_if_enabled()` na všech call sites (mechanický replace).
-- Smazat `game_handle_invalid_move_smart`.
+- `chess_policy_highlight_movable_if_enabled()` at all call sites (mechanical replace).
+- Remove `game_handle_invalid_move_smart`.
 - `sdkconfig.defaults.gameplay_*` + CI job.
 
-### PR5 — Dokumentace
+### PR5 — Documentation
 
-- [MATRIX_GUARD.md](MATRIX_GUARD.md) — sekce menuconfig + preset tabulka.
-- [MANUAL_TEST_CHECKLIST.md](../testing/MANUAL_TEST_CHECKLIST.md) — scénáře pro FULL vs LITE.
-- UART `CONFIG` read-only dump (volitelně).
+- [MATRIX_GUARD.md](MATRIX_GUARD.md) — menuconfig section + preset table.
+- [MANUAL_TEST_CHECKLIST.md](../testing/MANUAL_TEST_CHECKLIST.md) — scenarios for FULL vs LITE.
+- UART `CONFIG` read-only dump (optional).
 
 ---
 
-## 9. Nebezpečné kombinace (dokumentovat v Kconfig help)
+## 9. Dangerous combinations (document in Kconfig help)
 
-| Kombinace | Riziko |
+| Combination | Risk |
 |-----------|--------|
-| MG_ENABLE=n + produkční provoz | Ghost figurky bez pause — hráč zmaten |
-| ER_LOCK=n + ER_MUTATE=y | Figurka na špatném poli v logice, ale hra pokračuje |
-| ER_ENABLE=n | Nelegální tah jen UART text — fyzická deska může být jinde než app |
-| MH off + ER_LED_VALID_BLUE on | Nekonzistentní — valid blue jen v ER větvích |
-| VES on + ER on | Dva paralelní error systémy — nedoporučeno |
+| MG_ENABLE=n + production use | Ghost pieces without pause — player confused |
+| ER_LOCK=n + ER_MUTATE=y | Piece on wrong square in logic but game continues |
+| ER_ENABLE=n | Illegal move UART text only — physical board may differ from app |
+| MH off + ER_LED_VALID_BLUE on | Inconsistent — valid blue only in ER branches |
+| VES on + ER on | Two parallel error systems — not recommended |
 
-**Doporučení:** Kconfig `select` / `depends on` zabránit rozbitým kombinacím (např. `ER_LED_VALID_BLUE depends on ER_ENABLE`).
+**Recommendation:** Kconfig `select` / `depends on` block broken combos (e.g. `ER_LED_VALID_BLUE depends on ER_ENABLE`).
 
 ---
 
-## 10. Testovací matice
+## 10. Test matrix
 
-| ID | Scénář | Profil | Očekávání |
+| ID | Scenario | Profile | Expected |
 |----|--------|--------|-----------|
-| T-MG1 | Zvednout 2 figurky | FULL | guard active, žlutá/modrá LED |
-| T-MG2 | Stejné | DEV | žádný guard, tahy pokračují (log warning) |
-| T-ER1 | Nelegální tah e2e4→e2e5 (bílý) | FULL | červené pole, lock, modré po pickup |
-| T-ER2 | Stejné | LITE | JSON chyba, bez LED, bez locku |
-| T-MH1 | Po validním tahu | FULL | modré legální tahy |
-| T-MH2 | Po validním tahu | LITE | žádné modré hinty |
-| T-API1 | `/api/status` | všechny | pole přítomná, typy stejné |
-| T-OP1 | Opening virtual checkpoint | FULL | guard se neaktivuje (conflict) |
-| T-CI1 | 3 build profily | CI | všechny green |
+| T-MG1 | Lift 2 pieces | FULL | guard active, yellow/blue LED |
+| T-MG2 | Same | DEV | no guard, moves continue (log warning) |
+| T-ER1 | Illegal move e2e4→e2e5 (white) | FULL | red square, lock, blue after pickup |
+| T-ER2 | Same | LITE | JSON error, no LED, no lock |
+| T-MH1 | After valid move | FULL | blue legal moves |
+| T-MH2 | After valid move | LITE | no blue hints |
+| T-API1 | `/api/status` | all | fields present, same types |
+| T-OP1 | Opening virtual checkpoint | FULL | guard does not activate (conflict) |
+| T-CI1 | 3 build profiles | CI | all green |
 
 ---
 
 ## 11. Definition of done (v2)
 
-| # | Kritérium |
+| # | Criterion |
 |---|-----------|
-| G1 | Preset FULL = bit-identické chování s `main` před změnou |
-| G2 | `game_physical.c` nemá přímé `waiting_for_move_correction =` mimo policy |
-| G3 | Jedno místo pro MG LED barvy (`apply_colors`) |
-| G4 | 3 sdkconfig profily + 3 CI build joby |
-| G5 | Dokumentace + MANUAL checklist |
-| G6 | Flutter/web bez změn (JSON kontrakt) |
+| G1 | Preset FULL = bit-identical behavior with `main` before change |
+| G2 | `game_physical.c` has no direct `waiting_for_move_correction =` outside policy |
+| G3 | Single place for MG LED colors (`apply_colors`) |
+| G4 | 3 sdkconfig profiles + 3 CI build jobs |
+| G5 | Documentation + MANUAL checklist |
+| G6 | Flutter/web unchanged (JSON contract) |
 
 ---
 
-## 12. Mimo scope v2.0 (backlog)
+## 12. Out of scope v2.0 (backlog)
 
-| Položka | Důvod odložení |
+| Item | Reason deferred |
 |---------|----------------|
-| Runtime přepínání přes NVS / web | Jiný projekt — „Feature flags runtime“ |
-| Per-user preference ve Flutter | Vyžaduje runtime na FW nebo app-only hints |
-| Sjednocení VES + ER | Větší refactor |
-| Web lock (`web_is_locked`) | Jiná doména (API security) |
+| Runtime toggle via NVS / web | Separate project — “Feature flags runtime” |
+| Per-user preference in Flutter | Needs FW runtime or app-only hints |
+| Unify VES + ER | Larger refactor |
+| Web lock (`web_is_locked`) | Different domain (API security) |
 
 ---
 
-## 13. Rychlý start pro vývojáře
+## 13. Quick start for developers
 
 ```bash
 idf.py menuconfig
-# CzechMate firmware → Herní bezpečnost a LED nápovědy
-#   Preset → DEV (bez matrix guardu)
-#   nebo ručně: ① Matrix guard → [ ] Detekovat nesoulad
+# CzechMate firmware → Gameplay safety & LED hints
+#   Preset → DEV (no matrix guard)
+#   or manually: ① Matrix guard → [ ] Detect mismatch
 
 idf.py fullclean reconfigure build flash monitor
 ```
 
-UART po bootu (cíl):
+UART after boot (target):
 
 ```
 I (1234) GAMEPLAY_POLICY: profile=DEV mg=off er=on lock=on mh=on
@@ -435,4 +435,4 @@ I (1234) GAMEPLAY_POLICY: profile=DEV mg=off er=on lock=on mh=on
 
 ---
 
-*Plán v2.0 — implementováno v PR #20–#21. PR5 docs v PR #22. Navazuje na PR #19 (superseded).*
+*Plan v2.0 — implemented in PR #20–#21. PR5 docs in PR #22. Follows PR #19 (superseded).*

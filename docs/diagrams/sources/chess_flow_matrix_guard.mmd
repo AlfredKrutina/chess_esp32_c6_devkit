@@ -1,22 +1,22 @@
-%% Matrix guard — rozpor fyzické matice vs logická deska (sync obou vrstev)
+%% Matrix guard — physical matrix vs logical board mismatch (sync both layers)
 %%{init: {'theme':'dark','themeVariables':{'fontFamily':'system-ui,sans-serif','clusterBkg':'#0f172a','clusterBorder':'#334155','lineColor':'#94a3b8','primaryTextColor':'#f1f5f9','edgeLabelBackground':'#1e293b','titleColor':'#f8fafc'}}}%%
 flowchart TD
   MT[matrix_task: matrix_detect_moves] --> AMB{ambiguous?}
-  AMB -->|první vstup| SNAP[snapshot matrix_previous · reset last_piece_lifted]
+  AMB -->|first entry| SNAP[snapshot matrix_previous · reset last_piece_lifted]
   SNAP --> SEND[matrix_send_guard_command action=1]
-  AMB -->|už aktivní| HOLD[žádný další activate spam]
+  AMB -->|already active| HOLD[no further activate spam]
   SEND --> GQ[(game_command_queue)]
   GQ --> H[game_handle_matrix_guard_command]
 
   H --> A0{action == 0?}
-  A0 -->|ano| CLR[game_matrix_guard_clear_both_layers · matrix_abort_ambiguous_guard_baseline]
-  A0 -->|ne| CON{game_matrix_guard_mode_conflict_active?}
+  A0 -->|yes| CLR[game_matrix_guard_clear_both_layers · matrix_abort_ambiguous_guard_baseline]
+  A0 -->|no| CON{game_matrix_guard_mode_conflict_active?}
 
-  CON -->|ano| IGN[guard ignorován · matrix_abort_ambiguous_guard_baseline]
-  CON -->|ne| SYNC[matrix_guard_apply_expected_occupancy z board]
+  CON -->|yes| IGN[guard ignored · matrix_abort_ambiguous_guard_baseline]
+  CON -->|no| SYNC[matrix_guard_apply_expected_occupancy from board]
   SYNC --> ACT[game matrix_guard_pause_state active]
-  ACT --> LED[game_render_matrix_guard_leds — všechny konflikty logika vs senzor]
+  ACT --> LED[game_render_matrix_guard_leds — all logic vs sensor conflicts]
 
-  LED --> LEG[žlutá/modrá = figurka v logice · oranžová = jen senzor · bílá = chybí]
-  MT --> CLR2{fyzická == expected?}
-  CLR2 -->|ano, klid| SEND0[action=0 → CLR]
+  LED --> LEG[yellow/blue = piece in logic · orange = sensor only · white = missing]
+  MT --> CLR2{physical == expected?}
+  CLR2 -->|yes, settled| SEND0[action=0 → CLR]

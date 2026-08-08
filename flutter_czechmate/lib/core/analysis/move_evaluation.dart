@@ -1,6 +1,6 @@
 import '../../l10n/app_localizations.dart';
 
-/// Parita `MoveEvaluation.swift` / `MoveGrade` — klasifikace tahu podle Stockfish.
+/// Parity `MoveEvaluation.swift` / `MoveGrade` — move classification via Stockfish.
 enum MoveGrade {
   best,
   good,

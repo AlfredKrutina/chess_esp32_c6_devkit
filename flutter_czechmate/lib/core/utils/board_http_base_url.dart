@@ -1,6 +1,6 @@
-/// ESP výchozí AP má gateway [192.168.4.1] na portu 80.
-/// Do prefs se někdy omylem uloží stejný host s portem z lokálního HTTP serveru aplikace na tomto zařízení
-/// (např. `:52340`) → `Connection refused` při `POST /api/system/ota`.
+/// ESP default AP has gateway [192.168.4.1] on port 80.
+/// The prefs sometimes accidentally stores the same host with the port from the application's local HTTP server on that device
+/// (e.g. `:52340`) → `Connection refused` at `POST /api/system/ota`.
 String? normalizeEspApGatewayBaseUrl(String? url) {
   if (url == null || url.trim().isEmpty) return null;
   final u = Uri.tryParse(url.trim());
@@ -12,8 +12,8 @@ String? normalizeEspApGatewayBaseUrl(String? url) {
   return url.trim();
 }
 
-/// Normalizace základní URL HTTP rozhraní šachovnice (ESP).
-/// Zabraňuje relativním URI bez hostitele (`api/game/snapshot`).
+/// Normalizing the base URL of the Checkerboard (ESP) HTTP interface.
+/// Prevents hostless relative URIs (`api/game/snapshot`).
 String? normalizeBoardHttpBaseUrl(String? raw) {
   if (raw == null) return null;
   var u = raw.trim();
@@ -29,8 +29,8 @@ String? normalizeBoardHttpBaseUrl(String? raw) {
   return normalizeEspApGatewayBaseUrl(u) ?? u;
 }
 
-/// Wi‑Fi transport má přednost; jinak poslední uložená URL (STA IP z předchozí session);
-/// nakonec fallback z BLE notify (`sta_ip`), pokud je session aktualizovaná z GATT.
+/// Wi‑Fi transport takes precedence; otherwise, the last saved URL (STA IP from the previous session);
+/// finally fallback from BLE notify (`sta_ip`) if the session is updated from GATT.
 String? resolveBoardHttpBaseUrl({
   required bool wifiTransportActive,
   required String? sessionWifiBaseUrl,

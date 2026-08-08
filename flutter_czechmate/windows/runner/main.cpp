@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
-  // Parita s macOS výchozím oknem (~1320×860 client — viz DESKTOP_UI_MASTER_PLAN).
+  // Parity with the macOS default window (~1320×860 client — see DESKTOP_UI_MASTER_PLAN).
   Win32Window::Size size(1320, 860);
   if (!window.Create(L"czechmate", origin, size)) {
     return EXIT_FAILURE;

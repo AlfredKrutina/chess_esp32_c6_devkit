@@ -11,7 +11,7 @@ import '../models/status_models.dart';
 import '../utils/game_snapshot_codec.dart';
 import 'board_api_exception.dart';
 
-/// REST klient ESP — `ChessboardAPIClient.swift` + `ChessboardAPIClient+Extras.swift`.
+/// ESP REST client — `ChessboardAPIClient.swift` + `ChessboardAPIClient+Extras.swift`.
 class BoardApiClient {
   BoardApiClient({
     http.Client? httpClient,
@@ -23,7 +23,7 @@ class BoardApiClient {
   final http.Client _client;
   final Duration _timeout;
 
-  /// 64 hex znaků z UART `API_TOKEN` — hlavička `Authorization: Bearer …`.
+  /// 64 hex characters from UART `API_TOKEN` — header `Authorization: Bearer …`.
   final String? Function()? resolveBoardApiBearerToken;
 
   Map<String, String> _headersJson() {
@@ -43,7 +43,7 @@ class BoardApiClient {
     return <String, String>{'Authorization': 'Bearer $t'};
   }
 
-  /// IP bez schématu (`192.168.4.1`) dává v Dartu URI bez hostitele → `resolve('api/…')` je jen cesta a HTTP spadne.
+  /// An IP without a scheme (`192.168.4.1`) gives a URI without a host in Dart → `resolve('api/…')` is just a path and HTTP crashes.
   Uri _base(String baseUrl) {
     var u = baseUrl.trim();
     if (u.endsWith('/')) u = u.substring(0, u.length - 1);
@@ -75,7 +75,7 @@ class BoardApiClient {
     return s;
   }
 
-  /// `nil` / null při 304 Not Modified.
+  /// `nil` / null at 304 Not Modified.
   Future<GameSnapshot?> fetchSnapshotIfChanged(
     String baseUrl, {
     String? ifNoneMatch,
@@ -227,7 +227,7 @@ class BoardApiClient {
   Future<void> postGuardClear(String baseUrl) =>
       _postEmpty(baseUrl, 'api/game/guard_clear', webLock: true);
 
-  /// Jako `ChessboardAPIClient+SetupWizard` — jen cílové pole na LED.
+  /// Like `ChessboardAPIClient+SetupWizard` — just target field on LED.
   Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
     final body = jsonEncode({'to': toSquare.toLowerCase()});
@@ -252,7 +252,7 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
-  /// `GET /api/status` — pro `matrix_occupied` během tutoriálu (Wi‑Fi).
+  /// `GET /api/status` — for `matrix_occupied` during tutorial (Wi‑Fi).
   Future<List<int>?> fetchMatrixOccupied(String baseUrl) async {
     final uri = _api(baseUrl, 'api/status');
     final res = await _client.get(uri).timeout(_timeout);
@@ -315,7 +315,7 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
-  /// Fáze 4C.4 — lampa: auto timeout v sekundách (5..7200).
+  /// Phase 4C.4 — lamp: auto timeout in seconds (5..7200).
   Future<void> postAutoLampTimeout(String baseUrl, int seconds) async {
     final uri = _api(baseUrl, 'api/settings/lamp');
     final res = await _client.post(
@@ -368,7 +368,7 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
-  /// `POST /api/light/game_mode` — LED podle herního režimu.
+  /// `POST /api/light/game_mode` — LED by game mode.
   Future<void> postLightGameMode(String baseUrl) async {
     final uri = _api(baseUrl, 'api/light/game_mode');
     final res =
@@ -419,7 +419,7 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
-  /// Veřejný manifest (`version.json`) — libovolné HTTPS; nejde přes IP desky.
+  /// Public Manifest (`version.json`) — any HTTPS; it doesn't go through IP boards.
   Future<FirmwareManifest> fetchFirmwareManifest(String manifestUrl) async {
     final uri = Uri.parse(manifestUrl.trim());
     // Identity encoding avoids gzip/binary mismatch with some HTTP stacks; GitHub likes a User-Agent.
@@ -469,7 +469,7 @@ class BoardApiClient {
     return BoardOtaStatus.fromJson(map);
   }
 
-  /// Deska si firmware stáhne sama přes HTTPS — vyžaduje připojené Wi‑Fi STA.
+  /// The board downloads the firmware itself via HTTPS — requires a connected Wi‑Fi STA.
   Future<void> postBoardOtaStart(String baseUrl, {required String url}) async {
     final uri = _api(baseUrl, 'api/system/ota');
     final res = await _client

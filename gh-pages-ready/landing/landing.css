@@ -1,5 +1,5 @@
 /* CzechMate marketing landing — GitHub Pages */
-/* Paleta: jako Flutter dark theme — ColorScheme.fromSeed(seedColor: #2E4A3E) viz flutter_czechmate/lib/main.dart */
+/* Palette: matches Flutter dark theme — ColorScheme.fromSeed(seedColor: #2E4A3E); see flutter_czechmate/lib/main.dart */
 
 :root {
   --seed: #2e4a3e;
@@ -85,7 +85,7 @@ html {
   }
 }
 
-/* Bez skutečného hoveru neposouvat karty (mobil / dotyk) */
+/* Without real hover, do not lift cards (mobile / touch) */
 @media (hover: none) {
   .pillar-card:hover,
   .feature-tile:hover,
@@ -109,7 +109,7 @@ html {
   }
 }
 
-/* ——— Scroll reveal (Apple-style fade-up; zapíná landing.js přes html.js-scroll-reveal) ——— */
+/* ——— Scroll reveal (Apple-style fade-up; enabled by landing.js via html.js-scroll-reveal) ——— */
 
 .reveal {
   transition:
@@ -180,7 +180,7 @@ html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(12) {
   transition-delay: 770ms;
 }
 
-/* Sekvenční nadpisy v rámci jedné sekce (stejný viewport) */
+/* Sequential headings within one section (same viewport) */
 html.js-scroll-reveal .reveal.is-visible.reveal--seq-1 {
   transition-delay: 0.07s;
 }
@@ -191,7 +191,7 @@ html.js-scroll-reveal .reveal.is-visible.reveal--seq-3 {
   transition-delay: 0.21s;
 }
 
-/* Po reveal animaci musí hover na kartách vyhrát nad `is-visible > * { transform }` */
+/* After reveal animation, card hover must win over `is-visible > * { transform }` */
 html.js-scroll-reveal .reveal-stagger.is-visible > .pillar-card:hover {
   transform: translateY(-4px);
 }
@@ -566,7 +566,7 @@ a.btn--primary:visited {
   inset: 0;
   opacity: 0.26;
   background-image: url("assets/hero-board.svg");
-  /* Větší měřítko = větší „pole“, méně rušivé proti textu; posun doprava od levého copy bloku */
+  /* Larger scale = larger “square”, less noisy against text; shift right from left copy block */
   background-size: clamp(1100px, 155vw, 2600px) auto;
   background-position: 78% 44%;
   background-repeat: no-repeat;
@@ -674,7 +674,7 @@ a.btn--primary:visited {
   min-width: 0;
 }
 
-/* Načítání videí — spinner místo placeholder posterů */
+/* Video loading — spinner instead of placeholder posters */
 .video-media {
   position: relative;
 }
@@ -845,7 +845,7 @@ a.btn--primary:visited {
   border: 0;
 }
 
-/* Objevte CzechMate V2 — welcome MP4, přehrání po scrollu do viewportu */
+/* Discover CzechMate V2 — welcome MP4, play when scrolled into viewport */
 
 .welcome-v2 {
   border-top: 1px solid var(--border);
@@ -871,12 +871,12 @@ a.btn--primary:visited {
 
 .welcome-v2__media.split__media {
   margin-inline: auto;
-  /* MP4 je 16:9 — nižší rám než výchozí split 4:3, bez ořezu stran */
+  /* MP4 is 16:9 — shorter frame than default split 4:3, no side crop */
   aspect-ratio: 16 / 9;
   cursor: default;
 }
 
-/* Welcome video: bez hover liftu (jinak IO „bliká“ a video se resetuje) */
+/* Welcome video: no hover lift (otherwise IO “flickers” and the video resets) */
 .welcome-v2__media.split__media:hover,
 html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   transform: none;
@@ -1123,18 +1123,18 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
     order: 1;
   }
 
-  /* Ořez videa uvnitr rámu: object-position (dříve příliš doprava) */
-  #deska-uci .split__media .split__video--loop {
+  /* Crop video inside the frame: object-position (was previously too far right) */
+  #board-teaches .split__media .split__video--loop {
     object-position: 35% 50%;
   }
 }
 
 @media (min-width: 1024px) {
-  #deska-uci .split {
+  #board-teaches .split {
     gap: 3.25rem;
   }
 
-  #deska-uci .split__media .split__video--loop {
+  #board-teaches .split__media .split__video--loop {
     object-position: 42% 50%;
   }
 }
@@ -1171,7 +1171,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   display: block;
 }
 
-/* AI kouč: náhled — středová část šířky, celá výška snímku (bez ořezu shora/zdola) */
+/* AI coach: preview — center width slice, full frame height (no top/bottom crop) */
 .split__media.split__media--ai-preview {
   max-width: min(640px, 100%);
   margin-inline: auto;
@@ -1196,7 +1196,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   object-fit: contain;
 }
 
-/* Aplikace: média (split__media + split__video) */
+/* App: media (split__media + split__video) */
 
 .app-demo-showcase {
   margin-top: 2.75rem;
@@ -1232,7 +1232,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   border-radius: var(--radius-xl);
 }
 
-/* LED (#deska-uci): object-fit cover + object-position; desktop jemný offset v @media */
+/* LED (#board-teaches): object-fit cover + object-position; desktop slight offset in @media */
 .split__media .split__video--loop {
   object-position: 35% 50%;
   pointer-events: none;
@@ -1396,7 +1396,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   opacity: 1;
 }
 
-/* Klikatelný úvod sekce AI kouč — bez druhé „karty“ pod textem (jen kurzor + Více) */
+/* Clickable AI coach section intro — no second “card” under the text (cursor + More only) */
 .section-intro-click {
   position: relative;
   margin: 0 0 0.5rem;
@@ -1448,7 +1448,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   opacity: 1;
 }
 
-/* Animované <dialog> — třída cz-modal + cz-modal--visible (řídí landing.js) */
+/* Animated <dialog> — class cz-modal + cz-modal--visible (driven by landing.js) */
 
 dialog.cz-modal[open] {
   opacity: 0;
@@ -1472,7 +1472,7 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
   transition: opacity 0.38s var(--ease-out);
 }
 
-/* Detail funkce — tmavý modal (stejná řeč jako zbytek stránky) */
+/* Feature detail — dark modal (same visual language as the rest of the page) */
 
 .feature-detail-modal {
   box-sizing: border-box;
@@ -1658,7 +1658,7 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
   word-break: break-word;
 }
 
-/* Zájem — průzkum zájmu + předobjednávka (odkazy na Google Forms) */
+/* Interest — interest survey + pre-order (links to Google Forms) */
 
 .interest {
   background: linear-gradient(180deg, var(--bg-deep) 0%, rgba(17, 25, 23, 0.96) 45%, var(--bg-deep) 100%);
@@ -2037,7 +2037,7 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
   color: var(--accent-strong);
 }
 
-/* ——— Responzivita: mobil · iPad · desktop ——— */
+/* ——— Responsiveness: mobile · iPad · desktop ——— */
 
 main {
   min-width: 0;
@@ -2067,7 +2067,7 @@ video {
   object-fit: contain;
 }
 
-/* Telefony */
+/* Phones */
 @media (max-width: 479px) {
   .hero {
     min-height: auto;
@@ -2102,7 +2102,7 @@ video {
   }
 }
 
-/* Telefony a phablety — plná šířka CTA v hero */
+/* Phones and phablets — full-width CTA in hero */
 @media (max-width: 767px) {
   .hero__actions {
     flex-direction: column;
@@ -2123,7 +2123,7 @@ video {
   }
 }
 
-/* Malé telefony + úzké displeje */
+/* Small phones + narrow displays */
 @media (max-width: 374px) {
   .nav-cta {
     padding: 0.35rem 0.5rem;
@@ -2135,7 +2135,7 @@ video {
   }
 }
 
-/* Tablet / iPad (768–1279) — stejná topologie jako desktop: copy, pak video pod sebou */
+/* Tablet / iPad (768–1279) — same topology as desktop: copy, then video stacked */
 @media (min-width: 768px) and (max-width: 1279px) {
   .hero__video {
     margin-top: 2.5rem;
@@ -2157,7 +2157,7 @@ video {
   }
 }
 
-/* iPad na šířku — kompaktnější hero, pořád jeden sloupec */
+/* iPad landscape — more compact hero, still one column */
 @media (min-width: 768px) and (max-width: 1279px) and (orientation: landscape) {
   .hero {
     min-height: auto;
@@ -2170,7 +2170,7 @@ video {
   }
 }
 
-/* Dotyková zařízení — dostatečné cíle */
+/* Touch devices — adequate hit targets */
 @media (pointer: coarse) {
   .nav-mobile a {
     display: flex;
@@ -2196,7 +2196,7 @@ video {
   }
 }
 
-/* Nízký landscape na telefonu */
+/* Short phone landscape */
 @media (max-width: 896px) and (orientation: landscape) and (max-height: 520px) {
   .hero {
     min-height: auto;
@@ -2213,7 +2213,7 @@ video {
   }
 }
 
-/* Patička na úzkém mobilu */
+/* Footer on narrow mobile */
 @media (max-width: 559px) {
   .site-footer__inner {
     flex-direction: column;
@@ -2228,7 +2228,7 @@ video {
   }
 }
 
-/* Široký desktop */
+/* Wide desktop */
 @media (min-width: 1280px) {
   .section__inner,
   .site-header__inner,

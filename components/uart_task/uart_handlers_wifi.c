@@ -28,7 +28,7 @@
 static const char *TAG = "UART_WIFI";
 
 // ============================================================================
-// PRIKAZY TIMERU (zrcadli webove rozhrani)
+// TIMER COMMANDS (web interface mirrors)
 // ============================================================================
 
 /**
@@ -341,19 +341,19 @@ command_result_t uart_cmd_timer_reset(const char *args) {
 }
 
 // ============================================================================
-// WIFI UART PRIKAZY
+// WIFI UART COMMANDS
 // ============================================================================
 
 /**
- * @brief Konfiguruje WiFi STA (SSID a heslo)
+ * @brief Configures the WiFi STA (SSID and password)
  *
- * @param args SSID a heslo (muze byt v uvozovkach pro mezery)
+ * @param args SSID and password (can be in quotes for spaces)
  * @return command_result_t
  *
  * @details
- * Parsuje argumenty: WIFI <ssid> <password>
- * Podporuje uvozovky pro SSID/heslo s mezerami: WIFI "My Home WiFi" "My
- * Password"
+ * Parses arguments: WIFI <ssid> <password>
+ * Supports SSID/password quotes with spaces: WIFI "My Home WiFi" "My
+ *Password"
  */
 command_result_t uart_cmd_wifi(const char *args) {
   SAFE_WDT_RESET();
@@ -522,7 +522,7 @@ command_result_t uart_cmd_wifi_status(const char *args) {
   uart_send_formatted("Access Point (AP):");
   uart_send_formatted("  SSID: %s", web_server_get_ap_ssid());
   uart_send_formatted("  IP: 192.168.4.1");
-  // Client count by mel byt globalni promenna, ale pro jednoduchost pouzijeme
+  // Client count should be a global variable, but we use it for simplicity
   // externi
   extern uint32_t client_count;
   uart_send_formatted("  Clients: %lu", (unsigned long)client_count);
@@ -530,7 +530,7 @@ command_result_t uart_cmd_wifi_status(const char *args) {
   uart_send_formatted("");
   uart_send_formatted("Station (STA):");
 
-  // Nacist STA konfiguraci z NVS
+  // Clean the STA configuration from NVS
   char ssid[33] = {0};
   char password[65] = {0};
   esp_err_t nvs_ret =
@@ -558,9 +558,9 @@ command_result_t uart_cmd_wifi_status(const char *args) {
 }
 
 /**
- * @brief Nastavi lock/unlock web rozhrani
+ * @brief Set lock/unlock web interface
  *
- * @param args "ON" nebo "OFF"
+ * @param args "ON" or "OFF"
  * @return command_result_t
  */
 command_result_t uart_cmd_web_lock(const char *args) {
@@ -606,9 +606,9 @@ command_result_t uart_cmd_web_lock(const char *args) {
 }
 
 /**
- * @brief Zobrazi status web rozhrani
+ * @brief Show the status of the web interface
  *
- * @param args Nepouzivany
+ * @param args Not used
  * @return command_result_t
  */
 command_result_t uart_cmd_web_status(const char *args) {
@@ -753,7 +753,7 @@ command_result_t uart_cmd_ble(const char *args) {
       "  Snapshot  A0B40002-9267-4AB6-BDCC-E8336F8A8D9E  (READ+NOTIFY)");
   uart_send_formatted(
       "  Command   A0B40003-9267-4AB6-BDCC-E8336F8A8D9E  (WRITE)");
-  uart_send_formatted("Notifikace snapshotu: po subscribe + změně hry "
+  uart_send_formatted("Snapshot notification: after subscribe + game change "
                       "(czechmate_on_game_state_changed).");
   uart_send_formatted("Detail: HELP APP");
   uart_send_formatted(
@@ -762,9 +762,9 @@ command_result_t uart_cmd_ble(const char *args) {
 }
 
 /**
- * @brief Nastaví MQTT konfiguraci
+ * @brief Sets the MQTT configuration
  *
- * @param args Parametry: <host> [port] [username] [password]
+ * @param args Parameters: <host> [port] [username] [password]
  * @return command_result_t
  */
 command_result_t uart_cmd_mqtt_config(const char *args) {
@@ -842,9 +842,9 @@ command_result_t uart_cmd_mqtt_config(const char *args) {
 }
 
 /**
- * @brief Zobrazí MQTT status
+ * @brief Displays the MQTT status
  *
- * @param args Nepoužitý
+ * @param args Unused
  * @return command_result_t
  */
 command_result_t uart_cmd_mqtt_status(const char *args) {
@@ -904,9 +904,9 @@ command_result_t uart_cmd_mqtt_status(const char *args) {
 }
 
 /**
- * @brief Otestuje MQTT připojení
+ * @brief Tests the MQTT connection
  *
- * @param args Nepoužitý
+ * @param args Unused
  * @return command_result_t
  */
 command_result_t uart_cmd_mqtt_test(const char *args) {
@@ -955,7 +955,7 @@ command_result_t uart_cmd_mqtt_test(const char *args) {
 }
 
 /**
- * @brief Vymaze WiFi konfiguraci z NVS
+ * @brief Deletes WiFi configuration from NVS
  *
  * @param args Nepouzivany
  * @return command_result_t

@@ -1,6 +1,6 @@
 import FlutterMacOS
 
-/// macOS nemá iOS Live Activities; kanály reagují, aby Dart neházel MissingPluginException.
+/// macOS has no iOS Live Activities; channels still respond so Dart does not throw MissingPluginException.
 enum CzechMateMacPlatformChannels {
   static func registerLiveActivityAndWatch(messenger: FlutterBinaryMessenger) {
     let live = FlutterMethodChannel(name: "czechmate/live_activity", binaryMessenger: messenger)

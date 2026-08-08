@@ -1,27 +1,27 @@
 /**
  * @file matrix_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Matrix Task Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Matrix Task Header
  * 
- * Tato hlavicka definuje rozhrani pro matrix task:
- * - Skenovani 8x8 reed switch matice
- * - Detekce a validace tahu
- * - Generovani maticovych udalosti
- * - Time-multiplexed GPIO ovladani
+ * This header defines the interface for the matrix task:
+ * - Scan of 8x8 reed switch matrix
+ * - Stroke detection and validation
+ * - Generation of matrix events
+ * - Time-multiplexed GPIO control
  * 
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  * 
  * @details
- * Matrix task je zodpovedny za detekci figurek na sachovnici pomoci
- * 8x8 reed switch matice. Skenuje matici kazdych 20ms a detekuje
- * kdy hrac zvedne nebo polozi figurku. Komunikuje s game taskem pres fronty.
+ * The matrix task is responsible for detecting pieces on the help box
+ * 8x8 reed switch matrix. It scans the matrix every 20ms and detects
+ * when a player picks up or places a piece. It communicates with the game task via queues.
  * 
  * Hardware:
- * - 8x8 reed switch matice
- * - Row piny: GPIO10-11,18-23 (vystupy)
- * - Column piny: GPIO0-3,6,14,16-17 (vstupy s pull-up)
- * - Time-multiplexed s tlacitkama
+ * - 8x8 reed switch matrix
+ * - Row pins: GPIO10-11,18-23 (outputs)
+ * - Column pins: GPIO0-3,6,14,16-17 (inputs with pull-up)
+ * - Time-multiplexed with buttons
  */
 
 #ifndef MATRIX_TASK_H
@@ -41,182 +41,182 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Spusti matrix task
+ * @brief Start the matrix task
  * 
- * Hlavni funkce matrix tasku. Bezi v nekonecne smycce a zpracovava
- * skenovani matice kazdych 1ms. Detekuje pohyb figurek a generuje udalosti.
+ * The main functions of the matrix task. It runs in an infinite loop and processes
+ * matrix scanning every 1ms. Detects movement of figures and generates events.
  * 
- * @param pvParameters Parametry tasku (nepouzivane)
+ * @param pvParameters Task parameters (not used)
  */
 void matrix_task_start(void *pvParameters);
 
 // ============================================================================
-// FUNKCE PRO SKENOVANI MATICE
+// MATRIX SCAN FUNCTION
 // ============================================================================
 
 /**
- * @brief Oskenuj jeden radek matice
+ * @brief Scan one row of the matrix
  * 
- * Nastavi radkovy pin na HIGH, precte vsechny sloupcove piny
- * a aktualizuje stav matice pro tento radek.
+ * Set row pin to HIGH, clear all column pins
+ * and updates the matrix state for that row.
  * 
- * @param row Radek k oskenovani (0-7)
+ * @param row Row to scan (0-7)
  */
 void matrix_scan_row(uint8_t row);
 
 /**
- * @brief Oskenuj celou matici
+ * @brief Scan the entire matrix
  * 
- * Oskenuje vsech 8 radku matice a detekuje zmeny stavu.
- * Pouziva mutex pro thread-safe pristup ke stavu matice.
+ * Scans all 8 rows of the matrix and detects state changes.
+ * Uses mutex for thread-safe access to array state.
  */
 void matrix_scan_all(void);
 
 // ============================================================================
-// FUNKCE PRO DETEKCI TAHU
+// DRAFT DETECTION FUNCTION
 // ============================================================================
 
 /**
- * @brief Detekuj tahy z matice
+ * @brief Detect moves from a matrix
  * 
- * Hleda prechody 1->0 (figurka zvednuta) a 0->1 (figurka polozena)
- * a generuje maticove udalosti.
+ * Search for transitions 1->0 (figure raised) and 0->1 (figure laid down)
+ * and generates matrix events.
  */
 void matrix_detect_moves(void);
 
 /**
- * @brief Detekuj kompletni tah
+ * @brief Detect complete stroke
  * 
- * Detekuje kompletni tah (zvednuti + polozeni figurky) a posle
- * MATRIX_EVENT_MOVE_DETECTED udalost.
+ * Detects a complete move (raised + placed a piece) and a messenger
+ * MATRIX_EVENT_MOVE_DETECTED event.
  * 
- * @param from_square Zdrojove pole (0-63)
- * @param to_square Cilove pole (0-63)
+ * @param from_square Source square (0-63)
+ * @param to_square Target square (0-63)
  */
 void matrix_detect_complete_move(uint8_t from_square, uint8_t to_square);
 
 // ============================================================================
-// UTILITY FUNKCE
+// UTILITY FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Prevede cislo pole na sachovou notaci
+ * @brief Converts an array number to Sach notation
  * 
- * @param square Cislo pole (0-63)
- * @param[out] notation Vystupni buffer pro notaci (min. 3 znaky)
+ * @param square Square number (0-63)
+ * @param[out] notation Output buffer for notation (min. 3 characters)
  */
 void matrix_square_to_notation(uint8_t square, char* notation);
 
 /**
- * @brief Prevede sachovou notaci na cislo pole
+ * @brief Converts Saxon notation to array number
  * 
- * @param notation Sachova notace (napr. "e2")
- * @return Cislo pole (0-63)
+ * @param notation Sach's notation (eg "e2")
+ * @return Field number (0-63)
  */
 uint8_t matrix_notation_to_square(const char* notation);
 
 /**
- * @brief Vypis aktualni stav matice
+ * @brief List the current state of the matrix
  * 
- * Vypise 8x8 matici s aktualni stav vsech poli (0 = prazdne, 1 = figurka).
+ * Prints an 8x8 matrix with the current state of all fields (0 = empty, 1 = figure).
  */
 void matrix_print_state(void);
 
 /**
- * @brief Simuluj tah v matici
+ * @brief Simulate a pull in a matrix
  * 
- * Pro testovani - simuluje zvednuti figurky z jednoho pole
- * a polozeni na jine pole.
+ * For testing - simulates picking up pieces from one square
+ * and placed on another field.
  * 
- * @param from Zdrojova sachova notace (napr. "e2")
- * @param to Cilova sachova notace (napr. "e4")
+ * @param from Source's Sach notation (eg "e2")
+ * @param to Cila's Sacha notation (eg "e4")
  */
 void matrix_simulate_move(const char* from, const char* to);
 
 /**
- * @brief Ziskej stav matice
+ * @brief Get the state of the matrix
  * 
- * @param[out] state_buffer Buffer pro 64-prvkove pole stavu (1 = piece, 0 = empty)
+ * @param[out] state_buffer Buffer for the 64-element state array (1 = piece, 0 = empty)
  */
 void matrix_get_state(uint8_t* state_buffer);
 
 // ============================================================================
-// FUNKCE PRO ZPRACOVANI PRIKAZU
+// COMMAND PROCESSING FUNCTIONS
 // ============================================================================
 
 /**
- * @brief Zpracuj matrix prikazy z fronty
+ * @brief Process matrix commands from the queue
  * 
- * Cte prikazy z matrix_command_queue a vykonava je
+ * Reads commands from matrix_command_queue and executes them
  * (scan, reset, test, calibrate, enable/disable).
  */
 void matrix_process_commands(void);
 
 /**
- * @brief Resetuj stav matice
+ * @brief Reset the matrix state
  * 
- * Vymaze vsechny vnitrni stavy matice a resetuje detekci tahu.
+ * Clears all internal matrix states and resets pull detection.
  */
 void matrix_reset(void);
 
 /**
- * @brief Zruší lokální matrix guard a zarovná baseline (previous = HW stav).
+ * @brief Cancels the local matrix guard and aligns the baseline (previous = HW state).
  *
- * Volá game_task když matrix guard na straně hry ignorujeme (tutoriál / puzzle),
- * nebo po game_reset — aby se nezasekla detekce a neplatný last_piece_lifted
- * nevyvolával falešné „více zvednutí najednou“.
+ * Calls game_task when we ignore the matrix guard on the game side (tutorial / puzzle),
+ * or after game_reset — to avoid stuck detection and invalid last_piece_lifted
+ * didn't cause false "multiple lifts at once".
  */
 void matrix_abort_ambiguous_guard_baseline(void);
 
 /**
- * @brief Nastav očekávanou fyzickou obsazenost pro matrix guard (0/1 na pole).
+ * @brief Set expected physical occupancy for matrix guard (0/1 per field).
  *
- * Sladí recovery cíl s logickou deskou (board[]). Volá game_task při aktivaci
- * guardu nebo po NVS restore.
+ * Matches the recovery target with the logic board (board[]). Calls game_task on activation
+ * guard or after NVS restore.
  */
 void matrix_guard_apply_expected_occupancy(const uint8_t expected[64]);
 
 /**
- * @brief Je matrix guard na straně matice aktivní?
+ * @brief Is the matrix guard active on the matrix side?
  */
 bool matrix_is_guard_mode_active(void);
 
 /**
- * @brief Čtverec čekající na DROP (255 = žádný), pro race s game pickup frontou.
+ * @brief Square waiting for DROP (255 = none), for races with a game pickup queue.
  */
 uint8_t matrix_get_pending_lift_square(void);
 
 // ============================================================================
-// TIME-MULTIPLEXING FUNKCE
+// TIME-MULTIPLEXING FUNCTION
 // ============================================================================
 
 /**
- * @brief Uvolni matrix row piny pro button scanning
+ * @brief Release matrix row pins for button scanning
  * 
- * Nastavi vsechny row piny na HIGH (neaktivni stav) aby button task
- * mohl cist column piny bez interference. Vola se pred button scan window.
+ * Set all row pins to HIGH (inactive state) to button task
+ * could clean column pins without interference. It is called before the scan window button.
  * 
  * @details
- * Tato funkce MUSI byt volana pred button_scan_all() aby nedoslo
- * ke konfliktum na sdilenych column pinech (MATRIX_COL_0-7).
+ * This function MUST be called before button_scan_all() so it doesn't fail
+ * to conflicts on shared column pins (MATRIX_COL_0-7).
  */
 void matrix_release_pins(void);
 
 /**
- * @brief Znovu aktivuj matrix row piny pro matrix scanning
+ * @brief Re-enable matrix row pins for matrix scanning
  * 
- * Obnovi normalni matrix scanning rezim. Vola se po button scan window.
+ * Restore normal matrix scanning mode. It is called button scan window.
  * 
  * @details
- * Tato funkce obnovi matrix scanning po button scan window.
- * Matrix muze pokracovat v normalnim skenovani.
+ * This function resumes matrix scanning after the button scan window.
+ * Matrix can continue normal scanning.
  */
 void matrix_acquire_pins(void);
 
 /**
- * @brief Overi zda jsou matrix piny uvolnene pro button scan
+ * @brief Verify if matrix pins are released for button scan
  * 
- * @return true pokud jsou piny uvolnene (vsechny rows HIGH)
+ * @return true if pins are released (all rows HIGH)
  */
 bool matrix_pins_released(void);
 

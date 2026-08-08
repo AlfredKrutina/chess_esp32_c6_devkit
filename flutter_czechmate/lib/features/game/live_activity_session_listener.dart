@@ -8,7 +8,7 @@ import '../../app_providers.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
-/// Drží Live Activity v synchronu se [boardSessionNotifierProvider].
+/// Keeps Live Activity in sync with [boardSessionNotifierProvider].
 class LiveActivitySessionListener extends ConsumerWidget {
   const LiveActivitySessionListener({super.key});
 

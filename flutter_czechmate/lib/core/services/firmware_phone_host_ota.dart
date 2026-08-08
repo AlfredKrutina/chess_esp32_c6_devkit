@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-/// Lokální HTTP hostování .bin pro [ota_update.c] HTTP OTA (deska na AP stáhne z aplikace na tomto zařízení).
+/// Local HTTP hosting .bin for [ota_update.c] HTTP OTA (the board on the AP downloads from the app on that device).
 class FirmwarePhoneHostOta {
   FirmwarePhoneHostOta._();
 
   static const String _servePath = '/czechmate_ota.bin';
 
-  /// Trvalé uložení (ApplicationSupport) — přežije odpojení desky i pozastavení aplikace.
+  /// Persistent storage (ApplicationSupport) — survives board disconnection and application suspension.
   static Future<File> downloadBinForOta({
     required String httpsBinUrl,
     required String version,
@@ -36,7 +36,7 @@ class FirmwarePhoneHostOta {
   }) =>
       downloadBinForOta(httpsBinUrl: httpsBinUrl, version: version);
 
-  /// Klient na hotspotu desky typicky dostane 192.168.4.x.
+  /// A client on the board hotspot typically gets 192.168.4.x.
   static Future<String?> ipv4OnBoardApSubnet() async {
     try {
       for (final iface in await NetworkInterface.list()) {
@@ -51,7 +51,7 @@ class FirmwarePhoneHostOta {
     return null;
   }
 
-  /// IPv4 tohoto zařízení ve stejném /24 prefixu jako STA IP desky (domácí LAN).
+  /// This device's IPv4 in the same /24 prefix as the board's STA IP (home LAN).
   static Future<String?> ipv4OnSameSubnet24As(String boardStaIp) async {
     final parts = boardStaIp.trim().split('.');
     if (parts.length != 4) return null;
@@ -73,9 +73,9 @@ class FirmwarePhoneHostOta {
     return null;
   }
 
-  /// Vrátí server (je potřeba po OTA [close]) a URL pro `POST /api/system/ota` / BLE `ota_start`.
+  /// Returns server (needed after OTA [close]) and URL for `POST /api/system/ota` / BLE `ota_start`.
   ///
-  /// [boardStaIpForSubnet] — pokud toto zařízení není na 192.168.4.x, zkusí najít lokální IP ve stejné /24.
+  /// [boardStaIpForSubnet] — if this device is not on 192.168.4.x, it will try to find a local IP in the same /24.
   static Future<({HttpServer server, String otaUrl})> startServingBin(
     File bin, {
     String? boardStaIpForSubnet,
@@ -89,8 +89,8 @@ class FirmwarePhoneHostOta {
     if (ip == null) {
       throw StateError('NOT_ON_OTA_LAN');
     }
-    /* Na iOS (a více rozhraních) je spolehlivější naslouchat přímo na IP hotspotu/LAN,
-     * aby deska vždy tahala z adresy v otaUrl. Fallback: libovolné rozhraní. */
+    /* On iOS (and multi-interface hosts) it is more reliable to listen on the hotspot/LAN IP
+     * so the board always pulls from the address in otaUrl. Fallback: any interface. */
     HttpServer server;
     try {
       server = await HttpServer.bind(InternetAddress(ip), 0);

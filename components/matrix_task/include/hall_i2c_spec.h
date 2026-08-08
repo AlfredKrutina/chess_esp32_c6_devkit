@@ -1,22 +1,22 @@
 /**
  * @file hall_i2c_spec.h
- * @brief Norma I2C mezi ESP32 (master) a 4× STM32 — 128 Hall kanálů → 64 polí.
+ * @brief I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields.
  *
- * Zkopíruj tento soubor do STM32 projektu (bez závislosti na ESP-IDF).
+ * Copy this file to the STM32 project (without dependency on ESP-IDF).
  *
- * === Topologie ===
- * - 4 stejné segmenty (plošňáky), každý jeden I2C slave (vlastní 7bit adresa).
- * - Na segmentu 16 šachových polí × 2 Hall senzory = 32 ADC kanálů → 32× uint16.
- * - ESP čte postupně všechny 4 adresy každý scan cyklus.
+ * === Topology ===
+ * - 4 identical segments (planes), each one I2C slave (own 7-bit address).
+ * - On a segment 16 checkerboards × 2 Hall sensors = 32 ADC channels → 32× uint16.
+ * - ESP reads sequentially all 4 addresses every scan cycle.
  *
- * === I2C transakce (povinná pro ESP) ===
- * - Master: START + SlaveAddr(W) + 1 byte „pointer register“ + REPSTART +
- *   SlaveAddr(R) + read 64 bytes + STOP.
- * - Pointer 0x00 = blok surových vzorků (viz níže).
- * - Formát čísel: little-endian (nízký bajt první).
+ * === I2C transaction (required for ESP) ===
+ * - Master: START + SlaveAddr(W) + 1 byte "pointer register" + REPSTART +
+ * SlaveAddr(R) + read 64 bytes + STOP.
+ * - Pointer 0x00 = block of raw samples (see below).
+ * - Number format: little-endian (low byte first).
  *
- * === Registr / pointer mapa ===
- * Hodnoty jsou stejné jako výchozí CONFIG_CHESS_HALL_REG_START v Kconfig.
+ * === Register / pointer map ===
+ * Values are the same as the default CONFIG_CHESS_HALL_REG_START in Kconfig.
  */
 #pragma once
 
@@ -24,55 +24,55 @@
 
 #define HALL_I2C_REG_POINTER_RAW 0x00u
 
-/** Volitelné na STM: po přečtení 1 B master ověří kompatibilitu (ESP zatím nečte). */
+/** Optional on STM: after reading 1 B, master verifies compatibility (ESP does not read yet). */
 #define HALL_I2C_REG_POINTER_PROTO_VER 0x01u
 #define HALL_I2C_PROTOCOL_VERSION 1u
 
-/** Počet polí na jednom segmentu (čtvrtina šachovnice). */
+/** Number of squares on one segment (a quarter of the board). */
 #define HALL_I2C_FIELDS_PER_SEGMENT 16u
-/** Hall senzorů na pole (diferenciální pár / dvojice kanálů muxu). */
+/** Hall sensors per array (differential pair / pair of mux channels). */
 #define HALL_I2C_SENSORS_PER_FIELD 2u
-/** uint16 vzorků na segment (16 × 2). */
+/** uint16 samples per segment (16 × 2). */
 #define HALL_I2C_UINT16_PER_SEGMENT                                                \
   (HALL_I2C_FIELDS_PER_SEGMENT * HALL_I2C_SENSORS_PER_FIELD)
-/** Bajtů přenášených při čtení pointeru 0x00 (32 × 2). */
+/** Bytes transferred when reading pointer 0x00 (32 × 2). */
 #define HALL_I2C_PAYLOAD_BYTES (HALL_I2C_UINT16_PER_SEGMENT * sizeof(uint16_t))
 
 /**
- * === Rozložení payloadu 0x00 (64 B) ===
- * Offset v bajtech: field 0..15, sensor 0..1
- *   off = field * 4 + sensor * 2
- *   uint16_t v = buf[off] | (buf[off + 1] << 8);
+ * === Payload layout 0x00 (64 B) ===
+ * Offset in bytes: field 0..15, sensor 0..1
+ * off = field * 4 + sensor * 2
+ * uint16_t v = buf[off] | (buf[off + 1] << 8);
  *
- * Logický kanál muxu: sample_index = field * 2 + sensor  (0..31).
- * „Kanály 0+1 = pole 0, 2+3 = pole 1“ odpovídá field = sample_index / 2.
+ * Logical mux channel: sample_index = field * 2 + sensor (0..31).
+ * "Channels 0+1 = field 0, 2+3 = field 1" corresponds to field = sample_index / 2.
  *
- * === Pořadí „field“ na desce segmentu (STM musí plnit přesně takto) ===
- * Souřadnice v rámci čtvrtiny 4×4 (jen jeden plošňák):
- *   col = 0..3  — směr souborů od vnitřního rohu čtvrtiny k vnějšímu
- *                 (u segmentu u ESP: col 0 = a, col 3 = d).
- *   row = 0..3  — směr od hráče bílých k černým (row 0 = řada 1 u spodních
- *                 čtvrtin, row 3 = řada 4 u spodních čtvrtin).
- *   field = row * 4 + col
+ * === The order of the "field" on the segment board (STM must perform exactly like this) ===
+ * Coordinates within a 4×4 quarter (only one plane):
+ * col = 0..3 — file direction from the inner corner of the quarter to the outer
+ * (for the ESP segment: col 0 = a, col 3 = d).
+ * row = 0..3 — direction from the white player to black (row 0 = row 1 for the bottom
+ * quarters, row 3 = row 4 for lower quarters).
+ * field = row * 4 + col
  *
- * Příklad segment 0 (DESKA s RESET u ESP, šachovnice a1–d4):
- *   field 0 = a1, 1 = b1, 2 = c1, 3 = d1,
- *   field 4 = a2, … , 15 = d4.
+ * Example segment 0 (BOARD with RESET at ESP, checkerboard a1–d4):
+ * field 0 = a1, 1 = b1, 2 = c1, 3 = d1,
+ * field 4 = a2, … , 15 = d4.
  *
- * Ostatní tři segmenty jsou stejně „row-major“ ve své lokální 4×4;
- * globální mapování a–h / 1–8 řeší firmware ESP (hall_map_segment_field_to_square).
+ * The other three segments are equally "row-major" in their local 4×4;
+ * global mapping a–h / 1–8 is solved by ESP firmware (hall_map_segment_field_to_square).
  *
- * === Doporučení pro přesnost (STM) ===
- * - ADC 12 bitů je OK; drž konstantní Vref a čas integrace.
- * - Před zápisem do I2C bufferu uspořádej krátké průměrování (např. 8–32 vzorků
- *   na kanál) v jednom mux cyklu.
- * - Aktualizuj celých 64 B atomicky (stejný snapshot) — např. dvojbuffer:
- *   ADC naplňuje A, I2C čte B, pak prohoď.
- * - Hall páry u jednoho field mají být z stejného „ticku“ muxu, ne z dvou různých
- *   přepnutí, pokud to jde.
+ * === Accuracy Recommendation (STM) ===
+ * - ADC 12 bits is OK; keep Vref and integration time constant.
+ * - Before writing to the I2C buffer, arrange a short averaging (e.g. 8-32 samples
+ * per channel) in one mux cycle.
+ * - Update the entire 64 B atomically (same snapshot) — e.g. double buffer:
+ * ADC fills A, I2C reads B, then swap.
+ * - Hall pairs for one field should be from the same "tick" mux, not from two different ones
+ * switching if applicable.
  *
- * === Výchozí I2C adresy (7 bitů, lze změnit straps / EEPROM na segmentu) ===
- * 0x30, 0x31, 0x32, 0x33 — odpovídá CONFIG_CHESS_HALL_SEGx_ADDR na ESP.
+ * === Default I2C addresses (7 bits, can be changed straps / EEPROM per segment) ===
+ * 0x30, 0x31, 0x32, 0x33 — corresponds to CONFIG_CHESS_HALL_SEGx_ADDR on ESP.
  */
 
 static inline uint16_t hall_i2c_spec_read_le16(const uint8_t *p) {

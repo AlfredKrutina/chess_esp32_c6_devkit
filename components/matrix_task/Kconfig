@@ -4,9 +4,9 @@ menu "Chess matrix input"
         prompt "Matrix sensing backend"
         default CHESS_MATRIX_INPUT_GPIO_REED
         help
-            GPIO reed: klasický multiplex řádků/sloupců.
-            I2C Hall: čtení surových kanálů ze 4× STM32 (32× uint16 / segment),
-            kanály 2k a 2k+1 = jedno pole.
+            GPIO reed: classic row/column multiplex.
+            I2C Hall: reading raw channels from 4× STM32 (32× uint16 / segment),
+            channels 2k and 2k+1 = one field.
 
         config CHESS_MATRIX_INPUT_GPIO_REED
             bool "GPIO reed matrix (multiplex rows/cols)"
@@ -39,7 +39,7 @@ menu "Chess matrix input"
             default 400000
 
         config CHESS_HALL_REG_START
-            hex "I2C pointer před čtením 64 B (viz hall_i2c_spec.h)"
+            hex "I2C pointer before reading 64 B (see hall_i2c_spec.h)"
             default 0x00
 
         config CHESS_HALL_SEG0_ADDR
@@ -59,39 +59,39 @@ menu "Chess matrix input"
             default 0x33
 
         config CHESS_HALL_SEGMENT_COUNT
-            int "Počet aktivních segmentů (dotazovat jen 0 … N-1)"
+            int "Number of active segments (query only 0 ... N-1)"
             range 1 4
             default 4
             help
-                Na testovací desce se zapojeným jedním STM32 nastavte 1 —
-                ESP nebude opakovaně volat prázdné I2C adresy a sériovka zůstane čitelná.
+                On a breadboard with one STM32 plugged in, set 1 —
+                ESP will not repeatedly call empty I2C addresses and the serial number will remain readable.
 
         choice CHESS_HALL_DETECT_MODE
-            prompt "Odvození obsazenosti z páru Hall kanálů"
+            prompt "Occupancy derivation from a pair of Hall channels"
             default CHESS_HALL_DETECT_DIFF
             help
-                DIFF: |r0 - r1| >= práh (typické pro diferenciální uspořádání).
-                MAX: max(r0,r1) >= práh.
+                DIFF: |r0 - r1| >= threshold (typical of a differential arrangement).
+                MAX: max(r0,r1) >= threshold.
 
             config CHESS_HALL_DETECT_DIFF
-                bool "Absolutní rozdíl (|r0 - r1|)"
+                bool "Absolute difference (|r0 - r1|)"
 
             config CHESS_HALL_DETECT_MAX
                 bool "Maximum (max r0, r1)"
         endchoice
 
         config CHESS_HALL_PAIR_DIFF_THRESHOLD
-            int "Práh |r0 - r1| (režim DIFF)"
+            int "Threshold |r0 - r1| (DIFF mode)"
             depends on CHESS_HALL_DETECT_DIFF
             default 120
 
         config CHESS_HALL_MAX_THRESHOLD
-            int "Práh max(r0,r1) (režim MAX)"
+            int "Threshold max(r0,r1) (MAX mode)"
             depends on CHESS_HALL_DETECT_MAX
             default 2200
 
         config CHESS_HALL_LOG_INTERVAL_SCANS
-            int "Logovat souhrn každých N skenů (0 = vypnuto)"
+            int "Log summary every N scans (0 = off)"
             default 0
     endmenu
 

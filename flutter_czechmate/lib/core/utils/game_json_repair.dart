@@ -1,4 +1,4 @@
-/// Parita s `GameJSONRepair.swift` — oprava starého firmware JSON.
+/// Parity with `GameJSONRepair.swift` — fix old JSON firmware.
 class GameJsonRepair {
   static String repairStatusString(String s) {
     const broken =

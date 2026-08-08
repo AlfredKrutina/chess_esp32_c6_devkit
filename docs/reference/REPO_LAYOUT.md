@@ -1,71 +1,71 @@
-# Rozložení repozitáře
+# Repository layout
 
-Kanónický inventář cest v repu. Vstupní rozcestník: [docs/README.md](../README.md). Rychlý přehled pro nové čtenáře: [README.md](../../README.md).
+Canonical path inventory in the repo. Entry index: [docs/README.md](../README.md). Quick overview for new readers: [README.md](../../README.md).
 
-**Firmware v repu:** **1.8.0** (prototyp **V1**, reed). **V2** = Hall — [HARDWARE_VERZE.md](HARDWARE_VERZE.md).
+**Firmware in repo:** **1.8.0** (prototype **V1**, reed). **V2** = Hall — [HARDWARE_VERSIONS.md](HARDWARE_VERSIONS.md).
 
 ---
 
-## Co nesmíš přesunout (bez velké migrace)
+## Do not move (without a large migration)
 
-| Cesta | Důvod |
+| Path | Reason |
 |-------|--------|
-| `main/`, `components/`, kořenové `CMakeLists.txt`, `sdkconfig*` | ESP-IDF očekává projekt v kořeni |
-| `firmware/version.json` | OTA manifest — raw URL v aplikaci a CI |
-| `embedded/stm32_fw_embedded.bin` | Flash oddíl `stm32_fw` v `CMakeLists.txt` |
-| `sdkconfig.defaults.hall_v2` | Hall V2 + STM32 auto-flash build profil |
-| `gh-pages-ready/` | GitHub Pages workflow kopíruje konkrétní soubory |
-| `flutter_czechmate/` | CI, package name, desítky odkazů v docs |
+| `main/`, `components/`, root `CMakeLists.txt`, `sdkconfig*` | ESP-IDF expects project at root |
+| `firmware/version.json` | OTA manifest — raw URL in app and CI |
+| `embedded/stm32_fw_embedded.bin` | Flash partition `stm32_fw` in `CMakeLists.txt` |
+| `sdkconfig.defaults.hall_v2` | Hall V2 + STM32 auto-flash build profile |
+| `gh-pages-ready/` | GitHub Pages workflow copies specific files |
+| `flutter_czechmate/` | CI, package name, dozens of doc links |
 
 ---
 
-## Kořen repozitáře
+## Repository root
 
 ```
 chess_esp32_c6_devkit/
-├── main/                    # Boot ESP-IDF, start tasků
-├── components/              # FreeRTOS moduly (viz tabulka níže)
-├── flutter_czechmate/       # Flutter klient (BLE / HTTP / WS)
-├── docs/                    # Dokumentace lidí + diagramy
-├── scripts/                 # Automatizace — viz scripts/README.md
+├── main/                    # ESP-IDF boot, task startup
+├── components/              # FreeRTOS modules (see table below)
+├── flutter_czechmate/       # Flutter client (BLE / HTTP / WS)
+├── docs/                    # Human docs + diagrams
+├── scripts/                 # Automation — see scripts/README.md
 ├── firmware/
 │   ├── version.json         # ESP OTA manifest (semver + URL .bin)
-│   └── stm32_hall_c031/     # STM32 zdroj (Hall V2)
+│   └── stm32_hall_c031/     # STM32 source (Hall V2)
 ├── embedded/
-│   └── stm32_fw_embedded.bin  # Binárka pro flash oddíl ESP
-├── gh-pages-ready/          # Zdroj statického webu (downloads, landing)
-├── .github/workflows/       # CI: Pages, diagramy, Flutter release, firmware build, flutter test
-├── partitions*.csv          # Tabulky oddílů flash
-├── Doxyfile                 # Doxygen konfigurace
+│   └── stm32_fw_embedded.bin  # Binary for ESP flash partition
+├── gh-pages-ready/          # Static web source (downloads, landing)
+├── .github/workflows/       # CI: Pages, diagrams, Flutter release, firmware build, flutter test
+├── partitions*.csv          # Flash partition tables
+├── Doxyfile                 # Doxygen config
 ├── generate_docs.sh         # Wrapper → scripts/docs/generate_docs.sh
-└── README.md                # Úvod projektu
+└── README.md                # Project intro
 ```
 
-Generované / gitignored: `build/`, `managed_components/`, `docs/doxygen/html/`, `context/`, `.cache/`.
+Generated / gitignored: `build/`, `managed_components/`, `docs/doxygen/html/`, `context/`, `.cache/`.
 
 ---
 
-## `components/` — skupiny
+## `components/` — groups
 
-| Skupina | Komponenty | Poznámka |
+| Group | Components | Note |
 |---------|------------|----------|
-| **Jádro** | `freertos_chess`, `game_task`, `game_hooks`, `timer_system` | Fronty, šachová logika, čas |
-| **Vstupy** | `matrix_task`, `button_task`, `stm32_i2c_bootloader` | Reed V1 / příprava I²C Hall V2 |
-| **Výstupy** | `led_task`, `led_state_manager`, `unified_animation_manager`, `game_led_animations`, `visual_error_system` | WS2812B, animace, chyby |
-| **Konektivita** | `uart_task`, `uart_commands_extended`, `web_server_task`, `ble_task`, `ha_light_task` | Konzole, HTTP, BLE, MQTT |
-| **Podpora** | `config_manager`, `test_task` | NVS/konfigurace; testy (menuconfig) |
-| **Legacy / neaktivní task** | `animation_task`, `enhanced_castling_system`, `promotion_button_task`, `reset_button_task` | Task v `main.c` nevytvářen nebo není linkován |
+| **Core** | `freertos_chess`, `game_task`, `game_hooks`, `timer_system` | Queues, chess logic, clock |
+| **Inputs** | `matrix_task`, `button_task`, `stm32_i2c_bootloader` | Reed V1 / I²C Hall V2 prep |
+| **Outputs** | `led_task`, `led_state_manager`, `unified_animation_manager`, `game_led_animations`, `visual_error_system` | WS2812B, animation, errors |
+| **Connectivity** | `uart_task`, `uart_commands_extended`, `web_server_task`, `ble_task`, `ha_light_task` | Console, HTTP, BLE, MQTT |
+| **Support** | `config_manager`, `test_task` | NVS/config; tests (menuconfig) |
+| **Legacy / inactive task** | `animation_task`, `enhanced_castling_system`, `promotion_button_task`, `reset_button_task` | Task not created in `main.c` or not linked |
 
-Detailní strom souborů (zjednodušený):
+Simplified file tree:
 
 ```
 components/
-├── freertos_chess/          # Fronty, mutexy, mapování LED
-├── game_task/               # Šachová logika (největší modul)
-├── matrix_task/             # 8×8 reed sken
-├── led_task/                # WS2812B + animační pipeline
-├── button_task/             # Tlačítka (promoce, reset, …)
-├── uart_task/               # USB Serial JTAG konzole
+├── freertos_chess/          # Queues, mutexes, LED mapping
+├── game_task/               # Chess logic (largest module)
+├── matrix_task/             # 8×8 reed scan
+├── led_task/                # WS2812B + animation pipeline
+├── button_task/             # Buttons (promotion, reset, …)
+├── uart_task/               # USB Serial JTAG console
 ├── web_server_task/         # HTTP, REST; web/chess_app.js, web/piece_assets/
 ├── ble_task/                # NimBLE GATT
 ├── ha_light_task/           # MQTT Home Assistant
@@ -78,49 +78,49 @@ components/
 ├── stm32_i2c_bootloader/
 ├── uart_commands_extended/
 ├── game_hooks/
-├── test_task/               # Volitelný (menuconfig)
-├── animation_task/          # Legacy — task vypnutý v main.c
-├── enhanced_castling_system/  # Není linkován z game_task
-├── promotion_button_task/   # Orphan — logika v button_task
-└── reset_button_task/       # Orphan — logika v button_task
+├── test_task/               # Optional (menuconfig)
+├── animation_task/          # Legacy — task disabled in main.c
+├── enhanced_castling_system/  # Not linked from game_task
+├── promotion_button_task/   # Orphan — logic in button_task
+└── reset_button_task/       # Orphan — logic in button_task
 ```
 
 ---
 
-## Klient a web
+## Client and web
 
-| Cesta | Obsah |
+| Path | Content |
 |-------|--------|
-| `flutter_czechmate/lib/` | UI, Riverpod, služby (BLE, API, Stockfish) |
-| `flutter_czechmate/ios/`, `android/`, `windows/`, … | Platformní projekty |
-| `components/web_server_task/web/chess_app.js` | Zdroj web UI (embed do firmware) |
-| `components/web_server_task/web/piece_assets/` | PNG figurek pro HTTP embed |
+| `flutter_czechmate/lib/` | UI, Riverpod, services (BLE, API, Stockfish) |
+| `flutter_czechmate/ios/`, `android/`, `windows/`, … | Platform projects |
+| `components/web_server_task/web/chess_app.js` | Web UI source (embed into firmware) |
+| `components/web_server_task/web/piece_assets/` | Piece PNGs for HTTP embed |
 | `components/web_server_task/tools/` | embed_chess_js.py, process_piece_pngs.py, … |
-| `gh-pages-ready/downloads.html` | Stránka stažení aplikace |
-| `gh-pages-ready/app_update.json` | Manifest verze Flutter klienta |
+| `gh-pages-ready/downloads.html` | App download page |
+| `gh-pages-ready/app_update.json` | Flutter client version manifest |
 
 ---
 
-## Dokumentace a skripty
+## Documentation and scripts
 
-| Cesta | Obsah |
+| Path | Content |
 |-------|--------|
 | `docs/diagrams/` | `sources/*.mmd`, SVG, `diagrams_mermaid.html` |
-| `docs/reference/` | Delší texty (tento soubor, komunikace tasků, …) |
-| `docs/flutter/` | Přehled Flutter klienta |
-| `docs/ota_architecture.md` | OTA kanály ESP ↔ aplikace |
+| `docs/reference/` | Longer texts (this file, task communication, …) |
+| `docs/flutter/` | Flutter client overview |
+| `docs/ota_architecture.md` | OTA channels ESP ↔ app |
 | `scripts/docs/` | `generate_docs.sh`, `generate_mermaid_html.py`, PDF |
-| `scripts/render_docs.sh` | Přegenerování diagramů |
+| `scripts/render_docs.sh` | Regenerate diagrams |
 
-Příkazy: [docs/README.md](../README.md#typické-příkazy). Skripty: [scripts/README.md](../../scripts/README.md).
+Commands: [docs/README.md](../README.md#typical-commands). Scripts: [scripts/README.md](../../scripts/README.md).
 
 ---
 
-## Lokální složky (gitignore)
+## Local folders (gitignore)
 
-| Cesta | Účel |
-|-------|------|
-| `context/` | Podklady pro AI, OTA logy, zapojení HW |
-| `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` | Osobní backlog diagramů |
-| `private-notes/` | Checklisty mimo Git |
-| `CZECHMATE/` | Xcode projekt (jen lokálně) |
+| Path | Purpose |
+|-------|--------|
+| `context/` | AI context, OTA logs, HW wiring notes |
+| `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md` | Personal diagram backlog |
+| `private-notes/` | Checklists outside Git |
+| `CZECHMATE/` | Xcode project (local only) |

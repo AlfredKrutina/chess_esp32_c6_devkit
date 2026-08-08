@@ -7,7 +7,7 @@ import '../../../core/utils/user_facing_error_message.dart';
 import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 
-/// Rychlý pruh jasu + odkaz na detail (parita `BoardLampQuickStrip`).
+/// Quick brightness strip + detail link (parity `BoardLampQuickStrip`).
 class BoardLampQuickStrip extends ConsumerWidget {
   const BoardLampQuickStrip({super.key});
 
@@ -64,7 +64,7 @@ class BoardLampQuickStrip extends ConsumerWidget {
   }
 }
 
-/// Plný panel lampy — jas, RGB, režim hry (HTTP).
+/// Full lamp panel — brightness, RGB, game mode (HTTP).
 class BoardLampBlock extends ConsumerStatefulWidget {
   const BoardLampBlock({super.key, this.showTitle = true});
 

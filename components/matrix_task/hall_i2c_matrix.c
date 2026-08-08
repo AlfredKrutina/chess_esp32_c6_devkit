@@ -16,10 +16,10 @@ static const char *TAG = "HALL_I2C";
 #endif
 
 static bool s_i2c_ready;
-/** Bit i = segment i už dostal jednorázové ESP_LOGW při selhání čtení (reset při úspěchu). */
+/** Bit i = segment i has already received a one-time ESP_LOGW on read failure (reset on success). */
 static uint8_t s_read_fail_warned_mask;
 
-/** Explicitní interní pull-up na pinech sběrnice (doplňuje i2c_config_t). */
+/** Explicit internal pull-up on bus pins (complements i2c_config_t). */
 static void hall_i2c_apply_bus_pullups(void) {
   gpio_num_t sda = (gpio_num_t)CONFIG_CHESS_HALL_I2C_SDA_GPIO;
   gpio_num_t scl = (gpio_num_t)CONFIG_CHESS_HALL_I2C_SCL_GPIO;
@@ -29,12 +29,12 @@ static void hall_i2c_apply_bus_pullups(void) {
     ESP_LOGW(TAG, "pull-up SDA/SCL: %s / %s", esp_err_to_name(e1),
              esp_err_to_name(e2));
   } else {
-    ESP_LOGI(TAG, "SDA=%d SCL=%d: GPIO_PULLUP_ONLY (ESP interní)", (int)sda,
+    ESP_LOGI(TAG, "SDA=%d SCL=%d: GPIO_PULLUP_ONLY (ESP internal)", (int)sda,
              (int)scl);
   }
 }
 
-/** Mapování: segment 0 = DESKA u ESP (a–d × řady 1–4), dál po CCW jako čtvrtky šachovnice. */
+/** Mapping: segment 0 = BOARD at ESP (a–d × rows 1–4), further CCW like the squares of a chessboard. */
 static uint8_t hall_map_segment_field_to_square(unsigned seg, unsigned field) {
   unsigned lr = field / 4;
   unsigned lc = field % 4;
@@ -165,7 +165,7 @@ void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
   bool do_log = false;
 #endif
 
-  /* Po přidání Kconfig položky může starý sdkconfig makro nemít — výchozí 4 segmenty. */
+  /* After adding a Kconfig entry, the old sdkconfig macro may not have — default 4 segments. */
 #if defined(CONFIG_CHESS_HALL_SEGMENT_COUNT)
   unsigned seg_max = (unsigned)CONFIG_CHESS_HALL_SEGMENT_COUNT;
 #else
@@ -195,7 +195,7 @@ void hall_i2c_matrix_fill_state(uint8_t matrix_state[64]) {
       if ((s_read_fail_warned_mask & bit) == 0) {
         ESP_LOGW(TAG,
                  "segment %u addr 0x%02x read failed: %s "
-                 "(další selhání stejného segmentu jen DEBUG)",
+                 "(another failure of the same segment only DEBUG)",
                  seg, addr, esp_err_to_name(err));
         s_read_fail_warned_mask |= bit;
       } else {

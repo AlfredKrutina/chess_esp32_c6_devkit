@@ -105,7 +105,7 @@ command_result_t uart_cmd_castle(const char *args) {
     return CMD_ERROR_INVALID_SYNTAX;
   }
 
-  // Reset watchdog timeru po dokončení
+  // Reset watchdog timer after completion
   SAFE_WDT_RESET();
 
   ESP_LOGI(TAG, "✅ Castle analysis completed successfully (local)");
@@ -295,7 +295,7 @@ command_result_t uart_cmd_move(const char *args) {
       // Step 3: Send DROP command WITH validation via EXISTING response queue
       uart_send_colored_line(COLOR_INFO, "🔄 Placing piece...");
 
-      // Použití existující globální uart_response_queue
+      // Using an existing global uart_response_queue
       chess_move_command_t drop_cmd = {.type = GAME_CMD_DROP,
                                        .player = 0,
                                        .response_queue =
@@ -398,17 +398,17 @@ command_result_t uart_cmd_up(const char *args) {
     return CMD_ERROR_SYSTEM_ERROR;
   }
 
-  // Čekání na odpověď z game tasku (může obsahovat chybu)
+  // Waiting for response from game task (may contain error)
   game_response_t response;
   if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(5000)) ==
       pdTRUE) {
     if (response.error_code != 0) {
-      // Chyba při zvednutí!
+      // Upload error!
       uart_send_error(response.message);
       return CMD_ERROR_INVALID_PARAMETER;
     }
 
-    // Úspěch!
+    // Success!
     char msg[64];
     snprintf(msg, sizeof(msg), "🔄 Piece lifted from %s", square);
     uart_send_colored_line(COLOR_INFO, msg);
@@ -468,7 +468,7 @@ command_result_t uart_cmd_dn(const char *args) {
     return CMD_ERROR_SYSTEM_ERROR;
   }
 
-  // Čekání na odpověď z game_task pro validaci tahu
+  // Waiting for a response from game_task to validate the move
   game_response_t response;
   if (xQueueReceive(uart_response_queue, &response, pdMS_TO_TICKS(5000)) ==
       pdTRUE) {
@@ -495,7 +495,7 @@ command_result_t uart_cmd_dn(const char *args) {
 command_result_t uart_cmd_board(const char *args) {
   (void)args; // Unused parameter
 
-  // Reset watchdog timeru před operacemi
+  // Reset watchdog timer before operations
   SAFE_WDT_RESET();
 
   uart_send_colored_line(COLOR_INFO, "🏁 Chess Board");
@@ -513,7 +513,7 @@ command_result_t uart_cmd_board(const char *args) {
 
   // Display board row by row to minimize stack usage
   for (int row = 7; row >= 0; row--) {
-    // Reset watchdog timeru před každým řádkem
+    // Reset the watchdog timer before each line
     SAFE_WDT_RESET();
 
     // Build row string in small buffer
@@ -592,7 +592,7 @@ command_result_t uart_cmd_board(const char *args) {
                                                                 : "Black");
   uart_send_formatted("Move count: %" PRIu32, game_get_move_count());
 
-  // Reset watchdog timeru po dokončení
+  // Reset watchdog timer after completion
   SAFE_WDT_RESET();
 
   uart_send_formatted("");
@@ -609,7 +609,7 @@ command_result_t uart_cmd_board(const char *args) {
 command_result_t uart_cmd_led_board(const char *args) {
   (void)args; // Unused parameter
 
-  // Reset watchdog timeru před operacemi
+  // Reset watchdog timer before operations
   SAFE_WDT_RESET();
 
   uart_send_colored_line(COLOR_INFO, "🔍 LED Board Status");
@@ -628,7 +628,7 @@ command_result_t uart_cmd_led_board(const char *args) {
                          "💡 LED Colors: 🟡 Yellow (lifted), 🟢 Green "
                          "(possible), 🟠 Orange (capture), 🔵 Blue (placed)");
 
-  // Reset watchdog timeru po dokončení
+  // Reset watchdog timer after completion
   SAFE_WDT_RESET();
 
   ESP_LOGI(TAG, "✅ LED board display completed successfully (local)");
@@ -644,7 +644,7 @@ void uart_display_enhanced_board(void) {
 
   bool mutex_taken = false;
   if (uart_mutex != NULL) {
-    // Použití kratšího timeoutu pro prevenci WDT problémů
+    // Using a shorter timeout to prevent WDT problems
     mutex_taken = (xSemaphoreTake(uart_mutex, pdMS_TO_TICKS(50)) == pdTRUE);
     if (!mutex_taken) {
       ESP_LOGW(TAG, "Mutex timeout in board display, continuing without mutex");
@@ -663,7 +663,7 @@ void uart_display_enhanced_board(void) {
   uart_write_string_immediate("  +---+---+---+---+---+---+---+---+\n");
 
   for (int row = 7; row >= 0; row--) {
-    // Reset watchdog timeru každých několik řádků
+    // Reset the watchdog timer every few lines
     if (row % 2 == 0) {
       SAFE_WDT_RESET();
     }
@@ -677,7 +677,7 @@ void uart_display_enhanced_board(void) {
       uart_write_string_immediate("\033[0m"); // reset colors
 
     for (int col = 0; col < 8; col++) {
-      // Reset watchdog timeru před voláním game funkcí
+      // Reset watchdog timer before calling game functions
       if (col % 4 == 0) {
         SAFE_WDT_RESET();
       }
@@ -709,7 +709,7 @@ void uart_display_enhanced_board(void) {
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_write_string_immediate("\n");
 
-  // Reset watchdog timeru před game status voláními
+  // Reset watchdog timer before game status calls
   SAFE_WDT_RESET();
 
   // Game status
@@ -728,7 +728,7 @@ void uart_display_enhanced_board(void) {
     uart_write_string_immediate("\033[0m"); // reset colors
   uart_write_string_immediate("\n");
 
-  // Finální reset watchdog timeru
+  // Final watchdog timer reset
   SAFE_WDT_RESET();
 
   if (uart_mutex != NULL && mutex_taken) {
@@ -845,7 +845,7 @@ command_result_t uart_cmd_show_moves(const char *args) {
       uart_send_formatted("📍 Piece at %s: %s", trimmed_args,
                           game_get_piece_name(piece));
 
-      // Přímé volání LED funkce
+      // Direct call of the LED function
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255,
                          0); // Yellow for selected piece
 

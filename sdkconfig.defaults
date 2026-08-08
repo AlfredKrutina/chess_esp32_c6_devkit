@@ -1,12 +1,12 @@
-# ESP32-C6 Chess v2.4 — výchozí Kconfig pro nový build / clone.
-# Sladit s `sdkconfig`: při změně defaults často `idf.py fullclean reconfigure build`.
-# Klíče zde přepisují tovární výchozí IDF; samotný `sdkconfig` drží plný strom z menuconfig.
+# ESP32-C6 Chess v2.4 — default Kconfig for a new build / clone.
+# Keep in sync with `sdkconfig`: after changing defaults often run `idf.py fullclean reconfigure build`.
+# Keys here override IDF factory defaults; `sdkconfig` itself holds the full tree from menuconfig.
 CONFIG_IDF_TARGET="esp32c6"
 
-# CzechMate — automatizovaný test task (vypni pro úsporu ~4,5 KiB stack + TCB)
+# CzechMate — automated test task (disable to save ~4.5 KiB stack + TCB)
 # CONFIG_CHESS_ENABLE_TEST_TASK is not set
 
-# HTTP web server — vypni pro BLE-only / menší firmware (bez REST, WS, PNG embedů):
+# HTTP web server — disable for BLE-only / smaller firmware (no REST, WS, PNG embeds):
 CONFIG_CHESS_ENABLE_WEB_SERVER=y
 
 # Gameplay safety profile (FULL — production defaults)
@@ -33,7 +33,7 @@ CONFIG_CHESS_MH_PROMOTION_BLUE=y
 CONFIG_CHESS_MH_MOVABLE_YELLOW=y
 CONFIG_CHESS_DIAG_UART_ERROR_DETAIL=y
 
-# HTTP server — WebSocket /ws (watchOS/iOS); bez toho klient dostane „bad response“ (-1011)
+# HTTP server — WebSocket /ws (watchOS/iOS); without it the client gets “bad response” (-1011)
 CONFIG_HTTPD_WS_SUPPORT=y
 
 # System
@@ -64,28 +64,28 @@ CONFIG_NVS_ENCRYPTION=n
 # Security Configuration
 CONFIG_SECURE_BOOT_V2_ENABLED=n
 
-# WiFi — nutné pro web_server (AP/STA), HTTP, WebSocket, mDNS. Bez toho aplikace přes LAN nefunguje.
+# WiFi — required for web_server (AP/STA), HTTP, WebSocket, mDNS. Without it the LAN app path does not work.
 CONFIG_ESP_WIFI_ENABLED=y
 CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
 CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=8
 
-# Bluetooth — NimBLE GATT (CZECHMATE). Po změně spusť `idf.py fullclean reconfigure build`.
-# Pokud sdkconfig přepisuje defaults, zapni BT v menuconfig Component config → Bluetooth.
+# Bluetooth — NimBLE GATT (CZECHMATE). After changing, run `idf.py fullclean reconfigure build`.
+# If sdkconfig overrides defaults, enable BT in menuconfig Component config → Bluetooth.
 CONFIG_BT_ENABLED=y
 CONFIG_BT_NIMBLE_ENABLED=y
-# Větší MSYS pool — při AP/STA + HTTP může default nestačit na ATT; pomáhá proti „0 služeb“ na iOS.
+# Larger MSYS pool — with AP/STA + HTTP the default may be too small for ATT; helps against “0 services” on iOS.
 CONFIG_BT_NIMBLE_MSYS_1_BLOCK_COUNT=32
 CONFIG_BT_NIMBLE_MSYS_2_BLOCK_COUNT=32
-# Host task: default 4096 nestačí — GATT read snapshotu volá build_snapshot (clock_json ~1 KiB na stacku)
-# + NimBLE/HS + coexistence → Guru Meditation „Stack protection fault“ v nimble_host (viz log).
+# Host task: default 4096 is not enough — GATT snapshot read calls build_snapshot (clock_json ~1 KiB on stack)
+# + NimBLE/HS + coexistence → Guru Meditation “Stack protection fault” in nimble_host (see log).
 CONFIG_BT_NIMBLE_HOST_TASK_STACK_SIZE=8192
-# Bonding klíče do NVS — po restartu desky zůstane párování (iOS/Android); vyžaduje ble_store_config_init().
+# Bonding keys in NVS — pairing survives board reboot (iOS/Android); requires ble_store_config_init().
 CONFIG_BT_NIMBLE_NVS_PERSIST=y
-# INFO loguje každý GATT notify (snapshot chunky) — zaplaví sériovku; WARNING stačí na chyby/varování.
+# INFO logs every GATT notify (snapshot chunks) — floods the serial port; WARNING is enough for errors/warnings.
 # CONFIG_BT_NIMBLE_LOG_LEVEL_INFO is not set
 CONFIG_BT_NIMBLE_LOG_LEVEL_WARNING=y
 
-# WiFi + BLE na jednom čipu (nutné pro stabilní provoz obojího).
+# WiFi + BLE on one chip (required for stable dual operation).
 CONFIG_ESP_COEX_ENABLED=y
 CONFIG_ESP_COEX_SW_COEXIST_ENABLE=y
 
@@ -102,9 +102,9 @@ CONFIG_COMPILER_OPTIMIZATION_DEBUG=y
 CONFIG_COMPILER_OPTIMIZATION_ASSERTIONS_ENABLE=y
 CONFIG_COMPILER_STACK_CHECK_MODE_NONE=y
 
-# Build Configuration — výchozí 16 MB flash + partitions.csv (dual OTA + stm32_fw).
-# Modul se skutečně 4 MB flash → přepni na CONFIG_ESPTOOLPY_FLASHSIZE_4MB a
-# partitions_4mb_factory_only.csv nebo partitions_4mb_dual_ota.csv (jen malý build).
+# Build Configuration — default 16 MB flash + partitions.csv (dual OTA + stm32_fw).
+# Module that actually has 4 MB flash → switch to CONFIG_ESPTOOLPY_FLASHSIZE_4MB and
+# partitions_4mb_factory_only.csv or partitions_4mb_dual_ota.csv (small build only).
 CONFIG_APP_RETRIEVE_LEN_ELF_SHA=16
 CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
 CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
@@ -117,20 +117,20 @@ CONFIG_ESPTOOLPY_HEADER_FLASHSIZE_UPDATE=y
 CONFIG_PARTITION_TABLE_CUSTOM=y
 CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 
-# OTA rollback — nový image musí potvrdit esp_ota_mark_app_valid_cancel_rollback() v main.
+# OTA rollback — new image must call esp_ota_mark_app_valid_cancel_rollback() in main.
 CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
 CONFIG_APP_ROLLBACK_ENABLE=y
 
-# --- Matrix vstup (build-time choice) ---
-# Reed: matrix_scan_all() dělá GPIO multiplex 8×8 (viz matrix_task.c + MATRIX_* v freertos_chess.h).
-# Hall: hall_i2c_matrix_fill_state() čte 4× STM přes I2C (hall_i2c_spec.h).
+# --- Matrix input (build-time choice) ---
+# Reed: matrix_scan_all() does GPIO multiplex 8×8 (see matrix_task.c + MATRIX_* in freertos_chess.h).
+# Hall: hall_i2c_matrix_fill_state() reads 4× STM over I2C (hall_i2c_spec.h).
 #
-# Návrat k „STM flash přes I2C při běhu“:
+# To restore “STM flash over I2C at runtime”:
 # - idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
-# - menuconfig: CHESS_MATRIX_INPUT_I2C_HALL + CHESS_STM32_I2C_BL_ENABLE (+ často CHESS_STM32_BL_SHARE_I2C_HALL=y).
-# - Zapojení: docs/reference/ZAPOJENI_ESP_STM4.md
+# - menuconfig: CHESS_MATRIX_INPUT_I2C_HALL + CHESS_STM32_I2C_BL_ENABLE (+ often CHESS_STM32_BL_SHARE_I2C_HALL=y).
+# - Wiring: docs/reference/WIRING_ESP_STM4.md
 CONFIG_CHESS_MATRIX_INPUT_GPIO_REED=y
 # CONFIG_CHESS_MATRIX_INPUT_I2C_HALL is not set
 
-# STM32 ROM bootloader (AN4221) — vypnuto v reed profilu kvůli kolizi pinů výše.
+# STM32 ROM bootloader (AN4221) — disabled in the reed profile due to the pin clash above.
 # CONFIG_CHESS_STM32_I2C_BL_ENABLE is not set

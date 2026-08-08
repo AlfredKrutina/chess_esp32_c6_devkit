@@ -3,9 +3,9 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'flutter_blue_plus_host_supported.dart';
 
-/// BLE scan / connect: runtime oprávnění podle platformy (Android 12+ / Apple).
+/// BLE scan / connect: runtime permissions by platform (Android 12+ / Apple).
 ///
-/// Windows [isFlutterBluePlusHostSupported] je false — volání před scanem je no-op.
+/// Windows [isFlutterBluePlusHostSupported] is false — calling before scan is a no-op.
 Future<bool> ensureBlePermissionsForScan() async {
   if (kIsWeb || !isFlutterBluePlusHostSupported) return true;
 
@@ -34,7 +34,7 @@ Future<bool> ensureBlePermissionsForScan() async {
   }
 }
 
-/// Stav BLE oprávnění bez promptu (onboarding indikátory).
+/// BLE authorization status without prompt (onboarding indicators).
 Future<bool?> blePermissionGrantedSnapshot() async {
   if (kIsWeb || !isFlutterBluePlusHostSupported) return null;
   try {
@@ -56,8 +56,8 @@ Future<bool?> blePermissionGrantedSnapshot() async {
   }
 }
 
-/// Čtení aktuálního SSID ([network_info_plus]): Android 13+ „Nearby Wi‑Fi“, starší Android
-/// často Location; iOS vyžaduje Location When In Use (+ plist).
+/// Read current SSID ([network_info_plus]): Android 13+ "Nearby Wi-Fi", older Android
+/// often Location; iOS requires Location When In Use (+ plist).
 Future<bool> ensureWifiSsidReadPermissions() async {
   if (kIsWeb) return false;
 

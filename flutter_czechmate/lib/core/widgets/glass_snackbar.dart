@@ -12,9 +12,9 @@ bool _macTopRightGlassToastPlacement() {
 
 /// Floating snack bar with blur + translucent surface (liquid-glass style).
 ///
-/// Na **macOS** se zobrazí v **pravém horním rohu** a vjede zprava (overlay),
-/// aby nepřekrýval spodek okna. Jinak spodní plovoucí [SnackBar] se stejným
-/// skleněným obsahem.
+/// On **macOS** it appears in the **upper right corner** and enters from the right (overlay),
+/// so that it does not overlap the bottom of the window. Otherwise, the bottom floating [SnackBar] with the same
+/// glass content.
 void showGlassSnackBar(
   BuildContext context,
   String message, {
@@ -47,8 +47,8 @@ void showGlassSnackBar(
   );
 }
 
-/// Jednotná textová zpětná vazba — vždy stejný liquid-glass styl jako
-/// [showGlassSnackBar]; [errorStyle] jen mění barvy (chyba vs. neutrál).
+/// Uniform text feedback — always the same liquid-glass style as
+/// [showGlassSnackBar]; [errorStyle] just changes colors (error vs. neutral).
 void showAppSnackBar(
   BuildContext context,
   String message, {

@@ -25,7 +25,7 @@ import '../firmware_ota_runner.dart';
 import '../firmware_update_availability.dart';
 import 'ota_https_sta_gate_dialog.dart';
 
-/// OTA: manifest z Gitu v aplikaci; stažení .bin do aplikace na tomto zařízení + přenos na desku přes hotspot HTTP, LAN nebo čistě BLE.
+/// OTA: manifest from Git in the app; download .bin to app on this device + transfer to board via hotspot HTTP, LAN or pure BLE.
 class FirmwareUpdateSection extends ConsumerStatefulWidget {
   const FirmwareUpdateSection({super.key});
 
@@ -47,7 +47,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
   bool _otaBusy = false;
   int _otaPercent = 0;
 
-  /// BLE stream OTA (`uploadFirmwareOtaBle`) — při přechodu do pozadí upozorníme po návratu.
+  /// BLE stream OTA (`uploadFirmwareOtaBle`) — when going into the background, we'll notify upon return.
   bool _bleStreamOtaWatchBackground = false;
   bool _pendingBleBackgroundNotice = false;
   File? _cachedOtaFile;
@@ -176,7 +176,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     );
   }
 
-  /// IPv4 z HTTP základní URL desky (Wi‑Fi STA / uložená URL), jinak z BLE `sta_ip`.
+  /// IPv4 from HTTP base board URL (Wi‑Fi STA / stored URL), otherwise from BLE `sta_ip`.
   String? _ipv4BoardHostForPhoneHostedOta(
     String? boardHttpBaseUrl,
     BoardSessionState session,
@@ -210,7 +210,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
     return f != null && v != null && v.trim().isNotEmpty && f.existsSync();
   }
 
-  /// Aktuální manifest ze serveru, nebo syntetický z lokálně uloženého `.bin`.
+  /// Current manifest from the server, or synthetic from a locally saved `.bin`.
   FirmwareManifest? _effectiveManifestForUi(FirmwareAvailState snap) {
     if (snap.manifest != null) return snap.manifest;
     if (!_persistedFirmwareBinReady()) return null;
@@ -614,8 +614,8 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
             normalizeBoardHttpBaseUrl('http://${session.bleStaIp!.trim()}');
       }
     }
-    /* Na subnetu AP je HTTP API desky vždy na 192.168.4.1:80 — přepsat špatnou URL
-     * ze session/prefs (např. omylem stejný port jako HttpServer aplikace na tomto zařízení). */
+    /* On the AP subnet the board HTTP API is always at 192.168.4.1:80 — rewrite a bad URL
+     * from session/prefs (e.g. accidentally the same port as this device’s app HttpServer). */
     if (onApSubnet) {
       baseUrl = normalizeBoardHttpBaseUrl('http://192.168.4.1');
     }

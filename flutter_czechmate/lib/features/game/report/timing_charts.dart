@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/utils/game_end_report_timing.dart';
 
-/// Kumulativní „uběhlý čas“ v minutách po půltazích — Area + čára (Swift `AreaMark` + `LineMark`).
+/// Cumulative "elapsed time" in minutes after half moves — Area + line (Swift `AreaMark` + `LineMark`).
 class CumulativePlayedTimeChart extends StatelessWidget {
   const CumulativePlayedTimeChart({
     super.key,
@@ -126,7 +126,7 @@ class _CumulativePainter extends CustomPainter {
       oldDelegate.axisColor != axisColor;
 }
 
-/// Sloupce času na tah (s) — horizontální scroll jako na iOS.
+/// Columns of time per move (s) — horizontal scroll like on iOS.
 class TimePerMoveBarChart extends StatelessWidget {
   const TimePerMoveBarChart({
     super.key,

@@ -7,7 +7,7 @@ const _watchChannel = MethodChannel('czechmate/watch');
 
 bool _watchInboundBound = false;
 
-/// Příkazy z Apple Watch (native → Flutter `onWatchCommand`).
+/// Commands from Apple Watch (native → Flutter `onWatchCommand`).
 void ensureWatchInboundBinding(WidgetRef ref) {
   if (_watchInboundBound) return;
   _watchInboundBound = true;

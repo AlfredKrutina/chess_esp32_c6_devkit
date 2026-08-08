@@ -1,21 +1,21 @@
 /**
  * @file config_manager.c
- * @brief ESP32-C6 Chess System v1.8.0 - Sprava konfigurace
+ * @brief ESP32-C6 Chess System v1.8.0 - Configuration management
  *
- * Tento modul zpracovava persistenci systemove konfigurace v NVS:
- * - Nacteni/ulozeni konfigurace z/do NVS
- * - Aplikace konfiguracnich nastaveni
- * - Sprava vychozi konfigurace
- * - Validace konfigurace
+ * This module handles system configuration persistence in NVS:
+ * - Load/save configuration from/to NVS
+ * - Application of configuration settings
+ * - Manage default configuration
+ * - Configuration validation
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
- * Tento modul umoznuje ulozeni a nacteni konfigurace systemu
- * do/ze NVS flash pameti. Udrzuje vychozi hodnoty a validuje
- * konfiguraci pred aplikaci.
+ * This module enables the system configuration to be saved and loaded
+ * to/from NVS flash memory. Maintains default values and validates
+ * configuration before application.
  */
 
 #include "config_manager.h"
@@ -30,7 +30,7 @@ static const char *TAG = "CONFIG_MANAGER";
 
 // Default configuration values
 static const system_config_t default_config = {.verbose_mode = false,
-                                               /* První flash bez NVS klíče „quiet“: tišší konzole; NVS hodnotu přepíše. */
+                                               /* First flash without NVS key "quiet": quieter console; NVS will overwrite the value. */
                                                .quiet_mode = true,
                                                .guided_capture_hints_enabled =
                                                    true,

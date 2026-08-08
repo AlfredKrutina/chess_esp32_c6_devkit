@@ -5,7 +5,7 @@
 console.log('🚀 Chess JavaScript loading...');
 
 // ============================================================================
-// TAB SWITCHING (Hra / Nastavení)
+// TAB SWITCHING (Game / Settings)
 // ============================================================================
 
 function switchTab(tabId) {
@@ -34,8 +34,8 @@ const pieceSymbols = {
 };
 
 /**
- * PNG figurky z chess.com (veřejné CDN URL, Staunton „neo“, 150 px).
- * Vyžaduje, aby prohlížeč měl přístup na internet (jinak fallback na Unicode v setPieceElementFromFen).
+ * PNG pieces from chess.com (public CDN URL, Staunton "neo", 150 px).
+ * Requires the browser to have internet access (otherwise fallback to Unicode in setPieceElementFromFen).
  * @see https://www.chess.com/chess-themes/pieces/neo/150/wk.png
  */
 const CHESSCOM_PIECE_BASE = 'https://www.chess.com/chess-themes/pieces/neo/150/';
@@ -61,7 +61,7 @@ function setPieceElementFromFen(el, ch) {
     if (src) {
         const isWhite = ch >= 'A' && ch <= 'Z';
         el.className = 'piece has-img ' + (isWhite ? 'white' : 'black');
-        // BUG FIX 2: Fallback na Unicode když obrázek selže (CDN výpadek/CORS/blokátor)
+        // BUG FIX 2: Fallback to Unicode when image fails (CDN outage/CORS/blocker)
         const unicodeFallback = pieceSymbols[ch] || ch;
         const colorClass = isWhite ? 'white' : 'black';
         el.innerHTML = '<img src="' + src + '" alt="" draggable="false" onerror="this.parentNode.textContent=\'' + unicodeFallback + '\';this.parentNode.className=\'piece ' + colorClass + '\';">';
@@ -75,7 +75,7 @@ function setPieceElementFromFen(el, ch) {
 function pieceImgHtml(ch) {
     const s = pieceImgSrc(ch);
     if (s) {
-        // BUG FIX 2: Fallback na Unicode když obrázek selže
+        // BUG FIX 2: Fallback to Unicode when image fails
         const unicodeFallback = pieceSymbols[ch] || ch;
         return '<img src="' + s + '" class="endgame-piece-img" alt="" draggable="false" onerror="this.parentNode.textContent=\'' + unicodeFallback + '\';this.parentNode.className=\'piece ' + (ch >= 'A' && ch <= 'Z' ? 'white' : 'black') + '\';">';
     }
@@ -86,7 +86,7 @@ function pieceImgHtml(ch) {
 
 let boardData = [];
 let statusData = {};
-/** Poslední stav puzzle ze úspěšného pollingu — zobrazení panelu při výpadku HTTP (offline). */
+/** Last puzzle state from a successful poll — show panel on HTTP outage (offline). */
 let lastPuzzleSnapshotForOffline = null;
 let historyData = [];
 let capturedData = { white_captured: [], black_captured: [] };
@@ -99,9 +99,9 @@ let sandboxMode = false;
 
 let remoteControlEnabled = false;
 // BOT MODE STATE
-// Bot tah se nikdy neprovádí automaticky – jen vizualizace (web + LED); uživatel pohybuje figurku fyzicky.
+// Bot move is never applied automatically – visualization only (web + LED); user moves the piece physically.
 let gameMode = 'pvp'; // 'pvp' or 'bot'
-let botSettings = { strength: 10, side: 'white' }; // strength: 1,3,5,8,12,15 (zobrazeno jako ELO v Nastavení)
+let botSettings = { strength: 10, side: 'white' }; // strength: 1,3,5,8,12,15 (shown as ELO in Settings)
 let botThinking = false;
 let gameGeneration = 0; // Incremented on New Game to invalidate stale bot requests
 /** FEN for which we already suggested a bot move; avoids re-triggering every poll until player moves. */
@@ -116,18 +116,18 @@ let sandboxHistory = [];
 /** For move evaluation: FEN after last fetch; length of history after last fetch. */
 let lastFen = null;
 let lastHistoryLength = -1;
-/** Per-move evaluation when "Zhodnocení tahu" is on: index -> { grade, msg }. */
+/** Per-move evaluation when "Move evaluation" is on: index -> { grade, msg }. */
 let moveEvaluations = {};
 let endgameReportShown = false;
 
-/** Výukový režim: každý hráč má vlastní počet nápověd. */
+/** Teaching mode: each player has their own hint count. */
 let hintsRemainingWhite = 999;
 let hintsRemainingBlack = 999;
-/** Počet sebraných figur po minulém pollu (pro detekci sebrání). */
+/** Captured piece count after the previous poll (for capture detection). */
 let lastCapturedCount = 0;
-/** Poslední nápověda { from, to } – odměna za výborný tah se nedává, pokud byl tah stejný. */
+/** Last hint { from, to } – no reward for an excellent move if it was the hinted move. */
 var lastHintedMove = null;
-/** Generace requestu nápovědy – při novém kliknutí se zvýší, zastaralé odpovědi se ignorují. */
+/** Hint request generation – incremented on new click; stale responses are ignored. */
 var hintRequestGeneration = 0;
 
 /** devicePrefs, hint getters, UI prefs — web/js/prefs.js */
@@ -204,14 +204,14 @@ function createBoard() {
 
 function clearHighlights() {
     document.querySelectorAll('.square').forEach(sq => {
-        // NEMAZAT lifted, error-invalid, error-original - tyto jsou řízené serverem
+        // DO NOT REMOVE lifted, error-invalid, error-original - these are server-controlled
         // (z piece_lifted a error_state v JSON statusu)
         sq.classList.remove('selected', 'valid-move', 'valid-capture');
     });
     selectedSquare = null;
 }
 
-/** Prah (px) pro rozlišení kliknutí vs. táhnutí figurky. */
+/** Threshold (px) to distinguish click vs. piece drag. */
 var BOARD_DRAG_THRESHOLD_PX = 12;
 
 function squareFromEventTarget(el) {
@@ -256,7 +256,7 @@ async function handleRemoteDragMove(fromRow, fromCol, toRow, toCol) {
     var piece = boardData[fromRow] && boardData[fromRow][fromCol];
     if (!piece || piece === ' ') return;
     if (isWebLocked()) {
-        alert('Rozhraní je zamčeno. Odemkněte přes UART.');
+        alert('Interface is locked. Unlock via UART.');
         return;
     }
     var fromN = coordsToNotation(fromRow, fromCol);
@@ -363,7 +363,7 @@ function toggleRemoteControl() {
 // Remote control: one click = one action (pickup or drop), same as backup / physical board.
 async function handleRemoteControlClick(row, col) {
     if (isWebLocked()) {
-        alert('Rozhraní je zamčeno. Odemkněte přes UART.');
+        alert('Interface is locked. Unlock via UART.');
         return;
     }
     const notation = String.fromCharCode(97 + col) + (row + 1);
@@ -393,7 +393,7 @@ async function handleRemoteControlClick(row, col) {
     } catch (e) {
         console.error('Remote virtual_action error:', e);
         await fetchData();
-        alert('Chyba: ' + (e.message || 'nelze odeslat příkaz'));
+        alert('Error: ' + (e.message || 'cannot send command'));
     }
 }
 
@@ -405,10 +405,10 @@ async function handleSquareClick(row, col) {
     const piece = sandboxMode ? sandboxBoard[row][col] : boardData[row][col];
     const index = row * 8 + col;
 
-    // SANDBOX MODE (Zkusit tahy) - vždy jen lokálně, i když je zapnuté dálkové ovládání
+    // SANDBOX MODE (Try moves) - always local only, even if remote control is on
     if (sandboxMode) {
         if (piece === ' ' && selectedSquare !== null) {
-            // Tah na prázdné pole
+            // Move to empty square
             const fromRow = Math.floor(selectedSquare / 8);
             const fromCol = selectedSquare % 8;
             makeSandboxMove(fromRow, fromCol, row, col);
@@ -422,21 +422,21 @@ async function handleSquareClick(row, col) {
                 const isOurPiece = (selectedPiece === selectedPiece.toUpperCase()) === (piece === piece.toUpperCase());
 
                 if (isSameSquare) {
-                    // Klik na stejné pole – zrušit výběr
+                    // Click same square – clear selection
                     clearHighlights();
                 } else if (isOurPiece) {
-                    // Klik na vlastní figurku – vybrat jinou
+                    // Click own piece – select another
                     clearHighlights();
                     selectedSquare = index;
                     const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
                     if (square) square.classList.add('selected');
                 } else {
-                    // Klik na soupeřovu figurku – brát (capture)
+                    // Click opponent piece – capture
                     makeSandboxMove(fromRow, fromCol, row, col);
                     clearHighlights();
                 }
             } else {
-                // Žádná figurka vybraná – vybrat tuto
+                // No piece selected – select this one
                 clearHighlights();
                 selectedSquare = index;
                 const square = document.querySelector(`[data-row='${row}'][data-col='${col}']`);
@@ -446,14 +446,14 @@ async function handleSquareClick(row, col) {
         return;
     }
 
-    // REMOTE CONTROL MODE - posílat příkazy na ESP (jen když nejsme v sandboxu)
+    // REMOTE CONTROL MODE - send commands to ESP (only when not in sandbox)
     if (remoteControlEnabled) {
         handleRemoteControlClick(row, col);
         return;
     }
 
-    // NORMÁLNÍ REŽIM (ne sandbox, ne remote control) - žádné POST requesty, žádný vizuální feedback
-    // Web je jen pasivní zobrazení, hra se ovládá fyzicky
+    // NORMAL MODE (not sandbox, not remote control) - no POST requests, no visual feedback
+    // Web is passive display only; the game is controlled physically
     return;
 }
 
@@ -490,7 +490,7 @@ function enterReviewMode(index) {
     currentReviewIndex = index;
     const banner = document.getElementById('review-banner');
     banner.classList.add('active');
-    document.getElementById('review-move-text').textContent = `Prohlížíš tah ${index + 1}`;
+    document.getElementById('review-move-text').textContent = `Reviewing move ${index + 1}`;
     const reconstructedBoard = reconstructBoardAtMove(index);
     updateBoard(reconstructedBoard);
     document.querySelectorAll('.square').forEach(sq => {
@@ -546,7 +546,7 @@ function enterSandboxMode() {
     clearHighlights();
     updateUndoButton();
     if (typeof console !== 'undefined' && console.log) {
-        console.log('[Sandbox] zapnuto — tahy jen lokálně, vizuálně odlišná šachovnice');
+        console.log('[Sandbox] enabled — moves local only, visually distinct board');
     }
 }
 
@@ -561,19 +561,19 @@ function exitSandboxMode() {
     clearHighlights();
     fetchData();
     if (typeof console !== 'undefined' && console.log) {
-        console.log('[Sandbox] vypnuto — obnovuji pozici z desky (HTTP)');
+        console.log('[Sandbox] disabled — restoring position from board (HTTP)');
     }
 }
 
 function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
     const piece = sandboxBoard[fromRow][fromCol];
-    const capturedPiece = sandboxBoard[toRow][toCol]; // Uložit captured piece (může být ' ')
+    const capturedPiece = sandboxBoard[toRow][toCol]; // Store captured piece (may be ' ')
 
-    // Provedení tahu
+    // Perform move
     sandboxBoard[toRow][toCol] = piece;
     sandboxBoard[fromRow][fromCol] = ' ';
 
-    // Uložit tah do historie s kompletními informacemi
+    // Store move in history with full information
     sandboxHistory.push({
         fromRow: fromRow,
         fromCol: fromCol,
@@ -583,9 +583,9 @@ function makeSandboxMove(fromRow, fromCol, toRow, toCol) {
         capturedPiece: capturedPiece
     });
 
-    // Omezit historii na 10 tahů
+    // Limit history to 10 moves
     if (sandboxHistory.length > 10) {
-        sandboxHistory.shift(); // Odstranit nejstarší tah
+        sandboxHistory.shift(); // Remove oldest move
     }
 
     updateBoard(sandboxBoard);
@@ -605,19 +605,19 @@ function updateUndoButton() {
 
 function undoSandboxMove() {
     if (sandboxHistory.length === 0) {
-        return; // Žádné tahy k vrácení
+        return; // No moves to undo
     }
 
-    // Vzít poslední tah z historie
+    // Take last move from history
     const lastMove = sandboxHistory.pop();
 
-    // Vrátit figurku zpět
+    // Put piece back
     sandboxBoard[lastMove.fromRow][lastMove.fromCol] = lastMove.movingPiece;
 
-    // Obnovit captured piece (nebo prázdné pole)
+    // Restore captured piece (or empty square)
     sandboxBoard[lastMove.toRow][lastMove.toCol] = lastMove.capturedPiece;
 
-    // Aktualizovat board a tlačítko
+    // Update board and button
     updateBoard(sandboxBoard);
     updateUndoButton();
     clearHighlights();
@@ -675,17 +675,17 @@ function updateHintButtonLabel() {
     var onMove = (statusData && statusData.current_player) === 'Black' ? 'black' : 'white';
     if (limit > 0) {
         var w = hintsRemainingWhite, b = hintsRemainingBlack;
-        var first = onMove === 'white' ? 'Bílý ' + w + ' | Černý ' + b : 'Černý ' + b + ' | Bílý ' + w;
-        btn.textContent = 'Nápověda (' + first + ')';
+        var first = onMove === 'white' ? 'White ' + w + ' | Black ' + b : 'Black ' + b + ' | White ' + w;
+        btn.textContent = 'Hint (' + first + ')';
         btn.disabled = (onMove === 'white' ? w : b) <= 0;
     } else {
-        btn.textContent = 'Nápověda';
+        btn.textContent = 'Hint';
         btn.disabled = false;
     }
     if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
 }
 
-/** V režimu bota udělujeme odměny jen za tahy člověka (ne za tahy bota). */
+/** In bot mode, grant rewards only for human moves (not bot moves). */
 function isHumanSideInBotMode(forSide) {
     if (gameMode !== 'bot' || !forSide) return true;
     return (botSettings.side === 'white' && forSide === 'black') || (botSettings.side === 'black' && forSide === 'white');
@@ -697,8 +697,8 @@ function addHintReward(reason, forSide) {
     if (gameMode === 'bot' && !isHumanSideInBotMode(forSide)) return;
     if (forSide === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
     updateHintButtonLabel();
-    var who = forSide === 'white' ? 'Bílý' : 'Černý';
-    var msg = reason === 'best' ? 'Výborný tah! ' + who + ' +1 nápověda.' : reason === 'good' ? 'Dobrý tah! ' + who + ' +1 nápověda.' : reason === 'capture' ? 'Sebrání figurky! ' + who + ' +1 nápověda.' : '';
+    var who = forSide === 'white' ? 'White' : 'Black';
+    var msg = reason === 'best' ? 'Excellent move! ' + who + ' +1 hint.' : reason === 'good' ? 'Good move! ' + who + ' +1 hint.' : reason === 'capture' ? 'Piece captured! ' + who + ' +1 hint.' : '';
     if (!msg) return;
     var el = document.getElementById('castling-pending-message');
     if (el) {
@@ -713,7 +713,7 @@ function addHintReward(reason, forSide) {
     }
 }
 
-/** Skóre kvality tahu pro průměr: best=5 … blunder=1, jinak 0. */
+/** Move quality score for average: best=5 … blunder=1, otherwise 0. */
 function gradeToScore(grade) {
     switch (grade) {
         case 'best': return 5;
@@ -725,7 +725,7 @@ function gradeToScore(grade) {
     }
 }
 
-/** Průměrná kvalita tahů hráče (side='white'|'black') za posledních lastN tahů toho hráče. Vrací číslo 1–5 nebo null. */
+/** Average move quality for a player (side='white'|'black') over their last lastN moves. Returns 1–5 or null. */
 function getAverageGradeForPlayer(side, lastN) {
     var indices = [];
     var isWhite = (side === 'white');
@@ -745,7 +745,7 @@ function getAverageGradeForPlayer(side, lastN) {
     return Math.round((sum / count) * 10) / 10;
 }
 
-/** Zobrazí nebo skryje blok Výukový přehled a naplní nápovědy + průměry kvality. */
+/** Show or hide the Teaching overview block and fill hints + quality averages. */
 function updateTeachingStatsPanel() {
     var panel = document.getElementById('teaching-stats-panel');
     if (!panel) return;
@@ -783,23 +783,23 @@ function updateTeachingStatsPanel() {
 }
 if (typeof window !== 'undefined') window.updateTeachingStatsPanel = updateTeachingStatsPanel;
 
-// ---------- Parsování eval z API (jedno místo, bez duplicity) ----------
-/** Normalizuje řetězec s eval (Unicode minus → ASCII minus). */
+// ---------- Parse eval from API (single place, no duplication) ----------
+/** Normalize eval string (Unicode minus → ASCII minus). */
 function normalizeEvalString(s) {
     if (s == null || typeof s !== 'string') return s;
     return String(s).replace(/\u2212/g, '-').trim();
 }
-/** Převod hodnoty na pawns: pokud |v| > 10, považujeme za centipawns (děleno 100). */
+/** Convert value to pawns: if |v| > 10, treat as centipawns (divide by 100). */
 function toPawns(v) {
     if (v == null || typeof v !== 'number' || isNaN(v)) return null;
     if (Math.abs(v) > 10) return v / 100;
     return v;
 }
 /**
- * Vybere a naparsuje eval z libovolného objektu odpovědi API (data nebo raw).
- * Zkouší: eval (number/string), centipawns, cp, evaluation, score (number/string), result.eval.
- * @param {Object} obj - objekt z API (např. raw.data nebo celý raw)
- * @returns {number|null} - eval v pawns, nebo null
+ * Select and parse eval from any API response object (data or raw).
+ * Tries: eval (number/string), centipawns, cp, evaluation, score (number/string), result.eval.
+ * @param {Object} obj - API object (e.g. raw.data or whole raw)
+ * @returns {number|null} - eval in pawns, or null
  */
 function parseEvalFromApiObject(obj) {
     if (!obj || typeof obj !== 'object') return null;
@@ -929,19 +929,10 @@ function showHintOnBoard(from, to) {
     if (toSquare) toSquare.classList.add('hint-to');
 }
 
-/** Replace key English phrases from API text with Czech (for hint explanation). */
+/** Pass-through for API hint text (kept English for the UI). */
 function hintTextToCzech(s) {
     if (!s || typeof s !== 'string') return '';
-    var t = s
-        .replace(/\bWhite is winning\b/gi, 'Bílý vyhrává')
-        .replace(/\bBlack is winning\b/gi, 'Černý vyhrává')
-        .replace(/\bWhite is better\b/gi, 'Bílý je lépe')
-        .replace(/\bBlack is better\b/gi, 'Černý je lépe')
-        .replace(/\bThe game is balanced\.?\b/gi, 'Hra je vyrovnaná.')
-        .replace(/\bgame is balanced\.?\b/gi, 'hra je vyrovnaná.')
-        .replace(/\bDepth \d+\b/gi, function (m) { return 'Hloubka ' + m.replace(/\D/g, ''); })
-        .replace(/\bMove\s+/gi, 'Tah ');
-    return t;
+    return s;
 }
 
 /** Format UCI move (e2e4) as e2–e4. */
@@ -954,24 +945,24 @@ function formatUciMove(uci) {
 function buildHintMessage(data) {
     var parts = [];
     var san = (data.san || (data.from + '–' + data.to)).trim();
-    parts.push('Počítač radí: zahraj tah ' + san + '.');
+    parts.push('The computer suggests: play ' + san + '.');
 
     var e = data.eval;
     if (e != null && typeof e === 'number') {
-        if (e > 0.3) parts.push('Bílý má trochu výhodu.');
-        else if (e < -0.3) parts.push('Černý má trochu výhodu.');
-        else parts.push('Teď je to vyrovnané.');
+        if (e > 0.3) parts.push('White has a slight advantage.');
+        else if (e < -0.3) parts.push('Black has a slight advantage.');
+        else parts.push('The position is equal.');
     }
 
     if (Array.isArray(data.continuationArr) && data.continuationArr.length > 0) {
         var first = data.continuationArr.slice(0, 4).map(formatUciMove).join(', ');
-        parts.push('Pak můžeš hrát třeba ' + first + '.');
+        parts.push('Then you could play something like ' + first + '.');
     }
 
     if (data.mate != null && typeof data.mate === 'number') {
-        if (data.mate === 0) parts.push('Je mat!');
-        else if (data.mate > 0) parts.push('Za ' + data.mate + ' tahů bude mat bílého!');
-        else parts.push('Za ' + (-data.mate) + ' tahů bude mat černého!');
+        if (data.mate === 0) parts.push('Checkmate!');
+        else if (data.mate > 0) parts.push('White mates in ' + data.mate + '!');
+        else parts.push('Black mates in ' + (-data.mate) + '!');
     }
 
     return parts.join(' ');
@@ -987,7 +978,7 @@ function showHintExplanation(data) {
     el.style.display = 'block';
 }
 
-/** Show hint block with error/info message (např. žádný internet). */
+/** Show hint block with error/info message (e.g. no internet). */
 function showHintError(message) {
     var el = document.getElementById('hint-explanation');
     if (!el) return;
@@ -1022,7 +1013,7 @@ function hideMoveEvaluation() {
 
 /**
  * Evaluate the last played move: call API for position before and (if needed) after,
- * then show a short Czech message and barvu podle kvality (best=zelená, blunder=červená, …).
+ * then show a short message and color by quality (best=green, blunder=red, …).
  */
 /** Normalize UCI move to 4 chars (from+to) for comparison. */
 function normalizeUci(from, to) {
@@ -1030,12 +1021,12 @@ function normalizeUci(from, to) {
     return s.length >= 4 ? s.slice(0, 4) : s;
 }
 
-/** True pokud je hodnocení pro daný počet tahů stále platné (nebyla nová hra / další tah). */
+/** True if the evaluation for the given move count is still valid (no new game / next move). */
 function isEvaluationStillValid(historyLength) {
     return (historyData && historyData.length) === historyLength;
 }
 
-/** chess-api.com vrací eval v perspektivě bílého (negative = black winning). Nepřevádět. */
+/** chess-api.com returns eval from White's perspective (negative = black winning). Do not invert. */
 var API_EVAL_SIDE_TO_MOVE = false;
 function evalToWhitePerspective(fen, evalRaw) {
     if (fen == null || evalRaw == null || typeof evalRaw !== 'number') return evalRaw;
@@ -1050,7 +1041,7 @@ function evalToWhitePerspective(fen, evalRaw) {
 
 function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
     if (!statusData.internet_connected) {
-        showMoveEvaluation('Zhodnocení vyžaduje připojení k internetu (WiFi).', 'error');
+        showMoveEvaluation('Move evaluation requires an internet connection (WiFi).', 'error');
         return;
     }
     var playedUci = normalizeUci(playedMove.from, playedMove.to);
@@ -1063,7 +1054,7 @@ function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
     fetchStockfishBestMove(fenBefore, evalDepth).then(function (beforeData) {
         if (!isEvaluationStillValid(historyLength)) return;
         if (!beforeData) {
-            var errMsg = 'Zhodnocení nebylo k dispozici. Zkontrolujte připojení k internetu.';
+            var errMsg = 'Move evaluation was not available. Check your internet connection.';
             showMoveEvaluation(errMsg, 'error');
             moveEvaluations[historyLength - 1] = { grade: 'error', msg: errMsg };
             renderHistoryList();
@@ -1072,7 +1063,7 @@ function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
         }
         var bestUci = normalizeUci(beforeData.from, beforeData.to);
         if (playedUci === bestUci) {
-            var msgBest = 'Výborný tah! Byl to nejlepší tah.';
+            var msgBest = 'Excellent move! That was the best move.';
             showMoveEvaluation(msgBest, 'best');
             moveEvaluations[historyLength - 1] = { grade: 'best', msg: msgBest };
             var sideBest = (historyLength - 1) % 2 === 0 ? 'white' : 'black';
@@ -1086,7 +1077,7 @@ function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
         fetchStockfishBestMove(fenAfter, evalDepth).then(function (afterData) {
             if (!isEvaluationStillValid(historyLength)) return;
             if (!afterData) {
-                var msgInacc = 'Lepší byl tah ' + bestFormatted + '.';
+                var msgInacc = 'A better move was ' + bestFormatted + '.';
                 showMoveEvaluation(msgInacc, 'inaccuracy');
                 moveEvaluations[historyLength - 1] = { grade: 'inaccuracy', msg: msgInacc };
                 renderHistoryList();
@@ -1102,25 +1093,25 @@ function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
                 if (typeof console !== 'undefined' && console.warn) {
                     console.warn('[Eval Staging] Missing eval – hasEvalBefore:', hasEvalBefore, 'hasEvalAfter:', hasEvalAfter, 'beforeData keys:', beforeData ? Object.keys(beforeData) : [], 'afterData keys:', afterData ? Object.keys(afterData) : []);
                 }
-                msg = 'Slabší tah. Lepší bylo ' + bestFormatted + '.';
+                msg = 'Inaccuracy. Better was ' + bestFormatted + '.';
                 grade = 'inaccuracy';
             } else {
                 var whiteJustMoved = (historyLength - 1) % 2 === 0;
                 var scoreDrop = whiteJustMoved ? (evalBefore - evalAfter) : (evalAfter - evalBefore);
                 if (scoreDrop < 0) scoreDrop = 0;
                 if (scoreDrop <= 0.20) {
-                    msg = 'Dobrý tah.';
+                    msg = 'Good move.';
                     grade = 'good';
                     var sideGood = (historyLength - 1) % 2 === 0 ? 'white' : 'black';
                     if (getHintAwardGood()) addHintReward('good', sideGood);
                 } else if (scoreDrop <= 0.50) {
-                    msg = 'Slabší tah. Lepší bylo ' + bestFormatted + '.';
+                    msg = 'Inaccuracy. Better was ' + bestFormatted + '.';
                     grade = 'inaccuracy';
                 } else if (scoreDrop <= 1.00) {
-                    msg = 'Chyba. Pozice se zhoršila. Lepší bylo ' + bestFormatted + '.';
+                    msg = 'Mistake. The position got worse. Better was ' + bestFormatted + '.';
                     grade = 'mistake';
                 } else {
-                    msg = 'Vážná chyba. Lepší bylo ' + bestFormatted + '.';
+                    msg = 'Blunder. Better was ' + bestFormatted + '.';
                     grade = 'blunder';
                 }
                 if (typeof console !== 'undefined' && console.log) {
@@ -1133,7 +1124,7 @@ function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
             if (typeof updateTeachingStatsPanel === 'function') updateTeachingStatsPanel();
         }).catch(function () {
             if (!isEvaluationStillValid(historyLength)) return;
-            var errMsg = 'Zhodnocení nebylo k dispozici. Zkontrolujte připojení k internetu.';
+            var errMsg = 'Move evaluation was not available. Check your internet connection.';
             showMoveEvaluation(errMsg, 'error');
             moveEvaluations[historyLength - 1] = { grade: 'error', msg: errMsg };
             renderHistoryList();
@@ -1141,7 +1132,7 @@ function evaluateMoveAsync(fenBefore, fenAfter, playedMove, historyLength) {
         });
     }).catch(function () {
         if (!isEvaluationStillValid(historyLength)) return;
-        var errMsg = 'Zhodnocení nebylo k dispozici. Zkontrolujte připojení k internetu.';
+        var errMsg = 'Move evaluation was not available. Check your internet connection.';
         showMoveEvaluation(errMsg, 'error');
         moveEvaluations[historyLength - 1] = { grade: 'error', msg: errMsg };
         renderHistoryList();
@@ -1160,7 +1151,7 @@ async function requestHint() {
     if (statusData && statusData.puzzle && statusData.puzzle.active === true) return;
     if (typeof openingIsActive === 'function' && openingIsActive(statusData)) return;
     if (isWebLocked()) {
-        showHintError('Rozhraní je zamčeno. Odemkněte přes UART.');
+        showHintError('Interface is locked. Unlock via UART.');
         return;
     }
     const status = statusData || {};
@@ -1173,14 +1164,14 @@ async function requestHint() {
     var limit = getHintLimit();
     var currentHints = getCurrentPlayerHints();
     if (limit > 0 && currentHints <= 0) {
-        showHintError('Na tahu nemáte žádnou nápovědu. Získejte ji výborným tahem nebo sebráním figurky.');
+        showHintError('You have no hints left on this turn. Earn one with an excellent move or by capturing a piece.');
         return;
     }
 
     const btn = document.getElementById('hint-btn');
     if (btn) {
         btn.disabled = true;
-        btn.textContent = 'Načítám…';
+        btn.textContent = 'Loading…';
     }
 
     if (limit > 0) {
@@ -1195,7 +1186,7 @@ async function requestHint() {
             if (p0 === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
             updateHintButtonLabel();
         }
-        showHintError('Nápověda vyžaduje připojení k internetu (WiFi).');
+        showHintError('Hint requires an internet connection (WiFi).');
         if (btn) updateHintButtonLabel();
         return;
     }
@@ -1210,7 +1201,7 @@ async function requestHint() {
                 updateHintButtonLabel();
             }
             if (console.warn) console.warn('[Hint] Could not build FEN');
-            showHintError('Nelze načíst pozici. Obnovte stránku.');
+            showHintError('Cannot load position. Refresh the page.');
             if (btn) updateHintButtonLabel();
             return;
         }
@@ -1244,7 +1235,7 @@ async function requestHint() {
                 if (p === 'white') hintsRemainingWhite++; else hintsRemainingBlack++;
                 updateHintButtonLabel();
             }
-            showHintError('Nápověda není k dispozici. Zkuste později nebo zkontrolujte připojení k internetu.');
+            showHintError('Hint is not available. Try again later or check your internet connection.');
             if (btn) updateHintButtonLabel();
         }
     } catch (err) {
@@ -1262,7 +1253,7 @@ async function requestHint() {
             updateHintButtonLabel();
         }
         if (console.error) console.error('[Hint] requestHint error:', err.message);
-        showHintError('Nápověda není k dispozici. Zkuste později nebo zkontrolujte připojení k internetu.');
+        showHintError('Hint is not available. Try again later or check your internet connection.');
         if (btn) updateHintButtonLabel();
     }
 }
@@ -1273,7 +1264,7 @@ window.requestHint = requestHint;
 // ============================================================================
 
 function updateBoard(board) {
-    // V sandboxu neprepisovat boardData (zůstane skutečná pozice z desky pro fetch po výstupu).
+    // In sandbox do not overwrite boardData (keeps real board position for fetch after exit).
     var skipReplaceBoardData = sandboxMode && board === sandboxBoard;
     // Only clear hint when board actually changed (new move), not on every periodic fetch
     var boardUnchanged = !skipReplaceBoardData && boardData && board.length === 8 && boardData.length === 8 &&
@@ -1291,8 +1282,8 @@ function updateBoard(board) {
         hideHintExplanation();
     }
 
-    // NEPŘIDÁVAT clearHighlights() - highlights jsou řízené přes updateStatus()
-    // (lifted, error-invalid, error-original jsou serverem řízené stavy)
+    // DO NOT ADD clearHighlights() - highlights are controlled via updateStatus()
+    // (lifted, error-invalid, error-original are server-controlled states)
 
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
@@ -1309,17 +1300,17 @@ function updateBoard(board) {
 // ENDGAME REPORT FUNCTIONS
 // ============================================================================
 
-// Zobrazit endgame report na webu
+// Show endgame report on the web
 async function showEndgameReport(gameEnd) {
     console.log('🏆 showEndgameReport() called with:', gameEnd);
 
-    // Pokud už je banner zobrazen, nedělat nic (aby se nepřekresloval)
+    // If banner is already shown, do nothing (avoid redraw)
     if (endgameReportShown && document.getElementById('endgame-banner')) {
         console.log('Endgame report already shown, skipping...');
         return;
     }
 
-    // Načíst advantage history pro graf
+    // Load advantage history for the chart
     let advantageDataLocal = { history: [], white_checks: 0, black_checks: 0, white_castles: 0, black_castles: 0 };
     try {
         const response = await fetch('/api/advantage');
@@ -1329,25 +1320,25 @@ async function showEndgameReport(gameEnd) {
         console.error('Failed to load advantage data:', e);
     }
 
-    // Určit výsledek a barvy
+    // Determine result and colors
     let title = '';
     let subtitle = '';
     let accentColor = '#4CAF50';
     let bgGradient = 'linear-gradient(135deg, #1e3a1e, #2d4a2d)';
 
     if (gameEnd.winner === 'Draw') {
-        title = 'REMÍZA';
+        title = 'DRAW';
         subtitle = gameEnd.reason;
         accentColor = '#FF9800';
         bgGradient = 'linear-gradient(135deg, #3a2e1e, #4a3e2d)';
     } else {
-        title = `${gameEnd.winner.toUpperCase()} VYHRÁL!`;
+        title = `${gameEnd.winner.toUpperCase()} WON!`;
         subtitle = gameEnd.reason;
         accentColor = gameEnd.winner === 'White' ? '#4CAF50' : '#2196F3';
         bgGradient = gameEnd.winner === 'White' ? 'linear-gradient(135deg, #1e3a1e, #2d4a2d)' : 'linear-gradient(135deg, #1e2a3a, #2d3a4a)';
     }
 
-    // Získat statistiky
+    // Get statistics
     const whiteMoves = Math.ceil(statusData.move_count / 2);
     const blackMoves = Math.floor(statusData.move_count / 2);
     const whiteCaptured = capturedData.white_captured || [];
@@ -1359,9 +1350,9 @@ async function showEndgameReport(gameEnd) {
     whiteCaptured.forEach(p => whiteMaterial += pieceValues[p] || 0);
     blackCaptured.forEach(p => blackMaterial += pieceValues[p] || 0);
     const materialDiff = whiteMaterial - blackMaterial;
-    const materialText = materialDiff > 0 ? `White +${materialDiff}` : materialDiff < 0 ? `Black +${-materialDiff}` : 'Vyrovnáno';
+    const materialText = materialDiff > 0 ? `White +${materialDiff}` : materialDiff < 0 ? `Black +${-materialDiff}` : 'Equal';
 
-    // Vytvořit SVG graf výhody (jako chess.com)
+    // Create SVG advantage chart (like chess.com)
     let graphSVG = '';
     if (advantageDataLocal.history && advantageDataLocal.history.length > 1) {
         const history = advantageDataLocal.history;
@@ -1371,24 +1362,24 @@ async function showEndgameReport(gameEnd) {
         const scaleY = height / (2 * maxAdvantage);
         const scaleX = width / (history.length - 1);
 
-        // Vytvořit body pro polyline (0,0 je nahoře vlevo, y roste dolů)
+        // Create points for polyline (0,0 is top-left, y grows downward)
         let points = history.map((adv, i) => {
             const x = i * scaleX;
-            const y = height / 2 - adv * scaleY;  // Převrátit Y (White nahoře, Black dole)
+            const y = height / 2 - adv * scaleY;  // Flip Y (White on top, Black at bottom)
             return `${x},${y}`;
         }).join(' ');
 
-        // Vytvořit polygon pro vyplněnou oblast
+        // Create polygon for filled area
         let areaPoints = `0,${height / 2} ${points} ${width},${height / 2}`;
 
         graphSVG = `<svg width="280" height="100" style="border-radius:6px;background:rgba(0,0,0,0.2);">
-            <!-- Středová čára (vyrovnaná pozice) -->
+            <!-- Center line (equal position) -->
             <line x1="0" y1="${height / 2}" x2="${width}" y2="${height / 2}" stroke="#555" stroke-width="1" stroke-dasharray="3,3"/>
-            <!-- Vyplněná oblast pod křivkou -->
+            <!-- Filled area under the curve -->
             <polygon points="${areaPoints}" fill="${accentColor}" opacity="0.2"/>
-            <!-- Křivka výhody -->
+            <!-- Advantage curve -->
             <polyline points="${points}" fill="none" stroke="${accentColor}" stroke-width="2" stroke-linejoin="round"/>
-            <!-- Tečky na koncích -->
+            <!-- End dots -->
             <circle cx="0" cy="${height / 2}" r="3" fill="${accentColor}"/>
             <circle cx="${(history.length - 1) * scaleX}" cy="${height / 2 - history[history.length - 1] * scaleY}" r="4" fill="${accentColor}"/>
             <!-- Popisky -->
@@ -1397,11 +1388,11 @@ async function showEndgameReport(gameEnd) {
         </svg>`;
     }
 
-    // Vytvořit nový banner - VLEVO OD BOARDU, NE UPROSTŘED!
+    // Create new banner - LEFT OF THE BOARD, NOT CENTERED!
     const banner = document.createElement('div');
     banner.id = 'endgame-banner';
 
-    // Na mobilu - jiné umístění (nahoře, plná šířka)
+    // On mobile - different placement (top, full width)
     if (window.innerWidth <= 768) {
         banner.style.cssText = `
             position: fixed;
@@ -1450,55 +1441,55 @@ async function showEndgameReport(gameEnd) {
             ${graphSVG ? `
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;">
                 <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;">
-                    Průběh hry
+                    Game progress
                 </h3>
                 ${graphSVG}
                 <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:#888;">
-                    <span>Začátek</span>
-                    <span>Tah ${advantageDataLocal.count || 0}</span>
+                    <span>Start</span>
+                    <span>Move ${advantageDataLocal.count || 0}</span>
                 </div>
             </div>` : ''}
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;">
                 <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;">
-                    Statistiky
+                    Statistics
                 </h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
-                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Tahy</div>
-                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${whiteMoves} | Černý ${blackMoves}</div>
+                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Moves</div>
+                        <div style="color:#e0e0e0;font-weight:600;">White ${whiteMoves} | Black ${blackMoves}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
-                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Materiál</div>
+                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Material</div>
                         <div style="color:${accentColor};font-weight:600;">${materialText}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
-                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Sebráno</div>
-                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${whiteCaptured.length} | Černý ${blackCaptured.length}</div>
+                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Captured</div>
+                        <div style="color:#e0e0e0;font-weight:600;">White ${whiteCaptured.length} | Black ${blackCaptured.length}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
-                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Celkem</div>
-                        <div style="color:#e0e0e0;font-weight:600;">${statusData.move_count} tahů</div>
+                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Total</div>
+                        <div style="color:#e0e0e0;font-weight:600;">${statusData.move_count} moves</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
-                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Šachy</div>
-                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${advantageDataLocal.white_checks || 0} | Černý ${advantageDataLocal.black_checks || 0}</div>
+                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Checks</div>
+                        <div style="color:#e0e0e0;font-weight:600;">White ${advantageDataLocal.white_checks || 0} | Black ${advantageDataLocal.black_checks || 0}</div>
                     </div>
                     <div style="background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;">
-                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Rošády</div>
-                        <div style="color:#e0e0e0;font-weight:600;">Bílý ${advantageDataLocal.white_castles || 0} | Černý ${advantageDataLocal.black_castles || 0}</div>
+                        <div style="color:#888;font-size:11px;margin-bottom:4px;">Castles</div>
+                        <div style="color:#e0e0e0;font-weight:600;">White ${advantageDataLocal.white_castles || 0} | Black ${advantageDataLocal.black_castles || 0}</div>
                     </div>
                 </div>
             </div>
             <div style="background:rgba(0,0,0,0.3);border-radius:8px;padding:15px;margin-bottom:15px;">
                 <h3 style="margin:0 0 12px 0;color:${accentColor};font-size:16px;font-weight:600;">
-                    Sebrané figurky
+                    Captured pieces
                 </h3>
                 <div style="margin-bottom:10px;">
-                    <div style="color:#888;font-size:11px;margin-bottom:4px;">White sebral (${whiteCaptured.length})</div>
+                    <div style="color:#888;font-size:11px;margin-bottom:4px;">White captured (${whiteCaptured.length})</div>
                     <div style="font-size:20px;line-height:1.4;">${whiteCaptured.map(p => pieceImgHtml(p)).join(' ') || '−'}</div>
                 </div>
                 <div>
-                    <div style="color:#888;font-size:11px;margin-bottom:4px;">Black sebral (${blackCaptured.length})</div>
+                    <div style="color:#888;font-size:11px;margin-bottom:4px;">Black captured (${blackCaptured.length})</div>
                     <div style="font-size:20px;line-height:1.4;">${blackCaptured.map(p => pieceImgHtml(p)).join(' ') || '−'}</div>
                 </div>
             </div>
@@ -1520,7 +1511,7 @@ async function showEndgameReport(gameEnd) {
         </div>
     `;
 
-    // Přidat CSS animace pokud ještě neexistují
+    // Add CSS animations if they do not exist yet
     if (!document.getElementById('endgame-animations')) {
         const style = document.createElement('style');
         style.id = 'endgame-animations';
@@ -1538,11 +1529,11 @@ async function showEndgameReport(gameEnd) {
     }
 
     document.body.appendChild(banner);
-    endgameReportShown = true;  // Označit, že je zobrazený
+    endgameReportShown = true;  // Mark as shown
     console.log('🏆 ENDGAME REPORT SHOWN - banner displayed (left side)');
 }
 
-// Skrýt endgame report (ale zachovat flag pro toggle)
+// Hide endgame report (but keep flag for toggle)
 function hideEndgameReport() {
     console.log('Hiding endgame report...');
     const banner = document.getElementById('endgame-banner');
@@ -1556,25 +1547,25 @@ function hideEndgameReport() {
 function toggleEndgameReport() {
     const banner = document.getElementById('endgame-banner');
     if (banner) {
-        // Uz je zobrazen -> skryj
+        // Already shown -> hide
         hideEndgameReport();
     } else {
-        // Neni zobrazen -> znovu zobraz (pokud mame data)
+        // Not shown -> show again (if we have data)
         if (window.lastGameEndData) {
             showEndgameReport(window.lastGameEndData);
         }
     }
 }
 
-// Zobrazit toggle button
+// Show toggle button
 function showEndgameToggleButton() {
-    // Zjistit zda uz button existuje
+    // Check whether the button already exists
     if (document.getElementById('endgame-toggle-btn')) return;
 
     const button = document.createElement('button');
     button.id = 'endgame-toggle-btn';
-    button.innerHTML = 'Zpráva';
-    button.title = 'Zobrazit/skrýt zprávu o konci hry';
+    button.innerHTML = 'Report';
+    button.title = 'Show/hide endgame report';
     button.style.cssText = `
         position: fixed;
         top: 10px;
@@ -1603,7 +1594,7 @@ function showEndgameToggleButton() {
     document.body.appendChild(button);
 }
 
-// Skrýt toggle button
+// Hide toggle button
 function hideEndgameToggleButton() {
     const button = document.getElementById('endgame-toggle-btn');
     if (button) {
@@ -1627,10 +1618,10 @@ function stopBotHintRefresh() {
 }
 
 /**
- * Zobrazí/skryje panel „Bot“ a nastaví text.
- * Panel je viditelný jen když gameMode === 'bot'.
- * @param {string} [text] - Text stavu. Pokud chybí, určí se z status (navádění při zvednuté figurce) nebo „Hraješ ty!“.
- * @param {object} [status] - Aktuální status z API; pokud je piece_lifted a máme návrh bota, zobrazí se navádění.
+ * Show/hide the "Bot" panel and set its text.
+ * Panel is visible only when gameMode === 'bot'.
+ * @param {string} [text] - Status text. If omitted, derived from status (guidance when a piece is lifted) or "Your turn!".
+ * @param {object} [status] - Current API status; if piece_lifted and we have a bot suggestion, show guidance.
  */
 function updateBotStatusPanel(text, status) {
     var panel = document.getElementById('bot-status-panel');
@@ -1643,16 +1634,16 @@ function updateBotStatusPanel(text, status) {
     if (text !== undefined) {
         textEl.textContent = text;
     } else if (status && status.piece_lifted && status.piece_lifted.lifted && lastSuggestedMove) {
-        textEl.textContent = 'Polož figurku na ' + lastSuggestedMove.to + '.';
+        textEl.textContent = 'Place the piece on ' + lastSuggestedMove.to + '.';
     } else if (textEl.textContent === '—' || textEl.textContent.trim() === '') {
-        textEl.textContent = 'Hraješ ty!';
+        textEl.textContent = 'Your turn!';
     }
     panel.style.display = '';
 }
 
 /**
- * Panel „Puzzle“ (jako Bot) — povzbuzující text podle feedbacku z desky; funguje bez internetu (jen poll k desce).
- * @param {object} status - status z API nebo { puzzle: {...} }
+ * "Puzzle" panel (like Bot) — encouraging text from board feedback; works offline (board poll only).
+ * @param {object} status - status from API or { puzzle: {...} }
  * @param {{offline?:boolean}} [opts]
  */
 function updatePuzzleStatusPanel(status, opts) {
@@ -1685,28 +1676,28 @@ function updatePuzzleStatusPanel(status, opts) {
     if (p.setup_active === true && p.active !== true) {
         show = true;
         mode = 'setup';
-        main = 'Připrav fyzickou pozici podle LED — jdeš na to krok za krokem.';
-        sub = 'Podrobnosti máš v okně Puzzles (nahoře).';
+        main = 'Set up the physical position by the LEDs — step by step.';
+        sub = 'Details are in the Puzzles window (top).';
     } else if (p.active === true) {
         show = true;
         if (fb === 'wrong') {
             mode = 'wrong';
-            main = 'Ještě to není ono — vrať figurku zpátky a klidně to zkus znovu. Tak se člověk učí!';
+            main = 'Not quite — put the piece back and try again. That is how you learn!';
             sub = p.message ? String(p.message) : '';
         } else if (fb === 'illegal') {
             mode = 'illegal';
-            main = 'Tenhle tah tady neplatí — zkus jiné pole. Každý mistr jednou začínal.';
+            main = 'That move is not legal here — try another square. Every master started somewhere.';
             sub = p.message ? String(p.message) : '';
         } else {
             mode = 'play';
-            main = 'Jsi na tahu — najdi nejlepší pokračování. Držím palce!';
+            main = 'Your move — find the best continuation. Good luck!';
             sub = (p.teaser && String(p.teaser).length) ? String(p.teaser) : (p.title ? String(p.title) : '');
         }
     } else if (fb === 'solved') {
         show = true;
         mode = 'solved';
-        main = 'Skvěle! Přesně takhle se to hraje — puzzle je hotové.';
-        sub = (p.title ? 'Úloha: ' + p.title : '') + (p.teaser ? (p.title ? ' — ' : '') + p.teaser : '');
+        main = 'Great! That is how it is done — puzzle complete.';
+        sub = (p.title ? 'Puzzle: ' + p.title : '') + (p.teaser ? (p.title ? ' — ' : '') + p.teaser : '');
     }
 
     if (!show) {
@@ -1721,15 +1712,15 @@ function updatePuzzleStatusPanel(status, opts) {
     }
 
     if (offline) {
-        sub = (sub ? sub + ' ' : '') + 'Živý stav z desky teď nevidím (spojení s webem). Jakmile bude síť k desce zas, obnoví se.';
+        sub = (sub ? sub + ' ' : '') + 'Live board status is unavailable (web connection). It will refresh when the board network is back.';
     }
 
     if (titleEl) {
         titleEl.textContent = mode === 'setup'
-            ? 'Puzzle · příprava'
+            ? 'Puzzle · setup'
             : mode === 'solved'
                 ? 'Puzzle · hotovo'
-                : 'Puzzle · hraješ';
+                : 'Puzzle · your turn';
     }
     panel.style.display = '';
     panel.className = 'game-block puzzle-status-panel puzzle-status-panel--' + mode +
@@ -1746,7 +1737,7 @@ function updatePuzzleStatusPanel(status, opts) {
     }
 }
 
-/** Smaže bot UI: stav, interval LED, hint třídy a zprávu „Bot hraje“ / „Počítač“. */
+/** Clear bot UI: state, LED interval, hint classes, and "Bot is playing" / "Computer" message. */
 function clearBotSuggestion() {
     var hadDomHints = !!document.querySelector('.square.hint-from, .square.hint-to');
     var needServerClear = lastSuggestedFen !== null || lastSuggestedMove !== null || hadDomHints;
@@ -1755,27 +1746,27 @@ function clearBotSuggestion() {
     stopBotHintRefresh();
     document.querySelectorAll('.square').forEach(function (sq) { sq.classList.remove('hint-from', 'hint-to'); });
     var msgEl = document.getElementById('castling-pending-message');
-    if (msgEl && (msgEl.textContent.indexOf('Bot') !== -1 || msgEl.textContent.indexOf('Počítač') !== -1)) msgEl.style.display = 'none';
-    updateBotStatusPanel('Hraješ ty!');
+    if (msgEl && (msgEl.textContent.indexOf('Bot') !== -1 || msgEl.textContent.indexOf('Computer') !== -1)) msgEl.style.display = 'none';
+    updateBotStatusPanel('Your turn!');
     if (needServerClear) {
         fetch('/api/game/hint_clear', { method: 'POST' }).catch(function () {});
     }
 }
 
 /**
- * Tah bota se NEprovádí automaticky – pouze vizualizace na webu a LED.
- * Uživatel musí fyzicky pohnout figurku; tah se provede až po DROP z matrixu.
- * Voláme jen /api/game/hint_highlight, nikdy /api/move ani virtual_action za bota.
+ * Bot move is NOT applied automatically – visualization on web and LED only.
+ * User must physically move the piece; the move is applied after DROP from the matrix.
+ * Call only /api/game/hint_highlight, never /api/move or virtual_action for the bot.
  */
-/** Bot používá jednotnou fetchStockfishBestMove s depth = botSettings.strength. */
+/** Bot uses shared fetchStockfishBestMove with depth = botSettings.strength. */
 async function playBotMove(fen, generation) {
     if (botThinking || !fen || typeof fen !== 'string') return;
     botThinking = true;
     var statusEl = document.getElementById('game-state');
 
-    updateBotStatusPanel('Přemýšlím');
+    updateBotStatusPanel('Thinking');
     try {
-        if (statusEl) statusEl.textContent = 'Bot vybírá tah';
+        if (statusEl) statusEl.textContent = 'Bot is choosing a move';
         console.log('🤖 Bot suggests move (visualization only – user moves physically)... Generation:', generation);
         var botDepth = parseInt(botSettings.strength, 10) || 10;
         var move = await fetchStockfishBestMove(fen, botDepth);
@@ -1788,7 +1779,7 @@ async function playBotMove(fen, generation) {
         }
 
         if (move) {
-            console.log('🤖 Bot suggests:', move.from, '->', move.to, '(zobrazíme na webu a LED; tah provedete vy na desce)');
+            console.log('🤖 Bot suggests:', move.from, '->', move.to, '(shown on web and LED; you make the move on the board)');
             lastSuggestedMove = { from: move.from, to: move.to };
             stopBotHintRefresh();
             try {
@@ -1827,16 +1818,16 @@ async function playBotMove(fen, generation) {
                     body: JSON.stringify({ from: lastSuggestedMove.from, to: lastSuggestedMove.to })
                 }).catch(function () {});
             }, BOT_HINT_REFRESH_MS);
-            var panelMsg = 'Hraji ' + move.from + '-' + move.to + '. Zvedni figurku z ' + move.from + '.';
+            var panelMsg = 'Playing ' + move.from + '-' + move.to + '. Lift the piece from ' + move.from + '.';
             updateBotStatusPanel(panelMsg);
             showHintOnBoard(move.from, move.to);
         } else {
-            console.warn('Bot: žádný tah (API chyba nebo timeout).');
+            console.warn('Bot: no move (API error or timeout).');
             if (typeof console !== 'undefined' && console.warn) {
                 console.warn('[Bot] API failed, clearing lastSuggestedFen for retry');
             }
             lastSuggestedFen = null;
-            updateBotStatusPanel('Chyba API');
+            updateBotStatusPanel('API error');
         }
     } finally {
         botThinking = false;
@@ -1864,8 +1855,8 @@ function checkBotTurn(status, fen) {
         clearBotSuggestion();
         return;
     }
-    /* Jakmile se pozice změní (nový FEN), někdo táhl – smažeme návrh bota hned,
-       nezávisle na current_player (ten může v backendu dohnat až později). */
+    /* As soon as the position changes (new FEN), someone moved – clear bot suggestion immediately,
+       independent of current_player (backend may catch up later). */
     var clearedDueToFenChange = false;
     if (lastSuggestedFen && fen && fen !== lastSuggestedFen) {
         clearBotSuggestion();
@@ -1903,12 +1894,12 @@ function checkBotTurn(status, fen) {
         clearBotSuggestion();
         return;
     }
-    /* Uživatel zvedl figurku – provádí tah za bota. Nevolat clearBotSuggestion (lastSuggestedMove
-       musí zůstat), aby panel Bot mohl zobrazit „Polož figurku na X.“ v updateBotStatusPanel. */
+    /* User lifted a piece – making the bot's move. Do not call clearBotSuggestion (lastSuggestedMove
+       must stay) so the Bot panel can show "Place the piece on X." in updateBotStatusPanel. */
     if (status.piece_lifted && status.piece_lifted.lifted) {
         return;
     }
-    /* Po vyčištění kvůli změně FEN v tomto volání nevolat playBotMove – mohl by být race (FEN už nový, current_player ještě bot). */
+    /* After clearing due to FEN change in this call, do not call playBotMove – race possible (FEN already new, current_player still bot). */
     if (clearedDueToFenChange) return;
     if (!botThinking && fen !== lastSuggestedFen) {
         if (typeof console !== 'undefined' && console.log) {
@@ -1929,47 +1920,47 @@ function checkBotTurn(status, fen) {
 
 
 // ============================================================================
-// SETUP TUTORIAL (základní postavení — web + LED)
+// SETUP TUTORIAL (starting position — web + LED)
 // ============================================================================
 
 const SETUP_TUTORIAL_REFRESH_MS = 600;
 const SETUP_TUTORIAL_FAST_POLL_MS = 400;
 const SETUP_TUTORIAL_OCC_STABLE_TICKS = 2;
 
-/** 32 kroků: bílá 1. řada, bílí pěšci, černá 8. řada, černí pěšci. */
+/** 32 steps: white 1st rank, white pawns, black 8th rank, black pawns. */
 const SETUP_TUTORIAL_STEPS = [
-    { sq: 'a1', piece: 'r', label: 'Bílá věž → a1' },
-    { sq: 'b1', piece: 'n', label: 'Bílý jezdec → b1' },
-    { sq: 'c1', piece: 'b', label: 'Bílý střelec → c1' },
-    { sq: 'd1', piece: 'q', label: 'Bílá dáma → d1' },
-    { sq: 'e1', piece: 'k', label: 'Bílý král → e1' },
-    { sq: 'f1', piece: 'b', label: 'Bílý střelec → f1' },
-    { sq: 'g1', piece: 'n', label: 'Bílý jezdec → g1' },
-    { sq: 'h1', piece: 'r', label: 'Bílá věž → h1' },
-    { sq: 'a2', piece: 'p', label: 'Bílý pěšec → a2' },
-    { sq: 'b2', piece: 'p', label: 'Bílý pěšec → b2' },
-    { sq: 'c2', piece: 'p', label: 'Bílý pěšec → c2' },
-    { sq: 'd2', piece: 'p', label: 'Bílý pěšec → d2' },
-    { sq: 'e2', piece: 'p', label: 'Bílý pěšec → e2' },
-    { sq: 'f2', piece: 'p', label: 'Bílý pěšec → f2' },
-    { sq: 'g2', piece: 'p', label: 'Bílý pěšec → g2' },
-    { sq: 'h2', piece: 'p', label: 'Bílý pěšec → h2' },
-    { sq: 'a8', piece: 'R', label: 'Černá věž → a8' },
-    { sq: 'b8', piece: 'N', label: 'Černý jezdec → b8' },
-    { sq: 'c8', piece: 'B', label: 'Černý střelec → c8' },
-    { sq: 'd8', piece: 'Q', label: 'Černá dáma → d8' },
-    { sq: 'e8', piece: 'K', label: 'Černý král → e8' },
-    { sq: 'f8', piece: 'B', label: 'Černý střelec → f8' },
-    { sq: 'g8', piece: 'N', label: 'Černý jezdec → g8' },
-    { sq: 'h8', piece: 'R', label: 'Černá věž → h8' },
-    { sq: 'a7', piece: 'P', label: 'Černý pěšec → a7' },
-    { sq: 'b7', piece: 'P', label: 'Černý pěšec → b7' },
-    { sq: 'c7', piece: 'P', label: 'Černý pěšec → c7' },
-    { sq: 'd7', piece: 'P', label: 'Černý pěšec → d7' },
-    { sq: 'e7', piece: 'P', label: 'Černý pěšec → e7' },
-    { sq: 'f7', piece: 'P', label: 'Černý pěšec → f7' },
-    { sq: 'g7', piece: 'P', label: 'Černý pěšec → g7' },
-    { sq: 'h7', piece: 'P', label: 'Černý pěšec → h7' }
+    { sq: 'a1', piece: 'r', label: 'White rook → a1' },
+    { sq: 'b1', piece: 'n', label: 'White knight → b1' },
+    { sq: 'c1', piece: 'b', label: 'White bishop → c1' },
+    { sq: 'd1', piece: 'q', label: 'White queen → d1' },
+    { sq: 'e1', piece: 'k', label: 'White king → e1' },
+    { sq: 'f1', piece: 'b', label: 'White bishop → f1' },
+    { sq: 'g1', piece: 'n', label: 'White knight → g1' },
+    { sq: 'h1', piece: 'r', label: 'White rook → h1' },
+    { sq: 'a2', piece: 'p', label: 'White pawn → a2' },
+    { sq: 'b2', piece: 'p', label: 'White pawn → b2' },
+    { sq: 'c2', piece: 'p', label: 'White pawn → c2' },
+    { sq: 'd2', piece: 'p', label: 'White pawn → d2' },
+    { sq: 'e2', piece: 'p', label: 'White pawn → e2' },
+    { sq: 'f2', piece: 'p', label: 'White pawn → f2' },
+    { sq: 'g2', piece: 'p', label: 'White pawn → g2' },
+    { sq: 'h2', piece: 'p', label: 'White pawn → h2' },
+    { sq: 'a8', piece: 'R', label: 'Black rook → a8' },
+    { sq: 'b8', piece: 'N', label: 'Black knight → b8' },
+    { sq: 'c8', piece: 'B', label: 'Black bishop → c8' },
+    { sq: 'd8', piece: 'Q', label: 'Black queen → d8' },
+    { sq: 'e8', piece: 'K', label: 'Black king → e8' },
+    { sq: 'f8', piece: 'B', label: 'Black bishop → f8' },
+    { sq: 'g8', piece: 'N', label: 'Black knight → g8' },
+    { sq: 'h8', piece: 'R', label: 'Black rook → h8' },
+    { sq: 'a7', piece: 'P', label: 'Black pawn → a7' },
+    { sq: 'b7', piece: 'P', label: 'Black pawn → b7' },
+    { sq: 'c7', piece: 'P', label: 'Black pawn → c7' },
+    { sq: 'd7', piece: 'P', label: 'Black pawn → d7' },
+    { sq: 'e7', piece: 'P', label: 'Black pawn → e7' },
+    { sq: 'f7', piece: 'P', label: 'Black pawn → f7' },
+    { sq: 'g7', piece: 'P', label: 'Black pawn → g7' },
+    { sq: 'h7', piece: 'P', label: 'Black pawn → h7' }
 ];
 
 let setupTutorialPhase = null;
@@ -2048,10 +2039,10 @@ function setupTutorialUpdateIntroWarnings(st) {
     if (!w) return;
     var parts = [];
     if (st.light_mode === 'lamp') {
-        parts.push('Režim Lampa může přebít herní LED — přepni na Šachovnice v Zařízení.');
+        parts.push('Lamp mode may override game LEDs — switch to Board in Device.');
     }
     if (st.matrix_guard_active) {
-        parts.push('Matrix guard je aktivní — dokonči návrat figurek nebo ukonči režim guardu.');
+        parts.push('Matrix guard is active — finish returning pieces or exit guard mode.');
     }
     if (parts.length) {
         w.textContent = parts.join(' ');
@@ -2082,7 +2073,7 @@ function setupTutorialRenderStep() {
                 (isWhitePc ? 'white' : 'black');
         }
     }
-    if (ins) ins.textContent = 'Polož figurku na pole ' + st.sq.toUpperCase();
+    if (ins) ins.textContent = 'Place the piece on square ' + st.sq.toUpperCase();
     if (pr) pr.textContent = 'Krok ' + (setupTutorialStepIndex + 1) + ' / ' + SETUP_TUTORIAL_STEPS.length + ' — ' + st.label;
     setupTutorialStartLedRefresh(st.sq);
     setupTutorialOccStable = 0;
@@ -2201,12 +2192,12 @@ async function setupTutorialFinish() {
         });
         var data = await res.json().catch(function () { return {}; });
         if (!res.ok) {
-            var msg = (data && data.error) ? data.error : 'Zkontroluj fyzickou pozici (řádky 1–2 a 7–8 plné, 3–6 prázdné).';
+            var msg = (data && data.error) ? data.error : 'Check the physical position (ranks 1–2 and 7–8 full, 3–6 empty).';
             alert(msg);
             return;
         }
     } catch (e) {
-        alert('Chyba sítě při dokončení.');
+        alert('Network error while finishing.');
         return;
     }
     setupTutorialStopLedRefresh();
@@ -2238,20 +2229,20 @@ window.setupTutorialCancel = setupTutorialCancel;
 window.setupTutorialFinish = setupTutorialFinish;
 
 const PUZZLE_DEFS = [
-    { id: 1, difficulty: 1, title: 'Mat 1 – Dáma na poslední řadě',
-        teaser: 'Klasický motiv: otevřený f-sloupec, dáma dá mat na f8.',
+    { id: 1, difficulty: 1, title: 'Mate in 1 – Queen on the back rank',
+        teaser: 'Classic motif: open f-file, queen delivers mate on f8.',
         fen: '7k/7p/8/8/8/8/5Q2/6K1 w - - 0 1' },
-    { id: 2, difficulty: 2, title: 'Mat 1 – Dáma po sloupci',
-        teaser: 'Útok po ose: dáma stoupá z b2 na b8.',
+    { id: 2, difficulty: 2, title: 'Mate in 1 – Queen along the file',
+        teaser: 'Attack along the file: queen rises from b2 to b8.',
         fen: '6k1/5ppp/8/8/8/8/1Q6/6K1 w - - 0 1' },
-    { id: 3, difficulty: 3, title: 'Mat 1 – Věž bere věž',
-        teaser: 'Taktika zadní řady: bílá věž sebere černou na e8 a matuje krále.',
+    { id: 3, difficulty: 3, title: 'Mate in 1 – Rook takes rook',
+        teaser: 'Back-rank tactic: white rook takes black on e8 and mates the king.',
         fen: '4r1k1/5ppp/8/8/8/8/4R3/4K3 w - - 0 1' },
-    { id: 4, difficulty: 4, title: 'Mat 1 – Školácký mat',
-        teaser: 'Známá ukázková pozice: střelec na c4, dáma na h5 — mat na f7.',
+    { id: 4, difficulty: 4, title: 'Mate in 1 – Scholar\'s mate',
+        teaser: 'Well-known demo position: bishop on c4, queen on h5 — mate on f7.',
         fen: 'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 1' },
-    { id: 5, difficulty: 5, title: 'Mat 1 – Dáma na d8',
-        teaser: 'Centrální úder: dáma z d4 uzavře mat na poli d8.',
+    { id: 5, difficulty: 5, title: 'Mate in 1 – Queen to d8',
+        teaser: 'Central strike: queen from d4 delivers mate on d8.',
         fen: '6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1' }
 ];
 let selectedPuzzleId = 1;
@@ -2358,9 +2349,9 @@ function puzzleUpdateGuidedMessage(status) {
     if (p.message && p.message.length > 0) {
         box.textContent = p.message;
     } else if (p.active === true) {
-        box.textContent = 'Puzzle bezi. Zahraj hledany tah.';
+        box.textContent = 'Puzzle is running. Play the required move.';
     } else if (p.setup_active === true) {
-        box.textContent = 'Rozestav figurky podle LED (pořadí jako u základního postavení).';
+        box.textContent = 'Set up the pieces by the LEDs (same order as starting position).';
     } else {
         box.textContent = '';
     }
@@ -2429,8 +2420,8 @@ async function puzzlePrepareSelected() {
                 var w = document.getElementById('puzzle-confirm-warn');
                 if (w && statusData && statusData.puzzle) {
                     w.textContent = statusData.puzzle.physical_match === false
-                        ? 'Varování: fyzická deska nemusí přesně odpovídat.'
-                        : 'Můžeš spustit puzzle.';
+                        ? 'Warning: the physical board may not match exactly.'
+                        : 'You can start the puzzle.';
                     w.style.display = '';
                 }
             });
@@ -2463,7 +2454,7 @@ function puzzleSetupRenderStep() {
             pe.className = 'setup-tutorial-piece-glyph piece ' + (isW ? 'white' : 'black');
         }
     }
-    if (ins) ins.textContent = 'Polož figurku na pole ' + st.sq.toUpperCase();
+    if (ins) ins.textContent = 'Place the piece on square ' + st.sq.toUpperCase();
     if (pr) {
         pr.textContent = 'Krok ' + (puzzleSetupStepIndex + 1) + ' / ' + puzzleSetupSteps.length + ' — ' + st.label;
     }
@@ -2511,10 +2502,10 @@ function puzzleSetupAdvance(fromAuto) {
                 var w = document.getElementById('puzzle-confirm-warn');
                 if (w && statusData && statusData.puzzle) {
                     if (statusData.puzzle.physical_match === false) {
-                        w.textContent = 'Varování: fyzická deska nemusí přesně odpovídat (senzory neznají druh figurky). Puzzle můžeš přesto spustit.';
+                        w.textContent = 'Warning: the physical board may not match exactly (sensors do not know piece type). You can still start the puzzle.';
                         w.style.display = '';
                     } else {
-                        w.textContent = 'Fyzická obsazenost odpovídá pozici.';
+                        w.textContent = 'Physical occupancy matches the position.';
                         w.style.display = '';
                     }
                 }
@@ -2541,7 +2532,7 @@ function puzzleSetupSkip() {
 
 async function puzzleExecuteStart() {
     if (statusData && statusData.puzzle && statusData.puzzle.physical_match === false) {
-        if (!window.confirm('Fyzická deska nemusí odpovídat očekávané pozici. Spustit puzzle?')) {
+        if (!window.confirm('The physical board may not match the expected position. Start the puzzle?')) {
             return;
         }
     }
@@ -2609,12 +2600,12 @@ function updateStatus(status) {
     if (gameStateEl) gameStateEl.textContent = status.game_state || '-';
     if (playerEl) {
         const p = status.current_player;
-        playerEl.textContent = (p === 'White') ? 'Bílý' : (p === 'Black') ? 'Černý' : (p || '-');
+        playerEl.textContent = (p === 'White') ? 'White' : (p === 'Black') ? 'Black' : (p || '-');
     }
     document.getElementById('move-count').textContent = status.move_count || 0;
     document.getElementById('in-check').textContent = status.in_check ? 'Ano' : 'Ne';
 
-    // Jas (Nastavení) – synchronizovat slider a label ze statusu
+    // Brightness (Settings) – sync slider and label from status
     const b = status.brightness;
     if (typeof b === 'number' && b >= 0 && b <= 100) {
         const valueEl = document.getElementById('brightness-value');
@@ -2635,7 +2626,7 @@ function updateStatus(status) {
         openingTrainerOnStatusUpdate(status);
     }
 
-    // Lampa (Nastavení) – režim, zapnutí, R/G/B ze statusu
+    // Lamp (Settings) – mode, on/off, R/G/B from status
     const lightMode = status.light_mode;
     const lightState = status.light_state;
     const lr = status.light_r, lg = status.light_g, lb = status.light_b;
@@ -2656,7 +2647,7 @@ function updateStatus(status) {
     if (typeof lg === 'number' && lg >= 0 && lg <= 255 && gEl && gVal) { gEl.value = lg; gVal.textContent = lg; }
     if (typeof lb === 'number' && lb >= 0 && lb <= 255 && bEl && bVal) { bEl.value = lb; bVal.textContent = lb; }
 
-    // Promotion modal – zobrazit, když backend čeká na volbu promoce (game_state === "promotion")
+    // Promotion modal – show when backend waits for promotion choice (game_state === "promotion")
     const promoModal = document.getElementById('promotion-modal');
     if (promoModal) {
         if (status.game_state === 'promotion') {
@@ -2721,7 +2712,7 @@ function updateStatus(status) {
     if (castlingMsg) {
         if (status.restore_state && status.restore_state.boot_new_game_triggered) {
             matrixGuardHidePanel();
-            castlingMsg.textContent = 'Byla spuštěna nová hra: detekovány 2 starty zařízení bez tahu v intervalu 1 minuty.';
+            castlingMsg.textContent = 'A new game was started: 2 device starts detected without a move within 1 minute.';
             castlingMsg.style.display = 'block';
             castlingMsg.style.background = 'rgba(23,162,184,0.14)';
             castlingMsg.style.borderColor = 'rgba(23,162,184,0.45)';
@@ -2731,19 +2722,19 @@ function updateStatus(status) {
         } else {
             matrixGuardHidePanel();
             if (status.restore_state && status.restore_state.snapshot_restore_failed) {
-                castlingMsg.textContent = 'Chyba obnovy hry z NVS — hra běží z výchozí / poslední známé pozice. Zkontrolujte log.';
+                castlingMsg.textContent = 'Error restoring game from NVS — game runs from default / last known position. Check the log.';
                 castlingMsg.style.display = 'block';
                 castlingMsg.style.background = 'rgba(255,87,34,0.14)';
                 castlingMsg.style.borderColor = 'rgba(255,87,34,0.45)';
                 castlingMsg.style.color = '#ff8a65';
             } else if (status.restore_state && status.restore_state.snapshot_save_failed) {
-                castlingMsg.textContent = 'Varování: uložení hry do NVS selhalo — po výpadku napájení může chybět poslední tah.';
+                castlingMsg.textContent = 'Warning: saving game to NVS failed — last move may be missing after a power loss.';
                 castlingMsg.style.display = 'block';
                 castlingMsg.style.background = 'rgba(255,152,0,0.14)';
                 castlingMsg.style.borderColor = 'rgba(255,152,0,0.45)';
                 castlingMsg.style.color = '#ffb74d';
             } else if (status.castling_in_progress && status.castling_from && status.castling_to) {
-                castlingMsg.textContent = 'Dokončete rošádu: přesuňte věž z ' + status.castling_from + ' na ' + status.castling_to + '.';
+                castlingMsg.textContent = 'Complete castling: move the rook from ' + status.castling_from + ' to ' + status.castling_to + '.';
                 castlingMsg.style.display = 'block';
                 castlingMsg.style.background = 'rgba(255,193,7,0.12)';
                 castlingMsg.style.borderColor = 'rgba(255,193,7,0.4)';
@@ -2752,14 +2743,14 @@ function updateStatus(status) {
                 if (status.game_end && status.game_end.ended) castlingMsg.style.display = 'none';
                 else if (status.game_state !== 'active' && status.game_state !== 'playing') castlingMsg.style.display = 'none';
                 else {
-                    var keepMsg = castlingMsg.textContent.indexOf('Losování:') === 0 || castlingMsg.textContent.indexOf('nápověda') !== -1;
+                    var keepMsg = castlingMsg.textContent.indexOf('Draw:') === 0 || castlingMsg.textContent.indexOf('hint') !== -1;
                     if (!keepMsg) castlingMsg.style.display = 'none';
                 }
             }
         }
     }
 
-    // Panel „Bot“ – zobrazit jen v režimu proti botovi; při zvednuté figurce navádění
+    // Bot panel – show only in vs-bot mode; guidance when a piece is lifted
     updateBotStatusPanel(undefined, status);
 
     // ENDGAME REPORT
@@ -2780,7 +2771,7 @@ function updateStatus(status) {
         hideEndgameToggleButton();
     }
 
-    // Web lock: zakázat Nová hra a Nápověda při zamčení
+    // Web lock: disable New game and Hint when locked
     var locked = !!(status.web_locked);
     var newGameBtn = document.getElementById('new-game-btn');
     var hintBtn = document.getElementById('hint-btn');
@@ -2788,13 +2779,13 @@ function updateStatus(status) {
     if (hintBtn) {
         if (locked) {
             hintBtn.disabled = true;
-            hintBtn.title = 'Rozhraní je zamčeno';
+            hintBtn.title = 'Interface is locked';
         } else if (status.board_setup_tutorial === true) {
             hintBtn.disabled = true;
-            hintBtn.title = 'Běží tutoriál rozestavení';
+            hintBtn.title = 'Setup tutorial is running';
         } else if (typeof openingIsActive === 'function' && openingIsActive(status)) {
             hintBtn.disabled = true;
-            hintBtn.title = 'Běží trénink zahájení';
+            hintBtn.title = 'Opening training is running';
         } else {
             if (typeof updateHintButtonLabel === 'function') updateHintButtonLabel();
         }
@@ -2808,25 +2799,25 @@ function updateStatus(status) {
 
 function getGradeLabel(grade) {
     switch (grade) {
-        case 'best': return 'Výborný';
-        case 'good': return 'Dobrý';
-        case 'inaccuracy': return 'Slabší';
-        case 'mistake': return 'Chyba';
-        case 'blunder': return 'Vážná chyba';
+        case 'best': return 'Excellent';
+        case 'good': return 'Good';
+        case 'inaccuracy': return 'Inaccuracy';
+        case 'mistake': return 'Mistake';
+        case 'blunder': return 'Blunder';
         case 'unknown': return '—';
-        case 'error': return 'Chyba';
+        case 'error': return 'Error';
         default: return '—';
     }
 }
 
-/** Krátký štítek kvality tahu do přehledu (2–4 znaky). */
+/** Short move-quality label for the overview (2–4 chars). */
 function getGradeShortLabel(grade) {
     switch (grade) {
-        case 'best': return 'Výb.';
-        case 'good': return 'Dob.';
-        case 'inaccuracy': return 'Nepř.';
-        case 'mistake': return 'Ch.';
-        case 'blunder': return 'Hr.';
+        case 'best': return 'Exc.';
+        case 'good': return 'Good';
+        case 'inaccuracy': return 'Inac.';
+        case 'mistake': return 'Mist.';
+        case 'blunder': return 'Blun.';
         case 'error': return '!';
         case 'unknown': return '—';
         default: return '—';
@@ -2842,7 +2833,7 @@ function escapeHtml(s) {
         .replace(/"/g, '&quot;');
 }
 
-/** Kolik posledních tahů v kompaktním náhledu (2–4). */
+/** How many recent moves in the compact preview (2–4). */
 var HISTORY_PREVIEW_COUNT = 4;
 var historyFullExpanded = false;
 var historyDetailIndex = null;
@@ -2855,7 +2846,7 @@ function wireHistoryToolbarOnce() {
         e.preventDefault();
         historyFullExpanded = !historyFullExpanded;
         btn.setAttribute('aria-expanded', historyFullExpanded ? 'true' : 'false');
-        btn.textContent = historyFullExpanded ? 'Skrýt celou historii' : 'Celá historie';
+        btn.textContent = historyFullExpanded ? 'Hide full history' : 'Full history';
         renderHistoryList();
     });
 }
@@ -2898,19 +2889,19 @@ function toggleHistoryMoveDetail(actualIndex) {
     var ev = moveEvaluations[actualIndex];
     var move = historyData[actualIndex];
     var san = move ? (move.from + ' → ' + move.to) : '—';
-    var gradeLine = ev ? getGradeLabel(ev.grade) : 'Bezhodnoceno';
+    var gradeLine = ev ? getGradeLabel(ev.grade) : 'Not evaluated';
     var gExtra = ev && ev.grade ? (' history-detail-grade--' + ev.grade) : '';
     var msg = ev && ev.msg
         ? ev.msg
-        : ('Zhodnocení není k dispozici. Zapni „Zhodnocení tahu“ v Nastavení a hraj ' +
-            's připojením k internetu — u každého nového tahu se doplní kvalita.');
+        : ('Move evaluation is not available. Turn on "Move evaluation" in Settings and play ' +
+            'with an internet connection — quality is filled in for each new move.');
     panel.innerHTML =
         '<div class="history-detail-inner">' +
         '<div class="history-detail-san">' + escapeHtml(san) + '</div>' +
         '<div class="history-detail-grade' + gExtra + '">' + escapeHtml(gradeLine) + '</div>' +
         '<p class="history-detail-msg">' + escapeHtml(msg) + '</p>' +
         '<button type="button" class="history-detail-review-btn btn-history-review">' +
-        'Zobrazit pozici na šachovnici</button></div>';
+        'Show position on board</button></div>';
     var rb = panel.querySelector('.history-detail-review-btn');
     if (rb) {
         rb.addEventListener('click', function (ev2) {
@@ -3058,7 +3049,7 @@ async function fetchData() {
             if (hmd) hmd.style.display = 'none';
             var htf = document.getElementById('history-toggle-full');
             if (htf) {
-                htf.textContent = 'Celá historie';
+                htf.textContent = 'Full history';
                 htf.setAttribute('aria-expanded', 'false');
             }
             lastCapturedCount = (capturedData.white_captured || []).length + (capturedData.black_captured || []).length;
@@ -3131,8 +3122,8 @@ function ensureBoardFocusExitButton() {
     b.id = 'web-board-focus-exit';
     b.type = 'button';
     b.className = 'web-board-focus-exit-btn';
-    b.textContent = 'Celá aplikace';
-    b.setAttribute('aria-label', 'Zobrazit celou aplikaci');
+    b.textContent = 'Full app';
+    b.setAttribute('aria-label', 'Show full app');
     b.onclick = function () {
         exitWebBoardFocusMode();
     };
@@ -3154,8 +3145,8 @@ function exitWebBoardFocusMode() {
 }
 
 /**
- * Jen šachovnice + časovače: bez scrollování stránky, táhnutí figur při zapnutém ovládání z webu.
- * Zapnutí: URL ?focus=1 nebo ?board=1, nebo localStorage chessWebBoardFocus=1
+ * Board + clocks only: no page scrolling; drag pieces when web control is on.
+ * Enable: URL ?focus=1 or ?board=1, or localStorage chessWebBoardFocus=1
  */
 function initWebBoardFocusMode() {
     try {
@@ -3178,7 +3169,7 @@ function initWebBoardFocusMode() {
         }
         ensureBoardFocusExitButton();
         if (typeof console !== 'undefined' && console.log) {
-            console.log('[staging] web-board-focus: jen deska + čas; táhni figurky (dálkové ovládání zapnuto)');
+            console.log('[staging] web-board-focus: board + clocks only; drag pieces (remote control on)');
         }
     } catch (e) {
         if (typeof console !== 'undefined' && console.warn) console.warn('initWebBoardFocusMode', e);
@@ -3228,9 +3219,9 @@ let timerData = {
     avg_move_time_ms: 0
 };
 let timerUpdateInterval = null;
-/** -1 = ještě nezjištěno; 1000 při aktivní časové kontrole, 8000 když je vypnutá. */
+/** -1 = not yet determined; 1000 when time control is active, 8000 when off. */
 let timerPollMs = -1;
-/** Čerstvý `clock` z GET /api/game/snapshot — šetří GET /api/timer v updateTimerDisplay. */
+/** Fresh `clock` from GET /api/game/snapshot — saves GET /api/timer in updateTimerDisplay. */
 let lastSnapshotClockInfo = null;
 let lastSnapshotClockAt = 0;
 const SNAPSHOT_CLOCK_FRESH_MS = 900;
@@ -3255,7 +3246,7 @@ function updatePlayerTime(player, timeMs) {
     const playerElement = document.getElementById(player + '-timer');
     if (!timeElement || !playerElement) return;
 
-    // Zkontrolovat zda je časová kontrola aktivní
+    // Check whether time control is active
     const isTimerActive = timerData.config && timerData.config.type !== 0;
 
     if (isTimerActive) {
@@ -3265,10 +3256,10 @@ function updatePlayerTime(player, timeMs) {
         if (timeMs < 5000) playerElement.classList.add('critical-time');
         else if (timeMs < 30000) playerElement.classList.add('low-time');
     } else {
-        // Bez časové kontroly - zobrazit "--:--" a odstranit všechny warning třídy
+        // Without time control - show "--:--" and remove all warning classes
         timeElement.textContent = '--:--';
         playerElement.classList.remove('low-time', 'critical-time', 'active');
-        return; // Nedělat nic dalšího
+        return; // Do nothing else
     }
 
     if ((player === 'white' && timerData.is_white_turn) || (player === 'black' && !timerData.is_white_turn)) {
@@ -3293,9 +3284,9 @@ function updateProgressBars(timerInfo) {
         return;
     }
 
-    // Zkontrolovat zda je časová kontrola aktivní
+    // Check whether time control is active
     if (timerInfo.config.type === 0) {
-        // Bez časové kontroly - skrýt progress bary
+        // Without time control - hide progress bars
         const whiteProgress = document.getElementById('white-progress');
         const blackProgress = document.getElementById('black-progress');
         if (whiteProgress) whiteProgress.style.width = '0%';
@@ -3329,18 +3320,18 @@ function updateTimerStats(timerInfo) {
 }
 
 function checkTimeWarnings(timerInfo) {
-    // Nekontrolovat upozornění pokud není časová kontrola aktivní
+    // Do not check warnings if time control is not active
     if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) {
         return;
     }
 
     const currentPlayerTime = timerInfo.is_white_turn ? timerInfo.white_time_ms : timerInfo.black_time_ms;
     if (currentPlayerTime < 5000 && !timerInfo.warning_5s_shown) {
-        showTimeWarning('Kritické! Méně než 5 sekund!', 'critical');
+        showTimeWarning('Critical! Less than 5 seconds!', 'critical');
     } else if (currentPlayerTime < 10000 && !timerInfo.warning_10s_shown) {
-        showTimeWarning('Varování! Méně než 10 sekund!', 'warning');
+        showTimeWarning('Warning! Less than 10 seconds!', 'warning');
     } else if (currentPlayerTime < 30000 && !timerInfo.warning_30s_shown) {
-        showTimeWarning('Málo času! Méně než 30 sekund!', 'info');
+        showTimeWarning('Low time! Less than 30 seconds!', 'info');
     }
 }
 
@@ -3364,13 +3355,13 @@ function showTimeWarning(message, type) {
 }
 
 function handleTimeExpiration(timerInfo) {
-    // Nekontrolovat expiraci pokud není časová kontrola aktivní
+    // Do not check expiry if time control is not active
     if (!timerInfo || !timerInfo.config || timerInfo.config.type === 0) {
         return;
     }
 
-    const expiredPlayer = timerInfo.is_white_turn ? 'Bílý' : 'Černý';
-    showTimeWarning('Čas vypršel! ' + expiredPlayer + ' prohrál na čas.', 'critical');
+    const expiredPlayer = timerInfo.is_white_turn ? 'White' : 'Black';
+    showTimeWarning('Time expired! ' + expiredPlayer + ' lost on time.', 'critical');
     const pauseBtn = document.getElementById('pause-timer');
     const resumeBtn = document.getElementById('resume-timer');
     if (pauseBtn) pauseBtn.disabled = true;
@@ -3506,8 +3497,8 @@ async function applyTimeControl() {
     if (timeControlType === 14) {
         const minutes = parseInt(document.getElementById('custom-minutes').value);
         const increment = parseInt(document.getElementById('custom-increment').value);
-        if (minutes < 1 || minutes > 180) { alert('Minuty musí být 1–180'); return; }
-        if (increment < 0 || increment > 60) { alert('Increment musí být 0–60 sekund'); return; }
+        if (minutes < 1 || minutes > 180) { alert('Minutes must be 1–180'); return; }
+        if (increment < 0 || increment > 60) { alert('Increment must be 0–60 seconds'); return; }
         config.custom_minutes = minutes;
         config.custom_increment = increment;
     }
@@ -3528,7 +3519,7 @@ async function applyTimeControl() {
                 await updateTimerDisplay();
                 await new Promise(resolve => setTimeout(resolve, 300));
             }
-            showTimeWarning('Časová kontrola nastavena.', 'info');
+            showTimeWarning('Time control set.', 'info');
             const applyBtn = document.getElementById('apply-time-control');
             if (applyBtn) applyBtn.disabled = true;
         } else {
@@ -3538,7 +3529,7 @@ async function applyTimeControl() {
         }
     } catch (error) {
         console.error('Error applying time control:', error);
-        showTimeWarning('Chyba nastavení časové kontroly: ' + error.message, 'critical');
+        showTimeWarning('Error setting time control: ' + error.message, 'critical');
     }
 }
 
@@ -3550,7 +3541,7 @@ async function pauseTimer() {
             const resumeBtn = document.getElementById('resume-timer');
             if (pauseBtn) pauseBtn.style.display = 'none';
             if (resumeBtn) resumeBtn.style.display = 'inline-block';
-            showTimeWarning('Časomíra pozastavena', 'info');
+            showTimeWarning('Clock paused', 'info');
         }
     } catch (error) {
         console.error('❌ Error pausing timer:', error);
@@ -3565,7 +3556,7 @@ async function resumeTimer() {
             const resumeBtn = document.getElementById('resume-timer');
             if (pauseBtn) pauseBtn.style.display = 'inline-block';
             if (resumeBtn) resumeBtn.style.display = 'none';
-            showTimeWarning('Časomíra pokračuje', 'info');
+            showTimeWarning('Clock resumed', 'info');
         }
     } catch (error) {
         console.error('❌ Error resuming timer:', error);
@@ -3577,7 +3568,7 @@ async function resetTimer() {
         try {
             const response = await fetch('/api/timer/reset', { method: 'POST' });
             if (response.ok) {
-                showTimeWarning('Časomíra resetována', 'info');
+                showTimeWarning('Clock reset', 'info');
                 console.log('✅ Timer reset successfully');
                 await updateTimerDisplay();
             }
@@ -3588,7 +3579,7 @@ async function resetTimer() {
 }
 
 // ============================================================================
-// BRIGHTNESS (Nastavení → Zařízení) – for inline onchange on brightness-slider
+// BRIGHTNESS (Settings → Device) – for inline onchange on brightness-slider
 // ============================================================================
 
 async function setBrightness(value) {
@@ -3602,12 +3593,12 @@ async function setBrightness(value) {
         });
         const data = response.ok ? await response.json().catch(() => ({})) : {};
         if (data.success !== false) {
-            if (typeof console !== 'undefined' && console.log) console.log('Jas nastaven na', num + '%');
+            if (typeof console !== 'undefined' && console.log) console.log('Brightness set to', num + '%');
         } else {
-            console.warn('Nastavení jasu selhalo:', data.message || response.status);
+            console.warn('Brightness setting failed:', data.message || response.status);
         }
     } catch (err) {
-        console.error('Chyba nastavení jasu:', err.message);
+        console.error('Brightness setting error:', err.message);
     }
 }
 window.setBrightness = setBrightness;
@@ -3625,22 +3616,22 @@ async function setLedGuidanceLevel(level) {
         });
         const data = response.ok ? await response.json().catch(() => ({})) : {};
         if (data.success === false) {
-            console.warn('Nastavení LED nápovědy selhalo:', data.message || response.status);
+            console.warn('LED hint setting failed:', data.message || response.status);
         }
     } catch (err) {
-        console.error('Chyba nastavení LED nápovědy:', err.message);
+        console.error('LED hint setting error:', err.message);
     }
 }
 window.setLedGuidanceLevel = setLedGuidanceLevel;
 
 // ============================================================================
-// LAMP MODE (Nastavení → Zařízení: Šachovnice / Lampa, barva)
+// LAMP MODE (Settings → Device: Board / Lamp, color)
 // ============================================================================
 
 function showLightError(msg) {
     const el = document.getElementById('light-error-msg');
     if (el) {
-        el.textContent = msg || 'Chyba odeslání';
+        el.textContent = msg || 'Send error';
         el.style.display = '';
         setTimeout(function () { el.style.display = 'none'; el.textContent = ''; }, 2500);
     }
@@ -3657,11 +3648,11 @@ async function setLightModeGame() {
             if (btnLamp) btnLamp.classList.remove('active');
             if (lampControls) lampControls.style.display = 'none';
         } else {
-            showLightError('Přepnutí na šachovnici selhalo');
+            showLightError('Switch to board mode failed');
         }
     } catch (e) {
         console.warn('setLightModeGame failed:', e.message);
-        showLightError('Chyba sítě');
+        showLightError('Network error');
     }
 }
 
@@ -3684,11 +3675,11 @@ async function setLightModeLamp(r, g, b, state) {
             if (lampControls) lampControls.style.display = '';
         } else {
             const data = await res.json().catch(function () { return {}; });
-            showLightError(data.message || 'Zařízení není připraveno (503)');
+            showLightError(data.message || 'Device not ready (503)');
         }
     } catch (e) {
         console.warn('setLightModeLamp failed:', e.message);
-        showLightError('Chyba sítě');
+        showLightError('Network error');
     }
 }
 
@@ -3739,7 +3730,7 @@ if (document.readyState === 'loading') {
 }
 
 // ============================================================================
-// NEW GAME (Nastavení → action bar „Nová hra“) – for inline onclick
+// NEW GAME (Settings → action bar "New game") – for inline onclick
 // ============================================================================
 
 function getConfirmNewGameEnabled() {
@@ -3750,11 +3741,11 @@ function getConfirmNewGameEnabled() {
 
 async function startNewGame() {
     if (isWebLocked()) {
-        alert('Rozhraní je zamčeno. Odemkněte přes UART.');
+        alert('Interface is locked. Unlock via UART.');
         return;
     }
     if (getConfirmNewGameEnabled()) {
-        if (!confirm('Opravdu chcete začít novou hru? Aktuální partie bude ukončena.')) {
+        if (!confirm('Are you sure you want to start a new game? The current game will end.')) {
             return;
         }
     }
@@ -3792,7 +3783,7 @@ async function startNewGame() {
     try {
         const response = await fetch('/api/game/new', { method: 'POST' });
         if (response.ok) {
-            if (typeof console !== 'undefined' && console.log) console.log('Nová hra spuštěna. Mode:', gameMode, 'Player Side:', botSettings.side);
+            if (typeof console !== 'undefined' && console.log) console.log('New game started. Mode:', gameMode, 'Player Side:', botSettings.side);
 
             await fetchData();
 
@@ -3803,10 +3794,10 @@ async function startNewGame() {
                 setTimeout(() => checkBotTurn({ current_player: 'White', game_state: 'active' }, startFen), 500);
             }
         } else {
-            console.warn('Nová hra selhala:', response.status);
+            console.warn('New game failed:', response.status);
         }
     } catch (err) {
-        console.error('Chyba startNewGame:', err.message);
+        console.error('Error startNewGame:', err.message);
     }
 }
 window.startNewGame = startNewGame;
@@ -3825,7 +3816,7 @@ function handleRandomDraw() {
     var drawn = Math.random() < 0.5 ? 'white' : 'black';
     sideEl.value = drawn;
     if (msgEl) {
-        msgEl.textContent = drawn === 'white' ? 'Losování: Hrajete za bílého.' : 'Losování: Hrajete za černého.';
+        msgEl.textContent = drawn === 'white' ? 'Draw: You play White.' : 'Draw: You play Black.';
         msgEl.style.display = 'block';
     }
     if (typeof saveBotSettings === 'function') saveBotSettings();
@@ -3833,7 +3824,7 @@ function handleRandomDraw() {
 window.handleRandomDraw = handleRandomDraw;
 
 // ============================================================================
-// PROMOTION MODAL (Q/R/B/N a Zrušit) – for inline onclick
+// PROMOTION MODAL (Q/R/B/N and Cancel) – for inline onclick
 // ============================================================================
 
 async function selectPromotion(choice) {
@@ -3848,14 +3839,14 @@ async function selectPromotion(choice) {
         });
         if (response.ok) await fetchData();
     } catch (err) {
-        console.error('Chyba selectPromotion:', err.message);
+        console.error('Error selectPromotion:', err.message);
     }
 }
 
 function cancelPromotion() {
     const modal = document.getElementById('promotion-modal');
     if (modal) modal.style.display = 'none';
-    // Odblokovat hru výchozí volbou (Dáma)
+    // Unblock the game with the default choice (Queen)
     selectPromotion('Q');
 }
 window.selectPromotion = selectPromotion;
@@ -3928,7 +3919,7 @@ async function saveWiFiConfig() {
     const ssid = document.getElementById('wifi-ssid').value;
     const password = document.getElementById('wifi-password').value;
     if (!ssid || !password) {
-        alert('SSID a heslo jsou povinné');
+        alert('SSID and password are required');
         return;
     }
     try {
@@ -3939,12 +3930,12 @@ async function saveWiFiConfig() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('WiFi uloženo. Stiskněte „Připojit STA“.');
+            alert('WiFi saved. Press "Connect STA".');
         } else {
-            alert('Uložení WiFi selhalo: ' + data.message);
+            alert('Saving WiFi failed: ' + data.message);
         }
     } catch (error) {
-        alert('Chyba: ' + error.message);
+        alert('Error: ' + error.message);
     }
 }
 
@@ -3956,13 +3947,13 @@ async function connectSTA() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Připojování k WiFi...');
+            alert('Connecting to WiFi...');
             setTimeout(updateWiFiStatus, 1500);
         } else {
-            alert('Připojení selhalo: ' + data.message);
+            alert('Connection failed: ' + data.message);
         }
     } catch (error) {
-        alert('Chyba: ' + error.message);
+        alert('Error: ' + error.message);
     }
 }
 
@@ -3974,18 +3965,18 @@ async function disconnectSTA() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Odpojeno od WiFi');
+            alert('Disconnected from WiFi');
             setTimeout(updateWiFiStatus, 1000);
         } else {
-            alert('Odpojení selhalo: ' + data.message);
+            alert('Disconnect failed: ' + data.message);
         }
     } catch (error) {
-        alert('Chyba: ' + error.message);
+        alert('Error: ' + error.message);
     }
 }
 
 async function clearWiFiConfig() {
-    if (!confirm('Opravdu smazat uloženou WiFi konfiguraci? ESP se odpojí od sítě.')) {
+    if (!confirm('Really delete the saved WiFi configuration? ESP will disconnect from the network.')) {
         return;
     }
     try {
@@ -3995,22 +3986,22 @@ async function clearWiFiConfig() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('WiFi konfigurace smazána.');
+            alert('WiFi configuration deleted.');
             setTimeout(updateWiFiStatus, 500);
         } else {
-            alert('Smazání selhalo: ' + (data.message || 'neznámá chyba'));
+            alert('Delete failed: ' + (data.message || 'unknown error'));
         }
     } catch (error) {
-        alert('Chyba: ' + error.message);
+        alert('Error: ' + error.message);
     }
 }
 
-/** Celý NVS oddíl + restart (stejné jako BLE `factory_reset`). */
+/** Entire NVS partition + restart (same as BLE `factory_reset`). */
 async function factoryResetDevice() {
-    if (!confirm('Tovární reset: smaže VŠECHNO v NVS (WiFi, MQTT, uložená partie, UI) a desku restartuje. Pokračovat?')) {
+    if (!confirm('Factory reset: erases EVERYTHING in NVS (WiFi, MQTT, saved game, UI) and restarts the board. Continue?')) {
         return;
     }
-    if (!confirm('Naposledy: opravdu vymazat celou NVS flash?')) {
+    if (!confirm('Last chance: really erase the entire NVS flash?')) {
         return;
     }
     try {
@@ -4026,17 +4017,17 @@ async function factoryResetDevice() {
             data = {};
         }
         if (response.ok && data.success) {
-            alert('Reset naplánován — deska za chvíli naběhne s prázdnou NVS.');
+            alert('Reset scheduled — the board will reboot shortly with empty NVS.');
         } else {
-            alert('Factory reset selhal: ' + (data.message || response.status));
+            alert('Factory reset failed: ' + (data.message || response.status));
         }
     } catch (error) {
         console.error('factoryResetDevice:', error);
-        alert('Chyba při factory resetu');
+        alert('Error during factory reset');
     }
 }
 
-/** True if API vrací uložené STA SSID z NVS (ne zástupný text z firmware). */
+/** True if API returns stored STA SSID from NVS (not a firmware placeholder). */
 function wifiStatusHasSavedStaSsid(staSsid) {
     if (staSsid == null || typeof staSsid !== 'string') {
         return false;
@@ -4060,16 +4051,16 @@ async function updateWiFiStatus() {
         document.getElementById('ap-ip').textContent = data.ap_ip || '192.168.4.1';
         document.getElementById('ap-clients').textContent = data.ap_clients || 0;
         document.getElementById('sta-ssid').textContent =
-            wifiStatusHasSavedStaSsid(data.sta_ssid) ? data.sta_ssid : 'Nenastaveno';
-        document.getElementById('sta-ip').textContent = data.sta_ip || 'Nepřipojeno';
+            wifiStatusHasSavedStaSsid(data.sta_ssid) ? data.sta_ssid : 'Not set';
+        document.getElementById('sta-ip').textContent = data.sta_ip || 'Not connected';
         document.getElementById('sta-connected').textContent = data.sta_connected ? 'ano' : 'ne';
         if (wifiStatusHasSavedStaSsid(data.sta_ssid)) {
             document.getElementById('wifi-ssid').value = data.sta_ssid;
         }
-        // Zařízení: Zámek a Online (data z téhož API)
+        // Device: Lock and Online (data from the same API)
         const lockEl = document.getElementById('web-lock-status');
         if (lockEl) {
-            lockEl.textContent = data.locked ? 'Zamčeno' : 'Odemčeno';
+            lockEl.textContent = data.locked ? 'Locked' : 'Unlocked';
             lockEl.style.color = data.locked ? '#e53935' : '#43a047';
         }
         const onlineEl = document.getElementById('web-online-status');
@@ -4136,11 +4127,11 @@ async function toggleDemoMode() {
             await updateDemoModeStatus();
         } else {
             console.error('❌ Failed to toggle demo mode');
-            alert('Přepnutí demo režimu selhalo: ' + (data.message || 'Neznámá chyba'));
+            alert('Demo mode switch failed: ' + (data.message || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error toggling demo mode:', error);
-        alert('Chyba při přepnutí demo režimu');
+        alert('Error switching demo mode');
     }
 }
 
@@ -4172,11 +4163,11 @@ async function updateDemoModeStatus() {
 
         if (statusEl) {
             if (enabled) {
-                statusEl.textContent = 'Zapnuto';
+                statusEl.textContent = 'On';
                 statusEl.style.color = '#4CAF50';
                 statusEl.style.fontWeight = 'bold';
             } else {
-                statusEl.textContent = 'Vypnuto';
+                statusEl.textContent = 'Off';
                 statusEl.style.color = '#999';
                 statusEl.style.fontWeight = 'normal';
             }
@@ -4198,7 +4189,7 @@ async function updateDemoModeStatus() {
             demoCheckbox.checked = enabled;
         }
     } catch (error) {
-        console.error('Chyba aktualizace stavu demo režimu:', error);
+        console.error('Error updating demo mode status:', error);
     }
 }
 

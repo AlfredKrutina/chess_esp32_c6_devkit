@@ -1,6 +1,6 @@
 /**
  * @file game_state_notify.c
- * @brief Výchozí slabá implementace (bez závislosti na web_server).
+ * @brief Default weak implementation (no web_server dependency).
  */
 #include "game_state_notify.h"
 

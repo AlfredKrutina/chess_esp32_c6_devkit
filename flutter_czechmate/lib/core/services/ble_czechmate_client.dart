@@ -35,8 +35,8 @@ bool _isBleTransportDropped(Object e) {
 bool _isRetryableGattWrite(Object e) {
   if (e is FlutterBluePlusException) {
     // iOS CoreBluetooth CBATTError (raw hodnoty z FBP):
-    // 5 insufficientAuthentication, 8 insufficientAuthorization (OTA před SMP),
-    //   — také často „prepare queue“ při dlouhých zápisech;
+    // 5 insufficientAuthentication, 8 insufficientAuthorization (OTA before SMP),
+    // — also often "prepare queue" for long entries;
     // 15 insufficientEncryption
     // 14: Linux ATT retry
     if (e.code == 5 ||
@@ -58,7 +58,7 @@ bool _isRetryableGattWrite(Object e) {
   return false;
 }
 
-/// Diagnostika BLE OTA (iOS code 8 často insufficientAuthorization / prepare queue).
+/// BLE OTA diagnostics (iOS code 8 often insufficientAuthorization / prepare queue).
 void _logBleOtaChunkWriteFailure(
   Object e, {
   required int chunkIndex,
@@ -77,12 +77,12 @@ void _logBleOtaChunkWriteFailure(
   }
   sb.write('$e');
   sb.write(
-    ' | ESP: hledej v UART „OTA BLE chunk rejected: link not encrypted“ → bonding/šifrování.',
+    ' | ESP: look in UART for "OTA BLE chunk rejected: link not encrypted" → bonding/encryption.',
   );
   debugPrint(sb.toString());
 }
 
-/// BLE snapshot notify + chunk skládání (`appendChunk` ve Swift).
+/// BLE snapshot notify + chunk adding (`appendChunk` in Swift).
 class BleCzechmateClient {
   BluetoothDevice? _device;
   BluetoothCharacteristic? _snapChar;
@@ -93,11 +93,11 @@ class BleCzechmateClient {
   StreamSubscription<List<int>>? _ackSub;
   StreamSubscription<List<int>>? _netSub;
   StreamSubscription<BluetoothConnectionState>? _connSub;
-  /// Zachycení `disconnected` až po dokončení GATT setupu — jinak iOS/SMP často sejme UI dřív než `discoverServices`.
+  /// Catching `disconnected` only after GATT setup is complete — otherwise iOS/SMP will often strip the UI before `discoverServices`.
   void Function(Object)? _onDisconnectError;
   final _assembler = _BleChunkAssembler();
 
-  /// Jedna fronta GATT zápisů — méně „prepare queue full“ a méně zahlcení při rychlých hintech.
+  /// One GATT write queue — less "prepare queue full" and less congestion on fast hints.
   Future<void> _cmdWriteTail = Future<void>.value();
 
   static const Duration _kMinGapBetweenBleCmdWrites =
@@ -107,7 +107,7 @@ class BleCzechmateClient {
 
   Future<void> disconnect() async {
     final prev = _device?.remoteId.str;
-    connDebugLog('BLE stack disconnect()', prev ?? '(žádné zařízení)');
+    connDebugLog('BLE stack disconnect()', prev ?? '(no device)');
     _onDisconnectError = null;
     await _valueSub?.cancel();
     await _ackSub?.cancel();
@@ -151,7 +151,7 @@ class BleCzechmateClient {
   Future<List<BluetoothService>> _discoverServicesRobust(
       BluetoothDevice device) async {
     if (defaultTargetPlatform != TargetPlatform.iOS) {
-      connDebugLog('discoverServices', 'jeden pokus (ne-iOS)');
+      connDebugLog('discoverServices', 'single attempt (non-iOS)');
       return device.discoverServices();
     }
     Object? lastErr;
@@ -163,14 +163,14 @@ class BleCzechmateClient {
         final list = await device.discoverServices();
         connDebugLog(
           'discoverServices OK',
-          'iOS pokus=${attempt + 1} služeb=${list.length}',
+          'iOS attempt=${attempt + 1} services=${list.length}',
         );
         return list;
       } catch (e) {
         lastErr = e;
         connDebugLog(
-          'discoverServices chyba',
-          'iOS pokus=${attempt + 1}/4 ${connBleErrorDetail(e)}',
+          'discoverServices error',
+          'iOS attempt=${attempt + 1}/4 ${connBleErrorDetail(e)}',
         );
         if (attempt == 3) {
           rethrow;
@@ -183,7 +183,7 @@ class BleCzechmateClient {
     throw lastErr ?? StateError('discoverServices failed');
   }
 
-  /// [onNetworkNotify] — firmware posílá notify na network char při změně STA/IP (`ble_task_push_network_info`).
+  /// [onNetworkNotify] — firmware sends notifications to network char when STA/IP changes (`ble_task_push_network_info`).
   Future<void> connect(
     BluetoothDevice device, {
     required void Function(GameSnapshot snap) onSnapshot,
@@ -201,13 +201,13 @@ class BleCzechmateClient {
       connDebugLog('GAP device.connect()', 'timeout=15s');
       await device.connect(timeout: const Duration(seconds: 15));
       connDebugLog(
-        'GAP device.connect hotovo',
+        'GAP device.connect done',
         'isConnected=${device.isConnected}',
       );
-      /* iOS: krátká prodleva na stabilizaci linku; SMP na desce je odložené (~1,8 s),
-       * takže GATT discovery může začít dřív než dřívějších 1350 ms + SMP najednou. */
+      /* iOS: short delay for link settle; SMP on the board is deferred (~1.8 s),
+       * so GATT discovery can start earlier than the previous 1350 ms + SMP together. */
       if (defaultTargetPlatform == TargetPlatform.iOS) {
-        connDebugLog('iOS prodleva před discoverServices', '600ms');
+        connDebugLog('iOS delay before discoverServices', '600ms');
         await Future<void>.delayed(const Duration(milliseconds: 600));
       }
       final services = await _discoverServicesRobust(device);
@@ -215,7 +215,7 @@ class BleCzechmateClient {
         await device.requestMtu(517);
         connDebugLog('requestMtu', '517');
       } catch (e) {
-        connDebugLog('requestMtu přeskočeno', connBleErrorDetail(e));
+        connDebugLog('requestMtu skipped', connBleErrorDetail(e));
       }
       BluetoothCharacteristic? snapChar;
       BluetoothCharacteristic? ackChar;
@@ -232,32 +232,32 @@ class BleCzechmateClient {
       if (snapChar == null) {
         connDebugLog(
           'GATT session FAILED',
-          'chybí snapshot characteristic (UUID služby nenalezeno?)',
+          'missing snapshot characteristic (service UUID not found?)',
         );
         await disconnect();
         throw StateError('Missing GATT snapshot characteristic');
       }
       _snapChar = snapChar;
       _assembler.reset();
-      /* READ před zapnutím notify — jinak dorazí CM chunky do prázdného skladače
-       * paralelně s READ a hrozí zákulisní rozbitá řada.
-       * iOS často vrátí z READ jen úsek JSON (~MTU) → FormatException; první platný
-       * stav stejně dorazí přes notify. */
+      /* READ before enabling notify — otherwise CM chunks hit an empty assembler
+       * in parallel with READ and can corrupt the sequence behind the scenes.
+       * iOS often returns only a JSON slice from READ (~MTU) → FormatException; the first
+       * valid state still arrives via notify. */
       if (defaultTargetPlatform != TargetPlatform.iOS) {
         try {
           final initialSnap = await readSnapshot();
           onSnapshot(initialSnap);
-          connDebugLog('readSnapshot po connect', 'OK');
+          connDebugLog('readSnapshot after connect', 'OK');
         } catch (e) {
           connDebugLog(
-            'readSnapshot po connect selhalo → spoléháme na notify',
+            'readSnapshot after connect failed → relying on notify',
             connBleErrorDetail(e),
           );
         }
       } else {
         connDebugLog(
-          'readSnapshot po connect',
-          'přeskočeno na iOS (zkrácené READ → jen notify)',
+          'readSnapshot after connect',
+          'skipped on iOS (shortened READ → notify only)',
         );
       }
       await snapChar.setNotifyValue(true);
@@ -337,12 +337,12 @@ class BleCzechmateClient {
     }
   }
 
-  /// Obnoví GATT po výpadku linku: UI někdy drží `bleGattConnected`, ale
-  /// `device.isConnected` je false → `writeCharacteristic` hlásí fbp-code 6.
+  /// Restores GATT after a line drop: UI sometimes keeps `bleGattConnected`, but
+  /// `device.isConnected` is false → `writeCharacteristic` reports fbp-code 6.
   Future<void> ensureGattReadyForCommands() async {
     final d = _device;
     if (d == null) {
-      connDebugLog('ensureGattReady', 'chyba: device null');
+      connDebugLog('ensureGattReady', 'error: device null');
       throw StateError('BLE device not set');
     }
     connDebugLog(
@@ -374,7 +374,7 @@ class BleCzechmateClient {
       }
     }
     if (cmdChar == null) {
-      connDebugLog('ensureGattReady FAIL', 'cmd characteristic nenalezena');
+      connDebugLog('ensureGattReady FAIL', 'cmd characteristic not found');
       throw StateError('BLE command characteristic not found');
     }
     _cmdChar = cmdChar;
@@ -383,11 +383,11 @@ class BleCzechmateClient {
       _networkChar = netChar;
     }
     _attachDisconnectListener();
-    connDebugLog('ensureGattReady OK', 'cmd+net znovu navázány');
+    connDebugLog('ensureGattReady OK', 'cmd+net reattached');
   }
 
-  /// OTA a další citlivé BLE příkazy vyžadují na desce aktivní link encryption (SMP).
-  /// iOS často pošle zápis dřív → CBATTError 8 (insufficientAuthorization); Androidu pomůže bond.
+  /// OTA and other sensitive BLE commands require active link encryption (SMP) on the board.
+  /// iOS often sends a write early → CBATTError 8 (insufficientAuthorization); Bond will help Android.
   Future<void> prepareEncryptedBleLink() async {
     await ensureGattReadyForCommands();
     final d = _device;
@@ -458,7 +458,7 @@ class BleCzechmateClient {
       try {
         await _cmdChar!.write(bytes, withoutResponse: false);
         if (attempt > 0 && AppEnvironment.staging) {
-          debugPrint('[staging] BLE cmd OK po retry (pokus ${attempt + 1})');
+          debugPrint('[staging] BLE cmd OK after retry (attempt ${attempt + 1})');
         }
         return;
       } catch (e) {
@@ -474,7 +474,7 @@ class BleCzechmateClient {
           continue;
         }
         if (!_isRetryableGattWrite(e) || attempt == maxAttempts - 1) rethrow;
-        /* iOS 5/15 encryption/auth; 8 prepare queue — delší prodlevy než pro krátký JSON. */
+        /* iOS 5/15 encryption/auth; 8 prepare queue — longer delays than for short JSON. */
         final baseMs =
             defaultTargetPlatform == TargetPlatform.iOS ? 180 : 60;
         await Future<void>.delayed(
@@ -536,17 +536,17 @@ class BleCzechmateClient {
 
   Future<void> postGuardClear() async => await _writeCmd({'cmd': 'guard_clear'});
 
-  /// Parita `BLEBoardTransport.postHintHighlightDestinationOnly`.
+  /// Parity `BLEBoardTransport.postHintHighlightDestinationOnly`.
   Future<void> postHintHighlightDestinationOnly(String toSquare) async {
     await _writeCmd({'cmd': 'hint_highlight', 'to': toSquare.toLowerCase()});
   }
 
-  /// Parita `BLEBoardTransport.postSetupTutorial`.
+  /// Parity `BLEBoardTransport.postSetupTutorial`.
   Future<void> postSetupTutorial(String action) async {
     await _writeCmd({'cmd': 'setup_tutorial', 'action': action});
   }
 
-  /// Parita `POST /api/game/opening` — start | cancel | hint | checkpoint_ack.
+  /// Parity `POST /api/game/opening` — start | cancel | hint | checkpoint_ack.
   Future<void> postOpening(Map<String, dynamic> body) async {
     final cmd = <String, dynamic>{'cmd': 'opening'};
     cmd.addAll(body);
@@ -557,7 +557,7 @@ class BleCzechmateClient {
     await _writeCmd({'cmd': 'brightness', 'percent': percent.clamp(0, 100)});
   }
 
-  /// Parita `BLEBoardTransport.postLightCommand` / `POST /api/light/command`.
+  /// Parity `BLEBoardTransport.postLightCommand` / `POST /api/light/command`.
   Future<void> postLightCommand({
     required bool state,
     required int r,
@@ -576,7 +576,7 @@ class BleCzechmateClient {
     });
   }
 
-  /// Parita `POST /api/light/game_mode`.
+  /// Parity `POST /api/light/game_mode`.
   Future<void> postLightGameMode() async {
     await _writeCmd({'cmd': 'light_game_mode'});
   }
@@ -587,7 +587,7 @@ class BleCzechmateClient {
     await _writeCmd({'cmd': 'ota_start', 'url': httpsFirmwareUrl.trim()});
   }
 
-  /// Zahájení stream OTA přes BLE (`ota_ble_begin`); po ní chunky s magic `OB`.
+  /// Begin OTA stream over BLE (`ota_ble_begin`); after her chunky with magic `OB`.
   Future<void> postOtaBleBegin(int sizeBytes) async {
     await _writeCmd({'cmd': 'ota_ble_begin', 'size': sizeBytes});
   }
@@ -608,7 +608,7 @@ class BleCzechmateClient {
         .timeout(timeout);
   }
 
-  /// Stav pozastaveného / aktivního BLE stream OTA na desce (`ota_ble_status`).
+  /// Status of suspended / active BLE stream OTA on the board (`ota_ble_status`).
   Future<OtaBleStatus?> fetchOtaBleStatus({
     Duration responseTimeout = const Duration(seconds: 8),
   }) async {
@@ -645,10 +645,10 @@ class BleCzechmateClient {
     }
   }
 
-  /// Nahraje celý `.bin` přes GATT CMD — bez Wi‑Fi (chunky `OB` + firmware bytes).
+  /// Uploads the entire `.bin` via GATT CMD — without Wi‑Fi (`OB` chunks + firmware bytes).
   ///
-  /// Při výpadku Bluetooth deska session pozastaví (až 24 h); po znovupřipojení
-  /// pokračuje ze stejného chunk indexu. [onPhase]: `paused_waiting_reconnect`, `resumed`.
+  /// In the event of a Bluetooth failure, the board pauses the session (up to 24 h); after reconnecting
+  /// continues from the same chunk index. [onPhase]: `paused_waiting_reconnect`, `resumed`.
   Future<void> uploadFirmwareBle(
     File bin, {
     void Function(int pct)? onProgress,
@@ -672,9 +672,9 @@ class BleCzechmateClient {
     }
     final mtu = d.mtuNow;
     /*
-     * OB paket = 6 B hlavička + payload; jeden GATT write musí vejít do jedné ATT hodnoty
-     * délky ≤ (mtu − 3). Jinak iOS dělí Prepare Write → fronta (apple-code 8, „authorization“).
-     * Požadavek: 6 + payload ≤ mtu − 3  ⇒  payload ≤ mtu − 9; −1 B rezerva ⇒ mtu − 10.
+     * OB packet = 6 B header + payload; one GATT write must fit in one ATT value
+     * of length ≤ (mtu − 3). Otherwise iOS splits Prepare Write → queue (apple-code 8, “authorization”).
+     * Requirement: 6 + payload ≤ mtu − 3  ⇒  payload ≤ mtu − 9; −1 B reserve ⇒ mtu − 10.
      */
     final int singlePduPayload = mtu >= 27
         ? (mtu - 10).clamp(12, 400).toInt()
@@ -742,7 +742,7 @@ class BleCzechmateClient {
                 await wc.write(
                   pkt,
                   withoutResponse: false,
-                  /* JednopDU zápisy — bez dlouhého Prepare Write na iOS. */
+                  /* Single-PDU writes — no long Prepare Write on iOS. */
                   allowLongWrite: false,
                   timeout: defaultTargetPlatform == TargetPlatform.iOS ? 45 : 15,
                 );
@@ -771,7 +771,7 @@ class BleCzechmateClient {
                 }
                 final ios = defaultTargetPlatform == TargetPlatform.iOS;
                 final code = fbp?.code ?? -1;
-                /* 8 ≈ prepareQueueFull — delší pauza; 5/15 ≈ auth/encryption — SMP. */
+                /* 8 ≈ prepareQueueFull — longer pause; 5/15 ≈ auth/encryption — SMP. */
                 final int baseMs;
                 final int stepMs;
                 if (code == 8) {
@@ -814,7 +814,7 @@ class BleCzechmateClient {
               await postOtaBleAbort();
             } catch (_) {}
             throw StateError(
-              'BLE OTA: deska nepozastavila session (vypršení 24 h nebo abort).',
+              'BLE OTA: board did not pause session (24h expiry or abort).',
             );
           }
           offset = st.bytes;
@@ -828,13 +828,13 @@ class BleCzechmateClient {
     }
   }
 
-  /// Parita `POST /api/settings/lamp` (`auto_lamp_timeout_sec`).
+  /// Parity `POST /api/settings/lamp` (`auto_lamp_timeout_sec`).
   Future<void> postAutoLampTimeout(int seconds) async {
     final v = seconds.clamp(5, 7200);
     await _writeCmd({'cmd': 'settings_auto_lamp_timeout', 'seconds': v});
   }
 
-  /// Uloží STA SSID/heslo do NVS na desce a spojí Wi‑Fi (`wifi_ble_prov` task).
+  /// Saves STA SSID/password to NVS on board and connects Wi‑Fi (`wifi_ble_prov` task).
   Future<void> postWifiStaConfig(String ssid, String password) async {
     await _writeCmd({
       'cmd': 'wifi_sta_config',
@@ -843,7 +843,7 @@ class BleCzechmateClient {
     });
   }
 
-  /// NVS na desce + při DHCP zamítnutí IP s blokovaným 3. oktetem (`wifi_sta_ip_block`, šifrované BLE).
+  /// NVS on board + when DHCP reject IP with blocked 3rd octet (`wifi_sta_ip_block`, encrypted BLE).
   Future<void> postWifiStaIpBlock(String thirdOctetsCsv) async {
     await ensureGattReadyForCommands();
     await _writeCmd({
@@ -852,7 +852,7 @@ class BleCzechmateClient {
     });
   }
 
-  /// Aktivní scan okolí na desce; odpověď přijde přes `cmd_ack` notify (`wifi_survey`).
+  /// Active scan of the surroundings on the board; the response comes via `cmd_ack` notify (`wifi_survey`).
   Future<BleWifiSurveyResult> fetchWifiSurvey({
     Duration timeout = const Duration(seconds: 18),
   }) async {
@@ -912,7 +912,7 @@ class BleCzechmateClient {
     }
   }
 
-  /// Zapnutí/vypnutí Wi‑Fi hotspotu na desce (`wifi_ap_set`, šifrované BLE).
+  /// Enable/disable Wi‑Fi hotspot on the board (`wifi_ap_set`, encrypted BLE).
   Future<void> postWifiApSet(bool enabled) async {
     await _writeCmd({
       'cmd': 'wifi_ap_set',
@@ -921,7 +921,7 @@ class BleCzechmateClient {
   }
 
   /// BLE ekvivalent iOS `fetchNetworkInfo` (sta_ip/ap_ip/online).
-  /// Jednorázový READ snapshotu (firmware `BLE_GATT_ACCESS_OP_READ_CHR` na snap UUID).
+  /// One-time READ snapshot (firmware `BLE_GATT_ACCESS_OP_READ_CHR` on snap UUID).
   Future<GameSnapshot> readSnapshot() async {
     final c = _snapChar;
     final d = _device;
@@ -950,7 +950,7 @@ class BleCzechmateClient {
   }
 }
 
-/// Jedna síť z BLE `wifi_survey`.
+/// One network from BLE `wifi_survey`.
 class BleWifiSurveyNetwork {
   const BleWifiSurveyNetwork({required this.ssid, required this.rssi});
 
@@ -958,7 +958,7 @@ class BleWifiSurveyNetwork {
   final int rssi;
 }
 
-/// Výsledek `wifi_survey` (cmd_ack JSON z desky, může dorazit ve více notify).
+/// The result of `wifi_survey` (cmd_ack JSON from the board, may arrive in multiple notifications).
 class BleWifiSurveyResult {
   const BleWifiSurveyResult({
     required this.ok,
@@ -1027,7 +1027,7 @@ class BleWifiSurveyResult {
   }
 }
 
-/// Odpověď na `ota_ble_status` (cmd_ack JSON z desky).
+/// Reply to `ota_ble_status` (cmd_ack JSON from board).
 class OtaBleStatus {
   const OtaBleStatus({
     required this.session,
@@ -1073,13 +1073,13 @@ class BleNetworkInfo {
 
   final String? staIp;
   final String? apIp;
-  /// SSID sítě, na kterou je deska připojená jako STA (z firmware JSON).
+  /// SSID of the network to which the board is connected as a STA (from firmware JSON).
   final String? staSsid;
   final bool staConnected;
   final bool online;
-  /// Hotspot desky (AP) právě vysílá.
+  /// Hotspot plates (AP) are currently broadcasting.
   final bool apActive;
-  /// SSID hotspotu z network notify (volitelné).
+  /// Hotspot SSID from network notify (optional).
   final String? apSsid;
 }
 
@@ -1094,12 +1094,12 @@ class _BleChunkAssembler {
     _total = 0;
   }
 
-  /// Vrátí kompletní JSON bajty nebo `null` (čekání na další chunk).
+  /// Returns complete JSON bytes or `null` (waiting for next chunk).
   List<int>? push(Uint8List data) {
     if (data.isEmpty) {
       return null;
     }
-    /* READ char vrací holý JSON (`{`…); notify používá hlavičku CM + díly. */
+    /* READ char returns raw JSON (`{`…); notify uses CM header + chunks. */
     final bool cmChunk =
         data.length >= 4 && data[0] == 0x43 && data[1] == 0x4d;
     if (!cmChunk) {
@@ -1108,7 +1108,7 @@ class _BleChunkAssembler {
       }
       if (AppEnvironment.staging || kDebugMode) {
         debugPrint(
-          'BLE snapshot: neočekávaný rámec bez CM (len=${data.length}), ignoruji',
+          'BLE snapshot: unexpected frame without CM (len=${data.length}), ignoring',
         );
       }
       return null;
@@ -1119,7 +1119,7 @@ class _BleChunkAssembler {
     if (part < 1 || total < 1 || part > total) {
       if (AppEnvironment.staging || kDebugMode) {
         debugPrint(
-          'BLE snapshot chunk: neplatné part/total ($part/$total), reset',
+          'BLE snapshot chunk: invalid part/total ($part/$total), reset',
         );
       }
       reset();
@@ -1139,8 +1139,8 @@ class _BleChunkAssembler {
     if (_total != total || _part != part - 1) {
       if (AppEnvironment.staging || kDebugMode) {
         debugPrint(
-          'BLE snapshot chunk: nesouvislá řada (čekáno part ${_part + 1}, '
-          'total=$_total; dost part=$part total=$total), reset',
+          'BLE snapshot chunk: discontinuous sequence (expected part ${_part + 1}, '
+          'total=$_total; got part=$part total=$total), reset',
         );
       }
       reset();

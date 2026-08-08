@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CzechMate — kontrola verze aplikace</title>
+  <title>CzechMate — app version check</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; color: #1a1a1a; }
     code, pre { font-family: ui-monospace, monospace; font-size: 0.9rem; }
@@ -13,27 +13,27 @@
   </style>
 </head>
 <body>
-  <h1>Kontrola verze mobilní aplikace</h1>
-  <p>Aplikace CzechMate při otevření nastavení stáhne soubor <code>app_update.json</code> z kořene tohoto webu a porovná semver verzi instalace s polem <code>latest_version</code>.</p>
-  <p>Pro klienta je zdrojem pravdy vždy JSON. Tato stránka popisuje schéma polí.</p>
+  <h1>Mobile app version check</h1>
+  <p>When you open Settings, the CzechMate app downloads <code>app_update.json</code> from the root of this site and compares the installed semver version with the <code>latest_version</code> field.</p>
+  <p>For the client, the JSON is always the source of truth. This page describes the field schema.</p>
 
-  <h2>Umístění</h2>
-  <p><a href="./app_update.json"><code>app_update.json</code></a> — stejný obsah jako v repozitáři v <code>gh-pages-ready/app_update.json</code>.</p>
+  <h2>Location</h2>
+  <p><a href="./app_update.json"><code>app_update.json</code></a> — the same content as in the repository at <code>gh-pages-ready/app_update.json</code>.</p>
 
-  <h2>Schéma</h2>
+  <h2>Schema</h2>
   <ul>
-    <li><code>latest_version</code> (řetězec, povinné) — nejnovější vydaná verze. Starší instalace zobrazí nabídku aktualizace.</li>
-    <li><code>min_supported_version</code> (řetězec, volitelné) — pod touto verzí se zobrazí výraznější výzva k aktualizaci.</li>
-    <li><code>release_page_url</code> (řetězec URL, volitelné) — cíl tlačítka ke stažení. Při absenci se použije výchozí adresa z kódu aplikace.</li>
+    <li><code>latest_version</code> (string, required) — newest published version. Older installs show an update prompt.</li>
+    <li><code>min_supported_version</code> (string, optional) — below this version a stronger update prompt is shown.</li>
+    <li><code>release_page_url</code> (URL string, optional) — target of the download button. If omitted, the app uses its built-in default URL.</li>
   </ul>
 
-  <h2>Příklad</h2>
+  <h2>Example</h2>
   <pre>{
   "latest_version": "1.7.4",
   "min_supported_version": "1.6.0",
   "release_page_url": "https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html"
 }</pre>
 
-  <p>Po vydání nové verze aplikace se hodnoty v JSON srovnají s <code>flutter_czechmate/pubspec.yaml</code>, změna se commitne do repozitáře a nasadí přes GitHub Actions na větev <code>gh-pages</code>.</p>
+  <p>After publishing a new app version, keep the JSON values in sync with <code>flutter_czechmate/pubspec.yaml</code>, commit the change to the repository, and deploy via GitHub Actions to the <code>gh-pages</code> branch.</p>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/// Human-readable opening trainer messages (parita s web `opening_trainer.js` §8.9).
+/// Human-readable opening trainer messages (parity with web `opening_trainer.js` §8.9).
 class OpeningFeedbackL10n {
   const OpeningFeedbackL10n._();
 

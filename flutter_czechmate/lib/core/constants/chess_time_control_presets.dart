@@ -1,4 +1,4 @@
-// Parita `ChessTimeControlPresets.swift` / `time_control_type_t` (0…14).
+// Parity `ChessTimeControlPresets.swift` / `time_control_type_t` (0…14).
 
 enum ChessTimeControlPreset {
   noTimeLimit,

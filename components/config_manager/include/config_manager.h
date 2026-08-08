@@ -1,19 +1,19 @@
 /**
  * @file config_manager.h
- * @brief ESP32-C6 Chess System v1.8.0 - Config Manager Hlavicka
+ * @brief ESP32-C6 Chess System v1.8.0 - Config Manager Header
  *
- * Tato hlavicka definuje rozhrani pro spravu konfigurace:
- * - Struktura systemove konfigurace
- * - Funkce pro spravu konfigurace
- * - Chybove kody a konstanty
+ * This header defines the configuration management interface:
+ * - System configuration structure
+ * - Functions for configuration management
+ * - Error codes and constants
  *
  * @author Alfred Krutina
  * @version 1.8.0
  * @date 2025-08-24
  *
  * @details
- * Config Manager spravuje systemovou konfiguraci ulozeno v NVS flash.
- * Umoznuje nacitat, ukladat a aplikovat nastaveni systemu (verbose mode,
+ * Config Manager manages system configuration stored in NVS flash.
+ * Enables loading, saving and applying system settings (verbose mode,
  * quiet mode, log level, timeout, echo).
  */
 
@@ -39,13 +39,13 @@ extern "C" {
 // ============================================================================
 
 /**
- * @brief Inicializuje config manager
+ * @brief Initializes the config manager
  *
- * Inicializuje NVS flash pro ukladani konfigurace.
- * NVS flash je jiz inicializovan v main.c init_console(),
- * takze tato funkce pouze overi dostupnost.
+ * Initializes the NVS flash to store the configuration.
+ * NVS flash is already initialized in main.c init_console(),
+ * so this function only verifies availability.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t config_manager_init(void);
 
@@ -56,12 +56,12 @@ esp_err_t config_manager_init(void);
 // config_apply_settings deklarovan v chess_types.h
 
 /**
- * @brief Resetuj konfiguraci na vychozi hodnoty
+ * @brief Reset the configuration to the default value
  *
- * Obnovi vychozi nastaveni systemu a ulozi je do NVS flash.
- * Pote aplikuje vychozi nastaveni na system.
+ * Restores default system settings and saves them to NVS flash.
+ * Pote applies the default settings to the system.
  *
- * @return ESP_OK pri uspechu, chybovy kod pri selhani
+ * @return ESP_OK on success, error code on failure
  */
 esp_err_t config_reset_to_defaults(void);
 
@@ -71,22 +71,22 @@ esp_err_t config_reset_to_defaults(void);
 // KONSTANTY
 // ============================================================================
 
-// Vychozi hodnoty konfigurace
-/** @brief Vychozi verbose mode (vypnuto) */
+// Default configuration values
+/** @brief Default verbose mode (off) */
 #define CONFIG_DEFAULT_VERBOSE_MODE false
-/** @brief Vychozi quiet mode (vypnuto) */
+/** @brief Default quiet mode (off) */
 #define CONFIG_DEFAULT_QUIET_MODE false
-/** @brief Vychozi log level (pouze chyby) */
+/** @brief Default log level (errors only) */
 #define CONFIG_DEFAULT_LOG_LEVEL ESP_LOG_ERROR
-/** @brief Vychozi timeout prikazu (5 sekund) */
+/** @brief Default command timeout (5 seconds) */
 #define CONFIG_DEFAULT_COMMAND_TIMEOUT 5000
-/** @brief Vychozi echo (zapnuto) */
+/** @brief Defaults to echo (on) */
 #define CONFIG_DEFAULT_ECHO_ENABLED true
-/** @brief Vychozi jas (50%) */
+/** @brief Default brightness (50%) */
 #define CONFIG_DEFAULT_BRIGHTNESS 50
 
 // Konfiguracni klice pro NVS
-/** @brief NVS namespace pro sachovou konfiguraci */
+/** @brief NVS namespace for sach configuration */
 #define CONFIG_NVS_NAMESPACE "chess_config"
 /** @brief NVS klic pro verbose mode */
 #define CONFIG_NVS_KEY_VERBOSE "verbose"
@@ -108,7 +108,7 @@ esp_err_t config_reset_to_defaults(void);
 #define CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN "g_snap_min"
 /** @brief NVS klic pro boot tracker */
 #define CONFIG_NVS_KEY_BOOT_TRACKER "g_boot_trk"
-/** @brief NVS klic pro hlídání počáteční pozice */
+/** @brief NVS call to keep track of initial position */
 #define CONFIG_NVS_KEY_START_POS_CHECK "start_pos_chk"
 /** @brief Web UI preference (UTF-8 JSON: {"version":1,"prefs":{...}}) */
 #define CONFIG_NVS_KEY_UI_PREFS "ui_prefs_v1"
@@ -126,13 +126,13 @@ esp_err_t config_save_blob_to_nvs(const char *key, const void *data, size_t len)
 esp_err_t config_save_ui_prefs_json(const char *json, size_t len);
 
 /**
- * @brief Nacte web UI JSON z NVS do bufferu (null terminator pokud misto).
+ * @brief Load web UI JSON from NVS into buffer (null terminator if misto).
  */
 esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
                                     size_t *out_len);
 
 /**
- * @brief Vrátí chessHintLimit z uloženého UI prefs JSON (0–99, 0 = neomezeno / chybí klíč).
+ * @brief Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing).
  */
 int config_ui_prefs_get_chess_hint_limit(void);
 
