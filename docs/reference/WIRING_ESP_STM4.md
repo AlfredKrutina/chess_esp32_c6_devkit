@@ -30,6 +30,13 @@ GND ───────────────────┴─────�
 
 Additional segments (full board): `0x31`, `0x32`, `0x33` — each own STM + own NRST GPIO.
 
+## Hall pair geometry
+
+- **2 Hall sensors per square** (differential pair → firmware DIFF `|r0 − r1|`).
+- **Center-to-center pitch within one square: 6.267 mm.**
+
+See also [HARDWARE_VERSIONS.md](HARDWARE_VERSIONS.md) (V2 Hall geometry).
+
 ## Pin conflicts on V1 (reed) board
 
 On **V1** prototype GPIO **10** and **11** are reed matrix rows. Profile `hall_v2` uses **GPIO 12/13** so Hall can be debugged on a separate test board without remapping all of V1.

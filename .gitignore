@@ -90,6 +90,37 @@ components/web_server_task/*.o
 /firmware/STM32CubeC0/
 
 # =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# =============================================================================
+# Blender / 3D pipeline (models/blender)
+# Skripty a malé assety (STL, board GLB, timeline) můžeš commitovat.
+# Lidi (MPFB), finální render videa a Blender autosave do Gitu nepatří.
+# =============================================================================
+# Autosave / crash backup vedle .blend
+*.blend1
+*.blend2
+
+# Cycles scéna s hráči — desítky MB, lokální experiment
+/models/blender/czechmate_hraci.blend
+
+# MPFB people / clothes / asset pack (~700+ MB)
+/models/blender/set/
+
+# Vyrenderovaná videa a stills (~400 MB) — drž lokálně / na Pages jen vybrané mp4
+/models/blender/video/
+
+# Jednorázové náhledy a ladicí skripty
+/models/blender/preview.png
+/models/blender/_fingers.py
+/models/blender/_pinch_tune.py
+
+# =============================================================================
 # Ostatní
 # =============================================================================
 .vscode/

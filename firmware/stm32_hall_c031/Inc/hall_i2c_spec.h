@@ -30,7 +30,8 @@
 
 /** Number of squares on one segment (quarter of the board). */
 #define HALL_I2C_FIELDS_PER_SEGMENT 16u
-/** Hall sensors per square (differential pair / mux channel pair). */
+/** Hall sensors per square (differential pair / mux channel pair).
+ *  PCB center-to-center pitch of the pair: 6.267 mm (see docs/reference/HARDWARE_VERSIONS.md). */
 #define HALL_I2C_SENSORS_PER_FIELD 2u
 /** uint16 samples per segment (16 × 2). */
 #define HALL_I2C_UINT16_PER_SEGMENT                                                \
