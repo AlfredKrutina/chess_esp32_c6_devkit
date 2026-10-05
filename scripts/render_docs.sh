@@ -44,11 +44,11 @@ render_mmd() {
   fi
   if command -v mmdc >/dev/null 2>&1; then
     echo "==> mmdc → $svg (+ PNG)"
-    mmdc "${pp[@]}" -i "$src" -o "$svg" -b transparent
+    mmdc "${pp[@]}" -i "$src" -o "$svg" -b transparent || echo "WARN: mmdc SVG failed for $base"
     mmdc "${pp[@]}" -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
   elif command -v npx >/dev/null 2>&1; then
     echo "==> npx mermaid-cli → $svg (+ PNG)"
-    npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$svg" -b transparent
+    npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$svg" -b transparent || echo "WARN: mermaid-cli SVG failed for $base"
     npx --yes @mermaid-js/mermaid-cli "${pp[@]}" -i "$src" -o "$png" -b transparent -w 1800 2>/dev/null || true
   else
     echo "==> Skipped SVG/PNG for $base (install mermaid-cli or npx)"

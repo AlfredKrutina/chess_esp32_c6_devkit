@@ -1,0 +1,6 @@
+# Shell scripts must stay LF so Linux CI runners can execute them.
+*.sh text eol=lf
+*.bash text eol=lf
+
+# Workflow YAML: LF keeps Actions parsers and heredocs predictable.
+.github/workflows/*.yml text eol=lf

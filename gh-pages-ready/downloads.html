@@ -97,7 +97,7 @@
         <p class="hero__brand">CzechMate</p>
         <h1 id="hero-title" class="hero__title">Chess on a living board.</h1>
         <p class="hero__lead">
-          Real pieces, lights on the squares, and an app that teaches — from the first game to Stockfish and an AI coach.
+          Real pieces the board can identify, lights on the squares, and an app that teaches — from the first game to Stockfish and an AI coach.
         </p>
         <div class="hero__actions">
           <a class="btn btn--primary" href="#download">Download the app</a>
@@ -138,10 +138,11 @@
     <section id="pieces" class="section" aria-labelledby="pieces-title">
       <div class="section__inner">
         <p class="section__label reveal">The set</p>
-        <h2 id="pieces-title" class="section__title reveal reveal--seq-1">Printed pieces the board can feel</h2>
+        <h2 id="pieces-title" class="section__title reveal reveal--seq-1">Printed pieces the board can identify</h2>
         <p class="section__intro reveal reveal--seq-2">
           The set is faceted PLA: wide feet, thick tips, and no overhang that needs support.
-          Each piece carries magnets in the foot, which is what the sensors under the square read.
+          Magnets in each foot are arranged so Hall sensors under the square do not only see “something is here” —
+          they resolve <strong>which piece type</strong> it is (pawn through king), so the position on the board matches the game.
         </p>
         <ul class="piece-gallery reveal-stagger">
           <li>
@@ -177,7 +178,8 @@
         <p class="section__label reveal">The board as tutor</p>
         <h2 id="board-title" class="section__title reveal reveal--seq-1">Lights on the squares show what you need right now</h2>
         <p class="section__intro reveal reveal--seq-2">
-          Under every square are <strong>Hall sensors</strong>. The board knows a piece is there, and the magnets in the foot separate several shapes. Hints land on a real chessboard, not “some picture.”
+          Under every square are <strong>Hall sensors</strong>. The board knows a piece is there, and the magnet pattern in the foot tells it
+          <strong>what type</strong> it is — not a guess from the app, a reading from the hardware. Hints land on a real chessboard, not “some picture.”
           The board runs the game in real time and the LEDs match the pieces. You can refresh firmware <strong>without cables to the chip</strong> from the app, the board’s web UI, or Wi‑Fi.
         </p>
         <div class="split reveal-stagger">
@@ -209,6 +211,25 @@
           </div>
         </div>
         <div class="film-grid reveal-stagger">
+          <figure class="film-card film-card--wide">
+            <div class="split__media video-media is-loading" data-video-media>
+              <div class="video-media__loader" role="status" aria-label="Loading video">
+                <span class="video-media__spinner" aria-hidden="true"></span>
+              </div>
+              <video
+                class="split__video"
+                data-lazy-local
+                data-click-play
+                muted
+                playsinline
+                preload="none"
+                poster="landing/assets/film-players-poster.webp"
+                aria-label="Two players at a CzechMate board">
+                <source data-src="landing/assets/czm-players.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>Two players at the board — real pieces, lights on the squares</figcaption>
+          </figure>
           <figure class="film-card">
             <div class="split__media video-media is-loading" data-video-media>
               <div class="video-media__loader" role="status" aria-label="Loading video">

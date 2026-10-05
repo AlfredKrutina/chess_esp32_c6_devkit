@@ -56,7 +56,11 @@ jobs:
           npm install -g @mermaid-js/mermaid-cli
 
       - name: Build Doxygen HTML + Mermaid výstupy
+        id: docs
+        continue-on-error: true
         run: |
+          sed -i 's/\r$//' scripts/docs/generate_docs.sh scripts/render_docs.sh generate_docs.sh || true
+          chmod +x scripts/docs/generate_docs.sh scripts/render_docs.sh generate_docs.sh
           ./scripts/docs/generate_docs.sh
           ./scripts/render_docs.sh
 
@@ -71,8 +75,24 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp -a docs/doxygen/html/. _site/
-          cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
+          if [ -f docs/doxygen/html/index.html ]; then
+            cp -a docs/doxygen/html/. _site/
+          else
+            echo "::warning::Doxygen HTML chybí — nasazuji marketing root s přesměrováním na downloads.html"
+            printf '%s\n' \
+              '<!DOCTYPE html>' \
+              '<html lang="en"><head>' \
+              '<meta charset="utf-8">' \
+              '<meta http-equiv="refresh" content="0; url=downloads.html">' \
+              '<title>CzechMate</title>' \
+              '<link rel="canonical" href="downloads.html">' \
+              '</head><body>' \
+              '<p><a href="downloads.html">CzechMate product page</a></p>' \
+              '</body></html>' > _site/index.html
+          fi
+          if [ -f docs/diagrams/diagrams_mermaid.html ]; then
+            cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
+          fi
           cp -f gh-pages-ready/downloads.html _site/downloads.html
           cp -f gh-pages-ready/app_update.json _site/app_update.json
           cp -f gh-pages-ready/app_update.html _site/app_update.html
