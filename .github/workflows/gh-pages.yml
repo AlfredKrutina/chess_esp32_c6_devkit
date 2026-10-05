@@ -1,8 +1,8 @@
-# Složí _site (Doxygen + firmware/) a nasadí na větev gh-pages → GitHub Pages (volitelné pro docs).
-# Manifest pro aplikaci / OTA: používej raw z main (vždy 200): …/main/firmware/version.json
-# Binárka po deployi: raw z gh-pages …/gh-pages/firmware/esp32_chess_v24.bin
-# Pokud Pages vrací 404 na downloads.html: často je zdroj nastavený na main/docs (Jekyll) místo větve gh-pages.
-# Ověření: když „View Page Source“ na kořeni ukazuje meta generator Jekyll, live site NEPOUŽÍVÁ tento deploy — přepni Pages na gh-pages / (root).
+# Builds marketing + docs into _site, publishes to the gh-pages branch (raw firmware URLs),
+# and deploys the live site via GitHub Actions Pages (avoids the legacy Jekyll builder).
+# App/OTA manifest: raw from main …/main/firmware/version.json
+# Firmware bin: raw from gh-pages …/gh-pages/firmware/esp32_chess_v24.bin
+# Live site: https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html
 
 name: Deploy GitHub Pages
 
@@ -24,7 +24,6 @@ on:
     - 'docs/flutter/**'
     - 'scripts/render_docs.sh'
     - 'scripts/mermaid-puppeteer-ci.json'
-    # Celá složka statického webu — jeden vzorec, aby nový soubor v kořeni nebo v landing/ nevynechal deploy.
     - 'gh-pages-ready/**'
     - 'firmware/**'
     - 'partitions.csv'
@@ -34,13 +33,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: gh-pages-deploy
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +65,6 @@ jobs:
           ./scripts/docs/generate_docs.sh
           ./scripts/render_docs.sh
 
-      # Verze image drž v souladu s lokálním IDF (projekt sdkconfig hlásí IDF 5.5.x).
       - name: Build ESP-IDF firmware (OTA .bin na gh-pages)
         continue-on-error: true
         run: |
@@ -107,21 +107,14 @@ jobs:
             echo "::warning::Firmware bin chybí – zkontroluj ESP-IDF Docker build výše; OTA odkaz na .bin na Pages vrátí 404."
           fi
 
-      - name: Kontrola _site/firmware před deployem
+      - name: Kontrola _site před deployem
         run: |
           test -f _site/firmware/version.json || (echo "::error::Chybí _site/firmware/version.json" && exit 1)
-          ls -la _site/firmware/
-          if [ ! -f _site/firmware/esp32_chess_v24.bin ]; then
-            echo "::warning::Na Pages není .bin — zkontroluj log Docker buildu (musí doběhnout úspěšně)."
-          fi
-
-      - name: Kontrola marketingové stránky před deployem
-        run: |
-          test -f _site/downloads.html || (echo "::error::Chybí _site/downloads.html (zkontroluj gh-pages-ready v repu)" && exit 1)
-          test -f _site/app_update.json || (echo "::error::Chybí _site/app_update.json (manifest verze aplikace)" && exit 1)
-          test -f _site/app_update.html || (echo "::error::Chybí _site/app_update.html (dokumentace manifestu)" && exit 1)
+          test -f _site/downloads.html || (echo "::error::Chybí _site/downloads.html" && exit 1)
+          test -f _site/app_update.json || (echo "::error::Chybí _site/app_update.json" && exit 1)
+          test -f _site/app_update.html || (echo "::error::Chybí _site/app_update.html" && exit 1)
           test -f _site/landing/landing.css || (echo "::error::Chybí _site/landing/landing.css" && exit 1)
-          echo "::notice title=PAGES_SOURCE::Po deployi zkontroluj Settings-Pages: Branch gh-pages, folder /. Pokud je zdroj main + /docs, zivy web je Jekyll a downloads.html vrati 404."
+          ls -la _site/firmware/
 
       - name: Ověření manifestu (raw na main)
         run: |
@@ -129,7 +122,12 @@ jobs:
             "https://raw.githubusercontent.com/${{ github.repository }}/main/firmware/version.json")
           test "$code" = "200"
 
-      - name: Deploy na větev gh-pages
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Mirror na větev gh-pages (raw firmware URL)
         uses: peaceiris/actions-gh-pages@v4
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         with:
@@ -137,3 +135,14 @@ jobs:
           publish_dir: _site
           publish_branch: gh-pages
           force_orphan: false
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
