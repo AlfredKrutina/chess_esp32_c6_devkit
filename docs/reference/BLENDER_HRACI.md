@@ -35,6 +35,15 @@ pachira v rohu, odkládací stolek s vázou a závěsná lampa. Za oknem je
 belfast_sunset, v záběru kopec. Obraz na stěně je krajina kloofendal:
 původní textura rámu byla šedá produktová karta, tu film nepoužívá.
 Šachovnice je CzechMate, figurky jsou ty z filmu, ne cizí chess set.
+Pod sklem svítí políčka tak, jak je rozsvěcí firmware. Ve výchozí pozici je
+žlutá na figurkách, které smějí táhnout: bílí pěšci a oba jezdci. Když figurka
+opustí pole, žlutá zůstane na zdroji a prázdné cíle zezelenají. Král má zdroj
+oranžovo-červený a rošádové pole modré. Po položení přeběhne modrá stopa,
+na cíli osmkrát modře dýchne a šedá vlna předá tah. U černé rošády po králi
+na g8 blikne stříbrná na h8 a zelená na f8; po věži zlatá na f8, pak vlna a
+žlutá bílého. Barva se drží a skočí, zelená neproklouzne azurovou do modré.
+Záře sedí na folii. Lampy políček do kamery nejdou, ve výřezu jsou schované,
+aby se s orbitou dalo hýbat.
 
 Naskenovaný stůl má desku 2,05 × 1,15 m. Šířka je 1,46 m, výška 0,74 m.
 Hloubka je 0,60 m: při 0,82 m deska protínala břicho. Zmenšení je jen v ose Y,
@@ -44,20 +53,11 @@ leží ve vlnách přes desku a šachovnice by jím procházela.
 
 ## Místa
 
-Partie pokračuje. Mění se místnost, ne pravidla a ne rozestavění.
+Celá partie je v noci u stejného stolu. Lampa nad deskou, okno je tma, za sklem
+jen zbytek západu. Světlo se během hry nemění.
 
-Střih je match cut na šachovnici: deska zůstane ve středu záběru, za ní se
-vymění světlo a pozadí.
-
-| Tahy | Místo | Světlo |
-|---|---|---|
-| 1. d4 d5, 2. c4 | Odpoledne u okna | Nízké teplé okno, závěs, prach ve vzduchu |
-| 2… e6, 3. Nc3 Nf6 | Soumrak | Stejný stůl, slunce níž a červenější, okno hasne |
-| 4. Bg5 Be7, 5. e3 O-O | Večer | Lampa nad stolem, okno je tma, západ za sklem jen doutná |
-
-Široký záběr je ten od okna: dva profily, deska mezi nimi. Detail je na
-pěšci 2. c4, kde má špetka kolem sebe místo. Jezdec na b1 stojí mezi věží
-a střelcem, dlaň dospělé ruky se tam sousedů dotkne, a proto na něm detail není.
+Kamera stojí na jednom širokém záběru od okna: dva profily, deska mezi nimi.
+Žádný detail, žádný nájezd. Objektiv 32 mm, pozice se neklíčuje.
 
 ## Partie
 
@@ -71,7 +71,8 @@ Dámský gambit, odmítnutý. Každý tah je legální a navazuje.
 
 Bílý sedí blíž kameře. Černý naproti. V jednu chvíli je ve vzduchu jen jedna
 figurka. Než ruka vjede nad cizí kámen, je základna aspoň 90 mm nad deskou,
-stejně jako ve představení. Sebrání v téhle pasáži není.
+stejně jako ve představení. Sebrání v téhle pasáži není. Po věži na f8 obraz
+ještě chvíli stojí, aby doběhla zlatá a šedá vlna.
 
 Odložená ruka leží dlaní na dřevě. Zápěstí je pokračování předloktí, prsty
 jsou pokrčené a ukazováček nevyčnívá. Není to dráp visící nad hranou ani
@@ -107,9 +108,6 @@ ukazováček a prostředníček. Dlaň nesmí projít figurkou.
 
 ## Render
 
-24 fps, 1920×1080, Cycles, asi 128 vzorků a denoise. Film kolem 20 sekund.
+24 fps, 1920×1080, Cycles, 96 vzorků a denoise. Obraz drží i po posledním
+tahu, aby doběhlo podsvícení, takže film je delší než samotné tahy.
 EEVEE by tenhle záběr nedotáhl a do fronty k produktovým filmům nepatří.
-
-Než se spustí celý render, musí obstát záběry: široký u okna, špetka na
-figurce, soumrak a noc. Tělo a odložené ruce nejsou ve stole, sklo pod
-úchopem taky ne.

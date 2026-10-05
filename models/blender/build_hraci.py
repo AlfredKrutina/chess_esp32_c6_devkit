@@ -7,8 +7,10 @@ table. People are CC0 MakeHuman characters (make_players.py). Run stills with
 --test before --final. Do not pass --final until asked.
 """
 
+import json
 import math
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -18,6 +20,7 @@ from mathutils import Matrix, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cine_common as cc  # noqa: E402
+import led_effects as fx  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 TABLE_DIR = ROOT / "set" / "table"
@@ -793,9 +796,6 @@ def load_players(collection, table_top, table_half):
                 distal = arm.pose.bones[f"{finger}_03_{side_name}"]
                 hold = distal.constraints.new("IK")
                 hold.target = tip
-                hold.pole_target = bend
-                # The joint points at the pole, on the back of the finger.
-                hold.pole_angle = 0.0
                 hold.chain_count = 3
                 hold.use_stretch = False
                 hold.iterations = 200
@@ -952,19 +952,20 @@ OPEN = {
 # toward the index so both pads land on the same stone. Ring and pinky stay
 # in the palm.
 PINCH = {
-    "index": [(20, 0, 4), (24, 0, 0), (16, 0, 0)],
-    "middle": [(18, 0, 8), (22, 0, 0), (14, 0, 0)],
-    "ring": [(86, 0, 6), (88, 0, 0), (48, 0, 0)],
-    "pinky": [(90, 0, 8), (86, 0, 0), (46, 0, 0)],
-    "thumb": [(70, 60, 40), (32, 8, 6), (16, 0, 0)],
+    "index": [(58, 0, 2), (64, 0, 0), (42, 0, 0)],
+    "middle": [(60, 0, 5), (66, 0, 0), (44, 0, 0)],
+    "ring": [(74, 0, 7), (76, 0, 0), (42, 0, 0)],
+    "pinky": [(78, 0, 9), (78, 0, 0), (44, 0, 0)],
+    "thumb": [(46, 16, 18), (24, 4, 4), (12, 0, 0)],
 }
-# Right-hand spread is not a mirror of the left.
+# Right-hand spread is not a mirror of the left. The thumb must not twist
+# across the other fingers.
 PINCH_R = {
-    "index": [(20, 0, -4), (24, 0, 0), (16, 0, 0)],
-    "middle": [(18, 0, -8), (22, 0, 0), (14, 0, 0)],
-    "ring": [(86, 0, 6), (88, 0, 0), (48, 0, 0)],
-    "pinky": [(90, 0, 8), (86, 0, 0), (46, 0, 0)],
-    "thumb": [(52, 18, 24), (36, 10, 6), (18, 2, 0)],
+    "index": [(58, 0, -2), (64, 0, 0), (42, 0, 0)],
+    "middle": [(60, 0, -5), (66, 0, 0), (44, 0, 0)],
+    "ring": [(74, 0, 7), (76, 0, 0), (42, 0, 0)],
+    "pinky": [(78, 0, 9), (78, 0, 0), (44, 0, 0)],
+    "thumb": [(44, -14, -16), (22, -4, -4), (12, 0, 0)],
 }
 # Same pinch. Each move changes tightness, a few degrees of thumb opposition, and height.
 GRIP_VAR = (
@@ -1375,12 +1376,12 @@ def key_light(light, frame, energy, color):
 
 
 def light_chapters(room, marks):
-    dusk = marks[DUSK_MOVE]["start"]
-    night = marks[NIGHT_MOVE]["start"]
+    # The whole game stays at night. The afternoon and dusk keys are gone,
+    # so the lamp, the dark window and the board LEDs do not crossfade.
+    del marks
+    dusk = night = 1
     chapters = [
-        (1, 150.0, (1.0, 0.68, 0.42), 42.0, 0.0, math.radians(16), 1.05),
-        (dusk, 22.0, (1.0, 0.40, 0.18), 10.0, 14.0, math.radians(3), 0.12),
-        (night, 1.0, (0.28, 0.34, 0.50), 1.2, 55.0, math.radians(-10), 0.015),
+        (1, 1.0, (0.28, 0.34, 0.50), 1.2, 55.0, math.radians(-10), 0.015),
     ]
     bg = room["world"]
     sky_node = room["sky"]
@@ -1402,17 +1403,14 @@ def light_chapters(room, marks):
     cc.set_interpolation(tree, "CONSTANT")
     # the bulb only reads once the lamp is on
     bulb = room["bulb"].node_tree.nodes["Emission"]
-    for frame, strength in ((1, 0.0), (dusk, 0.4), (night, 8.0)):
-        bulb.inputs["Strength"].default_value = strength
-        bulb.inputs["Strength"].keyframe_insert("default_value", frame=frame)
+    bulb.inputs["Strength"].default_value = 8.0
+    bulb.inputs["Strength"].keyframe_insert("default_value", frame=1)
     cc.set_interpolation(room["bulb"].node_tree, "CONSTANT")
-    # Slide the sunset disk out of the window. Pitch stays put so the horizon
-    # does not tilt.
+    # Horizon stays level. The disk sits where the night grade was tuned.
     rotation = room["mapping"].inputs["Rotation"]
-    for frame, yaw in ((1, 100.0), (dusk, 240.0), (night, 100.0)):
-        rotation.default_value[0] = math.radians(14)
-        rotation.default_value[2] = math.radians(yaw)
-        rotation.keyframe_insert("default_value", frame=frame)
+    rotation.default_value[0] = math.radians(14)
+    rotation.default_value[2] = math.radians(100)
+    rotation.keyframe_insert("default_value", frame=1)
     cc.set_interpolation(bpy.context.scene.world.node_tree, "CONSTANT")
     return dusk, night
 
@@ -1422,7 +1420,7 @@ def build_camera(collection, rig, marks):
     collection.objects.link(focus)
     focus.empty_display_size = 0.03
     data = bpy.data.cameras.new("Camera")
-    data.lens = 40
+    data.lens = 32
     data.dof.use_dof = True
     data.dof.focus_object = focus
     data.dof.aperture_fstop = 8.0
@@ -1433,28 +1431,11 @@ def build_camera(collection, rig, marks):
     track.target = focus
     track.track_axis = "TRACK_NEGATIVE_Z"
     track.up_axis = "UP_Y"
-    wide_loc = Vector((-1.78, 0.0, 1.36))
-    wide_aim = Vector((0.0, 0.0, 1.06))
-    close = marks[CLOSE_MOVE]
-    held = square(rig, close["src"], rig.surface + 0.03)
-    # Three-quarter at the height of the hand, so the pads are in frame
-    # and the back of the fist is not.
-    close_loc = held + Vector((0.15, 0.07, 0.11))
-    close_aim = held + Vector((0.0, 0.0, 0.02))
-    back = marks[CLOSE_MOVE + 1]["start"]
-    for frame, loc, aim, lens in (
-        (1, wide_loc, wide_aim, 32),
-        (close["start"] - 4, wide_loc, wide_aim, 32),
-        (close["grip"], close_loc, close_aim, 42),
-        (close["high"] + 8, close_loc, close_aim + Vector((0.02, 0.03, 0.04)), 42),
-        (back, wide_loc, wide_aim, 32),
-    ):
-        cc.key_loc(cam, frame, loc)
-        cc.key_loc(focus, frame, aim)
-        data.lens = lens
-        data.keyframe_insert("lens", frame=frame)
-    cc.ease_out(cam, "location")
-    cc.ease_out(focus, "location")
+    # One locked wide shot. No punch-in on the pawn.
+    del rig, marks
+    cc.key_loc(cam, 1, Vector((-1.78, 0.0, 1.36)))
+    cc.key_loc(focus, 1, Vector((0.0, 0.0, 1.06)))
+    data.keyframe_insert("lens", frame=1)
     return cam
 
 
@@ -2016,6 +1997,70 @@ def acting_report(scene, players, pieces, marks):
     print("act stills")
 
 
+def play_leds(leds, start, seq):
+    """Firmware milliseconds on this film's 24 fps clock. cine_common.play uses 30."""
+    end = start
+    for t_ms, state in seq:
+        frame = start + round(t_ms / 1000.0 * FPS)
+        leds.key(frame, state)
+        end = max(end, frame)
+    return end
+
+
+def light_board(rig, collection, marks):
+    """Square LEDs follow the firmware: yellow movers, lift targets, then the
+    blue path and the grey wave. Castling names the rook, then blinks gold."""
+    ucis = [src + dst for _who, _pid, _kind, src, dst in GAME]
+    script = ROOT / "hraci_led_plan.py"
+    py = Path(r"C:\Users\alfid\AppData\Local\Programs\Python\Python312\python.exe")
+    cmd = [str(py) if py.is_file() else "py", "-3.12", str(script), *ucis]
+    if py.is_file():
+        cmd = [str(py), str(script), *ucis]
+    raw = subprocess.check_output(cmd, cwd=str(ROOT), text=True)
+    plan = json.loads(raw)
+    if len(plan["moves"]) != len(marks):
+        raise RuntimeError(f"led plan {len(plan['moves'])} != moves {len(marks)}")
+    leds = cc.Leds(rig, collection, glow_strength=4.5, light_energy=0.35, shadows=False, dies=False)
+    lift = bpy.data.objects["Board anchor"].location.z
+    for obj in bpy.data.objects:
+        if obj.name.startswith("glow "):
+            obj.location.z += lift
+        elif obj.name.startswith("die "):
+            obj.location.z += lift
+            obj.hide_viewport = True
+        elif obj.type == "LIGHT" and obj.name.startswith("led "):
+            obj.location.z += lift
+            obj.hide_viewport = True
+    glow = bpy.data.objects["glow a1"]
+    print("led z", round(glow.location.z, 4), "surface", round(rig.surface, 4))
+    if not (rig.surface - 0.008 < glow.location.z < rig.surface):
+        raise RuntimeError(f"glow a1 at {glow.location.z} is not under the glass {rig.surface}")
+    leds.key(1, {sq: tuple(rgb) for sq, rgb in plan["idle"].items()})
+    led_end = 1
+    for mark, spec in zip(marks, plan["moves"]):
+        if spec["uci"] != mark["move"]:
+            raise RuntimeError(f"led {spec['uci']} != gesture {mark['move']}")
+        start = mark["start"]
+        lift_state = {sq: tuple(rgb) for sq, rgb in spec["lift"].items()}
+        leds.key(start + 24, lift_state)
+        land = start + 38
+        kind = spec.get("castle")
+        if kind == "king":
+            led_end = play_leds(leds, land, fx.castling_rook_pulses(spec["rook_from"], spec["rook_to"]))
+            continue
+        if kind == "rook":
+            done = play_leds(leds, land, fx.castling_completion(spec["dst"], {spec["src"]: fx.YELLOW})[0])
+        else:
+            done = play_leds(leds, land, fx.move_path(spec["src"], spec["dst"]))
+        done = play_leds(leds, done, fx.player_change(spec["to_white"]))
+        idle = {sq: tuple(rgb) for sq, rgb in spec["idle"].items()}
+        leds.key(done, idle)
+        led_end = done + 18
+    leds.finish()
+    print("led end", led_end, "idle", " ".join(sorted(plan["idle"])))
+    return led_end
+
+
 def main():
     test = cc.arg_value("--test")
     preview = "--preview" in cc.args()
@@ -2043,11 +2088,12 @@ def main():
     lay_palms(players)
     dusk, night = light_chapters(room, marks)
     scene.camera = build_camera(scene.collection, rig, marks)
+    led_end = light_board(rig, scene.collection, marks)
     scene.frame_start = 1
-    scene.frame_end = end
+    scene.frame_end = max(end, led_end)
     cycles_settings(scene, res, samples)
     comfort_viewport(scene)
-    print("frames", end, "dusk", dusk, "night", night)
+    print("frames", scene.frame_end, "motion", end, "dusk", dusk, "night", night)
     for mark in marks:
         print("move", mark["move"], "start", mark["start"], "grip", mark["grip"])
 
@@ -2162,11 +2208,49 @@ def main():
     if "--probe" in cc.args():
         print("probe only")
         return
+    if "--leds" in cc.args():
+        scene.cycles.samples = 16
+        scene.render.resolution_x = 1280
+        scene.render.resolution_y = 720
+        scene.view_settings.exposure = 0.0
+        for frame, name in ((1, "wide"), (marks[0]["start"] + 32, "widelift")):
+            scene.frame_set(frame)
+            path = cc.VIDEO_DIR / f"hraci_led3_{name}.jpg"
+            cc.still_output(scene, path)
+            bpy.ops.render.render(write_still=True, scene=scene.name)
+            print("still", name, frame, path)
+        focus = bpy.data.objects["Focus"]
+        if scene.camera.animation_data:
+            scene.camera.animation_data_clear()
+        if focus.animation_data:
+            focus.animation_data_clear()
+        scene.camera.data.dof.use_dof = False
+        scene.camera.data.lens = 28
+        # Above the near edge, so the seated head stays behind the lens.
+        scene.camera.location = (0.0, -0.36, rig.surface + 0.92)
+        focus.location = (0.0, 0.0, rig.surface)
+        shots = (
+            (1, "idle"),
+            (marks[0]["start"] + 32, "lift"),
+            (marks[0]["start"] + 40, "path"),
+            (marks[0]["start"] + 48, "wave"),
+            (marks[1]["start"] + 12, "black"),
+            (marks[9]["start"] + 46, "guide"),
+            (marks[10]["start"] + 44, "gold"),
+        )
+        for frame, name in shots:
+            scene.frame_set(frame)
+            path = cc.VIDEO_DIR / f"hraci_led3_{name}.jpg"
+            cc.still_output(scene, path)
+            bpy.ops.render.render(write_still=True, scene=scene.name)
+            print("still", name, frame, path)
+        print("leds only")
+        return
     if "--look" in cc.args():
         pinch_report(marks, pieces, players)
-        for frame, name in ((1, "rest"), (125, "close")):
+        for frame, name in ((1, "rest"), (137, "lift")):
             scene.frame_set(frame)
-            path = cc.VIDEO_DIR / f"hraci_look_{name}.jpg"
+            path = cc.VIDEO_DIR / f"hraci_nightwide_{name}.jpg"
             cc.still_output(scene, path)
             bpy.ops.render.render(write_still=True, scene=scene.name)
             print("still", name, path)
