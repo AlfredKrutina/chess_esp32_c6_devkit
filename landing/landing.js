@@ -623,65 +623,70 @@
     }
   })();
 
-  /* App demo (#app-phone-demo-video): play when the video is sufficiently visible in the viewport. */
-  (function initAppDemoVideoPlayWhenVisible() {
-    var v = document.getElementById("app-phone-demo-video");
-    if (
-      !v ||
-      (!v.hasAttribute("data-play-when-visible") && !v.hasAttribute("data-play-on-hover"))
-    )
-      return;
-    v.removeAttribute("autoplay");
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      try {
-        v.pause();
-      } catch (e0) {}
-      return;
-    }
-    if (!("IntersectionObserver" in window)) return;
-
-    function ensureMediaSource(vid) {
-      if (vid.dataset.lazyLocalHydrated === "1") return;
-      vid.querySelectorAll("source[data-src]").forEach(function (s) {
-        var url = s.getAttribute("data-src");
-        if (!url) return;
-        s.src = url;
-        s.removeAttribute("data-src");
-      });
-      vid.dataset.lazyLocalHydrated = "1";
-      try {
-        vid.load();
-      } catch (eL) {}
-    }
-
-    function tryPlay() {
-      ensureMediaSource(v);
-      var pr = v.play();
-      if (pr && typeof pr.catch === "function") {
-        pr.catch(function () {});
+  /* Muted product films: play when sufficiently visible, pause when not. */
+  (function initPlayWhenVisibleVideos() {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.querySelectorAll("video[data-play-when-visible]").forEach(function (v) {
+      // Welcome has its own thresholds and click-to-replay.
+      if (v.id === "czm-v2-welcome-video") return;
+      v.removeAttribute("autoplay");
+      v.controls = false;
+      if (reduce) {
+        try {
+          v.pause();
+        } catch (e0) {}
+        return;
       }
-    }
+      if (!("IntersectionObserver" in window)) return;
 
-    function tryPause() {
-      try {
-        v.pause();
-      } catch (e1) {}
-    }
-
-    var io = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (en) {
-          if (en.isIntersecting) tryPlay();
-          else tryPause();
+      function ensureMediaSource(vid) {
+        if (vid.dataset.lazyLocalHydrated === "1") return;
+        vid.querySelectorAll("source[data-src]").forEach(function (s) {
+          var url = s.getAttribute("data-src");
+          if (!url) return;
+          s.src = url;
+          s.removeAttribute("data-src");
         });
-      },
-      {
-        root: null,
-        threshold: 0.28,
-        rootMargin: "0px 0px -6% 0px",
+        vid.dataset.lazyLocalHydrated = "1";
+        try {
+          vid.load();
+        } catch (eL) {}
       }
-    );
-    io.observe(v);
+
+      function tryPlay() {
+        ensureMediaSource(v);
+        if (v.ended) {
+          try {
+            v.currentTime = 0;
+          } catch (eR) {}
+        }
+        var pr = v.play();
+        if (pr && typeof pr.catch === "function") {
+          pr.catch(function () {});
+        }
+      }
+
+      function tryPause() {
+        try {
+          v.pause();
+        } catch (e1) {}
+      }
+
+      var io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) tryPlay();
+            else tryPause();
+          });
+        },
+        {
+          root: null,
+          threshold: 0.28,
+          rootMargin: "0px 0px -6% 0px",
+        }
+      );
+      io.observe(v);
+    });
   })();
 
   /* Ambient product loops: hero reel + LED — no pause, no native UI. */
@@ -1181,6 +1186,44 @@
         });
       });
     }
+  })();
+
+  /* Pieces gallery: scroll drives white → black tone morph */
+  (function initPieceToneScroll() {
+    var gallery = document.querySelector("[data-piece-tone]");
+    if (!gallery) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gallery.style.setProperty("--piece-tone", "1");
+      return;
+    }
+
+    var section = gallery.closest("section") || gallery;
+    var ticking = false;
+
+    function progress() {
+      var rect = section.getBoundingClientRect();
+      var viewH = window.innerHeight || document.documentElement.clientHeight;
+      // 0 when section top enters mid-viewport; 1 when gallery has scrolled through.
+      var start = viewH * 0.72;
+      var end = viewH * 0.18 - rect.height * 0.35;
+      var raw = (start - rect.top) / (start - end);
+      if (!isFinite(raw)) raw = 0;
+      var t = Math.max(0, Math.min(1, raw));
+      // Ease in-out for a calmer dissolve.
+      var eased = t * t * (3 - 2 * t);
+      gallery.style.setProperty("--piece-tone", eased.toFixed(4));
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(progress);
+    }
+
+    progress();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
   })();
 
   /* Scroll reveal (fade-up on enter viewport; without JS / reduced motion = content visible immediately) */
