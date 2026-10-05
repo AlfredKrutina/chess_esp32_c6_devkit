@@ -55,6 +55,7 @@
       <nav class="nav-desktop" aria-label="Page sections">
         <a href="#discover-v2">Discover V2</a>
         <a href="#learn">Why learning</a>
+        <a href="#pieces">Pieces</a>
         <a href="#board-teaches">Board teaches</a>
         <a href="#stockfish">Stockfish</a>
         <a href="#ai-coach">AI coach</a>
@@ -71,6 +72,7 @@
     <nav id="nav-mobile" class="nav-mobile" data-nav-mobile aria-label="Mobile menu">
       <a href="#discover-v2">Discover V2</a>
       <a href="#learn">Why learning</a>
+      <a href="#pieces">Pieces</a>
       <a href="#board-teaches">Board teaches</a>
       <a href="#stockfish">Stockfish</a>
       <a href="#ai-coach">AI coach</a>
@@ -182,6 +184,43 @@
       </div>
     </section>
 
+    <section id="pieces" class="section" aria-labelledby="pieces-title">
+      <div class="section__inner">
+        <p class="section__label reveal">The set</p>
+        <h2 id="pieces-title" class="section__title reveal reveal--seq-1">Printed pieces, with a foot the sensors can read</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          The set is faceted PLA: wide feet, thick tips, and no overhang that needs support.
+          Each piece carries magnets in the foot, which is what the sensors under the square read.
+        </p>
+        <ul class="piece-gallery reveal-stagger">
+          <li>
+            <img src="landing/assets/piece-king.webp" width="900" height="1200" alt="White king with a short, thick cross" loading="lazy" decoding="async">
+            <span>King</span>
+          </li>
+          <li>
+            <img src="landing/assets/piece-queen.webp" width="900" height="1200" alt="White queen with a broad crown" loading="lazy" decoding="async">
+            <span>Queen</span>
+          </li>
+          <li>
+            <img src="landing/assets/piece-bishop.webp" width="900" height="1200" alt="White bishop with a solid mitre" loading="lazy" decoding="async">
+            <span>Bishop</span>
+          </li>
+          <li>
+            <img src="landing/assets/piece-knight.webp" width="900" height="1200" alt="White knight, faceted, standing on a wide foot" loading="lazy" decoding="async">
+            <span>Knight</span>
+          </li>
+          <li>
+            <img src="landing/assets/piece-rook.webp" width="900" height="1200" alt="White rook with a crenellated top" loading="lazy" decoding="async">
+            <span>Rook</span>
+          </li>
+          <li>
+            <img src="landing/assets/piece-pawn.webp" width="900" height="1200" alt="White pawn" loading="lazy" decoding="async">
+            <span>Pawn</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <section id="board-teaches" class="section" aria-labelledby="board-title">
       <div class="section__inner">
         <p class="section__label reveal">The board as tutor</p>
@@ -217,6 +256,44 @@
               Connect a phone or computer and you get a game overview, move history, and hints from the board web UI and the CzechMate app on the same position.
             </p>
           </div>
+        </div>
+        <div class="film-grid reveal-stagger">
+          <figure class="film-card">
+            <div class="split__media video-media is-loading" data-video-media>
+              <div class="video-media__loader" role="status" aria-label="Loading video">
+                <span class="video-media__spinner" aria-hidden="true"></span>
+              </div>
+              <video
+                class="split__video"
+                data-lazy-local
+                controls
+                playsinline
+                preload="none"
+                poster="landing/assets/film-board-poster.webp"
+                aria-label="CzechMate board, from the glass to a finished game">
+                <source data-src="landing/assets/czm-board-film.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>The board, from the sandblasted glass to mate</figcaption>
+          </figure>
+          <figure class="film-card">
+            <div class="split__media video-media is-loading" data-video-media>
+              <div class="video-media__loader" role="status" aria-label="Loading video">
+                <span class="video-media__spinner" aria-hidden="true"></span>
+              </div>
+              <video
+                class="split__video"
+                data-lazy-local
+                controls
+                playsinline
+                preload="none"
+                poster="landing/assets/film-build-poster.webp"
+                aria-label="CzechMate board taken apart, layer by layer">
+                <source data-src="landing/assets/czm-board-build.mp4" type="video/mp4">
+              </video>
+            </div>
+            <figcaption>Glass, foil, sensors, and the four boards. The labels in this film are in Czech.</figcaption>
+          </figure>
         </div>
       </div>
     </section>

@@ -1058,6 +1058,86 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   font-size: 0.95rem;
 }
 
+.piece-gallery {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 0.85rem;
+  margin: 2.25rem 0 0;
+  padding: 0;
+}
+
+.piece-gallery li {
+  min-width: 0;
+}
+
+.piece-gallery img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: center 42%;
+  display: block;
+  border-radius: var(--radius-lg);
+  background: #070b09;
+  border: 1px solid var(--border);
+}
+
+.piece-gallery span {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (min-width: 720px) {
+  .piece-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .piece-gallery {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.film-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-top: 2.75rem;
+}
+
+.film-card {
+  margin: 0;
+  min-width: 0;
+}
+
+.film-card .split__media {
+  aspect-ratio: 16 / 9;
+}
+
+.film-card .split__media:hover {
+  transform: none;
+}
+
+.film-card figcaption {
+  margin-top: 0.7rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+@media (min-width: 900px) {
+  .film-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+}
+
 .pillar-card--interactive {
   cursor: pointer;
   text-align: left;
