@@ -15,7 +15,7 @@
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="preload" href="landing/assets/czm-hero-loop.mp4" as="fetch" type="video/mp4" fetchpriority="high">
+  <link rel="preload" href="landing/assets/czm-hero-loop.mp4?v=2" as="fetch" type="video/mp4" fetchpriority="high">
   <link rel="stylesheet" href="landing/landing.css">
   <script>
     (function () {
@@ -87,21 +87,22 @@
           playsinline
           autoplay
           preload="auto"
-          poster="landing/assets/hero-reel-poster.webp"
+          poster="landing/assets/hero-reel-poster.webp?v=2"
           tabindex="-1"
           aria-label="CzechMate board lighting up">
-          <source src="landing/assets/czm-hero-loop.mp4" type="video/mp4">
+          <source src="landing/assets/czm-hero-loop.mp4?v=2" type="video/mp4">
         </video>
-      </div>
-      <div class="hero__intro reveal-stagger">
-        <p class="hero__brand">CzechMate</p>
-        <h1 id="hero-title" class="hero__title">Chess on a living board.</h1>
-        <p class="hero__lead">
-          Real pieces the board can identify, lights on the squares, and an app that teaches — from the first game to Stockfish and an AI coach.
-        </p>
-        <div class="hero__actions">
-          <a class="btn btn--primary" href="#download">Download the app</a>
-          <a class="btn btn--ghost" href="#board-teaches">See the board</a>
+        <div class="hero__veil" aria-hidden="true"></div>
+        <div class="hero__intro reveal-stagger">
+          <p class="hero__brand">CzechMate</p>
+          <h1 id="hero-title" class="hero__title">Chess on a living board.</h1>
+          <p class="hero__lead">
+            Real pieces the board can identify, lights on the squares, and an app that teaches — from the first game to Stockfish and an AI coach.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#download">Download the app</a>
+            <a class="btn btn--ghost" href="#board-teaches">See the board</a>
+          </div>
         </div>
       </div>
     </section>
@@ -217,9 +218,10 @@
                 <span class="video-media__spinner" aria-hidden="true"></span>
               </div>
               <video
+                id="czm-players-film"
                 class="split__video"
                 data-lazy-local
-                data-click-play
+                data-play-when-visible
                 muted
                 playsinline
                 preload="none"

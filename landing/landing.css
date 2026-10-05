@@ -525,7 +525,7 @@ a.btn--primary:visited {
   border-color: rgba(143, 188, 159, 0.28);
 }
 
-/* ——— Hero (full-bleed product reel, then brand statement) ——— */
+/* ——— Hero (full-bleed product reel with brand over soft bottom veil) ——— */
 
 .hero {
   position: relative;
@@ -539,40 +539,73 @@ a.btn--primary:visited {
 .hero__reel {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: min(62vh, 720px);
+  min-height: min(92vh, 860px);
+  aspect-ratio: auto;
+  max-height: none;
   background: #050807;
   overflow: hidden;
+  isolation: isolate;
 }
 
 .hero__reel-video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
+  object-position: center 42%;
   display: block;
   pointer-events: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
-.hero__reel::after {
-  content: "";
+/* Soft smear into the brand — no hard cut under CzechMate */
+.hero__veil {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 28%;
-  background: linear-gradient(180deg, transparent, #050807);
-  pointer-events: none;
+  height: min(58%, 28rem);
   z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 8, 7, 0) 0%,
+      rgba(5, 8, 7, 0.18) 28%,
+      rgba(5, 8, 7, 0.62) 62%,
+      rgba(5, 8, 7, 0.92) 86%,
+      #050807 100%
+    );
+  -webkit-backdrop-filter: blur(0px);
+  backdrop-filter: blur(0px);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 100%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 42%, #000 100%);
+}
+
+.hero__veil::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(14px) saturate(1.05);
+  -webkit-backdrop-filter: blur(14px) saturate(1.05);
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 35%, #000 78%);
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.35) 35%, #000 78%);
+  pointer-events: none;
 }
 
 .hero__intro {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
   max-width: 1180px;
   margin: 0 auto;
   width: 100%;
-  padding: 2.25rem max(1.25rem, env(safe-area-inset-right, 0px)) 3.5rem
+  padding: 0 max(1.25rem, env(safe-area-inset-right, 0px))
+    max(2.75rem, env(safe-area-inset-bottom, 0px))
     max(1.25rem, env(safe-area-inset-left, 0px));
   text-align: center;
 }
@@ -584,6 +617,7 @@ a.btn--primary:visited {
   letter-spacing: -0.04em;
   line-height: 1.05;
   color: #f2f8f4;
+  text-shadow: 0 1px 24px rgba(5, 8, 7, 0.55);
 }
 
 .hero__title {
@@ -690,6 +724,7 @@ a.btn--primary:visited {
 
 .video-media.is-loading .split__video,
 .video-media.is-loading .welcome-v2__video,
+.video-media.is-loading .hero__reel-video,
 .video-media.is-loading .hero__video-iframe,
 .video-media.is-loading .film-card__iframe,
 .video-media.is-loading .split__media--ai-preview__pan img {
@@ -2057,9 +2092,16 @@ video {
 
 /* Phones */
 @media (max-width: 479px) {
+  .hero__reel {
+    min-height: min(88vh, 720px);
+  }
+
   .hero__intro {
-    padding-top: 1.5rem;
-    padding-bottom: 2.5rem;
+    padding-bottom: 2.1rem;
+  }
+
+  .hero__veil {
+    height: min(64%, 24rem);
   }
 
   .section {
@@ -2112,7 +2154,7 @@ video {
 /* Tablet / iPad (768–1279) */
 @media (min-width: 768px) and (max-width: 1279px) {
   .hero__reel {
-    max-height: min(56vh, 640px);
+    min-height: min(86vh, 780px);
   }
 
   .app-demo-showcase__wrap {
@@ -2127,12 +2169,11 @@ video {
 /* iPad landscape — more compact reel */
 @media (min-width: 768px) and (max-width: 1279px) and (orientation: landscape) {
   .hero__reel {
-    max-height: 52vh;
+    min-height: min(78vh, 640px);
   }
 
   .hero__intro {
-    padding-top: 1.25rem;
-    padding-bottom: 2rem;
+    padding-bottom: 1.6rem;
   }
 }
 
@@ -2165,12 +2206,23 @@ video {
 /* Short phone landscape */
 @media (max-width: 896px) and (orientation: landscape) and (max-height: 520px) {
   .hero__reel {
-    max-height: 48vh;
+    min-height: 100vh;
   }
 
   .hero__intro {
-    padding-top: 1rem;
-    padding-bottom: 1.5rem;
+    padding-bottom: 1.15rem;
+  }
+
+  .hero__brand {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+  }
+
+  .hero__title {
+    font-size: 1.15rem;
+  }
+
+  .hero__lead {
+    display: none;
   }
 }
 
