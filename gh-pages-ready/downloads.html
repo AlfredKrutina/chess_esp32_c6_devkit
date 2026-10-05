@@ -15,9 +15,7 @@
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="preconnect" href="https://www.youtube.com">
-  <link rel="preconnect" href="https://i.ytimg.com">
-  <link rel="preload" href="landing/assets/czm-v2-welcome.mp4" as="fetch" type="video/mp4" fetchpriority="high">
+  <link rel="preload" href="landing/assets/czm-hero-loop.mp4" as="fetch" type="video/mp4" fetchpriority="high">
   <link rel="stylesheet" href="landing/landing.css">
   <script>
     (function () {
@@ -53,14 +51,9 @@
     <div class="site-header__inner">
       <a class="brand" href="#">CzechMate</a>
       <nav class="nav-desktop" aria-label="Page sections">
-        <a href="#discover-v2">Discover V2</a>
-        <a href="#learn">Why learning</a>
+        <a href="#board-teaches">Board</a>
         <a href="#pieces">Pieces</a>
-        <a href="#board-teaches">Board teaches</a>
-        <a href="#stockfish">Stockfish</a>
-        <a href="#ai-coach">AI coach</a>
         <a href="#app">App</a>
-        <a href="#interest">Interest</a>
         <a href="#download">Download</a>
         <a href="./index.html">Docs</a>
       </nav>
@@ -70,14 +63,9 @@
       </button>
     </div>
     <nav id="nav-mobile" class="nav-mobile" data-nav-mobile aria-label="Mobile menu">
-      <a href="#discover-v2">Discover V2</a>
-      <a href="#learn">Why learning</a>
+      <a href="#board-teaches">Board</a>
       <a href="#pieces">Pieces</a>
-      <a href="#board-teaches">Board teaches</a>
-      <a href="#stockfish">Stockfish</a>
-      <a href="#ai-coach">AI coach</a>
       <a href="#app">App</a>
-      <a href="#interest">Interest</a>
       <a href="#download">Download</a>
       <a href="./index.html">Docs</a>
       <a class="btn btn--primary nav-mobile__cta" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">Feedback</a>
@@ -86,72 +74,34 @@
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__bg" aria-hidden="true"></div>
-      <div class="hero__grid" aria-hidden="true"></div>
-      <div class="hero__content reveal-stagger">
-        <p class="hero__eyebrow">Chess learning · for the whole family · for clubs and schools</p>
-        <h1 id="hero-title" class="hero__title">Chess on a living board. Lessons and games in one system.</h1>
+      <div class="hero__reel video-media is-loading" data-video-media>
+        <div class="video-media__loader" role="status" aria-label="Loading video">
+          <span class="video-media__spinner" aria-hidden="true"></span>
+        </div>
+        <video
+          id="czm-hero-reel"
+          class="hero__reel-video"
+          data-no-pause
+          muted
+          loop
+          playsinline
+          autoplay
+          preload="auto"
+          poster="landing/assets/hero-reel-poster.webp"
+          tabindex="-1"
+          aria-label="CzechMate board lighting up">
+          <source src="landing/assets/czm-hero-loop.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="hero__intro reveal-stagger">
+        <p class="hero__brand">CzechMate</p>
+        <h1 id="hero-title" class="hero__title">Chess on a living board.</h1>
         <p class="hero__lead">
-          CzechMate is a chessboard with LED feedback and a companion app. You play with real pieces and see the game signals on the squares and in the app.
-          Set Stockfish strength to your level and let the AI coach help with a plan or a post-game review.
-          It fits at home, in a club, or in a classroom.
+          Real pieces, lights on the squares, and an app that teaches — from the first game to Stockfish and an AI coach.
         </p>
         <div class="hero__actions">
-          <a class="btn btn--primary" href="https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform" target="_blank" rel="noopener noreferrer">Feedback</a>
-          <a class="btn btn--ghost" href="#download">Download the app</a>
-        </div>
-
-        <div class="hero__video">
-          <div class="hero__video-frame video-media is-loading" data-video-media data-youtube-id="_MS6OP3x6Z4">
-            <div class="video-media__loader" role="status" aria-label="Loading video">
-              <span class="video-media__spinner" aria-hidden="true"></span>
-            </div>
-            <iframe
-              class="hero__video-iframe"
-              title="CzechMate — product overview"
-              allow="autoplay; accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-              fetchpriority="high"
-              tabindex="-1"></iframe>
-            <button
-              type="button"
-              class="hero__video-shield"
-              data-yt-click-shield
-              aria-label="Click to enable video controls"></button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="discover-v2" class="section welcome-v2" aria-labelledby="discover-v2-title">
-      <div class="section__inner">
-        <p class="section__label reveal section__label--center">CzechMate V2</p>
-        <h2 id="discover-v2-title" class="section__title section__title--center reveal reveal--seq-1">Discover CzechMate V2</h2>
-        <p class="section__intro section__intro--center reveal reveal--seq-2">One move, and the square it lands on lights up.</p>
-        <div class="welcome-v2__wrap reveal reveal--seq-2">
-          <div class="split__media welcome-v2__media video-media is-loading" data-video-media>
-            <div class="video-media__loader" role="status" aria-label="Loading video">
-              <span class="video-media__spinner" aria-hidden="true"></span>
-            </div>
-            <video
-              id="czm-v2-welcome-video"
-              class="split__video welcome-v2__video welcome-v2__video--passive"
-              data-play-when-visible
-              data-welcome-replay-on-click
-              muted
-              playsinline
-              disablepictureinpicture
-              disableremoteplayback
-              controlslist="nodownload noplaybackrate nofullscreen noremoteplayback"
-              preload="auto"
-              fetchpriority="high"
-              tabindex="-1"
-              aria-label="CzechMate V2 introduction">
-              <source src="landing/assets/czm-v2-welcome.mp4" type="video/mp4">
-            </video>
-          </div>
-          <p class="welcome-v2__hint">Click to replay</p>
+          <a class="btn btn--primary" href="#download">Download the app</a>
+          <a class="btn btn--ghost" href="#board-teaches">See the board</a>
         </div>
       </div>
     </section>
@@ -195,27 +145,27 @@
         </p>
         <ul class="piece-gallery reveal-stagger">
           <li>
-            <img src="landing/assets/piece-king.webp" width="900" height="1200" alt="White king with a short, thick cross" loading="lazy" decoding="async">
+            <img src="landing/assets/piece-king.webp" width="720" height="1440" alt="White king with a short, thick cross" loading="lazy" decoding="async">
             <span>King</span>
           </li>
           <li>
-            <img src="landing/assets/piece-queen.webp" width="900" height="1200" alt="White queen with a broad crown" loading="lazy" decoding="async">
+            <img src="landing/assets/piece-queen.webp" width="720" height="1440" alt="White queen with a broad crown" loading="lazy" decoding="async">
             <span>Queen</span>
           </li>
           <li>
-            <img src="landing/assets/piece-bishop.webp" width="900" height="1200" alt="White bishop with a solid mitre" loading="lazy" decoding="async">
+            <img src="landing/assets/piece-bishop.webp" width="720" height="1440" alt="White bishop with a solid mitre" loading="lazy" decoding="async">
             <span>Bishop</span>
           </li>
           <li>
-            <img src="landing/assets/piece-knight.webp" width="900" height="1200" alt="White knight, faceted, standing on a wide foot" loading="lazy" decoding="async">
+            <img src="landing/assets/piece-knight.webp" width="720" height="1440" alt="White knight, faceted, standing on a wide foot" loading="lazy" decoding="async">
             <span>Knight</span>
           </li>
           <li>
-            <img src="landing/assets/piece-rook.webp" width="900" height="1200" alt="White rook with a crenellated top" loading="lazy" decoding="async">
+            <img src="landing/assets/piece-rook.webp" width="720" height="1440" alt="White rook with a crenellated top" loading="lazy" decoding="async">
             <span>Rook</span>
           </li>
           <li>
-            <img src="landing/assets/piece-pawn.webp" width="900" height="1200" alt="White pawn" loading="lazy" decoding="async">
+            <img src="landing/assets/piece-pawn.webp" width="720" height="1440" alt="White pawn" loading="lazy" decoding="async">
             <span>Pawn</span>
           </li>
         </ul>
@@ -267,7 +217,8 @@
               <video
                 class="split__video"
                 data-lazy-local
-                controls
+                data-click-play
+                muted
                 playsinline
                 preload="none"
                 poster="landing/assets/film-board-poster.webp"
@@ -285,7 +236,8 @@
               <video
                 class="split__video"
                 data-lazy-local
-                controls
+                data-click-play
+                muted
                 playsinline
                 preload="none"
                 poster="landing/assets/film-build-poster.webp"

@@ -116,10 +116,9 @@
       var media = rootFor(v);
       if (!media || v.dataset.videoMediaBound === "1") return;
       v.dataset.videoMediaBound = "1";
-      v.removeAttribute("poster");
-      if (!v.classList.contains("split__video--controls-on-click")) {
-        v.controls = false;
-      }
+      // Do not strip HTML posters. The board film opens on black glass; without
+      // a poster the card shows an empty frame once metadata loads.
+      v.controls = false;
       markLoading(media);
 
       function readyThreshold() {
@@ -152,7 +151,7 @@
 
   czVideoMedia.init();
 
-  /* Welcome MP4: start download as soon as the script runs (priority over YouTube). */
+  /* Welcome MP4: start download as soon as the script runs. */
   (function initWelcomeVideoEarlyLoad() {
     var v = document.getElementById("czm-v2-welcome-video");
     if (!v || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -162,95 +161,6 @@
         v.load();
       } catch (eW) {}
     }
-  })();
-
-  /* Hero YouTube: autoplay without controls; controls=1 only after clicking the video. */
-  (function initHeroYoutubeAutoplay() {
-    var ytFrame = document.querySelector(".hero__video-frame[data-youtube-id]");
-    if (!ytFrame || window.location.protocol === "file:") return;
-    var iframe = ytFrame.querySelector(".hero__video-iframe");
-    if (!iframe) return;
-    czVideoMedia.markLoading(ytFrame);
-    var vid = ytFrame.getAttribute("data-youtube-id");
-    if (!vid || !/^[\w-]{11}$/.test(vid)) return;
-
-    var autoplay = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function buildEmbedUrl(withControls) {
-      var params = [
-        "controls=" + (withControls ? "1" : "0"),
-        "fs=1",
-        "playsinline=1",
-        "rel=0",
-        "modestbranding=1",
-        "iv_load_policy=3",
-      ];
-      if (autoplay) {
-        params.unshift("autoplay=1", "mute=1");
-      }
-      try {
-        if (window.location.origin && window.location.origin !== "null") {
-          params.push("origin=" + encodeURIComponent(window.location.origin));
-        }
-      } catch (eO) {}
-      return (
-        "https://www.youtube.com/embed/" + encodeURIComponent(vid) + "?" + params.join("&")
-      );
-    }
-
-    function mountYoutubeEmbed() {
-      iframe.src = buildEmbedUrl(false);
-      iframe.setAttribute(
-        "allow",
-        (autoplay ? "autoplay; " : "") +
-          "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-      );
-    }
-    iframe.addEventListener("load", function () {
-      czVideoMedia.markReady(ytFrame);
-    });
-    window.setTimeout(function () {
-      czVideoMedia.markReady(ytFrame);
-    }, 10000);
-    /* Short YouTube delay — prioritize welcome MP4 (~4 MB) just under the hero. */
-    window.setTimeout(mountYoutubeEmbed, 180);
-
-    var shield = ytFrame.querySelector("[data-yt-click-shield]");
-    if (!shield) return;
-
-    function activateYoutubeControls() {
-      if (ytFrame.classList.contains("is-yt-interactive")) return;
-      ytFrame.classList.add("is-yt-interactive");
-      iframe.src = buildEmbedUrl(true);
-      iframe.setAttribute("tabindex", "0");
-      try {
-        iframe.focus();
-      } catch (eF) {}
-    }
-
-    shield.addEventListener("click", activateYoutubeControls);
-    shield.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
-        ev.preventDefault();
-        activateYoutubeControls();
-      }
-    });
-  })();
-
-  /* file://: YouTube embed often fails; replaced with a static CDN image. */
-  (function initHeroYoutubeFileFallback() {
-    var ytFrame = document.querySelector(".hero__video-frame[data-youtube-id]");
-    if (!ytFrame || window.location.protocol !== "file:") return;
-    var vid = ytFrame.getAttribute("data-youtube-id");
-    if (!vid || !/^[\w-]{11}$/.test(vid)) return;
-    ytFrame.innerHTML =
-      '<div class="hero__video-fallback">' +
-      '<img class="hero__video-fallback__img" src="https://img.youtube.com/vi/' +
-      encodeURIComponent(vid) +
-      '/maxresdefault.jpg" alt="CzechMate — product overview" width="1280" height="720" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/' +
-      encodeURIComponent(vid) +
-      "/hqdefault.jpg'\">" +
-      "</div>";
   })();
 
   var toggle = document.querySelector("[data-nav-toggle]");
@@ -774,52 +684,64 @@
     io.observe(v);
   })();
 
-  /* LED loop (#board-teaches): do not pause — no controls; on pause, resume immediately. */
-  (function initLedLoopNoPause() {
-    var v = document.getElementById("czm-v2-led-loop-video");
-    if (!v || !v.hasAttribute("data-no-pause")) return;
-    v.controls = false;
+  /* Ambient product loops: hero reel + LED — no pause, no native UI. */
+  (function initAmbientLoopsNoPause() {
+    document.querySelectorAll("video[data-no-pause]").forEach(function (v) {
+      v.controls = false;
 
-    function blockNativeVideoUi(ev) {
-      ev.preventDefault();
-    }
-    v.addEventListener("click", blockNativeVideoUi);
-    v.addEventListener("dblclick", blockNativeVideoUi);
-    v.addEventListener("contextmenu", blockNativeVideoUi);
-
-    var reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    function resumeIfAllowed() {
-      if (reduceMq.matches) return;
-      if (v.ended || !v.paused) return;
-      var pr = v.play();
-      if (pr && typeof pr.catch === "function") {
-        pr.catch(function () {});
+      function blockNativeVideoUi(ev) {
+        ev.preventDefault();
       }
-    }
+      v.addEventListener("click", blockNativeVideoUi);
+      v.addEventListener("dblclick", blockNativeVideoUi);
+      v.addEventListener("contextmenu", blockNativeVideoUi);
 
-    v.addEventListener("pause", resumeIfAllowed);
-    document.addEventListener("visibilitychange", function () {
-      if (!document.hidden) resumeIfAllowed();
+      var reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      function resumeIfAllowed() {
+        if (reduceMq.matches) return;
+        if (v.ended || !v.paused) return;
+        var pr = v.play();
+        if (pr && typeof pr.catch === "function") {
+          pr.catch(function () {});
+        }
+      }
+
+      v.addEventListener("pause", resumeIfAllowed);
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) resumeIfAllowed();
+      });
+      resumeIfAllowed();
     });
   })();
 
-  /* Video controls: native bar only after clicking the video itself */
+  /* Film cards: click to play/pause, never show the native control bar. */
+  (function initClickPlayFilms() {
+    document.querySelectorAll("video[data-click-play]").forEach(function (v) {
+      v.controls = false;
+      v.setAttribute("playsinline", "");
+      v.addEventListener("click", function () {
+        if (v.paused || v.ended) {
+          if (v.ended) {
+            try {
+              v.currentTime = 0;
+            } catch (eR) {}
+          }
+          var pr = v.play();
+          if (pr && typeof pr.catch === "function") {
+            pr.catch(function () {});
+          }
+        } else {
+          v.pause();
+        }
+      });
+    });
+  })();
+
+  /* Legacy class: still force controls off if present. */
   (function initVideoControlsOnClick() {
     document.querySelectorAll("video.split__video--controls-on-click").forEach(function (v) {
       v.controls = false;
-      function revealControls() {
-        if (v.controls) return;
-        v.controls = true;
-        v.removeEventListener("click", revealControls);
-        if (v.getAttribute("tabindex") === "-1") {
-          v.setAttribute("tabindex", "0");
-        }
-        try {
-          v.focus();
-        } catch (eF) {}
-      }
-      v.addEventListener("click", revealControls);
     });
   })();
 

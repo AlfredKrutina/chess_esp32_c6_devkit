@@ -52,8 +52,14 @@ def main():
     mats = cc.piece_materials()
     white = mats[0]
     bsdf = next(n for n in white.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
-    bsdf.inputs["Base Color"].default_value = (0.55, 0.54, 0.5, 1.0)
-    bsdf.inputs["Roughness"].default_value = 0.72
+    # Matte PLA reads brighter than its albedo under area lights. Keep the
+    # base mid-grey and underexpose so facets show instead of clipping white.
+    bsdf.inputs["Base Color"].default_value = (0.26, 0.25, 0.23, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.9
+    if "Specular IOR Level" in bsdf.inputs:
+        bsdf.inputs["Specular IOR Level"].default_value = 0.18
+    elif "Specular" in bsdf.inputs:
+        bsdf.inputs["Specular"].default_value = 0.18
     templates = cc.piece_templates(white)
     pieces = place(templates, mats, coll)
     mesh = templates["knight"].data
@@ -68,13 +74,22 @@ def main():
     aim = bpy.data.objects.new("Light aim", None)
     aim.location = (0.0, 0.0, 0.04)
     coll.objects.link(aim)
-    cc.area(coll, "Key", (0.2, -0.06, 0.14), 0.06, 30, (1.0, 0.97, 0.92), aim, size_y=0.1)
-    cc.area(coll, "Fill", (-0.16, -0.18, 0.06), 0.35, 3, (0.75, 0.85, 0.8), aim)
-    cc.area(coll, "Rim", (-0.04, 0.2, 0.12), 0.05, 14, (0.55, 0.7, 0.62), aim)
+    # Soft, dim keys so facets keep tonal steps on white PLA.
+    cc.area(coll, "Key", (0.22, -0.08, 0.16), 0.16, 4.2, (1.0, 0.97, 0.92), aim, size_y=0.2)
+    cc.area(coll, "Fill", (-0.2, -0.24, 0.08), 0.55, 0.9, (0.75, 0.85, 0.8), aim)
+    cc.area(coll, "Rim", (-0.05, 0.22, 0.13), 0.12, 1.8, (0.55, 0.7, 0.62), aim)
 
     cam, target = cc.camera(coll, "Still", lens=50, fstop=8.0)
     scene.camera = cam
-    cc.render_settings(scene, (1920, 1080), samples=32, motion_blur=False, exposure=-0.35)
+    cc.render_settings(scene, (1920, 1080), samples=48, motion_blur=False, exposure=-1.35)
+    # Product stills need the quiet AgX base, not the punchy film look.
+    for look in ("None", "AgX - Base Contrast", "AgX - Low Contrast"):
+        try:
+            scene.view_settings.look = look
+            break
+        except TypeError:
+            continue
+    print("look", scene.view_settings.look, "exposure", scene.view_settings.exposure)
     OUT.mkdir(parents=True, exist_ok=True)
 
     shoot(
