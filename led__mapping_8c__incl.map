@@ -1,6 +1,6 @@
 <map id="led_mapping.c" name="led_mapping.c">
 <area shape="rect" id="Node000001" title=" " alt="" coords="182,5,299,31"/>
-<area shape="rect" id="Node000002" href="$led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="5,79,124,104"/>
+<area shape="rect" id="Node000002" href="$led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="5,79,124,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="213,33,107,76,105,71,211,28"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="148,79,232,104"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="234,33,208,69,204,66,230,29"/>

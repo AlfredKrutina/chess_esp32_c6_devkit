@@ -1,4 +1,4 @@
 var index =
 [
-    [ "Struktura", "index.html#autotoc_md77", null ]
+    [ "Structure", "index.html#autotoc_md77", null ]
 ];

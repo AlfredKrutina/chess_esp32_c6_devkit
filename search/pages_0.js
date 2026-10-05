@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['prvků_0',['Seznam zastaralých prvků',['../deprecated.html',1,'']]]
+  ['deprecated_20list_0',['Deprecated List',['../deprecated.html',1,'']]]
 ];

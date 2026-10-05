@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="Endgame statistics update, UART report formatting, win/draw getters." alt="" coords="1025,5,1209,31"/>
 <area shape="rect" id="Node000002" href="$game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="713,79,875,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1065,33,860,78,859,73,1064,28"/>
-<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="537,152,643,177"/>
+<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="537,152,643,177"/>
 <area shape="poly" id="edge28_Node000001_Node000011" title=" " alt="" coords="1024,22,952,26,870,36,784,54,702,81,652,111,612,144,609,140,649,106,700,76,783,49,869,31,952,21,1024,17"/>
 <area shape="rect" id="Node000014" title=" " alt="" coords="900,79,984,104"/>
 <area shape="poly" id="edge29_Node000001_Node000014" title=" " alt="" coords="1090,33,984,76,982,71,1088,28"/>
@@ -16,7 +16,7 @@
 <area shape="poly" id="edge33_Node000001_Node000018" title=" " alt="" coords="1159,28,1329,75,1328,80,1158,33"/>
 <area shape="rect" id="Node000019" title=" " alt="" coords="1433,79,1504,104"/>
 <area shape="poly" id="edge34_Node000001_Node000019" title=" " alt="" coords="1179,28,1420,76,1419,81,1178,33"/>
-<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="485,233,599,258"/>
+<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="485,233,599,258"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="777,107,657,180,575,228,572,223,654,175,774,102"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="711,313,861,339"/>
 <area shape="poly" id="edge8_Node000002_Node000005" title=" " alt="" coords="872,101,1031,127,1096,140,1126,150,1145,180,1152,209,1145,238,1127,267,1110,281,1086,292,1022,308,948,319,875,324,875,319,947,313,1021,303,1084,287,1107,276,1123,264,1140,236,1146,209,1140,182,1123,154,1094,145,1030,132,871,107"/>
@@ -47,7 +47,7 @@
 <area shape="poly" id="edge18_Node000011_Node000010" title=" " alt="" coords="644,174,876,223,894,227,893,232,875,228,643,179"/>
 <area shape="rect" id="Node000012" title=" " alt="" coords="293,233,410,258"/>
 <area shape="poly" id="edge17_Node000011_Node000012" title=" " alt="" coords="556,180,400,231,398,226,554,175"/>
-<area shape="rect" id="Node000013" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="90,225,269,265"/>
+<area shape="rect" id="Node000013" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="90,225,269,265"/>
 <area shape="poly" id="edge21_Node000011_Node000013" title=" " alt="" coords="537,179,282,227,281,222,536,174"/>
 <area shape="poly" id="edge24_Node000013_Node000004" title=" " alt="" coords="182,266,182,299,177,299,177,266"/>
 <area shape="poly" id="edge23_Node000013_Node000007" title=" " alt="" coords="248,263,408,307,407,312,246,268"/>

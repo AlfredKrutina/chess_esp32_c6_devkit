@@ -12,10 +12,5 @@ var searchData=
   ['king_5frow_9',['king_row',['../structking__resignation__state__t.html#a8aa2d198aefd1c851caa794ed1c1af41',1,'king_resignation_state_t']]],
   ['king_5fto_5fcol_10',['king_to_col',['../structcastling__positions__t.html#a6b2b0a29876d269219f706fa857eb78e',1,'castling_positions_t']]],
   ['king_5fto_5frow_11',['king_to_row',['../structcastling__positions__t.html#af10c6d54bf7046e73a6a0d5d48a88bf9',1,'castling_positions_t']]],
-  ['knight_5fmoves_12',['knight_moves',['../game__task__internal_8h.html#aa8992a10c771c05333aaea769d0cc506',1,'knight_moves:&#160;game_move_gen.c'],['../game__move__gen_8c.html#aa8992a10c771c05333aaea769d0cc506',1,'knight_moves:&#160;game_move_gen.c']]],
-  ['komponent_20dela_13',['CO TENTO KOMPONENT DELA?',['../ha__light__task_8h.html#autotoc_md28',1,'']]],
-  ['komunikace_20fifos_14',['komunikace fifos',['../button__task_8c.html#autotoc_md5',1,'KOMUNIKACE (FIFOS)'],['../matrix__task_8c.html#autotoc_md51',1,'KOMUNIKACE (FIFOS)']]],
-  ['komunikace_20fifos_20mutexy_15',['komunikace fifos mutexy',['../game__task_8c.html#autotoc_md16',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)'],['../led__task_8c.html#autotoc_md34',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)'],['../uart__task_8c.html#autotoc_md64',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)']]],
-  ['komunikace_20queues_16',['KOMUNIKACE (QUEUES)',['../web__server__task_8c.html#autotoc_md83',1,'']]],
-  ['kriticka_20pravidla_17',['kriticka pravidla',['../button__task_8c.html#autotoc_md7',1,'KRITICKA PRAVIDLA'],['../game__task_8c.html#autotoc_md24',1,'KRITICKA PRAVIDLA'],['../led__task_8c.html#autotoc_md44',1,'KRITICKA PRAVIDLA'],['../matrix__task_8c.html#autotoc_md55',1,'KRITICKA PRAVIDLA'],['../uart__task_8c.html#autotoc_md72',1,'KRITICKA PRAVIDLA'],['../web__server__task_8c.html#autotoc_md87',1,'KRITICKA PRAVIDLA']]]
+  ['knight_5fmoves_12',['knight_moves',['../game__move__gen_8c.html#aa8992a10c771c05333aaea769d0cc506',1,'knight_moves:&#160;game_move_gen.c'],['../game__task__internal_8h.html#aa8992a10c771c05333aaea769d0cc506',1,'knight_moves:&#160;game_move_gen.c']]]
 ];

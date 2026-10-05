@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title=" " alt="" coords="225,5,358,31"/>
 <area shape="rect" id="Node000002" href="$hall__i2c__matrix_8h.html" title=" " alt="" coords="5,79,140,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="257,33,122,77,120,72,255,28"/>
-<area shape="rect" id="Node000005" href="$hall__i2c__spec_8h.html" title="Norma I2C mezi ESP32 (master) a 4× STM32 — 128 Hall kanálů → 64 polí." alt="" coords="164,79,285,104"/>
+<area shape="rect" id="Node000005" href="$hall__i2c__spec_8h.html" title="I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields." alt="" coords="164,79,285,104"/>
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="282,33,247,70,243,67,278,29"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="310,79,406,104"/>
 <area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="304,29,340,67,336,70,300,33"/>

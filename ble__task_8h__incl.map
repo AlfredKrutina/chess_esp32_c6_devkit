@@ -1,5 +1,5 @@
 <map id="ble_task.h" name="ble_task.h">
-<area shape="rect" id="Node000001" title="BLE rozhraní CZECHMATE — NimBLE GATT při CONFIG_BT_ENABLED." alt="" coords="159,5,248,31"/>
+<area shape="rect" id="Node000001" title="BLE interface CZECHMATE — NimBLE GATT when CONFIG_BT_ENABLED." alt="" coords="159,5,248,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,33,85,75,83,71,177,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="111,79,194,104"/>

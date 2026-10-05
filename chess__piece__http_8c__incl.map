@@ -1,5 +1,5 @@
 <map id="chess_piece_http.c" name="chess_piece_http.c">
-<area shape="rect" id="Node000001" title="GET /static/piece/[name].png — PNG figurky (embed), stejné jako v iOS Assets." alt="" coords="157,5,302,31"/>
+<area shape="rect" id="Node000001" title="GET /static/piece/[name].png — PNG figures (embed), same as in iOS Assets." alt="" coords="157,5,302,31"/>
 <area shape="rect" id="Node000002" href="$chess__piece__http_8h.html" title=" " alt="" coords="5,79,152,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="206,33,117,75,115,70,204,28"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="121,152,258,177"/>

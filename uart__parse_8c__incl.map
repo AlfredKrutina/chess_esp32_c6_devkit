@@ -2,7 +2,7 @@
 <area shape="rect" id="Node000001" title="Command lookup, move notation parsing, and dispatch." alt="" coords="770,5,872,31"/>
 <area shape="rect" id="Node000002" href="$uart__parse_8h.html" title="Command parsing and game&#45;task dispatch (internal to uart_task component)." alt="" coords="130,79,232,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="770,28,246,86,246,80,769,22"/>
-<area shape="rect" id="Node000003" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Hlavicka." alt="" coords="411,152,506,177"/>
+<area shape="rect" id="Node000003" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="411,152,506,177"/>
 <area shape="poly" id="edge25_Node000001_Node000003" title=" " alt="" coords="770,26,625,46,555,61,528,71,508,81,494,93,483,109,468,140,463,138,479,106,490,90,505,76,525,66,553,56,624,40,769,21"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="536,299,687,324"/>
 <area shape="poly" id="edge40_Node000001_Node000006" title=" " alt="" coords="815,32,630,289,626,286,811,29"/>
@@ -12,7 +12,7 @@
 <area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="788,33,656,77,654,72,786,28"/>
 <area shape="rect" id="Node000013" href="$uart__task__internal_8h.html" title="Internal API between uart_task.c and sibling source files." alt="" coords="229,152,381,177"/>
 <area shape="poly" id="edge20_Node000001_Node000013" title=" " alt="" coords="770,26,636,44,556,60,478,81,401,113,337,147,334,143,398,108,476,76,555,55,635,39,769,21"/>
-<area shape="rect" id="Node000014" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="824,152,954,177"/>
+<area shape="rect" id="Node000014" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="824,152,954,177"/>
 <area shape="poly" id="edge26_Node000001_Node000014" title=" " alt="" coords="827,30,856,103,876,139,872,142,851,105,822,32"/>
 <area shape="rect" id="Node000020" title=" " alt="" coords="910,79,994,104"/>
 <area shape="poly" id="edge38_Node000001_Node000020" title=" " alt="" coords="843,28,920,70,917,74,841,33"/>
@@ -34,9 +34,9 @@
 <area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="507,174,872,248,1122,294,1121,299,871,253,506,179"/>
 <area shape="rect" id="Node000008" title=" " alt="" coords="250,299,331,324"/>
 <area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="446,180,316,292,313,287,443,176"/>
-<area shape="rect" id="Node000009" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="441,225,556,251"/>
+<area shape="rect" id="Node000009" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="441,225,556,251"/>
 <area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="467,176,488,212,483,215,463,179"/>
-<area shape="rect" id="Node000010" href="$uart__queue__message_8h.html" title="Spolecny typ zpravy pro UART vystupni frontu (jedna pravda pro sizeof)." alt="" coords="41,225,214,251"/>
+<area shape="rect" id="Node000010" href="$uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="41,225,214,251"/>
 <area shape="poly" id="edge14_Node000003_Node000010" title=" " alt="" coords="412,179,195,225,194,220,410,174"/>
 <area shape="poly" id="edge13_Node000009_Node000004" title=" " alt="" coords="489,253,453,290,449,287,485,249"/>
 <area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="441,251,122,304,121,298,441,246"/>

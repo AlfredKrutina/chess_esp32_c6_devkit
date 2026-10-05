@@ -44,7 +44,7 @@ var searchData=
   ['endgame_5freport_5frequested_41',['endgame_report_requested',['../game__task_8c.html#ada50d1ec543170004c480c898a2718c6',1,'endgame_report_requested:&#160;game_task.c'],['../game__task__internal_8h.html#ada50d1ec543170004c480c898a2718c6',1,'endgame_report_requested:&#160;game_task.c']]],
   ['endgame_5fwave_42',['endgame_wave',['../led__task_8c.html#a1ed1a514affa226ab201a5e7334e32a7',1,'led_task.c']]],
   ['endgame_5fwave_5fstate_5ft_43',['endgame_wave_state_t',['../structendgame__wave__state__t.html',1,'']]],
-  ['endpointy_44',['REST API ENDPOINTY',['../web__server__task_8c.html#autotoc_md85',1,'']]],
+  ['endpoints_44',['REST API ENDPOINTS',['../web__server__task_8c.html#autotoc_md85',1,'']]],
   ['enemy_5fred_5fpalette_45',['enemy_red_palette',['../game__led__animations_8c.html#a06640a5d84f366f00c51139f93704f21',1,'game_led_animations.c']]],
   ['enhanced_5fcastling_5fcancel_46',['enhanced_castling_cancel',['../enhanced__castling__system_8c.html#a84967829c955ce40cb552af8f336c88d',1,'enhanced_castling_cancel(void):&#160;enhanced_castling_system.c'],['../enhanced__castling__system_8h.html#a84967829c955ce40cb552af8f336c88d',1,'enhanced_castling_cancel(void):&#160;enhanced_castling_system.c']]],
   ['enhanced_5fcastling_5fget_5fphase_47',['enhanced_castling_get_phase',['../enhanced__castling__system_8h.html#a573e41c1cc049dbb2722bc68b25f174b',1,'enhanced_castling_get_phase(void):&#160;enhanced_castling_system.c'],['../enhanced__castling__system_8c.html#a573e41c1cc049dbb2722bc68b25f174b',1,'enhanced_castling_get_phase(void):&#160;enhanced_castling_system.c']]],

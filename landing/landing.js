@@ -1,5 +1,5 @@
 (function () {
-  /* Po reloadu vždy nahoru (kromě odkazu s #kotvou); bez posunu při načítání médií. */
+  /* Always scroll to top on reload (except hash links); no jump while media loads. */
   (function initScrollTopOnLoad() {
     function scrollTopUnlessHash() {
       if (location.hash) return;
@@ -20,7 +20,7 @@
     });
   })();
 
-  /** Fade + lehký posun dialogu a backdropu; Escape přes `cancel` + preventDefault */
+  /** Fade + light dialog/backdrop shift; Escape via `cancel` + preventDefault */
   function bindAnimatedModal(dialog) {
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var maxWaitMs = 480;
@@ -84,7 +84,7 @@
     return { open: openModal, close: closeModal };
   }
 
-  /** Spinner u videí: is-loading → is-ready po canplay / náhledu. */
+  /** Video spinner: is-loading → is-ready after canplay / preview. */
   var czVideoMedia = (function () {
     function rootFor(el) {
       if (!el) return null;
@@ -116,10 +116,9 @@
       var media = rootFor(v);
       if (!media || v.dataset.videoMediaBound === "1") return;
       v.dataset.videoMediaBound = "1";
-      v.removeAttribute("poster");
-      if (!v.classList.contains("split__video--controls-on-click")) {
-        v.controls = false;
-      }
+      // Do not strip HTML posters. The board film opens on black glass; without
+      // a poster the card shows an empty frame once metadata loads.
+      v.controls = false;
       markLoading(media);
 
       function readyThreshold() {
@@ -152,7 +151,7 @@
 
   czVideoMedia.init();
 
-  /* Welcome MP4: stahovat hned po startu skriptu (priorita před YouTube). */
+  /* Welcome MP4: start download as soon as the script runs. */
   (function initWelcomeVideoEarlyLoad() {
     var v = document.getElementById("czm-v2-welcome-video");
     if (!v || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -162,95 +161,6 @@
         v.load();
       } catch (eW) {}
     }
-  })();
-
-  /* Hero YouTube: autoplay bez ovládací lišty; controls=1 až po kliknutí na video. */
-  (function initHeroYoutubeAutoplay() {
-    var ytFrame = document.querySelector(".hero__video-frame[data-youtube-id]");
-    if (!ytFrame || window.location.protocol === "file:") return;
-    var iframe = ytFrame.querySelector(".hero__video-iframe");
-    if (!iframe) return;
-    czVideoMedia.markLoading(ytFrame);
-    var vid = ytFrame.getAttribute("data-youtube-id");
-    if (!vid || !/^[\w-]{11}$/.test(vid)) return;
-
-    var autoplay = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    function buildEmbedUrl(withControls) {
-      var params = [
-        "controls=" + (withControls ? "1" : "0"),
-        "fs=1",
-        "playsinline=1",
-        "rel=0",
-        "modestbranding=1",
-        "iv_load_policy=3",
-      ];
-      if (autoplay) {
-        params.unshift("autoplay=1", "mute=1");
-      }
-      try {
-        if (window.location.origin && window.location.origin !== "null") {
-          params.push("origin=" + encodeURIComponent(window.location.origin));
-        }
-      } catch (eO) {}
-      return (
-        "https://www.youtube.com/embed/" + encodeURIComponent(vid) + "?" + params.join("&")
-      );
-    }
-
-    function mountYoutubeEmbed() {
-      iframe.src = buildEmbedUrl(false);
-      iframe.setAttribute(
-        "allow",
-        (autoplay ? "autoplay; " : "") +
-          "accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-      );
-    }
-    iframe.addEventListener("load", function () {
-      czVideoMedia.markReady(ytFrame);
-    });
-    window.setTimeout(function () {
-      czVideoMedia.markReady(ytFrame);
-    }, 10000);
-    /* Krátké zpoždění YouTube — priorita stahu welcome MP4 (~4 MB) hned pod hero. */
-    window.setTimeout(mountYoutubeEmbed, 180);
-
-    var shield = ytFrame.querySelector("[data-yt-click-shield]");
-    if (!shield) return;
-
-    function activateYoutubeControls() {
-      if (ytFrame.classList.contains("is-yt-interactive")) return;
-      ytFrame.classList.add("is-yt-interactive");
-      iframe.src = buildEmbedUrl(true);
-      iframe.setAttribute("tabindex", "0");
-      try {
-        iframe.focus();
-      } catch (eF) {}
-    }
-
-    shield.addEventListener("click", activateYoutubeControls);
-    shield.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
-        ev.preventDefault();
-        activateYoutubeControls();
-      }
-    });
-  })();
-
-  /* file://: YouTube embed často selže; nahrazeno statickým obrázkem z CDN. */
-  (function initHeroYoutubeFileFallback() {
-    var ytFrame = document.querySelector(".hero__video-frame[data-youtube-id]");
-    if (!ytFrame || window.location.protocol !== "file:") return;
-    var vid = ytFrame.getAttribute("data-youtube-id");
-    if (!vid || !/^[\w-]{11}$/.test(vid)) return;
-    ytFrame.innerHTML =
-      '<div class="hero__video-fallback">' +
-      '<img class="hero__video-fallback__img" src="https://img.youtube.com/vi/' +
-      encodeURIComponent(vid) +
-      '/maxresdefault.jpg" alt="CzechMate — představení produktu" width="1280" height="720" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'https://img.youtube.com/vi/' +
-      encodeURIComponent(vid) +
-      "/hqdefault.jpg'\">" +
-      "</div>";
   })();
 
   var toggle = document.querySelector("[data-nav-toggle]");
@@ -268,7 +178,7 @@
     });
   }
 
-  /* Přímé stažení APK/DMG z nejnovějšího GitHub release (API → browser_download_url) */
+  /* Direct APK/DMG download from the latest GitHub release (API → browser_download_url) */
   (function initReleaseDownloadLinks() {
     var api =
       "https://api.github.com/repos/alfredkrutina/chess_esp32_c6_devkit/releases/latest";
@@ -314,7 +224,7 @@
         });
       })
       .catch(function () {
-        /* Fallback zůstane href z HTML (stránka release) */
+        /* Fallback keeps the HTML href (release page) */
       });
   })();
 
@@ -327,7 +237,7 @@
     });
   }
 
-  /* #czm-v2-welcome-video: scroll → přehrání; hover nic; klik → znovu od začátku; bez ovládací lišty. */
+  /* #czm-v2-welcome-video: scroll → play; no hover; click → replay from start; no controls bar. */
   (function initWelcomeV2PlayWhenVisible() {
     var v = document.getElementById("czm-v2-welcome-video");
     var media = v && v.closest(".welcome-v2__media");
@@ -435,7 +345,7 @@
     }
   })();
 
-  /* MP4: lazy + rozestup startu stahů (dva soubory nezačnou naráz). */
+  /* MP4: lazy + staggered download starts (two files do not begin at once). */
   (function initLazyLocalVideos() {
     var vids = document.querySelectorAll("video[data-lazy-local]");
     if (!vids.length) return;
@@ -506,10 +416,10 @@
       }
     });
 
-    /* Náhled #ai-kouc-app-preview je nad #app-phone-demo-video — MP4 načíst dřív než sjezd k přehrávači. */
+    /* Preview #ai-coach-app-preview sits above #app-phone-demo-video — load MP4 before scrolling to the player. */
     function bindAiKoucEarlyAppVideoLoad() {
       var appDemo = document.getElementById("app-phone-demo-video");
-      var aiKoucSection = document.getElementById("ai-kouc");
+      var aiKoucSection = document.getElementById("ai-coach");
       if (!appDemo || !aiKoucSection || !appDemo.hasAttribute("data-lazy-local")) return;
 
       function preloadAppDemoForPreview() {
@@ -572,11 +482,11 @@
     });
   })();
 
-  /* #ai-kouc-app-preview: snímek z MP4 v čase data-ai-preview-at (0–1, výchozí 0.52 — konec bývá černý/fade). */
+  /* #ai-coach-app-preview: frame from MP4 at data-ai-preview-at (0–1, default 0.52 — end is often black/fade). */
   (function initAiKoucVideoPreviewFrame() {
     var demo = document.getElementById("app-phone-demo-video");
-    var preview = document.getElementById("ai-kouc-app-preview");
-    var aiKoucSection = document.getElementById("ai-kouc");
+    var preview = document.getElementById("ai-coach-app-preview");
+    var aiKoucSection = document.getElementById("ai-coach");
     var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (!demo || !preview) return;
@@ -598,7 +508,7 @@
       } catch (eH) {}
     }
 
-    /* Záloha: pokud lazy-loader ještě neběžel, spustit zdroj při blížící se sekci AI kouč. */
+    /* Fallback: if the lazy-loader has not run yet, start the source as the AI coach section nears. */
     if (aiKoucSection && "IntersectionObserver" in window) {
       var capturePreloadIo = new IntersectionObserver(
         function (entries) {
@@ -672,13 +582,13 @@
           if (ctx) {
             ctx.drawImage(demo, 0, 0, w, h, 0, 0, outW, outH);
             preview.src = canv.toDataURL("image/jpeg", 0.82);
-            preview.alt = "CzechMate — AI kouč v aplikaci";
+            preview.alt = "CzechMate — AI coach in the app";
             done = true;
             var previewMedia = preview.closest("[data-video-media]");
             if (previewMedia) czVideoMedia.markReady(previewMedia);
           }
         } catch (e1) {
-          /* např. bezpečnostní kontext / poškozený zdroj */
+          /* e.g. security context / corrupted source */
         }
         resume();
       }
@@ -713,7 +623,7 @@
     }
   })();
 
-  /* Ukázka aplikace (#app-phone-demo-video): přehrávání když je video dostatečně vidět ve viewportu. */
+  /* App demo (#app-phone-demo-video): play when the video is sufficiently visible in the viewport. */
   (function initAppDemoVideoPlayWhenVisible() {
     var v = document.getElementById("app-phone-demo-video");
     if (
@@ -774,56 +684,68 @@
     io.observe(v);
   })();
 
-  /* LED loop (#deska-uci): nepauzovat — žádné ovládání, po pause okamžitě znovu přehrát. */
-  (function initLedLoopNoPause() {
-    var v = document.getElementById("czm-v2-led-loop-video");
-    if (!v || !v.hasAttribute("data-no-pause")) return;
-    v.controls = false;
+  /* Ambient product loops: hero reel + LED — no pause, no native UI. */
+  (function initAmbientLoopsNoPause() {
+    document.querySelectorAll("video[data-no-pause]").forEach(function (v) {
+      v.controls = false;
 
-    function blockNativeVideoUi(ev) {
-      ev.preventDefault();
-    }
-    v.addEventListener("click", blockNativeVideoUi);
-    v.addEventListener("dblclick", blockNativeVideoUi);
-    v.addEventListener("contextmenu", blockNativeVideoUi);
-
-    var reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    function resumeIfAllowed() {
-      if (reduceMq.matches) return;
-      if (v.ended || !v.paused) return;
-      var pr = v.play();
-      if (pr && typeof pr.catch === "function") {
-        pr.catch(function () {});
+      function blockNativeVideoUi(ev) {
+        ev.preventDefault();
       }
-    }
+      v.addEventListener("click", blockNativeVideoUi);
+      v.addEventListener("dblclick", blockNativeVideoUi);
+      v.addEventListener("contextmenu", blockNativeVideoUi);
 
-    v.addEventListener("pause", resumeIfAllowed);
-    document.addEventListener("visibilitychange", function () {
-      if (!document.hidden) resumeIfAllowed();
+      var reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      function resumeIfAllowed() {
+        if (reduceMq.matches) return;
+        if (v.ended || !v.paused) return;
+        var pr = v.play();
+        if (pr && typeof pr.catch === "function") {
+          pr.catch(function () {});
+        }
+      }
+
+      v.addEventListener("pause", resumeIfAllowed);
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) resumeIfAllowed();
+      });
+      resumeIfAllowed();
     });
   })();
 
-  /* Ovládání videa: nativní panel až po kliknutí na samotné video */
+  /* Film cards: click to play/pause, never show the native control bar. */
+  (function initClickPlayFilms() {
+    document.querySelectorAll("video[data-click-play]").forEach(function (v) {
+      v.controls = false;
+      v.setAttribute("playsinline", "");
+      v.addEventListener("click", function () {
+        if (v.paused || v.ended) {
+          if (v.ended) {
+            try {
+              v.currentTime = 0;
+            } catch (eR) {}
+          }
+          var pr = v.play();
+          if (pr && typeof pr.catch === "function") {
+            pr.catch(function () {});
+          }
+        } else {
+          v.pause();
+        }
+      });
+    });
+  })();
+
+  /* Legacy class: still force controls off if present. */
   (function initVideoControlsOnClick() {
     document.querySelectorAll("video.split__video--controls-on-click").forEach(function (v) {
       v.controls = false;
-      function revealControls() {
-        if (v.controls) return;
-        v.controls = true;
-        v.removeEventListener("click", revealControls);
-        if (v.getAttribute("tabindex") === "-1") {
-          v.setAttribute("tabindex", "0");
-        }
-        try {
-          v.focus();
-        } catch (eF) {}
-      }
-      v.addEventListener("click", revealControls);
     });
   })();
 
-  /* Modal předobjednávky (<dialog>) */
+  /* Pre-order modal (<dialog>) */
   var preorderDlg = document.getElementById("preorder-dialog");
   var preorderAnim = bindAnimatedModal(
     preorderDlg && typeof preorderDlg.showModal === "function"
@@ -849,7 +771,7 @@
       }
     });
   } else if (openPreorder && preorderDlg) {
-    /* Fallback bez nativního <dialog> */
+    /* Fallback without native <dialog> */
     openPreorder.addEventListener("click", function () {
       preorderDlg.setAttribute("open", "");
       preorderDlg.style.display = "block";
@@ -862,7 +784,7 @@
     }
   }
 
-  /* Detail funkcí — modální okno (karty v sekci Aplikace) */
+  /* Feature details — modal (cards in the App section) */
   (function initFeatureDetailModal() {
     function feIcon(pathsD) {
       return (
@@ -904,234 +826,234 @@
 
     var FEATURE_PAGES = {
       hints: {
-        title: "Nápovědy a výukové režimy",
+        title: "Hints and learning modes",
         intro:
-          "Světla na polích a aplikace říkají totéž: nemusíš překládat pozici z hlavy.",
+          "Lights on the squares and the app say the same thing: you do not have to translate the position in your head.",
         blocks: [
           {
             icon: feIcon(ic.sun),
-            heading: "Co ti deska ukáže na místě",
+            heading: "What the board shows on the spot",
             text:
-              "Hall senzory poznají typ figurky na poli. LED ti pomůže u doporučeného tahu, šachu i matu, u promocí a při návratu pozornosti ke správné figurce. V aplikaci máš stejnou pozici s textem a analýzou.",
+              "Hall sensors recognize the piece type on each square. LEDs help with suggested moves, check and mate, promotions, and bringing attention back to the right piece. In the app you get the same position with text and analysis.",
           },
           {
             icon: feIcon(ic.layers),
-            heading: "Jedna partie, dvě obrazovky",
+            heading: "One game, two screens",
             text:
-              "Historie tahů a výukové režimy v aplikaci kopírují stav z desky. Žádný „diagram vedle reality“, který by neodpovídal figurkám.",
+              "Move history and learning modes in the app mirror the board state. No “diagram beside reality” that does not match the pieces.",
           },
           {
             icon: feIcon(ic.book),
-            heading: "Pro začátečníky i pokročilé",
+            heading: "For beginners and advanced players",
             text:
-              "Začátečník vidí jasné signály na desce. Pokročilejší si v aplikaci může stáhnout hlubší rozbor nebo kouče. Jedna soustava roste s úrovní bez přehazování nástrojů.",
+              "Beginners see clear signals on the board. More advanced players can open deeper analysis or the coach in the app. One system grows with your level without swapping tools.",
           },
         ],
       },
       analysis: {
-        title: "Analýza a Stockfish",
+        title: "Analysis and Stockfish",
         intro:
-          "Motor Stockfish doplní partii hodnocením a návrhy tahů; sílu si nastavíš podle úrovně.",
+          "The Stockfish engine adds evaluations and move suggestions; you set strength to your level.",
         blocks: [
           {
             icon: feIcon(ic.gauge),
-            heading: "Silný motor, klidná výuka",
+            heading: "Strong engine, calm lessons",
             text:
-              "Stockfish má výkon nad lidský vrchol. V CzechMate z něj bereš hodnocení pozice a návrhy tahů, ale můžeš zvolit slabší linii, aby šlo o učení, ne o sérii jednostranných výsledků.",
+              "Stockfish performs above the human ceiling. In CzechMate you get position evaluations and move suggestions, but you can pick a weaker line so it stays about learning, not a streak of one-sided results.",
           },
           {
             icon: feIcon(ic.list),
-            heading: "Rozbor po partii i příprava",
+            heading: "Post-game review and prep",
             text:
-              "V aplikaci máš varianty, řádky analýzy a srovnání s vlastním tahem. Hodí se na přípravu i na rozbor po tréninku.",
+              "In the app you get variations, analysis lines, and a comparison with your own move. Useful for preparation and for review after training.",
           },
           {
             icon: feIcon(ic.cloud),
-            heading: "Stejná logika i z prohlížeče",
+            heading: "Same logic from a browser",
             text:
-              "S Wi‑Fi a webem na desce můžeš část výuky nebo hru proti motoru spustit z prohlížeče. Partie běží stejně, mění se jen klient.",
+              "With Wi‑Fi and the board web UI you can run part of a lesson or a game against the engine from a browser. The game runs the same; only the client changes.",
           },
         ],
       },
       stockfish_a: {
-        title: "Partie silnější než člověk",
+        title: "Games stronger than any human",
         intro:
-          "Soupeř silnější než kterýkoli živý hráč, ale nastavitelný tak, aby z partie něco zůstalo.",
+          "An opponent stronger than any living player, but tunable so the game still teaches you something.",
         blocks: [
           {
             icon: feIcon(ic.gauge),
-            heading: "Síla motoru pod kontrolou",
+            heading: "Engine strength under control",
             text:
-              "Stockfish v plné síle překoná každého živého hráče. Pro výuku ale zvolíš slabší linii a měkčí tempo, aby šlo číst hru a ne jen prohrávat.",
+              "Full-strength Stockfish beats every living player. For learning you pick a weaker line and a softer pace so you can read the game, not just lose.",
           },
           {
             icon: feIcon(ic.list),
-            heading: "Co z toho máš při učení",
+            heading: "What you get while learning",
             text:
-              "U tahů vidíš rozdíl mezi svojí volbou a návrhem motoru. Pro nácvik je často důležitější ten kontext než výsledek partie.",
+              "On each move you see the gap between your choice and the engine suggestion. For practice that context often matters more than the game result.",
           },
         ],
       },
       stockfish_b: {
-        title: "Orientační hodnocení",
+        title: "Rough evaluation",
         intro:
-          "Skóre z výpočtu pomůže číst nerovnováhu, nejlépe vedle variant v analýze.",
+          "A computed score helps you read the imbalance — best alongside variations in analysis.",
         blocks: [
           {
             icon: feIcon(ic.gauge),
-            heading: "Čísla jako pomůcka, ne jako ortel",
+            heading: "Numbers as a guide, not a verdict",
             text:
-              "Orientační skóre ukáže směr výhody na desce. Nejvíc platí ve střední hře a koncovkách, kde drobnosti vyrostou až po několika tazích.",
+              "A rough score shows the direction of advantage on the board. It matters most in the middlegame and endgames, where small details grow over several moves.",
           },
           {
             icon: feIcon(ic.list),
-            heading: "Vždy s kontextem tahů",
+            heading: "Always with move context",
             text:
-              "Hodnocení dává smysl vedle variant a řádků analýzy. Samotné číslo bez plánu na několik tahů dopředu málokdy stačí.",
+              "Evaluation makes sense next to variations and analysis lines. A bare number without a multi-move plan rarely helps enough.",
           },
         ],
       },
       stockfish_c: {
-        title: "Propojení deska ↔ aplikace",
+        title: "Board ↔ app linked",
         intro:
-          "Firmware drží pravdu o pozici; deska, web i aplikace jen čtou stejný stav.",
+          "Firmware holds the truth about the position; board, web, and app only read the same state.",
         blocks: [
           {
             icon: feIcon(ic.layers),
-            heading: "Jedna pozice všude",
+            heading: "One position everywhere",
             text:
-              "LED, webové rozhraní i mobil ukazují totéž. Hall senzory ví, jaká figurka stojí kde, takže výuka na světlech a text na displeji sedí na skutečnou šachovnici.",
+              "LEDs, the web UI, and the phone show the same thing. Hall sensors know which piece stands where, so lessons on the lights and text on the display match the real chessboard.",
           },
           {
             icon: feIcon(ic.sync),
-            heading: "Bluetooth nebo síť",
+            heading: "Bluetooth or network",
             text:
-              "Nablízku často BLE. Doma nebo ve škole i Wi‑Fi a spojení přes HTTP nebo WebSocket, kde to firmware nabízí. Měníš klienta, ne pravidla partie.",
+              "Nearby, BLE is often enough. At home or school you can also use Wi‑Fi and HTTP or WebSocket where firmware offers it. You change the client, not the game rules.",
           },
         ],
       },
       coach: {
-        title: "AI kouč / chat",
+        title: "AI coach / chat",
         intro:
-          "Dotazy u aktuální pozice: plán, chyby i strategie. Jak hluboko jde výklad, závisí na nastavení.",
+          "Questions on the current position: plan, mistakes, and strategy. How deep the explanation goes depends on your settings.",
         blocks: [
           {
             icon: feIcon(ic.chat),
-            heading: "Konverzace u partie",
+            heading: "Conversation at the board",
             text:
-              "Kouč reaguje na plány, chyby i obecné dotazy. Nastavíš si styl výkladu od školního klidu po klubovou hloubku.",
+              "The coach responds to plans, mistakes, and general questions. Set the explanation style from classroom-calm to club-level depth.",
           },
           {
             icon: feIcon(ic.cloud),
-            heading: "Asistent podle prostředí",
+            heading: "Assistant for your environment",
             text:
-              "V nastavení lze napojit cloud nebo vlastní řešení podle pravidel školy nebo domova. Bez sítě zůstane základní offline nápověda z vestavěných šachových rad.",
+              "In settings you can connect cloud or a local option that fits school or home rules. Offline, basic offline hints from built-in chess tips remain available.",
           },
           {
             icon: feIcon(ic.shield),
-            heading: "Škola a soukromí",
+            heading: "School and privacy",
             text:
-              "U cloudových služeb platí jejich podmínky a bezpečnost. Ve škole má smysl mít dopředu vyřešeného poskytovatele a účty podle vašich pravidel.",
+              "Cloud services follow their own terms and security. In a school it makes sense to decide on a provider and accounts under your rules ahead of time.",
           },
         ],
       },
       connect: {
-        title: "Připojení k desce",
+        title: "Connect to the board",
         intro:
-          "V jedné místnosti Bluetooth; doma nebo ve třídě často Wi‑Fi a známá IP v síti.",
+          "In one room, Bluetooth; at home or in class, often Wi‑Fi and a known IP on the network.",
         blocks: [
           {
             icon: feIcon(ic.bluetooth),
-            heading: "Bluetooth na dosah",
+            heading: "Bluetooth within reach",
             text:
-              "BLE stačí typicky v jedné místnosti a bez řešení IP. Partie a příkazy jedou jako u jiných zařízení v dosahu.",
+              "BLE typically covers one room with no IP setup. Games and commands work like other nearby devices.",
           },
           {
             icon: feIcon(ic.wifi),
-            heading: "Wi‑Fi v LAN",
+            heading: "Wi‑Fi on the LAN",
             text:
-              "V režimu klienta v síti aplikace komunikuje s deskou přes HTTP nebo WebSocket, kde to firmware nabízí. Běžné scénáře: domácnost, klubovna, učebna.",
+              "In network client mode the app talks to the board over HTTP or WebSocket where firmware offers it. Common scenes: home, club room, classroom.",
           },
           {
             icon: feIcon(ic.sync),
-            heading: "Stav vždy ze šachovnice",
+            heading: "State always from the board",
             text:
-              "Pravda o pozici žije ve firmwaru. LED a aplikace jen zobrazují totéž; krátké odchylky mohou nastat jen při animacích na desce.",
+              "Truth about the position lives in firmware. LEDs and the app only display the same thing; short mismatches can happen only during board animations.",
           },
         ],
       },
       webui: {
-        title: "Web na desce",
+        title: "Board web UI",
         intro:
-          "Zadej IP desky v prohlížeči a dostaneš rozhraní bez instalace dalšího programu.",
+          "Enter the board IP in a browser and get an interface without installing another program.",
         blocks: [
           {
             icon: feIcon(ic.globe),
-            heading: "Rozhraní z prohlížeče",
+            heading: "Browser interface",
             text:
-              "Na desce běží HTTP server. Výuku, nastavení i hru otevřeš z adresy šachovnice v prohlížeči — vhodné třeba v učebně na zařízení bez instalace aplikace.",
+              "An HTTP server runs on the board. Open lessons, settings, and play from the board’s address in a browser — handy in a classroom on devices without the app installed.",
           },
           {
             icon: feIcon(ic.wifi),
-            heading: "Stejná výuka přes kabel i bez",
+            heading: "Same lessons with or without a cable",
             text:
-              "Při stabilní síti jde motor i výuka z prohlížeče podobně jako z mobilní aplikace.",
+              "On a stable network, engine play and lessons from the browser work much like the mobile app.",
           },
           {
             icon: feIcon(ic.layers),
-            heading: "Web i mobil na stejném API",
+            heading: "Web and mobile on the same API",
             text:
-              "Mobil, web i vlastní nástroje mohou použít stejné REST API. WebSocket je tam, kde ho firmware vystaví.",
+              "Phone, web, and custom tools can use the same REST API. WebSocket is available where firmware exposes it.",
           },
         ],
       },
       ota: {
-        title: "Flash přímo z aplikace",
+        title: "Flash from the app",
         intro:
-          "Firmware desky nahraješ z aplikace bez programátoru a bez kabelů k čipu.",
+          "Upload board firmware from the app with no programmer and no cables to the chip.",
         blocks: [
           {
             icon: feIcon(ic.download),
-            heading: "Aktualizace bez laboratoře",
+            heading: "Updates without a lab bench",
             text:
-              "Nový firmware z aplikace po Wi‑Fi nebo v některých postupech po částech přes BLE. Na běžný update nepotřebuješ UART ani externí flasher.",
+              "New firmware from the app over Wi‑Fi, or in some flows in chunks over BLE. A normal update needs neither UART nor an external flasher.",
           },
           {
             icon: feIcon(ic.led),
-            heading: "Vidíš průběh na LED",
+            heading: "Watch progress on the LEDs",
             text:
-              "OTA jde sledovat přímo na šachovnici. Po dokončení deska naběhne do nové verze ve flash.",
+              "You can follow OTA on the chessboard itself. When it finishes, the board boots into the new flash version.",
           },
           {
             icon: feIcon(ic.chip),
-            heading: "Více způsobů dodání souboru",
+            heading: "Several ways to deliver the file",
             text:
-              "Podle dostupnosti desky jde firmware stáhnout po HTTPS z internetu, přes HTTP z telefonu v síti nebo po částech přes BLE.",
+              "Depending on board availability, firmware can download over HTTPS from the internet, over HTTP from a phone on the network, or in chunks over BLE.",
           },
         ],
       },
       opensource: {
-        title: "Open source ekosystém",
+        title: "Open-source ecosystem",
         intro:
-          "Software na GitHubu si můžeš prohlédnout a upravit podle licencí. Hardware zůstává u autorů.",
+          "Software on GitHub is yours to inspect and adapt under the licenses. Hardware stays with me.",
         blocks: [
           {
             icon: feIcon(ic.branch),
-            heading: "Firmware a aplikace veřejně",
+            heading: "Firmware and app are public",
             text:
-              "Zdrojáky firmware a klienta jsou v repozitáři. Jak přesně je smíš použít, říká licence v projektu.",
+              "Firmware and client sources live in the repository. Exact reuse rights are set by the project license.",
           },
           {
             icon: feIcon(ic.book),
-            heading: "Školy a kluby",
+            heading: "Schools and clubs",
             text:
-              "Můžeš přidat vlastní výukové texty, překlady nebo fork pro experimenty, aniž bys čekal na centrální roadmapu (máš-li kapacitu vývoje).",
+              "You can add your own lesson texts, translations, or a fork for experiments without waiting on a central roadmap (if you have development capacity).",
           },
           {
             icon: feIcon(ic.shield),
-            heading: "Jak přispět zpět",
+            heading: "How to contribute back",
             text:
-              "Větší změny projdou review. Issue nebo pull request pomůže stejně dalším učitelům a vývojářům v komunitě.",
+              "Larger changes go through review. An issue or pull request helps other teachers and developers in the community too.",
           },
         ],
       },
@@ -1261,7 +1183,7 @@
     }
   })();
 
-  /* Scroll reveal (fade-up při vstupu do viewportu; bez JS / reduced motion = obsah viditelný hned) */
+  /* Scroll reveal (fade-up on enter viewport; without JS / reduced motion = content visible immediately) */
   (function initScrollReveal() {
     var nodes = document.querySelectorAll(".reveal, .reveal-stagger");
     if (!nodes.length) return;

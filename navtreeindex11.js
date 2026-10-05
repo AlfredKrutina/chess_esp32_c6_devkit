@@ -1,5 +1,7 @@
 var NAVTREEINDEX11 =
 {
+"ota__update_8c.html#a82ddd3944b12b0e7c1470489924799ad":[3,0,0,22,3,20],
+"ota__update_8c.html#a83cac12df33215375d8151d0675b866b":[3,0,0,22,3,33],
 "ota__update_8c.html#a845dc9970f3f614fe724b60e07824266":[3,0,0,22,3,25],
 "ota__update_8c.html#a87f17a4d196f17cf70e6a399e80c1c28":[3,0,0,22,3,15],
 "ota__update_8c.html#a88acbd3d46c17168c091474faddfccce":[3,0,0,22,3,32],
@@ -247,7 +249,5 @@ var NAVTREEINDEX11 =
 "structanimation__state__struct.html#acfa60f737ed316b1a06fd9264aa00ff0":[2,0,2,6],
 "structanimation__state__struct.html#ae0a72eacc1d16227ba69fba467a0529e":[2,0,2,24],
 "structanimation__state__struct.html#ae43d0e2f19d7e6218a15ab7ea4b3fa64":[2,0,2,4],
-"structanimation__state__struct.html#aed20e632452d2ee9dc9dfa0a55fc27d8":[2,0,2,5],
-"structanimation__task__t.html":[2,0,3],
-"structanimation__task__t.html#a0b2f1d684a7d68b707b1372684d1e9f2":[2,0,3,2]
+"structanimation__state__struct.html#aed20e632452d2ee9dc9dfa0a55fc27d8":[2,0,2,5]
 };

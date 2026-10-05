@@ -1,6 +1,6 @@
 var indexSectionsWithContent =
 {
-  0: "_abcdefghijklmnopqrstuvwz",
+  0: "_abcdefghijklmnopqrstuvw",
   1: "abcefghiklmnoprstuw",
   2: "abcdefghlmoprstuvw",
   3: "_abcdefghijlmnoprstuvw",
@@ -9,7 +9,7 @@ var indexSectionsWithContent =
   6: "abceghlmopstuvw",
   7: "abceghlmoprstuw",
   8: "abcfghijlmoprstuw",
-  9: "pswz"
+  9: "dlw"
 };
 
 var indexSectionNames =
@@ -28,15 +28,15 @@ var indexSectionNames =
 
 var indexSectionLabels =
 {
-  0: "Vše",
-  1: "Datové struktury",
-  2: "Soubory",
-  3: "Funkce",
-  4: "Proměnné",
-  5: "Definice typů",
-  6: "Výčty",
-  7: "Hodnoty výčtu",
-  8: "Definice maker",
-  9: "Stránky"
+  0: "All",
+  1: "Data Structures",
+  2: "Files",
+  3: "Functions",
+  4: "Variables",
+  5: "Typedefs",
+  6: "Enumerations",
+  7: "Enumerator",
+  8: "Macros",
+  9: "Pages"
 };
 

@@ -26,25 +26,25 @@ var NAVTREE =
 [
   [ "CZECHMATE", "index.html", [
     [ "web_server_task", "index.html", "index" ],
-    [ "Seznam zastaralých prvků", "deprecated.html", null ],
-    [ "Datové struktury", "annotated.html", [
-      [ "Datové struktury", "annotated.html", "annotated_dup" ],
-      [ "Rejstřík datových struktur", "classes.html", null ],
-      [ "Datové položky", "functions.html", [
-        [ "Vše", "functions.html", "functions_dup" ],
-        [ "Proměnné", "functions_vars.html", "functions_vars" ]
+    [ "Deprecated List", "deprecated.html", null ],
+    [ "Data Structures", "annotated.html", [
+      [ "Data Structures", "annotated.html", "annotated_dup" ],
+      [ "Data Structure Index", "classes.html", null ],
+      [ "Data Fields", "functions.html", [
+        [ "All", "functions.html", "functions_dup" ],
+        [ "Variables", "functions_vars.html", "functions_vars" ]
       ] ]
     ] ],
-    [ "Soubory", "files.html", [
-      [ "Seznam souborů", "files.html", "files_dup" ],
-      [ "Globální symboly", "globals.html", [
-        [ "Vše", "globals.html", "globals_dup" ],
-        [ "Funkce", "globals_func.html", "globals_func" ],
-        [ "Proměnné", "globals_vars.html", "globals_vars" ],
-        [ "Definice typů", "globals_type.html", null ],
-        [ "Výčty", "globals_enum.html", null ],
-        [ "Hodnoty výčtu", "globals_eval.html", "globals_eval" ],
-        [ "Definice maker", "globals_defs.html", "globals_defs" ]
+    [ "Files", "files.html", [
+      [ "File List", "files.html", "files_dup" ],
+      [ "Globals", "globals.html", [
+        [ "All", "globals.html", "globals_dup" ],
+        [ "Functions", "globals_func.html", "globals_func" ],
+        [ "Variables", "globals_vars.html", "globals_vars" ],
+        [ "Typedefs", "globals_type.html", null ],
+        [ "Enumerations", "globals_enum.html", null ],
+        [ "Enumerator", "globals_eval.html", "globals_eval" ],
+        [ "Macros", "globals_defs.html", "globals_defs" ]
       ] ]
     ] ]
   ] ]
@@ -59,19 +59,19 @@ var NAVTREEINDEX =
 "game__cmd__handlers_8c.html#a09408e7fee7146bd08512755a44f6bae",
 "game__move__exec_8c.html#a5ab63491e32394b086a3c916db195c31",
 "game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b",
-"game__task_8h.html#a94bb4afd94650885459c130f6c3a811d",
-"game__task__internal_8h.html#af9573718b1c9e531b771c3d938ff88e3",
-"hall__i2c__matrix_8h.html#a1c0da9412ee71010a4b199d6ca6fce49",
-"led__task_8c.html#aed864c4fd31d53e8498014ffda17dcc6",
-"ota__update_8c.html#a845dc9970f3f614fe724b60e07824266",
-"structanimation__task__t.html#a25f85a5720a2bd7add2c2423f84cbee4",
-"structgame__snapshot__min__t.html#a84c1c7fe22da7613b53b1645d211b725",
-"structtest__suite__t.html#ada7927aa2f5abc47a2eb6d0ba47a79b8",
-"uart__cli__panel_8h_source.html",
-"uart__task_8c.html#ad769b94f8ae1483e3b5018b93c19fe3b",
-"unified__animation__manager_8h.html#a7e703c09ba390bb0306ced9d307690dfa929893df03abbb9a2f60e74ddabefbe2",
-"web__server__task_8c.html#a5e0371ac7e6487deb1cc347871101661"
+"game__task_8h.html#a93dee8ccd518ae0092501007a420e4bb",
+"game__task__internal_8h.html#af54fe97fc72c8bb8cdd95225e554599c",
+"hall__i2c__matrix_8c_source.html",
+"led__task_8c.html#ae9ca69874a3fd0ef1b1aea542f0ce0cf",
+"ota__update_8c.html#a82ddd3944b12b0e7c1470489924799ad",
+"structanimation__task__t.html",
+"structgame__snapshot__min__t.html#a82c1c5ae78f12b48098ebe3a2be8f913",
+"structtest__suite__t.html#aa45aadb094d68d71e4f3b8f5ef2d08c9",
+"uart__cli__panel_8c_source.html",
+"uart__task_8c.html#ad4eba791e9c70bcdc5084bda677d813e",
+"unified__animation__manager_8h.html#a7e703c09ba390bb0306ced9d307690dfa8c45a77c12dfce36851aa4c537e7e423",
+"web__server__task_8c.html#a58d5a2d96673c5a9255d3f2ac489ba91"
 ];
 
-var SYNCONMSG = 'zakázat synchronizaci panelů';
-var SYNCOFFMSG = 'povolit synchronizaci panelů';
+var SYNCONMSG = 'click to disable panel synchronisation';
+var SYNCOFFMSG = 'click to enable panel synchronisation';

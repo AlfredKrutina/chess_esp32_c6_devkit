@@ -85,7 +85,7 @@ var searchData=
   ['matrix_5fstate_82',['matrix_state',['../matrix__task_8c.html#a3a1805bac344d932f67d863f671240d1',1,'matrix_task.c']]],
   ['matrix_5ftask_2ec_83',['matrix_task.c',['../matrix__task_8c.html',1,'']]],
   ['matrix_5ftask_2eh_84',['matrix_task.h',['../matrix__task_8h.html',1,'']]],
-  ['matrix_5ftask_5fhandle_85',['matrix_task_handle',['../freertos__chess_8h.html#a9de1b87e0b6692c90f1c5cfd9e13d444',1,'matrix_task_handle:&#160;main.c'],['../main_8c.html#a9de1b87e0b6692c90f1c5cfd9e13d444',1,'matrix_task_handle:&#160;main.c'],['../uart__task_8c.html#a9de1b87e0b6692c90f1c5cfd9e13d444',1,'matrix_task_handle:&#160;main.c']]],
+  ['matrix_5ftask_5fhandle_85',['matrix_task_handle',['../uart__task_8c.html#a9de1b87e0b6692c90f1c5cfd9e13d444',1,'matrix_task_handle:&#160;main.c'],['../main_8c.html#a9de1b87e0b6692c90f1c5cfd9e13d444',1,'matrix_task_handle:&#160;main.c'],['../freertos__chess_8h.html#a9de1b87e0b6692c90f1c5cfd9e13d444',1,'matrix_task_handle:&#160;main.c']]],
   ['matrix_5ftask_5fpriority_86',['MATRIX_TASK_PRIORITY',['../freertos__chess_8h.html#ab8ed4eae602e4b2be89befb487b83d26',1,'freertos_chess.h']]],
   ['matrix_5ftask_5fstack_5fsize_87',['MATRIX_TASK_STACK_SIZE',['../freertos__chess_8h.html#a71a39cddac7f169064d88214a759deb8',1,'freertos_chess.h']]],
   ['matrix_5ftask_5fstart_88',['matrix_task_start',['../matrix__task_8c.html#a61e7f4685d87d40d712b5de9b8d22222',1,'matrix_task_start(void *pvParameters):&#160;matrix_task.c'],['../matrix__task_8h.html#a61e7f4685d87d40d712b5de9b8d22222',1,'matrix_task_start(void *pvParameters):&#160;matrix_task.c']]],
@@ -171,7 +171,9 @@ var searchData=
   ['mqtt_5fnvs_5fkey_5fusername_168',['MQTT_NVS_KEY_USERNAME',['../ha__light__task_8c.html#aeeff4bcf4d1d0b27a9da374befe7bc8d',1,'ha_light_task.c']]],
   ['mqtt_5fnvs_5fnamespace_169',['MQTT_NVS_NAMESPACE',['../ha__light__task_8c.html#a296a7bbb8593405108b39d1ab6c0ecc6',1,'ha_light_task.c']]],
   ['mqtt_5fsave_5fconfig_5fto_5fnvs_170',['mqtt_save_config_to_nvs',['../ha__light__task_8c.html#ad116a346513e475c7ffe3e5137a18d0d',1,'mqtt_save_config_to_nvs(const char *host, uint16_t port, const char *username, const char *password):&#160;ha_light_task.c'],['../ha__light__task_8h.html#ad116a346513e475c7ffe3e5137a18d0d',1,'mqtt_save_config_to_nvs(const char *host, uint16_t port, const char *username, const char *password):&#160;ha_light_task.c']]],
-  ['mutex_171',['mutex',['../structled__state__t.html#a90d938528de22889c8fe760576c40c3d',1,'led_state_t']]],
-  ['mutex_5ftimeouts_172',['mutex_timeouts',['../structstreaming__stats__t.html#a0e9598ecf82660615a899a243c1e191b',1,'streaming_stats_t::mutex_timeouts'],['../structled__health__stats__t.html#a0b88add05c5826b2ae3d9058187f0444',1,'led_health_stats_t::mutex_timeouts']]],
-  ['mutexy_173',['mutexy',['../led__task_8c.html#autotoc_md34',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)'],['../game__task_8c.html#autotoc_md16',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)'],['../uart__task_8c.html#autotoc_md64',1,'KOMUNIKACE (FIFOS &amp; MUTEXY)']]]
+  ['ms_171',['ms',['../game__task_8c.html#a7561e552aa6bb8c9b1deeb7114a37250',1,'game_task.c']]],
+  ['mutex_172',['mutex',['../structled__state__t.html#a90d938528de22889c8fe760576c40c3d',1,'led_state_t']]],
+  ['mutex_5ftimeouts_173',['mutex_timeouts',['../structled__health__stats__t.html#a0b88add05c5826b2ae3d9058187f0444',1,'led_health_stats_t::mutex_timeouts'],['../structstreaming__stats__t.html#a0e9598ecf82660615a899a243c1e191b',1,'streaming_stats_t::mutex_timeouts']]],
+  ['mutexes_174',['mutexes',['../game__task_8c.html#autotoc_md16',1,'COMMUNICATION (FIFOS &amp; MUTEXES)'],['../uart__task_8c.html#autotoc_md64',1,'COMMUNICATION (FIFOS &amp; MUTEXES)']]],
+  ['mutexy_175',['COMMUNICATION (FIFOS &amp; MUTEXY)',['../led__task_8c.html#autotoc_md34',1,'']]]
 ];

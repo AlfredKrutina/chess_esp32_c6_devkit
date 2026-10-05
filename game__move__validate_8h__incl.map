@@ -1,6 +1,6 @@
 <map id="game_move_validate.h" name="game_move_validate.h">
 <area shape="rect" id="Node000001" title="Move validation (internal to game_task component)." alt="" coords="371,5,545,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="354,79,469,104"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="354,79,469,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="453,32,429,69,424,66,448,30"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="534,152,617,177"/>
 <area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="470,29,559,140,555,143,466,33"/>

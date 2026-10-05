@@ -2,9 +2,9 @@
 <area shape="rect" id="Node000001" title="Timer system integration wrappers and timeout handling." alt="" coords="838,5,949,31"/>
 <area shape="rect" id="Node000002" href="$game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="631,86,793,111"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="868,33,752,83,750,78,866,28"/>
-<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="428,167,535,192"/>
+<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="428,167,535,192"/>
 <area shape="poly" id="edge28_Node000001_Node000011" title=" " alt="" coords="838,27,734,45,676,60,620,81,587,98,555,119,505,159,502,155,552,115,584,94,617,76,674,55,733,40,837,22"/>
-<area shape="rect" id="Node000014" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="977,167,1106,192"/>
+<area shape="rect" id="Node000014" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="977,167,1106,192"/>
 <area shape="poly" id="edge29_Node000001_Node000014" title=" " alt="" coords="885,32,870,50,858,73,852,96,853,107,858,117,879,138,905,154,934,165,964,171,962,176,933,170,903,159,876,143,854,120,848,108,846,96,853,71,866,47,880,29"/>
 <area shape="rect" id="Node000017" title=" " alt="" coords="868,79,1047,119"/>
 <area shape="poly" id="edge41_Node000001_Node000017" title=" " alt="" coords="905,29,935,66,931,70,901,33"/>
@@ -12,7 +12,7 @@
 <area shape="poly" id="edge42_Node000001_Node000018" title=" " alt="" coords="926,28,1069,79,1067,84,924,33"/>
 <area shape="rect" id="Node000019" title=" " alt="" coords="1180,86,1279,111"/>
 <area shape="poly" id="edge43_Node000001_Node000019" title=" " alt="" coords="949,27,1052,48,1169,76,1181,80,1180,85,1167,81,1050,54,948,33"/>
-<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="253,247,368,273"/>
+<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="253,247,368,273"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="631,110,526,130,470,147,417,169,369,203,331,239,327,235,365,198,415,164,468,142,525,125,630,105"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="1013,328,1163,353"/>
 <area shape="poly" id="edge8_Node000002_Node000005" title=" " alt="" coords="793,109,856,116,992,119,1218,122,1336,126,1440,134,1520,146,1548,154,1564,165,1585,193,1592,223,1586,252,1567,282,1548,293,1513,302,1411,318,1177,337,1177,332,1410,312,1512,297,1546,288,1563,278,1581,250,1587,223,1580,195,1561,169,1545,159,1519,151,1440,139,1335,131,1218,127,992,124,856,121,792,114"/>
@@ -43,7 +43,7 @@
 <area shape="poly" id="edge18_Node000011_Node000010" title=" " alt="" coords="524,189,717,241,716,246,523,195"/>
 <area shape="rect" id="Node000012" title=" " alt="" coords="861,247,979,273"/>
 <area shape="poly" id="edge17_Node000011_Node000012" title=" " alt="" coords="536,185,678,206,850,237,867,241,866,247,849,243,677,211,535,190"/>
-<area shape="rect" id="Node000013" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="51,240,229,280"/>
+<area shape="rect" id="Node000013" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="51,240,229,280"/>
 <area shape="poly" id="edge21_Node000011_Node000013" title=" " alt="" coords="432,195,236,239,235,234,431,189"/>
 <area shape="poly" id="edge24_Node000013_Node000004" title=" " alt="" coords="173,278,240,319,237,323,170,282"/>
 <area shape="poly" id="edge23_Node000013_Node000007" title=" " alt="" coords="204,277,354,321,352,327,203,283"/>

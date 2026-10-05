@@ -1,5 +1,7 @@
 var NAVTREEINDEX8 =
 {
+"game__task__internal_8h.html#af54fe97fc72c8bb8cdd95225e554599c":[3,0,0,8,0,10,135],
+"game__task__internal_8h.html#af81491a006e7a193e8fd657043851221":[3,0,0,8,0,10,129],
 "game__task__internal_8h.html#af9573718b1c9e531b771c3d938ff88e3":[3,0,0,8,0,10,13],
 "game__task__internal_8h.html#afb3b2e18e26654ce6ceb6b8ff455ad69":[3,0,0,8,0,10,60],
 "game__task__internal_8h.html#afc75720af79d21406b4818da5d502fe0":[3,0,0,8,0,10,35],
@@ -26,14 +28,14 @@ var NAVTREEINDEX8 =
 "game__timer_8c.html#af09ae67f3a64e8d2865bac5eb0d7e3ca":[3,0,0,8,25,5],
 "game__timer_8c.html#af61ca7975c281efd16bd95628b65bd5e":[3,0,0,8,25,6],
 "game__timer_8c_source.html":[3,0,0,8,25],
-"globals.html":[3,1,0],
 "globals.html":[3,1,0,0],
+"globals.html":[3,1,0],
 "globals_a.html":[3,1,0,1],
 "globals_b.html":[3,1,0,2],
 "globals_c.html":[3,1,0,3],
 "globals_d.html":[3,1,0,4],
-"globals_defs.html":[3,1,6],
 "globals_defs.html":[3,1,6,0],
+"globals_defs.html":[3,1,6],
 "globals_defs_b.html":[3,1,6,1],
 "globals_defs_c.html":[3,1,6,2],
 "globals_defs_f.html":[3,1,6,3],
@@ -247,7 +249,5 @@ var NAVTREEINDEX8 =
 "hall__i2c__matrix_8c.html":[3,0,0,12,1],
 "hall__i2c__matrix_8c.html#a1c0da9412ee71010a4b199d6ca6fce49":[3,0,0,12,1,2],
 "hall__i2c__matrix_8c.html#a79e2c10b7f88ffac1cc91c61595082e0":[3,0,0,12,1,0],
-"hall__i2c__matrix_8c.html#a7fe369cc1c3663b67df0e78d78e14e85":[3,0,0,12,1,1],
-"hall__i2c__matrix_8c_source.html":[3,0,0,12,1],
-"hall__i2c__matrix_8h.html":[3,0,0,12,0,0]
+"hall__i2c__matrix_8c.html#a7fe369cc1c3663b67df0e78d78e14e85":[3,0,0,12,1,1]
 };

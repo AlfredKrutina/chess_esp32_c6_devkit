@@ -1,5 +1,5 @@
 <map id="led_task_simple.h" name="led_task_simple.h">
-<area shape="rect" id="Node000001" title="Jednoduchy LED system &#45; Bezpecne rozhrani z vice vlaken." alt="" coords="275,5,415,31"/>
+<area shape="rect" id="Node000001" title="Simple LED system &#45; Safe multi&#45;fiber interface." alt="" coords="275,5,415,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="297,33,100,80,99,75,296,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="111,79,261,104"/>

@@ -1,5 +1,5 @@
 <map id="ota_update.h" name="ota_update.h">
-<area shape="rect" id="Node000001" title="OTA: HTTPS/HTTP z URL, nebo stream přes BLE (chunky na CMD char)." alt="" coords="191,5,298,31"/>
+<area shape="rect" id="Node000001" title="OTA: HTTPS/HTTP from URL, or stream via BLE (chunks on CMD char)." alt="" coords="191,5,298,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,33,92,76,91,71,212,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="111,79,248,104"/>

@@ -1,5 +1,5 @@
 <map id="shared_buffer_pool.h" name="shared_buffer_pool.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System &#45; Hlavicka Shared Buffer Poolu." alt="" coords="117,5,276,31"/>
+<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System &#45; Shared Buffer Pool header." alt="" coords="117,5,276,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,33,84,75,82,70,171,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="111,79,186,104"/>

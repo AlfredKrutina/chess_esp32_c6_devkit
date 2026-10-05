@@ -4,17 +4,17 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1592,26,695,93,694,88,1592,21"/>
 <area shape="rect" id="Node000005" title=" " alt="" coords="5,328,156,353"/>
 <area shape="poly" id="edge61_Node000001_Node000005" title=" " alt="" coords="1592,23,1337,28,974,38,608,55,455,67,340,81,290,87,246,89,168,92,134,99,102,112,70,134,39,168,24,195,21,220,27,247,38,279,48,299,61,316,57,319,43,302,33,281,22,248,16,221,19,194,34,165,67,130,99,107,133,93,168,87,246,84,290,82,339,76,454,62,607,50,974,33,1337,22,1592,17"/>
-<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Hlavicka." alt="" coords="546,167,653,192"/>
+<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="546,167,653,192"/>
 <area shape="poly" id="edge31_Node000001_Node000011" title=" " alt="" coords="1592,31,667,171,666,165,1591,26"/>
 <area shape="rect" id="Node000014" href="$game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="87,167,237,192"/>
 <area shape="poly" id="edge28_Node000001_Node000014" title=" " alt="" coords="1592,23,1052,41,737,58,605,69,506,81,422,99,339,121,206,164,205,159,338,116,421,94,506,76,605,63,736,53,1052,35,1592,18"/>
 <area shape="rect" id="Node000015" href="$chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="1213,167,1399,192"/>
 <area shape="poly" id="edge32_Node000001_Node000015" title=" " alt="" coords="1628,33,1344,163,1342,158,1625,28"/>
-<area shape="rect" id="Node000016" href="$matrix__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Hlavicka." alt="" coords="1746,79,1909,119"/>
+<area shape="rect" id="Node000016" href="$matrix__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1746,79,1909,119"/>
 <area shape="poly" id="edge36_Node000001_Node000016" title=" " alt="" coords="1678,28,1774,71,1772,76,1676,33"/>
-<area shape="rect" id="Node000020" href="$led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Hlavicka." alt="" coords="1581,79,1721,119"/>
+<area shape="rect" id="Node000020" href="$led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1581,79,1721,119"/>
 <area shape="poly" id="edge52_Node000001_Node000020" title=" " alt="" coords="1654,31,1654,65,1649,65,1649,31"/>
-<area shape="rect" id="Node000021" href="$led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapovani funkce." alt="" coords="2180,167,2299,192"/>
+<area shape="rect" id="Node000021" href="$led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="2180,167,2299,192"/>
 <area shape="poly" id="edge57_Node000001_Node000021" title=" " alt="" coords="1711,22,1812,40,1868,55,1922,76,1938,86,1949,97,1959,107,1974,116,2009,128,2058,141,2167,163,2166,168,2057,146,2007,134,1972,121,1955,111,1945,101,1935,90,1919,81,1866,60,1811,45,1711,28"/>
 <area shape="rect" id="Node000022" title=" " alt="" coords="1984,86,2068,111"/>
 <area shape="poly" id="edge59_Node000001_Node000022" title=" " alt="" coords="1712,26,1829,47,1965,76,1978,79,1977,85,1964,81,1828,52,1711,31"/>
@@ -22,7 +22,7 @@
 <area shape="poly" id="edge60_Node000001_Node000023" title=" " alt="" coords="1711,22,1878,41,1980,57,2081,76,2095,80,2094,85,2080,81,1979,62,1878,47,1711,27"/>
 <area shape="rect" id="Node000024" title=" " alt="" coords="2216,86,2287,111"/>
 <area shape="poly" id="edge62_Node000001_Node000024" title=" " alt="" coords="1711,18,1807,22,1930,32,2067,49,2204,76,2214,79,2212,84,2203,81,2066,55,1929,37,1806,28,1711,23"/>
-<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="321,247,435,273"/>
+<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="321,247,435,273"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="585,114,407,241,404,237,582,109"/>
 <area shape="poly" id="edge8_Node000002_Node000005" title=" " alt="" coords="518,107,389,115,244,128,121,146,79,157,57,169,47,185,41,203,43,243,54,282,70,315,65,317,49,284,37,244,36,202,42,182,54,165,77,152,119,141,243,123,389,110,518,101"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="247,328,376,353"/>
@@ -52,7 +52,7 @@
 <area shape="poly" id="edge18_Node000011_Node000010" title=" " alt="" coords="653,182,853,202,979,217,1106,237,1127,242,1126,247,1106,243,979,223,852,207,653,187"/>
 <area shape="rect" id="Node000012" title=" " alt="" coords="763,247,881,273"/>
 <area shape="poly" id="edge17_Node000011_Node000012" title=" " alt="" coords="633,189,778,240,776,245,631,195"/>
-<area shape="rect" id="Node000013" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System komponenta." alt="" coords="510,240,689,280"/>
+<area shape="rect" id="Node000013" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="510,240,689,280"/>
 <area shape="poly" id="edge21_Node000011_Node000013" title=" " alt="" coords="602,192,602,226,597,226,597,192"/>
 <area shape="poly" id="edge24_Node000013_Node000004" title=" " alt="" coords="689,274,708,277,1018,328,1018,333,707,283,688,280"/>
 <area shape="poly" id="edge23_Node000013_Node000007" title=" " alt="" coords="602,280,602,314,597,314,597,280"/>
@@ -65,7 +65,7 @@
 <area shape="poly" id="edge51_Node000016_Node000004" title=" " alt="" coords="1905,116,1969,138,1995,151,2011,165,2028,196,2035,225,2030,254,2010,282,1997,288,1971,294,1886,305,1630,322,1128,341,1128,335,1630,316,1886,299,1970,289,1995,283,2007,278,2025,252,2030,225,2023,198,2007,168,1992,155,1967,143,1903,121"/>
 <area shape="poly" id="edge50_Node000016_Node000007" title=" " alt="" coords="1847,117,1873,151,1897,195,1905,218,1907,241,1903,262,1890,282,1840,291,1721,300,1355,318,654,340,654,335,1355,312,1721,295,1839,286,1887,278,1898,260,1902,240,1900,219,1892,197,1868,154,1843,121"/>
 <area shape="poly" id="edge49_Node000016_Node000008" title=" " alt="" coords="1910,115,2040,145,2112,165,2130,195,2137,224,2131,253,2112,282,2084,296,2033,307,1886,324,1721,335,1589,341,1588,335,1721,330,1886,319,2032,302,2082,291,2108,278,2126,251,2132,224,2125,197,2108,169,2039,150,1908,121"/>
-<area shape="rect" id="Node000017" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Hlavni systemova hlavicka." alt="" coords="1424,167,1553,192"/>
+<area shape="rect" id="Node000017" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1424,167,1553,192"/>
 <area shape="poly" id="edge37_Node000016_Node000017" title=" " alt="" coords="1747,121,1552,166,1551,161,1746,116"/>
 <area shape="poly" id="edge39_Node000017_Node000003" title=" " alt="" coords="1424,193,1412,195,1273,207,1155,213,955,218,755,223,637,230,498,243,449,249,449,244,498,237,637,225,754,218,955,213,1155,208,1272,201,1411,189,1423,188"/>
 <area shape="poly" id="edge41_Node000017_Node000004" title=" " alt="" coords="1491,193,1485,236,1475,261,1458,282,1434,297,1399,309,1309,326,1212,336,1128,340,1127,335,1211,330,1309,320,1397,303,1431,292,1455,278,1470,258,1480,235,1486,192"/>

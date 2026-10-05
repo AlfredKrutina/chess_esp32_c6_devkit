@@ -1,5 +1,5 @@
 /* CzechMate marketing landing — GitHub Pages */
-/* Paleta: jako Flutter dark theme — ColorScheme.fromSeed(seedColor: #2E4A3E) viz flutter_czechmate/lib/main.dart */
+/* Palette: matches Flutter dark theme — ColorScheme.fromSeed(seedColor: #2E4A3E); see flutter_czechmate/lib/main.dart */
 
 :root {
   --seed: #2e4a3e;
@@ -85,7 +85,7 @@ html {
   }
 }
 
-/* Bez skutečného hoveru neposouvat karty (mobil / dotyk) */
+/* Without real hover, do not lift cards (mobile / touch) */
 @media (hover: none) {
   .pillar-card:hover,
   .feature-tile:hover,
@@ -109,7 +109,7 @@ html {
   }
 }
 
-/* ——— Scroll reveal (Apple-style fade-up; zapíná landing.js přes html.js-scroll-reveal) ——— */
+/* ——— Scroll reveal (Apple-style fade-up; enabled by landing.js via html.js-scroll-reveal) ——— */
 
 .reveal {
   transition:
@@ -180,7 +180,7 @@ html.js-scroll-reveal .reveal-stagger.is-visible > *:nth-child(12) {
   transition-delay: 770ms;
 }
 
-/* Sekvenční nadpisy v rámci jedné sekce (stejný viewport) */
+/* Sequential headings within one section (same viewport) */
 html.js-scroll-reveal .reveal.is-visible.reveal--seq-1 {
   transition-delay: 0.07s;
 }
@@ -191,7 +191,7 @@ html.js-scroll-reveal .reveal.is-visible.reveal--seq-3 {
   transition-delay: 0.21s;
 }
 
-/* Po reveal animaci musí hover na kartách vyhrát nad `is-visible > * { transform }` */
+/* After reveal animation, card hover must win over `is-visible > * { transform }` */
 html.js-scroll-reveal .reveal-stagger.is-visible > .pillar-card:hover {
   transform: translateY(-4px);
 }
@@ -525,156 +525,141 @@ a.btn--primary:visited {
   border-color: rgba(143, 188, 159, 0.28);
 }
 
-/* ——— Hero ——— */
+/* ——— Hero (full-bleed product reel, then brand statement) ——— */
 
 .hero {
   position: relative;
-  min-height: min(92vh, 880px);
   display: flex;
-  align-items: center;
-  padding-top: max(3rem, env(safe-area-inset-top, 0px));
-  padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
-  padding-bottom: 4rem;
-  padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: #050807;
+}
+
+.hero__reel {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: min(62vh, 720px);
+  background: #050807;
   overflow: hidden;
 }
 
-.hero__bg {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(180deg, rgba(14, 22, 18, 1) 0%, var(--bg-deep) 42%, #070b09 100%),
-    radial-gradient(ellipse 90% 50% at 50% 0%, rgba(46, 74, 62, 0.35), transparent 52%);
-  z-index: 0;
+.hero__reel-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  pointer-events: none;
 }
 
-.hero__bg::after {
+.hero__reel::after {
   content: "";
   position: absolute;
-  inset: 0;
-  opacity: 0.04;
-  background-image:
-    linear-gradient(rgba(143, 188, 159, 0.5) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(143, 188, 159, 0.5) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 15%, transparent 72%);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28%;
+  background: linear-gradient(180deg, transparent, #050807);
   pointer-events: none;
+  z-index: 2;
 }
 
-.hero__grid {
-  position: absolute;
-  inset: 0;
-  opacity: 0.26;
-  background-image: url("assets/hero-board.svg");
-  /* Větší měřítko = větší „pole“, méně rušivé proti textu; posun doprava od levého copy bloku */
-  background-size: clamp(1100px, 155vw, 2600px) auto;
-  background-position: 78% 44%;
-  background-repeat: no-repeat;
-  z-index: 0;
-  pointer-events: none;
-}
-
-@media (max-width: 720px) {
-  .hero__grid {
-    background-size: clamp(720px, 220vw, 1400px) auto;
-    background-position: 58% 38%;
-    opacity: 0.2;
-  }
-}
-
-.hero__content {
+.hero__intro {
   position: relative;
   z-index: 1;
   max-width: 1180px;
   margin: 0 auto;
   width: 100%;
-  min-width: 0;
-  overflow-wrap: break-word;
+  padding: 2.25rem max(1.25rem, env(safe-area-inset-right, 0px)) 3.5rem
+    max(1.25rem, env(safe-area-inset-left, 0px));
+  text-align: center;
 }
 
-.hero__eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent-strong);
-  margin: 0 0 1.1rem;
-}
-
-.hero__eyebrow::before {
-  content: "";
-  width: 28px;
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--primary-bright), transparent);
-  opacity: 0.85;
+.hero__brand {
+  margin: 0 0 0.85rem;
+  font-size: clamp(2rem, 1.2rem + 3.5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: #f2f8f4;
 }
 
 .hero__title {
-  margin: 0;
-  font-size: clamp(1.65rem, 0.85rem + 4.2vw, 3.85rem);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
-  max-width: min(36rem, 100%);
+  margin: 0 auto 1rem;
+  font-size: clamp(1.35rem, 0.95rem + 1.8vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  max-width: 28rem;
   text-wrap: balance;
-  color: #f0f7f2;
-  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.35);
+  color: var(--primary-bright);
 }
 
 .hero__lead {
-  margin: 1.35rem 0 0;
-  font-size: clamp(1rem, 2vw, 1.22rem);
+  margin: 0 auto 1.75rem;
+  max-width: 34rem;
+  font-size: clamp(1rem, 0.92rem + 0.35vw, 1.12rem);
+  line-height: 1.55;
   color: var(--text-muted);
-  max-width: min(38rem, 100%);
-}
-
-.hero__lead strong {
-  color: rgba(232, 241, 235, 0.92);
-  font-weight: 600;
+  text-wrap: pretty;
 }
 
 .hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
+  gap: 0.75rem 1rem;
+  justify-content: center;
 }
 
-.hero__video {
-  margin-top: 2.75rem;
+.hero__video-iframe,
+.film-card__iframe {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: min(52rem, 100%);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(143, 188, 159, 0.2);
-  overflow: hidden;
-  background: var(--bg-card);
-  box-shadow: var(--shadow-media);
-  min-width: 0;
+  height: 100%;
+  border: 0;
+  display: block;
 }
 
-.hero__video-label {
+.hero__video-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
   margin: 0;
-  padding: 0.85rem 1.1rem 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-strong);
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
-.hero__video-frame {
-  position: relative;
+.hero__video-shield:focus {
+  outline: none;
+}
+
+.hero__video-shield:focus-visible {
+  box-shadow: inset 0 0 0 3px var(--primary-bright);
+}
+
+.split__media.is-yt-interactive .hero__video-shield,
+.video-media.is-yt-interactive .hero__video-shield {
+  display: none;
+}
+
+.hero__video-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__video-fallback__img {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #070a09;
-  min-width: 0;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-/* Načítání videí — spinner místo placeholder posterů */
+/* Video loading — spinner instead of placeholder posters */
 .video-media {
   position: relative;
 }
@@ -706,6 +691,7 @@ a.btn--primary:visited {
 .video-media.is-loading .split__video,
 .video-media.is-loading .welcome-v2__video,
 .video-media.is-loading .hero__video-iframe,
+.video-media.is-loading .film-card__iframe,
 .video-media.is-loading .split__media--ai-preview__pan img {
   opacity: 0;
 }
@@ -713,6 +699,8 @@ a.btn--primary:visited {
 .video-media.is-ready .split__video,
 .video-media.is-ready .welcome-v2__video,
 .video-media.is-ready .hero__video-iframe,
+.video-media.is-ready .hero__reel-video,
+.video-media.is-ready .film-card__iframe,
 .video-media.is-ready .split__media--ai-preview__pan img {
   opacity: 1;
   transition: opacity 0.4s var(--ease-out);
@@ -740,112 +728,13 @@ a.btn--primary:visited {
   }
 }
 
-.hero__video-frame iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.hero__video-frame:not(.is-yt-interactive) .hero__video-iframe {
+/* YouTube in film grid: shield until click */
+.video-media:not(.is-yt-interactive) .film-card__iframe,
+.video-media:not(.is-yt-interactive) .hero__video-iframe {
   pointer-events: none;
 }
 
-.hero__video-shield {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-.hero__video-shield:focus {
-  outline: none;
-}
-
-.hero__video-shield:focus-visible {
-  outline: 2px solid var(--primary-bright);
-  outline-offset: -3px;
-}
-
-.hero__video-frame.is-yt-interactive .hero__video-shield {
-  display: none;
-}
-
-.hero__video-fallback {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: #070a09;
-}
-
-.hero__video-fallback__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.hero__video-poster {
-  position: absolute;
-  inset: 0;
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  outline: none;
-}
-
-.hero__video-poster:hover .hero__video-play svg circle,
-.hero__video-poster:focus-visible .hero__video-play svg circle {
-  fill: rgba(200, 0, 0, 0.88);
-}
-
-.hero__video-poster:hover img,
-.hero__video-poster:focus-visible img {
-  filter: brightness(1.06);
-}
-
-.hero__video-poster:focus-visible {
-  box-shadow: inset 0 0 0 3px var(--primary-bright);
-}
-
-.hero__video-poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.hero__video-play {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.5));
-  line-height: 0;
-  pointer-events: none;
-}
-
-.hero__video-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Objevte CzechMate V2 — welcome MP4, přehrání po scrollu do viewportu */
+/* Discover CzechMate V2 — welcome MP4, play when scrolled into viewport */
 
 .welcome-v2 {
   border-top: 1px solid var(--border);
@@ -871,12 +760,12 @@ a.btn--primary:visited {
 
 .welcome-v2__media.split__media {
   margin-inline: auto;
-  /* MP4 je 16:9 — nižší rám než výchozí split 4:3, bez ořezu stran */
+  /* MP4 is 16:9 — shorter frame than default split 4:3, no side crop */
   aspect-ratio: 16 / 9;
   cursor: default;
 }
 
-/* Welcome video: bez hover liftu (jinak IO „bliká“ a video se resetuje) */
+/* Welcome video: no hover lift (otherwise IO “flickers” and the video resets) */
 .welcome-v2__media.split__media:hover,
 html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   transform: none;
@@ -901,13 +790,13 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
 }
 
 .welcome-v2__hint {
-  margin: 0.5rem 0 0;
+  margin: 0.65rem 0 0;
   text-align: center;
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(143, 188, 159, 0.45);
+  color: var(--text-muted);
   line-height: 1.3;
   user-select: none;
 }
@@ -1058,6 +947,102 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   font-size: 0.95rem;
 }
 
+.piece-gallery {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 0.85rem;
+  margin: 2.25rem 0 0;
+  padding: 0;
+}
+
+.piece-gallery li {
+  min-width: 0;
+}
+
+.piece-gallery img {
+  width: 100%;
+  aspect-ratio: 1 / 2;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: var(--radius-lg);
+  background: #070b09;
+  border: 1px solid var(--border);
+  transition: transform 1.1s var(--ease-out);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .piece-gallery li:hover img {
+    transform: scale(1.035);
+  }
+}
+
+.piece-gallery span {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (min-width: 720px) {
+  .piece-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  .piece-gallery {
+    gap: 1.5rem 1.35rem;
+  }
+}
+
+.film-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  margin-top: 2.75rem;
+}
+
+.film-card {
+  margin: 0;
+  min-width: 0;
+}
+
+.film-card--wide {
+  grid-column: 1 / -1;
+}
+
+.film-card .split__media {
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.film-card video[data-click-play] {
+  cursor: pointer;
+}
+
+.film-card .split__media:hover {
+  transform: none;
+}
+
+.film-card figcaption {
+  margin-top: 0.7rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+@media (min-width: 900px) {
+  .film-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+}
+
 .pillar-card--interactive {
   cursor: pointer;
   text-align: left;
@@ -1123,19 +1108,18 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
     order: 1;
   }
 
-  /* Ořez videa uvnitr rámu: object-position (dříve příliš doprava) */
-  #deska-uci .split__media .split__video--loop {
-    object-position: 35% 50%;
+  #board-teaches .split__media .split__video--loop {
+    object-position: center;
   }
 }
 
 @media (min-width: 1024px) {
-  #deska-uci .split {
+  #board-teaches .split {
     gap: 3.25rem;
   }
 
-  #deska-uci .split__media .split__video--loop {
-    object-position: 42% 50%;
+  #board-teaches .split__media .split__video--loop {
+    object-position: center;
   }
 }
 
@@ -1171,7 +1155,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   display: block;
 }
 
-/* AI kouč: náhled — středová část šířky, celá výška snímku (bez ořezu shora/zdola) */
+/* AI coach: preview — center width slice, full frame height (no top/bottom crop) */
 .split__media.split__media--ai-preview {
   max-width: min(640px, 100%);
   margin-inline: auto;
@@ -1196,7 +1180,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   object-fit: contain;
 }
 
-/* Aplikace: média (split__media + split__video) */
+/* App: media (split__media + split__video) */
 
 .app-demo-showcase {
   margin-top: 2.75rem;
@@ -1232,10 +1216,14 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   border-radius: var(--radius-xl);
 }
 
-/* LED (#deska-uci): object-fit cover + object-position; desktop jemný offset v @media */
+/* LED (#board-teaches): object-fit cover + object-position; desktop slight offset in @media */
 .split__media .split__video--loop {
-  object-position: 35% 50%;
+  object-position: center;
   pointer-events: none;
+}
+
+#board-teaches .split__media--wide {
+  aspect-ratio: 16 / 9;
 }
 
 .split__media .split__video.split__video--loop.split__video--controls-on-click {
@@ -1396,7 +1384,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   opacity: 1;
 }
 
-/* Klikatelný úvod sekce AI kouč — bez druhé „karty“ pod textem (jen kurzor + Více) */
+/* Clickable AI coach section intro — no second “card” under the text (cursor + More only) */
 .section-intro-click {
   position: relative;
   margin: 0 0 0.5rem;
@@ -1448,7 +1436,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   opacity: 1;
 }
 
-/* Animované <dialog> — třída cz-modal + cz-modal--visible (řídí landing.js) */
+/* Animated <dialog> — class cz-modal + cz-modal--visible (driven by landing.js) */
 
 dialog.cz-modal[open] {
   opacity: 0;
@@ -1472,7 +1460,7 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
   transition: opacity 0.38s var(--ease-out);
 }
 
-/* Detail funkce — tmavý modal (stejná řeč jako zbytek stránky) */
+/* Feature detail — dark modal (same visual language as the rest of the page) */
 
 .feature-detail-modal {
   box-sizing: border-box;
@@ -1658,7 +1646,7 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
   word-break: break-word;
 }
 
-/* Zájem — průzkum zájmu + předobjednávka (odkazy na Google Forms) */
+/* Interest — interest survey + pre-order (links to Google Forms) */
 
 .interest {
   background: linear-gradient(180deg, var(--bg-deep) 0%, rgba(17, 25, 23, 0.96) 45%, var(--bg-deep) 100%);
@@ -2037,7 +2025,7 @@ dialog.cz-modal[open].cz-modal--visible::backdrop {
   color: var(--accent-strong);
 }
 
-/* ——— Responzivita: mobil · iPad · desktop ——— */
+/* ——— Responsiveness: mobile · iPad · desktop ——— */
 
 main {
   min-width: 0;
@@ -2067,30 +2055,16 @@ video {
   object-fit: contain;
 }
 
-/* Telefony */
+/* Phones */
 @media (max-width: 479px) {
-  .hero {
-    min-height: auto;
+  .hero__intro {
+    padding-top: 1.5rem;
     padding-bottom: 2.5rem;
-  }
-
-  .hero__eyebrow {
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    gap: 0.45rem;
-  }
-
-  .hero__eyebrow::before {
-    width: 20px;
   }
 
   .section {
     padding-top: clamp(2.35rem, 6vw, 3rem);
     padding-bottom: clamp(2.35rem, 6vw, 3rem);
-  }
-
-  .welcome-v2__wrap {
-    margin-top: 1.65rem;
   }
 
   .section__title--center {
@@ -2102,7 +2076,7 @@ video {
   }
 }
 
-/* Telefony a phablety — plná šířka CTA v hero */
+/* Phones and phablets — full-width CTA in hero */
 @media (max-width: 767px) {
   .hero__actions {
     flex-direction: column;
@@ -2123,7 +2097,7 @@ video {
   }
 }
 
-/* Malé telefony + úzké displeje */
+/* Small phones + narrow displays */
 @media (max-width: 374px) {
   .nav-cta {
     padding: 0.35rem 0.5rem;
@@ -2135,17 +2109,10 @@ video {
   }
 }
 
-/* Tablet / iPad (768–1279) — stejná topologie jako desktop: copy, pak video pod sebou */
+/* Tablet / iPad (768–1279) */
 @media (min-width: 768px) and (max-width: 1279px) {
-  .hero__video {
-    margin-top: 2.5rem;
-    max-width: min(44rem, 100%);
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .welcome-v2__wrap {
-    max-width: min(44rem, 100%);
+  .hero__reel {
+    max-height: min(56vh, 640px);
   }
 
   .app-demo-showcase__wrap {
@@ -2157,20 +2124,19 @@ video {
   }
 }
 
-/* iPad na šířku — kompaktnější hero, pořád jeden sloupec */
+/* iPad landscape — more compact reel */
 @media (min-width: 768px) and (max-width: 1279px) and (orientation: landscape) {
-  .hero {
-    min-height: auto;
-    padding-top: 2rem;
-    padding-bottom: 2.5rem;
+  .hero__reel {
+    max-height: 52vh;
   }
 
-  .hero__video {
-    margin-top: 2rem;
+  .hero__intro {
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
   }
 }
 
-/* Dotyková zařízení — dostatečné cíle */
+/* Touch devices — adequate hit targets */
 @media (pointer: coarse) {
   .nav-mobile a {
     display: flex;
@@ -2196,24 +2162,19 @@ video {
   }
 }
 
-/* Nízký landscape na telefonu */
+/* Short phone landscape */
 @media (max-width: 896px) and (orientation: landscape) and (max-height: 520px) {
-  .hero {
-    min-height: auto;
-    padding-top: 1.25rem;
+  .hero__reel {
+    max-height: 48vh;
+  }
+
+  .hero__intro {
+    padding-top: 1rem;
     padding-bottom: 1.5rem;
-  }
-
-  .hero__content {
-    display: block;
-  }
-
-  .hero__video {
-    margin-top: 1.25rem;
   }
 }
 
-/* Patička na úzkém mobilu */
+/* Footer on narrow mobile */
 @media (max-width: 559px) {
   .site-footer__inner {
     flex-direction: column;
@@ -2228,12 +2189,12 @@ video {
   }
 }
 
-/* Široký desktop */
+/* Wide desktop */
 @media (min-width: 1280px) {
   .section__inner,
   .site-header__inner,
   .site-footer__inner,
-  .hero__content {
+  .hero__intro {
     max-width: 1200px;
   }
 }

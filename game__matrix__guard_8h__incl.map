@@ -1,6 +1,6 @@
 <map id="game_matrix_guard.h" name="game_matrix_guard.h">
 <area shape="rect" id="Node000001" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="398,5,563,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="311,79,426,104"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="311,79,426,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="439,152,522,177"/>
 <area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="483,31,483,138,478,138,478,31"/>

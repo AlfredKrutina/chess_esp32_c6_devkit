@@ -1,5 +1,7 @@
 var NAVTREEINDEX9 =
 {
+"hall__i2c__matrix_8c_source.html":[3,0,0,12,1],
+"hall__i2c__matrix_8h.html":[3,0,0,12,0,0],
 "hall__i2c__matrix_8h.html#a1c0da9412ee71010a4b199d6ca6fce49":[3,0,0,12,0,0,2],
 "hall__i2c__matrix_8h.html#a79e2c10b7f88ffac1cc91c61595082e0":[3,0,0,12,0,0,0],
 "hall__i2c__matrix_8h.html#a7fe369cc1c3663b67df0e78d78e14e85":[3,0,0,12,0,0,1],
@@ -247,7 +249,5 @@ var NAVTREEINDEX9 =
 "led__task_8c.html#ae35498b645fad1892ac45a425bf78cce":[3,0,0,11,1,95],
 "led__task_8c.html#ae71449b1cc6e6250b91f539153a7a0d3":[3,0,0,11,1,14],
 "led__task_8c.html#ae7807e34a9e000cf160c7cbdea67089b":[3,0,0,11,1,98],
-"led__task_8c.html#ae8169ab78113c9acb2a4ba031e1d42c5":[3,0,0,11,1,55],
-"led__task_8c.html#ae9ca69874a3fd0ef1b1aea542f0ce0cf":[3,0,0,11,1,23],
-"led__task_8c.html#aec926993bbb0b624462704e37829a5ab":[3,0,0,11,1,61]
+"led__task_8c.html#ae8169ab78113c9acb2a4ba031e1d42c5":[3,0,0,11,1,55]
 };

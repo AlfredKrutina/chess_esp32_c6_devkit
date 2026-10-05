@@ -1,6 +1,6 @@
 <map id="uart_task_internal.h" name="uart_task_internal.h">
 <area shape="rect" id="Node000001" title="Internal API between uart_task.c and sibling source files." alt="" coords="322,5,474,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Spolecne definice typu." alt="" coords="294,79,409,104"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="294,79,409,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="393,32,369,69,364,66,388,30"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
 <area shape="poly" id="edge7_Node000001_Node000003" title=" " alt="" coords="371,33,87,149,85,144,369,28"/>

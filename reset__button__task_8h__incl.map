@@ -1,5 +1,5 @@
 <map id="reset_button_task.h" name="reset_button_task.h">
-<area shape="rect" id="Node000001" title="Reset Button Task hlavicka pro ESP32&#45;C6 sachovy projekt." alt="" coords="343,5,493,31"/>
+<area shape="rect" id="Node000001" title="Reset Button Task header for ESP32&#45;C6 sach project." alt="" coords="343,5,493,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="354,33,101,81,100,76,353,28"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="111,79,261,104"/>
