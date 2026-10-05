@@ -901,13 +901,13 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
 }
 
 .welcome-v2__hint {
-  margin: 0.5rem 0 0;
+  margin: 0.65rem 0 0;
   text-align: center;
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(143, 188, 159, 0.45);
+  color: var(--text-muted);
   line-height: 1.3;
   user-select: none;
 }
@@ -1075,7 +1075,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   width: 100%;
   aspect-ratio: 3 / 4;
   object-fit: cover;
-  object-position: center 42%;
+  object-position: center;
   display: block;
   border-radius: var(--radius-lg);
   background: #070b09;
@@ -1101,7 +1101,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
 
 @media (min-width: 1100px) {
   .piece-gallery {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1.5rem 1.35rem;
   }
 }
 
@@ -1203,9 +1203,8 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
     order: 1;
   }
 
-  /* Crop video inside the frame: object-position (was previously too far right) */
   #board-teaches .split__media .split__video--loop {
-    object-position: 35% 50%;
+    object-position: center;
   }
 }
 
@@ -1215,7 +1214,7 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
   }
 
   #board-teaches .split__media .split__video--loop {
-    object-position: 42% 50%;
+    object-position: center;
   }
 }
 
@@ -1314,8 +1313,12 @@ html.js-scroll-reveal .reveal.is-visible .welcome-v2__media.split__media:hover {
 
 /* LED (#board-teaches): object-fit cover + object-position; desktop slight offset in @media */
 .split__media .split__video--loop {
-  object-position: 35% 50%;
+  object-position: center;
   pointer-events: none;
+}
+
+#board-teaches .split__media--wide {
+  aspect-ratio: 16 / 9;
 }
 
 .split__media .split__video.split__video--loop.split__video--controls-on-click {
