@@ -639,7 +639,7 @@ class Leds:
                 lamp.rotation_euler = (math.pi, 0.0, 0.0)
                 collection.objects.link(lamp)
                 lamp.visible_camera = False
-                lamp.visible_glossy = False
+                lamp.visible_glossy = True
                 lamp.visible_transmission = False
                 if glow_parent is not None:
                     parent_keep(glow, glow_parent)
@@ -884,7 +884,7 @@ def cut(scene, frame, cam):
     marker.camera = cam
 
 
-def area(collection, label, loc, size, energy, color, aim, shape="SQUARE", size_y=None, spread=None):
+def area(collection, label, loc, size, energy, color, aim, shape="SQUARE", size_y=None, spread=None, glossy=False):
     data = bpy.data.lights.new(label, "AREA")
     data.energy = energy
     data.color = color
@@ -901,9 +901,9 @@ def area(collection, label, loc, size, energy, color, aim, shape="SQUARE", size_
     con.target = aim
     con.track_axis = "TRACK_NEGATIVE_Z"
     con.up_axis = "UP_Y"
-    # The card of an area light is not part of the scene. It still lights.
+    # Hide the card from the camera. Glossy on so brushed aluminium can catch it.
     lamp.visible_camera = False
-    lamp.visible_glossy = False
+    lamp.visible_glossy = glossy
     lamp.visible_transmission = False
     return lamp
 

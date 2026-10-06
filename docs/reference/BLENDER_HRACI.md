@@ -42,8 +42,9 @@ oranžovo-červený a rošádové pole modré. Po položení přeběhne modrá s
 na cíli osmkrát modře dýchne a šedá vlna předá tah. U černé rošády po králi
 na g8 blikne stříbrná na h8 a zelená na f8; po věži zlatá na f8, pak vlna a
 žlutá bílého. Barva se drží a skočí, zelená neproklouzne azurovou do modré.
-Záře sedí na folii. Lampy políček do kamery nejdou, ve výřezu jsou schované,
-aby se s orbitou dalo hýbat.
+Záře sedí na folii a v noci je silnější než lampa nad stolem, aby žlutá a
+zelená zůstaly čitelné i ze širokého záběru. Lampy políček do kamery nejdou,
+ve výřezu jsou schované, aby se s orbitou dalo hýbat.
 
 Naskenovaný stůl má desku 2,05 × 1,15 m. Šířka je 1,46 m, výška 0,74 m.
 Hloubka je 0,60 m: při 0,82 m deska protínala břicho. Zmenšení je jen v ose Y,

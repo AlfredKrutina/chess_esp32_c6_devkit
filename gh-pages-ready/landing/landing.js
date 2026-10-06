@@ -151,6 +151,140 @@
 
   czVideoMedia.init();
 
+  /* HLS VOD: 2 s fMP4 chunks, ABR 720/1080. Safari uses native HLS; others hls.js. */
+  var czHls = (function () {
+    function lite() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+      try {
+        var c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (c && (c.saveData || c.effectiveType === "slow-2g" || c.effectiveType === "2g")) return true;
+      } catch (e) {}
+      return false;
+    }
+
+    function nativeHls(video) {
+      return video.canPlayType("application/vnd.apple.mpegurl") === "probably"
+        || video.canPlayType("application/vnd.apple.mpegurl") === "maybe";
+    }
+
+    function attach(video, opts) {
+      opts = opts || {};
+      var master = video.getAttribute("data-hls");
+      var fallback = video.getAttribute("data-hls-fallback");
+      if (!master) return false;
+      if (video.dataset.hlsBound === "1") return true;
+      video.dataset.hlsBound = "1";
+
+      if (lite() && fallback) {
+        video.src = fallback;
+        return true;
+      }
+
+      var useNative = nativeHls(video) && !(window.Hls && window.Hls.isSupported() && /Chrome|Chromium|Edg\//.test(navigator.userAgent));
+      if (useNative && nativeHls(video) && !window.Hls) {
+        video.src = master;
+        return true;
+      }
+      if (window.Hls && window.Hls.isSupported()) {
+        var hls = new window.Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          maxBufferLength: opts.hero ? 12 : 8,
+          maxMaxBufferLength: opts.hero ? 24 : 14,
+          startLevel: -1,
+          abrEwmaDefaultEstimate: 2.2e6,
+          testBandwidth: true,
+          autoStartLoad: opts.autoStart !== false,
+        });
+        hls.loadSource(master);
+        hls.attachMedia(video);
+        video._hls = hls;
+        hls.on(window.Hls.Events.ERROR, function (_ev, data) {
+          if (!data || !data.fatal || !fallback) return;
+          try {
+            hls.destroy();
+          } catch (eD) {}
+          video.src = fallback;
+        });
+        return true;
+      }
+      if (nativeHls(video)) {
+        video.src = master;
+        return true;
+      }
+      if (fallback) {
+        video.src = fallback;
+        return true;
+      }
+      return false;
+    }
+
+    function start(video) {
+      if (video._hls && video._hls.startLoad) video._hls.startLoad();
+    }
+
+    function stopBuffer(video) {
+      if (video._hls && video._hls.stopLoad) video._hls.stopLoad();
+    }
+
+    return { attach: attach, start: start, stopBuffer: stopBuffer, lite: lite };
+  })();
+
+  /* Hero reel: full presentation through mate/outro; soft-loop from board wake-up. */
+  (function initHeroReelLoad() {
+    var v = document.getElementById("czm-hero-reel");
+    if (!v) return;
+    var media = v.closest("[data-video-media]");
+    // Skip the dark chassis wall on replay so the story restarts on the living board.
+    var LOOP_AT = 7.0;
+    v.setAttribute("playsinline", "");
+    v.muted = true;
+
+    function reveal() {
+      if (media) czVideoMedia.markReady(media);
+    }
+
+    function kick() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        reveal();
+        return;
+      }
+      czHls.attach(v, { hero: true, autoStart: true });
+      v.preload = "auto";
+      var pr = v.play();
+      if (pr && typeof pr.catch === "function") {
+        pr.catch(function () {});
+      }
+    }
+
+    v.addEventListener("ended", function () {
+      try {
+        v.currentTime = LOOP_AT;
+      } catch (eL) {
+        v.currentTime = 0;
+      }
+      var again = v.play();
+      if (again && typeof again.catch === "function") {
+        again.catch(function () {});
+      }
+    });
+
+    v.addEventListener("loadeddata", reveal, { once: true });
+    v.addEventListener("canplay", reveal, { once: true });
+    v.addEventListener("playing", reveal, { once: true });
+
+    // Wait for CSS/poster paint, then idle if available so other critical assets win.
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        if (typeof window.requestIdleCallback === "function") {
+          window.requestIdleCallback(kick, { timeout: 400 });
+        } else {
+          window.setTimeout(kick, 120);
+        }
+      });
+    });
+  })();
+
   /* Welcome MP4: start download as soon as the script runs. */
   (function initWelcomeVideoEarlyLoad() {
     var v = document.getElementById("czm-v2-welcome-video");
@@ -377,18 +511,22 @@
       if (v.dataset.lazyLocalHydrated === "1") return;
       var media = v.closest("[data-video-media]");
       if (media) czVideoMedia.markLoading(media);
-      v.preload = "auto";
       v.dataset.lazyLocalHydrated = "1";
-      v.querySelectorAll("source[data-src]").forEach(function (s) {
-        var url = s.getAttribute("data-src");
-        if (!url) return;
-        s.src = url;
-        s.removeAttribute("data-src");
-      });
+      if (v.getAttribute("data-hls")) {
+        czHls.attach(v, { autoStart: true });
+      } else {
+        v.preload = "auto";
+        v.querySelectorAll("source[data-src]").forEach(function (s) {
+          var url = s.getAttribute("data-src");
+          if (!url) return;
+          s.src = url;
+          s.removeAttribute("data-src");
+        });
+        try {
+          v.load();
+        } catch (eL) {}
+      }
       czVideoMedia.bindVideo(v);
-      try {
-        v.load();
-      } catch (eL) {}
       if (!reduce && v.getAttribute("autoplay") !== null) {
         var pr = v.play();
         if (pr && typeof pr.catch === "function") {
@@ -496,13 +634,17 @@
 
     function ensureDemoSourceForCapture() {
       if (demo.dataset.lazyLocalHydrated === "1") return;
+      demo.dataset.lazyLocalHydrated = "1";
+      if (demo.getAttribute("data-hls")) {
+        czHls.attach(demo, { autoStart: true });
+        return;
+      }
       demo.querySelectorAll("source[data-src]").forEach(function (s) {
         var url = s.getAttribute("data-src");
         if (!url) return;
         s.src = url;
         s.removeAttribute("data-src");
       });
-      demo.dataset.lazyLocalHydrated = "1";
       try {
         demo.load();
       } catch (eH) {}
@@ -641,13 +783,17 @@
 
       function ensureMediaSource(vid) {
         if (vid.dataset.lazyLocalHydrated === "1") return;
+        vid.dataset.lazyLocalHydrated = "1";
+        if (vid.getAttribute("data-hls")) {
+          czHls.attach(vid, { autoStart: true });
+          return;
+        }
         vid.querySelectorAll("source[data-src]").forEach(function (s) {
           var url = s.getAttribute("data-src");
           if (!url) return;
           s.src = url;
           s.removeAttribute("data-src");
         });
-        vid.dataset.lazyLocalHydrated = "1";
         try {
           vid.load();
         } catch (eL) {}
@@ -689,7 +835,7 @@
     });
   })();
 
-  /* Ambient product loops: hero reel + LED — no pause, no native UI. */
+  /* Ambient product loops: hero reel + LED + film cards — no pause, no native UI. */
   (function initAmbientLoopsNoPause() {
     document.querySelectorAll("video[data-no-pause]").forEach(function (v) {
       v.controls = false;
@@ -702,9 +848,16 @@
       v.addEventListener("contextmenu", blockNativeVideoUi);
 
       var reduceMq = window.matchMedia("(prefers-reduced-motion: reduce)");
+      var holdSec = parseFloat(v.getAttribute("data-loop-hold"));
+      var holdMs = isFinite(holdSec) && holdSec > 0 ? holdSec * 1000 : 0;
+      if (holdMs) {
+        v.removeAttribute("loop");
+        v.loop = false;
+      }
 
       function resumeIfAllowed() {
         if (reduceMq.matches) return;
+        if (v._holdLoop) return;
         if (v.ended || !v.paused) return;
         var pr = v.play();
         if (pr && typeof pr.catch === "function") {
@@ -713,6 +866,33 @@
       }
 
       v.addEventListener("pause", resumeIfAllowed);
+      v.addEventListener("ended", function () {
+        if (reduceMq.matches) return;
+        if (holdMs) {
+          v._holdLoop = true;
+          try {
+            v.pause();
+          } catch (eH) {}
+          window.setTimeout(function () {
+            v._holdLoop = false;
+            try {
+              v.currentTime = 0;
+            } catch (eS) {}
+            var pr = v.play();
+            if (pr && typeof pr.catch === "function") {
+              pr.catch(function () {});
+            }
+          }, holdMs);
+          return;
+        }
+        try {
+          v.currentTime = 0;
+        } catch (eZ) {}
+        var replay = v.play();
+        if (replay && typeof replay.catch === "function") {
+          replay.catch(function () {});
+        }
+      });
       document.addEventListener("visibilitychange", function () {
         if (!document.hidden) resumeIfAllowed();
       });
@@ -1188,42 +1368,104 @@
     }
   })();
 
-  /* Pieces gallery: scroll drives white → black tone morph */
-  (function initPieceToneScroll() {
+  /* Pieces gallery: toggle button swaps white ↔ black with a 3D stage animation */
+  (function initPieceToneToggle() {
     var gallery = document.querySelector("[data-piece-tone]");
-    if (!gallery) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      gallery.style.setProperty("--piece-tone", "1");
-      return;
+    var btn = document.querySelector("[data-piece-tone-toggle]");
+    if (!gallery || !btn) return;
+
+    var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var blacksHydrated = false;
+    var tone = 0;
+    var animToken = 0;
+
+    function hydrateBlackPieces() {
+      if (blacksHydrated) return;
+      blacksHydrated = true;
+      gallery.querySelectorAll("img.piece-tone__black[data-src]").forEach(function (img) {
+        var url = img.getAttribute("data-src");
+        if (!url) return;
+        img.src = url;
+        img.removeAttribute("data-src");
+      });
     }
 
-    var section = gallery.closest("section") || gallery;
-    var ticking = false;
-
-    function progress() {
-      var rect = section.getBoundingClientRect();
-      var viewH = window.innerHeight || document.documentElement.clientHeight;
-      // 0 when section top enters mid-viewport; 1 when gallery has scrolled through.
-      var start = viewH * 0.72;
-      var end = viewH * 0.18 - rect.height * 0.35;
-      var raw = (start - rect.top) / (start - end);
-      if (!isFinite(raw)) raw = 0;
-      var t = Math.max(0, Math.min(1, raw));
-      // Ease in-out for a calmer dissolve.
-      var eased = t * t * (3 - 2 * t);
-      gallery.style.setProperty("--piece-tone", eased.toFixed(4));
-      ticking = false;
+    function updateAlts(isBlack) {
+      gallery.querySelectorAll("img.piece-tone__white").forEach(function (img) {
+        var base = (img.getAttribute("alt") || "").replace(/\s*—\s*(white|black) PLA set$/i, "");
+        if (!base) base = "Piece";
+        img.alt = base + (isBlack ? " — black PLA set" : " — white PLA set");
+      });
     }
 
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(progress);
+    function setToneInstant(next) {
+      tone = next;
+      var isBlack = next >= 0.5;
+      gallery.style.setProperty("--piece-tone", next.toFixed(4));
+      gallery.classList.toggle("is-black", isBlack);
+      btn.setAttribute("aria-pressed", isBlack ? "true" : "false");
+      btn.setAttribute("aria-label", isBlack ? "Show white pieces" : "Show black pieces");
+      updateAlts(isBlack);
     }
 
-    progress();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    function animateTone(next) {
+      var from = tone;
+      var to = next;
+      var start = performance.now();
+      var dur = 920;
+      var token = ++animToken;
+      var isBlack = to >= 0.5;
+
+      gallery.classList.toggle("is-black", isBlack);
+      btn.setAttribute("aria-pressed", isBlack ? "true" : "false");
+      btn.setAttribute("aria-label", isBlack ? "Show white pieces" : "Show black pieces");
+      updateAlts(isBlack);
+
+      function frame(now) {
+        if (token !== animToken) return;
+        var t = Math.max(0, Math.min(1, (now - start) / dur));
+        var eased = t * t * (3 - 2 * t);
+        tone = from + (to - from) * eased;
+        gallery.style.setProperty("--piece-tone", tone.toFixed(4));
+        if (t < 1) {
+          window.requestAnimationFrame(frame);
+        } else {
+          tone = to;
+        }
+      }
+
+      window.requestAnimationFrame(frame);
+    }
+
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              hydrateBlackPieces();
+              io.disconnect();
+            }
+          });
+        },
+        { rootMargin: "220px 0px" }
+      );
+      io.observe(gallery);
+    } else {
+      hydrateBlackPieces();
+    }
+
+    setToneInstant(0);
+
+    btn.addEventListener("click", function () {
+      hydrateBlackPieces();
+      btn.classList.add("is-pressing");
+      window.setTimeout(function () {
+        btn.classList.remove("is-pressing");
+      }, 160);
+      var next = tone >= 0.5 ? 0 : 1;
+      if (reduceMotion) setToneInstant(next);
+      else animateTone(next);
+    });
   })();
 
   /* Scroll reveal (fade-up on enter viewport; without JS / reduced motion = content visible immediately) */

@@ -1381,7 +1381,8 @@ def light_chapters(room, marks):
     del marks
     dusk = night = 1
     chapters = [
-        (1, 1.0, (0.28, 0.34, 0.50), 1.2, 55.0, math.radians(-10), 0.015),
+        # Lamp stays warm but softer so the square LEDs stay readable.
+        (1, 0.7, (0.28, 0.34, 0.50), 0.9, 32.0, math.radians(-10), 0.012),
     ]
     bg = room["world"]
     sky_node = room["sky"]
@@ -1403,7 +1404,7 @@ def light_chapters(room, marks):
     cc.set_interpolation(tree, "CONSTANT")
     # the bulb only reads once the lamp is on
     bulb = room["bulb"].node_tree.nodes["Emission"]
-    bulb.inputs["Strength"].default_value = 8.0
+    bulb.inputs["Strength"].default_value = 5.0
     bulb.inputs["Strength"].keyframe_insert("default_value", frame=1)
     cc.set_interpolation(room["bulb"].node_tree, "CONSTANT")
     # Horizon stays level. The disk sits where the night grade was tuned.
@@ -2020,7 +2021,7 @@ def light_board(rig, collection, marks):
     plan = json.loads(raw)
     if len(plan["moves"]) != len(marks):
         raise RuntimeError(f"led plan {len(plan['moves'])} != moves {len(marks)}")
-    leds = cc.Leds(rig, collection, glow_strength=4.5, light_energy=0.35, shadows=False, dies=False)
+    leds = cc.Leds(rig, collection, glow_strength=10.5, light_energy=1.05, shadows=False, dies=False)
     lift = bpy.data.objects["Board anchor"].location.z
     for obj in bpy.data.objects:
         if obj.name.startswith("glow "):
@@ -2042,7 +2043,9 @@ def light_board(rig, collection, marks):
             raise RuntimeError(f"led {spec['uci']} != gesture {mark['move']}")
         start = mark["start"]
         lift_state = {sq: tuple(rgb) for sq, rgb in spec["lift"].items()}
-        leds.key(start + 24, lift_state)
+        # Path / capture targets only once the piece is clearly in the air
+        # (mark["high"]), never while it is still settling off the square.
+        leds.key(mark["high"], lift_state)
         land = start + 38
         kind = spec.get("castle")
         if kind == "king":
@@ -2069,6 +2072,7 @@ def main():
     default_samples = "24" if preview else ("16" if test else "96")
     res = tuple(int(v) for v in cc.arg_value("--res", default_res).split("x"))
     samples = int(cc.arg_value("--samples", default_samples))
+    uhd = (not preview) and res[1] >= 2160
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
@@ -2250,7 +2254,7 @@ def main():
         pinch_report(marks, pieces, players)
         for frame, name in ((1, "rest"), (137, "lift")):
             scene.frame_set(frame)
-            path = cc.VIDEO_DIR / f"hraci_nightwide_{name}.jpg"
+            path = cc.VIDEO_DIR / f"hraci_ledbright2_{name}.jpg"
             cc.still_output(scene, path)
             bpy.ops.render.render(write_still=True, scene=scene.name)
             print("still", name, path)
@@ -2280,8 +2284,16 @@ def main():
     if not final:
         print("stills first, pass --final to render the film")
         return
-    out = PREVIEW if preview else FINAL
-    cc.video_output(scene, out)
+    out_arg = cc.arg_value("--out")
+    if out_arg:
+        out = Path(out_arg)
+        if not out.is_absolute():
+            out = cc.VIDEO_DIR / out
+    elif uhd:
+        out = cc.VIDEO_DIR / "hraci_4k.mp4"
+    else:
+        out = PREVIEW if preview else FINAL
+    cc.video_output(scene, out, quality="HIGH" if uhd else "PERC_LOSSLESS")
     bpy.ops.render.render(animation=True, scene=scene.name)
     print("final", out)
 

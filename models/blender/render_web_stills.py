@@ -81,7 +81,7 @@ def main():
 
     cam, target = cc.camera(coll, "Still", lens=50, fstop=8.0)
     scene.camera = cam
-    cc.render_settings(scene, (1920, 1080), samples=48, motion_blur=False, exposure=-1.35)
+    cc.render_settings(scene, (3840, 2160), samples=64, motion_blur=False, exposure=-1.35)
     # Product stills need the quiet AgX base, not the punchy film look.
     for look in ("None", "AgX - Base Contrast", "AgX - Low Contrast"):
         try:
@@ -95,7 +95,7 @@ def main():
     shoot(
         scene, cam, target,
         (0.0, -0.52, 0.07), (0.0, 0.0, 0.03),
-        40, 16.0, OUT / "lineup.jpg", (1920, 1080),
+        40, 16.0, OUT / "lineup.jpg", (3840, 2160),
     )
 
     # Whole piece, base included, filling the portrait. King and queen are
@@ -116,7 +116,7 @@ def main():
         if kind == "knight":
             obj.rotation_euler = (0.0, 0.0, KNIGHT_YAW)
         loc, aim_at = shots[kind]
-        shoot(scene, cam, target, loc, aim_at, 50, 16.0, OUT / f"{kind}.jpg", (900, 1200))
+        shoot(scene, cam, target, loc, aim_at, 50, 16.0, OUT / f"{kind}.jpg", (1800, 3600))
     print("web stills", OUT)
 
 

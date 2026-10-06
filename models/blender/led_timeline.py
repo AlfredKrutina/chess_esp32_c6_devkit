@@ -65,6 +65,26 @@ def lift_leds(board, square):
     return state
 
 
+def guided_capture_leds(board, square):
+    """Lift of a capturable enemy piece: purple origin, yellow legal attackers.
+
+    Matches `game_show_guided_capture_leds` with guidance ≥ 3 (full hints).
+    """
+    victim = board.piece_at(sq(square))
+    if victim is None:
+        raise RuntimeError(f"no piece on {square}")
+    if victim.color == board.turn:
+        raise RuntimeError(f"{square} is a piece of the side to move")
+    state = {square: fx.PURPLE}
+    for move in board.legal_moves:
+        if move.to_square != sq(square) or not board.is_capture(move):
+            continue
+        state[chess.square_name(move.from_square)] = fx.YELLOW
+    if len(state) < 2:
+        raise RuntimeError(f"{square} cannot be captured this turn")
+    return state
+
+
 def movable(board):
     return {chess.square_name(m.from_square): fx.YELLOW for m in board.legal_moves}
 
@@ -126,8 +146,12 @@ class Show:
     def lift(self, square, rise=RISE):
         pid = self.ids[square]
         self.key(pid, self.f, square, 0.0)
-        self.key(pid, self.f + rise, square, LIFT)
-        return pid, self.f + 2, self.f + rise
+        top = self.f + rise
+        self.key(pid, top, square, LIFT)
+        # Targets (green path) only after the foot has cleared the glass.
+        # Firing two frames into the rise lights the path under a still piece.
+        detect = top
+        return pid, detect, top
 
     def carry(self, pid, frm, to, start, hold, travel, drop):
         f_hold = start + hold
@@ -254,14 +278,19 @@ class Show:
         if span > 80:
             span += 32
         self.key(pid, start, square, 0.0)
-        self.key(pid, start + 8, square, LIFT + 0.02)
+        detect = start + 8
+        self.key(pid, detect, square, LIFT + 0.02)
+        self.led(detect, guided_capture_leds(self.board, square))
         self.key(pid, start + span - 18, square, 0.0, aside=list(dest))
         # parse_moves lands the piece 18 frames after the last key.
         return start + span
 
-    def quiet(self, frm, to, hold=18, travel=22, drop=12, path_speed=1.0, wave_speed=1.0, after=14):
+    def quiet(self, frm, to, hold=18, travel=22, drop=12, path_speed=1.0, wave_speed=1.0, after=14, capture_to=None):
         pid, detect, top = self.lift(frm)
-        self.led(detect, lift_leds(self.board, frm))
+        if capture_to:
+            self.led(detect, {capture_to: fx.PURPLE})
+        else:
+            self.led(detect, lift_leds(self.board, frm))
         overhead = RISE + hold + drop
         need = max(self.travel_frames(frm, to), self.arc_frames(frm, to))
         travel = max(travel, need - overhead)
@@ -274,6 +303,38 @@ class Show:
             self.f = t
             return events
         t = self.play(t, fx.player_change(self.board.turn == chess.WHITE), wave_speed)
+        self.led(t, after_quiet_move(self.board))
+        events["idle"] = t
+        self.f = t + after
+        return events
+
+    def capture(self, frm, to, hold=16, after=20):
+        """Attacker first, then the victim. Orange target, purple victim."""
+        attacker, detect, top = self.lift(frm)
+        self.led(detect, lift_leds(self.board, frm))
+        victim_time = top + 22
+        victim = self.ids[to]
+        self.key(victim, victim_time, to, 0.0)
+        self.key(victim, victim_time + 12, to, LIFT * 1.3)
+        self.led(victim_time + 12, {frm: fx.YELLOW, to: fx.PURPLE})
+        park = (-0.28, (int(to[1]) - 4.5) * 0.048, -0.0002)
+        span = max(42, self.travel_frames(to, park))
+        self.key(victim, victim_time + span, to, 0.0, aside=list(park), spin=True)
+        need = max(self.travel_frames(frm, to), self.arc_frames(frm, to))
+        travel = max(20, need - RISE - 11)
+        land = self.carry(attacker, frm, to, top, max(hold, 58), travel, 11)
+        self.push(frm + to)
+        events = {
+            "detect": detect,
+            "victim": victim_time + 12,
+            "land": land,
+        }
+        if self.board.is_checkmate():
+            events["mate"] = land
+            self.f = land
+            return events
+        t = self.play(land, fx.move_path(frm, to), 1.0)
+        t = self.play(t, fx.player_change(self.board.turn == chess.WHITE), 1.0)
         self.led(t, after_quiet_move(self.board))
         events["idle"] = t
         self.f = t + after
@@ -307,8 +368,8 @@ def build():
     s.caption("Soupeř je má otočené opačně.", s.f + 108, 58)
     s.f += 175
 
-    # 1. e4 — the full quiet-move cycle. Every firmware animation runs in real
-    # time: LEDs only change when the board detects a lift or a drop.
+    # Légal's mate: 1.e4 e5 2.Nf3 Nc6 3.Bc4 d6 4.Nc3 Bg4 5.Nxe5 Bxd1 6.Bxf7+ Ke7 7.Nd5#.
+    # Ng1–g3 is inserted as the illegal demo, then the knight recovers onto f3.
     s.mark("e4")
     ev = s.quiet("e2", "e4", hold=28, travel=30, after=36)
     s.caption("Zvedni figurku — zelená ukáže, kam smí.", ev["detect"] + 2, ev["land"] - ev["detect"] - 2)
@@ -316,19 +377,9 @@ def build():
     s.mark("e4_land", ev["land"])
 
     s.mark("d6")
-    s.quiet("d7", "d6", hold=14, travel=24, drop=12, after=28)
+    s.quiet("e7", "e5", hold=14, travel=24, drop=12, after=28)
 
-    # 2. Bb5+ — pink stays because the black king has no legal move.
-    s.mark("bb5")
-    ev = s.quiet("f1", "b5", hold=16, travel=34, after=48)
-    s.mark("check", ev["idle"])
-    s.caption("Šach. Růžová na králi, žlutá na tazích, které ho kryjí.", ev["idle"] + 4, 36)
-
-    s.mark("c6")
-    ev = s.quiet("c7", "c6", hold=20, travel=22, drop=12, after=28)
-    s.caption("Při šachu svítí jen tahy, které ho kryjí.", ev["detect"] + 2, ev["land"] - ev["detect"] + 4)
-
-    # 3. Ng1-g3 is illegal. Red blink, then recovery to f3.
+    # 2. Ng1-g3 is illegal. Red blink, then recovery to f3 (Nf3).
     s.mark("illegal")
     pid, detect, top = s.lift("g1")
     s.led(detect, lift_leds(s.board, "g1"))
@@ -344,69 +395,58 @@ def build():
     for square, color in lift_leds(s.board, "g1").items():
         if square != "g1":
             recover.setdefault(square, color)
-    s.led(s.f + 2, recover)
-    s.mark("recover", s.f + 2)
-    s.caption("Modrá ukáže, odkud figurka přišla.", s.f + 2, 50)
+    recover_at = s.f + RISE
+    s.led(recover_at, recover)
+    s.mark("recover", recover_at)
+    s.caption("Modrá ukáže, odkud figurka přišla.", recover_at, 50)
     land = s.carry(pid, "g3", "f3", s.f + RISE, 30, 18, 11)
     s.push("g1f3")
     s.led(land, movable(s.board))
     s.f = land + 20
 
-    # 3... cxb5 — capture: orange target, then purple on the lifted victim.
-    s.mark("capture")
-    attacker, detect, top = s.lift("c6")
-    s.led(detect, lift_leds(s.board, "c6"))
-    s.caption("Braní: oranžová ukáže soupeřovu figurku.", detect + 2, 38)
-    victim_time = top + 22
-    victim = s.ids["b5"]
-    s.key(victim, victim_time, "b5", 0.0)
-    s.key(victim, victim_time + 12, "b5", LIFT * 1.3)
-    s.led(victim_time + 2, {"c6": fx.YELLOW, "b5": fx.PURPLE})
-    s.caption("Zvednutá oběť zfialoví.", victim_time + 2, 38)
-    s.key(victim, victim_time + 30, "b5", 0.0, off=True, spin=True)
-    s.mark("capture_victim", victim_time + 2)
-    land = s.carry(attacker, "c6", "b5", top, 58, 20, 11)
-    s.push("c6b5")
-    s.led(land, movable(s.board))
-    s.f = land + 20
+    s.mark("c6")
+    ev = s.quiet("b8", "c6", hold=20, travel=22, drop=12, after=28)
+    s.caption("Každý tah musí jít podle pravidel.", ev["detect"] + 2, ev["land"] - ev["detect"] + 4)
 
-    # 4. O-O — king first, then the board guides the rook.
+    s.mark("bb5")
+    s.quiet("f1", "c4", hold=16, travel=34, after=24)
+    s.quiet("d7", "d6", hold=12, travel=20, drop=12, after=20)
+
     s.mark("castle")
-    king, detect, top = s.lift("e1")
-    s.led(detect, lift_leds(s.board, "e1"))
-    s.caption("Rošáda: modrá ukáže cíl krále.", detect + 2, 40)
-    land = s.carry(king, "e1", "g1", top, 22, 24, 12)
-    s.mark("castle_king", land)
-    # The board names the rook as the king settles. The hand takes it at once,
-    # instead of leaving h1 and f1 lit through the whole pulse train.
-    s.led(land, {"h1": fx.SILVER, "f1": fx.GREEN})
-    s.caption("Stříbrná věž, zelený cíl.", land + 2, 36)
-    s.f = land + 16
-    rook, detect, top = s.lift("h1")
-    s.led(detect, {"h1": fx.YELLOW, "f1": fx.GREEN})
-    # The rook clears the king on a 102 mm arc, about 260 mm of path.
-    land = s.carry(rook, "h1", "f1", top, 10, 63, 11)
-    s.push("e1g1")
-    seq, length = fx.castling_completion("f1", {"h1": fx.YELLOW})
-    t = s.play(land, seq)
-    s.mark("castle_done", land)
-    s.caption("Zlatá potvrdí dokončení.", land + 2, 40)
-    t = s.play(t, fx.player_change(s.board.turn == chess.WHITE))
-    s.led(t, after_quiet_move(s.board))
-    s.f = t + 20
+    ev = s.quiet("b1", "c3", hold=14, travel=26, after=20)
+    s.mark("castle_king", ev["land"])
+    ev = s.quiet("c8", "g4", hold=16, travel=36, after=24)
+    s.mark("castle_done", ev["land"])
+    s.caption("Střelec napíná jezdce na dámu.", ev["idle"] + 2, 36)
 
-    # Legal continuation. One move finishes, lights included, before the next.
+    # 5. Nxe5 — the relative pin does not stop the sacrifice.
+    s.mark("capture")
+    ev = s.capture("f3", "e5")
+    s.caption("Braní: oranžová ukáže soupeřovu figurku.", ev["detect"] + 2, 38)
+    s.caption("Zvednutá oběť zfialoví.", ev["victim"], 38)
+    s.mark("capture_victim", ev["victim"])
+
+    s.mark("capture_queen")
+    ev = s.capture("g4", "d1")
+    s.caption("Černý bere dámu.", ev["detect"] + 2, 40)
+
+    # 6. Bxf7+ — opponent lifts the f7 pawn first (firmware guided capture).
+    park_f7 = (-0.28, (7 - 4.5) * 0.048, -0.0002)
+    victim_leds = s.f + 8
+    s.f = s.aside("f7", park_f7)
+    s.caption("Zvednutá oběť zfialoví. Žlutá na figurkách, které ji můžou vzít.", victim_leds, 48)
+    ev = s.quiet("c4", "f7", hold=16, travel=22, drop=12, capture_to="f7")
+    s.mark("check", ev["idle"])
+    s.caption("Šach. Růžová na králi, žlutá na tazích, které ho kryjí.", ev["idle"] + 4, 40)
+    s.caption("Při šachu svítí jen tahy, které ho kryjí.", ev["idle"] + 44, 36)
     s.mark("endgame_cut")
-    s.caption("Zbytek partie, zrychleně.", s.f + 2, 90, "small")
-    for uci in ("b8c6", "d2d4", "e7e6", "c1g5", "c8d7", "f3e5", "a7a6", "d1h5", "g8f6"):
-        s.blitz(uci[:2], uci[2:])
+    s.quiet("e8", "e7", hold=14, travel=18, drop=12, after=20)
     s.mark("timelapse_end")
+
     s.mark("mate_move")
-    # The f7 pawn is off the square, and clear of the captured bishop, before the queen.
-    s.f = s.aside("f7", (-0.235, 0.10, -0.0002))
-    ev = s.quiet("h5", "f7", hold=16, travel=22, drop=12)
+    ev = s.quiet("c3", "d5", hold=16, travel=22, drop=12, after=8)
     if "mate" not in ev:
-        raise RuntimeError("Qxf7 is not mate")
+        raise RuntimeError("Nd5 is not mate")
     s.mark("mate", ev["mate"])
     winner = chess.WHITE
 
@@ -417,7 +457,7 @@ def build():
         return "own" if piece.color == winner else "opp"
 
     wave_ms = 6200
-    end = s.play(ev["mate"], fx.endgame_wave("g1", owner, wave_ms), 1.0)
+    end = s.play(ev["mate"], fx.endgame_wave("e1", owner, wave_ms), 1.0)
     s.caption("Mat.", ev["mate"] + 2, 40, "hero")
     s.caption("Vlna od vítězného krále.", ev["mate"] + 44, 50)
     s.mark("outro", ev["mate"] + 100)
@@ -443,6 +483,70 @@ def build():
     }
 
 
+def height_at(keys, frame):
+    keys = sorted(keys, key=lambda item: item["f"])
+    if frame <= keys[0]["f"]:
+        return keys[0]["h"]
+    for i in range(len(keys) - 1):
+        a, b = keys[i], keys[i + 1]
+        if a["f"] <= frame <= b["f"]:
+            if b["f"] == a["f"]:
+                return b["h"]
+            t = (frame - a["f"]) / (b["f"] - a["f"])
+            return a["h"] + (b["h"] - a["h"]) * t
+    return keys[-1]["h"]
+
+
+def last_key(keys, frame):
+    last = None
+    for item in sorted(keys, key=lambda entry: entry["f"]):
+        if item["f"] <= frame:
+            last = item
+        else:
+            break
+    return last
+
+
+def assert_targets_after_lift(data):
+    """Green / orange / castle-blue guidance must not light under a grounded piece.
+
+    Idle yellow movables are allowed on resting pieces. Blue move-path after a
+    drop is allowed on the destination once the mover has landed.
+    """
+    lift = data["lift"]
+    for state in data["leds"]:
+        frame = state["f"]
+        leds = state["leds"]
+        yellow = [sq for sq, rgb in leds.items() if rgb[0] >= 200 and rgb[1] >= 200 and rgb[2] < 40]
+        king_src = [sq for sq, rgb in leds.items() if rgb == list(fx.KING_LIFT) or tuple(rgb) == fx.KING_LIFT]
+        sources = yellow or king_src
+        targets = [
+            sq
+            for sq, rgb in leds.items()
+            if (rgb[1] >= 200 and rgb[0] < 40 and rgb[2] < 40)  # green
+            or (rgb[0] >= 200 and 100 <= rgb[1] <= 200 and rgb[2] < 40)  # orange capture
+            or (rgb[2] >= 200 and rgb[0] < 40 and rgb[1] < 40)  # blue castle target
+        ]
+        if not sources or not targets:
+            continue
+        # Skip pure move-path / recovery frames that are not lift-guidance:
+        # recovery keeps yellow on the held piece and blue on the origin.
+        for src in sources:
+            mover = None
+            for pid, keys in data["keys"].items():
+                key = last_key(keys, frame)
+                if key and key.get("sq") == src and not key.get("off") and not key.get("aside"):
+                    mover = pid
+                    break
+            if mover is None:
+                continue
+            if height_at(data["keys"][mover], frame) < lift * 0.9:
+                raise RuntimeError(
+                    f"lift targets at frame {frame} while {mover} on {src} "
+                    f"is still below lift height (targets={targets})"
+                )
+
+
 def main():
     data = build()
     cut = data["markers"]["endgame_cut"]
@@ -464,6 +568,7 @@ def main():
     for left, right in zip(spans, spans[1:]):
         if right[0] < left[1]:
             raise RuntimeError(f"two pieces move at once: {left} and {right}")
+    assert_targets_after_lift(data)
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     print("frames", data["frame_end"], "seconds", round(data["frame_end"] / FPS, 1))
     for label, frame in sorted(data["markers"].items(), key=lambda kv: kv[1]):

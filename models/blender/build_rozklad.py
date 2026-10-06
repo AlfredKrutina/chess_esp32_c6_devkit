@@ -224,8 +224,10 @@ def make_header(collection, parent, edge_x):
 
 def load_pcbs(collection):
     """Four copies of czechmate_v3, one per 4x4 quadrant, headers toward the centre seam.
-    The STEP has the footprints on +Z. Turn each board over so the connectors
-    face the chassis. Standing up, they run through the grid."""
+
+    KiCad +Z is the component side (Halls, LEDs, pads). That side faces the grid.
+    The 16-pin header is on the board's −X edge; yaw turns that edge inward.
+    """
     created = board.import_board_part(PCB_GLB)
     meshes = []
     for obj in created:
@@ -246,14 +248,12 @@ def load_pcbs(collection):
     xs = [vertex.co.x for vertex in body.data.vertices]
     zs = [vertex.co.z for vertex in body.data.vertices]
     edge_x = min(xs)
-    # The flip sends +Z downward, so the old underside becomes the top.
-    floor_z = min(zs)
     root = bpy.data.objects.new("PCB 0", None)
     collection.objects.link(root)
     for obj in meshes:
         cc.parent_keep(obj, root)
     make_header(collection, root, edge_x)
-    root.location.z = (cc.PCB_Z + cc.PCB_T) + floor_z
+    root.location.z = cc.PCB_Z - min(zs)
 
     def clone(name):
         new = bpy.data.objects.new(name, None)
@@ -267,12 +267,11 @@ def load_pcbs(collection):
         return new
 
     boards = [root, clone("PCB 1"), clone("PCB 2"), clone("PCB 3")]
-    # sx, sy, yaw. Yaw pi turns the left-edge header toward the vertical seam.
+    # sx, sy, yaw. Header sits on −X; π turns that edge toward the vertical seam.
     places = ((-1, -1, math.pi), (1, -1, 0.0), (-1, 1, math.pi), (1, 1, 0.0))
     home = []
     apart = []
     for obj, (sx, sy, yaw) in zip(boards, places):
-        obj.rotation_euler.x = math.pi
         obj.rotation_euler.z = yaw
         centre = Vector((sx * 0.070, sy * 0.070, obj.location.z))
         spread = centre + Vector((sx * 0.022, sy * 0.022, 0.0))
@@ -351,6 +350,11 @@ def main():
         FINAL = cc.VIDEO_DIR / "rozklad_nahled.mp4"
     res = tuple(int(v) for v in cc.arg_value("--res", "1280x720" if preview else "1920x1080").split("x"))
     samples = int(cc.arg_value("--samples", "12" if preview else "24"))
+    uhd = (not preview) and res[1] >= 2160
+    if uhd:
+        RAW = cc.RENDER_TMP / "rozklad_4k_raw.mp4"
+        FINAL = cc.VIDEO_DIR / "rozklad_4k.mp4"
+        print("uhd", res, "final", FINAL)
     test = cc.arg_value("--test")
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -378,7 +382,7 @@ def main():
     print("pcb count", len(pcbs), "home", [tuple(round(v, 4) for v in p) for p in pcb_home])
 
     leds = cc.Leds(
-        rig, coll, glow_strength=4.5, light_energy=0.22,
+        rig, coll, glow_strength=7.2, light_energy=0.55,
         glow_parent=rig.foil, light_parent=rig.foil, shadows=True,
     )
 
@@ -518,13 +522,35 @@ def main():
     aim = bpy.data.objects.new("Aim", None)
     aim.location = (0.0, 0.0, 0.04)
     coll.objects.link(aim)
+    lip = bpy.data.objects.new("Lip aim", None)
+    lip.location = (0.0, -0.145, 0.008)
+    coll.objects.link(lip)
+    wall_l = bpy.data.objects.new("Wall L", None)
+    wall_l.location = (-0.145, 0.0, 0.01)
+    coll.objects.link(wall_l)
+    wall_r = bpy.data.objects.new("Wall R", None)
+    wall_r.location = (0.145, 0.0, 0.01)
+    coll.objects.link(wall_r)
     cc.black_world(scene, (0.0, 0.0, 0.0), 0.0)
-    cc.gradient_card(coll, "Backdrop", (0.0, 2.2, 0.15), (5.0, 3.0), (0.015, 0.016, 0.018), 0.35)
-    cc.area(coll, "Key", (0.22, -0.85, 0.72), 0.85, 11, (1.0, 0.985, 0.96), aim)
-    cc.area(coll, "Fill", (-0.35, -0.9, 0.28), 1.4, 2.2, (0.82, 0.86, 0.92), aim)
-    cc.area(coll, "Under", (0.0, -0.45, -0.35), 1.2, 3.5, (0.85, 0.88, 0.95), aim)
-    cc.area(coll, "Rim", (0.05, 0.9, 0.42), 0.7, 9, (0.72, 0.82, 1.0), aim)
-    cc.area(coll, "Edge", (-0.9, -0.2, 0.16), 0.035, 14, (1.0, 0.97, 0.92), aim, "RECTANGLE", 1.5)
+    cc.floor(coll, color=(0.012, 0.012, 0.014), roughness=0.18)
+    cc.gradient_card(coll, "Backdrop", (0.0, 2.2, 0.15), (5.0, 3.0), (0.04, 0.042, 0.048), 0.7)
+    cc.area(coll, "Key", (0.22, -0.85, 0.72), 0.85, 14, (1.0, 0.985, 0.96), aim, glossy=True)
+    cc.area(coll, "Fill", (-0.35, -0.9, 0.28), 1.4, 3.4, (0.82, 0.86, 0.92), aim, glossy=True)
+    cc.area(coll, "Under", (0.0, -0.45, -0.35), 1.2, 5.5, (0.9, 0.93, 1.0), aim, glossy=True)
+    cc.area(coll, "Rim", (0.05, 0.9, 0.42), 0.7, 12, (0.72, 0.82, 1.0), aim, glossy=True)
+    cc.area(coll, "Edge", (-0.9, -0.2, 0.16), 0.035, 12, (1.0, 0.97, 0.92), aim, "RECTANGLE", 1.5, glossy=True)
+    cc.area(
+        coll, "Front graze", (0.0, -0.30, 0.018), 0.36, 3.2,
+        (0.82, 0.88, 0.98), lip, "RECTANGLE", 0.02, math.radians(50), glossy=True,
+    )
+    cc.area(
+        coll, "Side graze L", (-0.30, 0.0, 0.016), 0.30, 2.6,
+        (0.85, 0.9, 1.0), wall_l, "RECTANGLE", 0.02, math.radians(55), glossy=True,
+    )
+    cc.area(
+        coll, "Side graze R", (0.30, 0.0, 0.016), 0.30, 2.6,
+        (0.85, 0.9, 1.0), wall_r, "RECTANGLE", 0.02, math.radians(55), glossy=True,
+    )
     sweep = cc.area(coll, "Sweep", (-1.1, -0.35, 0.42), 0.025, 0.0, (1.0, 1.0, 1.0), aim, "RECTANGLE", 1.8)
     for frame, x, energy in (
         (1, -1.05, 0.0), (8, -0.9, 55.0), (36, 0.9, 55.0), (44, 1.05, 0.0),
@@ -539,11 +565,11 @@ def main():
     cc.add_noise(cam, "location", 0.00025, 60.0, 3.0)
     scene.frame_start = 1
     scene.frame_end = FRAMES
-    cc.render_settings(scene, res, samples=samples, exposure=float(cc.arg_value("--exposure", "-1.05")))
+    cc.render_settings(scene, res, samples=samples, exposure=float(cc.arg_value("--exposure", "-0.75")))
     cc.compositor(scene, bloom=0.25, threshold=2.0, dispersion=0.006, vignette=0.28)
     cc.RENDER_TMP.mkdir(parents=True, exist_ok=True)
     cc.VIDEO_DIR.mkdir(parents=True, exist_ok=True)
-    cc.video_output(scene, RAW)
+    cc.video_output(scene, RAW, quality="HIGH" if uhd else "PERC_LOSSLESS")
     bpy.ops.wm.save_as_mainfile(filepath=str(BLEND))
     print("saved", BLEND)
 

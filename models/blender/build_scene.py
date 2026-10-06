@@ -53,11 +53,11 @@ def aluminum(name):
     noise.inputs["Roughness"].default_value = 0.65
     rough_map.inputs["From Min"].default_value = 0.25
     rough_map.inputs["From Max"].default_value = 0.75
-    rough_map.inputs["To Min"].default_value = 0.22
-    rough_map.inputs["To Max"].default_value = 0.48
-    bump.inputs["Strength"].default_value = 0.08
+    rough_map.inputs["To Min"].default_value = 0.12
+    rough_map.inputs["To Max"].default_value = 0.34
+    bump.inputs["Strength"].default_value = 0.12
     bump.inputs["Distance"].default_value = 0.0004
-    bsdf.inputs["Base Color"].default_value = (0.78, 0.79, 0.80, 1.0)
+    bsdf.inputs["Base Color"].default_value = (0.84, 0.85, 0.86, 1.0)
     bsdf.inputs["Metallic"].default_value = 1.0
     if "Anisotropic" in bsdf.inputs:
         bsdf.inputs["Anisotropic"].default_value = 0.85

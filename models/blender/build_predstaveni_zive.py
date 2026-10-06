@@ -133,12 +133,19 @@ def build_camera(stage, m, pieces, moves_of):
         (m["boot"], (0.04, -0.24, 0.09), (0.0, -0.02, 0.04), 42, 8.0),
         (m["hall"] - 4, (0.22, -0.52, 0.30), centre, 34, 6.3),
     ])
+    # White magnets, then a short bridge that keeps the board oriented, then
+    # black. A hard cut south→north flipped the polarity and lost the viewer.
     white = _shot(stage, "Zive white", [
         (m["hall"], (0.10, -0.24, 0.20), (0.0, -0.11, 0.045), 40, 5.6),
-        (m["hall"] + 78, (0.02, -0.185, 0.16), (0.02, -0.12, 0.04), 48, 4.5),
+        (m["hall"] + 64, (0.02, -0.185, 0.16), (0.02, -0.12, 0.04), 48, 4.5),
+    ])
+    bridge = _shot(stage, "Zive magnet bridge", [
+        (m["hall"] + 64, (0.28, -0.10, 0.30), (0.0, -0.02, 0.04), 34, 6.3),
+        (m["hall"] + 96, (0.30, 0.10, 0.30), (0.0, 0.04, 0.04), 34, 6.3),
     ])
     black = _shot(stage, "Zive black", [
-        (m["hall"] + 86, (-0.06, 0.23, 0.19), (0.0, 0.11, 0.045), 40, 5.6),
+        (m["hall"] + 96, (0.18, 0.22, 0.22), (0.0, 0.11, 0.045), 42, 5.6),
+        (m["hall"] + 118, (-0.04, 0.23, 0.19), (0.0, 0.11, 0.045), 40, 5.6),
         (m["e4"] - 14, (0.05, 0.175, 0.155), (-0.02, 0.12, 0.04), 50, 4.5),
     ])
 
@@ -146,7 +153,8 @@ def build_camera(stage, m, pieces, moves_of):
         (1, glass),
         (m["boot"], reveal),
         (m["hall"], white),
-        (m["hall"] + 86, black),
+        (m["hall"] + 64, bridge),
+        (m["hall"] + 96, black),
     ]
     outro_at = m["outro"]
     for index, (t0, pid, mv) in enumerate(_moves(moves_of, m["e4"] - 2)):

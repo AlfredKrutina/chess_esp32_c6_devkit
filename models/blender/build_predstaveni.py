@@ -523,16 +523,30 @@ def build_lights(stage, card_mat, m):
     frost = bpy.data.objects.new("Frost aim", None)
     frost.location = (0.0, 0.0, 0.023)
     coll.objects.link(frost)
-    key = cc.area(coll, "Key", (-0.55, -0.55, 0.75), 0.5, 9, (1.0, 0.96, 0.92), aim)
-    fill = cc.area(coll, "Top fill", (0.0, 0.05, 1.0), 0.8, 3, (0.95, 0.97, 1.0), aim)
-    rim_l = cc.area(coll, "Rim amber L", (-0.55, 0.48, 0.2), 0.04, 12, AMBER, aim, "RECTANGLE", 0.9)
-    rim_r = cc.area(coll, "Rim amber R", (0.55, 0.48, 0.2), 0.04, 12, AMBER, aim, "RECTANGLE", 0.9)
-    kicker = cc.area(coll, "Kicker cool", (0.68, -0.18, 0.14), 0.04, 5, (0.55, 0.7, 1.0), aim, "RECTANGLE", 0.7)
-    rim_cool = cc.area(coll, "Rim cool", (-0.1, 0.6, 0.55), 0.5, 3, (0.8, 0.88, 1.0), aim)
+    key = cc.area(coll, "Key", (-0.55, -0.55, 0.75), 0.5, 9, (1.0, 0.96, 0.92), aim, glossy=True)
+    fill = cc.area(coll, "Top fill", (0.0, 0.05, 1.0), 0.8, 3, (0.95, 0.97, 1.0), aim, glossy=True)
+    rim_l = cc.area(coll, "Rim amber L", (-0.55, 0.48, 0.2), 0.04, 12, AMBER, aim, "RECTANGLE", 0.9, glossy=True)
+    rim_r = cc.area(coll, "Rim amber R", (0.55, 0.48, 0.2), 0.04, 12, AMBER, aim, "RECTANGLE", 0.9, glossy=True)
+    kicker = cc.area(coll, "Kicker cool", (0.68, -0.18, 0.14), 0.04, 5, (0.55, 0.7, 1.0), aim, "RECTANGLE", 0.7, glossy=True)
+    rim_cool = cc.area(coll, "Rim cool", (-0.1, 0.6, 0.55), 0.5, 3, (0.8, 0.88, 1.0), aim, glossy=True)
     # A strip on the vertical face only. It must not clear the top edge onto the pieces.
     graze = cc.area(
         coll, "Edge graze", (0.0, -0.28, 0.009), 0.36, 2.4,
-        (0.75, 0.82, 0.9), lip, "RECTANGLE", 0.02, math.radians(60),
+        (0.75, 0.82, 0.9), lip, "RECTANGLE", 0.02, math.radians(60), glossy=True,
+    )
+    wall_l = bpy.data.objects.new("Wall L", None)
+    wall_l.location = (-0.145, 0.0, 0.01)
+    coll.objects.link(wall_l)
+    wall_r = bpy.data.objects.new("Wall R", None)
+    wall_r.location = (0.145, 0.0, 0.01)
+    coll.objects.link(wall_r)
+    side_l = cc.area(
+        coll, "Side graze L", (-0.30, 0.0, 0.012), 0.30, 3.2,
+        (0.82, 0.88, 1.0), wall_l, "RECTANGLE", 0.02, math.radians(55), glossy=True,
+    )
+    side_r = cc.area(
+        coll, "Side graze R", (0.30, 0.0, 0.012), 0.30, 3.2,
+        (0.82, 0.88, 1.0), wall_r, "RECTANGLE", 0.02, math.radians(55), glossy=True,
     )
     # Hard skim across the pane so the sandblast grain and the heavier squares catch.
     rake = cc.area(coll, "Glass rake", (0.16, 0.14, 0.045), 0.06, 0, (0.86, 0.91, 1.0), frost, "RECTANGLE", 0.12)
@@ -544,27 +558,29 @@ def build_lights(stage, card_mat, m):
 
     # Nothing but the wall graze until the glass detail. The room comes up with the boot.
     key_energy(key, ((1, 0.0), (m["boot"], 0.0), (m["boot"] + 10, 2.2), (m["boot"] + 36, 9)))
-    key_energy(fill, ((1, 0.0), (m["boot"] + 16, 0.0), (m["boot"] + 40, 3)))
-    key_energy(kicker, ((1, 0.0), (m["boot"] + 18, 1.5), (m["boot"] + 40, 5)))
-    key_energy(rim_cool, ((1, 0.0), (m["boot"] + 28, 3)))
-    key_energy(graze, ((1, 0.6), (40, 1.3), (m["glass"] - 16, 1.6), (m["glass"] + 12, 0.0), (m["idle"], 0.0)))
+    key_energy(fill, ((1, 0.0), (m["boot"] + 16, 0.0), (m["boot"] + 40, 4)))
+    key_energy(kicker, ((1, 0.0), (m["boot"] + 18, 1.5), (m["boot"] + 40, 8)))
+    key_energy(rim_cool, ((1, 0.0), (m["boot"] + 28, 4)))
+    key_energy(graze, ((1, 0.6), (40, 1.3), (m["glass"] - 16, 1.6), (m["glass"] + 12, 1.1), (m["idle"], 2.4), (m["end"], 2.6)))
+    key_energy(side_l, ((1, 0.0), (m["boot"] + 20, 0.0), (m["boot"] + 40, 3.2), (m["end"], 3.4)))
+    key_energy(side_r, ((1, 0.0), (m["boot"] + 20, 0.0), (m["boot"] + 40, 3.2), (m["end"], 3.4)))
     key_energy(rake, ((1, 0.0), (m["glass"] - 6, 0.0), (m["glass"] + 18, 6.5), (m["boot"] - 4, 5.0), (m["boot"] + 36, 0.0)))
     for frame, level in ((1, 0.0), (m["boot"], 0.0), (m["boot"] + 8, 0.6),
-                         (m["boot"] + 14, 1.5), (m["boot"] + 44, 1.05), (m["idle"], 0.55),
-                         (m["endgame_cut"] - 2, 0.55), (m["timelapse_end"], 0.7), (m["mate"], 0.6),
-                         (m["mate"] + 3, 2.8), (m["mate"] + 40, 1.0), (m["outro"], 1.0), (m["end"], 1.25)):
+                         (m["boot"] + 14, 1.5), (m["boot"] + 44, 1.15), (m["idle"], 0.95),
+                         (m["endgame_cut"] - 2, 0.95), (m["timelapse_end"], 1.05), (m["mate"], 0.9),
+                         (m["mate"] + 3, 2.8), (m["mate"] + 40, 1.15), (m["outro"], 1.15), (m["end"], 1.35)):
         cc.key_card(card_mat, frame, level)
     for lamp in (rim_l, rim_r):
-        key_energy(lamp, ((1, 0.0), (m["boot"] + 8, 0.0), (m["boot"] + 24, 16), (m["idle"], 8),
-                          (m["mate"], 8), (m["mate"] + 3, 24), (m["mate"] + 40, 12), (m["end"], 14)))
+        key_energy(lamp, ((1, 0.0), (m["boot"] + 8, 0.0), (m["boot"] + 24, 16), (m["idle"], 10),
+                          (m["mate"], 10), (m["mate"] + 3, 24), (m["mate"] + 40, 14), (m["end"], 16)))
 
 
 FOLLOW = 0.28  # drift toward the piece; 0.7 locked the frame on one figure
 
 
 def build_camera(stage, m, pieces, moves_of):
-    """One continuous camera. During the fast legal continuation it stays high
-    over the whole board, then closes on the mating queen."""
+    """One continuous camera. After the pin and the queen sacrifice it stays
+    high over the whole board, then closes on the mating knight."""
     at = stage.at
     centre = (0.0, 0.0, 0.02)
     keys = [
@@ -574,57 +590,59 @@ def build_camera(stage, m, pieces, moves_of):
         # Close to the face and aimed down it, so the pieces above the lip stay out.
         (1, (-0.06, -0.214, 0.009), (0.06, -0.145, 0.006), 85, 5.6),
         (m["glass"] - 18, (0.02, -0.210, 0.009), (0.13, -0.145, 0.006), 85, 5.6),
-        # Drop onto the empty centre and skim it. A high look-down washed the
-        # sandblast out; the grain reads when the glass is seen at a low angle.
-        (m["glass"] + 16, (0.04, -0.11, 0.11), (0.0, 0.0, 0.023), 48, 5.6),
-        (m["glass"] + 55, (0.11, -0.02, 0.068), (-0.03, 0.0, 0.023), 46, 8.0),
-        (m["glass"] + 70, (0.11, -0.02, 0.068), (-0.03, 0.0, 0.023), 46, 8.0),
+        # Onto the glass at the a-file, then a fly down the empty middle,
+        # parallel to the two ranks of pieces (white left of frame, black right).
+        (m["glass"] + 2, (-0.15, -0.08, 0.034), (-0.08, 0.0, 0.023), 42, 4.5),
+        (m["glass"] + 18, (-0.11, 0.0, 0.040), (-0.02, 0.0, 0.023), 34, 3.6),
+        (m["glass"] + 44, (0.00, 0.0, 0.040), (0.10, 0.0, 0.023), 32, 3.2),
+        (m["glass"] + 70, (0.11, 0.0, 0.042), (0.20, 0.0, 0.024), 32, 3.6),
         # Open the lens before travelling. A long lens on the glass smears,
         # and the same lens in front of the white rank crops the board.
         (m["boot"] + 8, (0.10, -0.045, 0.095), (-0.02, -0.01, 0.022), 32, 8.0),
         (m["boot"] + 58, (0.06, -0.46, 0.38), centre, 36, 8.0),
         (m["idle"], (0.18, -0.58, 0.36), centre, 34, 7.1),
-        # White rank: close enough to read which colour is on top, wide enough
-        # that the heads stay in frame. Then a slide around the side, not a dive.
+        # White magnets, then a slow board-orbit so the cut to black does not
+        # flip the viewer 180°. Hold each side; the east key is the compass.
         (m["hall"] - 10, (0.10, -0.42, 0.32), (0.0, -0.08, 0.03), 32, 8.0),
-        # Far enough that both rooks stay in frame, steep enough that the discs read.
         (m["hall"] + 36, (0.0, -0.34, 0.38), (0.0, -0.10, 0.04), 28, 8.0),
-        (m["hall"] + 72, (0.26, -0.28, 0.32), (0.0, -0.04, 0.03), 32, 8.0),
-        (m["hall"] + 108, (0.32, 0.08, 0.34), centre, 32, 8.0),
-        (m["hall"] + 142, (0.0, 0.34, 0.38), (0.0, 0.10, 0.04), 28, 8.0),
-        (m["hall"] + 162, (0.0, 0.34, 0.38), (0.0, 0.10, 0.04), 28, 8.0),
+        (m["hall"] + 68, (0.0, -0.34, 0.38), (0.0, -0.10, 0.04), 28, 8.0),
+        (m["hall"] + 88, (0.22, -0.22, 0.36), (0.0, -0.02, 0.035), 30, 8.0),
+        (m["hall"] + 110, (0.36, 0.0, 0.38), centre, 30, 8.0),
+        (m["hall"] + 130, (0.20, 0.24, 0.36), (0.0, 0.06, 0.035), 30, 8.0),
+        (m["hall"] + 150, (0.0, 0.34, 0.38), (0.0, 0.10, 0.04), 28, 8.0),
+        (m["hall"] + 168, (0.0, 0.34, 0.38), (0.0, 0.10, 0.04), 28, 8.0),
         (m["e4"] + 24, (0.08, -0.16, 0.40), centre, 34, 8.0),
         (m["e4"] + 56, (0.16, -0.46, 0.34), at("e2", 0.03), 36, 7.1),
         (m["e4_land"], (0.20, -0.42, 0.36), (0.02, -0.02, 0.02), 34, 8.0),
         (m["d6"] - 10, (0.36, 0.04, 0.38), (0.0, 0.02, 0.02), 34, 8.0),
-        (m["d6"] + 50, (0.28, 0.50, 0.32), (0.0, 0.04, 0.025), 36, 6.3),
-        (m["bb5"], (0.40, -0.28, 0.38), at("f1", 0.04), 34, 7.1),
-        (m["bb5"] + 60, (0.12, -0.46, 0.36), (-0.02, 0.0, 0.02), 34, 7.1),
-        (m["check"] + 5, (0.02, -0.08, 0.52), at("e8", 0.03), 32, 8.0),
-        # The old key 43 frames later tipped the board and the shutter smeared it.
-        (m["c6"] - 8, (0.0, 0.18, 0.50), centre, 32, 8.0),
-        (m["c6"] + 36, (-0.16, 0.44, 0.38), at("c7", 0.03), 34, 8.0),
-        (m["c6"] + 60, (-0.20, 0.48, 0.36), at("c6", 0.03), 34, 8.0),
+        (m["d6"] + 50, (0.22, 0.50, 0.32), at("e5", 0.03), 36, 6.3),
         (m["illegal"] - 10, (0.06, 0.02, 0.50), (0.04, -0.04, 0.02), 32, 8.0),
         (m["illegal"] + 22, (0.10, -0.18, 0.48), centre, 32, 8.0),
         (m["illegal"] + 50, (0.20, -0.50, 0.40), at("g2", 0.04), 34, 8.0),
         (m["illegal_land"] + 20, (0.36, -0.24, 0.32), at("g3", 0.04), 34, 7.1),
         (m["recover"] - 5, (0.34, -0.28, 0.32), at("g3", 0.04), 34, 7.1),
         (m["recover"] + 60, (0.16, -0.50, 0.34), at("f2", 0.03), 34, 6.3),
-        (m["capture"], (0.0, -0.44, 0.28), (-0.05, 0.0, 0.02), 40, 8.0),
-        (m["capture_victim"], (-0.38, -0.34, 0.32), at("b5", 0.04), 34, 7.1),
-        (m["castle"] - 15, (-0.42, -0.18, 0.30), at("b5", 0.04), 34, 6.3),
-        # Ease onto the rank. The old key 27 frames later covered half a metre
-        # and the board blurred on the way.
-        (m["castle"] + 20, (-0.11, -0.38, 0.32), (0.02, -0.10, 0.04), 36, 8.0),
-        (m["castle_king"] - 16, (0.20, -0.58, 0.34), (0.07, -0.11, 0.048), 34, 8.0),
-        (m["castle_king"] + 30, (0.16, -0.56, 0.32), (0.09, -0.11, 0.048), 34, 8.0),
-        (m["castle_done"], (0.12, -0.54, 0.30), (0.08, -0.11, 0.046), 34, 8.0),
-        (m["endgame_cut"] - 1, (0.0, -0.62, 0.55), centre, 30, 10.0),
-        (m["timelapse_end"], (0.04, -0.58, 0.52), centre, 30, 10.0),
-        (m["mate_move"] + 40, (0.28, -0.42, 0.32), centre, 36, 8.0),
-        (m["mate"] - 30, (0.22, -0.36, 0.36), at("f7", 0.05), 34, 8.0),
-        (m["mate"], (0.16, -0.32, 0.36), at("f7", 0.05), 36, 8.0),
+        (m["c6"] - 8, (0.0, 0.18, 0.50), centre, 32, 8.0),
+        (m["c6"] + 36, (-0.28, 0.44, 0.38), at("b8", 0.03), 34, 8.0),
+        (m["c6"] + 60, (-0.16, 0.40, 0.36), at("c6", 0.03), 34, 8.0),
+        (m["bb5"], (0.40, -0.28, 0.38), at("f1", 0.04), 34, 7.1),
+        (m["bb5"] + 60, (0.08, -0.42, 0.36), at("c4", 0.03), 34, 7.1),
+        (m["castle"] - 8, (0.32, -0.48, 0.34), at("b1", 0.04), 34, 7.1),
+        (m["castle"] + 24, (0.18, -0.44, 0.34), at("c3", 0.03), 36, 8.0),
+        (m["castle_king"] - 12, (-0.22, 0.48, 0.36), at("c8", 0.04), 34, 8.0),
+        (m["castle_king"] + 36, (0.18, 0.42, 0.34), at("g4", 0.04), 34, 7.1),
+        (m["castle_done"], (0.22, -0.08, 0.42), centre, 34, 8.0),
+        (m["capture"], (0.10, -0.46, 0.32), at("f3", 0.04), 36, 8.0),
+        (m["capture_victim"], (0.06, 0.08, 0.38), at("e5", 0.04), 34, 7.1),
+        (m["capture_queen"] + 10, (0.22, 0.40, 0.36), at("g4", 0.04), 34, 7.1),
+        (m["capture_queen"] + 70, (0.10, -0.48, 0.34), at("d1", 0.04), 34, 8.0),
+        (m["check"] - 80, (0.16, -0.36, 0.38), at("c4", 0.04), 34, 7.1),
+        (m["check"] + 5, (0.02, -0.08, 0.52), at("e8", 0.03), 32, 8.0),
+        (m["endgame_cut"] - 1, (0.10, -0.28, 0.40), at("f7", 0.04), 32, 8.0),
+        (m["timelapse_end"], (0.04, -0.36, 0.44), at("e7", 0.03), 32, 8.0),
+        (m["mate_move"] + 8, (0.12, -0.38, 0.36), at("c3", 0.04), 34, 8.0),
+        (m["mate"] - 8, (0.10, -0.22, 0.38), at("d5", 0.05), 34, 8.0),
+        (m["mate"], (0.08, -0.18, 0.40), at("e7", 0.05), 36, 8.0),
         (m["mate"] + 60, (0.22, -0.46, 0.46), centre, 34, 8.0),
         (m["outro"], (0.0, -0.56, 0.46), (0.0, 0.0, 0.02), 40, 8.0),
         (m["end"], (0.0, -0.68, 0.56), (0.0, 0.0, 0.02), 38, 8.0),
@@ -638,9 +656,9 @@ def build_camera(stage, m, pieces, moves_of):
     stage.coll.objects.link(focus)
     cam.data.dof.focus_object = focus
     for frame, loc in ((1, (-0.04, -0.145, 0.008)), (m["glass"] - 24, (0.14, -0.145, 0.008)),
-                       (m["glass"] + 12, (0.0, -0.01, 0.023)),
-                       (m["glass"] + 52, (-0.03, 0.0, 0.023)),
-                       (m["glass"] + 74, (-0.03, 0.0, 0.023)),
+                       (m["glass"] + 8, (-0.06, 0.0, 0.023)),
+                       (m["glass"] + 44, (0.08, 0.0, 0.023)),
+                       (m["glass"] + 72, (0.16, 0.0, 0.023)),
                        (m["boot"] + 4, (0.0, 0.0, 0.023))):
         cc.key_loc(focus, frame, loc)
     ride = focus.constraints.new("COPY_LOCATION")
@@ -708,6 +726,18 @@ def main():
         labeled_name = "predstaveni_popisky.mp4"
     res = tuple(int(v) for v in cc.arg_value("--res", "1280x720" if preview else "1920x1080").split("x"))
     samples = int(cc.arg_value("--samples", "12" if preview else "24"))
+    uhd = (not preview) and res[1] >= 2160
+    if uhd:
+        if variant:
+            stem = f"predstaveni_{variant}_4k"
+            RAW = cc.RENDER_TMP / f"{stem}_raw.mp4"
+            FINAL = cc.VIDEO_DIR / f"{stem}.mp4"
+            labeled_name = f"{stem}_popisky.mp4"
+        else:
+            RAW = cc.RENDER_TMP / "predstaveni_4k_raw.mp4"
+            FINAL = cc.VIDEO_DIR / "predstaveni_4k.mp4"
+            labeled_name = "predstaveni_4k_popisky.mp4"
+        print("uhd", res, "final", FINAL)
     test = cc.arg_value("--test")
     data = json.loads(TIMELINE.read_text(encoding="utf-8"))
     m = data["markers"]
@@ -730,7 +760,7 @@ def main():
     pieces, moves_of = build_pieces(stage, data, mats, templates)
     check_clearance(stage, data, moves_of)
 
-    leds = cc.Leds(rig, scene.collection, glow_strength=3.6, light_energy=0.3, shadows=True, dies=False)
+    leds = cc.Leds(rig, scene.collection, glow_strength=6.4, light_energy=0.55, shadows=True, dies=False)
     leds.key(1, {})
     for entry in data["leds"]:
         leds.key(entry["f"], {sq: tuple(rgb) for sq, rgb in entry["leds"].items()})
@@ -751,7 +781,8 @@ def main():
     build_hall_overlay(stage, hall + 66, hall + 84, m["e4"])
 
     cc.black_world(scene)
-    cc.floor(scene.collection)
+    # No studio floor: a finite plane clips the lip skim and glass fly (anything
+    # under z≈0 vanishes). The board sits in black void; grazes light the metal.
     _card, card_mat = cc.gradient_card(scene.collection, "Amber backlight", (0.0, 1.15, 0.3), (2.8, 1.5), AMBER, 1.0)
     build_lights(stage, card_mat, m)
     build_embers(stage, m["boot"], m["boot"] + 16)
@@ -772,7 +803,7 @@ def main():
         cc.compositor(scene, bloom=0.4, threshold=1.4, dispersion=0.01, vignette=0.34)
     cc.RENDER_TMP.mkdir(parents=True, exist_ok=True)
     cc.VIDEO_DIR.mkdir(parents=True, exist_ok=True)
-    cc.video_output(scene, RAW)
+    cc.video_output(scene, RAW, quality="HIGH" if uhd else "PERC_LOSSLESS")
     print("scene ready", frames)
 
     if test:

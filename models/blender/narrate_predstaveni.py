@@ -21,16 +21,15 @@ BEATS = [
     (8.15, "Magnetický kód v každé figurce, Hall senzory poznají kterou."),
     (13.20, "Zvedneš, zelená kam smí, položíš, modrý záblesk a šedá vlna."),
     (18.15, "Černý odpovídá stejným jazykem."),
-    (21.20, "Šach, růžová na králi, žlutá na řešeních."),
-    (26.25, "Teď svítí jen cé šest."),
-    (30.20, "Mimo pravidla, tma, pak červená."),
-    (35.25, "Modrá ukáže odkud, zpět na ef tři."),
-    (38.25, "Braní, oranžová cíl, fialová oběť."),
-    (41.30, "Rošáda, dva tahy, král, věž, zlaté potvrzení."),
-    (49.30, "O pár tahů později, věž po e sloupci."),
-    (54.30, "Mat. Vlna od vítězného krále. CzechMate."),
+    (26.20, "Mimo pravidla, tma, pak červená."),
+    (33.00, "Modrá ukáže odkud, zpět na ef tři."),
+    (35.50, "Jezdec na cé šest, hra pokračuje."),
+    (58.80, "Braní, oranžová cíl, fialová oběť."),
+    (64.00, "Černý bere dámu."),
+    (77.80, "Šach, růžová na králi, žlutá na řešeních."),
+    (87.70, "Mat. Légalův mat. Vlna od vítězného krále. CzechMate."),
 ]
-END = 59.65
+END = 93.90
 
 
 def run(cmd):

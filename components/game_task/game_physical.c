@@ -578,6 +578,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     if (!error_recovery_state.waiting_for_move_correction && !piece_lifted &&
         !game_guided_capture_has_mode_conflict() &&
         game_find_legal_attackers_to_square(from_row, from_col, piece)) {
+      /* Opponent piece lifted first: purple origin + yellow capturers. */
       game_enter_guided_capture(from_row, from_col, piece);
 
       STAGING_LOGI(TAG,

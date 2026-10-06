@@ -15,8 +15,8 @@
   <meta property="og:image" content="https://alfredkrutina.github.io/chess_esp32_c6_devkit/landing/assets/og-share.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="preload" href="landing/assets/czm-hero-loop.mp4?v=2" as="fetch" type="video/mp4" fetchpriority="high">
-  <link rel="stylesheet" href="landing/landing.css">
+  <link rel="preload" href="landing/assets/hero-reel-poster.webp?v=9" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="landing/landing.css?v=13">
   <script>
     (function () {
       if (!location.hash && "scrollRestoration" in history) {
@@ -52,6 +52,7 @@
       <a class="brand" href="#">CzechMate</a>
       <nav class="nav-desktop" aria-label="Page sections">
         <a href="#board-teaches">Board</a>
+        <a href="#night-lamp">Lamp</a>
         <a href="#pieces">Pieces</a>
         <a href="#app">App</a>
         <a href="#download">Download</a>
@@ -64,6 +65,7 @@
     </div>
     <nav id="nav-mobile" class="nav-mobile" data-nav-mobile aria-label="Mobile menu">
       <a href="#board-teaches">Board</a>
+      <a href="#night-lamp">Lamp</a>
       <a href="#pieces">Pieces</a>
       <a href="#app">App</a>
       <a href="#download">Download</a>
@@ -74,7 +76,8 @@
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__reel video-media is-loading" data-video-media>
+      <div class="hero__reel video-media is-loading" data-video-media data-hero-reel>
+        <div class="hero__poster" aria-hidden="true"></div>
         <div class="video-media__loader" role="status" aria-label="Loading video">
           <span class="video-media__spinner" aria-hidden="true"></span>
         </div>
@@ -83,22 +86,19 @@
           class="hero__reel-video"
           data-no-pause
           muted
-          loop
           playsinline
           autoplay
-          preload="auto"
-          poster="landing/assets/hero-reel-poster.webp?v=2"
+          preload="none"
+          poster="landing/assets/hero-reel-poster.webp?v=9"
+          data-hls="landing/assets/hls/hero/master.m3u8?v=10"
+          data-hls-fallback="landing/assets/czm-hero-loop.mp4?v=10"
           tabindex="-1"
-          aria-label="CzechMate board lighting up">
-          <source src="landing/assets/czm-hero-loop.mp4?v=2" type="video/mp4">
+          aria-label="CzechMate: board wake-up, piece recognition, guided play, and mate">
         </video>
         <div class="hero__veil" aria-hidden="true"></div>
         <div class="hero__intro reveal-stagger">
           <p class="hero__brand">CzechMate</p>
           <h1 id="hero-title" class="hero__title">Chess on a living board.</h1>
-          <p class="hero__lead">
-            Real pieces the board can identify, lights on the squares, and an app that teaches — from the first game to Stockfish and an AI coach.
-          </p>
           <div class="hero__actions">
             <a class="btn btn--primary" href="#download">Download the app</a>
             <a class="btn btn--ghost" href="#board-teaches">See the board</a>
@@ -145,50 +145,68 @@
           Magnets in each foot are arranged so Hall sensors under the square do not only see “something is here” —
           they resolve <strong>which piece type</strong> it is (pawn through king), so the position on the board matches the game.
         </p>
-        <ul class="piece-gallery reveal-stagger" data-piece-tone>
+        <div class="piece-stage reveal reveal--seq-3">
+          <ul class="piece-gallery" id="piece-gallery" data-piece-tone>
           <li style="--piece-i: 0">
             <div class="piece-tone">
-              <img class="piece-tone__white" src="landing/assets/piece-king.webp" width="720" height="1440" alt="King — white PLA set" loading="lazy" decoding="async">
-              <img class="piece-tone__black" src="landing/assets/piece-king-black.webp" width="720" height="1440" alt="" loading="lazy" decoding="async" aria-hidden="true">
+              <img class="piece-tone__white" src="landing/assets/piece-king.webp?v=9" width="720" height="1440" alt="King — white PLA set" loading="lazy" decoding="async">
+              <img class="piece-tone__black" data-src="landing/assets/piece-king-black.webp?v=11" width="720" height="1440" alt="" decoding="async" aria-hidden="true">
             </div>
             <span>King</span>
           </li>
           <li style="--piece-i: 1">
             <div class="piece-tone">
-              <img class="piece-tone__white" src="landing/assets/piece-queen.webp" width="720" height="1440" alt="Queen — white PLA set" loading="lazy" decoding="async">
-              <img class="piece-tone__black" src="landing/assets/piece-queen-black.webp" width="720" height="1440" alt="" loading="lazy" decoding="async" aria-hidden="true">
+              <img class="piece-tone__white" src="landing/assets/piece-queen.webp?v=9" width="720" height="1440" alt="Queen — white PLA set" loading="lazy" decoding="async">
+              <img class="piece-tone__black" data-src="landing/assets/piece-queen-black.webp?v=11" width="720" height="1440" alt="" decoding="async" aria-hidden="true">
             </div>
             <span>Queen</span>
           </li>
           <li style="--piece-i: 2">
             <div class="piece-tone">
-              <img class="piece-tone__white" src="landing/assets/piece-bishop.webp" width="720" height="1440" alt="Bishop — white PLA set" loading="lazy" decoding="async">
-              <img class="piece-tone__black" src="landing/assets/piece-bishop-black.webp" width="720" height="1440" alt="" loading="lazy" decoding="async" aria-hidden="true">
+              <img class="piece-tone__white" src="landing/assets/piece-bishop.webp?v=9" width="720" height="1440" alt="Bishop — white PLA set" loading="lazy" decoding="async">
+              <img class="piece-tone__black" data-src="landing/assets/piece-bishop-black.webp?v=11" width="720" height="1440" alt="" decoding="async" aria-hidden="true">
             </div>
             <span>Bishop</span>
           </li>
           <li style="--piece-i: 3">
             <div class="piece-tone">
-              <img class="piece-tone__white" src="landing/assets/piece-knight.webp" width="720" height="1440" alt="Knight — white PLA set" loading="lazy" decoding="async">
-              <img class="piece-tone__black" src="landing/assets/piece-knight-black.webp" width="720" height="1440" alt="" loading="lazy" decoding="async" aria-hidden="true">
+              <img class="piece-tone__white" src="landing/assets/piece-knight.webp?v=9" width="720" height="1440" alt="Knight — white PLA set" loading="lazy" decoding="async">
+              <img class="piece-tone__black" data-src="landing/assets/piece-knight-black.webp?v=11" width="720" height="1440" alt="" decoding="async" aria-hidden="true">
             </div>
             <span>Knight</span>
           </li>
           <li style="--piece-i: 4">
             <div class="piece-tone">
-              <img class="piece-tone__white" src="landing/assets/piece-rook.webp" width="720" height="1440" alt="Rook — white PLA set" loading="lazy" decoding="async">
-              <img class="piece-tone__black" src="landing/assets/piece-rook-black.webp" width="720" height="1440" alt="" loading="lazy" decoding="async" aria-hidden="true">
+              <img class="piece-tone__white" src="landing/assets/piece-rook.webp?v=9" width="720" height="1440" alt="Rook — white PLA set" loading="lazy" decoding="async">
+              <img class="piece-tone__black" data-src="landing/assets/piece-rook-black.webp?v=11" width="720" height="1440" alt="" decoding="async" aria-hidden="true">
             </div>
             <span>Rook</span>
           </li>
           <li style="--piece-i: 5">
             <div class="piece-tone">
-              <img class="piece-tone__white" src="landing/assets/piece-pawn.webp" width="720" height="1440" alt="Pawn — white PLA set" loading="lazy" decoding="async">
-              <img class="piece-tone__black" src="landing/assets/piece-pawn-black.webp" width="720" height="1440" alt="" loading="lazy" decoding="async" aria-hidden="true">
+              <img class="piece-tone__white" src="landing/assets/piece-pawn.webp?v=9" width="720" height="1440" alt="Pawn — white PLA set" loading="lazy" decoding="async">
+              <img class="piece-tone__black" data-src="landing/assets/piece-pawn-black.webp?v=11" width="720" height="1440" alt="" decoding="async" aria-hidden="true">
             </div>
             <span>Pawn</span>
           </li>
         </ul>
+          <div class="piece-swap">
+            <button
+              type="button"
+              class="piece-swap__btn"
+              id="piece-tone-toggle"
+              data-piece-tone-toggle
+              aria-pressed="false"
+              aria-controls="piece-gallery"
+              aria-label="Show black pieces">
+              <span class="piece-swap__press" aria-hidden="true">
+                <span class="piece-swap__track">
+                  <span class="piece-swap__thumb"></span>
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -217,8 +235,9 @@
               autoplay
               preload="none"
               tabindex="-1"
+              data-hls="landing/assets/hls/led/master.m3u8?v=9"
+              data-hls-fallback="landing/assets/czm-v2-led-loop.mp4?v=9"
               aria-label="CzechMate LED chessboard in action">
-              <source data-src="landing/assets/czm-v2-led-loop.mp4" type="video/mp4">
             </video>
           </div>
           <div class="split__text">
@@ -236,6 +255,50 @@
                 <span class="video-media__spinner" aria-hidden="true"></span>
               </div>
               <video
+                id="czm-board-build"
+                class="split__video split__video--loop"
+                data-no-pause
+                data-loop-hold="1"
+                data-lazy-local
+                muted
+                playsinline
+                autoplay
+                preload="none"
+                poster="landing/assets/film-build-poster.webp?v=7"
+                data-hls="landing/assets/hls/build/master.m3u8?v=9"
+                data-hls-fallback="landing/assets/czm-board-build.mp4?v=9"
+                aria-label="CzechMate board, layer by layer, then assembled">
+              </video>
+            </div>
+          </figure>
+          <figure class="film-card">
+            <div class="split__media video-media is-loading" data-video-media>
+              <div class="video-media__loader" role="status" aria-label="Loading video">
+                <span class="video-media__spinner" aria-hidden="true"></span>
+              </div>
+              <video
+                id="czm-board-film"
+                class="split__video split__video--loop"
+                data-no-pause
+                data-lazy-local
+                muted
+                loop
+                playsinline
+                autoplay
+                preload="none"
+                poster="landing/assets/film-board-poster.webp?v=7"
+                data-hls="landing/assets/hls/board/master.m3u8?v=9"
+                data-hls-fallback="landing/assets/czm-board-film.mp4?v=9"
+                aria-label="CzechMate board, from the glass to a finished game">
+              </video>
+            </div>
+          </figure>
+          <figure class="film-card">
+            <div class="split__media video-media is-loading" data-video-media>
+              <div class="video-media__loader" role="status" aria-label="Loading video">
+                <span class="video-media__spinner" aria-hidden="true"></span>
+              </div>
+              <video
                 id="czm-players-film"
                 class="split__video"
                 data-lazy-local
@@ -244,50 +307,56 @@
                 playsinline
                 preload="none"
                 poster="landing/assets/film-players-poster.webp"
+                data-hls="landing/assets/hls/players/master.m3u8?v=9"
+                data-hls-fallback="landing/assets/czm-players.mp4?v=9"
                 aria-label="Two players at a CzechMate board">
-                <source data-src="landing/assets/czm-players.mp4" type="video/mp4">
               </video>
             </div>
-            <figcaption>Two players at the board — real pieces, lights on the squares</figcaption>
           </figure>
-          <figure class="film-card">
-            <div class="split__media video-media is-loading" data-video-media>
-              <div class="video-media__loader" role="status" aria-label="Loading video">
-                <span class="video-media__spinner" aria-hidden="true"></span>
-              </div>
-              <video
-                class="split__video"
-                data-lazy-local
-                data-click-play
-                muted
-                playsinline
-                preload="none"
-                poster="landing/assets/film-board-poster.webp"
-                aria-label="CzechMate board, from the glass to a finished game">
-                <source data-src="landing/assets/czm-board-film.mp4" type="video/mp4">
-              </video>
+        </div>
+      </div>
+    </section>
+
+    <section id="night-lamp" class="section" aria-labelledby="lamp-title">
+      <div class="section__inner">
+        <p class="section__label reveal">After the game</p>
+        <h2 id="lamp-title" class="section__title reveal reveal--seq-1">Leave it on the nightstand. It becomes a lamp you already own in Home Assistant.</h2>
+        <p class="section__intro reveal reveal--seq-2">
+          After a few minutes idle, CzechMate switches from chess to <strong>one colour across all 64 squares</strong>.
+          Home Assistant sees it as a normal MQTT RGB light — brightness, colour, on and off, same as any other lamp.
+          Pick a piece up and the board is a chessboard again.
+        </p>
+        <div class="split reveal-stagger">
+          <div class="split__media split__media--wide video-media is-loading" data-video-media>
+            <div class="video-media__loader" role="status" aria-label="Loading video">
+              <span class="video-media__spinner" aria-hidden="true"></span>
             </div>
-            <figcaption>The board, from the sandblasted glass to mate</figcaption>
-          </figure>
-          <figure class="film-card">
-            <div class="split__media video-media is-loading" data-video-media>
-              <div class="video-media__loader" role="status" aria-label="Loading video">
-                <span class="video-media__spinner" aria-hidden="true"></span>
-              </div>
-              <video
-                class="split__video"
-                data-lazy-local
-                data-click-play
-                muted
-                playsinline
-                preload="none"
-                poster="landing/assets/film-build-poster.webp"
-                aria-label="CzechMate board taken apart, layer by layer">
-                <source data-src="landing/assets/czm-board-build.mp4" type="video/mp4">
-              </video>
-            </div>
-            <figcaption>Glass, foil, sensors, and the four boards. The labels in this film are in Czech.</figcaption>
-          </figure>
+            <video
+              id="czm-lamp-film"
+              class="split__video split__video--loop"
+              data-lazy-local
+              data-play-when-visible
+              muted
+              loop
+              playsinline
+              preload="none"
+              poster="landing/assets/film-lamp-poster.webp?v=11"
+              data-hls="landing/assets/hls/lamp/master.m3u8?v=11"
+              data-hls-fallback="landing/assets/czm-lamp.mp4?v=11"
+              aria-label="CzechMate glowing as a nightstand lamp in a dark room">
+            </video>
+          </div>
+          <div class="split__text">
+            <h3>The board is the light</h3>
+            <p>
+              Sit it flat on a table or nightstand so the glass faces the room. There is no extra lamp inside —
+              the same square LEDs that teach a game become a warm wash on the wall.
+              Colour and brightness come from your smart home, not from a second app.
+            </p>
+            <p class="split__note">
+              The clip above is a 3D placeholder. A real-room recording of the board as a lamp will replace it.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -406,8 +475,9 @@
                 playsinline
                 tabindex="0"
                 preload="none"
-                title="CzechMate — app interface">
-                <source data-src="landing/assets/czm-v2-app-iphone.mp4" type="video/mp4">
+                title="CzechMate — app interface"
+                data-hls="landing/assets/hls/app/master.m3u8?v=9"
+                data-hls-fallback="landing/assets/czm-v2-app-iphone.mp4?v=9">
               </video>
             </div>
           </div>
@@ -638,6 +708,7 @@
     </div>
   </footer>
 
-  <script src="landing/landing.js" defer></script>
+  <script src="landing/vendor/hls.min.js" defer></script>
+  <script src="landing/landing.js?v=13" defer></script>
 </body>
 </html>
