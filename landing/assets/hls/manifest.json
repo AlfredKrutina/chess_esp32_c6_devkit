@@ -1,0 +1,37 @@
+[
+  {
+    "name": "hero",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\models\\blender\\video\\predstaveni.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\hero\\master.m3u8"
+  },
+  {
+    "name": "players",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\models\\blender\\video\\hraci_4k.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\players\\master.m3u8"
+  },
+  {
+    "name": "board",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\models\\blender\\video\\predstaveni.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\board\\master.m3u8"
+  },
+  {
+    "name": "build",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\models\\blender\\video\\rozklad_4k.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\build\\master.m3u8"
+  },
+  {
+    "name": "led",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\czm-v2-led-loop.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\led\\master.m3u8"
+  },
+  {
+    "name": "app",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\czm-v2-app-iphone.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\app\\master.m3u8"
+  },
+  {
+    "name": "lamp",
+    "source": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\models\\blender\\video\\lampa.mp4",
+    "hls": "D:\\projects\\Programming\\Git\\chess_esp32_c6_devkit\\gh-pages-ready\\landing\\assets\\hls\\lamp\\master.m3u8"
+  }
+]
