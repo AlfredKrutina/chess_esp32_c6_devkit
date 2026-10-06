@@ -532,7 +532,8 @@ def main():
     wall_r.location = (0.145, 0.0, 0.01)
     coll.objects.link(wall_r)
     cc.black_world(scene, (0.0, 0.0, 0.0), 0.0)
-    cc.floor(coll, color=(0.012, 0.012, 0.014), roughness=0.18)
+    # No studio floor: the underside / screw camera goes below z=0, and an opaque
+    # plane clips the whole shot into a dark slab with only screw tips visible.
     cc.gradient_card(coll, "Backdrop", (0.0, 2.2, 0.15), (5.0, 3.0), (0.04, 0.042, 0.048), 0.7)
     cc.area(coll, "Key", (0.22, -0.85, 0.72), 0.85, 14, (1.0, 0.985, 0.96), aim, glossy=True)
     cc.area(coll, "Fill", (-0.35, -0.9, 0.28), 1.4, 3.4, (0.82, 0.86, 0.92), aim, glossy=True)

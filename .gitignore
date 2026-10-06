@@ -68,8 +68,19 @@ components/*/build/
 !/gh-pages-ready/landing/
 !/gh-pages-ready/landing/**/*
 
+# HLS ABR (~150 MB fMP4) — regeneruj: py -3.12 models/blender/encode_web.py
+# Na Pages stačí progressive MP4 (data-hls-fallback). HLS drž lokálně / force-add jen když chceš ABR.
+/gh-pages-ready/landing/assets/hls/
+
+# Mezikrok encode_web (poster PNG → WebP)
+/gh-pages-ready/landing/assets/*poster.png
+
 # Lokální šum
 *.log
+*.tmp
+*.temp
+Thumbs.db
+Desktop.ini
 
 # IDE / indexer cache (clangd, ccls, …)
 .cache/
@@ -99,26 +110,34 @@ __pycache__/
 
 # =============================================================================
 # Blender / 3D pipeline (models/blender)
-# Skripty a malé assety (STL, board GLB, timeline) můžeš commitovat.
-# Lidi (MPFB), finální render videa a Blender autosave do Gitu nepatří.
+# Commituj: skripty (build_*.py, cine_common, led_*), board/*.glb|stl, timeline JSON.
+# Nekommituj: scény .blend (přegenerují se skriptem), video/, MPFB set/, scratch _*.py.
 # =============================================================================
-# Autosave / crash backup vedle .blend
+# Scény a Blender autosave / crash — vždy znovu z build_*.py
+/models/blender/*.blend
+/models/blender/*.blend1
+/models/blender/*.blend2
 *.blend1
 *.blend2
-
-# Cycles scéna s hráči — desítky MB, lokální experiment
-/models/blender/czechmate_hraci.blend
 
 # MPFB people / clothes / asset pack (~700+ MB)
 /models/blender/set/
 
-# Vyrenderovaná videa a stills (~400 MB) — drž lokálně / na Pages jen vybrané mp4
+# Masterny 4K/FHD, raw, logy renderů (~1+ GB)
 /models/blender/video/
 
-# Jednorázové náhledy a ladicí skripty
+# Scratch / one-off diagnostika vedle pipeline
+/models/blender/_*.py
 /models/blender/preview.png
-/models/blender/_fingers.py
-/models/blender/_pinch_tune.py
+/models/blender/*.jpg
+/models/blender/*.jpeg
+/models/blender/*.exr
+/models/blender/*.tif
+/models/blender/*.tiff
+
+# Náhodný EEVEE/Cycles cache vedle skriptů
+/models/blender/cache/
+/models/blender/.blender/
 
 # =============================================================================
 # Ostatní

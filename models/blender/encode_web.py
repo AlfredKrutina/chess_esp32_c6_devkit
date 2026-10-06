@@ -38,8 +38,10 @@ FILMS = (
         "sources": (VIDEO / "predstaveni_4k.mp4", VIDEO / "predstaveni.mp4", ASSETS / "czm-hero-loop.mp4"),
         "fallback": ASSETS / "czm-hero-loop.mp4",
         "poster": ASSETS / "hero-reel-poster.webp",
-        "poster_at": 7.2,
-        # CzechMate logo overlay starts at frame 2731 / 30 fps (outro).
+        # Mid glass fly (source seconds). Skip the under-lip open.
+        "poster_at": 5.5,
+        # Start on glass+2 (frame 122): fly along the sandblast. End before CzechMate logo.
+        "start": 4.07,
         "end": 91.00,
     },
     {
@@ -99,15 +101,28 @@ def pick_source(candidates) -> Path | None:
     return None
 
 
-def encode_rung(src: Path, dest_dir: Path, tag: str, width: int, height: int, crf: int, end: float | None = None) -> int:
+def encode_rung(
+    src: Path,
+    dest_dir: Path,
+    tag: str,
+    width: int,
+    height: int,
+    crf: int,
+    start: float | None = None,
+    end: float | None = None,
+) -> int:
     dest_dir.mkdir(parents=True, exist_ok=True)
     vf = (
         f"scale=w={width}:h={height}:force_original_aspect_ratio=decrease:"
         "force_divisible_by=2,setsar=1"
     )
-    cmd = [FFMPEG, "-y", "-i", str(src), "-an"]
+    cmd = [FFMPEG, "-y"]
+    if start is not None:
+        cmd.extend(["-ss", f"{start:.3f}"])
+    cmd.extend(["-i", str(src), "-an"])
     if end is not None:
-        cmd.extend(["-t", f"{end:.3f}"])
+        duration = end - (start or 0.0)
+        cmd.extend(["-t", f"{duration:.3f}"])
     cmd.extend(
         [
             "-vf",
@@ -159,11 +174,21 @@ def write_master(folder: Path, rungs: list[tuple[str, int, int, int]]) -> None:
     (folder / "master.m3u8").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def encode_fallback(src: Path, dest: Path, width: int = 1280, end: float | None = None) -> None:
+def encode_fallback(
+    src: Path,
+    dest: Path,
+    width: int = 1280,
+    start: float | None = None,
+    end: float | None = None,
+) -> None:
     tmp = dest.with_suffix(".tmp.mp4")
-    cmd = [FFMPEG, "-y", "-i", str(src), "-an"]
+    cmd = [FFMPEG, "-y"]
+    if start is not None:
+        cmd.extend(["-ss", f"{start:.3f}"])
+    cmd.extend(["-i", str(src), "-an"])
     if end is not None:
-        cmd.extend(["-t", f"{end:.3f}"])
+        duration = end - (start or 0.0)
+        cmd.extend(["-t", f"{duration:.3f}"])
     cmd.extend(
         [
             "-vf",
@@ -222,15 +247,16 @@ def encode_film(spec: dict) -> dict | None:
     if out.exists():
         shutil.rmtree(out)
     out.mkdir(parents=True, exist_ok=True)
-    print("encode", name, "from", src, "end", spec.get("end"))
+    print("encode", name, "from", src, "start", spec.get("start"), "end", spec.get("end"))
+    start = spec.get("start")
     end = spec.get("end")
     rungs = []
     for tag, width, height, crf, bandwidth in LADDER:
-        encode_rung(src, out / tag, tag, width, height, crf, end=end)
+        encode_rung(src, out / tag, tag, width, height, crf, start=start, end=end)
         rungs.append((tag, width, height, crf, bandwidth))
     write_master(out, rungs)
     fallback = spec["fallback"]
-    encode_fallback(src, fallback, 1280, end=end)
+    encode_fallback(src, fallback, 1280, start=start, end=end)
     if spec["poster"] is not None:
         poster(src, spec["poster"], spec["poster_at"])
     return {"name": name, "source": str(src), "hls": str(out / "master.m3u8")}
