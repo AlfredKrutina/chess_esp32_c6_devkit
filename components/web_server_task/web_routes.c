@@ -6,7 +6,6 @@
 #include "web_routes.h"
 #include "web_server_internal.h"
 
-#include "chess_piece_http.h"
 #include "ota_update.h"
 #include "web_server_task.h"
 
@@ -24,7 +23,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
 
   ESP_LOGI(TAG, "Registering URI handlers...");
 
-  // Handler for Chess JavaScript file
+  /* Old browser bookmark. The page itself is in kos/unused/web_ui. */
   httpd_uri_t chess_js_uri = {.uri = "/chess_app.js",
                               .method = HTTP_GET,
                               .handler = http_get_chess_js_handler,
@@ -326,13 +325,6 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                  .handler = http_post_mqtt_config_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &mqtt_config_uri);
-
-  ret = chess_piece_register_http_uris(handle);
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "chess_piece_register_http_uris failed: %s",
-             esp_err_to_name(ret));
-    return ret;
-  }
 
 #if CONFIG_HTTPD_WS_SUPPORT
   httpd_uri_t ws_uri = {.uri = "/ws",

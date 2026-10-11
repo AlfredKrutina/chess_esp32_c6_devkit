@@ -12,7 +12,7 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         depends on CHESS_STM32_I2C_BL_ENABLE && CHESS_MATRIX_INPUT_I2C_HALL
         default y
         help
-            It will use the same port/SDA/SCL as CHESS_HALL_I2C_* (the driver will already install hall_i2c_matrix_init).
+            It will use the same port/SDA/SCL as CHESS_HALL_I2C_* (the driver will already install hall_i2c_squares_init).
 
     config CHESS_STM32_BL_SHARED_I2C_FREQ_HZ
         int "I2C clock Hz (shared bus with Hall)"
@@ -20,7 +20,7 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         range 50000 400000
         default 100000
         help
-            After hall_i2c_matrix_init() it resets the speed in stm32_i2c_bl_init() (i2c_param_config).
+            After hall_i2c_squares_init() it resets the speed in stm32_i2c_bl_init() (i2c_param_config).
             ROM bootloader on STM usually tolerates 100kHz better than 400kHz; Hall chips can usually handle 100 kHz.
 
     config CHESS_STM32_BL_I2C_PORT_NUM

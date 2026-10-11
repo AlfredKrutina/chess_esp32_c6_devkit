@@ -1,6 +1,6 @@
 # Hall V2 + STM32 auto-flash profile (test / production board with I2C Hall segments).
-# Usage:
-#   idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
+# Usage (defaults do not override keys already present in sdkconfig — keep a separate file):
+#   idf.py -B build-hall-v2 -D SDKCONFIG=sdkconfig.hall_v2 -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
 #
 # GPIOs below are for the V2 board without reed multiplex on SDA/SCL — DO NOT USE on V1 LaskaKit
 # (there GPIO10/11 are matrix rows). See docs/reference/WIRING_ESP_STM4.md
@@ -8,6 +8,10 @@
 # Matrix input via I2C Hall (STM32 slave)
 # CONFIG_CHESS_MATRIX_INPUT_GPIO_REED is not set
 CONFIG_CHESS_MATRIX_INPUT_I2C_HALL=y
+
+# V2 board uses the Flutter app. Browser page is not in the image (kos/unused/web_ui).
+CONFIG_CHESS_ENABLE_WEB_SERVER=y
+CONFIG_HTTPD_WS_SUPPORT=y
 
 # Hall I2C — dedicated pins (no clash with reed rows 10/11)
 CONFIG_CHESS_HALL_I2C_SDA_GPIO=12

@@ -38,6 +38,7 @@
 #include "esp_wifi.h"
 #include "freertos/semphr.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "game_task.h"
 #include "led_task.h"
 #include "mqtt_client.h"
@@ -72,6 +73,7 @@ static const char *TAG = "HA_LIGHT_TASK";
 #define LAMP_NVS_KEY_G "g"
 #define LAMP_NVS_KEY_B "b"
 #define LAMP_NVS_KEY_AUTO_TIMEOUT_SEC "auto_sec"
+#define LAMP_NVS_KEY_MODE "mode"
 
 // Range for automatic switching to lamp mode: 5 s .. 120 min (7200 s)
 #define HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC 5
@@ -91,6 +93,9 @@ static const char *TAG = "HA_LIGHT_TASK";
 // Task state
 static bool task_running = false;
 static ha_mode_t current_mode = HA_MODE_GAME;
+static bool s_nvs_mode_found = false;
+static ha_mode_t s_nvs_mode = HA_MODE_GAME;
+static bool s_boot_mode_applied = false;
 
 // Activity tracking – time (s) after which the lamp switches to mode (read from
 // NVS)
@@ -133,7 +138,7 @@ static struct {
 
 // Externi fronty
 extern QueueHandle_t game_command_queue;
-extern QueueHandle_t matrix_event_queue;
+extern QueueHandle_t squares_event_queue;
 
 // Internal queue for HA task
 static QueueHandle_t ha_light_cmd_queue = NULL;
@@ -157,6 +162,7 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
 static void ha_light_publish_state(void);
 static void lamp_nvs_load(void);
 static void lamp_nvs_save(void);
+static void lamp_nvs_save_mode(void);
 
 // ============================================================================
 // WDT HELPER FUNCTIONS
@@ -165,27 +171,12 @@ static void lamp_nvs_save(void);
 /**
  * @brief Safe reset WDT
  */
-static esp_err_t ha_light_task_wdt_reset_safe(void) {
-  esp_err_t ret = esp_task_wdt_reset();
-  if (ret == ESP_ERR_NOT_FOUND) {
-    ESP_LOGW(TAG, "WDT reset: task not registered yet");
-    return ESP_OK;
-  } else if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-    return ret;
-  }
-  return ESP_OK;
-}
-
 /** Main loop handle — esp_task_wdt_reset only from ha_light_task (not from MQTT).
  */
 static TaskHandle_t s_ha_light_task_hdl;
 
 static void ha_light_wdt_feed_if_own_task(void) {
-  if (s_ha_light_task_hdl != NULL &&
-      xTaskGetCurrentTaskHandle() == s_ha_light_task_hdl) {
-    (void)ha_light_task_wdt_reset_safe();
-  }
+  (void)chess_task_wdt_reset_if_owner(TAG, s_ha_light_task_hdl);
 }
 
 // ============================================================================
@@ -230,7 +221,7 @@ static bool ha_light_check_wifi_sta_connected(void) {
 static void ha_light_monitor_game_activity(void) {
   // Activity monitoring is done via ha_light_report_activity() calls from:
   // - game_task: when processing game commands
-  // - matrix_task: when detecting piece movement
+  // - squares_task: when detecting piece movement
   // We just check if we need to switch modes based on activity timeout
 }
 
@@ -314,6 +305,7 @@ static void ha_light_switch_to_ha_mode(void) {
 
   if (mode_changed) {
     ESP_LOGI(TAG, "Switching to HA MODE");
+    lamp_nvs_save_mode();
   }
   current_mode = HA_MODE_HA;
 
@@ -358,6 +350,7 @@ static void ha_light_switch_to_game_mode(void) {
   ESP_LOGI(TAG, "Switching to GAME MODE");
   ha_light_wdt_feed_if_own_task();
   current_mode = HA_MODE_GAME;
+  lamp_nvs_save_mode();
 
   // Restore game LED state (refresh based on current game status)
   game_refresh_leds();
@@ -1024,6 +1017,12 @@ static void lamp_nvs_load(void) {
       auto_sec <= HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC) {
     activity_timeout_auto_sec = auto_sec;
   }
+  uint8_t mode_u8 = 0;
+  if (nvs_get_u8(handle, LAMP_NVS_KEY_MODE, &mode_u8) == ESP_OK &&
+      (mode_u8 == HA_MODE_GAME || mode_u8 == HA_MODE_HA)) {
+    s_nvs_mode = (ha_mode_t)mode_u8;
+    s_nvs_mode_found = true;
+  }
   nvs_close(handle);
 
   if (ha_light_state_mutex != NULL &&
@@ -1038,7 +1037,7 @@ static void lamp_nvs_load(void) {
 }
 
 static void lamp_nvs_save(void) {
-  ha_light_task_wdt_reset_safe();
+  chess_task_wdt_reset_safe(TAG);
   bool st;
   uint8_t r, g, b;
   if (ha_light_state_mutex != NULL &&
@@ -1061,9 +1060,9 @@ static void lamp_nvs_save(void) {
   nvs_set_u8(handle, LAMP_NVS_KEY_R, r);
   nvs_set_u8(handle, LAMP_NVS_KEY_G, g);
   nvs_set_u8(handle, LAMP_NVS_KEY_B, b);
-  ha_light_task_wdt_reset_safe();
+  chess_task_wdt_reset_safe(TAG);
   esp_err_t err = nvs_commit(handle);
-  ha_light_task_wdt_reset_safe();
+  chess_task_wdt_reset_safe(TAG);
   nvs_close(handle);
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "lamp_nvs_save: nvs_commit failed (%s)",
@@ -1081,6 +1080,20 @@ static void lamp_nvs_save_auto_timeout(void) {
   nvs_close(handle);
 }
 
+static void lamp_nvs_save_mode(void) {
+  nvs_handle_t handle;
+  if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READWRITE, &handle) != ESP_OK) {
+    ESP_LOGW(TAG, "lamp mode NVS open failed");
+    return;
+  }
+  nvs_set_u8(handle, LAMP_NVS_KEY_MODE, (uint8_t)current_mode);
+  esp_err_t err = nvs_commit(handle);
+  nvs_close(handle);
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "lamp mode NVS commit failed (%s)", esp_err_to_name(err));
+  }
+}
+
 // ============================================================================
 // PUBLIC API FUNCTIONS
 // ============================================================================
@@ -1089,6 +1102,18 @@ static void lamp_nvs_save_auto_timeout(void) {
  * @brief Get the current regime
  */
 ha_mode_t ha_light_get_mode(void) { return current_mode; }
+
+bool ha_light_request_mode(ha_mode_t mode) {
+  if (ha_light_cmd_queue == NULL) {
+    return false;
+  }
+  ha_light_command_t cmd = {0};
+  cmd.type = HA_CMD_SET_MODE;
+  cmd.u.web_lamp.state = (uint8_t)mode;
+  return xQueueSend(ha_light_cmd_queue, &cmd, 0) == pdTRUE;
+}
+
+void ha_light_persist_mode(void) { lamp_nvs_save_mode(); }
 
 uint32_t ha_light_get_activity_timeout_sec(void) {
   return activity_timeout_auto_sec;
@@ -1277,14 +1302,22 @@ void ha_light_task_start(void *pvParameters) {
     // If the boot animation is running, the HA task must not send LED commands!
     // (e.g. "turn off the light" on a fast WiFi connection)
     if (led_is_booting()) {
-      ha_light_task_wdt_reset_safe();
+      chess_task_wdt_reset_safe(TAG);
       vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - quick wakeup after fade_out!
       continue;
+    }
+    if (!s_boot_mode_applied) {
+      s_boot_mode_applied = true;
+      if (s_nvs_mode_found && s_nvs_mode == HA_MODE_HA &&
+          current_mode != HA_MODE_HA) {
+        ESP_LOGI(TAG, "[STAGING] restore persisted lamp mode");
+        ha_light_switch_to_ha_mode();
+      }
     }
     // =========================================================================
 
     // Reset WDT
-    ha_light_task_wdt_reset_safe();
+    chess_task_wdt_reset_safe(TAG);
 
     // Process queue with timeout (100ms) - replaces vTaskDelay
     ha_light_command_t cmd;
@@ -1303,6 +1336,12 @@ void ha_light_task_start(void *pvParameters) {
         }
         lamp_nvs_save();
         ha_light_switch_to_ha_mode();
+      } else if (cmd.type == HA_CMD_SET_MODE) {
+        if (cmd.u.web_lamp.state == HA_MODE_HA) {
+          ha_light_switch_to_ha_mode();
+        } else {
+          ha_light_switch_to_game_mode();
+        }
       } else if (cmd.type == HA_CMD_ACTIVITY) {
         const char *activity_name = (const char *)cmd.u.data;
         // Reset activity timer in HA task context
@@ -1339,7 +1378,7 @@ void ha_light_task_start(void *pvParameters) {
           }
         }
       }
-      ha_light_task_wdt_reset_safe();
+      chess_task_wdt_reset_safe(TAG);
     }
 
     // POLL: Check WiFi STA status periodically (every 5 seconds)
@@ -1364,14 +1403,14 @@ void ha_light_task_start(void *pvParameters) {
       if (wifi_connected && !sta_connected) {
         sta_connected = true;
         ESP_LOGI(TAG, "WiFi STA connected - initializing MQTT");
-        ha_light_task_wdt_reset_safe();
+        chess_task_wdt_reset_safe(TAG);
         ha_light_init_mqtt();
       } else if (wifi_connected && sta_connected && mqtt_client == NULL) {
         /* Repeat after freeing the heap; with NO_MEM no more often than 1×/30 s (saves
          *CPU and WDT) */
         if (current_time_ms - last_mqtt_retry_ms >= 30000) {
           last_mqtt_retry_ms = current_time_ms;
-          ha_light_task_wdt_reset_safe();
+          chess_task_wdt_reset_safe(TAG);
           esp_err_t mr = ha_light_init_mqtt();
           if (mr == ESP_ERR_NO_MEM) {
             ESP_LOGW(TAG, "MQTT retry skipped/low heap: free=%zu B",

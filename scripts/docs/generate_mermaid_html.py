@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate HTML and export individual Mermaid diagrams from docs/diagrams/mermaid_diagrams.txt.
+Generate HTML and export individual Mermaid diagrams from context/diagrams/mermaid_diagrams.txt.
 
 mermaid_diagrams.txt is NOT a single diagram — it contains comments (#) and 26 sequenceDiagram blocks.
 Pasting the whole file into mermaid.live / an editor preview will fail (UnknownDiagramError).
@@ -172,7 +172,7 @@ def generate_html(sections, output_file):
     content_html.append(
         '<p class="intro">Sequences from <code>mermaid_diagrams.txt</code> (the source is not a single Mermaid block — '
         'for mermaid.live use <code>extracted/*.mmd</code> after '
-        '<code>python generate_mermaid_html.py --export-dir docs/diagrams/extracted</code>). '
+        '<code>python generate_mermaid_html.py --export-dir context/diagrams/extracted</code>). '
         'Task diagrams: <a href="README.md">README.md</a>. Firmware version: root '
         '<code>CMakeLists.txt</code>.</p>'
     )
@@ -417,12 +417,12 @@ def _build_arg_parser():
     )
     p.add_argument(
         "--input",
-        default="docs/diagrams/mermaid_diagrams.txt",
+        default="context/diagrams/mermaid_diagrams.txt",
         help="Source file with diagrams",
     )
     p.add_argument(
         "--output",
-        default="docs/diagrams/diagrams_mermaid.html",
+        default="context/diagrams/diagrams_mermaid.html",
         help="Output HTML (default mode)",
     )
     p.add_argument(
@@ -497,7 +497,7 @@ def main():
 
     print(f"\nGenerating HTML to {args.output}...")
     generate_html(sections, args.output)
-    export_dir = Path("docs/diagrams/extracted")
+    export_dir = Path("context/diagrams/extracted")
     n = export_diagrams_to_dir(sections, export_dir)
     print(f"Export {n}x .mmd -> {export_dir}/")
     print("Done!")

@@ -10,7 +10,7 @@ python3 tools/openings/sync_catalog.py --validate --physical-rules --mirror-symm
 
 - **Source of truth:** `data/openings_master.json`
 - **Schema:** `data/openings_catalog.schema.json`
-- **Outputs:** `components/web_server_task/web/data/openings_catalog.json`, `flutter_czechmate/assets/data/openings_catalog.json`, `components/web_server_task/web/js/opening_catalog.js` (generated on `--copy`)
+- **Outputs:** `kos/unused/web_ui/web/data/openings_catalog.json` (archived browser copy), `flutter_czechmate/assets/data/openings_catalog.json`, `kos/unused/web_ui/web/js/opening_catalog.js` (generated on `--copy`)
 
 ## pgn_to_catalog.py
 

@@ -100,14 +100,14 @@
 #include "sdkconfig.h"
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
 #include "web_routes.h"
-#include "chess_piece_http.h"
 #include "esp_http_server.h"
 #include "mdns.h"
 #endif
+#include "transport_policy.h"
 #include "web_server_internal.h"
 #include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -458,6 +458,10 @@ esp_err_t wifi_save_config_to_nvs(const char *ssid, const char *password) {
 }
 
 esp_err_t wifi_connect_sta(void) {
+  /* V2 lazy WiFi: the radio may have been off at boot. Start it now before
+   * attempting a connection. */
+  transport_policy_ensure_wifi_started();
+
   // Check: if already connected, return success
   if (sta_connected) {
     ESP_LOGI(TAG, "Already connected to WiFi: %s (IP: %s)", sta_ssid, sta_ip);
@@ -793,6 +797,8 @@ static void wifi_ble_survey_task(void *arg) {
 
   wifi_scan_config_t scan_cfg = {0};
   scan_cfg.show_hidden = true;
+
+  transport_policy_ensure_wifi_started();
 
   esp_err_t err = esp_wifi_scan_start(&scan_cfg, true);
   if (err != ESP_OK) {
@@ -1278,6 +1284,7 @@ static esp_err_t wifi_init_apsta(void) {
   wifi_config.ap.authmode = WIFI_AUTH_WPA2_PSK;
 
   const bool ap_on_boot = wifi_ap_user_desired_from_nvs();
+  const bool wifi_on_boot = transport_policy_should_enable_wifi_on_boot();
   ret = esp_wifi_set_mode(ap_on_boot ? WIFI_MODE_APSTA : WIFI_MODE_STA);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to set WiFi mode: %s", esp_err_to_name(ret));
@@ -1293,14 +1300,21 @@ static esp_err_t wifi_init_apsta(void) {
     }
   }
 
-  // Start WiFi
-  ret = esp_wifi_start();
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(ret));
-    return ret;
+  /* V2 policy: keep WiFi radio off at boot if there are no credentials and
+   * no user-enabled hotspot. BLE advertises immediately; WiFi starts lazily
+   * when the app provisions credentials over BLE. */
+  if (wifi_on_boot) {
+    ret = esp_wifi_start();
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(ret));
+      return ret;
+    }
+    wifi_ap_active = ap_on_boot;
+  } else {
+    wifi_ap_active = false;
+    ESP_LOGI(TAG, "WiFi radio held off at boot (no STA credentials, no AP request); "
+                  "will start on BLE provisioning");
   }
-
-  wifi_ap_active = ap_on_boot;
 
   ESP_LOGI(TAG, "WiFi initialized (%s)", ap_on_boot ? "AP+STA" : "STA only");
   ESP_LOGI(TAG, "AP user hotspot: %s", ap_on_boot ? "ON" : "OFF (default)");
@@ -2103,8 +2117,8 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       ESP_LOGW(TAG, "BLE guard_clear blocked (web locked)");
       return ESP_ERR_INVALID_STATE;
     }
-    if (game_is_matrix_guard_active() || matrix_is_guard_mode_active()) {
-      game_force_clear_matrix_guard();
+    if (game_is_squares_guard_active() || squares_is_guard_mode_active()) {
+      game_force_clear_squares_guard();
     }
     ESP_LOGD(TAG, "BLE cmd: guard_clear");
     return ESP_OK;

@@ -4,8 +4,10 @@
  */
 
 #include "game_physical.h"
+#include "game_physical_undo.h"
 #include "chess_gameplay_policy.h"
-#include "game_matrix_guard.h"
+#include "game_squares_guard.h"
+#include "game_hall_match.h"
 #include "game_move_exec.h"
 #include "game_move_validate.h"
 #include "game_snapshot.h"
@@ -16,7 +18,7 @@
 #include "led_mapping.h"
 
 #include "../led_task/include/led_task.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -209,13 +211,13 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  if (game_is_matrix_guard_active()) {
-    if (game_cmd_is_matrix_origin(cmd)) {
-      game_matrix_guard_try_clear_from_matrix();
-      if (!game_is_matrix_guard_active()) {
+  if (game_is_squares_guard_active()) {
+    if (game_cmd_is_squares_origin(cmd)) {
+      game_squares_guard_try_clear_from_matrix();
+      if (!game_is_squares_guard_active()) {
         return;
       }
-      game_matrix_guard_render_leds();
+      game_squares_guard_render_leds();
       return;
     }
     game_send_response_to_uart(
@@ -253,6 +255,13 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
                             p_col == promotion_state.square_col);
 
     if (is_promo_square) {
+      piece_t promo_piece = board[p_row][p_col];
+      if (game_physical_undo_handle_pickup(cmd, p_row, p_col, promo_piece)) {
+        game_send_response_to_uart(
+            "↩️ Takeback — return pawn to blue square (promotion cancelled).",
+            false, (QueueHandle_t)cmd->response_queue);
+        return;
+      }
       ESP_LOGI(TAG,
                "👑 Promotion pending: PICKUP on promo square %c%d allowed "
                "(swap_then_choose)",
@@ -267,6 +276,9 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
                promotion_state.square_row + 1);
       game_send_response_to_uart(info_msg, false,
                                  (QueueHandle_t)cmd->response_queue);
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      game_promotion_sync_hall_if_pending();
+#endif
       return; // Don't do standard pickup flow
     }
 
@@ -313,6 +325,18 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     // CHECK: Is this a valid invalid position?
     if (from_row == error_recovery_state.invalid_row &&
         from_col == error_recovery_state.invalid_col) {
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      if (!cmd->is_demo_mode &&
+          !game_hall_validate_pickup_square(
+              from_row, from_col, error_recovery_state.piece_type)) {
+        game_show_invalid_move_error_with_blink(from_row, from_col);
+        game_send_response_to_uart(
+            "❌ Hall sensor disagrees with the piece on this square", true,
+            (QueueHandle_t)cmd->response_queue);
+        return;
+      }
+#endif
 
       ESP_LOGI(TAG, "🔄 Lifting piece from invalid position %s (error #%d)",
                cmd->from_notation, error_recovery_state.error_count);
@@ -413,6 +437,34 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     ESP_LOGE(TAG, "❌ No piece at %s", cmd->from_notation);
     game_send_response_to_uart(error_msg, true,
                                (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (!cmd->is_demo_mode &&
+      !game_hall_validate_pickup_square(from_row, from_col, piece)) {
+    game_show_invalid_move_error_with_blink(from_row, from_col);
+    game_send_response_to_uart(
+        "❌ Hall sensor disagrees with the piece on this square", true,
+        (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+#endif
+
+  if (game_physical_undo_handle_pickup(cmd, from_row, from_col, piece)) {
+    game_send_response_to_uart(
+        game_physical_undo_is_active()
+            ? "↩️ Physical takeback — follow blue return squares."
+            : "↩️ Takeback hint active.",
+        false, (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+  if (current_game_state == GAME_STATE_FINISHED) {
+    game_send_response_to_uart(
+        "🏁 Game over — no new moves. Take back the last move only if takeback "
+        "is enabled.",
+        true, (QueueHandle_t)cmd->response_queue);
     return;
   }
 
@@ -931,13 +983,13 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
-  if (game_is_matrix_guard_active()) {
-    if (game_cmd_is_matrix_origin(cmd)) {
-      game_matrix_guard_try_clear_from_matrix();
-      if (!game_is_matrix_guard_active()) {
+  if (game_is_squares_guard_active()) {
+    if (game_cmd_is_squares_origin(cmd)) {
+      game_squares_guard_try_clear_from_matrix();
+      if (!game_is_squares_guard_active()) {
         return;
       }
-      game_matrix_guard_render_leds();
+      game_squares_guard_render_leds();
       return;
     }
     game_send_response_to_uart(
@@ -1086,6 +1138,18 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
+  if (game_physical_undo_handle_drop(cmd, to_row, to_col)) {
+    if (game_physical_undo_is_active()) {
+      game_send_response_to_uart(
+          "↩️ Takeback in progress — restore missing pieces (red blink).",
+          false, (QueueHandle_t)cmd->response_queue);
+    } else {
+      game_send_response_to_uart("↩️ Takeback cancelled.", false,
+                                 (QueueHandle_t)cmd->response_queue);
+    }
+    return;
+  }
+
   // CASTLING INTERCEPTION: Handle rook moves during castling phase
   // This logic must be BEFORE standard validation to avoid "Blocked by King"
   // errors
@@ -1184,6 +1248,9 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                promotion_state.square_row + 1);
       game_send_response_to_uart(info_msg, false,
                                  (QueueHandle_t)cmd->response_queue);
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      game_promotion_sync_hall_if_pending();
+#endif
       return; // Do not perform standard drop flow
     }
 
@@ -1630,7 +1697,52 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
   }
 
   move_error_t error = game_is_valid_move(&move);
-  if (error == MOVE_ERROR_NONE) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  bool hall_drop_ok = cmd->is_demo_mode;
+  if (!hall_drop_ok && error == MOVE_ERROR_NONE) {
+    bool completing_castle =
+        castling_state.in_progress &&
+        lifted_piece_row == castling_state.rook_from_row &&
+        lifted_piece_col == castling_state.rook_from_col &&
+        to_row == castling_state.rook_to_row &&
+        to_col == castling_state.rook_to_col &&
+        (lifted_piece == PIECE_WHITE_ROOK || lifted_piece == PIECE_BLACK_ROOK);
+
+    if (completing_castle) {
+      piece_t king_piece = (lifted_piece == PIECE_WHITE_ROOK) ? PIECE_WHITE_KING
+                                                              : PIECE_BLACK_KING;
+      int king_row = -1;
+      int king_col = -1;
+      for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+          if (board[r][c] == king_piece) {
+            king_row = r;
+            king_col = c;
+            break;
+          }
+        }
+        if (king_row >= 0) {
+          break;
+        }
+      }
+      hall_drop_ok =
+          king_row >= 0 &&
+          game_hall_validate_castling_rook_drop(
+              to_row, to_col, lifted_piece, (uint8_t)king_row, (uint8_t)king_col,
+              king_piece);
+    } else if ((lifted_piece == PIECE_WHITE_PAWN && to_row == 7) ||
+               (lifted_piece == PIECE_BLACK_PAWN && to_row == 0)) {
+      hall_drop_ok = game_hall_validate_promotion_entry_drop(to_row, to_col,
+                                                             lifted_piece);
+    } else {
+      hall_drop_ok =
+          game_hall_validate_drop_square(to_row, to_col, lifted_piece);
+    }
+  }
+#else
+  bool hall_drop_ok = true;
+#endif
+  if (error == MOVE_ERROR_NONE && hall_drop_ok) {
     // VALID MOVE - normal processing
     ESP_LOGI(TAG, "✅ Valid move detected");
 
@@ -1817,6 +1929,9 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
 
         // Keep promo square visually anchored (does not clear board)
         game_update_promotion_anchor_led();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+        game_promotion_sync_hall_if_pending();
+#endif
 
         // Send success response without animations
         char success_msg[256];
@@ -1976,7 +2091,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     }
   } else {
     // INVALID MOVE - ENHANCED ERROR HANDLING
-    ESP_LOGW(TAG, "❌ Invalid move attempt: %s", cmd->to_notation);
+    if (error == MOVE_ERROR_NONE && !hall_drop_ok) {
+      ESP_LOGW(TAG, "❌ Hall type/color mismatch on drop square %s",
+               cmd->to_notation);
+    } else {
+      ESP_LOGW(TAG, "❌ Invalid move attempt: %s", cmd->to_notation);
+    }
     if (puzzle_active) {
       puzzle_feedback = PUZZLE_FEEDBACK_ILLEGAL;
     }
@@ -2028,11 +2148,19 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     game_show_invalid_move_error_with_blink(to_row, to_col);
 
     char error_msg[256];
-    snprintf(
-        error_msg, sizeof(error_msg),
-        "❌ Invalid move to %s - return to ORIGINAL %c%d or find valid move",
-        cmd->to_notation, 'a' + error_recovery_state.original_valid_col,
-        error_recovery_state.original_valid_row + 1);
+    if (error == MOVE_ERROR_NONE && !hall_drop_ok) {
+      snprintf(error_msg, sizeof(error_msg),
+               "❌ Wrong piece on %s (Hall type/color) - return to ORIGINAL "
+               "%c%d",
+               cmd->to_notation, 'a' + error_recovery_state.original_valid_col,
+               error_recovery_state.original_valid_row + 1);
+    } else {
+      snprintf(
+          error_msg, sizeof(error_msg),
+          "❌ Invalid move to %s - return to ORIGINAL %c%d or find valid move",
+          cmd->to_notation, 'a' + error_recovery_state.original_valid_col,
+          error_recovery_state.original_valid_row + 1);
+    }
     game_send_response_to_uart(error_msg, true,
                                (QueueHandle_t)cmd->response_queue);
   }

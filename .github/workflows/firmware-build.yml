@@ -106,4 +106,8 @@ jobs:
         run: |
           source "$IDF_PATH/export.sh"
           idf.py set-target esp32c6
-          idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build
+          idf.py -B build-hall-v2 -D SDKCONFIG=sdkconfig.hall_v2 -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build
+          grep -q '^CONFIG_CHESS_MATRIX_INPUT_I2C_HALL=y$' sdkconfig.hall_v2
+          grep -q '^CONFIG_CHESS_HALL_I2C_SDA_GPIO=12$' sdkconfig.hall_v2
+          grep -q '^CONFIG_CHESS_HALL_I2C_SCL_GPIO=13$' sdkconfig.hall_v2
+          ! grep -q '^CONFIG_CHESS_MATRIX_INPUT_GPIO_REED=y$' sdkconfig.hall_v2

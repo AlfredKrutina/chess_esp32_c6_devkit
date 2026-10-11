@@ -16,7 +16,7 @@
  * 5. Clock management (timer system integration)
  * 6. Move history and position analysis
  * 7. Error recovery (red/blue LEDs)
- * 8. Communication with the physical board (matrix_task)
+ * 8. Communication with the physical board (squares_task)
  *
  *
  * =============================================================================
@@ -52,7 +52,7 @@
  *
  * QUEUES - Receiving commands:
  * - game_command_queue -> Commands from UART/Web (move, reset, status...)
- * - matrix_event_queue -> UP/DN events from physical board
+ * - squares_event_queue -> UP/DN events from physical board
  *
  * QUEUES - Sending responses:
  * - response_queue -> Replies to commands (status, board...)
@@ -113,7 +113,7 @@
  * DEPENDENCIES
  * =============================================================================
  *
- * - matrix_task: Receive UP/DN event from physical board
+ * - squares_task: Receive UP/DN event from physical board
  * - led_task: LED control (highlight, animation)
  * - timer_system: Timer for the game
  * - uart_task: Commands from the terminal
@@ -143,13 +143,13 @@
  *
  * 5. ALWAYS check return values!
  *    ❌ xQueueSend(...);  // Ignores the error
- *    ✅ if (xQueueSend(...) != pdTRUE) { /* handle error */ }
+ *    ✅ if (xQueueSend(...) != pdTRUE) { handle error }
  *
  * @author Alfred Krutina
  * @version 1.8.0
  *
  * @note Task priority 4; main loop approx. 100 ms; WDT reset in loop.
- * @see matrix_task.c Figure movement detection
+ * @see squares_task.c Figure movement detection
  * @see led_task.c LED animation
  * @see uart_task.c Terminal
  * @see web_server_task.c Web interface
@@ -157,17 +157,22 @@
 
 #include "game_task.h"
 #include "game_board_core.h"
-#include "game_matrix_guard.h"
+#include "game_squares_guard.h"
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+#include "game_hall_restore_guide.h"
+#endif
 #include "game_snapshot.h"
 #include "game_task_internal.h"
+#include "game_physical_undo.h"
 #include "chess_gameplay_policy.h"
 #include "../button_task/include/button_task.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "../led_task/include/led_task.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "game_led_animations.h"
 #include "led_mapping.h"
 // Timer system integration
@@ -225,20 +230,7 @@ static const char *TAG = "GAME_TASK";
  * Prevents startup errors when the task is not yet registered.
  */
 esp_err_t game_task_wdt_reset_safe(void) {
-  esp_err_t ret = esp_task_wdt_reset();
-
-  if (ret == ESP_ERR_NOT_FOUND) {
-    // Log as WARNING instead of ERROR - task not registered yet
-    ESP_LOGW(
-        TAG,
-        "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Treat as success for our purposes
-  } else if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-    return ret;
-  }
-
-  return ESP_OK;
+  return chess_task_wdt_reset_safe(TAG);
 }
 
 // ============================================================================
@@ -446,7 +438,7 @@ king_resignation_state_t resignation_state = {.active = false,
                                                      .last_countdown_sec = 10};
 
 // Forward declarations pro resignation (implementations in game_resignation.c)
-bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
+bool game_cmd_is_squares_origin(const chess_move_command_t *cmd);
 
 // Game statistics
 uint32_t total_games = 0;
@@ -1508,9 +1500,12 @@ bool game_get_guided_capture_hints_enabled(void) {
   return guided_capture_hints_enabled;
 }
 
-bool game_matrix_allow_second_sequential_lift(void) {
-  if (game_is_matrix_guard_active()) {
+bool game_squares_allow_second_sequential_lift(void) {
+  if (game_is_squares_guard_active()) {
     return false;
+  }
+  if (game_physical_undo_is_active()) {
+    return true;
   }
   if (guided_capture_state.active) {
     return true;
@@ -1527,7 +1522,7 @@ bool game_matrix_allow_second_sequential_lift(void) {
     pending_piece = lifted_piece;
   } else {
     /* Race: matrix queued PICKUP before game_task set piece_lifted. */
-    uint8_t pending_sq = matrix_get_pending_lift_square();
+    uint8_t pending_sq = squares_get_pending_lift_square();
     if (pending_sq != 255) {
       pending_piece = board[pending_sq / 8][pending_sq % 8];
     }
@@ -1792,7 +1787,7 @@ void game_send_response_to_uart(const char *message, bool is_error,
   }
 }
 
-bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd) {
+bool game_cmd_is_squares_origin(const chess_move_command_t *cmd) {
   if (cmd == NULL) {
     return false;
   }
@@ -1800,16 +1795,17 @@ bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd) {
           (cmd->type == GAME_CMD_PICKUP || cmd->type == GAME_CMD_DROP));
 }
 
-bool game_task_matrix_guard_mode_conflict_active(void) {
+bool game_task_squares_guard_mode_conflict_active(void) {
   return (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
           game_is_opening_trainer_active() ||
           game_is_opening_trainer_setup_active() || promotion_state.pending ||
           castling_state.in_progress || castle_animation_active ||
           resignation_state.active || guided_capture_state.active ||
-          error_recovery_state.waiting_for_move_correction);
+          error_recovery_state.waiting_for_move_correction ||
+          game_physical_undo_is_active());
 }
 
-void game_task_matrix_guard_freeze_move_flow(void) {
+void game_task_squares_guard_freeze_move_flow(void) {
   piece_lifted = false;
   lifted_piece = PIECE_EMPTY;
   lifted_piece_row = 0;
@@ -1831,6 +1827,9 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row,
        !chess_policy_error_recovery_led_red_persist())) {
     return;
   }
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_restore_guide_stop_leds();
+#endif
   // Abort previous flashing
   game_stop_error_blink();
 
@@ -2222,7 +2221,7 @@ void game_task_start(void *pvParameters) {
   /*
    * Start the logic game: the board starts, then NVS or boot tracker.
    * - Valid key in NVS: disable forced new game from boot tracker, Nazi snapshot,
-   * game_matrix_guard_check_resync_after_restore() on matrix mismatch.
+   * game_squares_guard_check_resync_after_restore() on matrix mismatch.
    * - Otherwise: boot_new_game_triggered from game_boot_tracker_should_force_new_game();
    * when true, call game_start_new_game() (main will then not send any NEW_GAME).
    * - Set game_load_snapshot_from_nvs() and game_active on successful snapshot loading.
@@ -2247,6 +2246,7 @@ void game_task_start(void *pvParameters) {
       vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - quick wakeup after fade_out!
       continue;                      // Skip the rest of the loop
     }
+    game_snapshot_service_after_boot();
     // =========================================================================
 
     // CRITICAL: Reset watchdog for game task in every iteration (only if
@@ -2259,13 +2259,34 @@ void game_task_start(void *pvParameters) {
     // Process game commands
     game_process_commands();
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    if (promotion_state.pending) {
+      game_promotion_sync_hall_if_pending();
+    }
+    if (current_game_state == GAME_STATE_ACTIVE ||
+        current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+      static uint32_t s_last_hall_restore_sync_ms = 0;
+      uint32_t hall_now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+      if (game_hall_restore_guide_take_sync_request()) {
+        game_hall_restore_guide_sync();
+      } else if (hall_now_ms - s_last_hall_restore_sync_ms >= 400U) {
+        s_last_hall_restore_sync_ms = hall_now_ms;
+        game_hall_restore_guide_sync();
+      }
+    }
+#endif
+
     // BUG FIX 1: Automatic transition from WAITING_FOR_BOARD_SETUP to ACTIVE
     if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
       // If monitoring of the initial position is switched off, we go directly to ACTIVE
       bool should_check_position = starting_position_check_enabled;
       bool position_ok = should_check_position ? game_is_board_in_starting_position() : true;
+      bool sensors_ready = game_snapshot_sensors_ready();
       
-      if (position_ok) {
+      if (sensors_ready && position_ok) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+        game_force_clear_squares_guard();
+#endif
         // The board is ready (or guarding is off) - activate the game
         current_game_state = GAME_STATE_ACTIVE;
         game_active = true;
@@ -2299,12 +2320,21 @@ void game_task_start(void *pvParameters) {
         } else {
           ESP_LOGI(TAG, "✅ Game ACTIVE (starting position check disabled), White to move");
         }
-      } else {
+      } else if (sensors_ready) {
         // Periodically update the LED indication of missing figures
         static uint32_t last_led_update = 0;
         uint32_t now = esp_timer_get_time() / 1000;
         if (now - last_led_update > 500) { // Every 500ms
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+          game_squares_guard_check_resync_after_restore();
+          if (game_is_squares_guard_active()) {
+            game_squares_guard_render_leds();
+          } else {
+            game_show_missing_pieces_led();
+          }
+#else
           game_show_missing_pieces_led();
+#endif
           last_led_update = now;
         }
       }
@@ -2312,7 +2342,7 @@ void game_task_start(void *pvParameters) {
 
     // Process matrix events (moves)
     // DEPRECATED: Matrix events are now processed via game_command_queue
-    // game_process_matrix_events();  // No longer needed
+    // game_process_squares_events();  // No longer needed
 
     // Update timer display and check for timeout
     game_update_timer_display();
@@ -2386,7 +2416,7 @@ void game_task_start(void *pvParameters) {
  * game_process_drop_command(). This function is kept for compatibility but
  * does nothing.
  */
-void game_process_matrix_events(void) {
+void game_process_squares_events(void) {
   // Matrix events are now processed via game_command_queue
   // This function is kept for compatibility but does nothing
 }

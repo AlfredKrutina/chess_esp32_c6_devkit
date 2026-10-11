@@ -19,7 +19,7 @@
  * - button_event_queue: events from buttons (ISR -> button_task).
  *
  * @subsection ss_priorities Priorities (indicative)
- * led_task (7) > matrix_task (6) > button_task (5) > game_task (4) >
+ * led_task (7) > squares_task (6) > button_task (5) > game_task (4) >
  * uart / web (3) > test_task (1) > IDLE (0).
  *
  * @subsection ss_boot_nvs Boot and NVS
@@ -33,7 +33,7 @@
  * xQueueCreate and xTaskCreate.
  */
 
-// #include "animation_task.h"  // DISABLED - animation task not used (LED v led_task)
+// #include "animation_task.h"  // DISABLED — legacy component moved to kos/unused/components/animation_task
 #include "button_task.h"
 #include "chess_types.h"
 #include "sdkconfig.h"
@@ -53,9 +53,10 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "game_task.h"
 #include "led_task.h"
-#include "matrix_task.h"
+#include "squares_task.h"
 #include "board_api_auth.h"
 #include "esp_ota_ops.h"
 #include "nvs_flash.h"
@@ -264,44 +265,13 @@ static void boot_counter_reset(void) {
 
 void show_boot_animation_and_board(void);
 
-// ============================================================================
-// WDT WRAPPER FUNCTIONS
-// ============================================================================
-
-/**
- * @brief Safe WDT reset with WARNING instead of ERROR logging for
- * ESP_ERR_NOT_FOUND
- *
- * This function safely resets the Task Watchdog Timer. If the task is not yet
- * registered (which is normal during startup), WARNING is logged instead of ERROR.
- *
- * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
- * (WARNING only)
- */
-static esp_err_t main_task_wdt_reset_safe(void) {
-  esp_err_t ret = esp_task_wdt_reset();
-
-  if (ret == ESP_ERR_NOT_FOUND) {
-    // Log as WARNING instead of ERROR - task not registered yet
-    ESP_LOGW(
-        TAG,
-        "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Treat as success for our purposes
-  } else if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-    return ret;
-  }
-
-  return ESP_OK;
-}
-
 /** @brief Global UART mutex for clean output */
 SemaphoreHandle_t uart_mutex = NULL;
 
 /** @brief Handle pro LED task */
 TaskHandle_t led_task_handle = NULL;
 /** @brief Handle pro Matrix task */
-TaskHandle_t matrix_task_handle = NULL;
+TaskHandle_t squares_task_handle = NULL;
 /** @brief Handle pro Button task */
 TaskHandle_t button_task_handle = NULL;
 /** @brief Handle pro UART task */
@@ -310,6 +280,9 @@ TaskHandle_t uart_task_handle = NULL;
 TaskHandle_t game_task_handle = NULL;
 /** @brief Handle for Animation task (NULL if task is disabled in create_system_tasks) */
 TaskHandle_t animation_task_handle = NULL;
+/** @brief Legacy orphan tasks (logic in button_task); NULL unless re-enabled */
+TaskHandle_t reset_button_task_handle = NULL;
+TaskHandle_t promotion_button_task_handle = NULL;
 /** @brief Handle pro Test task */
 TaskHandle_t test_task_handle = NULL;
 // TaskHandle_t matter_task_handle = NULL;  // DISABLED - Matter not needed
@@ -317,10 +290,6 @@ TaskHandle_t test_task_handle = NULL;
 TaskHandle_t web_server_task_handle = NULL;
 /** @brief Handle pro HA Light task */
 TaskHandle_t ha_light_task_handle = NULL;
-/** @brief Handle pro Reset Button task */
-TaskHandle_t reset_button_task_handle = NULL;
-/** @brief Handle pro Promotion Button task */
-TaskHandle_t promotion_button_task_handle = NULL;
 
 /** @brief Demo mod configuration - is the demo mod enabled */
 /** @brief Demo mod configuration - is the demo mod enabled */
@@ -446,7 +415,7 @@ esp_err_t main_system_init(void) {
   }
   // LED command queue removed - using direct LED calls
   ESP_LOGI(TAG, "LED system using direct calls (no queue)");
-  if (matrix_command_queue == NULL) {
+  if (squares_command_queue == NULL) {
     ESP_LOGE(TAG, "Matrix command queue not available");
     return ESP_FAIL;
   }
@@ -547,7 +516,7 @@ esp_err_t main_system_init(void) {
  *
  * @see game_was_snapshot_loaded_on_boot()
  * @see game_was_boot_new_game_triggered()
- * @see game_is_matrix_guard_active()
+ * @see game_is_squares_guard_active()
  * @see game_refresh_leds()
  */
 void initialize_chess_game(void) {
@@ -582,7 +551,7 @@ void initialize_chess_game(void) {
 
   /* After fade-out, the board is empty; drive NEW_GAME launched highlight v
    * game_task. */
-  if (nvs_restored && !game_is_matrix_guard_active()) {
+  if (nvs_restored && !game_is_squares_guard_active()) {
     game_refresh_leds();
   }
 
@@ -638,7 +607,7 @@ void toggle_demo_mode(bool enabled) {
 
 /**
  * @brief Report activity on the board (interrupt demo mode)
- * Called from matrix_task when any change is detected
+ * Called from squares_task when any change is detected
  */
 void demo_report_activity(void) {
   if (demo_mode_enabled) {
@@ -683,7 +652,7 @@ void execute_demo_move(void) {
   // Reset watchdog at function entry.
   // This function can block for 10+ seconds (castling), causing main task
   // timeout
-  main_task_wdt_reset_safe();
+  chess_task_wdt_reset_safe(TAG);
 
   if (!demo_mode_enabled || demo_move_index >= demo_moves_count) {
     return;
@@ -717,7 +686,7 @@ void execute_demo_move(void) {
 
     // Longer delay for Pickup animation
     vTaskDelay(pdMS_TO_TICKS(1500)); // 1.5 seconds
-    main_task_wdt_reset_safe();      // Reset after delay.
+    chess_task_wdt_reset_safe(TAG);      // Reset after delay.
 
     // Step 2: DROP command (place piece on destination square)
     cmd.type = GAME_CMD_DROP;
@@ -736,7 +705,7 @@ void execute_demo_move(void) {
 
     //  Wait for DROP animation
     vTaskDelay(pdMS_TO_TICKS(800)); // 0.8 seconds
-    main_task_wdt_reset_safe();     // Reset after delay.
+    chess_task_wdt_reset_safe(TAG);     // Reset after delay.
 
     // Step 3: CASTLING Handling
     // If move is castling, we must also move the rook!
@@ -766,7 +735,7 @@ void execute_demo_move(void) {
       ESP_LOGI(TAG, "  ♜ Castling detected! Moving rook %s -> %s", rook_from,
                rook_to);
       vTaskDelay(pdMS_TO_TICKS(500)); // Pause before moving rook
-      main_task_wdt_reset_safe();     // Reset during castling.
+      chess_task_wdt_reset_safe(TAG);     // Reset during castling.
 
       // Rook Pickup
       memset(&cmd, 0, sizeof(cmd));
@@ -776,7 +745,7 @@ void execute_demo_move(void) {
       cmd.response_queue = uart_response_queue; // Add feedback.
       xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
       vTaskDelay(pdMS_TO_TICKS(1000));
-      main_task_wdt_reset_safe(); // Reset after rook pickup delay.
+      chess_task_wdt_reset_safe(TAG); // Reset after rook pickup delay.
 
       // Rook Drop
       memset(&cmd, 0, sizeof(cmd));
@@ -786,7 +755,7 @@ void execute_demo_move(void) {
       cmd.response_queue = uart_response_queue; // Add feedback.
       xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
       vTaskDelay(pdMS_TO_TICKS(800));
-      main_task_wdt_reset_safe(); // Reset after rook drop delay.
+      chess_task_wdt_reset_safe(TAG); // Reset after rook drop delay.
     }
   }
 
@@ -802,7 +771,7 @@ void execute_demo_move(void) {
     // Split into shorter delays with watchdog resets.
     for (int i = 0; i < 5; i++) {
       vTaskDelay(pdMS_TO_TICKS(1000));
-      main_task_wdt_reset_safe();
+      chess_task_wdt_reset_safe(TAG);
     }
 
     // Rotate to the next demo game.
@@ -828,7 +797,7 @@ void execute_demo_move(void) {
       // Wait for the game reset to complete before starting the first move.
       ESP_LOGI(TAG, "⏱️  Waiting 1 second for game reset to complete...");
       vTaskDelay(pdMS_TO_TICKS(1000));
-      main_task_wdt_reset_safe(); // Reset after game reset delay.
+      chess_task_wdt_reset_safe(TAG); // Reset after game reset delay.
     }
   }
 }
@@ -895,11 +864,11 @@ static void init_console(void) {
  * - UART task: communication via UART
  * - Game task: the logic of Sacha's game
  * - Test task: system testing (optional menuconfig)
- * - Web server task: web interface
+ * - Web server task: WiFi + HTTP API for the app (browser page is not served)
  * (Animation task disabled — see DISABLED block in create_system_tasks.)
  *
  * After the task is created, STM32 auto-flash waits synchronously for the flash to complete
- * in matrix_task (before WiFi/web), then boot animation and game initialization.
+ * in squares_task (before WiFi/web), then boot animation and game initialization.
  */
 esp_err_t create_system_tasks(void) {
   ESP_LOGI(TAG, "Creating system tasks...");
@@ -921,16 +890,16 @@ esp_err_t create_system_tasks(void) {
            LED_TASK_STACK_SIZE / 1024);
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
-  /* Semaphore before matrix_task — main waits right after matrix_task (see below),
+  /* Semaphore before squares_task — main waits right after squares_task (see below),
    * not after WiFi, otherwise web_server_task floods the serial log and shared I2C
    * needlessly contends with the bootloader. */
   stm32_i2c_bl_boot_flash_sync_prepare();
 #endif
 
   // Create Matrix task
-  result = xTaskCreate((TaskFunction_t)matrix_task_start, "matrix_task",
-                       MATRIX_TASK_STACK_SIZE, NULL, MATRIX_TASK_PRIORITY,
-                       &matrix_task_handle);
+  result = xTaskCreate((TaskFunction_t)squares_task_start, "squares_task",
+                       SQUARES_TASK_STACK_SIZE, NULL, SQUARES_TASK_PRIORITY,
+                       &squares_task_handle);
 
   if (result != pdPASS) {
     ESP_LOGE(TAG, "Failed to create Matrix task");
@@ -941,7 +910,7 @@ esp_err_t create_system_tasks(void) {
   ESP_LOGI(TAG,
            "✓ Matrix task created successfully (%dKB stack) - will "
            "self-register with TWDT",
-           MATRIX_TASK_STACK_SIZE / 1024);
+           SQUARES_TASK_STACK_SIZE / 1024);
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
   ESP_LOGI(TAG,
@@ -1005,7 +974,8 @@ esp_err_t create_system_tasks(void) {
            "with TWDT",
            GAME_TASK_STACK_SIZE / 1024);
 
-  // DISABLED: Create Animation task — fronty zustavaji, animace LED v led_task
+  // DISABLED: Create Animation task — legacy component moved to kos/unused/components/animation_task
+  // Animation queues remain created in freertos_chess.c (checked by main_system_init + debug handler).
   /*
   result = xTaskCreate((TaskFunction_t)animation_task_start, "animation_task",
                        ANIMATION_TASK_STACK_SIZE, NULL, ANIMATION_TASK_PRIORITY,
@@ -1022,8 +992,8 @@ esp_err_t create_system_tasks(void) {
            ANIMATION_TASK_STACK_SIZE / 1024);
   */
   ESP_LOGI(TAG,
-           "⏭️ Animation task disabled (LED animace: led_task / "
-           "unified_animation_manager)");
+           "⏭️ Animation task disabled (legacy component in kos/unused; LED "
+           "animace: led_task / unified_animation_manager)");
 
 #if CONFIG_CHESS_ENABLE_TEST_TASK
   result = xTaskCreate((TaskFunction_t)test_task_start, "test_task",
@@ -1367,7 +1337,7 @@ void show_boot_animation_and_board(void) {
     led_boot_animation_step((uint8_t)progress);
 
     // CRITICAL: Reset watchdog timer during loading (only if registered)
-    esp_err_t wdt_ret = main_task_wdt_reset_safe();
+    esp_err_t wdt_ret = chess_task_wdt_reset_safe(TAG);
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
       // Task not registered with TWDT yet - this is normal during startup
     }
@@ -1508,7 +1478,7 @@ void app_main(void) {
   }
 
   // Reset watchdog AFTER task creation
-  main_task_wdt_reset_safe();
+  chess_task_wdt_reset_safe(TAG);
 
   // Restore normal WDT timeout after init - optimized for web server
   twdt_config.timeout_ms = 8000;          // Raised to 8 seconds for web server
@@ -1535,7 +1505,7 @@ void app_main(void) {
 
   for (;;) {
     // CRITICAL: Reset watchdog for main task in every iteration
-    main_task_wdt_reset_safe();
+    chess_task_wdt_reset_safe(TAG);
 
     // Get current time in ms
     uint32_t current_time_ms = esp_timer_get_time() / 1000;

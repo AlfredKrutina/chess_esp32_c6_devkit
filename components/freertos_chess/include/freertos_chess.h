@@ -172,7 +172,7 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 
 // Time-multiplexing configuration (25ms total cycle - LED update removed)
 /** @brief Matrix scan time in milliseconds (0-20ms) */
-#define MATRIX_SCAN_TIME_MS 20 // Matrix scanning time (0-20ms)
+#define SQUARES_SCAN_TIME_MS 20 // Matrix scanning time (0-20ms)
 /** @brief Button scan time in milliseconds (20-25ms) */
 #define BUTTON_SCAN_TIME_MS 5 // Button scanning time (20-25ms)
 // #define LED_UPDATE_TIME_MS 5        //  REMOVED: No longer needed
@@ -212,7 +212,7 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 // ============================================================================
 
 /** @brief Matrix: events when scanning 8x8 (enough depth for burst). */
-#define MATRIX_QUEUE_SIZE 8
+#define SQUARES_QUEUE_SIZE 8
 /** @brief Button: events from ISR (rare). */
 #define BUTTON_QUEUE_SIZE 5
 /** @brief UART: commands/responses (sizeof(game_response_t) ~ 328 B per item). */
@@ -245,7 +245,7 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 /** @brief LED: WS2812 + animation logic (measure high-water mark before reducing). */
 #define LED_TASK_STACK_SIZE (8 * 1024)
 /** @brief Matrix: sken + odezvy (game_response_t). */
-#define MATRIX_TASK_STACK_SIZE (4 * 1024)
+#define SQUARES_TASK_STACK_SIZE (4 * 1024)
 #define BUTTON_TASK_STACK_SIZE (3 * 1024)
 /** @brief UART: input line + game_response_t when forwarding response. */
 #define UART_TASK_STACK_SIZE (5 * 1024)
@@ -279,7 +279,7 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 /** @brief LED task priority (7 - highest for LED timing) */
 #define LED_TASK_PRIORITY 7 // Highest priority for LED timing
 /** @brief Matrix task priority (6 - hardware input) */
-#define MATRIX_TASK_PRIORITY 6 // Hardware vstup
+#define SQUARES_TASK_PRIORITY 6 // Hardware vstup
 /** @brief Priority Button task (5 - user input) */
 #define BUTTON_TASK_PRIORITY 5 // User login
 /** @brief UART task priority (3 - communication) */
@@ -310,11 +310,11 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell eliminated
 // extern QueueHandle_t led_status_queue;   //  REMOVED: Queue hell eliminated
 /** @brief Queue for event matrix (piece lifted/placed) */
-extern QueueHandle_t matrix_event_queue;
+extern QueueHandle_t squares_event_queue;
 /** @brief Queue for matrix commands (scan, reset, test) */
-extern QueueHandle_t matrix_command_queue;
+extern QueueHandle_t squares_command_queue;
 /** @brief Queue for the response matrix (responses from the system) */
-extern QueueHandle_t matrix_response_queue;
+extern QueueHandle_t squares_response_queue;
 /** @brief Queue for button events (press, release, long press) */
 extern QueueHandle_t button_event_queue;
 /** @brief Queue for button commands (reset, status, test) */
@@ -355,7 +355,7 @@ extern QueueHandle_t test_command_queue;
 /** @brief Mutex for LED operations (protect LED state) */
 extern SemaphoreHandle_t led_mutex;
 /** @brief Mutex for matrix operations (protect matrix state) */
-extern SemaphoreHandle_t matrix_mutex;
+extern SemaphoreHandle_t squares_mutex;
 /** @brief Mutex for button operations (protect button state) */
 extern SemaphoreHandle_t button_mutex;
 /** @brief Mutex for game operations (protect game state) */
@@ -370,7 +370,7 @@ extern SemaphoreHandle_t uart_mutex;
 // ============================================================================
 
 /** @brief Timer for periodic matrix scanning */
-extern TimerHandle_t matrix_scan_timer;
+extern TimerHandle_t squares_scan_timer;
 /** @brief Timer for periodic button scanning */
 extern TimerHandle_t button_scan_timer;
 // extern TimerHandle_t led_update_timer;  //  REMOVED: No longer needed
@@ -475,7 +475,7 @@ void button_scan_timer_callback(TimerHandle_t xTimer);
  *
  * @param xTimer Timer handle
  */
-void matrix_scan_timer_callback(TimerHandle_t xTimer);
+void squares_scan_timer_callback(TimerHandle_t xTimer);
 
 /**
  * @brief LED update timer callback - REMOVED: Prime LED callbacks are used
@@ -546,7 +546,7 @@ esp_err_t chess_led_set_all(uint8_t red, uint8_t green, uint8_t blue);
  * present, 0 = empty)
  * @return ESP_OK on success, error code on failure
  */
-esp_err_t chess_matrix_get_status(uint8_t *status);
+esp_err_t chess_squares_get_status(uint8_t *status);
 
 // ============================================================================
 // SYSTEM UTILITY FUNCTIONS
@@ -627,7 +627,7 @@ bool is_demo_mode_enabled(void);
 /** @brief Handle pro LED task */
 extern TaskHandle_t led_task_handle;
 /** @brief Handle pro Matrix task */
-extern TaskHandle_t matrix_task_handle;
+extern TaskHandle_t squares_task_handle;
 /** @brief Handle pro Button task */
 extern TaskHandle_t button_task_handle;
 /** @brief Handle pro UART task */

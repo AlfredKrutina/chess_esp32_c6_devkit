@@ -27,13 +27,13 @@ BLE-only firmware (no HTTP):
 
 Hall V2 + STM32 auto-flash:  
 `idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash`  
-Wiring: [docs/reference/WIRING_ESP_STM4.md](../docs/reference/WIRING_ESP_STM4.md)
+Wiring: [WIRING_ESP_STM4.md](../context/hardware/WIRING_ESP_STM4.md)
 
 ## Hardware testing
 
 | Document | Purpose |
 |----------|---------|
-| [docs/testing/MANUAL_TEST_CHECKLIST.md](../docs/testing/MANUAL_TEST_CHECKLIST.md) | Opening Trainer v1.0 release gate on physical board |
+| [MANUAL_TEST_CHECKLIST.md](../context/testing/MANUAL_TEST_CHECKLIST.md) | Opening Trainer v1.0 release gate on physical board |
 
 ## Maintenance (`scripts/maintenance/`)
 

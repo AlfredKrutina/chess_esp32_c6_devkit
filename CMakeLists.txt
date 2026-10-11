@@ -37,16 +37,13 @@ idf_build_set_property(COMPILE_OPTIONS "-Wno-error=format" APPEND)
 set(EXTRA_COMPONENT_DIRS 
     components/freertos_chess
     components/led_task
-    components/matrix_task  
+    components/squares_task
     components/button_task
     components/uart_task
     components/game_task
-    components/animation_task
     components/test_task
     components/web_server_task
     components/config_manager
-    components/promotion_button_task
-    components/reset_button_task
     components/game_led_animations
     components/uart_commands_extended
     components/unified_animation_manager
@@ -54,6 +51,7 @@ set(EXTRA_COMPONENT_DIRS
     components/visual_error_system
     components/game_hooks
     components/ble_task
+    components/transport_policy
     components/stm32_i2c_bootloader
 )
 

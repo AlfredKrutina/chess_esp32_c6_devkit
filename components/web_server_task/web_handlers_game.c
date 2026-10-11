@@ -6,7 +6,7 @@
 #include "web_server_task.h"
 #include "web_server_internal.h"
 #include "../game_task/include/game_task.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -84,12 +84,12 @@ void inject_web_status_fields(char *buf, size_t buf_size) {
                wifi_is_sta_connected() ? "true" : "false", (int)b,
                game_get_guided_capture_hints_enabled() ? "true" : "false",
                (unsigned)game_get_led_guidance_level(),
-               game_is_matrix_guard_active() ? "true" : "false",
-               (unsigned int)game_get_matrix_guard_conflict_count(),
-               (unsigned long)game_get_matrix_guard_lifted_mask_low(),
-               (unsigned long)game_get_matrix_guard_lifted_mask_high(),
-               (unsigned long)game_get_matrix_guard_dropped_mask_low(),
-               (unsigned long)game_get_matrix_guard_dropped_mask_high(),
+               game_is_squares_guard_active() ? "true" : "false",
+               (unsigned int)game_get_squares_guard_conflict_count(),
+               (unsigned long)game_get_squares_guard_lifted_mask_low(),
+               (unsigned long)game_get_squares_guard_lifted_mask_high(),
+               (unsigned long)game_get_squares_guard_dropped_mask_low(),
+               (unsigned long)game_get_squares_guard_dropped_mask_high(),
                hint_lim);
   if (wr < 0 || (size_t)wr >= remaining) {
     ESP_LOGE(TAG,
@@ -996,9 +996,9 @@ esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req) {
   }
 
   const bool was_active =
-      game_is_matrix_guard_active() || matrix_is_guard_mode_active();
+      game_is_squares_guard_active() || squares_is_guard_mode_active();
   if (was_active) {
-    game_force_clear_matrix_guard();
+    game_force_clear_squares_guard();
   }
 
   httpd_resp_set_status(req, "200 OK");
@@ -1234,25 +1234,6 @@ esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static uint8_t opening_action_code(const char *action) {
-  if (action == NULL) {
-    return 255;
-  }
-  if (strcmp(action, "cancel") == 0) {
-    return 0;
-  }
-  if (strcmp(action, "start") == 0) {
-    return 1;
-  }
-  if (strcmp(action, "hint") == 0) {
-    return 2;
-  }
-  if (strcmp(action, "checkpoint_ack") == 0) {
-    return 3;
-  }
-  return 255;
-}
-
 static const char *opening_dispatch_error_key(esp_err_t err) {
   if (err == ESP_ERR_INVALID_STATE) {
     return "mode_conflict";
@@ -1305,7 +1286,7 @@ esp_err_t http_post_game_opening_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  uint8_t action_code = opening_action_code(action_j->valuestring);
+  uint8_t action_code = web_opening_action_code(action_j->valuestring);
   if (action_code == 255) {
     cJSON_Delete(root);
     httpd_resp_set_type(req, "application/json");

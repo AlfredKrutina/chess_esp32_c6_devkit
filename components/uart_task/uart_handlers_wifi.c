@@ -648,9 +648,9 @@ command_result_t uart_cmd_web_status(const char *args) {
                       http_active ? "🟢 ACTIVE" : "🔴 INACTIVE");
   uart_send_formatted("  Last HTTP start error: %s", esp_err_to_name(http_err));
   uart_send_formatted("Matrix guard pause: %s",
-                      game_is_matrix_guard_active() ? "🟡 ACTIVE" : "⚪ OFF");
+                      game_is_squares_guard_active() ? "🟡 ACTIVE" : "⚪ OFF");
   uart_send_formatted("  Matrix conflicts: %u",
-                      (unsigned int)game_get_matrix_guard_conflict_count());
+                      (unsigned int)game_get_squares_guard_conflict_count());
   uart_send_formatted("Snapshot loaded on boot: %s",
                       game_was_snapshot_loaded_on_boot() ? "YES" : "NO");
   uart_send_formatted("Snapshot fallback mode: %s",

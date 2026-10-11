@@ -73,7 +73,7 @@
  * - WiFi: wifi_scan, wifi_connect, wifi_status
  * - Timer: timer_start, timer_stop, timer_status
  * - LED: led_test, led_blink, anim_*
- * - Debug: matrix_debug, queue_stats
+ * - Debug: squares_debug, queue_stats
  *
  * =============================================================================
  * TABLE OF CONTENTS
@@ -160,7 +160,7 @@
 #include "../ble_task/include/ble_task.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../ha_light_task/include/ha_light_task.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../timer_system/include/timer_system.h"
 #include "../uart_commands_extended/include/uart_commands_extended.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
@@ -169,6 +169,7 @@
 #include "config_manager.h"
 #include "esp_system.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "game_task.h"
 #include "led_mapping.h"
 #include "led_task.h"
@@ -205,32 +206,19 @@ extern SemaphoreHandle_t uart_mutex;
  * Prevents startup errors when the task is not yet registered.
  */
 esp_err_t uart_task_wdt_reset_safe(void) {
-  esp_err_t ret = esp_task_wdt_reset();
-
-  if (ret == ESP_ERR_NOT_FOUND) {
-    // Log as WARNING instead of ERROR - task not registered yet
-    ESP_LOGW(
-        "UART_TASK",
-        "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Treat as success for our purposes
-  } else if (ret != ESP_OK) {
-    ESP_LOGE("UART_TASK", "WDT reset failed: %s", esp_err_to_name(ret));
-    return ret;
-  }
-
-  return ESP_OK;
+  return chess_task_wdt_reset_safe("UART_TASK");
 }
 
 // External task handles and queues
 extern TaskHandle_t led_task_handle;
-extern TaskHandle_t matrix_task_handle;
+extern TaskHandle_t squares_task_handle;
 extern TaskHandle_t button_task_handle;
 extern TaskHandle_t game_task_handle;
 extern QueueHandle_t game_command_queue;
 // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell eliminated
 
 // Component status tracking
-static bool matrix_component_enabled = true;
+static bool squares_component_enabled = true;
 static bool led_component_enabled = true;
 static bool wifi_component_enabled = false;
 
@@ -2230,7 +2218,7 @@ command_result_t uart_cmd_status(const char *args) {
   uart_send_formatted("  LED Task: %u bytes free",
                       uxTaskGetStackHighWaterMark(led_task_handle));
   uart_send_formatted("  Matrix Task: %u bytes free",
-                      uxTaskGetStackHighWaterMark(matrix_task_handle));
+                      uxTaskGetStackHighWaterMark(squares_task_handle));
   uart_send_formatted("  Button Task: %u bytes free",
                       uxTaskGetStackHighWaterMark(button_task_handle));
   uart_send_formatted("  Game Task: %u bytes free",
@@ -2247,7 +2235,7 @@ command_result_t uart_cmd_status(const char *args) {
   uart_send_formatted("");
   uart_send_formatted("🔧 Component Status:");
   uart_send_formatted("  Matrix Scanner: %s",
-                      matrix_component_enabled ? "ENABLED" : "DISABLED");
+                      squares_component_enabled ? "ENABLED" : "DISABLED");
   uart_send_formatted("  LED Control: %s",
                       led_component_enabled ? "ENABLED" : "DISABLED");
   uart_send_formatted("  WiFi: %s",
@@ -2974,10 +2962,10 @@ command_result_t uart_cmd_component_off(const char *args) {
     uart_send_formatted("🔴 Turning OFF Matrix component...");
 
     // Send command to matrix task to disable scanning
-    uint8_t matrix_cmd = MATRIX_CMD_DISABLE;
-    if (xQueueSend(matrix_command_queue, &matrix_cmd, pdMS_TO_TICKS(100)) ==
+    uint8_t squares_cmd = SQUARES_CMD_DISABLE;
+    if (xQueueSend(squares_command_queue, &squares_cmd, pdMS_TO_TICKS(100)) ==
         pdTRUE) {
-      matrix_component_enabled = false;
+      squares_component_enabled = false;
       uart_send_formatted("✅ Matrix component turned OFF");
       uart_send_formatted("  • Matrix scanning: DISABLED");
       uart_send_formatted("  • Piece detection: DISABLED");
@@ -3052,10 +3040,10 @@ command_result_t uart_cmd_component_on(const char *args) {
     uart_send_formatted("🟢 Turning ON Matrix component...");
 
     // Send command to matrix task to enable scanning
-    uint8_t matrix_cmd = MATRIX_CMD_ENABLE;
-    if (xQueueSend(matrix_command_queue, &matrix_cmd, pdMS_TO_TICKS(100)) ==
+    uint8_t squares_cmd = SQUARES_CMD_ENABLE;
+    if (xQueueSend(squares_command_queue, &squares_cmd, pdMS_TO_TICKS(100)) ==
         pdTRUE) {
-      matrix_component_enabled = true;
+      squares_component_enabled = true;
       uart_send_formatted("✅ Matrix component turned ON");
       uart_send_formatted("  • Matrix scanning: ENABLED");
       uart_send_formatted("  • Piece detection: ENABLED");

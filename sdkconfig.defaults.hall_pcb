@@ -1,0 +1,34 @@
+# Hall V2 profile for the CzechMate czechmate_CH224A PCB (as wired in KiCad).
+# This overlay is for the real board; keep sdkconfig.defaults.hall_v2 for the
+# Nucleo/devkit bench setup (GPIO 12/13/14/15).
+#
+# MCU on this PCB: 1x STM32C031F6P6 (32 KiB flash, TSSOP20).
+# I2C1 on STM32: PB7(SDA)/PB6(SCL); ROM bootloader address 0x63.
+# ESP32-C6 WROOM pins from schematic:
+#   SDA  -> IO10
+#   SCL  -> IO11
+#   BOOT0-> IO18
+#   NRST seg0..3 -> IO1..IO4 (all four RST_ESP_OUT* pins are present on the PCB)
+
+# Include the Hall V2 base first, then override the GPIOs.
+# Build with (separate file; hall_v2 first so I2C_HALL is selected, then these pins):
+#   idf.py -B build-hall-pcb -D SDKCONFIG=sdkconfig.hall_pcb -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2;sdkconfig.defaults.hall_pcb" build
+
+CONFIG_CHESS_HALL_I2C_SDA_GPIO=10
+CONFIG_CHESS_HALL_I2C_SCL_GPIO=11
+CONFIG_CHESS_HALL_SEGMENT_COUNT=1
+
+# V2 PCB uses the Flutter app. HTTP stays as the machine API; browser page is in kos/unused/web_ui.
+CONFIG_CHESS_ENABLE_WEB_SERVER=y
+CONFIG_HTTPD_WS_SUPPORT=y
+
+CONFIG_CHESS_STM32_BL_BOOT0_GPIO=18
+CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0=1
+CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG1=2
+CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG2=3
+CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG3=4
+
+# SW1 "tlacitko nova hra" — ESP32-C6 IO23, active-low, external 10k to 3V3.
+# Reed image does not set this; it keeps the GPIO15 reset button.
+CONFIG_CHESS_GESTURE_BUTTON=y
+CONFIG_CHESS_GESTURE_BUTTON_GPIO=23

@@ -3,7 +3,7 @@
 set(MAIN_REQUIRES
     freertos_chess
     led_task
-    matrix_task
+    squares_task
     button_task
     uart_task
     game_task

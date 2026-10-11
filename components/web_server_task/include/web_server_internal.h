@@ -37,6 +37,7 @@ esp_err_t build_snapshot_json(size_t *out_len);
 esp_err_t web_server_apply_hint_highlight_json_body(const char *buf);
 esp_err_t web_server_opening_dispatch_body(const char *json);
 esp_err_t web_server_opening_dispatch_json(struct cJSON *root);
+uint8_t web_opening_action_code(const char *action);
 void inject_web_status_fields(char *buf, size_t buf_size);
 void setup_tutorial_reset_finish_cooldown(void);
 bool setup_tutorial_finish_in_cooldown(void);

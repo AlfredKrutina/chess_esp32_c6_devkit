@@ -20,7 +20,7 @@
 
 static const char *TAG = "STM32_I2C_BL";
 
-extern bool matrix_scanning_enabled;
+extern bool squares_scanning_enabled;
 
 #define STM32_ACK 0x79
 #define STM32_NACK 0x1F
@@ -50,13 +50,13 @@ static uint8_t bl_addr7(void) {
 }
 
 static void bl_pause_scan(bool *was_enabled) {
-  *was_enabled = matrix_scanning_enabled;
-  matrix_scanning_enabled = false;
+  *was_enabled = squares_scanning_enabled;
+  squares_scanning_enabled = false;
   vTaskDelay(pdMS_TO_TICKS(30));
 }
 
 static void bl_resume_scan(bool was_enabled) {
-  matrix_scanning_enabled = was_enabled;
+  squares_scanning_enabled = was_enabled;
 }
 
 static void bl_inter_frame(void) {
@@ -556,7 +556,6 @@ esp_err_t stm32_i2c_bl_go(uint8_t segment_0_to_3, bool boot0_enter,
 
   err = bl_send_go_at_addr(addr);
 
-done:
   (void)stm32_i2c_bl_release_all_run_app();
   bl_resume_scan(scan_was);
   return err;
@@ -750,6 +749,21 @@ esp_err_t stm32_i2c_bl_flash_binary(uint8_t segment_0_to_3, bool boot0_enter,
                                     uint32_t flash_base, const uint8_t *bin,
                                     size_t bin_len) {
   ESP_RETURN_ON_FALSE(bin && bin_len, ESP_ERR_INVALID_ARG, TAG, "bin");
+  /* STM32C031F6P6 (czechmate PCB) and C031C6 (Nucleo) are 32 KiB.
+   * A tighter Kconfig cap is honored; never accept a 512 KiB partition. */
+  size_t cap = 32u * 1024u;
+#if defined(CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES) &&                     \
+    (CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES > 0)
+  if ((size_t)CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES < cap) {
+    cap = (size_t)CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES;
+  }
+#endif
+  if (bin_len > cap) {
+    ESP_LOGE(TAG,
+             "[STAGING] flash image %u B exceeds STM32C031 flash cap %u B — refused",
+             (unsigned)bin_len, (unsigned)cap);
+    return ESP_ERR_INVALID_SIZE;
+  }
   return stm32_i2c_bl_flash_binary_impl(segment_0_to_3, boot0_enter, flash_base,
                                         bin_len, stm32_bl_fill_from_ram,
                                         (void *)bin);

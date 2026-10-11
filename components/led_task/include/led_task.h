@@ -93,6 +93,16 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
                             uint8_t blue);
 
 /**
+ * @brief Set one LED including the white die
+ *
+ * RGB callers keep using led_set_pixel_internal(). Pass white when the lamp
+ * (or another caller) must drive the white die itself. The budgeted writer
+ * still applies NVS brightness and the rail cap.
+ */
+void led_set_pixel_rgbw(uint8_t led_index, uint8_t red, uint8_t green,
+                        uint8_t blue, uint8_t white);
+
+/**
  * @brief Set all LEDs (internal function without mutex)
  *
  * @param red Red (0-255)

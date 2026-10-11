@@ -7,6 +7,7 @@
 #include "game_move_validate.h"
 #include "game_snapshot.h"
 #include "game_task_internal.h"
+#include "game_physical_undo.h"
 
 #include "game_task.h"
 #include "chess_gameplay_policy.h"
@@ -33,8 +34,12 @@
 
 static const char *TAG = "GAME_MOVE_EXEC";
 
-// Fifty-move rule counter
+// Fifty-move rule counter (halfmoves). Persisted by game_snapshot.
 static uint32_t fifty_move_counter = 0;
+
+uint32_t game_get_fifty_move_counter(void) { return fifty_move_counter; }
+
+void game_set_fifty_move_counter(uint32_t value) { fifty_move_counter = value; }
 
 // ============================================================================
 // MOVE EXECUTION FUNCTIONS
@@ -239,6 +244,16 @@ bool game_execute_move(const chess_move_t *move) {
     }
   }
 
+  bool skip_undo_meta =
+      (castling_state.in_progress &&
+       move->from_row == castling_state.rook_from_row &&
+       move->from_col == castling_state.rook_from_col &&
+       move->to_row == castling_state.rook_to_row &&
+       move->to_col == castling_state.rook_to_col);
+  if (!skip_undo_meta && history_index < GAME_TASK_MAX_MOVES_HISTORY) {
+    game_move_undo_meta_init_record(history_index, extended_move.move_type, move);
+  }
+
   // Execute the enhanced move
   bool success = game_execute_move_enhanced(&extended_move);
 
@@ -271,6 +286,11 @@ bool game_execute_move(const chess_move_t *move) {
         move_history[history_index].timestamp = esp_timer_get_time() / 1000;
         move_history_kind[history_index] = extended_move.move_type;
         history_index++;
+        if (extended_move.move_type == MOVE_TYPE_PROMOTION &&
+            !promotion_state.pending) {
+          game_move_undo_meta_on_promotion_completed(
+              board[move->to_row][move->to_col]);
+        }
       }
 
       // Update game state

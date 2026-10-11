@@ -17,17 +17,17 @@ if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
 fi
 
 echo "==> scripts/docs/generate_mermaid_html.py → diagrams_mermaid.html + extracted/*.mmd"
-python3 scripts/docs/generate_mermaid_html.py --export-dir docs/diagrams/extracted
+python3 scripts/docs/generate_mermaid_html.py --export-dir context/diagrams/extracted
 
 echo "==> copy Mermaid HTML for gh-pages / doxygen (if directories exist)"
 if [[ -d gh-pages-ready ]]; then
-  cp -f docs/diagrams/diagrams_mermaid.html gh-pages-ready/diagrams_mermaid.html
+  cp -f context/diagrams/diagrams_mermaid.html gh-pages-ready/diagrams_mermaid.html
   echo "    gh-pages-ready/diagrams_mermaid.html"
 fi
-if [[ -f docs/doxygen/html/index.html ]]; then
-  cp -f docs/diagrams/diagrams_mermaid.html docs/doxygen/html/diagrams_mermaid.html
-  echo "    docs/doxygen/html/diagrams_mermaid.html"
-elif [[ -d docs/doxygen ]]; then
+if [[ -f doxygen/html/index.html ]]; then
+  cp -f context/diagrams/diagrams_mermaid.html doxygen/html/diagrams_mermaid.html
+  echo "    doxygen/html/diagrams_mermaid.html"
+elif [[ -d doxygen ]]; then
   echo "    (skipped: generate Doxygen first — ./scripts/docs/generate_docs.sh)"
 fi
 
@@ -35,7 +35,7 @@ render_mmd() {
   local src="$1"
   local base
   base="$(basename "$src" .mmd)"
-  local out_dir="docs/diagrams"
+  local out_dir="context/diagrams"
   local svg="${out_dir}/${base}.svg"
   local png="${out_dir}/${base}.png"
   local -a pp=()
@@ -57,7 +57,7 @@ render_mmd() {
 }
 
 shopt -s nullglob
-for MM_SRC in docs/diagrams/sources/*.mmd; do
+for MM_SRC in context/diagrams/sources/*.mmd; do
   render_mmd "$MM_SRC"
 done
 shopt -u nullglob

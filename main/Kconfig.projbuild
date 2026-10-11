@@ -10,11 +10,13 @@ config CHESS_ENABLE_TEST_TASK
         Disabled: saves RAM and fewer logs — suitable for production flash.
 
 config CHESS_ENABLE_WEB_SERVER
-    bool "HTTP web server (WiFi AP/STA, REST API, WebSocket, PNG)"
+    bool "HTTP machine API (WiFi AP/STA, REST, WebSocket)"
     default y
     help
-        Enables full web_server_task: WiFi hotspot/STA, REST, WebSocket,
-        embedded piece PNGs and browser pages.
+        Enables web_server_task: WiFi hotspot/STA, REST /api/*, and /ws.
+        The human browser chess page is not in this image (sources in
+        kos/unused/web_ui). Flutter and the desktop client use this API
+        because they cannot scan BLE on Windows.
 
         Disabled: a light BLE/UART bridge remains (snapshot, opening trainer via GATT).
         Saves flash/RAM — no esp_http_server, mDNS, or HTTP handlers.

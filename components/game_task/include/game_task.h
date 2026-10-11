@@ -437,9 +437,9 @@ bool game_get_guided_capture_hints_enabled(void);
 
 /**
  * @brief Matrix: enable second UP in a row (victim in hand + attacker, or 3-step take).
- * @details Without it, matrix_detect_moves() evaluates the status as ambiguous and turns on the guard.
+ * @details Without it, squares_detect_moves() evaluates the status as ambiguous and turns on the guard.
  */
-bool game_matrix_allow_second_sequential_lift(void);
+bool game_squares_allow_second_sequential_lift(void);
 
 /**
  * @brief Level of LED help while playing (1 = minimum … 5 = full).
@@ -463,7 +463,7 @@ bool game_puzzle_enter_setup(uint8_t puzzle_id);
 bool game_is_puzzle_setup_active(void);
 
 /** Compare reed matrix occupancy (0/1) to FEN piece placement. */
-bool game_physical_matrix_matches_fen(const char *fen);
+bool game_physical_squares_matches_fen(const char *fen);
 
 /** Opening trainer — multi-ply line with virtual opponent replies. */
 void game_opening_cancel(void);
@@ -496,7 +496,7 @@ void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
 bool game_opening_on_illegal_player_move(void);
 bool game_opening_apply_uci(const char *uci);
 bool game_opening_validate_checkpoint_physical(void);
-bool game_opening_status_needs_matrix(void);
+bool game_opening_status_needs_squares(void);
 const char *game_opening_feedback_key(void);
 const char *game_opening_opponent_mode_key(void);
 void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset);
@@ -505,28 +505,28 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
  * @brief Matrix guard: active pause when the matrix does not match the logic board.
  * @details true = user must flatten the physical board before further moves.
  */
-bool game_is_matrix_guard_active(void);
+bool game_is_squares_guard_active(void);
 
 /**
  * @brief Count of fields with conflict (array vs. expected state after refresh).
  */
-uint8_t game_get_matrix_guard_conflict_count(void);
+uint8_t game_get_squares_guard_conflict_count(void);
 
 /** @brief Bitova maska zvednutych poli (spodnich 32 poli), matrix guard. */
-uint32_t game_get_matrix_guard_lifted_mask_low(void);
+uint32_t game_get_squares_guard_lifted_mask_low(void);
 /** @brief Bitova maska zvednutych poli (hornich 32 poli), matrix guard. */
-uint32_t game_get_matrix_guard_lifted_mask_high(void);
+uint32_t game_get_squares_guard_lifted_mask_high(void);
 /** @brief Bitova maska polozenych poli (spodnich 32), matrix guard. */
-uint32_t game_get_matrix_guard_dropped_mask_low(void);
+uint32_t game_get_squares_guard_dropped_mask_low(void);
 /** @brief Bitova maska polozenych poli (hornich 32), matrix guard. */
-uint32_t game_get_matrix_guard_dropped_mask_high(void);
+uint32_t game_get_squares_guard_dropped_mask_high(void);
 
 /**
  * @brief Emergency cancel matrix guard (game + matrix layer) and restore LED hint.
  * @details Use only when the board is physically level, but the guard is left hanging.
  * Prefer automatic cleaning after comparing figures.
  */
-void game_force_clear_matrix_guard(void);
+void game_force_clear_squares_guard(void);
 
 /**
  * @brief true if game_load_snapshot_from_nvs() in game_task_start successfully loaded the game.
@@ -722,9 +722,9 @@ game_state_t game_check_end_game_conditions(void);
 /**
  * @brief Process event matrix (turns)
  *
- * Reads events from matrix_event_queue and handles pull detection.
+ * Reads events from squares_event_queue and handles pull detection.
  */
-void game_process_matrix_events(void);
+void game_process_squares_events(void);
 
 /**
  * @brief Highlight all moving pieces of the current player

@@ -25,6 +25,37 @@ static const int8_t bishop_dirs[4][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 static const int8_t rook_dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
+static piece_t game_sim_piece_after_promotion(piece_t pawn,
+                                              promotion_choice_t choice) {
+  if (pawn == PIECE_WHITE_PAWN) {
+    switch (choice) {
+    case PROMOTION_ROOK:
+      return PIECE_WHITE_ROOK;
+    case PROMOTION_BISHOP:
+      return PIECE_WHITE_BISHOP;
+    case PROMOTION_KNIGHT:
+      return PIECE_WHITE_KNIGHT;
+    case PROMOTION_QUEEN:
+    default:
+      return PIECE_WHITE_QUEEN;
+    }
+  }
+  if (pawn == PIECE_BLACK_PAWN) {
+    switch (choice) {
+    case PROMOTION_ROOK:
+      return PIECE_BLACK_ROOK;
+    case PROMOTION_BISHOP:
+      return PIECE_BLACK_BISHOP;
+    case PROMOTION_KNIGHT:
+      return PIECE_BLACK_KNIGHT;
+    case PROMOTION_QUEEN:
+    default:
+      return PIECE_BLACK_QUEEN;
+    }
+  }
+  return pawn;
+}
+
 chess_move_extended_t legal_moves_buffer[128];
 uint32_t legal_moves_count = 0;
 
@@ -150,6 +181,10 @@ bool game_simulate_move_check(chess_move_extended_t *move, player_t player) {
   // Save original state
   piece_t original_piece = board[move->to_row][move->to_col];
   piece_t original_en_passant = PIECE_EMPTY;
+  piece_t original_rook = PIECE_EMPTY;
+  int rook_row = move->from_row;
+  int rook_from_col = -1;
+  int rook_to_col = -1;
 
   // Handle en passant capture
   if (move->move_type == MOVE_TYPE_EN_PASSANT) {
@@ -157,8 +192,23 @@ bool game_simulate_move_check(chess_move_extended_t *move, player_t player) {
     board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
   }
 
+  if (move->move_type == MOVE_TYPE_CASTLE_KING ||
+      move->move_type == MOVE_TYPE_CASTLE_QUEEN) {
+    bool kingside = (move->move_type == MOVE_TYPE_CASTLE_KING);
+    rook_from_col = kingside ? 7 : 0;
+    rook_to_col = kingside ? 5 : 3;
+    original_rook = board[rook_row][rook_from_col];
+    board[rook_row][rook_from_col] = PIECE_EMPTY;
+    board[rook_row][rook_to_col] = original_rook;
+  }
+
+  piece_t placed = move->piece;
+  if (move->move_type == MOVE_TYPE_PROMOTION) {
+    placed = game_sim_piece_after_promotion(move->piece, move->promotion_piece);
+  }
+
   // Make the move
-  board[move->to_row][move->to_col] = move->piece;
+  board[move->to_row][move->to_col] = placed;
   board[move->from_row][move->from_col] = PIECE_EMPTY;
 
   // Check if king is in check after this move
@@ -170,6 +220,11 @@ bool game_simulate_move_check(chess_move_extended_t *move, player_t player) {
 
   if (move->move_type == MOVE_TYPE_EN_PASSANT) {
     board[en_passant_victim_row][en_passant_victim_col] = original_en_passant;
+  }
+
+  if (rook_from_col >= 0) {
+    board[rook_row][rook_to_col] = PIECE_EMPTY;
+    board[rook_row][rook_from_col] = original_rook;
   }
 
   return !king_in_check; // Return true if move is legal (doesn't leave king
@@ -461,8 +516,8 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
 
   if (player == PLAYER_WHITE && !white_king_moved) {
     // White kingside castling
-    if (!white_rook_h_moved && board[0][5] == PIECE_EMPTY &&
-        board[0][6] == PIECE_EMPTY &&
+    if (!white_rook_h_moved && board[0][7] == PIECE_WHITE_ROOK &&
+        board[0][5] == PIECE_EMPTY && board[0][6] == PIECE_EMPTY &&
         !game_is_square_attacked(0, 5, PLAYER_BLACK) &&
         !game_is_square_attacked(0, 6, PLAYER_BLACK)) {
 
@@ -477,12 +532,15 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
       move->piece = king;
       move->captured_piece = PIECE_EMPTY;
       move->move_type = MOVE_TYPE_CASTLE_KING;
-      legal_moves_count++;
+      if (game_simulate_move_check(move, player)) {
+        legal_moves_count++;
+      }
     }
 
     // White queenside castling
-    if (!white_rook_a_moved && board[0][1] == PIECE_EMPTY &&
-        board[0][2] == PIECE_EMPTY && board[0][3] == PIECE_EMPTY &&
+    if (!white_rook_a_moved && board[0][0] == PIECE_WHITE_ROOK &&
+        board[0][1] == PIECE_EMPTY && board[0][2] == PIECE_EMPTY &&
+        board[0][3] == PIECE_EMPTY &&
         !game_is_square_attacked(0, 2, PLAYER_BLACK) &&
         !game_is_square_attacked(0, 3, PLAYER_BLACK)) {
 
@@ -497,14 +555,16 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
       move->piece = king;
       move->captured_piece = PIECE_EMPTY;
       move->move_type = MOVE_TYPE_CASTLE_QUEEN;
-      legal_moves_count++;
+      if (game_simulate_move_check(move, player)) {
+        legal_moves_count++;
+      }
     }
   }
 
   if (player == PLAYER_BLACK && !black_king_moved) {
     // Black kingside castling
-    if (!black_rook_h_moved && board[7][5] == PIECE_EMPTY &&
-        board[7][6] == PIECE_EMPTY &&
+    if (!black_rook_h_moved && board[7][7] == PIECE_BLACK_ROOK &&
+        board[7][5] == PIECE_EMPTY && board[7][6] == PIECE_EMPTY &&
         !game_is_square_attacked(7, 5, PLAYER_WHITE) &&
         !game_is_square_attacked(7, 6, PLAYER_WHITE)) {
 
@@ -519,12 +579,15 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
       move->piece = king;
       move->captured_piece = PIECE_EMPTY;
       move->move_type = MOVE_TYPE_CASTLE_KING;
-      legal_moves_count++;
+      if (game_simulate_move_check(move, player)) {
+        legal_moves_count++;
+      }
     }
 
     // Black queenside castling
-    if (!black_rook_a_moved && board[7][1] == PIECE_EMPTY &&
-        board[7][2] == PIECE_EMPTY && board[7][3] == PIECE_EMPTY &&
+    if (!black_rook_a_moved && board[7][0] == PIECE_BLACK_ROOK &&
+        board[7][1] == PIECE_EMPTY && board[7][2] == PIECE_EMPTY &&
+        board[7][3] == PIECE_EMPTY &&
         !game_is_square_attacked(7, 2, PLAYER_WHITE) &&
         !game_is_square_attacked(7, 3, PLAYER_WHITE)) {
 
@@ -539,7 +602,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
       move->piece = king;
       move->captured_piece = PIECE_EMPTY;
       move->move_type = MOVE_TYPE_CASTLE_QUEEN;
-      legal_moves_count++;
+      if (game_simulate_move_check(move, player)) {
+        legal_moves_count++;
+      }
     }
   }
 }

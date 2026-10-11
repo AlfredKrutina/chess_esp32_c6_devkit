@@ -76,9 +76,9 @@ static const char *TAG = "FREERTOS_CHESS";
 // QueueHandle_t led_status_queue = NULL;   //  REMOVED: Queue hell eliminated
 
 // Matrix event queues
-QueueHandle_t matrix_event_queue = NULL;
-QueueHandle_t matrix_command_queue = NULL;
-QueueHandle_t matrix_response_queue = NULL;
+QueueHandle_t squares_event_queue = NULL;
+QueueHandle_t squares_command_queue = NULL;
+QueueHandle_t squares_response_queue = NULL;
 
 // Button event queues
 QueueHandle_t button_event_queue = NULL;
@@ -114,13 +114,13 @@ QueueHandle_t test_command_queue = NULL;
 
 // System mutexes
 SemaphoreHandle_t led_mutex = NULL;
-SemaphoreHandle_t matrix_mutex = NULL;
+SemaphoreHandle_t squares_mutex = NULL;
 SemaphoreHandle_t button_mutex = NULL;
 SemaphoreHandle_t game_mutex = NULL;
 SemaphoreHandle_t system_mutex = NULL;
 
 // System timers
-TimerHandle_t matrix_scan_timer =
+TimerHandle_t squares_scan_timer =
     NULL; // LEGACY - not used with coordinated system
 TimerHandle_t button_scan_timer =
     NULL; // LEGACY - not used with coordinated system
@@ -316,6 +316,15 @@ esp_err_t chess_gpio_init(void) {
 
     ESP_LOGI(TAG, "DEBUG: Proceeding with GPIO%" PRIu32 " configuration", pin_number);
 
+    /* PCB profile: GPIO1..4 are STM32 NRST. Do not turn them into reed inputs. */
+    if (chess_gpio_pin_is_stm32_nrst_output((int)pin_number)) {
+      ESP_LOGW(TAG,
+               "[STAGING] MATRIX_COL_%d GPIO%" PRIu32
+               " is STM32 NRST — not configured as a matrix input",
+               i, pin_number);
+      continue;
+    }
+
     // Explicitly reset GPIO17 before configuration
     // GPIO17 is UART0 RX pin on ESP32-C6 and may have special properties
     // that need to be cleared before using it as GPIO input
@@ -470,7 +479,7 @@ esp_err_t chess_led_init(void) {
   return ESP_OK;
 }
 
-esp_err_t chess_matrix_init(void) {
+esp_err_t chess_squares_init(void) {
   ESP_LOGI(TAG, "Initializing matrix system...");
 
   // WDT reset for matrix initialization
@@ -545,7 +554,7 @@ esp_err_t chess_hardware_init(void) {
   // Initialize matrix system
   ESP_LOGI(TAG, "🔄 Initializing matrix system...");
   // WDT reset removed during initialization
-  ret = chess_matrix_init();
+  ret = chess_squares_init();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Matrix initialization failed");
     return ret;
@@ -600,16 +609,16 @@ esp_err_t chess_create_queues(void) {
   // Matrix event queues
   ESP_LOGI(TAG, "🔄 Creating Matrix queues...");
   ESP_LOGI(TAG, "  - Matrix Event Queue: %d items × %zu bytes",
-           MATRIX_QUEUE_SIZE, sizeof(matrix_event_t));
-  SAFE_CREATE_QUEUE(matrix_event_queue, MATRIX_QUEUE_SIZE,
-                    sizeof(matrix_event_t), "Matrix Event Queue");
+           SQUARES_QUEUE_SIZE, sizeof(squares_event_t));
+  SAFE_CREATE_QUEUE(squares_event_queue, SQUARES_QUEUE_SIZE,
+                    sizeof(squares_event_t), "Matrix Event Queue");
   ESP_LOGI(TAG, "  - Matrix Command Queue: %d items × %zu bytes",
-           MATRIX_QUEUE_SIZE, sizeof(uint8_t));
-  SAFE_CREATE_QUEUE(matrix_command_queue, MATRIX_QUEUE_SIZE, sizeof(uint8_t),
+           SQUARES_QUEUE_SIZE, sizeof(uint8_t));
+  SAFE_CREATE_QUEUE(squares_command_queue, SQUARES_QUEUE_SIZE, sizeof(uint8_t),
                     "Matrix Command Queue");
   ESP_LOGI(TAG, "  - Matrix Response Queue: %d items × %zu bytes",
-           MATRIX_QUEUE_SIZE, sizeof(game_response_t));
-  SAFE_CREATE_QUEUE(matrix_response_queue, MATRIX_QUEUE_SIZE,
+           SQUARES_QUEUE_SIZE, sizeof(game_response_t));
+  SAFE_CREATE_QUEUE(squares_response_queue, SQUARES_QUEUE_SIZE,
                     sizeof(game_response_t), "Matrix Response Queue");
   ESP_LOGI(TAG, "✅ Matrix queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
@@ -735,7 +744,7 @@ esp_err_t chess_create_queues(void) {
   ESP_LOGI(TAG, "========================================");
 
   bool queues_ok =
-      matrix_event_queue && matrix_command_queue && matrix_response_queue &&
+      squares_event_queue && squares_command_queue && squares_response_queue &&
       button_event_queue && button_command_queue && uart_command_queue &&
       uart_response_queue && game_command_queue && game_status_queue &&
       animation_command_queue && animation_status_queue &&
@@ -758,7 +767,7 @@ esp_err_t chess_create_mutexes(void) {
   ESP_LOGI(TAG, "Creating FreeRTOS mutexes...");
 
   SAFE_CREATE_MUTEX(led_mutex, "LED Mutex");
-  SAFE_CREATE_MUTEX(matrix_mutex, "Matrix Mutex");
+  SAFE_CREATE_MUTEX(squares_mutex, "Matrix Mutex");
   SAFE_CREATE_MUTEX(button_mutex, "Button Mutex");
   SAFE_CREATE_MUTEX(game_mutex, "Game Mutex");
   SAFE_CREATE_MUTEX(system_mutex, "System Mutex");
@@ -790,10 +799,10 @@ esp_err_t chess_create_mutexes(void) {
  * therefore their access to the pin MUST be synchronized.
  *
  * Timing:
- * 1. Matrix scan calls matrix_scan_all() directly in the callback (fast)
- * 2. After matrix scan: matrix_release_pins() release row pins
+ * 1. Matrix scan calls squares_scan_all() directly in the callback (fast)
+ * 2. After matrix scan: squares_release_pins() release row pins
  * 3. Button scan calls button_scan_all() (fast)
- * 4. After button scan: matrix_acquire_pins() (prepare for next cycle)
+ * 4. After button scan: squares_acquire_pins() (prepare for next cycle)
  */
 static void __attribute__((unused))
 coordinated_multiplex_timer_callback(TimerHandle_t xTimer) {
@@ -833,23 +842,23 @@ static void coordinated_multiplex_task(void *pvParameters) {
     esp_task_wdt_reset();
 
     // PHASE 1: MATRIX scan
-    extern bool matrix_scanning_enabled;
-    if (matrix_scanning_enabled) {
-      extern void matrix_scan_all(void);
-      matrix_scan_all();
+    extern bool squares_scanning_enabled;
+    if (squares_scanning_enabled) {
+      extern void squares_scan_all(void);
+      squares_scan_all();
     }
 
     // PHASE 2: release matrix pins for button scan
-    extern void matrix_release_pins(void);
-    matrix_release_pins();
+    extern void squares_release_pins(void);
+    squares_release_pins();
 
     // PHASE 3: BUTTON scan
     extern void button_scan_all(void);
     button_scan_all();
 
     // PHASE 4: re-acquire matrix pins
-    extern void matrix_acquire_pins(void);
-    matrix_acquire_pins();
+    extern void squares_acquire_pins(void);
+    squares_acquire_pins();
 
     // Full multiplexing cycle
     vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(TOTAL_CYCLE_TIME_MS));
@@ -875,13 +884,13 @@ void button_scan_timer_callback(TimerHandle_t xTimer) {
  * @brief Matrix scan timer callback - LEGACY (not used with coordinated system)
  * @param xTimer Timer handle
  */
-void matrix_scan_timer_callback(TimerHandle_t xTimer) {
+void squares_scan_timer_callback(TimerHandle_t xTimer) {
   // NOTE: This callback is NOT used when coordinated multiplexing is active
   // Kept for backward compatibility only
-  extern bool matrix_scanning_enabled;
-  if (matrix_scanning_enabled) {
-    extern void matrix_scan_all(void);
-    matrix_scan_all();
+  extern bool squares_scanning_enabled;
+  if (squares_scanning_enabled) {
+    extern void squares_scan_all(void);
+    squares_scan_all();
   }
 }
 
@@ -908,7 +917,7 @@ esp_err_t chess_create_timers(void) {
   // PRODUCTION STABILITY:
   // Do not create/start coordinated multiplexing as a FreeRTOS timer.
   // The Timer Service task stack is too small for the call chain
-  // (matrix_detect_moves -> ha_light_report_activity -> esp_log -> vfprintf).
+  // (squares_detect_moves -> ha_light_report_activity -> esp_log -> vfprintf).
   // We use `coordinated_multiplex_task` instead.
   coordinated_multiplex_timer = NULL;
   ESP_LOGI(TAG, "✓ Coordinated multiplexing will run as a TASK (not timer)");
@@ -918,10 +927,10 @@ esp_err_t chess_create_timers(void) {
   // ============================================================================
 
   // Matrix scan timer (20ms period) - LEGACY, not used
-  matrix_scan_timer =
-      xTimerCreate("MatrixScan", pdMS_TO_TICKS(MATRIX_SCAN_TIME_MS), pdTRUE,
-                   NULL, matrix_scan_timer_callback);
-  if (matrix_scan_timer == NULL) {
+  squares_scan_timer =
+      xTimerCreate("MatrixScan", pdMS_TO_TICKS(SQUARES_SCAN_TIME_MS), pdTRUE,
+                   NULL, squares_scan_timer_callback);
+  if (squares_scan_timer == NULL) {
     ESP_LOGW(TAG, "Failed to create legacy matrix scan timer (not critical)");
   }
 
@@ -964,7 +973,7 @@ esp_err_t chess_start_timers(void) {
   if (coordinated_multiplex_task_handle == NULL) {
     BaseType_t ok =
         xTaskCreate(coordinated_multiplex_task, "coord_mux_task",
-                    COORDINATED_MUX_TASK_STACK_SIZE, NULL, MATRIX_TASK_PRIORITY,
+                    COORDINATED_MUX_TASK_STACK_SIZE, NULL, SQUARES_TASK_PRIORITY,
                     &coordinated_multiplex_task_handle);
     if (ok != pdPASS || coordinated_multiplex_task_handle == NULL) {
       ESP_LOGE(TAG, "Failed to create coordinated multiplexing task");
@@ -980,7 +989,7 @@ esp_err_t chess_start_timers(void) {
   // LEGACY TIMERS (DO NOT START - would cause conflicts)
   // ============================================================================
 
-  // DO NOT start legacy matrix_scan_timer - would conflict with coordinated
+  // DO NOT start legacy squares_scan_timer - would conflict with coordinated
   // timer
   ESP_LOGI(
       TAG,
@@ -1317,7 +1326,7 @@ esp_err_t chess_led_button_feedback(uint8_t button_id, bool available) {
   return ESP_OK;
 }
 
-esp_err_t chess_matrix_scan(void) {
+esp_err_t chess_squares_scan(void) {
   // In simulation mode, simulate matrix scanning
   ESP_LOGI(TAG, "Matrix Scan: Simulating 8x8 reed switch matrix");
 
@@ -1327,14 +1336,14 @@ esp_err_t chess_matrix_scan(void) {
 
   if (scan_count % 10 == 0) { // Every 10th scan
     // Simulate a piece move
-    matrix_event_t event = {.type = MATRIX_EVENT_MOVE_DETECTED,
+    squares_event_t event = {.type = SQUARES_EVENT_MOVE_DETECTED,
                             .from_square = (scan_count / 10) % 64,
                             .to_square = ((scan_count / 10) + 1) % 64,
                             .piece_type = (scan_count / 10) % 6 + 1,
                             .timestamp = esp_timer_get_time() / 1000};
 
-    if (matrix_event_queue != NULL) {
-      if (xQueueSend(matrix_event_queue, &event, pdMS_TO_TICKS(100)) !=
+    if (squares_event_queue != NULL) {
+      if (xQueueSend(squares_event_queue, &event, pdMS_TO_TICKS(100)) !=
           pdTRUE) {
         ESP_LOGW(TAG, "Failed to send matrix event to queue");
       }
@@ -1344,12 +1353,12 @@ esp_err_t chess_matrix_scan(void) {
   return ESP_OK;
 }
 
-esp_err_t chess_matrix_reset(void) {
+esp_err_t chess_squares_reset(void) {
   ESP_LOGI(TAG, "Matrix Reset: Clearing all matrix states");
   return ESP_OK;
 }
 
-esp_err_t chess_matrix_get_status(uint8_t *status_array) {
+esp_err_t chess_squares_get_status(uint8_t *status_array) {
   if (status_array == NULL) {
     return ESP_ERR_INVALID_ARG;
   }

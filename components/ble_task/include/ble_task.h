@@ -49,6 +49,13 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body);
 /** Full JSON for cmd_ack notify (e.g. wifi_survey up to ~2 KiB). Use only from web_server BLE dispatch. */
 void ble_task_notify_cmd_ack_json(const char *json_utf8);
 
+/**
+ * Make the board discoverable again on the existing advertising/bonding path.
+ * Does not stop the NimBLE host. If a connection is already up, advertising
+ * is left alone.
+ */
+void ble_task_request_pairing(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -5,7 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
-#include "game_matrix_guard.h"
+#include "game_squares_guard.h"
 #include "chess_gameplay_policy.h"
 
 #include "../led_task/include/led_task.h"
@@ -407,7 +407,7 @@ bool game_is_castling_expected(void) {
     // original position But we don't have access to the destination
     // coordinates here So we return true to prevent premature opponent piece
     // highlighting The actual castling detection will happen in
-    // game_handle_matrix_move
+    // game_handle_squares_move
     ESP_LOGI(TAG, "🏰 King is lifted - castling might be expected");
     return true;
   }
@@ -493,9 +493,9 @@ void game_refresh_leds(void) {
   // Clear board first (to remove HA colors)
   led_clear_board_only();
 
-  if (game_is_matrix_guard_active()) {
+  if (game_is_squares_guard_active()) {
     ESP_LOGI(TAG, "  - Restoring MATRIX GUARD LEDs (physical vs logic)");
-    game_matrix_guard_render_leds();
+    game_squares_guard_render_leds();
     game_check_promotion_needed();
     return;
   }

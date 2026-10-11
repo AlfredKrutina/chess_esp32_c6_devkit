@@ -19,5 +19,5 @@ Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP + optional WebSocket, `chess` p
 ## Further reading
 
 - [`docs/flutter/README.md`](../docs/flutter/README.md) — client structure, BLE/HTTP, diagrams
-- [`docs/ota_architecture.md`](../docs/ota_architecture.md) — board firmware OTA
+- [`ota_architecture.md`](../context/firmware/ota_architecture.md) — board firmware OTA
 - [`docs/README.md`](../docs/README.md) — firmware diagrams, reference, …

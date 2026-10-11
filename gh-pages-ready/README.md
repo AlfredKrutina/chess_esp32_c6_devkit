@@ -41,8 +41,8 @@ cd gh-pages-ready && ./serve.sh
 ./scripts/docs/generate_docs.sh
 ./scripts/render_docs.sh
 rm -rf /tmp/czm-pages && mkdir -p /tmp/czm-pages
-cp -a docs/doxygen/html/. /tmp/czm-pages/
-cp -f docs/diagrams/diagrams_mermaid.html /tmp/czm-pages/diagrams_mermaid.html
+cp -a doxygen/html/. /tmp/czm-pages/
+cp -f context/diagrams/diagrams_mermaid.html /tmp/czm-pages/diagrams_mermaid.html
 cp -f gh-pages-ready/downloads.html /tmp/czm-pages/downloads.html
 cp -f gh-pages-ready/app_update.json /tmp/czm-pages/app_update.json
 cp -f gh-pages-ready/app_update.html /tmp/czm-pages/app_update.html

@@ -5,6 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
+#include "game_snapshot.h"
 #include "freertos_chess.h"
 
 #include "../../timer_system/include/timer_system.h"
@@ -231,6 +232,7 @@ esp_err_t game_handle_time_expiration(void) {
   timer_pause();
 
   ESP_LOGI(TAG, "Game ended due to timeout. Winner: %s", winner_name);
+  game_snapshot_persist_after_valid_move();
 
   return ESP_OK;
 }

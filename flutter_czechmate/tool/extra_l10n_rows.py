@@ -836,6 +836,7 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("boardNvsLiftBeforeBotTarget", "Bot target LED only after lift", "Cílové světlo u počítače až po zvednutí figurky"),
     ("boardNvsTutorialMode", "Tutorial mode enabled", "Výukový režim zapnutý"),
     ("boardNvsConfirmNewGameLed", "Confirm new game with LED button", "Potvrzovat novou hru LED tlačítkem"),
+    ("boardNvsPhysicalTakeback", "Physical move takeback (board undo)", "Vracení tahu"),
     ("boardNvsHintLimit", "Hint limit (0 = unlimited)", "Limit nápověd (0 = neomezeno)"),
     ("boardNvsHintTierTitle", "Hint type (MoveHintTier)", "Typ nápovědy (MoveHintTier)"),
     ("boardNvsHintTierSubtitle", "H1 = best only, H2 = top 3, H3 = full Stockfish set", "H1 = jen nejlepší tah, H2 = 3 nejlepší tahy, H3 = celá sada dle Stockfish"),

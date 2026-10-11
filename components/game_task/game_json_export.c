@@ -8,7 +8,7 @@
 #include "chess_gameplay_policy.h"
 #include "freertos_chess.h"
 
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../../timer_system/include/timer_system.h"
 
 #include "esp_log.h"
@@ -369,9 +369,9 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
   game_opening_export_status_json(buffer, size, &offset);
 
   if (board_setup_tutorial_active || puzzle_setup_active ||
-      game_opening_status_needs_matrix()) {
+      game_opening_status_needs_squares()) {
     uint8_t occ[64];
-    matrix_get_state(occ);
+    squares_get_state(occ);
     GAME_STATUS_JSON_APPEND(",\"matrix_occupied\":[");
     for (int i = 0; i < 64; i++) {
       GAME_STATUS_JSON_APPEND("%s%u", (i > 0) ? "," : "",

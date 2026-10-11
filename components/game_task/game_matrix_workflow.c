@@ -4,9 +4,11 @@
  */
 
 #include "game_task_internal.h"
+#include "game_physical_undo.h"
 #include "game_task.h"
 #include "chess_gameplay_policy.h"
 #include "game_move_validate.h"
+#include "game_hall_match.h"
 
 #include "../led_task/include/led_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
@@ -251,7 +253,7 @@ void game_handle_piece_placed(uint8_t row, uint8_t col) {
       // Check if rook was placed on correct position for castling
       if (row == rook_to_row && col == rook_to_col) {
         ESP_LOGI(TAG, "✅ Rook placed on correct position for castling");
-        // The move will be completed in game_handle_matrix_move
+        // The move will be completed in game_handle_squares_move
         return;
       } else {
         // Rook placed on wrong position - show error
@@ -311,7 +313,7 @@ void game_handle_piece_placed(uint8_t row, uint8_t col) {
  * @param to_row Destination row
  * @param to_col Destination column
  */
-void game_handle_matrix_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+void game_handle_squares_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
                              uint8_t to_col) {
   ESP_LOGI(TAG, "🎯 Matrix: Complete move %c%d -> %c%d", 'a' + from_col,
            from_row + 1, 'a' + to_col, to_row + 1);
@@ -494,135 +496,33 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
   if (game_execute_promotion(choice)) {
     ESP_LOGI(TAG, "✅ Promotion executed successfully");
 
-    // Clear promotion state (mutex already held from line 10419)
-    promotion_state.pending = false;
-
-    // Clear promotion state and return to active gameplay
-    current_game_state =
-        GAME_STATE_ACTIVE; // Fix: use constant instead of magic number 6
-
-    // Switch to next player
-    player_t previous_player = current_player;
-    current_player =
-        (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-
-    // After completing the graduation, no more figures are raised - to show them
-    // movable pieces (game_highlight_movable_pieces must not skip due to
-    // piece_lifted).
-    piece_lifted = false;
-    lifted_piece_row = 0;
-    lifted_piece_col = 0;
-    lifted_piece = PIECE_EMPTY;
-
-    // #2: Timer switch AFTER promotion choice
-    ESP_LOGI(TAG, "🔄 Timer switch (promotion): ending for %s, starting for %s",
-             previous_player == PLAYER_WHITE ? "White" : "Black",
-             current_player == PLAYER_WHITE ? "White" : "Black");
-    game_end_timer_move();
-    game_start_timer_move(current_player == PLAYER_WHITE);
-
-    // CRITICAL: Endgame check BEFORE player change animations!
-    // If endgame, player change will NOT start
-    game_state_t end_game_result = game_check_end_game_conditions();
-    if (end_game_result == GAME_STATE_FINISHED) {
-      current_game_state = GAME_STATE_FINISHED;
-      game_active = false;
-
-      // Find the position of the winning king for the endgame animation
-      player_t winner =
-          (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-      uint8_t king_pos = 28; // default e4
-      for (int i = 0; i < 64; i++) {
-        piece_t piece = board[i / 8][i % 8];
-        if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
-            (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
-          king_pos = i;
-          break;
-        }
-      }
-
-      ESP_LOGI(TAG,
-               "🎯 Game finished after promotion command! Starting endgame "
-               "animation at position %d",
-               king_pos);
-
-      // Start the endgame animation (wave from king winner)
-      led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                                   .led_index = king_pos,
-                                   .red = 255,
-                                   .green = 255,
-                                   .blue = 0,        // Yellow
-                                   .duration_ms = 0, // Endless
-                                   .data = NULL};
-      led_execute_command_new(&endgame_cmd);
-
-      ESP_LOGI(
-          TAG,
-          "✅ Endgame animation started - player change animation SKIPPED");
-    } else {
-      // It is not endgame - start the player change animation
-      uint8_t player_color =
-          (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
-      led_command_t player_change_cmd = {
-          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
-                                              // ANIM_PLAYER_CHANGE instead
-                                              // PLAYER_CHANGE
-          .led_index = 0,
-          .red = 0,
-          .green = 0,
-          .blue = 0,
-          .duration_ms = 0,
-          .data = &player_color // Pass the player's color
-      };
-      led_execute_command_new(&player_change_cmd);
-
-      // Print updated board
-      game_print_board();
-
-      // Highlight pieces that the new current player can move
-      game_highlight_movable_pieces();
-      led_force_immediate_update(); // Commit highlight so movable pieces show
-                                    // right after player change animation
-
-      // Check if the new player is in check
-      bool in_check = game_is_king_in_check(current_player);
-      if (in_check) {
-        // Find the position of the king
-        int king_row = -1, king_col = -1;
-        piece_t king_piece = (current_player == PLAYER_WHITE)
-                                 ? PIECE_WHITE_KING
-                                 : PIECE_BLACK_KING;
-        for (int row = 0; row < 8; row++) {
-          for (int col = 0; col < 8; col++) {
-            if (board[row][col] == king_piece) {
-              king_row = row;
-              king_col = col;
-              break;
-            }
-          }
-          if (king_row != -1)
-            break;
-        }
-
-        if (king_row != -1 && king_col != -1) {
-          if (game_led_guidance_show_check_anim()) {
-            uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-            // Start the check animation - pink lighting on the king
-            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                       .led_index = king_led_index,
-                                       .red = 0,
-                                       .green = 0,
-                                       .blue = 0,
-                                       .duration_ms =
-                                           0, // Permanent until next turn
-                                       .data = NULL};
-            led_execute_command_new(&check_cmd);
-            ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
-                     current_player == PLAYER_WHITE ? "White" : "Black");
-          }
-        }
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    {
+      uint8_t promo_row = promotion_state.square_row;
+      uint8_t promo_col = promotion_state.square_col;
+      piece_t promoted_on_board = board[promo_row][promo_col];
+      if (!game_hall_validate_drop_square(promo_row, promo_col,
+                                          promoted_on_board)) {
+        piece_t revert_pawn = (promotion_state.player == PLAYER_WHITE)
+                                  ? PIECE_WHITE_PAWN
+                                  : PIECE_BLACK_PAWN;
+        board[promo_row][promo_col] = revert_pawn;
+        ESP_LOGW(TAG,
+                 "❌ Hall type/color mismatch on promo square %c%d after choice",
+                 'a' + promo_col, promo_row + 1);
+        game_send_response_to_uart(
+            "❌ Wrong piece on promotion square (Hall type/color) — fix "
+            "physical piece and choose promotion again",
+            true, (QueueHandle_t)cmd->response_queue);
+        xSemaphoreGiveRecursive(promotion_mutex);
+        return;
       }
     }
+#endif
+
+    promotion_state.pending = false;
+    game_print_board();
+    game_promotion_finish_turn();
 
   } else {
     ESP_LOGE(TAG, "❌ Failed to execute promotion");
@@ -721,6 +621,7 @@ bool game_execute_promotion(promotion_choice_t choice) {
 
   // Promote the pawn
   board[row][col] = promoted_piece;
+  game_move_undo_meta_on_promotion_completed(promoted_piece);
   current_game_state = GAME_STATE_ACTIVE; // Restore game state to ACTIVE
   ESP_LOGI(TAG, "✅ Promoted %s pawn at %c%d to %s",
            current_player == PLAYER_WHITE ? "white" : "black", 'a' + col,

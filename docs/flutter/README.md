@@ -18,7 +18,7 @@ cd flutter_czechmate && flutter pub get && flutter run
 
 Release builds: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
 
-New diagram ideas can be tracked locally in `docs/diagrams/LOCAL_DIAGRAM_BACKLOG.md`; the template is [DIAGRAM_BACKLOG.local.example.md](../diagrams/DIAGRAM_BACKLOG.local.example.md).
+New diagram ideas can be tracked locally in `context/diagrams/LOCAL_DIAGRAM_BACKLOG.md`; the template is [DIAGRAM_BACKLOG.local.example.md](../../context/diagrams/DIAGRAM_BACKLOG.local.example.md).
 
 ---
 
@@ -127,11 +127,11 @@ JSON from BLE often ends up in `web_server_ble_command_dispatch` — same logic 
 
 ## ESP32 firmware OTA
 
-[docs/ota_architecture.md](../ota_architecture.md) — HTTPS with STA, HTTP from phone, BLE `OB` chunks, REST, Bearer.
+[context/firmware/ota_architecture.md](../../context/firmware/ota_architecture.md) — HTTPS with STA, HTTP from phone, BLE `OB` chunks, REST, Bearer.
 
 Dart: `BoardSessionNotifier.requestFirmwareOta` / `uploadFirmwareOtaBle`, `FirmwareOtaRunner`, `FirmwarePhoneHostOta`, `BleCzechmateClient.uploadFirmwareBle`.
 
-E2E OTA notes can be kept locally (e.g. a custom checklist); the public channel and API description is in [`docs/ota_architecture.md`](../ota_architecture.md).
+E2E OTA notes can be kept locally (e.g. a custom checklist); the public channel and API description is in [`context/firmware/ota_architecture.md`](../../context/firmware/ota_architecture.md).
 
 ---
 

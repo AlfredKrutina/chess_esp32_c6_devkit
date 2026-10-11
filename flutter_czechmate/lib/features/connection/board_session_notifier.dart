@@ -395,24 +395,24 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
     final normalized = normalizeBoardHttpBaseUrl(rawUrl);
     if (normalized == null) return;
-    if (state.transport == BoardTransport.wifi &&
-        state.wifiBaseUrl == normalized) {
+    if (state.wifiBaseUrl == normalized && state.wifiChannelActive) {
       return;
     }
 
     if (!await _probeBoardHttpBeforeBleHandoff(normalized)) {
       if (AppEnvironment.staging) {
         debugPrint(
-          '[staging] BLE→Wi‑Fi handoff skipped (HTTP unreachable): $normalized',
+          '[staging] BLE→Wi‑Fi background channel skipped (HTTP unreachable): $normalized',
         );
       }
       return;
     }
 
     if (AppEnvironment.staging) {
-      debugPrint('[staging] BLE→Wi‑Fi handoff: $normalized');
+      debugPrint('[staging] BLE→Wi‑Fi background channel open: $normalized');
     }
-    await connectWifi(normalized, webSocket: _prefs.useWebSocket);
+    await connectWifi(normalized,
+        webSocket: _prefs.useWebSocket, disconnectBle: false);
   }
 
   void _applyBleNetworkToState(BleNetworkInfo? info) {
@@ -474,9 +474,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
-  Future<void> connectWifi(String baseUrl, {bool? webSocket}) async {
+  Future<void> connectWifi(String baseUrl,
+      {bool? webSocket, bool disconnectBle = true}) async {
     final useWs = webSocket ?? _prefs.useWebSocket;
-    connDebugLog('BoardSession.connectWifi', 'raw="$baseUrl" ws=$useWs');
+    connDebugLog('BoardSession.connectWifi',
+        'raw="$baseUrl" ws=$useWs disconnectBle=$disconnectBle');
     try {
       final normalized = normalizeBoardHttpBaseUrl(baseUrl);
       if (normalized == null) {
@@ -502,16 +504,21 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       _clearBleHandoffCooldown();
       _stopBleHandoffTimer();
       _stopWifiTransport();
-      await _ble.disconnect();
+      if (disconnectBle) {
+        await _ble.disconnect();
+      }
       await _prefs.setLastBoardBaseUrl(normalized);
       await _prefs.setUseMockBoard(false);
+      final keepBleAsRealtime =
+          !disconnectBle && state.transport == BoardTransport.ble;
       state = state.copyWith(
-        transport: BoardTransport.wifi,
+        transport: keepBleAsRealtime ? BoardTransport.ble : BoardTransport.wifi,
         wifiBaseUrl: normalized,
+        wifiChannelActive: true,
         transportStartedAt: DateTime.now(),
         busy: true,
-        bleGattConnected: false,
-        clearBleNetwork: true,
+        bleGattConnected: keepBleAsRealtime ? state.bleGattConnected : false,
+        clearBleNetwork: disconnectBle,
         clearError: true,
       );
       try {
@@ -562,22 +569,54 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
           'BoardSession.connectWifi FAIL',
           '${e.runtimeType}: $e',
         );
-        state = state.copyWith(
-          busy: false,
-          lastError: e,
-          transport: BoardTransport.none,
-          bleGattConnected: false,
-          clearBleNetwork: true,
-          clearSnapshot: true,
-          clearSnapshotReceivedAt: true,
-          clearTransportStartedAt: true,
-          clearTimer: true,
-        );
-        await _bleFallbackAfterWifiFailure();
+        if (disconnectBle) {
+          state = state.copyWith(
+            busy: false,
+            lastError: e,
+            transport: BoardTransport.none,
+            bleGattConnected: false,
+            clearBleNetwork: true,
+            clearSnapshot: true,
+            clearSnapshotReceivedAt: true,
+            clearTransportStartedAt: true,
+            clearTimer: true,
+          );
+          await _bleFallbackAfterWifiFailure();
+        } else {
+          // Background Wi‑Fi channel failed; BLE realtime path stays up.
+          state = state.copyWith(
+            busy: false,
+            lastError: e,
+            wifiChannelActive: false,
+          );
+        }
       }
     } finally {
       _clearNextConnectionTransportOnce();
     }
+  }
+
+  /// Hysteretic failover: only switch the realtime path to Wi‑Fi when BLE is
+  /// actually down and a reachable Wi‑Fi channel was already open in the
+  /// background. Avoids bouncing on a single slow packet.
+  Future<void> _failoverToWifiIfAvailable() async {
+    final base = state.wifiBaseUrl;
+    if (base == null ||
+        base.isEmpty ||
+        !state.wifiChannelActive ||
+        state.transport != BoardTransport.ble) {
+      return;
+    }
+    connDebugLog(
+      'BoardSession BLE→Wi‑Fi failover',
+      'realtime path switching after BLE loss',
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (state.bleGattConnected || state.transport != BoardTransport.ble) {
+      // BLE recovered in the meantime — keep it.
+      return;
+    }
+    await connectWifi(base, webSocket: _prefs.useWebSocket);
   }
 
   /// After HTTP polling fails, it will try stored BLE (same board according to `lastBleRemoteId`).
@@ -615,7 +654,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       'remoteId=${device.remoteId.str} label="${label ?? device.platformName}"',
     );
     _stopBleHandoffTimer();
-    _stopWifiTransport();
+    // V2: do not tear down a reachable Wi‑Fi channel; it becomes the bulk /
+    // failover path while BLE handles realtime commands.
     await _ble.disconnect();
     state = state.copyWith(
       transport: BoardTransport.ble,
@@ -623,6 +663,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       busy: true,
       bleGattConnected: false,
       bleLabel: label ?? device.platformName,
+      wifiChannelActive: false,
       clearError: true,
     );
     try {
@@ -634,12 +675,16 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
             'BoardSession BLE stream/error',
             connBleErrorDetail(e),
           );
+          final wasBle = state.transport == BoardTransport.ble;
           state = state.copyWith(
             busy: false,
             lastError: e,
             bleGattConnected: false,
             clearBleNetwork: true,
           );
+          if (wasBle) {
+            unawaited(_failoverToWifiIfAvailable());
+          }
         },
         onNetworkNotify: (raw) => unawaited(_onBleNetworkPayload(raw)),
       );
@@ -922,9 +967,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     _pollTimer = null;
     _ws.disconnect();
     if (state.webSocketActive) {
-      state = state.copyWith(webSocketActive: false, pollingActive: false);
+      state = state.copyWith(
+          webSocketActive: false, pollingActive: false, wifiChannelActive: false);
     } else {
-      state = state.copyWith(pollingActive: false);
+      state =
+          state.copyWith(pollingActive: false, wifiChannelActive: false);
     }
   }
 
@@ -1307,12 +1354,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _boardHttp.postBoardOtaStart(boardBase, url: u);
       return;
     }
-    if (state.transport == BoardTransport.wifi) {
-      final boardBase =
-          normalizeBoardHttpBaseUrl(httpBoardBaseUrl ?? state.wifiBaseUrl);
-      if (boardBase == null || boardBase.isEmpty) {
-        throw StateError(_strings.errOtaConnectFirst);
-      }
+    // V2: use the background Wi‑Fi channel for bulk OTA whenever it is open,
+    // even if the realtime path is still BLE.
+    final boardBase = normalizeBoardHttpBaseUrl(
+        httpBoardBaseUrl ?? (state.wifiChannelActive ? state.wifiBaseUrl : null));
+    if (boardBase != null && boardBase.isNotEmpty) {
       await _boardHttp.postBoardOtaStart(boardBase, url: u);
       return;
     }

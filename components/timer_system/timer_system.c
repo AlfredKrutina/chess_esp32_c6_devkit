@@ -441,6 +441,34 @@ esp_err_t timer_reset(void)
     return ESP_OK;
 }
 
+esp_err_t timer_restore_remaining_paused(uint32_t white_ms, uint32_t black_ms,
+                                        bool white_to_move)
+{
+    esp_err_t ret = timer_lock();
+    if (ret != ESP_OK) {
+        return ret;
+    }
+
+    if (current_timer.config.type == TIME_CONTROL_NONE) {
+        timer_unlock();
+        return ESP_OK;
+    }
+
+    current_timer.white_time_ms = white_ms;
+    current_timer.black_time_ms = black_ms;
+    current_timer.is_white_turn = white_to_move;
+    current_timer.timer_running = false;
+    current_timer.game_paused = false;
+    current_timer.time_expired = false;
+    current_timer.move_start_time = 0;
+
+    timer_unlock();
+
+    ESP_LOGI(TAG, "Timer restored paused: white=%lums black=%lums",
+             (unsigned long)white_ms, (unsigned long)black_ms);
+    return ESP_OK;
+}
+
 bool timer_check_timeout(void)
 {
     esp_err_t ret = timer_lock();

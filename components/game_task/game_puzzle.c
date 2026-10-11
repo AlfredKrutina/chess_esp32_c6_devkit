@@ -7,7 +7,7 @@
 #include "game_board_core.h"
 #include "game_task.h"
 #include "chess_gameplay_policy.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
 
@@ -100,16 +100,16 @@ static bool game_fen_expected_occupancy_64(const char *fen, uint8_t exp[64]) {
 }
 
 bool game_puzzle_physical_matches_fen(const char *fen) {
-  return game_physical_matrix_matches_fen(fen);
+  return game_physical_squares_matches_fen(fen);
 }
 
-bool game_physical_matrix_matches_fen(const char *fen) {
+bool game_physical_squares_matches_fen(const char *fen) {
   uint8_t exp[64];
   if (!game_fen_expected_occupancy_64(fen, exp)) {
     return false;
   }
   uint8_t phys[64];
-  matrix_get_state(phys);
+  squares_get_state(phys);
   for (int i = 0; i < 64; i++) {
     uint8_t want = exp[i] ? (uint8_t)1 : (uint8_t)0;
     uint8_t got = phys[i] ? (uint8_t)1 : (uint8_t)0;

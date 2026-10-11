@@ -8,7 +8,7 @@
 #include "game_task.h"
 
 #include "../led_task/include/led_task.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "led_mapping.h"
 
 #include "esp_log.h"
@@ -352,7 +352,7 @@ bool game_opening_physical_matches_start(void) {
   if (opening_state.start_fen[0] == '\0') {
     return false;
   }
-  return game_physical_matrix_matches_fen(opening_state.start_fen);
+  return game_physical_squares_matches_fen(opening_state.start_fen);
 }
 
 bool game_opening_enter_setup_phase(void) {
@@ -368,7 +368,7 @@ bool game_opening_enter_setup_phase(void) {
 
 bool game_opening_validate_checkpoint_physical(void) {
   uint8_t matrix[64] = {0};
-  matrix_get_state(matrix);
+  squares_get_state(matrix);
   for (uint8_t i = 0; i < 64; i++) {
     uint8_t row = i / 8;
     uint8_t col = i % 8;
@@ -687,7 +687,7 @@ const char *game_opening_mode_key(void) {
   }
 }
 
-bool game_opening_status_needs_matrix(void) {
+bool game_opening_status_needs_squares(void) {
   return opening_state.awaiting_checkpoint_ack || opening_state.setup_phase;
 }
 

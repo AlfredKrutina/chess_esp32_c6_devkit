@@ -6,7 +6,7 @@
 
 #include "sdkconfig.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-#include "hall_i2c_matrix.h"
+#include "hall_i2c_squares.h"
 #endif
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
 #include "stm32_i2c_bl.h"
@@ -359,8 +359,21 @@ static command_result_t cli_stm32_bl_tail(const char *tail) {
       uart_send_formatted("read partition: %s", esp_err_to_name(le));
       return CMD_ERROR_SYSTEM_ERROR;
     }
+    /* stm32_fw partition is 512 KiB; STM32C031F6P6 flash is 32 KiB.
+     * Trailing 0xFF is erased flash, not part of the image. */
+    size_t eff = psz;
+    while (eff > 0 && buf[eff - 1] == 0xFF) {
+      eff--;
+    }
+    if (eff == 0) {
+      free(buf);
+      uart_send_error("STM32 image empty (partition is 0xFF)");
+      return CMD_ERROR_INVALID_PARAMETER;
+    }
+    uart_send_formatted("FLASH_PART: %u B image (%u B partition, trailing 0xFF trimmed)",
+                        (unsigned)eff, (unsigned)psz);
     esp_err_t fe = stm32_i2c_bl_flash_binary((uint8_t)seg, boot,
-                                             0x08000000, buf, psz);
+                                             0x08000000, buf, eff);
     free(buf);
     if (fe != ESP_OK) {
       uart_send_formatted("FLASH_PART: %s", esp_err_to_name(fe));
@@ -396,12 +409,12 @@ static command_result_t cli_hall_tail(const char *tail) {
       uart_send_error("CLI HALL PROBE <seg>");
       return CMD_ERROR_INVALID_SYNTAX;
     }
-    esp_err_t hi = hall_i2c_matrix_init();
+    esp_err_t hi = hall_i2c_squares_init();
     if (hi != ESP_OK) {
       uart_send_formatted("hall_i2c_matrix_init: %s", esp_err_to_name(hi));
       return CMD_ERROR_SYSTEM_ERROR;
     }
-    esp_err_t pe = hall_i2c_matrix_probe_segment((uint8_t)seg, 200);
+    esp_err_t pe = hall_i2c_squares_probe_segment((uint8_t)seg, 200);
     if (pe != ESP_OK) {
       uart_send_formatted("Hall seg%u probe: %s", seg, esp_err_to_name(pe));
       return CMD_ERROR_SYSTEM_ERROR;

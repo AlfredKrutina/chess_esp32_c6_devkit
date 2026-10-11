@@ -5,6 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
+#include "game_snapshot.h"
 
 #include "../button_task/include/button_task.h"
 #include "../led_task/include/led_task.h"
@@ -123,6 +124,7 @@ static void resignation_finalize_timeout(void) {
 
   // Timeout = finalized cleanup (no cancel messages, do not restore king)
   resignation_stop(true);
+  game_snapshot_persist_after_valid_move();
 }
 
 /**

@@ -104,6 +104,8 @@ esp_err_t config_reset_to_defaults(void);
 #define CONFIG_NVS_KEY_GUIDED_HINT "guided_hint"
 /** @brief NVS klic pro plny snapshot hry */
 #define CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL "g_snap_full"
+/** @brief Second full-snapshot slot. A torn write leaves the other slot intact. */
+#define CONFIG_NVS_KEY_GAME_SNAPSHOT_B "g_snap_b"
 /** @brief NVS klic pro fallback snapshot hry */
 #define CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN "g_snap_min"
 /** @brief NVS klic pro boot tracker */
@@ -135,6 +137,9 @@ esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
  * @brief Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing).
  */
 int config_ui_prefs_get_chess_hint_limit(void);
+
+/** @brief Physical takeback on board (default true when key missing). */
+bool config_ui_prefs_get_chess_physical_takeback(void);
 
 /**
  * @brief Nacte binarni blob z NVS pod danym klicem

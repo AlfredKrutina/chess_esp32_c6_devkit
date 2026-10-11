@@ -4,13 +4,13 @@
 
 Smart physical chess — real pieces, lights on the squares, and an app that teaches. Firmware on ESP32-C6, next-generation Hall architecture for V2, Flutter client in `flutter_czechmate/`.
 
-**Firmware in this repo:** **1.8.0** on prototype **V1** (reed matrix — occupied / empty). **V2** uses **Hall sensors** with differential occupancy sensing in current firmware; automated piece type and color recognition is the design goal of the new version — see [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md) and [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md).
+**Firmware in this repo:** **1.8.0** on prototype **V1** (reed matrix — occupied / empty). **V2** uses **Hall sensors** with differential occupancy sensing in current firmware; automated piece type and color recognition is the design goal of the new version — see [HARDWARE_VERSIONS.md](context/hardware/HARDWARE_VERSIONS.md) and [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md).
 
 **Download the app:** same [product page](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) · binaries on [GitHub Releases](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/releases/latest). **Windows:** no BLE scan — connect via Wi‑Fi URL ([docs/flutter/README.md](docs/flutter/README.md)). **iOS / iPad** support is in progress.
 
 *Checkmate from Czechia*
 
-**Docs:** [docs/README.md](docs/README.md) · [REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md) · [TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md)
+**Docs:** [docs/README.md](docs/README.md) · [REPO_LAYOUT.md](context/firmware/REPO_LAYOUT.md) · [TROUBLESHOOTING.md](context/firmware/TROUBLESHOOTING.md)
 
 ---
 
@@ -18,7 +18,7 @@ Smart physical chess — real pieces, lights on the squares, and an app that tea
 
 CzechMate is one stack: FreeRTOS firmware, physical sensing, LED feedback, board web UI, and a Flutter app. You play on a real board; the system tracks the position, lights legal / hint squares, and can coach through the phone.
 
-Longer notes (history, license): [PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md).
+Longer notes (history, license): [PROJECT_NOTES.md](context/firmware/PROJECT_NOTES.md).
 
 ---
 
@@ -41,7 +41,7 @@ Longer notes (history, license): [PROJECT_NOTES.md](docs/reference/PROJECT_NOTES
 Hardware documentation is split by generation:
 - **V1 (reed matrix prototype):** [hardware/v1-reed-matrix/README.md](hardware/v1-reed-matrix/README.md)
 - **V2 (Hall sensor & STM32 subsystem):** [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md)
-- **Comparison:** [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md) · **V2 wiring:** [WIRING_ESP_STM4.md](docs/reference/WIRING_ESP_STM4.md)
+- **Comparison:** [HARDWARE_VERSIONS.md](context/hardware/HARDWARE_VERSIONS.md) · **V2 wiring:** [WIRING_ESP_STM4.md](context/hardware/WIRING_ESP_STM4.md)
 
 ### V1 Prototype Overview
 
@@ -62,12 +62,12 @@ Reset Button:    GPIO15
 
 ## Architecture
 
-FreeRTOS multitasking — priorities, queues, mutexes: [TASK_COMMUNICATION.md](docs/reference/TASK_COMMUNICATION.md). Diagrams: [docs/diagrams/README.md](docs/diagrams/README.md).
+FreeRTOS multitasking — priorities, queues, mutexes: [TASK_COMMUNICATION.md](context/firmware/TASK_COMMUNICATION.md). Diagrams: [context/diagrams/README.md](context/diagrams/README.md).
 
 | Task / runtime | Priority | Stack |
 |----------------|----------|-------|
 | `led_task` | 7 | 8 KB |
-| `matrix_task` | 6 | 4 KB |
+| `squares_task` | 6 | 4 KB |
 | `button_task` | 5 | 3 KB |
 | `game_task` | 4 | 6 KB |
 | `uart_task`, `web_server_task`, `ha_light_task` | 3 | 5–20 KB |
@@ -104,7 +104,7 @@ flowchart LR
   classDef g fill:#1e3a8a,stroke:#38bdf8,stroke-width:2px,color:#e0f2fe
 ```
 
-Components under `components/`: [REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md).
+Components under `components/`: [REPO_LAYOUT.md](context/firmware/REPO_LAYOUT.md).
 
 ---
 
@@ -118,7 +118,7 @@ idf.py -p PORT flash
 idf.py -p PORT monitor
 ```
 
-**Hall V2 profile:** `sdkconfig.defaults.hall_v2` — see [WIRING_ESP_STM4.md](docs/reference/WIRING_ESP_STM4.md).
+**Hall V2 profile:** `sdkconfig.defaults.hall_v2` — see [WIRING_ESP_STM4.md](context/hardware/WIRING_ESP_STM4.md).
 
 **Home Assistant:** MQTT RGB light — default broker `homeassistant.local:1883`, NVS namespace `mqtt_config`.
 
@@ -146,15 +146,15 @@ idf.py -p PORT monitor
 | [docs/README.md](docs/README.md) | Documentation index |
 | [hardware/v1-reed-matrix/README.md](hardware/v1-reed-matrix/README.md) | V1 reed matrix hardware documentation |
 | [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md) | V2 Hall + STM32 hardware documentation |
-| [docs/diagrams/README.md](docs/diagrams/README.md) | Mermaid / SVG architecture diagrams |
+| [context/diagrams/README.md](context/diagrams/README.md) | Mermaid / SVG architecture diagrams |
 | [docs/flutter/README.md](docs/flutter/README.md) | Flutter client app |
-| [docs/ota_architecture.md](docs/ota_architecture.md) | Firmware OTA channels |
-| [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md) | Repository inventory |
-| [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md) | Debugging & diagnostics |
-| [docs/reference/PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md) | Version history, license |
+| [context/firmware/ota_architecture.md](context/firmware/ota_architecture.md) | Firmware OTA channels |
+| [context/firmware/REPO_LAYOUT.md](context/firmware/REPO_LAYOUT.md) | Repository inventory |
+| [context/firmware/TROUBLESHOOTING.md](context/firmware/TROUBLESHOOTING.md) | Debugging & diagnostics |
+| [context/firmware/PROJECT_NOTES.md](context/firmware/PROJECT_NOTES.md) | Version history, license |
 | [gh-pages-ready/README.md](gh-pages-ready/README.md) | Product site deployment |
 
-**Doxygen:** `./scripts/docs/generate_docs.sh` → `docs/doxygen/html/index.html`  
+**Doxygen:** `./scripts/docs/generate_docs.sh` → `doxygen/html/index.html`  
 **Diagrams:** `./scripts/render_docs.sh`
 
 **V2 forms:** [pre-order](https://docs.google.com/forms/d/18ns5uSUSzr5zcHsiZwD1HWfY15xBa-folmE-oH86BsY/viewform) · [survey](https://docs.google.com/forms/d/e/1FAIpQLSck_q6sjN1nnUs9aV2CsY0MyPNo9puLcncW603iEJz6BMLjPw/viewform)

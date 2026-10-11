@@ -45,7 +45,7 @@ fi
 
 # Create output directory
 echo "Creating output directory..."
-mkdir -p docs/doxygen
+mkdir -p doxygen
 echo -e "${GREEN}✓ Directory created${NC}"
 echo ""
 
@@ -54,7 +54,7 @@ echo "Generating documentation..."
 echo "This may take several minutes..."
 echo ""
 
-if doxygen Doxyfile 2>&1 | tee docs/doxygen/generation.log; then
+if doxygen Doxyfile 2>&1 | tee doxygen/generation.log; then
     echo ""
     echo -e "${GREEN}========================================${NC}"
     echo -e "${GREEN}✓ Documentation generated successfully!${NC}"
@@ -62,9 +62,9 @@ if doxygen Doxyfile 2>&1 | tee docs/doxygen/generation.log; then
     echo ""
     
     # Try to compile LaTeX to PDF (if LaTeX is installed)
-    if [ -d "docs/doxygen/latex" ] && command -v pdflatex &> /dev/null; then
+    if [ -d "doxygen/latex" ] && command -v pdflatex &> /dev/null; then
         echo "Compiling LaTeX to PDF..."
-        cd docs/doxygen/latex
+        cd doxygen/latex
         if pdflatex -interaction=nonstopmode refman.tex > /dev/null 2>&1; then
             if makeindex refman.idx > /dev/null 2>&1; then
                 pdflatex -interaction=nonstopmode refman.tex > /dev/null 2>&1
@@ -79,23 +79,23 @@ if doxygen Doxyfile 2>&1 | tee docs/doxygen/generation.log; then
     fi
     
     echo "Output files:"
-    echo "  - HTML documentation (local): ${GREEN}docs/doxygen/html/index.html${NC} (multiple files)"
-    if [ -f "docs/doxygen/rtf/refman.rtf" ]; then
-        echo "  - RTF documentation:  ${GREEN}docs/doxygen/rtf/refman.rtf${NC} (SINGLE FILE - Word compatible)"
+    echo "  - HTML documentation (local): ${GREEN}doxygen/html/index.html${NC} (multiple files)"
+    if [ -f "doxygen/rtf/refman.rtf" ]; then
+        echo "  - RTF documentation:  ${GREEN}doxygen/rtf/refman.rtf${NC} (SINGLE FILE - Word compatible)"
     fi
-    if [ -f "docs/doxygen/esp32_chess_v24_documentation.pdf" ]; then
-        echo "  - PDF documentation: ${GREEN}docs/doxygen/esp32_chess_v24_documentation.pdf${NC} (SINGLE FILE)"
+    if [ -f "doxygen/esp32_chess_v24_documentation.pdf" ]; then
+        echo "  - PDF documentation: ${GREEN}doxygen/esp32_chess_v24_documentation.pdf${NC} (SINGLE FILE)"
     fi
-    echo "  - Log file:           docs/doxygen/generation.log"
-    echo "  - Warnings:           docs/doxygen/doxygen_warnings.log"
+    echo "  - Log file:           doxygen/generation.log"
+    echo "  - Warnings:           doxygen/doxygen_warnings.log"
     echo ""
     
     # Check warnings
-    if [ -f "docs/doxygen/doxygen_warnings.log" ]; then
-        WARNING_COUNT=$(grep -c "warning:" docs/doxygen/doxygen_warnings.log 2>/dev/null || echo "0")
+    if [ -f "doxygen/doxygen_warnings.log" ]; then
+        WARNING_COUNT=$(grep -c "warning:" doxygen/doxygen_warnings.log 2>/dev/null || echo "0")
         if [ "$WARNING_COUNT" -gt 0 ]; then
             echo -e "${YELLOW}⚠ Found ${WARNING_COUNT} warnings${NC}"
-            echo "  See: docs/doxygen/doxygen_warnings.log"
+            echo "  See: doxygen/doxygen_warnings.log"
         else
             echo -e "${GREEN}✓ No warnings${NC}"
         fi
@@ -105,28 +105,28 @@ if doxygen Doxyfile 2>&1 | tee docs/doxygen/generation.log; then
     echo "Open documentation:"
     echo ""
     echo "  SINGLE FILE (complete documentation):"
-    if [ -f "docs/doxygen/esp32_chess_v24_documentation.pdf" ]; then
-        echo "    PDF:  ${GREEN}docs/doxygen/esp32_chess_v24_documentation.pdf${NC}"
-        echo "      open docs/doxygen/esp32_chess_v24_documentation.pdf  # macOS"
-        echo "      xdg-open docs/doxygen/esp32_chess_v24_documentation.pdf  # Linux"
+    if [ -f "doxygen/esp32_chess_v24_documentation.pdf" ]; then
+        echo "    PDF:  ${GREEN}doxygen/esp32_chess_v24_documentation.pdf${NC}"
+        echo "      open doxygen/esp32_chess_v24_documentation.pdf  # macOS"
+        echo "      xdg-open doxygen/esp32_chess_v24_documentation.pdf  # Linux"
     else
         echo "    PDF:  ${YELLOW}Not available${NC}"
         echo "      Run: ${GREEN}./create_pdf.sh${NC} to create a PDF"
     fi
-    if [ -f "docs/doxygen/rtf/refman.rtf" ]; then
-        RTF_SIZE=$(ls -lh docs/doxygen/rtf/refman.rtf | awk '{print $5}')
-        echo "    RTF:  ${GREEN}docs/doxygen/rtf/refman.rtf${NC} (Word compatible, $RTF_SIZE)"
-        echo "      open docs/doxygen/rtf/refman.rtf  # macOS"
-        echo "      xdg-open docs/doxygen/rtf/refman.rtf  # Linux"
+    if [ -f "doxygen/rtf/refman.rtf" ]; then
+        RTF_SIZE=$(ls -lh doxygen/rtf/refman.rtf | awk '{print $5}')
+        echo "    RTF:  ${GREEN}doxygen/rtf/refman.rtf${NC} (Word compatible, $RTF_SIZE)"
+        echo "      open doxygen/rtf/refman.rtf  # macOS"
+        echo "      xdg-open doxygen/rtf/refman.rtf  # Linux"
         echo "      ${YELLOW}Note:${NC} If RTF will not open, try:"
-        echo "        - Open in TextEdit: open -a TextEdit docs/doxygen/rtf/refman.rtf"
+        echo "        - Open in TextEdit: open -a TextEdit doxygen/rtf/refman.rtf"
         echo "        - Open in Microsoft Word (if installed)"
         echo "        - Create PDF: ./create_pdf.sh"
     fi
     echo ""
     echo "  HTML (multiple files, interactive):"
-    echo "    Local:  open docs/doxygen/html/index.html  # macOS"
-    echo "             xdg-open docs/doxygen/html/index.html  # Linux"
+    echo "    Local:  open doxygen/html/index.html  # macOS"
+    echo "             xdg-open doxygen/html/index.html  # Linux"
     echo ""
 else
     echo ""
@@ -134,6 +134,6 @@ else
     echo -e "${RED}✗ Error generating documentation!${NC}"
     echo -e "${RED}========================================${NC}"
     echo ""
-    echo "Check the log: docs/doxygen/generation.log"
+    echo "Check the log: doxygen/generation.log"
     exit 1
 fi

@@ -7,20 +7,20 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'docs/diagrams/mermaid_diagrams.txt'
-      - 'docs/diagrams/sources/**'
-      - 'docs/diagrams/tasks_architecture.md'
-      - 'docs/diagrams/README.md'
+      - 'context/diagrams/mermaid_diagrams.txt'
+      - 'context/diagrams/sources/**'
+      - 'context/diagrams/tasks_architecture.md'
+      - 'context/diagrams/README.md'
       - 'scripts/docs/**'
       - 'scripts/render_docs.sh'
       - 'scripts/mermaid-puppeteer-ci.json'
       - '.github/workflows/docs-diagrams.yml'
   pull_request:
     paths:
-      - 'docs/diagrams/mermaid_diagrams.txt'
-      - 'docs/diagrams/sources/**'
-      - 'docs/diagrams/tasks_architecture.md'
-      - 'docs/diagrams/README.md'
+      - 'context/diagrams/mermaid_diagrams.txt'
+      - 'context/diagrams/sources/**'
+      - 'context/diagrams/tasks_architecture.md'
+      - 'context/diagrams/README.md'
       - 'scripts/docs/**'
       - 'scripts/render_docs.sh'
       - 'scripts/mermaid-puppeteer-ci.json'
@@ -55,9 +55,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/diagrams/diagrams_mermaid.html \
-                  docs/diagrams/*.svg \
-                  docs/diagrams/*.png || true
+          git add context/diagrams/diagrams_mermaid.html \
+                  context/diagrams/*.svg \
+                  context/diagrams/*.png || true
           if git diff --staged --quiet; then
             echo "Žádné změny výstupů."
           else

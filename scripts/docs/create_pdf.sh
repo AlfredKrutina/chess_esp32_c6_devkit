@@ -14,9 +14,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-RTF_FILE="docs/doxygen/rtf/refman.rtf"
-LATEX_DIR="docs/doxygen/latex"
-PDF_OUTPUT="docs/doxygen/esp32_chess_v24_documentation.pdf"
+RTF_FILE="doxygen/rtf/refman.rtf"
+LATEX_DIR="doxygen/latex"
+PDF_OUTPUT="doxygen/esp32_chess_v24_documentation.pdf"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Creating PDF documentation${NC}"
@@ -108,7 +108,7 @@ fi
 # Method 4: Use LibreOffice (if installed)
 if [ -f "$RTF_FILE" ] && command -v libreoffice &> /dev/null; then
     echo -e "${GREEN}Method 4: Converting RTF to PDF via LibreOffice...${NC}"
-    cd docs/doxygen/rtf
+    cd doxygen/rtf
     libreoffice --headless --convert-to pdf --outdir ../.. refman.rtf 2>/dev/null
     if [ -f "../../refman.pdf" ]; then
         mv ../../refman.pdf ../../esp32_chess_v24_documentation.pdf
@@ -137,7 +137,7 @@ echo "   (Then: File -> Print -> Save as PDF)"
 echo ""
 echo -e "${BLUE}3. Install LaTeX and compile:${NC}"
 echo "   brew install --cask mactex"
-echo "   cd docs/doxygen/latex"
+echo "   cd doxygen/latex"
 echo "   pdflatex refman.tex"
 echo "   makeindex refman.idx"
 echo "   pdflatex refman.tex"

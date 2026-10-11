@@ -46,6 +46,11 @@ ROWS: list[tuple[str, str, str]] = [
   ("netNotOnWifiTitle", "Not on Wi‑Fi", "Nejsi na Wi‑Fi"),
   ("netNotOnWifiBody", "chess-api usually works over mobile data. To open the board’s HTTP API on a LAN IP, the phone typically needs Wi‑Fi on the same network. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, enable mobile data, or use dual‑stack (Wi‑Fi + cellular data) if your OS allows. The app cannot force traffic to cellular while Wi‑Fi is the default route.", "Služba chess-api obvykle funguje přes mobilní data. K rozhraní HTTP desky na adresě v místní síti má telefon obvykle zapnuté Wi‑Fi ve stejné síti. Pokud používáš jen hotspot desky bez výstupu na internet, rozpoznávání adres (DNS) pro chess-api nebo Lichess může selhat — zkus Wi‑Fi na chvíli vypnout, zapnout mobilní data nebo současně Wi‑Fi i mobilní data, pokud to systém umožní. Aplikace nemůže přesměrovat síťový provoz na mobilní síť, dokud je výchozí trasa přes Wi‑Fi."),
   ("connBleMobileDataPathSnack", "Board link: Bluetooth. Cloud eval (chess-api, fallbacks) uses the internet — usually mobile data right now. Home Wi‑Fi to the board is not required.", "Deska: Bluetooth. Cloudová analýza (chess-api a zálohy) jde po internetu — teď typicky mobilní data. Domácí Wi‑Fi k desce nepotřebuješ."),
+  # Unified V2 connection status (no BLE/Wi‑Fi picker in the main UI)
+  ("statusConnected", "Connected", "Připojeno"),
+  ("statusConnecting", "Connecting…", "Připojuji…"),
+  ("statusDisconnected", "Disconnected", "Odpojeno"),
+  ("statusBoardNotResponding", "Board not responding", "Deska neodpovídá"),
   # Session / connection errors
   ("errInvalidBoardUrl", "Invalid board URL — hostname missing. Use http://192.168.4.1 or your board STA IP.", "Neplatná adresa desky — chybí hostitel. Použij http://192.168.4.1 nebo STA IP desky."),
   ("errNoSavedBle", "No saved Bluetooth board. Open Board discovery and pair your CZECHMATE board.", "Žádná uložená Bluetooth deska. Otevři Objevování desky a spáruj CZECHMATE."),

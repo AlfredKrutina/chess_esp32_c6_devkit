@@ -194,6 +194,7 @@ class BoardUIPrefsPayload {
   final bool chessBotLedTargetOnlyAfterLift;
   final bool chessTutorialsEnabled;
   final bool chessConfirmNewGame;
+  final bool chessPhysicalTakeback;
   final BotSettingsPayload botSettings;
   final String moveHintTier; // 'H1' | 'H2' | 'H3'
 
@@ -208,6 +209,7 @@ class BoardUIPrefsPayload {
     required this.chessBotLedTargetOnlyAfterLift,
     required this.chessTutorialsEnabled,
     required this.chessConfirmNewGame,
+    required this.chessPhysicalTakeback,
     required this.botSettings,
     this.moveHintTier = 'H1',
   });
@@ -224,6 +226,7 @@ class BoardUIPrefsPayload {
       chessBotLedTargetOnlyAfterLift: false,
       chessTutorialsEnabled: false,
       chessConfirmNewGame: false,
+      chessPhysicalTakeback: true,
       botSettings: BotSettingsPayload.empty(),
       moveHintTier: 'H1',
     );
@@ -241,6 +244,7 @@ class BoardUIPrefsPayload {
       chessBotLedTargetOnlyAfterLift: json['chessBotLedTargetOnlyAfterLift'] as bool? ?? false,
       chessTutorialsEnabled: json['chessTutorialsEnabled'] as bool? ?? false,
       chessConfirmNewGame: json['chess_confirm_new_game'] as bool? ?? false,
+      chessPhysicalTakeback: json['chessPhysicalTakeback'] as bool? ?? true,
       botSettings: json['botSettings'] != null ? BotSettingsPayload.fromJson(json['botSettings'] as Map<String, dynamic>) : BotSettingsPayload.empty(),
       moveHintTier: json['moveHintTier'] as String? ?? 'H1',
     );
@@ -258,6 +262,7 @@ class BoardUIPrefsPayload {
       'chessBotLedTargetOnlyAfterLift': chessBotLedTargetOnlyAfterLift,
       'chessTutorialsEnabled': chessTutorialsEnabled,
       'chess_confirm_new_game': chessConfirmNewGame,
+      'chessPhysicalTakeback': chessPhysicalTakeback,
       'botSettings': botSettings.toJson(),
       'moveHintTier': moveHintTier,
     };

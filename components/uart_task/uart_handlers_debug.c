@@ -670,7 +670,7 @@ command_result_t uart_cmd_show_tasks(const char *args) {
   extern TaskHandle_t uart_task_handle;
   extern TaskHandle_t game_task_handle;
   extern TaskHandle_t led_task_handle;
-  extern TaskHandle_t matrix_task_handle;
+  extern TaskHandle_t squares_task_handle;
   extern TaskHandle_t button_task_handle;
   extern TaskHandle_t animation_task_handle;
   extern TaskHandle_t test_task_handle;
@@ -702,12 +702,12 @@ command_result_t uart_cmd_show_tasks(const char *args) {
                         uxTaskGetStackHighWaterMark(led_task_handle));
   }
 
-  if (matrix_task_handle) {
-    const char *task_name = pcTaskGetName(matrix_task_handle);
+  if (squares_task_handle) {
+    const char *task_name = pcTaskGetName(squares_task_handle);
     uart_send_formatted("   Matrix Task: %s (Priority: %" PRIu32
                         ", Stack: %" PRIu32 ")",
-                        task_name, uxTaskPriorityGet(matrix_task_handle),
-                        uxTaskGetStackHighWaterMark(matrix_task_handle));
+                        task_name, uxTaskPriorityGet(squares_task_handle),
+                        uxTaskGetStackHighWaterMark(squares_task_handle));
   }
 
   if (button_task_handle) {
@@ -779,7 +779,7 @@ command_result_t uart_cmd_show_mutexes(const char *args) {
   // Get system mutex handles
   extern SemaphoreHandle_t uart_mutex;
   extern SemaphoreHandle_t led_mutex;
-  extern SemaphoreHandle_t matrix_mutex;
+  extern SemaphoreHandle_t squares_mutex;
   extern SemaphoreHandle_t button_mutex;
   extern SemaphoreHandle_t game_mutex;
   extern SemaphoreHandle_t system_mutex;
@@ -809,8 +809,8 @@ command_result_t uart_cmd_show_mutexes(const char *args) {
   }
 
   // Check Matrix mutex
-  if (matrix_mutex) {
-    TaskHandle_t holder = xSemaphoreGetMutexHolder(matrix_mutex);
+  if (squares_mutex) {
+    TaskHandle_t holder = xSemaphoreGetMutexHolder(squares_mutex);
     uart_send_formatted("   Matrix Mutex: %s",
                         holder ? "🔴 LOCKED" : "🟢 FREE");
     if (holder) {
@@ -906,8 +906,8 @@ command_result_t uart_cmd_show_fifos(const char *args) {
   // extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell
   // eliminated extern QueueHandle_t led_status_queue;  //  REMOVED: Queue
   // hell eliminated
-  extern QueueHandle_t matrix_command_queue;
-  extern QueueHandle_t matrix_event_queue;
+  extern QueueHandle_t squares_command_queue;
+  extern QueueHandle_t squares_event_queue;
   extern QueueHandle_t button_event_queue;
   extern QueueHandle_t button_command_queue;
   extern QueueHandle_t animation_command_queue;
@@ -929,8 +929,8 @@ command_result_t uart_cmd_show_fifos(const char *args) {
   display_queue_status("Game Command", game_command_queue);
   display_queue_status("Game Status", game_status_queue);
   // LED queues removed - using direct LED calls now
-  display_queue_status("Matrix Command", matrix_command_queue);
-  display_queue_status("Matrix Event", matrix_event_queue);
+  display_queue_status("Matrix Command", squares_command_queue);
+  display_queue_status("Matrix Event", squares_event_queue);
   display_queue_status("Button Event", button_event_queue);
   display_queue_status("Button Command", button_command_queue);
   display_queue_status("Animation Command", animation_command_queue);

@@ -17,11 +17,11 @@ extern "C" {
 #endif
 
 /* Matrix guard */
-bool chess_policy_matrix_guard_enabled(void);
-bool chess_policy_matrix_guard_should_freeze(void);
-bool chess_policy_matrix_guard_auto_clear_enabled(void);
-bool chess_policy_matrix_guard_nvs_resync_enabled(void);
-bool chess_policy_matrix_guard_led_enabled(void);
+bool chess_policy_squares_guard_enabled(void);
+bool chess_policy_squares_guard_should_freeze(void);
+bool chess_policy_squares_guard_auto_clear_enabled(void);
+bool chess_policy_squares_guard_nvs_resync_enabled(void);
+bool chess_policy_squares_guard_led_enabled(void);
 bool chess_policy_mg_led_white_yellow(void);
 bool chess_policy_mg_led_black_blue(void);
 bool chess_policy_mg_led_ghost_orange(void);

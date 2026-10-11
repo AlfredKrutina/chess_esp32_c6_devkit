@@ -53,6 +53,29 @@ extern chess_move_t move_history[GAME_TASK_MAX_MOVES_HISTORY];
 extern move_type_t move_history_kind[GAME_TASK_MAX_MOVES_HISTORY];
 extern uint32_t history_index;
 
+typedef struct {
+  player_t side_before;
+  bool white_king_moved;
+  bool white_rook_a_moved;
+  bool white_rook_h_moved;
+  bool black_king_moved;
+  bool black_rook_a_moved;
+  bool black_rook_h_moved;
+  bool en_passant_available;
+  uint8_t en_passant_target_row;
+  uint8_t en_passant_target_col;
+  uint8_t en_passant_victim_row;
+  uint8_t en_passant_victim_col;
+  uint8_t rook_home_col;
+  uint8_t rook_castle_col;
+  piece_t promoted_to;
+  piece_t capture_return_piece;
+  uint8_t capture_return_row;
+  uint8_t capture_return_col;
+} move_undo_meta_t;
+
+extern move_undo_meta_t move_history_meta[GAME_TASK_MAX_MOVES_HISTORY];
+
 extern uint32_t white_time_total;
 extern uint32_t black_time_total;
 
@@ -97,6 +120,9 @@ extern bool endgame_report_requested;
 extern int8_t material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
 extern uint32_t advantage_history_count;
 
+uint32_t game_get_fifty_move_counter(void);
+void game_set_fifty_move_counter(uint32_t value);
+
 extern uint32_t moves_without_capture;
 extern uint32_t max_moves_without_capture;
 extern uint32_t total_games;
@@ -110,6 +136,14 @@ esp_err_t game_task_wdt_reset_safe(void);
 void game_trigger_victory_animation(player_t winner);
 void game_process_promotion_button(uint8_t button_id);
 bool game_execute_promotion(promotion_choice_t choice);
+
+/** After board[] holds the promoted piece — timer, player switch, LEDs. */
+void game_promotion_finish_turn(void);
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+/** While promotion is pending, sync promo square from stable Hall (re-swaps). */
+void game_promotion_sync_hall_if_pending(void);
+#endif
 
 typedef enum {
   LAST_MOVE_NORMAL = 0,
@@ -147,10 +181,10 @@ bool game_led_guidance_show_check_anim(void);
 uint32_t game_generate_legal_moves(player_t player);
 
 /** True when matrix guard must not pause normal play (tutorial, castling, …). */
-bool game_task_matrix_guard_mode_conflict_active(void);
+bool game_task_squares_guard_mode_conflict_active(void);
 
 /** Clear transient lift state when matrix guard activates. */
-void game_task_matrix_guard_freeze_move_flow(void);
+void game_task_squares_guard_freeze_move_flow(void);
 
 typedef struct {
   bool in_progress;
@@ -306,7 +340,7 @@ void game_update_promotion_anchor_led(void);
 
 void game_send_response_to_uart(const char *message, bool is_error,
                                 QueueHandle_t response_queue);
-bool game_cmd_is_matrix_origin(const chess_move_command_t *cmd);
+bool game_cmd_is_squares_origin(const chess_move_command_t *cmd);
 bool game_led_guidance_show_destinations(void);
 bool game_led_guidance_show_movable_yellow(void);
 

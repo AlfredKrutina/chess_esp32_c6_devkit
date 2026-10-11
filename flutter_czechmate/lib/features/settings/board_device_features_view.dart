@@ -317,6 +317,20 @@ class _BoardDeviceFeaturesViewState
                         });
                       },
                     ),
+                    SwitchListTile(
+                      title: Text(l10n.boardNvsPhysicalTakeback),
+                      value: _settings!.prefs.chessPhysicalTakeback,
+                      onChanged: (v) {
+                        setState(() {
+                          _settings = BoardUISettingsEnvelope(
+                              version: _settings!.version,
+                              prefs: BoardUIPrefsPayload.fromJson({
+                                ..._settings!.prefs.toJson(),
+                                'chessPhysicalTakeback': v
+                              }));
+                        });
+                      },
+                    ),
                     ListTile(
                       title: Text(l10n.boardNvsHintLimit),
                       trailing: Text('${_settings!.prefs.chessHintLimit}'),

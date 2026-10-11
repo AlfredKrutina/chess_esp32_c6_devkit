@@ -4,7 +4,7 @@
 
 Legal targets, movable pieces and check come from python-chess. What the
 board lights at each moment follows the firmware drop/pickup paths, see
-docs/reference/BLENDER_VIDEO_SCENARIO.md. Writes timeline_presentation.json.
+context/media/BLENDER_VIDEO_SCENARIO.md. Writes timeline_presentation.json.
 """
 
 import json

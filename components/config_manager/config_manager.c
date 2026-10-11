@@ -398,6 +398,45 @@ esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
   return ESP_OK;
 }
 
+static bool config_ui_prefs_parse_bool_key(const char *json, const char *key,
+                                           bool default_value) {
+  if (json == NULL || key == NULL) {
+    return default_value;
+  }
+  char needle[64];
+  snprintf(needle, sizeof(needle), "\"%s\"", key);
+  const char *p = strstr(json, needle);
+  if (p == NULL) {
+    return default_value;
+  }
+  p = strchr(p, ':');
+  if (p == NULL) {
+    return default_value;
+  }
+  p++;
+  while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
+    p++;
+  }
+  if (strncmp(p, "true", 4) == 0) {
+    return true;
+  }
+  if (strncmp(p, "false", 5) == 0) {
+    return false;
+  }
+  return default_value;
+}
+
+bool config_ui_prefs_get_chess_physical_takeback(void) {
+  char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
+  size_t len = 0;
+  esp_err_t err = config_load_ui_prefs_json(buf, sizeof(buf), &len);
+  if (err != ESP_OK || len == 0) {
+    return true;
+  }
+  buf[len] = '\0';
+  return config_ui_prefs_parse_bool_key(buf, "chessPhysicalTakeback", true);
+}
+
 int config_ui_prefs_get_chess_hint_limit(void) {
   char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
   size_t len = 0;

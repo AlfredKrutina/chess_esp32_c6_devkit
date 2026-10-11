@@ -6,13 +6,16 @@
 #include "chess_gameplay_policy.h"
 #include "game_task_internal.h"
 #include "game_task.h"
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+#include "game_hall_restore_guide.h"
+#endif
 
 #include "esp_log.h"
 #include "sdkconfig.h"
 
 static const char *TAG = "GAMEPLAY_POLICY";
 
-bool chess_policy_matrix_guard_enabled(void) {
+bool chess_policy_squares_guard_enabled(void) {
 #if CONFIG_CHESS_MG_ENABLE
   return true;
 #else
@@ -20,7 +23,7 @@ bool chess_policy_matrix_guard_enabled(void) {
 #endif
 }
 
-bool chess_policy_matrix_guard_should_freeze(void) {
+bool chess_policy_squares_guard_should_freeze(void) {
 #if CONFIG_CHESS_MG_ENABLE && CONFIG_CHESS_MG_FREEZE_MOVES
   return true;
 #else
@@ -28,7 +31,7 @@ bool chess_policy_matrix_guard_should_freeze(void) {
 #endif
 }
 
-bool chess_policy_matrix_guard_auto_clear_enabled(void) {
+bool chess_policy_squares_guard_auto_clear_enabled(void) {
 #if CONFIG_CHESS_MG_ENABLE && CONFIG_CHESS_MG_AUTO_CLEAR
   return true;
 #else
@@ -36,7 +39,7 @@ bool chess_policy_matrix_guard_auto_clear_enabled(void) {
 #endif
 }
 
-bool chess_policy_matrix_guard_nvs_resync_enabled(void) {
+bool chess_policy_squares_guard_nvs_resync_enabled(void) {
 #if CONFIG_CHESS_MG_ENABLE && CONFIG_CHESS_MG_NVS_RESYNC
   return true;
 #else
@@ -44,7 +47,7 @@ bool chess_policy_matrix_guard_nvs_resync_enabled(void) {
 #endif
 }
 
-bool chess_policy_matrix_guard_led_enabled(void) {
+bool chess_policy_squares_guard_led_enabled(void) {
 #if CONFIG_CHESS_MG_ENABLE && CONFIG_CHESS_MG_LED_ENABLE
   return true;
 #else
@@ -183,6 +186,11 @@ bool chess_policy_move_hints_movable_yellow(void) {
 }
 
 void chess_policy_highlight_movable_if_enabled(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (game_hall_restore_guide_is_active()) {
+    return;
+  }
+#endif
   if (chess_policy_move_hints_movable_yellow()) {
     game_highlight_movable_pieces();
   }
@@ -213,7 +221,7 @@ const char *chess_policy_profile_name(void) {
 void chess_policy_log_boot(void) {
   ESP_LOGI(TAG,
            "Gameplay profile=%s MG=%d ER=%d MH=%d UART_detail=%d",
-           chess_policy_profile_name(), chess_policy_matrix_guard_enabled(),
+           chess_policy_profile_name(), chess_policy_squares_guard_enabled(),
            chess_policy_error_recovery_enabled(),
            chess_policy_move_hints_enabled(),
            chess_policy_uart_error_detail_enabled());

@@ -15,9 +15,9 @@ MASTER = ROOT / "data" / "openings_master.json"
 SCHEMA = ROOT / "data" / "openings_catalog.schema.json"
 RATIONALE = ROOT / "data" / "openings_rationale.json"
 RATIONALE_SCHEMA = ROOT / "data" / "openings_rationale.schema.json"
-WEB_OUT = ROOT / "components" / "web_server_task" / "web" / "data" / "openings_catalog.json"
+WEB_OUT = ROOT / "kos" / "unused" / "web_ui" / "web" / "data" / "openings_catalog.json"
 FLUTTER_OUT = ROOT / "flutter_czechmate" / "assets" / "data" / "openings_catalog.json"
-WEB_JS_CATALOG = ROOT / "components" / "web_server_task" / "web" / "js" / "opening_catalog.js"
+WEB_JS_CATALOG = ROOT / "kos" / "unused" / "web_ui" / "web" / "js" / "opening_catalog.js"
 
 UCI_RE = re.compile(r"^[a-h][1-8][a-h][1-8][qrbn]?$")
 CASTLE_UCI = frozenset({"e1g1", "e1c1", "e8g8", "e8c8"})

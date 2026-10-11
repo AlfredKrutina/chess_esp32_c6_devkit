@@ -18,8 +18,8 @@ on:
     - 'generate_docs.sh'
     - 'generate_mermaid_html.py'
     - 'scripts/docs/**'
-    - 'docs/diagrams/**'
-    - 'docs/reference/**'
+    - 'context/diagrams/**'
+    - 'context/**'
     - 'docs/README.md'
     - 'docs/flutter/**'
     - 'scripts/render_docs.sh'
@@ -75,8 +75,8 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          if [ -f docs/doxygen/html/index.html ]; then
-            cp -a docs/doxygen/html/. _site/
+          if [ -f doxygen/html/index.html ]; then
+            cp -a doxygen/html/. _site/
           else
             echo "::warning::Doxygen HTML chybí — nasazuji marketing root s přesměrováním na downloads.html"
             printf '%s\n' \
@@ -90,8 +90,8 @@ jobs:
               '<p><a href="downloads.html">CzechMate product page</a></p>' \
               '</body></html>' > _site/index.html
           fi
-          if [ -f docs/diagrams/diagrams_mermaid.html ]; then
-            cp -f docs/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
+          if [ -f context/diagrams/diagrams_mermaid.html ]; then
+            cp -f context/diagrams/diagrams_mermaid.html _site/diagrams_mermaid.html
           fi
           cp -f gh-pages-ready/downloads.html _site/downloads.html
           cp -f gh-pages-ready/app_update.json _site/app_update.json

@@ -7,9 +7,9 @@
 
 PROJECT_NAME           = "CZECHMATE"
 PROJECT_NUMBER         = "1.8.0"
-PROJECT_BRIEF          = "CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md"
+PROJECT_BRIEF          = "CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md"
 PROJECT_LOGO           = 
-OUTPUT_DIRECTORY       = docs/doxygen
+OUTPUT_DIRECTORY       = doxygen
 CREATE_SUBDIRS         = NO
 ALLOW_UNICODE_NAMES     = NO
 OUTPUT_LANGUAGE        = English
@@ -116,7 +116,7 @@ WARN_IF_INCOMPLETE_DOC = YES
 WARN_NO_PARAMDOC       = NO
 WARN_AS_ERROR          = NO
 WARN_FORMAT            = "$file:$line: $text"
-WARN_LOGFILE           = docs/doxygen/doxygen_warnings.log
+WARN_LOGFILE           = doxygen/doxygen_warnings.log
 
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
@@ -137,7 +137,7 @@ RECURSIVE              = YES
 EXCLUDE                = build \
                          managed_components \
                          .git \
-                         docs/doxygen \
+                         doxygen \
                          *.bak \
                          *.bak2 \
                          *.clean2 \
@@ -148,7 +148,7 @@ EXCLUDE_PATTERNS       = */build/* \
                          */managed_components/* \
                          */test/* \
                          */tests/* \
-                         */docs/doxygen/*
+                         */doxygen/*
 EXCLUDE_SYMBOLS        = 
 EXAMPLE_PATH           = 
 EXAMPLE_PATTERNS       = 
@@ -196,7 +196,7 @@ HTML_HEADER            =
 HTML_FOOTER            = 
 HTML_STYLESHEET        = 
 HTML_EXTRA_STYLESHEET  = 
-HTML_EXTRA_FILES       = docs/diagrams_mermaid.html 
+HTML_EXTRA_FILES       = context/diagrams/diagrams_mermaid.html 
 HTML_COLORSTYLE_HUE    = 220
 HTML_COLORSTYLE_SAT    = 100
 HTML_COLORSTYLE_GAMMA  = 80
@@ -343,7 +343,7 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 
 TAGFILES               = 
-GENERATE_TAGFILE       = docs/doxygen/esp32_chess_v24.tag
+GENERATE_TAGFILE       = doxygen/esp32_chess_v24.tag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
 EXTERNAL_PAGES         = YES

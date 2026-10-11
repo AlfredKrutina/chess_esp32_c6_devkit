@@ -1,7 +1,8 @@
 # components/web_server_task/CMakeLists.txt
 #
-# CONFIG_CHESS_ENABLE_WEB_SERVER=y (default): full HTTP + WiFi UI stack.
-# CONFIG_CHESS_ENABLE_WEB_SERVER=n: BLE/remote bridge only (no HTTP handlers/embeds).
+# CONFIG_CHESS_ENABLE_WEB_SERVER=y (default): WiFi + HTTP machine API + WebSocket.
+# CONFIG_CHESS_ENABLE_WEB_SERVER=n: BLE/remote bridge only (no HTTP handlers).
+# Browser chess page and piece PNGs live in kos/unused/web_ui and are not linked.
 
 set(WS_SRCS
     "board_api_auth.c"
@@ -35,34 +36,17 @@ set(WS_REQUIRES
     esp_event
 )
 
-set(WS_EMBED_FILES)
-
 if(CONFIG_CHESS_ENABLE_WEB_SERVER)
     list(APPEND WS_SRCS
         "web_routes.c"
         "web_handlers_wifi.c"
         "web_handlers_system.c"
         "web_ws.c"
-        "chess_piece_http.c"
     )
     list(APPEND WS_REQUIRES
         espressif__mdns
     )
-    set(WS_EMBED_FILES
-        "web/piece_assets/PieceWhiteKing.png"
-        "web/piece_assets/PieceWhiteQueen.png"
-        "web/piece_assets/PieceWhiteRook.png"
-        "web/piece_assets/PieceWhiteBishop.png"
-        "web/piece_assets/PieceWhiteKnight.png"
-        "web/piece_assets/PieceWhitePawn.png"
-        "web/piece_assets/PieceBlackKing.png"
-        "web/piece_assets/PieceBlackQueen.png"
-        "web/piece_assets/PieceBlackRook.png"
-        "web/piece_assets/PieceBlackBishop.png"
-        "web/piece_assets/PieceBlackKnight.png"
-        "web/piece_assets/PieceBlackPawn.png"
-    )
-    message(STATUS "web_server_task: HTTP web server ENABLED")
+    message(STATUS "web_server_task: HTTP API ENABLED (no browser UI)")
 else()
     message(STATUS "web_server_task: HTTP web server DISABLED (BLE bridge only)")
 endif()
@@ -70,6 +54,6 @@ endif()
 idf_component_register(
     SRCS ${WS_SRCS}
     INCLUDE_DIRS "include"
-    EMBED_FILES ${WS_EMBED_FILES}
     REQUIRES ${WS_REQUIRES}
+    PRIV_REQUIRES transport_policy
 )

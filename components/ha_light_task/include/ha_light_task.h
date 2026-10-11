@@ -90,6 +90,8 @@ typedef enum {
 #define HA_CMD_ACTIVITY 1
 /** Type of command: Web lamps (set colors/turn on from the web) */
 #define HA_CMD_WEB_LAMP 2
+/** Commit game or lamp after the gesture wave has covered the board. */
+#define HA_CMD_SET_MODE 3
 
 /**
  * @brief HA Light command for internal communication
@@ -146,6 +148,16 @@ void ha_light_task_start(void *pvParameters);
 ha_mode_t ha_light_get_mode(void);
 
 /**
+ * Queue a real mode switch (game or lamp). The HA task applies it and
+ * writes the mode byte into the existing lamp_cfg NVS namespace.
+ * @return false if the command queue is missing or full.
+ */
+bool ha_light_request_mode(ha_mode_t mode);
+
+/** Write the current game/lamp mode into lamp_cfg. Safe to call before sleep. */
+void ha_light_persist_mode(void);
+
+/**
  * @brief Check if HA mode is available (WiFi STA connected)
  *
  * @return true if WiFi STA is connected, false otherwise
@@ -155,7 +167,7 @@ bool ha_light_is_available(void);
 /**
  * @brief Game activity report (for resetting the 5min timer)
  *
- * I call this function last tasks (game_task, matrix_task) when
+ * I call this function last tasks (game_task, squares_task) when
  * detect activity (movement of figures, game command).
  *
  * @param activity_type Activity type ("move", "pickup", "drop", "command")

@@ -5,13 +5,16 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
-#include "game_matrix_guard.h"
+#include "game_gesture.h"
+#include "game_physical_undo.h"
+#include "game_squares_guard.h"
 #include "chess_gameplay_policy.h"
 #include "game_snapshot.h"
 #include "freertos_chess.h"
 
 #include "../led_task/include/led_task.h"
 #include "../button_task/include/button_task.h"
+#include "../button_task/include/button_gesture.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../freertos_chess/include/streaming_output.h"
 
@@ -160,188 +163,10 @@ static void game_send_board_to_uart(QueueHandle_t response_queue) {
   game_task_wdt_reset_safe();
 }
 
-static void undo_pop_last_capture_list(piece_t captured, bool mover_is_white) {
-  if (captured == PIECE_EMPTY) {
-    return;
-  }
-  if (mover_is_white) {
-    if (white_captured_index > 0) {
-      white_captured_index--;
-      if (white_captured_count > 0) {
-        white_captured_count--;
-      }
-      if (white_captures > 0) {
-        white_captures--;
-      }
-    }
-  } else {
-    if (black_captured_index > 0) {
-      black_captured_index--;
-      if (black_captured_count > 0) {
-        black_captured_count--;
-      }
-      if (black_captures > 0) {
-        black_captures--;
-      }
-    }
-  }
-}
-
-static bool game_undo_last_move_impl(void) {
-  if (history_index == 0) {
-    ESP_LOGW(TAG, "Undo: no moves in history");
-    return false;
-  }
-
-  uint32_t idx = history_index - 1;
-  chess_move_t m = move_history[idx];
-  move_type_t kind = move_history_kind[idx];
-
-  bool mover_white =
-      (m.piece >= PIECE_WHITE_PAWN && m.piece <= PIECE_WHITE_KING);
-  uint8_t fr = m.from_row;
-  uint8_t fc = m.from_col;
-  uint8_t tr = m.to_row;
-  uint8_t tc = m.to_col;
-
-  bool toggle_player_after = true;
-  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
-    /* Cast: the player does not change after the king's turn; only after placing the tower. Undo complete
-     * casters must switch to the opponent again → toggle true only if the tower was already there
-     * in logic moved to "intermediate" field. */
-    uint8_t rook_castle_col =
-        (tc > fc) ? (uint8_t)(tc - 1) : (uint8_t)(tc + 1);
-    piece_t rook_piece =
-        (m.piece == PIECE_WHITE_KING) ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
-    toggle_player_after = (board[fr][rook_castle_col] == rook_piece);
-  } else if (kind == MOVE_TYPE_PROMOTION) {
-    piece_t at_dest = board[tr][tc];
-    if ((at_dest == PIECE_WHITE_PAWN || at_dest == PIECE_BLACK_PAWN) &&
-        promotion_state.pending) {
-      toggle_player_after = false;
-    }
-  }
-
-  switch (kind) {
-  case MOVE_TYPE_EN_PASSANT: {
-    board[tr][tc] = PIECE_EMPTY;
-    board[fr][fc] = m.piece;
-    piece_t victim_pawn =
-        mover_white ? PIECE_BLACK_PAWN : PIECE_WHITE_PAWN;
-    board[fr][tc] = victim_pawn;
-    break;
-  }
-  case MOVE_TYPE_PROMOTION: {
-    piece_t at_dest = board[tr][tc];
-    if ((at_dest == PIECE_WHITE_PAWN || at_dest == PIECE_BLACK_PAWN) &&
-        promotion_state.pending) {
-      if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
-          pdTRUE) {
-        promotion_state.pending = false;
-        promotion_state.square_row = 0;
-        promotion_state.square_col = 0;
-        xSemaphoreGiveRecursive(promotion_mutex);
-      }
-    }
-    board[tr][tc] = m.captured_piece;
-    board[fr][fc] = m.piece;
-    break;
-  }
-  default:
-    board[tr][tc] = m.captured_piece;
-    board[fr][fc] = m.piece;
-    break;
-  }
-
-  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
-    uint8_t rook_home_col = (tc > fc) ? 7u : 0u;
-    uint8_t rook_castle_col =
-        (tc > fc) ? (uint8_t)(tc - 1) : (uint8_t)(tc + 1);
-    piece_t rook_piece =
-        (m.piece == PIECE_WHITE_KING) ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
-    if (board[fr][rook_castle_col] == rook_piece) {
-      board[fr][rook_castle_col] = PIECE_EMPTY;
-      board[fr][rook_home_col] = rook_piece;
-    }
-  }
-
-  if (kind == MOVE_TYPE_CAPTURE) {
-    undo_pop_last_capture_list(m.captured_piece, mover_white);
-  }
-
-  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
-    castling_state.in_progress = false;
-  }
-
-  history_index--;
-  if (move_count > 0) {
-    move_count--;
-  }
-  if (advantage_history_count > 0) {
-    advantage_history_count--;
-  }
-
-  if (mover_white) {
-    if (white_moves_count > 0) {
-      white_moves_count--;
-    }
-  } else {
-    if (black_moves_count > 0) {
-      black_moves_count--;
-    }
-  }
-
-  if (toggle_player_after) {
-    current_player = (current_player == PLAYER_WHITE) ? PLAYER_BLACK
-                                                      : PLAYER_WHITE;
-  }
-
-  if (history_index > 0) {
-    chess_move_t *p = &move_history[history_index - 1];
-    last_move_from_row = p->from_row;
-    last_move_from_col = p->from_col;
-    last_move_to_row = p->to_row;
-    last_move_to_col = p->to_col;
-    has_last_move = true;
-  } else {
-    has_last_move = false;
-  }
-
-  if (current_game_state == GAME_STATE_FINISHED) {
-    current_game_state = GAME_STATE_ACTIVE;
-    game_active = true;
-  }
-
-  piece_lifted = false;
-  lifted_piece_row = 0;
-  lifted_piece_col = 0;
-  lifted_piece = PIECE_EMPTY;
-
-  game_end_timer_move();
-  game_start_timer_move(current_player == PLAYER_WHITE);
-
-  game_matrix_guard_check_resync_after_restore();
-  if (!game_is_matrix_guard_active()) {
-    led_clear_board_only();
-    chess_policy_highlight_movable_if_enabled();
-  } else {
-    STAGING_LOGI(TAG,
-                 "undo: matrix guard active — highlight squares until physical "
-                 "board matches logic (conflicts=%u)",
-                 (unsigned)game_get_matrix_guard_conflict_count());
-  }
-
-  game_snapshot_persist_after_valid_move();
-  game_bump_revision_and_notify();
-
-  ESP_LOGI(TAG, "Undo applied (kind=%d), side to move: %s", (int)kind,
-           current_player == PLAYER_WHITE ? "White" : "Black");
-  return true;
-}
-
 void game_process_commands(void) {
   // AKTUALIZOVAT non-blocking blink
   game_update_error_blink();
+  game_physical_undo_tick();
 
   // Update resignation visuals + timeout (safe task context)
   resignation_tick();
@@ -398,7 +223,7 @@ void game_process_commands(void) {
 
       case GAME_CMD_UNDO_MOVE: // 3
         ESP_LOGI(TAG, "Processing UNDO MOVE command from UART");
-        if (game_undo_last_move_impl()) {
+        if (game_undo_rewind_last_move()) {
           game_send_response_to_uart("Last move undone", false,
                                      (QueueHandle_t)chess_cmd.response_queue);
         } else {
@@ -589,9 +414,9 @@ void game_process_commands(void) {
         game_process_timer_command(&chess_cmd);
         break;
 
-      case GAME_CMD_MATRIX_GUARD: // 45
+      case GAME_CMD_SQUARES_GUARD: // 45
         ESP_LOGW(TAG, "Processing MATRIX_GUARD command");
-        game_matrix_guard_handle_command(&chess_cmd);
+        game_squares_guard_handle_command(&chess_cmd);
         break;
 
       case GAME_CMD_BOARD_SETUP_TUTORIAL: // 46
@@ -719,4 +544,5 @@ void game_process_commands(void) {
 
   // Keep promo square visually anchored (does not clear board)
   game_update_promotion_anchor_led();
+  game_gesture_poll();
 }

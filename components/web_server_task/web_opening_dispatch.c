@@ -20,7 +20,7 @@ extern QueueHandle_t game_command_queue;
 
 static const char *TAG = "WEB_OPENING";
 
-static uint8_t opening_action_code(const char *action) {
+uint8_t web_opening_action_code(const char *action) {
   if (action == NULL) {
     return 255;
   }
@@ -176,7 +176,7 @@ esp_err_t web_server_opening_dispatch_json(cJSON *root) {
     return ESP_ERR_NOT_FOUND;
   }
 
-  uint8_t action_code = opening_action_code(action_j->valuestring);
+  uint8_t action_code = web_opening_action_code(action_j->valuestring);
   if (action_code == 255) {
     return ESP_ERR_INVALID_ARG;
   }

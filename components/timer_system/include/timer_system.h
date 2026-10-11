@@ -153,6 +153,14 @@ esp_err_t timer_resume(void);
 esp_err_t timer_reset(void);
 
 /**
+ * Put saved remaining times back and leave the clock stopped.
+ * Downtime after a power cut is not subtracted. A later timer_start_move
+ * continues from these values.
+ */
+esp_err_t timer_restore_remaining_paused(uint32_t white_ms, uint32_t black_ms,
+                                        bool white_to_move);
+
+/**
  * @brief Checks for a timeout
  * 
  * @return true if the time has expired, false otherwise

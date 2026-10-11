@@ -4,13 +4,15 @@
  */
 
 #include "game_task_internal.h"
+#include "game_physical_undo.h"
 #include "game_task.h"
 #include "game_board_core.h"
 #include "game_snapshot.h"
-#include "game_matrix_guard.h"
+#include "game_squares_guard.h"
+#include "game_hall_match.h"
 #include "chess_gameplay_policy.h"
 
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../led_task/include/led_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "../game_hooks/include/game_state_notify.h"
@@ -73,7 +75,7 @@ static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
       if (state[idx] != 0) {
-        matrix_square_to_notation((uint8_t)idx, sq);
+        squares_square_to_notation((uint8_t)idx, sq);
         ESP_LOGW(TAG,
                  "starting position: rank 3–6 square %s must be empty "
                  "(majority vote saw piece)",
@@ -86,7 +88,7 @@ static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
       if (state[idx] == 0) {
-        matrix_square_to_notation((uint8_t)idx, sq);
+        squares_square_to_notation((uint8_t)idx, sq);
         ESP_LOGW(TAG,
                  "starting position: rank 1–2 square %s must be occupied "
                  "(majority vote saw empty)",
@@ -99,7 +101,7 @@ static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
       if (state[idx] == 0) {
-        matrix_square_to_notation((uint8_t)idx, sq);
+        squares_square_to_notation((uint8_t)idx, sq);
         ESP_LOGW(TAG,
                  "starting position: rank 7–8 square %s must be occupied "
                  "(majority vote saw empty)",
@@ -117,11 +119,16 @@ static void game_log_first_startpos_mismatch(const uint8_t state[64]) {
  * More samples + majority voting due to reed noise when completing the tutorial.
  */
 bool game_is_board_in_starting_position(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (!hall_i2c_squares_readings_usable()) {
+    return false;
+  }
+#endif
   uint8_t votes[64] = {0};
 
   for (int s = 0; s < GAME_START_POS_MATRIX_SAMPLES; s++) {
     uint8_t snap[64];
-    matrix_get_state(snap);
+    squares_get_state(snap);
     for (int i = 0; i < 64; i++) {
       votes[i] += snap[i];
     }
@@ -135,11 +142,20 @@ bool game_is_board_in_starting_position(void) {
     stable[i] = (votes[i] >= GAME_START_POS_MAJORITY_VOTES) ? 1 : 0;
   }
 
-  if (game_board_starting_occupancy_matches(stable)) {
-    return true;
+  if (!game_board_starting_occupancy_matches(stable)) {
+    game_log_first_startpos_mismatch(stable);
+    return false;
   }
-  game_log_first_startpos_mismatch(stable);
-  return false;
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (!game_hall_logic_matches_stable_sensors(stable)) {
+    ESP_LOGW(TAG,
+             "starting position: Hall type/color mismatch vs logic board");
+    return false;
+  }
+#endif
+
+  return true;
 }
 
 /**
@@ -149,8 +165,8 @@ bool game_is_board_in_starting_position(void) {
  * the user, which fields must be filled with figures.
  */
 void game_show_missing_pieces_led(void) {
-  uint8_t matrix_state[64] = {0};
-  matrix_get_state(matrix_state);
+  uint8_t squares_state[64] = {0};
+  squares_get_state(squares_state);
   
   // Clean the board
   led_clear_board_only();
@@ -160,7 +176,7 @@ void game_show_missing_pieces_led(void) {
   for (int row = 0; row < 2; row++) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
-      if (matrix_state[idx] == 0) {
+      if (squares_state[idx] == 0) {
         // A figure is missing on the white baseline
         led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
       }
@@ -169,7 +185,7 @@ void game_show_missing_pieces_led(void) {
   for (int row = 6; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
-      if (matrix_state[idx] == 0) {
+      if (squares_state[idx] == 0) {
         // A figure is missing on the black baseline
         led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
       }
@@ -178,7 +194,7 @@ void game_show_missing_pieces_led(void) {
   for (int row = 2; row < 6; row++) {
     for (int col = 0; col < 8; col++) {
       int idx = row * 8 + col;
-      if (matrix_state[idx] != 0) {
+      if (squares_state[idx] != 0) {
         // A random figure in the middle of the board - also in red
         led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
       }
@@ -247,6 +263,7 @@ void game_reset_game(void) {
   black_castles = 0;
   moves_without_capture = 0;
   max_moves_without_capture = 0;
+  game_set_fifty_move_counter(0);
   position_history_count = 0;
   game_result = GAME_STATE_IDLE;
   current_result_type = RESULT_WHITE_WINS;           // Reset pro novou hru
@@ -258,7 +275,9 @@ void game_reset_game(void) {
   // Clear move history
   memset(move_history, 0, sizeof(move_history));
   memset(move_history_kind, 0, sizeof(move_history_kind));
+  memset(move_history_meta, 0, sizeof(move_history_meta));
   history_index = 0;
+  game_physical_undo_reset();
   puzzle_active = false;
   puzzle_active_id = 0;
   puzzle_setup_active = false;
@@ -349,7 +368,7 @@ void game_reset_game(void) {
   // Reinitialize board
   game_initialize_board();
 
-  game_matrix_guard_clear_both_layers();
+  game_squares_guard_clear_both_layers();
 
   ESP_LOGI(TAG, "Game reset completed");
   game_bump_revision_and_notify();
@@ -458,9 +477,9 @@ bool game_finish_board_setup_tutorial_from_web(void) {
  */
 void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
+  game_opening_cancel();
 
   game_task_wdt_reset_safe();
-  game_snapshot_erase_nvs();
   game_task_wdt_reset_safe();
 
   game_snapshot_reset_failure_flags();
@@ -486,6 +505,7 @@ void game_start_new_game(void) {
     game_bump_revision_and_notify();
     
     ESP_LOGW(TAG, "Board not in starting position - waiting for physical setup");
+    game_snapshot_persist_after_valid_move();
     return;
   }
 
@@ -514,6 +534,7 @@ void game_start_new_game(void) {
   black_castles = 0;
   moves_without_capture = 0;
   max_moves_without_capture = 0;
+  game_set_fifty_move_counter(0);
   position_history_count = 0;
   game_result = GAME_STATE_IDLE;
   game_saved = false;
@@ -569,6 +590,7 @@ void game_start_new_game(void) {
         "⏸️  Boot sequence: Skipping movable pieces highlight (first game)");
   }
   game_bump_revision_and_notify();
+  game_snapshot_persist_after_valid_move();
 }
 
 void game_start_new_game_from_fen(const char *fen) {
@@ -578,8 +600,8 @@ void game_start_new_game_from_fen(const char *fen) {
   }
 
   ESP_LOGI(TAG, "Starting new game from FEN...");
+  game_opening_cancel();
   game_task_wdt_reset_safe();
-  game_snapshot_erase_nvs();
   game_task_wdt_reset_safe();
 
   game_snapshot_reset_failure_flags();
@@ -636,6 +658,7 @@ void game_start_new_game_from_fen(const char *fen) {
   black_castles = 0;
   moves_without_capture = 0;
   max_moves_without_capture = 0;
+  game_set_fifty_move_counter(0);
   position_history_count = 0;
   game_result = GAME_STATE_IDLE;
   game_saved = false;
@@ -665,5 +688,6 @@ void game_start_new_game_from_fen(const char *fen) {
     game_task_wdt_reset_safe();
   }
   game_bump_revision_and_notify();
+  game_snapshot_persist_after_valid_move();
 }
 

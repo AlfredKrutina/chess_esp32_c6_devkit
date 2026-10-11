@@ -1,0 +1,21 @@
+menu "Chess user button"
+
+    config CHESS_GESTURE_BUTTON
+        bool "V2 hall PCB gesture button (lamp, pair, new game, off)"
+        depends on CHESS_MATRIX_INPUT_I2C_HALL
+        default n
+        help
+            SW1 "tlacitko nova hra" on the czechmate hall PCB.
+            Active-low, external 10 kΩ to 3V3. Enable only on that board.
+            The reed devkit keeps the GPIO15 reset button.
+
+    config CHESS_GESTURE_BUTTON_GPIO
+        int "Gesture button GPIO"
+        depends on CHESS_GESTURE_BUTTON
+        range 0 30
+        default 23
+        help
+            czechmate_CH224A schematic: SW1 / NEWGAME_SWITCH on ESP32-C6 IO23.
+            Do not set this to GPIO15 on the reed image.
+
+endmenu

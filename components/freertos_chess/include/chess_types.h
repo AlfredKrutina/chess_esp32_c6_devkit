@@ -289,7 +289,7 @@ typedef enum {
   GAME_CMD_RESET_TIMER = 42,      ///< Resetuj timer
   GAME_CMD_GET_TIMER_STATE = 43,  ///< Ziskej stav timeru
   GAME_CMD_TIMER_TIMEOUT = 44,    ///< Vyprseni casoveho limitu
-  GAME_CMD_MATRIX_GUARD = 45,     ///< Guard rezim pro multi-lift anomalii
+  GAME_CMD_SQUARES_GUARD = 45,     ///< Guard rezim pro multi-lift anomalii
   GAME_CMD_BOARD_SETUP_TUTORIAL =
       46, ///< Web tutorial setup; promotion_choice: 0=start,1=cancel,2=finish
   GAME_CMD_PUZZLE =
@@ -336,7 +336,7 @@ typedef struct {
       uint32_t dropped_mask_low; ///< Bits 0-31 for array positions
       uint32_t dropped_mask_high; ///< Bits 32-63 for array positions
       uint8_t action;            ///< 1=enter/update, 0=clear
-    } matrix_guard;              ///< Data pro matrix guard rezim
+    } squares_guard;              ///< Data pro matrix guard rezim
     struct {
       char fen[120]; ///< FEN pro GAME_CMD_NEW_GAME_FROM_FEN (placement + w/b)
     } fen_new_game;
@@ -398,8 +398,8 @@ typedef enum {
   LED_CMD_ANIMATION = 7,       ///< Start animation
   LED_CMD_TEST = 8,            ///< Test pattern
   LED_CMD_TEST_ALL = 10,       ///< Test all LEDs (progressive lighting)
-  LED_CMD_MATRIX_OFF = 11,     ///< Turn off LED effects when scanning the matrix
-  LED_CMD_MATRIX_ON = 12,      ///< Turn on LED effects when scanning the matrix
+  LED_CMD_SQUARES_OFF = 11,     ///< Turn off LED effects when scanning the matrix
+  LED_CMD_SQUARES_ON = 12,      ///< Turn on LED effects when scanning the matrix
 
   // Reserved legacy animation commands
   LED_CMD_RESERVED_SLOT_13 = 13, ///< Rezervovano (legacy slot)
@@ -517,11 +517,11 @@ typedef struct {
  * when detecting the movement of figures.
  */
 typedef enum {
-  MATRIX_EVENT_PIECE_LIFTED = 0,  ///< Figure raised (reed switch open)
-  MATRIX_EVENT_PIECE_PLACED = 1,  ///< Figure placed (reed switch on)
-  MATRIX_EVENT_MOVE_DETECTED = 2, ///< Complete move detected (lift + place)
-  MATRIX_EVENT_ERROR = 3          ///< Detection error
-} matrix_event_type_t;
+  SQUARES_EVENT_PIECE_LIFTED = 0,  ///< Figure raised (reed switch open)
+  SQUARES_EVENT_PIECE_PLACED = 1,  ///< Figure placed (reed switch on)
+  SQUARES_EVENT_MOVE_DETECTED = 2, ///< Complete move detected (lift + place)
+  SQUARES_EVENT_ERROR = 3          ///< Detection error
+} squares_event_type_t;
 
 /**
  * @brief Event matrix structure
@@ -529,7 +529,7 @@ typedef enum {
  * Contains information about the event matrix (type, position, piece).
  */
 typedef struct {
-  matrix_event_type_t type; ///< Event type (lifted, placed, move detected)
+  squares_event_type_t type; ///< Event type (lifted, placed, move detected)
   uint8_t from_square;      ///< Zdrojove pole (0-63)
   uint8_t to_square;        ///< Cilove pole (0-63)
   piece_t piece_type;       ///< Figure type
@@ -538,7 +538,7 @@ typedef struct {
   uint8_t from_col;         ///< Zdrojovy sloupec (0-7)
   uint8_t to_row;           ///< Cilovy radek (0-7)
   uint8_t to_col;           ///< Cilovy sloupec (0-7)
-} matrix_event_t;
+} squares_event_t;
 
 /**
  * @brief Matrix command types
@@ -546,13 +546,13 @@ typedef struct {
  * Defines the commands that can be sent to the matrix task.
  */
 typedef enum {
-  MATRIX_CMD_SCAN = 0,      ///< Perform matrix scan
-  MATRIX_CMD_RESET = 1,     ///< Reset matrix state
-  MATRIX_CMD_TEST = 2,      ///< Testuj matrix funkci
-  MATRIX_CMD_CALIBRATE = 3, ///< Calibrate matrix (sensitivity settings)
-  MATRIX_CMD_DISABLE = 4,   ///< Turn off matrix scanning
-  MATRIX_CMD_ENABLE = 5     ///< Enable matrix scanning
-} matrix_command_type_t;
+  SQUARES_CMD_SCAN = 0,      ///< Perform matrix scan
+  SQUARES_CMD_RESET = 1,     ///< Reset matrix state
+  SQUARES_CMD_TEST = 2,      ///< Testuj matrix funkci
+  SQUARES_CMD_CALIBRATE = 3, ///< Calibrate matrix (sensitivity settings)
+  SQUARES_CMD_DISABLE = 4,   ///< Turn off matrix scanning
+  SQUARES_CMD_ENABLE = 5     ///< Enable matrix scanning
+} squares_command_type_t;
 
 /**
  * @brief Structure of matrix command
@@ -560,9 +560,9 @@ typedef enum {
  * Contains command information for the matrix task.
  */
 typedef struct {
-  matrix_command_type_t type; ///< Command type
+  squares_command_type_t type; ///< Command type
   uint8_t data[16];           ///< Additional data for the command
-} matrix_command_t;
+} squares_command_t;
 
 // ============================================================================
 // HARDWAROVE KONSTANTY
@@ -584,7 +584,7 @@ typedef struct {
 
 // Matrix systemove konstanty
 /** @brief Velikost matrix (8x8 = 64 poli) */
-#define CHESS_MATRIX_SIZE 64
+#define CHESS_SQUARES_SIZE 64
 
 // Game konstanty
 /** @brief Maximum number of moves in history (200 moves) */

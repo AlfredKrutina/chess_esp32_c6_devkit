@@ -6,8 +6,8 @@
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
-RTF_FILE="docs/doxygen/rtf/refman.rtf"
-PDF_OUTPUT="docs/doxygen/esp32_chess_v24_documentation.pdf"
+RTF_FILE="doxygen/rtf/refman.rtf"
+PDF_OUTPUT="doxygen/esp32_chess_v24_documentation.pdf"
 
 echo "Creating PDF from RTF..."
 echo ""

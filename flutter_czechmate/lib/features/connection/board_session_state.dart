@@ -14,6 +14,7 @@ class BoardSessionState {
     this.lastIfNoneMatch,
     this.pollingActive = false,
     this.webSocketActive = false,
+    this.wifiChannelActive = false,
     this.bleGattConnected = false,
     this.bleLabel,
     this.lastError,
@@ -38,6 +39,7 @@ class BoardSessionState {
   final String? lastIfNoneMatch;
   final bool pollingActive;
   final bool webSocketActive;
+  final bool wifiChannelActive;
   final bool bleGattConnected;
   final String? bleLabel;
   final Object? lastError;
@@ -71,6 +73,7 @@ class BoardSessionState {
     bool clearIfNoneMatch = false,
     bool? pollingActive,
     bool? webSocketActive,
+    bool? wifiChannelActive,
     bool? bleGattConnected,
     String? bleLabel,
     Object? lastError,
@@ -107,6 +110,7 @@ class BoardSessionState {
           clearIfNoneMatch ? null : (lastIfNoneMatch ?? this.lastIfNoneMatch),
       pollingActive: pollingActive ?? this.pollingActive,
       webSocketActive: webSocketActive ?? this.webSocketActive,
+      wifiChannelActive: wifiChannelActive ?? this.wifiChannelActive,
       bleGattConnected: bleGattConnected ?? this.bleGattConnected,
       bleLabel: bleLabel ?? this.bleLabel,
       lastError: clearError ? null : (lastError ?? this.lastError),

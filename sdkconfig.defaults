@@ -6,7 +6,7 @@ CONFIG_IDF_TARGET="esp32c6"
 # CzechMate — automated test task (disable to save ~4.5 KiB stack + TCB)
 # CONFIG_CHESS_ENABLE_TEST_TASK is not set
 
-# HTTP web server — disable for BLE-only / smaller firmware (no REST, WS, PNG embeds):
+# HTTP machine API — disable for BLE-only / smaller firmware (no REST, WS). Browser page is not in the image.
 CONFIG_CHESS_ENABLE_WEB_SERVER=y
 
 # Gameplay safety profile (FULL — production defaults)
@@ -126,7 +126,7 @@ CONFIG_APP_ROLLBACK_ENABLE=y
 # Hall: hall_i2c_matrix_fill_state() reads 4× STM over I2C (hall_i2c_spec.h).
 #
 # To restore “STM flash over I2C at runtime”:
-# - idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
+# - idf.py -B build-hall-v2 -D SDKCONFIG=sdkconfig.hall_v2 -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.defaults.hall_v2" build flash
 # - menuconfig: CHESS_MATRIX_INPUT_I2C_HALL + CHESS_STM32_I2C_BL_ENABLE (+ often CHESS_STM32_BL_SHARE_I2C_HALL=y).
 # - Wiring: docs/reference/WIRING_ESP_STM4.md
 CONFIG_CHESS_MATRIX_INPUT_GPIO_REED=y

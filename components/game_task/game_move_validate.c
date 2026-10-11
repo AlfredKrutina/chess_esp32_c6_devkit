@@ -14,6 +14,25 @@
 
 static const char *TAG = "GAME_VALIDATE";
 
+static piece_t game_check_sim_promoted_piece(piece_t pawn) {
+  if (pawn == PIECE_WHITE_PAWN) {
+    return PIECE_WHITE_QUEEN;
+  }
+  if (pawn == PIECE_BLACK_PAWN) {
+    return PIECE_BLACK_QUEEN;
+  }
+  return pawn;
+}
+
+static bool game_is_king_castling_move(const chess_move_t *move,
+                                       piece_t piece) {
+  if (piece != PIECE_WHITE_KING && piece != PIECE_BLACK_KING) {
+    return false;
+  }
+  return move->from_row == move->to_row &&
+         abs((int)move->to_col - (int)move->from_col) == 2;
+}
+
 // ============================================================================
 // MOVE VALIDATION FUNCTIONS
 // ============================================================================
@@ -516,6 +535,12 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
   uint8_t en_passant_victim_row_local = 0;
   uint8_t en_passant_victim_col_local = 0;
 
+  bool is_castling = game_is_king_castling_move(move, original_from_piece);
+  piece_t original_rook = PIECE_EMPTY;
+  int rook_row = move->from_row;
+  int rook_from_col = -1;
+  int rook_to_col = -1;
+
   // If en passant, save the victim pawn position
   if (is_en_passant) {
     original_en_passant_piece =
@@ -526,8 +551,24 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
     board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
   }
 
+  if (is_castling) {
+    bool kingside = move->to_col > move->from_col;
+    rook_from_col = kingside ? 7 : 0;
+    rook_to_col = kingside ? 5 : 3;
+    original_rook = board[rook_row][rook_from_col];
+    board[rook_row][rook_from_col] = PIECE_EMPTY;
+    board[rook_row][rook_to_col] = original_rook;
+  }
+
+  piece_t placed = original_from_piece;
+  if (original_from_piece == PIECE_WHITE_PAWN && move->to_row == 7) {
+    placed = game_check_sim_promoted_piece(original_from_piece);
+  } else if (original_from_piece == PIECE_BLACK_PAWN && move->to_row == 0) {
+    placed = game_check_sim_promoted_piece(original_from_piece);
+  }
+
   // Make the move temporarily
-  board[move->to_row][move->to_col] = original_from_piece;
+  board[move->to_row][move->to_col] = placed;
   board[move->from_row][move->from_col] = PIECE_EMPTY;
 
   // Determine which player's king to check
@@ -545,6 +586,11 @@ bool game_would_move_leave_king_in_check(const chess_move_t *move) {
   if (is_en_passant) {
     board[en_passant_victim_row_local][en_passant_victim_col_local] =
         original_en_passant_piece;
+  }
+
+  if (is_castling) {
+    board[rook_row][rook_to_col] = PIECE_EMPTY;
+    board[rook_row][rook_from_col] = original_rook;
   }
 
   return king_in_check;

@@ -29,6 +29,7 @@
 
 #include "test_task.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "led_task_simple.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -49,29 +50,6 @@
 
 
 static const char *TAG = "TEST_TASK";
-
-// ============================================================================
-// WDT WRAPPER FUNCTIONS
-// ============================================================================
-
-/**
- * @brief Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND
- * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only)
- */
-static esp_err_t test_task_wdt_reset_safe(void) {
-    esp_err_t ret = esp_task_wdt_reset();
-    
-    if (ret == ESP_ERR_NOT_FOUND) {
-        // Log as WARNING instead of ERROR - task not registered yet
-        ESP_LOGW(TAG, "WDT reset: task not registered yet (this is normal during startup)");
-        return ESP_OK; // Treat as success for our purposes
-    } else if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-        return ret;
-    }
-    
-    return ESP_OK;
-}
 
 // ============================================================================
 // LOCAL VARIABLES AND CONSTANTS
@@ -301,7 +279,7 @@ void test_run_all_suites(void)
     ESP_LOGI(TAG, "Starting all test suites...");
     
     // CRITICAL: Reset WDT before starting long operation (only if registered)
-    esp_err_t wdt_ret = test_task_wdt_reset_safe();
+    esp_err_t wdt_ret = chess_task_wdt_reset_safe(TAG);
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
         // Task not registered with TWDT yet - this is normal during startup
     }
@@ -311,7 +289,7 @@ void test_run_all_suites(void)
     
     for (uint32_t suite_idx = 0; suite_idx < suite_count; suite_idx++) {
         // CRITICAL: Reset WDT for each suite (only if registered)
-        wdt_ret = test_task_wdt_reset_safe();
+        wdt_ret = chess_task_wdt_reset_safe(TAG);
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }
@@ -530,11 +508,11 @@ test_result_t test_execute_reed_switch_test(void)
     ESP_LOGI(TAG, "Executing Reed Switch Matrix Test...");
     
     // Test reed switch matrix functionality
-    if (matrix_command_queue != NULL) {
+    if (squares_command_queue != NULL) {
         // Send test command
         uint8_t test_cmd = 2; // Test matrix
         
-        if (xQueueSend(matrix_command_queue, &test_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+        if (xQueueSend(squares_command_queue, &test_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
             ESP_LOGI(TAG, "Reed switch matrix test command sent successfully");
             vTaskDelay(pdMS_TO_TICKS(500));
             return TEST_RESULT_PASS;
@@ -1015,7 +993,7 @@ void test_task_start(void *pvParameters)
     
     for (;;) {
         // CRITICAL: Reset watchdog for test task in every iteration
-        esp_err_t wdt_ret = test_task_wdt_reset_safe();
+        esp_err_t wdt_ret = chess_task_wdt_reset_safe(TAG);
         if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
             // Task not registered with TWDT yet - this is normal during startup
         }

@@ -28,7 +28,7 @@ flutter test
 
 - One logical change per PR when possible (move-only refactors separate from behavior fixes).
 - CI must pass: firmware build, Flutter test (when touching client), docs diagrams (when touching Mermaid sources).
-- See [docs/reference/PROFESSIONAL_CLEANUP_PLAN.md](docs/reference/PROFESSIONAL_CLEANUP_PLAN.md) for the long-term refactor roadmap.
+- See [context/firmware/PROFESSIONAL_CLEANUP_PLAN.md](context/firmware/PROFESSIONAL_CLEANUP_PLAN.md) for the long-term refactor roadmap.
 
 ## Branch naming (agents / automation)
 

@@ -12,7 +12,7 @@ extern "C" {
 
 /**
  * Initialization: GPIO NRST/BOOT0, or I2C driver (if you do not share the bus with Hall).
- * When sharing with Hall, hall_i2c_matrix_init() must be called before.
+ * When sharing with Hall, hall_i2c_squares_init() must be called before.
  */
 esp_err_t stm32_i2c_bl_init(void);
 
@@ -47,17 +47,17 @@ esp_err_t stm32_i2c_bl_flash_binary(uint8_t segment_0_to_3, bool boot0_enter,
 
 /**
  * One time after boot: if CHESS_STM32_BL_AUTO_FLASH_ON_BOOT, flash STM from partition.
- * Call after shared I2C initialization (e.g. right after hall_i2c_matrix_init).
+ * Call after shared I2C initialization (e.g. right after hall_i2c_squares_init).
  */
 void stm32_i2c_bl_maybe_auto_flash_on_boot(void);
 
 /**
- * Main thread: call before xTaskCreate(matrix_task) if auto-flash is enabled on boot.
- * Makes boot_flash_sync_wait() wait for maybe_auto_flash in matrix_task to complete.
+ * Main thread: call before xTaskCreate(squares_task) if auto-flash is enabled on boot.
+ * Makes boot_flash_sync_wait() wait for maybe_auto_flash in squares_task to complete.
  */
 void stm32_i2c_bl_boot_flash_sync_prepare(void);
 
-/** Main thread: wait for signal_done from matrix_task (timeout in FreeRTOS ticks). */
+/** Main thread: wait for signal_done from squares_task (timeout in FreeRTOS ticks). */
 void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks);
 
 #ifdef __cplusplus

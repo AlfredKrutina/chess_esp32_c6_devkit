@@ -30,6 +30,7 @@ void ble_store_config_init(void);
 #include "esp_task_wdt.h"
 #include "game_state_notify.h"
 #include "ota_update.h"
+#include "transport_policy.h"
 #include "web_server_task.h"
 #include <assert.h>
 #include <inttypes.h>
@@ -100,6 +101,8 @@ static esp_timer_handle_t s_adv_watchdog_timer;
  * context). ble_hs_sched() is not in the ESP-IDF 5.5 / NimBLE public API. */
 static struct ble_npl_event s_idle_adv_watchdog_npl_ev;
 static bool s_idle_adv_watchdog_npl_ev_inited;
+static struct ble_npl_event s_pair_npl_ev;
+static bool s_pair_npl_ev_inited;
 
 /** One GATT write at a time per guest task — saves stack compared to local tmp[768]. */
 static char s_ble_cmd_copy[768];
@@ -518,6 +521,33 @@ static void czechmate_gap_restart_advertising(void) {
   czechmate_advertise();
 }
 
+static void czechmate_pair_npl_cb(struct ble_npl_event *ev) {
+  (void)ev;
+  if (s_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
+    ESP_LOGI(TAG,
+             "[STAGING] pairing: GATT link already up, stack left running");
+    return;
+  }
+  ESP_LOGI(TAG, "[STAGING] pairing: restart GAP advertising");
+  czechmate_gap_restart_advertising();
+}
+
+void ble_task_request_pairing(void) {
+  if (!ble_hs_synced()) {
+    ESP_LOGW(TAG, "[STAGING] pairing: host not synced yet");
+    return;
+  }
+  struct ble_npl_eventq *evq = nimble_port_get_dflt_eventq();
+  if (evq == NULL) {
+    return;
+  }
+  if (!s_pair_npl_ev_inited) {
+    ble_npl_event_init(&s_pair_npl_ev, czechmate_pair_npl_cb, NULL);
+    s_pair_npl_ev_inited = true;
+  }
+  ble_npl_eventq_put(evq, &s_pair_npl_ev);
+}
+
 static void czechmate_idle_adv_watchdog_host(void *param) {
   (void)param;
   if (s_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
@@ -578,7 +608,7 @@ static void czechmate_start_adv_watchdog_timer(void) {
   }
   ESP_LOGI(TAG,
            "GAP advertising watchdog: every 45 s check (only without active "
-           "BLE connection = no "pair"/central)");
+           "BLE connection = no pair/central)");
 }
 
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
@@ -620,6 +650,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     if (event->connect.status == 0) {
       s_conn_handle = event->connect.conn_handle;
       ESP_LOGI(TAG, "connected handle=%d", s_conn_handle);
+      transport_policy_on_ble_connect(s_conn_handle);
 #if CONFIG_ESP_COEX_ENABLED
       /* One Wi‑Fi + BLE radio: without moving to BLE, ATT often does not respond at all (iOS
        * "0 services"). PREFER_BALANCE was not enough for some C6 + AP+STA — we give
@@ -752,6 +783,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     s_net_notify_enabled = false;
     s_cmd_ack_notify_enabled = false;
     ESP_LOGI(TAG, "disconnect reason=%d", event->disconnect.reason);
+    transport_policy_on_ble_disconnect();
 #if CONFIG_ESP_COEX_ENABLED
     {
       esp_err_t ce = esp_coex_preference_set(ESP_COEX_PREFER_WIFI);
@@ -770,6 +802,7 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
       s_snap_notify_enabled = event->subscribe.cur_notify;
       ESP_LOGI(TAG, "snapshot notify=%d", (int)s_snap_notify_enabled);
       if (s_snap_notify_enabled) {
+        transport_policy_log_realtime_path_ble();
         czechmate_on_game_state_changed();
       }
     }
@@ -1053,6 +1086,8 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
 }
 
 void ble_task_notify_cmd_ack_json(const char *json_utf8) { (void)json_utf8; }
+
+void ble_task_request_pairing(void) {}
 
 void ble_task_format_status(char *buf, size_t cap) {
   if (buf && cap) {

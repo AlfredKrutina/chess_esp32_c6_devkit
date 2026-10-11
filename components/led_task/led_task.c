@@ -179,6 +179,8 @@
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
 #include "../unified_animation_manager/include/unified_animation_manager.h" // Non-blocking endgame animations
+#include "led_board_restore_guide.h"
+#include "led_gesture_anim.h"
 #include "led_mapping.h" // Include LED mapping functions
 
 // Define min macro if not available
@@ -196,6 +198,7 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "led_strip.h"
 #include <inttypes.h>
 #include <math.h>
@@ -222,26 +225,7 @@ static const char *TAG = "LED_TASK";
  * (WARNING only)
  */
 static esp_err_t led_task_wdt_reset_safe(void) {
-  // Only reset WDT if running in the context of the LED task
-  if (led_task_handle != NULL &&
-      xTaskGetCurrentTaskHandle() != led_task_handle) {
-    return ESP_OK; // Ignore WDT reset requests from other tasks
-  }
-
-  esp_err_t ret = esp_task_wdt_reset();
-
-  if (ret == ESP_ERR_NOT_FOUND) {
-    // Log as WARNING instead of ERROR - task not registered yet
-    ESP_LOGW(
-        TAG,
-        "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Treat as success for our purposes
-  } else if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-    return ret;
-  }
-
-  return ESP_OK;
+  return chess_task_wdt_reset_if_owner(TAG, led_task_handle);
 }
 
 // ============================================================================
@@ -403,6 +387,21 @@ static bool led_duration_system_enabled = true;
 // GLOBAL BRIGHTNESS CONTROL
 static uint8_t global_brightness = 50; // Default 50%
 
+/*
+ * +5V_LED rail (U40 TPS54560BDDAR, L5 FXL0530-4R7-M). The inductor's published
+ * heating current is 4500 mA (Isat and the buck's operating current are 5 A).
+ * Two paralleled 3 A connector contacts carry this rail to the next board, so
+ * they are not the tighter rating.
+ * OPSCO SK6812MINIRGBW-XX-P6-A (WS bin is SK6812MINIRGBW-WS-P6-A), VDD=5 V,
+ * VDS=1 V: R/G/B 8 mA typical, W 16.5 mA typical, 8-bit PWM. A full RGBW
+ * frame is 64 * (24 + 16.5) = 2592 mA, or 73 * 40.5 = 2956.5 mA, both under
+ * 4500 mA, so it is not scaled. NVS brightness is applied before this check
+ * and cannot raise it. One uniform scale covers R, G, B and W together.
+ */
+#define LED_RAIL_BUDGET_MA 4500
+#define LED_RGB_FULL_UA 8000
+#define LED_W_FULL_UA 16500
+
 // LED patterns
 static const uint32_t chess_board_pattern[64] = {
     // White squares (even indices)
@@ -516,8 +515,8 @@ static uint8_t led_get_button_led_index(uint8_t button_id) {
   }
 }
 
-void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
-                            uint8_t blue) {
+static void led_set_pixel_channels(uint8_t led_index, uint8_t red, uint8_t green,
+                                   uint8_t blue, uint8_t white) {
   if (led_index >= CHESS_LED_COUNT_TOTAL) {
     ESP_LOGE(TAG, "Invalid LED index: %d (max: %d)", led_index,
              CHESS_LED_COUNT_TOTAL - 1);
@@ -535,7 +534,7 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
   // animations
   if (!matrix_scanning_enabled && led_index < 64) {
     // Only allow static colors, no animations
-    if (red > 0 || green > 0 || blue > 0) {
+    if (red > 0 || green > 0 || blue > 0 || white > 0) {
       ESP_LOGD(
           TAG,
           "Matrix scanning disabled - limiting LED animation for board LED %d",
@@ -553,8 +552,11 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
     }
   }
 
-  // BATCH UPDATE SYSTEM - Just collect change, don't commit immediately
-  uint32_t color = (red << 16) | (green << 8) | blue;
+  // BATCH UPDATE SYSTEM - Just collect change, don't commit immediately.
+  // White lives in the top byte. RGB-only callers leave it at 0 and the
+  // budgeted writer extracts a neutral white onto the white die.
+  uint32_t color = ((uint32_t)white << 24) | ((uint32_t)red << 16) |
+                   ((uint32_t)green << 8) | blue;
 
   // Update internal state
   led_states[led_index] = color;
@@ -567,14 +569,24 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
   }
 
   if (simulation_mode) {
-    ESP_LOGI(TAG, "LED[%d] = RGB(%d,%d,%d) = 0x%06" PRIX32, led_index, red, green,
-             blue, led_states[led_index]);
+    ESP_LOGI(TAG, "LED[%d] = RGBW(%d,%d,%d,%d) = 0x%08" PRIX32, led_index, red,
+             green, blue, white, led_states[led_index]);
   }
 
   // Release unified mutex
   if (led_unified_mutex != NULL) {
     xSemaphoreGive(led_unified_mutex);
   }
+}
+
+void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
+                            uint8_t blue) {
+  led_set_pixel_channels(led_index, red, green, blue, 0);
+}
+
+void led_set_pixel_rgbw(uint8_t led_index, uint8_t red, uint8_t green,
+                        uint8_t blue, uint8_t white) {
+  led_set_pixel_channels(led_index, red, green, blue, white);
 }
 
 void led_set_all_internal(uint8_t red, uint8_t green, uint8_t blue) {
@@ -685,43 +697,63 @@ void led_show_chess_board(void) {
 }
 
 /**
- * @brief Set the color of all 64 LED boards for HA mode
- *
- * @param r Red component (0-255)
- * @param g Green folder (0-255)
- * @param b Blue folder (0-255)
- * @param brightness Brightness (0-255) - applied to RGB
+ * Warm/cool lamp white is not "close" enough for the generic writer rule
+ * (255,214,170 spreads 85 counts) but it is still lamp white. Weakest channel
+ * at least 2/3 of the strongest: W = min, RGB keeps the tint.
+ * (255,214,170) is the boundary, 170*3 == 255*2. Red, amber, blue, green stay
+ * on the RGB dice because their min fails that test.
  */
-void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
-  // CRITICAL: Limit max brightness to prevent brownout
-  // 64 LEDs at full white = ~3.8A, ESP32 power supply can't handle this
-  // Cap at 40% (102/255) for safety
-  const uint8_t MAX_SAFE_BRIGHTNESS = 102; // 40% of 255
-  if (brightness > MAX_SAFE_BRIGHTNESS) {
-    ESP_LOGW(TAG, "⚠️ Limiting brightness from %d to %d to prevent brownout",
-             brightness, MAX_SAFE_BRIGHTNESS);
-    brightness = MAX_SAFE_BRIGHTNESS;
+static void led_split_lamp_white(uint8_t *red, uint8_t *green, uint8_t *blue,
+                                 uint8_t *white) {
+  uint8_t lo = *red;
+  uint8_t hi = *red;
+  if (*green < lo) {
+    lo = *green;
   }
+  if (*blue < lo) {
+    lo = *blue;
+  }
+  if (*green > hi) {
+    hi = *green;
+  }
+  if (*blue > hi) {
+    hi = *blue;
+  }
+  *white = 0;
+  if (lo == 0) {
+    return;
+  }
+  if ((uint16_t)lo * 3u >= (uint16_t)hi * 2u) {
+    *white = lo;
+    *red = (uint8_t)(*red - lo);
+    *green = (uint8_t)(*green - lo);
+    *blue = (uint8_t)(*blue - lo);
+  }
+}
+
+void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
+  /* Rail current is limited once, at strip shift-out. No flat channel cap. */
 
   // Apply brightness to RGB values
   uint8_t r_scaled = (r * brightness) / 255;
   uint8_t g_scaled = (g * brightness) / 255;
   uint8_t b_scaled = (b * brightness) / 255;
+  uint8_t w_scaled = 0;
+  led_split_lamp_white(&r_scaled, &g_scaled, &b_scaled, &w_scaled);
 
-  ESP_LOGI(
-      TAG,
-      "Setting HA color: RGB(%d,%d,%d) brightness=%d -> scaled RGB(%d,%d,%d)",
-      r, g, b, brightness, r_scaled, g_scaled, b_scaled);
+  ESP_LOGI(TAG,
+           "Setting HA color: RGB(%d,%d,%d) brightness=%d -> RGBW(%d,%d,%d,%d)",
+           r, g, b, brightness, r_scaled, g_scaled, b_scaled, w_scaled);
 
   // Set all 64 board LEDs (indices 0-63)
   for (int i = 0; i < CHESS_LED_COUNT_BOARD; i++) {
-    led_set_pixel_internal(i, r_scaled, g_scaled, b_scaled);
+    led_set_pixel_rgbw(i, r_scaled, g_scaled, b_scaled, w_scaled);
   }
 
   // Apply same HA color to button LEDs (64-72) so they shine with the light
   for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
     uint8_t led_index = led_get_button_led_index((uint8_t)i);
-    led_set_pixel_internal(led_index, r_scaled, g_scaled, b_scaled);
+    led_set_pixel_rgbw(led_index, r_scaled, g_scaled, b_scaled, w_scaled);
   }
 
   // Force immediate update
@@ -1766,14 +1798,19 @@ void led_player_change_animation(void) {
 static esp_err_t led_hardware_init(void) {
   ESP_LOGI(
       TAG,
-      "🔧 Initializing WS2812B hardware with official led_strip driver...");
+      "Initializing SK6812MINI RGBW strip (GRBW)...");
 
-  // LED STRIP CONFIGURATION
+  /*
+   * OPSCO SK6812MINIRGBW T1H is 0.65–1.00 µs (typical 0.75). The IDF
+   * SK6812 preset uses T1H 0.6 µs, under that minimum. WS2812 timing in
+   * this driver is T0H 0.3 / T1H 0.9 µs, inside the window, and the reset
+   * is 280 µs (datasheet wants >200 µs). Byte order is GRBW, 4 bytes.
+   */
   led_strip_config_t strip_config = {
       .strip_gpio_num = LED_DATA_PIN,
       .max_leds = CHESS_LED_COUNT_TOTAL,
       .led_model = LED_MODEL_WS2812,
-      .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB,
+      .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRBW,
   };
 
   // RMT BACKEND CONFIGURATION - Optimized for WS2812B timing
@@ -1818,11 +1855,10 @@ static esp_err_t led_hardware_init(void) {
   memset(led_changed_flags, false, sizeof(led_changed_flags));
   memset(led_pending_changes, 0, sizeof(led_pending_changes));
 
-  ESP_LOGI(TAG,
-           "✅ WS2812B hardware initialized successfully with official driver");
+  ESP_LOGI(TAG, "LED pixel format GRBW, 4 bytes per LED");
   ESP_LOGI(TAG, "  • GPIO: %d", LED_DATA_PIN);
   ESP_LOGI(TAG, "  • LEDs: %d total", CHESS_LED_COUNT_TOTAL);
-  ESP_LOGI(TAG, "  • Driver: espressif/led_strip");
+  ESP_LOGI(TAG, "  • Driver: espressif/led_strip, led_strip_set_pixel_rgbw");
   ESP_LOGI(TAG, "  • Batch update system: initialized");
 
   return ESP_OK;
@@ -2061,11 +2097,15 @@ void led_task_start(void *pvParameters) {
     // Update endgame wave animation (non-blocking, according to the old project)
     led_update_endgame_wave();
 
+    led_board_restore_guide_tick();
+
     // Process LED duration expirations (task-driven, no FreeRTOS timer)
     led_process_duration_expirations();
 
     // Process button blink timers
     led_process_button_blink_timers();
+
+    led_gesture_anim_tick();
 
     // COMMIT PENDING LED CHANGES - Use privileged batch commit for maximum
     // stability
@@ -3096,6 +3136,156 @@ static void led_process_button_blink_timers(void) {
   }
 }
 
+static bool s_led_rail_scaled = false;
+static uint32_t s_led_rail_numer = 0;
+static uint32_t s_led_rail_denom = 0;
+
+static uint32_t led_logical_color(int index) {
+  if (led_changed_flags[index]) {
+    return led_pending_changes[index];
+  }
+  return led_states[index];
+}
+
+/**
+ * Neutral RGB uses the white die. (200,180,180) spreads 20 counts, which is
+ * within 20% of the peak, so W = 180 and RGB becomes (20,0,0). A saturated
+ * color has a zero channel, or a wider spread (yellow, orange, pink), and
+ * keeps W = 0. A caller that already stored W (lamp) is left alone.
+ */
+static void led_move_neutral_white(uint8_t *red, uint8_t *green, uint8_t *blue,
+                                   uint8_t *white) {
+  if (*white != 0) {
+    return;
+  }
+  uint8_t lo = *red;
+  uint8_t hi = *red;
+  if (*green < lo) {
+    lo = *green;
+  }
+  if (*blue < lo) {
+    lo = *blue;
+  }
+  if (*green > hi) {
+    hi = *green;
+  }
+  if (*blue > hi) {
+    hi = *blue;
+  }
+  if (lo == 0 || hi == 0) {
+    return;
+  }
+  if ((uint16_t)(hi - lo) * 5u > hi) {
+    return;
+  }
+  *white = lo;
+  *red = (uint8_t)(*red - lo);
+  *green = (uint8_t)(*green - lo);
+  *blue = (uint8_t)(*blue - lo);
+}
+
+static void led_decode_output(uint32_t color, uint8_t *red, uint8_t *green,
+                              uint8_t *blue, uint8_t *white) {
+  *red = (color >> 16) & 0xFF;
+  *green = (color >> 8) & 0xFF;
+  *blue = color & 0xFF;
+  *white = (color >> 24) & 0xFF;
+  if (global_brightness < 100) {
+    *red = (uint8_t)((*red * global_brightness) / 100);
+    *green = (uint8_t)((*green * global_brightness) / 100);
+    *blue = (uint8_t)((*blue * global_brightness) / 100);
+    *white = (uint8_t)((*white * global_brightness) / 100);
+  }
+  led_move_neutral_white(red, green, blue, white);
+}
+
+/**
+ * Uniform frame scale, including the white die. Returns false when this
+ * frame is under LED_RAIL_BUDGET_MA. Current is (8000*(R+G+B) + 16500*W) / 255
+ * µA per LED. There is no second per-channel cap.
+ */
+static bool led_rail_over_budget(uint32_t *numer, uint32_t *denom,
+                                 uint32_t *lit) {
+  uint32_t used = 0;
+  uint32_t nlit = 0;
+  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+    uint8_t red, green, blue, white;
+    led_decode_output(led_logical_color(i), &red, &green, &blue, &white);
+    used += (uint32_t)LED_RGB_FULL_UA * ((uint32_t)red + green + blue);
+    used += (uint32_t)LED_W_FULL_UA * white;
+    if ((red | green | blue | white) != 0) {
+      nlit++;
+    }
+  }
+  if (used == 0) {
+    return false;
+  }
+
+  const uint32_t limit = (uint32_t)LED_RAIL_BUDGET_MA * 1000u * 255u;
+  if (used <= limit) {
+    return false;
+  }
+
+  *numer = limit;
+  *denom = used;
+  *lit = nlit;
+  return true;
+}
+
+/** Shift-out pixels after NVS brightness, then the rail budget. One place. */
+static void led_write_budgeted_pixels(void) {
+  uint32_t numer = 0;
+  uint32_t denom = 1;
+  uint32_t lit = 0;
+  const bool scale = led_rail_over_budget(&numer, &denom, &lit);
+  const bool rewrite_all = scale || s_led_rail_scaled;
+
+  if (scale && (numer != s_led_rail_numer || denom != s_led_rail_denom)) {
+    ESP_LOGI(TAG, "LED rail scale: %u LEDs, factor %u/%u (budget %u mA)",
+             (unsigned)lit, (unsigned)numer, (unsigned)denom,
+             (unsigned)LED_RAIL_BUDGET_MA);
+    s_led_rail_numer = numer;
+    s_led_rail_denom = denom;
+  } else if (!scale && s_led_rail_scaled) {
+    ESP_LOGI(TAG, "LED rail scale: frame back under %u mA",
+             (unsigned)LED_RAIL_BUDGET_MA);
+    s_led_rail_numer = 0;
+    s_led_rail_denom = 0;
+  }
+
+  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+    if (!rewrite_all && !led_changed_flags[i]) {
+      continue;
+    }
+
+    if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
+      esp_err_t wdt_ret = led_task_wdt_reset_safe();
+      if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
+        // Task not registered with TWDT yet - this is normal during startup
+      }
+    }
+
+    uint8_t red, green, blue, white;
+    led_decode_output(led_logical_color(i), &red, &green, &blue, &white);
+    if (scale) {
+      red = (uint8_t)(((uint64_t)red * numer) / denom);
+      green = (uint8_t)(((uint64_t)green * numer) / denom);
+      blue = (uint8_t)(((uint64_t)blue * numer) / denom);
+      white = (uint8_t)(((uint64_t)white * numer) / denom);
+    }
+
+    esp_err_t ret =
+        led_strip_set_pixel_rgbw(led_strip, i, red, green, blue, white);
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(ret));
+      continue;
+    }
+    led_changed_flags[i] = false;
+  }
+
+  s_led_rail_scaled = scale;
+}
+
 /**
  * @brief Commit all pending LED changes atomically with watchdog safety
  * This function ensures all LED updates are sent to hardware in one critical
@@ -3124,38 +3314,7 @@ static void led_commit_pending_changes(void) {
   ESP_LOGD(TAG, "Committing %lu LED changes...", changed_count);
 
   // NO CRITICAL SECTION - let led_strip driver handle timing internally
-  // Update ONLY changed LEDs - much more efficient
-  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    if (!led_changed_flags[i])
-      continue;
-
-    // Watchdog reset every N LEDs for large updates (only if registered)
-    if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
-      wdt_ret = led_task_wdt_reset_safe();
-      if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-        // Task not registered with TWDT yet - this is normal during startup
-      }
-    }
-
-    uint32_t color = led_pending_changes[i];
-    uint8_t red = (color >> 16) & 0xFF;
-    uint8_t green = (color >> 8) & 0xFF;
-    uint8_t blue = color & 0xFF;
-
-    // Apply global brightness scaling
-    if (global_brightness < 100) {
-      red = (red * global_brightness) / 100;
-      green = (green * global_brightness) / 100;
-      blue = (blue * global_brightness) / 100;
-    }
-
-    esp_err_t ret = led_strip_set_pixel(led_strip, i, red, green, blue);
-    if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(ret));
-      continue;
-    }
-    led_changed_flags[i] = false;
-  }
+  led_write_budgeted_pixels();
 
   // Final watchdog reset before refresh (only if registered)
   wdt_ret = led_task_wdt_reset_safe();
@@ -3246,38 +3405,7 @@ static void led_privileged_batch_commit(void) {
 
   ESP_LOGD(TAG, "Privileged batch commit: %lu LED changes", changed_count);
 
-  // Optimized batch update with watchdog safety
-  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    if (!led_changed_flags[i])
-      continue;
-
-    // Watchdog reset every N LEDs for large updates
-    if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
-      wdt_ret = led_task_wdt_reset_safe();
-      if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-        // Task not registered with TWDT yet - this is normal during startup
-      }
-    }
-
-    uint32_t color = led_pending_changes[i];
-    uint8_t red = (color >> 16) & 0xFF;
-    uint8_t green = (color >> 8) & 0xFF;
-    uint8_t blue = color & 0xFF;
-
-    // Apply global brightness scaling
-    if (global_brightness < 100) {
-      red = (red * global_brightness) / 100;
-      green = (green * global_brightness) / 100;
-      blue = (blue * global_brightness) / 100;
-    }
-
-    esp_err_t ret = led_strip_set_pixel(led_strip, i, red, green, blue);
-    if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(ret));
-      continue;
-    }
-    led_changed_flags[i] = false;
-  }
+  led_write_budgeted_pixels();
 
   // Final watchdog reset before refresh
   wdt_ret = led_task_wdt_reset_safe();

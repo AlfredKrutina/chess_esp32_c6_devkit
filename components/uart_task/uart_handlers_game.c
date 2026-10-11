@@ -11,7 +11,7 @@
 #include "game_task.h"
 #include "led_task.h"
 #include "led_mapping.h"
-#include "../matrix_task/include/matrix_task.h"
+#include "../squares_task/include/squares_task.h"
 #include "../timer_system/include/timer_system.h"
 
 #include "esp_log.h"
@@ -202,8 +202,8 @@ command_result_t uart_cmd_matrixtest(const char *args) {
       "═══════════════════════════════════════════════════════════════");
 
   // Get current matrix state
-  uint8_t matrix_state[64];
-  matrix_get_state(matrix_state);
+  uint8_t squares_state[64];
+  squares_get_state(squares_state);
 
   uart_send_formatted("📊 Current Matrix State:");
   uart_send_formatted("");
@@ -217,7 +217,7 @@ command_result_t uart_cmd_matrixtest(const char *args) {
 
     for (int col = 0; col < 8; col++) {
       int index = row * 8 + col;
-      if (matrix_state[index]) {
+      if (squares_state[index]) {
         ptr += sprintf(ptr, "[P] ");
       } else {
         ptr += sprintf(ptr, "[ ] ");
@@ -238,10 +238,10 @@ command_result_t uart_cmd_matrixtest(const char *args) {
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
       int index = row * 8 + col;
-      if (matrix_state[index]) {
+      if (squares_state[index]) {
         piece_count++;
         char notation[4];
-        matrix_square_to_notation(index, notation);
+        squares_square_to_notation(index, notation);
         pos_ptr += sprintf(pos_ptr, "%s ", notation);
       }
     }
@@ -783,12 +783,12 @@ command_result_t uart_cmd_game_reset(const char *args) {
 command_result_t uart_cmd_guard_clear(const char *args) {
   (void)args;
 
-  if (!game_is_matrix_guard_active() && !matrix_is_guard_mode_active()) {
+  if (!game_is_squares_guard_active() && !squares_is_guard_mode_active()) {
     uart_send_formatted("Matrix guard is not active");
     return CMD_SUCCESS;
   }
 
-  game_force_clear_matrix_guard();
+  game_force_clear_squares_guard();
   uart_send_formatted(
       "Matrix guard cleared (both layers). Verify physical board matches logic.");
   return CMD_SUCCESS;

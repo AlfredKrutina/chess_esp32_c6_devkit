@@ -96,6 +96,7 @@
  */
 
 #include "button_task.h"
+#include "button_gesture.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_system.h"
@@ -107,6 +108,7 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "freertos_chess.h"
+#include "task_wdt.h"
 #include "led_task_simple.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -115,38 +117,6 @@
 #include <inttypes.h>
 
 static const char *TAG = "BUTTON_TASK";
-
-// ============================================================================
-// WDT WRAPPER FUNCTIONS
-// ============================================================================
-
-/**
- * @brief Safe WDT reset with WARNING instead of ERROR logging for
- * ESP_ERR_NOT_FOUND
- *
- * @return ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered
- * (WARNING only)
- *
- * @details
- * The function is used to safely reset the watchdog timer during button operation.
- * Prevents startup errors when the task is not yet registered.
- */
-static esp_err_t button_task_wdt_reset_safe(void) {
-  esp_err_t ret = esp_task_wdt_reset();
-
-  if (ret == ESP_ERR_NOT_FOUND) {
-    // Log in as WARNING instead of ERROR - task not yet registered
-    ESP_LOGW(
-        TAG,
-        "WDT reset: task not registered yet (this is normal during startup)");
-    return ESP_OK; // Consider it a success for our purposes
-  } else if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "WDT reset failed: %s", esp_err_to_name(ret));
-    return ret;
-  }
-
-  return ESP_OK;
-}
 
 // ============================================================================
 // LOKALNI PROMENNE A KONSTANTY
@@ -281,7 +251,13 @@ void button_scan_all(void) {
           BUTTON_BISHOP, // MATRIX_COL_2
           BUTTON_KNIGHT  // MATRIX_COL_3
       };
-      current_state = (gpio_get_level(promotion_pins[i]) == 0);
+      /* On the V2 PCB these columns are NRST outputs. A low reset must not
+       * look like a promotion press. */
+      if (chess_gpio_pin_is_stm32_nrst_output((int)promotion_pins[i])) {
+        current_state = false;
+      } else {
+        current_state = (gpio_get_level(promotion_pins[i]) == 0);
+      }
 
     } else {
       // button_id 4-7: No physical buttons (only LED indications)
@@ -601,6 +577,8 @@ void button_task_start(void *pvParameters) {
 
   task_running = true;
 
+  button_gesture_init();
+
   // Initialize button states
   button_reset_all();
 
@@ -610,7 +588,7 @@ void button_task_start(void *pvParameters) {
 
   for (;;) {
     // CRITICAL: Reset watchdog for button task in every iteration
-    esp_err_t wdt_ret = button_task_wdt_reset_safe();
+    esp_err_t wdt_ret = chess_task_wdt_reset_safe(TAG);
     if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
       // Task not registered with TWDT yet - this is normal during startup
     }
@@ -627,6 +605,7 @@ void button_task_start(void *pvParameters) {
     // Button scanning is now handled by FreeRTOS timer
     // This task only processes commands and events
     button_process_events();
+    button_gesture_poll();
 
     // Periodic status update - reduced frequency for cleaner UART
     if (loop_count % 100000 == 0) { // Every 100000 loops (500 seconds)

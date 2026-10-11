@@ -63,7 +63,7 @@ import 'app_localizations_en.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('cs')
+    Locale('cs'),
   ];
 
   /// No description provided for @appTitle.
@@ -119,13 +119,13 @@ abstract class AppLocalizations {
   /// No description provided for @navPuzzle.
   ///
   /// In en, this message translates to:
-  /// **'Puzzles'**
+  /// **'Puzzle'**
   String get navPuzzle;
 
   /// No description provided for @navProgress.
   ///
   /// In en, this message translates to:
-  /// **'Training'**
+  /// **'Progress'**
   String get navProgress;
 
   /// No description provided for @navSettings.
@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboard4Body.
   ///
   /// In en, this message translates to:
-  /// **'On Play, tap New game and pick a time control. Flip the board (White or Black on bottom) from Game controls or Settings.'**
+  /// **'On Play, open New game and pick a time control. Flip the board (White or Black on bottom) from Game controls or Settings.'**
   String get onboard4Body;
 
   /// No description provided for @onboard5Title.
@@ -269,8 +269,38 @@ abstract class AppLocalizations {
   /// No description provided for @netNotOnWifiBody.
   ///
   /// In en, this message translates to:
-  /// **'Cloud requests (chess-api, Lichess) usually work over any internet connection your device has (Wi‑Fi or cellular). To open the board’s HTTP API on a LAN IP, this device typically needs Wi‑Fi on the same network as the board. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, use another connection with internet, or dual‑stack (Wi‑Fi + cellular) if your OS allows. The app cannot force traffic off Wi‑Fi while Wi‑Fi is the default route.'**
+  /// **'chess-api usually works over mobile data. To open the board’s HTTP API on a LAN IP, the phone typically needs Wi‑Fi on the same network. If you are only on the board’s hotspot without internet, DNS for chess-api / Lichess may fail — temporarily disable that Wi‑Fi, enable mobile data, or use dual‑stack (Wi‑Fi + cellular data) if your OS allows. The app cannot force traffic to cellular while Wi‑Fi is the default route.'**
   String get netNotOnWifiBody;
+
+  /// No description provided for @connBleMobileDataPathSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Board link: Bluetooth. Cloud eval (chess-api, fallbacks) uses the internet — usually mobile data right now. Home Wi‑Fi to the board is not required.'**
+  String get connBleMobileDataPathSnack;
+
+  /// No description provided for @statusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get statusConnected;
+
+  /// No description provided for @statusConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get statusConnecting;
+
+  /// No description provided for @statusDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnected'**
+  String get statusDisconnected;
+
+  /// No description provided for @statusBoardNotResponding.
+  ///
+  /// In en, this message translates to:
+  /// **'Board not responding'**
+  String get statusBoardNotResponding;
 
   /// No description provided for @errInvalidBoardUrl.
   ///
@@ -278,47 +308,11 @@ abstract class AppLocalizations {
   /// **'Invalid board URL — hostname missing. Use http://192.168.4.1 or your board STA IP.'**
   String get errInvalidBoardUrl;
 
-  /// No description provided for @errWifiIpThirdOctetBlocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Address {host} is blocked by your Wi‑Fi third-octet filter. Change the list under Advanced connection, enter another URL, or adjust DHCP on your router so the board avoids that subnet.'**
-  String errWifiIpThirdOctetBlocked(String host);
-
-  /// No description provided for @errBoardSnapshotUnreachable.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not load the board snapshot over Wi‑Fi. Check the URL and network, or connect via Bluetooth.'**
-  String get errBoardSnapshotUnreachable;
-
   /// No description provided for @errNoSavedBle.
   ///
   /// In en, this message translates to:
   /// **'No saved Bluetooth board. Open Board discovery and pair your CZECHMATE board.'**
   String get errNoSavedBle;
-
-  /// No description provided for @errBleHostUnsupported.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth LE is not available in this app build (Windows desktop). Connect via Wi‑Fi: use Settings → Connection and enter your board URL, or use the Android / iOS app for BLE.'**
-  String get errBleHostUnsupported;
-
-  /// No description provided for @discoveryDesktopBleUnavailableTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth scan not available here'**
-  String get discoveryDesktopBleUnavailableTitle;
-
-  /// No description provided for @discoveryDesktopBleUnavailableBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This Windows build does not ship a Bluetooth Low Energy stack for the board. Use Wi‑Fi instead: open Advanced below or Settings → Connection and enter the board HTTP URL on your LAN. For BLE pairing and scan, use the Android or iOS app.'**
-  String get discoveryDesktopBleUnavailableBody;
-
-  /// No description provided for @settingsBleDesktopHint.
-  ///
-  /// In en, this message translates to:
-  /// **'On Windows, connect via Wi‑Fi URL (below). BLE discovery is not available in this build.'**
-  String get settingsBleDesktopHint;
 
   /// No description provided for @errDemoNoSnapshot.
   ///
@@ -341,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @errOtaHttps.
   ///
   /// In en, this message translates to:
-  /// **'OTA URL must start with https:// (internet) or http:// (e.g. this device on the board hotspot).'**
+  /// **'OTA URL must start with https:// (internet) or http:// (e.g. phone on board hotspot).'**
   String get errOtaHttps;
 
   /// No description provided for @errOtaBleTransport.
@@ -659,8 +653,20 @@ abstract class AppLocalizations {
   /// No description provided for @reportExportAdvancedSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Transparency, which sections appear, and their order. Shape comes from the layout thumbnails above.'**
+  /// **'Canvas size, transparency, and which sections appear on the image.'**
   String get reportExportAdvancedSubtitle;
+
+  /// No description provided for @discoveryHelpConnectingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help connecting?'**
+  String get discoveryHelpConnectingTitle;
+
+  /// No description provided for @discoveryHelpConnectingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup steps and scanning tips'**
+  String get discoveryHelpConnectingSubtitle;
 
   /// No description provided for @reportSharePreparing.
   ///
@@ -689,7 +695,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportSummaryCopiedSnack.
   ///
   /// In en, this message translates to:
-  /// **'Copied — paste into another app.'**
+  /// **'Copied — open Instagram or Messages and paste.'**
   String get reportSummaryCopiedSnack;
 
   /// No description provided for @reportCopyImageFailed.
@@ -707,7 +713,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportCopyImageDesktopFallback.
   ///
   /// In en, this message translates to:
-  /// **'Sharing instead — full image clipboard works best on phones and tablets (iPhone & Android); on desktop, use Share.'**
+  /// **'Sharing instead — full image clipboard works best on iPhone & Android.'**
   String get reportCopyImageDesktopFallback;
 
   /// No description provided for @reportExportSectionOrderTitle.
@@ -719,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportExportSectionOrderSubtitle.
   ///
   /// In en, this message translates to:
-  /// **''**
+  /// **'Drag to reorder blocks on the shared image — same idea as coach AI priority.'**
   String get reportExportSectionOrderSubtitle;
 
   /// No description provided for @reportExportBlockRecap.
@@ -785,20 +791,8 @@ abstract class AppLocalizations {
   /// No description provided for @reportExportAppearanceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Choose a layout below — the preview updates. Chart colors and Advanced options stay available.'**
+  /// **'Choose layout, background, and which sections appear on the shared PNG. The preview matches the export.'**
   String get reportExportAppearanceSubtitle;
-
-  /// No description provided for @reportExportStylePickHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap a layout to match how you want to share (feed card, square, story, or wide).'**
-  String get reportExportStylePickHint;
-
-  /// No description provided for @reportChartPaletteChoiceHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Preset affects eval + timing charts in Analysis and exports. Custom opens labeled rows for each chart element.'**
-  String get reportChartPaletteChoiceHint;
 
   /// No description provided for @reportExportAspectRatio.
   ///
@@ -985,18 +979,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Story hero'**
   String get reportExportPresetStory;
-
-  /// No description provided for @reportExportThumbWideLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Wide'**
-  String get reportExportThumbWideLabel;
-
-  /// No description provided for @reportExportThumbWideAspect.
-  ///
-  /// In en, this message translates to:
-  /// **'16∶9'**
-  String get reportExportThumbWideAspect;
 
   /// No description provided for @reportExportShareGifRecap.
   ///
@@ -1244,18 +1226,6 @@ abstract class AppLocalizations {
   /// **'Game data stays on device unless you export or enable sync elsewhere.'**
   String get telemetryIcloudBody;
 
-  /// No description provided for @discoveryHelpConnectingTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Need help connecting?'**
-  String get discoveryHelpConnectingTitle;
-
-  /// No description provided for @discoveryHelpConnectingSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Setup steps and scanning tips'**
-  String get discoveryHelpConnectingSubtitle;
-
   /// No description provided for @discoveryTitle.
   ///
   /// In en, this message translates to:
@@ -1268,16 +1238,10 @@ abstract class AppLocalizations {
   /// **'Allow Bluetooth permissions in system settings to scan for BLE boards.'**
   String get discoveryBlePermissionAndroid;
 
-  /// No description provided for @discoveryBlePermissionDenied.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth access is required to scan for the board. Allow it in system Settings, then try again.'**
-  String get discoveryBlePermissionDenied;
-
   /// No description provided for @discoveryBluetoothNotReady.
   ///
   /// In en, this message translates to:
-  /// **'Bluetooth is not ready. Turn it on in Settings, wait a few seconds, then tap Find board again.'**
+  /// **'Bluetooth isn\'t ready. Turn it on in system settings, wait a few seconds, then try Find board again.'**
   String get discoveryBluetoothNotReady;
 
   /// No description provided for @discoveryBleScanFailed.
@@ -1301,13 +1265,13 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryFlowStep1.
   ///
   /// In en, this message translates to:
-  /// **'Turn on Bluetooth on this device.'**
+  /// **'Turn on Bluetooth on this phone.'**
   String get discoveryFlowStep1;
 
   /// No description provided for @discoveryFlowStep2.
   ///
   /// In en, this message translates to:
-  /// **'Tap Find board and pick your board from the list.'**
+  /// **'Choose Find board and pick your board from the list.'**
   String get discoveryFlowStep2;
 
   /// No description provided for @discoveryFlowStep3.
@@ -1343,7 +1307,7 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryRecoveryBulletHomeWifi.
   ///
   /// In en, this message translates to:
-  /// **'At home, your device and the board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.'**
+  /// **'At home, phone and board work best on the same Wi‑Fi for HTTP; away from home, Bluetooth alone is fine.'**
   String get discoveryRecoveryBulletHomeWifi;
 
   /// No description provided for @discoveryRecoveryBulletManual.
@@ -1547,14 +1511,8 @@ abstract class AppLocalizations {
   /// No description provided for @gameClearHintLeds.
   ///
   /// In en, this message translates to:
-  /// **'Hide board hint'**
+  /// **'Clear hint LEDs'**
   String get gameClearHintLeds;
-
-  /// No description provided for @gameHideBoardHintTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide board hint'**
-  String get gameHideBoardHintTooltip;
 
   /// No description provided for @gameNoSnapshotYet.
   ///
@@ -1679,7 +1637,7 @@ abstract class AppLocalizations {
   /// No description provided for @gameBestMoveSnack.
   ///
   /// In en, this message translates to:
-  /// **'Recommended move: {from} to {to}'**
+  /// **'Best move: {from}→{to}'**
   String gameBestMoveSnack(String from, String to);
 
   /// No description provided for @gameHintFailed.
@@ -1721,13 +1679,13 @@ abstract class AppLocalizations {
   /// No description provided for @gameMatrixGuardPaused.
   ///
   /// In en, this message translates to:
-  /// **'Game paused: align pieces on the highlighted squares ({squares}). Play resumes automatically when the board matches.'**
+  /// **'Align pieces using board LEDs{squares}. Play resumes when matched.'**
   String gameMatrixGuardPaused(String squares);
 
   /// No description provided for @gameMatrixGuardResync.
   ///
   /// In en, this message translates to:
-  /// **'After startup the physical board does not match the saved game. Align pieces on: {squares}.'**
+  /// **'Board mismatch after startup{squares}. Align pieces using LEDs.'**
   String gameMatrixGuardResync(String squares);
 
   /// No description provided for @gameMatrixGuardForceClear.
@@ -1745,13 +1703,13 @@ abstract class AppLocalizations {
   /// No description provided for @gameMatrixGuardForceClearSnack.
   ///
   /// In en, this message translates to:
-  /// **'Matrix guard cleared — verify the board matches the game'**
+  /// **'Play resumed — verify the board matches the game'**
   String get gameMatrixGuardForceClearSnack;
 
   /// No description provided for @gameNoSnapshotBody.
   ///
   /// In en, this message translates to:
-  /// **'Tap top-left or below to find a board (Bluetooth). Wi‑Fi and more options are under advanced settings.'**
+  /// **'Find a board from the top-left or below (Bluetooth). Wi‑Fi and more options are in advanced settings.'**
   String get gameNoSnapshotBody;
 
   /// No description provided for @gameBackToPanelTooltip.
@@ -1805,7 +1763,7 @@ abstract class AppLocalizations {
   /// No description provided for @gameDesktopPlaySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Tap the indicator top-left to manage connection (Wi‑Fi, Bluetooth, mock) — same as iOS.'**
+  /// **'Use the top-left indicator to manage connection (Wi‑Fi, Bluetooth, mock) — same as on iPhone.'**
   String get gameDesktopPlaySubtitle;
 
   /// No description provided for @stockfishEvalFailedSnack.
@@ -1829,7 +1787,7 @@ abstract class AppLocalizations {
   /// No description provided for @firmwareDialogHttpsNote.
   ///
   /// In en, this message translates to:
-  /// **'The board downloads over HTTPS (Wi‑Fi STA). CzechMate on this device only sends the link.'**
+  /// **'The board downloads over HTTPS (Wi‑Fi STA). The phone only sends the link.'**
   String get firmwareDialogHttpsNote;
 
   /// No description provided for @firmwareTurnOffReminders.
@@ -1895,62 +1853,8 @@ abstract class AppLocalizations {
   /// No description provided for @discoveryAdvancedSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Wi‑Fi address, saved Bluetooth, one-shot transport'**
+  /// **'Wi‑Fi address, link preference, saved Bluetooth'**
   String get discoveryAdvancedSubtitle;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Wi‑Fi IP filter (third octet)'**
-  String get discoveryAdvancedBlockedOctetsTitle;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsBody.
-  ///
-  /// In en, this message translates to:
-  /// **'The board stores this list in NVS and rejects DHCP leases whose IPv4 third octet matches (disconnect + retry). CzechMate mirrors the same filter for URLs. Values are pushed over encrypted Bluetooth when you save or connect via BLE — the firmware does not ship with a blocklist until the app sends one. Example: 88 rejects every x.x.88.x. Empty field disables blocking on both sides. Until you save anything else, the app defaults to 88.'**
-  String get discoveryAdvancedBlockedOctetsBody;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Blocked third octets (comma-separated)'**
-  String get discoveryAdvancedBlockedOctetsLabel;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsHint.
-  ///
-  /// In en, this message translates to:
-  /// **'e.g. 88 or 88,100'**
-  String get discoveryAdvancedBlockedOctetsHint;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsSave.
-  ///
-  /// In en, this message translates to:
-  /// **'Save filter'**
-  String get discoveryAdvancedBlockedOctetsSave;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsReset.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset to default (88)'**
-  String get discoveryAdvancedBlockedOctetsReset;
-
-  /// No description provided for @discoveryAdvancedBlockedOctetsSavedSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'Wi‑Fi IP filter saved'**
-  String get discoveryAdvancedBlockedOctetsSavedSnack;
-
-  /// No description provided for @discoveryTransportAdvancedExplanation.
-  ///
-  /// In en, this message translates to:
-  /// **'The app defaults to automatic routing (Bluetooth first, then Wi‑Fi when the board answers over HTTP). To force just one upcoming connection over Wi‑Fi or Bluetooth, use Settings → Board connection → Advanced — it always returns to automatic after that attempt finishes.'**
-  String get discoveryTransportAdvancedExplanation;
-
-  /// No description provided for @discoveryOpenTransportSettingsButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Open connection settings'**
-  String get discoveryOpenTransportSettingsButton;
 
   /// No description provided for @discoveryConnectionModeHeading.
   ///
@@ -2234,12 +2138,6 @@ abstract class AppLocalizations {
   /// **'Default URL, connection mode, saved BLE'**
   String get settingsAdvancedConnectionSubtitle;
 
-  /// No description provided for @settingsAdvancedConnectionSubtitleV2.
-  ///
-  /// In en, this message translates to:
-  /// **'Default URL, next connection override, saved BLE'**
-  String get settingsAdvancedConnectionSubtitleV2;
-
   /// No description provided for @settingsReconnectingBle.
   ///
   /// In en, this message translates to:
@@ -2281,48 +2179,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Auto (BLE → Wi‑Fi)'**
   String get settingsConnectionModeAutoBleWifi;
-
-  /// No description provided for @settingsNextConnectionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Next connection (one-shot)'**
-  String get settingsNextConnectionTitle;
-
-  /// No description provided for @settingsNextConnectionIntro.
-  ///
-  /// In en, this message translates to:
-  /// **'Default is automatic. These apply only to the next connect attempt (Find board, reconnect, or resume), then the app returns to automatic so nothing stays stuck.'**
-  String get settingsNextConnectionIntro;
-
-  /// No description provided for @settingsNextConnectionWifiOnceButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Next: Wi‑Fi only'**
-  String get settingsNextConnectionWifiOnceButton;
-
-  /// No description provided for @settingsNextConnectionBleOnceButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Next: Bluetooth only'**
-  String get settingsNextConnectionBleOnceButton;
-
-  /// No description provided for @settingsNextConnectionUseAuto.
-  ///
-  /// In en, this message translates to:
-  /// **'Use automatic'**
-  String get settingsNextConnectionUseAuto;
-
-  /// No description provided for @settingsNextConnectionActiveWifiOnce.
-  ///
-  /// In en, this message translates to:
-  /// **'Next attempt will skip Bluetooth and use saved Wi‑Fi URL only.'**
-  String get settingsNextConnectionActiveWifiOnce;
-
-  /// No description provided for @settingsNextConnectionActiveBleOnce.
-  ///
-  /// In en, this message translates to:
-  /// **'Next attempt keeps Bluetooth and will not hand off to Wi‑Fi automatically.'**
-  String get settingsNextConnectionActiveBleOnce;
 
   /// No description provided for @settingsDefaultBoardUrl.
   ///
@@ -2402,54 +2258,6 @@ abstract class AppLocalizations {
   /// **'Reconnect Wi‑Fi session after change'**
   String get settingsWebSocketSubtitle;
 
-  /// No description provided for @settingsAppFactoryResetTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset app on this device'**
-  String get settingsAppFactoryResetTitle;
-
-  /// No description provided for @settingsAppFactoryResetSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Restores the app to its defaults and clears saved data on this device. Your chessboard is not changed.'**
-  String get settingsAppFactoryResetSubtitle;
-
-  /// No description provided for @settingsAppFactoryResetButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset app data'**
-  String get settingsAppFactoryResetButton;
-
-  /// No description provided for @settingsAppFactoryResetConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset now?'**
-  String get settingsAppFactoryResetConfirmTitle;
-
-  /// No description provided for @settingsAppFactoryResetConfirmBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This cannot be undone. You will reconnect to the board and re-enter any API keys.'**
-  String get settingsAppFactoryResetConfirmBody;
-
-  /// No description provided for @settingsAppFactoryResetConfirmAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Reset'**
-  String get settingsAppFactoryResetConfirmAction;
-
-  /// No description provided for @settingsAppFactoryResetDoneSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'App data was cleared.'**
-  String get settingsAppFactoryResetDoneSnack;
-
-  /// No description provided for @settingsAppFactoryResetRestartHint.
-  ///
-  /// In en, this message translates to:
-  /// **'If anything looks wrong, fully quit and reopen the app.'**
-  String get settingsAppFactoryResetRestartHint;
-
   /// No description provided for @transportShortDemo.
   ///
   /// In en, this message translates to:
@@ -2473,7 +2281,10 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{layout} · {zoom} · {style}'**
   String settingsBoardAppearanceSubtitle(
-      String layout, String zoom, String style);
+    String layout,
+    String zoom,
+    String style,
+  );
 
   /// No description provided for @settingsLayoutBoardOnlyShort.
   ///
@@ -2919,18 +2730,6 @@ abstract class AppLocalizations {
   /// **'sk-…'**
   String get settingsCoachOpenAiKeyHint;
 
-  /// No description provided for @settingsCoachOpenAiFieldLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'API key'**
-  String get settingsCoachOpenAiFieldLabel;
-
-  /// No description provided for @settingsCoachOpenAiKeyTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Open the OpenAI keys page'**
-  String get settingsCoachOpenAiKeyTooltip;
-
   /// No description provided for @settingsCoachOpenAiModelHint.
   ///
   /// In en, this message translates to:
@@ -3021,12 +2820,6 @@ abstract class AppLocalizations {
   /// **'Developer mode unlocked.'**
   String get settingsDeveloperModeUnlockedSnack;
 
-  /// No description provided for @settingsDeveloperModeDisabledSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer mode turned off.'**
-  String get settingsDeveloperModeDisabledSnack;
-
   /// No description provided for @gameControlDisplaySection.
   ///
   /// In en, this message translates to:
@@ -3111,12 +2904,6 @@ abstract class AppLocalizations {
   /// **'Clock: off or unavailable'**
   String get timerUnavailable;
 
-  /// No description provided for @timerHiddenForPuzzleMode.
-  ///
-  /// In en, this message translates to:
-  /// **'The live game clock is hidden while you solve a puzzle or explore a position.'**
-  String get timerHiddenForPuzzleMode;
-
   /// No description provided for @timerWhiteShort.
   ///
   /// In en, this message translates to:
@@ -3135,12 +2922,6 @@ abstract class AppLocalizations {
   /// **'Write a question first, then Send.'**
   String get coachChatTypeFirst;
 
-  /// No description provided for @coachChatExplanationLevelLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Explanation depth'**
-  String get coachChatExplanationLevelLabel;
-
   /// No description provided for @coachChatHide.
   ///
   /// In en, this message translates to:
@@ -3150,7 +2931,7 @@ abstract class AppLocalizations {
   /// No description provided for @coachChatDismiss.
   ///
   /// In en, this message translates to:
-  /// **'Close'**
+  /// **'DISMISS'**
   String get coachChatDismiss;
 
   /// No description provided for @manualConnTitle.
@@ -3302,18 +3083,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Home Assistant & MQTT'**
   String get haMqttTitle;
-
-  /// No description provided for @haMqttFormLead.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the MQTT broker your board should use (often the same machine as Home Assistant).'**
-  String get haMqttFormLead;
-
-  /// No description provided for @haMqttSetupHelpLink.
-  ///
-  /// In en, this message translates to:
-  /// **'How do I set up MQTT and Home Assistant?'**
-  String get haMqttSetupHelpLink;
 
   /// No description provided for @haMqttSavedSnack.
   ///
@@ -3615,30 +3384,6 @@ abstract class AppLocalizations {
   /// **'New version {ver}'**
   String firmwareNewVersionChip(String ver);
 
-  /// No description provided for @firmwareDeveloperReflashChipTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Re-flash {ver} (developer)'**
-  String firmwareDeveloperReflashChipTitle(String ver);
-
-  /// No description provided for @firmwareDeveloperDowngradeChipTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Older build {ver} (developer)'**
-  String firmwareDeveloperDowngradeChipTitle(String ver);
-
-  /// No description provided for @firmwareDeveloperSameVersionBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer mode: manifest matches the board version — you can still download and flash the same build again (repair / verify).'**
-  String get firmwareDeveloperSameVersionBanner;
-
-  /// No description provided for @firmwareDeveloperOlderManifestBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer mode: this manifest is older than the board firmware. Downgrading can break compatibility or data — only proceed if you understand the risk.'**
-  String get firmwareDeveloperOlderManifestBanner;
-
   /// No description provided for @firmwareDownloadOnEspNote.
   ///
   /// In en, this message translates to:
@@ -3686,25 +3431,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved in app: v{ver} (~{mb} MB)'**
   String firmwareCachedInAppLine(String ver, String mb);
-
-  /// No description provided for @firmwareSavedFirmwareChipTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved firmware v{ver}'**
-  String firmwareSavedFirmwareChipTitle(String ver);
-
-  /// No description provided for @firmwareOfflineSavedFirmwareBanner.
-  ///
-  /// In en, this message translates to:
-  /// **'The live manifest could not be loaded. You can still flash the firmware file saved in this app.'**
-  String get firmwareOfflineSavedFirmwareBanner;
-
-  /// No description provided for @firmwareCachedDiffersFromManifestHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Firmware saved in the app is v{savedVer}; the manifest now lists v{remoteVer}. The saved file was kept — flash it whenever you are ready, or download again.'**
-  String firmwareCachedDiffersFromManifestHint(
-      String remoteVer, String savedVer);
 
   /// No description provided for @firmwareDownloadSavedSnack.
   ///
@@ -3784,12 +3510,6 @@ abstract class AppLocalizations {
   /// **'Keep CzechMate in the foreground and avoid locking the screen until the Bluetooth transfer finishes.'**
   String get firmwareBleOtaKeepForegroundWarning;
 
-  /// No description provided for @firmwareBleOtaApHotspotTip.
-  ///
-  /// In en, this message translates to:
-  /// **'If you upload over the board hotspot, join the board Wi‑Fi first so this device can reach http://192.168.4.1.'**
-  String get firmwareBleOtaApHotspotTip;
-
   /// No description provided for @firmwareBleOtaPausedReconnectDetail.
   ///
   /// In en, this message translates to:
@@ -3832,42 +3552,11 @@ abstract class AppLocalizations {
   /// **'OTA finished or connection dropped — the board may reboot.'**
   String get firmwareOtaFinishedMaybeRebootSnack;
 
-  /// No description provided for @firmwareOtaSuccessTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Firmware updated'**
-  String get firmwareOtaSuccessTitle;
-
-  /// No description provided for @firmwareOtaSuccessBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Installed build: {installedVer}.\n\nBoard version in the app: {reportedVer}.\n\nIf the chess board restarted, wait until it responds again or reconnect from Settings → Connection.'**
-  String firmwareOtaSuccessBody(String installedVer, String reportedVer);
-
   /// No description provided for @firmwareTileTitleUpdateAvailable.
   ///
   /// In en, this message translates to:
   /// **'Firmware — update available ({ver})'**
   String firmwareTileTitleUpdateAvailable(String ver);
-
-  /// No description provided for @firmwareOtaRollbackBannerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Previous firmware restored after failed boot'**
-  String get firmwareOtaRollbackBannerTitle;
-
-  /// No description provided for @firmwareOtaRollbackBannerBodyWithAttempt.
-  ///
-  /// In en, this message translates to:
-  /// **'The board is running {current} after the new image failed to start. Unsuccessful update ({attempt}) remains in slot {slot}. Install a fixed build when available.'**
-  String firmwareOtaRollbackBannerBodyWithAttempt(
-      String current, String slot, String attempt);
-
-  /// No description provided for @firmwareOtaRollbackBannerBodyNoAttempt.
-  ///
-  /// In en, this message translates to:
-  /// **'The board is running {current} after the new image failed to start. The unsuccessful image is in slot {slot}. Install a fixed build when available.'**
-  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot);
 
   /// No description provided for @firmwareTileTitleDefault.
   ///
@@ -3898,18 +3587,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If a newer version is on the server, ask again each day until you update or turn reminders off.'**
   String get firmwareDailyRemindersSubtitleLong;
-
-  /// No description provided for @firmwareDeveloperManifestSectionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer options'**
-  String get firmwareDeveloperManifestSectionTitle;
-
-  /// No description provided for @firmwareDeveloperManifestSectionBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Only change the manifest URL if you maintain a custom firmware feed. The app uses the official source by default.'**
-  String get firmwareDeveloperManifestSectionBody;
 
   /// No description provided for @firmwareManifestUrlLabel.
   ///
@@ -4043,35 +3720,11 @@ abstract class AppLocalizations {
   /// **'Firmware — GitHub build ({ver})'**
   String firmwareTileTitleGitBle(String ver);
 
-  /// No description provided for @firmwareTileTitleDeveloperReflash.
-  ///
-  /// In en, this message translates to:
-  /// **'Firmware — re-flash ({ver})'**
-  String firmwareTileTitleDeveloperReflash(String ver);
-
-  /// No description provided for @firmwareTileTitleDeveloperDowngrade.
-  ///
-  /// In en, this message translates to:
-  /// **'Firmware — older manifest ({ver})'**
-  String firmwareTileTitleDeveloperDowngrade(String ver);
-
   /// No description provided for @firmwareTileSubtitleBleGitOnly.
   ///
   /// In en, this message translates to:
   /// **'Bluetooth only — download the .bin to the app, then send via BLE or board hotspot HTTP.'**
   String get firmwareTileSubtitleBleGitOnly;
-
-  /// No description provided for @firmwareTileSubtitleDeveloperReflash.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer mode — manifest matches the board; open to download and flash the same build again.'**
-  String get firmwareTileSubtitleDeveloperReflash;
-
-  /// No description provided for @firmwareTileSubtitleDeveloperDowngrade.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer mode — manifest is older than the board; optional downgrade from this URL.'**
-  String get firmwareTileSubtitleDeveloperDowngrade;
 
   /// No description provided for @firmwareWifiBleProvisionTitle.
   ///
@@ -4204,18 +3857,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enable move evaluation to see quality scores.'**
   String get analysisChartDisabledSubtitle;
-
-  /// No description provided for @analysisChartJumpedToMove.
-  ///
-  /// In en, this message translates to:
-  /// **'Opened half-move {moveNumber} on Play.'**
-  String analysisChartJumpedToMove(int moveNumber);
-
-  /// No description provided for @analysisScoresheetEmpty.
-  ///
-  /// In en, this message translates to:
-  /// **'No moves yet.'**
-  String get analysisScoresheetEmpty;
 
   /// No description provided for @analysisEnableMoveEval.
   ///
@@ -4727,12 +4368,6 @@ abstract class AppLocalizations {
   /// **'Bluetooth connection failed. Turn Bluetooth on, stay near the board, and try again.'**
   String get userFacingErrBle;
 
-  /// No description provided for @userFacingErrBlePairingReset.
-  ///
-  /// In en, this message translates to:
-  /// **'Bluetooth pairing no longer matches. iOS / iPadOS: Settings → Bluetooth → ⓘ next to the board → Forget This Device. Android: Bluetooth settings → your board → Forget / Unpair. If the board was factory-reset, clear its bond list too, then connect again from Find board.'**
-  String get userFacingErrBlePairingReset;
-
   /// No description provided for @userFacingErrNetworkReach.
   ///
   /// In en, this message translates to:
@@ -4829,24 +4464,6 @@ abstract class AppLocalizations {
   /// **'HTTP error from the board. Check the board URL and connection mode.'**
   String get userFacingBoardHttpOther;
 
-  /// No description provided for @userFacingErrBoardUrlHostMissing.
-  ///
-  /// In en, this message translates to:
-  /// **'The board address is missing a host. In Settings, save a full URL such as http://192.168.4.1 on the same network as the board.'**
-  String get userFacingErrBoardUrlHostMissing;
-
-  /// No description provided for @puzzleMoreActionsTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'More actions'**
-  String get puzzleMoreActionsTooltip;
-
-  /// No description provided for @gameClockSectionLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Clock & board LEDs'**
-  String get gameClockSectionLabel;
-
   /// No description provided for @progressStatsCurrentMoves.
   ///
   /// In en, this message translates to:
@@ -4912,7 +4529,10 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{transport} · polling {pollState} · WS {wsState}'**
   String progressTransportDevDetail(
-      String transport, String pollState, String wsState);
+    String transport,
+    String pollState,
+    String wsState,
+  );
 
   /// No description provided for @progressTransportUserDetail.
   ///
@@ -5139,7 +4759,7 @@ abstract class AppLocalizations {
   /// No description provided for @newGameCustomTimeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Custom time'**
+  /// **'Custom time (type 14)'**
   String get newGameCustomTimeTitle;
 
   /// No description provided for @newGameCustomTimeSubtitle.
@@ -5187,25 +4807,19 @@ abstract class AppLocalizations {
   /// No description provided for @newGameSheetBody.
   ///
   /// In en, this message translates to:
-  /// **'Choose time control and board orientation.'**
+  /// **'Like on iOS: time control is sent to the board, then a new game starts.'**
   String get newGameSheetBody;
 
   /// No description provided for @newGameBoardViewSection.
   ///
   /// In en, this message translates to:
-  /// **'Board orientation'**
+  /// **'Board view (which color is at the bottom)'**
   String get newGameBoardViewSection;
-
-  /// No description provided for @newGameBoardViewInfoTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Board orientation'**
-  String get newGameBoardViewInfoTitle;
 
   /// No description provided for @newGameWhoStartsNote.
   ///
   /// In en, this message translates to:
-  /// **''**
+  /// **'Who starts is decided on the board / game rules; here you only flip the view (saved in Settings).'**
   String get newGameWhoStartsNote;
 
   /// No description provided for @newGameFirmwarePresets.
@@ -5628,6 +5242,12 @@ abstract class AppLocalizations {
   /// **'Confirm new game with LED button'**
   String get boardNvsConfirmNewGameLed;
 
+  /// No description provided for @boardNvsPhysicalTakeback.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical move takeback (board undo)'**
+  String get boardNvsPhysicalTakeback;
+
   /// No description provided for @boardNvsHintLimit.
   ///
   /// In en, this message translates to:
@@ -5855,7 +5475,13 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mode: {mode} · RGB({r},{g},{b}) · hint limit: {h} · auto-off: {t}s'**
   String lampBlockStatusSummary(
-      String mode, String r, String g, String b, String h, String t);
+    String mode,
+    String r,
+    String g,
+    String b,
+    String h,
+    String t,
+  );
 
   /// No description provided for @lampRgbHint.
   ///
@@ -5935,18 +5561,6 @@ abstract class AppLocalizations {
   /// **'Scenes'**
   String get lampStudioScenes;
 
-  /// No description provided for @lampStudioPresetColorsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Preset colors'**
-  String get lampStudioPresetColorsTitle;
-
-  /// No description provided for @lampStudioFineTuneSection.
-  ///
-  /// In en, this message translates to:
-  /// **'Fine-tune color'**
-  String get lampStudioFineTuneSection;
-
   /// No description provided for @lampStudioApplyToBoard.
   ///
   /// In en, this message translates to:
@@ -5994,18 +5608,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Auto shut-off timer saved.'**
   String get lampStudioTimerSavedOk;
-
-  /// No description provided for @lampStudioSelectedSwatchLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Current color'**
-  String get lampStudioSelectedSwatchLabel;
-
-  /// No description provided for @lampStudioDeveloperRgbTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer · RGB values'**
-  String get lampStudioDeveloperRgbTitle;
 
   /// No description provided for @lampStudioRgbLine.
   ///
@@ -6246,12 +5848,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error'**
   String get setupWizardErrGeneric;
-
-  /// No description provided for @setupWizardErrPhysicalMismatch.
-  ///
-  /// In en, this message translates to:
-  /// **'The board still reports setup mode, or the physical pieces do not match — adjust pieces on the highlighted squares and try again.'**
-  String get setupWizardErrPhysicalMismatch;
 
   /// No description provided for @setupWizardTitleStandard.
   ///
@@ -6580,7 +6176,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsHaMqttOpenButton.
   ///
   /// In en, this message translates to:
-  /// **'MQTT & Home Assistant'**
+  /// **'Home Assistant & MQTT (guide + form)'**
   String get settingsHaMqttOpenButton;
 
   /// No description provided for @settingsTileBoardLightTitle.
@@ -6697,12 +6293,6 @@ abstract class AppLocalizations {
   /// **'You’ll join the board’s network in Settings when connecting — no extra step here.'**
   String get onboardingPermWifiBodyIos;
 
-  /// No description provided for @onboardingPermWifiBodyDesktop.
-  ///
-  /// In en, this message translates to:
-  /// **'Reading the current Wi‑Fi name often isn’t available on desktop — type the SSID manually when setting up the board. Local HTTP to the board still uses your saved URL.'**
-  String get onboardingPermWifiBodyDesktop;
-
   /// No description provided for @onboardingPermWifiAllow.
   ///
   /// In en, this message translates to:
@@ -6730,14 +6320,8 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingPermissionsDesktopBody.
   ///
   /// In en, this message translates to:
-  /// **'Allow Bluetooth when the system asks so you can scan for the board. Use Wi‑Fi / manual URL for HTTP.'**
+  /// **'Bluetooth and network are handled when you connect to the board from the app.'**
   String get onboardingPermissionsDesktopBody;
-
-  /// No description provided for @onboardingPermissionsDesktopWindowsBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This Windows build cannot use Bluetooth Low Energy to reach the board. Connect with Wi‑Fi only: enter your board’s HTTP address under Advanced / manual connection (for example http://192.168.4.1 on the board hotspot or your home LAN IP).'**
-  String get onboardingPermissionsDesktopWindowsBody;
 
   /// No description provided for @settingsNavChessPuzzles.
   ///
@@ -6787,12 +6371,6 @@ abstract class AppLocalizations {
   /// **'Developer diagnostics'**
   String get settingsNavDeveloperDiag;
 
-  /// No description provided for @settingsDiagnosticsBoardNvsLockedHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable developer mode in About (tap the version row or Settings title 7×) to open raw board NVS.'**
-  String get settingsDiagnosticsBoardNvsLockedHint;
-
   /// No description provided for @settingsTileAboutTitle.
   ///
   /// In en, this message translates to:
@@ -6814,57 +6392,8 @@ abstract class AppLocalizations {
   /// No description provided for @settingsAboutVersionLine.
   ///
   /// In en, this message translates to:
-  /// **'Version {version} ({build}) • Tap this row or “Settings” in the main settings title bar 7× (within about a second between taps) to unlock developer mode.'**
+  /// **'Version {version} ({build}) • Tap “Settings” in the title bar 7× to unlock developer mode.'**
   String settingsAboutVersionLine(String version, String build);
-
-  /// No description provided for @settingsAppUpdateBannerTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'App update available'**
-  String get settingsAppUpdateBannerTitle;
-
-  /// No description provided for @settingsAppUpdateBannerSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'You have {current}; the latest release is {latest}.'**
-  String settingsAppUpdateBannerSubtitle(String current, String latest);
-
-  /// No description provided for @settingsAppUpdateBannerSubtitleRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Your version ({current}) is below the minimum supported. Update to at least {requiredVersion}.'**
-  String settingsAppUpdateBannerSubtitleRequired(
-      String current, String requiredVersion);
-
-  /// No description provided for @settingsAppUpdateOpenDownloads.
-  ///
-  /// In en, this message translates to:
-  /// **'Open download page'**
-  String get settingsAppUpdateOpenDownloads;
-
-  /// No description provided for @settingsAboutAppUpdateLineTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'New app version'**
-  String get settingsAboutAppUpdateLineTitle;
-
-  /// No description provided for @settingsAboutAppUpdateLineBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Installed: {current}. Latest: {latest}.'**
-  String settingsAboutAppUpdateLineBody(String current, String latest);
-
-  /// No description provided for @settingsAboutDeveloperModeTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Developer mode'**
-  String get settingsAboutDeveloperModeTitle;
-
-  /// No description provided for @settingsAboutDeveloperModeSubtitleOn.
-  ///
-  /// In en, this message translates to:
-  /// **'Uncover advanced diagnostics and optional same-version OTA. Turn off to hide them again.'**
-  String get settingsAboutDeveloperModeSubtitleOn;
 
   /// No description provided for @settingsPrivacyTitle.
   ///
@@ -6902,17 +6431,17 @@ abstract class AppLocalizations {
   /// **'Phones and tablets — iPhone: Live Activity (Lock Screen / Dynamic Island, iOS 16.2+). Android: ongoing notification (Android 13+ may require enabling notifications). Enable from the game screen. (Not used on desktop.)'**
   String get settingsLiveActivitySubtitle;
 
-  /// No description provided for @settingsLiveActivityIosDisabledSnack.
-  ///
-  /// In en, this message translates to:
-  /// **'Live Activities are disabled system-wide. Enable them in Settings → czechmate → Live Activities.'**
-  String get settingsLiveActivityIosDisabledSnack;
-
   /// No description provided for @settingsHomeScreenWidgetHint.
   ///
   /// In en, this message translates to:
   /// **'Where your platform supports home-screen or desktop widgets, add CzechMate from the widget gallery for a quick snapshot when the app is in the background (alongside Live Activity on supported iPhones).'**
   String get settingsHomeScreenWidgetHint;
+
+  /// No description provided for @settingsLiveActivityIosDisabledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Activities are disabled system-wide. Enable them in Settings → czechmate → Live Activities.'**
+  String get settingsLiveActivityIosDisabledSnack;
 
   /// No description provided for @settingsWearMirrorTitle.
   ///
@@ -7241,26 +6770,8 @@ abstract class AppLocalizations {
   /// No description provided for @analysisClearEvalData.
   ///
   /// In en, this message translates to:
-  /// **'Clear chart and evaluations'**
+  /// **'Clear chart and saved move evaluations'**
   String get analysisClearEvalData;
-
-  /// No description provided for @analysisClearEvalConfirmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Clear analysis data?'**
-  String get analysisClearEvalConfirmTitle;
-
-  /// No description provided for @analysisClearEvalConfirmBody.
-  ///
-  /// In en, this message translates to:
-  /// **'This removes the evaluation chart and saved move-quality scores. You cannot undo this.'**
-  String get analysisClearEvalConfirmBody;
-
-  /// No description provided for @analysisClearEvalConfirmAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Clear'**
-  String get analysisClearEvalConfirmAction;
 
   /// No description provided for @analysisMoveQualitySideLast3.
   ///
@@ -7303,7 +6814,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1) {f1}→{t1} · 2) {f2}→{t2}{suffix}'**
   String analysisSecondLineDualMoves(
-      String f1, String t1, String f2, String t2, String suffix);
+    String f1,
+    String t1,
+    String f2,
+    String t2,
+    String suffix,
+  );
 
   /// No description provided for @analysisSecondLineEvalApprox.
   ///
@@ -7322,7 +6838,11 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Best move: {from}–{to}{evalSuffix}{extra}'**
   String analysisBestMoveLine(
-      String from, String to, String evalSuffix, String extra);
+    String from,
+    String to,
+    String evalSuffix,
+    String extra,
+  );
 
   /// No description provided for @analysisAvgLossCp.
   ///
@@ -7389,36 +6909,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nice! Correct line.'**
   String get puzzleSuccessLine;
-
-  /// No description provided for @puzzleCelebrationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Great job!'**
-  String get puzzleCelebrationTitle;
-
-  /// No description provided for @puzzleCelebrationBodyPlain.
-  ///
-  /// In en, this message translates to:
-  /// **'You solved the puzzle.'**
-  String get puzzleCelebrationBodyPlain;
-
-  /// No description provided for @puzzleCelebrationBodyElo.
-  ///
-  /// In en, this message translates to:
-  /// **'You solved the puzzle — rating +{delta}.'**
-  String puzzleCelebrationBodyElo(int delta);
-
-  /// No description provided for @puzzleSaveNeedPosition.
-  ///
-  /// In en, this message translates to:
-  /// **'Open this puzzle on the Play tab first so the position is loaded, then save it here.'**
-  String get puzzleSaveNeedPosition;
-
-  /// No description provided for @puzzleLibSavedPositionCaption.
-  ///
-  /// In en, this message translates to:
-  /// **'Current saved position (technical)'**
-  String get puzzleLibSavedPositionCaption;
 
   /// No description provided for @puzzleWrongResetting.
   ///
@@ -7537,14 +7027,8 @@ abstract class AppLocalizations {
   /// No description provided for @coachSetupBannerBody.
   ///
   /// In en, this message translates to:
-  /// **'The AI coach isn’t set up yet. Add at least one cloud provider and your API key in settings so it can answer.'**
+  /// **'Your coach priority list is non-empty, but no provider has credentials yet. Open Settings → Coach & AI and fill API keys (or Ollama URL) for at least one listed provider.'**
   String get coachSetupBannerBody;
-
-  /// No description provided for @coachSetupBannerAction.
-  ///
-  /// In en, this message translates to:
-  /// **'Open Coach settings'**
-  String get coachSetupBannerAction;
 
   /// No description provided for @coachErrorSomethingWrong.
   ///
@@ -7652,8 +7136,9 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }
