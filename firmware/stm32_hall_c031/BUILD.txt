@@ -1,15 +1,17 @@
 Build (from this directory):
   make
 
-NUCLEO-C031C6 (USER B1 → green LD4 at MCU; LD1 at USB is ST-LINK, does not drive STM32):
-  make BOARD_NUCLEO_C031=1
+NUCLEO-C031C6 development target (32 KiB flash, STM32C031C6 MCU; USER B1 → green LD4 at MCU; LD1 at USB is ST-LINK):
+  make BOARD_NUCLEO_C031=1 FLASH_KB=32
 
-Flash size (schema uses STM32C031F4 = 16 KiB → required):
-  make FLASH_KB=16
+Flash size configuration:
+- Development target (NUCLEO-C031C6, 32 KiB flash):
+    make BOARD_NUCLEO_C031=1 FLASH_KB=32
+  or default:
+    make
 
-32 KiB (e.g. STM32C031F6 / C6 on Nucleo):
-  make
-  or explicitly: make FLASH_KB=32
+- Production target (STM32C031F4, 16 KiB flash in TSSOP20 package; 'F4' denotes TSSOP20/16KB in STM32C0 series, not an STM32F4 chip):
+    make FLASH_KB=16
 
 7-bit I2C segment address (default 0x30 = segment 0):
   make HALL_I2C_OWNADDR7BIT=0x31

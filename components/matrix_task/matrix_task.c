@@ -3,6 +3,12 @@
  * @brief Matrix Scanning Task - Detection of physical figures on a chest of drawers
  *
  * @details
+ * This file has two compile-time inputs selected by CONFIG_CHESS_MATRIX_INPUT:
+ * - GPIO reed matrix (default): row/column multiplex scan.
+ * - I2C Hall (CONFIG_CHESS_MATRIX_INPUT_I2C_HALL): reads raw ADC pairs from
+ *   4x STM32 slaves and collapses each pair to occupancy 0/1. Piece type and
+ *   color are NOT implemented in this path.
+ *
  * =============================================================================
  * WHAT DID THIS FILE DO?
  * =============================================================================

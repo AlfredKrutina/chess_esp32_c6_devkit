@@ -45,13 +45,24 @@ idf.py -p /dev/ttyUSB0 monitor
 
 ## When something fails — first steps
 
-### Hardware
+### Hardware (V1 Reed Matrix)
 
 | Problem | What to check |
 |---------|-----------------|
 | **LEDs off** | 5 V supply for the strip, common ground with ESP, data on **GPIO7** to DIN |
-| **Matrix sees nothing** | Reed wiring, pull-ups on columns (~10 kΩ), row outputs |
+| **Matrix sees nothing** | Reed wiring, pull-ups on columns (~10 kΩ), row outputs (see [hardware/v1-reed-matrix/README.md](../../hardware/v1-reed-matrix/README.md)) |
 | **Buttons** | 1N4148 diodes on all rows, polarity |
+
+### Hardware (V2 Hall Sensors & STM32 Subsystem)
+
+Detailed V2 architecture: [hardware/v2-hall-stm32/README.md](../../hardware/v2-hall-stm32/README.md) · Wiring and bootloader details: [WIRING_ESP_STM4.md](WIRING_ESP_STM4.md).
+
+| Problem | What to check |
+|---------|-----------------|
+| **I2C NACK on segment read** (`0x30`–`0x33`) | Verify bus wiring (SDA GPIO12, SCL GPIO13), 3.3 V power, and presence of **4.7 kΩ hardware pull-ups** to 3.3 V on SDA/SCL. Verify STM32 firmware is running (`hall_probe` log). |
+| **Bootloader GET_ID NACK** (`0x63`) | **BOOT0 must be HIGH** when NRST transitions LOW→HIGH. Verify BOOT0 line (GPIO14) is driven HIGH during the reset pulse. |
+| **Bootloader bus collision** | **Only ONE STM32 chip may have NRST released at a time** when communicating with the ST ROM bootloader at address `0x63`. All other STM32 chips must be held in reset (NRST held LOW) to avoid multi-slave bus contention. |
+| **Virgin STM32 fails auto-flash** | Log `STM32_AUTO: AUTO_USE_BOOT0 … BOOT0_GPIO=-1` indicates missing BOOT0 GPIO definition. In console, use `CLI STM32 PROBE 0 1` and `CLI STM32 FLASH_PART 0 stm32_fw 1` for manual diagnostic flash, followed by `CLI HALL PROBE 0`. |
 
 ### Software
 

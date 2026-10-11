@@ -1,5 +1,7 @@
 # CzechMate — namluvení k videím
 
+> **Poznámka k hardwaru a implementaci:** Tento scénář a namluvení slouží pro prezentační video zamýšlené finální verze V2 (včetně konceptu rozpoznávání typu figurky podle magnetických kódů). Aktuální firmware v repozitáři na fyzických deskách reportuje binární obsazenost polí (obsazeno/volno) a identita figurek se sleduje softwarově z tahů a pravidel. Samotný text namluvení níže zůstává v původní podobě pro potřeby dabingu videa.
+
 Stopáž zůstává stejná jako ve filmu: **30 fps**, Full HD. Časy jsou od začátku daného souboru. Mluv klidně, střední tempo, bez „moderátorského“ úsměvu. Mezi větami nech LED animaci doznět — nesnaž se ji překřičet.
 
 Verze `predstaveni.mp4` je bez popisků (jen logo na konci) a je určená pod tuhle stopu. `predstaveni_popisky.mp4` má stejný obraz a krátké titulky, kdyby šlo video bez zvuku.

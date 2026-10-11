@@ -2,9 +2,9 @@
 
 **Product site:** [alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html)
 
-Smart physical chess — real pieces, lights on the squares, and an app that teaches. Firmware on ESP32-C6, Hall-based piece recognition on V2, Flutter client in `flutter_czechmate/`.
+Smart physical chess — real pieces, lights on the squares, and an app that teaches. Firmware on ESP32-C6, next-generation Hall architecture for V2, Flutter client in `flutter_czechmate/`.
 
-**Firmware in this repo:** **1.8.0** on prototype **V1** (reed matrix — occupied / empty). **V2** uses **Hall sensors** and can tell **which piece type** sits on each square — [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md).
+**Firmware in this repo:** **1.8.0** on prototype **V1** (reed matrix — occupied / empty). **V2** uses **Hall sensors** with differential occupancy sensing in current firmware; automated piece type and color recognition is the design goal of the new version — see [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md) and [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md).
 
 **Download the app:** same [product page](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) · binaries on [GitHub Releases](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/releases/latest). **Windows:** no BLE scan — connect via Wi‑Fi URL ([docs/flutter/README.md](docs/flutter/README.md)). **iOS / iPad** support is in progress.
 
@@ -26,7 +26,7 @@ Longer notes (history, license): [PROJECT_NOTES.md](docs/reference/PROJECT_NOTES
 
 | Area | What you get |
 |------|----------------|
-| Piece sensing | **V1:** 8×8 reed — occupied / empty. **V2:** Hall pairs — **piece type** per square from magnet patterns in the feet |
+| Piece sensing | **V1:** 8×8 reed — occupied / empty. **V2:** Hall pairs — currently differential occupancy (occupied / empty); piece type and color decoding is the hardware design goal |
 | LEDs | 73× WS2812B (64 squares + 9 near the buttons) — moves, check, mate, errors, teaching animations |
 | Chess rules | Castling, en passant, promotion, check, mate |
 | Clients | Flutter app (BLE on mobile, Wi‑Fi on desktop), board web UI, UART console |
@@ -36,9 +36,14 @@ Longer notes (history, license): [PROJECT_NOTES.md](docs/reference/PROJECT_NOTES
 
 ---
 
-## Hardware (V1 overview)
+## Hardware
 
-Details and V1 vs V2: [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md). V2 Hall wiring: [WIRING_ESP_STM4.md](docs/reference/WIRING_ESP_STM4.md).
+Hardware documentation is split by generation:
+- **V1 (reed matrix prototype):** [hardware/v1-reed-matrix/README.md](hardware/v1-reed-matrix/README.md)
+- **V2 (Hall sensor & STM32 subsystem):** [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md)
+- **Comparison:** [HARDWARE_VERSIONS.md](docs/reference/HARDWARE_VERSIONS.md) · **V2 wiring:** [WIRING_ESP_STM4.md](docs/reference/WIRING_ESP_STM4.md)
+
+### V1 Prototype Overview
 
 - ESP32-C6 DevKit, 73× WS2812B, 8×8 reed matrix (V1)
 - 4× promotion + 1× reset, USB Serial JTAG, external 5 V for LEDs
@@ -138,14 +143,16 @@ idf.py -p PORT monitor
 
 | Document | Contents |
 |----------|----------|
-| [docs/README.md](docs/README.md) | Index |
-| [docs/diagrams/README.md](docs/diagrams/README.md) | Mermaid / SVG |
-| [docs/flutter/README.md](docs/flutter/README.md) | App |
-| [docs/ota_architecture.md](docs/ota_architecture.md) | Firmware OTA |
-| [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md) | Repo inventory |
-| [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md) | Debugging |
+| [docs/README.md](docs/README.md) | Documentation index |
+| [hardware/v1-reed-matrix/README.md](hardware/v1-reed-matrix/README.md) | V1 reed matrix hardware documentation |
+| [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md) | V2 Hall + STM32 hardware documentation |
+| [docs/diagrams/README.md](docs/diagrams/README.md) | Mermaid / SVG architecture diagrams |
+| [docs/flutter/README.md](docs/flutter/README.md) | Flutter client app |
+| [docs/ota_architecture.md](docs/ota_architecture.md) | Firmware OTA channels |
+| [docs/reference/REPO_LAYOUT.md](docs/reference/REPO_LAYOUT.md) | Repository inventory |
+| [docs/reference/TROUBLESHOOTING.md](docs/reference/TROUBLESHOOTING.md) | Debugging & diagnostics |
 | [docs/reference/PROJECT_NOTES.md](docs/reference/PROJECT_NOTES.md) | Version history, license |
-| [gh-pages-ready/README.md](gh-pages-ready/README.md) | How the product site deploys |
+| [gh-pages-ready/README.md](gh-pages-ready/README.md) | Product site deployment |
 
 **Doxygen:** `./scripts/docs/generate_docs.sh` → `docs/doxygen/html/index.html`  
 **Diagrams:** `./scripts/render_docs.sh`

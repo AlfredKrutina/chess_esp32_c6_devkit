@@ -189,6 +189,14 @@ static void MX_Nucleo_UserIo_Init(void) {
   LL_GPIO_Init(BOARD_NUCLEO_LD4_GPIO_PORT, &g);
   LL_GPIO_ResetOutputPin(BOARD_NUCLEO_LD4_GPIO_PORT, BOARD_NUCLEO_LD4_PIN);
 
+  g.Pin = BOARD_NUCLEO_D9_PIN;
+  g.Mode = LL_GPIO_MODE_OUTPUT;
+  g.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  g.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  g.Pull = LL_GPIO_PULL_NO;
+  LL_GPIO_Init(BOARD_NUCLEO_D9_GPIO_PORT, &g);
+  LL_GPIO_SetOutputPin(BOARD_NUCLEO_D9_GPIO_PORT, BOARD_NUCLEO_D9_PIN);
+
   g.Pin = BOARD_NUCLEO_USER_PIN;
   g.Mode = LL_GPIO_MODE_INPUT;
   g.Pull = LL_GPIO_PULL_UP;
@@ -217,7 +225,6 @@ static void MX_I2C1_Init(void) {
   NVIC_EnableIRQ(I2C1_IRQn);
 
   i2c.PeripheralMode = LL_I2C_MODE_I2C;
-  i2c.Timing = 0x0090273DU;
   i2c.AnalogFilter = LL_I2C_ANALOGFILTER_ENABLE;
   i2c.DigitalFilter = 2;
   i2c.OwnAddress1 = HALL_I2C_ADDR_MATCH;
@@ -230,6 +237,7 @@ static void MX_I2C1_Init(void) {
   LL_I2C_DisableGeneralCall(I2C1);
   LL_I2C_EnableClockStretching(I2C1);
 
+  /* Timing for ~340 kHz at 48 MHz PCLK1 (PRESC=0, SCLH=0x21, SCLL=0x6C). */
   {
     uint32_t timing =
         __LL_I2C_CONVERT_TIMINGS(0x0, 0xC, 0x0, 0x21, 0x6C);
@@ -357,17 +365,12 @@ int main(void) {
   for (;;) {
 #ifdef BOARD_NUCLEO_C031
     {
-      static uint8_t prev_down;
-      uint32_t up = LL_GPIO_IsInputPinSet(BOARD_NUCLEO_USER_GPIO_PORT,
-                                          BOARD_NUCLEO_USER_PIN);
-      uint32_t down = (up == 0U);
-      static uint8_t latched;
-      if (down != 0U && prev_down == 0U) {
-        latched = 1U;
-      }
-      prev_down = (uint8_t)down;
-      if (latched != 0U) {
-        LL_GPIO_SetOutputPin(BOARD_NUCLEO_LD4_GPIO_PORT, BOARD_NUCLEO_LD4_PIN);
+      static uint32_t toggle_div;
+      toggle_div++;
+      if (toggle_div >= 100000U) {
+        toggle_div = 0U;
+        LL_GPIO_TogglePin(BOARD_NUCLEO_LD4_GPIO_PORT, BOARD_NUCLEO_LD4_PIN);
+        LL_GPIO_TogglePin(BOARD_NUCLEO_D9_GPIO_PORT, BOARD_NUCLEO_D9_PIN);
       }
     }
 #endif

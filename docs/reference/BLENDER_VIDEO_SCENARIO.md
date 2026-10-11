@@ -1,5 +1,7 @@
 # CzechMate — video scenario and LED truth table
 
+> **Hardware note:** This scenario and video render pipeline depict the intended target behavior for the V2 hardware platform (including visual demonstration of piece-type recognition from magnetic patterns). In the current firmware in this repository, board sensing operates as binary occupancy (occupied vs empty), with piece identities tracked in software from the starting position and legal moves.
+
 Two films are generated headlessly in Blender 5.0.1 from `models/blender/`:
 
 | Film | Builder | Length | Output |

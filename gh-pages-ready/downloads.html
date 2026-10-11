@@ -93,7 +93,7 @@
           data-hls="landing/assets/hls/hero/master.m3u8?v=14"
           data-hls-fallback="landing/assets/czm-hero-loop.mp4?v=14"
           tabindex="-1"
-          aria-label="CzechMate: board wake-up, piece recognition, guided play, and mate">
+          aria-label="CzechMate: board wake-up, square occupancy sensing, guided play, and mate">
         </video>
         <div class="hero__veil" aria-hidden="true"></div>
         <div class="hero__intro reveal-stagger">
@@ -139,11 +139,11 @@
     <section id="pieces" class="section" aria-labelledby="pieces-title">
       <div class="section__inner">
         <p class="section__label reveal">The set</p>
-        <h2 id="pieces-title" class="section__title reveal reveal--seq-1">Printed pieces the board can identify</h2>
+        <h2 id="pieces-title" class="section__title reveal reveal--seq-1">Printed pieces designed for magnetic sensing</h2>
         <p class="section__intro reveal reveal--seq-2">
           The set is faceted PLA: wide feet, thick tips, and no overhang that needs support.
-          Magnets in each foot are arranged so Hall sensors under the square do not only see “something is here” —
-          they resolve <strong>which piece type</strong> it is (pawn through king), so the position on the board matches the game.
+          Magnets in each foot provide reliable square presence sensing today, arranged so future V2 revisions
+          can decode <strong>piece type and color</strong> directly from magnetic field patterns beneath the square.
         </p>
         <div class="piece-stage reveal reveal--seq-3">
           <ul class="piece-gallery" id="piece-gallery" data-piece-tone>
@@ -215,8 +215,8 @@
         <p class="section__label reveal">The board as tutor</p>
         <h2 id="board-title" class="section__title reveal reveal--seq-1">Lights on the squares show what you need right now</h2>
         <p class="section__intro reveal reveal--seq-2">
-          Under every square are <strong>Hall sensors</strong>. The board knows a piece is there, and the magnet pattern in the foot tells it
-          <strong>what type</strong> it is — not a guess from the app, a reading from the hardware. Hints land on a real chessboard, not “some picture.”
+          Sensors under every square track piece presence with high accuracy, while the V2 architecture is engineered
+          to resolve <strong>piece type</strong> from the magnet patterns in the foot. Hints land on a real chessboard, not “some picture.”
           The board runs the game in real time and the LEDs match the pieces. You can refresh firmware <strong>without cables to the chip</strong> from the app, the board’s web UI, or Wi‑Fi.
         </p>
         <div class="split reveal-stagger">

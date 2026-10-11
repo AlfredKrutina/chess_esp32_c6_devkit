@@ -176,7 +176,11 @@ menu "STM32 I2C ROM bootloader host (AN4221)"
         int "Max length of image from partition (0 = only trim trailing 0xFF)"
         depends on CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
         range 0 524288
-        default 0
+        default 32768
+        help
+            STM32C031 flash is 16 KiB or 32 KiB; the default 32768 matches
+            NUCLEO-C031C6. An image larger than this is rejected instead of
+            being flashed.
 
     config CHESS_STM32_BL_GO_AFTER_FLASH
         bool "After writing flash, send GO command (before releasing NRST)"

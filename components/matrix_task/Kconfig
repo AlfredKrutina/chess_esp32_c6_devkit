@@ -26,12 +26,12 @@ menu "Chess matrix input"
         config CHESS_HALL_I2C_SDA_GPIO
             int "SDA GPIO"
             range 0 30
-            default 10
+            default 12
 
         config CHESS_HALL_I2C_SCL_GPIO
             int "SCL GPIO"
             range 0 30
-            default 11
+            default 13
 
         config CHESS_HALL_I2C_FREQ_HZ
             int "I2C clock (Hz)"

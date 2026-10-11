@@ -1019,7 +1019,7 @@
             icon: feIcon(ic.sun),
             heading: "What the board shows on the spot",
             text:
-              "Hall sensors recognize the piece type on each square. LEDs help with suggested moves, check and mate, promotions, and bringing attention back to the right piece. In the app you get the same position with text and analysis.",
+              "Under-square sensors track piece occupancy in real time, with the V2 design targeting automated piece-type decoding. LEDs help with suggested moves, check and mate, promotions, and bringing attention back to the right piece. In the app you get the same position with text and analysis.",
           },
           {
             icon: feIcon(ic.layers),
@@ -1107,7 +1107,7 @@
             icon: feIcon(ic.layers),
             heading: "One position everywhere",
             text:
-              "LEDs, the web UI, and the phone show the same thing. Hall sensors know which piece stands where, so lessons on the lights and text on the display match the real chessboard.",
+              "LEDs, the web UI, and the phone show the same thing. The system tracks piece positions on the board in real time, so lessons on the lights and text on the display match the real chessboard.",
           },
           {
             icon: feIcon(ic.sync),

@@ -2,6 +2,7 @@
  * @file hall_i2c_spec.h
  * @brief I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields.
  *
+ * Keep in sync with firmware/stm32_hall_c031/Inc/hall_i2c_spec.h.
  * Copy this file to the STM32 project (without dependency on ESP-IDF).
  *
  * === Topology ===

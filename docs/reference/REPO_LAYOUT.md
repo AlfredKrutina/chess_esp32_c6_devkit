@@ -2,7 +2,7 @@
 
 Canonical path inventory in the repo. Entry index: [docs/README.md](../README.md). Quick overview for new readers: [README.md](../../README.md).
 
-**Firmware in repo:** **1.8.0** (prototype **V1**, reed). **V2** = Hall — [HARDWARE_VERSIONS.md](HARDWARE_VERSIONS.md).
+**Firmware in repo:** **1.8.0** (prototype **V1**, reed matrix — occupied/empty). **V2** = Hall sensors (currently differential occupancy; piece type/color is the hardware design goal) — see [HARDWARE_VERSIONS.md](HARDWARE_VERSIONS.md), [hardware/v1-reed-matrix/README.md](../../hardware/v1-reed-matrix/README.md), and [hardware/v2-hall-stm32/README.md](../../hardware/v2-hall-stm32/README.md).
 
 ---
 
@@ -26,6 +26,9 @@ chess_esp32_c6_devkit/
 ├── main/                    # ESP-IDF boot, task startup
 ├── components/              # FreeRTOS modules (see table below)
 ├── flutter_czechmate/       # Flutter client (BLE / HTTP / WS)
+├── hardware/
+│   ├── v1-reed-matrix/      # V1 prototype hardware docs (reed switch matrix)
+│   └── v2-hall-stm32/       # V2 production hardware docs (Hall sensors + STM32)
 ├── docs/                    # Human docs + diagrams
 ├── scripts/                 # Automation — see scripts/README.md
 ├── firmware/
@@ -50,7 +53,7 @@ Generated / gitignored: `build/`, `managed_components/`, `docs/doxygen/html/`, `
 | Group | Components | Note |
 |---------|------------|----------|
 | **Core** | `freertos_chess`, `game_task`, `game_hooks`, `timer_system` | Queues, chess logic, clock |
-| **Inputs** | `matrix_task`, `button_task`, `stm32_i2c_bootloader` | Reed V1 / I²C Hall V2 prep |
+| **Inputs** | `matrix_task`, `button_task`, `stm32_i2c_bootloader` | Reed V1 / I²C Hall V2 (differential occupancy; piece-type decoding is not in matrix_task) |
 | **Outputs** | `led_task`, `led_state_manager`, `unified_animation_manager`, `game_led_animations`, `visual_error_system` | WS2812B, animation, errors |
 | **Connectivity** | `uart_task`, `uart_commands_extended`, `web_server_task`, `ble_task`, `ha_light_task` | Console, HTTP, BLE, MQTT |
 | **Support** | `config_manager`, `test_task` | NVS/config; tests (menuconfig) |
@@ -62,7 +65,7 @@ Simplified file tree:
 components/
 ├── freertos_chess/          # Queues, mutexes, LED mapping
 ├── game_task/               # Chess logic (largest module)
-├── matrix_task/             # 8×8 reed scan
+├── matrix_task/             # 8×8 reed scan / I2C Hall differential occupancy
 ├── led_task/                # WS2812B + animation pipeline
 ├── button_task/             # Buttons (promotion, reset, …)
 ├── uart_task/               # USB Serial JTAG console

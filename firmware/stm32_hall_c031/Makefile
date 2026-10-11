@@ -18,7 +18,7 @@ FLASH_KB ?= 32
 LDSCRIPT := $(if $(filter 16,$(FLASH_KB)),STM32C031_FLASH_16K.ld,STM32C031C6TX_FLASH.ld)
 
 HALL_I2C_OWNADDR7BIT ?= 0x30
-# NUCLEO-C031C6: USER (PC13) → LD4 (PA5). Separate from Czechmate (PA5 = mux).
+# NUCLEO-C031C6 mock: USER (PC13), LD4 (PA5) and D9 (PC7) toggle in opposition.
 BOARD_NUCLEO_C031 ?= 0
 # Demo: same I²C Hall protocol, synthetic data (no ADC/mux). See make demo-embedded.
 BOARD_HALL_I2C_DEMO ?= 0

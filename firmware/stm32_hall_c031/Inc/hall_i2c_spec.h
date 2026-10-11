@@ -2,6 +2,7 @@
  * @file hall_i2c_spec.h
  * @brief I2C protocol between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 squares.
  *
+ * Keep in sync with components/matrix_task/include/hall_i2c_spec.h.
  * Copy this file into the STM32 project (no ESP-IDF dependency).
  *
  * === Topology ===

@@ -1,6 +1,6 @@
 # How tasks and hardware communicate — CZECHMATE firmware **1.8.0**
 
-> **Hardware:** This document details **prototype V1** — multiplexed **reed switch** matrix on ESP32-C6. Commercial **V2** uses **Hall sensors** (piece type per square); overview in [HARDWARE_VERSIONS.md](HARDWARE_VERSIONS.md).
+> **Hardware note:** This document describes the runtime task communication and GPIO multiplexed scan architecture for the **prototype V1 reed matrix board**. The V1 board senses binary occupancy only (occupied vs empty); chess piece identities are tracked purely in software by game logic from initial positions and validated moves. For complete hardware specifications of the V1 board, see [hardware/v1-reed-matrix/README.md](../../hardware/v1-reed-matrix/README.md). For the next-generation Hall sensor and STM32 architecture (V2), where firmware currently evaluates differential occupancy while automated piece type and color decoding is the hardware design goal, see [hardware/v2-hall-stm32/README.md](../../hardware/v2-hall-stm32/README.md) and [HARDWARE_VERSIONS.md](HARDWARE_VERSIONS.md).
 
 **Index:** [docs/README.md](../README.md).
 

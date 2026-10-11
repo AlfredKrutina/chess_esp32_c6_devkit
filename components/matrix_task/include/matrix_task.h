@@ -3,7 +3,10 @@
  * @brief ESP32-C6 Chess System v1.8.0 - Matrix Task Header
  * 
  * This header defines the interface for the matrix task:
- * - Scan of 8x8 reed switch matrix
+ * - Scan of 8x8 reed switch matrix (default, CONFIG_CHESS_MATRIX_INPUT_GPIO_REED)
+ * - I2C Hall occupancy scan (CONFIG_CHESS_MATRIX_INPUT_I2C_HALL): reads raw
+ *   ADC pairs from 4x STM32 slaves and fills matrix_state with 0/1 occupancy.
+ *   Piece type and color are NOT implemented in the Hall path.
  * - Stroke detection and validation
  * - Generation of matrix events
  * - Time-multiplexed GPIO control

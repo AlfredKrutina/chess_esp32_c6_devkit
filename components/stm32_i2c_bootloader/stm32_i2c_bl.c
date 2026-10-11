@@ -277,7 +277,12 @@ esp_err_t stm32_i2c_bl_init(void) {
     }
     bl_apply_bus_pullups(CONFIG_CHESS_HALL_I2C_SDA_GPIO,
                          CONFIG_CHESS_HALL_I2C_SCL_GPIO);
-    /* Driver holds hall_i2c_matrix_init(); the second i2c_driver_install returns ESP_FAIL. */
+    /* Install driver if Hall init has not run yet; tolerate already-installed. */
+    er = i2c_driver_install(bl_port(), I2C_MODE_MASTER, 0, 0, 0);
+    if (er != ESP_OK && er != ESP_ERR_INVALID_STATE) {
+      ESP_LOGE(TAG, "shared I2C driver install: %s", esp_err_to_name(er));
+      return er;
+    }
     ESP_LOGI(TAG,
              "STM32 BL shares Hall I2C port %d @ %d Hz (Hall init used %d Hz)",
              (int)bl_port(), CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
@@ -1028,7 +1033,10 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
 
   if (CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES > 0 &&
       eff > (size_t)CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES) {
-    eff = (size_t)CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES;
+    ESP_LOGE(TAG_A,
+             "partition image is %u B, larger than target flash max %d B — refusing",
+             (unsigned)eff, CONFIG_CHESS_STM32_BL_AUTO_FLASH_MAX_BYTES);
+    goto out;
   }
 
   uint32_t crc = 0;

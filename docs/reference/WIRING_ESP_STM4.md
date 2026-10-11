@@ -1,5 +1,7 @@
 # ESP32-C6 ↔ STM32C031 wiring (Hall V2)
 
+> **Hardware note:** This document provides reference wiring for the **CzechMate V2 hardware architecture** (new Hall sensor & STM32 co-processor board). For full V2 subsystem documentation, I2C bus constraints, and sensing principles, see [hardware/v2-hall-stm32/README.md](../../hardware/v2-hall-stm32/README.md).
+
 Reference wiring for the **Hall V2** profile (`sdkconfig.defaults.hall_v2`) and auto-flash of STM from ESP on first boot.
 
 ## Topology

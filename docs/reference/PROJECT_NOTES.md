@@ -51,10 +51,12 @@ Longer text from the original root README — lessons learned, challenges, versi
 
 Semver **`1.8.0`**: `CMakeLists.txt` (`PROJECT_VERSION`), `firmware/version.json`, Doxygen, Flutter `pubspec.yaml` **`1.8.0+3`**.
 
+- **Running hardware:** 1.8.0 runs the physical **V1 reed switch board** (binary occupancy: occupied/empty). See [hardware/v1-reed-matrix/README.md](../../hardware/v1-reed-matrix/README.md).
+- **New hardware line (V2):** The Hall/STM32 co-processor subsystem ([hardware/v2-hall-stm32/README.md](../../hardware/v2-hall-stm32/README.md)) is the new hardware line under development. Current V2 firmware performs raw ADC acquisition and differential occupancy sensing; automated piece type and color decoding from magnet patterns is the hardware design goal, not a finished piece-ID product. Piece identity is tracked in software from the starting position and legal moves.
 - Full chess logic; web with real-time updates
 - LED animation, unified animation manager, visual error system
 - FreeRTOS, GPIO time-multiplexing (V1 reed)
-- Matrix V1; Hall/I2C V2 prep (`firmware/stm32_hall_c031/`)
+- Matrix V1; Hall/I2C V2 driver (`components/matrix_task/hall_i2c_matrix.c`, STM32 in `firmware/stm32_hall_c031/`)
 - Bot (Stockfish), training, Flutter client
 - Standalone `animation_task` disabled
 - MQTT / HA (`ha_light_task`), BLE via NimBLE
