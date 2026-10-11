@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -179,6 +179,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ac52afa2de7a6af69f2f67d86af351a05" id="r_ac52afa2de7a6af69f2f67d86af351a05"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer__system_8h.html#ac52afa2de7a6af69f2f67d86af351a05">timer_reset</a> (void)</td></tr>
 <tr class="memdesc:ac52afa2de7a6af69f2f67d86af351a05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the timer to initial values.  <br /></td></tr>
 <tr class="separator:ac52afa2de7a6af69f2f67d86af351a05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c6697bba2bbd889118efd81438c6cad" id="r_a9c6697bba2bbd889118efd81438c6cad"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer__system_8h.html#a9c6697bba2bbd889118efd81438c6cad">timer_restore_remaining_paused</a> (uint32_t white_ms, uint32_t black_ms, bool white_to_move)</td></tr>
+<tr class="memdesc:a9c6697bba2bbd889118efd81438c6cad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Put saved remaining times back and leave the clock stopped.  <br /></td></tr>
+<tr class="separator:a9c6697bba2bbd889118efd81438c6cad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa24fcf316f295f7a17bf2ff5ed8dd5e" id="r_aaa24fcf316f295f7a17bf2ff5ed8dd5e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="timer__system_8h.html#aaa24fcf316f295f7a17bf2ff5ed8dd5e">timer_check_timeout</a> (void)</td></tr>
 <tr class="memdesc:aaa24fcf316f295f7a17bf2ff5ed8dd5e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks for a timeout.  <br /></td></tr>
 <tr class="separator:aaa24fcf316f295f7a17bf2ff5ed8dd5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -315,7 +318,7 @@ Functions</h2></td></tr>
 <p>Checks for a timeout. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the time has expired, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00444">444</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00472">472</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -378,7 +381,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Pocet ziskanych konfiguraci </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00690">690</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00718">718</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -401,7 +404,7 @@ Functions</h2></td></tr>
 <p>Ziska pocet dostupnych casovych kontrol. </p>
 <dl class="section return"><dt>Returns</dt><dd>Pocet dostupnych casovych kontrol </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00685">685</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00713">713</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -424,7 +427,7 @@ Functions</h2></td></tr>
 <p>Gets the average time per turn. </p>
 <dl class="section return"><dt>Returns</dt><dd>Average time per stroke in milliseconds </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00808">808</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00836">836</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -464,7 +467,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00892">892</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00920">920</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -504,7 +507,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00604">604</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00632">632</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -527,7 +530,7 @@ Functions</h2></td></tr>
 <p>Gets the current time control type. </p>
 <dl class="section return"><dt>Returns</dt><dd>The type of the current time control </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00850">850</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00878">878</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -567,7 +570,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00622">622</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00650">650</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -596,7 +599,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The remaining time in milliseconds </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00574">574</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00602">602</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -625,7 +628,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00519">519</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00547">547</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -648,7 +651,7 @@ Functions</h2></td></tr>
 <p>Gain the total number of turns. </p>
 <dl class="section return"><dt>Returns</dt><dd>Total turn count </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00822">822</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00850">850</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -671,7 +674,7 @@ Functions</h2></td></tr>
 <p>Checks if the time check is active. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if time checking is active, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00836">836</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00864">864</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -694,7 +697,7 @@ Functions</h2></td></tr>
 <p>Write timer settings from NVS. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00755">755</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00783">783</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -744,6 +747,45 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a9c6697bba2bbd889118efd81438c6cad" name="a9c6697bba2bbd889118efd81438c6cad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c6697bba2bbd889118efd81438c6cad">&#9670;&#160;</a></span>timer_restore_remaining_paused()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t timer_restore_remaining_paused </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>white_ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>black_ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>white_to_move</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Put saved remaining times back and leave the clock stopped. </p>
+<p>Downtime after a power cut is not subtracted. A later timer_start_move continues from these values. </p>
+
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00444">444</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+
+</div>
+</div>
 <a id="a48d538badd51ca6eca88b2f54ae3f7fe" name="a48d538badd51ca6eca88b2f54ae3f7fe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a48d538badd51ca6eca88b2f54ae3f7fe">&#9670;&#160;</a></span>timer_resume()</h2>
 
@@ -786,7 +828,7 @@ Functions</h2></td></tr>
 <p>Save timer settings to NVS. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00705">705</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00733">733</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -826,7 +868,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00864">864</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00892">892</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>
@@ -907,7 +949,7 @@ Functions</h2></td></tr>
 <p>Deinitializes the timer system. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00910">910</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="timer__system_8c_source.html#l00938">938</a> of file <a class="el" href="timer__system_8c_source.html">timer_system.c</a>.</p>
 
 </div>
 </div>

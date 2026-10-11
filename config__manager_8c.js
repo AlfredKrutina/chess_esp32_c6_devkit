@@ -12,6 +12,8 @@ var config__manager_8c =
     [ "config_save_to_nvs", "config__manager_8c.html#a24aceb1224555fd605ab85c9b0842357", null ],
     [ "config_save_ui_prefs_json", "config__manager_8c.html#aec173cc4386c2247aae898a09e3035fa", null ],
     [ "config_ui_prefs_get_chess_hint_limit", "config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86", null ],
+    [ "config_ui_prefs_get_chess_physical_takeback", "config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0", null ],
+    [ "config_ui_prefs_parse_bool_key", "config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae", null ],
     [ "default_config", "config__manager_8c.html#a8afb2db2bb5f0a2920f95df018b0f3ed", null ],
     [ "TAG", "config__manager_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

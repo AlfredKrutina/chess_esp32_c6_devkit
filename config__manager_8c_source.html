@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -504,45 +504,89 @@ $(document).ready(function(){initNavTree('config__manager_8c_source.html',''); i
 </div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span> </div>
 <div class="foldopen" id="foldopen00401" data-start="{" data-end="}">
-<div class="line"><a id="l00401" name="l00401"></a><span class="lineno"><a class="line" href="config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86">  401</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86">config_ui_prefs_get_chess_hint_limit</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>  <span class="keywordtype">char</span> buf[<a class="code hl_define" href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a> + 1];</div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>  <span class="keywordtype">size_t</span> len = 0;</div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>  esp_err_t err = <a class="code hl_function" href="config__manager_8c.html#adc3adbe5159f66435ab716dc74026f9b">config_load_ui_prefs_json</a>(buf, <span class="keyword">sizeof</span>(buf), &amp;len);</div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>  <span class="keywordflow">if</span> (err != ESP_OK || len == 0) {</div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>  }</div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>  buf[len] = <span class="charliteral">&#39;\0&#39;</span>;</div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *p = strstr(buf, <span class="stringliteral">&quot;\&quot;chessHintLimit\&quot;&quot;</span>);</div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>  <span class="keywordflow">if</span> (p == NULL) {</div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>  }</div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>  p = strchr(p, <span class="charliteral">&#39;:&#39;</span>);</div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>  <span class="keywordflow">if</span> (p == NULL) {</div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>  }</div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>  p++;</div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>  <span class="keywordflow">while</span> (*p == <span class="charliteral">&#39; &#39;</span> || *p == <span class="charliteral">&#39;\t&#39;</span> || *p == <span class="charliteral">&#39;\r&#39;</span> || *p == <span class="charliteral">&#39;\n&#39;</span>) {</div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>    p++;</div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>  }</div>
-<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>  <span class="keywordtype">int</span> v = 0;</div>
-<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>  <span class="keywordflow">if</span> (sscanf(p, <span class="stringliteral">&quot;%d&quot;</span>, &amp;v) != 1) {</div>
-<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>    <span class="keywordflow">return</span> 0;</div>
-<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>  }</div>
-<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>  <span class="keywordflow">if</span> (v &lt; 0) {</div>
-<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>    v = 0;</div>
-<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>  }</div>
-<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span>  <span class="keywordflow">if</span> (v &gt; 99) {</div>
-<div class="line"><a id="l00429" name="l00429"></a><span class="lineno">  429</span>    v = 99;</div>
-<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>  }</div>
-<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>  <span class="keywordflow">return</span> v;</div>
-<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>}</div>
+<div class="line"><a id="l00401" name="l00401"></a><span class="lineno"><a class="line" href="config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae">  401</a></span><span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code hl_function" href="config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae">config_ui_prefs_parse_bool_key</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *json, <span class="keyword">const</span> <span class="keywordtype">char</span> *key,</div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span>                                           <span class="keywordtype">bool</span> default_value) {</div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>  <span class="keywordflow">if</span> (json == NULL || key == NULL) {</div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>    <span class="keywordflow">return</span> default_value;</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>  }</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>  <span class="keywordtype">char</span> needle[64];</div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>  snprintf(needle, <span class="keyword">sizeof</span>(needle), <span class="stringliteral">&quot;\&quot;%s\&quot;&quot;</span>, key);</div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *p = strstr(json, needle);</div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>  <span class="keywordflow">if</span> (p == NULL) {</div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>    <span class="keywordflow">return</span> default_value;</div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>  }</div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>  p = strchr(p, <span class="charliteral">&#39;:&#39;</span>);</div>
+<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>  <span class="keywordflow">if</span> (p == NULL) {</div>
+<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span>    <span class="keywordflow">return</span> default_value;</div>
+<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>  }</div>
+<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span>  p++;</div>
+<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>  <span class="keywordflow">while</span> (*p == <span class="charliteral">&#39; &#39;</span> || *p == <span class="charliteral">&#39;\t&#39;</span> || *p == <span class="charliteral">&#39;\r&#39;</span> || *p == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span>    p++;</div>
+<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span>  }</div>
+<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span>  <span class="keywordflow">if</span> (strncmp(p, <span class="stringliteral">&quot;true&quot;</span>, 4) == 0) {</div>
+<div class="line"><a id="l00421" name="l00421"></a><span class="lineno">  421</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00422" name="l00422"></a><span class="lineno">  422</span>  }</div>
+<div class="line"><a id="l00423" name="l00423"></a><span class="lineno">  423</span>  <span class="keywordflow">if</span> (strncmp(p, <span class="stringliteral">&quot;false&quot;</span>, 5) == 0) {</div>
+<div class="line"><a id="l00424" name="l00424"></a><span class="lineno">  424</span>    <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00425" name="l00425"></a><span class="lineno">  425</span>  }</div>
+<div class="line"><a id="l00426" name="l00426"></a><span class="lineno">  426</span>  <span class="keywordflow">return</span> default_value;</div>
+<div class="line"><a id="l00427" name="l00427"></a><span class="lineno">  427</span>}</div>
 </div>
-<div class="ttc" id="aconfig__manager_8c_html_a2384ec2b6d40470fce3f919e0aa3ae86"><div class="ttname"><a href="config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86">config_ui_prefs_get_chess_hint_limit</a></div><div class="ttdeci">int config_ui_prefs_get_chess_hint_limit(void)</div><div class="ttdoc">Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing).</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00401">config_manager.c:401</a></div></div>
+<div class="line"><a id="l00428" name="l00428"></a><span class="lineno">  428</span> </div>
+<div class="foldopen" id="foldopen00429" data-start="{" data-end="}">
+<div class="line"><a id="l00429" name="l00429"></a><span class="lineno"><a class="line" href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0">  429</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0">config_ui_prefs_get_chess_physical_takeback</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00430" name="l00430"></a><span class="lineno">  430</span>  <span class="keywordtype">char</span> buf[<a class="code hl_define" href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a> + 1];</div>
+<div class="line"><a id="l00431" name="l00431"></a><span class="lineno">  431</span>  <span class="keywordtype">size_t</span> len = 0;</div>
+<div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>  esp_err_t err = <a class="code hl_function" href="config__manager_8c.html#adc3adbe5159f66435ab716dc74026f9b">config_load_ui_prefs_json</a>(buf, <span class="keyword">sizeof</span>(buf), &amp;len);</div>
+<div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>  <span class="keywordflow">if</span> (err != ESP_OK || len == 0) {</div>
+<div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>    <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>  }</div>
+<div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>  buf[len] = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span>  <span class="keywordflow">return</span> <a class="code hl_function" href="config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae">config_ui_prefs_parse_bool_key</a>(buf, <span class="stringliteral">&quot;chessPhysicalTakeback&quot;</span>, <span class="keyword">true</span>);</div>
+<div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>}</div>
+</div>
+<div class="line"><a id="l00439" name="l00439"></a><span class="lineno">  439</span> </div>
+<div class="foldopen" id="foldopen00440" data-start="{" data-end="}">
+<div class="line"><a id="l00440" name="l00440"></a><span class="lineno"><a class="line" href="config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86">  440</a></span><span class="keywordtype">int</span> <a class="code hl_function" href="config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86">config_ui_prefs_get_chess_hint_limit</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00441" name="l00441"></a><span class="lineno">  441</span>  <span class="keywordtype">char</span> buf[<a class="code hl_define" href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a> + 1];</div>
+<div class="line"><a id="l00442" name="l00442"></a><span class="lineno">  442</span>  <span class="keywordtype">size_t</span> len = 0;</div>
+<div class="line"><a id="l00443" name="l00443"></a><span class="lineno">  443</span>  esp_err_t err = <a class="code hl_function" href="config__manager_8c.html#adc3adbe5159f66435ab716dc74026f9b">config_load_ui_prefs_json</a>(buf, <span class="keyword">sizeof</span>(buf), &amp;len);</div>
+<div class="line"><a id="l00444" name="l00444"></a><span class="lineno">  444</span>  <span class="keywordflow">if</span> (err != ESP_OK || len == 0) {</div>
+<div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>  }</div>
+<div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>  buf[len] = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>  <span class="keyword">const</span> <span class="keywordtype">char</span> *p = strstr(buf, <span class="stringliteral">&quot;\&quot;chessHintLimit\&quot;&quot;</span>);</div>
+<div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>  <span class="keywordflow">if</span> (p == NULL) {</div>
+<div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>  }</div>
+<div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>  p = strchr(p, <span class="charliteral">&#39;:&#39;</span>);</div>
+<div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span>  <span class="keywordflow">if</span> (p == NULL) {</div>
+<div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>  }</div>
+<div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span>  p++;</div>
+<div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>  <span class="keywordflow">while</span> (*p == <span class="charliteral">&#39; &#39;</span> || *p == <span class="charliteral">&#39;\t&#39;</span> || *p == <span class="charliteral">&#39;\r&#39;</span> || *p == <span class="charliteral">&#39;\n&#39;</span>) {</div>
+<div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>    p++;</div>
+<div class="line"><a id="l00459" name="l00459"></a><span class="lineno">  459</span>  }</div>
+<div class="line"><a id="l00460" name="l00460"></a><span class="lineno">  460</span>  <span class="keywordtype">int</span> v = 0;</div>
+<div class="line"><a id="l00461" name="l00461"></a><span class="lineno">  461</span>  <span class="keywordflow">if</span> (sscanf(p, <span class="stringliteral">&quot;%d&quot;</span>, &amp;v) != 1) {</div>
+<div class="line"><a id="l00462" name="l00462"></a><span class="lineno">  462</span>    <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a id="l00463" name="l00463"></a><span class="lineno">  463</span>  }</div>
+<div class="line"><a id="l00464" name="l00464"></a><span class="lineno">  464</span>  <span class="keywordflow">if</span> (v &lt; 0) {</div>
+<div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>    v = 0;</div>
+<div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>  }</div>
+<div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>  <span class="keywordflow">if</span> (v &gt; 99) {</div>
+<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>    v = 99;</div>
+<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>  }</div>
+<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>  <span class="keywordflow">return</span> v;</div>
+<div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>}</div>
+</div>
+<div class="ttc" id="aconfig__manager_8c_html_a2384ec2b6d40470fce3f919e0aa3ae86"><div class="ttname"><a href="config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86">config_ui_prefs_get_chess_hint_limit</a></div><div class="ttdeci">int config_ui_prefs_get_chess_hint_limit(void)</div><div class="ttdoc">Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing).</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00440">config_manager.c:440</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_a24aceb1224555fd605ab85c9b0842357"><div class="ttname"><a href="config__manager_8c.html#a24aceb1224555fd605ab85c9b0842357">config_save_to_nvs</a></div><div class="ttdeci">esp_err_t config_save_to_nvs(const system_config_t *config)</div><div class="ttdoc">Save configuration to NVS flash.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00163">config_manager.c:163</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_a2ba1745f97042165032c102c1957290b"><div class="ttname"><a href="config__manager_8c.html#a2ba1745f97042165032c102c1957290b">config_save_blob_to_nvs</a></div><div class="ttdeci">esp_err_t config_save_blob_to_nvs(const char *key, const void *data, size_t len)</div><div class="ttdoc">Ulozi binarni blob do NVS pod danym klicem.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00306">config_manager.c:306</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="config__manager_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00029">config_manager.c:29</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_a75038f5476c578ca0c192468d004160c"><div class="ttname"><a href="config__manager_8c.html#a75038f5476c578ca0c192468d004160c">config_load_from_nvs</a></div><div class="ttdeci">esp_err_t config_load_from_nvs(system_config_t *config)</div><div class="ttdoc">Load configuration from NVS flash.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00055">config_manager.c:55</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_a8afb2db2bb5f0a2920f95df018b0f3ed"><div class="ttname"><a href="config__manager_8c.html#a8afb2db2bb5f0a2920f95df018b0f3ed">default_config</a></div><div class="ttdeci">static const system_config_t default_config</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00032">config_manager.c:32</a></div></div>
+<div class="ttc" id="aconfig__manager_8c_html_aa4b3c9a341d63bf470ac2f0213fe9cc0"><div class="ttname"><a href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0">config_ui_prefs_get_chess_physical_takeback</a></div><div class="ttdeci">bool config_ui_prefs_get_chess_physical_takeback(void)</div><div class="ttdoc">Physical takeback on board (default true when key missing).</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00429">config_manager.c:429</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_aa686528527fc11f58962e83e0b12683e"><div class="ttname"><a href="config__manager_8c.html#aa686528527fc11f58962e83e0b12683e">config_load_blob_from_nvs</a></div><div class="ttdeci">esp_err_t config_load_blob_from_nvs(const char *key, void *data, size_t *len)</div><div class="ttdoc">Nacte binarni blob z NVS pod danym klicem.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00326">config_manager.c:326</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_ab4ecf373d6de350322f0debacd3a145d"><div class="ttname"><a href="config__manager_8c.html#ab4ecf373d6de350322f0debacd3a145d">config_get_defaults</a></div><div class="ttdeci">esp_err_t config_get_defaults(system_config_t *config)</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00297">config_manager.c:297</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_ababa7ac95bd8941407fd857d511e4173"><div class="ttname"><a href="config__manager_8c.html#ababa7ac95bd8941407fd857d511e4173">config_erase_key_from_nvs</a></div><div class="ttdeci">esp_err_t config_erase_key_from_nvs(const char *key)</div><div class="ttdoc">Smaze hodnotu pod danym klicem z NVS.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00342">config_manager.c:342</a></div></div>
@@ -551,11 +595,12 @@ $(document).ready(function(){initNavTree('config__manager_8c_source.html',''); i
 <div class="ttc" id="aconfig__manager_8c_html_ae3afd4faf59e0c9b138456675661de9e"><div class="ttname"><a href="config__manager_8c.html#ae3afd4faf59e0c9b138456675661de9e">config_reset_to_defaults</a></div><div class="ttdeci">esp_err_t config_reset_to_defaults(void)</div><div class="ttdoc">Reset the configuration to the default value.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00285">config_manager.c:285</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_ae753d20be4991e260b40fd757087ebab"><div class="ttname"><a href="config__manager_8c.html#ae753d20be4991e260b40fd757087ebab">config_apply_settings</a></div><div class="ttdeci">esp_err_t config_apply_settings(const system_config_t *config)</div><div class="ttdoc">Applies configuration settings to system.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00258">config_manager.c:258</a></div></div>
 <div class="ttc" id="aconfig__manager_8c_html_aec173cc4386c2247aae898a09e3035fa"><div class="ttname"><a href="config__manager_8c.html#aec173cc4386c2247aae898a09e3035fa">config_save_ui_prefs_json</a></div><div class="ttdeci">esp_err_t config_save_ui_prefs_json(const char *json, size_t len)</div><div class="ttdoc">Ulozi web UI JSON do NVS (jednoducha validace tvaru).</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00361">config_manager.c:361</a></div></div>
+<div class="ttc" id="aconfig__manager_8c_html_afe78d0f2ba75481d47c2f958b38654ae"><div class="ttname"><a href="config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae">config_ui_prefs_parse_bool_key</a></div><div class="ttdeci">static bool config_ui_prefs_parse_bool_key(const char *json, const char *key, bool default_value)</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8c_source.html#l00401">config_manager.c:401</a></div></div>
 <div class="ttc" id="aconfig__manager_8h_html"><div class="ttname"><a href="config__manager_8h.html">config_manager.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Config Manager Header.</div></div>
 <div class="ttc" id="aconfig__manager_8h_html_a3ec1858d742e64d0c66dfd9631302d11"><div class="ttname"><a href="config__manager_8h.html#a3ec1858d742e64d0c66dfd9631302d11">CONFIG_NVS_NAMESPACE</a></div><div class="ttdeci">#define CONFIG_NVS_NAMESPACE</div><div class="ttdoc">NVS namespace for sach configuration.</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00090">config_manager.h:90</a></div></div>
-<div class="ttc" id="aconfig__manager_8h_html_a7a1556a5e46704a83988a2b86b205d95"><div class="ttname"><a href="config__manager_8h.html#a7a1556a5e46704a83988a2b86b205d95">CONFIG_NVS_KEY_UI_PREFS</a></div><div class="ttdeci">#define CONFIG_NVS_KEY_UI_PREFS</div><div class="ttdoc">Web UI preference (UTF-8 JSON: {&quot;version&quot;:1,&quot;prefs&quot;:{...}})</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00114">config_manager.h:114</a></div></div>
+<div class="ttc" id="aconfig__manager_8h_html_a7a1556a5e46704a83988a2b86b205d95"><div class="ttname"><a href="config__manager_8h.html#a7a1556a5e46704a83988a2b86b205d95">CONFIG_NVS_KEY_UI_PREFS</a></div><div class="ttdeci">#define CONFIG_NVS_KEY_UI_PREFS</div><div class="ttdoc">Web UI preference (UTF-8 JSON: {&quot;version&quot;:1,&quot;prefs&quot;:{...}})</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00116">config_manager.h:116</a></div></div>
 <div class="ttc" id="aconfig__manager_8h_html_ab761ad48a054d663ba21852111fdc330"><div class="ttname"><a href="config__manager_8h.html#ab761ad48a054d663ba21852111fdc330">CONFIG_DEFAULT_BRIGHTNESS</a></div><div class="ttdeci">#define CONFIG_DEFAULT_BRIGHTNESS</div><div class="ttdoc">Default brightness (50%)</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00086">config_manager.h:86</a></div></div>
-<div class="ttc" id="aconfig__manager_8h_html_aff6c6cb291f9c6f723df0ca1196ca745"><div class="ttname"><a href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a></div><div class="ttdeci">#define CONFIG_UI_PREFS_MAX_BYTES</div><div class="ttdoc">Max velikost JSON pro ui_prefs (NVS blob)</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00116">config_manager.h:116</a></div></div>
+<div class="ttc" id="aconfig__manager_8h_html_aff6c6cb291f9c6f723df0ca1196ca745"><div class="ttname"><a href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a></div><div class="ttdeci">#define CONFIG_UI_PREFS_MAX_BYTES</div><div class="ttdoc">Max velikost JSON pro ui_prefs (NVS blob)</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00118">config_manager.h:118</a></div></div>
 <div class="ttc" id="astructsystem__config__t_html"><div class="ttname"><a href="structsystem__config__t.html">system_config_t</a></div><div class="ttdoc">System configuration structure.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00658">chess_types.h:658</a></div></div>
 <div class="ttc" id="astructsystem__config__t_html_a05bbd482d93891e6ed1ec8d1068309d7"><div class="ttname"><a href="structsystem__config__t.html#a05bbd482d93891e6ed1ec8d1068309d7">system_config_t::brightness_level</a></div><div class="ttdeci">uint8_t brightness_level</div><div class="ttdoc">Global LED brightness (0-100%)</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00666">chess_types.h:666</a></div></div>
 <div class="ttc" id="astructsystem__config__t_html_a439d7cee1b183f7a6c09b3e85b2faa59"><div class="ttname"><a href="structsystem__config__t.html#a439d7cee1b183f7a6c09b3e85b2faa59">system_config_t::command_timeout_ms</a></div><div class="ttdeci">uint32_t command_timeout_ms</div><div class="ttdoc">Command timeout in milliseconds.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00665">chess_types.h:665</a></div></div>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['piece_5fblob_5ft_0',['piece_blob_t',['../structpiece__blob__t.html',1,'']]]
+  ['physical_5fundo_5fstate_5ft_0',['physical_undo_state_t',['../structphysical__undo__state__t.html',1,'']]]
 ];

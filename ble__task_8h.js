@@ -7,5 +7,6 @@ var ble__task_8h =
     [ "ble_task_notify_command_result", "ble__task_8h.html#aaee353732e7076c851cae405b1efe174", null ],
     [ "ble_task_push_network_info", "ble__task_8h.html#ae3f14fff1b4f2adebb8e416728e07fec", null ],
     [ "ble_task_push_snapshot_json", "ble__task_8h.html#a0dd461464f4847a6b8944d0c3911852a", null ],
+    [ "ble_task_request_pairing", "ble__task_8h.html#a384893b40a2b2f818241081b931d35c3", null ],
     [ "ble_task_should_push_snapshot", "ble__task_8h.html#a2697e0c5cc513fd6cd85ff2582f26aaf", null ]
 ];

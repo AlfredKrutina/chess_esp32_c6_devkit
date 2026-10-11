@@ -36,6 +36,7 @@ var timer__system_8h =
     [ "timer_load_settings", "timer__system_8h.html#a8f43d4d19e19f59397bdb2e824e89edc", null ],
     [ "timer_pause", "timer__system_8h.html#a66030ee8356a62eed7bbe0717cbd5f22", null ],
     [ "timer_reset", "timer__system_8h.html#ac52afa2de7a6af69f2f67d86af351a05", null ],
+    [ "timer_restore_remaining_paused", "timer__system_8h.html#a9c6697bba2bbd889118efd81438c6cad", null ],
     [ "timer_resume", "timer__system_8h.html#a48d538badd51ca6eca88b2f54ae3f7fe", null ],
     [ "timer_save_settings", "timer__system_8h.html#a3eb1bcce9e90aea183f509abe543f624", null ],
     [ "timer_set_custom_time_control", "timer__system_8h.html#a11ab1bc968801095ba83fad279c4d282", null ],

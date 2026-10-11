@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -275,9 +275,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a47c5e115109b9732de21f8a3d0ac318f" id="r_a47c5e115109b9732de21f8a3d0ac318f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a47c5e115109b9732de21f8a3d0ac318f">game_get_guided_capture_hints_enabled</a> (void)</td></tr>
 <tr class="memdesc:a47c5e115109b9732de21f8a3d0ac318f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the state of the guided capture help LED.  <br /></td></tr>
 <tr class="separator:a47c5e115109b9732de21f8a3d0ac318f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e08a4031c345a62dadfe18e2a2ccf2a" id="r_a2e08a4031c345a62dadfe18e2a2ccf2a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a2e08a4031c345a62dadfe18e2a2ccf2a">game_matrix_allow_second_sequential_lift</a> (void)</td></tr>
-<tr class="memdesc:a2e08a4031c345a62dadfe18e2a2ccf2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix: enable second UP in a row (victim in hand + attacker, or 3-step take).  <br /></td></tr>
-<tr class="separator:a2e08a4031c345a62dadfe18e2a2ccf2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeeddb4e7b4a00488fe52a1d96ab50a1d" id="r_aeeddb4e7b4a00488fe52a1d96ab50a1d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#aeeddb4e7b4a00488fe52a1d96ab50a1d">game_squares_allow_second_sequential_lift</a> (void)</td></tr>
+<tr class="memdesc:aeeddb4e7b4a00488fe52a1d96ab50a1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix: enable second UP in a row (victim in hand + attacker, or 3-step take).  <br /></td></tr>
+<tr class="separator:aeeddb4e7b4a00488fe52a1d96ab50a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9ae8a1e70135d765bf21a60519f6231" id="r_ab9ae8a1e70135d765bf21a60519f6231"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ab9ae8a1e70135d765bf21a60519f6231">game_set_led_guidance_level</a> (uint8_t level)</td></tr>
 <tr class="memdesc:ab9ae8a1e70135d765bf21a60519f6231"><td class="mdescLeft">&#160;</td><td class="mdescRight">Level of LED help while playing (1 = minimum … 5 = full).  <br /></td></tr>
 <tr class="separator:ab9ae8a1e70135d765bf21a60519f6231"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -306,9 +306,9 @@ Functions</h2></td></tr>
 <tr class="separator:a1518cea04e69b31f017b63ce7025c96d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a17f30ab5e966f7966d9775f28ccb43" id="r_a9a17f30ab5e966f7966d9775f28ccb43"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a9a17f30ab5e966f7966d9775f28ccb43">game_is_puzzle_setup_active</a> (void)</td></tr>
 <tr class="separator:a9a17f30ab5e966f7966d9775f28ccb43"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a70c7e309649ce8464d1850b9e68f50f4" id="r_a70c7e309649ce8464d1850b9e68f50f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a70c7e309649ce8464d1850b9e68f50f4">game_physical_matrix_matches_fen</a> (const char *fen)</td></tr>
-<tr class="memdesc:a70c7e309649ce8464d1850b9e68f50f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare reed matrix occupancy (0/1) to FEN piece placement.  <br /></td></tr>
-<tr class="separator:a70c7e309649ce8464d1850b9e68f50f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac207ceff14a186ec5f8701110d7d8c5f" id="r_ac207ceff14a186ec5f8701110d7d8c5f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac207ceff14a186ec5f8701110d7d8c5f">game_physical_squares_matches_fen</a> (const char *fen)</td></tr>
+<tr class="memdesc:ac207ceff14a186ec5f8701110d7d8c5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare reed matrix occupancy (0/1) to FEN piece placement.  <br /></td></tr>
+<tr class="separator:ac207ceff14a186ec5f8701110d7d8c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe1f07baa8aab6afe8ef0061a1d478db" id="r_afe1f07baa8aab6afe8ef0061a1d478db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#afe1f07baa8aab6afe8ef0061a1d478db">game_opening_cancel</a> (void)</td></tr>
 <tr class="memdesc:afe1f07baa8aab6afe8ef0061a1d478db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opening trainer — multi-ply line with virtual opponent replies.  <br /></td></tr>
 <tr class="separator:afe1f07baa8aab6afe8ef0061a1d478db"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -352,35 +352,35 @@ Functions</h2></td></tr>
 <tr class="separator:aedf8e935735868eea4b830867cb369c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7bbc347c7fcfec965c16067c73ccd7e" id="r_ad7bbc347c7fcfec965c16067c73ccd7e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ad7bbc347c7fcfec965c16067c73ccd7e">game_opening_validate_checkpoint_physical</a> (void)</td></tr>
 <tr class="separator:ad7bbc347c7fcfec965c16067c73ccd7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31434c1d712e59df254c988364c94d6c" id="r_a31434c1d712e59df254c988364c94d6c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a31434c1d712e59df254c988364c94d6c">game_opening_status_needs_matrix</a> (void)</td></tr>
-<tr class="separator:a31434c1d712e59df254c988364c94d6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95ff59f2de485d9219690ece40566f80" id="r_a95ff59f2de485d9219690ece40566f80"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a95ff59f2de485d9219690ece40566f80">game_opening_status_needs_squares</a> (void)</td></tr>
+<tr class="separator:a95ff59f2de485d9219690ece40566f80"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7d60d2552c0876918941fd21872606a" id="r_ac7d60d2552c0876918941fd21872606a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac7d60d2552c0876918941fd21872606a">game_opening_feedback_key</a> (void)</td></tr>
 <tr class="separator:ac7d60d2552c0876918941fd21872606a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbe9ad264b38d5f7b89a16f144d09649" id="r_adbe9ad264b38d5f7b89a16f144d09649"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#adbe9ad264b38d5f7b89a16f144d09649">game_opening_opponent_mode_key</a> (void)</td></tr>
 <tr class="separator:adbe9ad264b38d5f7b89a16f144d09649"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab928faec86fa7a701f57a9c3c566289a" id="r_ab928faec86fa7a701f57a9c3c566289a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ab928faec86fa7a701f57a9c3c566289a">game_opening_export_status_json</a> (char *buf, size_t buf_size, size_t *offset)</td></tr>
 <tr class="separator:ab928faec86fa7a701f57a9c3c566289a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4dda4c9252b0fdb9c9d54ac421c00cb8" id="r_a4dda4c9252b0fdb9c9d54ac421c00cb8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a4dda4c9252b0fdb9c9d54ac421c00cb8">game_is_matrix_guard_active</a> (void)</td></tr>
-<tr class="memdesc:a4dda4c9252b0fdb9c9d54ac421c00cb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix guard: active pause when the matrix does not match the logic board.  <br /></td></tr>
-<tr class="separator:a4dda4c9252b0fdb9c9d54ac421c00cb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d26fbac6eee97b1fbada7a6dbb36730" id="r_a7d26fbac6eee97b1fbada7a6dbb36730"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a7d26fbac6eee97b1fbada7a6dbb36730">game_get_matrix_guard_conflict_count</a> (void)</td></tr>
-<tr class="memdesc:a7d26fbac6eee97b1fbada7a6dbb36730"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count of fields with conflict (array vs.  <br /></td></tr>
-<tr class="separator:a7d26fbac6eee97b1fbada7a6dbb36730"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0564421665c94e46f33548b9e398400" id="r_ac0564421665c94e46f33548b9e398400"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac0564421665c94e46f33548b9e398400">game_get_matrix_guard_lifted_mask_low</a> (void)</td></tr>
-<tr class="memdesc:ac0564421665c94e46f33548b9e398400"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska zvednutych poli (spodnich 32 poli), matrix guard.  <br /></td></tr>
-<tr class="separator:ac0564421665c94e46f33548b9e398400"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d2c98cf092f90a26c399e23e25c61e1" id="r_a9d2c98cf092f90a26c399e23e25c61e1"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a9d2c98cf092f90a26c399e23e25c61e1">game_get_matrix_guard_lifted_mask_high</a> (void)</td></tr>
-<tr class="memdesc:a9d2c98cf092f90a26c399e23e25c61e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska zvednutych poli (hornich 32 poli), matrix guard.  <br /></td></tr>
-<tr class="separator:a9d2c98cf092f90a26c399e23e25c61e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3ebf59fea2e560c174f96d7a98b15a88" id="r_a3ebf59fea2e560c174f96d7a98b15a88"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a3ebf59fea2e560c174f96d7a98b15a88">game_get_matrix_guard_dropped_mask_low</a> (void)</td></tr>
-<tr class="memdesc:a3ebf59fea2e560c174f96d7a98b15a88"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska polozenych poli (spodnich 32), matrix guard.  <br /></td></tr>
-<tr class="separator:a3ebf59fea2e560c174f96d7a98b15a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d8b54a20d267f615399d7523e8ca249" id="r_a5d8b54a20d267f615399d7523e8ca249"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a5d8b54a20d267f615399d7523e8ca249">game_get_matrix_guard_dropped_mask_high</a> (void)</td></tr>
-<tr class="memdesc:a5d8b54a20d267f615399d7523e8ca249"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska polozenych poli (hornich 32), matrix guard.  <br /></td></tr>
-<tr class="separator:a5d8b54a20d267f615399d7523e8ca249"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab15fce50c928f4fe5fc7cc716401f716" id="r_ab15fce50c928f4fe5fc7cc716401f716"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ab15fce50c928f4fe5fc7cc716401f716">game_force_clear_matrix_guard</a> (void)</td></tr>
-<tr class="memdesc:ab15fce50c928f4fe5fc7cc716401f716"><td class="mdescLeft">&#160;</td><td class="mdescRight">Emergency cancel matrix guard (game + matrix layer) and restore LED hint.  <br /></td></tr>
-<tr class="separator:ab15fce50c928f4fe5fc7cc716401f716"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ea38bed5297ca01b735de9d9c71ca9f" id="r_a7ea38bed5297ca01b735de9d9c71ca9f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a7ea38bed5297ca01b735de9d9c71ca9f">game_is_squares_guard_active</a> (void)</td></tr>
+<tr class="memdesc:a7ea38bed5297ca01b735de9d9c71ca9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix guard: active pause when the matrix does not match the logic board.  <br /></td></tr>
+<tr class="separator:a7ea38bed5297ca01b735de9d9c71ca9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa7518e9a365d44088febc2a19b86295" id="r_aaa7518e9a365d44088febc2a19b86295"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#aaa7518e9a365d44088febc2a19b86295">game_get_squares_guard_conflict_count</a> (void)</td></tr>
+<tr class="memdesc:aaa7518e9a365d44088febc2a19b86295"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count of fields with conflict (array vs.  <br /></td></tr>
+<tr class="separator:aaa7518e9a365d44088febc2a19b86295"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51247901a95523584de5f930485ee645" id="r_a51247901a95523584de5f930485ee645"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a51247901a95523584de5f930485ee645">game_get_squares_guard_lifted_mask_low</a> (void)</td></tr>
+<tr class="memdesc:a51247901a95523584de5f930485ee645"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska zvednutych poli (spodnich 32 poli), matrix guard.  <br /></td></tr>
+<tr class="separator:a51247901a95523584de5f930485ee645"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18a0a3b223ae5d122e15bddb1b1a1b00" id="r_a18a0a3b223ae5d122e15bddb1b1a1b00"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a18a0a3b223ae5d122e15bddb1b1a1b00">game_get_squares_guard_lifted_mask_high</a> (void)</td></tr>
+<tr class="memdesc:a18a0a3b223ae5d122e15bddb1b1a1b00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska zvednutych poli (hornich 32 poli), matrix guard.  <br /></td></tr>
+<tr class="separator:a18a0a3b223ae5d122e15bddb1b1a1b00"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0669682d1f68f327a9ba300cc3a378a5" id="r_a0669682d1f68f327a9ba300cc3a378a5"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a0669682d1f68f327a9ba300cc3a378a5">game_get_squares_guard_dropped_mask_low</a> (void)</td></tr>
+<tr class="memdesc:a0669682d1f68f327a9ba300cc3a378a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska polozenych poli (spodnich 32), matrix guard.  <br /></td></tr>
+<tr class="separator:a0669682d1f68f327a9ba300cc3a378a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a213dfea05c72a7df93e5f6deaf6ff746" id="r_a213dfea05c72a7df93e5f6deaf6ff746"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a213dfea05c72a7df93e5f6deaf6ff746">game_get_squares_guard_dropped_mask_high</a> (void)</td></tr>
+<tr class="memdesc:a213dfea05c72a7df93e5f6deaf6ff746"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bitova maska polozenych poli (hornich 32), matrix guard.  <br /></td></tr>
+<tr class="separator:a213dfea05c72a7df93e5f6deaf6ff746"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af14ef923eb1ad0b1935b6d899dad9cd2" id="r_af14ef923eb1ad0b1935b6d899dad9cd2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#af14ef923eb1ad0b1935b6d899dad9cd2">game_force_clear_squares_guard</a> (void)</td></tr>
+<tr class="memdesc:af14ef923eb1ad0b1935b6d899dad9cd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Emergency cancel matrix guard (game + matrix layer) and restore LED hint.  <br /></td></tr>
+<tr class="separator:af14ef923eb1ad0b1935b6d899dad9cd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a5a68b3e99926a5c96f3a6eeef64c3b" id="r_a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a2a5a68b3e99926a5c96f3a6eeef64c3b">game_was_snapshot_loaded_on_boot</a> (void)</td></tr>
 <tr class="memdesc:a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">true if <a class="el" href="game__snapshot_8c.html#a89d78dc8723fe9da9b6b1fa77090542f">game_load_snapshot_from_nvs()</a> in game_task_start successfully loaded the game.  <br /></td></tr>
 <tr class="separator:a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -507,9 +507,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a3cd556600affcd7945ded58e0a05c9c3" id="r_a3cd556600affcd7945ded58e0a05c9c3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a3cd556600affcd7945ded58e0a05c9c3">game_check_end_game_conditions</a> (void)</td></tr>
 <tr class="memdesc:a3cd556600affcd7945ded58e0a05c9c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overi podminky konce hry.  <br /></td></tr>
 <tr class="separator:a3cd556600affcd7945ded58e0a05c9c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a502098cd25ad56400beb2339a1bfb84c" id="r_a502098cd25ad56400beb2339a1bfb84c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a502098cd25ad56400beb2339a1bfb84c">game_process_matrix_events</a> (void)</td></tr>
-<tr class="memdesc:a502098cd25ad56400beb2339a1bfb84c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process event matrix (turns)  <br /></td></tr>
-<tr class="separator:a502098cd25ad56400beb2339a1bfb84c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac809662bad95e3d3a055bea4578d8027" id="r_ac809662bad95e3d3a055bea4578d8027"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac809662bad95e3d3a055bea4578d8027">game_process_squares_events</a> (void)</td></tr>
+<tr class="memdesc:ac809662bad95e3d3a055bea4578d8027"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process event matrix (turns)  <br /></td></tr>
+<tr class="separator:ac809662bad95e3d3a055bea4578d8027"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a484415c76302e466ea7b01ecb2edee09" id="r_a484415c76302e466ea7b01ecb2edee09"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a484415c76302e466ea7b01ecb2edee09">game_highlight_movable_pieces</a> (void)</td></tr>
 <tr class="memdesc:a484415c76302e466ea7b01ecb2edee09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highlight all moving pieces of the current player.  <br /></td></tr>
 <tr class="separator:a484415c76302e466ea7b01ecb2edee09"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -684,7 +684,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if conversion successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02004">2004</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02003">2003</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -741,7 +741,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if conversion successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01976">1976</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01975">1975</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -764,7 +764,7 @@ Functions</h2></td></tr>
 <p>Add position to history for repeat detection. </p>
 <p>Add position to history for repeat detection. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00732">732</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00724">724</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -805,7 +805,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Material difference (positive = white advantage, negative = black advantage) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00774">774</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00766">766</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -829,7 +829,7 @@ Functions</h2></td></tr>
 <p>Compute hash positions for repetition detection.</p>
 <dl class="section return"><dt>Returns</dt><dd>32-bit position hash </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00663">663</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00655">655</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1043,7 +1043,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02138">2138</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02137">2137</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1069,7 +1069,7 @@ Functions</h2></td></tr>
 <p>Detect if the figures are in their default position.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if pieces are in starting positions, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00038">38</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00040">40</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
 
 </div>
 </div>
@@ -1092,7 +1092,7 @@ Functions</h2></td></tr>
 <p>End the timer for the turn. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00064">64</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00065">65</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -1114,7 +1114,7 @@ Functions</h2></td></tr>
 
 <p>Web tutorial assembly from a blank board (LED + instructions). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00379">379</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00398">398</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -1144,7 +1144,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the move was made successfully </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00122">122</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00127">127</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
 
 </div>
 </div>
@@ -1164,7 +1164,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00392">392</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00411">411</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -1186,18 +1186,18 @@ Functions</h2></td></tr>
 
 <p>Ends the tutorial and starts a new game only if the physical position fits. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00412">412</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00431">431</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
-<a id="ab15fce50c928f4fe5fc7cc716401f716" name="ab15fce50c928f4fe5fc7cc716401f716"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab15fce50c928f4fe5fc7cc716401f716">&#9670;&#160;</a></span>game_force_clear_matrix_guard()</h2>
+<a id="af14ef923eb1ad0b1935b6d899dad9cd2" name="af14ef923eb1ad0b1935b6d899dad9cd2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af14ef923eb1ad0b1935b6d899dad9cd2">&#9670;&#160;</a></span>game_force_clear_squares_guard()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void game_force_clear_matrix_guard </td>
+          <td class="memname">void game_force_clear_squares_guard </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -1209,7 +1209,7 @@ Functions</h2></td></tr>
 <p>Emergency cancel matrix guard (game + matrix layer) and restore LED hint. </p>
 <p>Use only when the board is physically level, but the guard is left hanging. Prefer automatic cleaning after comparing figures. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00087">87</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00102">102</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
 </div>
 </div>
@@ -1323,7 +1323,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Number of available moves found </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01302">1302</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01294">1294</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1449,7 +1449,7 @@ Functions</h2></td></tr>
 <p>Get the current player on a turn. </p>
 <dl class="section return"><dt>Returns</dt><dd>The current player (PLAYER_WHITE or PLAYER_BLACK) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01495">1495</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01487">1487</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1517,7 +1517,7 @@ Functions</h2></td></tr>
 
 <p>Returns the state of the guided capture help LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01507">1507</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01499">1499</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1577,7 +1577,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01553">1553</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01548">1548</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1617,118 +1617,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00805">805</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a7d26fbac6eee97b1fbada7a6dbb36730" name="a7d26fbac6eee97b1fbada7a6dbb36730"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7d26fbac6eee97b1fbada7a6dbb36730">&#9670;&#160;</a></span>game_get_matrix_guard_conflict_count()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint8_t game_get_matrix_guard_conflict_count </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Count of fields with conflict (array vs. </p>
-<p>expected state after refresh). </p>
-
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00067">67</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
-
-</div>
-</div>
-<a id="a5d8b54a20d267f615399d7523e8ca249" name="a5d8b54a20d267f615399d7523e8ca249"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5d8b54a20d267f615399d7523e8ca249">&#9670;&#160;</a></span>game_get_matrix_guard_dropped_mask_high()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t game_get_matrix_guard_dropped_mask_high </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Bitova maska polozenych poli (hornich 32), matrix guard. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00083">83</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
-
-</div>
-</div>
-<a id="a3ebf59fea2e560c174f96d7a98b15a88" name="a3ebf59fea2e560c174f96d7a98b15a88"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ebf59fea2e560c174f96d7a98b15a88">&#9670;&#160;</a></span>game_get_matrix_guard_dropped_mask_low()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t game_get_matrix_guard_dropped_mask_low </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Bitova maska polozenych poli (spodnich 32), matrix guard. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00079">79</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
-
-</div>
-</div>
-<a id="a9d2c98cf092f90a26c399e23e25c61e1" name="a9d2c98cf092f90a26c399e23e25c61e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9d2c98cf092f90a26c399e23e25c61e1">&#9670;&#160;</a></span>game_get_matrix_guard_lifted_mask_high()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t game_get_matrix_guard_lifted_mask_high </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Bitova maska zvednutych poli (hornich 32 poli), matrix guard. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00075">75</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
-
-</div>
-</div>
-<a id="ac0564421665c94e46f33548b9e398400" name="ac0564421665c94e46f33548b9e398400"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac0564421665c94e46f33548b9e398400">&#9670;&#160;</a></span>game_get_matrix_guard_lifted_mask_low()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t game_get_matrix_guard_lifted_mask_low </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Bitova maska zvednutych poli (spodnich 32 poli), matrix guard. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00071">71</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00797">797</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1842,7 +1731,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Piece name string </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01162">1162</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01154">1154</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1871,7 +1760,118 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The remaining time in milliseconds </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00102">102</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00103">103</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="aaa7518e9a365d44088febc2a19b86295" name="aaa7518e9a365d44088febc2a19b86295"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa7518e9a365d44088febc2a19b86295">&#9670;&#160;</a></span>game_get_squares_guard_conflict_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_get_squares_guard_conflict_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Count of fields with conflict (array vs. </p>
+<p>expected state after refresh). </p>
+
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00082">82</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a213dfea05c72a7df93e5f6deaf6ff746" name="a213dfea05c72a7df93e5f6deaf6ff746"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a213dfea05c72a7df93e5f6deaf6ff746">&#9670;&#160;</a></span>game_get_squares_guard_dropped_mask_high()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_squares_guard_dropped_mask_high </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bitova maska polozenych poli (hornich 32), matrix guard. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00098">98</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a0669682d1f68f327a9ba300cc3a378a5" name="a0669682d1f68f327a9ba300cc3a378a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0669682d1f68f327a9ba300cc3a378a5">&#9670;&#160;</a></span>game_get_squares_guard_dropped_mask_low()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_squares_guard_dropped_mask_low </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bitova maska polozenych poli (spodnich 32), matrix guard. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00094">94</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a18a0a3b223ae5d122e15bddb1b1a1b00" name="a18a0a3b223ae5d122e15bddb1b1a1b00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18a0a3b223ae5d122e15bddb1b1a1b00">&#9670;&#160;</a></span>game_get_squares_guard_lifted_mask_high()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_squares_guard_lifted_mask_high </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bitova maska zvednutych poli (hornich 32 poli), matrix guard. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00090">90</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a51247901a95523584de5f930485ee645" name="a51247901a95523584de5f930485ee645"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a51247901a95523584de5f930485ee645">&#9670;&#160;</a></span>game_get_squares_guard_lifted_mask_low()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_get_squares_guard_lifted_mask_low </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bitova maska zvednutych poli (spodnich 32 poli), matrix guard. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00086">86</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
 </div>
 </div>
@@ -1894,7 +1894,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Returns the initial position guard status. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if watchdog is on, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00410">410</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00402">402</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1917,7 +1917,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Get the current state of the game. </p>
 <dl class="section return"><dt>Returns</dt><dd>The current state of the game (GAME_STATE_IDLE, GAME_STATE_PLAYING, etc.) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01493">1493</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01485">1485</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1939,7 +1939,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Monotone version of game state (ETag / If-None-Match on snapshot). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00203">203</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00219">219</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -2129,7 +2129,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Handle the timeout. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00193">193</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00194">194</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -2181,7 +2181,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Snapshot restore failure (CRC / format). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00135">135</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00216">216</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -2203,7 +2203,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Last snapshot save to NVS failed. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00137">137</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00218">218</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -2274,7 +2274,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Display a soft yellow animation on all figures that can move.</p>
 <p>Highlight all moving pieces of the current player. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00750">750</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00651">651</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
 
 </div>
 </div>
@@ -2344,7 +2344,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Initialize the timer system in the game task. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00115">115</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00116">116</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -2416,7 +2416,7 @@ The number of turns since the start of the game</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00404">404</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00423">423</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -2549,7 +2549,7 @@ The number of turns since the start of the game</dd></dl>
 <li>The target field is in the middle between the start and the target position of the opponent's fish </li>
 </ol>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00567">567</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00613">613</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -2603,29 +2603,6 @@ The number of turns since the start of the game</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>true if king is in check </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__endgame__detect_8c_source.html#l00026">26</a> of file <a class="el" href="game__endgame__detect_8c_source.html">game_endgame_detect.c</a>.</p>
-
-</div>
-</div>
-<a id="a4dda4c9252b0fdb9c9d54ac421c00cb8" name="a4dda4c9252b0fdb9c9d54ac421c00cb8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4dda4c9252b0fdb9c9d54ac421c00cb8">&#9670;&#160;</a></span>game_is_matrix_guard_active()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool game_is_matrix_guard_active </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix guard: active pause when the matrix does not match the logic board. </p>
-<p>true = user must flatten the physical board before further moves. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__matrix__guard_8c_source.html#l00060">60</a> of file <a class="el" href="game__matrix__guard_8c_source.html">game_matrix_guard.c</a>.</p>
 
 </div>
 </div>
@@ -2687,7 +2664,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Physical occupancy of rows 0–1 and 6–7 full, 2–5 empty (matrix). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00408">408</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00427">427</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -2711,7 +2688,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Verify if the position has been repeated.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if position is repeated 3+ times (draw by repetition) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00712">712</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00704">704</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2800,7 +2777,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>After restoring from NVS: the physical board does not fit the saved position (prompt to resync). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01569">1569</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01564">1564</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2862,7 +2839,30 @@ The number of turns since the start of the game</dd></dl>
 
 <p>true if a minimal snapshot (min) was used instead of a full one (full). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00133">133</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00214">214</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a7ea38bed5297ca01b735de9d9c71ca9f" name="a7ea38bed5297ca01b735de9d9c71ca9f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ea38bed5297ca01b735de9d9c71ca9f">&#9670;&#160;</a></span>game_is_squares_guard_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_is_squares_guard_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix guard: active pause when the matrix does not match the logic board. </p>
+<p>true = user must flatten the physical board before further moves. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00075">75</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
 </div>
 </div>
@@ -2885,7 +2885,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Verify if the timer is active. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the timer is active </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00273">273</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00275">275</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -2915,7 +2915,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00021">21</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00040">40</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -2985,29 +2985,6 @@ The number of turns since the start of the game</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the figure was beaten </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00191">191</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
-
-</div>
-</div>
-<a id="a2e08a4031c345a62dadfe18e2a2ccf2a" name="a2e08a4031c345a62dadfe18e2a2ccf2a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e08a4031c345a62dadfe18e2a2ccf2a">&#9670;&#160;</a></span>game_matrix_allow_second_sequential_lift()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool game_matrix_allow_second_sequential_lift </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix: enable second UP in a row (victim in hand + attacker, or 3-step take). </p>
-<p>Without it, <a class="el" href="matrix__task_8h.html#ad81a1142e821938e81029ad1d88f57d7" title="Detect moves from a matrix.">matrix_detect_moves()</a> evaluates the status as ambiguous and turns on the guard. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01511">1511</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3495,14 +3472,14 @@ The number of turns since the start of the game</dd></dl>
 
 </div>
 </div>
-<a id="a31434c1d712e59df254c988364c94d6c" name="a31434c1d712e59df254c988364c94d6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31434c1d712e59df254c988364c94d6c">&#9670;&#160;</a></span>game_opening_status_needs_matrix()</h2>
+<a id="a95ff59f2de485d9219690ece40566f80" name="a95ff59f2de485d9219690ece40566f80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95ff59f2de485d9219690ece40566f80">&#9670;&#160;</a></span>game_opening_status_needs_squares()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool game_opening_status_needs_matrix </td>
+          <td class="memname">bool game_opening_status_needs_squares </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -3626,18 +3603,18 @@ The number of turns since the start of the game</dd></dl>
 <p>Pause the game timer. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00073">73</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00074">74</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
-<a id="a70c7e309649ce8464d1850b9e68f50f4" name="a70c7e309649ce8464d1850b9e68f50f4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a70c7e309649ce8464d1850b9e68f50f4">&#9670;&#160;</a></span>game_physical_matrix_matches_fen()</h2>
+<a id="ac207ceff14a186ec5f8701110d7d8c5f" name="ac207ceff14a186ec5f8701110d7d8c5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac207ceff14a186ec5f8701110d7d8c5f">&#9670;&#160;</a></span>game_physical_squares_matches_fen()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool game_physical_matrix_matches_fen </td>
+          <td class="memname">bool game_physical_squares_matches_fen </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>fen</em></td><td>)</td>
@@ -3671,7 +3648,7 @@ The number of turns since the start of the game</dd></dl>
 <p>List the current position of the inbox. </p>
 <p>Displays the inbox in ASCII format with labels. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01573">1573</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01568">1568</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3694,7 +3671,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Vypis statistiky hry. </p>
 <p>Vypis statistiky hry. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00823">823</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00815">815</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3717,7 +3694,7 @@ The number of turns since the start of the game</dd></dl>
 <p>List the state of the game. </p>
 <p>Displays detailed information about the state of the game (player on turn, number of turns, etc.). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02151">2151</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02150">2150</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3739,7 +3716,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Process the CASTLE statement. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02040">2040</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02168">2168</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3767,7 +3744,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02405">2405</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02533">2533</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3790,7 +3767,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Process game commands from the queue. </p>
 <p>Reads commands from game_command_queue and executes them. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__dispatch_8c_source.html#l00342">342</a> of file <a class="el" href="game__dispatch_8c_source.html">game_dispatch.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__dispatch_8c_source.html#l00166">166</a> of file <a class="el" href="game__dispatch_8c_source.html">game_dispatch.c</a>.</p>
 
 </div>
 </div>
@@ -3833,32 +3810,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <p>Process drop command (DN) - Legacy function </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00921">921</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
-
-</div>
-</div>
-<a id="a502098cd25ad56400beb2339a1bfb84c" name="a502098cd25ad56400beb2339a1bfb84c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a502098cd25ad56400beb2339a1bfb84c">&#9670;&#160;</a></span>game_process_matrix_events()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void game_process_matrix_events </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Process event matrix (turns) </p>
-<p>Reads events from matrix_event_queue and handles pull detection.</p>
-<p>Process event matrix (turns)</p>
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Matrix events are now sent as <a class="el" href="structchess__move__command__t.html" title="Command structure for sach move via UART.">chess_move_command_t</a> to game_command_queue and processed by <a class="el" href="game__task_8h.html#a0216d9328bf82ee185835194077f1e33" title="Process the PICKUP display (UP)">game_process_pickup_command()</a> / <a class="el" href="game__task_8h.html#a8de7eb2cbccf01d3c7ee792caaf9784e" title="Process the DROP command (DN)">game_process_drop_command()</a>. This function is kept for compatibility but does nothing. </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02389">2389</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00973">973</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3881,7 +3833,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Process the PICKUP display (UP) </p>
 <p>Process the PICKUP display (UP) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00199">199</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00201">201</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3903,7 +3855,32 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Process the PROMOTE command. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02206">2206</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02334">2334</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+
+</div>
+</div>
+<a id="ac809662bad95e3d3a055bea4578d8027" name="ac809662bad95e3d3a055bea4578d8027"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac809662bad95e3d3a055bea4578d8027">&#9670;&#160;</a></span>game_process_squares_events()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_process_squares_events </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Process event matrix (turns) </p>
+<p>Reads events from squares_event_queue and handles pull detection.</p>
+<p>Process event matrix (turns)</p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Matrix events are now sent as <a class="el" href="structchess__move__command__t.html" title="Command structure for sach move via UART.">chess_move_command_t</a> to game_command_queue and processed by <a class="el" href="game__task_8h.html#a0216d9328bf82ee185835194077f1e33" title="Process the PICKUP display (UP)">game_process_pickup_command()</a> / <a class="el" href="game__task_8h.html#a8de7eb2cbccf01d3c7ee792caaf9784e" title="Process the DROP command (DN)">game_process_drop_command()</a>. This function is kept for compatibility but does nothing. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02419">2419</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3932,7 +3909,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00129">129</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00130">130</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -4040,7 +4017,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Call, for example, when the demo mode is turned on, so that the demo can play even after the previous one wrong move by the user.</p>
 <p>Resets the error recovery state (returning pieces to the flashing field). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01948">1948</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01947">1947</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4074,7 +4051,7 @@ The number of turns since the start of the game</dd></dl>
 <li>Error recovery status </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00221">221</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00237">237</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -4097,7 +4074,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Reset the game timer. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00091">91</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00092">92</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -4120,7 +4097,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Reset game timer. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00082">82</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00083">83</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -4142,7 +4119,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Turns guided capture LED on/off (game logic remains active) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01497">1497</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01489">1489</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4165,7 +4142,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Level of LED help while playing (1 = minimum … 5 = full). </p>
 <p>Controls move highlighting, LED chess, guided capture, etc. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01555">1555</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01550">1550</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4193,7 +4170,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00400">400</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00392">392</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4451,7 +4428,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01827">1827</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01823">1823</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4554,7 +4531,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01230">1230</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01222">1222</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4719,6 +4696,29 @@ The number of turns since the start of the game</dd></dl>
 
 </div>
 </div>
+<a id="aeeddb4e7b4a00488fe52a1d96ab50a1d" name="aeeddb4e7b4a00488fe52a1d96ab50a1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeeddb4e7b4a00488fe52a1d96ab50a1d">&#9670;&#160;</a></span>game_squares_allow_second_sequential_lift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_squares_allow_second_sequential_lift </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix: enable second UP in a row (victim in hand + attacker, or 3-step take). </p>
+<p>Without it, <a class="el" href="squares__task_8h.html#a39c4044ffafdb6061394be4d439c848f" title="Detect moves from a matrix.">squares_detect_moves()</a> evaluates the status as ambiguous and turns on the guard. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01503">1503</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
 <a id="a57e990b9360540c1ba82ea3d5a32cf44" name="a57e990b9360540c1ba82ea3d5a32cf44"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a57e990b9360540c1ba82ea3d5a32cf44">&#9670;&#160;</a></span>game_start_new_game()</h2>
 
@@ -4747,7 +4747,7 @@ The number of turns since the start of the game</dd></dl>
 <li>Increase the number of games </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00459">459</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00478">478</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -4770,7 +4770,7 @@ The number of turns since the start of the game</dd></dl>
 <p>New game from FEN (only setup + turn side). </p>
 <p>Without checking the physical default position. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00574">574</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00596">596</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>
@@ -4822,7 +4822,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00046">46</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00047">47</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -4874,7 +4874,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02168">2168</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02167">2167</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -5012,7 +5012,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Update the timer display and verify the warning. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00238">238</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00240">240</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
 
 </div>
 </div>
@@ -5060,7 +5060,7 @@ The number of turns since the start of the game</dd></dl>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00321">321</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00340">340</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5111,7 +5111,7 @@ The number of turns since the start of the game</dd></dl>
 <li>Queenside (O-O-O): king e1-&gt;c1, take a1-&gt;d1 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00654">654</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00700">700</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5154,7 +5154,7 @@ The number of turns since the start of the game</dd></dl>
 </ul>
 <p>Delegates validation to <a class="el" href="game__task_8h.html#a7169001872522d780e6e67a15d86a47e" title="Validate dew.">game_validate_castling()</a> for castling. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00451">451</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00470">470</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5183,7 +5183,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00283">283</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00302">302</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5249,7 +5249,7 @@ The number of turns since the start of the game</dd></dl>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00198">198</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00217">217</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5289,7 +5289,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00132">132</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00151">151</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5318,7 +5318,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00412">412</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00431">431</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5347,7 +5347,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE on success, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00370">370</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00389">389</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5370,7 +5370,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Boot tracker vynutil novou hru (napr. </p>
 <p>prilis casty restart); main neposila NEW_GAME. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00139">139</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00220">220</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -5393,7 +5393,7 @@ The number of turns since the start of the game</dd></dl>
 <p>true if <a class="el" href="game__snapshot_8c.html#a89d78dc8723fe9da9b6b1fa77090542f">game_load_snapshot_from_nvs()</a> in game_task_start successfully loaded the game. </p>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="game__task_8h.html#af1e09878bd4592f7f46ae5713f17fc6f" title="Boot tracker vynutil novou hru (napr.">game_was_boot_new_game_triggered()</a> </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00131">131</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00212">212</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -5437,7 +5437,7 @@ The number of turns since the start of the game</dd></dl>
 <li>Restore the original state of the board </li>
 </ol>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00495">495</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00514">514</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -5494,7 +5494,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Show an animation of the finished dewdrop. </p>
 <p>Show an animation of the finished dewdrop. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00854">854</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00874">874</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
 
 </div>
 </div>

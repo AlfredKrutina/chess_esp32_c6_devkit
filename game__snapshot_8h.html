@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -132,6 +132,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a85b407ec50bb621c3830bec5292e8459" id="r_a85b407ec50bb621c3830bec5292e8459"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a85b407ec50bb621c3830bec5292e8459">game_snapshot_persist_after_valid_move</a> (void)</td></tr>
 <tr class="memdesc:a85b407ec50bb621c3830bec5292e8459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Save snapshot to NVS and update boot tracker after a valid move.  <br /></td></tr>
 <tr class="separator:a85b407ec50bb621c3830bec5292e8459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9184164562ea92a033760a65a704560c" id="r_a9184164562ea92a033760a65a704560c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a9184164562ea92a033760a65a704560c">game_snapshot_service_after_boot</a> (void)</td></tr>
+<tr class="memdesc:a9184164562ea92a033760a65a704560c"><td class="mdescLeft">&#160;</td><td class="mdescRight">After boot animation: once Hall (or reed) readings are usable, compare them to the restored board and, if they match, start the paused clock.  <br /></td></tr>
+<tr class="separator:a9184164562ea92a033760a65a704560c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e8cc3e15e1434ae33152a396a0358a8" id="r_a1e8cc3e15e1434ae33152a396a0358a8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a1e8cc3e15e1434ae33152a396a0358a8">game_snapshot_sensors_ready</a> (void)</td></tr>
+<tr class="memdesc:a1e8cc3e15e1434ae33152a396a0358a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">False while Hall has no trustworthy baseline yet.  <br /></td></tr>
+<tr class="separator:a1e8cc3e15e1434ae33152a396a0358a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a5a68b3e99926a5c96f3a6eeef64c3b" id="r_a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a2a5a68b3e99926a5c96f3a6eeef64c3b">game_was_snapshot_loaded_on_boot</a> (void)</td></tr>
 <tr class="separator:a2a5a68b3e99926a5c96f3a6eeef64c3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22c95fb0cc38a88fa1b0087e95469439" id="r_a22c95fb0cc38a88fa1b0087e95469439"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html#a22c95fb0cc38a88fa1b0087e95469439">game_is_snapshot_fallback_used</a> (void)</td></tr>
@@ -164,7 +170,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00135">135</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00216">216</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -184,7 +190,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00137">137</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00218">218</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -204,7 +210,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00133">133</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00214">214</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -226,7 +232,7 @@ Functions</h2></td></tr>
 
 <p>Erase snapshot + boot tracker keys (new game). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00141">141</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00222">222</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -248,7 +254,7 @@ Functions</h2></td></tr>
 
 <p>True if NVS holds a full or minimal snapshot with valid CRC. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00232">232</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00539">539</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -270,7 +276,7 @@ Functions</h2></td></tr>
 
 <p>Save snapshot to NVS and update boot tracker after a valid move. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00401">401</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00731">731</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -292,7 +298,7 @@ Functions</h2></td></tr>
 
 <p>Clear save/restore failure flags after starting a fresh game. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00147">147</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00229">229</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -313,9 +319,54 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Boot path after <a class="el" href="game__board__core_8c.html#a9b4b4ef6ba4260c09a59192fc68be834" title="Initialize the inbox to the default position.">game_initialize_board()</a>: boot tracker, load NVS or force new game. </p>
-<p>May call <a class="el" href="game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44" title="Start a new game.">game_start_new_game()</a>, <a class="el" href="game__matrix__guard_8c.html#aa2ad17091138a8d7b1df3bd238964d84">game_matrix_guard_check_resync_after_restore()</a>. </p>
+<p>May call <a class="el" href="game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44" title="Start a new game.">game_start_new_game()</a>, <a class="el" href="game__squares__guard_8c.html#a50afe72176873627b6d0fc68fdc0fa13">game_squares_guard_check_resync_after_restore()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00409">409</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00788">788</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a1e8cc3e15e1434ae33152a396a0358a8" name="a1e8cc3e15e1434ae33152a396a0358a8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e8cc3e15e1434ae33152a396a0358a8">&#9670;&#160;</a></span>game_snapshot_sensors_ready()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_snapshot_sensors_ready </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>False while Hall has no trustworthy baseline yet. </p>
+<p>Reed builds return true. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00746">746</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a9184164562ea92a033760a65a704560c" name="a9184164562ea92a033760a65a704560c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9184164562ea92a033760a65a704560c">&#9670;&#160;</a></span>game_snapshot_service_after_boot()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_snapshot_service_after_boot </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>After boot animation: once Hall (or reed) readings are usable, compare them to the restored board and, if they match, start the paused clock. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00754">754</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -335,7 +386,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00139">139</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00220">220</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -355,7 +406,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00131">131</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00212">212</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>

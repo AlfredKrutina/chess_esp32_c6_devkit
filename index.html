@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -93,31 +93,10 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
   <div class="headertitle"><div class="title">web_server_task </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_components_2web__server__task_2README"></a> HTTP server, REST API, embedded web UI, and piece PNG assets.</p>
-<h1><a class="anchor" id="autotoc_md77"></a>
-Structure</h1>
-<div class="fragment"><div class="line">web_server_task/</div>
-<div class="line">├── web_server_task.c      # HTTP handler + embedded chess_app_js_content[]</div>
-<div class="line">├── board_api_auth.c</div>
-<div class="line">├── ota_update.c</div>
-<div class="line">├── chess_piece_http.c</div>
-<div class="line">├── include/</div>
-<div class="line">├── web/</div>
-<div class="line">│   ├── chess_app.js       # generated output — concat_web_js.py</div>
-<div class="line">│   ├── js/</div>
-<div class="line">│   │   ├── matrix_guard.js</div>
-<div class="line">│   │   ├── api.js</div>
-<div class="line">│   │   ├── prefs.js</div>
-<div class="line">│   │   └── app_main.js    # main logic (edit here)</div>
-<div class="line">│   └── piece_assets/      # PNGs for EMBED_FILES in CMakeLists.txt</div>
-<div class="line">└── tools/</div>
-<div class="line">    ├── concat_web_js.py   # web/js/* → chess_app.js</div>
-<div class="line">    ├── embed_chess_js.py  # rewrites JS array in web_server_task.c</div>
-<div class="line">    ├── js_to_c.py         # stdout preview of C array</div>
-<div class="line">    ├── update_js_in_c.py  # alternative updater</div>
-<div class="line">    ├── process_piece_pngs.py</div>
-<div class="line">    └── mqtt_panel_snippet.txt</div>
-</div><!-- fragment --><p>Deploy web UI: docs/reference/WEB_UI_DEPLOY.md. </p>
+<div class="textblock"><p><a class="anchor" id="md_components_2web__server__task_2README"></a> WiFi (AP/STA), HTTP machine API, WebSocket <code>/ws</code>, OTA, and the BLE JSON bridge. Flutter and the Windows client call this component. They do not open a browser page on the board.</p>
+<p><code>GET /</code> returns a short JSON document (<code>service</code>, <code>api</code>, <code>websocket</code>). <code>GET /chess_app.js</code> returns 404 JSON. Piece PNGs are not embedded.</p>
+<p>The human chess page (JS, CSS-less modules, piece PNGs, and the scripts that packed them into firmware) is in <code>kos/unused/web_ui/</code>. It is not compiled and not served.</p>
+<p><code>tools/mqtt_panel_snippet.txt</code> stays here. It is a Home Assistant MQTT panel snippet for <code>ha_light_task</code>, not the browser chess page. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

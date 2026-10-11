@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -95,7 +95,6 @@ $(document).ready(function(){initNavTree('functions_r.html',''); initResizable()
 <h3><a id="index_r" name="index_r"></a>- r -</h3><ul>
 <li>r&#160;:&#160;<a class="el" href="structanimation__state__struct.html#a81ba55cfe9c438efcb2f3a01ba0c250d">animation_state_struct</a>, <a class="el" href="structha__light__command__t.html#a3e086a18624effe55d318b717328c9fb">ha_light_command_t</a>, <a class="el" href="structled__color__t.html#a371fbf1cdc3048a5c69fd727c2945761">led_color_t</a>, <a class="el" href="structled__pixel__t.html#afd559e1dbe5d5b0e95df5c1a71ac673e">led_pixel_t</a>, <a class="el" href="structrgb__color__t.html#a43cb2f2dc1e60fa14bf93d90f9d7015e">rgb_color_t</a></li>
 <li>radius&#160;:&#160;<a class="el" href="structendgame__wave__state__t.html#a17e93286f25caf7283e221863bd27e85">endgame_wave_state_t</a>, <a class="el" href="structfirework__t.html#a25ee75b0312399808b4c1aa7d36cdacb">firework_t</a>, <a class="el" href="structwave__t.html#a1962dccb7b6f3344dd1dc371bef551fb">wave_t</a></li>
-<li>recovery_action&#160;:&#160;<a class="el" href="structcastling__error__info__t.html#a3fa688388a68b217d091d9f92a49e8bd">castling_error_info_t</a></li>
 <li>recovery_hint&#160;:&#160;<a class="el" href="structerror__guidance__t.html#aadbc3531a0c7adcf1a4878cac4d67b85">error_guidance_t</a></li>
 <li>red&#160;:&#160;<a class="el" href="structled__command__t.html#a6465f3443696b28dbff862b0cd143257">led_command_t</a></li>
 <li>require_user_confirm&#160;:&#160;<a class="el" href="structerror__guidance__t.html#a14400cf1fab2b94d126d753a649bf1e2">error_guidance_t</a></li>
@@ -103,14 +102,14 @@ $(document).ready(function(){initNavTree('functions_r.html',''); initResizable()
 <li>response_queue&#160;:&#160;<a class="el" href="structchess__move__command__t.html#a750e92bc6c9a40c005e3e48947dd10b5">chess_move_command_t</a>, <a class="el" href="structled__command__t.html#a4c27aa01b250ef21991565d3876cc24f">led_command_t</a></li>
 <li>restore_original&#160;:&#160;<a class="el" href="structled__duration__state__t.html#a3171dae77eb54657c6c137ce3fc014fa">led_duration_state_t</a></li>
 <li>result&#160;:&#160;<a class="el" href="structtest__t.html#a6148a44083a94dd182a6b2310e830b43">test_t</a></li>
-<li>rook_animation_id&#160;:&#160;<a class="el" href="structcastling__led__state__t.html#a31ff62b630a954e7384df452efdf94f2">castling_led_state_t</a></li>
-<li>rook_destination&#160;:&#160;<a class="el" href="structcastling__led__config__t.html#acce48927878d078580e8acc3e47294dc">castling_led_config_t</a></li>
-<li>rook_from_col&#160;:&#160;<a class="el" href="structcastling__positions__t.html#a5bf47d2b25a7365cfada2110d6c375f2">castling_positions_t</a>, <a class="el" href="structcastling__state__t.html#afde7ce6130b7476c3bc926c09e267d10">castling_state_t</a></li>
-<li>rook_from_row&#160;:&#160;<a class="el" href="structcastling__positions__t.html#a268786a1222cb336eec41510ac089f01">castling_positions_t</a>, <a class="el" href="structcastling__state__t.html#a5487d6de95e717db3a49bf0ed4aed5fd">castling_state_t</a></li>
-<li>rook_highlight&#160;:&#160;<a class="el" href="structcastling__led__config__t.html#a82da172dc989a50b96d81778b283e067">castling_led_config_t</a></li>
-<li>rook_to_col&#160;:&#160;<a class="el" href="structcastling__positions__t.html#a56dd6d90404022b71164de6f9b02b88d">castling_positions_t</a>, <a class="el" href="structcastling__state__t.html#a3f6d980f0e18ee2f5df5907b82d500a0">castling_state_t</a></li>
-<li>rook_to_row&#160;:&#160;<a class="el" href="structcastling__positions__t.html#a327b358b5219956a1a4c1a17cadb9363">castling_positions_t</a>, <a class="el" href="structcastling__state__t.html#a4744be90f6da3461a00f214616844512">castling_state_t</a></li>
-<li>row&#160;:&#160;<a class="el" href="structactive__error__t.html#a3a1ae9add15aea94b873af99aeb85509">active_error_t</a>, <a class="el" href="structchess__position__t.html#a52fc42938f588120d7427968dd5c6c5b">chess_position_t</a></li>
+<li>result_type&#160;:&#160;<a class="el" href="structgame__snapshot__v2__t.html#aadde11fa8d27c5411a910ddd8a953062">game_snapshot_v2_t</a></li>
+<li>rook_castle_col&#160;:&#160;<a class="el" href="structgame__snapshot__hist__v2__t.html#af0b7f338986ec74ec619a3c907e1bd3d">game_snapshot_hist_v2_t</a>, <a class="el" href="structmove__undo__meta__t.html#a29949299446ccf3239659620dc0451bd">move_undo_meta_t</a></li>
+<li>rook_from_col&#160;:&#160;<a class="el" href="structcastling__state__t.html#afde7ce6130b7476c3bc926c09e267d10">castling_state_t</a>, <a class="el" href="structgame__snapshot__v2__t.html#a9cc59ca31a6277eec414efe0dddeb376">game_snapshot_v2_t</a></li>
+<li>rook_from_row&#160;:&#160;<a class="el" href="structcastling__state__t.html#a5487d6de95e717db3a49bf0ed4aed5fd">castling_state_t</a>, <a class="el" href="structgame__snapshot__v2__t.html#aafae66a95543e80bae8cd47dae7af99e">game_snapshot_v2_t</a></li>
+<li>rook_home_col&#160;:&#160;<a class="el" href="structgame__snapshot__hist__v2__t.html#afe5c58ce600415accb2a89249f5ff3d8">game_snapshot_hist_v2_t</a>, <a class="el" href="structmove__undo__meta__t.html#aee69ff34a2e74df92f6fa21a041b8383">move_undo_meta_t</a></li>
+<li>rook_to_col&#160;:&#160;<a class="el" href="structcastling__state__t.html#a3f6d980f0e18ee2f5df5907b82d500a0">castling_state_t</a>, <a class="el" href="structgame__snapshot__v2__t.html#a34a554a5c2953abf6e278f5dbea7052e">game_snapshot_v2_t</a></li>
+<li>rook_to_row&#160;:&#160;<a class="el" href="structcastling__state__t.html#a4744be90f6da3461a00f214616844512">castling_state_t</a>, <a class="el" href="structgame__snapshot__v2__t.html#ac75c71887eefe02b41942cdab74587ce">game_snapshot_v2_t</a></li>
+<li>row&#160;:&#160;<a class="el" href="structactive__error__t.html#a3a1ae9add15aea94b873af99aeb85509">active_error_t</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

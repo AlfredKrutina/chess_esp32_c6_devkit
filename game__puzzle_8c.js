@@ -5,7 +5,7 @@ var game__puzzle_8c =
     [ "game_get_puzzle_definition", "game__puzzle_8c.html#acf826ca4ea1225da1fd85055b68b64fd", null ],
     [ "game_is_puzzle_active", "game__puzzle_8c.html#aaa780f6901abda22ff80c49e2d851d49", null ],
     [ "game_is_puzzle_setup_active", "game__puzzle_8c.html#a9a17f30ab5e966f7966d9775f28ccb43", null ],
-    [ "game_physical_matrix_matches_fen", "game__puzzle_8c.html#a70c7e309649ce8464d1850b9e68f50f4", null ],
+    [ "game_physical_squares_matches_fen", "game__puzzle_8c.html#ac207ceff14a186ec5f8701110d7d8c5f", null ],
     [ "game_puzzle_cancel", "game__puzzle_8c.html#abfce4f49606128cf55f4a12cc3bd2a61", null ],
     [ "game_puzzle_enter_setup", "game__puzzle_8c.html#a1518cea04e69b31f017b63ce7025c96d", null ],
     [ "game_puzzle_feedback_key", "game__puzzle_8c.html#a5ee101d1cc5320cd1a144ef1ca5a4ae7", null ],

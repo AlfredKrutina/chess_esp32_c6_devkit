@@ -48,7 +48,6 @@ var test__task_8c =
     [ "test_run_single_test", "test__task_8c.html#abce606bebe3aab6e9cd5bb6210d28d70", null ],
     [ "test_run_suite", "test__task_8c.html#a5b116c2efc3cea334eee3f42cdc03a0e", null ],
     [ "test_task_start", "test__task_8c.html#af82dfdecbc2c7932876c821753490930", null ],
-    [ "test_task_wdt_reset_safe", "test__task_8c.html#ac21b25ddf3b1c4cace1096ac1767b6fa", null ],
     [ "current_suite", "test__task_8c.html#a621746122b4e1085fc8caaa6b0af5436", null ],
     [ "current_test", "test__task_8c.html#a5124dc52ed577e8d54bbf4615c8c51cb", null ],
     [ "current_test_state", "test__task_8c.html#a774d23f220a18e0e5b416d8b85eb4ec7", null ],

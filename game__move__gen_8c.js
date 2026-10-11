@@ -8,6 +8,7 @@ var game__move__gen_8c =
     [ "game_is_own_piece", "game__move__gen_8c.html#a7f31b3ea42f40399386306ba3d88cb9c", null ],
     [ "game_is_square_attacked", "game__move__gen_8c.html#a719de74e100448e17548867befc43a1b", null ],
     [ "game_is_valid_square", "game__move__gen_8c.html#ad58024344b5777da494b4a35f8250c32", null ],
+    [ "game_sim_piece_after_promotion", "game__move__gen_8c.html#ab7941cbe6468992375d91e7df44f1bfb", null ],
     [ "game_simulate_move_check", "game__move__gen_8c.html#a3d771c47f735ab5e75fee68915b073fc", null ],
     [ "game_validate_move_enhanced", "game__move__gen_8c.html#ac096591c429faefd9993ddcc3d87bf11", null ],
     [ "bishop_dirs", "game__move__gen_8c.html#a74a955b0f7a508aa10c622ae8d7563eb", null ],

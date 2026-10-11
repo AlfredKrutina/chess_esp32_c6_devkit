@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -164,6 +164,8 @@ Functions</h2></td></tr>
 <tr class="separator:a4abd7470fc1b949d24303feda00f7739"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a591cdaf22423bbfdb1e7b5c1b8502fba" id="r_a591cdaf22423bbfdb1e7b5c1b8502fba"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#a591cdaf22423bbfdb1e7b5c1b8502fba">web_server_opening_dispatch_json</a> (struct cJSON *root)</td></tr>
 <tr class="separator:a591cdaf22423bbfdb1e7b5c1b8502fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a234bbf8947a15eaa69092f5785e09b" id="r_a2a234bbf8947a15eaa69092f5785e09b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#a2a234bbf8947a15eaa69092f5785e09b">web_opening_action_code</a> (const char *action)</td></tr>
+<tr class="separator:a2a234bbf8947a15eaa69092f5785e09b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ff67d437127bf998076f532413e16b6" id="r_a7ff67d437127bf998076f532413e16b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#a7ff67d437127bf998076f532413e16b6">inject_web_status_fields</a> (char *buf, size_t buf_size)</td></tr>
 <tr class="memdesc:a7ff67d437127bf998076f532413e16b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supplementing GET /api/status with web lock, WiFi, brightness, matrix guard, lamp (shared with snapshot).  <br /></td></tr>
 <tr class="separator:a7ff67d437127bf998076f532413e16b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -328,7 +330,7 @@ Variables</h2></td></tr>
 <p>Ping queue from game_task — WS + BLE snapshot in web_server_task (does not block game_task at httpd_ws_send_data / malloc). </p>
 <p>Must be outside #if WS — BLE always. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l02992">2992</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03006">3006</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -464,6 +466,26 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a2a234bbf8947a15eaa69092f5785e09b" name="a2a234bbf8947a15eaa69092f5785e09b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a234bbf8947a15eaa69092f5785e09b">&#9670;&#160;</a></span>web_opening_action_code()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t web_opening_action_code </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>action</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="web__opening__dispatch_8c_source.html#l00023">23</a> of file <a class="el" href="web__opening__dispatch_8c_source.html">web_opening_dispatch.c</a>.</p>
+
+</div>
+</div>
 <a id="ae2ee8d0febaa6efbb435ca1a93784fa2" name="ae2ee8d0febaa6efbb435ca1a93784fa2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae2ee8d0febaa6efbb435ca1a93784fa2">&#9670;&#160;</a></span>web_server_apply_hint_highlight_json_body()</h2>
 
@@ -502,7 +524,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03681">3681</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03695">3695</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -611,7 +633,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure</dd></dl>
 <p>Function to create JSON with AP information (SSID, IP, clients) and STA (SSID, IP, connected status). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01601">1601</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01615">1615</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>

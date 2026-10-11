@@ -2,7 +2,6 @@ var dir_17f9138bad1f9d2ff44cddc9da54d444 =
 [
     [ "include", "dir_dd43ffc1cdd951e881f480cb706d2add.html", "dir_dd43ffc1cdd951e881f480cb706d2add" ],
     [ "board_api_auth.c", "board__api__auth_8c.html", "board__api__auth_8c" ],
-    [ "chess_piece_http.c", "chess__piece__http_8c.html", "chess__piece__http_8c" ],
     [ "ota_update.c", "ota__update_8c.html", "ota__update_8c" ],
     [ "web_handlers_game.c", "web__handlers__game_8c.html", "web__handlers__game_8c" ],
     [ "web_handlers_system.c", "web__handlers__system_8c.html", "web__handlers__system_8c" ],

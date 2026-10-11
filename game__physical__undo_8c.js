@@ -1,0 +1,32 @@
+var game__physical__undo_8c =
+[
+    [ "physical_undo_state_t", "structphysical__undo__state__t.html", "structphysical__undo__state__t" ],
+    [ "phys_undo_phase_t", "game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652", [
+      [ "PHYS_UNDO_IDLE", "game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652ab27427e19ebbe542869522b7850bafad", null ],
+      [ "PHYS_UNDO_ARMED", "game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652ad9d75fe1cfed6166e7f51c78a9f8758e", null ],
+      [ "PHYS_UNDO_PENDING", "game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652a163bd37d98fde10d026dbcbfd1795f37", null ]
+    ] ],
+    [ "game_move_undo_meta_init_record", "game__physical__undo_8c.html#a1f1ed6febef68e2f5b85f7dbcbb08355", null ],
+    [ "game_move_undo_meta_on_promotion_completed", "game__physical__undo_8c.html#a885557b12578a8c185d531d0ae69d32c", null ],
+    [ "game_physical_undo_build_target_board", "game__physical__undo_8c.html#a648637c5264d58ff6642ff3b7ace8c18", null ],
+    [ "game_physical_undo_enabled", "game__physical__undo_8c.html#ad48d8275432f8e42175fe0711e306ece", null ],
+    [ "game_physical_undo_handle_drop", "game__physical__undo_8c.html#a8e114e94e6635f66b587d350fd3a6da2", null ],
+    [ "game_physical_undo_handle_pickup", "game__physical__undo_8c.html#a67fca8ae3f7f5f165ddf7e93e3bdb459", null ],
+    [ "game_physical_undo_is_active", "game__physical__undo_8c.html#aa3b33c8da8da285fbfff70e9ee7f2672", null ],
+    [ "game_physical_undo_lift_matches", "game__physical__undo_8c.html#a557541dab40d3a5092202a7f4dd332b4", null ],
+    [ "game_physical_undo_load_last", "game__physical__undo_8c.html#a94bc6d96917dde5577ec027945f4d08e", null ],
+    [ "game_physical_undo_mode_blocks_offer", "game__physical__undo_8c.html#a29b1cbb4eaa85c47a9ed680bd1fcf465", null ],
+    [ "game_physical_undo_physical_matches_target", "game__physical__undo_8c.html#a1ef7a9e1dd1a2cb5f19448fd729e3923", null ],
+    [ "game_physical_undo_reset", "game__physical__undo_8c.html#a4e630ff0a7fd8e153a38561aee303b27", null ],
+    [ "game_physical_undo_rook_for_king", "game__physical__undo_8c.html#a27a1968b545b41775ce5610d59a4c9d1", null ],
+    [ "game_physical_undo_show_armed_leds", "game__physical__undo_8c.html#a0e69f943af86cc620793802ad0bc9708", null ],
+    [ "game_physical_undo_show_pending_leds", "game__physical__undo_8c.html#ae8cbf6b4060dcb8597b8741add61a8c4", null ],
+    [ "game_physical_undo_target_matches_reed", "game__physical__undo_8c.html#a139cc05587438735be74586b69c24350", null ],
+    [ "game_physical_undo_tick", "game__physical__undo_8c.html#a37f097ae937dba1d78770d62b0ecf5e7", null ],
+    [ "game_physical_undo_try_complete_engine", "game__physical__undo_8c.html#a367d64dec45fc07edbbf15c66d80f352", null ],
+    [ "game_undo_rewind_last_move", "game__physical__undo_8c.html#a56f1df9f1b25d301842d42aabeb54aed", null ],
+    [ "undo_pop_last_capture_list", "game__physical__undo_8c.html#a0efb0a2c9163f831500e88b345f08156", null ],
+    [ "move_history_meta", "game__physical__undo_8c.html#ac9b8bfeabb80ca6e9af5180a3da73a42", null ],
+    [ "s_undo", "game__physical__undo_8c.html#aaa3675c1d4c67ff3aad59866f5ca2bce", null ],
+    [ "TAG", "game__physical__undo_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
+];

@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -146,6 +146,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a1993d0374ca8f378da44d083d6846652" id="r_a1993d0374ca8f378da44d083d6846652"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ble__task_8h.html#a1993d0374ca8f378da44d083d6846652">ble_task_notify_cmd_ack_json</a> (const char *json_utf8)</td></tr>
 <tr class="memdesc:a1993d0374ca8f378da44d083d6846652"><td class="mdescLeft">&#160;</td><td class="mdescRight">Full JSON for cmd_ack notify (e.g.  <br /></td></tr>
 <tr class="separator:a1993d0374ca8f378da44d083d6846652"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a384893b40a2b2f818241081b931d35c3" id="r_a384893b40a2b2f818241081b931d35c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ble__task_8h.html#a384893b40a2b2f818241081b931d35c3">ble_task_request_pairing</a> (void)</td></tr>
+<tr class="memdesc:a384893b40a2b2f818241081b931d35c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make the board discoverable again on the existing advertising/bonding path.  <br /></td></tr>
+<tr class="separator:a384893b40a2b2f818241081b931d35c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>BLE interface CZECHMATE — NimBLE GATT when CONFIG_BT_ENABLED. </p>
@@ -170,7 +173,7 @@ Functions</h2></td></tr>
 
 <p>True if there is an active GATT connection with enabled link encryption (SMP). </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01042">1042</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01075">1075</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -202,7 +205,7 @@ Functions</h2></td></tr>
 
 <p>One BLE status line (NimBLE / GATT) for UART BLE command. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01057">1057</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01092">1092</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -245,7 +248,7 @@ Functions</h2></td></tr>
 <p>Full JSON for cmd_ack notify (e.g. </p>
 <p>wifi_survey up to ~2 KiB). Use only from web_server BLE dispatch. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01055">1055</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01088">1088</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -278,7 +281,7 @@ Functions</h2></td></tr>
 <p>After processing GATT write to CMD characteristic sends JSON to cmd_ack notify (if the central office is logged in to notifications). </p>
 <p>See the "cmd_ack" channel in the log. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01050">1050</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01083">1083</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -301,7 +304,7 @@ Functions</h2></td></tr>
 <p>Sends network info (IP, SSID, online status) to the connected central office. </p>
 <p>Call when the IP address or WiFi status changes. Without CONFIG_BT_ENABLED or without BLE connection is a no-op. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01048">1048</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01081">1081</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -334,7 +337,30 @@ Functions</h2></td></tr>
 <p>Sends a JSON snapshot to the connected central office (chunked, CM header). </p>
 <p>Without CONFIG_BT_ENABLED or without BLE connection is a no-op. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01044">1044</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01077">1077</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+
+</div>
+</div>
+<a id="a384893b40a2b2f818241081b931d35c3" name="a384893b40a2b2f818241081b931d35c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a384893b40a2b2f818241081b931d35c3">&#9670;&#160;</a></span>ble_task_request_pairing()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ble_task_request_pairing </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Make the board discoverable again on the existing advertising/bonding path. </p>
+<p>Does not stop the NimBLE host. If a connection is already up, advertising is left alone. </p>
+
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01090">1090</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -357,7 +383,7 @@ Functions</h2></td></tr>
 <p>True if the BLE link is active and the central office has CCC snapshot notifications turned on. </p>
 <p>Otherwise, push snapshot is a no-op — the web server doesn't have to compose JSON just "into the void" every 3 seconds. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01043">1043</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01076">1076</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>

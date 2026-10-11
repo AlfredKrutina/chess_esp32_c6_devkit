@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['v1_20overview_0',['Hardware (V1 overview)',['..//home/runner/work/chess_esp32_c6_devkit/chess_esp32_c6_devkit/README.md#autotoc_md97',1,'']]],
+  ['v1_20prototype_20overview_0',['V1 Prototype Overview',['..//home/runner/work/chess_esp32_c6_devkit/chess_esp32_c6_devkit/README.md#autotoc_md97',1,'']]],
   ['validate_5fchess_5fsquares_1',['validate_chess_squares',['../uart__parse_8h.html#a86e9ed02bc7633c27662831ea262f799',1,'validate_chess_squares(const char *from, const char *to):&#160;uart_parse.c'],['../uart__parse_8c.html#a86e9ed02bc7633c27662831ea262f799',1,'validate_chess_squares(const char *from, const char *to):&#160;uart_parse.c']]],
   ['validate_5fgpio_5fpin_2',['validate_gpio_pin',['../freertos__chess_8c.html#a1ceecb2e00128b59e0224f35608eaf6c',1,'freertos_chess.c']]],
   ['verbose_5fmode_3',['verbose_mode',['../structsystem__config__t.html#af8c07d8eebb3404469c34764d2c3fe74',1,'system_config_t']]],
-  ['version_4',['version',['../structgame__snapshot__full__t.html#a2265cc98926cf6504e8886cfb82c8e79',1,'game_snapshot_full_t::version'],['../structgame__snapshot__min__t.html#aa102f7397d3118a377565512d01d6d3a',1,'game_snapshot_min_t::version'],['../structgame__boot__tracker__t.html#a84f3476fa9ca01acd75edce763515c64',1,'game_boot_tracker_t::version']]],
+  ['version_4',['version',['../structgame__snapshot__full__t.html#a2265cc98926cf6504e8886cfb82c8e79',1,'game_snapshot_full_t::version'],['../structgame__snapshot__min__t.html#aa102f7397d3118a377565512d01d6d3a',1,'game_snapshot_min_t::version'],['../structgame__boot__tracker__t.html#a84f3476fa9ca01acd75edce763515c64',1,'game_boot_tracker_t::version'],['../structgame__snapshot__v2__t.html#a766b615ad63596287e946202e7fca573',1,'game_snapshot_v2_t::version']]],
   ['visual_5ferror_5fcheck_5fnot_5fresolved_5',['visual_error_check_not_resolved',['../visual__error__system_8h.html#a0f02317b17f5b0281f661f19deae1499',1,'visual_error_system.h']]],
   ['visual_5ferror_5fclear_6',['visual_error_clear',['../visual__error__system_8h.html#a314097cc7e5312622bbd6ad0981a7ece',1,'visual_error_system.h']]],
   ['visual_5ferror_5fclear_5fall_7',['visual_error_clear_all',['../visual__error__system_8h.html#a2a68c37b08f7acbbefa6b31d6a79c9d3',1,'visual_error_system.h']]],

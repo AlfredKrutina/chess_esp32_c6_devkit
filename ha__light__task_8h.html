@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -196,6 +196,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a08a1f3e1bf3f29355b526af9058122c0" id="r_a08a1f3e1bf3f29355b526af9058122c0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8h.html#a08a1f3e1bf3f29355b526af9058122c0">HA_CMD_WEB_LAMP</a>&#160;&#160;&#160;2</td></tr>
 <tr class="memdesc:a08a1f3e1bf3f29355b526af9058122c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of command: Web lamps (set colors/turn on from the web)  <br /></td></tr>
 <tr class="separator:a08a1f3e1bf3f29355b526af9058122c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5f2ed7610f103c4436f4fd4b585fdcb" id="r_ae5f2ed7610f103c4436f4fd4b585fdcb"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8h.html#ae5f2ed7610f103c4436f4fd4b585fdcb">HA_CMD_SET_MODE</a>&#160;&#160;&#160;3</td></tr>
+<tr class="memdesc:ae5f2ed7610f103c4436f4fd4b585fdcb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Commit game or lamp after the gesture wave has covered the board.  <br /></td></tr>
+<tr class="separator:ae5f2ed7610f103c4436f4fd4b585fdcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -225,6 +228,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a745b4de0bfe0480fe88c73e3d23170eb" id="r_a745b4de0bfe0480fe88c73e3d23170eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8h.html#a745b4de0bfe0480fe88c73e3d23170eb">ha_light_get_mode</a> (void)</td></tr>
 <tr class="memdesc:a745b4de0bfe0480fe88c73e3d23170eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current regime.  <br /></td></tr>
 <tr class="separator:a745b4de0bfe0480fe88c73e3d23170eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fdf3eface4d0eb325301970402433cc" id="r_a8fdf3eface4d0eb325301970402433cc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8h.html#a8fdf3eface4d0eb325301970402433cc">ha_light_request_mode</a> (<a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a> mode)</td></tr>
+<tr class="memdesc:a8fdf3eface4d0eb325301970402433cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue a real mode switch (game or lamp).  <br /></td></tr>
+<tr class="separator:a8fdf3eface4d0eb325301970402433cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd55f7ffede0e026b07f35f00256b908" id="r_afd55f7ffede0e026b07f35f00256b908"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8h.html#afd55f7ffede0e026b07f35f00256b908">ha_light_persist_mode</a> (void)</td></tr>
+<tr class="memdesc:afd55f7ffede0e026b07f35f00256b908"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write the current game/lamp mode into lamp_cfg.  <br /></td></tr>
+<tr class="separator:afd55f7ffede0e026b07f35f00256b908"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0fc50519ca67911865aa6f8afc0a939f" id="r_a0fc50519ca67911865aa6f8afc0a939f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8h.html#a0fc50519ca67911865aa6f8afc0a939f">ha_light_is_available</a> (void)</td></tr>
 <tr class="memdesc:a0fc50519ca67911865aa6f8afc0a939f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if HA mode is available (WiFi STA connected)  <br /></td></tr>
 <tr class="separator:a0fc50519ca67911865aa6f8afc0a939f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -312,6 +321,24 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>Command type: Activity report (switching from HA to GAME) </p>
 
 <p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00090">90</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+
+</div>
+</div>
+<a id="ae5f2ed7610f103c4436f4fd4b585fdcb" name="ae5f2ed7610f103c4436f4fd4b585fdcb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5f2ed7610f103c4436f4fd4b585fdcb">&#9670;&#160;</a></span>HA_CMD_SET_MODE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_CMD_SET_MODE&#160;&#160;&#160;3</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Commit game or lamp after the gesture wave has covered the board. </p>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00094">94</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>
@@ -585,7 +612,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 
 <p>Doba (v sekundach) po ktere se pri necinosti prepne do rezimu lampa (5..7200). </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01093">1093</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01118">1118</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -608,7 +635,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>Get the current regime. </p>
 <dl class="section return"><dt>Returns</dt><dd>ha_mode_t Current mode (GAME or HA) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01091">1091</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01104">1104</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -660,7 +687,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>Call from HTTP handler for GET /api/status. Thread-safe.</p>
 <p>Get the current state of the lamp (color, on) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01114">1114</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01139">1139</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -683,7 +710,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>Check if HA mode is available (WiFi STA connected) </p>
 <dl class="section return"><dt>Returns</dt><dd>true if WiFi STA is connected, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01168">1168</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01193">1193</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -706,7 +733,30 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>Check if the MQTT client is connected. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if MQTT is connected, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01199">1199</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01224">1224</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afd55f7ffede0e026b07f35f00256b908" name="afd55f7ffede0e026b07f35f00256b908"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd55f7ffede0e026b07f35f00256b908">&#9670;&#160;</a></span>ha_light_persist_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ha_light_persist_mode </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Write the current game/lamp mode into lamp_cfg. </p>
+<p>Safe to call before sleep. </p>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01116">1116</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -731,7 +781,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>This function is used when changing the MQTT configuration on the fly. Stops the build client, reloads the configuration from NVS and initializes a new client. If the WiFi STA is not connected, return an error.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01206">1206</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01231">1231</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -752,7 +802,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 </div><div class="memdoc">
 
 <p>Game activity report (for resetting the 5min timer) </p>
-<p>I call this function last tasks (game_task, matrix_task) when detect activity (movement of figures, game command).</p>
+<p>I call this function last tasks (game_task, squares_task) when detect activity (movement of figures, game command).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">activity_type</td><td>Activity type ("move", "pickup", "drop", "command")</td></tr>
@@ -761,7 +811,30 @@ WHAT DID THIS COMPONENT DO?</h1>
 </dl>
 <p>Game activity report (for resetting the 5min timer) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00240">240</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00231">231</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8fdf3eface4d0eb325301970402433cc" name="a8fdf3eface4d0eb325301970402433cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8fdf3eface4d0eb325301970402433cc">&#9670;&#160;</a></span>ha_light_request_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ha_light_request_mode </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a>&#160;</td>
+          <td class="paramname"><em>mode</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Queue a real mode switch (game or lamp). </p>
+<p>The HA task applies it and writes the mode byte into the existing lamp_cfg NVS namespace. </p><dl class="section return"><dt>Returns</dt><dd>false if the command queue is missing or full. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01106">1106</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -808,7 +881,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 <p>Lamp settings request from the web (mode Lamp, color, on)</p>
 <dl class="section return"><dt>Returns</dt><dd>true if the command is sent to the queue, false if the queue is NULL or full </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01151">1151</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01176">1176</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -830,7 +903,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 
 <p>Set and save to NVS; sec will be limited to 5..7200. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01097">1097</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01122">1122</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -859,7 +932,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 </dl>
 <p>Start the HA Light task. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01243">1243</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01268">1268</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -935,7 +1008,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success</dd></dl>
 <p>Gain MQTT configuration (load from NVS if it hasn't been loaded yet) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01173">1173</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01198">1198</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1000,7 +1073,7 @@ WHAT DID THIS COMPONENT DO?</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00471">471</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00464">464</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>

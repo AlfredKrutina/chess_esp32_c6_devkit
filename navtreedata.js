@@ -25,7 +25,7 @@
 var NAVTREE =
 [
   [ "CZECHMATE", "index.html", [
-    [ "web_server_task", "index.html", "index" ],
+    [ "web_server_task", "index.html", null ],
     [ "Deprecated List", "deprecated.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -52,25 +52,25 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"animation__task_8c.html",
-"chess__gameplay__policy_8h.html#aa80300cf6f9137b8979bb09682c85216",
-"chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1",
-"freertos__chess_8c.html#aa13f5879e99176ffada8295c49c67b6c",
-"game__cmd__handlers_8c.html#a09408e7fee7146bd08512755a44f6bae",
-"game__move__exec_8c.html#a5ab63491e32394b086a3c916db195c31",
-"game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b",
-"game__task_8h.html#a93dee8ccd518ae0092501007a420e4bb",
-"game__task__internal_8h.html#af54fe97fc72c8bb8cdd95225e554599c",
-"hall__i2c__matrix_8c_source.html",
-"led__task_8c.html#ae9ca69874a3fd0ef1b1aea542f0ce0cf",
-"ota__update_8c.html#a82ddd3944b12b0e7c1470489924799ad",
-"structanimation__task__t.html",
-"structgame__snapshot__min__t.html#a82c1c5ae78f12b48098ebe3a2be8f913",
-"structtest__suite__t.html#aa45aadb094d68d71e4f3b8f5ef2d08c9",
-"uart__cli__panel_8c_source.html",
-"uart__task_8c.html#ad4eba791e9c70bcdc5084bda677d813e",
-"unified__animation__manager_8h.html#a7e703c09ba390bb0306ced9d307690dfa8c45a77c12dfce36851aa4c537e7e423",
-"web__server__task_8c.html#a58d5a2d96673c5a9255d3f2ac489ba91"
+"annotated.html",
+"chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390",
+"freertos__chess_8c.html#a2d90fd6adb05ddb54ae494a47e311309",
+"game__board__core_8c.html#a2f77ab43a39a2a3ebc640df092f9cdc1",
+"game__led__direct_8h.html#af337fa678e02039015341d7fa45e3ccc",
+"game__snapshot_8c.html#a06eeef79b957711c3443741523b404aa",
+"game__task_8c.html#aeb8179882039bb317d2467c1954ecf27",
+"game__task__internal_8h.html#a5b253e24e11c0ad3222fb3d064f4d4cc",
+"ha__light__task_8c.html#a135ce56f6bd050c86c6a4b765de6e6e2",
+"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961aa0c162f64d4c541c0d5cd47bcfe200f1",
+"led__task_8c.html#adcb62bbb886677c71922e74b5629bda1",
+"shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69",
+"structchess__move__command__t.html#a51b8eb6617ef0642c722008827f2d3d1",
+"structguided__capture__state__t.html#a20ba9b59cdacff49275a50b528f1a0e6",
+"structsystem__config__t.html#a05bbd482d93891e6ed1ec8d1068309d7",
+"timer__system_8h_source.html",
+"uart__task_8c.html#a741b46c24c6a12f798156859a8dcf1a6",
+"unified__animation__manager_8c.html#ac6afabdc09a49a433ee19d8a9486056d",
+"web__server__internal_8h.html#a98a54dbb11377534d4aae37a3259ac33"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

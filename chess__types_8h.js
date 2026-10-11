@@ -6,8 +6,8 @@ var chess__types_8h =
     [ "game_response_t", "structgame__response__t.html", "structgame__response__t" ],
     [ "led_command_t", "structled__command__t.html", "structled__command__t" ],
     [ "button_event_t", "structbutton__event__t.html", "structbutton__event__t" ],
-    [ "matrix_event_t", "structmatrix__event__t.html", "structmatrix__event__t" ],
-    [ "matrix_command_t", "structmatrix__command__t.html", "structmatrix__command__t" ],
+    [ "squares_event_t", "structsquares__event__t.html", "structsquares__event__t" ],
+    [ "squares_command_t", "structsquares__command__t.html", "structsquares__command__t" ],
     [ "move_suggestion_t", "structmove__suggestion__t.html", "structmove__suggestion__t" ],
     [ "system_config_t", "structsystem__config__t.html", "structsystem__config__t" ],
     [ "led_animation_state_t", "structled__animation__state__t.html", "structled__animation__state__t" ],
@@ -16,7 +16,7 @@ var chess__types_8h =
     [ "CHESS_LED_COUNT_BOARD", "chess__types_8h.html#a490b67efe5e74def79831ae40041f654", null ],
     [ "CHESS_LED_COUNT_BUTTONS", "chess__types_8h.html#ab7815f5333fcf26dd13f9966d6564412", null ],
     [ "CHESS_LED_COUNT_TOTAL", "chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728", null ],
-    [ "CHESS_MATRIX_SIZE", "chess__types_8h.html#a66570ebf9fc22729e105df1e70b02db5", null ],
+    [ "CHESS_SQUARES_SIZE", "chess__types_8h.html#ae45333b2c65697a8d3913953692e153f", null ],
     [ "MAX_MOVE_HISTORY", "chess__types_8h.html#a3b87426d2e6f6d464ec0a2df2f66dd83", null ],
     [ "button_event_type_t", "chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b", [
       [ "BUTTON_EVENT_PRESS", "chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904bac5a8f24e3beed7990f5495be58d2dc79", null ],
@@ -70,7 +70,7 @@ var chess__types_8h =
       [ "GAME_CMD_RESET_TIMER", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d", null ],
       [ "GAME_CMD_GET_TIMER_STATE", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2", null ],
       [ "GAME_CMD_TIMER_TIMEOUT", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534", null ],
-      [ "GAME_CMD_MATRIX_GUARD", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4af5a0b54b7dbb8a1e24fe81414ee1ed4e", null ],
+      [ "GAME_CMD_SQUARES_GUARD", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf", null ],
       [ "GAME_CMD_BOARD_SETUP_TUTORIAL", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b", null ],
       [ "GAME_CMD_PUZZLE", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0", null ],
       [ "GAME_CMD_NEW_GAME_FROM_FEN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b", null ],
@@ -118,8 +118,8 @@ var chess__types_8h =
       [ "LED_CMD_ANIMATION", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dab94ae0805f7899148694194f7b562b74", null ],
       [ "LED_CMD_TEST", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5", null ],
       [ "LED_CMD_TEST_ALL", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38", null ],
-      [ "LED_CMD_MATRIX_OFF", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221", null ],
-      [ "LED_CMD_MATRIX_ON", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70", null ],
+      [ "LED_CMD_SQUARES_OFF", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dab1532e3dccffcbd828cfdcccb499c8bf", null ],
+      [ "LED_CMD_SQUARES_ON", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da0c97f4e2b06ed58477bc5822c36f86e6", null ],
       [ "LED_CMD_RESERVED_SLOT_13", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f", null ],
       [ "LED_CMD_RESERVED_SLOT_14", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e", null ],
       [ "LED_CMD_RESERVED_SLOT_15", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da01e63f99b685e64e8d0e8c356b59f9e2", null ],
@@ -159,20 +159,6 @@ var chess__types_8h =
       [ "LED_CMD_STATUS_COMPACT", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da79fc9577fe569938b3650e0615820b32", null ],
       [ "LED_CMD_STATUS_DETAILED", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da4c9252d50be03c29a85aff96f4db49a0", null ],
       [ "LED_CMD_SET_BRIGHTNESS", "chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390", null ]
-    ] ],
-    [ "matrix_command_type_t", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447a", [
-      [ "MATRIX_CMD_SCAN", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943", null ],
-      [ "MATRIX_CMD_RESET", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec", null ],
-      [ "MATRIX_CMD_TEST", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280", null ],
-      [ "MATRIX_CMD_CALIBRATE", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d", null ],
-      [ "MATRIX_CMD_DISABLE", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700", null ],
-      [ "MATRIX_CMD_ENABLE", "chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad", null ]
-    ] ],
-    [ "matrix_event_type_t", "chess__types_8h.html#a86af72d7b967d33d0fade767c033320f", [
-      [ "MATRIX_EVENT_PIECE_LIFTED", "chess__types_8h.html#a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d", null ],
-      [ "MATRIX_EVENT_PIECE_PLACED", "chess__types_8h.html#a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594", null ],
-      [ "MATRIX_EVENT_MOVE_DETECTED", "chess__types_8h.html#a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619", null ],
-      [ "MATRIX_EVENT_ERROR", "chess__types_8h.html#a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246", null ]
     ] ],
     [ "move_error_t", "chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1", [
       [ "MOVE_ERROR_NONE", "chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1a4100d3557901ed1bf26cadf95436db60", null ],
@@ -228,6 +214,20 @@ var chess__types_8h =
       [ "PROMOTION_ROOK", "chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85", null ],
       [ "PROMOTION_BISHOP", "chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237af76338fd133ad75d03265525fab6a060", null ],
       [ "PROMOTION_KNIGHT", "chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a38e92903ca7d679f019bbc0895c00910", null ]
+    ] ],
+    [ "squares_command_type_t", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149", [
+      [ "SQUARES_CMD_SCAN", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ab0cd5eeffcfda1056ea54921b7d5ad8b", null ],
+      [ "SQUARES_CMD_RESET", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ac888837149a6e00a6791f653b6d74cc5", null ],
+      [ "SQUARES_CMD_TEST", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a919a167dad6d8f56cc00d591d36e741e", null ],
+      [ "SQUARES_CMD_CALIBRATE", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a57e8dae7d8ba2a976c34ffb9540ed516", null ],
+      [ "SQUARES_CMD_DISABLE", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a28d73282bd2ea65075720f19472d8e47", null ],
+      [ "SQUARES_CMD_ENABLE", "chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a99bef9d0fa14b115e4b06a1c75efbeea", null ]
+    ] ],
+    [ "squares_event_type_t", "chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9", [
+      [ "SQUARES_EVENT_PIECE_LIFTED", "chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a0641764a07f00a815b24d9af78711f06", null ],
+      [ "SQUARES_EVENT_PIECE_PLACED", "chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a4496d35fb6743fc7d1cff0fb09bd019c", null ],
+      [ "SQUARES_EVENT_MOVE_DETECTED", "chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a1b66323325b4f10c9dd69ce3814890e3", null ],
+      [ "SQUARES_EVENT_ERROR", "chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9aa0aa5e12856a15409b78d29a0db351ff", null ]
     ] ],
     [ "config_apply_settings", "chess__types_8h.html#ae753d20be4991e260b40fd757087ebab", null ],
     [ "config_load_from_nvs", "chess__types_8h.html#a75038f5476c578ca0c192468d004160c", null ],

@@ -16,7 +16,6 @@ var button__task_8c =
     [ "button_simulate_press", "button__task_8c.html#a133a427b3e47eeb0e857d1efd4bbfe57", null ],
     [ "button_simulate_release", "button__task_8c.html#a2f22af1e62d703a6cd12cfa7d7058865", null ],
     [ "button_task_start", "button__task_8c.html#af93b7fa55287e83f6caf447e756de6d2", null ],
-    [ "button_task_wdt_reset_safe", "button__task_8c.html#af88dd4237305bcbdee51952490e7d163", null ],
     [ "button_test_all", "button__task_8c.html#ae20ae1cc0ee0a2af8cdae453a22296a2", null ],
     [ "button_update_led_feedback", "button__task_8c.html#a558352d2b9df8e61bfada7d422249e64", null ],
     [ "button_long_press_sent", "button__task_8c.html#af96174b76a989be40faf4979d06346a0", null ],

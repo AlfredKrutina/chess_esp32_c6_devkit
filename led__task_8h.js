@@ -41,6 +41,7 @@ var led__task_8h =
     [ "led_set_button_release", "led__task_8h.html#a8c05ca5afd0c6a5184c88ee8e05f37b0", null ],
     [ "led_set_ha_color", "led__task_8h.html#acd139d9f40454ed76aa1f080f2299d07", null ],
     [ "led_set_pixel_internal", "led__task_8h.html#a7cb7bb0774dead39c3607d19de9f9d34", null ],
+    [ "led_set_pixel_rgbw", "led__task_8h.html#aa782f9baca8ebfe78ca5595ec031e55d", null ],
     [ "led_set_pixel_safe", "led__task_8h.html#ad4b7ef962f86de71ef5f934f2a92544a", null ],
     [ "led_setup_animation_after_endgame", "led__task_8h.html#a38353130f2210565c3c71c96f05ecf04", null ],
     [ "led_show_chess_board", "led__task_8h.html#a13da231e8e3dc956e4c3415a89409670", null ],

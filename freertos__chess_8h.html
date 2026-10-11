@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -235,9 +235,9 @@ Macros</h2></td></tr>
 <tr class="memitem:aa4b9945e8a7178906001d2393d6c069d" id="r_aa4b9945e8a7178906001d2393d6c069d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#aa4b9945e8a7178906001d2393d6c069d">BUTTON_KNIGHT</a>&#160;&#160;&#160;<a class="el" href="freertos__chess_8h.html#af876ae3f9c7de7f9528648519939c0ee">MATRIX_COL_3</a></td></tr>
 <tr class="memdesc:aa4b9945e8a7178906001d2393d6c069d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Horse graduation button (shared with MATRIX_COL_3)  <br /></td></tr>
 <tr class="separator:aa4b9945e8a7178906001d2393d6c069d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3d042ad7a50f8a44015cc2a749d3fa4" id="r_ab3d042ad7a50f8a44015cc2a749d3fa4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#ab3d042ad7a50f8a44015cc2a749d3fa4">MATRIX_SCAN_TIME_MS</a>&#160;&#160;&#160;20</td></tr>
-<tr class="memdesc:ab3d042ad7a50f8a44015cc2a749d3fa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix scan time in milliseconds (0-20ms)  <br /></td></tr>
-<tr class="separator:ab3d042ad7a50f8a44015cc2a749d3fa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfbc03858e28ef24a9cd5be54dc8a479" id="r_acfbc03858e28ef24a9cd5be54dc8a479"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#acfbc03858e28ef24a9cd5be54dc8a479">SQUARES_SCAN_TIME_MS</a>&#160;&#160;&#160;20</td></tr>
+<tr class="memdesc:acfbc03858e28ef24a9cd5be54dc8a479"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix scan time in milliseconds (0-20ms)  <br /></td></tr>
+<tr class="separator:acfbc03858e28ef24a9cd5be54dc8a479"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f22d026310bf8c1f12bbed516a074ea" id="r_a3f22d026310bf8c1f12bbed516a074ea"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a3f22d026310bf8c1f12bbed516a074ea">BUTTON_SCAN_TIME_MS</a>&#160;&#160;&#160;5</td></tr>
 <tr class="memdesc:a3f22d026310bf8c1f12bbed516a074ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Button scan time in milliseconds (20-25ms)  <br /></td></tr>
 <tr class="separator:a3f22d026310bf8c1f12bbed516a074ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -268,9 +268,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a1c080ccbe5c2b8e9c7229f3c10f74a8f" id="r_a1c080ccbe5c2b8e9c7229f3c10f74a8f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a1c080ccbe5c2b8e9c7229f3c10f74a8f">LED_MUTEX_SAFE_TIMEOUT</a>&#160;&#160;&#160;pdMS_TO_TICKS(<a class="el" href="freertos__chess_8h.html#aa31a93cf587ac835b9458a02582a2ff4">LED_MUTEX_TIMEOUT_MS</a>)</td></tr>
 <tr class="memdesc:a1c080ccbe5c2b8e9c7229f3c10f74a8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safe mutex timeout in FreeRTOS ticks.  <br /></td></tr>
 <tr class="separator:a1c080ccbe5c2b8e9c7229f3c10f74a8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a579e6003d89168493306bca5848f301a" id="r_a579e6003d89168493306bca5848f301a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a579e6003d89168493306bca5848f301a">MATRIX_QUEUE_SIZE</a>&#160;&#160;&#160;8</td></tr>
-<tr class="memdesc:a579e6003d89168493306bca5848f301a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix: events when scanning 8x8 (enough depth for burst).  <br /></td></tr>
-<tr class="separator:a579e6003d89168493306bca5848f301a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2f223665c50e992bea72db2c1c467c8" id="r_af2f223665c50e992bea72db2c1c467c8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#af2f223665c50e992bea72db2c1c467c8">SQUARES_QUEUE_SIZE</a>&#160;&#160;&#160;8</td></tr>
+<tr class="memdesc:af2f223665c50e992bea72db2c1c467c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix: events when scanning 8x8 (enough depth for burst).  <br /></td></tr>
+<tr class="separator:af2f223665c50e992bea72db2c1c467c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ca45550c06013af8c3cec978a7271ab" id="r_a6ca45550c06013af8c3cec978a7271ab"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a6ca45550c06013af8c3cec978a7271ab">BUTTON_QUEUE_SIZE</a>&#160;&#160;&#160;5</td></tr>
 <tr class="memdesc:a6ca45550c06013af8c3cec978a7271ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Button: events from ISR (rare).  <br /></td></tr>
 <tr class="separator:a6ca45550c06013af8c3cec978a7271ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -298,9 +298,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a7b127f4562618fb23c61f79d2a6a2201" id="r_a7b127f4562618fb23c61f79d2a6a2201"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a7b127f4562618fb23c61f79d2a6a2201">LED_TASK_STACK_SIZE</a>&#160;&#160;&#160;(8 * 1024)</td></tr>
 <tr class="memdesc:a7b127f4562618fb23c61f79d2a6a2201"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED: WS2812 + animation logic (measure high-water mark before reducing).  <br /></td></tr>
 <tr class="separator:a7b127f4562618fb23c61f79d2a6a2201"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71a39cddac7f169064d88214a759deb8" id="r_a71a39cddac7f169064d88214a759deb8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a71a39cddac7f169064d88214a759deb8">MATRIX_TASK_STACK_SIZE</a>&#160;&#160;&#160;(4 * 1024)</td></tr>
-<tr class="memdesc:a71a39cddac7f169064d88214a759deb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix: sken + odezvy (<a class="el" href="structgame__response__t.html" title="Game response structure for UART communication.">game_response_t</a>).  <br /></td></tr>
-<tr class="separator:a71a39cddac7f169064d88214a759deb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27dfa14486ddcad7c690d0845a9e9c07" id="r_a27dfa14486ddcad7c690d0845a9e9c07"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a27dfa14486ddcad7c690d0845a9e9c07">SQUARES_TASK_STACK_SIZE</a>&#160;&#160;&#160;(4 * 1024)</td></tr>
+<tr class="memdesc:a27dfa14486ddcad7c690d0845a9e9c07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix: sken + odezvy (<a class="el" href="structgame__response__t.html" title="Game response structure for UART communication.">game_response_t</a>).  <br /></td></tr>
+<tr class="separator:a27dfa14486ddcad7c690d0845a9e9c07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbb9d0dfbf98763aa25c6a52814f0bf8" id="r_adbb9d0dfbf98763aa25c6a52814f0bf8"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#adbb9d0dfbf98763aa25c6a52814f0bf8">BUTTON_TASK_STACK_SIZE</a>&#160;&#160;&#160;(3 * 1024)</td></tr>
 <tr class="separator:adbb9d0dfbf98763aa25c6a52814f0bf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a9da456d063076e469758050a0a472f" id="r_a1a9da456d063076e469758050a0a472f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a1a9da456d063076e469758050a0a472f">UART_TASK_STACK_SIZE</a>&#160;&#160;&#160;(5 * 1024)</td></tr>
@@ -332,9 +332,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a929063c46e63eb78271df5b5fd5819e9" id="r_a929063c46e63eb78271df5b5fd5819e9"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a929063c46e63eb78271df5b5fd5819e9">LED_TASK_PRIORITY</a>&#160;&#160;&#160;7</td></tr>
 <tr class="memdesc:a929063c46e63eb78271df5b5fd5819e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED task priority (7 - highest for LED timing)  <br /></td></tr>
 <tr class="separator:a929063c46e63eb78271df5b5fd5819e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8ed4eae602e4b2be89befb487b83d26" id="r_ab8ed4eae602e4b2be89befb487b83d26"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#ab8ed4eae602e4b2be89befb487b83d26">MATRIX_TASK_PRIORITY</a>&#160;&#160;&#160;6</td></tr>
-<tr class="memdesc:ab8ed4eae602e4b2be89befb487b83d26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix task priority (6 - hardware input)  <br /></td></tr>
-<tr class="separator:ab8ed4eae602e4b2be89befb487b83d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f4890e90bffe7462d0f0a0fe9b95079" id="r_a3f4890e90bffe7462d0f0a0fe9b95079"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a3f4890e90bffe7462d0f0a0fe9b95079">SQUARES_TASK_PRIORITY</a>&#160;&#160;&#160;6</td></tr>
+<tr class="memdesc:a3f4890e90bffe7462d0f0a0fe9b95079"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix task priority (6 - hardware input)  <br /></td></tr>
+<tr class="separator:a3f4890e90bffe7462d0f0a0fe9b95079"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a94dea431a1c059625b45f816ab129043" id="r_a94dea431a1c059625b45f816ab129043"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a94dea431a1c059625b45f816ab129043">BUTTON_TASK_PRIORITY</a>&#160;&#160;&#160;5</td></tr>
 <tr class="memdesc:a94dea431a1c059625b45f816ab129043"><td class="mdescLeft">&#160;</td><td class="mdescRight">Priority Button task (5 - user input)  <br /></td></tr>
 <tr class="separator:a94dea431a1c059625b45f816ab129043"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -401,9 +401,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a60ba01ed8c95cf7326c889ea1b6a2bc2" id="r_a60ba01ed8c95cf7326c889ea1b6a2bc2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a60ba01ed8c95cf7326c889ea1b6a2bc2">button_scan_timer_callback</a> (TimerHandle_t xTimer)</td></tr>
 <tr class="memdesc:a60ba01ed8c95cf7326c889ea1b6a2bc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for button scan timer.  <br /></td></tr>
 <tr class="separator:a60ba01ed8c95cf7326c889ea1b6a2bc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a904cb90015996d3ad0532e71bc502318" id="r_a904cb90015996d3ad0532e71bc502318"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a904cb90015996d3ad0532e71bc502318">matrix_scan_timer_callback</a> (TimerHandle_t xTimer)</td></tr>
-<tr class="memdesc:a904cb90015996d3ad0532e71bc502318"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for matrix scan timer.  <br /></td></tr>
-<tr class="separator:a904cb90015996d3ad0532e71bc502318"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a209a8a05869bac2d5f27d8e9037a9d3c" id="r_a209a8a05869bac2d5f27d8e9037a9d3c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a209a8a05869bac2d5f27d8e9037a9d3c">squares_scan_timer_callback</a> (TimerHandle_t xTimer)</td></tr>
+<tr class="memdesc:a209a8a05869bac2d5f27d8e9037a9d3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for matrix scan timer.  <br /></td></tr>
+<tr class="separator:a209a8a05869bac2d5f27d8e9037a9d3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8e4ec2ba6554d39c4f7c9574718efdc" id="r_af8e4ec2ba6554d39c4f7c9574718efdc"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#af8e4ec2ba6554d39c4f7c9574718efdc">chess_gpio_init</a> (void)</td></tr>
 <tr class="memdesc:af8e4ec2ba6554d39c4f7c9574718efdc"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED update timer callback - REMOVED: Prime LED callbacks are used.  <br /></td></tr>
 <tr class="separator:af8e4ec2ba6554d39c4f7c9574718efdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -419,9 +419,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aba042f04f5d5fcb5bfb8f1ea039be359" id="r_aba042f04f5d5fcb5bfb8f1ea039be359"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#aba042f04f5d5fcb5bfb8f1ea039be359">chess_led_set_all</a> (uint8_t red, uint8_t green, uint8_t blue)</td></tr>
 <tr class="memdesc:aba042f04f5d5fcb5bfb8f1ea039be359"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set all LEDs to the same color.  <br /></td></tr>
 <tr class="separator:aba042f04f5d5fcb5bfb8f1ea039be359"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8472ef30fed91b8fa2c1efc57542ec33" id="r_a8472ef30fed91b8fa2c1efc57542ec33"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a8472ef30fed91b8fa2c1efc57542ec33">chess_matrix_get_status</a> (uint8_t *status)</td></tr>
-<tr class="memdesc:a8472ef30fed91b8fa2c1efc57542ec33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the state of the matrix.  <br /></td></tr>
-<tr class="separator:a8472ef30fed91b8fa2c1efc57542ec33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3e3d6a0dd0a4eeee1c0959976e26e4e" id="r_ae3e3d6a0dd0a4eeee1c0959976e26e4e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#ae3e3d6a0dd0a4eeee1c0959976e26e4e">chess_squares_get_status</a> (uint8_t *status)</td></tr>
+<tr class="memdesc:ae3e3d6a0dd0a4eeee1c0959976e26e4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the state of the matrix.  <br /></td></tr>
+<tr class="separator:ae3e3d6a0dd0a4eeee1c0959976e26e4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc6c5ec2b59b331d0d27ef56a9f0c462" id="r_acc6c5ec2b59b331d0d27ef56a9f0c462"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#acc6c5ec2b59b331d0d27ef56a9f0c462">chess_print_system_info</a> (void)</td></tr>
 <tr class="memdesc:acc6c5ec2b59b331d0d27ef56a9f0c462"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypise systemove informace.  <br /></td></tr>
 <tr class="separator:acc6c5ec2b59b331d0d27ef56a9f0c462"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -434,15 +434,15 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:a1b93ff1badbca8962927cb6fd837463e" id="r_a1b93ff1badbca8962927cb6fd837463e"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a1b93ff1badbca8962927cb6fd837463e">matrix_event_queue</a></td></tr>
-<tr class="memdesc:a1b93ff1badbca8962927cb6fd837463e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for event matrix (piece lifted/placed)  <br /></td></tr>
-<tr class="separator:a1b93ff1badbca8962927cb6fd837463e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc01112e6afa1b3e029218e52b7c2196" id="r_abc01112e6afa1b3e029218e52b7c2196"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#abc01112e6afa1b3e029218e52b7c2196">matrix_command_queue</a></td></tr>
-<tr class="memdesc:abc01112e6afa1b3e029218e52b7c2196"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for matrix commands (scan, reset, test)  <br /></td></tr>
-<tr class="separator:abc01112e6afa1b3e029218e52b7c2196"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b3fea6e381f159f9e088382e4040d27" id="r_a9b3fea6e381f159f9e088382e4040d27"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a9b3fea6e381f159f9e088382e4040d27">matrix_response_queue</a></td></tr>
-<tr class="memdesc:a9b3fea6e381f159f9e088382e4040d27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for the response matrix (responses from the system)  <br /></td></tr>
-<tr class="separator:a9b3fea6e381f159f9e088382e4040d27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e07130323450a1fa79ce839eea40ed3" id="r_a7e07130323450a1fa79ce839eea40ed3"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a7e07130323450a1fa79ce839eea40ed3">squares_event_queue</a></td></tr>
+<tr class="memdesc:a7e07130323450a1fa79ce839eea40ed3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for event matrix (piece lifted/placed)  <br /></td></tr>
+<tr class="separator:a7e07130323450a1fa79ce839eea40ed3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a729177f0568ddbfdb44c003d51acbd60" id="r_a729177f0568ddbfdb44c003d51acbd60"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a729177f0568ddbfdb44c003d51acbd60">squares_command_queue</a></td></tr>
+<tr class="memdesc:a729177f0568ddbfdb44c003d51acbd60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for matrix commands (scan, reset, test)  <br /></td></tr>
+<tr class="separator:a729177f0568ddbfdb44c003d51acbd60"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89521897c88408bceeb1b2fded6d6e66" id="r_a89521897c88408bceeb1b2fded6d6e66"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a89521897c88408bceeb1b2fded6d6e66">squares_response_queue</a></td></tr>
+<tr class="memdesc:a89521897c88408bceeb1b2fded6d6e66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for the response matrix (responses from the system)  <br /></td></tr>
+<tr class="separator:a89521897c88408bceeb1b2fded6d6e66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a05107bbe85fd87a92dad9efd71dbd653" id="r_a05107bbe85fd87a92dad9efd71dbd653"><td class="memItemLeft" align="right" valign="top">QueueHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a05107bbe85fd87a92dad9efd71dbd653">button_event_queue</a></td></tr>
 <tr class="memdesc:a05107bbe85fd87a92dad9efd71dbd653"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue for button events (press, release, long press)  <br /></td></tr>
 <tr class="separator:a05107bbe85fd87a92dad9efd71dbd653"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -494,9 +494,9 @@ Variables</h2></td></tr>
 <tr class="memitem:a864f0cc9b1f2e30bd3c0e225e2c48552" id="r_a864f0cc9b1f2e30bd3c0e225e2c48552"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a864f0cc9b1f2e30bd3c0e225e2c48552">led_mutex</a></td></tr>
 <tr class="memdesc:a864f0cc9b1f2e30bd3c0e225e2c48552"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for LED operations (protect LED state)  <br /></td></tr>
 <tr class="separator:a864f0cc9b1f2e30bd3c0e225e2c48552"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a80a74d10dccdaa933010d0e5cf7202d8" id="r_a80a74d10dccdaa933010d0e5cf7202d8"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a80a74d10dccdaa933010d0e5cf7202d8">matrix_mutex</a></td></tr>
-<tr class="memdesc:a80a74d10dccdaa933010d0e5cf7202d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for matrix operations (protect matrix state)  <br /></td></tr>
-<tr class="separator:a80a74d10dccdaa933010d0e5cf7202d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c8ef595129f599a15b075154a772971" id="r_a4c8ef595129f599a15b075154a772971"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a4c8ef595129f599a15b075154a772971">squares_mutex</a></td></tr>
+<tr class="memdesc:a4c8ef595129f599a15b075154a772971"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for matrix operations (protect matrix state)  <br /></td></tr>
+<tr class="separator:a4c8ef595129f599a15b075154a772971"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17744dc0b4a21889e7e9527835edc068" id="r_a17744dc0b4a21889e7e9527835edc068"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a17744dc0b4a21889e7e9527835edc068">button_mutex</a></td></tr>
 <tr class="memdesc:a17744dc0b4a21889e7e9527835edc068"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for button operations (protect button state)  <br /></td></tr>
 <tr class="separator:a17744dc0b4a21889e7e9527835edc068"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -509,9 +509,9 @@ Variables</h2></td></tr>
 <tr class="memitem:a8eca84d3e2c7c0adf364819e74b1bd9b" id="r_a8eca84d3e2c7c0adf364819e74b1bd9b"><td class="memItemLeft" align="right" valign="top">SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a8eca84d3e2c7c0adf364819e74b1bd9b">uart_mutex</a></td></tr>
 <tr class="memdesc:a8eca84d3e2c7c0adf364819e74b1bd9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mutex for UART operations (protect UART output)  <br /></td></tr>
 <tr class="separator:a8eca84d3e2c7c0adf364819e74b1bd9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad589ad22574a5fdb69645141759216c4" id="r_ad589ad22574a5fdb69645141759216c4"><td class="memItemLeft" align="right" valign="top">TimerHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#ad589ad22574a5fdb69645141759216c4">matrix_scan_timer</a></td></tr>
-<tr class="memdesc:ad589ad22574a5fdb69645141759216c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timer for periodic matrix scanning.  <br /></td></tr>
-<tr class="separator:ad589ad22574a5fdb69645141759216c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a368899a9a334c86fc89df5aadb4c2af8" id="r_a368899a9a334c86fc89df5aadb4c2af8"><td class="memItemLeft" align="right" valign="top">TimerHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a368899a9a334c86fc89df5aadb4c2af8">squares_scan_timer</a></td></tr>
+<tr class="memdesc:a368899a9a334c86fc89df5aadb4c2af8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timer for periodic matrix scanning.  <br /></td></tr>
+<tr class="separator:a368899a9a334c86fc89df5aadb4c2af8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af58f98e02d7d24dcc49a348ea1f22e77" id="r_af58f98e02d7d24dcc49a348ea1f22e77"><td class="memItemLeft" align="right" valign="top">TimerHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#af58f98e02d7d24dcc49a348ea1f22e77">button_scan_timer</a></td></tr>
 <tr class="memdesc:af58f98e02d7d24dcc49a348ea1f22e77"><td class="mdescLeft">&#160;</td><td class="mdescRight">Timer for periodic button scanning.  <br /></td></tr>
 <tr class="separator:af58f98e02d7d24dcc49a348ea1f22e77"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -530,9 +530,9 @@ Variables</h2></td></tr>
 <tr class="memitem:a6cf81c896b094e20ff5752ee1133a8f2" id="r_a6cf81c896b094e20ff5752ee1133a8f2"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a6cf81c896b094e20ff5752ee1133a8f2">led_task_handle</a></td></tr>
 <tr class="memdesc:a6cf81c896b094e20ff5752ee1133a8f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro LED task.  <br /></td></tr>
 <tr class="separator:a6cf81c896b094e20ff5752ee1133a8f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9de1b87e0b6692c90f1c5cfd9e13d444" id="r_a9de1b87e0b6692c90f1c5cfd9e13d444"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a9de1b87e0b6692c90f1c5cfd9e13d444">matrix_task_handle</a></td></tr>
-<tr class="memdesc:a9de1b87e0b6692c90f1c5cfd9e13d444"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Matrix task.  <br /></td></tr>
-<tr class="separator:a9de1b87e0b6692c90f1c5cfd9e13d444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7000afd1afa60b015faf625fc3b605c9" id="r_a7000afd1afa60b015faf625fc3b605c9"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#a7000afd1afa60b015faf625fc3b605c9">squares_task_handle</a></td></tr>
+<tr class="memdesc:a7000afd1afa60b015faf625fc3b605c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Matrix task.  <br /></td></tr>
+<tr class="separator:a7000afd1afa60b015faf625fc3b605c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba5c2db71f9fa5cd9f3e506e91ffe6d3" id="r_aba5c2db71f9fa5cd9f3e506e91ffe6d3"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="freertos__chess_8h.html#aba5c2db71f9fa5cd9f3e506e91ffe6d3">button_task_handle</a></td></tr>
 <tr class="memdesc:aba5c2db71f9fa5cd9f3e506e91ffe6d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle pro Button task.  <br /></td></tr>
 <tr class="separator:aba5c2db71f9fa5cd9f3e506e91ffe6d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1298,24 +1298,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a579e6003d89168493306bca5848f301a" name="a579e6003d89168493306bca5848f301a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a579e6003d89168493306bca5848f301a">&#9670;&#160;</a></span>MATRIX_QUEUE_SIZE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MATRIX_QUEUE_SIZE&#160;&#160;&#160;8</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix: events when scanning 8x8 (enough depth for burst). </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00215">215</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
-
-</div>
-</div>
 <a id="a412cf595c5d992d528f572367cd382fc" name="a412cf595c5d992d528f572367cd382fc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a412cf595c5d992d528f572367cd382fc">&#9670;&#160;</a></span>MATRIX_ROW_0</h2>
 
@@ -1460,60 +1442,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="ab3d042ad7a50f8a44015cc2a749d3fa4" name="ab3d042ad7a50f8a44015cc2a749d3fa4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab3d042ad7a50f8a44015cc2a749d3fa4">&#9670;&#160;</a></span>MATRIX_SCAN_TIME_MS</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MATRIX_SCAN_TIME_MS&#160;&#160;&#160;20</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix scan time in milliseconds (0-20ms) </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00175">175</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
-
-</div>
-</div>
-<a id="ab8ed4eae602e4b2be89befb487b83d26" name="ab8ed4eae602e4b2be89befb487b83d26"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab8ed4eae602e4b2be89befb487b83d26">&#9670;&#160;</a></span>MATRIX_TASK_PRIORITY</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MATRIX_TASK_PRIORITY&#160;&#160;&#160;6</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix task priority (6 - hardware input) </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00282">282</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
-
-</div>
-</div>
-<a id="a71a39cddac7f169064d88214a759deb8" name="a71a39cddac7f169064d88214a759deb8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a71a39cddac7f169064d88214a759deb8">&#9670;&#160;</a></span>MATRIX_TASK_STACK_SIZE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define MATRIX_TASK_STACK_SIZE&#160;&#160;&#160;(4 * 1024)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix: sken + odezvy (<a class="el" href="structgame__response__t.html" title="Game response structure for UART communication.">game_response_t</a>). </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00248">248</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
-
-</div>
-</div>
 <a id="a58d022d18b73ee9efae31b39b6fd4343" name="a58d022d18b73ee9efae31b39b6fd4343"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a58d022d18b73ee9efae31b39b6fd4343">&#9670;&#160;</a></span>PROMOTION_BUTTON_TASK_PRIORITY</h2>
 
@@ -1619,7 +1547,7 @@ Variables</h2></td></tr>
 <div class="line">    }                                                                          \</div>
 <div class="line">    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;✓ Mutex created: %s&quot;</span>, name);                                \</div>
 <div class="line">  } <span class="keywordflow">while</span> (0)</div>
-<div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00111">main.c:111</a></div></div>
+<div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00112">main.c:112</a></div></div>
 </div><!-- fragment -->
 <p>Create a mutex safely with error checking. </p>
 <p>This macro creates a FreeRTOS mutex and automatically checks for success. If the mutex is not created, log an error and return ESP_ERR_NO_MEM.</p>
@@ -1748,6 +1676,78 @@ Variables</h2></td></tr>
 <p>Velikost stacku Screen Saver tasku (2KB, snizeno z 3KB, jednoduche vzory) </p>
 
 <p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00259">259</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+
+</div>
+</div>
+<a id="af2f223665c50e992bea72db2c1c467c8" name="af2f223665c50e992bea72db2c1c467c8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2f223665c50e992bea72db2c1c467c8">&#9670;&#160;</a></span>SQUARES_QUEUE_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SQUARES_QUEUE_SIZE&#160;&#160;&#160;8</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix: events when scanning 8x8 (enough depth for burst). </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00215">215</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+
+</div>
+</div>
+<a id="acfbc03858e28ef24a9cd5be54dc8a479" name="acfbc03858e28ef24a9cd5be54dc8a479"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfbc03858e28ef24a9cd5be54dc8a479">&#9670;&#160;</a></span>SQUARES_SCAN_TIME_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SQUARES_SCAN_TIME_MS&#160;&#160;&#160;20</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix scan time in milliseconds (0-20ms) </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00175">175</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+
+</div>
+</div>
+<a id="a3f4890e90bffe7462d0f0a0fe9b95079" name="a3f4890e90bffe7462d0f0a0fe9b95079"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f4890e90bffe7462d0f0a0fe9b95079">&#9670;&#160;</a></span>SQUARES_TASK_PRIORITY</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SQUARES_TASK_PRIORITY&#160;&#160;&#160;6</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix task priority (6 - hardware input) </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00282">282</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
+
+</div>
+</div>
+<a id="a27dfa14486ddcad7c690d0845a9e9c07" name="a27dfa14486ddcad7c690d0845a9e9c07"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a27dfa14486ddcad7c690d0845a9e9c07">&#9670;&#160;</a></span>SQUARES_TASK_STACK_SIZE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SQUARES_TASK_STACK_SIZE&#160;&#160;&#160;(4 * 1024)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix: sken + odezvy (<a class="el" href="structgame__response__t.html" title="Game response structure for UART communication.">game_response_t</a>). </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8h_source.html#l00248">248</a> of file <a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>.</p>
 
 </div>
 </div>
@@ -2019,7 +2019,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00867">867</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00876">876</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2043,7 +2043,7 @@ Variables</h2></td></tr>
 <p>Create all necessary mutexes for thread-safe access to datum.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00757">757</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00766">766</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2067,7 +2067,7 @@ Variables</h2></td></tr>
 <p>Create all necessary queues for communication between tasks.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00575">575</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00584">584</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2091,7 +2091,7 @@ Variables</h2></td></tr>
 <p>Create periodic timers for matrix, button and system scans.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00901">901</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00910">910</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2176,7 +2176,7 @@ Variables</h2></td></tr>
 <p>Initializes GPIO pins, LED strip and other hardware components.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00518">518</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00527">527</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2223,7 +2223,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01262">1262</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01271">1271</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2277,36 +2277,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01245">1245</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="a8472ef30fed91b8fa2c1efc57542ec33" name="a8472ef30fed91b8fa2c1efc57542ec33"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8472ef30fed91b8fa2c1efc57542ec33">&#9670;&#160;</a></span>chess_matrix_get_status()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">esp_err_t chess_matrix_get_status </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>status</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Gets the state of the matrix. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[out]</td><td class="paramname">status</td><td>Output buffer for the 64-element status array (1 = piece present, 0 = empty) </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01352">1352</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01254">1254</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2330,7 +2301,7 @@ Variables</h2></td></tr>
 <p>Initializes the buffer pool and streaming output for efficient memory usage.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01425">1425</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01434">1434</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2354,7 +2325,7 @@ Variables</h2></td></tr>
 <p>Checks whether all tasks are running correctly and whether they are not blocked.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if all tasks run correctly, error code for problem </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01157">1157</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01166">1166</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2377,7 +2348,36 @@ Variables</h2></td></tr>
 <p>Vypise systemove informace. </p>
 <p>Vypise informace o verzi systemu, konfiguraci GPIO pinu, velikostech front a priority tasku. </p>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01170">1170</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01179">1179</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="ae3e3d6a0dd0a4eeee1c0959976e26e4e" name="ae3e3d6a0dd0a4eeee1c0959976e26e4e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3e3d6a0dd0a4eeee1c0959976e26e4e">&#9670;&#160;</a></span>chess_squares_get_status()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t chess_squares_get_status </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>status</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the state of the matrix. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">status</td><td>Output buffer for the 64-element status array (1 = piece present, 0 = empty) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01361">1361</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2401,7 +2401,7 @@ Variables</h2></td></tr>
 <p>Spusti periodicke timery vytvorene funkci <a class="el" href="freertos__chess_8h.html#ad4a9b6f60cb5280918a47885121ea229" title="Create all FreeRTOS timers.">chess_create_timers()</a>.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00956">956</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00965">965</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2425,7 +2425,7 @@ Variables</h2></td></tr>
 <p>This function initializes the entire sach system including hardware, queue, mutex and timer. It calls all necessary initialization functions.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01087">1087</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01096">1096</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2466,7 +2466,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01221">1221</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01230">1230</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2495,7 +2495,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01208">1208</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l01217">1217</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2520,18 +2520,18 @@ Variables</h2></td></tr>
 <p>Checks if demo mode is currently active.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if enabled, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00655">655</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00624">624</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
-<a id="a904cb90015996d3ad0532e71bc502318" name="a904cb90015996d3ad0532e71bc502318"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a904cb90015996d3ad0532e71bc502318">&#9670;&#160;</a></span>matrix_scan_timer_callback()</h2>
+<a id="a209a8a05869bac2d5f27d8e9037a9d3c" name="a209a8a05869bac2d5f27d8e9037a9d3c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a209a8a05869bac2d5f27d8e9037a9d3c">&#9670;&#160;</a></span>squares_scan_timer_callback()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void matrix_scan_timer_callback </td>
+          <td class="memname">void squares_scan_timer_callback </td>
           <td>(</td>
           <td class="paramtype">TimerHandle_t&#160;</td>
           <td class="paramname"><em>xTimer</em></td><td>)</td>
@@ -2556,7 +2556,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00878">878</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00887">887</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2636,7 +2636,7 @@ Variables</h2></td></tr>
 <p>Handle pro Animation task. </p>
 <p>Handle pro Animation task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00312">312</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00282">282</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2766,7 +2766,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro Button task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00306">306</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00276">276</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2870,7 +2870,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro Game task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00310">310</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00280">280</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2922,7 +2922,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro LED task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00302">302</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00272">272</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -2952,110 +2952,6 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="abc01112e6afa1b3e029218e52b7c2196" name="abc01112e6afa1b3e029218e52b7c2196"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abc01112e6afa1b3e029218e52b7c2196">&#9670;&#160;</a></span>matrix_command_queue</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">QueueHandle_t matrix_command_queue</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Queue for matrix commands (scan, reset, test) </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00080">80</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="a1b93ff1badbca8962927cb6fd837463e" name="a1b93ff1badbca8962927cb6fd837463e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b93ff1badbca8962927cb6fd837463e">&#9670;&#160;</a></span>matrix_event_queue</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">QueueHandle_t matrix_event_queue</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Queue for event matrix (piece lifted/placed) </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00079">79</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="a80a74d10dccdaa933010d0e5cf7202d8" name="a80a74d10dccdaa933010d0e5cf7202d8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a80a74d10dccdaa933010d0e5cf7202d8">&#9670;&#160;</a></span>matrix_mutex</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">SemaphoreHandle_t matrix_mutex</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Mutex for matrix operations (protect matrix state) </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00117">117</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="a9b3fea6e381f159f9e088382e4040d27" name="a9b3fea6e381f159f9e088382e4040d27"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9b3fea6e381f159f9e088382e4040d27">&#9670;&#160;</a></span>matrix_response_queue</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">QueueHandle_t matrix_response_queue</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Queue for the response matrix (responses from the system) </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00081">81</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
 <a id="ad9e3ceb44aa3ff2deb6b45b6079cc7e8" name="ad9e3ceb44aa3ff2deb6b45b6079cc7e8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad9e3ceb44aa3ff2deb6b45b6079cc7e8">&#9670;&#160;</a></span>matrix_row_pins</h2>
 
@@ -3079,58 +2975,6 @@ Variables</h2></td></tr>
 <p>GPIO pin array for matrix rows (8 output) </p>
 
 <p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00145">145</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="ad589ad22574a5fdb69645141759216c4" name="ad589ad22574a5fdb69645141759216c4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad589ad22574a5fdb69645141759216c4">&#9670;&#160;</a></span>matrix_scan_timer</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">TimerHandle_t matrix_scan_timer</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Timer for periodic matrix scanning. </p>
-
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00123">123</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
-
-</div>
-</div>
-<a id="a9de1b87e0b6692c90f1c5cfd9e13d444" name="a9de1b87e0b6692c90f1c5cfd9e13d444"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9de1b87e0b6692c90f1c5cfd9e13d444">&#9670;&#160;</a></span>matrix_task_handle</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">TaskHandle_t matrix_task_handle</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Handle pro Matrix task. </p>
-
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00304">304</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3254,7 +3098,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro Promotion Button task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00323">323</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00285">285</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3279,8 +3123,9 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Handle pro Reset Button task. </p>
+<p>Handle pro Reset Button task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00321">321</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00284">284</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3357,6 +3202,162 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Handle pro Screen Saver task. </p>
+
+</div>
+</div>
+<a id="a729177f0568ddbfdb44c003d51acbd60" name="a729177f0568ddbfdb44c003d51acbd60"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a729177f0568ddbfdb44c003d51acbd60">&#9670;&#160;</a></span>squares_command_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t squares_command_queue</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Queue for matrix commands (scan, reset, test) </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00080">80</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="a7e07130323450a1fa79ce839eea40ed3" name="a7e07130323450a1fa79ce839eea40ed3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e07130323450a1fa79ce839eea40ed3">&#9670;&#160;</a></span>squares_event_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t squares_event_queue</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Queue for event matrix (piece lifted/placed) </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00079">79</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="a4c8ef595129f599a15b075154a772971" name="a4c8ef595129f599a15b075154a772971"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c8ef595129f599a15b075154a772971">&#9670;&#160;</a></span>squares_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t squares_mutex</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Mutex for matrix operations (protect matrix state) </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00117">117</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="a89521897c88408bceeb1b2fded6d6e66" name="a89521897c88408bceeb1b2fded6d6e66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89521897c88408bceeb1b2fded6d6e66">&#9670;&#160;</a></span>squares_response_queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">QueueHandle_t squares_response_queue</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Queue for the response matrix (responses from the system) </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00081">81</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="a368899a9a334c86fc89df5aadb4c2af8" name="a368899a9a334c86fc89df5aadb4c2af8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a368899a9a334c86fc89df5aadb4c2af8">&#9670;&#160;</a></span>squares_scan_timer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TimerHandle_t squares_scan_timer</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Timer for periodic matrix scanning. </p>
+
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00123">123</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+
+</div>
+</div>
+<a id="a7000afd1afa60b015faf625fc3b605c9" name="a7000afd1afa60b015faf625fc3b605c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7000afd1afa60b015faf625fc3b605c9">&#9670;&#160;</a></span>squares_task_handle</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">TaskHandle_t squares_task_handle</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">extern</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Handle pro Matrix task. </p>
+
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00274">274</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3460,7 +3461,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro Test task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00314">314</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00287">287</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3513,7 +3514,7 @@ Variables</h2></td></tr>
 <p>Mutex for UART operations (protect UART output) </p>
 <p>Mutex for UART operations (protect UART output) </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00299">299</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00269">269</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3565,7 +3566,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro UART task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00308">308</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00278">278</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -3669,7 +3670,7 @@ Variables</h2></td></tr>
 
 <p>Handle pro Web Server task. </p>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00317">317</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00290">290</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>

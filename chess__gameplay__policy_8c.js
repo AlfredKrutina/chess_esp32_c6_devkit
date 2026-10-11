@@ -9,11 +9,6 @@ var chess__gameplay__policy_8c =
     [ "chess_policy_error_recovery_should_mutate_board", "chess__gameplay__policy_8c.html#a0527b506b599223edc33cf59998e85cb", null ],
     [ "chess_policy_highlight_movable_if_enabled", "chess__gameplay__policy_8c.html#a8856cbb21a324430e7a69c3e8fedaa24", null ],
     [ "chess_policy_log_boot", "chess__gameplay__policy_8c.html#aae43e54788b0e531e1feb4fdf0922824", null ],
-    [ "chess_policy_matrix_guard_auto_clear_enabled", "chess__gameplay__policy_8c.html#a230b88dbe7c6d012607452a335982b64", null ],
-    [ "chess_policy_matrix_guard_enabled", "chess__gameplay__policy_8c.html#a6cd64ad0f866352bedbda9b0cfc824cd", null ],
-    [ "chess_policy_matrix_guard_led_enabled", "chess__gameplay__policy_8c.html#a6a8ceacf330bbc99e35327e5700f13bb", null ],
-    [ "chess_policy_matrix_guard_nvs_resync_enabled", "chess__gameplay__policy_8c.html#a771af82814a078562121168f39600541", null ],
-    [ "chess_policy_matrix_guard_should_freeze", "chess__gameplay__policy_8c.html#a6266eff259ab49dc889745aeb4ad6830", null ],
     [ "chess_policy_mg_led_black_blue", "chess__gameplay__policy_8c.html#abdf3660742f5ed3c3c30963af335102c", null ],
     [ "chess_policy_mg_led_ghost_orange", "chess__gameplay__policy_8c.html#abea6013b7ca3e5b1313f121f74a71c9e", null ],
     [ "chess_policy_mg_led_missing_white", "chess__gameplay__policy_8c.html#a550237eba8cff051cc0b7a9476eb8fa1", null ],
@@ -24,6 +19,11 @@ var chess__gameplay__policy_8c =
     [ "chess_policy_move_hints_movable_yellow", "chess__gameplay__policy_8c.html#aa01b73e8e0a672bfd25a47b981e41d26", null ],
     [ "chess_policy_move_hints_promotion_blue", "chess__gameplay__policy_8c.html#a2f426a59a16c6a51607172c2a96abc4a", null ],
     [ "chess_policy_profile_name", "chess__gameplay__policy_8c.html#a007d451e76ca310e848cd5e710854354", null ],
+    [ "chess_policy_squares_guard_auto_clear_enabled", "chess__gameplay__policy_8c.html#a22eb81fd7671382cb8e9d3d4e4a50880", null ],
+    [ "chess_policy_squares_guard_enabled", "chess__gameplay__policy_8c.html#aa463e0d2f11b1a2e25b209785895668d", null ],
+    [ "chess_policy_squares_guard_led_enabled", "chess__gameplay__policy_8c.html#a7d1833534a9ec7d700f87c31abc58874", null ],
+    [ "chess_policy_squares_guard_nvs_resync_enabled", "chess__gameplay__policy_8c.html#a66f08e95ce57b7d32be8d69bfc947931", null ],
+    [ "chess_policy_squares_guard_should_freeze", "chess__gameplay__policy_8c.html#a106d514664eaf75ed08dde076ea6b57b", null ],
     [ "chess_policy_uart_error_detail_enabled", "chess__gameplay__policy_8c.html#a7fcfa235f82285a98f8c27cc106838ab", null ],
     [ "TAG", "chess__gameplay__policy_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

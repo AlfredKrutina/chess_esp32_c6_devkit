@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -93,6 +93,7 @@ $(document).ready(function(){initNavTree('globals_func_b.html',''); initResizabl
 <div class="textblock">Here is a list of all functions with links to the files they belong to:</div>
 
 <h3><a id="index_b" name="index_b"></a>- b -</h3><ul>
+<li>begin_phase()&#160;:&#160;<a class="el" href="led__gesture__anim_8c.html#ac83583815d0b53793d96997089c6fcb4">led_gesture_anim.c</a></li>
 <li>ble_dispatch_ack_needs_encryption()&#160;:&#160;<a class="el" href="web__server__task_8c.html#a965fefb27ff5e85d0c386f71669feff5">web_server_task.c</a></li>
 <li>ble_nimble_stack_init()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#af8fc7a27c506d40b2942c0741d9bc86e">ble_nimble_impl.c</a></li>
 <li>ble_ota_fail_unlock()&#160;:&#160;<a class="el" href="ota__update_8c.html#afb00f7e6b3456f322e9b8998f889f006">ota_update.c</a></li>
@@ -102,11 +103,12 @@ $(document).ready(function(){initNavTree('globals_func_b.html',''); initResizabl
 <li>ble_ota_suspend_timer_cb()&#160;:&#160;<a class="el" href="ota__update_8c.html#ad0f66a8b67ea1981cc4edbfef89cbec9">ota_update.c</a></li>
 <li>ble_task_conn_is_encrypted()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#a0cab5d9344d6f549e499d0d068171b7d">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#a0cab5d9344d6f549e499d0d068171b7d">ble_task.h</a></li>
 <li>ble_task_format_status()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#a6b4a8c3038cad15fbaa84b624d0c76db">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#a6b4a8c3038cad15fbaa84b624d0c76db">ble_task.h</a></li>
-<li>ble_task_init()&#160;:&#160;<a class="el" href="ble__task_8c.html#a673bf35c9275637c2030e5e6676564a8">ble_task.c</a>, <a class="el" href="ble__task_8h.html#a673bf35c9275637c2030e5e6676564a8">ble_task.h</a></li>
+<li>ble_task_init()&#160;:&#160;<a class="el" href="ble__task_8h.html#a673bf35c9275637c2030e5e6676564a8">ble_task.h</a>, <a class="el" href="ble__task_8c.html#a673bf35c9275637c2030e5e6676564a8">ble_task.c</a></li>
 <li>ble_task_notify_cmd_ack_json()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#a1993d0374ca8f378da44d083d6846652">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#a1993d0374ca8f378da44d083d6846652">ble_task.h</a></li>
 <li>ble_task_notify_command_result()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#aaee353732e7076c851cae405b1efe174">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#aaee353732e7076c851cae405b1efe174">ble_task.h</a></li>
 <li>ble_task_push_network_info()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#ae3f14fff1b4f2adebb8e416728e07fec">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#ae3f14fff1b4f2adebb8e416728e07fec">ble_task.h</a></li>
 <li>ble_task_push_snapshot_json()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#a0dd461464f4847a6b8944d0c3911852a">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#a0dd461464f4847a6b8944d0c3911852a">ble_task.h</a></li>
+<li>ble_task_request_pairing()&#160;:&#160;<a class="el" href="ble__task_8h.html#a384893b40a2b2f818241081b931d35c3">ble_task.h</a>, <a class="el" href="ble__nimble__impl_8c.html#a384893b40a2b2f818241081b931d35c3">ble_nimble_impl.c</a></li>
 <li>ble_task_should_push_snapshot()&#160;:&#160;<a class="el" href="ble__nimble__impl_8c.html#a2697e0c5cc513fd6cd85ff2582f26aaf">ble_nimble_impl.c</a>, <a class="el" href="ble__task_8h.html#a2697e0c5cc513fd6cd85ff2582f26aaf">ble_task.h</a></li>
 <li>board_api_auth_get_token_hex()&#160;:&#160;<a class="el" href="board__api__auth_8c.html#af0630014db3572ad88deb3e622229de3">board_api_auth.c</a>, <a class="el" href="board__api__auth_8h.html#af0630014db3572ad88deb3e622229de3">board_api_auth.h</a></li>
 <li>board_api_auth_init()&#160;:&#160;<a class="el" href="board__api__auth_8c.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth.c</a>, <a class="el" href="board__api__auth_8h.html#ae69414b0bf5b1f31145e0fdbc4816aa6">board_api_auth.h</a></li>
@@ -118,26 +120,29 @@ $(document).ready(function(){initNavTree('globals_func_b.html',''); initResizabl
 <li>buffer_pool_deinit()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#ab7941cd3b2567eec4538fb234680a9bf">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#ab7941cd3b2567eec4538fb234680a9bf">shared_buffer_pool.c</a></li>
 <li>buffer_pool_detect_leaks()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#a212c8f17c9792d37e2c884ef14ed8e69">shared_buffer_pool.c</a></li>
 <li>buffer_pool_get_stats()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#a8d1141e7eeb3bedad5c0d1ad575a953d">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#a8d1141e7eeb3bedad5c0d1ad575a953d">shared_buffer_pool.c</a></li>
-<li>buffer_pool_init()&#160;:&#160;<a class="el" href="shared__buffer__pool_8c.html#a57e203054eac9c4b6834783c64844d9b">shared_buffer_pool.c</a>, <a class="el" href="shared__buffer__pool_8h.html#a57e203054eac9c4b6834783c64844d9b">shared_buffer_pool.h</a></li>
-<li>buffer_pool_is_healthy()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#acd58d78b420eb7bbeb83dd9b2d249be4">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#acd58d78b420eb7bbeb83dd9b2d249be4">shared_buffer_pool.c</a></li>
+<li>buffer_pool_init()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#a57e203054eac9c4b6834783c64844d9b">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#a57e203054eac9c4b6834783c64844d9b">shared_buffer_pool.c</a></li>
+<li>buffer_pool_is_healthy()&#160;:&#160;<a class="el" href="shared__buffer__pool_8c.html#acd58d78b420eb7bbeb83dd9b2d249be4">shared_buffer_pool.c</a>, <a class="el" href="shared__buffer__pool_8h.html#acd58d78b420eb7bbeb83dd9b2d249be4">shared_buffer_pool.h</a></li>
 <li>buffer_pool_print_status()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#a78258eeac6ef7d0f8d2cf999f0605b0c">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#a78258eeac6ef7d0f8d2cf999f0605b0c">shared_buffer_pool.c</a></li>
 <li>build_snapshot_json()&#160;:&#160;<a class="el" href="web__server__internal_8h.html#a364f56a5832a9dc6c43e823dcef0cdc7">web_server_internal.h</a>, <a class="el" href="web__handlers__game_8c.html#a364f56a5832a9dc6c43e823dcef0cdc7">web_handlers_game.c</a></li>
 <li>build_snapshot_json_to_buffer()&#160;:&#160;<a class="el" href="web__handlers__game_8c.html#ac4f360da1651ff96a00477807265054d">web_handlers_game.c</a></li>
 <li>button_check_double_press()&#160;:&#160;<a class="el" href="button__task_8c.html#a506457119e2e5819ca95c3e876de7d5e">button_task.c</a>, <a class="el" href="button__task_8h.html#a506457119e2e5819ca95c3e876de7d5e">button_task.h</a></li>
-<li>button_handle_press()&#160;:&#160;<a class="el" href="button__task_8h.html#aae052fa1d3a64d8c90bb3ec9dc3e4210">button_task.h</a>, <a class="el" href="button__task_8c.html#aae052fa1d3a64d8c90bb3ec9dc3e4210">button_task.c</a></li>
+<li>button_gesture_init()&#160;:&#160;<a class="el" href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">button_gesture.c</a>, <a class="el" href="button__gesture_8h.html#a6e9176c71e6cbac1f6589747487463a0">button_gesture.h</a></li>
+<li>button_gesture_is_down()&#160;:&#160;<a class="el" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture.c</a>, <a class="el" href="button__gesture_8h.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture.h</a></li>
+<li>button_gesture_poll()&#160;:&#160;<a class="el" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture.c</a>, <a class="el" href="button__gesture_8h.html#a54208b726455b1c501e05d24c4591739">button_gesture.h</a></li>
+<li>button_gesture_queue()&#160;:&#160;<a class="el" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture.c</a>, <a class="el" href="button__gesture_8h.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture.h</a></li>
+<li>button_handle_press()&#160;:&#160;<a class="el" href="button__task_8c.html#aae052fa1d3a64d8c90bb3ec9dc3e4210">button_task.c</a>, <a class="el" href="button__task_8h.html#aae052fa1d3a64d8c90bb3ec9dc3e4210">button_task.h</a></li>
 <li>button_handle_release()&#160;:&#160;<a class="el" href="button__task_8c.html#a52544805262bb1776fcdb432960eb7be">button_task.c</a>, <a class="el" href="button__task_8h.html#a52544805262bb1776fcdb432960eb7be">button_task.h</a></li>
 <li>button_print_status()&#160;:&#160;<a class="el" href="button__task_8c.html#a1573d1d2a02b4e2b619b9ef45e09fda5">button_task.c</a>, <a class="el" href="button__task_8h.html#a1573d1d2a02b4e2b619b9ef45e09fda5">button_task.h</a></li>
-<li>button_process_commands()&#160;:&#160;<a class="el" href="button__task_8c.html#a0e6a1befa86d6dcea575c1effa25fb6d">button_task.c</a>, <a class="el" href="button__task_8h.html#a0e6a1befa86d6dcea575c1effa25fb6d">button_task.h</a></li>
+<li>button_process_commands()&#160;:&#160;<a class="el" href="button__task_8h.html#a0e6a1befa86d6dcea575c1effa25fb6d">button_task.h</a>, <a class="el" href="button__task_8c.html#a0e6a1befa86d6dcea575c1effa25fb6d">button_task.c</a></li>
 <li>button_process_events()&#160;:&#160;<a class="el" href="button__task_8c.html#aedc6316fcaee517a7a57905a217d44b8">button_task.c</a>, <a class="el" href="button__task_8h.html#aedc6316fcaee517a7a57905a217d44b8">button_task.h</a></li>
 <li>button_reset_all()&#160;:&#160;<a class="el" href="button__task_8c.html#a97c84f568244fb112e4828e2985529ec">button_task.c</a>, <a class="el" href="button__task_8h.html#a97c84f568244fb112e4828e2985529ec">button_task.h</a></li>
 <li>button_scan_all()&#160;:&#160;<a class="el" href="button__task_8c.html#a5fb2a771d8252d20fc0ad4d97667d4df">button_task.c</a>, <a class="el" href="button__task_8h.html#a5fb2a771d8252d20fc0ad4d97667d4df">button_task.h</a></li>
 <li>button_scan_timer_callback()&#160;:&#160;<a class="el" href="freertos__chess_8c.html#a60ba01ed8c95cf7326c889ea1b6a2bc2">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#a60ba01ed8c95cf7326c889ea1b6a2bc2">freertos_chess.h</a></li>
 <li>button_send_event()&#160;:&#160;<a class="el" href="button__task_8c.html#a9c76fbdf52fcd61692a0ace95907507f">button_task.c</a>, <a class="el" href="button__task_8h.html#a9c76fbdf52fcd61692a0ace95907507f">button_task.h</a></li>
 <li>button_set_led_color()&#160;:&#160;<a class="el" href="button__task_8c.html#ad004f184d705cb6e12a079c8105867bc">button_task.c</a>, <a class="el" href="button__task_8h.html#ad004f184d705cb6e12a079c8105867bc">button_task.h</a></li>
-<li>button_simulate_press()&#160;:&#160;<a class="el" href="button__task_8h.html#a133a427b3e47eeb0e857d1efd4bbfe57">button_task.h</a>, <a class="el" href="button__task_8c.html#a133a427b3e47eeb0e857d1efd4bbfe57">button_task.c</a></li>
+<li>button_simulate_press()&#160;:&#160;<a class="el" href="button__task_8c.html#a133a427b3e47eeb0e857d1efd4bbfe57">button_task.c</a>, <a class="el" href="button__task_8h.html#a133a427b3e47eeb0e857d1efd4bbfe57">button_task.h</a></li>
 <li>button_simulate_release()&#160;:&#160;<a class="el" href="button__task_8c.html#a2f22af1e62d703a6cd12cfa7d7058865">button_task.c</a>, <a class="el" href="button__task_8h.html#a2f22af1e62d703a6cd12cfa7d7058865">button_task.h</a></li>
 <li>button_task_start()&#160;:&#160;<a class="el" href="button__task_8c.html#af93b7fa55287e83f6caf447e756de6d2">button_task.c</a>, <a class="el" href="button__task_8h.html#af93b7fa55287e83f6caf447e756de6d2">button_task.h</a></li>
-<li>button_task_wdt_reset_safe()&#160;:&#160;<a class="el" href="button__task_8c.html#af88dd4237305bcbdee51952490e7d163">button_task.c</a></li>
 <li>button_test_all()&#160;:&#160;<a class="el" href="button__task_8c.html#ae20ae1cc0ee0a2af8cdae453a22296a2">button_task.c</a>, <a class="el" href="button__task_8h.html#ae20ae1cc0ee0a2af8cdae453a22296a2">button_task.h</a></li>
 <li>button_update_led_feedback()&#160;:&#160;<a class="el" href="button__task_8c.html#a558352d2b9df8e61bfada7d422249e64">button_task.c</a>, <a class="el" href="button__task_8h.html#a558352d2b9df8e61bfada7d422249e64">button_task.h</a></li>
 </ul>

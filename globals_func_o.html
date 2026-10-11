@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -93,7 +93,6 @@ $(document).ready(function(){initNavTree('globals_func_o.html',''); initResizabl
 <div class="textblock">Here is a list of all functions with links to the files they belong to:</div>
 
 <h3><a id="index_o" name="index_o"></a>- o -</h3><ul>
-<li>opening_action_code()&#160;:&#160;<a class="el" href="web__opening__dispatch_8c.html#a01084d18a17d811cfc278f5f8d1e07e2">web_opening_dispatch.c</a></li>
 <li>opening_begin_opponent_physical_turn()&#160;:&#160;<a class="el" href="game__opening__trainer_8c.html#a5beda2c4fef0829db9b01bd1a23792b1">game_opening_trainer.c</a></li>
 <li>opening_count_player_ply_index()&#160;:&#160;<a class="el" href="game__opening__trainer_8c.html#a025e2ed812a2068f665cdc45ed6291e1">game_opening_trainer.c</a></li>
 <li>opening_export_active()&#160;:&#160;<a class="el" href="game__opening__trainer_8c.html#a2d059cced881c39fff433f1fe4896150">game_opening_trainer.c</a></li>
@@ -110,6 +109,8 @@ $(document).ready(function(){initNavTree('globals_func_o.html',''); initResizabl
 <li>opening_show_hint_led()&#160;:&#160;<a class="el" href="game__opening__trainer_8c.html#abadfe932a50cfa6d98053a0fcb7fbc6b">game_opening_trainer.c</a></li>
 <li>opening_show_opponent_physical_led()&#160;:&#160;<a class="el" href="game__opening__trainer_8c.html#a8c60a621ea27fd9ff90fd87c9e8d4881">game_opening_trainer.c</a></li>
 <li>opening_update_expected_move()&#160;:&#160;<a class="el" href="game__opening__trainer_8c.html#a87af166bbc9f958cc3ef128d4acbeac8">game_opening_trainer.c</a></li>
+<li>orange_bright()&#160;:&#160;<a class="el" href="led__board__restore__guide_8c.html#a70aab59db66eb733ef9fb2f6550c6fea">led_board_restore_guide.c</a></li>
+<li>orange_dim()&#160;:&#160;<a class="el" href="led__board__restore__guide_8c.html#aeb6b3ddec7c35bf874d212bc1d0ee584">led_board_restore_guide.c</a></li>
 <li>ota_ensure_sem_initialized()&#160;:&#160;<a class="el" href="ota__update_8c.html#a87f17a4d196f17cf70e6a399e80c1c28">ota_update.c</a></li>
 <li>ota_http_worker_task()&#160;:&#160;<a class="el" href="ota__update_8c.html#a2ccc98fa9e3f50df0eab8323c3828c32">ota_update.c</a></li>
 <li>ota_https_worker_task()&#160;:&#160;<a class="el" href="ota__update_8c.html#ab9fb381a5c5db5f3c62dee4443ad565a">ota_update.c</a></li>
@@ -120,7 +121,7 @@ $(document).ready(function(){initNavTree('globals_func_o.html',''); initResizabl
 <li>ota_update_ble_abort()&#160;:&#160;<a class="el" href="ota__update_8h.html#acdba341fb3ab9c197c9028fff932df08">ota_update.h</a>, <a class="el" href="ota__update_8c.html#acdba341fb3ab9c197c9028fff932df08">ota_update.c</a></li>
 <li>ota_update_ble_begin_from_json()&#160;:&#160;<a class="el" href="ota__update_8h.html#a5f68796df481b20829e433516341e4b0">ota_update.h</a>, <a class="el" href="ota__update_8c.html#a5f68796df481b20829e433516341e4b0">ota_update.c</a></li>
 <li>ota_update_ble_build_status_ack_json()&#160;:&#160;<a class="el" href="ota__update_8h.html#a721fd49eb5ae6c7257aefaf112602b93">ota_update.h</a>, <a class="el" href="ota__update_8c.html#a721fd49eb5ae6c7257aefaf112602b93">ota_update.c</a></li>
-<li>ota_update_ble_feed_chunk()&#160;:&#160;<a class="el" href="ota__update_8h.html#a845dc9970f3f614fe724b60e07824266">ota_update.h</a>, <a class="el" href="ota__update_8c.html#a845dc9970f3f614fe724b60e07824266">ota_update.c</a></li>
+<li>ota_update_ble_feed_chunk()&#160;:&#160;<a class="el" href="ota__update_8c.html#a845dc9970f3f614fe724b60e07824266">ota_update.c</a>, <a class="el" href="ota__update_8h.html#a845dc9970f3f614fe724b60e07824266">ota_update.h</a></li>
 <li>ota_update_ble_is_rx_active()&#160;:&#160;<a class="el" href="ota__update_8h.html#a25ffe8652ff554377d42ac9accc28fa4">ota_update.h</a>, <a class="el" href="ota__update_8c.html#a25ffe8652ff554377d42ac9accc28fa4">ota_update.c</a></li>
 <li>ota_update_ble_on_disconnect()&#160;:&#160;<a class="el" href="ota__update_8h.html#a1b4ddbc4d8e6b9aad5a3cd91214669a9">ota_update.h</a>, <a class="el" href="ota__update_8c.html#a1b4ddbc4d8e6b9aad5a3cd91214669a9">ota_update.c</a></li>
 <li>ota_update_ble_try_dispatch()&#160;:&#160;<a class="el" href="ota__update_8h.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update.h</a>, <a class="el" href="ota__update_8c.html#a061bf2fb7f3c766384c5042f5ad04c9f">ota_update.c</a></li>

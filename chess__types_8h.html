@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -147,11 +147,11 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structbutton__event__t.html">button_event_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The button event structure.  <a href="structbutton__event__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmatrix__event__t.html">matrix_event_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event matrix structure.  <a href="structmatrix__event__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsquares__event__t.html">squares_event_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event matrix structure.  <a href="structsquares__event__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmatrix__command__t.html">matrix_command_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure of matrix command.  <a href="structmatrix__command__t.html#details">More...</a><br /></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structsquares__command__t.html">squares_command_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure of matrix command.  <a href="structsquares__command__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structmove__suggestion__t.html">move_suggestion_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structure of draft draft for parsing.  <a href="structmove__suggestion__t.html#details">More...</a><br /></td></tr>
@@ -180,9 +180,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a6f0f1e32a1bc7c5e590c118b42f59b2c" id="r_a6f0f1e32a1bc7c5e590c118b42f59b2c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a6f0f1e32a1bc7c5e590c118b42f59b2c">CHESS_BUTTON_COUNT</a>&#160;&#160;&#160;9</td></tr>
 <tr class="memdesc:a6f0f1e32a1bc7c5e590c118b42f59b2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of buttons in the system (8 promotion + 1 reset = 9)  <br /></td></tr>
 <tr class="separator:a6f0f1e32a1bc7c5e590c118b42f59b2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66570ebf9fc22729e105df1e70b02db5" id="r_a66570ebf9fc22729e105df1e70b02db5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a66570ebf9fc22729e105df1e70b02db5">CHESS_MATRIX_SIZE</a>&#160;&#160;&#160;64</td></tr>
-<tr class="memdesc:a66570ebf9fc22729e105df1e70b02db5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Velikost matrix (8x8 = 64 poli)  <br /></td></tr>
-<tr class="separator:a66570ebf9fc22729e105df1e70b02db5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae45333b2c65697a8d3913953692e153f" id="r_ae45333b2c65697a8d3913953692e153f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#ae45333b2c65697a8d3913953692e153f">CHESS_SQUARES_SIZE</a>&#160;&#160;&#160;64</td></tr>
+<tr class="memdesc:ae45333b2c65697a8d3913953692e153f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Velikost matrix (8x8 = 64 poli)  <br /></td></tr>
+<tr class="separator:ae45333b2c65697a8d3913953692e153f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b87426d2e6f6d464ec0a2df2f66dd83" id="r_a3b87426d2e6f6d464ec0a2df2f66dd83"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a3b87426d2e6f6d464ec0a2df2f66dd83">MAX_MOVE_HISTORY</a>&#160;&#160;&#160;200</td></tr>
 <tr class="memdesc:a3b87426d2e6f6d464ec0a2df2f66dd83"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of moves in history (200 moves)  <br /></td></tr>
 <tr class="separator:a3b87426d2e6f6d464ec0a2df2f66dd83"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -350,7 +350,7 @@ Enumerations</h2></td></tr>
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2">GAME_CMD_GET_TIMER_STATE</a> = 43
 , <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534">GAME_CMD_TIMER_TIMEOUT</a> = 44
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4af5a0b54b7dbb8a1e24fe81414ee1ed4e">GAME_CMD_MATRIX_GUARD</a> = 45
+, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf">GAME_CMD_SQUARES_GUARD</a> = 45
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b">GAME_CMD_BOARD_SETUP_TUTORIAL</a>
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0">GAME_CMD_PUZZLE</a>
 , <br />
@@ -387,8 +387,8 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabefc2d40076aacd32ffd40c07fc8afe5">LED_CMD_TEST</a> = 8
 , <a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38">LED_CMD_TEST_ALL</a> = 10
-, <a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221">LED_CMD_MATRIX_OFF</a> = 11
-, <a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70">LED_CMD_MATRIX_ON</a> = 12
+, <a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dab1532e3dccffcbd828cfdcccb499c8bf">LED_CMD_SQUARES_OFF</a> = 11
+, <a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da0c97f4e2b06ed58477bc5822c36f86e6">LED_CMD_SQUARES_ON</a> = 12
 , <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f">LED_CMD_RESERVED_SLOT_13</a> = 13
 , <a class="el" href="chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66da99cc49c9086cca2b4d67e431f6f8243e">LED_CMD_RESERVED_SLOT_14</a> = 14
@@ -449,25 +449,25 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a54c67f8a6d26165b932e66b06b5b904b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Button event types.  <a href="chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b">More...</a><br /></td></tr>
 <tr class="separator:a54c67f8a6d26165b932e66b06b5b904b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86af72d7b967d33d0fade767c033320f" id="r_a86af72d7b967d33d0fade767c033320f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320f">matrix_event_type_t</a> { <a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d">MATRIX_EVENT_PIECE_LIFTED</a> = 0
-, <a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594">MATRIX_EVENT_PIECE_PLACED</a> = 1
-, <a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619">MATRIX_EVENT_MOVE_DETECTED</a> = 2
-, <a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246">MATRIX_EVENT_ERROR</a> = 3
+<tr class="memitem:a29f7db6c7a27cff70a423776ebd77fd9" id="r_a29f7db6c7a27cff70a423776ebd77fd9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9">squares_event_type_t</a> { <a class="el" href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a0641764a07f00a815b24d9af78711f06">SQUARES_EVENT_PIECE_LIFTED</a> = 0
+, <a class="el" href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a4496d35fb6743fc7d1cff0fb09bd019c">SQUARES_EVENT_PIECE_PLACED</a> = 1
+, <a class="el" href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a1b66323325b4f10c9dd69ce3814890e3">SQUARES_EVENT_MOVE_DETECTED</a> = 2
+, <a class="el" href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9aa0aa5e12856a15409b78d29a0db351ff">SQUARES_EVENT_ERROR</a> = 3
  }</td></tr>
-<tr class="memdesc:a86af72d7b967d33d0fade767c033320f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event matrix types.  <a href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320f">More...</a><br /></td></tr>
-<tr class="separator:a86af72d7b967d33d0fade767c033320f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e80d860c07cd8da638b44dbf01e447a" id="r_a2e80d860c07cd8da638b44dbf01e447a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447a">matrix_command_type_t</a> { <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943">MATRIX_CMD_SCAN</a> = 0
-, <a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec">MATRIX_CMD_RESET</a> = 1
-, <a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280">MATRIX_CMD_TEST</a> = 2
-, <a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d">MATRIX_CMD_CALIBRATE</a> = 3
+<tr class="memdesc:a29f7db6c7a27cff70a423776ebd77fd9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Event matrix types.  <a href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9">More...</a><br /></td></tr>
+<tr class="separator:a29f7db6c7a27cff70a423776ebd77fd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69e0bce8cac82c9e703327b394a3a149" id="r_a69e0bce8cac82c9e703327b394a3a149"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149">squares_command_type_t</a> { <br />
+&#160;&#160;<a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ab0cd5eeffcfda1056ea54921b7d5ad8b">SQUARES_CMD_SCAN</a> = 0
+, <a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ac888837149a6e00a6791f653b6d74cc5">SQUARES_CMD_RESET</a> = 1
+, <a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a919a167dad6d8f56cc00d591d36e741e">SQUARES_CMD_TEST</a> = 2
+, <a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a57e8dae7d8ba2a976c34ffb9540ed516">SQUARES_CMD_CALIBRATE</a> = 3
 , <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700">MATRIX_CMD_DISABLE</a> = 4
-, <a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad">MATRIX_CMD_ENABLE</a> = 5
+&#160;&#160;<a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a28d73282bd2ea65075720f19472d8e47">SQUARES_CMD_DISABLE</a> = 4
+, <a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a99bef9d0fa14b115e4b06a1c75efbeea">SQUARES_CMD_ENABLE</a> = 5
 <br />
  }</td></tr>
-<tr class="memdesc:a2e80d860c07cd8da638b44dbf01e447a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix command types.  <a href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447a">More...</a><br /></td></tr>
-<tr class="separator:a2e80d860c07cd8da638b44dbf01e447a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:a69e0bce8cac82c9e703327b394a3a149"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix command types.  <a href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149">More...</a><br /></td></tr>
+<tr class="separator:a69e0bce8cac82c9e703327b394a3a149"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -606,14 +606,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a66570ebf9fc22729e105df1e70b02db5" name="a66570ebf9fc22729e105df1e70b02db5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a66570ebf9fc22729e105df1e70b02db5">&#9670;&#160;</a></span>CHESS_MATRIX_SIZE</h2>
+<a id="ae45333b2c65697a8d3913953692e153f" name="ae45333b2c65697a8d3913953692e153f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae45333b2c65697a8d3913953692e153f">&#9670;&#160;</a></span>CHESS_SQUARES_SIZE</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define CHESS_MATRIX_SIZE&#160;&#160;&#160;64</td>
+          <td class="memname">#define CHESS_SQUARES_SIZE&#160;&#160;&#160;64</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -777,7 +777,7 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534" name="ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534"></a>GAME_CMD_TIMER_TIMEOUT&#160;</td><td class="fielddoc"><p>Vyprseni casoveho limitu. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4af5a0b54b7dbb8a1e24fe81414ee1ed4e" name="ade7744437207164be6ca650b128bd9e4af5a0b54b7dbb8a1e24fe81414ee1ed4e"></a>GAME_CMD_MATRIX_GUARD&#160;</td><td class="fielddoc"><p>Guard rezim pro multi-lift anomalii. </p>
+<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf" name="ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf"></a>GAME_CMD_SQUARES_GUARD&#160;</td><td class="fielddoc"><p>Guard rezim pro multi-lift anomalii. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b" name="ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b"></a>GAME_CMD_BOARD_SETUP_TUTORIAL&#160;</td><td class="fielddoc"><p>Web tutorial setup; promotion_choice: 0=start,1=cancel,2=finish. </p>
 </td></tr>
@@ -941,9 +941,9 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38" name="a4b9c35d83af38787d5601d9c2443a66da88da737e1611d2de1a3b8d44fb559b38"></a>LED_CMD_TEST_ALL&#160;</td><td class="fielddoc"><p>Test all LEDs (progressive lighting) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221" name="a4b9c35d83af38787d5601d9c2443a66dabb0452beba547aeaff3617f027ee0221"></a>LED_CMD_MATRIX_OFF&#160;</td><td class="fielddoc"><p>Turn off LED effects when scanning the matrix. </p>
+<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66dab1532e3dccffcbd828cfdcccb499c8bf" name="a4b9c35d83af38787d5601d9c2443a66dab1532e3dccffcbd828cfdcccb499c8bf"></a>LED_CMD_SQUARES_OFF&#160;</td><td class="fielddoc"><p>Turn off LED effects when scanning the matrix. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70" name="a4b9c35d83af38787d5601d9c2443a66da12e33eb2fd816cc6d9775a3c69b3ce70"></a>LED_CMD_MATRIX_ON&#160;</td><td class="fielddoc"><p>Turn on LED effects when scanning the matrix. </p>
+<tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da0c97f4e2b06ed58477bc5822c36f86e6" name="a4b9c35d83af38787d5601d9c2443a66da0c97f4e2b06ed58477bc5822c36f86e6"></a>LED_CMD_SQUARES_ON&#160;</td><td class="fielddoc"><p>Turn on LED effects when scanning the matrix. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f" name="a4b9c35d83af38787d5601d9c2443a66da02493a700b3bcd46cde391cb7b84966f"></a>LED_CMD_RESERVED_SLOT_13&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
 </td></tr>
@@ -1026,68 +1026,6 @@ Functions</h2></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00390">390</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
-
-</div>
-</div>
-<a id="a2e80d860c07cd8da638b44dbf01e447a" name="a2e80d860c07cd8da638b44dbf01e447a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2e80d860c07cd8da638b44dbf01e447a">&#9670;&#160;</a></span>matrix_command_type_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="chess__types_8h.html#a2e80d860c07cd8da638b44dbf01e447a">matrix_command_type_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Matrix command types. </p>
-<p>Defines the commands that can be sent to the matrix task. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943" name="a2e80d860c07cd8da638b44dbf01e447aa41ace29c9ff45d2dfb21f28e298c7943"></a>MATRIX_CMD_SCAN&#160;</td><td class="fielddoc"><p>Perform matrix scan. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec" name="a2e80d860c07cd8da638b44dbf01e447aa7bc413e23a6bc09a2e155096fa603dec"></a>MATRIX_CMD_RESET&#160;</td><td class="fielddoc"><p>Reset matrix state. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280" name="a2e80d860c07cd8da638b44dbf01e447aa2fff98c7f65532e3805fa0aa51874280"></a>MATRIX_CMD_TEST&#160;</td><td class="fielddoc"><p>Testuj matrix funkci. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d" name="a2e80d860c07cd8da638b44dbf01e447aa5942ac097cba4821815b332686b8224d"></a>MATRIX_CMD_CALIBRATE&#160;</td><td class="fielddoc"><p>Calibrate matrix (sensitivity settings) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700" name="a2e80d860c07cd8da638b44dbf01e447aa7623c181ba460f2efa8fc0704a809700"></a>MATRIX_CMD_DISABLE&#160;</td><td class="fielddoc"><p>Turn off matrix scanning. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad" name="a2e80d860c07cd8da638b44dbf01e447aac28eb91d87621eebcfe95be8e6a736ad"></a>MATRIX_CMD_ENABLE&#160;</td><td class="fielddoc"><p>Enable matrix scanning. </p>
-</td></tr>
-</table>
-
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00548">548</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
-
-</div>
-</div>
-<a id="a86af72d7b967d33d0fade767c033320f" name="a86af72d7b967d33d0fade767c033320f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a86af72d7b967d33d0fade767c033320f">&#9670;&#160;</a></span>matrix_event_type_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="chess__types_8h.html#a86af72d7b967d33d0fade767c033320f">matrix_event_type_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Event matrix types. </p>
-<p>Defines all types of events that can be generated by the matrix task when detecting the movement of figures. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d" name="a86af72d7b967d33d0fade767c033320fa39129c9582541c86108746c63a6be30d"></a>MATRIX_EVENT_PIECE_LIFTED&#160;</td><td class="fielddoc"><p>Figure raised (reed switch open) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594" name="a86af72d7b967d33d0fade767c033320fae68c93c0c4fc7f3f100942775984e594"></a>MATRIX_EVENT_PIECE_PLACED&#160;</td><td class="fielddoc"><p>Figure placed (reed switch on) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619" name="a86af72d7b967d33d0fade767c033320fa35b920398a95b8a2cb0b48a31df01619"></a>MATRIX_EVENT_MOVE_DETECTED&#160;</td><td class="fielddoc"><p>Complete move detected (lift + place) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246" name="a86af72d7b967d33d0fade767c033320fabb7b9f5963909feca6e37f45eda97246"></a>MATRIX_EVENT_ERROR&#160;</td><td class="fielddoc"><p>Detection error. </p>
-</td></tr>
-</table>
-
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00519">519</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1286,6 +1224,68 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a69e0bce8cac82c9e703327b394a3a149" name="a69e0bce8cac82c9e703327b394a3a149"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a69e0bce8cac82c9e703327b394a3a149">&#9670;&#160;</a></span>squares_command_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149">squares_command_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Matrix command types. </p>
+<p>Defines the commands that can be sent to the matrix task. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a69e0bce8cac82c9e703327b394a3a149ab0cd5eeffcfda1056ea54921b7d5ad8b" name="a69e0bce8cac82c9e703327b394a3a149ab0cd5eeffcfda1056ea54921b7d5ad8b"></a>SQUARES_CMD_SCAN&#160;</td><td class="fielddoc"><p>Perform matrix scan. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a69e0bce8cac82c9e703327b394a3a149ac888837149a6e00a6791f653b6d74cc5" name="a69e0bce8cac82c9e703327b394a3a149ac888837149a6e00a6791f653b6d74cc5"></a>SQUARES_CMD_RESET&#160;</td><td class="fielddoc"><p>Reset matrix state. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a69e0bce8cac82c9e703327b394a3a149a919a167dad6d8f56cc00d591d36e741e" name="a69e0bce8cac82c9e703327b394a3a149a919a167dad6d8f56cc00d591d36e741e"></a>SQUARES_CMD_TEST&#160;</td><td class="fielddoc"><p>Testuj matrix funkci. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a69e0bce8cac82c9e703327b394a3a149a57e8dae7d8ba2a976c34ffb9540ed516" name="a69e0bce8cac82c9e703327b394a3a149a57e8dae7d8ba2a976c34ffb9540ed516"></a>SQUARES_CMD_CALIBRATE&#160;</td><td class="fielddoc"><p>Calibrate matrix (sensitivity settings) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a69e0bce8cac82c9e703327b394a3a149a28d73282bd2ea65075720f19472d8e47" name="a69e0bce8cac82c9e703327b394a3a149a28d73282bd2ea65075720f19472d8e47"></a>SQUARES_CMD_DISABLE&#160;</td><td class="fielddoc"><p>Turn off matrix scanning. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a69e0bce8cac82c9e703327b394a3a149a99bef9d0fa14b115e4b06a1c75efbeea" name="a69e0bce8cac82c9e703327b394a3a149a99bef9d0fa14b115e4b06a1c75efbeea"></a>SQUARES_CMD_ENABLE&#160;</td><td class="fielddoc"><p>Enable matrix scanning. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00548">548</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a29f7db6c7a27cff70a423776ebd77fd9" name="a29f7db6c7a27cff70a423776ebd77fd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29f7db6c7a27cff70a423776ebd77fd9">&#9670;&#160;</a></span>squares_event_type_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9">squares_event_type_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Event matrix types. </p>
+<p>Defines all types of events that can be generated by the matrix task when detecting the movement of figures. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a29f7db6c7a27cff70a423776ebd77fd9a0641764a07f00a815b24d9af78711f06" name="a29f7db6c7a27cff70a423776ebd77fd9a0641764a07f00a815b24d9af78711f06"></a>SQUARES_EVENT_PIECE_LIFTED&#160;</td><td class="fielddoc"><p>Figure raised (reed switch open) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a29f7db6c7a27cff70a423776ebd77fd9a4496d35fb6743fc7d1cff0fb09bd019c" name="a29f7db6c7a27cff70a423776ebd77fd9a4496d35fb6743fc7d1cff0fb09bd019c"></a>SQUARES_EVENT_PIECE_PLACED&#160;</td><td class="fielddoc"><p>Figure placed (reed switch on) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a29f7db6c7a27cff70a423776ebd77fd9a1b66323325b4f10c9dd69ce3814890e3" name="a29f7db6c7a27cff70a423776ebd77fd9a1b66323325b4f10c9dd69ce3814890e3"></a>SQUARES_EVENT_MOVE_DETECTED&#160;</td><td class="fielddoc"><p>Complete move detected (lift + place) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a29f7db6c7a27cff70a423776ebd77fd9aa0aa5e12856a15409b78d29a0db351ff" name="a29f7db6c7a27cff70a423776ebd77fd9aa0aa5e12856a15409b78d29a0db351ff"></a>SQUARES_EVENT_ERROR&#160;</td><td class="fielddoc"><p>Detection error. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00519">519</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="ae753d20be4991e260b40fd757087ebab" name="ae753d20be4991e260b40fd757087ebab"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae753d20be4991e260b40fd757087ebab">&#9670;&#160;</a></span>config_apply_settings()</h2>
@@ -1479,7 +1479,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if the figure is owned</dd></dl>
 <p>Check if the figure is your own (belongs to the current player) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00045">45</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00076">76</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>
@@ -1520,7 +1520,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if position is valid</dd></dl>
 <p>Verify if the position is valid on the inbox. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00038">38</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00069">69</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>
@@ -1561,7 +1561,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if the move would leave the king in check</dd></dl>
 <p>Simulates the move and checks if it would leave the king in check. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00149">149</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00180">180</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>

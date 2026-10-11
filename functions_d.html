@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -93,19 +93,19 @@ $(document).ready(function(){initNavTree('functions_d.html',''); initResizable()
 <div class="textblock">Here is a list of all struct and union fields with links to the structures/unions they belong to:</div>
 
 <h3><a id="index_d" name="index_d"></a>- d -</h3><ul>
-<li>data&#160;:&#160;<a class="el" href="structanimation__task__t.html#a0b2f1d684a7d68b707b1372684d1e9f2">animation_task_t</a>, <a class="el" href="structgame__response__t.html#a1b9907db84187372f7e5df9135e8d522">game_response_t</a>, <a class="el" href="structha__light__command__t.html#ab0bc8ed3f5ca6cb30316a8163e8da184">ha_light_command_t</a>, <a class="el" href="structled__command__t.html#a8fb54529dc345b2f804899e68a519163">led_command_t</a>, <a class="el" href="structmatrix__command__t.html#a4b1b3566cdf60e6cb30905c134a48ff9">matrix_command_t</a>, <a class="el" href="structshared__buffer__t.html#a6e6b1fce9ee8c0ae6f0668470107d385">shared_buffer_t</a></li>
+<li>data&#160;:&#160;<a class="el" href="structgame__response__t.html#a1b9907db84187372f7e5df9135e8d522">game_response_t</a>, <a class="el" href="structha__light__command__t.html#ab0bc8ed3f5ca6cb30316a8163e8da184">ha_light_command_t</a>, <a class="el" href="structled__command__t.html#a8fb54529dc345b2f804899e68a519163">led_command_t</a>, <a class="el" href="structshared__buffer__t.html#a6e6b1fce9ee8c0ae6f0668470107d385">shared_buffer_t</a>, <a class="el" href="structsquares__command__t.html#a03f485e1151534421cf4963ab9b12dce">squares_command_t</a></li>
 <li>default_brightness&#160;:&#160;<a class="el" href="structled__manager__config__t.html#a5efa2115bc7071dcc1bb22f7ccdc8aa0">led_manager_config_t</a></li>
 <li>default_duration_ms&#160;:&#160;<a class="el" href="structanimation__config__t.html#a06a10b970ebd4a1ece687dda50d2026a">animation_config_t</a></li>
 <li>delay&#160;:&#160;<a class="el" href="structfirework__t.html#accc9b17020e87c721a531237aa0b78c3">firework_t</a></li>
-<li>description&#160;:&#160;<a class="el" href="structcastling__error__info__t.html#acd904d8c841b637d1d3d311472d84e8e">castling_error_info_t</a>, <a class="el" href="structtime__control__config__t.html#a33dadcbfeb5085df5844171bc5bea672">time_control_config_t</a>, <a class="el" href="structuart__command__t.html#a0a77602f1e7d507c3ea44321ae4baf2b">uart_command_t</a></li>
+<li>description&#160;:&#160;<a class="el" href="structtime__control__config__t.html#a33dadcbfeb5085df5844171bc5bea672">time_control_config_t</a>, <a class="el" href="structuart__command__t.html#a0a77602f1e7d507c3ea44321ae4baf2b">uart_command_t</a></li>
 <li>difficulty&#160;:&#160;<a class="el" href="structgame__puzzle__definition__t.html#a0cdcd3138bab36c4445f93d90c363b02">game_puzzle_definition_t</a></li>
 <li>dirty&#160;:&#160;<a class="el" href="structled__layer__state__t.html#a238ba32530dd3a543bde13518ad7edd1">led_layer_state_t</a>, <a class="el" href="structled__pixel__t.html#a43b55b0c8710014028abd706ff815082">led_pixel_t</a></li>
 <li>dirty_pixels&#160;:&#160;<a class="el" href="structled__state__t.html#ac3040efe9cad342ad5a6474de2467157">led_state_t</a></li>
 <li>display_duration_ms&#160;:&#160;<a class="el" href="structerror__guidance__t.html#a092d951b1b44d718a23eb4aa9de2a407">error_guidance_t</a></li>
-<li>dropped_mask_high&#160;:&#160;<a class="el" href="structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0">chess_move_command_t</a>, <a class="el" href="structmatrix__guard__pause__state__t.html#a9de0dfefe43896658507488ab58a3134">matrix_guard_pause_state_t</a></li>
-<li>dropped_mask_low&#160;:&#160;<a class="el" href="structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52">chess_move_command_t</a>, <a class="el" href="structmatrix__guard__pause__state__t.html#a326398a0551e25fd41a5dc551cf3a6cd">matrix_guard_pause_state_t</a></li>
+<li>dropped_mask_high&#160;:&#160;<a class="el" href="structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0">chess_move_command_t</a>, <a class="el" href="structsquares__guard__pause__state__t.html#a2af59c72a151ab000e2804fd78608f5c">squares_guard_pause_state_t</a></li>
+<li>dropped_mask_low&#160;:&#160;<a class="el" href="structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52">chess_move_command_t</a>, <a class="el" href="structsquares__guard__pause__state__t.html#a36ab7294f79e24c3bacb9cfd85671d71">squares_guard_pause_state_t</a></li>
 <li>duration_color&#160;:&#160;<a class="el" href="structled__duration__state__t.html#a390cee9413644684b60bb6b498e33649">led_duration_state_t</a></li>
-<li>duration_ms&#160;:&#160;<a class="el" href="structanimation__state__struct.html#a9570f68952cc32df071946e4fac9882e">animation_state_struct</a>, <a class="el" href="structanimation__task__t.html#a4c5211bfc199b4bdbc596849387d05ae">animation_task_t</a>, <a class="el" href="structled__command__t.html#a42fe1a9d7b5330a035a60be952b37dfc">led_command_t</a>, <a class="el" href="structled__duration__state__t.html#a8b55f6df0e7276a5d94274a711324271">led_duration_state_t</a>, <a class="el" href="structtest__t.html#ae6d710128516d9ac26905194cad3fc82">test_t</a></li>
+<li>duration_ms&#160;:&#160;<a class="el" href="structanimation__state__struct.html#a9570f68952cc32df071946e4fac9882e">animation_state_struct</a>, <a class="el" href="structled__command__t.html#a42fe1a9d7b5330a035a60be952b37dfc">led_command_t</a>, <a class="el" href="structled__duration__state__t.html#a8b55f6df0e7276a5d94274a711324271">led_duration_state_t</a>, <a class="el" href="structtest__t.html#ae6d710128516d9ac26905194cad3fc82">test_t</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

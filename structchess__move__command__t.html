@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -124,60 +124,60 @@ Data Fields</h2></td></tr>
 <tr class="memitem:ab5aa48985555b2421f0774b8515dd856" id="r_ab5aa48985555b2421f0774b8515dd856"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__move__command__t.html#ab5aa48985555b2421f0774b8515dd856">promotion_from_remote</a></td></tr>
 <tr class="memdesc:ab5aa48985555b2421f0774b8515dd856"><td class="mdescLeft">&#160;</td><td class="mdescRight">1 = WEB/BLE poslalo pole promotion u GAME_CMD_MOVE  <br /></td></tr>
 <tr class="separator:ab5aa48985555b2421f0774b8515dd856"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc20d01f1671fc29d42d4d8db0db995a" id="r_abc20d01f1671fc29d42d4d8db0db995a"><td class="memItemLeft" >union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memitem:ac740fe216588ee3097d67879dae5f90f" id="r_ac740fe216588ee3097d67879dae5f90f"><td class="memItemLeft" >union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d0cdef8728371675f70c6ecef40b1e5" id="r_a6d0cdef8728371675f70c6ecef40b1e5"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:ae11cf70c150b12252583c69cf68c4f5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adea9b3ddb955adb0eb5eccda8c921b8f" id="r_adea9b3ddb955adb0eb5eccda8c921b8f"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263">time_control_type</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:adea9b3ddb955adb0eb5eccda8c921b8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ casove kontroly (pro GAME_CMD_SET_TIME_CONTROL)  <a href="structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263">More...</a><br /></td></tr>
-<tr class="separator:adea9b3ddb955adb0eb5eccda8c921b8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58055c4bc8e9eff939c9e3976d8d0350" id="r_a58055c4bc8e9eff939c9e3976d8d0350"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75">custom_minutes</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a58055c4bc8e9eff939c9e3976d8d0350"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vlastni minuty (pro vlastni casovou kontrolu)  <a href="structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75">More...</a><br /></td></tr>
-<tr class="separator:a58055c4bc8e9eff939c9e3976d8d0350"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa316abbab7ca316cb632a560526c5057" id="r_aa316abbab7ca316cb632a560526c5057"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d">custom_increment</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:aa316abbab7ca316cb632a560526c5057"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vlastni increment (pro vlastni casovou kontrolu)  <a href="structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d">More...</a><br /></td></tr>
-<tr class="separator:aa316abbab7ca316cb632a560526c5057"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d0cdef8728371675f70c6ecef40b1e5" id="r_a6d0cdef8728371675f70c6ecef40b1e5"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e">timer_config</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a6d0cdef8728371675f70c6ecef40b1e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Konfigurace timeru.  <a href="structchess__move__command__t.html#ae11cf70c150b12252583c69cf68c4f5e">More...</a><br /></td></tr>
-<tr class="separator:a6d0cdef8728371675f70c6ecef40b1e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f998e3b0c03530d1568c12d3d84a04a" id="r_a5f998e3b0c03530d1568c12d3d84a04a"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a2a4ad0dafa8f00451bbf16ecd53173fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a92b6b1bc2b2358893b314ee4e3735f" id="r_a5a92b6b1bc2b2358893b314ee4e3735f"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;bool&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a">is_white_turn</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a5a92b6b1bc2b2358893b314ee4e3735f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is the ball on the move? (for timer operations)  <a href="structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a">More...</a><br /></td></tr>
-<tr class="separator:a5a92b6b1bc2b2358893b314ee4e3735f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5f998e3b0c03530d1568c12d3d84a04a" id="r_a5f998e3b0c03530d1568c12d3d84a04a"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a2a4ad0dafa8f00451bbf16ecd53173fd">timer_state</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a5f998e3b0c03530d1568c12d3d84a04a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav timeru.  <a href="structchess__move__command__t.html#a2a4ad0dafa8f00451bbf16ecd53173fd">More...</a><br /></td></tr>
-<tr class="separator:a5f998e3b0c03530d1568c12d3d84a04a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abac1c38e6ccc218566880bd9ea6c2821" id="r_abac1c38e6ccc218566880bd9ea6c2821"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a7fb01c69b7f644c685f0b03711ad7650"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae83a4091631164952c359b43a90b9a9" id="r_aae83a4091631164952c359b43a90b9a9"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a6e2b8d22a99ff32dbe292ac2d5633242">lifted_mask_low</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:aae83a4091631164952c359b43a90b9a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 0-31 for raised fields.  <a href="structchess__move__command__t.html#a6e2b8d22a99ff32dbe292ac2d5633242">More...</a><br /></td></tr>
-<tr class="separator:aae83a4091631164952c359b43a90b9a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc7eb2d0a923ec22a6bd00b9ec001084" id="r_adc7eb2d0a923ec22a6bd00b9ec001084"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a951e580b1ae60115a385e99910230daf">lifted_mask_high</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:adc7eb2d0a923ec22a6bd00b9ec001084"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 32-63 for raised fields.  <a href="structchess__move__command__t.html#a951e580b1ae60115a385e99910230daf">More...</a><br /></td></tr>
-<tr class="separator:adc7eb2d0a923ec22a6bd00b9ec001084"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2df0b06d95263379a8b4fb575059c5ee" id="r_a2df0b06d95263379a8b4fb575059c5ee"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52">dropped_mask_low</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a2df0b06d95263379a8b4fb575059c5ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 0-31 for array positions.  <a href="structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52">More...</a><br /></td></tr>
-<tr class="separator:a2df0b06d95263379a8b4fb575059c5ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94b4b656df3e07370788ef6478c659b3" id="r_a94b4b656df3e07370788ef6478c659b3"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0">dropped_mask_high</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a94b4b656df3e07370788ef6478c659b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 32-63 for array positions.  <a href="structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0">More...</a><br /></td></tr>
-<tr class="separator:a94b4b656df3e07370788ef6478c659b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d43a30fa7df189bb943b92270809c94" id="r_a0d43a30fa7df189bb943b92270809c94"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a986bcd6a356246b9596b900827707501">action</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a0d43a30fa7df189bb943b92270809c94"><td class="mdescLeft">&#160;</td><td class="mdescRight">1=enter/update, 0=clear  <a href="structchess__move__command__t.html#a986bcd6a356246b9596b900827707501">More...</a><br /></td></tr>
-<tr class="separator:a0d43a30fa7df189bb943b92270809c94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abac1c38e6ccc218566880bd9ea6c2821" id="r_abac1c38e6ccc218566880bd9ea6c2821"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a7fb01c69b7f644c685f0b03711ad7650">matrix_guard</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:abac1c38e6ccc218566880bd9ea6c2821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data pro matrix guard rezim.  <a href="structchess__move__command__t.html#a7fb01c69b7f644c685f0b03711ad7650">More...</a><br /></td></tr>
-<tr class="separator:abac1c38e6ccc218566880bd9ea6c2821"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5c85480d9f0a72606ea46fe74677a16" id="r_ae5c85480d9f0a72606ea46fe74677a16"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a31349911e64af0b0ff96a75780706072"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f8b69b472e76a9bd99b66efe491c354" id="r_a2f8b69b472e76a9bd99b66efe491c354"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5">fen</a> [120]&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a2f8b69b472e76a9bd99b66efe491c354"><td class="mdescLeft">&#160;</td><td class="mdescRight">FEN pro GAME_CMD_NEW_GAME_FROM_FEN (placement + w/b)  <a href="structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5">More...</a><br /></td></tr>
-<tr class="separator:a2f8b69b472e76a9bd99b66efe491c354"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae5c85480d9f0a72606ea46fe74677a16" id="r_ae5c85480d9f0a72606ea46fe74677a16"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a31349911e64af0b0ff96a75780706072">fen_new_game</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:ae5c85480d9f0a72606ea46fe74677a16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc20d01f1671fc29d42d4d8db0db995a" id="r_abc20d01f1671fc29d42d4d8db0db995a"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__move__command__t.html#abc20d01f1671fc29d42d4d8db0db995a">timer_data</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:abc20d01f1671fc29d42d4d8db0db995a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Union pro timer data.  <br /></td></tr>
-<tr class="separator:abc20d01f1671fc29d42d4d8db0db995a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc176f9ceb9fabed37e2055e69ebe203" id="r_afc176f9ceb9fabed37e2055e69ebe203"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a241c2d95dd7f3e0bf3cba08cadf888df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0639729ebc42edc01e84f46be146ea1" id="r_ad0639729ebc42edc01e84f46be146ea1"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263">time_control_type</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:ad0639729ebc42edc01e84f46be146ea1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typ casove kontroly (pro GAME_CMD_SET_TIME_CONTROL)  <a href="structchess__move__command__t.html#a19b5d713be6ea325b1121180f0382263">More...</a><br /></td></tr>
+<tr class="separator:ad0639729ebc42edc01e84f46be146ea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ac1e248926ed3054162c06febcb8a51" id="r_a5ac1e248926ed3054162c06febcb8a51"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75">custom_minutes</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a5ac1e248926ed3054162c06febcb8a51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vlastni minuty (pro vlastni casovou kontrolu)  <a href="structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75">More...</a><br /></td></tr>
+<tr class="separator:a5ac1e248926ed3054162c06febcb8a51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5d1c265bbeae8c26897200ebade2bbd1" id="r_a5d1c265bbeae8c26897200ebade2bbd1"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d">custom_increment</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a5d1c265bbeae8c26897200ebade2bbd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vlastni increment (pro vlastni casovou kontrolu)  <a href="structchess__move__command__t.html#aa66efcd3b24e2c130ede000aca79466d">More...</a><br /></td></tr>
+<tr class="separator:a5d1c265bbeae8c26897200ebade2bbd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc176f9ceb9fabed37e2055e69ebe203" id="r_afc176f9ceb9fabed37e2055e69ebe203"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a241c2d95dd7f3e0bf3cba08cadf888df">timer_config</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:afc176f9ceb9fabed37e2055e69ebe203"><td class="mdescLeft">&#160;</td><td class="mdescRight">Konfigurace timeru.  <a href="structchess__move__command__t.html#a241c2d95dd7f3e0bf3cba08cadf888df">More...</a><br /></td></tr>
+<tr class="separator:afc176f9ceb9fabed37e2055e69ebe203"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08010a997f8628da972c2333ca0497d2" id="r_a08010a997f8628da972c2333ca0497d2"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:af2c9f035b54534c7fad138574cddffc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0169354b4685ba347fe6ce26f8c685c" id="r_ab0169354b4685ba347fe6ce26f8c685c"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;bool&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a">is_white_turn</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:ab0169354b4685ba347fe6ce26f8c685c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is the ball on the move? (for timer operations)  <a href="structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a">More...</a><br /></td></tr>
+<tr class="separator:ab0169354b4685ba347fe6ce26f8c685c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08010a997f8628da972c2333ca0497d2" id="r_a08010a997f8628da972c2333ca0497d2"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#af2c9f035b54534c7fad138574cddffc8">timer_state</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a08010a997f8628da972c2333ca0497d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stav timeru.  <a href="structchess__move__command__t.html#af2c9f035b54534c7fad138574cddffc8">More...</a><br /></td></tr>
+<tr class="separator:a08010a997f8628da972c2333ca0497d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a131b89fc4126c0684935ea297b598193" id="r_a131b89fc4126c0684935ea297b598193"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a3396c4a720d38eafa732cb2a9ab68322"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af30eb29d213c2a5199cd898e4ee38576" id="r_af30eb29d213c2a5199cd898e4ee38576"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a6e2b8d22a99ff32dbe292ac2d5633242">lifted_mask_low</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:af30eb29d213c2a5199cd898e4ee38576"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 0-31 for raised fields.  <a href="structchess__move__command__t.html#a6e2b8d22a99ff32dbe292ac2d5633242">More...</a><br /></td></tr>
+<tr class="separator:af30eb29d213c2a5199cd898e4ee38576"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc2ea03bb3e62582b8e312e526f96256" id="r_abc2ea03bb3e62582b8e312e526f96256"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a951e580b1ae60115a385e99910230daf">lifted_mask_high</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:abc2ea03bb3e62582b8e312e526f96256"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 32-63 for raised fields.  <a href="structchess__move__command__t.html#a951e580b1ae60115a385e99910230daf">More...</a><br /></td></tr>
+<tr class="separator:abc2ea03bb3e62582b8e312e526f96256"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e314a3d7aebae9e4028034432d813c3" id="r_a5e314a3d7aebae9e4028034432d813c3"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52">dropped_mask_low</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a5e314a3d7aebae9e4028034432d813c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 0-31 for array positions.  <a href="structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52">More...</a><br /></td></tr>
+<tr class="separator:a5e314a3d7aebae9e4028034432d813c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab383b735c136dafa8fb176dccf7eabe" id="r_aab383b735c136dafa8fb176dccf7eabe"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0">dropped_mask_high</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:aab383b735c136dafa8fb176dccf7eabe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bits 32-63 for array positions.  <a href="structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0">More...</a><br /></td></tr>
+<tr class="separator:aab383b735c136dafa8fb176dccf7eabe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f007bd6795e0d72b2645cc18d0490e3" id="r_a0f007bd6795e0d72b2645cc18d0490e3"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a986bcd6a356246b9596b900827707501">action</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a0f007bd6795e0d72b2645cc18d0490e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">1=enter/update, 0=clear  <a href="structchess__move__command__t.html#a986bcd6a356246b9596b900827707501">More...</a><br /></td></tr>
+<tr class="separator:a0f007bd6795e0d72b2645cc18d0490e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a131b89fc4126c0684935ea297b598193" id="r_a131b89fc4126c0684935ea297b598193"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a3396c4a720d38eafa732cb2a9ab68322">squares_guard</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a131b89fc4126c0684935ea297b598193"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data pro matrix guard rezim.  <a href="structchess__move__command__t.html#a3396c4a720d38eafa732cb2a9ab68322">More...</a><br /></td></tr>
+<tr class="separator:a131b89fc4126c0684935ea297b598193"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1833271efe7a1527e19add6897ca40f9" id="r_a1833271efe7a1527e19add6897ca40f9"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:aed02ebe68f628800d2616570cc5653da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2e7151abdc58ed2cce44958f664b457" id="r_af2e7151abdc58ed2cce44958f664b457"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;char&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5">fen</a> [120]&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:af2e7151abdc58ed2cce44958f664b457"><td class="mdescLeft">&#160;</td><td class="mdescRight">FEN pro GAME_CMD_NEW_GAME_FROM_FEN (placement + w/b)  <a href="structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5">More...</a><br /></td></tr>
+<tr class="separator:af2e7151abdc58ed2cce44958f664b457"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1833271efe7a1527e19add6897ca40f9" id="r_a1833271efe7a1527e19add6897ca40f9"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structchess__move__command__t.html#aed02ebe68f628800d2616570cc5653da">fen_new_game</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a1833271efe7a1527e19add6897ca40f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac740fe216588ee3097d67879dae5f90f" id="r_ac740fe216588ee3097d67879dae5f90f"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__move__command__t.html#ac740fe216588ee3097d67879dae5f90f">timer_data</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:ac740fe216588ee3097d67879dae5f90f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Union pro timer data.  <br /></td></tr>
+<tr class="separator:ac740fe216588ee3097d67879dae5f90f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a43bd07ae3571e5c911bb94292a4cf6b3" id="r_a43bd07ae3571e5c911bb94292a4cf6b3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__move__command__t.html#a43bd07ae3571e5c911bb94292a4cf6b3">is_demo_mode</a></td></tr>
 <tr class="memdesc:a43bd07ae3571e5c911bb94292a4cf6b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag pro demo mode (skip resignation timer)  <br /></td></tr>
 <tr class="separator:a43bd07ae3571e5c911bb94292a4cf6b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -296,8 +296,8 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a31349911e64af0b0ff96a75780706072" name="a31349911e64af0b0ff96a75780706072"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31349911e64af0b0ff96a75780706072">&#9670;&#160;</a></span>[struct]</h2>
+<a id="aed02ebe68f628800d2616570cc5653da" name="aed02ebe68f628800d2616570cc5653da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed02ebe68f628800d2616570cc5653da">&#9670;&#160;</a></span>[struct]</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -401,22 +401,6 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a7fb01c69b7f644c685f0b03711ad7650" name="a7fb01c69b7f644c685f0b03711ad7650"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7fb01c69b7f644c685f0b03711ad7650">&#9670;&#160;</a></span>[struct]</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">struct  { ... }  chess_move_command_t::matrix_guard</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Data pro matrix guard rezim. </p>
-
-</div>
-</div>
 <a id="a431384d6ef7f4db67d9a0946a7211ef1" name="a431384d6ef7f4db67d9a0946a7211ef1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a431384d6ef7f4db67d9a0946a7211ef1">&#9670;&#160;</a></span>player</h2>
 
@@ -489,6 +473,22 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="a3396c4a720d38eafa732cb2a9ab68322" name="a3396c4a720d38eafa732cb2a9ab68322"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3396c4a720d38eafa732cb2a9ab68322">&#9670;&#160;</a></span>[struct]</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct  { ... }  chess_move_command_t::squares_guard</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Data pro matrix guard rezim. </p>
+
+</div>
+</div>
 <a id="a19b5d713be6ea325b1121180f0382263" name="a19b5d713be6ea325b1121180f0382263"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a19b5d713be6ea325b1121180f0382263">&#9670;&#160;</a></span>time_control_type</h2>
 
@@ -507,8 +507,8 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="ae11cf70c150b12252583c69cf68c4f5e" name="ae11cf70c150b12252583c69cf68c4f5e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae11cf70c150b12252583c69cf68c4f5e">&#9670;&#160;</a></span>[struct]</h2>
+<a id="a241c2d95dd7f3e0bf3cba08cadf888df" name="a241c2d95dd7f3e0bf3cba08cadf888df"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a241c2d95dd7f3e0bf3cba08cadf888df">&#9670;&#160;</a></span>[struct]</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -523,8 +523,8 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="abc20d01f1671fc29d42d4d8db0db995a" name="abc20d01f1671fc29d42d4d8db0db995a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abc20d01f1671fc29d42d4d8db0db995a">&#9670;&#160;</a></span>[union]</h2>
+<a id="ac740fe216588ee3097d67879dae5f90f" name="ac740fe216588ee3097d67879dae5f90f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac740fe216588ee3097d67879dae5f90f">&#9670;&#160;</a></span>[union]</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -539,8 +539,8 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="a2a4ad0dafa8f00451bbf16ecd53173fd" name="a2a4ad0dafa8f00451bbf16ecd53173fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a4ad0dafa8f00451bbf16ecd53173fd">&#9670;&#160;</a></span>[struct]</h2>
+<a id="af2c9f035b54534c7fad138574cddffc8" name="af2c9f035b54534c7fad138574cddffc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2c9f035b54534c7fad138574cddffc8">&#9670;&#160;</a></span>[struct]</h2>
 
 <div class="memitem">
 <div class="memproto">

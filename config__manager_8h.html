@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -192,6 +192,9 @@ Macros</h2></td></tr>
 <tr class="memitem:a1c78490f77ab1d69c73370111b4e540c" id="r_a1c78490f77ab1d69c73370111b4e540c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a1c78490f77ab1d69c73370111b4e540c">CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL</a>&#160;&#160;&#160;&quot;g_snap_full&quot;</td></tr>
 <tr class="memdesc:a1c78490f77ab1d69c73370111b4e540c"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro plny snapshot hry.  <br /></td></tr>
 <tr class="separator:a1c78490f77ab1d69c73370111b4e540c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ef6f95cddc59d84ddc37fbbd001890d" id="r_a5ef6f95cddc59d84ddc37fbbd001890d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a5ef6f95cddc59d84ddc37fbbd001890d">CONFIG_NVS_KEY_GAME_SNAPSHOT_B</a>&#160;&#160;&#160;&quot;g_snap_b&quot;</td></tr>
+<tr class="memdesc:a5ef6f95cddc59d84ddc37fbbd001890d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Second full-snapshot slot.  <br /></td></tr>
+<tr class="separator:a5ef6f95cddc59d84ddc37fbbd001890d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47c7d5af6d43a6aa46a13ebf392fcc3a" id="r_a47c7d5af6d43a6aa46a13ebf392fcc3a"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a47c7d5af6d43a6aa46a13ebf392fcc3a">CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN</a>&#160;&#160;&#160;&quot;g_snap_min&quot;</td></tr>
 <tr class="memdesc:a47c7d5af6d43a6aa46a13ebf392fcc3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS klic pro fallback snapshot hry.  <br /></td></tr>
 <tr class="separator:a47c7d5af6d43a6aa46a13ebf392fcc3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,6 +231,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a2384ec2b6d40470fce3f919e0aa3ae86" id="r_a2384ec2b6d40470fce3f919e0aa3ae86"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#a2384ec2b6d40470fce3f919e0aa3ae86">config_ui_prefs_get_chess_hint_limit</a> (void)</td></tr>
 <tr class="memdesc:a2384ec2b6d40470fce3f919e0aa3ae86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing).  <br /></td></tr>
 <tr class="separator:a2384ec2b6d40470fce3f919e0aa3ae86"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4b3c9a341d63bf470ac2f0213fe9cc0" id="r_aa4b3c9a341d63bf470ac2f0213fe9cc0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aa4b3c9a341d63bf470ac2f0213fe9cc0">config_ui_prefs_get_chess_physical_takeback</a> (void)</td></tr>
+<tr class="memdesc:aa4b3c9a341d63bf470ac2f0213fe9cc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Physical takeback on board (default true when key missing).  <br /></td></tr>
+<tr class="separator:aa4b3c9a341d63bf470ac2f0213fe9cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa686528527fc11f58962e83e0b12683e" id="r_aa686528527fc11f58962e83e0b12683e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8h.html#aa686528527fc11f58962e83e0b12683e">config_load_blob_from_nvs</a> (const char *key, void *data, size_t *len)</td></tr>
 <tr class="memdesc:aa686528527fc11f58962e83e0b12683e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nacte binarni blob z NVS pod danym klicem.  <br /></td></tr>
 <tr class="separator:aa686528527fc11f58962e83e0b12683e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -371,7 +377,7 @@ Functions</h2></td></tr>
 
 <p>NVS klic pro boot tracker. </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00110">110</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00112">112</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
 
 </div>
 </div>
@@ -411,6 +417,25 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a5ef6f95cddc59d84ddc37fbbd001890d" name="a5ef6f95cddc59d84ddc37fbbd001890d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ef6f95cddc59d84ddc37fbbd001890d">&#9670;&#160;</a></span>CONFIG_NVS_KEY_GAME_SNAPSHOT_B</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CONFIG_NVS_KEY_GAME_SNAPSHOT_B&#160;&#160;&#160;&quot;g_snap_b&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Second full-snapshot slot. </p>
+<p>A torn write leaves the other slot intact. </p>
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00108">108</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+
+</div>
+</div>
 <a id="a1c78490f77ab1d69c73370111b4e540c" name="a1c78490f77ab1d69c73370111b4e540c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1c78490f77ab1d69c73370111b4e540c">&#9670;&#160;</a></span>CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL</h2>
 
@@ -443,7 +468,7 @@ Functions</h2></td></tr>
 
 <p>NVS klic pro fallback snapshot hry. </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00108">108</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00110">110</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
 
 </div>
 </div>
@@ -515,7 +540,7 @@ Functions</h2></td></tr>
 
 <p>NVS call to keep track of initial position. </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00112">112</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00114">114</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
 
 </div>
 </div>
@@ -551,7 +576,7 @@ Functions</h2></td></tr>
 
 <p>Web UI preference (UTF-8 JSON: {"version":1,"prefs":{...}}) </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00114">114</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00116">116</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
 
 </div>
 </div>
@@ -605,7 +630,7 @@ Functions</h2></td></tr>
 
 <p>Max velikost JSON pro ui_prefs (NVS blob) </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00116">116</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8h_source.html#l00118">118</a> of file <a class="el" href="config__manager_8h_source.html">config_manager.h</a>.</p>
 
 </div>
 </div>
@@ -844,7 +869,29 @@ Functions</h2></td></tr>
 
 <p>Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing). </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00401">401</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00440">440</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="aa4b3c9a341d63bf470ac2f0213fe9cc0" name="aa4b3c9a341d63bf470ac2f0213fe9cc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4b3c9a341d63bf470ac2f0213fe9cc0">&#9670;&#160;</a></span>config_ui_prefs_get_chess_physical_takeback()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool config_ui_prefs_get_chess_physical_takeback </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Physical takeback on board (default true when key missing). </p>
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00429">429</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>

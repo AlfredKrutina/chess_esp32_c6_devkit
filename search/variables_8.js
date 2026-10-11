@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['id_0',['id',['../structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf',1,'game_puzzle_definition_t::id'],['../structanimation__state__struct.html#a732e0dbd6e57d26471ce3f333a133f2c',1,'animation_state_struct::id'],['../structactive__error__t.html#a86b4c2d315025f29e9406e5a7eb3cfb9',1,'active_error_t::id'],['../structanimation__task__t.html#adb7f1e556a2073bf7ce347ee3f96cfe4',1,'animation_task_t::id']]],
+  ['id_0',['id',['../structanimation__state__struct.html#a732e0dbd6e57d26471ce3f333a133f2c',1,'animation_state_struct::id'],['../structactive__error__t.html#a86b4c2d315025f29e9406e5a7eb3cfb9',1,'active_error_t::id'],['../structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf',1,'game_puzzle_definition_t::id']]],
   ['in_5fprogress_1',['in_progress',['../structcastling__state__t.html#a1705abfdc6a05d4bec2293871b7b7fd1',1,'castling_state_t']]],
   ['in_5fuse_2',['in_use',['../structshared__buffer__t.html#ac84993dc918ca7386ae7b700c99039ef',1,'shared_buffer_t']]],
   ['increment_5fms_3',['increment_ms',['../structtime__control__config__t.html#a162132d93fca69ac7a11de84a3c933ad',1,'time_control_config_t']]],
@@ -11,7 +11,7 @@ var searchData=
   ['interrupt_5fon_5fplacement_8',['interrupt_on_placement',['../structled__animation__state__t.html#a2e62ade81888805e7bc4e2262e1f2336',1,'led_animation_state_t']]],
   ['invalid_5fcol_9',['invalid_col',['../structgame__task__error__recovery__t.html#af28b0ed489d0d605b213bc1f751d420c',1,'game_task_error_recovery_t']]],
   ['invalid_5frow_10',['invalid_row',['../structgame__task__error__recovery__t.html#a2e2f223a8428aa07865fe9aa67dd441a',1,'game_task_error_recovery_t']]],
-  ['is_5factive_11',['is_active',['../structled__duration__state__t.html#aeea3959322066cfecc1c29ed8cb514b5',1,'led_duration_state_t::is_active'],['../structled__animation__state__t.html#a87fea1e33aa73c51d4a62b16e317ce7c',1,'led_animation_state_t::is_active']]],
+  ['is_5factive_11',['is_active',['../structled__animation__state__t.html#a87fea1e33aa73c51d4a62b16e317ce7c',1,'led_animation_state_t::is_active'],['../structled__duration__state__t.html#aeea3959322066cfecc1c29ed8cb514b5',1,'led_duration_state_t::is_active']]],
   ['is_5fcapture_12',['is_capture',['../structmove__suggestion__t.html#a58f2cd5416633410aebfa8f80320e3aa',1,'move_suggestion_t']]],
   ['is_5fcastling_13',['is_castling',['../structmove__suggestion__t.html#aa9a5da748efa93feb7e3f7c4f06e7839',1,'move_suggestion_t']]],
   ['is_5fcheck_14',['is_check',['../structchess__move__extended__t.html#ab73d86e56bd5ce7bae6cc0029f8ab1e4',1,'chess_move_extended_t::is_check'],['../structmove__suggestion__t.html#a39763b8b278db010f5dfff7a4beb264a',1,'move_suggestion_t::is_check']]],
@@ -20,7 +20,7 @@ var searchData=
   ['is_5fdemo_5fmode_17',['is_demo_mode',['../structchess__move__command__t.html#a43bd07ae3571e5c911bb94292a4cf6b3',1,'chess_move_command_t']]],
   ['is_5fen_5fpassant_18',['is_en_passant',['../structmove__suggestion__t.html#a77114011b2edb38b0218c36ce67cf0e6',1,'move_suggestion_t']]],
   ['is_5ffast_19',['is_fast',['../structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f',1,'time_control_config_t']]],
-  ['is_5fkingside_20',['is_kingside',['../structenhanced__castling__system__t.html#aed1696fbc7c2f7f72e5b8488abc901fd',1,'enhanced_castling_system_t::is_kingside'],['../structcastling__state__t.html#aae2796ad5c3e40911c0c4002c77190ff',1,'castling_state_t::is_kingside']]],
+  ['is_5fkingside_20',['is_kingside',['../structcastling__state__t.html#aae2796ad5c3e40911c0c4002c77190ff',1,'castling_state_t']]],
   ['is_5fstalemate_21',['is_stalemate',['../structchess__move__extended__t.html#a64548a3d3b994e79cfddb1ff7ec47680',1,'chess_move_extended_t']]],
   ['is_5fwhite_5fturn_22',['is_white_turn',['../structchess__move__command__t.html#a7ee2cb22f123d144e42a6a0a6eb6d05a',1,'chess_move_command_t::is_white_turn'],['../structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae',1,'chess_timer_t::is_white_turn']]]
 ];

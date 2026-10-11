@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -168,6 +168,10 @@ Include dependency graph for game_move_validate.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a0bf9218d435851daab732c0b084cf7b8" id="r_a0bf9218d435851daab732c0b084cf7b8"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a0bf9218d435851daab732c0b084cf7b8">game_check_sim_promoted_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> pawn)</td></tr>
+<tr class="separator:a0bf9218d435851daab732c0b084cf7b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac84667fd1d4da0428adf0ab89fae4e74" id="r_ac84667fd1d4da0428adf0ab89fae4e74"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#ac84667fd1d4da0428adf0ab89fae4e74">game_is_king_castling_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:ac84667fd1d4da0428adf0ab89fae4e74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a20c746cc968a038cbdf28e01a9dd8307" id="r_a20c746cc968a038cbdf28e01a9dd8307"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">move_error_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__move__validate_8c.html#a20c746cc968a038cbdf28e01a9dd8307">game_is_valid_move</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
 <tr class="memdesc:a20c746cc968a038cbdf28e01a9dd8307"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate move based on figure type.  <br /></td></tr>
 <tr class="separator:a20c746cc968a038cbdf28e01a9dd8307"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -228,6 +232,34 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a0bf9218d435851daab732c0b084cf7b8" name="a0bf9218d435851daab732c0b084cf7b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0bf9218d435851daab732c0b084cf7b8">&#9670;&#160;</a></span>game_check_sim_promoted_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> game_check_sim_promoted_piece </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>pawn</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00017">17</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
 <a id="a175e65acc9f386834730a86b25d6190a" name="a175e65acc9f386834730a86b25d6190a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a175e65acc9f386834730a86b25d6190a">&#9670;&#160;</a></span>game_is_en_passant_possible()</h2>
 
@@ -260,7 +292,45 @@ Variables</h2></td></tr>
 <li>The target field is in the middle between the start and the target position of the opponent's fish </li>
 </ol>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00567">567</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00613">613</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+
+</div>
+</div>
+<a id="ac84667fd1d4da0428adf0ab89fae4e74" name="ac84667fd1d4da0428adf0ab89fae4e74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac84667fd1d4da0428adf0ab89fae4e74">&#9670;&#160;</a></span>game_is_king_castling_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool game_is_king_castling_move </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>move</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00027">27</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -290,7 +360,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00021">21</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00040">40</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -310,7 +380,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00128">128</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00147">147</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -330,7 +400,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00366">366</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00385">385</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -371,7 +441,7 @@ Variables</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00321">321</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00340">340</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -415,7 +485,7 @@ Variables</h2></td></tr>
 <li>Queenside (O-O-O): king e1-&gt;c1, take a1-&gt;d1 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00654">654</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00700">700</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -435,7 +505,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00474">474</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00493">493</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -471,7 +541,7 @@ Variables</h2></td></tr>
 </ul>
 <p>Delegates validation to <a class="el" href="game__task_8h.html#a7169001872522d780e6e67a15d86a47e" title="Validate dew.">game_validate_castling()</a> for castling. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00451">451</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00470">470</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -491,7 +561,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00299">299</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00318">318</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -520,7 +590,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00283">283</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00302">302</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -550,7 +620,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00279">279</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00298">298</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -608,7 +678,7 @@ Variables</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00198">198</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00217">217</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -638,7 +708,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00170">170</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00189">189</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -678,7 +748,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00132">132</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00151">151</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -698,7 +768,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00431">431</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00450">450</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -727,7 +797,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE for a valid move, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00412">412</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00431">431</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -747,7 +817,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00408">408</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00427">427</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -776,7 +846,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>MOVE_ERROR_NONE on success, otherwise error code </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00370">370</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00389">389</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>
@@ -813,7 +883,7 @@ Variables</h2></td></tr>
 <li>Restore the original state of the board </li>
 </ol>
 
-<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00495">495</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__validate_8c_source.html#l00514">514</a> of file <a class="el" href="game__move__validate_8c_source.html">game_move_validate.c</a>.</p>
 
 </div>
 </div>

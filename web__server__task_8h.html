@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -399,7 +399,7 @@ Variables</h2></td></tr>
 <p>Determine if the web interface is locked. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if locked, false if unlocked </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01002">1002</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01008">1008</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -422,7 +422,7 @@ Variables</h2></td></tr>
 <p>Nacte lock status from NVS. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00958">958</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00964">964</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -451,7 +451,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01010">1010</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01016">1016</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -483,7 +483,7 @@ Variables</h2></td></tr>
 
 <p>Process UTF-8 JSON from BLE GATT notation to a command characteristic (cmd: ping, hint_highlight, hint_clear, brightness — same behavior as REST where indicated). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01837">1837</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01851">1851</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -506,7 +506,7 @@ Variables</h2></td></tr>
 <p>True if dispatch has already sent its own cmd_ack (e.g. </p>
 <p>ota_ble_status). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01812">1812</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01826">1826</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -545,7 +545,7 @@ Variables</h2></td></tr>
 <p>Extracts the string from the "cmd" field of the BLE JSON (for confirmation notifications). </p>
 <dl class="section return"><dt>Returns</dt><dd>true if cmd was found and copied to cmd_out </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01801">1801</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01815">1815</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -644,7 +644,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03738">3738</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03752">3752</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -666,7 +666,7 @@ Variables</h2></td></tr>
 
 <p>Enqueues command to web_server task (safe from UART/other task). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03520">3520</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03534">3534</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -694,7 +694,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03532">3532</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03546">3546</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -717,7 +717,7 @@ Variables</h2></td></tr>
 <p>Current SSID WiFi AP after start (e.g. </p>
 <p>ESP32-CzechMate or ESP32-CzechMate_1). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03684">3684</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03698">3698</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -740,7 +740,7 @@ Variables</h2></td></tr>
 <p>Get the number of connected clients. </p>
 <dl class="section return"><dt>Returns</dt><dd>The number of currently connected clients </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03695">3695</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03709">3709</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -762,7 +762,7 @@ Variables</h2></td></tr>
 
 <p>Return the last error when starting the HTTP server (ESP_OK if no error) </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03697">3697</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03711">3711</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -785,7 +785,7 @@ Variables</h2></td></tr>
 <p>Get the web server status. </p>
 <p>Lists server status (active, number of clients, uptime). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03615">3615</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03629">3629</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -808,7 +808,7 @@ Variables</h2></td></tr>
 <p>Get server uptime. </p>
 <dl class="section return"><dt>Returns</dt><dd>Uptime in milliseconds since startup </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03699">3699</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03713">3713</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -830,7 +830,7 @@ Variables</h2></td></tr>
 
 <p>Process GET /api/board (box) </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03661">3661</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03675">3675</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -852,7 +852,7 @@ Variables</h2></td></tr>
 
 <p>Zpracuj POST /api/move (tah) </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03666">3666</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03680">3680</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -874,7 +874,7 @@ Variables</h2></td></tr>
 
 <p>Handle GET /api/status (game state) </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03656">3656</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03670">3670</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -896,7 +896,7 @@ Variables</h2></td></tr>
 
 <p>Process GET / (main page) </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03651">3651</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03665">3665</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -919,7 +919,7 @@ Variables</h2></td></tr>
 <p>Verify if the web server is active. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the server is running </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03676">3676</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03690">3690</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -942,7 +942,7 @@ Variables</h2></td></tr>
 <p>Check if the web server task is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the task is running </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03748">3748</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03762">3762</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -970,7 +970,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03716">3716</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03730">3730</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1009,7 +1009,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03708">3708</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03722">3722</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1031,7 +1031,7 @@ Variables</h2></td></tr>
 
 <p>Process web server commands from the queue. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03510">3510</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03524">3524</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1053,7 +1053,7 @@ Variables</h2></td></tr>
 
 <p>Sends pending game snapshot (WS + BLE) from queue — call from web server task loop; must not from game_task. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03002">3002</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03016">3016</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1076,7 +1076,7 @@ Variables</h2></td></tr>
 <p>Resetuj web server. </p>
 <p>Performs a complete reset of the web server. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03755">3755</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03769">3769</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1099,7 +1099,7 @@ Variables</h2></td></tr>
 <p>Set the web server configuration. </p>
 <p>Zmeni konfiguraci serveru (port, max klientu, SSL). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03629">3629</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03643">3643</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1127,7 +1127,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03733">3733</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03747">3747</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1155,7 +1155,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03728">3728</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03742">3742</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1178,7 +1178,7 @@ Variables</h2></td></tr>
 <p>Start the web server. </p>
 <p>Initializes the WiFi AP and start the HTTP server. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03560">3560</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03574">3574</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1201,7 +1201,7 @@ Variables</h2></td></tr>
 <p>Zastav web server. </p>
 <p>Stop HTTP server and WiFi AP. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03589">3589</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03603">3603</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1224,7 +1224,7 @@ Variables</h2></td></tr>
 <p>Zastav web server task. </p>
 <p>Ukonci web server task a uvolni prostredky. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03750">3750</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03764">3764</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1253,7 +1253,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03332">3332</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03346">3346</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1276,7 +1276,7 @@ Variables</h2></td></tr>
 <p>Update the web server status. </p>
 <p>Periodically updates the server's internal status. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03638">3638</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03652">3652</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1393,7 +1393,7 @@ Variables</h2></td></tr>
 <p>Clears WiFi STA configuration from NVS. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00604">604</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00608">608</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1439,7 +1439,7 @@ Variables</h2></td></tr>
 <p>Disconnect the ESP32 from the WiFi site. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00560">560</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00564">564</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -1542,7 +1542,7 @@ Variables</h2></td></tr>
 <p>Determine if STA is connected. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if STA is connected, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00911">911</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00917">917</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>

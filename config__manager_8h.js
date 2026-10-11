@@ -9,6 +9,7 @@ var config__manager_8h =
     [ "CONFIG_NVS_KEY_BOOT_TRACKER", "config__manager_8h.html#aab4af7f40409b93d0b746f2d59f6272c", null ],
     [ "CONFIG_NVS_KEY_BRIGHTNESS", "config__manager_8h.html#a1bb567a5bd367abf7442aec292621481", null ],
     [ "CONFIG_NVS_KEY_ECHO", "config__manager_8h.html#a2ee245346700426e01e61948da5a9f8e", null ],
+    [ "CONFIG_NVS_KEY_GAME_SNAPSHOT_B", "config__manager_8h.html#a5ef6f95cddc59d84ddc37fbbd001890d", null ],
     [ "CONFIG_NVS_KEY_GAME_SNAPSHOT_FULL", "config__manager_8h.html#a1c78490f77ab1d69c73370111b4e540c", null ],
     [ "CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN", "config__manager_8h.html#a47c7d5af6d43a6aa46a13ebf392fcc3a", null ],
     [ "CONFIG_NVS_KEY_GUIDED_HINT", "config__manager_8h.html#a7136ade0342038b48a2369926811182b", null ],
@@ -27,5 +28,6 @@ var config__manager_8h =
     [ "config_reset_to_defaults", "config__manager_8h.html#ae3afd4faf59e0c9b138456675661de9e", null ],
     [ "config_save_blob_to_nvs", "config__manager_8h.html#a2ba1745f97042165032c102c1957290b", null ],
     [ "config_save_ui_prefs_json", "config__manager_8h.html#aec173cc4386c2247aae898a09e3035fa", null ],
-    [ "config_ui_prefs_get_chess_hint_limit", "config__manager_8h.html#a2384ec2b6d40470fce3f919e0aa3ae86", null ]
+    [ "config_ui_prefs_get_chess_hint_limit", "config__manager_8h.html#a2384ec2b6d40470fce3f919e0aa3ae86", null ],
+    [ "config_ui_prefs_get_chess_physical_takeback", "config__manager_8h.html#aa4b3c9a341d63bf470ac2f0213fe9cc0", null ]
 ];

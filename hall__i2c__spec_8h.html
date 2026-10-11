@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -145,7 +145,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields. </p>
-<p>Copy this file to the STM32 project (without dependency on ESP-IDF).</p>
+<p>Keep in sync with firmware/stm32_hall_c031/Inc/hall_i2c_spec.h. Copy this file to the STM32 project (without dependency on ESP-IDF).</p>
 <p>=== Topology ===</p><ul>
 <li>4 identical segments (planes), each one I2C slave (own 7-bit address).</li>
 <li>On a segment 16 checkerboards × 2 Hall sensors = 32 ADC channels → 32× uint16.</li>
@@ -174,7 +174,7 @@ Functions</h2></td></tr>
 
 <p>Number of squares on one segment (a quarter of the board). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00032">32</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00033">33</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -192,7 +192,7 @@ Functions</h2></td></tr>
 
 <p>Bytes transferred when reading pointer 0x00 (32 × 2). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00040">40</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00041">41</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -208,7 +208,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00029">29</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00030">30</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -226,7 +226,7 @@ Functions</h2></td></tr>
 
 <p>Optional on STM: after reading 1 B, master verifies compatibility (ESP does not read yet). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00028">28</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00029">29</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -242,7 +242,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00025">25</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00026">26</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -261,7 +261,7 @@ Functions</h2></td></tr>
 <p>Hall sensors per square (differential pair / mux channel pair). </p>
 <p>PCB center-to-center pitch of the pair: 6.267 mm (see docs/reference/HARDWARE_VERSIONS.md). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00035">35</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00036">36</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -279,7 +279,7 @@ Functions</h2></td></tr>
 
 <p>uint16 samples per segment (16 × 2). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00037">37</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00038">38</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -321,7 +321,7 @@ Functions</h2></td></tr>
 </ul>
 <p>=== Default I2C addresses (7 bits, can be changed straps / EEPROM per segment) === 0x30, 0x31, 0x32, 0x33 — corresponds to CONFIG_CHESS_HALL_SEGx_ADDR on ESP. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00079">79</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00080">80</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -359,7 +359,7 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00083">83</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__spec_8h_source.html#l00084">84</a> of file <a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>.</p>
 
 </div>
 </div>
@@ -368,7 +368,7 @@ Functions</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_e77e2685ff47a55cd9b2c8ffde70c90d.html">matrix_task</a></li><li class="navelem"><a class="el" href="dir_f3f2d4124eab7bbfc28315d5ee96ecb5.html">include</a></li><li class="navelem"><a class="el" href="hall__i2c__spec_8h.html">hall_i2c_spec.h</a></li>
+    <li class="navelem"><a class="el" href="dir_409f97388efe006bc3438b95e9edef48.html">components</a></li><li class="navelem"><a class="el" href="dir_a4da139e10a09a042e536ba0093f7567.html">squares_task</a></li><li class="navelem"><a class="el" href="dir_899f9c7511405ab41846f7cf4f19b26f.html">include</a></li><li class="navelem"><a class="el" href="hall__i2c__spec_8h.html">hall_i2c_spec.h</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>

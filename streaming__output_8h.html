@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -293,7 +293,7 @@ Functions</h2></td></tr>
 <p>Helper macro for streaming a box from a figure array. </p>
 <p>Use: </p><div class="fragment"><div class="line"><a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> <a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>[8][8];</div>
 <div class="line"><a class="code hl_define" href="streaming__output_8h.html#ad0fce4a1af286f625bf5aa844e794cb2">STREAM_CHESS_BOARD</a>(<a class="code hl_variable" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>);</div>
-<div class="ttc" id="agame__task_8c_html_acd8995588803c845a38aeae9849f7be8"><div class="ttname"><a href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a></div><div class="ttdeci">piece_t board[8][8]</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00276">game_task.c:276</a></div></div>
+<div class="ttc" id="agame__task_8c_html_acd8995588803c845a38aeae9849f7be8"><div class="ttname"><a href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a></div><div class="ttdeci">piece_t board[8][8]</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00268">game_task.c:268</a></div></div>
 <div class="ttc" id="astreaming__output_8h_html_ad0fce4a1af286f625bf5aa844e794cb2"><div class="ttname"><a href="streaming__output_8h.html#ad0fce4a1af286f625bf5aa844e794cb2">STREAM_CHESS_BOARD</a></div><div class="ttdeci">#define STREAM_CHESS_BOARD(board_array)</div><div class="ttdoc">Helper macro for streaming a box from a figure array.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8h_source.html#l00290">streaming_output.h:290</a></div></div>
 </div><!-- fragment --><p>This macro eliminates the need for temporary string buffers. </p>
 
@@ -368,7 +368,7 @@ Functions</h2></td></tr>
 <p>A helper macro for streaming the inbox LED from the status LED field. </p>
 <p>Use: </p><div class="fragment"><div class="line">uint32_t <a class="code hl_variable" href="led__task_8c.html#a7f9294a3bacbcefcc6e33dec7d72ea5f">led_states</a>[64];</div>
 <div class="line"><a class="code hl_define" href="streaming__output_8h.html#a51d51314482adade900fa2659aede2b5">STREAM_LED_BOARD</a>(<a class="code hl_variable" href="led__task_8c.html#a7f9294a3bacbcefcc6e33dec7d72ea5f">led_states</a>);</div>
-<div class="ttc" id="aled__task_8c_html_a7f9294a3bacbcefcc6e33dec7d72ea5f"><div class="ttname"><a href="led__task_8c.html#a7f9294a3bacbcefcc6e33dec7d72ea5f">led_states</a></div><div class="ttdeci">static uint32_t led_states[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00354">led_task.c:354</a></div></div>
+<div class="ttc" id="aled__task_8c_html_a7f9294a3bacbcefcc6e33dec7d72ea5f"><div class="ttname"><a href="led__task_8c.html#a7f9294a3bacbcefcc6e33dec7d72ea5f">led_states</a></div><div class="ttdeci">static uint32_t led_states[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00338">led_task.c:338</a></div></div>
 <div class="ttc" id="astreaming__output_8h_html_a51d51314482adade900fa2659aede2b5"><div class="ttname"><a href="streaming__output_8h.html#a51d51314482adade900fa2659aede2b5">STREAM_LED_BOARD</a></div><div class="ttdeci">#define STREAM_LED_BOARD(led_array)</div><div class="ttdoc">A helper macro for streaming the inbox LED from the status LED field.</div><div class="ttdef"><b>Definition</b> <a href="streaming__output_8h_source.html#l00315">streaming_output.h:315</a></div></div>
 </div><!-- fragment --><p>This macro eliminates the need for large string buffers. </p>
 

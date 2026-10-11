@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('game__opening__trainer_8c.html',''); i
 <code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="matrix__task_8h_source.html">../matrix_task/include/matrix_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="squares__task_8h_source.html">../squares_task/include/squares_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
 <code>#include &quot;esp_log.h&quot;</code><br />
 <code>#include &quot;esp_timer.h&quot;</code><br />
@@ -117,27 +117,27 @@ Include dependency graph for game_opening_trainer.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__opening__trainer_8c__incl.png" border="0" usemap="#agame__opening__trainer_8c" alt=""/></div>
 <map name="agame__opening__trainer_8c" id="agame__opening__trainer_8c">
-<area shape="rect" title="Interactive opening line trainer — multi&#45;ply UCI validation + virtual opponent." alt="" coords="1898,5,2077,31"/>
+<area shape="rect" title="Interactive opening line trainer — multi&#45;ply UCI validation + virtual opponent." alt="" coords="1900,5,2078,31"/>
 <area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="577,86,740,111"/>
-<area shape="poly" title=" " alt="" coords="1898,27,754,94,753,89,1898,22"/>
+<area shape="poly" title=" " alt="" coords="1900,27,754,94,753,89,1899,22"/>
 <area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="605,167,712,192"/>
-<area shape="poly" title=" " alt="" coords="1898,33,726,173,725,167,1898,27"/>
+<area shape="poly" title=" " alt="" coords="1900,33,726,173,726,167,1899,27"/>
 <area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="51,167,202,192"/>
-<area shape="poly" title=" " alt="" coords="1898,24,1228,41,845,58,686,69,565,81,457,99,350,122,179,165,178,160,349,117,456,94,565,76,686,64,845,53,1228,36,1898,18"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1864,79,2004,119"/>
-<area shape="poly" title=" " alt="" coords="1982,32,1957,69,1953,66,1978,29"/>
-<area shape="rect" href="matrix__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1677,79,1840,119"/>
-<area shape="poly" title=" " alt="" coords="1955,33,1827,77,1825,72,1953,28"/>
+<area shape="poly" title=" " alt="" coords="1899,24,1228,41,845,58,686,69,565,81,457,99,350,122,179,165,178,160,349,117,456,94,565,76,686,64,845,53,1228,36,1899,18"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1866,79,2006,119"/>
+<area shape="poly" title=" " alt="" coords="1983,32,1958,69,1954,66,1979,29"/>
+<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1670,79,1841,119"/>
+<area shape="poly" title=" " alt="" coords="1956,33,1826,77,1824,72,1954,28"/>
 <area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="2062,167,2180,192"/>
-<area shape="poly" title=" " alt="" coords="1999,29,2071,117,2104,154,2100,158,2067,120,1995,33"/>
-<area shape="rect" title=" " alt="" coords="2080,86,2164,111"/>
-<area shape="poly" title=" " alt="" coords="2009,29,2092,77,2089,81,2006,33"/>
-<area shape="rect" title=" " alt="" coords="2189,86,2288,111"/>
-<area shape="poly" title=" " alt="" coords="2025,28,2190,79,2188,84,2023,33"/>
-<area shape="rect" title=" " alt="" coords="2312,86,2378,111"/>
-<area shape="poly" title=" " alt="" coords="2073,28,2182,47,2300,76,2308,79,2307,84,2299,81,2181,53,2072,33"/>
-<area shape="rect" title=" " alt="" coords="2403,86,2474,111"/>
-<area shape="poly" title=" " alt="" coords="2078,24,2225,43,2309,57,2391,76,2400,79,2399,84,2390,81,2308,63,2225,48,2077,29"/>
+<area shape="poly" title=" " alt="" coords="2001,29,2072,117,2104,154,2100,158,2068,120,1996,33"/>
+<area shape="rect" title=" " alt="" coords="2082,86,2166,111"/>
+<area shape="poly" title=" " alt="" coords="2010,29,2093,77,2091,81,2008,33"/>
+<area shape="rect" title=" " alt="" coords="2190,86,2289,111"/>
+<area shape="poly" title=" " alt="" coords="2026,28,2191,79,2189,84,2025,33"/>
+<area shape="rect" title=" " alt="" coords="2313,86,2380,111"/>
+<area shape="poly" title=" " alt="" coords="2075,28,2184,47,2302,76,2309,79,2308,84,2300,81,2183,53,2074,33"/>
+<area shape="rect" title=" " alt="" coords="2404,86,2475,111"/>
+<area shape="poly" title=" " alt="" coords="2079,24,2227,43,2310,57,2392,76,2402,79,2400,84,2391,81,2309,63,2226,48,2078,29"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="253,247,368,273"/>
 <area shape="poly" title=" " alt="" coords="634,114,349,244,347,239,632,109"/>
 <area shape="rect" title=" " alt="" coords="80,328,231,353"/>
@@ -176,11 +176,11 @@ Include dependency graph for game_opening_trainer.c:</div>
 <area shape="poly" title=" " alt="" coords="621,269,691,277,1191,332,1190,337,690,283,621,275"/>
 <area shape="poly" title=" " alt="" coords="154,190,272,240,270,245,152,194"/>
 <area shape="poly" title=" " alt="" coords="119,194,106,212,94,235,90,258,92,269,97,278,137,286,228,300,437,329,436,335,227,306,136,291,94,282,87,271,85,258,89,233,101,210,114,191"/>
-<area shape="poly" title=" " alt="" coords="1939,119,1944,167,1944,204,1937,234,1921,260,1891,282,1835,294,1718,304,1369,321,713,341,712,336,1369,316,1717,299,1834,289,1889,278,1917,256,1932,232,1938,203,1938,167,1934,119"/>
-<area shape="poly" title=" " alt="" coords="1923,120,1892,157,1848,203,1793,248,1762,267,1730,283,1699,291,1653,298,1522,309,1170,321,817,326,605,331,547,336,547,331,605,325,817,321,1170,315,1522,303,1652,292,1698,285,1728,277,1760,262,1790,243,1844,199,1888,154,1918,117"/>
-<area shape="poly" title=" " alt="" coords="1961,117,1977,133,1991,151,1998,172,1994,193,1970,230,1943,252,1910,267,1869,283,1818,296,1751,308,1587,325,1419,335,1289,341,1289,335,1418,330,1586,320,1750,302,1817,291,1867,277,1908,262,1940,247,1966,226,1989,191,1993,172,1986,154,1973,136,1958,121"/>
+<area shape="poly" title=" " alt="" coords="1940,119,1944,167,1943,204,1937,234,1920,260,1891,282,1835,294,1718,304,1369,321,713,341,712,336,1369,316,1717,299,1834,289,1889,278,1916,256,1932,232,1938,203,1938,167,1935,119"/>
+<area shape="poly" title=" " alt="" coords="1924,120,1893,157,1849,203,1793,248,1762,267,1730,283,1699,291,1653,298,1522,308,1170,321,817,326,605,331,547,336,547,331,605,325,817,321,1170,315,1522,303,1652,292,1698,285,1728,277,1760,262,1790,243,1845,199,1889,154,1920,117"/>
+<area shape="poly" title=" " alt="" coords="1962,117,1978,133,1991,151,1998,172,1994,193,1970,230,1943,252,1910,267,1869,283,1818,296,1751,308,1587,325,1419,335,1289,341,1289,335,1418,330,1586,320,1750,302,1817,291,1867,277,1908,262,1940,247,1966,226,1989,191,1993,172,1986,154,1974,136,1959,121"/>
 <area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1306,167,1435,192"/>
-<area shape="poly" title=" " alt="" coords="1865,119,1852,121,1634,153,1449,173,1449,168,1633,148,1851,116,1864,114"/>
+<area shape="poly" title=" " alt="" coords="1866,119,1853,121,1634,153,1449,173,1448,168,1633,148,1853,116,1865,114"/>
 <area shape="poly" title=" " alt="" coords="1305,185,933,203,684,219,431,243,382,249,381,244,430,237,684,214,933,197,1305,180"/>
 <area shape="poly" title=" " alt="" coords="1380,191,1391,210,1399,234,1401,259,1391,282,1377,291,1354,299,1287,313,1198,323,1095,330,881,339,713,342,713,336,881,334,1095,325,1198,317,1287,307,1353,294,1375,286,1387,278,1396,258,1394,235,1386,212,1376,193"/>
 <area shape="poly" title=" " alt="" coords="1354,195,1289,242,1269,264,1260,274,1245,282,1179,296,1068,306,766,319,453,325,245,331,245,325,453,320,766,313,1067,301,1178,291,1243,278,1256,270,1265,261,1286,238,1351,190"/>
@@ -194,10 +194,10 @@ Include dependency graph for game_opening_trainer.c:</div>
 <area shape="poly" title=" " alt="" coords="1411,189,1575,237,1586,241,1584,246,1574,243,1410,195"/>
 <area shape="rect" title=" " alt="" coords="1458,247,1562,273"/>
 <area shape="poly" title=" " alt="" coords="1392,190,1479,238,1476,243,1390,195"/>
-<area shape="poly" title=" " alt="" coords="1773,117,1791,152,1806,196,1810,219,1810,241,1804,263,1791,282,1774,290,1741,296,1636,308,1320,325,969,336,713,341,713,336,969,331,1319,320,1636,303,1741,291,1772,285,1787,278,1799,261,1804,241,1805,219,1801,197,1786,154,1768,120"/>
-<area shape="poly" title=" " alt="" coords="1761,119,1757,155,1748,200,1728,245,1714,265,1696,282,1675,289,1636,295,1512,305,1154,319,605,331,547,336,547,331,605,325,1154,313,1512,299,1636,290,1674,284,1693,278,1710,262,1724,243,1743,199,1752,155,1755,119"/>
-<area shape="poly" title=" " alt="" coords="1795,117,1821,138,1842,165,1856,197,1863,226,1860,254,1841,282,1812,297,1758,308,1602,326,1428,336,1289,341,1289,336,1428,331,1602,320,1757,303,1810,291,1838,278,1854,252,1858,227,1851,199,1837,168,1818,141,1792,121"/>
-<area shape="poly" title=" " alt="" coords="1678,119,1441,167,1440,161,1677,114"/>
+<area shape="poly" title=" " alt="" coords="1770,117,1789,152,1805,195,1810,219,1809,241,1804,263,1791,282,1774,290,1741,296,1636,308,1320,325,969,336,713,341,713,336,969,331,1319,320,1636,303,1741,291,1772,285,1787,278,1799,261,1804,241,1804,219,1800,197,1784,154,1766,120"/>
+<area shape="poly" title=" " alt="" coords="1758,119,1755,155,1746,200,1728,245,1714,265,1696,282,1675,289,1636,295,1512,305,1154,319,605,331,547,336,547,331,605,325,1154,313,1512,300,1636,290,1674,284,1693,278,1710,262,1723,243,1741,199,1750,155,1753,119"/>
+<area shape="poly" title=" " alt="" coords="1794,117,1821,137,1842,165,1856,197,1863,226,1860,254,1841,282,1812,297,1758,308,1602,326,1428,336,1289,341,1289,336,1428,331,1602,320,1757,303,1810,291,1838,278,1855,252,1858,226,1851,199,1837,168,1817,141,1791,121"/>
+<area shape="poly" title=" " alt="" coords="1671,120,1440,167,1439,161,1670,115"/>
 <area shape="poly" title=" " alt="" coords="2118,194,2091,239,2070,263,2044,282,1998,295,1920,306,1702,323,1466,335,1289,341,1289,335,1466,329,1702,318,1919,301,1997,290,2041,278,2066,259,2087,235,2113,191"/>
 </map>
 </div>
@@ -327,8 +327,8 @@ Functions</h2></td></tr>
 <tr class="separator:adbe9ad264b38d5f7b89a16f144d09649"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ce910d76e0ad0587044f6d1da905f0f" id="r_a9ce910d76e0ad0587044f6d1da905f0f"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a9ce910d76e0ad0587044f6d1da905f0f">game_opening_mode_key</a> (void)</td></tr>
 <tr class="separator:a9ce910d76e0ad0587044f6d1da905f0f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31434c1d712e59df254c988364c94d6c" id="r_a31434c1d712e59df254c988364c94d6c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a31434c1d712e59df254c988364c94d6c">game_opening_status_needs_matrix</a> (void)</td></tr>
-<tr class="separator:a31434c1d712e59df254c988364c94d6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95ff59f2de485d9219690ece40566f80" id="r_a95ff59f2de485d9219690ece40566f80"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a95ff59f2de485d9219690ece40566f80">game_opening_status_needs_squares</a> (void)</td></tr>
+<tr class="separator:a95ff59f2de485d9219690ece40566f80"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d059cced881c39fff433f1fe4896150" id="r_a2d059cced881c39fff433f1fe4896150"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a2d059cced881c39fff433f1fe4896150">opening_export_active</a> (void)</td></tr>
 <tr class="separator:a2d059cced881c39fff433f1fe4896150"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0811e0841ff8936346444629481b8fb7" id="r_a0811e0841ff8936346444629481b8fb7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a0811e0841ff8936346444629481b8fb7">opening_fill_expected_occupied</a> (uint8_t out[64])</td></tr>
@@ -1120,14 +1120,14 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a31434c1d712e59df254c988364c94d6c" name="a31434c1d712e59df254c988364c94d6c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a31434c1d712e59df254c988364c94d6c">&#9670;&#160;</a></span>game_opening_status_needs_matrix()</h2>
+<a id="a95ff59f2de485d9219690ece40566f80" name="a95ff59f2de485d9219690ece40566f80"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95ff59f2de485d9219690ece40566f80">&#9670;&#160;</a></span>game_opening_status_needs_squares()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">bool game_opening_status_needs_matrix </td>
+          <td class="memname">bool game_opening_status_needs_squares </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>

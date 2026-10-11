@@ -50,7 +50,7 @@ var game__opening__trainer_8c =
     [ "game_opening_physical_matches_start", "game__opening__trainer_8c.html#a1048bd4b1e6c1409ec9a4f4f11d77e53", null ],
     [ "game_opening_record_wrong_uci", "game__opening__trainer_8c.html#a439a555c311852447895a64468333ab6", null ],
     [ "game_opening_start", "game__opening__trainer_8c.html#a02fccbee9de20c284eb2a1ef82199b4b", null ],
-    [ "game_opening_status_needs_matrix", "game__opening__trainer_8c.html#a31434c1d712e59df254c988364c94d6c", null ],
+    [ "game_opening_status_needs_squares", "game__opening__trainer_8c.html#a95ff59f2de485d9219690ece40566f80", null ],
     [ "game_opening_validate_checkpoint_physical", "game__opening__trainer_8c.html#ad7bbc347c7fcfec965c16067c73ccd7e", null ],
     [ "game_opening_validate_expected_move", "game__opening__trainer_8c.html#ae93334dd3666e28c65325bfda7942712", null ],
     [ "game_opening_validate_opponent_pickup", "game__opening__trainer_8c.html#a9dadcc9494f20ce55c271bc038c2d0a5", null ],

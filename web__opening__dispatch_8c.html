@@ -27,7 +27,7 @@
   <td id="projectalign">
    <div id="projectname">CZECHMATE<span id="projectnumber">&#160;1.8.0</span>
    </div>
-   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see docs/reference/HARDWARE_VERSIONS.md</div>
+   <div id="projectbrief">CzechMate — chess system (FW 1.8.0): LED board, V1 reed matrix in repo and on video; commercial V2 with Hall sensors — see context/hardware/HARDWARE_VERSIONS.md</div>
   </td>
  </tr>
  </tbody>
@@ -197,8 +197,8 @@ Include dependency graph for web_opening_dispatch.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a01084d18a17d811cfc278f5f8d1e07e2" id="r_a01084d18a17d811cfc278f5f8d1e07e2"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__opening__dispatch_8c.html#a01084d18a17d811cfc278f5f8d1e07e2">opening_action_code</a> (const char *action)</td></tr>
-<tr class="separator:a01084d18a17d811cfc278f5f8d1e07e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a234bbf8947a15eaa69092f5785e09b" id="r_a2a234bbf8947a15eaa69092f5785e09b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__opening__dispatch_8c.html#a2a234bbf8947a15eaa69092f5785e09b">web_opening_action_code</a> (const char *action)</td></tr>
+<tr class="separator:a2a234bbf8947a15eaa69092f5785e09b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa22a053370b36a3b85aa0ad9f07b11f7" id="r_aa22a053370b36a3b85aa0ad9f07b11f7"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__opening__dispatch_8c.html#aa22a053370b36a3b85aa0ad9f07b11f7">opening_load_start_config</a> (cJSON *root)</td></tr>
 <tr class="separator:aa22a053370b36a3b85aa0ad9f07b11f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a365a01f6d8e54ee7370be9de9fe990c5" id="r_a365a01f6d8e54ee7370be9de9fe990c5"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__opening__dispatch_8c.html#a365a01f6d8e54ee7370be9de9fe990c5">opening_queue_action</a> (uint8_t action_code)</td></tr>
@@ -222,34 +222,6 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="web__opening__dispatch_8c_source.html">web_opening_dispatch.c</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a id="a01084d18a17d811cfc278f5f8d1e07e2" name="a01084d18a17d811cfc278f5f8d1e07e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01084d18a17d811cfc278f5f8d1e07e2">&#9670;&#160;</a></span>opening_action_code()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static uint8_t opening_action_code </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>action</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="web__opening__dispatch_8c_source.html#l00023">23</a> of file <a class="el" href="web__opening__dispatch_8c_source.html">web_opening_dispatch.c</a>.</p>
-
-</div>
-</div>
 <a id="aa22a053370b36a3b85aa0ad9f07b11f7" name="aa22a053370b36a3b85aa0ad9f07b11f7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa22a053370b36a3b85aa0ad9f07b11f7">&#9670;&#160;</a></span>opening_load_start_config()</h2>
 
@@ -303,6 +275,26 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="web__opening__dispatch_8c_source.html#l00128">128</a> of file <a class="el" href="web__opening__dispatch_8c_source.html">web_opening_dispatch.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a234bbf8947a15eaa69092f5785e09b" name="a2a234bbf8947a15eaa69092f5785e09b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a234bbf8947a15eaa69092f5785e09b">&#9670;&#160;</a></span>web_opening_action_code()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t web_opening_action_code </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>action</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="web__opening__dispatch_8c_source.html#l00023">23</a> of file <a class="el" href="web__opening__dispatch_8c_source.html">web_opening_dispatch.c</a>.</p>
 
 </div>
 </div>
