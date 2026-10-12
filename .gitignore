@@ -3,6 +3,13 @@
 # =============================================================================
 /CZECHMATE/
 
+# Flutter / local secrets (template is flutter_czechmate/.env.example)
+.env
+.env.local
+**/.env
+**/.env.local
+!**/.env.example
+
 # =============================================================================
 # Podklady pro AI — popisné .md v context/ jsou ve verzi; lokální scratch ne
 # (zdroj pravdy pro lidi: kořenové README.md + docs/README.md + context/)
@@ -92,8 +99,7 @@ components/*/build/
 !/gh-pages-ready/landing/**/*
 
 # HLS ABR (~150 MB fMP4) — regeneruj: py -3.12 models/blender/encode_web.py
-# Progressive MP4 se taky neverzují (*.mp4 na konci souboru). HTML fallback nech;
-# GitHub Pages na video vrátí 404, dokud soubor není hostovaný jinde.
+# Progressive landing MP4s jsou ve výjimce pod *.mp4 (Pages je potřebuje).
 /gh-pages-ready/landing/assets/hls/
 
 # Mezikrok encode_web (poster PNG → WebP)
@@ -182,13 +188,14 @@ venv/
 # Video a velké kamerové originály
 # =============================================================================
 # GitHub odmítá jeden soubor nad 100 MB a varuje od 50 MB.
-# Platí i pro landing MP4 (pravidlo je až za výjimkou !/gh-pages-ready/landing/**/*).
+# Platí i mimo landing; progressive klipy pro Pages níže znovu povolíme.
 *.mp4
 *.mov
 *.webm
 *.avi
 *.mkv
 *.m4v
+!/gh-pages-ready/landing/assets/czm-*.mp4
 
 # Wavefront .obj v tomto repu nejsou zdroj (meshe k verzování jsou .glb/.stl).
 # Překladačové .obj sedí ve /build/ a /build-*/; tohle chytí export mimo ně.

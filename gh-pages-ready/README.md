@@ -70,11 +70,11 @@ git checkout main
 
 ## Media (MP4)
 
-- Hero: embedded YouTube (`loading="lazy"`, `fetchpriority="low"`, `preconnect` to `youtube.com` and `i.ytimg.com`).
-- Board section: `landing/assets/czm-v2-led-loop.mp4`.
-- App section: `landing/assets/czm-v2-app-iphone.mp4` in a `split__media` + `split__video` frame (4:3 aspect ratio, `object-fit: cover`). Playback **without autoplay** — starts when the video is **sufficiently visible in the viewport** (`data-play-when-visible` + `initAppDemoVideoPlayWhenVisible` in `landing.js`, Intersection Observer); stays paused when `prefers-reduced-motion: reduce`.
-- Both local MP4s: `preload="none"`, source via `data-src` and `data-lazy-local` + `IntersectionObserver` in `landing.js` (load before entering viewport; start of downloads for the two files is staggered by ~220 ms). Native video controls appear only after **clicking the video** (`split__video--controls-on-click` in `landing.js`).
-- AI coach section: image `#ai-coach-app-preview` is generated from the same MP4 in `landing.js` (canvas → JPEG) at the time given by attribute **`data-ai-preview-at`** on `#app-phone-demo-video` (decimal fraction of duration, default **0.52** — end of file is often black or empty). Layout: `split__media--ai-preview` + `split__media--ai-preview__pan` (center portion of width, **full frame height**, no vertical crop).
+- Progressive clips `landing/assets/czm-*.mp4` are versioned (~44 MB total) so GitHub Pages can serve them. The HLS ABR pack under `landing/assets/hls/` stays gitignored (~150 MB); regenerate locally with `py -3.12 models/blender/encode_web.py` and opt in per video with `data-hls-force` if you want ABR preview.
+- `landing.js` plays `data-hls-fallback` (progressive MP4) by default; HLS is only used when `data-hls-force` is set.
+- Hero / board / lamp / players / LED / app demos: muted, `playsinline`, lazy hydrate near the viewport (`data-lazy-local`). App demo starts when sufficiently visible (`data-play-when-visible`); stays paused when `prefers-reduced-motion: reduce`.
+- Native video controls on the app demo appear only after **clicking the video** (`split__video--controls-on-click`).
+- AI coach section: image `#ai-coach-app-preview` is generated from the same MP4 in `landing.js` (canvas → JPEG) at the time given by attribute **`data-ai-preview-at`** on `#app-phone-demo-video` (decimal fraction of duration, default **0.52**). Layout: `split__media--ai-preview` + `split__media--ai-preview__pan`.
 
 General conversion (including audio):
 
