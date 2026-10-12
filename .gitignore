@@ -23,6 +23,43 @@
 /flutter_czechmate/context/local/
 /flutter_czechmate/context/**/*.local.md
 
+# =============================================================================
+# MAIDAY / video produkce (scénáře, timeline, Resolve/FCPXML, raw media)
+# Zůstává lokálně u editora — do Gitu nepatří binárky ani draft scénáře.
+# =============================================================================
+# Scénáře a timeline v context/ (včetně překlepů maday/maiday)
+/context/MAIDAY*
+/context/Maiday*
+/context/maday*
+/context/maiday*
+/context/**/MAIDAY*
+/context/**/Maiday*
+/context/**/maday*
+/context/**/maiday*
+
+# Resolve / Final Cut projekty a exporty vedle scénářů
+/context/**/*.fcpxml
+/context/**/*.fcpbundle
+/context/**/*.drp
+/context/**/*.drpmovie
+/context/**/*.srt
+/context/**/*.ass
+/context/**/*.vtt
+
+# DaVinci / střižna media tree (videa, stills, diagramy pro střih)
+/davinci_media/
+/DaVinci_Media/
+/davinci/
+/resolve_media/
+/maiday_media/
+/maday_media/
+
+# Edit projekty kdekoli v repu (nejen context/)
+*.fcpxml
+*.fcpbundle
+*.drp
+*.drpmovie
+
 /docs/archive/
 /docs/planning/
 
