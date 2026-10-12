@@ -3,6 +3,7 @@ enum CoachAiProviderId {
   groq('groq'),
   googleGemini('google_gemini'),
   openai('openai'),
+  azureFoundry('azure_foundry'),
   xaiGrok('xai_grok'),
   ollama('ollama');
 
@@ -22,6 +23,7 @@ enum CoachAiProviderId {
         CoachAiProviderId.groq => 'Groq',
         CoachAiProviderId.googleGemini => 'Google AI',
         CoachAiProviderId.openai => 'OpenAI',
+        CoachAiProviderId.azureFoundry => 'Azure AI Foundry',
         CoachAiProviderId.xaiGrok => 'xAI Grok',
         CoachAiProviderId.ollama => 'Ollama',
       };

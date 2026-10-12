@@ -63,7 +63,7 @@ import 'app_localizations_en.dart';
 /// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -86,16 +86,16 @@ abstract class AppLocalizations {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('cs'),
+    Locale('cs')
   ];
 
   /// No description provided for @appTitle.
@@ -2281,10 +2281,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{layout} · {zoom} · {style}'**
   String settingsBoardAppearanceSubtitle(
-    String layout,
-    String zoom,
-    String style,
-  );
+      String layout, String zoom, String style);
 
   /// No description provided for @settingsLayoutBoardOnlyShort.
   ///
@@ -2664,6 +2661,18 @@ abstract class AppLocalizations {
   /// **'OpenAI'**
   String get settingsCoachOpenAiProvider;
 
+  /// No description provided for @settingsCoachOpenAiFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API key'**
+  String get settingsCoachOpenAiFieldLabel;
+
+  /// No description provided for @settingsCoachOpenAiKeyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Where to get an OpenAI API key'**
+  String get settingsCoachOpenAiKeyTooltip;
+
   /// No description provided for @settingsCoachApiKeyLabel.
   ///
   /// In en, this message translates to:
@@ -2687,6 +2696,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OpenAI keys'**
   String get settingsCoachOpenAiKeysButton;
+
+  /// No description provided for @settingsCoachAzureFoundryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Azure AI Foundry'**
+  String get settingsCoachAzureFoundryTitle;
+
+  /// No description provided for @settingsCoachAzureFoundryBaseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://<resource>.openai.azure.com/openai/v1'**
+  String get settingsCoachAzureFoundryBaseHint;
+
+  /// No description provided for @settingsCoachAzureFoundryBaseHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenAI-compatible base (app appends /chat/completions). Prefer …/openai/v1. Auth uses the api-key header (not Bearer). Empty Settings fields fall back to .env.'**
+  String get settingsCoachAzureFoundryBaseHelper;
+
+  /// No description provided for @settingsCoachAzureFoundryKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Azure AI Foundry / Azure OpenAI key'**
+  String get settingsCoachAzureFoundryKeyHint;
+
+  /// No description provided for @settingsCoachAzureFoundryDeploymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'your-deployment-name'**
+  String get settingsCoachAzureFoundryDeploymentHint;
+
+  /// No description provided for @settingsCoachAzureFoundryDeploymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Deployment / model name'**
+  String get settingsCoachAzureFoundryDeploymentLabel;
+
+  /// No description provided for @settingsCoachAzureFoundryApiVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API version (optional)'**
+  String get settingsCoachAzureFoundryApiVersionLabel;
+
+  /// No description provided for @settingsCoachAzureFoundryApiVersionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty for /openai/v1; e.g. 2024-06-01 for legacy deployments'**
+  String get settingsCoachAzureFoundryApiVersionHint;
+
+  /// No description provided for @settingsCoachAzureFoundryDocsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Azure AI Foundry docs'**
+  String get settingsCoachAzureFoundryDocsButton;
+
+  /// No description provided for @settingsCoachEnterAzureFoundrySnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Azure base URL, API key, and deployment name.'**
+  String get settingsCoachEnterAzureFoundrySnack;
 
   /// No description provided for @settingsCoachGoogleAiStudio.
   ///
@@ -4529,10 +4598,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{transport} · polling {pollState} · WS {wsState}'**
   String progressTransportDevDetail(
-    String transport,
-    String pollState,
-    String wsState,
-  );
+      String transport, String pollState, String wsState);
 
   /// No description provided for @progressTransportUserDetail.
   ///
@@ -5475,13 +5541,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mode: {mode} · RGB({r},{g},{b}) · hint limit: {h} · auto-off: {t}s'**
   String lampBlockStatusSummary(
-    String mode,
-    String r,
-    String g,
-    String b,
-    String h,
-    String t,
-  );
+      String mode, String r, String g, String b, String h, String t);
 
   /// No description provided for @lampRgbHint.
   ///
@@ -6814,12 +6874,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'1) {f1}→{t1} · 2) {f2}→{t2}{suffix}'**
   String analysisSecondLineDualMoves(
-    String f1,
-    String t1,
-    String f2,
-    String t2,
-    String suffix,
-  );
+      String f1, String t1, String f2, String t2, String suffix);
 
   /// No description provided for @analysisSecondLineEvalApprox.
   ///
@@ -6838,11 +6893,7 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Best move: {from}–{to}{evalSuffix}{extra}'**
   String analysisBestMoveLine(
-    String from,
-    String to,
-    String evalSuffix,
-    String extra,
-  );
+      String from, String to, String evalSuffix, String extra);
 
   /// No description provided for @analysisAvgLossCp.
   ///
@@ -7136,9 +7187,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   }
 
   throw FlutterError(
-    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-    'an issue with the localizations generation tool. Please file an issue '
-    'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
-  );
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
 }

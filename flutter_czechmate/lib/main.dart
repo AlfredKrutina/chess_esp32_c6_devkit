@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_providers.dart';
+import 'core/config/coach_env_config.dart';
 import 'core/constants/app_environment.dart';
 import 'core/theme/app_motion.dart';
 import 'core/services/prefs_repository.dart';
@@ -41,6 +42,7 @@ Future<void> main() async {
       return false;
     };
   }
+  await CoachEnvConfig.load();
   final prefs = await SharedPreferences.getInstance();
   await PrefsRepository(prefs).migrateLegacyConnectionModeToAutoIfNeeded();
   runApp(

@@ -165,6 +165,15 @@ flowchart LR
   classDef x fill:#7c2d12,stroke:#fb923c,color:#fed7aa
 ```
 
+Cloud coaches are configured under **Settings → Coach & AI** (priority chain). Stockfish remains the chess-engine path; LLMs only explain.
+
+### Azure AI Foundry
+
+1. Copy [`flutter_czechmate/.env.example`](../../flutter_czechmate/.env.example) to `.env` (or `.env.local`) and fill the placeholders, **or** paste the same values in Settings → Coach & AI → **Azure AI Foundry**.
+2. Add **Azure AI Foundry** to the provider priority list and save.
+3. Base URL shape expected by the client: `{base}/chat/completions` — use e.g. `https://<resource>.openai.azure.com/openai/v1` (bare host is normalized). Deployment name is sent as JSON `model`. Auth header is `api-key` (not Bearer; Gemma / Google and local Ollama stay on their existing paths).
+4. `AZURE_FOUNDRY_API_VERSION` is optional (legacy `…/deployments/<name>` URLs). Settings override `.env` when a field is non-empty.
+
 ---
 
 ## Native layers

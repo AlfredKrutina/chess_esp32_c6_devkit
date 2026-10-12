@@ -43,6 +43,44 @@ abstract final class CoachAiCompletionService {
     return t;
   }
 
+  /// Normalize Azure AI Foundry / Azure OpenAI base for `{base}/chat/completions`.
+  ///
+  /// Preferred paste shape (OpenAI v1 API, no required `api-version`):
+  /// `https://<resource>.openai.azure.com/openai/v1`
+  /// or `https://<resource>.services.ai.azure.com/openai/v1`.
+  ///
+  /// Bare host `https://<resource>.openai.azure.com` → appends `/openai/v1`.
+  /// Legacy deployment roots `…/openai/deployments/<name>` are left as-is
+  /// (then set optional API version in settings).
+  static String normalizeAzureFoundryOpenAiBase(String raw) {
+    var t = raw.trim().replaceAll(RegExp(r'/+$'), '');
+    if (t.isEmpty) return t;
+    final uri = Uri.tryParse(t);
+    if (uri == null || !uri.hasScheme || uri.host.isEmpty) return raw.trim();
+    final host = uri.host.toLowerCase();
+    final isAzureHost = host.endsWith('.openai.azure.com') ||
+        host.endsWith('.services.ai.azure.com') ||
+        host.endsWith('.cognitiveservices.azure.com');
+    if (!isAzureHost) return t;
+
+    var path = uri.path;
+    if (path.endsWith('/')) {
+      path = path.substring(0, path.length - 1);
+    }
+    if (path.isEmpty || path == '/') {
+      return uri.replace(path: '/openai/v1').toString().replaceAll(RegExp(r'/+$'), '');
+    }
+    if (path == '/openai') {
+      return uri.replace(path: '/openai/v1').toString().replaceAll(RegExp(r'/+$'), '');
+    }
+    // Foundry project portal URLs are not OpenAI chat roots — use /openai/v1 on same host.
+    if (path.startsWith('/api/projects/')) {
+      return uri.replace(path: '/openai/v1').toString().replaceAll(RegExp(r'/+$'), '');
+    }
+    // Already …/openai/v1 or …/deployments/<name> — keep.
+    return t;
+  }
+
   /// Cap assistant/user pairs so payloads stay reasonable on mobile networks.
   static const maxDialogMessages = 24;
 
@@ -121,6 +159,34 @@ abstract final class CoachAiCompletionService {
           model: prefs.coachOpenAiModel,
           messages: _openAiMessages(systemPrompt, dialog),
         );
+      case CoachAiProviderId.azureFoundry:
+        final key = prefs.coachAzureFoundryApiKey?.trim();
+        if (key == null || key.isEmpty) {
+          throw CoachLlmException('Azure AI Foundry: no API key');
+        }
+        final baseRaw = prefs.coachAzureFoundryBaseUrl.trim();
+        if (baseRaw.isEmpty) {
+          throw CoachLlmException('Azure AI Foundry: empty base URL');
+        }
+        final base = normalizeAzureFoundryOpenAiBase(baseRaw);
+        final deployment = prefs.coachAzureFoundryDeployment.trim();
+        if (deployment.isEmpty) {
+          throw CoachLlmException('Azure AI Foundry: empty deployment / model name');
+        }
+        if (prefs.coachTraceLogsEnabled && base != baseRaw.replaceAll(RegExp(r'/+$'), '')) {
+          debugPrint(
+            '[staging][coach] Azure Foundry apiBase normalized: $baseRaw → $base',
+          );
+        }
+        final apiVer = prefs.coachAzureFoundryApiVersion.trim();
+        return CoachOpenAiClient.chatCompletionMessages(
+          apiBaseV1: base,
+          apiKey: key,
+          model: deployment,
+          authStyle: CoachOpenAiAuthStyle.azureApiKey,
+          apiVersion: apiVer.isEmpty ? null : apiVer,
+          messages: _openAiMessages(systemPrompt, dialog),
+        );
       case CoachAiProviderId.groq:
         final key = prefs.coachGroqApiKey?.trim();
         if (key == null || key.isEmpty) {
@@ -195,6 +261,12 @@ abstract final class CoachAiCompletionService {
       switch (id) {
         case CoachAiProviderId.openai:
           if ((prefs.coachApiKey ?? '').trim().isNotEmpty) return true;
+        case CoachAiProviderId.azureFoundry:
+          if ((prefs.coachAzureFoundryApiKey ?? '').trim().isNotEmpty &&
+              prefs.coachAzureFoundryBaseUrl.trim().isNotEmpty &&
+              prefs.coachAzureFoundryDeployment.trim().isNotEmpty) {
+            return true;
+          }
         case CoachAiProviderId.googleGemini:
           if ((prefs.coachGeminiApiKey ?? '').trim().isNotEmpty) return true;
         case CoachAiProviderId.groq:

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/coach_env_config.dart';
 import '../constants/app_environment.dart';
 import '../constants/firmware_defaults.dart';
 import '../utils/wifi_ip_third_octet_blocklist.dart';
@@ -35,6 +36,12 @@ class PrefsRepository {
   static const keyCoachXaiModel = 'czechmate.coach.xaiModel';
   static const keyCoachOllamaBase = 'czechmate.coach.ollamaBaseUrl';
   static const keyCoachOllamaModel = 'czechmate.coach.ollamaModel';
+  static const keyCoachAzureFoundryKey = 'czechmate.coach.azureFoundryApiKey';
+  static const keyCoachAzureFoundryBase = 'czechmate.coach.azureFoundryBaseUrl';
+  static const keyCoachAzureFoundryDeployment =
+      'czechmate.coach.azureFoundryDeployment';
+  static const keyCoachAzureFoundryApiVersion =
+      'czechmate.coach.azureFoundryApiVersion';
   static const keyConnectionMode = 'czechmate.connectionMode';
   /// One-shot force of `wifi_only` / `ble_only` for the next connection attempt; cleared after
   /// `connectWifi` / `connectBle` / `connectMock` in `BoardSessionNotifier`.
@@ -265,6 +272,68 @@ class PrefsRepository {
       await _p.remove(keyCoachOpenAiModel);
     } else {
       await _p.setString(keyCoachOpenAiModel, t);
+    }
+  }
+
+  /// Prefs override [CoachEnvConfig] when non-empty.
+  String? get coachAzureFoundryApiKey {
+    final p = _p.getString(keyCoachAzureFoundryKey)?.trim();
+    if (p != null && p.isNotEmpty) return p;
+    return CoachEnvConfig.azureFoundryApiKey;
+  }
+
+  Future<void> setCoachAzureFoundryApiKey(String? v) async {
+    if (v == null || v.trim().isEmpty) {
+      await _p.remove(keyCoachAzureFoundryKey);
+    } else {
+      await _p.setString(keyCoachAzureFoundryKey, v.trim());
+    }
+  }
+
+  /// Prefs override env; empty prefs → `.env` / dart-define.
+  String get coachAzureFoundryBaseUrl {
+    final p = _p.getString(keyCoachAzureFoundryBase)?.trim();
+    if (p != null && p.isNotEmpty) return p;
+    return CoachEnvConfig.azureFoundryBaseUrl ?? '';
+  }
+
+  Future<void> setCoachAzureFoundryBaseUrl(String v) async {
+    final t = v.trim();
+    if (t.isEmpty) {
+      await _p.remove(keyCoachAzureFoundryBase);
+    } else {
+      await _p.setString(keyCoachAzureFoundryBase, t);
+    }
+  }
+
+  String get coachAzureFoundryDeployment {
+    final p = _p.getString(keyCoachAzureFoundryDeployment)?.trim();
+    if (p != null && p.isNotEmpty) return p;
+    return CoachEnvConfig.azureFoundryDeployment ?? '';
+  }
+
+  Future<void> setCoachAzureFoundryDeployment(String v) async {
+    final t = v.trim();
+    if (t.isEmpty) {
+      await _p.remove(keyCoachAzureFoundryDeployment);
+    } else {
+      await _p.setString(keyCoachAzureFoundryDeployment, t);
+    }
+  }
+
+  /// Optional; empty is fine for `/openai/v1` endpoints.
+  String get coachAzureFoundryApiVersion {
+    final p = _p.getString(keyCoachAzureFoundryApiVersion)?.trim();
+    if (p != null && p.isNotEmpty) return p;
+    return CoachEnvConfig.azureFoundryApiVersion ?? '';
+  }
+
+  Future<void> setCoachAzureFoundryApiVersion(String v) async {
+    final t = v.trim();
+    if (t.isEmpty) {
+      await _p.remove(keyCoachAzureFoundryApiVersion);
+    } else {
+      await _p.setString(keyCoachAzureFoundryApiVersion, t);
     }
   }
 

@@ -44,6 +44,10 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
   late final TextEditingController _coachXaiModel;
   late final TextEditingController _coachOllamaBase;
   late final TextEditingController _coachOllamaModel;
+  late final TextEditingController _coachAzureBase;
+  late final TextEditingController _coachAzureKey;
+  late final TextEditingController _coachAzureDeployment;
+  late final TextEditingController _coachAzureApiVersion;
   List<CoachAiProviderId> _coachPriority = [];
   String _gemmaPresetChoice = _kGemmaPresetModels.first;
 
@@ -61,6 +65,12 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
     _coachXaiModel = TextEditingController(text: p.coachXaiModel);
     _coachOllamaBase = TextEditingController(text: p.coachOllamaBaseUrl);
     _coachOllamaModel = TextEditingController(text: p.coachOllamaModel);
+    _coachAzureBase = TextEditingController(text: p.coachAzureFoundryBaseUrl);
+    _coachAzureKey = TextEditingController(text: p.coachAzureFoundryApiKey ?? '');
+    _coachAzureDeployment =
+        TextEditingController(text: p.coachAzureFoundryDeployment);
+    _coachAzureApiVersion =
+        TextEditingController(text: p.coachAzureFoundryApiVersion);
     final savedModel = p.coachGemmaModelId;
     if (_kGemmaPresetModels.contains(savedModel)) {
       _gemmaPresetChoice = savedModel;
@@ -83,6 +93,10 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
     _coachXaiModel.dispose();
     _coachOllamaBase.dispose();
     _coachOllamaModel.dispose();
+    _coachAzureBase.dispose();
+    _coachAzureKey.dispose();
+    _coachAzureDeployment.dispose();
+    _coachAzureApiVersion.dispose();
     super.dispose();
   }
 
@@ -387,6 +401,74 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
                   vertical: 10,
                 ),
                 childrenPadding: EdgeInsets.zero,
+                title: Text(l10n.settingsCoachAzureFoundryTitle),
+                initiallyExpanded:
+                    _coachPriority.contains(CoachAiProviderId.azureFoundry),
+                children: [
+                  _coachExpansionFields([
+                    _coachFieldLabel(context, l10n.settingsCoachBaseUrlLabel),
+                    TextField(
+                      controller: _coachAzureBase,
+                      decoration: _coachOutlineDecoration(
+                        hintText: l10n.settingsCoachAzureFoundryBaseHint,
+                        helperText: l10n.settingsCoachAzureFoundryBaseHelper,
+                      ),
+                      keyboardType: TextInputType.url,
+                      autocorrect: false,
+                    ),
+                    _coachFieldLabel(context, l10n.settingsCoachApiKeyLabel),
+                    TextField(
+                      controller: _coachAzureKey,
+                      decoration: _coachOutlineDecoration(
+                        hintText: l10n.settingsCoachAzureFoundryKeyHint,
+                      ),
+                      obscureText: true,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                    ),
+                    _coachFieldLabel(
+                      context,
+                      l10n.settingsCoachAzureFoundryDeploymentLabel,
+                    ),
+                    TextField(
+                      controller: _coachAzureDeployment,
+                      decoration: _coachOutlineDecoration(
+                        hintText: l10n.settingsCoachAzureFoundryDeploymentHint,
+                      ),
+                      autocorrect: false,
+                    ),
+                    _coachFieldLabel(
+                      context,
+                      l10n.settingsCoachAzureFoundryApiVersionLabel,
+                    ),
+                    TextField(
+                      controller: _coachAzureApiVersion,
+                      decoration: _coachOutlineDecoration(
+                        hintText: l10n.settingsCoachAzureFoundryApiVersionHint,
+                      ),
+                      autocorrect: false,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.open_in_new, size: 18),
+                        label: Text(l10n.settingsCoachAzureFoundryDocsButton),
+                        onPressed: () => _openCoachDocUrl(
+                          Uri.parse(
+                            'https://learn.microsoft.com/azure/ai-foundry/openai/latest',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ],
+              ),
+              ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                childrenPadding: EdgeInsets.zero,
                 title: Text(l10n.settingsCoachGoogleAiStudio),
                 initiallyExpanded:
                     _coachPriority.contains(CoachAiProviderId.googleGemini),
@@ -406,7 +488,7 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
                     _coachFieldLabel(context, l10n.settingsCoachModelIdLabel),
                     DropdownButtonFormField<String>(
                       isExpanded: true,
-                      value: _gemmaPresetChoice == '__custom__'
+                      initialValue: _gemmaPresetChoice == '__custom__'
                           ? '__custom__'
                           : (_kGemmaPresetModels.contains(_gemmaPresetChoice)
                               ? _gemmaPresetChoice
@@ -587,6 +669,14 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
                       .setCoachOllamaBaseUrl(_coachOllamaBase.text.trim());
                   await prefs
                       .setCoachOllamaModel(_coachOllamaModel.text.trim());
+                  await prefs
+                      .setCoachAzureFoundryBaseUrl(_coachAzureBase.text.trim());
+                  await prefs
+                      .setCoachAzureFoundryApiKey(_coachAzureKey.text.trim());
+                  await prefs.setCoachAzureFoundryDeployment(
+                      _coachAzureDeployment.text.trim());
+                  await prefs.setCoachAzureFoundryApiVersion(
+                      _coachAzureApiVersion.text.trim());
                   final mid = _resolvedGemmaModelId();
                   if (_coachPriority.contains(CoachAiProviderId.googleGemini) &&
                       mid.isEmpty) {
@@ -597,6 +687,24 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
                       );
                     }
                     return;
+                  }
+                  if (_coachPriority.contains(CoachAiProviderId.azureFoundry)) {
+                    final missingAzure = _coachAzureBase.text.trim().isEmpty ||
+                        _coachAzureKey.text.trim().isEmpty ||
+                        _coachAzureDeployment.text.trim().isEmpty;
+                    // Allow empty Settings when .env already supplies values.
+                    final envOk = (prefs.coachAzureFoundryBaseUrl.isNotEmpty &&
+                        (prefs.coachAzureFoundryApiKey ?? '').isNotEmpty &&
+                        prefs.coachAzureFoundryDeployment.isNotEmpty);
+                    if (missingAzure && !envOk) {
+                      if (context.mounted) {
+                        showAppSnackBar(
+                          context,
+                          l10n.settingsCoachEnterAzureFoundrySnack,
+                        );
+                      }
+                      return;
+                    }
                   }
                   if (mid.isNotEmpty) {
                     await prefs.setCoachGemmaModelId(mid);

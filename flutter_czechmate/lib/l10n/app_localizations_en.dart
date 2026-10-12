@@ -1264,10 +1264,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settingsBoardAppearanceSubtitle(
-    String layout,
-    String zoom,
-    String style,
-  ) {
+      String layout, String zoom, String style) {
     return '$layout · $zoom · $style';
   }
 
@@ -1469,6 +1466,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCoachOpenAiProvider => 'OpenAI';
 
   @override
+  String get settingsCoachOpenAiFieldLabel => 'API key';
+
+  @override
+  String get settingsCoachOpenAiKeyTooltip => 'Where to get an OpenAI API key';
+
+  @override
   String get settingsCoachApiKeyLabel => 'API key';
 
   @override
@@ -1480,6 +1483,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCoachOpenAiKeysButton => 'OpenAI keys';
+
+  @override
+  String get settingsCoachAzureFoundryTitle => 'Azure AI Foundry';
+
+  @override
+  String get settingsCoachAzureFoundryBaseHint =>
+      'https://<resource>.openai.azure.com/openai/v1';
+
+  @override
+  String get settingsCoachAzureFoundryBaseHelper =>
+      'OpenAI-compatible base (app appends /chat/completions). Prefer …/openai/v1. Auth uses the api-key header (not Bearer). Empty Settings fields fall back to .env.';
+
+  @override
+  String get settingsCoachAzureFoundryKeyHint =>
+      'Paste Azure AI Foundry / Azure OpenAI key';
+
+  @override
+  String get settingsCoachAzureFoundryDeploymentHint => 'your-deployment-name';
+
+  @override
+  String get settingsCoachAzureFoundryDeploymentLabel =>
+      'Deployment / model name';
+
+  @override
+  String get settingsCoachAzureFoundryApiVersionLabel =>
+      'API version (optional)';
+
+  @override
+  String get settingsCoachAzureFoundryApiVersionHint =>
+      'Leave empty for /openai/v1; e.g. 2024-06-01 for legacy deployments';
+
+  @override
+  String get settingsCoachAzureFoundryDocsButton => 'Azure AI Foundry docs';
+
+  @override
+  String get settingsCoachEnterAzureFoundrySnack =>
+      'Enter Azure base URL, API key, and deployment name.';
 
   @override
   String get settingsCoachGoogleAiStudio => 'Google AI Studio';
@@ -2530,10 +2570,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String progressTransportDevDetail(
-    String transport,
-    String pollState,
-    String wsState,
-  ) {
+      String transport, String pollState, String wsState) {
     return '$transport · polling $pollState · WS $wsState';
   }
 
@@ -3057,13 +3094,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String lampBlockStatusSummary(
-    String mode,
-    String r,
-    String g,
-    String b,
-    String h,
-    String t,
-  ) {
+      String mode, String r, String g, String b, String h, String t) {
     return 'Mode: $mode · RGB($r,$g,$b) · hint limit: $h · auto-off: ${t}s';
   }
 
@@ -3815,12 +3846,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String analysisSecondLineDualMoves(
-    String f1,
-    String t1,
-    String f2,
-    String t2,
-    String suffix,
-  ) {
+      String f1, String t1, String f2, String t2, String suffix) {
     return '1) $f1→$t1 · 2) $f2→$t2$suffix';
   }
 
@@ -3834,11 +3860,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String analysisBestMoveLine(
-    String from,
-    String to,
-    String evalSuffix,
-    String extra,
-  ) {
+      String from, String to, String evalSuffix, String extra) {
     return 'Best move: $from–$to$evalSuffix$extra';
   }
 

@@ -16,6 +16,10 @@ flutter run
 
 Flutter 3.x, Riverpod, `flutter_blue_plus`, HTTP + optional WebSocket, `chess` package for on-device rules.
 
+## Azure AI Foundry (Coach)
+
+Copy [`.env.example`](.env.example) → `.env`, fill the Azure placeholders, then add **Azure AI Foundry** under Settings → Coach & AI. Settings override `.env`. Details: [`docs/flutter/README.md`](../docs/flutter/README.md#azure-ai-foundry).
+
 ## Further reading
 
 - [`docs/flutter/README.md`](../docs/flutter/README.md) — client structure, BLE/HTTP, diagrams

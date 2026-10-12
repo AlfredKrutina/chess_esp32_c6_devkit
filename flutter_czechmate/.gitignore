@@ -5,3 +5,8 @@ build/
 .flutter-plugins-dependencies
 *.iml
 .idea/
+
+# Local secrets (copy from .env.example — never commit filled files)
+.env
+.env.local
+.env.*.local

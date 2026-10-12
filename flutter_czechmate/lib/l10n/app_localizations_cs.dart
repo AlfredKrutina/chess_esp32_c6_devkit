@@ -1267,10 +1267,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String settingsBoardAppearanceSubtitle(
-    String layout,
-    String zoom,
-    String style,
-  ) {
+      String layout, String zoom, String style) {
     return '$layout · $zoom · $style';
   }
 
@@ -1471,6 +1468,12 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsCoachOpenAiProvider => 'OpenAI';
 
   @override
+  String get settingsCoachOpenAiFieldLabel => 'API klíč';
+
+  @override
+  String get settingsCoachOpenAiKeyTooltip => 'Kde získat OpenAI API klíč';
+
+  @override
   String get settingsCoachApiKeyLabel => 'API klíč';
 
   @override
@@ -1482,6 +1485,44 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get settingsCoachOpenAiKeysButton => 'OpenAI klíče';
+
+  @override
+  String get settingsCoachAzureFoundryTitle => 'Azure AI Foundry';
+
+  @override
+  String get settingsCoachAzureFoundryBaseHint =>
+      'https://<resource>.openai.azure.com/openai/v1';
+
+  @override
+  String get settingsCoachAzureFoundryBaseHelper =>
+      'OpenAI-kompatibilní základ (aplikace doplní /chat/completions). Preferuj …/openai/v1. Autentizace přes hlavičku api-key (ne Bearer). Prázdná pole v Nastavení berou hodnoty z .env.';
+
+  @override
+  String get settingsCoachAzureFoundryKeyHint =>
+      'Vlož klíč Azure AI Foundry / Azure OpenAI';
+
+  @override
+  String get settingsCoachAzureFoundryDeploymentHint => 'nazev-nasazeni';
+
+  @override
+  String get settingsCoachAzureFoundryDeploymentLabel =>
+      'Nasazení / název modelu';
+
+  @override
+  String get settingsCoachAzureFoundryApiVersionLabel =>
+      'Verze API (volitelné)';
+
+  @override
+  String get settingsCoachAzureFoundryApiVersionHint =>
+      'U /openai/v1 nechte prázdné; u legacy deployments např. 2024-06-01';
+
+  @override
+  String get settingsCoachAzureFoundryDocsButton =>
+      'Dokumentace Azure AI Foundry';
+
+  @override
+  String get settingsCoachEnterAzureFoundrySnack =>
+      'Zadej Azure base URL, API klíč a název nasazení.';
 
   @override
   String get settingsCoachGoogleAiStudio => 'Google AI Studio';
@@ -2532,10 +2573,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String progressTransportDevDetail(
-    String transport,
-    String pollState,
-    String wsState,
-  ) {
+      String transport, String pollState, String wsState) {
     return '$transport · dotazy $pollState · WS $wsState';
   }
 
@@ -3062,13 +3100,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String lampBlockStatusSummary(
-    String mode,
-    String r,
-    String g,
-    String b,
-    String h,
-    String t,
-  ) {
+      String mode, String r, String g, String b, String h, String t) {
     return 'Režim: $mode · RGB($r,$g,$b) · limit nápověd: $h · auto zhasnutí: $t s';
   }
 
@@ -3815,12 +3847,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String analysisSecondLineDualMoves(
-    String f1,
-    String t1,
-    String f2,
-    String t2,
-    String suffix,
-  ) {
+      String f1, String t1, String f2, String t2, String suffix) {
     return '1) $f1→$t1 · 2) $f2→$t2$suffix';
   }
 
@@ -3834,11 +3861,7 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String analysisBestMoveLine(
-    String from,
-    String to,
-    String evalSuffix,
-    String extra,
-  ) {
+      String from, String to, String evalSuffix, String extra) {
     return 'Nejlepší tah: $from–$to$evalSuffix$extra';
   }
 

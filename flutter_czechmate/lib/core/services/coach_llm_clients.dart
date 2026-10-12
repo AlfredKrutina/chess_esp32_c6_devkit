@@ -13,11 +13,27 @@ class CoachLlmException implements Exception {
       statusCode != null ? 'CoachLlmException($statusCode): $message' : 'CoachLlmException: $message';
 }
 
+/// How [CoachOpenAiClient] sends the API key.
+enum CoachOpenAiAuthStyle {
+  /// `Authorization: Bearer <key>` — OpenAI, Groq, xAI, Ollama, many local proxies.
+  bearer,
+
+  /// `api-key: <key>` — Azure OpenAI / Microsoft Azure AI Foundry key auth.
+  azureApiKey,
+}
+
 abstract final class CoachOpenAiClient {
   /// OpenAI-compatible chat completions URL (…/v1/chat/completions).
-  static Uri chatCompletionsUri(String apiBaseV1) {
+  ///
+  /// Optional [apiVersion] becomes `?api-version=` (legacy Azure deployment URLs).
+  static Uri chatCompletionsUri(String apiBaseV1, {String? apiVersion}) {
     final t = apiBaseV1.trim().replaceAll(RegExp(r'/+$'), '');
-    return Uri.parse('$t/chat/completions');
+    final uri = Uri.parse('$t/chat/completions');
+    final ver = apiVersion?.trim();
+    if (ver == null || ver.isEmpty) return uri;
+    final q = Map<String, String>.from(uri.queryParameters);
+    q['api-version'] = ver;
+    return uri.replace(queryParameters: q);
   }
 
   static Future<String> chatCompletionMessages({
@@ -26,6 +42,8 @@ abstract final class CoachOpenAiClient {
     required String model,
     required List<Map<String, dynamic>> messages,
     int maxTokens = 700,
+    CoachOpenAiAuthStyle authStyle = CoachOpenAiAuthStyle.bearer,
+    String? apiVersion,
     http.Client? httpClient,
   }) async {
     final client = httpClient ?? http.Client();
@@ -35,11 +53,16 @@ abstract final class CoachOpenAiClient {
       };
       final k = apiKey.trim();
       if (k.isNotEmpty) {
-        headers['Authorization'] = 'Bearer $k';
+        switch (authStyle) {
+          case CoachOpenAiAuthStyle.bearer:
+            headers['Authorization'] = 'Bearer $k';
+          case CoachOpenAiAuthStyle.azureApiKey:
+            headers['api-key'] = k;
+        }
       }
       final res = await client
           .post(
-            chatCompletionsUri(apiBaseV1),
+            chatCompletionsUri(apiBaseV1, apiVersion: apiVersion),
             headers: headers,
             body: jsonEncode({
               'model': model,
