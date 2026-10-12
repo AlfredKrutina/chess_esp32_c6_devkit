@@ -171,14 +171,20 @@
       opts = opts || {};
       var master = video.getAttribute("data-hls");
       var fallback = video.getAttribute("data-hls-fallback");
-      if (!master) return false;
+      if (!master && !fallback) return false;
       if (video.dataset.hlsBound === "1") return true;
       video.dataset.hlsBound = "1";
 
-      if (lite() && fallback) {
+      /* HLS pack is gitignored (~150 MB) and absent from GitHub Pages.
+         Progressive MP4 fallbacks are what actually ship — use them unless
+         data-hls-force is set (local ABR preview after encode_web.py). */
+      var forceHls = video.getAttribute("data-hls-force") !== null;
+      if (fallback && (!master || !forceHls || lite())) {
         video.src = fallback;
         return true;
       }
+
+      if (!master) return false;
 
       var useNative = nativeHls(video) && !(window.Hls && window.Hls.isSupported() && /Chrome|Chromium|Edg\//.test(navigator.userAgent));
       if (useNative && nativeHls(video) && !window.Hls) {
