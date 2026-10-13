@@ -25,7 +25,7 @@
 var NAVTREE =
 [
   [ "CZECHMATE", "index.html", [
-    [ "web_server_task", "index.html", null ],
+    [ "web_server_task", "index.html", "index" ],
     [ "Deprecated List", "deprecated.html", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -53,24 +53,26 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"chess__types_8h.html#a4b9c35d83af38787d5601d9c2443a66dae081bd5b21647bf52eb2bfb33e97a390",
-"freertos__chess_8c.html#a2d90fd6adb05ddb54ae494a47e311309",
-"game__board__core_8c.html#a2f77ab43a39a2a3ebc640df092f9cdc1",
-"game__led__direct_8h.html#af337fa678e02039015341d7fa45e3ccc",
-"game__snapshot_8c.html#a06eeef79b957711c3443741523b404aa",
-"game__task_8c.html#ae9609d2c6acb49bcfdc4a72a4ee02d06",
-"game__task__internal_8h.html#a54daa47b74d01d066ede530d4c6bc26d",
-"ha__light__task_8c.html",
-"led__gesture__anim_8h.html#a0a580078551dcb66e39ebd39039fffef",
-"led__task_8c.html#adab4e0aa5871161ca4d0f13c4c2e9f63",
-"shared__buffer__pool_8c.html#acd1fec8326abc9b532e4004cd0283e88",
-"structchess__move__command__t.html#a3396c4a720d38eafa732cb2a9ab68322",
-"structgame__task__promotion__state__t.html#a1e8ccbcd9550c4e82dc36321f4a12315",
-"structsubtle__animation__state__t.html#a28a89503fb8a1a8db1aaf1cef5feac3c",
-"timer__system_8h.html#ab0399771af7d827987018c7153cd381b",
-"uart__task_8c.html#a6e26b6d6ae554bd6bc478ccba6b1b763",
-"unified__animation__manager_8c.html#aafd47a4efcf1e963e6482eff96b5245f",
-"web__server__internal_8h.html#a660bc64ded0fb1c7ad498180fc22a7a7"
+"chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a59aa3569c7b540e83b61a3a1b356598f",
+"config__manager_8h.html#aa0028fc365e89e240fa5fbf5fd10dc80",
+"freertos__chess_8h.html#acc0d1902b8ef5d4934f99724427e5bc4",
+"game__led__animations_8c.html#a76483b95c5cbeaec7b68b61fdba3e1b0",
+"game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652ab27427e19ebbe542869522b7850bafad",
+"game__task_8c.html#a20b79ef4675f25cd3f39ddcdaf65243c",
+"game__task_8h.html#a8de7eb2cbccf01d3c7ee792caaf9784e",
+"game__task__internal_8h.html#acbf110fdfd6d83d9db30abcfdfffd8e0",
+"ha__light__task_8h.html#a08a1f3e1bf3f29355b526af9058122c0",
+"led__state__manager_8h.html",
+"led__task_8h.html#afff280b4c9b7261d1a086e0cfa356604",
+"shared__buffer__pool_8c.html#ab7941cd3b2567eec4538fb234680a9bf",
+"structbuffer__pool__stats__t.html#ae2d19a60f60e93b6b4144919fa1ef156",
+"structgame__snapshot__v2__t.html#ad47507c1f80d15b500a9832ee6011dde",
+"structshared__buffer__t.html#a00bbd381df7a7778ef9aeaebe0b7d667",
+"timer__system_8c.html#ab0399771af7d827987018c7153cd381b",
+"uart__task_8c.html#a1cc51f2f4fea08ccfc228ca497cd34ae",
+"uart__task__internal_8h.html#a82f3830461d1f2f3a8384936fb926920",
+"web__handlers__system_8c.html#ac6454c6a8860b8ffa9ec039b7d58b62b",
+"web__server__task_8h.html#ab47f0c904798d9ffc4f8e75f7ce8b5f3"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,11 +1,18 @@
 <map id="board_api_auth.h" name="board_api_auth.h">
-<area shape="rect" id="Node000001" title="Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints." alt="" coords="153,5,287,31"/>
+<area shape="rect" id="Node000001" title="Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints." alt="" coords="237,5,371,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,79,101,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="194,33,94,76,92,71,192,28"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="126,79,207,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,33,186,69,181,66,209,29"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="232,79,315,104"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="231,29,259,66,254,69,227,33"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="339,79,413,104"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="246,28,339,70,337,75,244,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="264,33,108,77,106,72,263,28"/>
+<area shape="rect" id="Node000003" href="$board__pair__policy_8h.html" title="Pure commander / token&#45;slot rules." alt="" coords="176,79,323,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="297,33,269,69,264,66,293,29"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="117,152,200,177"/>
+<area shape="poly" id="edge7_Node000001_Node000004" title=" " alt="" coords="241,33,199,51,181,64,166,80,159,94,156,108,156,138,151,138,151,108,154,92,162,77,178,60,197,46,239,28"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="228,152,303,177"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="316,30,336,63,341,84,337,105,321,128,300,146,296,142,317,125,332,103,336,84,331,65,312,32"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="359,152,430,177"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="318,29,357,77,388,138,383,141,352,80,313,33"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="449,79,530,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="335,28,447,71,446,76,333,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="236,106,186,145,183,141,233,102"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="255,104,262,138,257,139,249,105"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="274,102,360,144,358,148,272,106"/>
 </map>

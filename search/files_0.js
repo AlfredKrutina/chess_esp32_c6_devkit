@@ -5,8 +5,10 @@ var searchData=
   ['ble_5ftask_2eh_2',['ble_task.h',['../ble__task_8h.html',1,'']]],
   ['board_5fapi_5fauth_2ec_3',['board_api_auth.c',['../board__api__auth_8c.html',1,'']]],
   ['board_5fapi_5fauth_2eh_4',['board_api_auth.h',['../board__api__auth_8h.html',1,'']]],
-  ['button_5fgesture_2ec_5',['button_gesture.c',['../button__gesture_8c.html',1,'']]],
-  ['button_5fgesture_2eh_6',['button_gesture.h',['../button__gesture_8h.html',1,'']]],
-  ['button_5ftask_2ec_7',['button_task.c',['../button__task_8c.html',1,'']]],
-  ['button_5ftask_2eh_8',['button_task.h',['../button__task_8h.html',1,'']]]
+  ['board_5fpair_5fpolicy_2ec_5',['board_pair_policy.c',['../board__pair__policy_8c.html',1,'']]],
+  ['board_5fpair_5fpolicy_2eh_6',['board_pair_policy.h',['../board__pair__policy_8h.html',1,'']]],
+  ['button_5fgesture_2ec_7',['button_gesture.c',['../button__gesture_8c.html',1,'']]],
+  ['button_5fgesture_2eh_8',['button_gesture.h',['../button__gesture_8h.html',1,'']]],
+  ['button_5ftask_2ec_9',['button_task.c',['../button__task_8c.html',1,'']]],
+  ['button_5ftask_2eh_10',['button_task.h',['../button__task_8h.html',1,'']]]
 ];

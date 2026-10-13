@@ -162,6 +162,8 @@ Functions</h2></td></tr>
 <tr class="memitem:a4abd7470fc1b949d24303feda00f7739" id="r_a4abd7470fc1b949d24303feda00f7739"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#a4abd7470fc1b949d24303feda00f7739">web_server_opening_dispatch_body</a> (const char *json)</td></tr>
 <tr class="memdesc:a4abd7470fc1b949d24303feda00f7739"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dispatch opening trainer command from JSON body (HTTP or BLE).  <br /></td></tr>
 <tr class="separator:a4abd7470fc1b949d24303feda00f7739"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae8e06549a723e72a415f012dff72ee0" id="r_aae8e06549a723e72a415f012dff72ee0"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#aae8e06549a723e72a415f012dff72ee0">web_server_puzzle_dispatch_body</a> (const char *json, char *response, size_t response_len)</td></tr>
+<tr class="separator:aae8e06549a723e72a415f012dff72ee0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a591cdaf22423bbfdb1e7b5c1b8502fba" id="r_a591cdaf22423bbfdb1e7b5c1b8502fba"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#a591cdaf22423bbfdb1e7b5c1b8502fba">web_server_opening_dispatch_json</a> (struct cJSON *root)</td></tr>
 <tr class="separator:a591cdaf22423bbfdb1e7b5c1b8502fba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a234bbf8947a15eaa69092f5785e09b" id="r_a2a234bbf8947a15eaa69092f5785e09b"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__server__internal_8h.html#a2a234bbf8947a15eaa69092f5785e09b">web_opening_action_code</a> (const char *action)</td></tr>
@@ -307,7 +309,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00252">252</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00253">253</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -330,7 +332,7 @@ Variables</h2></td></tr>
 <p>Ping queue from game_task — WS + BLE snapshot in web_server_task (does not block game_task at httpd_ws_send_data / malloc). </p>
 <p>Must be outside #if WS — BLE always. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03022">3022</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03051">3051</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -382,7 +384,7 @@ Variables</h2></td></tr>
 
 <p>Supplementing GET /api/status with web lock, WiFi, brightness, matrix guard, lamp (shared with snapshot). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00057">57</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00058">58</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -422,7 +424,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00045">45</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00046">46</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -442,7 +444,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00052">52</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00053">53</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -462,7 +464,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00041">41</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00042">42</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -504,7 +506,7 @@ Variables</h2></td></tr>
 
 <p>Common logic of POST /api/game/hint_highlight and hint_highlight BLE command. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00280">280</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00281">281</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -524,7 +526,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03711">3711</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03740">3740</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -568,6 +570,40 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="web__opening__dispatch_8c_source.html#l00166">166</a> of file <a class="el" href="web__opening__dispatch_8c_source.html">web_opening_dispatch.c</a>.</p>
+
+</div>
+</div>
+<a id="aae8e06549a723e72a415f012dff72ee0" name="aae8e06549a723e72a415f012dff72ee0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae8e06549a723e72a415f012dff72ee0">&#9670;&#160;</a></span>web_server_puzzle_dispatch_body()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t web_server_puzzle_dispatch_body </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>response</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>response_len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>
@@ -706,7 +742,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00034">34</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00035">35</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -730,7 +766,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00035">35</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00036">36</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -754,7 +790,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00036">36</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00037">37</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>

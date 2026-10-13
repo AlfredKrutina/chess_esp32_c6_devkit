@@ -1,0 +1,15 @@
+<map id="test_board_pair_policy.c" name="test_board_pair_policy.c">
+<area shape="rect" id="Node000001" title="Host test for the pairing window, token slots, and the busy seat." alt="" coords="191,5,369,31"/>
+<area shape="rect" id="Node000002" href="$board__pair__policy_8h.html" title="Pure commander / token&#45;slot rules." alt="" coords="76,79,223,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="260,33,184,74,181,70,258,28"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="247,79,313,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="283,31,283,65,277,65,277,31"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="338,79,409,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="297,29,349,68,346,72,293,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,88,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="134,106,76,146,73,142,131,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="112,152,187,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="152,104,152,138,147,138,147,104"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="211,152,282,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="167,102,221,141,218,146,163,106"/>
+</map>

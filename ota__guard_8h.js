@@ -1,0 +1,35 @@
+var ota__guard_8h =
+[
+    [ "ota_guard_status_t", "structota__guard__status__t.html", "structota__guard__status__t" ],
+    [ "OTA_GUARD_CONFIRM_DEADLINE_MS", "ota__guard_8h.html#a2432778840602eac3685c16182d2f8ed", null ],
+    [ "OTA_GUARD_CONFIRM_STABLE_MS", "ota__guard_8h.html#ace8fc1cc8bf9042e7dda46d25a0eb877", null ],
+    [ "OTA_GUARD_CRASH_LOOP_LIMIT", "ota__guard_8h.html#a3225aae9b8dcc6402b564626ac3393fe", null ],
+    [ "ota_guard_state_t", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390", [
+      [ "OTA_GUARD_IDLE", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a5a896fc69203a2460b72d522986e8980", null ],
+      [ "OTA_GUARD_RECEIVING", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390aabfceca4711534e48265966a92358f8c", null ],
+      [ "OTA_GUARD_VERIFYING", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a372d62f52857cb4f69c5c718020e44b6", null ],
+      [ "OTA_GUARD_REBOOTING", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a9d06c30486956270b5f55a790bc793ea", null ],
+      [ "OTA_GUARD_SUCCESS", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a55a96dc2c05ce313fad9a94cd891c2d8", null ],
+      [ "OTA_GUARD_ABORTED", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390add47efb390a0ce364d301480c9bc2409", null ],
+      [ "OTA_GUARD_ROLLED_BACK", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a60d5f7de431678813915e0779aa487bb", null ],
+      [ "OTA_GUARD_ERROR", "ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a6044e28118493a8443d46cba1690bd99", null ]
+    ] ],
+    [ "ota_guard_aborted", "ota__guard_8h.html#a858c96086dae3b4db03c1a2e5c9e8198", null ],
+    [ "ota_guard_begin", "ota__guard_8h.html#a9b735d7ef9943e552d53e4f4c7c5aa1f", null ],
+    [ "ota_guard_boot_early", "ota__guard_8h.html#a42a8ad697b1a37651a69242c0487d55b", null ],
+    [ "ota_guard_confirm_if_healthy", "ota__guard_8h.html#a186913e238b7c8c2a98521947976d877", null ],
+    [ "ota_guard_error", "ota__guard_8h.html#a6a7516b3a73d5ec1f4c24e6bb1c192d1", null ],
+    [ "ota_guard_format_json_fields", "ota__guard_8h.html#a3ce168b8ab2fb13391afa8ed3045a910", null ],
+    [ "ota_guard_get_status", "ota__guard_8h.html#af80656be6363f808539b8b416f2e2721", null ],
+    [ "ota_guard_init", "ota__guard_8h.html#aabd38d75521c531c6c9c6868e9dbcd12", null ],
+    [ "ota_guard_on_init_failure", "ota__guard_8h.html#ab43e5ed1055f9017662daf7d6622b08f", null ],
+    [ "ota_guard_progress", "ota__guard_8h.html#a8f13d803c17436ef3948de273200f6a9", null ],
+    [ "ota_guard_reason_from_err", "ota__guard_8h.html#a8916c9adcf296828c8fc9cddc044f6f0", null ],
+    [ "ota_guard_rebooting", "ota__guard_8h.html#ac04fcd004d07fe23fd6a00b00d8b28ab", null ],
+    [ "ota_guard_resumed", "ota__guard_8h.html#a601039b33a2b2b27c9cdff7342495e20", null ],
+    [ "ota_guard_schedule_restart", "ota__guard_8h.html#afba58617a05a1550cc431a33e8bef180", null ],
+    [ "ota_guard_state_str", "ota__guard_8h.html#a4f1aa90d9f0ca470971cf014b217f29e", null ],
+    [ "ota_guard_validate_desc", "ota__guard_8h.html#a7638b0b08caa2ddaf9f96355d3e4b434", null ],
+    [ "ota_guard_validate_image", "ota__guard_8h.html#a7bbd4a52c0a4481a0dfb9219e20a4f7d", null ],
+    [ "ota_guard_verifying", "ota__guard_8h.html#a80d7fe689119a850848eb09dd4a0f4ef", null ]
+];

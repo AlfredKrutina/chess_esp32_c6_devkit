@@ -9,6 +9,7 @@ var game__json__export_8c =
     [ "game_get_move_count", "game__json__export_8c.html#a2e528b3b66fe59544f28ca993c4a6143", null ],
     [ "game_get_status_json", "game__json__export_8c.html#abdf3ba446d87db43c26b6c51275a521e", null ],
     [ "game_get_timer_json", "game__json__export_8c.html#a4373558ca8d873f8a649ab8436720807", null ],
+    [ "game_json_escape", "game__json__export_8c.html#a3e7db9057346a20dbe7dda5103439609", null ],
     [ "game_status_json_append", "game__json__export_8c.html#a3351600eed32a8c110d697b84926b576", null ],
     [ "TAG", "game__json__export_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

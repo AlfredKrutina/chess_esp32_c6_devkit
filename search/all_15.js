@@ -172,7 +172,7 @@ var searchData=
   ['update_5ffunc_169',['update_func',['../structanimation__state__struct.html#ab1a5f1afbbdb0e1a7cf3eb90ddc29206',1,'animation_state_struct']]],
   ['url_5fis_5fhttp_170',['url_is_http',['../ota__update_8c.html#a88acbd3d46c17168c091474faddfccce',1,'ota_update.c']]],
   ['url_5fis_5fhttps_171',['url_is_https',['../ota__update_8c.html#a83cac12df33215375d8151d0675b866b',1,'ota_update.c']]],
-  ['usage_172',['usage',['..//home/runner/work/chess_esp32_c6_devkit/chess_esp32_c6_devkit/README.md#autotoc_md103',1,'Usage'],['../structuart__command__t.html#af54b176c77095097bdde582f4d1cbc26',1,'uart_command_t::usage']]],
+  ['usage_172',['usage',['..//home/runner/work/chess_esp32_c6_devkit/chess_esp32_c6_devkit/README.md#autotoc_md104',1,'Usage'],['../structuart__command__t.html#af54b176c77095097bdde582f4d1cbc26',1,'uart_command_t::usage']]],
   ['user_5fconfirmed_173',['user_confirmed',['../structactive__error__t.html#ace7dcdd59cad912bc07b3fc6c4fdb007',1,'active_error_t']]],
   ['user_5fmessage_174',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]],
   ['username_175',['username',['../ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018',1,'ha_light_task.c']]]

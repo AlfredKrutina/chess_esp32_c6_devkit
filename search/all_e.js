@@ -5,6 +5,7 @@ var searchData=
   ['needs_5fcomposite_2',['needs_composite',['../structled__layer__state__t.html#ae5d91895551c0ec81b39011bcc7a07ff',1,'led_layer_state_t']]],
   ['needs_5fupdate_3',['needs_update',['../structled__state__t.html#a2d6fa87d252e94ba3acf105b8f33eeae',1,'led_state_t']]],
   ['next_5fanimation_5fid_4',['next_animation_id',['../unified__animation__manager_8c.html#ad3b6e14b9ad4bca4c07f67b318ed0e79',1,'unified_animation_manager.c']]],
-  ['non_5fblocking_5fblink_5fstate_5ft_5',['non_blocking_blink_state_t',['../structnon__blocking__blink__state__t.html',1,'']]],
-  ['nvs_6',['Boot and NVS',['../main_8c.html#ss_boot_nvs',1,'']]]
+  ['next_5fseq_5',['next_seq',['../structboard__pair__book__t.html#a3a2642d26eb90dd897e8354862dbd205',1,'board_pair_book_t']]],
+  ['non_5fblocking_5fblink_5fstate_5ft_6',['non_blocking_blink_state_t',['../structnon__blocking__blink__state__t.html',1,'']]],
+  ['nvs_7',['Boot and NVS',['../main_8c.html#ss_boot_nvs',1,'']]]
 ];

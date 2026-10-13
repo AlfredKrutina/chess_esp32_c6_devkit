@@ -215,10 +215,15 @@ Enumerations</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a35ee807e9b8fc9f96e7a97f77e38b428"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3d8b7bd72f649980cf9a4432e3523705" id="r_a3d8b7bd72f649980cf9a4432e3523705"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705">puzzle_feedback_t</a> { <a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a> = 0
+<tr class="memitem:a3d8b7bd72f649980cf9a4432e3523705" id="r_a3d8b7bd72f649980cf9a4432e3523705"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705">puzzle_feedback_t</a> { <br />
+&#160;&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c">PUZZLE_FEEDBACK_NONE</a> = 0
 , <a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c">PUZZLE_FEEDBACK_WRONG</a> = 1
 , <a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56">PUZZLE_FEEDBACK_SOLVED</a> = 2
 , <a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628">PUZZLE_FEEDBACK_ILLEGAL</a> = 3
+, <br />
+&#160;&#160;<a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ab4fc2741a09f59048d9bf878d09a8f3a">PUZZLE_FEEDBACK_OPPONENT</a> = 4
+, <a class="el" href="game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac">PUZZLE_FEEDBACK_READY</a> = 5
+<br />
  }</td></tr>
 <tr class="separator:a3d8b7bd72f649980cf9a4432e3523705"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -536,7 +541,6 @@ Variables</h2></td></tr>
 <tr class="memitem:a1dde824f085a5aeb5d38891ebd71496b" id="r_a1dde824f085a5aeb5d38891ebd71496b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structguided__capture__state__t.html">guided_capture_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a1dde824f085a5aeb5d38891ebd71496b">guided_capture_state</a></td></tr>
 <tr class="separator:a1dde824f085a5aeb5d38891ebd71496b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4ea810bbf4735d36120aea3a27d9e54e" id="r_a4ea810bbf4735d36120aea3a27d9e54e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a4ea810bbf4735d36120aea3a27d9e54e">puzzle_setup_active</a></td></tr>
-<tr class="memdesc:a4ea810bbf4735d36120aea3a27d9e54e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preparation of physical position before game_puzzle_start (empty logic, matrix in JSON).  <br /></td></tr>
 <tr class="separator:a4ea810bbf4735d36120aea3a27d9e54e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a420f16ad1e12caae7150b33be0f6c0d0" id="r_a420f16ad1e12caae7150b33be0f6c0d0"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a420f16ad1e12caae7150b33be0f6c0d0">puzzle_setup_id</a></td></tr>
 <tr class="separator:a420f16ad1e12caae7150b33be0f6c0d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -727,6 +731,8 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c" name="a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c"></a>PUZZLE_FEEDBACK_WRONG&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56" name="a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56"></a>PUZZLE_FEEDBACK_SOLVED&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628" name="a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628"></a>PUZZLE_FEEDBACK_ILLEGAL&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a3d8b7bd72f649980cf9a4432e3523705ab4fc2741a09f59048d9bf878d09a8f3a" name="a3d8b7bd72f649980cf9a4432e3523705ab4fc2741a09f59048d9bf878d09a8f3a"></a>PUZZLE_FEEDBACK_OPPONENT&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac" name="a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac"></a>PUZZLE_FEEDBACK_READY&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00268">268</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
@@ -954,7 +960,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00056">56</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00287">287</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -1528,7 +1534,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00204">204</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00674">674</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -1548,7 +1554,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00218">218</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00695">695</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -1568,7 +1574,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00102">102</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00140">140</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -1978,7 +1984,7 @@ Variables</h2></td></tr>
 
 <p>Start the king resignation timer. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00153">153</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00214">214</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -2006,7 +2012,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00197">197</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00258">258</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -2028,7 +2034,7 @@ Variables</h2></td></tr>
 
 <p>Periodic resignation processing (runs in game_task context) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00133">133</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00194">194</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -3887,7 +3893,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00046">46</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00062">62</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -3911,7 +3917,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00050">50</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00065">65</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -3935,7 +3941,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00055">55</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00070">70</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -3959,9 +3965,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Preparation of physical position before game_puzzle_start (empty logic, matrix in JSON). </p>
-
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00048">48</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00063">63</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -3985,7 +3989,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00049">49</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00064">64</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4009,7 +4013,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00052">52</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00067">67</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4033,7 +4037,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00051">51</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00066">66</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4057,7 +4061,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00054">54</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00069">69</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4081,7 +4085,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00053">53</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00068">68</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>

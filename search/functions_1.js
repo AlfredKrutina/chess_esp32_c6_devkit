@@ -59,5 +59,6 @@ var searchData=
   ['app_5fmain_56',['app_main',['../main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70',1,'main.c']]],
   ['append_5fsquare_57',['append_square',['../game__task_8c.html#ad6648c67da9dcf078bc2e9a5b3eed081',1,'game_task.c']]],
   ['apply_5fcolor_5fsafe_58',['apply_color_safe',['../game__led__animations_8c.html#ae0c1dab4ee7a18e66fc96b45fe59e0c6',1,'game_led_animations.c']]],
-  ['apply_5fsubtle_5fanimation_59',['apply_subtle_animation',['../game__led__animations_8c.html#a5fb652dd2b2cbe7cdac3b9cbaa30763c',1,'game_led_animations.c']]]
+  ['apply_5fsubtle_5fanimation_59',['apply_subtle_animation',['../game__led__animations_8c.html#a5fb652dd2b2cbe7cdac3b9cbaa30763c',1,'game_led_animations.c']]],
+  ['arm_5fwifi_5flease_5flocked_60',['arm_wifi_lease_locked',['../board__api__auth_8c.html#a2470e32f146dda5a142100e5988677bd',1,'board_api_auth.c']]]
 ];

@@ -221,9 +221,18 @@ Functions</h2></td></tr>
 <tr class="memitem:a40374b39b8cbe6fecea219144af3b3dd" id="r_a40374b39b8cbe6fecea219144af3b3dd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__resignation_8c.html#a40374b39b8cbe6fecea219144af3b3dd">resignation_main_timer_callback</a> (TimerHandle_t xTimer)</td></tr>
 <tr class="memdesc:a40374b39b8cbe6fecea219144af3b3dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main timer callback - called after 10 seconds.  <br /></td></tr>
 <tr class="separator:a40374b39b8cbe6fecea219144af3b3dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09788a334791cc160b0f72cdfe7649f3" id="r_a09788a334791cc160b0f72cdfe7649f3"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__resignation_8c.html#a09788a334791cc160b0f72cdfe7649f3">resignation_end_game</a> (<a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> loser)</td></tr>
+<tr class="memdesc:a09788a334791cc160b0f72cdfe7649f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">End the game by resignation of <code>loser</code> (runs in game_task context).  <br /></td></tr>
+<tr class="separator:a09788a334791cc160b0f72cdfe7649f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e2939300449fca26ad46d2a04e6ec08" id="r_a5e2939300449fca26ad46d2a04e6ec08"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__resignation_8c.html#a5e2939300449fca26ad46d2a04e6ec08">resignation_finalize_timeout</a> (void)</td></tr>
 <tr class="memdesc:a5e2939300449fca26ad46d2a04e6ec08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Finalize resignation after 10s (runs in game_task context)  <br /></td></tr>
 <tr class="separator:a5e2939300449fca26ad46d2a04e6ec08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1f1965307d1a4a8ed48280d8aa94d03" id="r_ac1f1965307d1a4a8ed48280d8aa94d03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">game_resign_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__resignation_8c.html#ac1f1965307d1a4a8ed48280d8aa94d03">game_resign_check</a> (uint8_t side)</td></tr>
+<tr class="memdesc:ac1f1965307d1a4a8ed48280d8aa94d03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate an app resignation without changing state.  <br /></td></tr>
+<tr class="separator:ac1f1965307d1a4a8ed48280d8aa94d03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09b5532ca3e546a3b9a541975b0e9bf1" id="r_a09b5532ca3e546a3b9a541975b0e9bf1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__resignation_8c.html#a09b5532ca3e546a3b9a541975b0e9bf1">game_resign_from_app</a> (uint8_t side)</td></tr>
+<tr class="memdesc:a09b5532ca3e546a3b9a541975b0e9bf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resign the side on move (game_task context only).  <br /></td></tr>
+<tr class="separator:a09b5532ca3e546a3b9a541975b0e9bf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a794e20c20949f63ca0954ebaaea90891" id="r_a794e20c20949f63ca0954ebaaea90891"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__resignation_8c.html#a794e20c20949f63ca0954ebaaea90891">resignation_tick</a> (void)</td></tr>
 <tr class="memdesc:a794e20c20949f63ca0954ebaaea90891"><td class="mdescLeft">&#160;</td><td class="mdescRight">Periodic resignation processing (runs in game_task context)  <br /></td></tr>
 <tr class="separator:a794e20c20949f63ca0954ebaaea90891"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -244,6 +253,57 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="ac1f1965307d1a4a8ed48280d8aa94d03" name="ac1f1965307d1a4a8ed48280d8aa94d03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1f1965307d1a4a8ed48280d8aa94d03">&#9670;&#160;</a></span>game_resign_check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">game_resign_result_t</a> game_resign_check </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>side</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate an app resignation without changing state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">side</td><td>GAME_RESIGN_SIDE_TO_MOVE / _WHITE / _BLACK </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00142">142</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+
+</div>
+</div>
+<a id="a09b5532ca3e546a3b9a541975b0e9bf1" name="a09b5532ca3e546a3b9a541975b0e9bf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09b5532ca3e546a3b9a541975b0e9bf1">&#9670;&#160;</a></span>game_resign_from_app()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_resign_from_app </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>side</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resign the side on move (game_task context only). </p>
+<p>Same end path as the 10 s king-lift resignation. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00168">168</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+
+</div>
+</div>
 <a id="a71085e0827522509e5791df1cfa9f129" name="a71085e0827522509e5791df1cfa9f129"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a71085e0827522509e5791df1cfa9f129">&#9670;&#160;</a></span>resignation_animation_timer_callback()</h2>
 
@@ -274,6 +334,37 @@ Variables</h2></td></tr>
 
 </div>
 </div>
+<a id="a09788a334791cc160b0f72cdfe7649f3" name="a09788a334791cc160b0f72cdfe7649f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09788a334791cc160b0f72cdfe7649f3">&#9670;&#160;</a></span>resignation_end_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void resignation_end_game </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a>&#160;</td>
+          <td class="paramname"><em>loser</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>End the game by resignation of <code>loser</code> (runs in game_task context). </p>
+<p>Single end path for the king-lift timeout and the app command: result, endgame reason, statistics, clock pause, victory animation, button LEDs and snapshot are identical for both. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00097">97</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+
+</div>
+</div>
 <a id="a5e2939300449fca26ad46d2a04e6ec08" name="a5e2939300449fca26ad46d2a04e6ec08"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5e2939300449fca26ad46d2a04e6ec08">&#9670;&#160;</a></span>resignation_finalize_timeout()</h2>
 
@@ -300,7 +391,7 @@ Variables</h2></td></tr>
 
 <p>Finalize resignation after 10s (runs in game_task context) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00093">93</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00135">135</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -368,7 +459,7 @@ Variables</h2></td></tr>
 
 <p>Start the king resignation timer. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00153">153</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00214">214</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -396,7 +487,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00197">197</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00258">258</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -418,7 +509,7 @@ Variables</h2></td></tr>
 
 <p>Periodic resignation processing (runs in game_task context) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00133">133</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00194">194</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>

@@ -96,7 +96,21 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="textblock"><p><a class="anchor" id="md_components_2web__server__task_2README"></a> WiFi (AP/STA), HTTP machine API, WebSocket <code>/ws</code>, OTA, and the BLE JSON bridge. Flutter and the Windows client call this component. They do not open a browser page on the board.</p>
 <p><code>GET /</code> returns a short JSON document (<code>service</code>, <code>api</code>, <code>websocket</code>). <code>GET /chess_app.js</code> returns 404 JSON. Piece PNGs are not embedded.</p>
 <p>The human chess page (JS, CSS-less modules, piece PNGs, and the scripts that packed them into firmware) is in <code>kos/unused/web_ui/</code>. It is not compiled and not served.</p>
-<p><code>tools/mqtt_panel_snippet.txt</code> stays here. It is a Home Assistant MQTT panel snippet for <code>ha_light_task</code>, not the browser chess page. </p>
+<p><code>tools/mqtt_panel_snippet.txt</code> stays here. It is a Home Assistant MQTT panel snippet for <code>ha_light_task</code>, not the browser chess page.</p>
+<h1><a class="anchor" id="autotoc_md77"></a>
+Command token, puzzle, resign</h1>
+<p>Game writes (<code>POST /api/move</code>, a command frame on <code>/ws</code>) require <code>Authorization: Bearer &lt;64 hex&gt;</code> from pairing. The token is issued on BLE <code>cmd_ack</code> after a new bond, or by <code>POST /api/pair</code> while the 60 s pairing window is open. Up to three device slots, one commander. A different valid token gets <code>board_busy</code>. Snapshot GET does not use this token.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Method   </th><th class="markdownTableHeadNone">Path   </th><th class="markdownTableHeadNone">Body    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">POST   </td><td class="markdownTableBodyNone"><code>/api/pair</code>   </td><td class="markdownTableBodyNone">empty; only while the pairing window is open    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">POST   </td><td class="markdownTableBodyNone"><code>/api/game/puzzle</code>   </td><td class="markdownTableBodyNone"><code>{"action":"load","fen":"…","solution":["e2e4",…]}</code>, or <code>start</code>, <code>cancel</code> (<code>prepare</code> and <code>hint</code> still accepted). At most 12 plies. <code>start</code> on a mismatched matrix is 409 <code>physical_mismatch</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">POST   </td><td class="markdownTableBodyNone"><code>/api/game/resign</code>   </td><td class="markdownTableBodyNone"><code>{"side":"white"}</code> or <code>{"side":"black"}</code>. 409 when no game is running, or puzzle / opening / setup owns the board, or the side is not on move.   </td></tr>
+</table>
+<p>BLE uses the same JSON with <code>"cmd":"puzzle"</code> or <code>"cmd":"resign"</code>. Czech behaviour note: context/app/deska-a-aplikace.md. </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

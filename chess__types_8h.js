@@ -17,6 +17,9 @@ var chess__types_8h =
     [ "CHESS_LED_COUNT_BUTTONS", "chess__types_8h.html#ab7815f5333fcf26dd13f9966d6564412", null ],
     [ "CHESS_LED_COUNT_TOTAL", "chess__types_8h.html#afb4b5c24ea71da31d1fe1536f5c18728", null ],
     [ "CHESS_SQUARES_SIZE", "chess__types_8h.html#ae45333b2c65697a8d3913953692e153f", null ],
+    [ "GAME_RESIGN_SIDE_BLACK", "chess__types_8h.html#ac6915333079ba1a0516743117e175f34", null ],
+    [ "GAME_RESIGN_SIDE_TO_MOVE", "chess__types_8h.html#a81dc29d9334f7dd8085dc98118ef2a30", null ],
+    [ "GAME_RESIGN_SIDE_WHITE", "chess__types_8h.html#a59038f396e102d9e935b1c13c1815d79", null ],
     [ "MAX_MOVE_HISTORY", "chess__types_8h.html#a3b87426d2e6f6d464ec0a2df2f66dd83", null ],
     [ "button_event_type_t", "chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904b", [
       [ "BUTTON_EVENT_PRESS", "chess__types_8h.html#a54c67f8a6d26165b932e66b06b5b904bac5a8f24e3beed7990f5495be58d2dc79", null ],
@@ -74,7 +77,8 @@ var chess__types_8h =
       [ "GAME_CMD_BOARD_SETUP_TUTORIAL", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b", null ],
       [ "GAME_CMD_PUZZLE", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0", null ],
       [ "GAME_CMD_NEW_GAME_FROM_FEN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b", null ],
-      [ "GAME_CMD_OPENING_TRAINER", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72", null ]
+      [ "GAME_CMD_OPENING_TRAINER", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72", null ],
+      [ "GAME_CMD_RESIGN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8", null ]
     ] ],
     [ "game_response_type_t", "chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502", [
       [ "GAME_RESPONSE_SUCCESS", "chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d", null ],

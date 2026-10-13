@@ -30,6 +30,8 @@ var searchData=
   ['promotion_5frook_27',['PROMOTION_ROOK',['../chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237a86adcf7f4dd13fe13c310740b684fd85',1,'chess_types.h']]],
   ['puzzle_5ffeedback_5fillegal_28',['PUZZLE_FEEDBACK_ILLEGAL',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628',1,'game_task_internal.h']]],
   ['puzzle_5ffeedback_5fnone_29',['PUZZLE_FEEDBACK_NONE',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c',1,'game_task_internal.h']]],
-  ['puzzle_5ffeedback_5fsolved_30',['PUZZLE_FEEDBACK_SOLVED',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56',1,'game_task_internal.h']]],
-  ['puzzle_5ffeedback_5fwrong_31',['PUZZLE_FEEDBACK_WRONG',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c',1,'game_task_internal.h']]]
+  ['puzzle_5ffeedback_5fopponent_30',['PUZZLE_FEEDBACK_OPPONENT',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ab4fc2741a09f59048d9bf878d09a8f3a',1,'game_task_internal.h']]],
+  ['puzzle_5ffeedback_5fready_31',['PUZZLE_FEEDBACK_READY',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac',1,'game_task_internal.h']]],
+  ['puzzle_5ffeedback_5fsolved_32',['PUZZLE_FEEDBACK_SOLVED',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56',1,'game_task_internal.h']]],
+  ['puzzle_5ffeedback_5fwrong_33',['PUZZLE_FEEDBACK_WRONG',['../game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c',1,'game_task_internal.h']]]
 ];

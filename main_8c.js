@@ -17,7 +17,7 @@ var main_8c =
     [ "init_console", "main_8c.html#ae52825df5837e0f8f5e814f48cafb722", null ],
     [ "initialize_chess_game", "main_8c.html#acf3129796410e265806bde4edacf4d85", null ],
     [ "is_demo_mode_enabled", "main_8c.html#ad190bb08e29e63b6f04a3715dae88706", null ],
-    [ "main_mark_ota_app_valid_if_needed", "main_8c.html#ad7fa5a08baf7ead17601bdf592aa2192", null ],
+    [ "main_ota_transport_ready", "main_8c.html#a81c043b08e61be8eb1edaeb7f015c66c", null ],
     [ "main_system_init", "main_8c.html#ae27993c1756124d9fa6e8af4958409ef", null ],
     [ "reset_reason_to_str", "main_8c.html#abb182517d44ccd021b3dac9355989c7b", null ],
     [ "set_demo_speed_ms", "main_8c.html#a570c98f23cd91c36ce62964733732cdf", null ],

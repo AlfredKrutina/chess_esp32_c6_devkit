@@ -165,6 +165,15 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a81dc29d9334f7dd8085dc98118ef2a30" id="r_a81dc29d9334f7dd8085dc98118ef2a30"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a81dc29d9334f7dd8085dc98118ef2a30">GAME_RESIGN_SIDE_TO_MOVE</a>&#160;&#160;&#160;0U</td></tr>
+<tr class="memdesc:a81dc29d9334f7dd8085dc98118ef2a30"><td class="mdescLeft">&#160;</td><td class="mdescRight">GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move.  <br /></td></tr>
+<tr class="separator:a81dc29d9334f7dd8085dc98118ef2a30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59038f396e102d9e935b1c13c1815d79" id="r_a59038f396e102d9e935b1c13c1815d79"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a59038f396e102d9e935b1c13c1815d79">GAME_RESIGN_SIDE_WHITE</a>&#160;&#160;&#160;1U</td></tr>
+<tr class="memdesc:a59038f396e102d9e935b1c13c1815d79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refuse unless White is on move.  <br /></td></tr>
+<tr class="separator:a59038f396e102d9e935b1c13c1815d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac6915333079ba1a0516743117e175f34" id="r_ac6915333079ba1a0516743117e175f34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#ac6915333079ba1a0516743117e175f34">GAME_RESIGN_SIDE_BLACK</a>&#160;&#160;&#160;2U</td></tr>
+<tr class="memdesc:ac6915333079ba1a0516743117e175f34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refuse unless Black is on move.  <br /></td></tr>
+<tr class="separator:ac6915333079ba1a0516743117e175f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a490b67efe5e74def79831ae40041f654" id="r_a490b67efe5e74def79831ae40041f654"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a490b67efe5e74def79831ae40041f654">CHESS_LED_COUNT_BOARD</a>&#160;&#160;&#160;64</td></tr>
 <tr class="memdesc:a490b67efe5e74def79831ae40041f654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of LEDs for the box (8x8 = 64)  <br /></td></tr>
 <tr class="separator:a490b67efe5e74def79831ae40041f654"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -356,6 +365,7 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b">GAME_CMD_NEW_GAME_FROM_FEN</a>
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72">GAME_CMD_OPENING_TRAINER</a>
+, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8">GAME_CMD_RESIGN</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ade7744437207164be6ca650b128bd9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game command types for UART communication.  <a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4">More...</a><br /></td></tr>
@@ -530,7 +540,7 @@ Functions</h2></td></tr>
 
 <p>Number of buttons in the system (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00583">583</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00591">591</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -548,7 +558,7 @@ Functions</h2></td></tr>
 
 <p>Celkovy pocet LED v systemu (alias pro CHESS_LED_COUNT_TOTAL) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00579">579</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00587">587</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -566,7 +576,7 @@ Functions</h2></td></tr>
 
 <p>Number of LEDs for the box (8x8 = 64) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00573">573</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00581">581</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -584,7 +594,7 @@ Functions</h2></td></tr>
 
 <p>Number of LEDs for buttons (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00575">575</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00583">583</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -602,7 +612,7 @@ Functions</h2></td></tr>
 
 <p>Total number of LEDs (64 boxes + 9 buttons = 73) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00577">577</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00585">585</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -620,7 +630,62 @@ Functions</h2></td></tr>
 
 <p>Velikost matrix (8x8 = 64 poli) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00587">587</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00595">595</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="ac6915333079ba1a0516743117e175f34" name="ac6915333079ba1a0516743117e175f34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac6915333079ba1a0516743117e175f34">&#9670;&#160;</a></span>GAME_RESIGN_SIDE_BLACK</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define GAME_RESIGN_SIDE_BLACK&#160;&#160;&#160;2U</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refuse unless Black is on move. </p>
+
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00309">309</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a81dc29d9334f7dd8085dc98118ef2a30" name="a81dc29d9334f7dd8085dc98118ef2a30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81dc29d9334f7dd8085dc98118ef2a30">&#9670;&#160;</a></span>GAME_RESIGN_SIDE_TO_MOVE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define GAME_RESIGN_SIDE_TO_MOVE&#160;&#160;&#160;0U</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move. </p>
+<p>Resign whoever is on move </p>
+
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00307">307</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+
+</div>
+</div>
+<a id="a59038f396e102d9e935b1c13c1815d79" name="a59038f396e102d9e935b1c13c1815d79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59038f396e102d9e935b1c13c1815d79">&#9670;&#160;</a></span>GAME_RESIGN_SIDE_WHITE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define GAME_RESIGN_SIDE_WHITE&#160;&#160;&#160;1U</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Refuse unless White is on move. </p>
+
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00308">308</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -638,7 +703,7 @@ Functions</h2></td></tr>
 
 <p>Maximum number of moves in history (200 moves) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00591">591</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00599">599</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -668,7 +733,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00489">489</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00497">497</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -781,11 +846,13 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b" name="ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b"></a>GAME_CMD_BOARD_SETUP_TUTORIAL&#160;</td><td class="fielddoc"><p>Web tutorial setup; promotion_choice: 0=start,1=cancel,2=finish. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0" name="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0"></a>GAME_CMD_PUZZLE&#160;</td><td class="fielddoc"><p>Web puzzle: 0=cancel,1..5=start,101..105=prepare id 1..5. </p>
+<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0" name="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0"></a>GAME_CMD_PUZZLE&#160;</td><td class="fielddoc"><p>Puzzle: 0=cancel, 1..5=start builtin, 101..105=prepare builtin, 210=apply staged setup, 211=start staged line. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b" name="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b"></a>GAME_CMD_NEW_GAME_FROM_FEN&#160;</td><td class="fielddoc"><p>New game from FEN (placement + page); data in timer_data.fen_new_game. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72" name="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72"></a>GAME_CMD_OPENING_TRAINER&#160;</td><td class="fielddoc"><p>Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8" name="ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8"></a>GAME_CMD_RESIGN&#160;</td><td class="fielddoc"><p>Resign from app (same end path as king lift); promotion_choice = GAME_RESIGN_SIDE_*. </p>
 </td></tr>
 </table>
 
@@ -826,7 +893,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00352">352</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00360">360</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1025,7 +1092,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00390">390</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00398">398</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1253,7 +1320,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00548">548</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00556">556</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1282,7 +1349,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00519">519</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00527">527</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>

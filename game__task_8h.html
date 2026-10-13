@@ -91,6 +91,7 @@ $(document).ready(function(){initNavTree('game__task_8h.html',''); initResizable
 
 <div class="header">
   <div class="summary">
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">game_task.h File Reference</div></div>
 </div><!--header-->
@@ -147,6 +148,16 @@ Include dependency graph for game_task.h:</div>
 </div>
 <p><a href="game__task_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a9814f53831525f5563ca1a788d341fa3" id="r_a9814f53831525f5563ca1a788d341fa3"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">game_resign_result_t</a> { <a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3a5a45a3c6bcf5be7b1d54d5f39843795a">GAME_RESIGN_OK</a> = 0
+, <a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3a688360ffea47b1043d866c4b04e0634e">GAME_RESIGN_ERR_NOT_RUNNING</a> = 1
+, <a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3af25f4354b45f7a3426d5bd99eea539ec">GAME_RESIGN_ERR_MODE</a> = 2
+, <a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3afb3ff431f9191d1e4429328d6fe16e47">GAME_RESIGN_ERR_SIDE</a> = 3
+ }</td></tr>
+<tr class="memdesc:a9814f53831525f5563ca1a788d341fa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Why GAME_CMD_RESIGN is refused (also used by HTTP/BLE for the reply).  <a href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">More...</a><br /></td></tr>
+<tr class="separator:a9814f53831525f5563ca1a788d341fa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a20b79ef4675f25cd3f39ddcdaf65243c" id="r_a20b79ef4675f25cd3f39ddcdaf65243c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a20b79ef4675f25cd3f39ddcdaf65243c">convert_notation_to_coords</a> (const char *notation, uint8_t *row, uint8_t *col)</td></tr>
@@ -269,6 +280,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a98c28bfe096e1b2f5dd819da477efbe1" id="r_a98c28bfe096e1b2f5dd819da477efbe1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a98c28bfe096e1b2f5dd819da477efbe1">game_get_current_player</a> (void)</td></tr>
 <tr class="memdesc:a98c28bfe096e1b2f5dd819da477efbe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the current player on a turn.  <br /></td></tr>
 <tr class="separator:a98c28bfe096e1b2f5dd819da477efbe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1f1965307d1a4a8ed48280d8aa94d03" id="r_ac1f1965307d1a4a8ed48280d8aa94d03"><td class="memItemLeft" align="right" valign="top"><a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">game_resign_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac1f1965307d1a4a8ed48280d8aa94d03">game_resign_check</a> (uint8_t side)</td></tr>
+<tr class="memdesc:ac1f1965307d1a4a8ed48280d8aa94d03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate an app resignation without changing state.  <br /></td></tr>
+<tr class="separator:ac1f1965307d1a4a8ed48280d8aa94d03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09b5532ca3e546a3b9a541975b0e9bf1" id="r_a09b5532ca3e546a3b9a541975b0e9bf1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a09b5532ca3e546a3b9a541975b0e9bf1">game_resign_from_app</a> (uint8_t side)</td></tr>
+<tr class="memdesc:a09b5532ca3e546a3b9a541975b0e9bf1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resign the side on move (game_task context only).  <br /></td></tr>
+<tr class="separator:a09b5532ca3e546a3b9a541975b0e9bf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf03ff165abbee62240134dacc486d3d" id="r_adf03ff165abbee62240134dacc486d3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#adf03ff165abbee62240134dacc486d3d">game_set_guided_capture_hints_enabled</a> (bool enabled)</td></tr>
 <tr class="memdesc:adf03ff165abbee62240134dacc486d3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Turns guided capture LED on/off (game logic remains active)  <br /></td></tr>
 <tr class="separator:adf03ff165abbee62240134dacc486d3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -306,6 +323,51 @@ Functions</h2></td></tr>
 <tr class="separator:a1518cea04e69b31f017b63ce7025c96d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a17f30ab5e966f7966d9775f28ccb43" id="r_a9a17f30ab5e966f7966d9775f28ccb43"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a9a17f30ab5e966f7966d9775f28ccb43">game_is_puzzle_setup_active</a> (void)</td></tr>
 <tr class="separator:a9a17f30ab5e966f7966d9775f28ccb43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73ba89beb51d88b2187135211bf6b21b" id="r_a73ba89beb51d88b2187135211bf6b21b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a73ba89beb51d88b2187135211bf6b21b">game_puzzle_stage_line</a> (const char *fen, const char *title, const char solution[][8], uint8_t count)</td></tr>
+<tr class="memdesc:a73ba89beb51d88b2187135211bf6b21b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy a solver-first UCI line.  <br /></td></tr>
+<tr class="separator:a73ba89beb51d88b2187135211bf6b21b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ae4ea5b51932c697197877e4e1dae30" id="r_a6ae4ea5b51932c697197877e4e1dae30"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a6ae4ea5b51932c697197877e4e1dae30">game_puzzle_stage_builtin</a> (uint8_t puzzle_id)</td></tr>
+<tr class="separator:a6ae4ea5b51932c697197877e4e1dae30"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58dcd954a2a9772d838a788127ca4e16" id="r_a58dcd954a2a9772d838a788127ca4e16"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a58dcd954a2a9772d838a788127ca4e16">game_puzzle_apply_staged_setup</a> (void)</td></tr>
+<tr class="separator:a58dcd954a2a9772d838a788127ca4e16"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97bb7bf973f77f4cec9103b7c0e73cf4" id="r_a97bb7bf973f77f4cec9103b7c0e73cf4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a97bb7bf973f77f4cec9103b7c0e73cf4">game_puzzle_try_start_staged</a> (void)</td></tr>
+<tr class="separator:a97bb7bf973f77f4cec9103b7c0e73cf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79f73ebc88a374952cecee8c7fedb267" id="r_a79f73ebc88a374952cecee8c7fedb267"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a79f73ebc88a374952cecee8c7fedb267">game_puzzle_blocks_new_game</a> (void)</td></tr>
+<tr class="separator:a79f73ebc88a374952cecee8c7fedb267"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f4aa3a8fd886d0180fad25344a4f4f2" id="r_a7f4aa3a8fd886d0180fad25344a4f4f2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a7f4aa3a8fd886d0180fad25344a4f4f2">game_puzzle_is_solved</a> (void)</td></tr>
+<tr class="separator:a7f4aa3a8fd886d0180fad25344a4f4f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90f4e6ce50e155231a5dd63510261433" id="r_a90f4e6ce50e155231a5dd63510261433"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a90f4e6ce50e155231a5dd63510261433">game_puzzle_awaiting_opponent</a> (void)</td></tr>
+<tr class="separator:a90f4e6ce50e155231a5dd63510261433"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac378081164515f617c75d557863b8908" id="r_ac378081164515f617c75d557863b8908"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac378081164515f617c75d557863b8908">game_puzzle_sync_hold</a> (void)</td></tr>
+<tr class="separator:ac378081164515f617c75d557863b8908"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac23ab4051c71c9280a8fa551891d8b82" id="r_ac23ab4051c71c9280a8fa551891d8b82"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac23ab4051c71c9280a8fa551891d8b82">game_puzzle_drop_is_expected</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="separator:ac23ab4051c71c9280a8fa551891d8b82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b8f56acb7e8332dffad5ea85879dfd6" id="r_a2b8f56acb7e8332dffad5ea85879dfd6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a2b8f56acb7e8332dffad5ea85879dfd6">game_puzzle_after_accepted_move</a> (void)</td></tr>
+<tr class="separator:a2b8f56acb7e8332dffad5ea85879dfd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26ebb0c93cce83be9c018070e144c141" id="r_a26ebb0c93cce83be9c018070e144c141"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a26ebb0c93cce83be9c018070e144c141">game_puzzle_hint</a> (void)</td></tr>
+<tr class="separator:a26ebb0c93cce83be9c018070e144c141"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9d6ab5079871fd8172c4f005fc24218" id="r_aa9d6ab5079871fd8172c4f005fc24218"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#aa9d6ab5079871fd8172c4f005fc24218">game_puzzle_service_leds</a> (void)</td></tr>
+<tr class="separator:aa9d6ab5079871fd8172c4f005fc24218"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35ea205b58d975ecaab91ccd989b4134" id="r_a35ea205b58d975ecaab91ccd989b4134"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a35ea205b58d975ecaab91ccd989b4134">game_puzzle_suppress_move_hints</a> (void)</td></tr>
+<tr class="separator:a35ea205b58d975ecaab91ccd989b4134"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c177ad5d2af94c622909bf563d992ab" id="r_a9c177ad5d2af94c622909bf563d992ab"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a9c177ad5d2af94c622909bf563d992ab">game_puzzle_staged_fen</a> (void)</td></tr>
+<tr class="separator:a9c177ad5d2af94c622909bf563d992ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe8f292d9dc9265758230ec0bb458e3e" id="r_abe8f292d9dc9265758230ec0bb458e3e"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#abe8f292d9dc9265758230ec0bb458e3e">game_puzzle_title</a> (void)</td></tr>
+<tr class="separator:abe8f292d9dc9265758230ec0bb458e3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a899b50eef1832467f6593711515a0745" id="r_a899b50eef1832467f6593711515a0745"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a899b50eef1832467f6593711515a0745">game_puzzle_ply</a> (void)</td></tr>
+<tr class="separator:a899b50eef1832467f6593711515a0745"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55adb6dc05bf2c0d5046773b0e7b38f3" id="r_a55adb6dc05bf2c0d5046773b0e7b38f3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a55adb6dc05bf2c0d5046773b0e7b38f3">game_puzzle_ply_total</a> (void)</td></tr>
+<tr class="separator:a55adb6dc05bf2c0d5046773b0e7b38f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a858a5c2e26c5637f85d6c5286b6138b4" id="r_a858a5c2e26c5637f85d6c5286b6138b4"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a858a5c2e26c5637f85d6c5286b6138b4">game_puzzle_expected_from</a> (void)</td></tr>
+<tr class="separator:a858a5c2e26c5637f85d6c5286b6138b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe6c6abfd18503911fc8f9d17ac7e1ed" id="r_abe6c6abfd18503911fc8f9d17ac7e1ed"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#abe6c6abfd18503911fc8f9d17ac7e1ed">game_puzzle_expected_to</a> (void)</td></tr>
+<tr class="separator:abe6c6abfd18503911fc8f9d17ac7e1ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0354a3311dbbc7cf352ab574c6016d84" id="r_a0354a3311dbbc7cf352ab574c6016d84"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a0354a3311dbbc7cf352ab574c6016d84">game_puzzle_last_uci</a> (void)</td></tr>
+<tr class="separator:a0354a3311dbbc7cf352ab574c6016d84"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a3b79cabad6464a9e6f6ac38a542c1a" id="r_a7a3b79cabad6464a9e6f6ac38a542c1a"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a7a3b79cabad6464a9e6f6ac38a542c1a">game_puzzle_session_id</a> (void)</td></tr>
+<tr class="separator:a7a3b79cabad6464a9e6f6ac38a542c1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade17b3f23e80fb701d104f8c05a4907b" id="r_ade17b3f23e80fb701d104f8c05a4907b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ade17b3f23e80fb701d104f8c05a4907b">game_puzzle_status_physical_match</a> (void)</td></tr>
+<tr class="separator:ade17b3f23e80fb701d104f8c05a4907b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac207ceff14a186ec5f8701110d7d8c5f" id="r_ac207ceff14a186ec5f8701110d7d8c5f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#ac207ceff14a186ec5f8701110d7d8c5f">game_physical_squares_matches_fen</a> (const char *fen)</td></tr>
 <tr class="memdesc:ac207ceff14a186ec5f8701110d7d8c5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare reed matrix occupancy (0/1) to FEN piece placement.  <br /></td></tr>
 <tr class="separator:ac207ceff14a186ec5f8701110d7d8c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -640,7 +702,35 @@ Functions</h2></td></tr>
 </ul>
 
 <p class="definition">Definition in file <a class="el" href="game__task_8h_source.html">game_task.h</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a9814f53831525f5563ca1a788d341fa3" name="a9814f53831525f5563ca1a788d341fa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9814f53831525f5563ca1a788d341fa3">&#9670;&#160;</a></span>game_resign_result_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">game_resign_result_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Why GAME_CMD_RESIGN is refused (also used by HTTP/BLE for the reply). </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a9814f53831525f5563ca1a788d341fa3a5a45a3c6bcf5be7b1d54d5f39843795a" name="a9814f53831525f5563ca1a788d341fa3a5a45a3c6bcf5be7b1d54d5f39843795a"></a>GAME_RESIGN_OK&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a9814f53831525f5563ca1a788d341fa3a688360ffea47b1043d866c4b04e0634e" name="a9814f53831525f5563ca1a788d341fa3a688360ffea47b1043d866c4b04e0634e"></a>GAME_RESIGN_ERR_NOT_RUNNING&#160;</td><td class="fielddoc"><p>No game in progress (idle / finished) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9814f53831525f5563ca1a788d341fa3af25f4354b45f7a3426d5bd99eea539ec" name="a9814f53831525f5563ca1a788d341fa3af25f4354b45f7a3426d5bd99eea539ec"></a>GAME_RESIGN_ERR_MODE&#160;</td><td class="fielddoc"><p>Puzzle, opening trainer or setup tutorial. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a9814f53831525f5563ca1a788d341fa3afb3ff431f9191d1e4429328d6fe16e47" name="a9814f53831525f5563ca1a788d341fa3afb3ff431f9191d1e4429328d6fe16e47"></a>GAME_RESIGN_ERR_SIDE&#160;</td><td class="fielddoc"><p>Expected side is not on move. </p>
+</td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="game__task_8h_source.html#l00433">433</a> of file <a class="el" href="game__task_8h_source.html">game_task.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a id="ae79fef0478151bf7d3256446807a2bf7" name="ae79fef0478151bf7d3256446807a2bf7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae79fef0478151bf7d3256446807a2bf7">&#9670;&#160;</a></span>convert_coords_to_notation()</h2>
 
@@ -1315,7 +1405,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00503">503</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00542">542</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -1483,7 +1573,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00452">452</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00491">491</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -1614,7 +1704,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00407">407</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00446">446</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -2036,7 +2126,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00127">127</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00149">149</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -2076,7 +2166,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00561">561</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00600">600</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -2794,7 +2884,7 @@ The number of turns since the start of the game</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00200">200</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00530">530</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -2814,7 +2904,7 @@ The number of turns since the start of the game</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00142">142</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00411">411</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -3709,7 +3799,7 @@ The number of turns since the start of the game</dd></dl>
 
 <p>Compare reed matrix occupancy (0/1) to FEN piece placement. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00106">106</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00123">123</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -3829,7 +3919,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02168">2168</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02222">2222</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3857,7 +3947,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02533">2533</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02587">2587</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3923,7 +4013,7 @@ The number of turns since the start of the game</dd></dl>
 </dl>
 <p>Process drop command (DN) - Legacy function </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00973">973</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l01005">1005</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -3976,7 +4066,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02334">2334</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02388">2388</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -4001,7 +4091,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Process event matrix (turns)</p>
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Matrix events are now sent as <a class="el" href="structchess__move__command__t.html" title="Command structure for sach move via UART.">chess_move_command_t</a> to game_command_queue and processed by <a class="el" href="game__task_8h.html#a0216d9328bf82ee185835194077f1e33" title="Process the PICKUP display (UP)">game_process_pickup_command()</a> / <a class="el" href="game__task_8h.html#a8de7eb2cbccf01d3c7ee792caaf9784e" title="Process the DROP command (DN)">game_process_drop_command()</a>. This function is kept for compatibility but does nothing. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02422">2422</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02433">2433</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4034,6 +4124,86 @@ The number of turns since the start of the game</dd></dl>
 
 </div>
 </div>
+<a id="a2b8f56acb7e8332dffad5ea85879dfd6" name="a2b8f56acb7e8332dffad5ea85879dfd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b8f56acb7e8332dffad5ea85879dfd6">&#9670;&#160;</a></span>game_puzzle_after_accepted_move()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_puzzle_after_accepted_move </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00555">555</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a58dcd954a2a9772d838a788127ca4e16" name="a58dcd954a2a9772d838a788127ca4e16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58dcd954a2a9772d838a788127ca4e16">&#9670;&#160;</a></span>game_puzzle_apply_staged_setup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_apply_staged_setup </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00384">384</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a90f4e6ce50e155231a5dd63510261433" name="a90f4e6ce50e155231a5dd63510261433"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a90f4e6ce50e155231a5dd63510261433">&#9670;&#160;</a></span>game_puzzle_awaiting_opponent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_awaiting_opponent </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00534">534</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a79f73ebc88a374952cecee8c7fedb267" name="a79f73ebc88a374952cecee8c7fedb267"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79f73ebc88a374952cecee8c7fedb267">&#9670;&#160;</a></span>game_puzzle_blocks_new_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_blocks_new_game </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00413">413</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
 <a id="abfce4f49606128cf55f4a12cc3bd2a61" name="abfce4f49606128cf55f4a12cc3bd2a61"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abfce4f49606128cf55f4a12cc3bd2a61">&#9670;&#160;</a></span>game_puzzle_cancel()</h2>
 
@@ -4050,7 +4220,49 @@ The number of turns since the start of the game</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00188">188</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00515">515</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="ac23ab4051c71c9280a8fa551891d8b82" name="ac23ab4051c71c9280a8fa551891d8b82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac23ab4051c71c9280a8fa551891d8b82">&#9670;&#160;</a></span>game_puzzle_drop_is_expected()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_drop_is_expected </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00545">545</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4070,7 +4282,272 @@ The number of turns since the start of the game</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00123">123</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00404">404</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a858a5c2e26c5637f85d6c5286b6138b4" name="a858a5c2e26c5637f85d6c5286b6138b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a858a5c2e26c5637f85d6c5286b6138b4">&#9670;&#160;</a></span>game_puzzle_expected_from()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_puzzle_expected_from </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00656">656</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="abe6c6abfd18503911fc8f9d17ac7e1ed" name="abe6c6abfd18503911fc8f9d17ac7e1ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe6c6abfd18503911fc8f9d17ac7e1ed">&#9670;&#160;</a></span>game_puzzle_expected_to()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_puzzle_expected_to </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00658">658</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a26ebb0c93cce83be9c018070e144c141" name="a26ebb0c93cce83be9c018070e144c141"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26ebb0c93cce83be9c018070e144c141">&#9670;&#160;</a></span>game_puzzle_hint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_hint </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00592">592</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f4aa3a8fd886d0180fad25344a4f4f2" name="a7f4aa3a8fd886d0180fad25344a4f4f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f4aa3a8fd886d0180fad25344a4f4f2">&#9670;&#160;</a></span>game_puzzle_is_solved()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_is_solved </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00532">532</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a0354a3311dbbc7cf352ab574c6016d84" name="a0354a3311dbbc7cf352ab574c6016d84"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0354a3311dbbc7cf352ab574c6016d84">&#9670;&#160;</a></span>game_puzzle_last_uci()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_puzzle_last_uci </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00660">660</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a899b50eef1832467f6593711515a0745" name="a899b50eef1832467f6593711515a0745"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a899b50eef1832467f6593711515a0745">&#9670;&#160;</a></span>game_puzzle_ply()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_puzzle_ply </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00652">652</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a55adb6dc05bf2c0d5046773b0e7b38f3" name="a55adb6dc05bf2c0d5046773b0e7b38f3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55adb6dc05bf2c0d5046773b0e7b38f3">&#9670;&#160;</a></span>game_puzzle_ply_total()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_puzzle_ply_total </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00654">654</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="aa9d6ab5079871fd8172c4f005fc24218" name="aa9d6ab5079871fd8172c4f005fc24218"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9d6ab5079871fd8172c4f005fc24218">&#9670;&#160;</a></span>game_puzzle_service_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_puzzle_service_leds </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00602">602</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a7a3b79cabad6464a9e6f6ac38a542c1a" name="a7a3b79cabad6464a9e6f6ac38a542c1a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a3b79cabad6464a9e6f6ac38a542c1a">&#9670;&#160;</a></span>game_puzzle_session_id()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t game_puzzle_session_id </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00662">662</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a6ae4ea5b51932c697197877e4e1dae30" name="a6ae4ea5b51932c697197877e4e1dae30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ae4ea5b51932c697197877e4e1dae30">&#9670;&#160;</a></span>game_puzzle_stage_builtin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_stage_builtin </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>puzzle_id</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00350">350</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a73ba89beb51d88b2187135211bf6b21b" name="a73ba89beb51d88b2187135211bf6b21b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73ba89beb51d88b2187135211bf6b21b">&#9670;&#160;</a></span>game_puzzle_stage_line()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_stage_line </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>title</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char&#160;</td>
+          <td class="paramname"><em>solution</em>[][8], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy a solver-first UCI line. </p>
+<p>Does not move pieces; queue apply/start after. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00296">296</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a9c177ad5d2af94c622909bf563d992ab" name="a9c177ad5d2af94c622909bf563d992ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c177ad5d2af94c622909bf563d992ab">&#9670;&#160;</a></span>game_puzzle_staged_fen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_puzzle_staged_fen </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00648">648</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4090,7 +4567,107 @@ The number of turns since the start of the game</dd></dl>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00144">144</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00508">508</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="ade17b3f23e80fb701d104f8c05a4907b" name="ade17b3f23e80fb701d104f8c05a4907b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ade17b3f23e80fb701d104f8c05a4907b">&#9670;&#160;</a></span>game_puzzle_status_physical_match()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_status_physical_match </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00664">664</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a35ea205b58d975ecaab91ccd989b4134" name="a35ea205b58d975ecaab91ccd989b4134"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35ea205b58d975ecaab91ccd989b4134">&#9670;&#160;</a></span>game_puzzle_suppress_move_hints()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_suppress_move_hints </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00643">643</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="ac378081164515f617c75d557863b8908" name="ac378081164515f617c75d557863b8908"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac378081164515f617c75d557863b8908">&#9670;&#160;</a></span>game_puzzle_sync_hold()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_sync_hold </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00539">539</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="abe8f292d9dc9265758230ec0bb458e3e" name="abe8f292d9dc9265758230ec0bb458e3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe8f292d9dc9265758230ec0bb458e3e">&#9670;&#160;</a></span>game_puzzle_title()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * game_puzzle_title </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00650">650</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
+
+</div>
+</div>
+<a id="a97bb7bf973f77f4cec9103b7c0e73cf4" name="a97bb7bf973f77f4cec9103b7c0e73cf4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97bb7bf973f77f4cec9103b7c0e73cf4">&#9670;&#160;</a></span>game_puzzle_try_start_staged()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_puzzle_try_start_staged </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__puzzle_8c_source.html#l00430">430</a> of file <a class="el" href="game__puzzle_8c_source.html">game_puzzle.c</a>.</p>
 
 </div>
 </div>
@@ -4196,6 +4773,57 @@ The number of turns since the start of the game</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__timer_8c_source.html#l00092">92</a> of file <a class="el" href="game__timer_8c_source.html">game_timer.c</a>.</p>
+
+</div>
+</div>
+<a id="ac1f1965307d1a4a8ed48280d8aa94d03" name="ac1f1965307d1a4a8ed48280d8aa94d03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1f1965307d1a4a8ed48280d8aa94d03">&#9670;&#160;</a></span>game_resign_check()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="game__task_8h.html#a9814f53831525f5563ca1a788d341fa3">game_resign_result_t</a> game_resign_check </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>side</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Validate an app resignation without changing state. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">side</td><td>GAME_RESIGN_SIDE_TO_MOVE / _WHITE / _BLACK </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00142">142</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
+
+</div>
+</div>
+<a id="a09b5532ca3e546a3b9a541975b0e9bf1" name="a09b5532ca3e546a3b9a541975b0e9bf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09b5532ca3e546a3b9a541975b0e9bf1">&#9670;&#160;</a></span>game_resign_from_app()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_resign_from_app </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>side</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resign the side on move (game_task context only). </p>
+<p>Same end path as the 10 s king-lift resignation. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__resignation_8c_source.html#l00168">168</a> of file <a class="el" href="game__resignation_8c_source.html">game_resignation.c</a>.</p>
 
 </div>
 </div>
@@ -4891,7 +5519,7 @@ The number of turns since the start of the game</dd></dl>
 <p>New game from FEN (only setup + turn side). </p>
 <p>Without checking the physical default position. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00596">596</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__init_8c_source.html#l00597">597</a> of file <a class="el" href="game__init_8c_source.html">game_init.c</a>.</p>
 
 </div>
 </div>

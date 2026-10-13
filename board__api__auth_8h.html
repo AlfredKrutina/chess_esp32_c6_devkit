@@ -99,23 +99,32 @@ $(document).ready(function(){initNavTree('board__api__auth_8h.html',''); initRes
 <p>Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;sdkconfig.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="board__pair__policy_8h_source.html">board_pair_policy.h</a>&quot;</code><br />
 <code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stddef.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for board_api_auth.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="board__api__auth_8h__incl.png" border="0" usemap="#aboard__api__auth_8h" alt=""/></div>
 <map name="aboard__api__auth_8h" id="aboard__api__auth_8h">
-<area shape="rect" title="Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints." alt="" coords="153,5,287,31"/>
+<area shape="rect" title="Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints." alt="" coords="237,5,371,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,101,104"/>
-<area shape="poly" title=" " alt="" coords="194,33,94,76,92,71,192,28"/>
-<area shape="rect" title=" " alt="" coords="126,79,207,104"/>
-<area shape="poly" title=" " alt="" coords="213,33,186,69,181,66,209,29"/>
-<area shape="rect" title=" " alt="" coords="232,79,315,104"/>
-<area shape="poly" title=" " alt="" coords="231,29,259,66,254,69,227,33"/>
-<area shape="rect" title=" " alt="" coords="339,79,413,104"/>
-<area shape="poly" title=" " alt="" coords="246,28,339,70,337,75,244,33"/>
+<area shape="poly" title=" " alt="" coords="264,33,108,77,106,72,263,28"/>
+<area shape="rect" href="board__pair__policy_8h.html" title="Pure commander / token&#45;slot rules." alt="" coords="176,79,323,104"/>
+<area shape="poly" title=" " alt="" coords="297,33,269,69,264,66,293,29"/>
+<area shape="rect" title=" " alt="" coords="117,152,200,177"/>
+<area shape="poly" title=" " alt="" coords="241,33,199,51,181,64,166,80,159,94,156,108,156,138,151,138,151,108,154,92,162,77,178,60,197,46,239,28"/>
+<area shape="rect" title=" " alt="" coords="228,152,303,177"/>
+<area shape="poly" title=" " alt="" coords="316,30,336,63,341,84,337,105,321,128,300,146,296,142,317,125,332,103,336,84,331,65,312,32"/>
+<area shape="rect" title=" " alt="" coords="359,152,430,177"/>
+<area shape="poly" title=" " alt="" coords="318,29,357,77,388,138,383,141,352,80,313,33"/>
+<area shape="rect" title=" " alt="" coords="449,79,530,104"/>
+<area shape="poly" title=" " alt="" coords="335,28,447,71,446,76,333,33"/>
+<area shape="poly" title=" " alt="" coords="236,106,186,145,183,141,233,102"/>
+<area shape="poly" title=" " alt="" coords="255,104,262,138,257,139,249,105"/>
+<area shape="poly" title=" " alt="" coords="274,102,360,144,358,148,272,106"/>
 </map>
 </div>
 </div>
@@ -132,6 +141,17 @@ Functions</h2></td></tr>
 <tr class="memitem:accc9a84c5a029d1a15f66e15201f029f" id="r_accc9a84c5a029d1a15f66e15201f029f"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#accc9a84c5a029d1a15f66e15201f029f">board_api_auth_rotate_token</a> (void)</td></tr>
 <tr class="memdesc:accc9a84c5a029d1a15f66e15201f029f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generates a new token (the old one becomes invalid).  <br /></td></tr>
 <tr class="separator:accc9a84c5a029d1a15f66e15201f029f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1357e4b540d3077513f8598ae63eada3" id="r_a1357e4b540d3077513f8598ae63eada3"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#a1357e4b540d3077513f8598ae63eada3">board_pair_issue_for_peer</a> (uint8_t addr_type, const uint8_t addr[6], char *out_hex, size_t cap)</td></tr>
+<tr class="memdesc:a1357e4b540d3077513f8598ae63eada3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Device command tokens (max 3), stored beside the admin <code>api_tok</code>.  <br /></td></tr>
+<tr class="separator:a1357e4b540d3077513f8598ae63eada3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a055ed906275a45ac6d357263b3eaef8a" id="r_a055ed906275a45ac6d357263b3eaef8a"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#a055ed906275a45ac6d357263b3eaef8a">board_pair_issue_wifi</a> (char *out_hex, size_t cap)</td></tr>
+<tr class="separator:a055ed906275a45ac6d357263b3eaef8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7dffca69cce8667ba65420bf334a1d2" id="r_ac7dffca69cce8667ba65420bf334a1d2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#ac7dffca69cce8667ba65420bf334a1d2">board_pair_copy_token_hex</a> (uint8_t addr_type, const uint8_t addr[6], char *out_hex, size_t cap)</td></tr>
+<tr class="separator:ac7dffca69cce8667ba65420bf334a1d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c21f1d462455801c82a79967c35a4bc" id="r_a1c21f1d462455801c82a79967c35a4bc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#a1c21f1d462455801c82a79967c35a4bc">board_pair_on_ble_up</a> (uint8_t addr_type, const uint8_t addr[6])</td></tr>
+<tr class="separator:a1c21f1d462455801c82a79967c35a4bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcb14ece2d103d247167e539471deca0" id="r_adcb14ece2d103d247167e539471deca0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="board__api__auth_8h.html#adcb14ece2d103d247167e539471deca0">board_pair_on_ble_down</a> (void)</td></tr>
+<tr class="separator:adcb14ece2d103d247167e539471deca0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Board REST API token (NVS) + HTTP Bearer check for sensitive endpoints. </p>
@@ -139,8 +159,9 @@ Functions</h2></td></tr>
 Auth matrix (HTTP)</h2>
 <ul>
 <li>Public GET (No Bearer): eg <code>/api/status</code>, <code>/api/board</code>, <code>/api/game/snapshot</code>, <code>/api/wifi/status</code>, <code>/api/system/firmware</code>, <code>/api/system/ota/status</code> (onboarding).</li>
-<li>Admin POST (<code>/api/system/ota</code>, <code>/api/system/factory_reset</code>, paths under <code>/api/wifi/</code>, …): a valid Bearer is always sufficient. If <b>WEB_LOCK is on</b> and Bearer is missing or invalid → 403 <code>web_locked</code>. If <b>WEB_LOCK is off</b> (default), POST from LAN will go through without a header (just like the open GET API).</li>
+<li>Admin POST (<code>/api/system/ota</code>, <code>/api/system/factory_reset</code>, paths under <code>/api/wifi/</code>, …): a valid Bearer is always sufficient. If <b>WEB_LOCK is on</b> and Bearer is missing or invalid → 403 <code>web_locked</code>. If <b>WEB_LOCK is off</b> (default), those admin POSTs from LAN still go through without a header.</li>
 </ul>
+<p>Command token (separate from <code>api_tok</code>): issued when a device finishes pairing. <code>POST /api/move</code> and a command frame on <code>/ws</code> always require one of the three device tokens, even when WEB_LOCK is off. Snapshot reads stay open. While one commander holds the board, a different valid token gets <code>board_busy</code>.</p>
 <p>Token: 32B random, in header as <code>Authorization: Bearer &lt;64 hex characters&gt;</code>.</p>
 <h2><a class="anchor" id="autotoc_md75"></a>
 BLE (see ble_task_conn_is_encrypted)</h2>
@@ -178,7 +199,7 @@ BLE (see ble_task_conn_is_encrypted)</h2>
 
 <p>UART / diagnostics: hex string (64 characters) + '\0'. </p>
 
-<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00105">105</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00112">112</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
 
 </div>
 </div>
@@ -200,7 +221,7 @@ BLE (see ble_task_conn_is_encrypted)</h2>
 
 <p>NVS initialization / token generation on first boot. </p>
 
-<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00067">67</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00073">73</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
 
 </div>
 </div>
@@ -222,7 +243,174 @@ BLE (see ble_task_conn_is_encrypted)</h2>
 
 <p>Generates a new token (the old one becomes invalid). </p>
 
-<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00116">116</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00123">123</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+
+</div>
+</div>
+<a id="ac7dffca69cce8667ba65420bf334a1d2" name="ac7dffca69cce8667ba65420bf334a1d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac7dffca69cce8667ba65420bf334a1d2">&#9670;&#160;</a></span>board_pair_copy_token_hex()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool board_pair_copy_token_hex </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>addr</em>[6], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>out_hex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>cap</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00354">354</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+
+</div>
+</div>
+<a id="a1357e4b540d3077513f8598ae63eada3" name="a1357e4b540d3077513f8598ae63eada3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1357e4b540d3077513f8598ae63eada3">&#9670;&#160;</a></span>board_pair_issue_for_peer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t board_pair_issue_for_peer </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>addr</em>[6], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>out_hex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>cap</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Device command tokens (max 3), stored beside the admin <code>api_tok</code>. </p>
+<p>A phone learns its token from the BLE cmd_ack notify <code>code=paired</code>. A host without BLE learns it from POST /api/pair, and only while the pairing window is open. Both paths use the same 32-byte token style. </p>
+
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00334">334</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+
+</div>
+</div>
+<a id="a055ed906275a45ac6d357263b3eaef8a" name="a055ed906275a45ac6d357263b3eaef8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a055ed906275a45ac6d357263b3eaef8a">&#9670;&#160;</a></span>board_pair_issue_wifi()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t board_pair_issue_wifi </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>out_hex</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>cap</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00345">345</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+
+</div>
+</div>
+<a id="adcb14ece2d103d247167e539471deca0" name="adcb14ece2d103d247167e539471deca0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcb14ece2d103d247167e539471deca0">&#9670;&#160;</a></span>board_pair_on_ble_down()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void board_pair_on_ble_down </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00382">382</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
+
+</div>
+</div>
+<a id="a1c21f1d462455801c82a79967c35a4bc" name="a1c21f1d462455801c82a79967c35a4bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c21f1d462455801c82a79967c35a4bc">&#9670;&#160;</a></span>board_pair_on_ble_up()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void board_pair_on_ble_up </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr_type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>addr</em>[6]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="board__api__auth_8c_source.html#l00374">374</a> of file <a class="el" href="board__api__auth_8c_source.html">board_api_auth.c</a>.</p>
 
 </div>
 </div>

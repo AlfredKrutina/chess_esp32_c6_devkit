@@ -10,6 +10,7 @@ var dir_409f97388efe006bc3438b95e9edef48 =
     [ "ha_light_task", "dir_b118a6ff7afa3dc10b5f01379f4510ce.html", "dir_b118a6ff7afa3dc10b5f01379f4510ce" ],
     [ "led_state_manager", "dir_a3cb721c9c1de213cf23ce20ac312914.html", "dir_a3cb721c9c1de213cf23ce20ac312914" ],
     [ "led_task", "dir_2c8c9ab3b152afb528f35b2c32a919e8.html", "dir_2c8c9ab3b152afb528f35b2c32a919e8" ],
+    [ "ota_guard", "dir_b59cef6ce7e2ce1c2040b8b9db86eb83.html", "dir_b59cef6ce7e2ce1c2040b8b9db86eb83" ],
     [ "squares_task", "dir_a4da139e10a09a042e536ba0093f7567.html", "dir_a4da139e10a09a042e536ba0093f7567" ],
     [ "stm32_i2c_bootloader", "dir_022ed2760b172bf32bd08a0c3e63c881.html", "dir_022ed2760b172bf32bd08a0c3e63c881" ],
     [ "test_task", "dir_1991cc6dea0a63cfb4490c20aac875c0.html", "dir_1991cc6dea0a63cfb4490c20aac875c0" ],

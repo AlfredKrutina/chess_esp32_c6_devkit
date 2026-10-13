@@ -35,7 +35,9 @@ var game__task__internal_8h =
       [ "PUZZLE_FEEDBACK_NONE", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a0531c9a69e274b327c39abc42380772c", null ],
       [ "PUZZLE_FEEDBACK_WRONG", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705affe08af9c6d0e40de6eb29a7ac62442c", null ],
       [ "PUZZLE_FEEDBACK_SOLVED", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a6024d83d683e5885f26d99bbb3b95f56", null ],
-      [ "PUZZLE_FEEDBACK_ILLEGAL", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628", null ]
+      [ "PUZZLE_FEEDBACK_ILLEGAL", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ac59ed090f4f8d49bf8a2449c8933c628", null ],
+      [ "PUZZLE_FEEDBACK_OPPONENT", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705ab4fc2741a09f59048d9bf878d09a8f3a", null ],
+      [ "PUZZLE_FEEDBACK_READY", "game__task__internal_8h.html#a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac", null ]
     ] ],
     [ "game_add_captured_piece", "game__task__internal_8h.html#af9573718b1c9e531b771c3d938ff88e3", null ],
     [ "game_apply_empty_logical_board_after_full_reset", "game__task__internal_8h.html#abd68c0d1573a2763db175487730c6b7d", null ],

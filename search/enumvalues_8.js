@@ -14,8 +14,12 @@ var searchData=
   ['opening_5fmode_5ftimed_11',['OPENING_MODE_TIMED',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6cac86a3d8306fac9450227e62d4958c312',1,'game_opening_trainer.c']]],
   ['opening_5fopponent_5fphysical_12',['OPENING_OPPONENT_PHYSICAL',['../game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956',1,'game_opening_trainer.c']]],
   ['opening_5fopponent_5fvirtual_13',['OPENING_OPPONENT_VIRTUAL',['../game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8aa56bd49a0a27b4bc2c6e753700292b5d',1,'game_opening_trainer.c']]],
-  ['ota_5fui_5fdone_14',['OTA_UI_DONE',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a80c82c1e766f99d26ad08dec920a5e85',1,'ota_update.c']]],
-  ['ota_5fui_5fdownloading_15',['OTA_UI_DOWNLOADING',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a77206536280149132246748d2115fe16',1,'ota_update.c']]],
-  ['ota_5fui_5ferror_16',['OTA_UI_ERROR',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109a094d4e711e73edd642b32fd4fef07102',1,'ota_update.c']]],
-  ['ota_5fui_5fidle_17',['OTA_UI_IDLE',['../ota__update_8c.html#a3356efdfe078bb7aa213228c34f8d109ab1639cb0a30d63e6250a08c360e9b7d5',1,'ota_update.c']]]
+  ['ota_5fguard_5faborted_14',['OTA_GUARD_ABORTED',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390add47efb390a0ce364d301480c9bc2409',1,'ota_guard.h']]],
+  ['ota_5fguard_5ferror_15',['OTA_GUARD_ERROR',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a6044e28118493a8443d46cba1690bd99',1,'ota_guard.h']]],
+  ['ota_5fguard_5fidle_16',['OTA_GUARD_IDLE',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a5a896fc69203a2460b72d522986e8980',1,'ota_guard.h']]],
+  ['ota_5fguard_5frebooting_17',['OTA_GUARD_REBOOTING',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a9d06c30486956270b5f55a790bc793ea',1,'ota_guard.h']]],
+  ['ota_5fguard_5freceiving_18',['OTA_GUARD_RECEIVING',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390aabfceca4711534e48265966a92358f8c',1,'ota_guard.h']]],
+  ['ota_5fguard_5frolled_5fback_19',['OTA_GUARD_ROLLED_BACK',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a60d5f7de431678813915e0779aa487bb',1,'ota_guard.h']]],
+  ['ota_5fguard_5fsuccess_20',['OTA_GUARD_SUCCESS',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a55a96dc2c05ce313fad9a94cd891c2d8',1,'ota_guard.h']]],
+  ['ota_5fguard_5fverifying_21',['OTA_GUARD_VERIFYING',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390a372d62f52857cb4f69c5c718020e44b6',1,'ota_guard.h']]]
 ];

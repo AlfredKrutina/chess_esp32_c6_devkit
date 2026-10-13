@@ -224,6 +224,8 @@ Functions</h2></td></tr>
 <tr class="separator:a2e528b3b66fe59544f28ca993c4a6143"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3351600eed32a8c110d697b84926b576" id="r_a3351600eed32a8c110d697b84926b576"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#a3351600eed32a8c110d697b84926b576">game_status_json_append</a> (size_t *offset, char *buffer, size_t size, const char *fmt,...)</td></tr>
 <tr class="separator:a3351600eed32a8c110d697b84926b576"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e7db9057346a20dbe7dda5103439609" id="r_a3e7db9057346a20dbe7dda5103439609"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#a3e7db9057346a20dbe7dda5103439609">game_json_escape</a> (char *dst, size_t dst_len, const char *src)</td></tr>
+<tr class="separator:a3e7db9057346a20dbe7dda5103439609"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdf3ba446d87db43c26b6c51275a521e" id="r_abdf3ba446d87db43c26b6c51275a521e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__json__export_8c.html#abdf3ba446d87db43c26b6c51275a521e">game_get_status_json</a> (char *buffer, size_t size)</td></tr>
 <tr class="memdesc:abdf3ba446d87db43c26b6c51275a521e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Export game state to JSON string.  <br /></td></tr>
 <tr class="separator:abdf3ba446d87db43c26b6c51275a521e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -276,7 +278,7 @@ Variables</h2></td></tr>
 <div class="ttc" id="afreertos__chess_8c_html_af5298ceb88597b4b25328ac7e1af7ff0"><div class="ttname"><a href="freertos__chess_8c.html#af5298ceb88597b4b25328ac7e1af7ff0">game_mutex</a></div><div class="ttdeci">SemaphoreHandle_t game_mutex</div><div class="ttdoc">Mutex for game operations (protect game state)</div><div class="ttdef"><b>Definition</b> <a href="freertos__chess_8c_source.html#l00119">freertos_chess.c:119</a></div></div>
 <div class="ttc" id="agame__json__export_8c_html_a3351600eed32a8c110d697b84926b576"><div class="ttname"><a href="game__json__export_8c.html#a3351600eed32a8c110d697b84926b576">game_status_json_append</a></div><div class="ttdeci">static esp_err_t game_status_json_append(size_t *offset, char *buffer, size_t size, const char *fmt,...)</div><div class="ttdef"><b>Definition</b> <a href="game__json__export_8c_source.html#l00091">game_json_export.c:91</a></div></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00117">117</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00139">139</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -354,7 +356,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00503">503</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00542">542</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -434,7 +436,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00452">452</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00491">491</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -474,7 +476,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00407">407</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00446">446</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -539,7 +541,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00127">127</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00149">149</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
@@ -579,7 +581,51 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00561">561</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00600">600</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
+
+</div>
+</div>
+<a id="a3e7db9057346a20dbe7dda5103439609" name="a3e7db9057346a20dbe7dda5103439609"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e7db9057346a20dbe7dda5103439609">&#9670;&#160;</a></span>game_json_escape()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void game_json_escape </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>dst_len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>src</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__json__export_8c_source.html#l00117">117</a> of file <a class="el" href="game__json__export_8c_source.html">game_json_export.c</a>.</p>
 
 </div>
 </div>
