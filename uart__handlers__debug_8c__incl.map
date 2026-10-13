@@ -10,7 +10,7 @@
 <area shape="poly" id="edge20_Node000001_Node000011" title=" " alt="" coords="1659,33,1583,74,1580,70,1657,28"/>
 <area shape="rect" id="Node000015" title=" " alt="" coords="1354,159,1471,185"/>
 <area shape="poly" id="edge51_Node000001_Node000015" title=" " alt="" coords="1595,32,1532,50,1502,64,1474,81,1458,96,1444,113,1424,148,1420,146,1440,110,1454,92,1471,77,1499,59,1531,45,1593,27"/>
-<area shape="rect" id="Node000017" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1050,79,1156,104"/>
+<area shape="rect" id="Node000017" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1050,79,1156,104"/>
 <area shape="poly" id="edge32_Node000001_Node000017" title=" " alt="" coords="1594,32,1170,84,1170,79,1594,27"/>
 <area shape="rect" id="Node000019" title=" " alt="" coords="1637,79,1721,104"/>
 <area shape="poly" id="edge46_Node000001_Node000019" title=" " alt="" coords="1682,31,1682,65,1676,65,1676,31"/>

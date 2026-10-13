@@ -6,6 +6,7 @@ var web__server__task_8h =
       [ "WEB_CMD_GET_STATUS", "web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0", null ],
       [ "WEB_CMD_SET_CONFIG", "web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92", null ]
     ] ],
+    [ "czechmate_mdns_copy_hostname", "web__server__task_8h.html#acc4474b4d2d4f4b15ed11b6c98144000", null ],
     [ "web_is_locked", "web__server__task_8h.html#add53c7f34376bb856c868cab6321070b", null ],
     [ "web_lock_load_from_nvs", "web__server__task_8h.html#afd6d2236bd4fcbbe7ccbbb0e7b4a71de", null ],
     [ "web_lock_set", "web__server__task_8h.html#a325753fb6460ffaa94c0c32237c8e7e1", null ],

@@ -1,6 +1,6 @@
 <map id="hall_i2c_squares.c" name="hall_i2c_squares.c">
 <area shape="rect" id="Node000001" title=" " alt="" coords="422,5,563,31"/>
-<area shape="rect" id="Node000002" href="$hall__i2c__squares_8h.html" title=" " alt="" coords="194,152,337,177"/>
+<area shape="rect" id="Node000002" href="$hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="194,152,337,177"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="476,33,297,147,294,142,473,29"/>
 <area shape="rect" id="Node000006" href="$hall__i2c__spec_8h.html" title="I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields." alt="" coords="34,79,156,104"/>
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="429,33,170,79,169,74,428,28"/>

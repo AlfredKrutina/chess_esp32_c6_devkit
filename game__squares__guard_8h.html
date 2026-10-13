@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('game__squares__guard_8h.html',''); ini
 </div><!--header-->
 <div class="contents">
 
-<p>Matrix guard — pause play when physical board disagrees with logic.  
+<p>Pause play when the physical board disagrees with the logical position.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
@@ -106,7 +106,7 @@ Include dependency graph for game_squares_guard.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__squares__guard_8h__incl.png" border="0" usemap="#agame__squares__guard_8h" alt=""/></div>
 <map name="agame__squares__guard_8h" id="agame__squares__guard_8h">
-<area shape="rect" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="394,5,567,31"/>
+<area shape="rect" title="Pause play when the physical board disagrees with the logical position." alt="" coords="394,5,567,31"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="311,79,426,104"/>
 <area shape="poly" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
 <area shape="rect" title=" " alt="" coords="439,152,522,177"/>
@@ -129,23 +129,30 @@ Include dependency graph for game_squares_guard.h:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a55ab3c0932e6d085a94cf8b3690242bf" id="r_a55ab3c0932e6d085a94cf8b3690242bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#a55ab3c0932e6d085a94cf8b3690242bf">game_squares_guard_handle_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a55ab3c0932e6d085a94cf8b3690242bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle GAME_CMD_SQUARES_GUARD.  <br /></td></tr>
 <tr class="separator:a55ab3c0932e6d085a94cf8b3690242bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9bb89719a4ded105daf77925b71b7a5" id="r_ae9bb89719a4ded105daf77925b71b7a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#ae9bb89719a4ded105daf77925b71b7a5">game_squares_guard_clear_both_layers</a> (void)</td></tr>
+<tr class="memdesc:ae9bb89719a4ded105daf77925b71b7a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop both pause masks and the resync-required flag.  <br /></td></tr>
 <tr class="separator:ae9bb89719a4ded105daf77925b71b7a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8057f6cbc3a08263f07bceabe4e5add4" id="r_a8057f6cbc3a08263f07bceabe4e5add4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#a8057f6cbc3a08263f07bceabe4e5add4">game_squares_guard_restore_after_clear</a> (bool notify_clients)</td></tr>
+<tr class="memdesc:a8057f6cbc3a08263f07bceabe4e5add4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the pause, stop Hall-guide LEDs, and redraw movable hints.  <br /></td></tr>
 <tr class="separator:a8057f6cbc3a08263f07bceabe4e5add4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d181aca8b330db4984ccfcfed4c177d" id="r_a9d181aca8b330db4984ccfcfed4c177d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#a9d181aca8b330db4984ccfcfed4c177d">game_squares_guard_render_leds</a> (void)</td></tr>
+<tr class="memdesc:a9d181aca8b330db4984ccfcfed4c177d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Paint the active guard overlay through led_task.  <br /></td></tr>
 <tr class="separator:a9d181aca8b330db4984ccfcfed4c177d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ad30186650911a77edcdada450ecbcd" id="r_a9ad30186650911a77edcdada450ecbcd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#a9ad30186650911a77edcdada450ecbcd">game_squares_guard_try_clear_from_matrix</a> (void)</td></tr>
+<tr class="memdesc:a9ad30186650911a77edcdada450ecbcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Leave the pause when auto-clear is enabled and the board matches again.  <br /></td></tr>
 <tr class="separator:a9ad30186650911a77edcdada450ecbcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50afe72176873627b6d0fc68fdc0fa13" id="r_a50afe72176873627b6d0fc68fdc0fa13"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#a50afe72176873627b6d0fc68fdc0fa13">game_squares_guard_check_resync_after_restore</a> (void)</td></tr>
+<tr class="memdesc:a50afe72176873627b6d0fc68fdc0fa13"><td class="mdescLeft">&#160;</td><td class="mdescRight">After an NVS restore, pause if sensors still disagree with logic.  <br /></td></tr>
 <tr class="separator:a50afe72176873627b6d0fc68fdc0fa13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec61812375aa4a2c556bfe02540cc347" id="r_aec61812375aa4a2c556bfe02540cc347"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html#aec61812375aa4a2c556bfe02540cc347">game_squares_guard_enter_pause_from_hall_guide</a> (void)</td></tr>
-<tr class="memdesc:aec61812375aa4a2c556bfe02540cc347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pause play when Hall restore guide detects global misalignment (e.g.  <br /></td></tr>
+<tr class="memdesc:aec61812375aa4a2c556bfe02540cc347"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enter the guard pause because the Hall restore guide saw a global mismatch.  <br /></td></tr>
 <tr class="separator:aec61812375aa4a2c556bfe02540cc347"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Matrix guard — pause play when physical board disagrees with logic. </p>
+<div class="textblock"><p>Pause play when the physical board disagrees with the logical position. </p>
+<p>JSON keys and Kconfig stay matrix_guard_* / CONFIG_CHESS_MATRIX_*. This module only decides pause, LED layers, and resync. It does not merge reed GPIO with Hall I2C. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__squares__guard_8h_source.html">game_squares_guard.h</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -164,6 +171,9 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>After an NVS restore, pause if sensors still disagree with logic. </p>
+<p>No-op until Hall readings are usable, or when guard / NVS resync is disabled. </p>
 
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00236">236</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
@@ -185,6 +195,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Drop both pause masks and the resync-required flag. </p>
+<p>Does not redraw LEDs and does not notify clients. </p>
+
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00110">110</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
 </div>
@@ -205,8 +218,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pause play when Hall restore guide detects global misalignment (e.g. </p>
-<p>swaps). </p>
+<p>Enter the guard pause because the Hall restore guide saw a global mismatch. </p>
+<p>No-op when the guard is disabled or a pause is already active. </p>
 
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00311">311</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
@@ -228,6 +241,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Handle GAME_CMD_SQUARES_GUARD. </p>
+<p>Action 0 clears the pause and notifies clients. Any other action copies the lifted and dropped masks and enters the pause, unless the guard is disabled or a special mode is active (those paths abort the baseline and do not stay paused). NULL or a different command type is ignored. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Command from the game queue. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00178">178</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
 </div>
@@ -247,6 +268,9 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Paint the active guard overlay through led_task. </p>
+<p>Returns immediately when the pause is inactive or guard LEDs are disabled. </p>
 
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00133">133</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
@@ -268,6 +292,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Clear the pause, stop Hall-guide LEDs, and redraw movable hints. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">notify_clients</td><td>true: bump the game revision so web/BLE clients refresh. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00121">121</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 
 </div>
@@ -287,6 +319,9 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Leave the pause when auto-clear is enabled and the board matches again. </p>
+<p>No-op when auto-clear is off or the pause is not active. Hall builds ask the restore guide to recompute first. </p>
 
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00286">286</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
 

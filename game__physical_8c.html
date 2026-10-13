@@ -128,17 +128,17 @@ Include dependency graph for game_physical.c:</div>
 <div class="center"><img src="game__physical_8c__incl.png" border="0" usemap="#agame__physical_8c" alt=""/></div>
 <map name="agame__physical_8c" id="agame__physical_8c">
 <area shape="rect" title="Physical pickup/drop/castle/promote command processing." alt="" coords="2234,5,2364,31"/>
-<area shape="rect" href="game__physical_8h.html" title="Physical command processing (internal to game_task component)." alt="" coords="1444,167,1576,192"/>
+<area shape="rect" href="game__physical_8h.html" title="Physical move commands." alt="" coords="1444,167,1576,192"/>
 <area shape="poly" title=" " alt="" coords="2234,30,2084,51,1908,81,1717,125,1564,166,1562,160,1716,120,1906,76,2083,46,2233,25"/>
 <area shape="rect" title=" " alt="" coords="2885,328,3036,353"/>
 <area shape="poly" title=" " alt="" coords="2365,21,2519,39,2610,55,2700,76,2748,96,2796,116,2859,130,2911,134,2962,142,2990,150,3023,164,3065,187,3101,212,3113,227,3119,244,3118,262,3109,282,3081,309,3047,326,3045,321,3078,304,3105,278,3113,261,3114,245,3108,230,3097,216,3062,191,3021,169,2989,155,2961,147,2910,140,2859,135,2794,121,2746,101,2698,81,2609,60,2518,45,2364,27"/>
-<area shape="rect" href="game__physical__undo_8h.html" title="Physical board takeback (lift last mover, restore position, then rewind engine)." alt="" coords="1147,167,1318,192"/>
+<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="1147,167,1318,192"/>
 <area shape="poly" title=" " alt="" coords="2234,23,2019,29,1739,41,1483,58,1390,69,1337,81,1311,96,1287,116,1251,157,1247,153,1283,112,1308,92,1335,76,1390,63,1482,53,1739,35,2019,24,2233,18"/>
-<area shape="rect" href="chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="87,167,274,192"/>
+<area shape="rect" href="chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="87,167,274,192"/>
 <area shape="poly" title=" " alt="" coords="2234,22,1905,26,1424,35,933,53,727,65,573,81,476,99,381,121,228,165,227,160,379,116,475,93,572,76,727,60,932,47,1424,30,1905,20,2234,17"/>
-<area shape="rect" href="game__squares__guard_8h.html" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="298,167,471,192"/>
+<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="298,167,471,192"/>
 <area shape="poly" title=" " alt="" coords="2233,23,1934,26,1505,36,1068,53,886,66,749,81,659,99,571,121,430,165,428,160,569,116,658,93,748,76,886,61,1068,48,1505,31,1934,21,2233,17"/>
-<area shape="rect" href="game__hall__match_8h.html" title="Map engine piece_t to stable Hall type/color and compare sensors." alt="" coords="722,167,873,192"/>
+<area shape="rect" href="game__hall__match_8h.html" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="722,167,873,192"/>
 <area shape="poly" title=" " alt="" coords="2234,22,1983,24,1635,32,1285,50,1140,64,1032,81,975,98,920,119,831,162,829,157,918,114,973,93,1030,76,1140,58,1285,44,1635,27,1983,19,2234,17"/>
 <area shape="rect" href="game__move__exec_8h.html" title="Move execution (internal to game_task component)." alt="" coords="495,167,647,192"/>
 <area shape="poly" title=" " alt="" coords="2233,23,1963,27,1582,37,1197,55,1036,67,915,81,831,99,748,121,615,164,613,159,746,116,830,93,915,76,1036,61,1196,49,1581,32,1963,22,2233,17"/>
@@ -148,7 +148,7 @@ Include dependency graph for game_physical.c:</div>
 <area shape="poly" title=" " alt="" coords="2234,22,2077,30,1860,51,1739,70,1615,95,1493,128,1375,169,1353,181,1331,194,1243,243,1240,238,1328,190,1350,176,1373,164,1491,123,1614,90,1738,64,1859,46,2076,24,2233,17"/>
 <area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="2431,86,2594,111"/>
 <area shape="poly" title=" " alt="" coords="2331,28,2470,79,2468,84,2329,33"/>
-<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="2600,167,2707,192"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="2600,167,2707,192"/>
 <area shape="poly" title=" " alt="" coords="2365,22,2501,42,2564,57,2607,76,2624,93,2636,113,2651,152,2646,154,2631,115,2619,96,2604,81,2563,62,2500,47,2364,28"/>
 <area shape="rect" title=" " alt="" coords="2867,247,2984,273"/>
 <area shape="poly" title=" " alt="" coords="2365,21,2494,37,2568,53,2640,76,2719,113,2793,157,2857,201,2903,236,2899,241,2853,205,2790,162,2717,118,2638,81,2567,59,2494,43,2365,26"/>
@@ -195,7 +195,7 @@ Include dependency graph for game_physical.c:</div>
 <area shape="poly" title=" " alt="" coords="874,188,885,189,1087,213,1289,237,1339,245,1338,250,1288,243,1086,218,884,195,873,193"/>
 <area shape="poly" title=" " alt="" coords="722,193,533,218,454,232,418,242,411,259,415,278,426,298,440,316,436,319,422,301,410,280,406,259,415,238,452,227,532,213,722,187"/>
 <area shape="poly" title=" " alt="" coords="816,190,882,238,907,260,934,278,983,296,1035,310,1140,328,1237,336,1312,338,1312,343,1236,342,1140,333,1034,315,982,301,931,282,903,264,879,242,813,194"/>
-<area shape="rect" href="hall__i2c__squares_8h.html" title=" " alt="" coords="726,247,869,273"/>
+<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="726,247,869,273"/>
 <area shape="poly" title=" " alt="" coords="800,192,800,233,795,233,795,192"/>
 <area shape="poly" title=" " alt="" coords="869,270,933,277,1282,304,1623,321,2103,336,2103,341,1622,326,1281,309,932,283,869,275"/>
 <area shape="poly" title=" " alt="" coords="749,275,516,329,515,324,748,270"/>
@@ -296,10 +296,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:a8de7eb2cbccf01d3c7ee792caaf9784e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced drop command processing with smart error handling.  <br /></td></tr>
 <tr class="separator:a8de7eb2cbccf01d3c7ee792caaf9784e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22142c91365332eb732cca4b572b9383" id="r_a22142c91365332eb732cca4b572b9383"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a22142c91365332eb732cca4b572b9383">game_process_castle_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a22142c91365332eb732cca4b572b9383"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process the CASTLE statement.  <br /></td></tr>
+<tr class="memdesc:a22142c91365332eb732cca4b572b9383"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART CASTLE command.  <br /></td></tr>
 <tr class="separator:a22142c91365332eb732cca4b572b9383"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a195ee37f585a1c6b2a5a54afaa8aea21" id="r_a195ee37f585a1c6b2a5a54afaa8aea21"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a195ee37f585a1c6b2a5a54afaa8aea21">game_process_promote_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process the PROMOTE command.  <br /></td></tr>
+<tr class="memdesc:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART PROMOTE command (square and piece choice).  <br /></td></tr>
 <tr class="separator:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13909ec7cf87ce1999cd9647689e46aa" id="r_a13909ec7cf87ce1999cd9647689e46aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a13909ec7cf87ce1999cd9647689e46aa">game_process_chess_move</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
 <tr class="memdesc:a13909ec7cf87ce1999cd9647689e46aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process sach move from UART command.  <br /></td></tr>
@@ -545,7 +545,14 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Process the CASTLE statement. </p>
+<p>Handle a UART CASTLE command. </p>
+<p>Process the CASTLE statement.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Direction is in to_notation. NULL is ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02168">2168</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -633,7 +640,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Process pickup command (UP) </p>
-<p>Process the PICKUP display (UP) </p>
+<p>Process the PICKUP display (UP)</p>
+<p>Handle a piece lift (board UP or UART pickup). </p>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00201">201</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -655,7 +663,14 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Process the PROMOTE command. </p>
+<p>Handle a UART PROMOTE command (square and piece choice). </p>
+<p>Process the PROMOTE command.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>from_notation is the square, to_notation is the piece. NULL is ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02334">2334</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 

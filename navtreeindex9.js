@@ -1,5 +1,10 @@
 var NAVTREEINDEX9 =
 {
+"led__gesture__anim_8h.html#a0a580078551dcb66e39ebd39039fffef":[3,0,0,9,0,1,4],
+"led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175":[3,0,0,9,0,1,5],
+"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961":[3,0,0,9,0,1,0],
+"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961a26537c51c7e447ae4d8186086bf89604":[3,0,0,9,0,1,0,6],
+"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961a9762f9ec3a541150618f1c9b12663c79":[3,0,0,9,0,1,0,1],
 "led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961aa0c162f64d4c541c0d5cd47bcfe200f1":[3,0,0,9,0,1,0,0],
 "led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961ab2fd7b17e0e7fa5da9c16dea8045481f":[3,0,0,9,0,1,0,4],
 "led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961ad33472c5e313c34ea6e87cd54edbe1e5":[3,0,0,9,0,1,0,3],
@@ -244,10 +249,5 @@ var NAVTREEINDEX9 =
 "led__task_8c.html#ad4b7ef962f86de71ef5f934f2a92544a":[3,0,0,9,3,87],
 "led__task_8c.html#ad7200d35f2087aa4d23aa18fb79e87a5":[3,0,0,9,3,94],
 "led__task_8c.html#ad9333c97e3a0d22851f18f91e890e3dc":[3,0,0,9,3,28],
-"led__task_8c.html#ad98f85307bb4b19918c6b0f27a0e933b":[3,0,0,9,3,142],
-"led__task_8c.html#adab4e0aa5871161ca4d0f13c4c2e9f63":[3,0,0,9,3,19],
-"led__task_8c.html#adb4079e18c88be33df2ed464c968fad7":[3,0,0,9,3,70],
-"led__task_8c.html#adb6f31f5758b1eacef5a7e5ac1062ab7":[3,0,0,9,3,84],
-"led__task_8c.html#adc1b5df15af7552352dad465c61cfac7":[3,0,0,9,3,5],
-"led__task_8c.html#adc45f05de1280567cf413cc2a8022f4f":[3,0,0,9,3,140]
+"led__task_8c.html#ad98f85307bb4b19918c6b0f27a0e933b":[3,0,0,9,3,142]
 };

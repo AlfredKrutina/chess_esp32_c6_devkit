@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('game__physical_8h.html',''); initResiz
 </div><!--header-->
 <div class="contents">
 
-<p>Physical command processing (internal to game_task component).  
+<p>Physical move commands.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -104,7 +104,7 @@ Include dependency graph for game_physical.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__physical_8h__incl.png" border="0" usemap="#agame__physical_8h" alt=""/></div>
 <map name="agame__physical_8h" id="agame__physical_8h">
-<area shape="rect" title="Physical command processing (internal to game_task component)." alt="" coords="284,5,416,31"/>
+<area shape="rect" title="Physical move commands." alt="" coords="284,5,416,31"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="293,79,407,104"/>
 <area shape="poly" title=" " alt="" coords="353,31,353,65,347,65,347,31"/>
 <area shape="rect" title=" " alt="" coords="5,152,87,177"/>
@@ -125,15 +125,19 @@ Include dependency graph for game_physical.h:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a0216d9328bf82ee185835194077f1e33" id="r_a0216d9328bf82ee185835194077f1e33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8h.html#a0216d9328bf82ee185835194077f1e33">game_process_pickup_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a0216d9328bf82ee185835194077f1e33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process pickup command (UP)  <br /></td></tr>
+<tr class="memdesc:a0216d9328bf82ee185835194077f1e33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a piece lift (board UP or UART pickup).  <br /></td></tr>
 <tr class="separator:a0216d9328bf82ee185835194077f1e33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22142c91365332eb732cca4b572b9383" id="r_a22142c91365332eb732cca4b572b9383"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8h.html#a22142c91365332eb732cca4b572b9383">game_process_castle_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a22142c91365332eb732cca4b572b9383"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART CASTLE command.  <br /></td></tr>
 <tr class="separator:a22142c91365332eb732cca4b572b9383"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a195ee37f585a1c6b2a5a54afaa8aea21" id="r_a195ee37f585a1c6b2a5a54afaa8aea21"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8h.html#a195ee37f585a1c6b2a5a54afaa8aea21">game_process_promote_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
+<tr class="memdesc:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART PROMOTE command (square and piece choice).  <br /></td></tr>
 <tr class="separator:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Physical command processing (internal to game_task component). </p>
+<div class="textblock"><p>Physical move commands. </p>
+<p>Implementation stays in <a class="el" href="game__physical_8c.html" title="Physical pickup/drop/castle/promote command processing.">game_physical.c</a>.</p>
+<p>Pickup, castling, and promotion rules are not re-split here. LED writes from that file go through led_task. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__physical_8h_source.html">game_physical.h</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -152,6 +156,14 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Handle a UART CASTLE command. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Direction is in to_notation. NULL is ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02168">2168</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -173,7 +185,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Process pickup command (UP) </p>
+<p>Handle a piece lift (board UP or UART pickup). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Command with the source square in from_notation. NULL is ignored.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Handle a piece lift (board UP or UART pickup). </p>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00201">201</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -194,6 +213,14 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Handle a UART PROMOTE command (square and piece choice). </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>from_notation is the square, to_notation is the piece. NULL is ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02334">2334</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 

@@ -1,5 +1,5 @@
 <map id="game_physical_undo.h" name="game_physical_undo.h">
-<area shape="rect" id="Node000001" title="Physical board takeback (lift last mover, restore position, then rewind engine)." alt="" coords="395,5,566,31"/>
+<area shape="rect" id="Node000001" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="395,5,566,31"/>
 <area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="311,79,426,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="439,152,522,177"/>

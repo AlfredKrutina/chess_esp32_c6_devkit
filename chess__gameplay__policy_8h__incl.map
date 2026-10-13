@@ -1,5 +1,5 @@
 <map id="chess_gameplay_policy.h" name="chess_gameplay_policy.h">
-<area shape="rect" id="Node000001" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="387,5,574,31"/>
+<area shape="rect" id="Node000001" title="Compile&#45;time gameplay gates." alt="" coords="387,5,574,31"/>
 <area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="311,79,426,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
 <area shape="rect" id="Node000006" title=" " alt="" coords="439,152,522,177"/>

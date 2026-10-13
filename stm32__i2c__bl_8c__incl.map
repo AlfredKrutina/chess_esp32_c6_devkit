@@ -1,6 +1,6 @@
 <map id="stm32_i2c_bl.c" name="stm32_i2c_bl.c">
 <area shape="rect" id="Node000001" title=" " alt="" coords="715,5,833,31"/>
-<area shape="rect" id="Node000002" href="$stm32__i2c__bl_8h.html" title=" " alt="" coords="214,79,334,104"/>
+<area shape="rect" id="Node000002" href="$stm32__i2c__bl_8h.html" title="STM32 ROM I2C bootloader for the four Hall segments (AN4221)." alt="" coords="214,79,334,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="715,30,348,81,347,76,714,25"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="5,152,156,177"/>
 <area shape="poly" id="edge11_Node000001_Node000004" title=" " alt="" coords="715,24,446,42,304,59,246,69,203,81,175,94,148,111,105,145,101,140,145,106,172,90,201,76,245,64,303,53,445,37,714,19"/>

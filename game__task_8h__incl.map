@@ -1,5 +1,5 @@
 <map id="game_task.h" name="game_task.h">
-<area shape="rect" id="Node000001" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="403,5,509,31"/>
+<area shape="rect" id="Node000001" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="403,5,509,31"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="74,167,155,192"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="402,21,304,22,187,29,131,37,81,48,41,62,15,81,10,89,8,98,16,117,37,142,65,159,63,163,34,146,11,120,3,98,5,87,11,77,39,57,79,42,130,32,186,24,303,16,402,15"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="389,167,539,192"/>

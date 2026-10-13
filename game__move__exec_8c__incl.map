@@ -12,13 +12,13 @@
 <area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="2013,29,2047,73,2043,76,2009,32"/>
 <area shape="rect" id="Node000012" title=" " alt="" coords="1992,247,2129,273"/>
 <area shape="poly" id="edge73_Node000001_Node000012" title=" " alt="" coords="1995,32,1982,53,1971,79,1968,99,1971,118,1985,152,2004,184,2043,235,2038,239,1999,187,1980,154,1966,119,1962,99,1966,78,1977,51,1991,29"/>
-<area shape="rect" id="Node000014" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1799,167,1906,192"/>
+<area shape="rect" id="Node000014" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1799,167,1906,192"/>
 <area shape="poly" id="edge41_Node000001_Node000014" title=" " alt="" coords="1986,33,1957,54,1927,81,1894,119,1869,156,1865,153,1890,116,1923,77,1954,50,1983,29"/>
 <area shape="rect" id="Node000015" title=" " alt="" coords="1343,247,1461,273"/>
 <area shape="poly" id="edge74_Node000001_Node000015" title=" " alt="" coords="1927,29,1832,44,1717,70,1656,88,1595,111,1536,137,1481,169,1444,202,1418,237,1414,234,1440,198,1478,165,1534,133,1593,106,1654,83,1715,65,1831,38,1926,24"/>
-<area shape="rect" id="Node000017" href="$game__physical__undo_8h.html" title="Physical board takeback (lift last mover, restore position, then rewind engine)." alt="" coords="482,167,653,192"/>
+<area shape="rect" id="Node000017" href="$game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="482,167,653,192"/>
 <area shape="poly" id="edge37_Node000001_Node000017" title=" " alt="" coords="1927,24,1418,43,1132,60,1014,70,924,81,836,99,751,121,613,165,611,160,749,116,835,94,923,76,1013,65,1132,54,1418,38,1926,19"/>
-<area shape="rect" id="Node000018" href="$chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="677,167,863,192"/>
+<area shape="rect" id="Node000018" href="$chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="677,167,863,192"/>
 <area shape="poly" id="edge42_Node000001_Node000018" title=" " alt="" coords="1927,24,1489,43,1248,60,1149,70,1073,81,999,99,927,121,811,164,809,159,925,116,998,94,1072,76,1148,65,1248,55,1489,38,1926,19"/>
 <area shape="rect" id="Node000019" href="$game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="2309,167,2487,192"/>
 <area shape="poly" id="edge46_Node000001_Node000019" title=" " alt="" coords="2040,28,2096,49,2157,76,2185,97,2214,116,2276,142,2337,161,2335,166,2274,147,2211,121,2182,101,2154,81,2094,54,2038,33"/>

@@ -1,5 +1,10 @@
 var NAVTREEINDEX8 =
 {
+"ha__light__task_8c.html":[3,0,0,7,1],
+"ha__light__task_8c.html#a0564ec8bd0c8c4e490ed84e22246df81":[3,0,0,7,1,49],
+"ha__light__task_8c.html#a081583a2a1790d8fb1b2617f75e28001":[3,0,0,7,1,16],
+"ha__light__task_8c.html#a0f43fcd5e5a6b5aa88a40bfbf987d381":[3,0,0,7,1,33],
+"ha__light__task_8c.html#a0fc50519ca67911865aa6f8afc0a939f":[3,0,0,7,1,28],
 "ha__light__task_8c.html#a135ce56f6bd050c86c6a4b765de6e6e2":[3,0,0,7,1,11],
 "ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60":[3,0,0,7,1,57],
 "ha__light__task_8c.html#a17a086469658cd22f0ffcbcacf621889":[3,0,0,7,1,73],
@@ -244,10 +249,5 @@ var NAVTREEINDEX8 =
 "led__gesture__anim_8c.html#af52c17de2e8cd0ee955c14e0e040d262":[3,0,0,9,2,32],
 "led__gesture__anim_8c.html#af79e2a09e6951a9073b8518b2912e721":[3,0,0,9,2,6],
 "led__gesture__anim_8c_source.html":[3,0,0,9,2],
-"led__gesture__anim_8h.html":[3,0,0,9,0,1],
-"led__gesture__anim_8h.html#a0a580078551dcb66e39ebd39039fffef":[3,0,0,9,0,1,4],
-"led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175":[3,0,0,9,0,1,5],
-"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961":[3,0,0,9,0,1,0],
-"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961a26537c51c7e447ae4d8186086bf89604":[3,0,0,9,0,1,0,6],
-"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961a9762f9ec3a541150618f1c9b12663c79":[3,0,0,9,0,1,0,1]
+"led__gesture__anim_8h.html":[3,0,0,9,0,1]
 };

@@ -14,7 +14,7 @@
 <area shape="poly" id="edge24_Node000001_Node000013" title=" " alt="" coords="2273,23,2101,27,1868,36,1603,54,1334,81,1213,100,1092,123,900,166,899,161,1091,118,1212,95,1334,76,1602,48,1868,31,2101,22,2273,18"/>
 <area shape="rect" id="Node000017" title=" " alt="" coords="1109,247,1226,273"/>
 <area shape="poly" id="edge66_Node000001_Node000017" title=" " alt="" coords="2273,24,2164,29,2027,40,1877,56,1728,81,1575,119,1428,165,1300,210,1209,245,1207,240,1298,205,1426,160,1574,114,1727,76,1876,51,2027,34,2163,24,2273,19"/>
-<area shape="rect" id="Node000019" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1626,167,1733,192"/>
+<area shape="rect" id="Node000019" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1626,167,1733,192"/>
 <area shape="poly" id="edge36_Node000001_Node000019" title=" " alt="" coords="2309,33,1742,166,1741,161,2307,28"/>
 <area shape="rect" id="Node000020" href="$timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="1463,240,1642,280"/>
 <area shape="poly" id="edge62_Node000001_Node000020" title=" " alt="" coords="2274,30,2113,48,1919,78,1824,96,1738,118,1666,142,1616,169,1588,197,1569,229,1564,226,1584,194,1612,165,1664,137,1736,113,1823,91,1918,72,2112,43,2273,24"/>

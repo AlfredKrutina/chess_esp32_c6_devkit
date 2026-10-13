@@ -30,6 +30,7 @@ var web__server__task_8c =
     [ "__wrap_esp_log_writev", "web__server__task_8c.html#a9aed8f59f75d856e2916530518eff586", null ],
     [ "ble_dispatch_ack_needs_encryption", "web__server__task_8c.html#a965fefb27ff5e85d0c386f71669feff5", null ],
     [ "czechmate_ensure_snapshot_notify_queue", "web__server__task_8c.html#a98a54dbb11377534d4aae37a3259ac33", null ],
+    [ "czechmate_mdns_copy_hostname", "web__server__task_8c.html#acc4474b4d2d4f4b15ed11b6c98144000", null ],
     [ "czechmate_mdns_ensure_started", "web__server__task_8c.html#a46a782103d8abce533075acbb06280bb", null ],
     [ "czechmate_mdns_refresh_sta_txt", "web__server__task_8c.html#ad4a9d214719b6cb61cee0abe47c1e96f", null ],
     [ "czechmate_on_game_state_changed", "web__server__task_8c.html#a8ea4cd3058a83430186ff45a9834eb3d", null ],

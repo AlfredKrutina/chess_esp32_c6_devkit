@@ -1,14 +1,14 @@
 <map id="game_squares_guard.c" name="game_squares_guard.c">
 <area shape="rect" id="Node000001" title="Matrix guard — LED feedback and pause when sensors disagree with logic." alt="" coords="1156,5,1328,31"/>
-<area shape="rect" id="Node000002" href="$game__squares__guard_8h.html" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="301,152,474,177"/>
+<area shape="rect" id="Node000002" href="$game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="301,152,474,177"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1170,33,873,81,465,152,464,147,872,76,1169,28"/>
 <area shape="rect" id="Node000009" href="$game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="1377,79,1539,104"/>
 <area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="1278,28,1411,72,1409,77,1276,33"/>
-<area shape="rect" id="Node000012" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1477,152,1583,177"/>
+<area shape="rect" id="Node000012" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1477,152,1583,177"/>
 <area shape="poly" id="edge56_Node000001_Node000012" title=" " alt="" coords="1258,29,1304,64,1366,102,1422,126,1477,145,1475,150,1421,131,1363,106,1301,68,1254,33"/>
-<area shape="rect" id="Node000015" href="$chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="498,152,685,177"/>
+<area shape="rect" id="Node000015" href="$chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="498,152,685,177"/>
 <area shape="poly" id="edge32_Node000001_Node000015" title=" " alt="" coords="1191,33,657,152,655,146,1190,28"/>
-<area shape="rect" id="Node000016" href="$game__hall__match_8h.html" title="Map engine piece_t to stable Hall type/color and compare sensors." alt="" coords="709,152,860,177"/>
+<area shape="rect" id="Node000016" href="$game__hall__match_8h.html" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="709,152,860,177"/>
 <area shape="poly" id="edge36_Node000001_Node000016" title=" " alt="" coords="1207,33,835,150,833,145,1205,28"/>
 <area shape="rect" id="Node000018" href="$freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1853,152,1983,177"/>
 <area shape="poly" id="edge44_Node000001_Node000018" title=" " alt="" coords="1329,27,1436,46,1552,76,1578,89,1604,102,1665,119,1727,133,1840,152,1839,157,1726,138,1664,124,1602,106,1576,94,1550,81,1435,51,1328,32"/>
@@ -67,7 +67,7 @@
 <area shape="poly" id="edge37_Node000016_Node000003" title=" " alt="" coords="861,171,1028,190,1225,223,1243,227,1241,232,1224,228,1028,196,860,176"/>
 <area shape="poly" id="edge42_Node000016_Node000007" title=" " alt="" coords="759,180,728,199,715,211,704,227,697,246,699,255,704,264,716,274,733,283,781,298,891,316,890,322,780,303,731,287,713,278,700,267,694,256,692,246,700,224,711,208,725,194,756,175"/>
 <area shape="poly" id="edge43_Node000016_Node000008" title=" " alt="" coords="764,180,510,309,508,305,761,175"/>
-<area shape="rect" id="Node000017" href="$hall__i2c__squares_8h.html" title=" " alt="" coords="715,233,857,258"/>
+<area shape="rect" id="Node000017" href="$hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="715,233,857,258"/>
 <area shape="poly" id="edge38_Node000016_Node000017" title=" " alt="" coords="788,177,788,219,783,219,782,178"/>
 <area shape="poly" id="edge39_Node000017_Node000004" title=" " alt="" coords="858,253,1385,316,1385,321,857,258"/>
 <area shape="poly" id="edge40_Node000017_Node000007" title=" " alt="" coords="810,256,912,305,909,310,808,260"/>

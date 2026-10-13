@@ -94,7 +94,7 @@ $(document).ready(function(){initNavTree('game__hall__restore__guide_8h.html',''
 </div><!--header-->
 <div class="contents">
 
-<p>Hall type/color board-restore matching and guide orchestration.  
+<p>Hall type/color board-restore matching and the LED guide around it.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
@@ -103,7 +103,7 @@ Include dependency graph for game_hall_restore_guide.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__hall__restore__guide_8h__incl.png" border="0" usemap="#agame__hall__restore__guide_8h" alt=""/></div>
 <map name="agame__hall__restore__guide_8h" id="agame__hall__restore__guide_8h">
-<area shape="rect" title="Hall type/color board&#45;restore matching and guide orchestration." alt="" coords="5,5,204,31"/>
+<area shape="rect" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="5,5,204,31"/>
 <area shape="rect" title=" " alt="" coords="13,79,95,104"/>
 <area shape="poly" title=" " alt="" coords="98,33,72,69,68,66,94,29"/>
 <area shape="rect" title=" " alt="" coords="120,79,191,104"/>
@@ -113,7 +113,8 @@ Include dependency graph for game_hall_restore_guide.h:</div>
 </div>
 <p><a href="game__hall__restore__guide_8h_source.html">Go to the source code of this file.</a></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Hall type/color board-restore matching and guide orchestration. </p>
+<div class="textblock"><p>Hall type/color board-restore matching and the LED guide around it. </p>
+<p>Compiled only for CONFIG_CHESS_MATRIX_INPUT_I2C_HALL. Uses the uncalibrated Hall POC (see <a class="el" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece-ID POC.">hall_i2c_squares.h</a>). LED output goes through led_task. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__hall__restore__guide_8h_source.html">game_hall_restore_guide.h</a>.</p>
 </div></div><!-- contents -->

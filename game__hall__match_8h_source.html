@@ -99,57 +99,57 @@ $(document).ready(function(){initNavTree('game__hall__match_8h_source.html','');
 </div><!--header-->
 <div class="contents">
 <a href="game__hall__match_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span> </div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#ifndef GAME_HALL_MATCH_H</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#define GAME_HALL_MATCH_H</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;<a class="code" href="chess__types_8h.html">chess_types.h</a>&quot;</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="hall__i2c__squares_8h.html">hall_i2c_squares.h</a>&quot;</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keywordtype">bool</span> game_hall_engine_to_sensor(<a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> *out_type,</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>                                <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> *out_color);</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="keywordtype">bool</span> game_hall_stable_reading_matches(<a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> engine_piece,</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>                                      <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> ht,</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>                                      <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> hc);</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="keywordtype">bool</span> game_hall_validate_pickup_square(uint8_t row, uint8_t col,</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>                                     <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> engine_piece);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="keywordtype">bool</span> game_hall_validate_drop_square(uint8_t row, uint8_t col,</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>                                    <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> moving_piece);</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keywordtype">bool</span> game_hall_validate_promotion_entry_drop(uint8_t row, uint8_t col,</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                                             <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> moving_pawn);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keywordtype">bool</span> game_hall_validate_castling_rook_drop(uint8_t <a class="code hl_variable" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>, uint8_t <a class="code hl_variable" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>,</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>                                           <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> rook, uint8_t king_row,</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>                                           uint8_t king_col, <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> king);</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keywordtype">bool</span> game_hall_square_agrees_with_logic(uint8_t square, <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> engine_piece,</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>                                        uint8_t sensor_occ);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordtype">bool</span> game_hall_piece_for_promoting_player(<a class="code hl_enumeration" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> ht,</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                          <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> hc,</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>                                          <a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> promoting_player,</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>                                          <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *out_piece);</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span><span class="keywordtype">bool</span> game_hall_logic_matches_stable_sensors(<span class="keyword">const</span> uint8_t sensor_occ[64]);</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span><span class="preprocessor">#endif </span><span class="comment">/* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */</span><span class="preprocessor"></span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="preprocessor">#endif </span><span class="comment">/* GAME_HALL_MATCH_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#ifndef GAME_HALL_MATCH_H</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#define GAME_HALL_MATCH_H</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &quot;<a class="code" href="chess__types_8h.html">chess_types.h</a>&quot;</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#include &quot;<a class="code" href="hall__i2c__squares_8h.html">hall_i2c_squares.h</a>&quot;</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="keywordtype">bool</span> game_hall_engine_to_sensor(<a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece, <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> *out_type,</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>                                <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> *out_color);</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span><span class="keywordtype">bool</span> game_hall_stable_reading_matches(<a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> engine_piece,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>                                      <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> ht,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                                      <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> hc);</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keywordtype">bool</span> game_hall_validate_pickup_square(uint8_t row, uint8_t col,</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>                                     <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> engine_piece);</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keywordtype">bool</span> game_hall_validate_drop_square(uint8_t row, uint8_t col,</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>                                    <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> moving_piece);</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordtype">bool</span> game_hall_validate_promotion_entry_drop(uint8_t row, uint8_t col,</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>                                             <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> moving_pawn);</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span><span class="keywordtype">bool</span> game_hall_validate_castling_rook_drop(uint8_t <a class="code hl_variable" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>, uint8_t <a class="code hl_variable" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>,</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>                                           <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> rook, uint8_t king_row,</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>                                           uint8_t king_col, <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> king);</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span><span class="keywordtype">bool</span> game_hall_square_agrees_with_logic(uint8_t square, <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> engine_piece,</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>                                        uint8_t sensor_occ);</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span><span class="keywordtype">bool</span> game_hall_piece_for_promoting_player(<a class="code hl_enumeration" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> ht,</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>                                          <a class="code hl_enumeration" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> hc,</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>                                          <a class="code hl_enumeration" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> promoting_player,</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>                                          <a class="code hl_enumeration" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *out_piece);</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span><span class="keywordtype">bool</span> game_hall_logic_matches_stable_sensors(<span class="keyword">const</span> uint8_t sensor_occ[64]);</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span><span class="preprocessor">#endif </span><span class="comment">/* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span><span class="preprocessor">#endif </span><span class="comment">/* GAME_HALL_MATCH_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="achess__types_8h_html"><div class="ttname"><a href="chess__types_8h.html">chess_types.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - Common type definition.</div></div>
 <div class="ttc" id="achess__types_8h_html_a49ff5e2d7800ecd3792c990f4445c3f1"><div class="ttname"><a href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a></div><div class="ttdeci">player_t</div><div class="ttdoc">Definice hracu.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00097">chess_types.h:97</a></div></div>
 <div class="ttc" id="achess__types_8h_html_ab9be55f539b97c45fb9f57efded733c2"><div class="ttname"><a href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a></div><div class="ttdeci">piece_t</div><div class="ttdoc">Chess figure types.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00050">chess_types.h:50</a></div></div>
 <div class="ttc" id="agame__task_8c_html_a802ed5327f737b0304fbc1809d0aac8f"><div class="ttname"><a href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a></div><div class="ttdeci">uint8_t rook_to_col</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00265">game_task.c:265</a></div></div>
 <div class="ttc" id="agame__task_8c_html_ad71601a1741c8dcb2c45992ebfc373b0"><div class="ttname"><a href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a></div><div class="ttdeci">uint8_t rook_to_row</div><div class="ttdef"><b>Definition</b> <a href="game__task_8c_source.html#l00265">game_task.c:265</a></div></div>
-<div class="ttc" id="ahall__i2c__squares_8h_html"><div class="ttname"><a href="hall__i2c__squares_8h.html">hall_i2c_squares.h</a></div></div>
-<div class="ttc" id="ahall__i2c__squares_8h_html_ac07912e8ec1b98ad1512e0c85f2b8190"><div class="ttname"><a href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a></div><div class="ttdeci">hall_piece_type_t</div><div class="ttdef"><b>Definition</b> <a href="hall__i2c__squares_8h_source.html#l00042">hall_i2c_squares.h:42</a></div></div>
-<div class="ttc" id="ahall__i2c__squares_8h_html_acce509769d8c510e185108e8104a8766"><div class="ttname"><a href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a></div><div class="ttdeci">hall_piece_color_t</div><div class="ttdef"><b>Definition</b> <a href="hall__i2c__squares_8h_source.html#l00052">hall_i2c_squares.h:52</a></div></div>
+<div class="ttc" id="ahall__i2c__squares_8h_html"><div class="ttname"><a href="hall__i2c__squares_8h.html">hall_i2c_squares.h</a></div><div class="ttdoc">I2C Hall occupancy for the 64 squares, plus an uncalibrated piece-ID POC.</div></div>
+<div class="ttc" id="ahall__i2c__squares_8h_html_ac07912e8ec1b98ad1512e0c85f2b8190"><div class="ttname"><a href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a></div><div class="ttdeci">hall_piece_type_t</div><div class="ttdef"><b>Definition</b> <a href="hall__i2c__squares_8h_source.html#l00072">hall_i2c_squares.h:72</a></div></div>
+<div class="ttc" id="ahall__i2c__squares_8h_html_acce509769d8c510e185108e8104a8766"><div class="ttname"><a href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a></div><div class="ttdeci">hall_piece_color_t</div><div class="ttdef"><b>Definition</b> <a href="hall__i2c__squares_8h_source.html#l00082">hall_i2c_squares.h:82</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

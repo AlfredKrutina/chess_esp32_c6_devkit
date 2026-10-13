@@ -94,7 +94,7 @@ $(document).ready(function(){initNavTree('game__hall__match_8h.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
-<p>Map engine piece_t to stable Hall type/color and compare sensors.  
+<p>Compare engine piece_t with the uncalibrated Hall type/color POC.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="hall__i2c__squares_8h_source.html">hall_i2c_squares.h</a>&quot;</code><br />
@@ -105,14 +105,14 @@ Include dependency graph for game_hall_match.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__hall__match_8h__incl.png" border="0" usemap="#agame__hall__match_8h" alt=""/></div>
 <map name="agame__hall__match_8h" id="agame__hall__match_8h">
-<area shape="rect" title="Map engine piece_t to stable Hall type/color and compare sensors." alt="" coords="127,5,278,31"/>
+<area shape="rect" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="127,5,278,31"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="223,79,337,104"/>
 <area shape="poly" title=" " alt="" coords="217,29,259,67,255,71,213,33"/>
 <area shape="rect" title=" " alt="" coords="5,152,88,177"/>
 <area shape="poly" title=" " alt="" coords="128,31,82,49,62,62,46,80,40,94,38,108,41,138,36,139,32,108,35,92,42,77,59,58,80,44,126,26"/>
 <area shape="rect" title=" " alt="" coords="218,152,289,177"/>
 <area shape="poly" title=" " alt="" coords="276,28,318,46,336,60,352,77,356,88,356,100,345,119,324,136,299,149,296,144,321,131,341,116,351,98,351,90,347,80,333,64,315,51,274,33"/>
-<area shape="rect" href="hall__i2c__squares_8h.html" title=" " alt="" coords="55,79,198,104"/>
+<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="55,79,198,104"/>
 <area shape="poly" title=" " alt="" coords="192,33,151,71,147,67,189,29"/>
 <area shape="rect" title=" " alt="" coords="113,152,194,177"/>
 <area shape="poly" title=" " alt="" coords="261,106,187,147,185,143,258,102"/>
@@ -130,7 +130,8 @@ Include dependency graph for game_hall_match.h:</div>
 </div>
 <p><a href="game__hall__match_8h_source.html">Go to the source code of this file.</a></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Map engine piece_t to stable Hall type/color and compare sensors. </p>
+<div class="textblock"><p>Compare engine piece_t with the uncalibrated Hall type/color POC. </p>
+<p>Compiled only for CONFIG_CHESS_MATRIX_INPUT_I2C_HALL. Hall type and color come from hall_i2c_squares and are not a calibrated identification. Callers on the live pickup, drop, castling, and promotion paths must keep using these functions; do not add a second classifier. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__hall__match_8h_source.html">game_hall_match.h</a>.</p>
 </div></div><!-- contents -->

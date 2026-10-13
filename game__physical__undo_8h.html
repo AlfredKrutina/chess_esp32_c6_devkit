@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('game__physical__undo_8h.html',''); ini
 </div><!--header-->
 <div class="contents">
 
-<p>Physical board takeback (lift last mover, restore position, then rewind engine).  
+<p>Physical takeback: lift the last mover, restore the piece, then rewind.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
@@ -106,7 +106,7 @@ Include dependency graph for game_physical_undo.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__physical__undo_8h__incl.png" border="0" usemap="#agame__physical__undo_8h" alt=""/></div>
 <map name="agame__physical__undo_8h" id="agame__physical__undo_8h">
-<area shape="rect" title="Physical board takeback (lift last mover, restore position, then rewind engine)." alt="" coords="395,5,566,31"/>
+<area shape="rect" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="395,5,566,31"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="311,79,426,104"/>
 <area shape="poly" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
 <area shape="rect" title=" " alt="" coords="439,152,522,177"/>
@@ -129,26 +129,36 @@ Include dependency graph for game_physical_undo.h:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a1f1ed6febef68e2f5b85f7dbcbb08355" id="r_a1f1ed6febef68e2f5b85f7dbcbb08355"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a1f1ed6febef68e2f5b85f7dbcbb08355">game_move_undo_meta_init_record</a> (uint32_t history_slot, <a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a> kind, const <a class="el" href="structchess__move__t.html">chess_move_t</a> *move)</td></tr>
+<tr class="memdesc:a1f1ed6febef68e2f5b85f7dbcbb08355"><td class="mdescLeft">&#160;</td><td class="mdescRight">Store side-to-move, castling rights, and en-passant fields for one ply.  <br /></td></tr>
 <tr class="separator:a1f1ed6febef68e2f5b85f7dbcbb08355"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a885557b12578a8c185d531d0ae69d32c" id="r_a885557b12578a8c185d531d0ae69d32c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a885557b12578a8c185d531d0ae69d32c">game_move_undo_meta_on_promotion_completed</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> promoted_piece)</td></tr>
+<tr class="memdesc:a885557b12578a8c185d531d0ae69d32c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Record the piece chosen when a pending promotion completes.  <br /></td></tr>
 <tr class="separator:a885557b12578a8c185d531d0ae69d32c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56f1df9f1b25d301842d42aabeb54aed" id="r_a56f1df9f1b25d301842d42aabeb54aed"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a56f1df9f1b25d301842d42aabeb54aed">game_undo_rewind_last_move</a> (void)</td></tr>
+<tr class="memdesc:a56f1df9f1b25d301842d42aabeb54aed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rewind the engine by one history entry (UART undo and the end of a takeback).  <br /></td></tr>
 <tr class="separator:a56f1df9f1b25d301842d42aabeb54aed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad48d8275432f8e42175fe0711e306ece" id="r_ad48d8275432f8e42175fe0711e306ece"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#ad48d8275432f8e42175fe0711e306ece">game_physical_undo_enabled</a> (void)</td></tr>
+<tr class="memdesc:ad48d8275432f8e42175fe0711e306ece"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the physical-takeback preference is on.  <br /></td></tr>
 <tr class="separator:ad48d8275432f8e42175fe0711e306ece"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e630ff0a7fd8e153a38561aee303b27" id="r_a4e630ff0a7fd8e153a38561aee303b27"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a4e630ff0a7fd8e153a38561aee303b27">game_physical_undo_reset</a> (void)</td></tr>
+<tr class="memdesc:a4e630ff0a7fd8e153a38561aee303b27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the in-progress physical takeback.  <br /></td></tr>
 <tr class="separator:a4e630ff0a7fd8e153a38561aee303b27"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa3b33c8da8da285fbfff70e9ee7f2672" id="r_aa3b33c8da8da285fbfff70e9ee7f2672"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#aa3b33c8da8da285fbfff70e9ee7f2672">game_physical_undo_is_active</a> (void)</td></tr>
+<tr class="memdesc:aa3b33c8da8da285fbfff70e9ee7f2672"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether a physical takeback phase is in progress.  <br /></td></tr>
 <tr class="separator:aa3b33c8da8da285fbfff70e9ee7f2672"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67fca8ae3f7f5f165ddf7e93e3bdb459" id="r_a67fca8ae3f7f5f165ddf7e93e3bdb459"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a67fca8ae3f7f5f165ddf7e93e3bdb459">game_physical_undo_handle_pickup</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd, uint8_t from_row, uint8_t from_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:a67fca8ae3f7f5f165ddf7e93e3bdb459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offer or continue a takeback when the lifted piece is the last mover.  <br /></td></tr>
 <tr class="separator:a67fca8ae3f7f5f165ddf7e93e3bdb459"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e114e94e6635f66b587d350fd3a6da2" id="r_a8e114e94e6635f66b587d350fd3a6da2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a8e114e94e6635f66b587d350fd3a6da2">game_physical_undo_handle_drop</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="memdesc:a8e114e94e6635f66b587d350fd3a6da2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Place pieces during an active takeback drop.  <br /></td></tr>
 <tr class="separator:a8e114e94e6635f66b587d350fd3a6da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37f097ae937dba1d78770d62b0ecf5e7" id="r_a37f097ae937dba1d78770d62b0ecf5e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a37f097ae937dba1d78770d62b0ecf5e7">game_physical_undo_tick</a> (void)</td></tr>
+<tr class="memdesc:a37f097ae937dba1d78770d62b0ecf5e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refresh pending-takeback LEDs.  <br /></td></tr>
 <tr class="separator:a37f097ae937dba1d78770d62b0ecf5e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Physical board takeback (lift last mover, restore position, then rewind engine). </p>
+<div class="textblock"><p>Physical takeback: lift the last mover, restore the piece, then rewind. </p>
+<p>Engine rewind of the last history entry is <a class="el" href="game__physical__undo_8h.html#a56f1df9f1b25d301842d42aabeb54aed" title="Rewind the engine by one history entry (UART undo and the end of a takeback).">game_undo_rewind_last_move()</a>. The physical phase machine does not replace that function. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__physical__undo_8h_source.html">game_physical_undo.h</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -184,6 +194,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Store side-to-move, castling rights, and en-passant fields for one ply. </p>
+<p>Called when the move is appended to history. Out-of-range slot or NULL move is ignored. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">history_slot</td><td>Index in move_history. </td></tr>
+    <tr><td class="paramname">kind</td><td>Move kind used to record rook columns or the captured square. </td></tr>
+    <tr><td class="paramname">move</td><td>Move just played. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00082">82</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
@@ -204,6 +224,14 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Record the piece chosen when a pending promotion completes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">promoted_piece</td><td>Engine piece now standing on the promotion square. Ignored when history is empty. </td></tr>
+  </table>
+  </dd>
+</dl>
+
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00128">128</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
@@ -223,6 +251,9 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Whether the physical-takeback preference is on. </p>
+<dl class="section return"><dt>Returns</dt><dd>true when <a class="el" href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0" title="Physical takeback on board (default true when key missing).">config_ui_prefs_get_chess_physical_takeback()</a> is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00135">135</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
@@ -259,7 +290,17 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>true if drop was fully handled (caller should return). </dd></dl>
+
+<p>Place pieces during an active takeback drop. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Drop command. The square arguments are what the flow uses. </td></tr>
+    <tr><td class="paramname">to_row</td><td>Drop row. </td></tr>
+    <tr><td class="paramname">to_col</td><td>Drop column. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the drop was fully handled and the caller should return. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00559">559</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
@@ -302,7 +343,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>true if the pickup was consumed (undo flow). </dd></dl>
+
+<p>Offer or continue a takeback when the lifted piece is the last mover. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Pickup command. The square arguments are what the flow uses. </td></tr>
+    <tr><td class="paramname">from_row</td><td>Lifted square row. </td></tr>
+    <tr><td class="paramname">from_col</td><td>Lifted square column. </td></tr>
+    <tr><td class="paramname">piece</td><td>Piece the engine believes was lifted. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if this pickup was consumed by the undo flow. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00492">492</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
@@ -324,6 +376,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Whether a physical takeback phase is in progress. </p>
+<dl class="section return"><dt>Returns</dt><dd>true when the phase is not idle. </dd></dl>
+
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00143">143</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
@@ -343,6 +398,9 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Clear the in-progress physical takeback. </p>
+<p>Does not rewind the engine. </p>
 
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00139">139</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
@@ -364,6 +422,9 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Refresh pending-takeback LEDs. </p>
+<p>Called from the game command cycle. </p>
+
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00486">486</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
@@ -383,6 +444,9 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>Rewind the engine by one history entry (UART undo and the end of a takeback). </p>
+<dl class="section return"><dt>Returns</dt><dd>false when history is empty; true after the position is restored. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00357">357</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 

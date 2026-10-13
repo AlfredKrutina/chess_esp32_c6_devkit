@@ -98,8 +98,7 @@ $(document).ready(function(){initNavTree('led__unified__api_8h.html',''); initRe
 </div><!--header-->
 <div class="contents">
 
-<p><br  />
-  
+<p>Unused LED prototypes.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
@@ -109,7 +108,7 @@ Include dependency graph for led_unified_api.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="led__unified__api_8h__incl.png" border="0" usemap="#aled__unified__api_8h" alt=""/></div>
 <map name="aled__unified__api_8h" id="aled__unified__api_8h">
-<area shape="rect" title=" " alt="" coords="76,5,208,31"/>
+<area shape="rect" title="Unused LED prototypes." alt="" coords="76,5,208,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,76,104"/>
 <area shape="poly" title=" " alt="" coords="127,33,70,73,67,68,124,28"/>
 <area shape="rect" title=" " alt="" coords="101,79,183,104"/>
@@ -157,7 +156,7 @@ Macros</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a03f1c23d367a417c885fbf0b77fa8e92" id="r_a03f1c23d367a417c885fbf0b77fa8e92"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__unified__api_8h.html#a03f1c23d367a417c885fbf0b77fa8e92">led_set</a> (uint8_t position, <a class="el" href="structled__color__t.html">led_color_t</a> color)</td></tr>
-<tr class="memdesc:a03f1c23d367a417c885fbf0b77fa8e92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set LED color (replaces all led_set_pixel_* variants)  <br /></td></tr>
+<tr class="memdesc:a03f1c23d367a417c885fbf0b77fa8e92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unused.  <br /></td></tr>
 <tr class="separator:a03f1c23d367a417c885fbf0b77fa8e92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a738fcd34c4727af46498fbee998f5b27" id="r_a738fcd34c4727af46498fbee998f5b27"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__unified__api_8h.html#a738fcd34c4727af46498fbee998f5b27">led_clear</a> (uint8_t position)</td></tr>
 <tr class="memdesc:a738fcd34c4727af46498fbee998f5b27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear one LED position.  <br /></td></tr>
@@ -175,7 +174,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:add8f4af4ac4cd55c7f080b6a0e74c715"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show figures that can move (highlighted in yellow)  <br /></td></tr>
 <tr class="separator:add8f4af4ac4cd55c7f080b6a0e74c715"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1c171299071c1e2c7d6c0744279ea3e7" id="r_a1c171299071c1e2c7d6c0744279ea3e7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__unified__api_8h.html#a1c171299071c1e2c7d6c0744279ea3e7">led_animate</a> (const char *type, uint8_t from_pos, uint8_t to_pos)</td></tr>
-<tr class="memdesc:a1c171299071c1e2c7d6c0744279ea3e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start animation (replace led_execute_command_new)  <br /></td></tr>
+<tr class="memdesc:a1c171299071c1e2c7d6c0744279ea3e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unused.  <br /></td></tr>
 <tr class="separator:a1c171299071c1e2c7d6c0744279ea3e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb65c57a4635e4911d71902ef3bcbb3c" id="r_abb65c57a4635e4911d71902ef3bcbb3c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__unified__api_8h.html#abb65c57a4635e4911d71902ef3bcbb3c">led_stop_animations</a> (void)</td></tr>
 <tr class="memdesc:abb65c57a4635e4911d71902ef3bcbb3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop all animations.  <br /></td></tr>
@@ -194,14 +193,9 @@ Functions</h2></td></tr>
 <tr class="separator:a036b1d0a0cf1289a8eec759f01b07233"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p><br  />
- </p>
-<p>Unified LED API - Unified source of truth for LED control</p>
-<p>This header provides a simplified, uniform API for all LED operations. Replaces the messy mix of led_set_pixel_internal, led_set_pixel_safe, led_execute_command_new, etc. with a clean, consistent interface.</p>
-<dl class="section author"><dt>Author</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>1.8.0 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2025-09-06</dd></dl>
-<p>Unified LED API provides a simple, consistent interface for all LED operations in the system. Eliminates duplicate functions and provides clearly named functions for each use case. </p>
+<div class="textblock"><p>Unused LED prototypes. </p>
+<p>Not the live API.</p>
+<dl class="section note"><dt>Note</dt><dd>This header has no .c and no callers. Do not treat <a class="el" href="led__unified__api_8h.html#a03f1c23d367a417c885fbf0b77fa8e92" title="Unused.">led_set()</a>, <a class="el" href="led__unified__api_8h.html#a738fcd34c4727af46498fbee998f5b27" title="Clear one LED position.">led_clear()</a>, <a class="el" href="led__unified__api_8h.html#a1c171299071c1e2c7d6c0744279ea3e7" title="Unused.">led_animate()</a>, or the other prototypes below as the product API. Live LED writes go through led_set_pixel_safe and led_execute_command_new in led_task. </dd></dl>
 
 <p class="definition">Definition in file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
@@ -219,7 +213,7 @@ Functions</h2></td></tr>
 
 <p>Color - blue. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00051">51</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00042">42</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -237,7 +231,7 @@ Functions</h2></td></tr>
 
 <p>Barva - azurova (cyan) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00055">55</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00046">46</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -255,7 +249,7 @@ Functions</h2></td></tr>
 
 <p>Color - green. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00049">49</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00040">40</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -273,7 +267,7 @@ Functions</h2></td></tr>
 
 <p>Barva - fialova (magenta) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00057">57</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00048">48</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -291,7 +285,7 @@ Functions</h2></td></tr>
 
 <p>Barva - vypnuto (cerna) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00043">43</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00034">34</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -309,7 +303,7 @@ Functions</h2></td></tr>
 
 <p>Color - red. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00047">47</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00038">38</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -327,7 +321,7 @@ Functions</h2></td></tr>
 
 <p>Barva - bila. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00045">45</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00036">36</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -345,7 +339,7 @@ Functions</h2></td></tr>
 
 <p>Color - yellow. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00053">53</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__unified__api_8h_source.html#l00044">44</a> of file <a class="el" href="led__unified__api_8h_source.html">led_unified_api.h</a>.</p>
 
 </div>
 </div>
@@ -382,7 +376,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Start animation (replace led_execute_command_new) </p>
+<p>Unused. </p>
+<p>Live equivalent is led_execute_command_new.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">type</td><td>Animation type (string like "move", "check", "endgame") </td></tr>
@@ -511,7 +506,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set LED color (replaces all led_set_pixel_* variants) </p>
+<p>Unused. </p>
+<p>Live equivalent is led_set_pixel_safe.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">position</td><td>LED position (0-63 drawer, 64-72 button) </td></tr>

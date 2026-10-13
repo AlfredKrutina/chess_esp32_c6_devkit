@@ -6,11 +6,11 @@
 <area shape="poly" id="edge62_Node000001_Node000005" title=" " alt="" coords="882,22,695,29,578,37,455,49,337,68,232,93,187,109,149,127,118,146,96,168,84,186,75,210,74,224,77,240,85,258,99,278,123,295,164,309,262,327,261,333,162,314,121,300,95,282,80,261,72,242,69,224,70,209,79,183,92,165,115,142,146,122,185,104,230,88,336,63,455,44,577,31,695,23,882,17"/>
 <area shape="rect" id="Node000010" title=" " alt="" coords="935,247,1066,273"/>
 <area shape="poly" id="edge63_Node000001_Node000010" title=" " alt="" coords="950,31,958,99,977,191,992,234,987,236,971,193,953,100,944,31"/>
-<area shape="rect" id="Node000011" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="637,167,743,192"/>
+<area shape="rect" id="Node000011" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="637,167,743,192"/>
 <area shape="poly" id="edge28_Node000001_Node000011" title=" " alt="" coords="929,33,721,162,719,157,926,28"/>
-<area shape="rect" id="Node000014" href="$game__squares__guard_8h.html" title="Matrix guard — pause play when physical board disagrees with logic." alt="" coords="143,167,317,192"/>
+<area shape="rect" id="Node000014" href="$game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="143,167,317,192"/>
 <area shape="poly" id="edge29_Node000001_Node000014" title=" " alt="" coords="882,27,718,46,620,61,523,81,383,123,271,164,269,159,382,118,521,76,619,56,717,41,881,22"/>
-<area shape="rect" id="Node000015" href="$chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="361,167,547,192"/>
+<area shape="rect" id="Node000015" href="$chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="361,167,547,192"/>
 <area shape="poly" id="edge33_Node000001_Node000015" title=" " alt="" coords="882,25,821,30,748,40,672,57,598,81,563,98,530,119,478,160,475,156,527,115,561,94,596,76,670,52,747,35,820,25,882,19"/>
 <area shape="rect" id="Node000016" href="$led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1009,79,1149,119"/>
 <area shape="poly" id="edge37_Node000001_Node000016" title=" " alt="" coords="967,29,1037,69,1034,74,964,33"/>

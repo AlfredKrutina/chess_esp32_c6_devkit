@@ -1,10 +1,10 @@
 <map id="chess_gameplay_policy.c" name="chess_gameplay_policy.c">
 <area shape="rect" id="Node000001" title="Kconfig&#45;driven gameplay policy helpers." alt="" coords="745,5,932,31"/>
-<area shape="rect" id="Node000002" href="$chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="305,152,492,177"/>
+<area shape="rect" id="Node000002" href="$chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="305,152,492,177"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="805,33,447,150,446,145,803,28"/>
 <area shape="rect" id="Node000009" href="$game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="757,79,920,104"/>
 <area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="841,31,841,65,836,65,836,31"/>
-<area shape="rect" id="Node000012" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="633,152,740,177"/>
+<area shape="rect" id="Node000012" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="633,152,740,177"/>
 <area shape="poly" id="edge32_Node000001_Node000012" title=" " alt="" coords="817,33,782,53,747,81,721,111,701,142,697,139,717,108,743,77,779,49,814,28"/>
 <area shape="rect" id="Node000015" title=" " alt="" coords="945,79,1029,104"/>
 <area shape="poly" id="edge33_Node000001_Node000015" title=" " alt="" coords="864,28,951,70,949,75,861,33"/>

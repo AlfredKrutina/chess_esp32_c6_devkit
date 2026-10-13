@@ -58,19 +58,19 @@ var NAVTREEINDEX =
 "game__board__core_8c.html#a2f77ab43a39a2a3ebc640df092f9cdc1",
 "game__led__direct_8h.html#af337fa678e02039015341d7fa45e3ccc",
 "game__snapshot_8c.html#a06eeef79b957711c3443741523b404aa",
-"game__task_8c.html#aeb8179882039bb317d2467c1954ecf27",
-"game__task__internal_8h.html#a5b253e24e11c0ad3222fb3d064f4d4cc",
-"ha__light__task_8c.html#a135ce56f6bd050c86c6a4b765de6e6e2",
-"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961aa0c162f64d4c541c0d5cd47bcfe200f1",
-"led__task_8c.html#adcb62bbb886677c71922e74b5629bda1",
-"shared__buffer__pool_8h.html#a212c8f17c9792d37e2c884ef14ed8e69",
-"structchess__move__command__t.html#a51b8eb6617ef0642c722008827f2d3d1",
-"structguided__capture__state__t.html#a20ba9b59cdacff49275a50b528f1a0e6",
-"structsystem__config__t.html#a05bbd482d93891e6ed1ec8d1068309d7",
-"timer__system_8h_source.html",
-"uart__task_8c.html#a741b46c24c6a12f798156859a8dcf1a6",
-"unified__animation__manager_8c.html#ac6afabdc09a49a433ee19d8a9486056d",
-"web__server__internal_8h.html#a98a54dbb11377534d4aae37a3259ac33"
+"game__task_8c.html#ae9609d2c6acb49bcfdc4a72a4ee02d06",
+"game__task__internal_8h.html#a54daa47b74d01d066ede530d4c6bc26d",
+"ha__light__task_8c.html",
+"led__gesture__anim_8h.html#a0a580078551dcb66e39ebd39039fffef",
+"led__task_8c.html#adab4e0aa5871161ca4d0f13c4c2e9f63",
+"shared__buffer__pool_8c.html#acd1fec8326abc9b532e4004cd0283e88",
+"structchess__move__command__t.html#a3396c4a720d38eafa732cb2a9ab68322",
+"structgame__task__promotion__state__t.html#a1e8ccbcd9550c4e82dc36321f4a12315",
+"structsubtle__animation__state__t.html#a28a89503fb8a1a8db1aaf1cef5feac3c",
+"timer__system_8h.html#ab0399771af7d827987018c7153cd381b",
+"uart__task_8c.html#a6e26b6d6ae554bd6bc478ccba6b1b763",
+"unified__animation__manager_8c.html#aafd47a4efcf1e963e6482eff96b5245f",
+"web__server__internal_8h.html#a660bc64ded0fb1c7ad498180fc22a7a7"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

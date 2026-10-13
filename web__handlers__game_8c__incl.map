@@ -12,7 +12,7 @@
 <area shape="poly" id="edge73_Node000001_Node000012" title=" " alt="" coords="2208,32,2117,250,2112,248,2203,30"/>
 <area shape="rect" id="Node000016" href="$web__server__internal_8h.html" title="Internal API between web_server_task.c sibling files." alt="" coords="2248,174,2415,199"/>
 <area shape="poly" id="edge24_Node000001_Node000016" title=" " alt="" coords="2220,29,2317,162,2313,165,2216,32"/>
-<area shape="rect" id="Node000017" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1195,167,1353,207"/>
+<area shape="rect" id="Node000017" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1195,167,1353,207"/>
 <area shape="poly" id="edge32_Node000001_Node000017" title=" " alt="" coords="2127,30,1996,49,1923,63,1851,81,1823,91,1803,101,1782,112,1753,121,1651,145,1547,162,1366,182,1366,177,1546,157,1650,139,1752,116,1780,107,1800,96,1821,86,1849,76,1921,58,1995,44,2126,25"/>
 <area shape="rect" id="Node000019" href="$squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1570,79,1741,119"/>
 <area shape="poly" id="edge46_Node000001_Node000019" title=" " alt="" coords="2127,33,1782,81,1755,85,1754,80,1782,76,2126,28"/>

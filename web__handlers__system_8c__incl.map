@@ -14,7 +14,7 @@
 <area shape="poly" id="edge37_Node000001_Node000018" title=" " alt="" coords="2593,33,2463,77,2461,72,2592,28"/>
 <area shape="rect" id="Node000019" title=" " alt="" coords="2505,174,2589,199"/>
 <area shape="poly" id="edge68_Node000001_Node000019" title=" " alt="" coords="2623,32,2560,163,2556,161,2619,30"/>
-<area shape="rect" id="Node000020" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1797,167,1955,207"/>
+<area shape="rect" id="Node000020" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1797,167,1955,207"/>
 <area shape="poly" id="edge41_Node000001_Node000020" title=" " alt="" coords="2618,33,2571,77,2538,102,2501,121,2457,135,2399,146,2255,165,2101,177,1968,184,1968,179,2101,172,2255,159,2398,141,2455,129,2499,116,2535,97,2567,73,2614,29"/>
 <area shape="rect" id="Node000022" href="$ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="2102,79,2274,119"/>
 <area shape="poly" id="edge55_Node000001_Node000022" title=" " alt="" coords="2560,33,2288,81,2287,76,2559,28"/>

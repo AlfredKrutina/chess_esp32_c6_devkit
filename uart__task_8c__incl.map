@@ -34,7 +34,7 @@
 <area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="1721,31,1637,51,1544,81,1527,89,1525,84,1542,76,1636,46,1720,26"/>
 <area shape="rect" id="Node000018" title=" " alt="" coords="1555,93,1626,119"/>
 <area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="1745,33,1628,90,1626,85,1743,28"/>
-<area shape="rect" id="Node000019" href="$ble__task_8h.html" title="BLE interface CZECHMATE — NimBLE GATT when CONFIG_BT_ENABLED." alt="" coords="4414,189,4554,229"/>
+<area shape="rect" id="Node000019" href="$ble__task_8h.html" title="CzechMate BLE GATT (NimBLE) when CONFIG_BT_ENABLED." alt="" coords="4414,189,4554,229"/>
 <area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="1815,17,2206,22,2796,33,3350,51,3539,63,3598,69,3630,76,3648,89,3658,104,3667,119,3683,131,3746,151,3827,163,3922,169,4023,171,4222,171,4307,173,4375,179,4401,183,4400,189,4374,184,4307,178,4222,176,4023,176,3922,174,3827,168,3744,156,3680,136,3663,122,3653,107,3644,93,3628,81,3598,74,3538,68,3349,56,2796,39,2206,28,1815,22"/>
 <area shape="rect" id="Node000024" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="2187,284,2367,324"/>
 <area shape="poly" id="edge23_Node000001_Node000024" title=" " alt="" coords="1816,18,1945,24,2106,35,2250,52,2300,63,2327,77,2342,100,2349,125,2349,151,2344,179,2324,231,2301,273,2296,271,2320,228,2339,177,2343,151,2343,125,2337,102,2324,81,2298,68,2249,57,2106,40,1944,29,1815,23"/>
@@ -58,7 +58,7 @@
 <area shape="poly" id="edge82_Node000001_Node000036" title=" " alt="" coords="1777,29,1809,80,1805,83,1773,32"/>
 <area shape="rect" id="Node000037" href="$task__wdt_8h.html" title="Shared Task Watchdog reset helpers (ESP_ERR_NOT_FOUND → WARNING)." alt="" coords="1208,196,1301,221"/>
 <area shape="poly" id="edge87_Node000001_Node000037" title=" " alt="" coords="1750,33,1718,54,1685,81,1672,95,1664,109,1655,123,1639,136,1613,147,1578,158,1492,177,1316,203,1315,198,1491,172,1577,153,1611,142,1636,131,1651,119,1659,107,1667,92,1681,77,1715,50,1747,28"/>
-<area shape="rect" id="Node000038" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1512,196,1619,221"/>
+<area shape="rect" id="Node000038" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1512,196,1619,221"/>
 <area shape="poly" id="edge91_Node000001_Node000038" title=" " alt="" coords="1763,33,1732,80,1710,109,1684,135,1643,167,1602,192,1599,187,1640,163,1681,131,1706,105,1728,77,1759,30"/>
 <area shape="rect" id="Node000039" href="$led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="3955,196,4074,221"/>
 <area shape="poly" id="edge102_Node000001_Node000039" title=" " alt="" coords="1816,16,2149,16,2647,22,2900,29,3125,40,3300,55,3361,65,3401,76,3420,89,3431,104,3441,119,3459,131,3526,157,3585,170,3639,173,3691,171,3800,165,3864,168,3937,179,3973,189,3972,194,3935,184,3863,173,3800,170,3691,177,3639,179,3584,175,3524,162,3456,136,3438,122,3427,107,3416,93,3399,81,3360,70,3299,61,3125,45,2900,35,2647,28,2149,22,1816,22"/>

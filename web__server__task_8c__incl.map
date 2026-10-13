@@ -16,7 +16,7 @@
 <area shape="poly" id="edge28_Node000001_Node000017" title=" " alt="" coords="2548,23,2384,28,2177,38,1976,56,1894,67,1832,81,1785,98,1738,119,1649,168,1574,216,1521,256,1518,251,1571,212,1646,163,1735,114,1783,93,1831,76,1893,62,1976,50,2176,33,2384,23,2548,18"/>
 <area shape="rect" id="Node000018" href="$game__state__notify_8h.html" title="Thin hook from game_task — status change notification (WebSocket push, etc.)." alt="" coords="1468,79,1636,119"/>
 <area shape="poly" id="edge36_Node000001_Node000018" title=" " alt="" coords="2548,24,2166,39,1912,56,1655,81,1650,82,1649,77,1654,76,1911,51,2165,33,2548,18"/>
-<area shape="rect" id="Node000019" href="$game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="1114,167,1272,207"/>
+<area shape="rect" id="Node000019" href="$game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1114,167,1272,207"/>
 <area shape="poly" id="edge37_Node000001_Node000019" title=" " alt="" coords="2548,22,2258,24,1864,32,1670,39,1499,50,1367,63,1321,72,1291,81,1267,96,1246,115,1213,157,1209,154,1242,112,1264,92,1289,76,1320,67,1366,58,1498,44,1670,34,1864,26,2258,19,2548,17"/>
 <area shape="rect" id="Node000021" href="$squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1888,79,2058,119"/>
 <area shape="poly" id="edge51_Node000001_Node000021" title=" " alt="" coords="2548,28,2339,48,2072,81,2071,76,2338,43,2548,23"/>
@@ -46,7 +46,7 @@
 <area shape="poly" id="edge86_Node000001_Node000034" title=" " alt="" coords="2691,23,2862,43,3065,76,3083,80,3082,85,3064,81,2862,48,2691,29"/>
 <area shape="rect" id="Node000035" title=" " alt="" coords="3216,86,3303,111"/>
 <area shape="poly" id="edge87_Node000001_Node000035" title=" " alt="" coords="2691,19,2921,34,3063,51,3204,76,3217,79,3215,84,3203,81,3062,57,2920,40,2691,24"/>
-<area shape="rect" id="Node000036" href="$ble__task_8h.html" title="BLE interface CZECHMATE — NimBLE GATT when CONFIG_BT_ENABLED." alt="" coords="2583,255,2723,295"/>
+<area shape="rect" id="Node000036" href="$ble__task_8h.html" title="CzechMate BLE GATT (NimBLE) when CONFIG_BT_ENABLED." alt="" coords="2583,255,2723,295"/>
 <area shape="poly" id="edge89_Node000001_Node000036" title=" " alt="" coords="2582,33,2547,51,2531,64,2519,80,2512,99,2519,117,2535,133,2553,140,2594,140,2635,140,2655,148,2672,165,2681,184,2682,204,2672,243,2667,241,2677,204,2676,185,2668,168,2652,153,2634,146,2594,145,2552,145,2532,137,2515,120,2507,99,2515,77,2528,61,2544,47,2579,28"/>
 <area shape="rect" id="Node000037" href="$config__manager_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Config Manager Header." alt="" coords="2082,79,2272,119"/>
 <area shape="poly" id="edge94_Node000001_Node000037" title=" " alt="" coords="2556,33,2286,81,2285,76,2555,28"/>

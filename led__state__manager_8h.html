@@ -298,6 +298,7 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>LED State Manager - Advanced LED state and layer management. </p>
+<dl class="section note"><dt>Note</dt><dd>game_task and main do not call this module. It stays in the CMake REQUIRES list until a link audit. Live LED writes go through led_task (led_set_pixel_safe / led_execute_command_new).</dd></dl>
 <p>This module provides comprehensive LED status management:</p><ul>
 <li>Layer system for LED effects</li>
 <li>Priority LED manager</li>
@@ -346,7 +347,7 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="a48277ad0ecc8bc035e62eeb7541a1936aa34c61bac9de4434917e72883a3f6bfb" name="a48277ad0ecc8bc035e62eeb7541a1936aa34c61bac9de4434917e72883a3f6bfb"></a>BLEND_MODE_COUNT&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="led__state__manager_8h_source.html#l00067">67</a> of file <a class="el" href="led__state__manager_8h_source.html">led_state_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__state__manager_8h_source.html#l00071">71</a> of file <a class="el" href="led__state__manager_8h_source.html">led_state_manager.h</a>.</p>
 
 </div>
 </div>
@@ -385,7 +386,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="led__state__manager_8h_source.html#l00052">52</a> of file <a class="el" href="led__state__manager_8h_source.html">led_state_manager.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__state__manager_8h_source.html#l00056">56</a> of file <a class="el" href="led__state__manager_8h_source.html">led_state_manager.h</a>.</p>
 
 </div>
 </div>

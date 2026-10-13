@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('game__task_8h.html',''); initResizable
 </div><!--header-->
 <div class="contents">
 
-<p>ESP32-C6 Chess System v1.8.0 - Game Task Header.  
+<p>Game task entry: rules, command dispatch, and JSON export.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
@@ -113,7 +113,7 @@ Include dependency graph for game_task.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__task_8h__incl.png" border="0" usemap="#agame__task_8h" alt=""/></div>
 <map name="agame__task_8h" id="agame__task_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="403,5,509,31"/>
+<area shape="rect" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="403,5,509,31"/>
 <area shape="rect" title=" " alt="" coords="74,167,155,192"/>
 <area shape="poly" title=" " alt="" coords="402,21,304,22,187,29,131,37,81,48,41,62,15,81,10,89,8,98,16,117,37,142,65,159,63,163,34,146,11,120,3,98,5,87,11,77,39,57,79,42,130,32,186,24,303,16,402,15"/>
 <area shape="rect" title=" " alt="" coords="389,167,539,192"/>
@@ -465,6 +465,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a138dd79d240e644870a7d53580720206" id="r_a138dd79d240e644870a7d53580720206"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a138dd79d240e644870a7d53580720206">game_print_status</a> (void)</td></tr>
 <tr class="memdesc:a138dd79d240e644870a7d53580720206"><td class="mdescLeft">&#160;</td><td class="mdescRight">List the state of the game.  <br /></td></tr>
 <tr class="separator:a138dd79d240e644870a7d53580720206"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44aa19ae9e93be2f6a399cd92b31b7ad" id="r_a44aa19ae9e93be2f6a399cd92b31b7ad"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a44aa19ae9e93be2f6a399cd92b31b7ad">game_move_history_count</a> (void)</td></tr>
+<tr class="memdesc:a44aa19ae9e93be2f6a399cd92b31b7ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of plies stored in the engine move history.  <br /></td></tr>
+<tr class="separator:a44aa19ae9e93be2f6a399cd92b31b7ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f612cd5ba4af52d4557b7bfe827b6f6" id="r_a9f612cd5ba4af52d4557b7bfe827b6f6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a9f612cd5ba4af52d4557b7bfe827b6f6">game_format_move_history_line</a> (uint32_t index, char *buf, size_t cap)</td></tr>
+<tr class="memdesc:a9f612cd5ba4af52d4557b7bfe827b6f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format one history ply the same way <a class="el" href="game__task_8h.html#a6852701612778b8ad618fa420a0b7dca" title="Log the engine move list with ESP_LOGI.">game_print_move_history()</a> logs it.  <br /></td></tr>
+<tr class="separator:a9f612cd5ba4af52d4557b7bfe827b6f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6852701612778b8ad618fa420a0b7dca" id="r_a6852701612778b8ad618fa420a0b7dca"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a6852701612778b8ad618fa420a0b7dca">game_print_move_history</a> (void)</td></tr>
+<tr class="memdesc:a6852701612778b8ad618fa420a0b7dca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log the engine move list with ESP_LOGI.  <br /></td></tr>
+<tr class="separator:a6852701612778b8ad618fa420a0b7dca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a605e2e1374b4e7090941389e6a581a24" id="r_a605e2e1374b4e7090941389e6a581a24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html#a605e2e1374b4e7090941389e6a581a24">game_print_game_stats</a> (void)</td></tr>
 <tr class="memdesc:a605e2e1374b4e7090941389e6a581a24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypis statistiky hry.  <br /></td></tr>
 <tr class="separator:a605e2e1374b4e7090941389e6a581a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -608,7 +617,8 @@ Functions</h2></td></tr>
 <tr class="separator:ac0947d47a459bf07d5d4c180c299f9b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>ESP32-C6 Chess System v1.8.0 - Game Task Header. </p>
+<div class="textblock"><p>Game task entry: rules, command dispatch, and JSON export. </p>
+<dl class="section note"><dt>Note</dt><dd>Physical moves live in game_physical. Power-loss persistence lives in game_snapshot (one automatic NVS snapshot after a valid move). Hall piece match and board-restore guidance are separate. LED writes go through led_task.</dd></dl>
 <p>This header defines the interface for the game task:</p><ul>
 <li>Game state types and structures</li>
 <li>Prototypes of the game task function</li>
@@ -684,7 +694,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if conversion successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02003">2003</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02018">2018</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -741,7 +751,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if conversion successful, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01975">1975</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01990">1990</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1043,7 +1053,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02137">2137</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02140">2140</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1210,6 +1220,53 @@ Functions</h2></td></tr>
 <p>Use only when the board is physically level, but the guard is left hanging. Prefer automatic cleaning after comparing figures. </p>
 
 <p class="definition">Definition at line <a class="el" href="game__squares__guard_8c_source.html#l00102">102</a> of file <a class="el" href="game__squares__guard_8c_source.html">game_squares_guard.c</a>.</p>
+
+</div>
+</div>
+<a id="a9f612cd5ba4af52d4557b7bfe827b6f6" name="a9f612cd5ba4af52d4557b7bfe827b6f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f612cd5ba4af52d4557b7bfe827b6f6">&#9670;&#160;</a></span>game_format_move_history_line()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_format_move_history_line </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>buf</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>cap</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Format one history ply the same way <a class="el" href="game__task_8h.html#a6852701612778b8ad618fa420a0b7dca" title="Log the engine move list with ESP_LOGI.">game_print_move_history()</a> logs it. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir"></td><td class="paramname">index</td><td>Zero-based index. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">buf</td><td>Destination, NUL-terminated on success. </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">cap</td><td>Size of buf. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>false if buf is unusable or index is past the current history. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01732">1732</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2180,6 +2237,7 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>Snapshot restore failure (CRC / format). </p>
+<dl class="section return"><dt>Returns</dt><dd>true if the last restore attempt failed. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00216">216</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
@@ -2202,6 +2260,7 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>Last snapshot save to NVS failed. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if the last snapshot save failed. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00218">218</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
@@ -2838,6 +2897,8 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>true if a minimal snapshot (min) was used instead of a full one (full). </p>
+<p>true if a minimal snapshot (min) was used instead of a full one (full).</p>
+<p>Set when the full blob cannot be written or is not the blob that was loaded. </p><dl class="section return"><dt>Returns</dt><dd>true if the minimal snapshot was the one used. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00214">214</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
@@ -2985,6 +3046,29 @@ The number of turns since the start of the game</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the figure was beaten </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00191">191</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a44aa19ae9e93be2f6a399cd92b31b7ad" name="a44aa19ae9e93be2f6a399cd92b31b7ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44aa19ae9e93be2f6a399cd92b31b7ad">&#9670;&#160;</a></span>game_move_history_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t game_move_history_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Number of plies stored in the engine move history. </p>
+<dl class="section return"><dt>Returns</dt><dd>history_index. Zero means no moves yet. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01730">1730</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3675,6 +3759,28 @@ The number of turns since the start of the game</dd></dl>
 
 </div>
 </div>
+<a id="a6852701612778b8ad618fa420a0b7dca" name="a6852701612778b8ad618fa420a0b7dca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6852701612778b8ad618fa420a0b7dca">&#9670;&#160;</a></span>game_print_move_history()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_print_move_history </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Log the engine move list with ESP_LOGI. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01743">1743</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
 <a id="a138dd79d240e644870a7d53580720206" name="a138dd79d240e644870a7d53580720206"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a138dd79d240e644870a7d53580720206">&#9670;&#160;</a></span>game_print_status()</h2>
 
@@ -3694,7 +3800,7 @@ The number of turns since the start of the game</dd></dl>
 <p>List the state of the game. </p>
 <p>Displays detailed information about the state of the game (player on turn, number of turns, etc.). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02150">2150</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02153">2153</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3715,6 +3821,13 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>Process the CASTLE statement. </p>
+<p>Process the CASTLE statement.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Direction is in to_notation. NULL is ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02168">2168</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -3831,7 +3944,8 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>Process the PICKUP display (UP) </p>
-<p>Process the PICKUP display (UP) </p>
+<p>Process the PICKUP display (UP)</p>
+<p>Handle a piece lift (board UP or UART pickup). </p>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00201">201</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -3854,6 +3968,13 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>Process the PROMOTE command. </p>
+<p>Process the PROMOTE command.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>from_notation is the square, to_notation is the piece. NULL is ignored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02334">2334</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
@@ -3880,7 +4001,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Process event matrix (turns)</p>
 <dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Matrix events are now sent as <a class="el" href="structchess__move__command__t.html" title="Command structure for sach move via UART.">chess_move_command_t</a> to game_command_queue and processed by <a class="el" href="game__task_8h.html#a0216d9328bf82ee185835194077f1e33" title="Process the PICKUP display (UP)">game_process_pickup_command()</a> / <a class="el" href="game__task_8h.html#a8de7eb2cbccf01d3c7ee792caaf9784e" title="Process the DROP command (DN)">game_process_drop_command()</a>. This function is kept for compatibility but does nothing. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02419">2419</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02422">2422</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4017,7 +4138,7 @@ The number of turns since the start of the game</dd></dl>
 <p>Call, for example, when the demo mode is turned on, so that the demo can play even after the previous one wrong move by the user.</p>
 <p>Resets the error recovery state (returning pieces to the flashing field). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01947">1947</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01962">1962</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4428,7 +4549,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01823">1823</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01838">1838</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4874,7 +4995,7 @@ The number of turns since the start of the game</dd></dl>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02167">2167</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l02170">2170</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -5368,7 +5489,9 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>Boot tracker vynutil novou hru (napr. </p>
-<p>prilis casty restart); main neposila NEW_GAME. </p>
+<p>prilis casty restart); main neposila NEW_GAME.</p>
+<p>Boot tracker vynutil novou hru (napr.</p>
+<dl class="section return"><dt>Returns</dt><dd>true when that rule fired and a valid snapshot was not present. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00220">220</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
@@ -5391,7 +5514,9 @@ The number of turns since the start of the game</dd></dl>
 </div><div class="memdoc">
 
 <p>true if <a class="el" href="game__snapshot_8c.html#a89d78dc8723fe9da9b6b1fa77090542f">game_load_snapshot_from_nvs()</a> in game_task_start successfully loaded the game. </p>
-<dl class="section see"><dt>See also</dt><dd><a class="el" href="game__task_8h.html#af1e09878bd4592f7f46ae5713f17fc6f" title="Boot tracker vynutil novou hru (napr.">game_was_boot_new_game_triggered()</a> </dd></dl>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="game__task_8h.html#af1e09878bd4592f7f46ae5713f17fc6f" title="Boot tracker vynutil novou hru (napr.">game_was_boot_new_game_triggered()</a></dd></dl>
+<p>true if <a class="el" href="game__snapshot_8c.html#a89d78dc8723fe9da9b6b1fa77090542f">game_load_snapshot_from_nvs()</a> in game_task_start successfully loaded the game.</p>
+<dl class="section return"><dt>Returns</dt><dd>true after a successful full or minimal restore. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00212">212</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 

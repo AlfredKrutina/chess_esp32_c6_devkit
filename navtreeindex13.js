@@ -1,5 +1,10 @@
 var NAVTREEINDEX13 =
 {
+"structgame__task__promotion__state__t.html#a1e8ccbcd9550c4e82dc36321f4a12315":[2,0,24,1],
+"structgame__task__promotion__state__t.html#a32c7a7586042bb7c4513548d54909cb0":[2,0,24,3],
+"structgame__task__promotion__state__t.html#a8500d1203a82918b0935edb0d4f6c3a0":[2,0,24,0],
+"structgame__task__promotion__state__t.html#ae714bb437e75278ff211ecb8b02896b7":[2,0,24,2],
+"structguided__capture__state__t.html":[2,0,25],
 "structguided__capture__state__t.html#a20ba9b59cdacff49275a50b528f1a0e6":[2,0,25,0],
 "structguided__capture__state__t.html#a66b80be8d757b4429dbbad69155f136f":[2,0,25,5],
 "structguided__capture__state__t.html#a8a839f2bc4d018c533093f098622a617":[2,0,25,7],
@@ -244,10 +249,5 @@ var NAVTREEINDEX13 =
 "structstreaming__stats__t.html#ac3d6c57db9ede1dcdd8c63560a655326":[2,0,52,3],
 "structstreaming__stats__t.html#acee577c89d193435135d780edd06e52d":[2,0,52,4],
 "structstreaming__stats__t.html#ad3c5da4429da544bd592650a4b8cea4a":[2,0,52,1],
-"structsubtle__animation__state__t.html":[2,0,53],
-"structsubtle__animation__state__t.html#a28a89503fb8a1a8db1aaf1cef5feac3c":[2,0,53,3],
-"structsubtle__animation__state__t.html#a7260489ddfb0f0039463d116b0341250":[2,0,53,1],
-"structsubtle__animation__state__t.html#abb3851357c569eed9dadb3d1930d62e2":[2,0,53,2],
-"structsubtle__animation__state__t.html#acf12e9fc843cf75d5976e43e64c73a95":[2,0,53,0],
-"structsystem__config__t.html":[2,0,54]
+"structsubtle__animation__state__t.html":[2,0,53]
 };

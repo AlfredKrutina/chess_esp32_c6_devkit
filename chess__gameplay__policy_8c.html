@@ -110,11 +110,11 @@ Include dependency graph for chess_gameplay_policy.c:</div>
 <div class="center"><img src="chess__gameplay__policy_8c__incl.png" border="0" usemap="#achess__gameplay__policy_8c" alt=""/></div>
 <map name="achess__gameplay__policy_8c" id="achess__gameplay__policy_8c">
 <area shape="rect" title="Kconfig&#45;driven gameplay policy helpers." alt="" coords="745,5,932,31"/>
-<area shape="rect" href="chess__gameplay__policy_8h.html" title="Central gameplay feature gates (matrix guard, error recovery, move hints)." alt="" coords="305,152,492,177"/>
+<area shape="rect" href="chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="305,152,492,177"/>
 <area shape="poly" title=" " alt="" coords="805,33,447,150,446,145,803,28"/>
 <area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="757,79,920,104"/>
 <area shape="poly" title=" " alt="" coords="841,31,841,65,836,65,836,31"/>
-<area shape="rect" href="game__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Game Task Header." alt="" coords="633,152,740,177"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="633,152,740,177"/>
 <area shape="poly" title=" " alt="" coords="817,33,782,53,747,81,721,111,701,142,697,139,717,108,743,77,779,49,814,28"/>
 <area shape="rect" title=" " alt="" coords="945,79,1029,104"/>
 <area shape="poly" title=" " alt="" coords="864,28,951,70,949,75,861,33"/>
@@ -197,6 +197,7 @@ Functions</h2></td></tr>
 <tr class="memitem:a409efbd642f99fffefa5bab42069714c" id="r_a409efbd642f99fffefa5bab42069714c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a409efbd642f99fffefa5bab42069714c">chess_policy_error_recovery_led_valid_blue</a> (void)</td></tr>
 <tr class="separator:a409efbd642f99fffefa5bab42069714c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa80300cf6f9137b8979bb09682c85216" id="r_aa80300cf6f9137b8979bb09682c85216"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aa80300cf6f9137b8979bb09682c85216">chess_policy_error_recovery_enter_lock</a> (void)</td></tr>
+<tr class="memdesc:aa80300cf6f9137b8979bb09682c85216"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set waiting_for_move_correction when lock-on-error is enabled.  <br /></td></tr>
 <tr class="separator:aa80300cf6f9137b8979bb09682c85216"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8beac5760ae080c8af58b6aa6518fdc" id="r_aa8beac5760ae080c8af58b6aa6518fdc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aa8beac5760ae080c8af58b6aa6518fdc">chess_policy_move_hints_enabled</a> (void)</td></tr>
 <tr class="separator:aa8beac5760ae080c8af58b6aa6518fdc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -209,12 +210,15 @@ Functions</h2></td></tr>
 <tr class="memitem:aa01b73e8e0a672bfd25a47b981e41d26" id="r_aa01b73e8e0a672bfd25a47b981e41d26"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aa01b73e8e0a672bfd25a47b981e41d26">chess_policy_move_hints_movable_yellow</a> (void)</td></tr>
 <tr class="separator:aa01b73e8e0a672bfd25a47b981e41d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8856cbb21a324430e7a69c3e8fedaa24" id="r_a8856cbb21a324430e7a69c3e8fedaa24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a8856cbb21a324430e7a69c3e8fedaa24">chess_policy_highlight_movable_if_enabled</a> (void)</td></tr>
+<tr class="memdesc:a8856cbb21a324430e7a69c3e8fedaa24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Highlight movable pieces when that hint is enabled.  <br /></td></tr>
 <tr class="separator:a8856cbb21a324430e7a69c3e8fedaa24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fcfa235f82285a98f8c27cc106838ab" id="r_a7fcfa235f82285a98f8c27cc106838ab"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a7fcfa235f82285a98f8c27cc106838ab">chess_policy_uart_error_detail_enabled</a> (void)</td></tr>
 <tr class="separator:a7fcfa235f82285a98f8c27cc106838ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a007d451e76ca310e848cd5e710854354" id="r_a007d451e76ca310e848cd5e710854354"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#a007d451e76ca310e848cd5e710854354">chess_policy_profile_name</a> (void)</td></tr>
+<tr class="memdesc:a007d451e76ca310e848cd5e710854354"><td class="mdescLeft">&#160;</td><td class="mdescRight">Active gameplay profile name from Kconfig.  <br /></td></tr>
 <tr class="separator:a007d451e76ca310e848cd5e710854354"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae43e54788b0e531e1feb4fdf0922824" id="r_aae43e54788b0e531e1feb4fdf0922824"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8c.html#aae43e54788b0e531e1feb4fdf0922824">chess_policy_log_boot</a> (void)</td></tr>
+<tr class="memdesc:aae43e54788b0e531e1feb4fdf0922824"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log the profile and whether guard, error recovery, hints, and UART detail are on.  <br /></td></tr>
 <tr class="separator:aae43e54788b0e531e1feb4fdf0922824"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
@@ -242,6 +246,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when CONFIG_CHESS_ER_ENABLE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00094">94</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -263,6 +268,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Set waiting_for_move_correction when lock-on-error is enabled. </p>
+<p>No-op when <a class="el" href="chess__gameplay__policy_8h.html#a50fe842232e31bc541c94b2c5532aedd">chess_policy_error_recovery_should_lock()</a> is false. </p>
+
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00142">142</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
 </div>
@@ -282,6 +290,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when error recovery is on and CONFIG_CHESS_ER_LED_RED_BLINK is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00126">126</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -302,6 +311,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when error recovery is on and CONFIG_CHESS_ER_LED_RED_PERSIST is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00118">118</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -322,6 +332,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when error recovery is on and CONFIG_CHESS_ER_LED_VALID_BLUE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00134">134</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -342,6 +353,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when error recovery is on and CONFIG_CHESS_ER_LOCK_GAME is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00102">102</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -362,6 +374,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when error recovery is on and CONFIG_CHESS_ER_MUTATE_BOARD is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00110">110</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -383,6 +396,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Highlight movable pieces when that hint is enabled. </p>
+<p>Skipped while the Hall restore guide is showing its own LEDs. </p>
+
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00188">188</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
 </div>
@@ -403,6 +419,8 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Log the profile and whether guard, error recovery, hints, and UART detail are on. </p>
+
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00221">221</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
 </div>
@@ -422,6 +440,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when guard LEDs are on and CONFIG_CHESS_MG_LED_BLACK_BLUE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00067">67</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -442,6 +461,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when guard LEDs are on and CONFIG_CHESS_MG_LED_GHOST_ORANGE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00076">76</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -462,6 +482,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when guard LEDs are on and CONFIG_CHESS_MG_LED_MISSING_WHITE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00085">85</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -482,6 +503,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when guard LEDs are on and CONFIG_CHESS_MG_LED_WHITE_YELLOW is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00058">58</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -502,6 +524,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when move hints are on and CONFIG_CHESS_MH_CASTLING_BLUE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00164">164</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -522,6 +545,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when CONFIG_CHESS_MH_ENABLE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00148">148</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -542,6 +566,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when move hints are on and CONFIG_CHESS_MH_LEGAL_MOVES_BLUE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00156">156</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -562,6 +587,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when move hints are on and CONFIG_CHESS_MH_MOVABLE_YELLOW is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00180">180</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -582,6 +608,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when move hints are on and CONFIG_CHESS_MH_PROMOTION_BLUE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00172">172</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -603,6 +630,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>Active gameplay profile name from Kconfig. </p>
+<dl class="section return"><dt>Returns</dt><dd>"FULL", "DEV", "LITE", "FACTORY", or "CUSTOM". </dd></dl>
+
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00207">207</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
 </div>
@@ -622,6 +652,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when the guard is enabled and CONFIG_CHESS_MG_AUTO_CLEAR is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00034">34</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -642,6 +673,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when CONFIG_CHESS_MG_ENABLE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00018">18</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -662,6 +694,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when the guard is enabled and CONFIG_CHESS_MG_LED_ENABLE is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00050">50</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -682,6 +715,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when the guard is enabled and CONFIG_CHESS_MG_NVS_RESYNC is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00042">42</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -702,6 +736,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when the guard is enabled and CONFIG_CHESS_MG_FREEZE_MOVES is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00026">26</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 
@@ -722,6 +757,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true when CONFIG_CHESS_DIAG_UART_ERROR_DETAIL is set. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="chess__gameplay__policy_8c_source.html#l00199">199</a> of file <a class="el" href="chess__gameplay__policy_8c_source.html">chess_gameplay_policy.c</a>.</p>
 

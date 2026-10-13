@@ -115,10 +115,10 @@ Directory dependency graph for include:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="files" name="files"></a>
 Files</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="chess__gameplay__policy_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__gameplay__policy_8h.html">chess_gameplay_policy.h</a></td></tr>
-<tr class="memdesc:chess__gameplay__policy_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Central gameplay feature gates (matrix guard, error recovery, move hints). <br /></td></tr>
+<tr class="memdesc:chess__gameplay__policy_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile-time gameplay gates. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__board__core_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8h.html">game_board_core.h</a></td></tr>
-<tr class="memdesc:game__board__core_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Board initialization, FEN load, and piece helpers (internal + public API in <a class="el" href="game__task_8h.html" title="ESP32-C6 Chess System v1.8.0 - Game Task Header.">game_task.h</a>). <br /></td></tr>
+<tr class="memdesc:game__board__core_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Board initialization, FEN load, and piece helpers (internal + public API in <a class="el" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export.">game_task.h</a>). <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__colors_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__colors_8h.html">game_colors.h</a></td></tr>
 <tr class="memdesc:game__colors_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">ANSI Color Codes and Formatting Macros for Terminal Output. <br /></td></tr>
@@ -127,10 +127,10 @@ Files</h2></td></tr>
 <tr class="memdesc:game__gesture_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game-task side of the V2 button: mode commit, new game, pairing, sleep. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__hall__match_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__hall__match_8h.html">game_hall_match.h</a></td></tr>
-<tr class="memdesc:game__hall__match_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map engine piece_t to stable Hall type/color and compare sensors. <br /></td></tr>
+<tr class="memdesc:game__hall__match_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compare engine piece_t with the uncalibrated Hall type/color POC. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__hall__restore__guide_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__hall__restore__guide_8h.html">game_hall_restore_guide.h</a></td></tr>
-<tr class="memdesc:game__hall__restore__guide_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hall type/color board-restore matching and guide orchestration. <br /></td></tr>
+<tr class="memdesc:game__hall__restore__guide_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hall type/color board-restore matching and the LED guide around it. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__led__direct_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html">game_led_direct.h</a></td></tr>
 <tr class="memdesc:game__led__direct_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">PRIME LED FUNCTION FOR GAME TASK - Back Queue Hell. <br /></td></tr>
@@ -142,19 +142,19 @@ Files</h2></td></tr>
 <tr class="memdesc:game__move__validate_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move validation (internal to game_task component). <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__physical_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8h.html">game_physical.h</a></td></tr>
-<tr class="memdesc:game__physical_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Physical command processing (internal to game_task component). <br /></td></tr>
+<tr class="memdesc:game__physical_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Physical move commands. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__physical__undo_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html">game_physical_undo.h</a></td></tr>
-<tr class="memdesc:game__physical__undo_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Physical board takeback (lift last mover, restore position, then rewind engine). <br /></td></tr>
+<tr class="memdesc:game__physical__undo_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Physical takeback: lift the last mover, restore the piece, then rewind. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__snapshot_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8h.html">game_snapshot.h</a></td></tr>
 <tr class="memdesc:game__snapshot_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">NVS game snapshot save/load and boot restore logic. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__squares__guard_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__squares__guard_8h.html">game_squares_guard.h</a></td></tr>
-<tr class="memdesc:game__squares__guard_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Matrix guard — pause play when physical board disagrees with logic. <br /></td></tr>
+<tr class="memdesc:game__squares__guard_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pause play when the physical board disagrees with the logical position. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__task_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task_8h.html">game_task.h</a></td></tr>
-<tr class="memdesc:game__task_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">ESP32-C6 Chess System v1.8.0 - Game Task Header. <br /></td></tr>
+<tr class="memdesc:game__task_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game task entry: rules, command dispatch, and JSON export. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top"><a href="game__task__internal_8h_source.html"><span class="icondoc"></span></a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html">game_task_internal.h</a></td></tr>
 <tr class="memdesc:game__task__internal_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal API between <a class="el" href="game__task_8c.html" title="Game Task - chess logic and game-state management.">game_task.c</a> and sibling source files in this component. <br /></td></tr>
