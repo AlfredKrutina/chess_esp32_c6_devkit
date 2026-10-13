@@ -78,6 +78,7 @@ Future<T?> showAppModalBottomSheet<T>({
     context: context,
     isScrollControlled: isScrollControlled,
     useSafeArea: useSafeArea,
+    enableDrag: true,
     showDragHandle: showDragHandle,
     backgroundColor: backgroundColor,
     constraints: merged,

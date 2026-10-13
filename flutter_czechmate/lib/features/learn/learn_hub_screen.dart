@@ -28,12 +28,9 @@ class TrainScreen extends ConsumerWidget {
             session.wifiBaseUrl != null) ||
         session.transport == BoardTransport.ble;
 
-    void push(Widget page, {bool fullscreen = false}) {
+    void push(Widget page) {
       Navigator.of(context).push<void>(
-        MaterialPageRoute<void>(
-          fullscreenDialog: fullscreen,
-          builder: (_) => page,
-        ),
+        MaterialPageRoute<void>(builder: (_) => page),
       );
     }
 
@@ -117,7 +114,6 @@ class TrainScreen extends ConsumerWidget {
                               const BoardSetupWizardScreen(
                                 kind: BoardSetupWizardKind.standardStart,
                               ),
-                              fullscreen: true,
                             )
                         : null,
                   ),

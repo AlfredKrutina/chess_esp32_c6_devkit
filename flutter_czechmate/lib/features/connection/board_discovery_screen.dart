@@ -386,32 +386,6 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     }
   }
 
-  Widget _numberedDiscoveryStep(
-    BuildContext context,
-    int index,
-    String text,
-    ThemeData theme,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 28,
-            child: Text(
-              '$index.',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.watch(connectionModeUiRefreshProvider);
@@ -717,86 +691,12 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
               ),
             ),
           ],
-          Theme(
-            data: theme.copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(
-                l10n.discoveryHelpConnectingTitle,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Text(
-                l10n.discoveryHelpConnectingSubtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          l10n.discoveryIntro,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          l10n.discoveryFlowStepsTitle,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _numberedDiscoveryStep(
-                            context, 1, l10n.discoveryFlowStep1, theme),
-                        _numberedDiscoveryStep(
-                            context, 2, l10n.discoveryFlowStep2, theme),
-                        _numberedDiscoveryStep(
-                            context, 3, l10n.discoveryFlowStep3, theme),
-                        if (widget.autoStartBleScan &&
-                            isFlutterBluePlusHostSupported) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            l10n.discoveryAutoScanHint,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 10),
-                        Text(
-                          l10n.discoveryScanCardLead,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: 8),
           Card(
             clipBehavior: Clip.antiAlias,
             child: ListTile(
               leading: Icon(Icons.tune_outlined, color: cs.primary),
               title: Text(l10n.settingsAdvanced),
-              subtitle: Text(
-                l10n.discoveryAdvancedSubtitle,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.of(context).push<void>(

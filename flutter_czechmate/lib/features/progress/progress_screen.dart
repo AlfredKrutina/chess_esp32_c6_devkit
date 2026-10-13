@@ -375,7 +375,6 @@ class _LearnBody extends ConsumerWidget {
                         ? () {
                             Navigator.of(context).push<void>(
                               MaterialPageRoute<void>(
-                                fullscreenDialog: true,
                                 builder: (_) => const BoardSetupWizardScreen(
                                     kind: BoardSetupWizardKind.standardStart),
                               ),

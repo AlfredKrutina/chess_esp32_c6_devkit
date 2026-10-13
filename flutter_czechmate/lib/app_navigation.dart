@@ -21,7 +21,6 @@ Future<void> pushBoardDiscoveryRoute(
 }) {
   return Navigator.of(context).push<void>(
     MaterialPageRoute<void>(
-      fullscreenDialog: true,
       builder: (_) => BoardDiscoveryScreen(autoStartBleScan: autoStartBleScan),
     ),
   );

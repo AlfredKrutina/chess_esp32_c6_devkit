@@ -39,7 +39,6 @@ class BoardDiscoveryAdvancedScreen extends ConsumerStatefulWidget {
 class _BoardDiscoveryAdvancedScreenState
     extends ConsumerState<BoardDiscoveryAdvancedScreen> {
   late final TextEditingController _url;
-  late final TextEditingController _blockedOctets;
   bool _showConnectionRecovery = false;
 
   void _onConnectionAttemptFailed(AppLocalizations l10n) {
@@ -55,15 +54,11 @@ class _BoardDiscoveryAdvancedScreenState
     super.initState();
     final prefs = ref.read(prefsRepositoryProvider);
     _url = TextEditingController(text: prefs.lastBoardBaseUrl ?? '');
-    _blockedOctets = TextEditingController(
-      text: prefs.wifiBlockedThirdOctetsEditingText(),
-    );
   }
 
   @override
   void dispose() {
     _url.dispose();
-    _blockedOctets.dispose();
     super.dispose();
   }
 
@@ -75,8 +70,6 @@ class _BoardDiscoveryAdvancedScreenState
             .watch(sharedPreferencesProvider)
             .getBool('czechmate.developerModeUnlocked') ??
         false;
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
     final l10n = context.l10n;
 
     return Scaffold(
@@ -86,12 +79,6 @@ class _BoardDiscoveryAdvancedScreenState
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            l10n.discoveryTransportAdvancedExplanation,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
           if (_showConnectionRecovery) ...[
             const SizedBox(height: 16),
             DiscoveryConnectionRecoveryCard(
@@ -106,13 +93,6 @@ class _BoardDiscoveryAdvancedScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    l10n.discoveryAdvancedSubtitle,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton.icon(
@@ -162,74 +142,6 @@ class _BoardDiscoveryAdvancedScreenState
                     ),
                     icon: const Icon(Icons.edit),
                     label: Text(l10n.discoveryManualAdvanced),
-                  ),
-                  const Divider(height: 28),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      l10n.discoveryAdvancedBlockedOctetsTitle,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.discoveryAdvancedBlockedOctetsBody,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _blockedOctets,
-                    decoration: InputDecoration(
-                      labelText: l10n.discoveryAdvancedBlockedOctetsLabel,
-                      hintText: l10n.discoveryAdvancedBlockedOctetsHint,
-                      border: const OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      FilledButton.tonal(
-                        onPressed: () async {
-                          await ref
-                              .read(prefsRepositoryProvider)
-                              .setWifiBlockedThirdOctetsFromUi(
-                                _blockedOctets.text,
-                              );
-                          await ref
-                              .read(boardSessionNotifierProvider.notifier)
-                              .syncWifiStaIpBlockToBoardIfBle();
-                          if (!context.mounted) return;
-                          showAppSnackBar(
-                            context,
-                            l10n.discoveryAdvancedBlockedOctetsSavedSnack,
-                          );
-                        },
-                        child: Text(l10n.discoveryAdvancedBlockedOctetsSave),
-                      ),
-                      OutlinedButton(
-                        onPressed: () async {
-                          await ref
-                              .read(prefsRepositoryProvider)
-                              .clearWifiBlockedThirdOctetsToDefault();
-                          setState(() => _blockedOctets.text = '88');
-                          await ref
-                              .read(boardSessionNotifierProvider.notifier)
-                              .syncWifiStaIpBlockToBoardIfBle();
-                          if (!context.mounted) return;
-                          showAppSnackBar(
-                            context,
-                            l10n.discoveryAdvancedBlockedOctetsSavedSnack,
-                          );
-                        },
-                        child: Text(l10n.discoveryAdvancedBlockedOctetsReset),
-                      ),
-                    ],
                   ),
                   const Divider(height: 28),
                   TextField(

@@ -441,7 +441,6 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     }
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        fullscreenDialog: true,
         builder: (_) => BoardSetupWizardScreen(
           kind: BoardSetupWizardKind.fenGuided,
           targetFen: line.startFen,

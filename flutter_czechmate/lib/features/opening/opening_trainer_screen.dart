@@ -206,7 +206,6 @@ class _OpeningTrainerScreenState extends ConsumerState<OpeningTrainerScreen> {
     try {
       await Navigator.of(context).push<void>(
         MaterialPageRoute<void>(
-          fullscreenDialog: true,
           builder: (_) => BoardSetupWizardScreen(
             kind: useStandard
                 ? BoardSetupWizardKind.standardStart

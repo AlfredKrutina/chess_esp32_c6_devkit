@@ -238,138 +238,6 @@ class _SettingsConnectionPageState
                           label: Text(l10n.settingsManualEntry),
                         ),
                         const Divider(height: 28),
-                        Text(
-                          l10n.settingsSavedDefaultsTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.settingsSavedDefaultsBody,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          l10n.settingsNextConnectionTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          l10n.settingsNextConnectionIntro,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                        const SizedBox(height: 12),
-                        if (prefs.nextConnectionTransportOnce != null)
-                          Material(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .secondaryContainer,
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.info_outline,
-                                    size: 22,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondaryContainer,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      prefs.nextConnectionTransportOnce ==
-                                              'wifi_only'
-                                          ? l10n
-                                              .settingsNextConnectionActiveWifiOnce
-                                          : l10n
-                                              .settingsNextConnectionActiveBleOnce,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSecondaryContainer,
-                                          ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      await prefs
-                                          .setNextConnectionTransportOnce(null);
-                                      ref
-                                          .read(
-                                            connectionModeUiRefreshProvider
-                                                .notifier,
-                                          )
-                                          .state++;
-                                    },
-                                    child: Text(
-                                      l10n.settingsNextConnectionUseAuto,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        if (prefs.nextConnectionTransportOnce != null)
-                          const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            OutlinedButton(
-                              onPressed: () async {
-                                await prefs.setNextConnectionTransportOnce(
-                                    'wifi_only');
-                                ref
-                                    .read(
-                                      connectionModeUiRefreshProvider.notifier,
-                                    )
-                                    .state++;
-                              },
-                              child: Text(
-                                l10n.settingsNextConnectionWifiOnceButton,
-                              ),
-                            ),
-                            OutlinedButton(
-                              onPressed: () async {
-                                await prefs
-                                    .setNextConnectionTransportOnce('ble_only');
-                                ref
-                                    .read(
-                                      connectionModeUiRefreshProvider.notifier,
-                                    )
-                                    .state++;
-                              },
-                              child: Text(
-                                l10n.settingsNextConnectionBleOnceButton,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
                         TextField(
                           controller: _url,
                           decoration: InputDecoration(
@@ -405,7 +273,6 @@ class _SettingsConnectionPageState
                           controller: _boardApiToken,
                           decoration: InputDecoration(
                             labelText: l10n.settingsBoardApiTokenLabel,
-                            helperText: l10n.settingsBoardApiTokenSubtitle,
                             border: const OutlineInputBorder(),
                           ),
                           keyboardType: TextInputType.visiblePassword,
@@ -433,9 +300,6 @@ class _SettingsConnectionPageState
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           title: Text(l10n.settingsWebSocketTitle),
-                          subtitle: Text(
-                            l10n.settingsWebSocketSubtitle,
-                          ),
                           value: prefs.useWebSocket,
                           onChanged: (v) async {
                             await prefs.setUseWebSocket(v);
@@ -443,24 +307,6 @@ class _SettingsConnectionPageState
                           },
                         ),
                         const Divider(height: 32),
-                        Text(
-                          l10n.settingsAppFactoryResetTitle,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.settingsAppFactoryResetSubtitle,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                        const SizedBox(height: 12),
                         OutlinedButton.icon(
                           onPressed: session.busy
                               ? null

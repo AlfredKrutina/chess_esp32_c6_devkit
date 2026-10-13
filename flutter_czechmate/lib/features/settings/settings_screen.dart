@@ -91,6 +91,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     ref.invalidate(prefsRepositoryProvider);
   }
 
+  Future<void> _setDemoMode(bool v) async {
+    final session = ref.read(boardSessionNotifierProvider.notifier);
+    if (v) {
+      await session.connectMock();
+    } else {
+      await ref.read(prefsRepositoryProvider).setUseMockBoard(false);
+      session.disconnect();
+    }
+    ref.invalidate(prefsRepositoryProvider);
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<int>(mainNavTabIndexProvider, (previous, next) {
@@ -236,6 +247,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   trailing: Switch(
                     value: prefs.endgameReportAutoOpen,
                     onChanged: _setAutoSummary,
+                  ),
+                ),
+                QuietRow(
+                  icon: Icons.smart_toy_outlined,
+                  title: l10n.uiDemo,
+                  trailing: Switch(
+                    value: prefs.useMockBoard,
+                    onChanged: _setDemoMode,
                   ),
                 ),
               ],

@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/coach_env_config.dart';
 import '../constants/app_environment.dart';
 import '../constants/firmware_defaults.dart';
-import '../utils/wifi_ip_third_octet_blocklist.dart';
 import '../models/chart_palette.dart';
 import '../models/coach_ai_provider.dart';
 import '../models/coach_llm_backend.dart';
@@ -125,14 +124,8 @@ class PrefsRepository {
     }
   }
 
-  /// Active set of blocked 3rd octets; key in prefs is missing → `{88}`.
-  Set<int> get wifiBlockedThirdOctets {
-    if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
-      return {88};
-    }
-    final raw = _p.getString(keyWifiBlockedThirdOctets) ?? '';
-    return parseWifiBlockedThirdOctetsCsv(raw);
-  }
+  /// Address blocking is not a user setting. Always empty so LAN addresses connect.
+  Set<int> get wifiBlockedThirdOctets => const {};
 
   /// Text to field in Advanced Connection (empty string = user has disabled filter).
   String wifiBlockedThirdOctetsEditingText() {
@@ -156,13 +149,8 @@ class PrefsRepository {
     await _p.remove(keyWifiBlockedThirdOctets);
   }
 
-  /// CSV for BLE command `wifi_sta_ip_block` on board — until user saved anything, `88`.
-  String wifiStaIpBlockCsvForBle() {
-    if (!_p.containsKey(keyWifiBlockedThirdOctets)) {
-      return '88';
-    }
-    return _p.getString(keyWifiBlockedThirdOctets) ?? '';
-  }
+  /// Empty CSV clears a previously stored block list on the board.
+  String wifiStaIpBlockCsvForBle() => '';
 
   String? get boardApiToken => _p.getString(keyBoardApiToken);
   Future<void> setBoardApiToken(String? v) async {
