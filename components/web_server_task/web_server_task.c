@@ -1948,7 +1948,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       ble_dispatch_ack_needs_encryption("ota_ble_status");
       return ESP_ERR_INVALID_STATE;
     }
-    char status_ack[400];
+    char status_ack[768];
     esp_err_t er =
         ota_update_ble_build_status_ack_json(status_ack, sizeof(status_ack));
     if (er != ESP_OK) {
@@ -2335,6 +2335,17 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       return ESP_FAIL;
     }
     return ESP_OK;
+  }
+
+  if (strcmp(cmd, "resign") == 0) {
+    const char *rerr = NULL;
+    esp_err_t rr = web_server_resign_dispatch_body(buf, &rerr);
+    if (rr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] resign: command sent");
+    } else {
+      ESP_LOGW(TAG, "[BLE] resign refused: %s", rerr != NULL ? rerr : "?");
+    }
+    return rr;
   }
 
   if (strcmp(cmd, "undo") == 0) {
@@ -2863,6 +2874,24 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     ESP_LOGI(TAG, "[BLE] setup_tutorial action=%s queued",
              want_start ? "start" : "cancel");
     return ESP_OK;
+  }
+
+  if (strcmp(cmd, "puzzle") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] puzzle blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    esp_err_t perr = web_server_puzzle_dispatch_body(buf, NULL, 0);
+    if (perr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] puzzle dispatched");
+      return ESP_OK;
+    }
+    if (perr == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "[BLE] puzzle physical mismatch or hint unavailable");
+      return ESP_ERR_INVALID_STATE;
+    }
+    ESP_LOGW(TAG, "[BLE] puzzle dispatch failed: %s", esp_err_to_name(perr));
+    return perr;
   }
 
   if (strcmp(cmd, "opening") == 0) {

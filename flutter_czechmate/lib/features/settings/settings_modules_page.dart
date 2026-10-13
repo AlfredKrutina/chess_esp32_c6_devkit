@@ -39,6 +39,18 @@ class SettingsModulesPage extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
+                  leading: const Icon(Icons.flag_circle_outlined),
+                  title: Text(l10n.settingsNavBoardGuide),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (_) => const OnboardingScreen(guideOnly: true),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(Icons.explore_outlined),
                   title: Text(l10n.settingsNavAppTour),
                   trailing: const Icon(Icons.chevron_right),

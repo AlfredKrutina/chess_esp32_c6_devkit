@@ -58,8 +58,8 @@
 #include "led_task.h"
 #include "squares_task.h"
 #include "board_api_auth.h"
-#include "esp_ota_ops.h"
 #include "nvs_flash.h"
+#include "ota_guard.h"
 #include "stm32_i2c_bl.h"
 #if CONFIG_CHESS_ENABLE_TEST_TASK
 #include "test_task.h"
@@ -111,20 +111,13 @@ static const char *reset_reason_to_str(esp_reset_reason_t reason) {
 
 static const char *TAG = "MAIN";
 
-static void main_mark_ota_app_valid_if_needed(void) {
-  const esp_partition_t *running = esp_ota_get_running_partition();
-  if (running == NULL) {
-    return;
-  }
-  esp_ota_img_states_t st;
-  if (esp_ota_get_state_partition(running, &st) != ESP_OK) {
-    return;
-  }
-  if (st == ESP_OTA_IMG_PENDING_VERIFY) {
-    esp_err_t e = esp_ota_mark_app_valid_cancel_rollback();
-    ESP_LOGI(TAG, "OTA: app marked valid (cancel rollback): %s",
-             esp_err_to_name(e));
-  }
+/**
+ * OTA confirm gate: the image is confirmed only while an OTA transport is up,
+ * so a confirmed image is always one that can receive the next update.
+ */
+static bool main_ota_transport_ready(void) {
+  return web_server_is_task_running() &&
+         (web_server_is_active() || ble_task_host_synced());
 }
 
 // ============================================================================
@@ -1403,6 +1396,9 @@ void app_main(void) {
   ESP_LOGI(TAG,
            "===============================================================");
 
+  /* Before anything that can fail: arms the OTA confirm deadline and counts crash resets. */
+  ota_guard_boot_early();
+
   // Check boot counter - if limit exceeded, enter deep sleep
   if (boot_counter_check_and_update()) {
     ESP_LOGW(TAG, "⚠️ Too many reboots detected! Entering deep sleep for 10 seconds...");
@@ -1449,6 +1445,8 @@ void app_main(void) {
   ret = main_system_init();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "❌ System init failed: %s", esp_err_to_name(ret));
+    /* Unconfirmed OTA image → rollback; crash loop with a valid other slot → fallback. */
+    ota_guard_on_init_failure("main_system_init");
     ESP_LOGE(TAG, "🔄 Entering safe mode - basic UART only");
 
     // Safe mode - UART only for debugging
@@ -1463,10 +1461,14 @@ void app_main(void) {
   // (CONFIG_ESP_TASK_WDT_INIT=y in sdkconfig)
   ESP_LOGI(TAG, "Task Watchdog Timer initialized automatically by ESP-IDF");
 
+  /* NVS is up: resolve the outcome of the last OTA attempt (journal + otadata). */
+  ota_guard_init();
+
   // Create system tasks
   ret = create_system_tasks();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "❌ Task creation failed: %s", esp_err_to_name(ret));
+    ota_guard_on_init_failure("create_system_tasks");
     ESP_LOGE(TAG, "🔄 Entering safe mode - basic UART only");
 
     // Safe mode - UART only for debugging
@@ -1501,11 +1503,15 @@ void app_main(void) {
   // Reset boot counter - system started successfully
   boot_counter_reset();
 
-  main_mark_ota_app_valid_if_needed();
+  bool ota_confirmed = false;
 
   for (;;) {
     // CRITICAL: Reset watchdog for main task in every iteration
     chess_task_wdt_reset_safe(TAG);
+
+    if (!ota_confirmed) {
+      ota_confirmed = ota_guard_confirm_if_healthy(main_ota_transport_ready());
+    }
 
     // Get current time in ms
     uint32_t current_time_ms = esp_timer_get_time() / 1000;

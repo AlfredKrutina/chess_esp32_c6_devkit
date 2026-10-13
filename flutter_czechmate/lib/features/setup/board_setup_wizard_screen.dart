@@ -5,7 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/localization/locale_bridge.dart';
 import '../../core/services/board_api_exception.dart';
+import '../../core/constants/app_environment.dart';
 import '../../core/utils/board_setup_fen_steps.dart';
+import '../../core/utils/puzzle_uci.dart';
+import '../game/state/game_ui_notifier.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../l10n/app_localizations.dart';
 import '../../app_providers.dart';
@@ -25,11 +28,19 @@ class BoardSetupWizardScreen extends ConsumerStatefulWidget {
     required this.kind,
     this.targetFen,
     this.loadFenWhenDone = true,
+    this.puzzleSolution = const [],
+    this.puzzleTitle = '',
+    this.puzzleRating,
   });
 
   final BoardSetupWizardKind kind;
   final String? targetFen;
   final bool loadFenWhenDone;
+
+  /// Solver-first line. Fen-guided setup uses the puzzle session, not `new_game`.
+  final List<String> puzzleSolution;
+  final String puzzleTitle;
+  final int? puzzleRating;
 
   @override
   ConsumerState<BoardSetupWizardScreen> createState() =>
@@ -61,6 +72,9 @@ class _BoardSetupWizardScreenState
     return widget.targetFen?.trim() ?? '';
   }
 
+  bool get _puzzleSession =>
+      widget.kind == BoardSetupWizardKind.fenGuided;
+
   BoardSetupPieceStep? get _current {
     if (_phase != _WizardPhase.running) return null;
     if (_currentIndex >= _steps.length) return null;
@@ -82,14 +96,21 @@ class _BoardSetupWizardScreenState
   }
 
   Future<void> _silentCancel() async {
-    if (_phase == _WizardPhase.running || _phase == _WizardPhase.validating) {
-      try {
-        await _sessionN.postSetupTutorialAction('cancel');
-      } catch (_) {}
-      try {
-        await _sessionN.postHintClearBoard();
-      } catch (_) {}
+    if (_phase != _WizardPhase.running && _phase != _WizardPhase.validating) {
+      return;
     }
+    if (_puzzleSession) {
+      try {
+        await _sessionN.cancelPuzzle();
+      } catch (_) {}
+      return;
+    }
+    try {
+      await _sessionN.postSetupTutorialAction('cancel');
+    } catch (_) {}
+    try {
+      await _sessionN.postHintClearBoard();
+    } catch (_) {}
   }
 
   Future<void> _bootstrap() async {
@@ -126,9 +147,28 @@ class _BoardSetupWizardScreenState
       _error = null;
     });
     try {
-      await _sessionN.postSetupTutorialAction('start');
-      final tr = ref.read(boardSessionNotifierProvider).transport;
-      if (tr == BoardTransport.wifi) await _sessionN.refreshNow();
+      if (_puzzleSession) {
+        await _sessionN.sendPuzzleToBoard(
+          fen: fen,
+          solution: widget.puzzleSolution,
+          title: widget.puzzleTitle,
+        );
+        ref.read(gameUiNotifierProvider.notifier).armBoardPuzzle(
+              fen: fen,
+              title: widget.puzzleTitle,
+              solutionUci: widget.puzzleSolution,
+              rating: widget.puzzleRating,
+            );
+        if (AppEnvironment.staging) {
+          debugPrint(
+            '[staging] puzzle wizard armed plies=${widget.puzzleSolution.length}',
+          );
+        }
+      } else {
+        await _sessionN.postSetupTutorialAction('start');
+        final tr = ref.read(boardSessionNotifierProvider).transport;
+        if (tr == BoardTransport.wifi) await _sessionN.refreshNow();
+      }
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -169,10 +209,13 @@ class _BoardSetupWizardScreenState
   void _startTimers() {
     _ledTimer?.cancel();
     _matrixTimer?.cancel();
-    _ledTimer = Timer.periodic(
-        const Duration(milliseconds: 900), (_) => unawaited(_refreshLed()));
+    if (!_puzzleSession) {
+      _ledTimer = Timer.periodic(
+          const Duration(milliseconds: 900), (_) => unawaited(_refreshLed()));
+    }
     _matrixTimer = Timer.periodic(
-        const Duration(milliseconds: 400), (_) => unawaited(_pollMatrix()));
+        const Duration(milliseconds: 400),
+        (_) => unawaited(_puzzleSession ? _pollPuzzleAlign() : _pollMatrix()));
   }
 
   void _stopTimers() {
@@ -200,6 +243,56 @@ class _BoardSetupWizardScreenState
     } catch (_) {}
   }
 
+  Future<void> _pollPuzzleAlign() async {
+    if (!mounted || _phase != _WizardPhase.running || _advanceInFlight) return;
+    await _sessionN.refreshNow();
+    if (!mounted || _phase != _WizardPhase.running) return;
+    final snap = ref.read(boardSessionNotifierProvider).snapshot;
+    final puzzle = snap?.status.puzzle;
+    if (puzzle?.active == true) {
+      _stopTimers();
+      setState(() => _phase = _WizardPhase.completed);
+      return;
+    }
+    final matrix = await _sessionN.fetchMatrixOccupiedForWizard();
+    final diffs = puzzleOccupancyDiffs(_targetFen, matrix);
+    if (diffs.isEmpty && puzzle?.physicalMatch == true) {
+      _occStable++;
+    } else {
+      _occStable = 0;
+      final next = diffs.isEmpty ? null : diffs.first.square;
+      if (next != null) {
+        final idx = _steps.indexWhere(
+          (s) => s.square.toLowerCase() == next.toLowerCase(),
+        );
+        if (idx >= 0 && idx != _currentIndex && mounted) {
+          setState(() => _currentIndex = idx);
+        }
+      }
+    }
+    if (_occStable >= 2) {
+      _advanceInFlight = true;
+      _stopTimers();
+      try {
+        await _sessionN.startPuzzlePlay();
+      } catch (_) {}
+      await _sessionN.refreshNow();
+      if (!mounted) return;
+      final active = ref
+              .read(boardSessionNotifierProvider)
+              .snapshot
+              ?.status
+              .puzzle
+              ?.active ==
+          true;
+      setState(() {
+        _phase = active ? _WizardPhase.completed : _WizardPhase.running;
+      });
+      _advanceInFlight = false;
+      if (!active) _startTimers();
+    }
+  }
+
   Future<void> _pollMatrix() async {
     if (!mounted || _phase != _WizardPhase.running || _advanceInFlight) return;
     final step = _current;
@@ -220,6 +313,7 @@ class _BoardSetupWizardScreenState
   }
 
   void _consumeSnapshot() {
+    if (_puzzleSession) return;
     if (!mounted || _phase != _WizardPhase.running || _advanceInFlight) return;
     final step = _current;
     final snap = ref.read(boardSessionNotifierProvider).snapshot;
@@ -352,13 +446,49 @@ class _BoardSetupWizardScreenState
             return;
           }
         }
+      } else if (_puzzleSession) {
+        final active = ref
+                .read(boardSessionNotifierProvider)
+                .snapshot
+                ?.status
+                .puzzle
+                ?.active ==
+            true;
+        if (!active) {
+          final matrix = await _sessionN.fetchMatrixOccupiedForWizard();
+          if (puzzleOccupancyDiffs(_targetFen, matrix).isNotEmpty) {
+            if (mounted) {
+              setState(() {
+                _phase = _WizardPhase.failed;
+                _error = l10n.setupWizardErrPhysicalMismatch;
+              });
+            }
+            return;
+          }
+          try {
+            await _sessionN.startPuzzlePlay();
+          } catch (e) {
+            if (mounted) {
+              setState(() {
+                _phase = _WizardPhase.failed;
+                _error = userFacingErrorSummary(l10n, e);
+              });
+            }
+            return;
+          }
+        }
+        if (mounted) setState(() => _phase = _WizardPhase.completed);
       } else {
         try {
           await _sessionN.postSetupTutorialAction('cancel');
         } catch (_) {}
         if (widget.loadFenWhenDone) {
           try {
-            await _sessionN.sendPuzzleFenToBoard(_targetFen);
+            await _sessionN.sendPuzzleToBoard(
+              fen: _targetFen,
+              solution: widget.puzzleSolution,
+              title: widget.puzzleTitle,
+            );
           } catch (e) {
             if (mounted) {
               final l = appStringsForPrefs(ref.read(prefsRepositoryProvider));
@@ -379,6 +509,13 @@ class _BoardSetupWizardScreenState
 
   Future<void> _skipStep() async {
     if (_phase != _WizardPhase.running || _advanceInFlight) return;
+    if (_puzzleSession) {
+      if (_steps.isEmpty) return;
+      setState(() {
+        _currentIndex = (_currentIndex + 1) % _steps.length;
+      });
+      return;
+    }
     _occStable = 0;
     _pieceStable = 0;
     await _advance();
@@ -386,12 +523,19 @@ class _BoardSetupWizardScreenState
 
   Future<void> _cancelWizard() async {
     _stopTimers();
-    try {
-      await _sessionN.postSetupTutorialAction('cancel');
-    } catch (_) {}
-    try {
-      await _sessionN.postHintClearBoard();
-    } catch (_) {}
+    if (_puzzleSession) {
+      try {
+        await _sessionN.cancelPuzzle();
+      } catch (_) {}
+      ref.read(gameUiNotifierProvider.notifier).exitPuzzleChallenge();
+    } else {
+      try {
+        await _sessionN.postSetupTutorialAction('cancel');
+      } catch (_) {}
+      try {
+        await _sessionN.postHintClearBoard();
+      } catch (_) {}
+    }
     if (mounted) Navigator.of(context).pop();
   }
 

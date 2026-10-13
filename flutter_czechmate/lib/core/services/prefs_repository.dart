@@ -50,6 +50,8 @@ class PrefsRepository {
   /// CSV of third IPv4 octets to reject for Wi‑Fi URL (`88` → `x.x.88.x`). Key missing → default `{88}`.
   static const keyWifiBlockedThirdOctets = 'czechmate.wifiBlockedThirdOctets';
   static const keyLastBleId = 'czechmate.lastBleRemoteId';
+  /// 64 hex command token issued while the board pairing window was open.
+  static const keyBoardCommandToken = 'czechmate.boardCommandToken';
   static const keyPreferBluetoothOnly = 'czechmate.preferBluetoothOnly';
   static const keyHintDepth = 'czechmate.hintDepth';
   static const keyMoveHintTier = 'czechmate.moveHintTier';
@@ -63,6 +65,8 @@ class PrefsRepository {
   static const keyCoachLevel = 'czechmate.coach.userLevel';
   static const keyDevMode = 'czechmate.developerModeUnlocked';
   static const keyLayoutMode = 'czechmate.game.layoutMode';
+  static const keyLastMainTab = 'czechmate.shell.lastMainTab.v3';
+  static const _keyLastMainTabFourTabs = 'czechmate.shell.lastMainTab';
   static const keyDesktopCoachRailVisible = 'czechmate.game.desktopCoachRailVisible';
   static const keyBoardZoom = 'czechmate.game.boardZoomStorage';
   static const keyBoardFlipped = 'czechmate.boardFlipped';
@@ -471,6 +475,16 @@ class PrefsRepository {
     }
   }
 
+  String? get boardCommandToken => _p.getString(keyBoardCommandToken);
+  Future<void> setBoardCommandToken(String? v) async {
+    final t = v?.trim();
+    if (t == null || t.isEmpty) {
+      await _p.remove(keyBoardCommandToken);
+    } else {
+      await _p.setString(keyBoardCommandToken, t);
+    }
+  }
+
   String? get lastBleRemoteId => _p.getString(keyLastBleId);
   Future<void> setLastBleRemoteId(String? v) async {
     if (v == null || v.isEmpty) {
@@ -528,11 +542,30 @@ class PrefsRepository {
   String get boardStyleRaw => _p.getString(keyBoardStyle) ?? 'wooden';
   Future<void> setBoardStyleRaw(String v) => _p.setString(keyBoardStyle, v);
 
-  String get appearance => _p.getString(keyAppearance) ?? 'system';
+  /// `dark` | `light`. Legacy `system` and `oled` resolve to dark.
+  String get appearance {
+    final raw = _p.getString(keyAppearance);
+    return raw == 'light' ? 'light' : 'dark';
+  }
+
   Future<void> setAppearance(String v) => _p.setString(keyAppearance, v);
 
+  /// Index into the bottom navigation; see `AppMainTab`. The four-tab layout
+  /// (Play, Puzzle, Learn, Settings) maps onto Play, Train, Settings.
+  int get lastMainTab {
+    final v = _p.getInt(keyLastMainTab);
+    if (v != null) return v;
+    return switch (_p.getInt(_keyLastMainTabFourTabs)) {
+      1 || 2 => 1,
+      3 => 2,
+      _ => 0,
+    };
+  }
+
+  Future<void> setLastMainTab(int v) => _p.setInt(keyLastMainTab, v);
+
   /// `system` | `en` | `cs`
-  String get uiLanguage => _p.getString(keyUiLanguage) ?? 'system';
+  String get uiLanguage => _p.getString(keyUiLanguage) ?? 'cs';
   Future<void> setUiLanguage(String v) => _p.setString(keyUiLanguage, v);
 
   bool get hapticsEnabled => _p.getBool(keyHaptics) ?? true;

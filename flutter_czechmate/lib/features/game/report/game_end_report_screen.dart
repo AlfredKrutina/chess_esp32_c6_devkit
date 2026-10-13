@@ -119,6 +119,8 @@ class _GameEndReportScreenState extends ConsumerState<GameEndReportScreen> {
         return l10n.endReasonCheckmate;
       case 'Stalemate':
         return l10n.endReasonStalemate;
+      case 'Resignation':
+        return l10n.endReasonResignation;
       case 'Finished':
         return l10n.endReasonFinished;
       default:

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../layout/form_factor.dart';
+import '../theme/app_motion.dart';
 
 /// Max width for modal bottom sheets on desktop embedders (aligned with form caps).
 BoxConstraints? desktopModalSheetConstraints(
@@ -80,6 +81,7 @@ Future<T?> showAppModalBottomSheet<T>({
     showDragHandle: showDragHandle,
     backgroundColor: backgroundColor,
     constraints: merged,
+    sheetAnimationStyle: AppMotion.sheetStyle(context),
     builder: (sheetContext) => _wrapEscapeDismiss(
         sheetContext, builder(sheetContext), escapeToDismiss),
   );

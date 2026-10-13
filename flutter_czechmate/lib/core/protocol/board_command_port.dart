@@ -13,6 +13,9 @@ abstract class BoardCommandPort {
 
   Future<void> postNewGame({String? fen});
 
+  /// Resign [side] (`white` / `black`), which must be the side on move.
+  Future<void> postResign({required String side});
+
   Future<void> postTimerConfig({
     required int type,
     int? customMinutes,
@@ -32,6 +35,8 @@ abstract class BoardCommandPort {
   Future<void> postSetupTutorial(String action);
 
   Future<void> postOpening(Map<String, dynamic> body);
+
+  Future<void> postPuzzle(Map<String, dynamic> body);
 
   Future<void> postBrightness(int percent);
 
@@ -76,6 +81,10 @@ class HttpBoardCommandPort implements BoardCommandPort {
       _api.postNewGame(baseUrl, fen: fen);
 
   @override
+  Future<void> postResign({required String side}) =>
+      _api.postResign(baseUrl, side: side);
+
+  @override
   Future<void> postTimerConfig({
     required int type,
     int? customMinutes,
@@ -112,6 +121,10 @@ class HttpBoardCommandPort implements BoardCommandPort {
   @override
   Future<void> postOpening(Map<String, dynamic> body) =>
       _api.postOpening(baseUrl, body);
+
+  @override
+  Future<void> postPuzzle(Map<String, dynamic> body) =>
+      _api.postPuzzle(baseUrl, body);
 
   @override
   Future<void> postBrightness(int percent) =>
@@ -164,6 +177,10 @@ class BleBoardCommandPort implements BoardCommandPort {
   Future<void> postNewGame({String? fen}) => _ble.postNewGame(fen: fen);
 
   @override
+  Future<void> postResign({required String side}) =>
+      _ble.postResign(side: side);
+
+  @override
   Future<void> postTimerConfig({
     required int type,
     int? customMinutes,
@@ -199,6 +216,9 @@ class BleBoardCommandPort implements BoardCommandPort {
   @override
   Future<void> postOpening(Map<String, dynamic> body) =>
       _ble.postOpening(body);
+
+  @override
+  Future<void> postPuzzle(Map<String, dynamic> body) => _ble.postPuzzle(body);
 
   @override
   Future<void> postBrightness(int percent) => _ble.postBrightness(percent);

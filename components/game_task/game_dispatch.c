@@ -353,6 +353,15 @@ void game_process_commands(void) {
         game_process_endgame_black_command(&chess_cmd);
         break;
 
+      case GAME_CMD_RESIGN: // 50
+        ESP_LOGI(TAG, "Processing RESIGN command (side=%u)",
+                 (unsigned)chess_cmd.promotion_choice);
+        if (!game_resign_from_app(chess_cmd.promotion_choice)) {
+          game_send_response_to_uart("Resign refused", true,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        }
+        break;
+
       case 27: // GAME_CMD_LIST_GAMES
         ESP_LOGI(TAG, "Processing LIST_GAMES command from UART");
         game_process_list_games_command(&chess_cmd);
@@ -445,6 +454,14 @@ void game_process_commands(void) {
         ESP_LOGI(TAG, "PUZZLE action/id=%u", (unsigned)chess_cmd.promotion_choice);
         if (chess_cmd.promotion_choice == 0U) {
           game_puzzle_cancel();
+        } else if (chess_cmd.promotion_choice == 210U) {
+          if (!game_puzzle_apply_staged_setup()) {
+            ESP_LOGW(TAG, "PUZZLE apply setup failed (no staged line)");
+          }
+        } else if (chess_cmd.promotion_choice == 211U) {
+          if (!game_puzzle_try_start_staged()) {
+            ESP_LOGW(TAG, "PUZZLE staged start refused");
+          }
         } else if (chess_cmd.promotion_choice >= 101U &&
                    chess_cmd.promotion_choice <= 105U) {
           uint8_t prep_id =

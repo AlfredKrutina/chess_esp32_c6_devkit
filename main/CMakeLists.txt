@@ -8,6 +8,7 @@ set(MAIN_REQUIRES
     uart_task
     game_task
     web_server_task
+    ota_guard
     led_state_manager
     visual_error_system
     timer_system

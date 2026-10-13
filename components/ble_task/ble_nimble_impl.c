@@ -9,6 +9,7 @@
 #if CONFIG_BT_ENABLED
 
 #include "ble_task.h"
+#include "board_api_auth.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "host/ble_att.h"
@@ -28,6 +29,8 @@
 /** NimBLE store/config — in ESP-IDF examples (bleprph) without a prototype in the public header. */
 void ble_store_config_init(void);
 #include "esp_task_wdt.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/portmacro.h"
 #include "game_state_notify.h"
 #include "ota_update.h"
 #include "transport_policy.h"
@@ -103,6 +106,23 @@ static struct ble_npl_event s_idle_adv_watchdog_npl_ev;
 static bool s_idle_adv_watchdog_npl_ev_inited;
 static struct ble_npl_event s_pair_npl_ev;
 static bool s_pair_npl_ev_inited;
+
+/** 60 s new-device window. A second triple-click cancels it. */
+#define PAIR_WINDOW_US (60LL * 1000 * 1000)
+static portMUX_TYPE s_pair_mux = portMUX_INITIALIZER_UNLOCKED;
+static volatile bool s_pair_window_open;
+static volatile uint32_t s_pair_window_gen;
+static uint32_t s_pair_timer_gen;
+static esp_timer_handle_t s_pair_window_timer;
+static struct ble_npl_event s_pair_expire_ev;
+static bool s_pair_expire_ev_ready;
+static struct ble_npl_event s_pair_finish_ev;
+static bool s_pair_finish_ev_ready;
+/** This link was allowed only because the window was open. */
+static bool s_admit_unknown;
+static bool s_new_pair_done;
+static char s_pending_pair_json[180];
+static bool s_pending_pair_json_ready;
 
 /** One GATT write at a time per guest task — saves stack compared to local tmp[768]. */
 static char s_ble_cmd_copy[768];
@@ -371,6 +391,40 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
         os_mbuf_copydata(ctxt->om, 0, om_len, s_ble_cmd_copy);
       }
       s_ble_cmd_copy[om_len] = '\0';
+      if (s_admit_unknown && !s_new_pair_done) {
+        ESP_LOGW(TAG, "[STAGING] CMD rejected: pairing not finished");
+        ble_task_notify_cmd_ack_json(
+            "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"not_pairing\","
+            "\"message\":\"Board is not in pairing mode.\"}");
+        return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
+      }
+      if (strstr(s_ble_cmd_copy, "\"pair_token\"") != NULL) {
+        struct ble_gap_conn_desc iddesc;
+        char hex[65];
+        memset(&iddesc, 0, sizeof(iddesc));
+        bool sent = false;
+        if (ble_gap_conn_find(s_conn_handle, &iddesc) == 0 &&
+            (board_pair_copy_token_hex(iddesc.peer_id_addr.type,
+                                       iddesc.peer_id_addr.val, hex,
+                                       sizeof(hex)) ||
+             board_pair_copy_token_hex(iddesc.peer_ota_addr.type,
+                                       iddesc.peer_ota_addr.val, hex,
+                                       sizeof(hex)))) {
+          char body[180];
+          snprintf(body, sizeof(body),
+                   "{\"channel\":\"cmd_ack\",\"ok\":true,\"code\":\"paired\","
+                   "\"api_token\":\"%s\"}",
+                   hex);
+          ble_task_notify_cmd_ack_json(body);
+          sent = true;
+        }
+        if (!sent) {
+          ble_task_notify_cmd_ack_json(
+              "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"not_pairing\","
+              "\"message\":\"Board is not in pairing mode.\"}");
+        }
+        return 0;
+      }
       esp_err_t derr =
           web_server_ble_command_dispatch(s_ble_cmd_copy, om_len);
       if (!web_server_ble_dispatch_custom_ack_was_sent()) {
@@ -483,6 +537,23 @@ static void czechmate_advertise(void) {
   rsp_fields.name = (uint8_t *)name;
   rsp_fields.name_len = strlen(name);
   rsp_fields.name_is_complete = 1;
+  /* Scan response, company id 0x02E5 (Espressif) + magic 0xC2 + status.
+   * status bit0 = pairing window, bit1 = a commander already holds the link.
+   * Phones read this instead of opening a second GATT connection. */
+  static uint8_t s_pair_mfg[4];
+  uint8_t air = 0;
+  if (s_pair_window_open) {
+    air |= 1u;
+  }
+  if (s_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
+    air |= 2u;
+  }
+  s_pair_mfg[0] = 0xE5;
+  s_pair_mfg[1] = 0x02;
+  s_pair_mfg[2] = 0xC2;
+  s_pair_mfg[3] = air;
+  rsp_fields.mfg_data = s_pair_mfg;
+  rsp_fields.mfg_data_len = sizeof(s_pair_mfg);
 
   rc = ble_gap_adv_rsp_set_fields(&rsp_fields);
   if (rc != 0) {
@@ -525,15 +596,140 @@ static void czechmate_gap_restart_advertising(void) {
   czechmate_advertise();
 }
 
-static void czechmate_pair_npl_cb(struct ble_npl_event *ev) {
-  (void)ev;
-  if (s_conn_handle != BLE_HS_CONN_HANDLE_NONE) {
-    ESP_LOGI(TAG,
-             "[STAGING] pairing: GATT link already up, stack left running");
+static bool peer_has_bond(const ble_addr_t *addr) {
+  if (addr == NULL) {
+    return false;
+  }
+  struct ble_store_key_sec key;
+  struct ble_store_value_sec value;
+  memset(&key, 0, sizeof(key));
+  key.peer_addr = *addr;
+  return ble_store_read_peer_sec(&key, &value) == 0;
+}
+
+static void discard_admitted_peer(void) {
+  if (!s_admit_unknown || s_new_pair_done ||
+      s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
     return;
   }
-  ESP_LOGI(TAG, "[STAGING] pairing: restart GAP advertising");
+  struct ble_gap_conn_desc desc;
+  if (ble_gap_conn_find(s_conn_handle, &desc) == 0) {
+    ble_store_util_delete_peer(&desc.peer_id_addr);
+    if (ble_addr_cmp(&desc.peer_id_addr, &desc.peer_ota_addr) != 0) {
+      ble_store_util_delete_peer(&desc.peer_ota_addr);
+    }
+  }
+  s_admit_unknown = false;
+  s_pending_pair_json_ready = false;
+  ESP_LOGW(TAG, "[STAGING] pairing: unfinished bond discarded");
+  ble_gap_terminate(s_conn_handle, BLE_ERR_CONN_TERM_LOCAL);
+}
+
+/** NimBLE host context. The window flag is already cleared by claim. */
+static void pair_window_cleanup(void) {
+  if (s_pair_window_timer != NULL) {
+    (void)esp_timer_stop(s_pair_window_timer);
+  }
+  discard_admitted_peer();
   czechmate_gap_restart_advertising();
+}
+
+static void pair_expire_timer_cb(void *arg) {
+  (void)arg;
+  if (!s_pair_window_open || s_pair_timer_gen != s_pair_window_gen ||
+      !s_pair_expire_ev_ready) {
+    return;
+  }
+  struct ble_npl_eventq *evq = nimble_port_get_dflt_eventq();
+  if (evq == NULL) {
+    return;
+  }
+  ble_npl_eventq_put(evq, &s_pair_expire_ev);
+}
+
+static void pair_expire_npl_cb(struct ble_npl_event *ev) {
+  (void)ev;
+  if (s_pair_timer_gen != s_pair_window_gen) {
+    return;
+  }
+  if (!ble_task_claim_pairing_success()) {
+    return;
+  }
+  ESP_LOGI(TAG, "[STAGING] pairing window expired");
+  pair_window_cleanup();
+}
+
+static void pair_window_arm(void) {
+  if (s_pair_window_timer == NULL) {
+    const esp_timer_create_args_t args = {
+        .callback = &pair_expire_timer_cb,
+        .name = "ble_pair_win",
+        .skip_unhandled_events = true,
+    };
+    if (esp_timer_create(&args, &s_pair_window_timer) != ESP_OK) {
+      ESP_LOGE(TAG, "pairing window timer create failed");
+    }
+  }
+  if (!s_pair_expire_ev_ready) {
+    ble_npl_event_init(&s_pair_expire_ev, pair_expire_npl_cb, NULL);
+    s_pair_expire_ev_ready = true;
+  }
+  taskENTER_CRITICAL(&s_pair_mux);
+  s_pair_window_open = true;
+  s_pair_window_gen++;
+  s_pair_timer_gen = s_pair_window_gen;
+  taskEXIT_CRITICAL(&s_pair_mux);
+  if (s_pair_window_timer != NULL) {
+    (void)esp_timer_stop(s_pair_window_timer);
+    (void)esp_timer_start_once(s_pair_window_timer, PAIR_WINDOW_US);
+  }
+  ESP_LOGI(TAG, "[STAGING] pairing window open (60 s)");
+  czechmate_gap_restart_advertising();
+}
+
+bool ble_task_pairing_window_is_open(void) { return s_pair_window_open; }
+
+bool ble_task_pairing_pulse_wanted(void) { return s_pair_window_open; }
+
+bool ble_task_claim_pairing_success(void) {
+  bool claimed = false;
+  taskENTER_CRITICAL(&s_pair_mux);
+  if (s_pair_window_open) {
+    s_pair_window_open = false;
+    s_pair_window_gen++;
+    claimed = true;
+  }
+  taskEXIT_CRITICAL(&s_pair_mux);
+  return claimed;
+}
+
+static void pair_finish_npl_cb(struct ble_npl_event *ev) {
+  (void)ev;
+  pair_window_cleanup();
+}
+
+void ble_task_finish_pairing_window(void) {
+  struct ble_npl_eventq *evq = nimble_port_get_dflt_eventq();
+  if (evq == NULL) {
+    return;
+  }
+  if (!s_pair_finish_ev_ready) {
+    ble_npl_event_init(&s_pair_finish_ev, pair_finish_npl_cb, NULL);
+    s_pair_finish_ev_ready = true;
+  }
+  ble_npl_eventq_put(evq, &s_pair_finish_ev);
+}
+
+static void czechmate_pair_npl_cb(struct ble_npl_event *ev) {
+  (void)ev;
+  if (s_pair_window_open) {
+    if (ble_task_claim_pairing_success()) {
+      ESP_LOGI(TAG, "[STAGING] pairing window cancelled");
+      pair_window_cleanup();
+    }
+    return;
+  }
+  pair_window_arm();
 }
 
 void ble_task_request_pairing(void) {
@@ -616,9 +812,25 @@ static void czechmate_start_adv_watchdog_timer(void) {
 }
 
 #if CONFIG_BT_NIMBLE_SECURITY_ENABLE
+static bool smp_allowed_for_link(void) {
+  if (s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
+    return false;
+  }
+  /* Known bond: quiet encryption. Unknown peer: only inside the window. */
+  if (!s_admit_unknown) {
+    return true;
+  }
+  return s_pair_window_open;
+}
+
 static void czechmate_security_retry_cb(struct ble_npl_event *ev) {
   (void)ev;
   if (!s_sec_retry_co_ready || s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
+    return;
+  }
+  if (!smp_allowed_for_link()) {
+    ESP_LOGW(TAG, "[STAGING] SMP skipped: unknown peer outside pairing window");
+    discard_admitted_peer();
     return;
   }
   if (ble_task_conn_is_encrypted()) {
@@ -652,8 +864,52 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
   switch (event->type) {
   case BLE_GAP_EVENT_CONNECT:
     if (event->connect.status == 0) {
+      if (s_conn_handle != BLE_HS_CONN_HANDLE_NONE &&
+          event->connect.conn_handle != s_conn_handle) {
+        ESP_LOGW(TAG, "[STAGING] pairing: second link refused (board busy)");
+        ble_gap_terminate(event->connect.conn_handle, BLE_ERR_CONN_TERM_LOCAL);
+        return 0;
+      }
+      struct ble_gap_conn_desc arrived;
+      memset(&arrived, 0, sizeof(arrived));
+      bool known = false;
+      if (ble_gap_conn_find(event->connect.conn_handle, &arrived) == 0) {
+        known = peer_has_bond(&arrived.peer_id_addr) ||
+                peer_has_bond(&arrived.peer_ota_addr);
+      }
+      if (!known && !s_pair_window_open) {
+        ESP_LOGW(TAG, "[STAGING] pairing: unknown peer rejected (window closed)");
+        ble_gap_terminate(event->connect.conn_handle, BLE_ERR_CONN_TERM_LOCAL);
+        return 0;
+      }
       s_conn_handle = event->connect.conn_handle;
-      ESP_LOGI(TAG, "connected handle=%d", s_conn_handle);
+      s_admit_unknown = !known;
+      s_new_pair_done = false;
+      s_pending_pair_json_ready = false;
+      ESP_LOGI(TAG, "connected handle=%d known=%d", s_conn_handle, (int)known);
+      if (known) {
+        const ble_addr_t *id = peer_has_bond(&arrived.peer_id_addr)
+                                   ? &arrived.peer_id_addr
+                                   : &arrived.peer_ota_addr;
+        board_pair_on_ble_up(id->type, id->val);
+        char hex[65];
+        bool have = board_pair_copy_token_hex(id->type, id->val, hex, sizeof(hex));
+        /* A bond from before command tokens, inside the window, is the
+         * pairing that should mint the token and close the window. */
+        if (!have && s_pair_window_open && ble_task_claim_pairing_success()) {
+          have = board_pair_issue_for_peer(id->type, id->val, hex, sizeof(hex)) ==
+                 ESP_OK;
+          pair_window_cleanup();
+          ESP_LOGI(TAG, "[STAGING] pairing: token issued for known bond");
+        }
+        if (have) {
+          snprintf(s_pending_pair_json, sizeof(s_pending_pair_json),
+                   "{\"channel\":\"cmd_ack\",\"ok\":true,\"code\":\"paired\","
+                   "\"api_token\":\"%s\"}",
+                   hex);
+          s_pending_pair_json_ready = true;
+        }
+      }
       transport_policy_on_ble_connect(s_conn_handle);
 #if CONFIG_ESP_COEX_ENABLED
       /* One Wi‑Fi + BLE radio: without moving to BLE, ATT often does not respond at all (iOS
@@ -698,6 +954,8 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
         }
       }
 #endif
+      /* Keep advertising so another phone can see "busy" without a second link. */
+      czechmate_gap_restart_advertising();
     } else {
       s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
       czechmate_gap_restart_advertising();
@@ -725,6 +983,10 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
           ble_npl_callout_stop(&s_sec_retry_co);
           s_sec_deferred_attempts = 0;
         }
+        if (edesc.sec_state.encrypted && s_pending_pair_json_ready &&
+            s_cmd_ack_notify_enabled) {
+          ble_task_notify_cmd_ack_json(s_pending_pair_json);
+        }
       }
     }
     return 0;
@@ -733,13 +995,56 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
              "GAP pairing_complete status=%d handle=%u",
              (int)event->pairing_complete.status,
              (unsigned)event->pairing_complete.conn_handle);
+    if (event->pairing_complete.status == 0 && s_admit_unknown &&
+        event->pairing_complete.conn_handle == s_conn_handle) {
+      if (!ble_task_claim_pairing_success()) {
+        ESP_LOGW(TAG, "[STAGING] pairing finished after the window closed");
+        discard_admitted_peer();
+        return 0;
+      }
+      s_new_pair_done = true;
+      struct ble_gap_conn_desc done;
+      memset(&done, 0, sizeof(done));
+      if (ble_gap_conn_find(s_conn_handle, &done) == 0) {
+        char hex[65];
+        if (board_pair_issue_for_peer(done.peer_id_addr.type, done.peer_id_addr.val,
+                                      hex, sizeof(hex)) == ESP_OK) {
+          snprintf(s_pending_pair_json, sizeof(s_pending_pair_json),
+                   "{\"channel\":\"cmd_ack\",\"ok\":true,\"code\":\"paired\","
+                   "\"api_token\":\"%s\"}",
+                   hex);
+          s_pending_pair_json_ready = true;
+          board_pair_on_ble_up(done.peer_id_addr.type, done.peer_id_addr.val);
+          if (s_cmd_ack_notify_enabled && ble_task_conn_is_encrypted()) {
+            ble_task_notify_cmd_ack_json(s_pending_pair_json);
+          }
+          ESP_LOGI(TAG, "[STAGING] pairing: token issued, window closed");
+        } else {
+          ESP_LOGW(TAG, "[STAGING] pairing: token issue failed");
+        }
+      }
+      pair_window_cleanup();
+    } else if (s_admit_unknown && !s_new_pair_done &&
+               event->pairing_complete.status != 0) {
+      struct ble_gap_conn_desc failed;
+      if (ble_gap_conn_find(event->pairing_complete.conn_handle, &failed) == 0) {
+        ble_store_util_delete_peer(&failed.peer_id_addr);
+      }
+      ESP_LOGW(TAG, "[STAGING] pairing failed, partial bond removed");
+    }
     return 0;
   case BLE_GAP_EVENT_REPEAT_PAIRING: {
+    if (!s_pair_window_open) {
+      ESP_LOGW(TAG, "[STAGING] REPEAT_PAIRING ignored (window closed)");
+      return BLE_GAP_REPEAT_PAIRING_IGNORE;
+    }
     struct ble_gap_conn_desc desc;
     int rc = ble_gap_conn_find(event->repeat_pairing.conn_handle, &desc);
     if (rc == 0) {
       ble_store_util_delete_peer(&desc.peer_id_addr);
     }
+    s_admit_unknown = true;
+    s_new_pair_done = false;
     return BLE_GAP_REPEAT_PAIRING_RETRY;
   }
   case BLE_GAP_EVENT_PASSKEY_ACTION: {
@@ -783,6 +1088,10 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     /* Release ongoing BLE OTA stream — otherwise hang s_ble_ota_rx + s_ota_sem. */
     ota_update_ble_on_disconnect();
     s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
+    s_admit_unknown = false;
+    s_new_pair_done = false;
+    s_pending_pair_json_ready = false;
+    board_pair_on_ble_down();
     s_snap_notify_enabled = false;
     s_net_notify_enabled = false;
     s_cmd_ack_notify_enabled = false;
@@ -817,6 +1126,10 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     if (event->subscribe.attr_handle == g_cmd_ack_val_handle) {
       s_cmd_ack_notify_enabled = event->subscribe.cur_notify;
       ESP_LOGI(TAG, "cmd_ack notify=%d", (int)s_cmd_ack_notify_enabled);
+      if (s_cmd_ack_notify_enabled && s_pending_pair_json_ready &&
+          ble_task_conn_is_encrypted()) {
+        ble_task_notify_cmd_ack_json(s_pending_pair_json);
+      }
     }
     return 0;
   case BLE_GAP_EVENT_CONN_UPDATE_REQ:
@@ -941,6 +1254,8 @@ void ble_task_format_status(char *buf, size_t cap) {
       (unsigned)g_net_val_handle,
       (unsigned)g_cmd_ack_val_handle);
 }
+
+bool ble_task_host_synced(void) { return ble_hs_synced() != 0; }
 
 bool ble_task_conn_is_encrypted(void) {
   if (s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
@@ -1077,6 +1392,7 @@ void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
 
 void ble_nimble_stack_init(void) {}
 bool ble_task_conn_is_encrypted(void) { return false; }
+bool ble_task_host_synced(void) { return false; }
 bool ble_task_should_push_snapshot(void) { return false; }
 void ble_task_push_snapshot_json(const uint8_t *data, size_t len) {
   (void)data;
@@ -1092,6 +1408,10 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
 void ble_task_notify_cmd_ack_json(const char *json_utf8) { (void)json_utf8; }
 
 void ble_task_request_pairing(void) {}
+bool ble_task_pairing_window_is_open(void) { return false; }
+bool ble_task_pairing_pulse_wanted(void) { return false; }
+bool ble_task_claim_pairing_success(void) { return false; }
+void ble_task_finish_pairing_window(void) {}
 
 void ble_task_format_status(char *buf, size_t cap) {
   if (buf && cap) {

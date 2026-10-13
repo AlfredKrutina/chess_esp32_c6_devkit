@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:chess/chess.dart' as ch;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/constants/board_styles.dart';
 import '../../../core/localization/locale_bridge.dart';
 import '../../../core/models/game_snapshot.dart';
+import '../../../core/constants/app_environment.dart';
+import '../../../core/models/game_status_models.dart';
 import '../../../core/models/puzzle_challenge_state.dart';
 import '../../../core/utils/puzzle_uci.dart';
 import '../../../core/services/board_api_exception.dart';
@@ -24,15 +28,16 @@ import '../../../l10n/app_localizations.dart';
 final gameUiNotifierProvider =
     StateNotifierProvider<GameUiNotifier, GameUiState>((ref) {
   final prefs = ref.read(prefsRepositoryProvider);
+  // Coordinates are always on, the board is never zoomed and there is a single layout.
   return GameUiNotifier(
     ref,
     prefs.boardFlipped,
-    prefs.showCoordinates,
+    true,
     prefs.remoteMovesEnabled,
-    prefs.boardStyleRaw,
-    prefs.boardZoomStorage,
+    offeredBoardStyle(prefs.boardStyleRaw),
+    1.0,
     prefs.moveAnimationsEnabled,
-    layoutMode: prefs.layoutMode,
+    layoutMode: 'standard',
     hintDepth: prefs.hintDepth,
     moveEvaluationEnabled: prefs.moveEvaluationEnabled,
     learningMode: prefs.learningModeEnabled,
@@ -63,7 +68,11 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
           hintDepth: hintDepth,
           moveEvaluationEnabled: moveEvaluationEnabled,
           learningMode: learningMode,
-        ));
+        )) {
+    _ref.listen<BoardSessionState>(boardSessionNotifierProvider, (prev, next) {
+      _ingestBoardPuzzle(next.snapshot?.status.puzzle);
+    });
+  }
 
   final Ref _ref;
 
@@ -79,6 +88,10 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
 
   /// Blocks sandbox moves while puzzle success/failure animation and reset run (allows clean retries).
   bool _puzzleFeedbackBusy = false;
+  bool _boardPuzzleArmed = false;
+  int? _boardPuzzleSession;
+  String? _boardPuzzleEvent;
+  bool _boardEloRecorded = false;
 
   @override
   void dispose() {
@@ -369,13 +382,26 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
 
   /// From the puzzle / sandbox back to the live game according to the snapshot (e.g. after "Try on the screen").
   Future<void> returnToLiveGame() async {
+    final cancelBoard = _boardPuzzleArmed;
+    _boardPuzzleArmed = false;
     exitSandbox();
+    if (cancelBoard) {
+      try {
+        await _ref.read(boardSessionNotifierProvider.notifier).cancelPuzzle();
+      } catch (_) {}
+    }
     await _ref.read(boardSessionNotifierProvider.notifier).refreshNow();
   }
 
   /// Puzzle without evaluation — just closes the check, the position remains.
   void exitPuzzleChallenge() {
     _puzzleTintTimer?.cancel();
+    if (_boardPuzzleArmed) {
+      _boardPuzzleArmed = false;
+      unawaited(
+        _ref.read(boardSessionNotifierProvider.notifier).cancelPuzzle(),
+      );
+    }
     state = state.copyWith(
       clearPuzzleChallenge: true,
       clearPuzzleTint: true,
@@ -403,6 +429,12 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
   }) {
     final fenTrim = fen.trim();
     if (fenTrim.isEmpty) return;
+    if (_boardPuzzleArmed) {
+      _boardPuzzleArmed = false;
+      unawaited(
+        _ref.read(boardSessionNotifierProvider.notifier).cancelPuzzle(),
+      );
+    }
     _remoteFrom = null;
     _puzzleTintTimer?.cancel();
     state = state.copyWith(
@@ -483,40 +515,137 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
     );
   }
 
+  /// Live-board puzzle. The screen shows the board, not a second sandbox.
+  void armBoardPuzzle({
+    required String fen,
+    required String title,
+    required List<String> solutionUci,
+    int? rating,
+  }) {
+    _puzzleTintTimer?.cancel();
+    _sandboxChess = null;
+    _remoteFrom = null;
+    _boardPuzzleArmed = solutionUci.isNotEmpty;
+    _boardPuzzleSession = null;
+    _boardPuzzleEvent = null;
+    _boardEloRecorded = false;
+    final chess = ch.Chess();
+    if (!chess.load(fen.trim())) {
+      state = state.copyWith(sandboxMessage: _l10n.gameSandboxCouldNotLoadFen);
+      return;
+    }
+    state = state.copyWith(
+      sandboxMode: false,
+      clearSandboxFen: true,
+      clearSelection: true,
+      clearMessage: true,
+      clearPuzzleTint: true,
+      clearPuzzleSnack: true,
+      clearPuzzleCelebration: true,
+      puzzleChallenge: solutionUci.isEmpty
+          ? null
+          : PuzzleChallengeState(
+              title: title,
+              startFen: chess.generate_fen(),
+              solutionUci: solutionUci,
+              rating: rating,
+            ),
+      clearPuzzleChallenge: solutionUci.isEmpty,
+    );
+  }
+
+  void _ingestBoardPuzzle(PuzzleStatusJson? puzzle) {
+    if (!_boardPuzzleArmed || puzzle == null) return;
+    final session = puzzle.session ?? 0;
+    if (session != 0 && session != _boardPuzzleSession) {
+      _boardPuzzleSession = session;
+      _boardEloRecorded = false;
+    }
+    final event =
+        '$session|${puzzle.feedback}|${puzzle.lastUci}|${puzzle.plyIndex}|${puzzle.solved}|${puzzle.syncHold}';
+    if (event == _boardPuzzleEvent) return;
+    _boardPuzzleEvent = event;
+    if (AppEnvironment.staging) {
+      debugPrint('[staging] puzzle status $event');
+    }
+    final challenge = state.puzzleChallenge;
+    if (challenge != null) {
+      final done = puzzleSolverMovesDone(
+        plyIndex: puzzle.plyIndex ?? 0,
+        solved: puzzle.solved == true,
+        plyTotal: puzzle.plyTotal ?? challenge.solutionUci.length,
+      );
+      final played = <String>[];
+      for (var i = 0; i < challenge.solutionUci.length; i += 2) {
+        if (played.length >= done) break;
+        played.add(challenge.solutionUci[i]);
+      }
+      state = state.copyWith(
+        puzzleChallenge: challenge.copyWith(playedUci: played),
+      );
+    }
+    final feedback = puzzle.feedback ?? 'none';
+    if (feedback == 'wrong' || feedback == 'illegal') {
+      state = state.copyWith(puzzleSnackText: _l10n.puzzleWrongResetting);
+      _runTintPulse(false);
+    } else if (feedback == 'solved' && !_boardEloRecorded) {
+      _boardEloRecorded = true;
+      unawaited(_recordBoardPuzzleSolve());
+    }
+  }
+
+  Future<void> _recordBoardPuzzleSolve() async {
+    _runTintPulse(true);
+    final prefs = _ref.read(prefsRepositoryProvider);
+    final rating = state.puzzleChallenge?.rating;
+    final delta = await prefs.applyPuzzleSolveElo(puzzleRating: rating);
+    await prefs.recordPuzzleActivity(solved: true);
+    _ref.invalidate(prefsRepositoryProvider);
+    state = state.copyWith(puzzleCelebrationEloDelta: delta);
+  }
+
   void _notePuzzleMove(String from, String to, String? promotionLower) {
     final puzzle = state.puzzleChallenge;
     if (puzzle == null || !puzzle.hasVerifier) return;
-    if (_puzzleFeedbackBusy) return;
+    if (_puzzleFeedbackBusy || _boardPuzzleArmed) return;
 
     final uci = sandboxMoveToUci(from, to, promotionLower);
-    final played = [...puzzle.playedUci, uci];
     final sol = puzzle.solutionUci;
-    final n = played.length;
+    final lineIndex = puzzle.playedUci.length * 2;
+    if (lineIndex >= sol.length ||
+        uci.toLowerCase().trim() != sol[lineIndex].toLowerCase().trim()) {
+      state = state.copyWith(
+        puzzleChallenge: puzzle.copyWith(
+          playedUci: [...puzzle.playedUci, uci],
+        ),
+      );
+      unawaited(_handlePuzzleFailure());
+      return;
+    }
 
-    for (var i = 0; i < n && i < sol.length; i++) {
-      if (played[i].toLowerCase().trim() != sol[i].toLowerCase().trim()) {
-        state =
-            state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
-        unawaited(_handlePuzzleFailure());
-        return;
+    final played = [...puzzle.playedUci, uci];
+    final chess = _sandboxChess;
+    var cursor = lineIndex + 1;
+    if (chess != null) {
+      while (cursor < sol.length && cursor.isOdd) {
+        if (!applyPuzzleUci(chess, sol[cursor])) {
+          state = state.copyWith(
+            puzzleChallenge: puzzle.copyWith(playedUci: played),
+            sandboxFenOverride: chess.generate_fen(),
+          );
+          unawaited(_handlePuzzleFailure());
+          return;
+        }
+        cursor++;
       }
     }
-
-    if (n < sol.length) {
-      state =
-          state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
-      return;
-    }
-
-    if (n == sol.length) {
-      state =
-          state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
+    state = state.copyWith(
+      puzzleChallenge: puzzle.copyWith(playedUci: played),
+      sandboxFenOverride: chess?.generate_fen() ?? state.sandboxFenOverride,
+    );
+    if (cursor >= sol.length) {
       unawaited(_handlePuzzleSuccess());
-      return;
     }
-
-    state = state.copyWith(puzzleChallenge: puzzle.copyWith(playedUci: played));
-    unawaited(_handlePuzzleFailure());
   }
 
   void _resetPuzzlePositionOnly() {

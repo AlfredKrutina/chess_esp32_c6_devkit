@@ -7,6 +7,7 @@ Default language for docs, comments, scripts, marketing site, and firmware messa
 | Location | Why |
 |----------|-----|
 | `flutter_czechmate/lib/l10n/app_cs.arb` + generated `app_localizations_cs.dart` | App Czech language pack |
+| `context/app/deska-a-aplikace.md` | Czech product description of the current board and app |
 | `flutter_czechmate/android/.../values-cs/` | Android Czech strings |
 | Opening catalog / rationale JSON `"cs"` fields | Bilingual opening content for Czech UI |
 | `_isCs()` / `cs ?` UI ternaries in opening/learn Flutter screens | Locale-aware copy |

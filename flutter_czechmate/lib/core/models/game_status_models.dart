@@ -130,6 +130,15 @@ class PuzzleStatusJson {
     this.teaser,
     this.feedback,
     this.message,
+    this.plyIndex,
+    this.plyTotal,
+    this.expectedFrom,
+    this.expectedTo,
+    this.awaitingOpponent,
+    this.lastUci,
+    this.session,
+    this.solved,
+    this.syncHold,
   });
 
   final bool? active;
@@ -143,6 +152,15 @@ class PuzzleStatusJson {
   final String? teaser;
   final String? feedback;
   final String? message;
+  final int? plyIndex;
+  final int? plyTotal;
+  final String? expectedFrom;
+  final String? expectedTo;
+  final bool? awaitingOpponent;
+  final String? lastUci;
+  final int? session;
+  final bool? solved;
+  final bool? syncHold;
 
   factory PuzzleStatusJson.fromJson(Map<String, dynamic> json) {
     return PuzzleStatusJson(
@@ -157,6 +175,15 @@ class PuzzleStatusJson {
       teaser: json['teaser'] as String?,
       feedback: json['feedback'] as String?,
       message: json['message'] as String?,
+      plyIndex: (json['ply_index'] as num?)?.toInt(),
+      plyTotal: (json['ply_total'] as num?)?.toInt(),
+      expectedFrom: json['expected_from'] as String?,
+      expectedTo: json['expected_to'] as String?,
+      awaitingOpponent: json['awaiting_opponent'] as bool?,
+      lastUci: json['last_uci'] as String?,
+      session: (json['session'] as num?)?.toInt(),
+      solved: json['solved'] as bool?,
+      syncHold: json['sync_hold'] as bool?,
     );
   }
 }

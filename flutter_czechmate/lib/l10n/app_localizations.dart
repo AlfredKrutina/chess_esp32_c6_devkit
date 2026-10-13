@@ -1262,6 +1262,36 @@ abstract class AppLocalizations {
   /// **'On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.'**
   String get discoveryDesktopBleUnavailableBody;
 
+  /// No description provided for @discoveryPairTriplePress.
+  ///
+  /// In en, this message translates to:
+  /// **'On the board, press the button three times. Pairing finishes on its own once the board opens the window.'**
+  String get discoveryPairTriplePress;
+
+  /// No description provided for @discoveryNotInPairingMode.
+  ///
+  /// In en, this message translates to:
+  /// **'The board is not in pairing mode.'**
+  String get discoveryNotInPairingMode;
+
+  /// No description provided for @discoveryBoardOccupied.
+  ///
+  /// In en, this message translates to:
+  /// **'The board is connected to another device.'**
+  String get discoveryBoardOccupied;
+
+  /// No description provided for @discoveryPairWifi.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair over Wi‑Fi'**
+  String get discoveryPairWifi;
+
+  /// No description provided for @discoveryPairWifiNeedUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the board address under Advanced, then pair while the window is open.'**
+  String get discoveryPairWifiNeedUrl;
+
   /// No description provided for @errWifiIpThirdOctetBlocked.
   ///
   /// In en, this message translates to:
@@ -3663,6 +3693,30 @@ abstract class AppLocalizations {
   /// **'Connection restored — continuing firmware transfer.'**
   String get firmwareBleOtaResumedTransferDetail;
 
+  /// No description provided for @firmwareOtaWaitingConfirmDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'The board restarted into the new firmware — waiting until it confirms a stable start…'**
+  String get firmwareOtaWaitingConfirmDetail;
+
+  /// No description provided for @errOtaRolledBack.
+  ///
+  /// In en, this message translates to:
+  /// **'The new firmware did not confirm its start, so the board returned to the previous version ({reason}). You can run the update again.'**
+  String errOtaRolledBack(String reason);
+
+  /// No description provided for @errOtaAborted.
+  ///
+  /// In en, this message translates to:
+  /// **'The transfer was interrupted ({reason}) and the new firmware was not activated. The board keeps running the current version — start the update again.'**
+  String errOtaAborted(String reason);
+
+  /// No description provided for @errOtaOutcomeUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'The board restarted but did not report whether the new firmware confirmed its start. Check the firmware version in settings before relying on it.'**
+  String get errOtaOutcomeUnknown;
+
   /// No description provided for @firmwareOtaSlotsDisabledHint.
   ///
   /// In en, this message translates to:
@@ -4122,7 +4176,7 @@ abstract class AppLocalizations {
   /// No description provided for @puzzleNewGameSentSnack.
   ///
   /// In en, this message translates to:
-  /// **'new_game command sent.'**
+  /// **'Position sent. The board lights missing and extra squares until it matches.'**
   String get puzzleNewGameSentSnack;
 
   /// No description provided for @puzzleBoardRiddleTitle.
@@ -4140,7 +4194,7 @@ abstract class AppLocalizations {
   /// No description provided for @puzzleLoadToBoard.
   ///
   /// In en, this message translates to:
-  /// **'Load to board (new_game + FEN)'**
+  /// **'Load to board'**
   String get puzzleLoadToBoard;
 
   /// No description provided for @puzzleSetupWizardLabel.
@@ -5981,6 +6035,30 @@ abstract class AppLocalizations {
   /// **'Error'**
   String get setupWizardErrGeneric;
 
+  /// No description provided for @setupWizardErrPhysicalMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The pieces on the board do not match this position yet.'**
+  String get setupWizardErrPhysicalMismatch;
+
+  /// No description provided for @puzzleMoreActionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'More puzzle actions'**
+  String get puzzleMoreActionsTooltip;
+
+  /// No description provided for @puzzleLibSavedPositionCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Current sandbox position'**
+  String get puzzleLibSavedPositionCaption;
+
+  /// No description provided for @puzzleSaveNeedPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a position on the Play tab first.'**
+  String get puzzleSaveNeedPosition;
+
   /// No description provided for @setupWizardTitleStandard.
   ///
   /// In en, this message translates to:
@@ -7230,6 +7308,1190 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Short on-device tips only (no cloud)'**
   String get settingsCoachSubtitleOfflineTips;
+
+  /// No description provided for @gameResign.
+  ///
+  /// In en, this message translates to:
+  /// **'Resign'**
+  String get gameResign;
+
+  /// No description provided for @gameResignUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'You can resign only while a game is running on the board.'**
+  String get gameResignUnavailable;
+
+  /// No description provided for @gameResignConfirmTitleWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Resign for White?'**
+  String get gameResignConfirmTitleWhite;
+
+  /// No description provided for @gameResignConfirmTitleBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Resign for Black?'**
+  String get gameResignConfirmTitleBlack;
+
+  /// No description provided for @gameResignConfirmBodyWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'The game ends and Black wins. The board stops the clock, shows the result and saves it. This cannot be undone.'**
+  String get gameResignConfirmBodyWhite;
+
+  /// No description provided for @gameResignConfirmBodyBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'The game ends and White wins. The board stops the clock, shows the result and saves it. This cannot be undone.'**
+  String get gameResignConfirmBodyBlack;
+
+  /// No description provided for @gameResignSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get gameResignSending;
+
+  /// No description provided for @gameResignSentSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Resignation sent. The board is ending the game.'**
+  String get gameResignSentSnack;
+
+  /// No description provided for @gameResignRefused.
+  ///
+  /// In en, this message translates to:
+  /// **'The board refused: the game is no longer running or the other side is on move. Refresh the state and try again.'**
+  String get gameResignRefused;
+
+  /// No description provided for @gameResignFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send the resignation: {error}'**
+  String gameResignFailed(String error);
+
+  /// No description provided for @endReasonResignation.
+  ///
+  /// In en, this message translates to:
+  /// **'Resignation'**
+  String get endReasonResignation;
+
+  /// No description provided for @boardGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board guide'**
+  String get boardGuideTitle;
+
+  /// No description provided for @boardGuideStepCounter.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {n} of {total}'**
+  String boardGuideStepCounter(int n, int total);
+
+  /// No description provided for @boardGuideBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get boardGuideBack;
+
+  /// No description provided for @boardGuideDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get boardGuideDone;
+
+  /// No description provided for @settingsNavBoardGuide.
+  ///
+  /// In en, this message translates to:
+  /// **'Board guide (hints, resign, clock)'**
+  String get settingsNavBoardGuide;
+
+  /// No description provided for @helpBoardGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board guide'**
+  String get helpBoardGuideTitle;
+
+  /// No description provided for @helpBoardGuideBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Step by step: connecting, moves on the board, hints, the clock and resigning.'**
+  String get helpBoardGuideBody;
+
+  /// No description provided for @helpBoardGuideOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open board guide'**
+  String get helpBoardGuideOpen;
+
+  /// No description provided for @boardGuideConnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect the board'**
+  String get boardGuideConnectTitle;
+
+  /// No description provided for @boardGuideConnectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch the board on and find it on the Play tab over Bluetooth or Wi‑Fi. Once connected, the app shows the same position as the board. Without a board you can try everything on the demo board.'**
+  String get boardGuideConnectBody;
+
+  /// No description provided for @boardGuideMoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move on the wooden board'**
+  String get boardGuideMoveTitle;
+
+  /// No description provided for @boardGuideMoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Play with your hands as usual. When you lift a piece, the board lights the squares it may go to: green for empty squares, orange for captures. Put it down on the target square and the move appears in the app. How much the board lights up is set in the board settings under LED hints.'**
+  String get boardGuideMoveBody;
+
+  /// No description provided for @boardGuideHintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a hint'**
+  String get boardGuideHintTitle;
+
+  /// No description provided for @boardGuideHintBody.
+  ///
+  /// In en, this message translates to:
+  /// **'In Game controls, tap Move hint. The app asks the chess engine for the best move (needs internet), shows it on screen and lights the target square on the board. Turn those LEDs off with Clear hint LEDs.'**
+  String get boardGuideHintBody;
+
+  /// No description provided for @boardGuideClockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Play on the clock'**
+  String get boardGuideClockTitle;
+
+  /// No description provided for @boardGuideClockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a time control when you start a New game. The clock runs on the board and switches after every move by itself; the app shows its state. Pause and resume are in Game controls.'**
+  String get boardGuideClockBody;
+
+  /// No description provided for @boardGuideResignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resign'**
+  String get boardGuideResignTitle;
+
+  /// No description provided for @boardGuideResignBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Resign in Game controls or in the game menu (⋮). The side on move resigns and the app first asks which colour. The board then stops the clock, shows the winner and saves the result. On the board itself, lift your own king and hold it off the board for 10 seconds; put it back earlier to cancel.'**
+  String get boardGuideResignBody;
+
+  /// No description provided for @onboardingPermissionsDesktopWindowsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Windows needs no extra permissions here. Keep the computer and the board on the same Wi‑Fi network.'**
+  String get onboardingPermissionsDesktopWindowsBody;
+
+  /// No description provided for @onboardingPermWifiBodyDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'No Wi‑Fi permission is needed. Keep the computer on the same network as the board, or join the board’s hotspot.'**
+  String get onboardingPermWifiBodyDesktop;
+
+  /// No description provided for @analysisScoresheetEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No moves in this game yet.'**
+  String get analysisScoresheetEmpty;
+
+  /// No description provided for @analysisChartJumpedToMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing move {n} on Play.'**
+  String analysisChartJumpedToMove(int n);
+
+  /// No description provided for @analysisClearEvalConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear evaluations?'**
+  String get analysisClearEvalConfirmTitle;
+
+  /// No description provided for @analysisClearEvalConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The chart and saved move evaluations for this game will be removed.'**
+  String get analysisClearEvalConfirmBody;
+
+  /// No description provided for @analysisClearEvalConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get analysisClearEvalConfirmAction;
+
+  /// No description provided for @coachSetupBannerAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open coach settings'**
+  String get coachSetupBannerAction;
+
+  /// No description provided for @coachChatExplanationLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation level'**
+  String get coachChatExplanationLevelLabel;
+
+  /// No description provided for @discoveryTransportAdvancedExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto tries Bluetooth first, then Wi‑Fi when the board is reachable. Wi‑Fi only skips Bluetooth. Bluetooth only stays on Bluetooth even if a Wi‑Fi address is known.'**
+  String get discoveryTransportAdvancedExplanation;
+
+  /// No description provided for @discoveryOpenTransportSettingsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Open connection settings'**
+  String get discoveryOpenTransportSettingsButton;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked LAN addresses'**
+  String get discoveryAdvancedBlockedOctetsTitle;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'IPv4 addresses whose third number is listed here are ignored (for example 88 blocks 192.168.88.*). Use this when a router address must not be treated as the board.'**
+  String get discoveryAdvancedBlockedOctetsBody;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Third numbers'**
+  String get discoveryAdvancedBlockedOctetsLabel;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 88, 1'**
+  String get discoveryAdvancedBlockedOctetsHint;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get discoveryAdvancedBlockedOctetsSave;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset to 88'**
+  String get discoveryAdvancedBlockedOctetsReset;
+
+  /// No description provided for @discoveryAdvancedBlockedOctetsSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked addresses saved.'**
+  String get discoveryAdvancedBlockedOctetsSavedSnack;
+
+  /// No description provided for @settingsAdvancedConnectionSubtitleV2.
+  ///
+  /// In en, this message translates to:
+  /// **'Board address, next connection, factory reset'**
+  String get settingsAdvancedConnectionSubtitleV2;
+
+  /// No description provided for @settingsBleDesktopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth board scan is not available on this computer. Use Wi‑Fi or the demo board.'**
+  String get settingsBleDesktopHint;
+
+  /// No description provided for @settingsNextConnectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next connection'**
+  String get settingsNextConnectionTitle;
+
+  /// No description provided for @settingsNextConnectionIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Override applies once, on the next connect. After that the app returns to automatic (Bluetooth, then Wi‑Fi).'**
+  String get settingsNextConnectionIntro;
+
+  /// No description provided for @settingsNextConnectionActiveWifiOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Next connect uses Wi‑Fi only.'**
+  String get settingsNextConnectionActiveWifiOnce;
+
+  /// No description provided for @settingsNextConnectionActiveBleOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Next connect uses Bluetooth only.'**
+  String get settingsNextConnectionActiveBleOnce;
+
+  /// No description provided for @settingsNextConnectionUseAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use automatic'**
+  String get settingsNextConnectionUseAuto;
+
+  /// No description provided for @settingsNextConnectionWifiOnceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi‑Fi once'**
+  String get settingsNextConnectionWifiOnceButton;
+
+  /// No description provided for @settingsNextConnectionBleOnceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth once'**
+  String get settingsNextConnectionBleOnceButton;
+
+  /// No description provided for @settingsAppFactoryResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset app data'**
+  String get settingsAppFactoryResetTitle;
+
+  /// No description provided for @settingsAppFactoryResetSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clears saved board, language, coach keys and other settings stored on this device. The board firmware is not changed.'**
+  String get settingsAppFactoryResetSubtitle;
+
+  /// No description provided for @settingsAppFactoryResetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset app'**
+  String get settingsAppFactoryResetButton;
+
+  /// No description provided for @settingsAppFactoryResetConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset everything in the app?'**
+  String get settingsAppFactoryResetConfirmTitle;
+
+  /// No description provided for @settingsAppFactoryResetConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved preferences on this device will be deleted. This cannot be undone.'**
+  String get settingsAppFactoryResetConfirmBody;
+
+  /// No description provided for @settingsAppFactoryResetConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get settingsAppFactoryResetConfirmAction;
+
+  /// No description provided for @settingsAppFactoryResetDoneSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'App data was reset.'**
+  String get settingsAppFactoryResetDoneSnack;
+
+  /// No description provided for @settingsAppFactoryResetRestartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If something still looks old, close the app and open it again.'**
+  String get settingsAppFactoryResetRestartHint;
+
+  /// No description provided for @settingsDiagnosticsBoardNvsLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock developer mode to edit board NVS.'**
+  String get settingsDiagnosticsBoardNvsLockedHint;
+
+  /// No description provided for @settingsAboutDeveloperModeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode'**
+  String get settingsAboutDeveloperModeTitle;
+
+  /// No description provided for @settingsAboutDeveloperModeSubtitleOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra firmware and diagnostic tools are visible.'**
+  String get settingsAboutDeveloperModeSubtitleOn;
+
+  /// No description provided for @settingsDeveloperModeDisabledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode turned off.'**
+  String get settingsDeveloperModeDisabledSnack;
+
+  /// No description provided for @settingsAppUpdateBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App update available'**
+  String get settingsAppUpdateBannerTitle;
+
+  /// No description provided for @settingsAppUpdateBannerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed {current}. Version {latest} is available.'**
+  String settingsAppUpdateBannerSubtitle(String current, String latest);
+
+  /// No description provided for @settingsAppUpdateBannerSubtitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed {current}. Version {required} or newer is required.'**
+  String settingsAppUpdateBannerSubtitleRequired(
+      String current, String required);
+
+  /// No description provided for @settingsAppUpdateOpenDownloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Open downloads'**
+  String get settingsAppUpdateOpenDownloads;
+
+  /// No description provided for @settingsAboutAppUpdateLineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Newer app version'**
+  String get settingsAboutAppUpdateLineTitle;
+
+  /// No description provided for @settingsAboutAppUpdateLineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Installed {current}. Latest {latest}.'**
+  String settingsAboutAppUpdateLineBody(String current, String latest);
+
+  /// No description provided for @haMqttFormLead.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the board at your MQTT broker so Home Assistant can see games and the lamp.'**
+  String get haMqttFormLead;
+
+  /// No description provided for @haMqttSetupHelpLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup help'**
+  String get haMqttSetupHelpLink;
+
+  /// No description provided for @lampStudioSelectedSwatchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected color'**
+  String get lampStudioSelectedSwatchLabel;
+
+  /// No description provided for @lampStudioPresetColorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset colors'**
+  String get lampStudioPresetColorsTitle;
+
+  /// No description provided for @lampStudioDeveloperRgbTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RGB values'**
+  String get lampStudioDeveloperRgbTitle;
+
+  /// No description provided for @reportExportStylePickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a layout. The preview updates before you share.'**
+  String get reportExportStylePickHint;
+
+  /// No description provided for @reportExportThumbWideLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wide'**
+  String get reportExportThumbWideLabel;
+
+  /// No description provided for @reportExportThumbWideAspect.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape 16:9'**
+  String get reportExportThumbWideAspect;
+
+  /// No description provided for @reportChartPaletteChoiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'These colors are used for the evaluation line, elapsed time and the white and black bars.'**
+  String get reportChartPaletteChoiceHint;
+
+  /// No description provided for @firmwareTileTitleDeveloperDowngrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware — older build ({ver})'**
+  String firmwareTileTitleDeveloperDowngrade(String ver);
+
+  /// No description provided for @firmwareTileTitleDeveloperReflash.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware — same version ({ver})'**
+  String firmwareTileTitleDeveloperReflash(String ver);
+
+  /// No description provided for @firmwareTileSubtitleDeveloperDowngrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode: the manifest is older than the board. You can still flash it.'**
+  String get firmwareTileSubtitleDeveloperDowngrade;
+
+  /// No description provided for @firmwareTileSubtitleDeveloperReflash.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode: the board already has this version. You can flash it again.'**
+  String get firmwareTileSubtitleDeveloperReflash;
+
+  /// No description provided for @firmwareOtaRollbackBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last firmware update did not stick'**
+  String get firmwareOtaRollbackBannerTitle;
+
+  /// No description provided for @firmwareOtaRollbackBannerBodyWithAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'The board is still on {current}. The failed write targeted slot {slot} (attempted {attempt}).'**
+  String firmwareOtaRollbackBannerBodyWithAttempt(
+      String current, String slot, String attempt);
+
+  /// No description provided for @firmwareOtaRollbackBannerBodyNoAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'The board is still on {current}. The failed write targeted slot {slot}.'**
+  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot);
+
+  /// No description provided for @firmwareOtaSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware sent'**
+  String get firmwareOtaSuccessTitle;
+
+  /// No description provided for @firmwareOtaSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The app sent version {installed}. The board reports {reported}. It may reboot before the new version shows up.'**
+  String firmwareOtaSuccessBody(String installed, String reported);
+
+  /// No description provided for @firmwareBleOtaApHotspotTip.
+  ///
+  /// In en, this message translates to:
+  /// **'If Bluetooth transfer is unreliable, join the board hotspot and send the file over HTTP instead.'**
+  String get firmwareBleOtaApHotspotTip;
+
+  /// No description provided for @firmwareDeveloperSameVersionBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode: manifest matches the board. Reflashing the same version is allowed.'**
+  String get firmwareDeveloperSameVersionBanner;
+
+  /// No description provided for @firmwareDeveloperOlderManifestBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer mode: the manifest is older than the firmware on the board. Flashing it is a downgrade.'**
+  String get firmwareDeveloperOlderManifestBanner;
+
+  /// No description provided for @firmwareDeveloperManifestSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom manifest'**
+  String get firmwareDeveloperManifestSectionTitle;
+
+  /// No description provided for @firmwareDeveloperManifestSectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a version.json URL to check a build other than the default release.'**
+  String get firmwareDeveloperManifestSectionBody;
+
+  /// No description provided for @firmwareOfflineSavedFirmwareBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'No manifest right now. You can still send the firmware already saved in the app.'**
+  String get firmwareOfflineSavedFirmwareBanner;
+
+  /// No description provided for @firmwareCachedDiffersFromManifestHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Manifest is {manifest}, but the file saved in the app is {cached}. Download again before sending if you want the manifest build.'**
+  String firmwareCachedDiffersFromManifestHint(String manifest, String cached);
+
+  /// No description provided for @firmwareDeveloperReflashChipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reflash {ver}'**
+  String firmwareDeveloperReflashChipTitle(String ver);
+
+  /// No description provided for @firmwareDeveloperDowngradeChipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Downgrade to {ver}'**
+  String firmwareDeveloperDowngradeChipTitle(String ver);
+
+  /// No description provided for @firmwareSavedFirmwareChipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved in app: {ver}'**
+  String firmwareSavedFirmwareChipTitle(String ver);
+
+  /// No description provided for @navLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get navLearn;
+
+  /// No description provided for @gameTopNoBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'No board'**
+  String get gameTopNoBoard;
+
+  /// No description provided for @gameTopConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get gameTopConnecting;
+
+  /// No description provided for @gameTopNotResponding.
+  ///
+  /// In en, this message translates to:
+  /// **'Board not responding'**
+  String get gameTopNotResponding;
+
+  /// No description provided for @gameTopNoClock.
+  ///
+  /// In en, this message translates to:
+  /// **'No clock'**
+  String get gameTopNoClock;
+
+  /// No description provided for @gameTopTimeControl.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} + {increment}'**
+  String gameTopTimeControl(int minutes, int increment);
+
+  /// No description provided for @gameTopBoardTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Board connection'**
+  String get gameTopBoardTooltip;
+
+  /// No description provided for @gameTopMenuTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Game menu'**
+  String get gameTopMenuTooltip;
+
+  /// No description provided for @gameBarPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get gameBarPause;
+
+  /// No description provided for @gameBarResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get gameBarResume;
+
+  /// No description provided for @gameBarHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint'**
+  String get gameBarHint;
+
+  /// No description provided for @gameBarMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get gameBarMore;
+
+  /// No description provided for @gameBarPauseUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The clock is not running'**
+  String get gameBarPauseUnavailable;
+
+  /// No description provided for @clockWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get clockWhite;
+
+  /// No description provided for @clockBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get clockBlack;
+
+  /// No description provided for @clockOnMove.
+  ///
+  /// In en, this message translates to:
+  /// **'On move'**
+  String get clockOnMove;
+
+  /// No description provided for @clockLowTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Low time'**
+  String get clockLowTime;
+
+  /// No description provided for @clockFlagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Time is up'**
+  String get clockFlagged;
+
+  /// No description provided for @clockPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get clockPaused;
+
+  /// No description provided for @clockOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get clockOffline;
+
+  /// No description provided for @clockWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get clockWaiting;
+
+  /// No description provided for @clockNoTimeControl.
+  ///
+  /// In en, this message translates to:
+  /// **'No time control'**
+  String get clockNoTimeControl;
+
+  /// No description provided for @clockSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{side}: {time}, {state}'**
+  String clockSemantics(String side, String time, String state);
+
+  /// No description provided for @gameEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your board'**
+  String get gameEmptyTitle;
+
+  /// No description provided for @gameEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The game, the clock and hints run on the physical board. Connect it over Bluetooth or Wi‑Fi.'**
+  String get gameEmptyBody;
+
+  /// No description provided for @gameReviewBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewing an earlier move'**
+  String get gameReviewBanner;
+
+  /// No description provided for @gameSandboxBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Position preview, not on the board'**
+  String get gameSandboxBanner;
+
+  /// No description provided for @moreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Game'**
+  String get moreTitle;
+
+  /// No description provided for @moreMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Moves'**
+  String get moreMoves;
+
+  /// No description provided for @moreAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get moreAnalysis;
+
+  /// No description provided for @moreAnalysisSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation and the best move for this position'**
+  String get moreAnalysisSubtitle;
+
+  /// No description provided for @moreNewGameSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a time control and start on the board'**
+  String get moreNewGameSubtitle;
+
+  /// No description provided for @moreSwapSides.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap sides'**
+  String get moreSwapSides;
+
+  /// No description provided for @moreWhiteBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'White is at the bottom, like the board on your table'**
+  String get moreWhiteBottom;
+
+  /// No description provided for @moreBlackBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Black is at the bottom, like the board on your table'**
+  String get moreBlackBottom;
+
+  /// No description provided for @moreClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off hint lights'**
+  String get moreClearHint;
+
+  /// No description provided for @moreSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Game summary'**
+  String get moreSummary;
+
+  /// No description provided for @moreDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect board'**
+  String get moreDisconnect;
+
+  /// No description provided for @settingsBoardGuideSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Step by step: connect, move, hint, clock, resign'**
+  String get settingsBoardGuideSubtitle;
+
+  /// No description provided for @settingsGroupBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Board'**
+  String get settingsGroupBoard;
+
+  /// No description provided for @settingsGroupApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get settingsGroupApp;
+
+  /// No description provided for @settingsGroupCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach and AI'**
+  String get settingsGroupCoach;
+
+  /// No description provided for @settingsGroupAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get settingsGroupAdvanced;
+
+  /// No description provided for @settingsBoardScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Board on screen'**
+  String get settingsBoardScreenTitle;
+
+  /// No description provided for @settingsBoardScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Square colours, piece motion, which side is at the bottom'**
+  String get settingsBoardScreenSubtitle;
+
+  /// No description provided for @settingsAppearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearanceTitle;
+
+  /// No description provided for @languageNativeCzech.
+  ///
+  /// In en, this message translates to:
+  /// **'Čeština'**
+  String get languageNativeCzech;
+
+  /// No description provided for @languageNativeEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageNativeEnglish;
+
+  /// No description provided for @settingsFeedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound and vibration'**
+  String get settingsFeedbackTitle;
+
+  /// No description provided for @settingsFeedbackSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For moves made on the screen'**
+  String get settingsFeedbackSubtitle;
+
+  /// No description provided for @settingsCoachAiEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider, Azure AI Foundry, keys and levels'**
+  String get settingsCoachAiEntrySubtitle;
+
+  /// No description provided for @settingsHelpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How the board, clock and hints work'**
+  String get settingsHelpSubtitle;
+
+  /// No description provided for @settingsTourSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Short introduction to the app'**
+  String get settingsTourSubtitle;
+
+  /// No description provided for @settingsSessionStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection statistics'**
+  String get settingsSessionStatsTitle;
+
+  /// No description provided for @settingsSessionStatsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Polling, WebSocket and move counters'**
+  String get settingsSessionStatsSubtitle;
+
+  /// No description provided for @settingsBoardStyleWood.
+  ///
+  /// In en, this message translates to:
+  /// **'Wood'**
+  String get settingsBoardStyleWood;
+
+  /// No description provided for @settingsBoardStyleSlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slate'**
+  String get settingsBoardStyleSlate;
+
+  /// No description provided for @settingsBoardCoordinatesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates are always shown so squares match the physical board.'**
+  String get settingsBoardCoordinatesNote;
+
+  /// No description provided for @learnHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get learnHubTitle;
+
+  /// No description provided for @learnCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI coach'**
+  String get learnCoachTitle;
+
+  /// No description provided for @learnCoachSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask about the position, a plan or a mistake'**
+  String get learnCoachSubtitle;
+
+  /// No description provided for @learnOpeningsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening training'**
+  String get learnOpeningsTitle;
+
+  /// No description provided for @learnOpeningsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn lines move by move on the board'**
+  String get learnOpeningsSubtitle;
+
+  /// No description provided for @learnProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress'**
+  String get learnProfileTitle;
+
+  /// No description provided for @learnProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle rating and weekly activity'**
+  String get learnProfileSubtitle;
+
+  /// No description provided for @navTrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Train'**
+  String get navTrain;
+
+  /// No description provided for @trainDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily puzzle'**
+  String get trainDaily;
+
+  /// No description provided for @trainLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle library'**
+  String get trainLibrary;
+
+  /// No description provided for @trainTimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Timed puzzles'**
+  String get trainTimed;
+
+  /// No description provided for @trainOpenings.
+  ///
+  /// In en, this message translates to:
+  /// **'Openings'**
+  String get trainOpenings;
+
+  /// No description provided for @trainCoach.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach'**
+  String get trainCoach;
+
+  /// No description provided for @trainSetup.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up pieces'**
+  String get trainSetup;
+
+  /// No description provided for @trainProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get trainProgress;
+
+  /// No description provided for @uiConnectBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect board'**
+  String get uiConnectBoard;
+
+  /// No description provided for @uiPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get uiPreview;
+
+  /// No description provided for @uiDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo'**
+  String get uiDemo;
+
+  /// No description provided for @uiRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get uiRetry;
+
+  /// No description provided for @uiResignTitleWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White resigns?'**
+  String get uiResignTitleWhite;
+
+  /// No description provided for @uiResignTitleBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black resigns?'**
+  String get uiResignTitleBlack;
+
+  /// No description provided for @uiResignBodyWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'Black wins.'**
+  String get uiResignBodyWhite;
+
+  /// No description provided for @uiResignBodyBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'White wins.'**
+  String get uiResignBodyBlack;
+
+  /// No description provided for @uiConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get uiConnection;
+
+  /// No description provided for @uiFirmware.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware'**
+  String get uiFirmware;
+
+  /// No description provided for @uiFirmwareNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New version'**
+  String get uiFirmwareNew;
+
+  /// No description provided for @uiGameSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary after game'**
+  String get uiGameSummary;
+
+  /// No description provided for @uiDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get uiDiagnostics;
+
+  /// No description provided for @uiGroupMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get uiGroupMore;
+
+  /// No description provided for @uiCoachAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Coach AI'**
+  String get uiCoachAi;
+
+  /// No description provided for @uiMoveEval.
+  ///
+  /// In en, this message translates to:
+  /// **'Move evaluation'**
+  String get uiMoveEval;
+
+  /// No description provided for @uiBoardDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Board display'**
+  String get uiBoardDisplay;
+
+  /// No description provided for @uiThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get uiThemeDark;
+
+  /// No description provided for @uiThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get uiThemeLight;
+
+  /// No description provided for @uiFlipBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip board'**
+  String get uiFlipBoard;
+
+  /// No description provided for @uiClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear hint'**
+  String get uiClearHint;
+
+  /// No description provided for @uiDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get uiDisconnect;
 }
 
 class _AppLocalizationsDelegate

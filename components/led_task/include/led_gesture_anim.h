@@ -63,10 +63,17 @@ bool led_gesture_start_snake(void);
 bool led_gesture_start_shutdown(void);
 
 /**
- * @brief One blue pulse, then the previous board colors return.
- * @return true if the pulse started. false if another gesture is running.
+ * @brief Calm blue pulse for as long as the pairing window is open.
+ *
+ * Does not take the exclusive gesture phase, so a lamp toggle or another
+ * triple-click still runs. Stop restores the board picture from when the
+ * pulse last had the squares to itself.
+ * @return true once the pulse is requested.
  */
 bool led_gesture_start_pair_pulse(void);
+
+/** @brief End the pairing pulse and give the squares back to the game. */
+void led_gesture_stop_pair_pulse(void);
 
 /**
  * @brief Button went up.

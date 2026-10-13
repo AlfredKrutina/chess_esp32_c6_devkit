@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -11,12 +12,16 @@ import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../l10n/app_localizations.dart';
+import 'board_guide.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({super.key, this.onDone});
+  const OnboardingScreen({super.key, this.onDone, this.guideOnly = false});
 
   /// Called when user dismisses onboarding. Null = use Navigator.pop.
   final VoidCallback? onDone;
+
+  /// Only the board guide chapter (opened again from Help / Settings).
+  final bool guideOnly;
 
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -24,8 +29,12 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   static const _introCount = 5;
-  static const _totalSteps =
-      2 + _introCount; // name, permissions, then introductory slides
+
+  /// Full tour: name, permissions, introductory slides, then the board guide.
+  int get _guideOffset => widget.guideOnly ? 0 : 2 + _introCount;
+  int get _totalSteps => _guideOffset + kBoardGuideSteps.length;
+  bool get _isNameStep => !widget.guideOnly && _step == 0;
+  bool get _isPermissionsStep => !widget.guideOnly && _step == 1;
 
   int _step = 0;
   late final TextEditingController _nameCtrl;
@@ -63,7 +72,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_nameLoaded) {
+    if (!_nameLoaded && !widget.guideOnly) {
       _nameLoaded = true;
       final s =
           ref.read(prefsRepositoryProvider).profileDisplayNameStoredOrNull;
@@ -175,7 +184,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   void _ensurePermBootstrap() {
-    if (_step != 1 || _permBootstrapDone) return;
+    if (!_isPermissionsStep || _permBootstrapDone) return;
     _permBootstrapDone = true;
     if (_isWindows) return;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -186,14 +195,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _next() async {
-    if (_step == 0) {
+    if (_isNameStep) {
       await _persistName();
-      setState(() => _step++);
-      return;
-    }
-    if (_step == 1) {
-      setState(() => _step++);
-      return;
+      if (!mounted) return;
     }
     if (_step < _totalSteps - 1) {
       setState(() => _step++);
@@ -206,8 +210,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  void _back() {
+    if (_step == 0) return;
+    setState(() => _step--);
+  }
+
   Future<void> _finishOrSkip() async {
-    if (_step == 0) await _persistName();
+    if (_isNameStep) await _persistName();
     if (!mounted) return;
     if (widget.onDone != null) {
       widget.onDone!();
@@ -417,14 +426,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final theme = Theme.of(context);
     final intros = _introSlides(l10n);
     final introIndex = _step - 2;
+    final guideIndex = _step - _guideOffset;
 
     _ensurePermBootstrap();
 
     late final Widget body;
-    if (_step == 0) {
+    if (_isNameStep) {
       body = _buildNameStep(l10n, theme);
-    } else if (_step == 1) {
+    } else if (_isPermissionsStep) {
       body = _buildPermissionsStep(l10n, theme);
+    } else if (guideIndex >= 0) {
+      body = BoardGuideStepView(
+        key: ValueKey<String>(kBoardGuideSteps[guideIndex].id),
+        step: kBoardGuideSteps[guideIndex],
+        index: guideIndex,
+        count: kBoardGuideSteps.length,
+      );
     } else {
       final slide = intros[introIndex.clamp(0, intros.length - 1)];
       body = SingleChildScrollView(
@@ -456,56 +473,108 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
 
     final lastStep = _step >= _totalSteps - 1;
+    final primaryLabel = lastStep
+        ? (widget.guideOnly ? l10n.boardGuideDone : l10n.onboardingStart)
+        : l10n.onboardingNext;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.onboardingWelcomeTitle),
-        automaticallyImplyLeading: false,
-        actions: [
-          TextButton(
-            onPressed: () => unawaited(_finishOrSkip()),
-            child: Text(l10n.onboardingSkip),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Expanded(child: body),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  _totalSteps,
-                  (i) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _step == i
-                          ? theme.colorScheme.primary
-                          : Colors.grey.withValues(alpha: 0.4),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: PressableScale(
-                  child: FilledButton(
-                    onPressed: () => unawaited(_next()),
-                    style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.all(16)),
-                    child: Text(
-                        lastStep ? l10n.onboardingStart : l10n.onboardingNext),
-                  ),
-                ),
+    return CallbackShortcuts(
+      bindings: <ShortcutActivator, VoidCallback>{
+        const SingleActivator(LogicalKeyboardKey.arrowRight): () {
+          if (!_isNameStep) unawaited(_next());
+        },
+        const SingleActivator(LogicalKeyboardKey.arrowLeft): () {
+          if (!_isNameStep) _back();
+        },
+        if (widget.guideOnly)
+          const SingleActivator(LogicalKeyboardKey.escape): () =>
+              unawaited(_finishOrSkip()),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(widget.guideOnly
+                ? l10n.boardGuideTitle
+                : l10n.onboardingWelcomeTitle),
+            automaticallyImplyLeading: false,
+            actions: [
+              TextButton(
+                onPressed: () => unawaited(_finishOrSkip()),
+                child: Text(
+                    widget.guideOnly ? l10n.commonClose : l10n.onboardingSkip),
               ),
             ],
+          ),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      child: KeyedSubtree(
+                        key: ValueKey<int>(_step),
+                        child: body,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Semantics(
+                    label: l10n.boardGuideStepCounter(_step + 1, _totalSteps),
+                    child: ExcludeSemantics(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        runSpacing: 6,
+                        children: List.generate(
+                          _totalSteps,
+                          (i) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _step == i
+                                  ? theme.colorScheme.primary
+                                  : Colors.grey.withValues(alpha: 0.4),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 640),
+                      child: Row(
+                        children: [
+                          OutlinedButton(
+                            onPressed: _step == 0 ? null : _back,
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                            ),
+                            child: Text(l10n.boardGuideBack),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: PressableScale(
+                              child: FilledButton(
+                                onPressed: () => unawaited(_next()),
+                                style: FilledButton.styleFrom(
+                                    padding: const EdgeInsets.all(16)),
+                                child: Text(primaryLabel),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),

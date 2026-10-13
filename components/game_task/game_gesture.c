@@ -39,6 +39,7 @@
 static const char *TAG = "GAME_GESTURE";
 
 static bool s_wave_wait;
+static bool s_pair_pulse_on;
 static ha_mode_t s_pending_mode;
 
 static uint32_t rgb_of(uint8_t r, uint8_t g, uint8_t b) {
@@ -202,9 +203,6 @@ static void handle_event(gesture_event_t ev) {
   }
   case GESTURE_PAIR:
     ble_task_request_pairing();
-    if (!led_gesture_start_pair_pulse()) {
-      ESP_LOGW(TAG, "pair pulse did not start");
-    }
     break;
   case GESTURE_SNAKE_START:
     if (!led_gesture_start_snake()) {
@@ -270,6 +268,17 @@ void game_gesture_poll(void) {
     while (xQueueReceive(q, &ev, 0) == pdTRUE) {
       handle_event(ev);
     }
+  }
+  bool want_pulse = ble_task_pairing_pulse_wanted();
+  if (want_pulse != s_pair_pulse_on) {
+    if (want_pulse) {
+      (void)led_gesture_start_pair_pulse();
+      ESP_LOGI(TAG, "[STAGING] pairing pulse on");
+    } else {
+      led_gesture_stop_pair_pulse();
+      ESP_LOGI(TAG, "[STAGING] pairing pulse off");
+    }
+    s_pair_pulse_on = want_pulse;
   }
   handle_result(led_gesture_take_result());
 }

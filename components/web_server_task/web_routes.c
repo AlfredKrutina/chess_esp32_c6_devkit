@@ -6,6 +6,7 @@
 #include "web_routes.h"
 #include "web_server_internal.h"
 
+#include "board_api_auth.h"
 #include "ota_update.h"
 #include "web_server_task.h"
 
@@ -234,6 +235,12 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                           .user_ctx = NULL};
   httpd_register_uri_handler(handle, &move_uri);
 
+  httpd_uri_t pair_uri = {.uri = "/api/pair",
+                          .method = HTTP_POST,
+                          .handler = board_pair_http_handler,
+                          .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &pair_uri);
+
   // Handler for Virtual Actions (Remote Control)
   httpd_uri_t virtual_action_uri = {.uri = "/api/game/virtual_action",
                                     .method = HTTP_POST,
@@ -248,6 +255,13 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                               .handler = http_post_game_new_handler,
                               .user_ctx = NULL};
   httpd_register_uri_handler(handle, &new_game_uri);
+
+  // Handler for Resign (side on move, same end path as king lift)
+  httpd_uri_t resign_uri = {.uri = "/api/game/resign",
+                            .method = HTTP_POST,
+                            .handler = http_post_game_resign_handler,
+                            .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &resign_uri);
 
   // Handler for Hint highlight (LED)
   httpd_uri_t hint_highlight_uri = {.uri = "/api/game/hint_highlight",

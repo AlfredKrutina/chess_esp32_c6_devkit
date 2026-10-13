@@ -1,5 +1,6 @@
 import '../models/board_timer_state.dart';
 import '../models/game_snapshot.dart';
+import '../services/board_api_exception.dart';
 import '../services/mock_board_simulator.dart';
 import 'board_command_payload.dart';
 import 'board_command_port.dart';
@@ -75,6 +76,26 @@ class MockBoardCommandPort implements BoardCommandPort {
       return;
     }
     await plainNewGame();
+  }
+
+  @override
+  Future<void> postResign({required String side}) async {
+    final snap = readSnapshot();
+    if (snap == null) {
+      throw StateError(refuse(BoardCommandRefuse.demoNoSnapshot));
+    }
+    final onMoveWhite = snap.status.currentPlayer.toLowerCase().startsWith('w');
+    final sideWhite = side.trim().toLowerCase() == 'white';
+    if (snap.status.isGameFinished || onMoveWhite != sideWhite) {
+      throw BoardApiException(
+        'Resign refused',
+        statusCode: 409,
+        detail: snap.status.isGameFinished ? 'not_running' : 'side_mismatch',
+      );
+    }
+    final result = mockApplyResign(snap: snap, timer: readTimer());
+    apply(result.snapshot, result.timer);
+    onGameFinished();
   }
 
   @override
@@ -155,6 +176,11 @@ class MockBoardCommandPort implements BoardCommandPort {
 
   @override
   Future<void> postOpening(Map<String, dynamic> body) async {
+    throw StateError(refuse(BoardCommandRefuse.setupNeedsConnection));
+  }
+
+  @override
+  Future<void> postPuzzle(Map<String, dynamic> body) async {
     throw StateError(refuse(BoardCommandRefuse.setupNeedsConnection));
   }
 

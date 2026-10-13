@@ -4,15 +4,16 @@ The board can download a new application image over **HTTPS** (internet, STA req
 
 STM32 on Hall segments is not handled by this protocol — that is a separate story. When flash contains only `factory` without `ota_0`/`ota_1`, `ota_supported` is false and HTTP OTA returns 503; then UART / esptool remains.
 
-**Future direction:** eventually migrate from custom logic in `ota_update.c` to **`esp_encrypted_img` / OTAvo style** per Espressif — when that happens, current handlers will be wrapped or replaced.
+**State and boot guard:** all transports report through the `ota_guard` component (`components/ota_guard/`), which owns the state vocabulary, the NVS journal of the last attempt, boot confirmation, the confirm deadline and the crash-loop fallback. Power-loss / disconnect / bad-firmware behavior, the relation to Otavo and the manual recovery procedure are in [ota_recovery.md](ota_recovery.md).
 
 ---
 
 ## 1. Partition and synchronization
 
 - `ota_partition_layout_ok()` in `components/web_server_task/ota_update.c` checks that **both** partitions `APP_OTA_0` and `APP_OTA_1` exist. Otherwise `GET /api/system/firmware` returns `ota_supported: false` and `POST /api/system/ota` is **503**.
-- After success, `esp_ota_set_boot_partition()` and `esp_restart()` are called — applies to all three channels.
-- `s_ota_sem`: only one OTA can run at a time. A second start → HTTP **409**, over BLE often `ESP_ERR_INVALID_STATE` (“busy”).
+- After the full image is received: `esp_ota_end()` (checksum + appended SHA-256), project-name check against the running app (`ota_guard_validate_image` / `ota_guard_validate_desc`), then `esp_ota_set_boot_partition()` and a restart deferred by 1.5 s (`ota_guard_schedule_restart`) so the last BLE write response / HTTP poll still goes out — applies to all three channels.
+- `s_ota_sem`: only one OTA can run at a time. A second start → HTTP **409** `busy`, over BLE `ESP_ERR_INVALID_STATE`.
+- While the running image is still `PENDING_VERIFY` (first ~30 s after an OTA reboot) a new start is refused: HTTP **409** `confirm_pending`, BLE `ESP_ERR_OTA_ROLLBACK_INVALID_STATE`. This keeps the previous good image in the other slot until the new one is confirmed.
 
 ---
 

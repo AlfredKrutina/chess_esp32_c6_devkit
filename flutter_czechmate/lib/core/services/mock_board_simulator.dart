@@ -423,3 +423,72 @@ MockRemoteMoveResult mockApplyRemoteMove({
 
   return MockRemoteMoveResult(snapshot: newSnap, timer: newTimer);
 }
+
+/// Demo board: the side on move resigns. Mirrors firmware `game_end`
+/// (`reason: Resignation`) and stops the clock like `timer_pause()`.
+MockRemoteMoveResult mockApplyResign({
+  required GameSnapshot snap,
+  BoardTimerState? timer,
+}) {
+  final s = snap.status;
+  final loserWhite = s.currentPlayer.toLowerCase().startsWith('w');
+  final newStatus = GameStatus(
+    gameState: 'finished',
+    currentPlayer: s.currentPlayer,
+    moveCount: s.moveCount,
+    whiteTime: s.whiteTime,
+    blackTime: s.blackTime,
+    inCheck: s.inCheck,
+    checkmate: false,
+    stalemate: false,
+    webLocked: s.webLocked,
+    internetConnected: s.internetConnected,
+    brightness: s.brightness,
+    castlingInProgress: false,
+    gameEnd: GameEndStatus(
+      ended: true,
+      reason: 'Resignation',
+      winner: loserWhite ? 'Black' : 'White',
+      loser: loserWhite ? 'White' : 'Black',
+    ),
+    pieceLifted: s.pieceLifted,
+    errorState: s.errorState,
+    restoreState: s.restoreState,
+    boardSetupTutorial: s.boardSetupTutorial,
+    puzzle: s.puzzle,
+    openingTraining: s.openingTraining,
+    guidedCaptureHintsEnabled: s.guidedCaptureHintsEnabled,
+    ledGuidanceLevel: s.ledGuidanceLevel,
+    matrixGuardActive: s.matrixGuardActive,
+    matrixGuardConflicts: s.matrixGuardConflicts,
+    matrixGuardLiftedLow: s.matrixGuardLiftedLow,
+    matrixGuardLiftedHigh: s.matrixGuardLiftedHigh,
+    matrixGuardDroppedLow: s.matrixGuardDroppedLow,
+    matrixGuardDroppedHigh: s.matrixGuardDroppedHigh,
+    lightMode: s.lightMode,
+    lightState: s.lightState,
+    lightR: s.lightR,
+    lightG: s.lightG,
+    lightB: s.lightB,
+    autoLampTimeoutSec: s.autoLampTimeoutSec,
+    chessHintLimit: s.chessHintLimit,
+    matrixOccupied: s.matrixOccupied,
+  );
+  final newTimer = timer == null
+      ? null
+      : BoardTimerState(
+          whiteTimeMs: timer.whiteTimeMs,
+          blackTimeMs: timer.blackTimeMs,
+          timerRunning: false,
+          isWhiteTurn: timer.isWhiteTurn,
+          gamePaused: timer.gamePaused,
+          timeExpired: timer.timeExpired,
+          config: timer.config,
+          totalMoves: timer.totalMoves,
+          avgMoveTimeMs: timer.avgMoveTimeMs,
+        );
+  return MockRemoteMoveResult(
+    snapshot: snap.replacingStatus(newStatus),
+    timer: newTimer,
+  );
+}

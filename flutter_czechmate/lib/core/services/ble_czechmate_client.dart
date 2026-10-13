@@ -7,8 +7,10 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../constants/app_environment.dart';
 import '../debug/connection_debug_log.dart';
+import '../models/board_firmware_models.dart';
 import '../models/game_snapshot.dart';
 import '../protocol/board_command_payload.dart';
+import '../protocol/board_pairing.dart';
 import '../utils/game_snapshot_codec.dart';
 
 /// GATT UUID z `CZECHMATEBLEUUIDs.swift` / `ble_task.c`.
@@ -190,6 +192,8 @@ class BleCzechmateClient {
     required void Function(GameSnapshot snap) onSnapshot,
     required void Function(Object error) onError,
     void Function(List<int> raw)? onNetworkNotify,
+    void Function(String token)? onCommandToken,
+    bool requestPairToken = false,
   }) async {
     connDebugLog(
       'GATT session start',
@@ -277,8 +281,22 @@ class BleCzechmateClient {
       if (ackChar != null) {
         await ackChar.setNotifyValue(true);
         _ackSub = ackChar.onValueReceived.listen((raw) {
-          // Here we could handle cmd_ack logic (not strictly required if we just blindly send over BLE)
+          final token = commandTokenFromAck(raw);
+          if (token != null) {
+            connDebugLog('pairing token', 'cmd_ack paired');
+            onCommandToken?.call(token);
+            return;
+          }
+          if (AppEnvironment.staging) {
+            final text = utf8.decode(raw, allowMalformed: true);
+            if (text.contains('not_pairing') || text.contains('board_busy')) {
+              connDebugLog('pairing ack', text);
+            }
+          }
         });
+        if (requestPairToken) {
+          unawaited(_pokePairToken());
+        }
       }
       final netChar = _networkChar;
       if (netChar != null &&
@@ -440,6 +458,16 @@ class BleCzechmateClient {
         );
   }
 
+  Future<void> _pokePairToken() async {
+    await Future<void>.delayed(const Duration(seconds: 4));
+    try {
+      await _writeCmd(const {'cmd': 'pair_token'});
+      connDebugLog('pairing', 'requested pair_token');
+    } catch (e) {
+      connDebugLog('pairing', 'pair_token write failed: $e');
+    }
+  }
+
   Future<void> _writeCmd(Map<String, dynamic> cmd) async {
     if (_cmdChar == null) throw StateError('Not connected or missing cmdChar');
     final bytes = utf8.encode(jsonEncode(cmd));
@@ -501,6 +529,11 @@ class BleCzechmateClient {
     await _writeCmd(BoardCommandPayload.bleNewGame(fen: fen));
   }
 
+  /// Firmware refuses with an ATT error when no game runs or [side] is not on move.
+  Future<void> postResign({required String side}) async {
+    await _writeCmd(BoardCommandPayload.bleResign(side: side));
+  }
+
   Future<void> postUndo() async => await _writeCmd({'cmd': 'undo'});
 
   Future<void> postPromotion(String choice) async {
@@ -546,6 +579,11 @@ class BleCzechmateClient {
   /// Parity `POST /api/game/opening` — start | cancel | hint | checkpoint_ack.
   Future<void> postOpening(Map<String, dynamic> body) async {
     await _writeCmd(BoardCommandPayload.bleOpening(body));
+  }
+
+  /// Parity `POST /api/game/puzzle` — load | start | cancel | hint.
+  Future<void> postPuzzle(Map<String, dynamic> body) async {
+    await _writeCmd(BoardCommandPayload.blePuzzle(body));
   }
 
   Future<void> postBrightness(int percent) async {
@@ -800,6 +838,13 @@ class BleCzechmateClient {
           await negotiateMtuLight();
           await ensureGattReadyForCommands();
           final st = await fetchOtaBleStatus();
+          final guardState = st?.ota?.state;
+          if (guardState == BoardOtaState.rebooting ||
+              guardState == BoardOtaState.verifying ||
+              guardState == BoardOtaState.success) {
+            /* Last chunk was applied; only its write response got lost in the restart. */
+            return;
+          }
           if (st == null || !st.session || !st.paused) {
             try {
               await postOtaBleAbort();
@@ -1027,6 +1072,7 @@ class OtaBleStatus {
     required this.total,
     required this.nextChunk,
     required this.percent,
+    this.ota,
   });
 
   factory OtaBleStatus.fromJson(Map<String, dynamic> m) {
@@ -1038,6 +1084,7 @@ class OtaBleStatus {
       total: (m['total'] as num?)?.toInt() ?? 0,
       nextChunk: (m['next_chunk'] as num?)?.toInt() ?? 0,
       percent: (m['percent'] as num?)?.toInt() ?? 0,
+      ota: m['seq'] is num ? BoardOtaStatus.fromJson(m) : null,
     );
   }
 
@@ -1048,6 +1095,9 @@ class OtaBleStatus {
   final int total;
   final int nextChunk;
   final int percent;
+
+  /// Guard state (`state`, `reason`, `confirmed`, …); `null` on legacy firmware.
+  final BoardOtaStatus? ota;
 }
 
 class BleNetworkInfo {

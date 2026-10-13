@@ -227,6 +227,19 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     return;
   }
 
+  if (game_is_puzzle_setup_active() || game_puzzle_sync_hold()) {
+    game_puzzle_service_leds();
+    game_send_response_to_uart(
+        "⏸️ Puzzle position is not ready. Fix the lit squares first.", true,
+        (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+  if (game_puzzle_is_solved()) {
+    game_send_response_to_uart("✅ Puzzle already solved.", false,
+                               (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
   // PROMOTION (swap_then_choose, swap optional):
   // - Allow physical UP/DN only on graduation field (no normal pickup flow).
   // - Ignore outside the graduation field (the game is logically suspended) and send
@@ -547,6 +560,25 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     game_show_invalid_move_error_with_blink(from_row, from_col);
     game_send_response_to_uart(
         "⚠️ Opponent move: lift the piece from the correct square (LED hint).", true,
+        (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+  if (game_puzzle_awaiting_opponent()) {
+    if (from_row == puzzle_solution_from_row &&
+        from_col == puzzle_solution_from_col) {
+      piece_lifted = true;
+      lifted_piece_row = from_row;
+      lifted_piece_col = from_col;
+      lifted_piece = piece;
+      game_send_response_to_uart(
+          "✅ Opponent piece lifted — place it on the blue square.", false,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+    game_show_invalid_move_error_with_blink(from_row, from_col);
+    game_send_response_to_uart(
+        "⚠️ Puzzle: lift the yellow opponent piece.", true,
         (QueueHandle_t)cmd->response_queue);
     return;
   }
@@ -996,6 +1028,19 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
         "⏸️ Pending comparison of physical board (matrix guard). "
         "DROP from UART/Web is blocked.",
         true, (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+  if (game_is_puzzle_setup_active() || game_puzzle_sync_hold()) {
+    game_puzzle_service_leds();
+    game_send_response_to_uart(
+        "⏸️ Puzzle position is not ready. Fix the lit squares first.", true,
+        (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+  if (game_puzzle_is_solved()) {
+    game_send_response_to_uart("✅ Puzzle already solved.", false,
+                               (QueueHandle_t)cmd->response_queue);
     return;
   }
 
@@ -1806,10 +1851,8 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     }
 
     if (puzzle_active) {
-      bool is_expected_solution = (lifted_piece_row == puzzle_solution_from_row &&
-                                   lifted_piece_col == puzzle_solution_from_col &&
-                                   to_row == puzzle_solution_to_row &&
-                                   to_col == puzzle_solution_to_col);
+      bool is_expected_solution = game_puzzle_drop_is_expected(
+          lifted_piece_row, lifted_piece_col, to_row, to_col);
       if (!is_expected_solution) {
         bool already_in_error = error_recovery_state.waiting_for_move_correction;
         puzzle_feedback = PUZZLE_FEEDBACK_WRONG;
@@ -1887,10 +1930,20 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
              move_success);
 
     if (move_success) {
-      if (puzzle_active) {
-        puzzle_active = false;
-        puzzle_feedback = PUZZLE_FEEDBACK_SOLVED;
-        STAGING_LOGI(TAG, "puzzle: solved id=%u", (unsigned)puzzle_active_id);
+      if (puzzle_active && !promotion_state.pending) {
+        game_puzzle_after_accepted_move();
+        char success_msg[128];
+        convert_coords_to_notation(move.from_row, move.from_col, success_msg);
+        snprintf(success_msg + strlen(success_msg),
+                 sizeof(success_msg) - strlen(success_msg), " -> %s",
+                 cmd->to_notation);
+        game_send_response_to_uart(success_msg, false,
+                                   (QueueHandle_t)cmd->response_queue);
+        piece_lifted = false;
+        lifted_piece_row = 0;
+        lifted_piece_col = 0;
+        lifted_piece = PIECE_EMPTY;
+        return;
       }
       if (game_is_opening_trainer_active()) {
         if (game_opening_awaiting_opponent_physical()) {
@@ -2075,7 +2128,8 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       // MATRIX COMPATIBILITY: Show opponent pieces after successful move
       // (same as matrix flow) - ONLY if game is active
       if (current_game_state == GAME_STATE_ACTIVE &&
-          !game_is_castle_animation_active() && !game_is_castling_expected()) {
+          !game_is_castle_animation_active() && !game_is_castling_expected() &&
+          !game_puzzle_suppress_move_hints()) {
         chess_policy_highlight_movable_if_enabled();
       }
 

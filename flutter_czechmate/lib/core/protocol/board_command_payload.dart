@@ -84,6 +84,20 @@ class BoardCommandPayload {
     return bleWrap('new_game', httpNewGame(fen: fen));
   }
 
+  /// `POST /api/game/resign` body. [side] is `white` or `black` — the colour
+  /// the app shows on move. The board refuses when the other side is on move.
+  static Map<String, dynamic> httpResign({required String side}) {
+    final s = side.trim().toLowerCase();
+    if (s != 'white' && s != 'black') {
+      throw ArgumentError.value(side, 'side', 'must be white or black');
+    }
+    return <String, dynamic>{'side': s};
+  }
+
+  static Map<String, dynamic> bleResign({required String side}) {
+    return bleWrap('resign', httpResign(side: side));
+  }
+
   /// `type` 0–14. Custom (14) includes both `custom_minutes` and `custom_increment`
   /// only when both are present — BLE rejects a partial custom pair.
   static Map<String, dynamic> timerConfig({
@@ -143,6 +157,33 @@ class BoardCommandPayload {
 
   static Map<String, dynamic> bleOpening(Map<String, dynamic> body) =>
       bleWrap('opening', body);
+
+  /// `POST /api/game/puzzle` and BLE `{"cmd":"puzzle",...}`.
+  /// [solution] is solver-first: solver move, opponent reply, solver move…
+  static Map<String, dynamic> puzzle({
+    required String action,
+    String? fen,
+    String? title,
+    List<String>? solution,
+    int? id,
+  }) {
+    final map = <String, dynamic>{'action': action.trim().toLowerCase()};
+    final trimmed = fen?.trim();
+    if (trimmed != null && trimmed.isNotEmpty) map['fen'] = trimmed;
+    final name = title?.trim();
+    if (name != null && name.isNotEmpty) map['title'] = name;
+    if (solution != null) {
+      map['solution'] = solution
+          .map((e) => e.trim().toLowerCase())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+    if (id != null) map['id'] = id;
+    return map;
+  }
+
+  static Map<String, dynamic> blePuzzle(Map<String, dynamic> body) =>
+      bleWrap('puzzle', body);
 
   /// HTTP `POST /api/settings/brightness` reads `"brightness"`.
   static Map<String, dynamic> httpBrightness(int percent) =>

@@ -13,6 +13,8 @@ import '../../core/theme/app_motion.dart';
 import '../../core/widgets/animated_linear_busy_strip.dart';
 import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/pressable_scale.dart';
+import '../../core/constants/app_environment.dart';
+import '../../core/utils/puzzle_uci.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../core/services/prefs_repository.dart';
 import '../../l10n/app_localizations.dart';
@@ -40,6 +42,7 @@ class PuzzleLibraryItem {
     this.solution = const [],
     this.themes = const [],
     this.rating,
+    this.lineKind,
   });
 
   final String id;
@@ -49,6 +52,10 @@ class PuzzleLibraryItem {
   final List<String> themes;
   final int? rating;
 
+  /// `lichess` keeps the raw daily FEN (opponent setup move is solution[0]).
+  /// `player` is already the solver-to-move position.
+  final String? lineKind;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,
@@ -56,6 +63,7 @@ class PuzzleLibraryItem {
         'solution': solution,
         'themes': themes,
         'rating': rating,
+        if (lineKind != null) 'lineKind': lineKind,
       };
 
   factory PuzzleLibraryItem.fromJson(Map<String, dynamic> j) {
@@ -68,6 +76,7 @@ class PuzzleLibraryItem {
       themes: (j['themes'] as List<dynamic>?)?.map((e) => '$e').toList() ??
           const [],
       rating: (j['rating'] as num?)?.toInt(),
+      lineKind: j['lineKind'] as String?,
     );
   }
 }
@@ -89,9 +98,19 @@ String _encodeLibrary(List<PuzzleLibraryItem> items) =>
     jsonEncode(items.map((e) => e.toJson()).toList());
 
 class _TrainingPick {
-  _TrainingPick({required this.title, required this.fen, this.bundled});
+  _TrainingPick({
+    required this.title,
+    required this.fen,
+    this.solution = const [],
+    this.lineKind,
+    this.rating,
+    this.bundled,
+  });
   final String title;
   final String fen;
+  final List<String> solution;
+  final String? lineKind;
+  final int? rating;
   final BundledPuzzleItem? bundled;
 
   String displayTitle(AppLocalizations l10n) =>
@@ -173,7 +192,10 @@ Widget _themeChips(BuildContext context, List<String> themes) {
 
 /// Parity iOS `PuzzleView` — Daily (Lichess), Library (prefs), Training (built-in + mix).
 class PuzzleScreen extends ConsumerStatefulWidget {
-  const PuzzleScreen({super.key});
+  const PuzzleScreen({super.key, this.initialTab = 0});
+
+  /// 0 daily, 1 library, 2 timed training.
+  final int initialTab;
 
   @override
   ConsumerState<PuzzleScreen> createState() => _PuzzleScreenState();
@@ -197,7 +219,11 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 3, vsync: this);
+    _tabs = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTab.clamp(0, 2),
+    );
     _tabs.addListener(() {
       if (_tabs.indexIsChanging) return;
       if (mounted) setState(() {});
@@ -244,10 +270,22 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
   List<_TrainingPick> _trainingPool(PrefsRepository p) {
     final mode = p.puzzleTrainingPoolMode;
     final bundled = bundledPuzzleCatalog
-        .map((b) => _TrainingPick(title: b.title, fen: b.fen, bundled: b))
+        .map((b) => _TrainingPick(
+              title: b.title,
+              fen: b.fen,
+              solution: b.solution,
+              lineKind: 'player',
+              bundled: b,
+            ))
         .toList();
     final lib = _library(p)
-        .map((x) => _TrainingPick(title: x.title, fen: x.fen))
+        .map((x) => _TrainingPick(
+              title: x.title,
+              fen: x.fen,
+              solution: x.solution,
+              lineKind: x.lineKind,
+              rating: x.rating,
+            ))
         .toList();
     switch (mode) {
       case 'bundledOnly':
@@ -333,6 +371,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
         solution: d.solutionMoves,
         themes: d.themes,
         rating: d.rating,
+        lineKind: 'lichess',
       ),
     );
     await _saveLibrary(p, list);
@@ -344,50 +383,85 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     });
   }
 
+  PuzzlePlayLine? _playLine({
+    required String fen,
+    required List<String> solution,
+    String? lineKind,
+  }) {
+    return normalizePuzzleLine(
+      fen: fen,
+      solution: solution,
+      kind: puzzleLineKindFor(stored: lineKind, solutionLength: solution.length),
+    );
+  }
+
   void _tryPuzzleOnScreen(
     WidgetRef ref, {
     required String fen,
     required String title,
     List<String> solution = const [],
     int? rating,
+    String? lineKind,
   }) {
     _stopTrainingIfActive();
     final uiN = ref.read(gameUiNotifierProvider.notifier);
-    if (solution.isEmpty) {
-      uiN.enterSandboxFromCustomFen(fen);
+    final line = _playLine(fen: fen, solution: solution, lineKind: lineKind);
+    if (line == null) {
+      showAppSnackBar(context, context.l10n.gameSandboxCouldNotLoadFen,
+          errorStyle: true);
+      return;
+    }
+    if (line.moves.isEmpty) {
+      uiN.enterSandboxFromCustomFen(line.startFen);
     } else {
       uiN.enterPuzzleChallenge(
-        fen: fen,
+        fen: line.startFen,
         title: title,
-        solutionUci: solution,
+        solutionUci: line.moves,
         rating: rating,
       );
     }
-    ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
-    final l10n = context.l10n;
-    showAppSnackBar(
-      context,
-      solution.isEmpty
-          ? l10n.puzzleGoPlaySandbox
-          : l10n.puzzleGoPlayPuzzle(title),
-    );
+    focusPlayTab(ref, context);
   }
 
-  void _openBoardSetupWizard(BuildContext context, String fen) {
+  void _openBoardSetupWizard(
+    BuildContext context, {
+    required String fen,
+    List<String> solution = const [],
+    String title = '',
+    String? lineKind,
+    int? rating,
+  }) {
     _stopTrainingIfActive();
+    final line = _playLine(fen: fen, solution: solution, lineKind: lineKind);
+    if (line == null) {
+      showAppSnackBar(context, context.l10n.gameSandboxCouldNotLoadFen,
+          errorStyle: true);
+      return;
+    }
     Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (_) => BoardSetupWizardScreen(
           kind: BoardSetupWizardKind.fenGuided,
-          targetFen: fen,
+          targetFen: line.startFen,
           loadFenWhenDone: true,
+          puzzleSolution: line.moves,
+          puzzleTitle: title,
+          puzzleRating: rating,
         ),
       ),
     );
   }
 
-  Future<void> _sendToBoard(WidgetRef ref, String fen) async {
+  Future<void> _sendToBoard(
+    WidgetRef ref, {
+    required String fen,
+    List<String> solution = const [],
+    String title = '',
+    String? lineKind,
+    int? rating,
+  }) async {
     _stopTrainingIfActive();
     final session = ref.read(boardSessionNotifierProvider);
     if (session.transport != BoardTransport.wifi &&
@@ -399,10 +473,29 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
       );
       return;
     }
+    final line = _playLine(fen: fen, solution: solution, lineKind: lineKind);
+    if (line == null) {
+      showAppSnackBar(context, context.l10n.gameSandboxCouldNotLoadFen,
+          errorStyle: true);
+      return;
+    }
     try {
-      await ref
-          .read(boardSessionNotifierProvider.notifier)
-          .sendPuzzleFenToBoard(fen);
+      await ref.read(boardSessionNotifierProvider.notifier).sendPuzzleToBoard(
+            fen: line.startFen,
+            solution: line.moves,
+            title: title,
+          );
+      ref.read(gameUiNotifierProvider.notifier).armBoardPuzzle(
+            fen: line.startFen,
+            title: title,
+            solutionUci: line.moves,
+            rating: rating,
+          );
+      if (AppEnvironment.staging) {
+        debugPrint(
+          '[staging] puzzle sent plies=${line.moves.length} kind=$lineKind',
+        );
+      }
       if (mounted) {
         showAppSnackBar(context, context.l10n.puzzleNewGameSentSnack);
       }
@@ -426,16 +519,22 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
     final gameUi = ref.watch(gameUiNotifierProvider);
     final localPuzzle =
         gameUi.puzzleChallenge != null && gameUi.puzzleChallenge!.hasVerifier;
-    final isPuzzleActive = session.snapshot?.status.puzzle?.active == true;
     final pData = session.snapshot?.status.puzzle;
-    final showPuzzleReturnBar = isPuzzleActive || localPuzzle;
+    final isPuzzleActive = pData?.active == true;
+    final boardPuzzleLive =
+        isPuzzleActive || pData?.setupActive == true;
+    final showPuzzleReturnBar = boardPuzzleLive || localPuzzle;
     final compactDailyOverflow = MediaQuery.sizeOf(context).width < 400 &&
         _tabs.index == 0 &&
         _daily != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.navPuzzle),
+        title: Text(switch (_tabs.index) {
+          1 => l10n.trainLibrary,
+          2 => l10n.trainTimed,
+          _ => l10n.trainDaily,
+        }),
         actions: [
           if (compactDailyOverflow)
             PopupMenuButton<_DailyOverflowAction>(
@@ -445,11 +544,25 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 final d = _daily!;
                 switch (action) {
                   case _DailyOverflowAction.loadBoard:
-                    await _sendToBoard(ref, d.fen);
+                    await _sendToBoard(
+                      ref,
+                      fen: d.fen,
+                      solution: d.solutionMoves,
+                      title: l10n.puzzleDailySolveTitle,
+                      lineKind: 'lichess',
+                      rating: d.rating,
+                    );
                   case _DailyOverflowAction.setupWizard:
                     if (session.transport == BoardTransport.wifi ||
                         session.transport == BoardTransport.ble) {
-                      _openBoardSetupWizard(context, d.fen);
+                      _openBoardSetupWizard(
+                        context,
+                        fen: d.fen,
+                        solution: d.solutionMoves,
+                        title: l10n.puzzleDailySolveTitle,
+                        lineKind: 'lichess',
+                        rating: d.rating,
+                      );
                     }
                   case _DailyOverflowAction.addToLibrary:
                     if (!_dailyInLibrary(prefs, d)) {
@@ -497,32 +610,10 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
               },
             ),
         ],
-        leading: IconButton(
-          tooltip: l10n.puzzleBackLiveTooltip,
-          icon: const Icon(Icons.sports_esports_outlined),
-          onPressed: () async {
-            final ui = ref.read(gameUiNotifierProvider);
-            if (ui.sandboxMode) {
-              await ref
-                  .read(gameUiNotifierProvider.notifier)
-                  .returnToLiveGame();
-            }
-            if (!context.mounted) return;
-            ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
-          },
-        ),
-        bottom: TabBar(
-          controller: _tabs,
-          isScrollable: true,
-          tabs: [
-            Tab(text: l10n.puzzleTabDaily),
-            Tab(text: l10n.puzzleTabLibrary),
-            Tab(text: l10n.puzzleTabTraining),
-          ],
-        ),
       ),
       body: TabBarView(
         controller: _tabs,
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           _dailyTab(context, prefs, session, compactDailyOverflow),
           _libraryTab(context, prefs, session),
@@ -537,31 +628,40 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 child: ListTile(
                   leading: const Icon(Icons.extension),
                   title: Text(
-                    isPuzzleActive
+                    boardPuzzleLive
                         ? (pData?.title ?? l10n.puzzleBoardRiddleTitle)
                         : (gameUi.puzzleChallenge?.title ??
                             l10n.puzzleBoardRiddleTitle),
                   ),
                   subtitle: Text(
-                    isPuzzleActive
+                    boardPuzzleLive
                         ? (pData?.message ?? '')
                         : context.l10n.gamePuzzleMovesProgress(
                             gameUi.puzzleChallenge!.playedUci.length,
-                            gameUi.puzzleChallenge!.solutionUci.length,
+                            gameUi.puzzleChallenge!.solverPlies,
                           ),
                   ),
                   trailing: TextButton.icon(
                     icon: const Icon(Icons.sports_esports_outlined),
                     label: Text(l10n.gameReturnLive),
                     onPressed: () async {
-                      if (gameUi.sandboxMode) {
-                        await ref
-                            .read(gameUiNotifierProvider.notifier)
-                            .returnToLiveGame();
+                      await ref
+                          .read(gameUiNotifierProvider.notifier)
+                          .returnToLiveGame();
+                      final still = ref
+                          .read(boardSessionNotifierProvider)
+                          .snapshot
+                          ?.status
+                          .puzzle;
+                      if (still?.active == true || still?.setupActive == true) {
+                        try {
+                          await ref
+                              .read(boardSessionNotifierProvider.notifier)
+                              .cancelPuzzle();
+                        } catch (_) {}
                       }
                       if (!context.mounted) return;
-                      ref.read(mainNavTabIndexProvider.notifier).state =
-                          AppMainTab.game;
+                      focusPlayTab(ref, context);
                     },
                   ),
                 ),
@@ -633,6 +733,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                 title: l10n.puzzleDailySolveTitle,
                 solution: _daily!.solutionMoves,
                 rating: _daily!.rating,
+                lineKind: 'lichess',
               ),
               child: Text(l10n.puzzleTryOnScreen),
             ),
@@ -643,7 +744,14 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: () => _sendToBoard(ref, _daily!.fen),
+                    onPressed: () => _sendToBoard(
+                      ref,
+                      fen: _daily!.fen,
+                      solution: _daily!.solutionMoves,
+                      title: l10n.puzzleDailySolveTitle,
+                      lineKind: 'lichess',
+                      rating: _daily!.rating,
+                    ),
                     child: Text(l10n.puzzleLoadToBoard),
                   ),
                 ),
@@ -652,7 +760,14 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                   child: OutlinedButton.icon(
                     onPressed: (session.transport == BoardTransport.wifi ||
                             session.transport == BoardTransport.ble)
-                        ? () => _openBoardSetupWizard(context, _daily!.fen)
+                        ? () => _openBoardSetupWizard(
+                              context,
+                              fen: _daily!.fen,
+                              solution: _daily!.solutionMoves,
+                              title: l10n.puzzleDailySolveTitle,
+                              lineKind: 'lichess',
+                              rating: _daily!.rating,
+                            )
                         : null,
                     icon: const Icon(Icons.auto_fix_high, size: 18),
                     label: Text(l10n.puzzleSetupWizardShort),
@@ -790,6 +905,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                         title: it.title,
                         solution: it.solution,
                         rating: it.rating,
+                        lineKind: it.lineKind,
                       ),
                     ),
                     Padding(
@@ -816,7 +932,14 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                               onPressed: (session.transport ==
                                           BoardTransport.wifi ||
                                       session.transport == BoardTransport.ble)
-                                  ? () => _openBoardSetupWizard(context, it.fen)
+                                  ? () => _openBoardSetupWizard(
+                                        context,
+                                        fen: it.fen,
+                                        solution: it.solution,
+                                        title: it.title,
+                                        lineKind: it.lineKind,
+                                        rating: it.rating,
+                                      )
                                   : null,
                               icon: const Icon(Icons.auto_fix_high, size: 18),
                               label: Text(l10n.puzzleSetupOnBoard),
@@ -992,21 +1115,37 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                         ref,
                         fen: _trainingPick!.fen,
                         title: _trainingPick!.displayTitle(l10n),
+                        solution: _trainingPick!.solution,
+                        lineKind: _trainingPick!.lineKind,
+                        rating: _trainingPick!.rating,
                       ),
                       child: Text(l10n.puzzleSolveOnScreen),
                     ),
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton(
-                    onPressed: () => _sendToBoard(ref, _trainingPick!.fen),
+                    onPressed: () => _sendToBoard(
+                      ref,
+                      fen: _trainingPick!.fen,
+                      solution: _trainingPick!.solution,
+                      title: _trainingPick!.displayTitle(l10n),
+                      lineKind: _trainingPick!.lineKind,
+                      rating: _trainingPick!.rating,
+                    ),
                     child: Text(l10n.puzzleLoadToBoardShort),
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: (session.transport == BoardTransport.wifi ||
                             session.transport == BoardTransport.ble)
-                        ? () =>
-                            _openBoardSetupWizard(context, _trainingPick!.fen)
+                        ? () => _openBoardSetupWizard(
+                              context,
+                              fen: _trainingPick!.fen,
+                              solution: _trainingPick!.solution,
+                              title: _trainingPick!.displayTitle(l10n),
+                              lineKind: _trainingPick!.lineKind,
+                              rating: _trainingPick!.rating,
+                            )
                         : null,
                     icon: const Icon(Icons.auto_fix_high, size: 18),
                     label: Text(l10n.puzzleSetupWizardShort),
@@ -1034,6 +1173,7 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                     fen: b.fen,
                     title: b.localizedTitle(l10n),
                     solution: b.solution,
+                    lineKind: 'player',
                   ),
                 ),
                 Padding(
@@ -1061,7 +1201,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                   child: OutlinedButton.icon(
                     onPressed: (session.transport == BoardTransport.wifi ||
                             session.transport == BoardTransport.ble)
-                        ? () => _openBoardSetupWizard(context, b.fen)
+                        ? () => _openBoardSetupWizard(
+                              context,
+                              fen: b.fen,
+                              solution: b.solution,
+                              title: b.localizedTitle(l10n),
+                              lineKind: 'player',
+                            )
                         : null,
                     icon: const Icon(Icons.auto_fix_high, size: 18),
                     label: Text(l10n.puzzleSetupWizardLabel),

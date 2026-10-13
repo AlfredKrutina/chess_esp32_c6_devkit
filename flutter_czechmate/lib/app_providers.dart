@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_navigation.dart';
 import 'core/services/board_api_client.dart';
 import 'core/services/board_home_widget_sync.dart';
 import 'core/services/live_activity_service.dart';
@@ -11,7 +12,11 @@ import 'core/services/watch_connectivity_service.dart';
 import 'features/opening/opening_progress_repository.dart';
 
 /// Bottom navigation (`_MainShell`) — see [AppMainTab] in `app_navigation.dart` for indexes.
-final mainNavTabIndexProvider = StateProvider<int>((ref) => 0);
+/// Starts on the last used tab; the shell switches to Play when the board reports a running game.
+final mainNavTabIndexProvider = StateProvider<int>((ref) {
+  final last = ref.read(prefsRepositoryProvider).lastMainTab;
+  return (last >= 0 && last < AppMainTab.count) ? last : 0;
+});
 
 /// After changing the connection mode (`setConnectionMode` / `setNextConnectionTransportOnce`) —
 /// invalidates dependent widgets (IndexedStack without own Prefs listen).
@@ -31,6 +36,8 @@ final boardApiClientProvider = Provider<BoardApiClient>((ref) {
   final c = BoardApiClient(
     resolveBoardApiBearerToken: () =>
         ref.read(prefsRepositoryProvider).boardApiToken,
+    resolveBoardCommandToken: () =>
+        ref.read(prefsRepositoryProvider).boardCommandToken,
   );
   ref.onDispose(c.close);
   return c;

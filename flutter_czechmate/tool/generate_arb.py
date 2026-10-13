@@ -9,6 +9,8 @@ if str(_TOOL_DIR) not in sys.path:
     sys.path.insert(0, str(_TOOL_DIR))
 from extra_l10n_rows import EXTRA_PLACEHOLDER_META as _EXTRA_L10N_PH
 from extra_l10n_rows import EXTRA_ROWS as _EXTRA_L10N_ROWS
+from shell_l10n_rows import SHELL_PLACEHOLDER_META as _SHELL_L10N_PH
+from shell_l10n_rows import SHELL_ROWS as _SHELL_L10N_ROWS
 
 # (key, en, cs) — add rows as UI grows
 ROWS: list[tuple[str, str, str]] = [
@@ -216,6 +218,11 @@ ROWS: list[tuple[str, str, str]] = [
   ("errBleHostUnsupported", "This computer has no Bluetooth for the board. Connect over Wi‑Fi — the address is under Advanced.", "Tenhle počítač nemá Bluetooth k desce. Připoj ji přes Wi‑Fi — adresu najdeš v Pokročilém."),
   ("discoveryDesktopBleUnavailableTitle", "Bluetooth is not available here", "Bluetooth tu není k dispozici"),
   ("discoveryDesktopBleUnavailableBody", "On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.", "Na tomhle počítači se deska připojuje přes Wi‑Fi. Po prvním spárování se aplikace připojí sama."),
+  ("discoveryPairTriplePress", "On the board, press the button three times. Pairing finishes on its own once the board opens the window.", "Na desce třikrát stiskni tlačítko. Párování se dokončí samo, jakmile deska otevře okno."),
+  ("discoveryNotInPairingMode", "The board is not in pairing mode.", "Deska není v párovacím režimu."),
+  ("discoveryBoardOccupied", "The board is connected to another device.", "Deska je připojená k jinému zařízení."),
+  ("discoveryPairWifi", "Pair over Wi‑Fi", "Spárovat přes Wi‑Fi"),
+  ("discoveryPairWifiNeedUrl", "Enter the board address under Advanced, then pair while the window is open.", "Zadej adresu desky v Pokročilém a spáruj ji, dokud je okno otevřené."),
   ("errWifiIpThirdOctetBlocked", "That address ({host}) is blocked in settings.", "Tahle adresa ({host}) je v nastavení zablokovaná."),
   ("errBoardSnapshotUnreachable", "The board did not answer. Check that it is on and on the same network.", "Deska neodpověděla. Zkontroluj, že je zapnutá a ve stejné síti."),
   ("userFacingErrBlePairingReset", "The phone forgot this board. Pair it once more from Find board.", "Telefon tuhle desku zapomněl. Spáruj ji ještě jednou přes Najít desku."),
@@ -324,6 +331,7 @@ ROWS: list[tuple[str, str, str]] = [
 ]
 
 ROWS.extend(_EXTRA_L10N_ROWS)
+ROWS.extend(_SHELL_L10N_ROWS)
 
 PLACEHOLDER_META = {
   "moveEvalWeakerNoScore": {"placeholders": {"best": {"type": "String"}}},
@@ -364,6 +372,7 @@ PLACEHOLDER_META = {
 }
 
 PLACEHOLDER_META.update(_EXTRA_L10N_PH)
+PLACEHOLDER_META.update(_SHELL_L10N_PH)
 
 
 def build_arb(locale: str, lang_row_index: int) -> dict:

@@ -66,11 +66,14 @@ flowchart TB
 
 | Folder | Role |
 |--------|------|
-| `features/game/` | Game, board, clock, report |
-| `features/connection/` | Scan, session |
-| `features/coach/` | AI chat, LLM |
-| `features/analysis/` | Evaluation |
-| `features/settings/` | Device, MQTT/HA, OTA (`firmware_update_section`, `firmware_ota_runner`, manifest) |
+| `features/game/` | Play tab: board, both clocks, more sheet (resign, analysis) |
+| `features/puzzle/` | Puzzle tab: FEN + line sent to the board |
+| `features/learn/` | Learn tab: coach, openings, setup |
+| `features/connection/` | Discovery, session, pairing join |
+| `features/coach/` | AI chat, LLM (Azure AI Foundry is a provider here, not a screen) |
+| `features/analysis/` | Evaluation, opened from Play (not a bottom tab) |
+| `features/onboarding/` | First-run flow and the board guide (`board_guide.dart`) |
+| `features/settings/` | Device, theme, language, MQTT/HA, OTA (`firmware_update_section`, `firmware_ota_runner`, manifest) |
 | `core/services/` | `ble_czechmate_client`, `board_api_client`, `firmware_phone_host_ota`, WS, Stockfish, … |
 | `core/models/` | Snapshot, enums |
 | `app_providers.dart` | Providers |
@@ -135,19 +138,34 @@ E2E OTA notes can be kept locally (e.g. a custom checklist); the public channel 
 
 ---
 
-## Session
+## Session and pairing
+
+A saved board reconnects when the main shell starts and again when the app returns to the foreground (`tryResumeFromPrefs`), without opening a pairing window. The first launch shows onboarding before that shell. A new device is accepted only while the board’s 60 s window is open (triple-click; a second triple-click cancels it). The scan response carries company id `0x02E5`, magic `0xC2`, and a status byte: bit 0 pairing, bit 1 a commander already holds the link. The app then either reconnects, pairs, or shows that the board is not in pairing mode or is connected to another device.
+
+Wi‑Fi commands (`POST /api/move`, a command frame on `/ws`) need `Authorization: Bearer` with the 64-hex token issued at pairing (`cmd_ack` `{"code":"paired","api_token":…"}` or `POST /api/pair` while the window is open). The board stores up to three device slots. One commander writes. A different valid token gets `board_busy`. Snapshot GET stays readable without that token. The app has no spectator role.
 
 ```mermaid
 %%{init: {'theme':'dark'}}%%
 stateDiagram-v2
-  [*] --> Searching
-  Searching --> Connecting: device selected
-  Connecting --> InGame: handshake OK
+  [*] --> Resume
+  Resume --> InGame: saved board connects
+  Resume --> Searching: nothing saved or resume failed
+  Searching --> Connecting: known device, or new device inside the pairing window
+  Searching --> Searching: window closed, or board busy
+  Connecting --> InGame: handshake OK, token stored on a new pair
   InGame --> InGame: moves
-  InGame --> Searching: disconnect / back
+  InGame --> Searching: disconnect
 ```
 
-Code: `board_session_notifier.dart`, `features/connection/`.
+Code: `board_session_notifier.dart`, `board_pairing.dart`, `features/connection/`, firmware `ble_nimble_impl.c` and `board_pair_policy.c`. Full Czech description: [context/app/deska-a-aplikace.md](../../context/app/deska-a-aplikace.md).
+
+## Puzzle and resign
+
+`POST /api/game/puzzle` (and BLE `{"cmd":"puzzle",...}`) takes `load`, `start`, and `cancel`. `load` stages a FEN and a solver-first UCI line (at most 12 plies, RAM only). The board lights the physical setup and refuses `start` with 409 until the matrix matches, then judges each move immediately. An empty line, once the pieces match, starts an ordinary game from that FEN.
+
+Resign is `{"cmd":"resign","side":"white"|"black"}` and `POST /api/game/resign`. The Play “more” sheet asks for the side to move before sending. The board answers 409 outside a running game and during puzzle, opening trainer, or setup. The 10 s king-lift on the board remains. There is no draw-offer command.
+
+Play layout: four tabs (Play, Puzzle, Learn, Settings). Both clocks stay visible during a game. Coordinates are always drawn. `AppMainTab.analysis` is not a tab; analysis is a pushed route, and the `reportExport*` strings are in the generated localizations.
 
 ---
 

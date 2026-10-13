@@ -1,7 +1,8 @@
 # CzechMate — client integration checklist
 
 - **Network:** phone and ESP on the same LAN via board **STA** (home Wi‑Fi), or via **board hotspot** (`192.168.4.x`) — hotspot is often **off** by default and enabled from the app over BLE. Base URL in the app is typically `http://<STA_IP>` or `http://192.168.4.1` when the phone is on the hotspot network.
-- **REST:** `GET /api/game/snapshot` returns `state_version` and an `ETag` header; with `If-None-Match` I get **304** with no body.
+- **REST:** `GET /api/game/snapshot` returns `state_version` and an `ETag` header; with `If-None-Match` I get **304** with no body. Snapshot GET does not need the pairing token.
+- **Commands:** `POST /api/move`, puzzle, resign, and a command frame on `/ws` need `Authorization: Bearer <64 hex>` from pairing (`POST /api/pair` during the 60 s window, or the BLE `cmd_ack` `api_token`). A second device’s token gets `board_busy`. Puzzle is `POST /api/game/puzzle` (`load` / `start` / `cancel`), not `new_game`. Resign is `POST /api/game/resign` with `{"side":"white"|"black"}`. Details: [deska-a-aplikace.md](deska-a-aplikace.md).
 - **Brightness:** `POST /api/settings/brightness` with `{"brightness":0…100}` — on iOS from `SettingsTabView` / `ChessboardAPIClient.postBrightness`.
 - **WebSocket:** `ws://<host>/ws`, same JSON as snapshot; push on change + ~3 s watchdog.
 - **iOS:** with live WebSocket I poll REST every ~25 s as a safety net; in DEBUG I log `[staging]`.

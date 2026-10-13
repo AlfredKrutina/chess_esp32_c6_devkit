@@ -43,11 +43,15 @@ enum LiveActivityNativeController {
           totalMoves: intVal(raw, "totalMoves"),
           timeControlLabel: strVal(raw, "timeControlLabel", default: ""),
           gameFinished: boolVal(raw, "gameFinished"),
-          phase: phase
+          phase: phase,
+          lowTimeMs: intVal(raw, "lowTimeMs", default: 20_000),
+          clockAnchorMs: intVal(raw, "clockAnchorMs"),
+          link: strVal(raw, "link", default: "live"),
+          lang: strVal(raw, "lang", default: "")
         )
 
         if currentActivity == nil {
-          let attributes = ChessLiveAttributes(matchTitle: "czechmate")
+          let attributes = ChessLiveAttributes(matchTitle: "CzechMate")
           currentActivity = try Activity.request(
             attributes: attributes,
             contentState: state,

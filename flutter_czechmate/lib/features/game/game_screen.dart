@@ -1,52 +1,35 @@
 import 'dart:math' as math;
-import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_navigation.dart';
 import '../../app_providers.dart';
-import '../../core/layout/form_factor.dart';
-import '../../core/theme/app_motion.dart';
 import '../../core/localization/context_l10n.dart';
-import '../../l10n/app_localizations.dart';
 import '../../core/models/board_timer_state.dart';
 import '../../core/models/puzzle_challenge_state.dart';
+import '../../core/theme/app_motion.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/board_action_feedback.dart';
-import '../../core/widgets/app_modal_sheet.dart';
-import '../../core/widgets/brief_celebration_dialog.dart';
-import '../../core/widgets/glass_snackbar.dart';
 import '../../core/utils/fen_from_board.dart';
-import '../../core/widgets/pressable_scale.dart';
+import '../../core/utils/user_facing_error_message.dart';
+import '../../core/widgets/glass_snackbar.dart';
 import '../../core/widgets/matrix_guard_banner.dart';
 import '../../core/widgets/network_status_banners.dart';
+import '../../core/widgets/pressable_scale.dart';
 import '../../core/widgets/session_error_panel.dart';
-import '../../core/utils/user_facing_error_message.dart';
+import '../../l10n/app_localizations.dart';
 import '../analysis/move_eval_notifier.dart';
-import '../coach/coach_chat_panel.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 import 'board/chess_board_widget.dart';
-import 'controls/game_control_panel.dart';
-import 'controls/new_game_time_sheet.dart';
-import 'controls/timer_display.dart';
-import 'history/move_history_view.dart';
+import 'controls/game_more_sheet.dart';
+import 'controls/player_clock.dart';
 import 'live_activity_session_listener.dart';
 import 'report/game_end_report_screen.dart';
 import 'state/game_ui_notifier.dart';
 
-enum _ConnectionTier { live, connecting, offline }
-
-enum _GameOverflowAction {
-  newGame,
-  gameControls,
-  analysis,
-  toggleCoachPanel,
-  disconnect,
-}
-
-/// Minimum width for board + game panel + AI side chat (desktop).
-const double _kTriplePaneMinWidth = 1060;
+enum ConnectionTier { live, connecting, offline }
 
 DateTime? _lastVerifiedBoardInteraction(BoardSessionState s) {
   if (s.transport == BoardTransport.wifi) {
@@ -60,14 +43,14 @@ DateTime? _lastVerifiedBoardInteraction(BoardSessionState s) {
   return s.snapshotReceivedAt;
 }
 
-_ConnectionTier _connectionTier(BoardSessionState s) {
-  if (s.transport == BoardTransport.none) return _ConnectionTier.offline;
-  if (s.busy) return _ConnectionTier.connecting;
-  if (s.transport == BoardTransport.mock) return _ConnectionTier.live;
+ConnectionTier connectionTierOf(BoardSessionState s) {
+  if (s.transport == BoardTransport.none) return ConnectionTier.offline;
+  if (s.busy) return ConnectionTier.connecting;
+  if (s.transport == BoardTransport.mock) return ConnectionTier.live;
 
   final transportSessionAlive = s.pollingActive ||
       (s.transport == BoardTransport.ble && s.bleGattConnected);
-  if (!transportSessionAlive) return _ConnectionTier.offline;
+  if (!transportSessionAlive) return ConnectionTier.offline;
 
   final staleLimit = s.transport == BoardTransport.ble
       ? const Duration(seconds: 300)
@@ -76,30 +59,22 @@ _ConnectionTier _connectionTier(BoardSessionState s) {
   final last = _lastVerifiedBoardInteraction(s);
 
   if (last != null) {
-    if (now.difference(last) <= staleLimit) return _ConnectionTier.live;
+    if (now.difference(last) <= staleLimit) return ConnectionTier.live;
     if (s.transport == BoardTransport.ble && s.bleGattConnected) {
-      return _ConnectionTier.live;
+      return ConnectionTier.live;
     }
-    return _ConnectionTier.offline;
+    return ConnectionTier.offline;
   }
 
   final started = s.transportStartedAt;
   if (started != null &&
       now.difference(started) <= const Duration(seconds: 55)) {
-    return _ConnectionTier.connecting;
+    return ConnectionTier.connecting;
   }
   if (s.transport == BoardTransport.ble && s.bleGattConnected) {
-    return _ConnectionTier.live;
+    return ConnectionTier.live;
   }
-  return _ConnectionTier.offline;
-}
-
-Color _connectionDotColor(BoardSessionState s, ColorScheme cs) {
-  return switch (_connectionTier(s)) {
-    _ConnectionTier.live => cs.primary,
-    _ConnectionTier.connecting => cs.tertiary,
-    _ConnectionTier.offline => cs.outline,
-  };
+  return ConnectionTier.offline;
 }
 
 class GameScreen extends ConsumerStatefulWidget {
@@ -111,26 +86,6 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> {
   bool _hintBusy = false;
-  bool _demoClockPaused = false;
-
-  void _openGameControlsSheet() {
-    showAppModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (ctx) => DraggableScrollableSheet(
-        initialChildSize: 0.58,
-        minChildSize: 0.32,
-        maxChildSize: 0.94,
-        expand: false,
-        builder: (_, scroll) => SingleChildScrollView(
-          controller: scroll,
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
-          child: const GameControlPanel(),
-        ),
-      ),
-    );
-  }
 
   Future<void> _requestHint(
       BoardSessionState session, GameUiNotifier uiN) async {
@@ -152,11 +107,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             .read(boardSessionNotifierProvider.notifier)
             .postHintDestination(best.to);
       }
-      if (!mounted) return;
-      showAppSnackBar(
-        context,
-        l10n.gameBestMoveSnack(best.from, best.to),
-      );
     } catch (e) {
       if (!mounted) return;
       showAppSnackBar(
@@ -169,252 +119,31 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     }
   }
 
-  void _demoBoardFeatureSnack(AppLocalizations l10n, String label) {
-    if (!mounted) return;
-    showAppSnackBar(
-      context,
-      l10n.gameDemoBoardSnack(label),
-    );
-  }
-
-  Widget _framedBoard(double side) {
-    // Without Material: no outline (desktop BorderSide), no shadow or surfaceTint (M3),
-    // which looked like a "frame" under the board even with the same fill color.
-    final shell = Theme.of(context).scaffoldBackgroundColor;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: ColoredBox(
-        color: shell,
-        child: SizedBox(
-          width: side,
-          height: side,
-          child: const RepaintBoundary(
-            child: ChessBoardWidget(),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Compact panel below the board — does not reduce the visible area of ​​the pieces (no overlay on top).
-  Widget _puzzleGlassHud(PuzzleChallengeState pc) {
-    final l10n = context.l10n;
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            color: cs.surface.withValues(alpha: 0.52),
-            border: Border.all(color: cs.onSurface.withValues(alpha: 0.11)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            child: Row(
-              children: [
-                Icon(Icons.extension, size: 22, color: cs.primary),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        pc.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: tt.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        l10n.gamePuzzleMovesProgress(
-                          pc.playedUci.length,
-                          pc.solutionUci.length,
-                        ),
-                        style: tt.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.sports_esports_outlined),
-                  tooltip: l10n.gameReturnLive,
-                  onPressed: () => ref
-                      .read(gameUiNotifierProvider.notifier)
-                      .returnToLiveGame(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// [edgeToEdge] — "Just a board". [expandInParent] — fills the row height (Row); in a Column, scroll must not be true.
-  Widget _boardPane(
-    BoxConstraints c,
-    double zoom, {
-    bool edgeToEdge = false,
-    bool expandInParent = false,
-
-    /// In "Just the Board", the HUD is pulled to the bottom column of the Stack so that it is not covered by the "New Game".
-    bool embedPuzzleHudInBoardPane = true,
-  }) {
-    final ui = ref.watch(gameUiNotifierProvider);
-    final pc = ui.puzzleChallenge;
-    final puzzleHud =
-        (pc != null && pc.hasVerifier) ? _puzzleGlassHud(pc) : null;
-
-    final outerPad = edgeToEdge ? 4.0 : 12.0;
-    final maxW = math.max(0.0, c.maxWidth - outerPad * 2);
-    final maxH = c.maxHeight.isFinite
-        ? math.max(0.0, c.maxHeight - outerPad * 2)
-        : double.infinity;
-    final raw = maxH.isFinite ? math.min(maxW, maxH) : maxW;
-    final side = math.max(raw, 200.0);
-
-    final scaledBoard = Transform.scale(
-      scale: zoom,
-      alignment: Alignment.center,
-      child: _framedBoard(side),
-    );
-
-    if (expandInParent) {
-      final bg = Theme.of(context).scaffoldBackgroundColor;
-      if (puzzleHud != null && embedPuzzleHudInBoardPane) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned.fill(child: ColoredBox(color: bg)),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(outerPad),
-                      child: LayoutBuilder(
-                        builder: (ctx, bc) {
-                          final d = math.min(bc.maxWidth, bc.maxHeight);
-                          final s = math.max(d, 200.0);
-                          return Transform.scale(
-                            scale: zoom,
-                            alignment: Alignment.center,
-                            child: _framedBoard(s),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SafeArea(
-              top: false,
-              minimum: EdgeInsets.zero,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
-                child: puzzleHud,
-              ),
-            ),
-          ],
-        );
-      }
-      return SizedBox.expand(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned.fill(child: ColoredBox(color: bg)),
-            Center(
-              child: Padding(
-                padding: EdgeInsets.all(outerPad),
-                child: scaledBoard,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (puzzleHud != null) {
-      final innerW = math.max(0.0, c.maxWidth - outerPad * 2);
-      return Padding(
-        padding: EdgeInsets.all(outerPad),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              width: innerW,
-              height: side,
-              child: Center(child: scaledBoard),
-            ),
-            const SizedBox(height: 10),
-            puzzleHud,
-          ],
-        ),
-      );
-    }
-
-    return Padding(
-      padding: EdgeInsets.all(outerPad),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Center(child: scaledBoard),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  void _registerListeners() {
     ref.listen(
         boardSessionNotifierProvider
             .select((s) => s.snapshot?.status.isGameFinished), (prev, next) {
       if (next == true && prev != true) {
+        if (!ref.read(prefsRepositoryProvider).endgameReportAutoOpen) return;
         Future.microtask(() {
-          if (context.mounted) {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (ctx) => const GameEndReportScreen()));
-          }
+          if (!mounted) return;
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (ctx) => const GameEndReportScreen()));
         });
       }
     });
-
-    final prefs = ref.watch(prefsRepositoryProvider);
-    final l10n = context.l10n;
 
     ref.listen(moveEvalNotifierProvider, (prev, next) {
       if (!ref.read(prefsRepositoryProvider).moveEvaluationEnabled) return;
       if (next.lastBusy) return;
       final msg = next.lastMessage;
       if (msg == null || msg.isEmpty) return;
-      // New result = finished counting (busy→done) or new message after previous run.
       final completedRun = prev?.lastBusy == true && next.lastBusy == false;
       final newText = prev?.lastMessage != next.lastMessage;
       if (!completedRun && !newText) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!context.mounted) return;
-        showAppSnackBar(
-          context,
-          msg,
-          duration: const Duration(seconds: 6),
-        );
+        showAppSnackBar(context, msg, duration: const Duration(seconds: 6));
       });
     });
 
@@ -434,770 +163,793 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       gameUiNotifierProvider.select((s) => s.puzzleCelebrationEloDelta),
       (prev, next) {
         if (next == null) return;
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!context.mounted) return;
           final l10n = context.l10n;
-          final delta = next;
-          final cs = Theme.of(context).colorScheme;
-          await showBriefCelebrationDialog(
-            context: context,
-            barrierColor: Colors.green.withValues(alpha: 0.22),
-            icon: Icon(
-              Icons.emoji_events_rounded,
-              color: cs.tertiary,
-              size: 56,
-            ),
-            title: l10n.puzzleCelebrationTitle,
-            message: delta > 0
-                ? l10n.puzzleCelebrationBodyElo(delta)
+          showAppSnackBar(
+            context,
+            next > 0
+                ? l10n.puzzleCelebrationBodyElo(next)
                 : l10n.puzzleCelebrationBodyPlain,
-            actionLabel: l10n.commonOk,
           );
-          if (!context.mounted) return;
           ref.read(gameUiNotifierProvider.notifier).clearPuzzleCelebration();
         });
       },
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _registerListeners();
     final session = ref.watch(boardSessionNotifierProvider);
-    final ui = ref.watch(gameUiNotifierProvider);
-    final uiN = ref.read(gameUiNotifierProvider.notifier);
-    final sessionN = ref.read(boardSessionNotifierProvider.notifier);
-    final devMode = ref
-            .watch(sharedPreferencesProvider)
-            .getBool('czechmate.developerModeUnlocked') ??
-        false;
-    final isFinished = session.snapshot?.status.isGameFinished == true;
-    final cs = Theme.of(context).colorScheme;
+    final devMode = ref.watch(prefsRepositoryProvider).developerModeUnlocked;
+    final tier = connectionTierOf(session);
+    final hasBoard = session.snapshot != null;
+    final fade = AppMotion.resolve(context, AppMotion.crossFade);
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        leadingWidth: 52,
-        leading: IconButton(
-          tooltip: l10n.gameFindBoardTooltip,
-          padding: const EdgeInsets.all(10),
-          onPressed: () => pushBoardDiscoveryRoute(context),
-          icon: AnimatedSwitcher(
-            duration:
-                AppMotion.microInteraction + const Duration(milliseconds: 40),
-            switchInCurve: AppMotion.standardCurve,
-            switchOutCurve: AppMotion.reverseCurve,
-            transitionBuilder: (child, anim) =>
-                FadeTransition(opacity: anim, child: child),
-            child: Container(
-              key: ValueKey<Color>(_connectionDotColor(session, cs)),
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(
-                color: _connectionDotColor(session, cs),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                      color: cs.shadow.withValues(alpha: 0.25), blurRadius: 3)
-                ],
+      body: SafeArea(
+        bottom: false,
+        child: LayoutBuilder(
+          builder: (context, box) {
+            final landscape =
+                box.maxWidth >= 560 && box.maxWidth > box.maxHeight * 1.2;
+            final strip = _StatusStrip(
+              session: session,
+              tier: tier,
+              hintBusy: _hintBusy,
+              onHint: () => _requestHint(
+                session,
+                ref.read(gameUiNotifierProvider.notifier),
               ),
-            ),
-          ),
-        ),
-        titleSpacing: 4,
-        title: Row(
-          children: [
-            Icon(Icons.grid_view_rounded, color: cs.primary, size: 22),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                l10n.gameAppBarTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            tooltip: l10n.gameLayoutTooltip,
-            onSelected: uiN.setLayoutMode,
-            itemBuilder: (ctx) => [
-              PopupMenuItem(
-                  value: 'standard', child: Text(l10n.gameLayoutStandard)),
-              PopupMenuItem(
-                  value: 'boardOnly', child: Text(l10n.gameLayoutBoardOnly)),
-            ],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                decoration: BoxDecoration(
-                  color: cs.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              onMore: () => showGameMoreSheet(context),
+            );
+            final stripOnTop = !landscape || !hasBoard;
+
+            return Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      ui.layoutMode == 'boardOnly'
-                          ? Icons.grid_on
-                          : Icons.view_column_outlined,
-                      size: 18,
+                    const LiveActivitySessionListener(),
+                    if (stripOnTop) strip,
+                    _ErrorLine(
+                      error: session.lastError,
+                      devMode: devMode,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      ui.layoutMode == 'boardOnly'
-                          ? l10n.gameLayoutBoardOnly
-                          : l10n.gameLayoutStandard,
-                      style: Theme.of(context).textTheme.labelMedium,
+                    if (session.snapshot != null)
+                      MatrixGuardBanner(snapshot: session.snapshot!),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: fade,
+                        switchInCurve: AppMotion.standardCurve,
+                        switchOutCurve: AppMotion.reverseCurve,
+                        transitionBuilder: (child, anim) => FadeTransition(
+                          opacity: anim,
+                          child: ScaleTransition(
+                            scale: Tween(begin: 0.98, end: 1.0).animate(anim),
+                            child: child,
+                          ),
+                        ),
+                        child: hasBoard
+                            ? _TableLayout(
+                                key: const ValueKey('table'),
+                                session: session,
+                                tier: tier,
+                                landscape: landscape,
+                                strip: stripOnTop ? null : strip,
+                              )
+                            : _EmptyBoardState(
+                                key: const ValueKey('empty'),
+                                busy: session.busy,
+                              ),
+                      ),
                     ),
-                    const Icon(Icons.arrow_drop_down, size: 18),
                   ],
                 ),
-              ),
-            ),
-          ),
-          if (isFinished)
-            IconButton(
-              icon: const Icon(Icons.summarize_outlined, color: Colors.amber),
-              tooltip: l10n.gameSummaryTooltip,
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (ctx) => const GameEndReportScreen())),
-            ),
-          PopupMenuButton<_GameOverflowAction>(
-            tooltip: l10n.gameMoreOptionsTooltip,
-            icon: const Icon(Icons.more_vert),
-            onSelected: (action) async {
-              switch (action) {
-                case _GameOverflowAction.newGame:
-                  await showNewGameWithTimeSheet(context);
-                  break;
-                case _GameOverflowAction.gameControls:
-                  _openGameControlsSheet();
-                  break;
-                case _GameOverflowAction.analysis:
-                  ref.read(mainNavTabIndexProvider.notifier).state =
-                      AppMainTab.analysis;
-                  break;
-                case _GameOverflowAction.toggleCoachPanel:
-                  final p = ref.read(prefsRepositoryProvider);
-                  await p
-                      .setDesktopCoachRailVisible(!p.desktopCoachRailVisible);
-                  ref.invalidate(prefsRepositoryProvider);
-                  break;
-                case _GameOverflowAction.disconnect:
-                  ref.read(boardSessionNotifierProvider.notifier).disconnect();
-                  break;
-              }
-            },
-            itemBuilder: (ctx) {
-              final wideDesktopCoach = isDesktopEmbedder() &&
-                  ui.layoutMode != 'boardOnly' &&
-                  MediaQuery.sizeOf(context).width >= 680;
-              return [
-                if (session.transport == BoardTransport.wifi ||
-                    session.transport == BoardTransport.ble ||
-                    session.transport == BoardTransport.mock)
-                  PopupMenuItem(
-                    value: _GameOverflowAction.newGame,
-                    child: Row(
-                      children: [
-                        Icon(Icons.restart_alt_rounded,
-                            size: 22, color: cs.primary),
-                        const SizedBox(width: 12),
-                        Expanded(child: Text(l10n.gameNewGame)),
-                      ],
-                    ),
-                  ),
-                PopupMenuItem(
-                  value: _GameOverflowAction.gameControls,
-                  child: Row(
-                    children: [
-                      Icon(Icons.tune, size: 22, color: cs.onSurface),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(l10n.gameControlsTitle)),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _GameOverflowAction.analysis,
-                  child: Row(
-                    children: [
-                      Icon(Icons.show_chart, size: 22, color: cs.onSurface),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(l10n.gameAnalysisTooltip)),
-                    ],
-                  ),
-                ),
-                if (wideDesktopCoach)
-                  PopupMenuItem(
-                    value: _GameOverflowAction.toggleCoachPanel,
-                    child: Row(
-                      children: [
-                        Icon(
-                          prefs.desktopCoachRailVisible
-                              ? Icons.chat_rounded
-                              : Icons.chat_outlined,
-                          size: 22,
-                          color: cs.onSurface,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            prefs.desktopCoachRailVisible
-                                ? l10n.gameCoachRailHide
-                                : l10n.gameCoachRailShow,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                PopupMenuItem(
-                  value: _GameOverflowAction.disconnect,
-                  child: Row(
-                    children: [
-                      Icon(Icons.link_off, size: 22, color: cs.error),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          l10n.gameDisconnectTooltip,
-                          style: TextStyle(color: cs.error),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ];
-            },
-          ),
-        ],
-      ),
-      body: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.topCenter,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const LiveActivitySessionListener(),
-              if (session.snapshot != null)
-                MatrixGuardBanner(snapshot: session.snapshot!),
-              if (session.snapshot != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Builder(
-                      builder: (context) {
-                        final theme = Theme.of(context);
-                        BoardTimerState? timerState =
-                            session.snapshot?.clock ?? session.timer;
-                        final snap = session.snapshot;
-                        final gameOver = snap != null &&
-                            (snap.status.gameEnd?.ended == true ||
-                                snap.status.gameState.toLowerCase() ==
-                                    'finished');
-                        final clockPaused = timerState?.gamePaused ?? false;
-                        final canClockToggle = timerState != null &&
-                            timerState.isTimeControlEnabled &&
-                            !gameOver &&
-                            !timerState.timeExpired;
-                        final clockBtnStyle = OutlinedButton.styleFrom(
-                          textStyle: theme.textTheme.labelMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        );
-                        final boardQuickActions = <Widget>[
-                          if (session.transport == BoardTransport.wifi ||
-                              session.transport == BoardTransport.ble) ...[
-                            if (canClockToggle)
-                              OutlinedButton.icon(
-                                style: clockBtnStyle,
-                                onPressed: () => runBoardCommandWithSnackBar(
-                                  context,
-                                  clockPaused
-                                      ? sessionN.postTimerResume
-                                      : sessionN.postTimerPause,
-                                  successMessage: clockPaused
-                                      ? l10n.gameClockResumedSnackbar
-                                      : l10n.gameClockPauseSent,
-                                ),
-                                icon: Icon(
-                                  clockPaused
-                                      ? Icons.play_circle_outline
-                                      : Icons.pause_circle_outline,
-                                ),
-                                label: Text(
-                                  clockPaused
-                                      ? l10n.gameResumeClock
-                                      : l10n.gamePauseClock,
-                                ),
-                              ),
-                            IconButton(
-                              tooltip: l10n.gameHideBoardHintTooltip,
-                              style: IconButton.styleFrom(
-                                foregroundColor: theme.colorScheme.onSurface,
-                              ),
-                              onPressed: () => runBoardCommandWithSnackBar(
-                                context,
-                                sessionN.postHintClearBoard,
-                                successMessage:
-                                    l10n.gameHintLedsClearedSnackbar,
-                              ),
-                              icon: const Icon(Icons.visibility_off_outlined),
-                            ),
-                          ] else if (session.transport ==
-                              BoardTransport.mock) ...[
-                            OutlinedButton.icon(
-                              style: clockBtnStyle,
-                              onPressed: () {
-                                setState(
-                                    () => _demoClockPaused = !_demoClockPaused);
-                                _demoBoardFeatureSnack(
-                                  l10n,
-                                  _demoClockPaused
-                                      ? l10n.gamePauseClock
-                                      : l10n.gameResumeClock,
-                                );
-                              },
-                              icon: Icon(
-                                _demoClockPaused
-                                    ? Icons.play_circle_outline
-                                    : Icons.pause_circle_outline,
-                              ),
-                              label: Text(
-                                _demoClockPaused
-                                    ? l10n.gameResumeClock
-                                    : l10n.gamePauseClock,
-                              ),
-                            ),
-                            IconButton(
-                              tooltip: l10n.gameHideBoardHintTooltip,
-                              style: IconButton.styleFrom(
-                                foregroundColor: theme.colorScheme.onSurface,
-                              ),
-                              onPressed: () => _demoBoardFeatureSnack(
-                                  l10n, l10n.gameClearHintLeds),
-                              icon: const Icon(Icons.visibility_off_outlined),
-                            ),
-                          ],
-                        ];
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            IconButton.filledTonal(
-                              tooltip: _hintBusy
-                                  ? l10n.gameHintThinking
-                                  : l10n.gameHint,
-                              onPressed: _hintBusy
-                                  ? null
-                                  : () => _requestHint(session, uiN),
-                              icon: _hintBusy
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2),
-                                    )
-                                  : const Icon(Icons.tips_and_updates_outlined),
-                            ),
-                            for (final w in boardQuickActions) ...[
-                              const SizedBox(width: 8),
-                              w,
-                            ],
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              Expanded(
-                child: session.snapshot == null
-                    ? LayoutBuilder(
-                        builder: (context, constraints) {
-                          return SingleChildScrollView(
-                            padding: const EdgeInsets.all(24),
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minWidth: constraints.maxWidth,
-                                minHeight: constraints.maxHeight,
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(l10n.gameNoSnapshotYet),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    l10n.gameNoSnapshotBody,
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                                  const SizedBox(height: 20),
-                                  PressableScale(
-                                    child: FilledButton.icon(
-                                      onPressed: session.busy
-                                          ? null
-                                          : () =>
-                                              pushBoardDiscoveryRoute(context),
-                                      icon:
-                                          const Icon(Icons.bluetooth_searching),
-                                      label: Text(l10n.gameFindBoard),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      )
-                    : LayoutBuilder(
-                        builder: (context, c) {
-                          final layout = ui.layoutMode;
-                          final zoom = ui.boardZoomStorage.clamp(0.7, 1.5);
-                          final coachRailDesired = isDesktopEmbedder() &&
-                              prefs.desktopCoachRailVisible;
-                          final sidePanel = Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    _statusLine(session, devMode, l10n),
-                                    if (ui.transientBoardMessage != null)
-                                      SizedBox(
-                                        height: 72,
-                                        width: double.infinity,
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          child: Material(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondaryContainer,
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 8,
-                                                ),
-                                                child: Text(
-                                                  ui.transientBoardMessage!,
-                                                  maxLines: 3,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onSecondaryContainer,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    if (ui.sandboxMessage != null)
-                                      Text(
-                                        ui.sandboxMessage!,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .error),
-                                      ),
-                                    const TimerDisplay(),
-                                    const SizedBox(height: 8),
-                                    OutlinedButton.icon(
-                                      onPressed: () => _openGameControlsSheet(),
-                                      icon: const Icon(Icons.tune),
-                                      label: Text(l10n.gameControlsTitle),
-                                    ),
-                                    if (session.transport ==
-                                            BoardTransport.wifi ||
-                                        session.transport ==
-                                            BoardTransport.ble ||
-                                        session.transport ==
-                                            BoardTransport.mock) ...[
-                                      const SizedBox(height: 8),
-                                      FilledButton.tonalIcon(
-                                        onPressed: () =>
-                                            showNewGameWithTimeSheet(context),
-                                        icon: const Icon(
-                                            Icons.restart_alt_rounded),
-                                        label: Text(l10n.gameNewGame),
-                                      ),
-                                    ],
-                                    const SizedBox(height: 8),
-                                    Text(l10n.gameHistory,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w600)),
-                                    const MoveHistoryView(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                          if (layout == 'boardOnly') {
-                            final pc = ui.puzzleChallenge;
-                            final showPuzzleHud = pc != null && pc.hasVerifier;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      Positioned.fill(
-                                        child: LayoutBuilder(
-                                          builder: (context, inner) {
-                                            return _boardPane(
-                                              inner,
-                                              zoom,
-                                              edgeToEdge: true,
-                                              expandInParent: true,
-                                              embedPuzzleHudInBoardPane: false,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      SafeArea(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8),
-                                          child: Align(
-                                            alignment: Alignment.topLeft,
-                                            child: Material(
-                                              elevation: 2,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(24),
-                                              ),
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .surfaceContainerHigh,
-                                              child: IconButton(
-                                                tooltip:
-                                                    l10n.gameBackToPanelTooltip,
-                                                icon: const Icon(Icons
-                                                    .view_sidebar_outlined),
-                                                onPressed: () => ref
-                                                    .read(gameUiNotifierProvider
-                                                        .notifier)
-                                                    .setLayoutMode('standard'),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                if (showPuzzleHud)
-                                  SafeArea(
-                                    top: false,
-                                    minimum: EdgeInsets.zero,
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          12, 0, 12, 6),
-                                      child: _puzzleGlassHud(pc),
-                                    ),
-                                  ),
-                              ],
-                            );
-                          }
-                          final splitSidePanel =
-                              c.maxWidth >= (isDesktopEmbedder() ? 680 : 840);
-                          final triplePane = coachRailDesired &&
-                              layout != 'boardOnly' &&
-                              splitSidePanel &&
-                              c.maxWidth >= _kTriplePaneMinWidth;
-
-                          final boardAreaRow = _boardPane(
-                            c,
-                            zoom,
-                            expandInParent: true,
-                          );
-
-                          if (triplePane) {
-                            final cs = Theme.of(context).colorScheme;
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(flex: 5, child: boardAreaRow),
-                                Expanded(
-                                  flex: 3,
-                                  child:
-                                      SingleChildScrollView(child: sidePanel),
-                                ),
-                                Expanded(
-                                  flex: 4,
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        0, 12, 16, 12),
-                                    child: Card(
-                                      clipBehavior: Clip.antiAlias,
-                                      elevation: 2,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                12, 6, 4, 6),
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.smart_toy_outlined,
-                                                    size: 20,
-                                                    color: cs.primary),
-                                                const SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    l10n.gameAiCoachTitle,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .titleSmall
-                                                        ?.copyWith(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  tooltip:
-                                                      l10n.gameHidePanelTooltip,
-                                                  icon: const Icon(Icons.close,
-                                                      size: 22),
-                                                  onPressed: () async {
-                                                    final p = ref.read(
-                                                        prefsRepositoryProvider);
-                                                    await p
-                                                        .setDesktopCoachRailVisible(
-                                                            false);
-                                                    ref.invalidate(
-                                                        prefsRepositoryProvider);
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const Divider(height: 1),
-                                          const Expanded(
-                                            child: CoachChatPanel(
-                                              embedded: true,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-
-                          if (splitSidePanel) {
-                            final wideDesktop = isDesktopEmbedder() &&
-                                c.maxWidth >= _kTriplePaneMinWidth;
-                            final boardFlex =
-                                wideDesktop && !coachRailDesired ? 7 : 3;
-                            final sideFlex =
-                                wideDesktop && !coachRailDesired ? 4 : 2;
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(
-                                  flex: boardFlex,
-                                  child: boardAreaRow,
-                                ),
-                                Expanded(
-                                  flex: sideFlex,
-                                  child:
-                                      SingleChildScrollView(child: sidePanel),
-                                ),
-                              ],
-                            );
-                          }
-                          final boardAreaStacked = _boardPane(
-                            c,
-                            zoom,
-                            expandInParent: false,
-                          );
-                          return SingleChildScrollView(
-                            child:
-                                Column(children: [boardAreaStacked, sidePanel]),
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-          Positioned(
-            left: 12,
-            right: 12,
-            top: 8,
-            child: SafeArea(
-              bottom: false,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const NetworkStatusBanners(
+                const Positioned(
+                  left: 12,
+                  right: 12,
+                  top: 52,
+                  child: NetworkStatusBanners(
                     presentation: NetworkBannerPresentation.overlay,
                   ),
-                  if (session.lastError != null) ...[
-                    const SizedBox(height: 6),
-                    SessionErrorPanel(
-                      error: session.lastError!,
-                      title: l10n.lastErrorTitle,
-                      devMode: devMode,
-                      compact: true,
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// One quiet row: connection glyph, time control, then pause / hint / more as
+/// icons. Words appear only when something is wrong.
+class _StatusStrip extends ConsumerWidget {
+  const _StatusStrip({
+    required this.session,
+    required this.tier,
+    required this.hintBusy,
+    required this.onHint,
+    required this.onMore,
+  });
+
+  final BoardSessionState session;
+  final ConnectionTier tier;
+  final bool hintBusy;
+  final VoidCallback onHint;
+  final VoidCallback onMore;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final snap = session.snapshot;
+    final BoardTimerState? timer = snap?.clock ?? session.timer;
+    final connected = tier == ConnectionTier.live;
+    final paused = timer?.gamePaused ?? false;
+    final canToggleClock = connected &&
+        timer != null &&
+        timer.isTimeControlEnabled &&
+        snap?.status.isGameFinished != true &&
+        !timer.timeExpired;
+    final sessionN = ref.read(boardSessionNotifierProvider.notifier);
+    final fade = AppMotion.resolve(context, AppMotion.crossFade);
+
+    final timeControl = (timer != null && timer.isTimeControlEnabled)
+        ? '${(timer.config.initialTimeMs / 60000).round()}+${(timer.config.incrementMs / 1000).round()}'
+        : null;
+
+    Widget iconAction({
+      required String tooltip,
+      required Widget icon,
+      required VoidCallback? onPressed,
+    }) {
+      return PressableScale(
+        pressedScale: 0.88,
+        enabled: onPressed != null,
+        child: IconButton(
+          tooltip: tooltip,
+          onPressed: onPressed,
+          icon: icon,
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 52,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Row(
+          children: [
+            Flexible(
+              child: _ConnectionButton(session: session, tier: tier),
+            ),
+            if (timeControl != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Text(
+                  timeControl,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+            const Spacer(),
+            if (snap != null) ...[
+              iconAction(
+                tooltip: paused ? l10n.gameBarResume : l10n.gamePauseClock,
+                onPressed: canToggleClock
+                    ? () => runBoardCommandWithSnackBar(
+                          context,
+                          paused
+                              ? sessionN.postTimerResume
+                              : sessionN.postTimerPause,
+                        )
+                    : null,
+                icon: AnimatedSwitcher(
+                  duration: fade,
+                  transitionBuilder: (c, a) => FadeTransition(
+                    opacity: a,
+                    child: ScaleTransition(
+                      scale: Tween(begin: 0.8, end: 1.0).animate(a),
+                      child: c,
                     ),
-                  ],
+                  ),
+                  child: Icon(
+                    paused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                    key: ValueKey(paused),
+                  ),
+                ),
+              ),
+              iconAction(
+                tooltip: l10n.gameHint,
+                onPressed: hintBusy ? null : onHint,
+                icon: AnimatedSwitcher(
+                  duration: fade,
+                  child: hintBusy
+                      ? SizedBox(
+                          key: const ValueKey('busy'),
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            semanticsLabel: l10n.gameHintThinking,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.lightbulb_outline_rounded,
+                          key: ValueKey('idle'),
+                        ),
+                ),
+              ),
+              iconAction(
+                tooltip: l10n.gameBarMore,
+                onPressed: onMore,
+                icon: const Icon(Icons.more_horiz_rounded),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Transport glyph only while the link is healthy; a short word when it is
+/// connecting, not responding, or running the demo board.
+class _ConnectionButton extends StatelessWidget {
+  const _ConnectionButton({required this.session, required this.tier});
+
+  final BoardSessionState session;
+  final ConnectionTier tier;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final none = session.transport == BoardTransport.none;
+    final demo = session.transport == BoardTransport.mock;
+    final (IconData icon, Color color, String? word) = switch (tier) {
+      ConnectionTier.connecting => (
+          Icons.sync_rounded,
+          cs.onSurfaceVariant,
+          l10n.gameTopConnecting,
+        ),
+      ConnectionTier.offline when none => (
+          Icons.link_off_rounded,
+          cs.onSurfaceVariant,
+          null,
+        ),
+      ConnectionTier.offline => (
+          Icons.link_off_rounded,
+          cs.error,
+          l10n.gameTopNotResponding,
+        ),
+      ConnectionTier.live => (
+          switch (session.transport) {
+            BoardTransport.wifi => Icons.wifi_rounded,
+            BoardTransport.ble => Icons.bluetooth_rounded,
+            _ => Icons.smart_toy_outlined,
+          },
+          cs.onSurfaceVariant,
+          demo ? l10n.uiDemo : null,
+        ),
+    };
+
+    return Tooltip(
+      message: l10n.gameTopBoardTooltip,
+      child: PressableScale(
+        pressedScale: 0.94,
+        child: TextButton(
+          onPressed: () => pushBoardDiscoveryRoute(context),
+          style: TextButton.styleFrom(
+            foregroundColor: color,
+            minimumSize: const Size(44, 44),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+          ),
+          child: AnimatedSwitcher(
+            duration: AppMotion.resolve(context, AppMotion.crossFade),
+            switchInCurve: AppMotion.standardCurve,
+            switchOutCurve: AppMotion.reverseCurve,
+            child: Row(
+              key: ValueKey('$icon$word'),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 20, color: color),
+                if (word != null) ...[
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      word,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelLarge?.copyWith(color: color),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Single line in the error colour with a retry icon. Developers keep the
+/// detailed panel.
+class _ErrorLine extends ConsumerWidget {
+  const _ErrorLine({required this.error, required this.devMode});
+
+  final Object? error;
+  final bool devMode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final e = error;
+    final duration = AppMotion.resolve(context, AppMotion.stateChange);
+
+    Widget child;
+    if (e == null) {
+      child = const SizedBox(width: double.infinity);
+    } else if (devMode) {
+      child = Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+        child: SessionErrorPanel(
+          error: e,
+          title: l10n.lastErrorTitle,
+          devMode: true,
+          compact: true,
+        ),
+      );
+    } else {
+      child = Semantics(
+        liveRegion: true,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 4, 4),
+          child: Row(
+            children: [
+              Icon(Icons.error_outline_rounded, size: 18, color: cs.error),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  userFacingErrorSummary(l10n, e),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: cs.error),
+                ),
+              ),
+              IconButton(
+                tooltip: l10n.uiRetry,
+                onPressed: () => ref
+                    .read(boardSessionNotifierProvider.notifier)
+                    .refreshNow(),
+                icon: Icon(Icons.refresh_rounded, color: cs.error),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return AnimatedSize(
+      duration: duration,
+      curve: AppMotion.standardCurve,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(duration: duration, child: child),
+    );
+  }
+}
+
+class _EmptyBoardState extends StatelessWidget {
+  const _EmptyBoardState({super.key, required this.busy});
+
+  final bool busy;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainer,
+                      borderRadius: BorderRadius.circular(AppTheme.radius + 8),
+                    ),
+                    child: Icon(Icons.grid_on_rounded,
+                        size: 44, color: cs.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 24),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      l10n.uiConnectBoard,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  PressableScale(
+                    enabled: !busy,
+                    child: FilledButton.icon(
+                      onPressed:
+                          busy ? null : () => pushBoardDiscoveryRoute(context),
+                      icon: AnimatedSwitcher(
+                        duration:
+                            AppMotion.resolve(context, AppMotion.crossFade),
+                        child: busy
+                            ? const SizedBox(
+                                key: ValueKey('busy'),
+                                width: 18,
+                                height: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.bluetooth_searching,
+                                key: ValueKey('idle')),
+                      ),
+                      label: Text(
+                          busy ? l10n.gameTopConnecting : l10n.gameFindBoard),
+                    ),
+                  ),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Clock, board, clock in portrait; board beside the strip and two clocks in
+/// landscape. The clocks are always visible during a game.
+class _TableLayout extends ConsumerWidget {
+  const _TableLayout({
+    super.key,
+    required this.session,
+    required this.tier,
+    required this.landscape,
+    this.strip,
+  });
+
+  final BoardSessionState session;
+  final ConnectionTier tier;
+  final bool landscape;
+  final Widget? strip;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ui = ref.watch(gameUiNotifierProvider);
+    final snap = session.snapshot;
+    final status = snap?.status;
+    final timer = snap?.clock ?? session.timer;
+    final connected = tier == ConnectionTier.live;
+    final finished = status?.isGameFinished == true;
+    final whiteToMove =
+        !(status?.currentPlayer.toLowerCase().startsWith('b') ?? false);
+
+    ClockFace faceFor(bool white) => resolveClockFace(
+          white: white,
+          timer: timer,
+          connected: connected,
+          gameFinished: finished,
+          whiteToMoveFallback: whiteToMove,
+        );
+
+    final bottomIsWhite = !ui.boardFlipped;
+    final pc = ui.puzzleChallenge;
+    final puzzle = (pc != null && pc.hasVerifier) ? pc : null;
+
+    Widget board(double side) => SizedBox(
+          width: side,
+          height: side,
+          child: Stack(
+            children: [
+              _Board(side: side),
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 8,
+                child: _BoardNotes(session: session),
+              ),
+            ],
+          ),
+        );
+
+    return LayoutBuilder(
+      builder: (context, c) {
+        if (landscape) {
+          final side = math.max(
+            200.0,
+            math.min(c.maxHeight - 16, c.maxWidth * 0.55),
+          );
+          return SafeArea(
+            top: false,
+            left: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 4, 12, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  board(side),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (strip != null) strip!,
+                        if (puzzle != null) ...[
+                          _PuzzleStrip(puzzle: puzzle),
+                          const Spacer(),
+                        ] else ...[
+                          Expanded(
+                            child: PlayerClock(
+                              face: faceFor(!bottomIsWhite),
+                              compact: true,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Expanded(
+                            child: PlayerClock(
+                              face: faceFor(bottomIsWhite),
+                              compact: true,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (puzzle != null)
+                    _PuzzleStrip(puzzle: puzzle)
+                  else
+                    PlayerClock(face: faceFor(!bottomIsWhite)),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, bc) => Center(
+                        child: board(
+                          math.max(160.0, math.min(bc.maxWidth, bc.maxHeight)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (puzzle == null) PlayerClock(face: faceFor(bottomIsWhite)),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Board extends StatelessWidget {
+  const _Board({required this.side});
+
+  final double side;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppTheme.radius),
+      child: SizedBox(
+        width: side,
+        height: side,
+        child: const RepaintBoundary(child: ChessBoardWidget()),
+      ),
+    );
+  }
+}
+
+/// Short-lived notes laid over the bottom edge of the board, so the layout
+/// never jumps: preview, history, board messages.
+class _BoardNotes extends ConsumerWidget {
+  const _BoardNotes({required this.session});
+
+  final BoardSessionState session;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ui = ref.watch(gameUiNotifierProvider);
+    final uiN = ref.read(gameUiNotifierProvider.notifier);
+    final l10n = context.l10n;
+    final cs = Theme.of(context).colorScheme;
+    final notes = <Widget>[];
+
+    final puzzleActive = ui.puzzleChallenge?.hasVerifier == true;
+    if ((ui.sandboxMode || ui.historyReviewMoveIndex != null) &&
+        !puzzleActive) {
+      notes.add(_Note(
+        icon: ui.sandboxMode ? Icons.visibility_outlined : Icons.history_rounded,
+        text: ui.sandboxMode ? l10n.uiPreview : l10n.gameHistory,
+        actionTooltip: l10n.gameReturnLive,
+        onAction: () {
+          if (ui.sandboxMode) {
+            uiN.exitSandboxAndRefresh();
+          } else {
+            uiN.setHistoryReviewIndex(null, session.snapshot);
+          }
+        },
+      ));
+    }
+    final transient = ui.transientBoardMessage;
+    if (transient != null) notes.add(_Note(text: transient));
+    final sandboxMsg = ui.sandboxMessage;
+    if (sandboxMsg != null) notes.add(_Note(text: sandboxMsg, color: cs.error));
+
+    final duration = AppMotion.resolve(context, AppMotion.stateChange);
+    return AnimatedSwitcher(
+      duration: duration,
+      switchInCurve: AppMotion.standardCurve,
+      switchOutCurve: AppMotion.reverseCurve,
+      transitionBuilder: (child, anim) => FadeTransition(
+        opacity: anim,
+        child: SlideTransition(
+          position: Tween(begin: const Offset(0, 0.15), end: Offset.zero)
+              .animate(anim),
+          child: child,
+        ),
+      ),
+      child: notes.isEmpty
+          ? const SizedBox.shrink(key: ValueKey('none'))
+          : Column(
+              key: ValueKey(notes.length.toString() +
+                  (transient ?? '') +
+                  (sandboxMsg ?? '') +
+                  ui.sandboxMode.toString() +
+                  (ui.historyReviewMoveIndex?.toString() ?? '')),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < notes.length; i++) ...[
+                  if (i > 0) const SizedBox(height: 6),
+                  notes[i],
+                ],
+              ],
+            ),
+    );
+  }
+}
+
+class _Note extends StatelessWidget {
+  const _Note({
+    required this.text,
+    this.icon,
+    this.color,
+    this.actionTooltip,
+    this.onAction,
+  });
+
+  final String text;
+  final IconData? icon;
+  final Color? color;
+  final String? actionTooltip;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final fg = color ?? cs.onSurface;
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        padding: EdgeInsets.fromLTRB(14, 4, onAction == null ? 14 : 2, 4),
+        constraints: const BoxConstraints(minHeight: 44),
+        decoration: BoxDecoration(
+          color: cs.surface.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(AppTheme.radius),
+        ),
+        child: Row(
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18, color: cs.onSurfaceVariant),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: Text(
+                text,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(color: fg),
+              ),
+            ),
+            if (onAction != null)
+              IconButton(
+                tooltip: actionTooltip,
+                onPressed: onAction,
+                icon: const Icon(Icons.undo_rounded),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PuzzleStrip extends ConsumerWidget {
+  const _PuzzleStrip({required this.puzzle});
+
+  final PuzzleChallengeState puzzle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 64),
+      padding: const EdgeInsets.fromLTRB(16, 8, 4, 8),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainer,
+        borderRadius: BorderRadius.circular(AppTheme.radius + 4),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.extension_outlined, color: cs.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              puzzle.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleSmall,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${puzzle.playedUci.length}/${puzzle.solverPlies}',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+          IconButton(
+            tooltip: l10n.gameReturnLive,
+            onPressed: () =>
+                ref.read(gameUiNotifierProvider.notifier).returnToLiveGame(),
+            icon: const Icon(Icons.close_rounded),
           ),
         ],
       ),
     );
-  }
-
-  String _transportLabel(
-      BoardSessionState s, bool devMode, AppLocalizations l10n) {
-    return switch (s.transport) {
-      BoardTransport.none => l10n.transportDisconnected,
-      BoardTransport.mock => l10n.transportDemo,
-      BoardTransport.wifi => devMode
-          ? '${l10n.transportWifi}: ${s.wifiBaseUrl ?? ''}'
-          : l10n.transportWifi,
-      BoardTransport.ble => devMode
-          ? l10n.statusBleDevLine(s.bleLabel ?? l10n.defaultBoardName)
-          : l10n.transportBluetooth,
-    };
-  }
-
-  Widget _statusLine(BoardSessionState s, bool devMode, AppLocalizations l10n) {
-    final tier = _connectionTier(s);
-    final transportLabel = _transportLabel(s, devMode, l10n);
-    final t = switch (tier) {
-      _ConnectionTier.live => s.transport == BoardTransport.none
-          ? l10n.transportDisconnected
-          : l10n.statusConnectedTransport(transportLabel),
-      _ConnectionTier.connecting =>
-        l10n.statusConnectingTransport(transportLabel),
-      _ConnectionTier.offline => s.transport == BoardTransport.none
-          ? l10n.transportDisconnected
-          : l10n.statusBoardNotRespondingTransport(transportLabel),
-    };
-    final poll = devMode && s.pollingActive ? ' • poll' : '';
-    final ws = devMode && s.webSocketActive ? ' • WS' : '';
-    return Text('$t$poll$ws', style: const TextStyle(fontSize: 13));
   }
 }

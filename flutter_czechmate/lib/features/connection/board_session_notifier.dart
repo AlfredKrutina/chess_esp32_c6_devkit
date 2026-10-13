@@ -16,11 +16,13 @@ import '../../core/localization/locale_bridge.dart';
 import '../../core/models/board_timer_state.dart';
 import '../../core/models/game_snapshot.dart';
 import '../../core/models/game_status_models.dart';
+import '../../core/models/board_firmware_models.dart';
 import '../../core/services/ble_czechmate_client.dart';
 import '../../core/services/board_api_client.dart';
 import '../../core/services/mock_board_simulator.dart';
 import '../../core/services/prefs_repository.dart';
 import '../../core/services/web_socket_manager.dart';
+import '../../core/protocol/board_command_payload.dart';
 import '../../core/protocol/board_command_port.dart';
 import '../../core/protocol/mock_board_command_port.dart';
 import '../../core/protocol/saved_board_reconnect.dart';
@@ -78,6 +80,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   bool _linkRecoveryInFlight = false;
   DateTime? _linkRecoveryNotBefore;
   int _consecutivePollFails = 0;
+
+  /// After `load`, keep asking the board to start once the matrix matches.
+  bool _puzzleAlignWatch = false;
+  int _puzzleAlignStarts = 0;
+  bool _puzzleStartBusy = false;
 
   late final MockBoardCommandPort _mockCommands = MockBoardCommandPort(
     readSnapshot: () => state.snapshot,
@@ -686,6 +693,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         if (useWs) {
           _ws.connect(
             normalized,
+            commandToken: _prefs.boardCommandToken,
             onSnapshot: (s) => _applySnapshot(s, normalized),
             onError: (e) {
               state = state.copyWith(
@@ -776,7 +784,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> connectBle(BluetoothDevice device,
-      {String? label, bool preserveGameOnFailure = false}) async {
+      {String? label,
+      bool preserveGameOnFailure = false,
+      bool requestPairToken = false}) async {
     final prev = _bleConnectSerial;
     final gate = Completer<void>();
     _bleConnectSerial = gate.future;
@@ -790,6 +800,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         device,
         label: label,
         preserveGameOnFailure: preserveGameOnFailure,
+        requestPairToken: requestPairToken,
       );
     } finally {
       if (!gate.isCompleted) gate.complete();
@@ -797,7 +808,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> _connectBleBody(BluetoothDevice device,
-      {String? label, bool preserveGameOnFailure = false}) async {
+      {String? label,
+      bool preserveGameOnFailure = false,
+      bool requestPairToken = false}) async {
     connDebugLog(
       'BoardSession.connectBle start',
       'remoteId=${device.remoteId.str} label="${label ?? device.platformName}"',
@@ -840,6 +853,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
           }
         },
         onNetworkNotify: (raw) => unawaited(_onBleNetworkPayload(raw)),
+        requestPairToken: requestPairToken,
+        onCommandToken: (token) {
+          connDebugLog('pairing token saved', 'next to ${device.remoteId.str}');
+          unawaited(_prefs.setBoardCommandToken(token));
+        },
       );
       await _prefs.setLastBleRemoteId(device.remoteId.str);
       await _prefs.setLastBleDisplayName(label ?? device.platformName);
@@ -1183,6 +1201,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     );
     unawaited(_prefs.setStatsPeakMoveCountIfHigher(merged.status.moveCount));
     unawaited(_refreshTimer(baseForTimer, merged));
+    unawaited(_maybeContinuePuzzleSetup());
   }
 
   Future<void> _pauseTimerAfterGameEnd() async {
@@ -1268,8 +1287,15 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await _refreshAfterWifiCommand();
   }
 
-  /// Puzzle / custom FEN on board — Wi‑Fi HTTP or BLE `new_game` command.
-  Future<void> sendPuzzleFenToBoard(String fen) async {
+  /// Stage a puzzle on the board. Does not start a blind `new_game`.
+  ///
+  /// [solution] is solver-first. An empty line only places the position once
+  /// the matrix matches, then leaves a normal game.
+  Future<void> sendPuzzleToBoard({
+    required String fen,
+    List<String> solution = const [],
+    String title = '',
+  }) async {
     final f = fen.trim();
     if (f.isEmpty) return;
     if (state.transport != BoardTransport.wifi &&
@@ -1278,16 +1304,85 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     final port = _commandPortOrNull();
     if (port == null) return;
-    if (state.transport == BoardTransport.ble) {
-      try {
-        await port.postNewGame(fen: f);
-      } catch (e) {
-        state = state.copyWith(lastError: e);
+    if (AppEnvironment.staging) {
+      debugPrint(
+        '[staging] puzzle load plies=${solution.length} transport=${state.transport}',
+      );
+    }
+    await port.postPuzzle(BoardCommandPayload.puzzle(
+      action: 'load',
+      fen: f,
+      title: title,
+      solution: solution,
+    ));
+    _puzzleAlignWatch = true;
+    _puzzleAlignStarts = 0;
+    await Future<void>.delayed(const Duration(milliseconds: 220));
+    await refreshNow();
+  }
+
+  /// Kept for callers that only have a FEN. Still goes through puzzle setup.
+  Future<void> sendPuzzleFenToBoard(String fen) =>
+      sendPuzzleToBoard(fen: fen);
+
+  Future<void> startPuzzlePlay() async {
+    if (_puzzleStartBusy) return;
+    final port = _commandPortOrNull();
+    if (port == null) return;
+    _puzzleStartBusy = true;
+    try {
+      if (AppEnvironment.staging) {
+        debugPrint('[staging] puzzle start');
+      }
+      await port.postPuzzle(BoardCommandPayload.puzzle(action: 'start'));
+      await Future<void>.delayed(const Duration(milliseconds: 220));
+      await refreshNow();
+    } catch (e) {
+      if (AppEnvironment.staging) {
+        debugPrint('[staging] puzzle start refused: $e');
+      }
+      rethrow;
+    } finally {
+      _puzzleStartBusy = false;
+    }
+  }
+
+  Future<void> cancelPuzzle() async {
+    _puzzleAlignWatch = false;
+    _puzzleAlignStarts = 0;
+    final port = _commandPortOrNull();
+    if (port == null) return;
+    if (AppEnvironment.staging) {
+      debugPrint('[staging] puzzle cancel');
+    }
+    await port.postPuzzle(BoardCommandPayload.puzzle(action: 'cancel'));
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    await refreshNow();
+  }
+
+  Future<void> _maybeContinuePuzzleSetup() async {
+    if (!_puzzleAlignWatch || _puzzleStartBusy) return;
+    final puzzle = state.snapshot?.status.puzzle;
+    if (puzzle == null) return;
+    if (puzzle.active == true) {
+      _puzzleAlignWatch = false;
+      if (AppEnvironment.staging) {
+        debugPrint('[staging] puzzle play active session=${puzzle.session}');
       }
       return;
     }
-    await port.postNewGame(fen: f);
-    await _refreshAfterWifiCommand();
+    if (puzzle.physicalMatch != true) {
+      _puzzleAlignStarts = 0;
+      return;
+    }
+    if (puzzle.setupActive == true && _puzzleAlignStarts < 8) {
+      _puzzleAlignStarts++;
+      try {
+        await startPuzzlePlay();
+      } catch (_) {
+        // 409 while the matrix is still settling; the next snapshot retries.
+      }
+    }
   }
 
   Future<void> postTimerPause() async {
@@ -1306,6 +1401,20 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
       await _refreshTimerHttp(state.wifiBaseUrl!);
     }
+  }
+
+  /// Resign [side] (`white` / `black`) — the board ends the game the same way
+  /// as a 10 s king lift (result, clock, snapshot). Throws when refused.
+  Future<void> postResign(String side) async {
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errConnectBeforeMoves);
+    }
+    if (AppEnvironment.staging) {
+      debugPrint('[staging] postResign side=$side via ${state.transport.name}');
+    }
+    await port.postResign(side: side);
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> _refreshTimerHttp(String base) async {
@@ -1383,7 +1492,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   /// Stream `.bin` over BLE (no hotspot / STA). The application on this device must have the file downloaded.
-  Future<void> uploadFirmwareOtaBle(
+  ///
+  /// Returns the board OTA state after the reboot into the new image: `success` only once
+  /// the new firmware confirmed a stable start; `rolled_back` / `aborted` / `error` otherwise.
+  /// `null` when the board answered without OTA guard fields or never answered in time.
+  /// [onBleOtaPhase] also receives `verifying` while waiting for that confirmation.
+  Future<BoardOtaStatus?> uploadFirmwareOtaBle(
     File binFile, {
     void Function(int pct)? onProgress,
     void Function(String phase)? onBleOtaPhase,
@@ -1401,6 +1515,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         onProgress: onProgress,
         onPhase: onBleOtaPhase,
       );
+      onBleOtaPhase?.call('verifying');
+      return await _awaitBleOtaOutcome();
     } catch (e) {
       final msg = '$e';
       final lostLink = (e is FlutterBluePlusException && e.code == 6) ||
@@ -1412,6 +1528,63 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     } finally {
       await WakelockPlus.disable();
     }
+  }
+
+  static bool _isFinalOtaState(String s) =>
+      s == BoardOtaState.success ||
+      s == BoardOtaState.rolledBack ||
+      s == BoardOtaState.aborted ||
+      s == BoardOtaState.error ||
+      s == BoardOtaState.idle;
+
+  /// Reads `ota_ble_status` over BLE, reconnecting the saved board when the link is down
+  /// (e.g. right after the OTA reboot). Never takes over an active Wi‑Fi session.
+  Future<OtaBleStatus?> probeOtaStatusViaBle() async {
+    if (!isFlutterBluePlusHostSupported) return null;
+    final id = _prefs.lastBleRemoteId;
+    if (id == null || id.isEmpty) return null;
+    if (!state.bleGattConnected) {
+      if (state.transport == BoardTransport.wifi ||
+          _linkRecoveryInFlight ||
+          _resumeInFlight != null ||
+          state.busy) {
+        return null;
+      }
+      await reconnectSavedBle(preserveGameOnFailure: true);
+      if (!state.bleGattConnected) return null;
+    }
+    return _ble.fetchOtaBleStatus();
+  }
+
+  /// After the last chunk the board verifies the image, switches the boot slot and restarts.
+  /// The new image reports `verifying` until it confirms itself (stable uptime with an OTA
+  /// transport up), then `success`; a failed start makes the bootloader return to the
+  /// previous slot, which reports `rolled_back`.
+  Future<BoardOtaStatus?> _awaitBleOtaOutcome() async {
+    final deadline = DateTime.now().add(const Duration(minutes: 5));
+    await Future<void>.delayed(const Duration(seconds: 6));
+    while (DateTime.now().isBefore(deadline)) {
+      try {
+        final st = await probeOtaStatusViaBle();
+        if (st != null) {
+          final ota = st.ota;
+          if (AppEnvironment.staging || kDebugMode) {
+            debugPrint(
+              '[staging] OTA outcome probe: state=${ota?.state ?? 'legacy'} '
+              'reason=${ota?.reason ?? ''} awaiting=${ota?.awaitingConfirm}',
+            );
+          }
+          if (ota == null) return null;
+          if (_isFinalOtaState(ota.state)) return ota;
+        }
+      } catch (e) {
+        if (AppEnvironment.staging || kDebugMode) {
+          debugPrint('[staging] OTA outcome probe failed: $e');
+        }
+      }
+      await Future<void>.delayed(const Duration(seconds: 3));
+    }
+    return null;
   }
 
   /// OTA: HTTPS URL (STA on the internet) or `http://…` on LAN (client on the board hotspot).

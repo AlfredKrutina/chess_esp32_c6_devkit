@@ -350,6 +350,11 @@
   "errBleHostUnsupported": "This computer has no Bluetooth for the board. Connect over Wi‑Fi — the address is under Advanced.",
   "discoveryDesktopBleUnavailableTitle": "Bluetooth is not available here",
   "discoveryDesktopBleUnavailableBody": "On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.",
+  "discoveryPairTriplePress": "On the board, press the button three times. Pairing finishes on its own once the board opens the window.",
+  "discoveryNotInPairingMode": "The board is not in pairing mode.",
+  "discoveryBoardOccupied": "The board is connected to another device.",
+  "discoveryPairWifi": "Pair over Wi‑Fi",
+  "discoveryPairWifiNeedUrl": "Enter the board address under Advanced, then pair while the window is open.",
   "errWifiIpThirdOctetBlocked": "That address ({host}) is blocked in settings.",
   "@errWifiIpThirdOctetBlocked": {
     "placeholders": {
@@ -1007,6 +1012,24 @@
   "firmwareBleOtaKeepForegroundWarning": "Keep CzechMate in the foreground and avoid locking the screen until the Bluetooth transfer finishes.",
   "firmwareBleOtaPausedReconnectDetail": "Bluetooth transfer paused — reconnecting to the board…",
   "firmwareBleOtaResumedTransferDetail": "Connection restored — continuing firmware transfer.",
+  "firmwareOtaWaitingConfirmDetail": "The board restarted into the new firmware — waiting until it confirms a stable start…",
+  "errOtaRolledBack": "The new firmware did not confirm its start, so the board returned to the previous version ({reason}). You can run the update again.",
+  "@errOtaRolledBack": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtaAborted": "The transfer was interrupted ({reason}) and the new firmware was not activated. The board keeps running the current version — start the update again.",
+  "@errOtaAborted": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtaOutcomeUnknown": "The board restarted but did not report whether the new firmware confirmed its start. Check the firmware version in settings before relying on it.",
   "firmwareOtaSlotsDisabledHint": "This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).",
   "firmwareBoardHttpMissingDetail": "Board HTTP address is missing (e.g. http://192.168.4.1). Set Default board URL in settings. Bluetooth alone does not provide an IP.",
   "firmwareHttpsLinkExplainBody": "You only send an HTTPS link — the ESP downloads the full .bin. The board must be connected to Wi‑Fi as a station (STA). You can send the start command over Wi‑Fi HTTP or Bluetooth; progress is read over HTTP to the board IP.",
@@ -1169,10 +1192,10 @@
   "analysisPreviewMoveTitle": "Preview position & move",
   "puzzleRoundExpiredSnack": "Round time expired.",
   "puzzleConnectBoardSnack": "Connect the board (Wi‑Fi or BLE).",
-  "puzzleNewGameSentSnack": "new_game command sent.",
+  "puzzleNewGameSentSnack": "Position sent. The board lights missing and extra squares until it matches.",
   "puzzleBoardRiddleTitle": "Board puzzle",
   "puzzleTryOnScreen": "Try on screen",
-  "puzzleLoadToBoard": "Load to board (new_game + FEN)",
+  "puzzleLoadToBoard": "Load to board",
   "puzzleSetupWizardLabel": "Board setup wizard",
   "puzzleOpenLichess": "Open on Lichess",
   "puzzleSavePositionTitle": "Save position",
@@ -1676,6 +1699,10 @@
   "setupWizardErrConnectBoard": "Connect the board via Wi‑Fi or Bluetooth (demo mode does not support this tutorial).",
   "setupWizardErrNoSteps": "Could not build steps from this FEN.",
   "setupWizardErrGeneric": "Error",
+  "setupWizardErrPhysicalMismatch": "The pieces on the board do not match this position yet.",
+  "puzzleMoreActionsTooltip": "More puzzle actions",
+  "puzzleLibSavedPositionCaption": "Current sandbox position",
+  "puzzleSaveNeedPosition": "Open a position on the Play tab first.",
   "setupWizardTitleStandard": "Starting position",
   "setupWizardTitleFromFen": "Setup from FEN",
   "setupWizardDoneStandard": "The board confirmed the starting position.",
@@ -2041,5 +2068,357 @@
   "settingsLinkConnecting": "Connecting…",
   "settingsLinkNoResponseYet": "No board response yet",
   "settingsLinkConnectedLive": "Connected (live)",
-  "settingsCoachSubtitleOfflineTips": "Short on-device tips only (no cloud)"
+  "settingsCoachSubtitleOfflineTips": "Short on-device tips only (no cloud)",
+  "gameResign": "Resign",
+  "gameResignUnavailable": "You can resign only while a game is running on the board.",
+  "gameResignConfirmTitleWhite": "Resign for White?",
+  "gameResignConfirmTitleBlack": "Resign for Black?",
+  "gameResignConfirmBodyWhite": "The game ends and Black wins. The board stops the clock, shows the result and saves it. This cannot be undone.",
+  "gameResignConfirmBodyBlack": "The game ends and White wins. The board stops the clock, shows the result and saves it. This cannot be undone.",
+  "gameResignSending": "Sending…",
+  "gameResignSentSnack": "Resignation sent. The board is ending the game.",
+  "gameResignRefused": "The board refused: the game is no longer running or the other side is on move. Refresh the state and try again.",
+  "gameResignFailed": "Could not send the resignation: {error}",
+  "@gameResignFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "endReasonResignation": "Resignation",
+  "boardGuideTitle": "Board guide",
+  "boardGuideStepCounter": "Step {n} of {total}",
+  "@boardGuideStepCounter": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "boardGuideBack": "Back",
+  "boardGuideDone": "Done",
+  "settingsNavBoardGuide": "Board guide (hints, resign, clock)",
+  "helpBoardGuideTitle": "Board guide",
+  "helpBoardGuideBody": "Step by step: connecting, moves on the board, hints, the clock and resigning.",
+  "helpBoardGuideOpen": "Open board guide",
+  "boardGuideConnectTitle": "Connect the board",
+  "boardGuideConnectBody": "Switch the board on and find it on the Play tab over Bluetooth or Wi‑Fi. Once connected, the app shows the same position as the board. Without a board you can try everything on the demo board.",
+  "boardGuideMoveTitle": "Move on the wooden board",
+  "boardGuideMoveBody": "Play with your hands as usual. When you lift a piece, the board lights the squares it may go to: green for empty squares, orange for captures. Put it down on the target square and the move appears in the app. How much the board lights up is set in the board settings under LED hints.",
+  "boardGuideHintTitle": "Ask for a hint",
+  "boardGuideHintBody": "In Game controls, tap Move hint. The app asks the chess engine for the best move (needs internet), shows it on screen and lights the target square on the board. Turn those LEDs off with Clear hint LEDs.",
+  "boardGuideClockTitle": "Play on the clock",
+  "boardGuideClockBody": "Pick a time control when you start a New game. The clock runs on the board and switches after every move by itself; the app shows its state. Pause and resume are in Game controls.",
+  "boardGuideResignTitle": "Resign",
+  "boardGuideResignBody": "Choose Resign in Game controls or in the game menu (⋮). The side on move resigns and the app first asks which colour. The board then stops the clock, shows the winner and saves the result. On the board itself, lift your own king and hold it off the board for 10 seconds; put it back earlier to cancel.",
+  "onboardingPermissionsDesktopWindowsBody": "Windows needs no extra permissions here. Keep the computer and the board on the same Wi‑Fi network.",
+  "onboardingPermWifiBodyDesktop": "No Wi‑Fi permission is needed. Keep the computer on the same network as the board, or join the board’s hotspot.",
+  "analysisScoresheetEmpty": "No moves in this game yet.",
+  "analysisChartJumpedToMove": "Showing move {n} on Play.",
+  "@analysisChartJumpedToMove": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisClearEvalConfirmTitle": "Clear evaluations?",
+  "analysisClearEvalConfirmBody": "The chart and saved move evaluations for this game will be removed.",
+  "analysisClearEvalConfirmAction": "Clear",
+  "coachSetupBannerAction": "Open coach settings",
+  "coachChatExplanationLevelLabel": "Explanation level",
+  "discoveryTransportAdvancedExplanation": "Auto tries Bluetooth first, then Wi‑Fi when the board is reachable. Wi‑Fi only skips Bluetooth. Bluetooth only stays on Bluetooth even if a Wi‑Fi address is known.",
+  "discoveryOpenTransportSettingsButton": "Open connection settings",
+  "discoveryAdvancedBlockedOctetsTitle": "Blocked LAN addresses",
+  "discoveryAdvancedBlockedOctetsBody": "IPv4 addresses whose third number is listed here are ignored (for example 88 blocks 192.168.88.*). Use this when a router address must not be treated as the board.",
+  "discoveryAdvancedBlockedOctetsLabel": "Third numbers",
+  "discoveryAdvancedBlockedOctetsHint": "e.g. 88, 1",
+  "discoveryAdvancedBlockedOctetsSave": "Save",
+  "discoveryAdvancedBlockedOctetsReset": "Reset to 88",
+  "discoveryAdvancedBlockedOctetsSavedSnack": "Blocked addresses saved.",
+  "settingsAdvancedConnectionSubtitleV2": "Board address, next connection, factory reset",
+  "settingsBleDesktopHint": "Bluetooth board scan is not available on this computer. Use Wi‑Fi or the demo board.",
+  "settingsNextConnectionTitle": "Next connection",
+  "settingsNextConnectionIntro": "Override applies once, on the next connect. After that the app returns to automatic (Bluetooth, then Wi‑Fi).",
+  "settingsNextConnectionActiveWifiOnce": "Next connect uses Wi‑Fi only.",
+  "settingsNextConnectionActiveBleOnce": "Next connect uses Bluetooth only.",
+  "settingsNextConnectionUseAuto": "Use automatic",
+  "settingsNextConnectionWifiOnceButton": "Wi‑Fi once",
+  "settingsNextConnectionBleOnceButton": "Bluetooth once",
+  "settingsAppFactoryResetTitle": "Reset app data",
+  "settingsAppFactoryResetSubtitle": "Clears saved board, language, coach keys and other settings stored on this device. The board firmware is not changed.",
+  "settingsAppFactoryResetButton": "Reset app",
+  "settingsAppFactoryResetConfirmTitle": "Reset everything in the app?",
+  "settingsAppFactoryResetConfirmBody": "Saved preferences on this device will be deleted. This cannot be undone.",
+  "settingsAppFactoryResetConfirmAction": "Reset",
+  "settingsAppFactoryResetDoneSnack": "App data was reset.",
+  "settingsAppFactoryResetRestartHint": "If something still looks old, close the app and open it again.",
+  "settingsDiagnosticsBoardNvsLockedHint": "Unlock developer mode to edit board NVS.",
+  "settingsAboutDeveloperModeTitle": "Developer mode",
+  "settingsAboutDeveloperModeSubtitleOn": "Extra firmware and diagnostic tools are visible.",
+  "settingsDeveloperModeDisabledSnack": "Developer mode turned off.",
+  "settingsAppUpdateBannerTitle": "App update available",
+  "settingsAppUpdateBannerSubtitle": "Installed {current}. Version {latest} is available.",
+  "@settingsAppUpdateBannerSubtitle": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateBannerSubtitleRequired": "Installed {current}. Version {required} or newer is required.",
+  "@settingsAppUpdateBannerSubtitleRequired": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "required": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateOpenDownloads": "Open downloads",
+  "settingsAboutAppUpdateLineTitle": "Newer app version",
+  "settingsAboutAppUpdateLineBody": "Installed {current}. Latest {latest}.",
+  "@settingsAboutAppUpdateLineBody": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "haMqttFormLead": "Point the board at your MQTT broker so Home Assistant can see games and the lamp.",
+  "haMqttSetupHelpLink": "Setup help",
+  "lampStudioSelectedSwatchLabel": "Selected color",
+  "lampStudioPresetColorsTitle": "Preset colors",
+  "lampStudioDeveloperRgbTitle": "RGB values",
+  "reportExportStylePickHint": "Tap a layout. The preview updates before you share.",
+  "reportExportThumbWideLabel": "Wide",
+  "reportExportThumbWideAspect": "Landscape 16:9",
+  "reportChartPaletteChoiceHint": "These colors are used for the evaluation line, elapsed time and the white and black bars.",
+  "firmwareTileTitleDeveloperDowngrade": "Firmware — older build ({ver})",
+  "@firmwareTileTitleDeveloperDowngrade": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileTitleDeveloperReflash": "Firmware — same version ({ver})",
+  "@firmwareTileTitleDeveloperReflash": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileSubtitleDeveloperDowngrade": "Developer mode: the manifest is older than the board. You can still flash it.",
+  "firmwareTileSubtitleDeveloperReflash": "Developer mode: the board already has this version. You can flash it again.",
+  "firmwareOtaRollbackBannerTitle": "Last firmware update did not stick",
+  "firmwareOtaRollbackBannerBodyWithAttempt": "The board is still on {current}. The failed write targeted slot {slot} (attempted {attempt}).",
+  "@firmwareOtaRollbackBannerBodyWithAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      },
+      "attempt": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaRollbackBannerBodyNoAttempt": "The board is still on {current}. The failed write targeted slot {slot}.",
+  "@firmwareOtaRollbackBannerBodyNoAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaSuccessTitle": "Firmware sent",
+  "firmwareOtaSuccessBody": "The app sent version {installed}. The board reports {reported}. It may reboot before the new version shows up.",
+  "@firmwareOtaSuccessBody": {
+    "placeholders": {
+      "installed": {
+        "type": "String"
+      },
+      "reported": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareBleOtaApHotspotTip": "If Bluetooth transfer is unreliable, join the board hotspot and send the file over HTTP instead.",
+  "firmwareDeveloperSameVersionBanner": "Developer mode: manifest matches the board. Reflashing the same version is allowed.",
+  "firmwareDeveloperOlderManifestBanner": "Developer mode: the manifest is older than the firmware on the board. Flashing it is a downgrade.",
+  "firmwareDeveloperManifestSectionTitle": "Custom manifest",
+  "firmwareDeveloperManifestSectionBody": "Paste a version.json URL to check a build other than the default release.",
+  "firmwareOfflineSavedFirmwareBanner": "No manifest right now. You can still send the firmware already saved in the app.",
+  "firmwareCachedDiffersFromManifestHint": "Manifest is {manifest}, but the file saved in the app is {cached}. Download again before sending if you want the manifest build.",
+  "@firmwareCachedDiffersFromManifestHint": {
+    "placeholders": {
+      "manifest": {
+        "type": "String"
+      },
+      "cached": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDeveloperReflashChipTitle": "Reflash {ver}",
+  "@firmwareDeveloperReflashChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDeveloperDowngradeChipTitle": "Downgrade to {ver}",
+  "@firmwareDeveloperDowngradeChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareSavedFirmwareChipTitle": "Saved in app: {ver}",
+  "@firmwareSavedFirmwareChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "navLearn": "Learn",
+  "gameTopNoBoard": "No board",
+  "gameTopConnecting": "Connecting…",
+  "gameTopNotResponding": "Board not responding",
+  "gameTopNoClock": "No clock",
+  "gameTopTimeControl": "{minutes} + {increment}",
+  "@gameTopTimeControl": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "increment": {
+        "type": "int"
+      }
+    }
+  },
+  "gameTopBoardTooltip": "Board connection",
+  "gameTopMenuTooltip": "Game menu",
+  "gameBarPause": "Pause",
+  "gameBarResume": "Resume",
+  "gameBarHint": "Hint",
+  "gameBarMore": "More",
+  "gameBarPauseUnavailable": "The clock is not running",
+  "clockWhite": "White",
+  "clockBlack": "Black",
+  "clockOnMove": "On move",
+  "clockLowTime": "Low time",
+  "clockFlagged": "Time is up",
+  "clockPaused": "Paused",
+  "clockOffline": "No connection",
+  "clockWaiting": "Waiting",
+  "clockNoTimeControl": "No time control",
+  "clockSemantics": "{side}: {time}, {state}",
+  "@clockSemantics": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "gameEmptyTitle": "Connect your board",
+  "gameEmptyBody": "The game, the clock and hints run on the physical board. Connect it over Bluetooth or Wi‑Fi.",
+  "gameReviewBanner": "Viewing an earlier move",
+  "gameSandboxBanner": "Position preview, not on the board",
+  "moreTitle": "Game",
+  "moreMoves": "Moves",
+  "moreAnalysis": "Analysis",
+  "moreAnalysisSubtitle": "Evaluation and the best move for this position",
+  "moreNewGameSubtitle": "Pick a time control and start on the board",
+  "moreSwapSides": "Swap sides",
+  "moreWhiteBottom": "White is at the bottom, like the board on your table",
+  "moreBlackBottom": "Black is at the bottom, like the board on your table",
+  "moreClearHint": "Turn off hint lights",
+  "moreSummary": "Game summary",
+  "moreDisconnect": "Disconnect board",
+  "settingsBoardGuideSubtitle": "Step by step: connect, move, hint, clock, resign",
+  "settingsGroupBoard": "Board",
+  "settingsGroupApp": "App",
+  "settingsGroupCoach": "Coach and AI",
+  "settingsGroupAdvanced": "Advanced",
+  "settingsBoardScreenTitle": "Board on screen",
+  "settingsBoardScreenSubtitle": "Square colours, piece motion, which side is at the bottom",
+  "settingsAppearanceTitle": "Appearance",
+  "languageNativeCzech": "Čeština",
+  "languageNativeEnglish": "English",
+  "settingsFeedbackTitle": "Sound and vibration",
+  "settingsFeedbackSubtitle": "For moves made on the screen",
+  "settingsCoachAiEntrySubtitle": "Provider, Azure AI Foundry, keys and levels",
+  "settingsHelpSubtitle": "How the board, clock and hints work",
+  "settingsTourSubtitle": "Short introduction to the app",
+  "settingsSessionStatsTitle": "Connection statistics",
+  "settingsSessionStatsSubtitle": "Polling, WebSocket and move counters",
+  "settingsBoardStyleWood": "Wood",
+  "settingsBoardStyleSlate": "Slate",
+  "settingsBoardCoordinatesNote": "Coordinates are always shown so squares match the physical board.",
+  "learnHubTitle": "Learn",
+  "learnCoachTitle": "AI coach",
+  "learnCoachSubtitle": "Ask about the position, a plan or a mistake",
+  "learnOpeningsTitle": "Opening training",
+  "learnOpeningsSubtitle": "Learn lines move by move on the board",
+  "learnProfileTitle": "Your progress",
+  "learnProfileSubtitle": "Puzzle rating and weekly activity",
+  "navTrain": "Train",
+  "trainDaily": "Daily puzzle",
+  "trainLibrary": "Puzzle library",
+  "trainTimed": "Timed puzzles",
+  "trainOpenings": "Openings",
+  "trainCoach": "Coach",
+  "trainSetup": "Set up pieces",
+  "trainProgress": "Progress",
+  "uiConnectBoard": "Connect board",
+  "uiPreview": "Preview",
+  "uiDemo": "Demo",
+  "uiRetry": "Retry",
+  "uiResignTitleWhite": "White resigns?",
+  "uiResignTitleBlack": "Black resigns?",
+  "uiResignBodyWhite": "Black wins.",
+  "uiResignBodyBlack": "White wins.",
+  "uiConnection": "Connection",
+  "uiFirmware": "Firmware",
+  "uiFirmwareNew": "New version",
+  "uiGameSummary": "Summary after game",
+  "uiDiagnostics": "Diagnostics",
+  "uiGroupMore": "More",
+  "uiCoachAi": "Coach AI",
+  "uiMoveEval": "Move evaluation",
+  "uiBoardDisplay": "Board display",
+  "uiThemeDark": "Dark",
+  "uiThemeLight": "Light",
+  "uiFlipBoard": "Flip board",
+  "uiClearHint": "Clear hint",
+  "uiDisconnect": "Disconnect"
 }

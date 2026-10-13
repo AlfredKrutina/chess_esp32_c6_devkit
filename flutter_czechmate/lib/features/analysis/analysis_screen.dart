@@ -285,8 +285,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
           IconButton(
             tooltip: l10n.navPlay,
             icon: const Icon(Icons.grid_on_outlined),
-            onPressed: () => ref.read(mainNavTabIndexProvider.notifier).state =
-                AppMainTab.game,
+            onPressed: () => focusPlayTab(ref, context),
           ),
         ],
       ),
@@ -317,9 +316,7 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                     const SizedBox(height: 12),
                     PressableScale(
                       child: FilledButton.tonal(
-                        onPressed: () => ref
-                            .read(mainNavTabIndexProvider.notifier)
-                            .state = AppMainTab.game,
+                        onPressed: () => focusPlayTab(ref, context),
                         child: Text(l10n.analysisOpenPlay),
                       ),
                     ),
@@ -726,9 +723,8 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                   ref
                       .read(gameUiNotifierProvider.notifier)
                       .enterSandboxFromCustomFen(t);
-                  ref.read(mainNavTabIndexProvider.notifier).state =
-                      AppMainTab.game;
                   showAppSnackBar(context, l10n.analysisSandboxFenSnack);
+                  focusPlayTab(ref, context);
                 },
                 child: Text(l10n.analysisPreviewInPlay),
               ),

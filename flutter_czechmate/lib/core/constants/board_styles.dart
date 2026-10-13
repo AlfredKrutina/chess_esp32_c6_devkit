@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// Styles offered in Settings. Wood mirrors the physical board; slate is the
+/// cooler high-contrast alternative. Older stored styles fall back to wood.
+const List<String> kOfferedBoardStyles = ['wooden', 'slate'];
+
+String offeredBoardStyle(String raw) =>
+    kOfferedBoardStyles.contains(raw) ? raw : 'wooden';
+
 class BoardStyleColors {
   final Color light;
   final Color dark;
@@ -16,9 +23,9 @@ class BoardStyleColors {
   });
 
   static BoardStyleColors fromRaw(String raw) {
-    const valid = Color(0x664CAF50);
-    const last = Color(0x66FFEB3B);
-    const err = Color(0x99F44336);
+    const valid = Color(0x738FB3E8);
+    const last = Color(0x66F2D27A);
+    const err = Color(0x8CF29A8F);
 
     switch (raw) {
       case 'modernDark':

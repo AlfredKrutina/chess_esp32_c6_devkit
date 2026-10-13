@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_navigation.dart';
-import '../../app_providers.dart';
 import '../../core/analysis/move_evaluation.dart';
 import '../../core/models/game_snapshot.dart';
 import '../../core/widgets/glass_snackbar.dart';
@@ -57,7 +56,6 @@ class AnalysisScoresheetTable extends ConsumerWidget {
   final AppLocalizations l10n;
 
   void _jump(BuildContext context, WidgetRef ref, int historyIndex) {
-    ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
     ref
         .read(gameUiNotifierProvider.notifier)
         .setHistoryReviewIndex(historyIndex, snap);
@@ -68,6 +66,7 @@ class AnalysisScoresheetTable extends ConsumerWidget {
         historyIndex + 1,
       ),
     );
+    focusPlayTab(ref, context);
   }
 
   @override

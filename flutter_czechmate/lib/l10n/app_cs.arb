@@ -350,6 +350,11 @@
   "errBleHostUnsupported": "Tenhle počítač nemá Bluetooth k desce. Připoj ji přes Wi‑Fi — adresu najdeš v Pokročilém.",
   "discoveryDesktopBleUnavailableTitle": "Bluetooth tu není k dispozici",
   "discoveryDesktopBleUnavailableBody": "Na tomhle počítači se deska připojuje přes Wi‑Fi. Po prvním spárování se aplikace připojí sama.",
+  "discoveryPairTriplePress": "Na desce třikrát stiskni tlačítko. Párování se dokončí samo, jakmile deska otevře okno.",
+  "discoveryNotInPairingMode": "Deska není v párovacím režimu.",
+  "discoveryBoardOccupied": "Deska je připojená k jinému zařízení.",
+  "discoveryPairWifi": "Spárovat přes Wi‑Fi",
+  "discoveryPairWifiNeedUrl": "Zadej adresu desky v Pokročilém a spáruj ji, dokud je okno otevřené.",
   "errWifiIpThirdOctetBlocked": "Tahle adresa ({host}) je v nastavení zablokovaná.",
   "@errWifiIpThirdOctetBlocked": {
     "placeholders": {
@@ -1007,6 +1012,24 @@
   "firmwareBleOtaKeepForegroundWarning": "Nech CzechMate v popředí a obrazovku nezamykaj, dokud přenos přes Bluetooth neskončí.",
   "firmwareBleOtaPausedReconnectDetail": "Přenos přes Bluetooth pozastaven — obnovuji spojení s deskou…",
   "firmwareBleOtaResumedTransferDetail": "Spojení obnoveno — pokračuji v přenosu firmwaru.",
+  "firmwareOtaWaitingConfirmDetail": "Deska se restartovala do nového firmwaru — čekám, až potvrdí stabilní start…",
+  "errOtaRolledBack": "Nový firmware nepotvrdil start, deska se proto vrátila k předchozí verzi ({reason}). Aktualizaci můžeš spustit znovu.",
+  "@errOtaRolledBack": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtaAborted": "Přenos byl přerušen ({reason}) a nový firmware se neaktivoval. Deska dál běží na současné verzi — spusť aktualizaci znovu.",
+  "@errOtaAborted": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtaOutcomeUnknown": "Deska se restartovala, ale nenahlásila, zda nový firmware potvrdil start. Než se na něj spolehneš, zkontroluj verzi firmwaru v nastavení.",
   "firmwareOtaSlotsDisabledHint": "Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu).",
   "firmwareBoardHttpMissingDetail": "Chybí HTTP adresa desky (např. http://192.168.4.1). V nastavení ulož výchozí URL desky. Samotné Bluetooth IP neposkytuje.",
   "firmwareHttpsLinkExplainBody": "Ty jen pošleš odkaz HTTPS — celý soubor .bin stáhne ESP. Deska musí být připojená k Wi‑Fi jako klient (STA). Příkaz ke startu můžeš poslat přes HTTP na Wi‑Fi nebo přes Bluetooth; průběh se čte přes HTTP na IP desky.",
@@ -1169,10 +1192,10 @@
   "analysisPreviewMoveTitle": "Náhled pozice a tahu",
   "puzzleRoundExpiredSnack": "Čas kola vypršel.",
   "puzzleConnectBoardSnack": "Připoj desku (Wi‑Fi nebo BLE).",
-  "puzzleNewGameSentSnack": "Příkaz new_game odeslán.",
+  "puzzleNewGameSentSnack": "Pozice odeslána. Deska svítí chybějící a přebytečná pole, dokud nesedí.",
   "puzzleBoardRiddleTitle": "Hádanka na desce",
   "puzzleTryOnScreen": "Zkusit vyřešit na obrazovce",
-  "puzzleLoadToBoard": "Nahrát na desku (new_game + FEN)",
+  "puzzleLoadToBoard": "Nahrát na desku",
   "puzzleSetupWizardLabel": "Průvodce postavením na desce",
   "puzzleOpenLichess": "Otevřít na Lichess",
   "puzzleSavePositionTitle": "Uložit pozici",
@@ -1676,6 +1699,10 @@
   "setupWizardErrConnectBoard": "Připoj desku přes Wi‑Fi nebo Bluetooth (ukázkový režim tento postup nepodporuje).",
   "setupWizardErrNoSteps": "Z FEN nešlo sestavit žádné kroky.",
   "setupWizardErrGeneric": "Chyba",
+  "setupWizardErrPhysicalMismatch": "Figurky na desce zatím nesedí s touto pozicí.",
+  "puzzleMoreActionsTooltip": "Další akce puzzlu",
+  "puzzleLibSavedPositionCaption": "Aktuální pozice na obrazovce",
+  "puzzleSaveNeedPosition": "Nejdřív otevři pozici na záložce Hra.",
   "setupWizardTitleStandard": "Základní postavení",
   "setupWizardTitleFromFen": "Postavení z FEN",
   "setupWizardDoneStandard": "Deska potvrdila základní postavení.",
@@ -2041,5 +2068,357 @@
   "settingsLinkConnecting": "Připojuji…",
   "settingsLinkNoResponseYet": "Deska zatím neodpovídá",
   "settingsLinkConnectedLive": "Připojeno (živě)",
-  "settingsCoachSubtitleOfflineTips": "Jen krátké tipy v zařízení (bez cloudu)"
+  "settingsCoachSubtitleOfflineTips": "Jen krátké tipy v zařízení (bez cloudu)",
+  "gameResign": "Vzdát se",
+  "gameResignUnavailable": "Vzdát se jde jen během partie, která běží na desce.",
+  "gameResignConfirmTitleWhite": "Vzdát se za bílé?",
+  "gameResignConfirmTitleBlack": "Vzdát se za černé?",
+  "gameResignConfirmBodyWhite": "Partie skončí a vyhraje černý. Deska zastaví hodiny, ukáže výsledek a uloží ho. Vrátit to nejde.",
+  "gameResignConfirmBodyBlack": "Partie skončí a vyhraje bílý. Deska zastaví hodiny, ukáže výsledek a uloží ho. Vrátit to nejde.",
+  "gameResignSending": "Odesílám…",
+  "gameResignSentSnack": "Vzdání odesláno. Deska ukončuje partii.",
+  "gameResignRefused": "Deska vzdání nepřijala: partie už neběží nebo je na tahu druhá strana. Obnov stav a zkus to znovu.",
+  "gameResignFailed": "Vzdání se nepodařilo odeslat: {error}",
+  "@gameResignFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "endReasonResignation": "Vzdání",
+  "boardGuideTitle": "Průvodce deskou",
+  "boardGuideStepCounter": "Krok {n} z {total}",
+  "@boardGuideStepCounter": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "boardGuideBack": "Zpět",
+  "boardGuideDone": "Hotovo",
+  "settingsNavBoardGuide": "Průvodce deskou (nápověda, vzdání, hodiny)",
+  "helpBoardGuideTitle": "Průvodce deskou",
+  "helpBoardGuideBody": "Krok za krokem: připojení, tahy na desce, nápověda, hodiny a vzdání.",
+  "helpBoardGuideOpen": "Otevřít průvodce deskou",
+  "boardGuideConnectTitle": "Připoj desku",
+  "boardGuideConnectBody": "Zapni desku a na kartě Hra ji najdi přes Bluetooth nebo Wi‑Fi. Po připojení aplikace ukazuje stejnou pozici jako deska. Bez desky si vše vyzkoušíš na ukázkové desce.",
+  "boardGuideMoveTitle": "Táhni na dřevěné desce",
+  "boardGuideMoveBody": "Hraj rukou jako obvykle. Když zvedneš figuru, deska rozsvítí pole, kam smí: zeleně volná pole, oranžově braní. Polož ji na cílové pole a tah se objeví v aplikaci. Kolik deska svítí, nastavíš v nastavení desky u LED nápovědy.",
+  "boardGuideHintTitle": "Požádej o nápovědu",
+  "boardGuideHintBody": "V Ovládání hry klepni na Nápověda tahu. Aplikace se zeptá šachového enginu na nejlepší tah (potřebuje internet), ukáže ho na obrazovce a na desce rozsvítí cílové pole. Tyto LED zhasneš tlačítkem Zrušit nápovědní LED.",
+  "boardGuideClockTitle": "Hraj na hodiny",
+  "boardGuideClockBody": "Časovou kontrolu vybereš při Nové hře. Hodiny běží na desce a po každém tahu se přepnou samy, aplikace ukazuje jejich stav. Pauzu a pokračování najdeš v Ovládání hry.",
+  "boardGuideResignTitle": "Vzdej se",
+  "boardGuideResignBody": "V Ovládání hry nebo v menu partie (⋮) zvol Vzdát se. Vzdává se strana na tahu a aplikace se nejdřív zeptá, za kterou barvu. Deska pak zastaví hodiny, ukáže vítěze a výsledek uloží. Přímo na desce zvedni vlastního krále a drž ho 10 sekund mimo desku; když ho vrátíš dřív, vzdání se zruší.",
+  "onboardingPermissionsDesktopWindowsBody": "Na Windows tu žádná další oprávnění nejsou potřeba. Počítač a deska musí být ve stejné Wi‑Fi síti.",
+  "onboardingPermWifiBodyDesktop": "Oprávnění k Wi‑Fi není potřeba. Počítač musí být ve stejné síti jako deska, nebo se připoj k hotspotu desky.",
+  "analysisScoresheetEmpty": "V téhle partii zatím nejsou tahy.",
+  "analysisChartJumpedToMove": "Na kartě Hra je tah {n}.",
+  "@analysisChartJumpedToMove": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "analysisClearEvalConfirmTitle": "Vymazat hodnocení?",
+  "analysisClearEvalConfirmBody": "Graf a uložená hodnocení tahů této partie se smažou.",
+  "analysisClearEvalConfirmAction": "Vymazat",
+  "coachSetupBannerAction": "Otevřít nastavení trenéra",
+  "coachChatExplanationLevelLabel": "Úroveň vysvětlení",
+  "discoveryTransportAdvancedExplanation": "Auto nejdřív zkouší Bluetooth, pak Wi‑Fi, jakmile je deska dostupná. Jen Wi‑Fi přeskočí Bluetooth. Jen Bluetooth zůstane na Bluetooth i když je známá adresa Wi‑Fi.",
+  "discoveryOpenTransportSettingsButton": "Otevřít nastavení připojení",
+  "discoveryAdvancedBlockedOctetsTitle": "Blokované adresy v síti",
+  "discoveryAdvancedBlockedOctetsBody": "IPv4 adresy, jejichž třetí číslo je v seznamu, se ignorují (například 88 zablokuje 192.168.88.*). Hodí se, když adresa routeru nesmí být brána jako deska.",
+  "discoveryAdvancedBlockedOctetsLabel": "Třetí čísla",
+  "discoveryAdvancedBlockedOctetsHint": "např. 88, 1",
+  "discoveryAdvancedBlockedOctetsSave": "Uložit",
+  "discoveryAdvancedBlockedOctetsReset": "Vrátit na 88",
+  "discoveryAdvancedBlockedOctetsSavedSnack": "Blokované adresy uloženy.",
+  "settingsAdvancedConnectionSubtitleV2": "Adresa desky, příští připojení, obnovení továrního nastavení",
+  "settingsBleDesktopHint": "Vyhledávání desky přes Bluetooth na tomto počítači není. Použij Wi‑Fi nebo ukázkovou desku.",
+  "settingsNextConnectionTitle": "Příští připojení",
+  "settingsNextConnectionIntro": "Přepsání platí jednou, při příštím připojení. Pak se aplikace vrátí k automatice (Bluetooth, potom Wi‑Fi).",
+  "settingsNextConnectionActiveWifiOnce": "Příští připojení půjde jen přes Wi‑Fi.",
+  "settingsNextConnectionActiveBleOnce": "Příští připojení půjde jen přes Bluetooth.",
+  "settingsNextConnectionUseAuto": "Použít automaticky",
+  "settingsNextConnectionWifiOnceButton": "Jednou Wi‑Fi",
+  "settingsNextConnectionBleOnceButton": "Jednou Bluetooth",
+  "settingsAppFactoryResetTitle": "Obnovit data aplikace",
+  "settingsAppFactoryResetSubtitle": "Smaže uloženou desku, jazyk, klíče trenéra a další nastavení na tomto zařízení. Firmware desky se nemění.",
+  "settingsAppFactoryResetButton": "Obnovit aplikaci",
+  "settingsAppFactoryResetConfirmTitle": "Obnovit vše v aplikaci?",
+  "settingsAppFactoryResetConfirmBody": "Uložené předvolby na tomto zařízení se smažou. Vrátit to nejde.",
+  "settingsAppFactoryResetConfirmAction": "Obnovit",
+  "settingsAppFactoryResetDoneSnack": "Data aplikace byla obnovena.",
+  "settingsAppFactoryResetRestartHint": "Když něco pořád vypadá po staru, aplikaci zavři a otevři znovu.",
+  "settingsDiagnosticsBoardNvsLockedHint": "Úpravu NVS desky odemkne vývojářský režim.",
+  "settingsAboutDeveloperModeTitle": "Vývojářský režim",
+  "settingsAboutDeveloperModeSubtitleOn": "Jsou vidět nástroje firmwaru a diagnostiky.",
+  "settingsDeveloperModeDisabledSnack": "Vývojářský režim vypnut.",
+  "settingsAppUpdateBannerTitle": "Je dostupná aktualizace aplikace",
+  "settingsAppUpdateBannerSubtitle": "Nainstalováno {current}. Dostupná je verze {latest}.",
+  "@settingsAppUpdateBannerSubtitle": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateBannerSubtitleRequired": "Nainstalováno {current}. Je potřeba verze {required} nebo novější.",
+  "@settingsAppUpdateBannerSubtitleRequired": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "required": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAppUpdateOpenDownloads": "Otevřít stažení",
+  "settingsAboutAppUpdateLineTitle": "Novější verze aplikace",
+  "settingsAboutAppUpdateLineBody": "Nainstalováno {current}. Nejnovější {latest}.",
+  "@settingsAboutAppUpdateLineBody": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "haMqttFormLead": "Nasměruj desku na server MQTT, aby Home Assistant viděl partie a lampu.",
+  "haMqttSetupHelpLink": "Nápověda k nastavení",
+  "lampStudioSelectedSwatchLabel": "Vybraná barva",
+  "lampStudioPresetColorsTitle": "Předvolené barvy",
+  "lampStudioDeveloperRgbTitle": "Hodnoty RGB",
+  "reportExportStylePickHint": "Klepni na rozvržení. Náhled se změní ještě před sdílením.",
+  "reportExportThumbWideLabel": "Na šířku",
+  "reportExportThumbWideAspect": "Na šířku 16:9",
+  "reportChartPaletteChoiceHint": "Tyto barvy platí pro čáru hodnocení, uběhlý čas a sloupce bílého a černého.",
+  "firmwareTileTitleDeveloperDowngrade": "Firmware — starší sestavení ({ver})",
+  "@firmwareTileTitleDeveloperDowngrade": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileTitleDeveloperReflash": "Firmware — stejná verze ({ver})",
+  "@firmwareTileTitleDeveloperReflash": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareTileSubtitleDeveloperDowngrade": "Vývojářský režim: manifest je starší než deska. I tak ho můžeš nahrát.",
+  "firmwareTileSubtitleDeveloperReflash": "Vývojářský režim: deska už tuto verzi má. Můžeš ji nahrát znovu.",
+  "firmwareOtaRollbackBannerTitle": "Poslední aktualizace firmwaru se neuchytila",
+  "firmwareOtaRollbackBannerBodyWithAttempt": "Deska je pořád na {current}. Neúspěšný zápis mířil na slot {slot} (zkoušená verze {attempt}).",
+  "@firmwareOtaRollbackBannerBodyWithAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      },
+      "attempt": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaRollbackBannerBodyNoAttempt": "Deska je pořád na {current}. Neúspěšný zápis mířil na slot {slot}.",
+  "@firmwareOtaRollbackBannerBodyNoAttempt": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "slot": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareOtaSuccessTitle": "Firmware odeslán",
+  "firmwareOtaSuccessBody": "Aplikace odeslala verzi {installed}. Deska hlásí {reported}. Než se nová verze ukáže, může se restartovat.",
+  "@firmwareOtaSuccessBody": {
+    "placeholders": {
+      "installed": {
+        "type": "String"
+      },
+      "reported": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareBleOtaApHotspotTip": "Když je přenos přes Bluetooth nespolehlivý, připoj se k hotspotu desky a soubor pošli přes HTTP.",
+  "firmwareDeveloperSameVersionBanner": "Vývojářský režim: manifest odpovídá desce. Nahrání stejné verze je povolené.",
+  "firmwareDeveloperOlderManifestBanner": "Vývojářský režim: manifest je starší než firmware na desce. Nahrání je snížení verze.",
+  "firmwareDeveloperManifestSectionTitle": "Vlastní manifest",
+  "firmwareDeveloperManifestSectionBody": "Vlož URL souboru version.json, když chceš zkontrolovat jiné sestavení než výchozí vydání.",
+  "firmwareOfflineSavedFirmwareBanner": "Manifest teď není. Pořád můžeš odeslat firmware, který už je uložený v aplikaci.",
+  "firmwareCachedDiffersFromManifestHint": "Manifest je {manifest}, ale soubor uložený v aplikaci je {cached}. Než ho odešleš, stáhni ho znovu, pokud chceš sestavení z manifestu.",
+  "@firmwareCachedDiffersFromManifestHint": {
+    "placeholders": {
+      "manifest": {
+        "type": "String"
+      },
+      "cached": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDeveloperReflashChipTitle": "Znovu nahrát {ver}",
+  "@firmwareDeveloperReflashChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareDeveloperDowngradeChipTitle": "Snížit na {ver}",
+  "@firmwareDeveloperDowngradeChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "firmwareSavedFirmwareChipTitle": "Uloženo v aplikaci: {ver}",
+  "@firmwareSavedFirmwareChipTitle": {
+    "placeholders": {
+      "ver": {
+        "type": "String"
+      }
+    }
+  },
+  "navLearn": "Učení",
+  "gameTopNoBoard": "Bez desky",
+  "gameTopConnecting": "Připojuji…",
+  "gameTopNotResponding": "Deska neodpovídá",
+  "gameTopNoClock": "Bez hodin",
+  "gameTopTimeControl": "{minutes} + {increment}",
+  "@gameTopTimeControl": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "increment": {
+        "type": "int"
+      }
+    }
+  },
+  "gameTopBoardTooltip": "Připojení desky",
+  "gameTopMenuTooltip": "Menu hry",
+  "gameBarPause": "Pauza",
+  "gameBarResume": "Pokračovat",
+  "gameBarHint": "Nápověda",
+  "gameBarMore": "Více",
+  "gameBarPauseUnavailable": "Hodiny neběží",
+  "clockWhite": "Bílý",
+  "clockBlack": "Černý",
+  "clockOnMove": "Na tahu",
+  "clockLowTime": "Málo času",
+  "clockFlagged": "Čas vypršel",
+  "clockPaused": "Pauza",
+  "clockOffline": "Bez spojení",
+  "clockWaiting": "Čeká",
+  "clockNoTimeControl": "Bez časové kontroly",
+  "clockSemantics": "{side}: {time}, {state}",
+  "@clockSemantics": {
+    "placeholders": {
+      "side": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "gameEmptyTitle": "Připoj šachovnici",
+  "gameEmptyBody": "Partie, hodiny i nápověda běží na fyzické desce. Připoj ji přes Bluetooth nebo Wi‑Fi.",
+  "gameReviewBanner": "Prohlížíš dřívější tah",
+  "gameSandboxBanner": "Náhled pozice, deska ho nehraje",
+  "moreTitle": "Partie",
+  "moreMoves": "Tahy",
+  "moreAnalysis": "Analýza",
+  "moreAnalysisSubtitle": "Hodnocení a nejlepší tah v této pozici",
+  "moreNewGameSubtitle": "Vyber čas a začni na desce",
+  "moreSwapSides": "Otočit strany",
+  "moreWhiteBottom": "Dole je bílý — podle desky na stole",
+  "moreBlackBottom": "Dole je černý — podle desky na stole",
+  "moreClearHint": "Zhasnout nápovědu na desce",
+  "moreSummary": "Shrnutí partie",
+  "moreDisconnect": "Odpojit desku",
+  "settingsBoardGuideSubtitle": "Krok za krokem: připojení, tah, nápověda, hodiny, vzdání",
+  "settingsGroupBoard": "Deska",
+  "settingsGroupApp": "Aplikace",
+  "settingsGroupCoach": "Trenér a AI",
+  "settingsGroupAdvanced": "Pokročilé",
+  "settingsBoardScreenTitle": "Deska na obrazovce",
+  "settingsBoardScreenSubtitle": "Barvy polí, pohyb figurek, která strana je dole",
+  "settingsAppearanceTitle": "Vzhled",
+  "languageNativeCzech": "Čeština",
+  "languageNativeEnglish": "English",
+  "settingsFeedbackTitle": "Zvuk a vibrace",
+  "settingsFeedbackSubtitle": "Při tazích na obrazovce",
+  "settingsCoachAiEntrySubtitle": "Poskytovatel, Azure AI Foundry, klíče a úrovně",
+  "settingsHelpSubtitle": "Jak funguje deska, hodiny a nápověda",
+  "settingsTourSubtitle": "Krátké představení aplikace",
+  "settingsSessionStatsTitle": "Statistiky spojení",
+  "settingsSessionStatsSubtitle": "Polling, WebSocket a počty tahů",
+  "settingsBoardStyleWood": "Dřevo",
+  "settingsBoardStyleSlate": "Břidlice",
+  "settingsBoardCoordinatesNote": "Souřadnice jsou vždy zobrazené, aby pole odpovídala fyzické desce.",
+  "learnHubTitle": "Učení",
+  "learnCoachTitle": "AI trenér",
+  "learnCoachSubtitle": "Zeptej se na pozici, plán nebo chybu",
+  "learnOpeningsTitle": "Trénink zahájení",
+  "learnOpeningsSubtitle": "Linie tah po tahu přímo na desce",
+  "learnProfileTitle": "Tvůj pokrok",
+  "learnProfileSubtitle": "Rating v puzzle a týdenní aktivita",
+  "navTrain": "Trénink",
+  "trainDaily": "Úloha dne",
+  "trainLibrary": "Knihovna úloh",
+  "trainTimed": "Úlohy na čas",
+  "trainOpenings": "Zahájení",
+  "trainCoach": "Trenér",
+  "trainSetup": "Postavit figurky",
+  "trainProgress": "Pokrok",
+  "uiConnectBoard": "Připoj desku",
+  "uiPreview": "Náhled",
+  "uiDemo": "Demo",
+  "uiRetry": "Zkusit znovu",
+  "uiResignTitleWhite": "Bílý se vzdává?",
+  "uiResignTitleBlack": "Černý se vzdává?",
+  "uiResignBodyWhite": "Vyhraje černý.",
+  "uiResignBodyBlack": "Vyhraje bílý.",
+  "uiConnection": "Připojení",
+  "uiFirmware": "Firmware",
+  "uiFirmwareNew": "Nová verze",
+  "uiGameSummary": "Shrnutí po partii",
+  "uiDiagnostics": "Diagnostika",
+  "uiGroupMore": "Další",
+  "uiCoachAi": "Trenér AI",
+  "uiMoveEval": "Hodnocení tahů",
+  "uiBoardDisplay": "Zobrazení desky",
+  "uiThemeDark": "Tmavé",
+  "uiThemeLight": "Světlé",
+  "uiFlipBoard": "Otočit desku",
+  "uiClearHint": "Zhasnout nápovědu",
+  "uiDisconnect": "Odpojit"
 }

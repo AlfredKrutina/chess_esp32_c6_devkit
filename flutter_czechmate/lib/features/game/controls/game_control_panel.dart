@@ -17,6 +17,7 @@ import '../../connection/board_session_notifier.dart';
 import '../../connection/board_session_state.dart';
 import '../state/game_ui_notifier.dart';
 import 'new_game_time_sheet.dart';
+import 'resign_action.dart';
 
 class GameControlPanel extends ConsumerStatefulWidget {
   const GameControlPanel({super.key});
@@ -313,6 +314,7 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                 ),
                 child: Text(l10n.gameControlRefreshState),
               ),
+              const ResignButton(),
             ],
             if (session.transport == BoardTransport.mock) ...[
               OutlinedButton.icon(
@@ -344,6 +346,7 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
                 ),
                 child: Text(l10n.gameControlRefreshState),
               ),
+              const ResignButton(),
             ],
           ],
         ),

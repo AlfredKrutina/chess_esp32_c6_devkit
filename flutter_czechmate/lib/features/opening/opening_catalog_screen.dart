@@ -300,6 +300,7 @@ class _OpeningCatalogScreenState extends ConsumerState<OpeningCatalogScreen> {
                   }),
                 ],
               ],
+              ],
             );
           },
         ),

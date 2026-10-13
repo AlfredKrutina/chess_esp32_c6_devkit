@@ -9,11 +9,11 @@ enum ChartPalettePreset {
   custom;
 
   static ChartPalettePreset fromStorage(String? raw) {
-    if (raw == null || raw.isEmpty) return neon;
+    if (raw == null || raw.isEmpty) return theme;
     for (final v in ChartPalettePreset.values) {
       if (v.name == raw) return v;
     }
-    return neon;
+    return theme;
   }
 }
 

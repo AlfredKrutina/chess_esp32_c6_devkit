@@ -1,7 +1,7 @@
 name: czechmate
 description: CzechMate — Flutter port (ESP chessboard + BLE/HTTP/WS).
 publish_to: "none"
-version: 1.8.0+5
+version: 1.8.0+6
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -57,3 +57,9 @@ flutter:
     - assets/app_icon.png
     - assets/data/openings_catalog.json
     - assets/pieces/
+    # Board guide media (Blender export: <step>.webp or <step>.png, see board_guide.dart)
+    - assets/guide/connect/
+    - assets/guide/move/
+    - assets/guide/hint/
+    - assets/guide/clock/
+    - assets/guide/resign/

@@ -80,7 +80,11 @@ String _unicodePiece(String p) {
   }
 }
 
-/// Parity with iOS `ChessPieceArtView`: PNG Staunton + shadow by piece and field color.
+/// Fraction of the square the PNG tile occupies. Larger values push piece bases
+/// and crowns into the in-square coordinate corners.
+const double kPieceFrameFraction = 0.9;
+
+/// Parity with iOS `ChessPieceArtView`: PNG Staunton art on a transparent tile.
 class ChessPieceArt extends StatelessWidget {
   const ChessPieceArt({
     super.key,
@@ -111,18 +115,20 @@ class ChessPieceArt extends StatelessWidget {
       );
     }
 
-    final frame = squareSide * 0.92;
+    final frame = squareSide * kPieceFrameFraction;
 
     return Center(
       child: SizedBox(
         width: frame,
         height: frame,
+        // `medium` (mipmapped) instead of `high`: the 150 px source is mostly
+        // downscaled, where bicubic `high` aliases on small boards.
         child: Image.asset(
           path,
           fit: BoxFit.contain,
-          filterQuality: FilterQuality.high,
+          filterQuality: FilterQuality.medium,
           gaplessPlayback: true,
-          isAntiAlias: true,
+          excludeFromSemantics: true,
         ),
       ),
     );

@@ -36,7 +36,7 @@ idf.py -p /dev/ttyUSB0 monitor
 ## Known limits
 
 - Doxygen RTF can grow large (~10 MB) — HTML or PDF is easier to read.
-- The old puzzle system was removed (the interface stays reasonably extensible).
+- Puzzle is a RAM session: the app posts a FEN and a solver-first line (`POST /api/game/puzzle`, actions `load` / `start` / `cancel`, at most 12 plies). Play starts only when the matrix matches. The session is not restored from NVS after reboot. See [deska-a-aplikace.md](../app/deska-a-aplikace.md).
 - After Wi‑Fi drops, a board restart sometimes helps.
 - On very long sessions, watch heap / watchdog.
 - Reed contacts can degrade over time — purely a hardware issue.

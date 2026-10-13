@@ -42,6 +42,11 @@ static uint32_t s_new[64];
 static uint8_t s_step;
 static uint8_t s_rev_alt;
 static bool s_have_old;
+static bool s_pair_hold;
+static bool s_pair_captured;
+static bool s_pair_yield;
+static bool s_pair_stop;
+static uint8_t s_pair_step;
 static uint8_t s_black_leds[16];
 static bool s_black_ready;
 
@@ -75,6 +80,9 @@ static bool begin_phase(phase_t phase, bool keep_release) {
   bool ok = false;
   taskENTER_CRITICAL(&s_mux);
   if (s_phase == PH_IDLE) {
+    if (s_pair_hold && s_pair_captured) {
+      s_pair_yield = true;
+    }
     s_phase = phase;
     if (!keep_release) {
       s_release = false;
@@ -264,26 +272,58 @@ static void tick_shutdown(void) {
   s_step++;
 }
 
-static void tick_pulse(void) {
-  if (!s_have_old) {
+static uint8_t mix_channel(uint8_t base, uint8_t tint, uint8_t amount) {
+  unsigned v = (unsigned)base * (255u - amount) + (unsigned)tint * amount;
+  return (uint8_t)(v / 255u);
+}
+
+/** ~3 s breathe. Amount 0 shows the saved game colors. */
+static void tick_pair_hold(void) {
+  if (!s_pair_captured) {
     capture_board();
-  }
-  static const uint8_t k_blue[6] = {40, 120, 255, 180, 70, 0};
-  if (s_step >= 6) {
-    restore_board();
-    post_result(LED_GESTURE_PULSE_DONE);
+    s_pair_captured = true;
+    s_pair_step = 0;
     return;
   }
-  uint8_t b = k_blue[s_step];
+  /* 0..47 rise, 48..95 fall. */
+  uint8_t tri = s_pair_step < 48 ? s_pair_step : (uint8_t)(96 - s_pair_step);
+  uint8_t amount = (uint8_t)((unsigned)tri * 140u / 48u);
   for (int i = 0; i < 64; i++) {
-    paint((uint8_t)i, (uint32_t)b);
+    uint32_t base = s_old[i];
+    uint32_t color =
+        ((uint32_t)mix_channel((uint8_t)((base >> 16) & 0xFFu), 0, amount)
+         << 16) |
+        ((uint32_t)mix_channel((uint8_t)((base >> 8) & 0xFFu), 40, amount)
+         << 8) |
+        (uint32_t)mix_channel((uint8_t)(base & 0xFFu), 160, amount);
+    paint((uint8_t)i, color);
   }
-  s_step++;
+  s_pair_step++;
+  if (s_pair_step >= 96) {
+    s_pair_step = 0;
+  }
 }
 
 bool led_gesture_anim_busy(void) { return s_phase != PH_IDLE; }
 
 void led_gesture_anim_tick(void) {
+  bool yield = false;
+  bool stop = false;
+  taskENTER_CRITICAL(&s_mux);
+  yield = s_pair_yield;
+  s_pair_yield = false;
+  stop = s_pair_stop;
+  s_pair_stop = false;
+  taskEXIT_CRITICAL(&s_mux);
+  if (yield && s_pair_captured) {
+    restore_board();
+    s_pair_captured = false;
+    s_have_old = false;
+  }
+  if (stop && s_pair_captured && s_phase == PH_IDLE) {
+    restore_board();
+    s_pair_captured = false;
+  }
   switch (s_phase) {
   case PH_WAVE:
     tick_wave();
@@ -298,11 +338,12 @@ void led_gesture_anim_tick(void) {
     tick_shutdown();
     break;
   case PH_PULSE:
-    tick_pulse();
-    break;
   case PH_IDLE:
   default:
     break;
+  }
+  if (s_pair_hold && s_phase == PH_IDLE && !stop) {
+    tick_pair_hold();
   }
 }
 
@@ -324,6 +365,9 @@ bool led_gesture_start_wave(const uint32_t new_colors[64]) {
     taskEXIT_CRITICAL(&s_mux);
     return false;
   }
+  if (s_pair_hold && s_pair_captured) {
+    s_pair_yield = true;
+  }
   memcpy(s_new, new_colors, sizeof(s_new));
   s_phase = PH_WAVE;
   s_release = false;
@@ -343,7 +387,26 @@ bool led_gesture_start_shutdown(void) {
 }
 
 bool led_gesture_start_pair_pulse(void) {
-  return begin_phase(PH_PULSE, false);
+  taskENTER_CRITICAL(&s_mux);
+  s_pair_hold = true;
+  s_pair_step = 0;
+  if (s_phase != PH_IDLE) {
+    s_pair_captured = false;
+  }
+  taskEXIT_CRITICAL(&s_mux);
+  return true;
+}
+
+void led_gesture_stop_pair_pulse(void) {
+  taskENTER_CRITICAL(&s_mux);
+  s_pair_hold = false;
+  s_pair_yield = false;
+  if (s_pair_captured && s_phase == PH_IDLE) {
+    s_pair_stop = true;
+  } else {
+    s_pair_captured = false;
+  }
+  taskEXIT_CRITICAL(&s_mux);
 }
 
 void led_gesture_note_release(void) {

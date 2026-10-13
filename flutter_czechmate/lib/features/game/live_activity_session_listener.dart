@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app_providers.dart';
+import '../../core/localization/locale_bridge.dart';
 import '../connection/board_session_notifier.dart';
 import '../connection/board_session_state.dart';
 
@@ -24,10 +25,15 @@ class LiveActivitySessionListener extends ConsumerWidget {
     final prefs = ref.read(prefsRepositoryProvider);
     final live = ref.read(liveActivityServiceProvider);
     final watch = ref.read(watchConnectivityServiceProvider);
+    final lang = resolvedLocaleForPrefs(
+      prefs,
+      WidgetsBinding.instance.platformDispatcher.locale,
+    ).languageCode;
 
     await live.syncFromBoardSession(
       next,
       enabled: prefs.liveActivityEnabled,
+      languageCode: lang,
     );
 
     final homeWidget = ref.read(boardHomeWidgetSyncProvider);
@@ -41,7 +47,9 @@ class LiveActivitySessionListener extends ConsumerWidget {
             prefs.wearDataLayerMirrorEnabled);
 
     if (mirrorCompanion) {
-      await watch.sendGameMirror(live.extensionPayload(next));
+      await watch.sendGameMirror(
+        live.extensionPayload(next, languageCode: lang),
+      );
     }
   }
 }

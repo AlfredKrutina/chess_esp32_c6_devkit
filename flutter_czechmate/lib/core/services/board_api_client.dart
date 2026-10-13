@@ -18,6 +18,7 @@ class BoardApiClient {
     http.Client? httpClient,
     Duration? timeout,
     this.resolveBoardApiBearerToken,
+    this.resolveBoardCommandToken,
   })  : _client = httpClient ?? http.Client(),
         _timeout = timeout ?? const Duration(seconds: 35);
 
@@ -27,9 +28,21 @@ class BoardApiClient {
   /// 64 hex characters from UART `API_TOKEN` — header `Authorization: Bearer …`.
   final String? Function()? resolveBoardApiBearerToken;
 
+  /// 64 hex pairing token for `POST /api/move` and the command WebSocket.
+  final String? Function()? resolveBoardCommandToken;
+
   Map<String, String> _headersJson() {
     final h = <String, String>{'Content-Type': 'application/json'};
     final t = resolveBoardApiBearerToken?.call()?.trim();
+    if (t != null && t.isNotEmpty) {
+      h['Authorization'] = 'Bearer $t';
+    }
+    return h;
+  }
+
+  Map<String, String> _headersCommand() {
+    final h = <String, String>{'Content-Type': 'application/json'};
+    final t = resolveBoardCommandToken?.call()?.trim();
     if (t != null && t.isNotEmpty) {
       h['Authorization'] = 'Bearer $t';
     }
@@ -139,6 +152,24 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
+  /// `POST /api/game/resign`. 409 = no game running, puzzle/opening active,
+  /// or [side] is not on move; [BoardApiException.detail] carries the code.
+  Future<void> postResign(String baseUrl, {required String side}) async {
+    final uri = _api(baseUrl, 'api/game/resign');
+    final body = jsonEncode(BoardCommandPayload.httpResign(side: side));
+    final res = await _client
+        .post(uri, headers: _headersJson(), body: body)
+        .timeout(_timeout);
+    if (res.statusCode == 409) {
+      throw BoardApiException(
+        'Resign refused',
+        statusCode: 409,
+        detail: _extractJsonErrorCode(res.bodyBytes),
+      );
+    }
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  }
+
   Future<void> postGameMove(
     String baseUrl, {
     required String from,
@@ -152,7 +183,7 @@ class BoardApiClient {
       promotion: promotion,
     );
     final res = await _client
-        .post(uri, headers: _headersJson(), body: jsonEncode(map))
+        .post(uri, headers: _headersCommand(), body: jsonEncode(map))
         .timeout(_timeout);
     if (res.statusCode == 403) {
       final err = _extractJsonErrorCode(res.bodyBytes);
@@ -160,12 +191,41 @@ class BoardApiClient {
       if (err == 'api_token_required') {
         throw BoardApiException.apiTokenRequired();
       }
+      if (err == 'board_busy') throw BoardApiException.boardBusy();
+      if (err == 'not_pairing') throw BoardApiException.notInPairingMode();
     }
     if (res.statusCode == 400) {
       final msg = _extractMessage(res.bodyBytes);
       throw BoardApiException('Illegal move', statusCode: 400, detail: msg);
     }
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+  }
+
+  /// One-shot while the board's pairing window is open. Returns the 64-hex token.
+  Future<String> postPair(String baseUrl) async {
+    final uri = _api(baseUrl, 'api/pair');
+    final res = await _client
+        .post(uri, headers: const {'Content-Type': 'application/json'})
+        .timeout(_timeout);
+    if (res.statusCode == 403) {
+      final err = _extractJsonErrorCode(res.bodyBytes);
+      if (err == 'not_pairing') throw BoardApiException.notInPairingMode();
+      if (err == 'board_busy') throw BoardApiException.boardBusy();
+      if (err == 'api_token_required') {
+        throw BoardApiException.apiTokenRequired();
+      }
+    }
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+    final map = decodeHttpJsonMap(res.bodyBytes);
+    final tok = map['api_token'];
+    final text = tok is String ? tok.trim() : '';
+    if (!RegExp(r'^[0-9a-fA-F]{64}$').hasMatch(text)) {
+      throw BoardApiException(
+        'Pairing did not return a token',
+        statusCode: res.statusCode,
+      );
+    }
+    return text;
   }
 
   Future<void> postVirtualAction(
@@ -243,6 +303,15 @@ class BoardApiClient {
     final uri = _api(baseUrl, 'api/game/setup_tutorial');
     final body = jsonEncode(BoardCommandPayload.setupTutorial(action));
     final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  }
+
+  /// `POST /api/game/puzzle` — load | start | prepare | cancel | hint.
+  Future<void> postPuzzle(String baseUrl, Map<String, dynamic> body) async {
+    final uri = _api(baseUrl, 'api/game/puzzle');
+    final res = await _client
+        .post(uri, headers: _headersJson(), body: jsonEncode(body))
+        .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
@@ -542,6 +611,8 @@ class BoardApiClient {
       if (err == 'api_token_required') {
         throw BoardApiException.apiTokenRequired();
       }
+      if (err == 'board_busy') throw BoardApiException.boardBusy();
+      if (err == 'not_pairing') throw BoardApiException.notInPairingMode();
       if (treat403WebLock && err == null) {
         throw BoardApiException.webLocked();
       }

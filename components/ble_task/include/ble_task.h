@@ -27,6 +27,13 @@ void ble_task_init(void);
 bool ble_task_conn_is_encrypted(void);
 
 /**
+ * @brief NimBLE host synced with the controller (GATT + OTA reachable over BLE).
+ * Used by main as one of the health conditions before confirming a new OTA image.
+ * @return false when Bluetooth is off or the host has not synced yet.
+ */
+bool ble_task_host_synced(void);
+
+/**
  * @brief Whether a central is connected and has snapshot CCC notifications on.
  *
  * When this is false, a snapshot push is a no-op. The web server should not
@@ -78,12 +85,27 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body);
 void ble_task_notify_cmd_ack_json(const char *json_utf8);
 
 /**
- * @brief Make the board discoverable again on the existing advertising path.
+ * @brief Open the 60 s pairing window, or cancel it if it is already open.
  *
- * Does not stop the NimBLE host. If a connection is already up, advertising
- * is left alone.
+ * Advertising itself stays up either way. A new bond is accepted only while
+ * the window is open. A second press before it expires cancels it.
  */
 void ble_task_request_pairing(void);
+
+/** @return true while a new device may complete pairing. */
+bool ble_task_pairing_window_is_open(void);
+
+/** @return true while the calm pairing pulse should cover the board. */
+bool ble_task_pairing_pulse_wanted(void);
+
+/**
+ * @brief First successful new device takes the window.
+ * @return false if the window was already closed or taken.
+ */
+bool ble_task_claim_pairing_success(void);
+
+/** Stop the window timer and drop an unfinished new bond. NimBLE context or queued. */
+void ble_task_finish_pairing_window(void);
 
 #ifdef __cplusplus
 }

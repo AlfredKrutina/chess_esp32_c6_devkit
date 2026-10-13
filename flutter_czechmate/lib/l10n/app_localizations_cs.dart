@@ -678,6 +678,23 @@ class AppLocalizationsCs extends AppLocalizations {
       'Na tomhle počítači se deska připojuje přes Wi‑Fi. Po prvním spárování se aplikace připojí sama.';
 
   @override
+  String get discoveryPairTriplePress =>
+      'Na desce třikrát stiskni tlačítko. Párování se dokončí samo, jakmile deska otevře okno.';
+
+  @override
+  String get discoveryNotInPairingMode => 'Deska není v párovacím režimu.';
+
+  @override
+  String get discoveryBoardOccupied => 'Deska je připojená k jinému zařízení.';
+
+  @override
+  String get discoveryPairWifi => 'Spárovat přes Wi‑Fi';
+
+  @override
+  String get discoveryPairWifiNeedUrl =>
+      'Zadej adresu desky v Pokročilém a spáruj ji, dokud je okno otevřené.';
+
+  @override
   String errWifiIpThirdOctetBlocked(String host) {
     return 'Tahle adresa ($host) je v nastavení zablokovaná.';
   }
@@ -2041,6 +2058,24 @@ class AppLocalizationsCs extends AppLocalizations {
       'Spojení obnoveno — pokračuji v přenosu firmwaru.';
 
   @override
+  String get firmwareOtaWaitingConfirmDetail =>
+      'Deska se restartovala do nového firmwaru — čekám, až potvrdí stabilní start…';
+
+  @override
+  String errOtaRolledBack(String reason) {
+    return 'Nový firmware nepotvrdil start, deska se proto vrátila k předchozí verzi ($reason). Aktualizaci můžeš spustit znovu.';
+  }
+
+  @override
+  String errOtaAborted(String reason) {
+    return 'Přenos byl přerušen ($reason) a nový firmware se neaktivoval. Deska dál běží na současné verzi — spusť aktualizaci znovu.';
+  }
+
+  @override
+  String get errOtaOutcomeUnknown =>
+      'Deska se restartovala, ale nenahlásila, zda nový firmware potvrdil start. Než se na něj spolehneš, zkontroluj verzi firmwaru v nastavení.';
+
+  @override
   String get firmwareOtaSlotsDisabledHint =>
       'Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu).';
 
@@ -2316,7 +2351,8 @@ class AppLocalizationsCs extends AppLocalizations {
   String get puzzleConnectBoardSnack => 'Připoj desku (Wi‑Fi nebo BLE).';
 
   @override
-  String get puzzleNewGameSentSnack => 'Příkaz new_game odeslán.';
+  String get puzzleNewGameSentSnack =>
+      'Pozice odeslána. Deska svítí chybějící a přebytečná pole, dokud nesedí.';
 
   @override
   String get puzzleBoardRiddleTitle => 'Hádanka na desce';
@@ -2325,7 +2361,7 @@ class AppLocalizationsCs extends AppLocalizations {
   String get puzzleTryOnScreen => 'Zkusit vyřešit na obrazovce';
 
   @override
-  String get puzzleLoadToBoard => 'Nahrát na desku (new_game + FEN)';
+  String get puzzleLoadToBoard => 'Nahrát na desku';
 
   @override
   String get puzzleSetupWizardLabel => 'Průvodce postavením na desce';
@@ -3348,6 +3384,19 @@ class AppLocalizationsCs extends AppLocalizations {
   String get setupWizardErrGeneric => 'Chyba';
 
   @override
+  String get setupWizardErrPhysicalMismatch =>
+      'Figurky na desce zatím nesedí s touto pozicí.';
+
+  @override
+  String get puzzleMoreActionsTooltip => 'Další akce puzzlu';
+
+  @override
+  String get puzzleLibSavedPositionCaption => 'Aktuální pozice na obrazovce';
+
+  @override
+  String get puzzleSaveNeedPosition => 'Nejdřív otevři pozici na záložce Hra.';
+
+  @override
   String get setupWizardTitleStandard => 'Základní postavení';
 
   @override
@@ -4064,4 +4113,675 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String get settingsCoachSubtitleOfflineTips =>
       'Jen krátké tipy v zařízení (bez cloudu)';
+
+  @override
+  String get gameResign => 'Vzdát se';
+
+  @override
+  String get gameResignUnavailable =>
+      'Vzdát se jde jen během partie, která běží na desce.';
+
+  @override
+  String get gameResignConfirmTitleWhite => 'Vzdát se za bílé?';
+
+  @override
+  String get gameResignConfirmTitleBlack => 'Vzdát se za černé?';
+
+  @override
+  String get gameResignConfirmBodyWhite =>
+      'Partie skončí a vyhraje černý. Deska zastaví hodiny, ukáže výsledek a uloží ho. Vrátit to nejde.';
+
+  @override
+  String get gameResignConfirmBodyBlack =>
+      'Partie skončí a vyhraje bílý. Deska zastaví hodiny, ukáže výsledek a uloží ho. Vrátit to nejde.';
+
+  @override
+  String get gameResignSending => 'Odesílám…';
+
+  @override
+  String get gameResignSentSnack => 'Vzdání odesláno. Deska ukončuje partii.';
+
+  @override
+  String get gameResignRefused =>
+      'Deska vzdání nepřijala: partie už neběží nebo je na tahu druhá strana. Obnov stav a zkus to znovu.';
+
+  @override
+  String gameResignFailed(String error) {
+    return 'Vzdání se nepodařilo odeslat: $error';
+  }
+
+  @override
+  String get endReasonResignation => 'Vzdání';
+
+  @override
+  String get boardGuideTitle => 'Průvodce deskou';
+
+  @override
+  String boardGuideStepCounter(int n, int total) {
+    return 'Krok $n z $total';
+  }
+
+  @override
+  String get boardGuideBack => 'Zpět';
+
+  @override
+  String get boardGuideDone => 'Hotovo';
+
+  @override
+  String get settingsNavBoardGuide =>
+      'Průvodce deskou (nápověda, vzdání, hodiny)';
+
+  @override
+  String get helpBoardGuideTitle => 'Průvodce deskou';
+
+  @override
+  String get helpBoardGuideBody =>
+      'Krok za krokem: připojení, tahy na desce, nápověda, hodiny a vzdání.';
+
+  @override
+  String get helpBoardGuideOpen => 'Otevřít průvodce deskou';
+
+  @override
+  String get boardGuideConnectTitle => 'Připoj desku';
+
+  @override
+  String get boardGuideConnectBody =>
+      'Zapni desku a na kartě Hra ji najdi přes Bluetooth nebo Wi‑Fi. Po připojení aplikace ukazuje stejnou pozici jako deska. Bez desky si vše vyzkoušíš na ukázkové desce.';
+
+  @override
+  String get boardGuideMoveTitle => 'Táhni na dřevěné desce';
+
+  @override
+  String get boardGuideMoveBody =>
+      'Hraj rukou jako obvykle. Když zvedneš figuru, deska rozsvítí pole, kam smí: zeleně volná pole, oranžově braní. Polož ji na cílové pole a tah se objeví v aplikaci. Kolik deska svítí, nastavíš v nastavení desky u LED nápovědy.';
+
+  @override
+  String get boardGuideHintTitle => 'Požádej o nápovědu';
+
+  @override
+  String get boardGuideHintBody =>
+      'V Ovládání hry klepni na Nápověda tahu. Aplikace se zeptá šachového enginu na nejlepší tah (potřebuje internet), ukáže ho na obrazovce a na desce rozsvítí cílové pole. Tyto LED zhasneš tlačítkem Zrušit nápovědní LED.';
+
+  @override
+  String get boardGuideClockTitle => 'Hraj na hodiny';
+
+  @override
+  String get boardGuideClockBody =>
+      'Časovou kontrolu vybereš při Nové hře. Hodiny běží na desce a po každém tahu se přepnou samy, aplikace ukazuje jejich stav. Pauzu a pokračování najdeš v Ovládání hry.';
+
+  @override
+  String get boardGuideResignTitle => 'Vzdej se';
+
+  @override
+  String get boardGuideResignBody =>
+      'V Ovládání hry nebo v menu partie (⋮) zvol Vzdát se. Vzdává se strana na tahu a aplikace se nejdřív zeptá, za kterou barvu. Deska pak zastaví hodiny, ukáže vítěze a výsledek uloží. Přímo na desce zvedni vlastního krále a drž ho 10 sekund mimo desku; když ho vrátíš dřív, vzdání se zruší.';
+
+  @override
+  String get onboardingPermissionsDesktopWindowsBody =>
+      'Na Windows tu žádná další oprávnění nejsou potřeba. Počítač a deska musí být ve stejné Wi‑Fi síti.';
+
+  @override
+  String get onboardingPermWifiBodyDesktop =>
+      'Oprávnění k Wi‑Fi není potřeba. Počítač musí být ve stejné síti jako deska, nebo se připoj k hotspotu desky.';
+
+  @override
+  String get analysisScoresheetEmpty => 'V téhle partii zatím nejsou tahy.';
+
+  @override
+  String analysisChartJumpedToMove(int n) {
+    return 'Na kartě Hra je tah $n.';
+  }
+
+  @override
+  String get analysisClearEvalConfirmTitle => 'Vymazat hodnocení?';
+
+  @override
+  String get analysisClearEvalConfirmBody =>
+      'Graf a uložená hodnocení tahů této partie se smažou.';
+
+  @override
+  String get analysisClearEvalConfirmAction => 'Vymazat';
+
+  @override
+  String get coachSetupBannerAction => 'Otevřít nastavení trenéra';
+
+  @override
+  String get coachChatExplanationLevelLabel => 'Úroveň vysvětlení';
+
+  @override
+  String get discoveryTransportAdvancedExplanation =>
+      'Auto nejdřív zkouší Bluetooth, pak Wi‑Fi, jakmile je deska dostupná. Jen Wi‑Fi přeskočí Bluetooth. Jen Bluetooth zůstane na Bluetooth i když je známá adresa Wi‑Fi.';
+
+  @override
+  String get discoveryOpenTransportSettingsButton =>
+      'Otevřít nastavení připojení';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsTitle => 'Blokované adresy v síti';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsBody =>
+      'IPv4 adresy, jejichž třetí číslo je v seznamu, se ignorují (například 88 zablokuje 192.168.88.*). Hodí se, když adresa routeru nesmí být brána jako deska.';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsLabel => 'Třetí čísla';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsHint => 'např. 88, 1';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSave => 'Uložit';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsReset => 'Vrátit na 88';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSavedSnack =>
+      'Blokované adresy uloženy.';
+
+  @override
+  String get settingsAdvancedConnectionSubtitleV2 =>
+      'Adresa desky, příští připojení, obnovení továrního nastavení';
+
+  @override
+  String get settingsBleDesktopHint =>
+      'Vyhledávání desky přes Bluetooth na tomto počítači není. Použij Wi‑Fi nebo ukázkovou desku.';
+
+  @override
+  String get settingsNextConnectionTitle => 'Příští připojení';
+
+  @override
+  String get settingsNextConnectionIntro =>
+      'Přepsání platí jednou, při příštím připojení. Pak se aplikace vrátí k automatice (Bluetooth, potom Wi‑Fi).';
+
+  @override
+  String get settingsNextConnectionActiveWifiOnce =>
+      'Příští připojení půjde jen přes Wi‑Fi.';
+
+  @override
+  String get settingsNextConnectionActiveBleOnce =>
+      'Příští připojení půjde jen přes Bluetooth.';
+
+  @override
+  String get settingsNextConnectionUseAuto => 'Použít automaticky';
+
+  @override
+  String get settingsNextConnectionWifiOnceButton => 'Jednou Wi‑Fi';
+
+  @override
+  String get settingsNextConnectionBleOnceButton => 'Jednou Bluetooth';
+
+  @override
+  String get settingsAppFactoryResetTitle => 'Obnovit data aplikace';
+
+  @override
+  String get settingsAppFactoryResetSubtitle =>
+      'Smaže uloženou desku, jazyk, klíče trenéra a další nastavení na tomto zařízení. Firmware desky se nemění.';
+
+  @override
+  String get settingsAppFactoryResetButton => 'Obnovit aplikaci';
+
+  @override
+  String get settingsAppFactoryResetConfirmTitle => 'Obnovit vše v aplikaci?';
+
+  @override
+  String get settingsAppFactoryResetConfirmBody =>
+      'Uložené předvolby na tomto zařízení se smažou. Vrátit to nejde.';
+
+  @override
+  String get settingsAppFactoryResetConfirmAction => 'Obnovit';
+
+  @override
+  String get settingsAppFactoryResetDoneSnack => 'Data aplikace byla obnovena.';
+
+  @override
+  String get settingsAppFactoryResetRestartHint =>
+      'Když něco pořád vypadá po staru, aplikaci zavři a otevři znovu.';
+
+  @override
+  String get settingsDiagnosticsBoardNvsLockedHint =>
+      'Úpravu NVS desky odemkne vývojářský režim.';
+
+  @override
+  String get settingsAboutDeveloperModeTitle => 'Vývojářský režim';
+
+  @override
+  String get settingsAboutDeveloperModeSubtitleOn =>
+      'Jsou vidět nástroje firmwaru a diagnostiky.';
+
+  @override
+  String get settingsDeveloperModeDisabledSnack => 'Vývojářský režim vypnut.';
+
+  @override
+  String get settingsAppUpdateBannerTitle => 'Je dostupná aktualizace aplikace';
+
+  @override
+  String settingsAppUpdateBannerSubtitle(String current, String latest) {
+    return 'Nainstalováno $current. Dostupná je verze $latest.';
+  }
+
+  @override
+  String settingsAppUpdateBannerSubtitleRequired(
+      String current, String required) {
+    return 'Nainstalováno $current. Je potřeba verze $required nebo novější.';
+  }
+
+  @override
+  String get settingsAppUpdateOpenDownloads => 'Otevřít stažení';
+
+  @override
+  String get settingsAboutAppUpdateLineTitle => 'Novější verze aplikace';
+
+  @override
+  String settingsAboutAppUpdateLineBody(String current, String latest) {
+    return 'Nainstalováno $current. Nejnovější $latest.';
+  }
+
+  @override
+  String get haMqttFormLead =>
+      'Nasměruj desku na server MQTT, aby Home Assistant viděl partie a lampu.';
+
+  @override
+  String get haMqttSetupHelpLink => 'Nápověda k nastavení';
+
+  @override
+  String get lampStudioSelectedSwatchLabel => 'Vybraná barva';
+
+  @override
+  String get lampStudioPresetColorsTitle => 'Předvolené barvy';
+
+  @override
+  String get lampStudioDeveloperRgbTitle => 'Hodnoty RGB';
+
+  @override
+  String get reportExportStylePickHint =>
+      'Klepni na rozvržení. Náhled se změní ještě před sdílením.';
+
+  @override
+  String get reportExportThumbWideLabel => 'Na šířku';
+
+  @override
+  String get reportExportThumbWideAspect => 'Na šířku 16:9';
+
+  @override
+  String get reportChartPaletteChoiceHint =>
+      'Tyto barvy platí pro čáru hodnocení, uběhlý čas a sloupce bílého a černého.';
+
+  @override
+  String firmwareTileTitleDeveloperDowngrade(String ver) {
+    return 'Firmware — starší sestavení ($ver)';
+  }
+
+  @override
+  String firmwareTileTitleDeveloperReflash(String ver) {
+    return 'Firmware — stejná verze ($ver)';
+  }
+
+  @override
+  String get firmwareTileSubtitleDeveloperDowngrade =>
+      'Vývojářský režim: manifest je starší než deska. I tak ho můžeš nahrát.';
+
+  @override
+  String get firmwareTileSubtitleDeveloperReflash =>
+      'Vývojářský režim: deska už tuto verzi má. Můžeš ji nahrát znovu.';
+
+  @override
+  String get firmwareOtaRollbackBannerTitle =>
+      'Poslední aktualizace firmwaru se neuchytila';
+
+  @override
+  String firmwareOtaRollbackBannerBodyWithAttempt(
+      String current, String slot, String attempt) {
+    return 'Deska je pořád na $current. Neúspěšný zápis mířil na slot $slot (zkoušená verze $attempt).';
+  }
+
+  @override
+  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot) {
+    return 'Deska je pořád na $current. Neúspěšný zápis mířil na slot $slot.';
+  }
+
+  @override
+  String get firmwareOtaSuccessTitle => 'Firmware odeslán';
+
+  @override
+  String firmwareOtaSuccessBody(String installed, String reported) {
+    return 'Aplikace odeslala verzi $installed. Deska hlásí $reported. Než se nová verze ukáže, může se restartovat.';
+  }
+
+  @override
+  String get firmwareBleOtaApHotspotTip =>
+      'Když je přenos přes Bluetooth nespolehlivý, připoj se k hotspotu desky a soubor pošli přes HTTP.';
+
+  @override
+  String get firmwareDeveloperSameVersionBanner =>
+      'Vývojářský režim: manifest odpovídá desce. Nahrání stejné verze je povolené.';
+
+  @override
+  String get firmwareDeveloperOlderManifestBanner =>
+      'Vývojářský režim: manifest je starší než firmware na desce. Nahrání je snížení verze.';
+
+  @override
+  String get firmwareDeveloperManifestSectionTitle => 'Vlastní manifest';
+
+  @override
+  String get firmwareDeveloperManifestSectionBody =>
+      'Vlož URL souboru version.json, když chceš zkontrolovat jiné sestavení než výchozí vydání.';
+
+  @override
+  String get firmwareOfflineSavedFirmwareBanner =>
+      'Manifest teď není. Pořád můžeš odeslat firmware, který už je uložený v aplikaci.';
+
+  @override
+  String firmwareCachedDiffersFromManifestHint(String manifest, String cached) {
+    return 'Manifest je $manifest, ale soubor uložený v aplikaci je $cached. Než ho odešleš, stáhni ho znovu, pokud chceš sestavení z manifestu.';
+  }
+
+  @override
+  String firmwareDeveloperReflashChipTitle(String ver) {
+    return 'Znovu nahrát $ver';
+  }
+
+  @override
+  String firmwareDeveloperDowngradeChipTitle(String ver) {
+    return 'Snížit na $ver';
+  }
+
+  @override
+  String firmwareSavedFirmwareChipTitle(String ver) {
+    return 'Uloženo v aplikaci: $ver';
+  }
+
+  @override
+  String get navLearn => 'Učení';
+
+  @override
+  String get gameTopNoBoard => 'Bez desky';
+
+  @override
+  String get gameTopConnecting => 'Připojuji…';
+
+  @override
+  String get gameTopNotResponding => 'Deska neodpovídá';
+
+  @override
+  String get gameTopNoClock => 'Bez hodin';
+
+  @override
+  String gameTopTimeControl(int minutes, int increment) {
+    return '$minutes + $increment';
+  }
+
+  @override
+  String get gameTopBoardTooltip => 'Připojení desky';
+
+  @override
+  String get gameTopMenuTooltip => 'Menu hry';
+
+  @override
+  String get gameBarPause => 'Pauza';
+
+  @override
+  String get gameBarResume => 'Pokračovat';
+
+  @override
+  String get gameBarHint => 'Nápověda';
+
+  @override
+  String get gameBarMore => 'Více';
+
+  @override
+  String get gameBarPauseUnavailable => 'Hodiny neběží';
+
+  @override
+  String get clockWhite => 'Bílý';
+
+  @override
+  String get clockBlack => 'Černý';
+
+  @override
+  String get clockOnMove => 'Na tahu';
+
+  @override
+  String get clockLowTime => 'Málo času';
+
+  @override
+  String get clockFlagged => 'Čas vypršel';
+
+  @override
+  String get clockPaused => 'Pauza';
+
+  @override
+  String get clockOffline => 'Bez spojení';
+
+  @override
+  String get clockWaiting => 'Čeká';
+
+  @override
+  String get clockNoTimeControl => 'Bez časové kontroly';
+
+  @override
+  String clockSemantics(String side, String time, String state) {
+    return '$side: $time, $state';
+  }
+
+  @override
+  String get gameEmptyTitle => 'Připoj šachovnici';
+
+  @override
+  String get gameEmptyBody =>
+      'Partie, hodiny i nápověda běží na fyzické desce. Připoj ji přes Bluetooth nebo Wi‑Fi.';
+
+  @override
+  String get gameReviewBanner => 'Prohlížíš dřívější tah';
+
+  @override
+  String get gameSandboxBanner => 'Náhled pozice, deska ho nehraje';
+
+  @override
+  String get moreTitle => 'Partie';
+
+  @override
+  String get moreMoves => 'Tahy';
+
+  @override
+  String get moreAnalysis => 'Analýza';
+
+  @override
+  String get moreAnalysisSubtitle => 'Hodnocení a nejlepší tah v této pozici';
+
+  @override
+  String get moreNewGameSubtitle => 'Vyber čas a začni na desce';
+
+  @override
+  String get moreSwapSides => 'Otočit strany';
+
+  @override
+  String get moreWhiteBottom => 'Dole je bílý — podle desky na stole';
+
+  @override
+  String get moreBlackBottom => 'Dole je černý — podle desky na stole';
+
+  @override
+  String get moreClearHint => 'Zhasnout nápovědu na desce';
+
+  @override
+  String get moreSummary => 'Shrnutí partie';
+
+  @override
+  String get moreDisconnect => 'Odpojit desku';
+
+  @override
+  String get settingsBoardGuideSubtitle =>
+      'Krok za krokem: připojení, tah, nápověda, hodiny, vzdání';
+
+  @override
+  String get settingsGroupBoard => 'Deska';
+
+  @override
+  String get settingsGroupApp => 'Aplikace';
+
+  @override
+  String get settingsGroupCoach => 'Trenér a AI';
+
+  @override
+  String get settingsGroupAdvanced => 'Pokročilé';
+
+  @override
+  String get settingsBoardScreenTitle => 'Deska na obrazovce';
+
+  @override
+  String get settingsBoardScreenSubtitle =>
+      'Barvy polí, pohyb figurek, která strana je dole';
+
+  @override
+  String get settingsAppearanceTitle => 'Vzhled';
+
+  @override
+  String get languageNativeCzech => 'Čeština';
+
+  @override
+  String get languageNativeEnglish => 'English';
+
+  @override
+  String get settingsFeedbackTitle => 'Zvuk a vibrace';
+
+  @override
+  String get settingsFeedbackSubtitle => 'Při tazích na obrazovce';
+
+  @override
+  String get settingsCoachAiEntrySubtitle =>
+      'Poskytovatel, Azure AI Foundry, klíče a úrovně';
+
+  @override
+  String get settingsHelpSubtitle => 'Jak funguje deska, hodiny a nápověda';
+
+  @override
+  String get settingsTourSubtitle => 'Krátké představení aplikace';
+
+  @override
+  String get settingsSessionStatsTitle => 'Statistiky spojení';
+
+  @override
+  String get settingsSessionStatsSubtitle => 'Polling, WebSocket a počty tahů';
+
+  @override
+  String get settingsBoardStyleWood => 'Dřevo';
+
+  @override
+  String get settingsBoardStyleSlate => 'Břidlice';
+
+  @override
+  String get settingsBoardCoordinatesNote =>
+      'Souřadnice jsou vždy zobrazené, aby pole odpovídala fyzické desce.';
+
+  @override
+  String get learnHubTitle => 'Učení';
+
+  @override
+  String get learnCoachTitle => 'AI trenér';
+
+  @override
+  String get learnCoachSubtitle => 'Zeptej se na pozici, plán nebo chybu';
+
+  @override
+  String get learnOpeningsTitle => 'Trénink zahájení';
+
+  @override
+  String get learnOpeningsSubtitle => 'Linie tah po tahu přímo na desce';
+
+  @override
+  String get learnProfileTitle => 'Tvůj pokrok';
+
+  @override
+  String get learnProfileSubtitle => 'Rating v puzzle a týdenní aktivita';
+
+  @override
+  String get navTrain => 'Trénink';
+
+  @override
+  String get trainDaily => 'Úloha dne';
+
+  @override
+  String get trainLibrary => 'Knihovna úloh';
+
+  @override
+  String get trainTimed => 'Úlohy na čas';
+
+  @override
+  String get trainOpenings => 'Zahájení';
+
+  @override
+  String get trainCoach => 'Trenér';
+
+  @override
+  String get trainSetup => 'Postavit figurky';
+
+  @override
+  String get trainProgress => 'Pokrok';
+
+  @override
+  String get uiConnectBoard => 'Připoj desku';
+
+  @override
+  String get uiPreview => 'Náhled';
+
+  @override
+  String get uiDemo => 'Demo';
+
+  @override
+  String get uiRetry => 'Zkusit znovu';
+
+  @override
+  String get uiResignTitleWhite => 'Bílý se vzdává?';
+
+  @override
+  String get uiResignTitleBlack => 'Černý se vzdává?';
+
+  @override
+  String get uiResignBodyWhite => 'Vyhraje černý.';
+
+  @override
+  String get uiResignBodyBlack => 'Vyhraje bílý.';
+
+  @override
+  String get uiConnection => 'Připojení';
+
+  @override
+  String get uiFirmware => 'Firmware';
+
+  @override
+  String get uiFirmwareNew => 'Nová verze';
+
+  @override
+  String get uiGameSummary => 'Shrnutí po partii';
+
+  @override
+  String get uiDiagnostics => 'Diagnostika';
+
+  @override
+  String get uiGroupMore => 'Další';
+
+  @override
+  String get uiCoachAi => 'Trenér AI';
+
+  @override
+  String get uiMoveEval => 'Hodnocení tahů';
+
+  @override
+  String get uiBoardDisplay => 'Zobrazení desky';
+
+  @override
+  String get uiThemeDark => 'Tmavé';
+
+  @override
+  String get uiThemeLight => 'Světlé';
+
+  @override
+  String get uiFlipBoard => 'Otočit desku';
+
+  @override
+  String get uiClearHint => 'Zhasnout nápovědu';
+
+  @override
+  String get uiDisconnect => 'Odpojit';
 }

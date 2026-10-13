@@ -672,6 +672,11 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
             setState(() => _otaPercent = p);
           }
         },
+        onDetail: (d) {
+          if (mounted) {
+            setState(() => _detail = d);
+          }
+        },
       );
       if (!mounted) {
         return;
@@ -768,7 +773,7 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       _pendingBleBackgroundNotice = false;
     });
     try {
-      await ref
+      final outcome = await ref
           .read(boardSessionNotifierProvider.notifier)
           .uploadFirmwareOtaBle(
         file,
@@ -787,13 +792,27 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
             setState(() {
               _detail = context.l10n.firmwareBleOtaResumedTransferDetail;
             });
+          } else if (phase == 'verifying') {
+            setState(() {
+              _detail = context.l10n.firmwareOtaWaitingConfirmDetail;
+            });
           }
         },
       );
       if (!mounted) {
         return;
       }
-      await _presentFirmwareFlashSuccess(installedVersion: meta.version);
+      final err = FirmwareOtaRunner.outcomeMessage(context.l10n, outcome);
+      if (err != null) {
+        setState(() => _detail = err);
+        showAppSnackBar(context, err, errorStyle: true);
+        return;
+      }
+      final installed = outcome?.runningVersion;
+      await _presentFirmwareFlashSuccess(
+        installedVersion:
+            installed != null && installed.isNotEmpty ? installed : meta.version,
+      );
     } catch (e) {
       if (!mounted) {
         return;
@@ -900,6 +919,11 @@ class _FirmwareUpdateSectionState extends ConsumerState<FirmwareUpdateSection>
       onProgress: (p) {
         if (mounted) {
           setState(() => _otaPercent = p);
+        }
+      },
+      onDetail: (d) {
+        if (mounted) {
+          setState(() => _detail = d);
         }
       },
     );

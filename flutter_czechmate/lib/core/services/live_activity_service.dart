@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../features/connection/board_session_state.dart';
+import '../../features/game/controls/player_clock.dart' show lowTimeThresholdMs;
+import '../../features/game/game_screen.dart' show connectionTierOf;
+import '../models/board_timer_state.dart';
 
 /// iOS Live Activity (ActivityKit) + Android ongoing notification (same channel from game screen).
 ///
@@ -39,13 +42,14 @@ class LiveActivityService {
   Future<void> syncFromBoardSession(
     BoardSessionState session, {
     required bool enabled,
+    String? languageCode,
   }) async {
     if (!enabled) {
       await endAll();
       return;
     }
 
-    final payload = _buildPayload(session);
+    final payload = _buildPayload(session, languageCode);
     final sig = _signature(payload);
 
     final now = DateTime.now();
@@ -88,25 +92,49 @@ class LiveActivityService {
   }
 
   /// Same map as for Live Activity — also suitable for WatchConnectivity mirror.
-  Map<String, dynamic> extensionPayload(BoardSessionState session) =>
-      _buildPayload(session);
+  ///
+  /// [languageCode] (`cs` / `en`) lets the Live Activity and the watch use the
+  /// app language; without it they follow the device language.
+  Map<String, dynamic> extensionPayload(
+    BoardSessionState session, {
+    String? languageCode,
+  }) =>
+      _buildPayload(session, languageCode);
 
-  Map<String, dynamic> _buildPayload(BoardSessionState s) {
+  String? _anchorKey;
+  int _anchorMs = 0;
+
+  /// When the clock values last changed. Repeated session updates with the same
+  /// values keep the same anchor, so a countdown on the watch never jumps back.
+  int _clockAnchorMs(BoardTimerState c) {
+    final key = '${c.whiteTimeMs}|${c.blackTimeMs}|${c.isWhiteTurn}|'
+        '${c.timerRunning}|${c.gamePaused}|${c.timeExpired}';
+    if (key != _anchorKey) {
+      _anchorKey = key;
+      _anchorMs = DateTime.now().millisecondsSinceEpoch;
+    }
+    return _anchorMs;
+  }
+
+  Map<String, dynamic> _buildPayload(BoardSessionState s, String? lang) {
+    final common = <String, dynamic>{
+      'transport': s.transport.name,
+      'link': connectionTierOf(s).name,
+      if (lang != null) 'lang': lang,
+    };
     final snap = s.snapshot;
     if (snap == null) {
-      return {
-        'phase': 'no_game',
-        'transport': s.transport.name,
-      };
+      return {'phase': 'no_game', ...common};
     }
 
     final clock = snap.clock ?? s.timer;
     final status = snap.status;
 
-    if (clock == null) {
+    if (clock == null || !clock.isTimeControlEnabled) {
       return {
         'phase': 'no_timer',
-        'transport': s.transport.name,
+        ...common,
+        'isWhiteTurn': !status.currentPlayer.toLowerCase().startsWith('b'),
         'gamePaused': false,
         'totalMoves': snap.history.moves.length,
         'gameFinished': status.isGameFinished,
@@ -115,7 +143,7 @@ class LiveActivityService {
 
     return {
       'phase': 'clock',
-      'transport': s.transport.name,
+      ...common,
       'whiteTimeMs': clock.whiteTimeMs,
       'blackTimeMs': clock.blackTimeMs,
       'isWhiteTurn': clock.isWhiteTurn,
@@ -125,6 +153,8 @@ class LiveActivityService {
       'totalMoves': clock.totalMoves,
       'timeControlLabel': clock.config.name,
       'gameFinished': status.isGameFinished,
+      'lowTimeMs': lowTimeThresholdMs(clock),
+      'clockAnchorMs': _clockAnchorMs(clock),
     };
   }
 

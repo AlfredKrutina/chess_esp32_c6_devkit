@@ -2,6 +2,8 @@
 EXTRA_PLACEHOLDER_META: dict = {
     "boardWifiProvisionVisibleYes": {"placeholders": {"ssid": {"type": "String"}}},
     "discoveryBoardApError": {"placeholders": {"error": {"type": "String"}}},
+    "errOtaRolledBack": {"placeholders": {"reason": {"type": "String"}}},
+    "errOtaAborted": {"placeholders": {"reason": {"type": "String"}}},
     "settingsCoachChainSubtitle": {"placeholders": {"chain": {"type": "String"}}},
     "puzzleDailyTitle": {"placeholders": {"id": {"type": "String"}}},
     "puzzleSolutionMoves": {"placeholders": {"n": {"type": "int"}}},
@@ -442,6 +444,26 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
         "Connection restored — continuing firmware transfer.",
         "Spojení obnoveno — pokračuji v přenosu firmwaru.",
     ),
+    (
+        "firmwareOtaWaitingConfirmDetail",
+        "The board restarted into the new firmware — waiting until it confirms a stable start…",
+        "Deska se restartovala do nového firmwaru — čekám, až potvrdí stabilní start…",
+    ),
+    (
+        "errOtaRolledBack",
+        "The new firmware did not confirm its start, so the board returned to the previous version ({reason}). You can run the update again.",
+        "Nový firmware nepotvrdil start, deska se proto vrátila k předchozí verzi ({reason}). Aktualizaci můžeš spustit znovu.",
+    ),
+    (
+        "errOtaAborted",
+        "The transfer was interrupted ({reason}) and the new firmware was not activated. The board keeps running the current version — start the update again.",
+        "Přenos byl přerušen ({reason}) a nový firmware se neaktivoval. Deska dál běží na současné verzi — spusť aktualizaci znovu.",
+    ),
+    (
+        "errOtaOutcomeUnknown",
+        "The board restarted but did not report whether the new firmware confirmed its start. Check the firmware version in settings before relying on it.",
+        "Deska se restartovala, ale nenahlásila, zda nový firmware potvrdil start. Než se na něj spolehneš, zkontroluj verzi firmwaru v nastavení.",
+    ),
     ("firmwareOtaSlotsDisabledHint",
      "This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).",
      "Toto rozložení flash nemá sloty OTA (ota_0 + ota_1). Použij USB/UART (esptool nebo idf.py flash), nebo přebuduj firmware s tabulkou oddílů pro dvě OTA (viz CSV oddílů v projektu)."),
@@ -555,10 +577,10 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     # —— Puzzle ——
     ("puzzleRoundExpiredSnack", "Round time expired.", "Čas kola vypršel."),
     ("puzzleConnectBoardSnack", "Connect the board (Wi‑Fi or BLE).", "Připoj desku (Wi‑Fi nebo BLE)."),
-    ("puzzleNewGameSentSnack", "new_game command sent.", "Příkaz new_game odeslán."),
+    ("puzzleNewGameSentSnack", "Position sent. The board lights missing and extra squares until it matches.", "Pozice odeslána. Deska svítí chybějící a přebytečná pole, dokud nesedí."),
     ("puzzleBoardRiddleTitle", "Board puzzle", "Hádanka na desce"),
     ("puzzleTryOnScreen", "Try on screen", "Zkusit vyřešit na obrazovce"),
-    ("puzzleLoadToBoard", "Load to board (new_game + FEN)", "Nahrát na desku (new_game + FEN)"),
+    ("puzzleLoadToBoard", "Load to board", "Nahrát na desku"),
     ("puzzleSetupWizardLabel", "Board setup wizard", "Průvodce postavením na desce"),
     ("puzzleOpenLichess", "Open on Lichess", "Otevřít na Lichess"),
     ("puzzleSavePositionTitle", "Save position", "Uložit pozici"),
@@ -950,6 +972,10 @@ EXTRA_ROWS: list[tuple[str, str, str]] = [
     ("setupWizardErrConnectBoard", "Connect the board via Wi‑Fi or Bluetooth (demo mode does not support this tutorial).", "Připoj desku přes Wi‑Fi nebo Bluetooth (ukázkový režim tento postup nepodporuje)."),
     ("setupWizardErrNoSteps", "Could not build steps from this FEN.", "Z FEN nešlo sestavit žádné kroky."),
     ("setupWizardErrGeneric", "Error", "Chyba"),
+    ("setupWizardErrPhysicalMismatch", "The pieces on the board do not match this position yet.", "Figurky na desce zatím nesedí s touto pozicí."),
+    ("puzzleMoreActionsTooltip", "More puzzle actions", "Další akce puzzlu"),
+    ("puzzleLibSavedPositionCaption", "Current sandbox position", "Aktuální pozice na obrazovce"),
+    ("puzzleSaveNeedPosition", "Open a position on the Play tab first.", "Nejdřív otevři pozici na záložce Hra."),
     ("setupWizardTitleStandard", "Starting position", "Základní postavení"),
     ("setupWizardTitleFromFen", "Setup from FEN", "Postavení z FEN"),
     ("setupWizardDoneStandard", "The board confirmed the starting position.", "Deska potvrdila základní postavení."),
@@ -1235,3 +1261,278 @@ EXTRA_PLACEHOLDER_META["puzzleSuccessLineWithElo"] = {"placeholders": {"delta": 
 EXTRA_PLACEHOLDER_META["profilePuzzleEloLine"] = {"placeholders": {"elo": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["profileWeekStatsLine"] = {"placeholders": {"solved": {"type": "int"}, "failed": {"type": "int"}}}
 EXTRA_PLACEHOLDER_META["lampBlockStatusSummary"] = {"placeholders": {"mode": {"type": "String"}, "r": {"type": "String"}, "g": {"type": "String"}, "b": {"type": "String"}, "h": {"type": "String"}, "t": {"type": "String"}}}
+
+# —— Resign from the app (firmware GAME_CMD_RESIGN) ——
+EXTRA_ROWS.extend([
+    ("gameResign", "Resign", "Vzdát se"),
+    (
+        "gameResignUnavailable",
+        "You can resign only while a game is running on the board.",
+        "Vzdát se jde jen během partie, která běží na desce.",
+    ),
+    ("gameResignConfirmTitleWhite", "Resign for White?", "Vzdát se za bílé?"),
+    ("gameResignConfirmTitleBlack", "Resign for Black?", "Vzdát se za černé?"),
+    (
+        "gameResignConfirmBodyWhite",
+        "The game ends and Black wins. The board stops the clock, shows the result and saves it. This cannot be undone.",
+        "Partie skončí a vyhraje černý. Deska zastaví hodiny, ukáže výsledek a uloží ho. Vrátit to nejde.",
+    ),
+    (
+        "gameResignConfirmBodyBlack",
+        "The game ends and White wins. The board stops the clock, shows the result and saves it. This cannot be undone.",
+        "Partie skončí a vyhraje bílý. Deska zastaví hodiny, ukáže výsledek a uloží ho. Vrátit to nejde.",
+    ),
+    ("gameResignSending", "Sending…", "Odesílám…"),
+    ("gameResignSentSnack", "Resignation sent. The board is ending the game.", "Vzdání odesláno. Deska ukončuje partii."),
+    (
+        "gameResignRefused",
+        "The board refused: the game is no longer running or the other side is on move. Refresh the state and try again.",
+        "Deska vzdání nepřijala: partie už neběží nebo je na tahu druhá strana. Obnov stav a zkus to znovu.",
+    ),
+    ("gameResignFailed", "Could not send the resignation: {error}", "Vzdání se nepodařilo odeslat: {error}"),
+    ("endReasonResignation", "Resignation", "Vzdání"),
+])
+EXTRA_PLACEHOLDER_META["gameResignFailed"] = {"placeholders": {"error": {"type": "String"}}}
+
+# —— Board guide (onboarding chapter with Blender media slots) ——
+EXTRA_ROWS.extend([
+    ("boardGuideTitle", "Board guide", "Průvodce deskou"),
+    ("boardGuideStepCounter", "Step {n} of {total}", "Krok {n} z {total}"),
+    ("boardGuideBack", "Back", "Zpět"),
+    ("boardGuideDone", "Done", "Hotovo"),
+    ("settingsNavBoardGuide", "Board guide (hints, resign, clock)", "Průvodce deskou (nápověda, vzdání, hodiny)"),
+    ("helpBoardGuideTitle", "Board guide", "Průvodce deskou"),
+    (
+        "helpBoardGuideBody",
+        "Step by step: connecting, moves on the board, hints, the clock and resigning.",
+        "Krok za krokem: připojení, tahy na desce, nápověda, hodiny a vzdání.",
+    ),
+    ("helpBoardGuideOpen", "Open board guide", "Otevřít průvodce deskou"),
+    ("boardGuideConnectTitle", "Connect the board", "Připoj desku"),
+    (
+        "boardGuideConnectBody",
+        "Switch the board on and find it on the Play tab over Bluetooth or Wi‑Fi. Once connected, the app shows the same position as the board. Without a board you can try everything on the demo board.",
+        "Zapni desku a na kartě Hra ji najdi přes Bluetooth nebo Wi‑Fi. Po připojení aplikace ukazuje stejnou pozici jako deska. Bez desky si vše vyzkoušíš na ukázkové desce.",
+    ),
+    ("boardGuideMoveTitle", "Move on the wooden board", "Táhni na dřevěné desce"),
+    (
+        "boardGuideMoveBody",
+        "Play with your hands as usual. When you lift a piece, the board lights the squares it may go to: green for empty squares, orange for captures. Put it down on the target square and the move appears in the app. How much the board lights up is set in the board settings under LED hints.",
+        "Hraj rukou jako obvykle. Když zvedneš figuru, deska rozsvítí pole, kam smí: zeleně volná pole, oranžově braní. Polož ji na cílové pole a tah se objeví v aplikaci. Kolik deska svítí, nastavíš v nastavení desky u LED nápovědy.",
+    ),
+    ("boardGuideHintTitle", "Ask for a hint", "Požádej o nápovědu"),
+    (
+        "boardGuideHintBody",
+        "In Game controls, tap Move hint. The app asks the chess engine for the best move (needs internet), shows it on screen and lights the target square on the board. Turn those LEDs off with Clear hint LEDs.",
+        "V Ovládání hry klepni na Nápověda tahu. Aplikace se zeptá šachového enginu na nejlepší tah (potřebuje internet), ukáže ho na obrazovce a na desce rozsvítí cílové pole. Tyto LED zhasneš tlačítkem Zrušit nápovědní LED.",
+    ),
+    ("boardGuideClockTitle", "Play on the clock", "Hraj na hodiny"),
+    (
+        "boardGuideClockBody",
+        "Pick a time control when you start a New game. The clock runs on the board and switches after every move by itself; the app shows its state. Pause and resume are in Game controls.",
+        "Časovou kontrolu vybereš při Nové hře. Hodiny běží na desce a po každém tahu se přepnou samy, aplikace ukazuje jejich stav. Pauzu a pokračování najdeš v Ovládání hry.",
+    ),
+    ("boardGuideResignTitle", "Resign", "Vzdej se"),
+    (
+        "boardGuideResignBody",
+        "Choose Resign in Game controls or in the game menu (⋮). The side on move resigns and the app first asks which colour. The board then stops the clock, shows the winner and saves the result. On the board itself, lift your own king and hold it off the board for 10 seconds; put it back earlier to cancel.",
+        "V Ovládání hry nebo v menu partie (⋮) zvol Vzdát se. Vzdává se strana na tahu a aplikace se nejdřív zeptá, za kterou barvu. Deska pak zastaví hodiny, ukáže vítěze a výsledek uloží. Přímo na desce zvedni vlastního krále a drž ho 10 sekund mimo desku; když ho vrátíš dřív, vzdání se zruší.",
+    ),
+])
+EXTRA_PLACEHOLDER_META["boardGuideStepCounter"] = {"placeholders": {"n": {"type": "int"}, "total": {"type": "int"}}}
+
+# —— Onboarding permission texts referenced by onboarding_screen.dart (were missing) ——
+EXTRA_ROWS.extend([
+    (
+        "onboardingPermissionsDesktopWindowsBody",
+        "Windows needs no extra permissions here. Keep the computer and the board on the same Wi‑Fi network.",
+        "Na Windows tu žádná další oprávnění nejsou potřeba. Počítač a deska musí být ve stejné Wi‑Fi síti.",
+    ),
+    (
+        "onboardingPermWifiBodyDesktop",
+        "No Wi‑Fi permission is needed. Keep the computer on the same network as the board, or join the board’s hotspot.",
+        "Oprávnění k Wi‑Fi není potřeba. Počítač musí být ve stejné síti jako deska, nebo se připoj k hotspotu desky.",
+    ),
+])
+
+# —— Keys referenced by existing screens (were missing from the generator) ——
+EXTRA_ROWS.extend([
+    ("analysisScoresheetEmpty", "No moves in this game yet.", "V téhle partii zatím nejsou tahy."),
+    ("analysisChartJumpedToMove", "Showing move {n} on Play.", "Na kartě Hra je tah {n}."),
+    ("analysisClearEvalConfirmTitle", "Clear evaluations?", "Vymazat hodnocení?"),
+    (
+        "analysisClearEvalConfirmBody",
+        "The chart and saved move evaluations for this game will be removed.",
+        "Graf a uložená hodnocení tahů této partie se smažou.",
+    ),
+    ("analysisClearEvalConfirmAction", "Clear", "Vymazat"),
+    ("coachSetupBannerAction", "Open coach settings", "Otevřít nastavení trenéra"),
+    ("coachChatExplanationLevelLabel", "Explanation level", "Úroveň vysvětlení"),
+    (
+        "discoveryTransportAdvancedExplanation",
+        "Auto tries Bluetooth first, then Wi‑Fi when the board is reachable. Wi‑Fi only skips Bluetooth. Bluetooth only stays on Bluetooth even if a Wi‑Fi address is known.",
+        "Auto nejdřív zkouší Bluetooth, pak Wi‑Fi, jakmile je deska dostupná. Jen Wi‑Fi přeskočí Bluetooth. Jen Bluetooth zůstane na Bluetooth i když je známá adresa Wi‑Fi.",
+    ),
+    ("discoveryOpenTransportSettingsButton", "Open connection settings", "Otevřít nastavení připojení"),
+    ("discoveryAdvancedBlockedOctetsTitle", "Blocked LAN addresses", "Blokované adresy v síti"),
+    (
+        "discoveryAdvancedBlockedOctetsBody",
+        "IPv4 addresses whose third number is listed here are ignored (for example 88 blocks 192.168.88.*). Use this when a router address must not be treated as the board.",
+        "IPv4 adresy, jejichž třetí číslo je v seznamu, se ignorují (například 88 zablokuje 192.168.88.*). Hodí se, když adresa routeru nesmí být brána jako deska.",
+    ),
+    ("discoveryAdvancedBlockedOctetsLabel", "Third numbers", "Třetí čísla"),
+    ("discoveryAdvancedBlockedOctetsHint", "e.g. 88, 1", "např. 88, 1"),
+    ("discoveryAdvancedBlockedOctetsSave", "Save", "Uložit"),
+    ("discoveryAdvancedBlockedOctetsReset", "Reset to 88", "Vrátit na 88"),
+    ("discoveryAdvancedBlockedOctetsSavedSnack", "Blocked addresses saved.", "Blokované adresy uloženy."),
+    (
+        "settingsAdvancedConnectionSubtitleV2",
+        "Board address, next connection, factory reset",
+        "Adresa desky, příští připojení, obnovení továrního nastavení",
+    ),
+    ("settingsBleDesktopHint", "Bluetooth board scan is not available on this computer. Use Wi‑Fi or the demo board.", "Vyhledávání desky přes Bluetooth na tomto počítači není. Použij Wi‑Fi nebo ukázkovou desku."),
+    ("settingsNextConnectionTitle", "Next connection", "Příští připojení"),
+    (
+        "settingsNextConnectionIntro",
+        "Override applies once, on the next connect. After that the app returns to automatic (Bluetooth, then Wi‑Fi).",
+        "Přepsání platí jednou, při příštím připojení. Pak se aplikace vrátí k automatice (Bluetooth, potom Wi‑Fi).",
+    ),
+    ("settingsNextConnectionActiveWifiOnce", "Next connect uses Wi‑Fi only.", "Příští připojení půjde jen přes Wi‑Fi."),
+    ("settingsNextConnectionActiveBleOnce", "Next connect uses Bluetooth only.", "Příští připojení půjde jen přes Bluetooth."),
+    ("settingsNextConnectionUseAuto", "Use automatic", "Použít automaticky"),
+    ("settingsNextConnectionWifiOnceButton", "Wi‑Fi once", "Jednou Wi‑Fi"),
+    ("settingsNextConnectionBleOnceButton", "Bluetooth once", "Jednou Bluetooth"),
+    ("settingsAppFactoryResetTitle", "Reset app data", "Obnovit data aplikace"),
+    (
+        "settingsAppFactoryResetSubtitle",
+        "Clears saved board, language, coach keys and other settings stored on this device. The board firmware is not changed.",
+        "Smaže uloženou desku, jazyk, klíče trenéra a další nastavení na tomto zařízení. Firmware desky se nemění.",
+    ),
+    ("settingsAppFactoryResetButton", "Reset app", "Obnovit aplikaci"),
+    ("settingsAppFactoryResetConfirmTitle", "Reset everything in the app?", "Obnovit vše v aplikaci?"),
+    (
+        "settingsAppFactoryResetConfirmBody",
+        "Saved preferences on this device will be deleted. This cannot be undone.",
+        "Uložené předvolby na tomto zařízení se smažou. Vrátit to nejde.",
+    ),
+    ("settingsAppFactoryResetConfirmAction", "Reset", "Obnovit"),
+    ("settingsAppFactoryResetDoneSnack", "App data was reset.", "Data aplikace byla obnovena."),
+    ("settingsAppFactoryResetRestartHint", "If something still looks old, close the app and open it again.", "Když něco pořád vypadá po staru, aplikaci zavři a otevři znovu."),
+    ("settingsDiagnosticsBoardNvsLockedHint", "Unlock developer mode to edit board NVS.", "Úpravu NVS desky odemkne vývojářský režim."),
+    ("settingsAboutDeveloperModeTitle", "Developer mode", "Vývojářský režim"),
+    ("settingsAboutDeveloperModeSubtitleOn", "Extra firmware and diagnostic tools are visible.", "Jsou vidět nástroje firmwaru a diagnostiky."),
+    ("settingsDeveloperModeDisabledSnack", "Developer mode turned off.", "Vývojářský režim vypnut."),
+    ("settingsAppUpdateBannerTitle", "App update available", "Je dostupná aktualizace aplikace"),
+    ("settingsAppUpdateBannerSubtitle", "Installed {current}. Version {latest} is available.", "Nainstalováno {current}. Dostupná je verze {latest}."),
+    (
+        "settingsAppUpdateBannerSubtitleRequired",
+        "Installed {current}. Version {required} or newer is required.",
+        "Nainstalováno {current}. Je potřeba verze {required} nebo novější.",
+    ),
+    ("settingsAppUpdateOpenDownloads", "Open downloads", "Otevřít stažení"),
+    ("settingsAboutAppUpdateLineTitle", "Newer app version", "Novější verze aplikace"),
+    ("settingsAboutAppUpdateLineBody", "Installed {current}. Latest {latest}.", "Nainstalováno {current}. Nejnovější {latest}."),
+    ("haMqttFormLead", "Point the board at your MQTT broker so Home Assistant can see games and the lamp.", "Nasměruj desku na server MQTT, aby Home Assistant viděl partie a lampu."),
+    ("haMqttSetupHelpLink", "Setup help", "Nápověda k nastavení"),
+    ("lampStudioSelectedSwatchLabel", "Selected color", "Vybraná barva"),
+    ("lampStudioPresetColorsTitle", "Preset colors", "Předvolené barvy"),
+    ("lampStudioDeveloperRgbTitle", "RGB values", "Hodnoty RGB"),
+    (
+        "reportExportStylePickHint",
+        "Tap a layout. The preview updates before you share.",
+        "Klepni na rozvržení. Náhled se změní ještě před sdílením.",
+    ),
+    ("reportExportThumbWideLabel", "Wide", "Na šířku"),
+    ("reportExportThumbWideAspect", "Landscape 16:9", "Na šířku 16:9"),
+    (
+        "reportChartPaletteChoiceHint",
+        "These colors are used for the evaluation line, elapsed time and the white and black bars.",
+        "Tyto barvy platí pro čáru hodnocení, uběhlý čas a sloupce bílého a černého.",
+    ),
+    ("firmwareTileTitleDeveloperDowngrade", "Firmware — older build ({ver})", "Firmware — starší sestavení ({ver})"),
+    ("firmwareTileTitleDeveloperReflash", "Firmware — same version ({ver})", "Firmware — stejná verze ({ver})"),
+    ("firmwareTileSubtitleDeveloperDowngrade", "Developer mode: the manifest is older than the board. You can still flash it.", "Vývojářský režim: manifest je starší než deska. I tak ho můžeš nahrát."),
+    ("firmwareTileSubtitleDeveloperReflash", "Developer mode: the board already has this version. You can flash it again.", "Vývojářský režim: deska už tuto verzi má. Můžeš ji nahrát znovu."),
+    ("firmwareOtaRollbackBannerTitle", "Last firmware update did not stick", "Poslední aktualizace firmwaru se neuchytila"),
+    (
+        "firmwareOtaRollbackBannerBodyWithAttempt",
+        "The board is still on {current}. The failed write targeted slot {slot} (attempted {attempt}).",
+        "Deska je pořád na {current}. Neúspěšný zápis mířil na slot {slot} (zkoušená verze {attempt}).",
+    ),
+    (
+        "firmwareOtaRollbackBannerBodyNoAttempt",
+        "The board is still on {current}. The failed write targeted slot {slot}.",
+        "Deska je pořád na {current}. Neúspěšný zápis mířil na slot {slot}.",
+    ),
+    ("firmwareOtaSuccessTitle", "Firmware sent", "Firmware odeslán"),
+    (
+        "firmwareOtaSuccessBody",
+        "The app sent version {installed}. The board reports {reported}. It may reboot before the new version shows up.",
+        "Aplikace odeslala verzi {installed}. Deska hlásí {reported}. Než se nová verze ukáže, může se restartovat.",
+    ),
+    (
+        "firmwareBleOtaApHotspotTip",
+        "If Bluetooth transfer is unreliable, join the board hotspot and send the file over HTTP instead.",
+        "Když je přenos přes Bluetooth nespolehlivý, připoj se k hotspotu desky a soubor pošli přes HTTP.",
+    ),
+    (
+        "firmwareDeveloperSameVersionBanner",
+        "Developer mode: manifest matches the board. Reflashing the same version is allowed.",
+        "Vývojářský režim: manifest odpovídá desce. Nahrání stejné verze je povolené.",
+    ),
+    (
+        "firmwareDeveloperOlderManifestBanner",
+        "Developer mode: the manifest is older than the firmware on the board. Flashing it is a downgrade.",
+        "Vývojářský režim: manifest je starší než firmware na desce. Nahrání je snížení verze.",
+    ),
+    ("firmwareDeveloperManifestSectionTitle", "Custom manifest", "Vlastní manifest"),
+    (
+        "firmwareDeveloperManifestSectionBody",
+        "Paste a version.json URL to check a build other than the default release.",
+        "Vlož URL souboru version.json, když chceš zkontrolovat jiné sestavení než výchozí vydání.",
+    ),
+    (
+        "firmwareOfflineSavedFirmwareBanner",
+        "No manifest right now. You can still send the firmware already saved in the app.",
+        "Manifest teď není. Pořád můžeš odeslat firmware, který už je uložený v aplikaci.",
+    ),
+    (
+        "firmwareCachedDiffersFromManifestHint",
+        "Manifest is {manifest}, but the file saved in the app is {cached}. Download again before sending if you want the manifest build.",
+        "Manifest je {manifest}, ale soubor uložený v aplikaci je {cached}. Než ho odešleš, stáhni ho znovu, pokud chceš sestavení z manifestu.",
+    ),
+    ("firmwareDeveloperReflashChipTitle", "Reflash {ver}", "Znovu nahrát {ver}"),
+    ("firmwareDeveloperDowngradeChipTitle", "Downgrade to {ver}", "Snížit na {ver}"),
+    ("firmwareSavedFirmwareChipTitle", "Saved in app: {ver}", "Uloženo v aplikaci: {ver}"),
+])
+EXTRA_PLACEHOLDER_META["analysisChartJumpedToMove"] = {"placeholders": {"n": {"type": "int"}}}
+EXTRA_PLACEHOLDER_META["settingsAppUpdateBannerSubtitle"] = {
+    "placeholders": {"current": {"type": "String"}, "latest": {"type": "String"}}
+}
+EXTRA_PLACEHOLDER_META["settingsAppUpdateBannerSubtitleRequired"] = {
+    "placeholders": {"current": {"type": "String"}, "required": {"type": "String"}}
+}
+EXTRA_PLACEHOLDER_META["settingsAboutAppUpdateLineBody"] = {
+    "placeholders": {"current": {"type": "String"}, "latest": {"type": "String"}}
+}
+EXTRA_PLACEHOLDER_META["firmwareTileTitleDeveloperDowngrade"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["firmwareTileTitleDeveloperReflash"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["firmwareOtaRollbackBannerBodyWithAttempt"] = {
+    "placeholders": {
+        "current": {"type": "String"},
+        "slot": {"type": "String"},
+        "attempt": {"type": "String"},
+    }
+}
+EXTRA_PLACEHOLDER_META["firmwareOtaRollbackBannerBodyNoAttempt"] = {
+    "placeholders": {"current": {"type": "String"}, "slot": {"type": "String"}}
+}
+EXTRA_PLACEHOLDER_META["firmwareOtaSuccessBody"] = {
+    "placeholders": {"installed": {"type": "String"}, "reported": {"type": "String"}}
+}
+EXTRA_PLACEHOLDER_META["firmwareCachedDiffersFromManifestHint"] = {
+    "placeholders": {"manifest": {"type": "String"}, "cached": {"type": "String"}}
+}
+EXTRA_PLACEHOLDER_META["firmwareDeveloperReflashChipTitle"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["firmwareDeveloperDowngradeChipTitle"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["firmwareSavedFirmwareChipTitle"] = {"placeholders": {"ver": {"type": "String"}}}

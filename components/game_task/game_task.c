@@ -2343,6 +2343,16 @@ void game_task_start(void *pvParameters) {
       }
     }
 
+    // Puzzle setup / drift: green = done, white = missing, red = extra or wrong piece.
+    {
+      static uint32_t puzzle_led_ms = 0;
+      uint32_t puzzle_now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+      if (puzzle_now_ms - puzzle_led_ms >= 400U) {
+        puzzle_led_ms = puzzle_now_ms;
+        game_puzzle_service_leds();
+      }
+    }
+
     // Process matrix events (moves)
     // DEPRECATED: Matrix events are now processed via game_command_queue
     // game_process_squares_events();  // No longer needed
@@ -2362,7 +2372,8 @@ void game_task_start(void *pvParameters) {
     // BUG FIX 2: Auto-new game only when starting position watch is on
     bool in_start_pos =
         starting_position_check_enabled &&
-        !board_setup_tutorial_active && 
+        !board_setup_tutorial_active &&
+        !game_puzzle_blocks_new_game() &&
         current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
         game_is_board_in_starting_position();
 

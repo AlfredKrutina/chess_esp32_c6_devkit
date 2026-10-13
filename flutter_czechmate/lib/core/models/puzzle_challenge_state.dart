@@ -15,7 +15,12 @@ class PuzzleChallengeState {
   final int? rating;
 
   bool get hasVerifier => solutionUci.isNotEmpty;
-  int get targetPlies => solutionUci.length;
+
+  /// Solver moves in a solver-first line (solver, opponent, solver…).
+  int get solverPlies =>
+      solutionUci.isEmpty ? 0 : (solutionUci.length + 1) ~/ 2;
+
+  int get targetPlies => solverPlies;
 
   PuzzleChallengeState copyWith({
     List<String>? playedUci,

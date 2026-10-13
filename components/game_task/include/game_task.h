@@ -429,6 +429,26 @@ game_state_t game_get_state(void);
  */
 player_t game_get_current_player(void);
 
+/** Why GAME_CMD_RESIGN is refused (also used by HTTP/BLE for the reply). */
+typedef enum {
+  GAME_RESIGN_OK = 0,
+  GAME_RESIGN_ERR_NOT_RUNNING = 1, ///< No game in progress (idle / finished)
+  GAME_RESIGN_ERR_MODE = 2,        ///< Puzzle, opening trainer or setup tutorial
+  GAME_RESIGN_ERR_SIDE = 3         ///< Expected side is not on move
+} game_resign_result_t;
+
+/**
+ * @brief Validate an app resignation without changing state.
+ * @param side GAME_RESIGN_SIDE_TO_MOVE / _WHITE / _BLACK
+ */
+game_resign_result_t game_resign_check(uint8_t side);
+
+/**
+ * @brief Resign the side on move (game_task context only).
+ * @details Same end path as the 10 s king-lift resignation.
+ */
+bool game_resign_from_app(uint8_t side);
+
 /**
  * @brief Turns guided capture LED on/off (game logic remains active)
  */
@@ -465,6 +485,31 @@ void game_puzzle_cancel(void);
 bool game_is_puzzle_active(void);
 bool game_puzzle_enter_setup(uint8_t puzzle_id);
 bool game_is_puzzle_setup_active(void);
+/** Copy a solver-first UCI line. Does not move pieces; queue apply/start after. */
+bool game_puzzle_stage_line(const char *fen, const char *title,
+                            const char solution[][8], uint8_t count);
+bool game_puzzle_stage_builtin(uint8_t puzzle_id);
+bool game_puzzle_apply_staged_setup(void);
+bool game_puzzle_try_start_staged(void);
+bool game_puzzle_blocks_new_game(void);
+bool game_puzzle_is_solved(void);
+bool game_puzzle_awaiting_opponent(void);
+bool game_puzzle_sync_hold(void);
+bool game_puzzle_drop_is_expected(uint8_t from_row, uint8_t from_col,
+                                 uint8_t to_row, uint8_t to_col);
+void game_puzzle_after_accepted_move(void);
+bool game_puzzle_hint(void);
+void game_puzzle_service_leds(void);
+bool game_puzzle_suppress_move_hints(void);
+const char *game_puzzle_staged_fen(void);
+const char *game_puzzle_title(void);
+uint8_t game_puzzle_ply(void);
+uint8_t game_puzzle_ply_total(void);
+const char *game_puzzle_expected_from(void);
+const char *game_puzzle_expected_to(void);
+const char *game_puzzle_last_uci(void);
+uint16_t game_puzzle_session_id(void);
+bool game_puzzle_status_physical_match(void);
 
 /** Compare reed matrix occupancy (0/1) to FEN piece placement. */
 bool game_physical_squares_matches_fen(const char *fen);

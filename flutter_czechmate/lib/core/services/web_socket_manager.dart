@@ -11,14 +11,17 @@ class SnapshotWebSocketClient {
   WebSocketChannel? _channel;
   StreamSubscription<dynamic>? _sub;
 
-  static Uri websocketUriFromBase(String baseHttpUrl) {
+  static Uri websocketUriFromBase(String baseHttpUrl, {String? commandToken}) {
     final u = Uri.parse(baseHttpUrl.trim());
     final scheme = u.scheme.toLowerCase() == 'https' ? 'wss' : 'ws';
+    final token = commandToken?.trim();
     return Uri(
       scheme: scheme,
       host: u.host,
       port: u.hasPort ? u.port : null,
       path: '/ws',
+      queryParameters:
+          (token != null && token.isNotEmpty) ? {'token': token} : null,
     );
   }
 
@@ -30,9 +33,10 @@ class SnapshotWebSocketClient {
     required void Function(Object error) onError,
     required void Function() onDisconnect,
     void Function()? onMessageReceived,
+    String? commandToken,
   }) {
     disconnect();
-    final uri = websocketUriFromBase(baseHttpUrl);
+    final uri = websocketUriFromBase(baseHttpUrl, commandToken: commandToken);
     final ch = WebSocketChannel.connect(uri);
     _channel = ch;
     _sub = ch.stream.listen(

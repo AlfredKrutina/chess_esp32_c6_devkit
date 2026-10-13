@@ -6,8 +6,10 @@
 
 set(WS_SRCS
     "board_api_auth.c"
+    "board_pair_policy.c"
     "ota_update.c"
     "web_opening_dispatch.c"
+    "web_resign_dispatch.c"
     "web_handlers_game.c"
     "web_server_task.c"
 )
@@ -25,6 +27,7 @@ set(WS_REQUIRES
     game_hooks
     ble_task
     led_task
+    ota_guard
     esp_https_ota
     app_update
     esp_partition

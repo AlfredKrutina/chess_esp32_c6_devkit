@@ -1,15 +1,18 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/board_styles.dart';
 import '../../../core/models/game_snapshot.dart';
 import '../../../core/localization/context_l10n.dart';
+import '../../../core/theme/app_motion.dart';
 import '../../../core/widgets/app_modal_sheet.dart';
 import '../../../core/widgets/glass_snackbar.dart';
 import '../../../core/utils/board_algebraic.dart';
 import '../../../core/utils/fen_board_parser.dart';
 import '../../connection/board_session_notifier.dart';
 import '../state/game_ui_notifier.dart';
+import 'board_coordinates.dart';
 import 'board_pieces_animator.dart';
 
 /// Fixed figure animator key: changes on move / reposition / sandbox — not on every `stateVersion` from poll (which would break animations).
@@ -156,6 +159,39 @@ class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
       showAppSnackBar(context, m);
     }
 
+    final themeColors = BoardStyleColors.fromRaw(ui.boardStyleRaw);
+    final lastFrom = lastMoveHighlight?.from;
+    final lastTo = lastMoveHighlight?.to;
+    List<BoardSquareMark> marksFor({
+      required double serverAlpha,
+      required double clientAlpha,
+    }) {
+      return [
+        if (serverInvalid && err.originalPos != null)
+          (square: err.originalPos!, color: themeColors.selected),
+        if (lastFrom != null) (square: lastFrom, color: themeColors.lastMove),
+        if (lastTo != null) (square: lastTo, color: themeColors.lastMove),
+        if (serverInvalid)
+          (
+            square: err.invalidPos!,
+            color: themeColors.error.withValues(alpha: serverAlpha),
+          ),
+        if (ui.invalidDestinationPulseSquare != null)
+          (
+            square: ui.invalidDestinationPulseSquare!,
+            color: const Color(0xFFE5675A).withValues(alpha: clientAlpha),
+          ),
+        if (ui.hintFrom != null) (square: ui.hintFrom!, color: _kHintFromColor),
+        if (ui.hintTo != null) (square: ui.hintTo!, color: _kHintToColor),
+        if (ui.selectedSquare != null)
+          (square: ui.selectedSquare!, color: themeColors.selected),
+      ];
+    }
+
+    // Pulsing marks use their peak alpha for label ink so the label color does
+    // not flip back and forth during the animation.
+    final labelMarks = marksFor(serverAlpha: 0.9, clientAlpha: 0.86);
+
     return Semantics(
       label: context.l10n.semanticsChessBoard,
       child: AspectRatio(
@@ -166,105 +202,116 @@ class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
           maxScale: 3.5,
           child: LayoutBuilder(
             builder: (context, c) {
-              final side = c.maxWidth;
-              final themeColors = BoardStyleColors.fromRaw(ui.boardStyleRaw);
+              final g = BoardGeometry.forSide(
+                c.maxWidth,
+                clipRadius: _kGameBoardClipRadius,
+              );
               return Stack(
                 children: [
-                  Builder(
-                    builder: (ctx) {
-                      return GestureDetector(
-                        onTapUp: (details) async {
-                          final box = ctx.findRenderObject() as RenderBox?;
-                          if (box == null) return;
-                          final local =
-                              box.globalToLocal(details.globalPosition);
-                          final sq = side / 8;
-                          final col = (local.dx / sq).floor().clamp(0, 7);
-                          final row = (local.dy / sq).floor().clamp(0, 7);
-                          final alg = algebraicAt(
-                            flipped: flipped,
-                            screenRow: row,
-                            screenCol: col,
-                          );
-                          if (alg.isEmpty) return;
-                          await notifier.onSquareTapped(alg, session, snack);
-                          if (!ctx.mounted) return;
-                          final st = ref.read(gameUiNotifierProvider);
-                          if (st.pendingPromotionFrom != null &&
-                              st.pendingPromotionTo != null) {
-                            _openPromotionSheet(ctx, ref, snack);
-                          }
-                        },
-                        child: AnimatedBuilder(
-                          animation: _invalidRecoveryPulse,
-                          builder: (context, _) {
-                            final pulseT = serverInvalid
-                                ? _invalidRecoveryPulse.value
-                                : 0.0;
-                            return CustomPaint(
-                              size: Size(side, side),
-                              painter: _BoardPainter(
-                                board: cells,
-                                flipped: flipped,
-                                lastFrom: lastMoveHighlight?.from,
-                                lastTo: lastMoveHighlight?.to,
-                                serverInvalidSquare:
-                                    serverInvalid ? err.invalidPos : null,
-                                serverInvalidPulseT: pulseT,
-                                originalSquare:
-                                    serverInvalid ? err.originalPos : null,
-                                clientInvalidSquare:
-                                    ui.invalidDestinationPulseSquare,
-                                clientInvalidLit: ui.invalidDestinationPulseLit,
-                                hintFrom: ui.hintFrom,
-                                hintTo: ui.hintTo,
-                                selected: ui.selectedSquare,
-                                themeColors: themeColors,
+                  Positioned.fromRect(
+                    rect: g.boardRect,
+                    child: Stack(
+                      children: [
+                        Builder(
+                          builder: (ctx) {
+                            return GestureDetector(
+                              onTapUp: (details) async {
+                                final box =
+                                    ctx.findRenderObject() as RenderBox?;
+                                if (box == null) return;
+                                final local =
+                                    box.globalToLocal(details.globalPosition);
+                                final col =
+                                    (local.dx / g.square).floor().clamp(0, 7);
+                                final row =
+                                    (local.dy / g.square).floor().clamp(0, 7);
+                                final alg = algebraicAt(
+                                  flipped: flipped,
+                                  screenRow: row,
+                                  screenCol: col,
+                                );
+                                if (alg.isEmpty) return;
+                                await notifier.onSquareTapped(
+                                    alg, session, snack);
+                                if (!ctx.mounted) return;
+                                final st = ref.read(gameUiNotifierProvider);
+                                if (st.pendingPromotionFrom != null &&
+                                    st.pendingPromotionTo != null) {
+                                  _openPromotionSheet(ctx, ref, snack);
+                                }
+                              },
+                              child: AnimatedBuilder(
+                                animation: _invalidRecoveryPulse,
+                                builder: (context, _) {
+                                  final pulseT = serverInvalid
+                                      ? _invalidRecoveryPulse.value
+                                      : 0.0;
+                                  return CustomPaint(
+                                    size: Size.square(g.boardSide),
+                                    painter: _BoardPainter(
+                                      flipped: flipped,
+                                      themeColors: themeColors,
+                                      marks: marksFor(
+                                        serverAlpha: 0.28 +
+                                            0.62 * pulseT.clamp(0.0, 1.0),
+                                        clientAlpha:
+                                            ui.invalidDestinationPulseLit
+                                                ? 0.86
+                                                : 0.2,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             );
                           },
                         ),
-                      );
-                    },
-                  ),
-                  if (ui.showCoordinates)
-                    _CoordinateOverlay(
-                      size: side,
-                      square: side / 8,
-                      flipped: flipped,
-                      themeColors: themeColors,
-                    ),
-                  IgnorePointer(
-                    child: BoardPiecesAnimator(
-                      key: ValueKey<String>(piecesKey),
-                      board: cells,
-                      flipped: flipped,
-                      animationsEnabled: ui.moveAnimationsEnabled,
-                      squareW: side / 8,
-                    ),
-                  ),
-                  if (ui.puzzleBoardTint > 0.001)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: RadialGradient(
-                              center: Alignment.center,
-                              radius: 1.05,
-                              colors: [
-                                (ui.puzzleBoardTintGreen
-                                        ? Colors.green
-                                        : Colors.red)
-                                    .withValues(
-                                  alpha: 0.12 + 0.62 * ui.puzzleBoardTint,
+                        // Below labels and pieces so the puzzle flash never
+                        // washes out coordinates or piece outlines.
+                        if (ui.puzzleBoardTint > 0.001)
+                          Positioned.fill(
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: RadialGradient(
+                                    center: Alignment.center,
+                                    radius: 1.05,
+                                    colors: [
+                                      (ui.puzzleBoardTintGreen
+                                              ? Colors.green
+                                              : Colors.red)
+                                          .withValues(
+                                        alpha: 0.12 + 0.62 * ui.puzzleBoardTint,
+                                      ),
+                                      Colors.transparent,
+                                    ],
+                                  ),
                                 ),
-                                Colors.transparent,
-                              ],
+                              ),
                             ),
                           ),
-                        ),
+                      ],
+                    ),
+                  ),
+                  BoardCoordinatesLayer(
+                    geometry: g,
+                    flipped: flipped,
+                    themeColors: themeColors,
+                    marks: labelMarks,
+                  ),
+                  Positioned.fromRect(
+                    rect: g.boardRect,
+                    child: IgnorePointer(
+                      child: BoardPiecesAnimator(
+                        key: ValueKey<String>(piecesKey),
+                        board: cells,
+                        flipped: flipped,
+                        animationsEnabled:
+                            ui.moveAnimationsEnabled && !AppMotion.reduced(context),
+                        squareW: g.square,
                       ),
                     ),
+                  ),
                 ],
               );
             },
@@ -275,259 +322,59 @@ class _ChessBoardWidgetState extends ConsumerState<ChessBoardWidget>
   }
 }
 
+/// Matches the `ClipRRect` around the board in `GameScreen._framedBoard`.
+const double _kGameBoardClipRadius = 14;
+const double _kPreviewClipRadius = 10;
+const Color _kHintFromColor = Color(0x598FB3E8);
+const Color _kHintToColor = Color(0xA68FB3E8);
+const Color _kAccentColor = Color(0x998FB3E8);
+
 class _BoardPainter extends CustomPainter {
   _BoardPainter({
-    required this.board,
     required this.flipped,
-    this.lastFrom,
-    this.lastTo,
-    this.serverInvalidSquare,
-    this.serverInvalidPulseT = 0,
-    this.originalSquare,
-    this.clientInvalidSquare,
-    this.clientInvalidLit = false,
-    this.hintFrom,
-    this.hintTo,
-    this.selected,
-    this.accentSquares = const [],
     required this.themeColors,
+    this.marks = const [],
   });
 
-  final List<List<String>> board;
   final bool flipped;
-  final String? lastFrom;
-  final String? lastTo;
-
-  /// A field with an invalidly built figure (snapshot `error_state`).
-  final String? serverInvalidSquare;
-
-  /// 0-1 of [AnimationController] — red "below" box.
-  final double serverInvalidPulseT;
-  final String? originalSquare;
-
-  /// Local feedback after a rejected move from the app.
-  final String? clientInvalidSquare;
-  final bool clientInvalidLit;
-  final String? hintFrom;
-  final String? hintTo;
-  final String? selected;
-  final List<String> accentSquares;
   final BoardStyleColors themeColors;
+
+  /// Painted in list order over the base squares.
+  final List<BoardSquareMark> marks;
 
   @override
   void paint(Canvas canvas, Size size) {
     final sq = size.width / 8;
+    // One light fill + dark squares on top: adjacent anti-aliased rects would
+    // otherwise leave hairline seams of the background between squares.
+    canvas.drawRect(Offset.zero & size, Paint()..color = themeColors.light);
+    final darkPaint = Paint()..color = themeColors.dark;
     for (var sr = 0; sr < 8; sr++) {
       for (var sc = 0; sc < 8; sc++) {
         final rankNum = flipped ? sr + 1 : 8 - sr;
         final fileIndex = flipped ? 7 - sc : sc;
-        final isDark = (fileIndex + rankNum).isOdd;
-        final rect = Rect.fromLTWH(sc * sq, sr * sq, sq, sq);
-        canvas.drawRect(
-          rect,
-          Paint()..color = isDark ? themeColors.dark : themeColors.light,
-        );
+        if ((fileIndex + rankNum).isOdd) {
+          canvas.drawRect(Rect.fromLTWH(sc * sq, sr * sq, sq, sq), darkPaint);
+        }
       }
     }
-    _markSquare(canvas, sq, originalSquare, themeColors.selected);
-    _markSquare(canvas, sq, lastFrom, themeColors.lastMove);
-    _markSquare(canvas, sq, lastTo, themeColors.lastMove);
-    final serverPulseAlpha = 0.28 + 0.62 * serverInvalidPulseT.clamp(0.0, 1.0);
-    _markSquare(
-      canvas,
-      sq,
-      serverInvalidSquare,
-      themeColors.error.withValues(alpha: serverPulseAlpha),
-    );
-    final clientAlpha = clientInvalidLit ? 0.86 : 0.2;
-    _markSquare(
-      canvas,
-      sq,
-      clientInvalidSquare,
-      const Color(0xFFE53935).withValues(alpha: clientAlpha),
-    );
-    _markSquare(canvas, sq, hintFrom, const Color(0x99FFD54F));
-    _markSquare(canvas, sq, hintTo, const Color(0x9976FF7A));
-    for (final sqName in accentSquares) {
-      _markSquare(canvas, sq, sqName, const Color(0x99673AB7));
+    for (final m in marks) {
+      if (m.square.length < 2) continue;
+      final p =
+          screenCoordsFromAlgebraic(flipped: flipped, algebraic: m.square);
+      if (p.$1 < 0) continue;
+      canvas.drawRect(
+        Rect.fromLTWH(p.$2 * sq, p.$1 * sq, sq, sq),
+        Paint()..color = m.color,
+      );
     }
-    _markSquare(canvas, sq, selected, themeColors.selected);
-  }
-
-  void _markSquare(Canvas canvas, double sq, String? algebraic, Color color) {
-    if (algebraic == null || algebraic.length < 2) return;
-    final p = screenCoordsFromAlgebraic(flipped: flipped, algebraic: algebraic);
-    if (p.$1 < 0) return;
-    canvas.drawRect(
-      Rect.fromLTWH(p.$2 * sq, p.$1 * sq, sq, sq),
-      Paint()..color = color,
-    );
   }
 
   @override
   bool shouldRepaint(covariant _BoardPainter oldDelegate) {
-    return oldDelegate.board != board ||
-        oldDelegate.flipped != flipped ||
-        oldDelegate.lastFrom != lastFrom ||
-        oldDelegate.lastTo != lastTo ||
-        oldDelegate.serverInvalidSquare != serverInvalidSquare ||
-        oldDelegate.serverInvalidPulseT != serverInvalidPulseT ||
-        oldDelegate.originalSquare != originalSquare ||
-        oldDelegate.selected != selected ||
-        oldDelegate.clientInvalidSquare != clientInvalidSquare ||
-        oldDelegate.clientInvalidLit != clientInvalidLit ||
-        oldDelegate.hintFrom != hintFrom ||
-        oldDelegate.hintTo != hintTo ||
-        oldDelegate.accentSquares != accentSquares ||
-        oldDelegate.themeColors != themeColors;
-  }
-}
-
-bool _isDarkSquare(bool flipped, int sr, int sc) {
-  final rankNum = flipped ? sr + 1 : 8 - sr;
-  final fileIndex = flipped ? 7 - sc : sc;
-  return (fileIndex + rankNum).isOdd;
-}
-
-Color _coordTextColor(BoardStyleColors t, bool dark) {
-  return dark ? const Color(0xE6FFFFFF) : const Color(0x8A000000);
-}
-
-/// iOS `ChessBoardView` parity: rows only in column **a**, files only on **1. row**, inside the cell, below the figures.
-class _CoordinateOverlay extends StatelessWidget {
-  const _CoordinateOverlay({
-    required this.size,
-    required this.square,
-    required this.flipped,
-    required this.themeColors,
-  });
-
-  final double size;
-  final double square;
-  final bool flipped;
-  final BoardStyleColors themeColors;
-
-  @override
-  Widget build(BuildContext context) {
-    final aCol = flipped ? 7 : 0;
-    final rank1Row = flipped ? 0 : 7;
-    const fs = 11.0;
-
-    return IgnorePointer(
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: Stack(
-          children: [
-            for (var sr = 0; sr < 8; sr++)
-              Positioned(
-                left: aCol * square,
-                top: sr * square,
-                width: square,
-                height: square,
-                child: sr == rank1Row
-                    ? Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 2, top: 1),
-                              child: Text(
-                                algebraicAt(
-                                        flipped: flipped,
-                                        screenRow: sr,
-                                        screenCol: aCol)
-                                    .substring(1),
-                                style: TextStyle(
-                                  fontSize: fs,
-                                  fontWeight: FontWeight.w600,
-                                  color: _coordTextColor(
-                                    themeColors,
-                                    _isDarkSquare(flipped, sr, aCol),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 2, bottom: 1),
-                              child: Text(
-                                algebraicAt(
-                                        flipped: flipped,
-                                        screenRow: sr,
-                                        screenCol: aCol)
-                                    .substring(0, 1),
-                                style: TextStyle(
-                                  fontSize: fs,
-                                  fontWeight: FontWeight.w600,
-                                  color: _coordTextColor(
-                                    themeColors,
-                                    _isDarkSquare(flipped, sr, aCol),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 2, top: 1),
-                          child: Text(
-                            algebraicAt(
-                                    flipped: flipped,
-                                    screenRow: sr,
-                                    screenCol: aCol)
-                                .substring(1),
-                            style: TextStyle(
-                              fontSize: fs,
-                              fontWeight: FontWeight.w600,
-                              color: _coordTextColor(
-                                themeColors,
-                                _isDarkSquare(flipped, sr, aCol),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-              ),
-            for (var sc = 0; sc < 8; sc++)
-              if (sc != aCol)
-                Positioned(
-                  left: sc * square,
-                  top: rank1Row * square,
-                  width: square,
-                  height: square,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 2, bottom: 1),
-                      child: Text(
-                        algebraicAt(
-                                flipped: flipped,
-                                screenRow: rank1Row,
-                                screenCol: sc)
-                            .substring(0, 1),
-                        style: TextStyle(
-                          fontSize: fs,
-                          fontWeight: FontWeight.w600,
-                          color: _coordTextColor(
-                            themeColors,
-                            _isDarkSquare(flipped, rank1Row, sc),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-          ],
-        ),
-      ),
-    );
+    return oldDelegate.flipped != flipped ||
+        oldDelegate.themeColors != themeColors ||
+        !listEquals(oldDelegate.marks, marks);
   }
 }
 
@@ -545,6 +392,8 @@ class FenBoardPreview extends ConsumerWidget {
 
   final String? fen;
   final List<List<String>>? cells;
+
+  /// Ignored: coordinates are always drawn. Kept so existing callers compile.
   final bool showCoordinates;
   final String? highlightFrom;
   final String? highlightTo;
@@ -553,56 +402,62 @@ class FenBoardPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ui = ref.watch(gameUiNotifierProvider);
-    final parsed = cells ??
-        boardFromPlacementFen((fen ?? '').trim());
+    final parsed = cells ?? boardFromPlacementFen((fen ?? '').trim());
     final themeColors = BoardStyleColors.fromRaw(ui.boardStyleRaw);
     final flipped = ui.boardFlipped;
+    final marks = <BoardSquareMark>[
+      if (highlightFrom != null) ...[
+        (square: highlightFrom!, color: themeColors.lastMove),
+        (square: highlightFrom!, color: _kHintFromColor),
+      ],
+      if (highlightTo != null) ...[
+        (square: highlightTo!, color: themeColors.lastMove),
+        (square: highlightTo!, color: _kHintToColor),
+      ],
+      for (final s in accentSquares) (square: s, color: _kAccentColor),
+    ];
 
     return RepaintBoundary(
       child: AspectRatio(
         aspectRatio: 1,
         child: LayoutBuilder(
           builder: (context, c) {
-            final side = c.maxWidth;
-            return ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Stack(
-                clipBehavior: Clip.hardEdge,
-                children: [
-                  CustomPaint(
-                    size: Size(side, side),
-                    painter: _BoardPainter(
-                      board: parsed,
-                      flipped: flipped,
-                      lastFrom: highlightFrom,
-                      lastTo: highlightTo,
-                      serverInvalidSquare: null,
-                      serverInvalidPulseT: 0,
-                      originalSquare: null,
-                      clientInvalidSquare: null,
-                      clientInvalidLit: false,
-                      hintFrom: highlightFrom,
-                      hintTo: highlightTo,
-                      accentSquares: accentSquares,
-                      selected: null,
-                      themeColors: themeColors,
+            final g = BoardGeometry.forSide(
+              c.maxWidth,
+              clipRadius: _kPreviewClipRadius,
+            );
+            return Stack(
+              children: [
+                Positioned.fromRect(
+                  rect: g.boardRect,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(_kPreviewClipRadius),
+                    child: CustomPaint(
+                      size: Size.square(g.boardSide),
+                      painter: _BoardPainter(
+                        flipped: flipped,
+                        themeColors: themeColors,
+                        marks: marks,
+                      ),
                     ),
                   ),
-                  if (showCoordinates && ui.showCoordinates)
-                    _CoordinateOverlay(
-                      size: side,
-                      square: side / 8,
-                      flipped: flipped,
-                      themeColors: themeColors,
-                    ),
-                  BoardPiecesAnimator(
+                ),
+                BoardCoordinatesLayer(
+                  geometry: g,
+                  flipped: flipped,
+                  themeColors: themeColors,
+                  marks: marks,
+                ),
+                Positioned.fromRect(
+                  rect: g.boardRect,
+                  child: BoardPiecesAnimator(
                     board: parsed,
                     flipped: flipped,
                     animationsEnabled: false,
-                    squareW: side / 8,
+                    squareW: g.square,
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         ),

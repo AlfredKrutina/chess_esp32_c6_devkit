@@ -12,18 +12,19 @@ import 'app_providers.dart';
 import 'core/config/coach_env_config.dart';
 import 'core/constants/app_environment.dart';
 import 'core/theme/app_motion.dart';
+import 'core/theme/app_theme.dart';
 import 'core/services/prefs_repository.dart';
 import 'core/localization/context_l10n.dart';
 import 'core/localization/locale_bridge.dart';
 import 'l10n/app_localizations.dart';
 import 'core/services/watch_command_binding.dart';
 import 'core/layout/form_factor.dart';
-import 'features/analysis/analysis_screen.dart';
+import 'app_navigation.dart';
 import 'features/connection/board_session_notifier.dart';
 import 'features/game/game_screen.dart';
+import 'features/game/state/running_game.dart';
 import 'features/onboarding/onboarding_screen.dart';
-import 'features/progress/progress_screen.dart';
-import 'features/puzzle/puzzle_screen.dart';
+import 'features/learn/learn_hub_screen.dart';
 import 'features/settings/firmware_update_availability.dart';
 import 'features/settings/firmware_update_daily_prompt.dart';
 import 'features/settings/settings_screen.dart';
@@ -63,148 +64,10 @@ class CzechMateApp extends ConsumerWidget {
     final prefs = ref.watch(prefsRepositoryProvider);
     final appearance = prefs.appearance;
 
-    ThemeMode themeMode;
-    switch (appearance) {
-      case 'light':
-        themeMode = ThemeMode.light;
-        break;
-      case 'dark':
-        themeMode = ThemeMode.dark;
-        break;
-      case 'oled':
-        themeMode = ThemeMode.dark;
-        break;
-      default:
-        themeMode = ThemeMode.system;
-    }
-
-    const seedColor = Color(0xFF2E4A3E);
-    ThemeData buildBaseTheme(ColorScheme scheme,
-        {Color? scaffoldBackgroundColor}) {
-      const radius = 12.0;
-      final roundedShape = RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radius),
-      );
-      final textTheme = ThemeData(
-        colorScheme: scheme,
-        useMaterial3: true,
-      ).textTheme;
-      return ThemeData(
-        colorScheme: scheme,
-        scaffoldBackgroundColor: scaffoldBackgroundColor,
-        useMaterial3: true,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        textTheme: textTheme.copyWith(
-          headlineSmall: textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.w700, height: 1.15),
-          titleLarge: textTheme.titleLarge
-              ?.copyWith(fontWeight: FontWeight.w700, height: 1.2),
-          titleMedium: textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w600, height: 1.25),
-          bodyMedium: textTheme.bodyMedium?.copyWith(height: 1.35),
-          bodySmall: textTheme.bodySmall?.copyWith(height: 1.3),
-          labelSmall: textTheme.labelSmall?.copyWith(letterSpacing: 0.2),
-        ),
-        appBarTheme: AppBarTheme(
-          centerTitle: false,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          titleTextStyle: textTheme.titleLarge?.copyWith(
-            color: scheme.onSurface,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        cardTheme: CardThemeData(
-          elevation: 0,
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          shape: roundedShape,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(radius),
-            borderSide: BorderSide(color: scheme.outlineVariant),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(radius),
-            borderSide: BorderSide(color: scheme.outlineVariant),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(radius),
-            borderSide: BorderSide(color: scheme.primary, width: 1.4),
-          ),
-        ),
-        listTileTheme: ListTileThemeData(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          shape: roundedShape,
-        ),
-        dialogTheme: DialogThemeData(
-          shape: roundedShape,
-        ),
-        dividerTheme: DividerThemeData(
-          color: scheme.outlineVariant.withValues(alpha: 0.55),
-          thickness: 1,
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            shape: roundedShape,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-        ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
-            shape: roundedShape,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            shape: roundedShape,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          ),
-        ),
-        segmentedButtonTheme: SegmentedButtonThemeData(
-          style: ButtonStyle(
-            visualDensity: VisualDensity.compact,
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(radius)),
-            ),
-          ),
-        ),
-        navigationRailTheme: NavigationRailThemeData(
-          backgroundColor: scheme.surfaceContainerLow,
-          indicatorColor: scheme.secondaryContainer,
-          selectedIconTheme: IconThemeData(color: scheme.onSecondaryContainer),
-          selectedLabelTextStyle: TextStyle(
-            color: scheme.onSecondaryContainer,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        pageTransitionsTheme: AppMotion.pageTransitionsTheme,
-      );
-    }
-
-    final lightTheme =
-        buildBaseTheme(ColorScheme.fromSeed(seedColor: seedColor));
-    final darkTheme = appearance == 'oled'
-        ? buildBaseTheme(
-            ColorScheme.fromSeed(
-              seedColor: seedColor,
-              brightness: Brightness.dark,
-            ).copyWith(surface: Colors.black, onSurface: Colors.white),
-            scaffoldBackgroundColor: Colors.black,
-          )
-        : buildBaseTheme(
-            ColorScheme.fromSeed(
-              seedColor: seedColor,
-              brightness: Brightness.dark,
-            ),
-          );
+    final themeMode =
+        appearance == 'light' ? ThemeMode.light : ThemeMode.dark;
+    final lightTheme = AppTheme.light();
+    final darkTheme = AppTheme.dark();
 
     return MaterialApp(
       onGenerateTitle: (ctx) =>
@@ -319,6 +182,8 @@ class _MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<_MainShell>
     with WidgetsBindingObserver {
+  bool _autoFocusedRunningGame = false;
+
   @override
   void initState() {
     super.initState();
@@ -401,14 +266,30 @@ class _MainShellState extends ConsumerState<_MainShell>
       });
     });
 
+    ref.listen<int>(mainNavTabIndexProvider, (prev, next) {
+      if (prev == next) return;
+      unawaited(ref.read(prefsRepositoryProvider).setLastMainTab(next));
+    });
+
+    ref.listen<bool>(
+      boardSessionNotifierProvider
+          .select((s) => boardHasRunningGame(s.snapshot?.status)),
+      (prev, next) {
+        if (_autoFocusedRunningGame || !next) return;
+        _autoFocusedRunningGame = true;
+        if (AppEnvironment.staging) {
+          debugPrint('[staging] running game on board -> Play tab');
+        }
+        ref.read(mainNavTabIndexProvider.notifier).state = AppMainTab.game;
+      },
+    );
+
     final tab = ref.watch(mainNavTabIndexProvider);
     final fwSnap = ref.watch(firmwareUpdateAvailabilityProvider);
     final fwBadge = fwSnap.updateAvailable && !fwSnap.loading;
 
     Widget settingsIcon(IconData icon) {
-      if (!fwBadge) {
-        return Icon(icon);
-      }
+      if (!fwBadge) return Icon(icon);
       return Badge(
         backgroundColor: Theme.of(context).colorScheme.error,
         smallSize: 8,
@@ -418,129 +299,193 @@ class _MainShellState extends ConsumerState<_MainShell>
 
     const tabPages = [
       GameScreen(),
-      AnalysisScreen(),
-      PuzzleScreen(),
-      ProgressScreen(),
+      TrainScreen(),
       SettingsScreen(),
     ];
 
+    final items = <({IconData icon, IconData selected, String label})>[
+      (
+        icon: Icons.sports_esports_outlined,
+        selected: Icons.sports_esports_rounded,
+        label: l10n.navPlay
+      ),
+      (
+        icon: Icons.extension_outlined,
+        selected: Icons.extension_rounded,
+        label: l10n.navTrain
+      ),
+      (
+        icon: Icons.settings_outlined,
+        selected: Icons.settings_rounded,
+        label: l10n.navSettings
+      ),
+    ];
+
+    void select(int i) {
+      if (i == tab) return;
+      ref.read(mainNavTabIndexProvider.notifier).state = i;
+    }
+
     final size = MediaQuery.sizeOf(context);
     final desktopShell = useDesktopNavigationShell(size);
+    final phoneLandscape = !desktopShell &&
+        size.width > size.height &&
+        size.height < 560;
+    final indexed = _FadeIndexedStack(index: tab, children: tabPages);
 
-    final indexed = IndexedStack(
-      index: tab,
-      children: tabPages,
-    );
+    List<NavigationRailDestination> railDestinations() => [
+          for (var i = 0; i < items.length; i++)
+            NavigationRailDestination(
+              icon: i == AppMainTab.settings
+                  ? settingsIcon(items[i].icon)
+                  : Icon(items[i].icon),
+              selectedIcon: i == AppMainTab.settings
+                  ? settingsIcon(items[i].selected)
+                  : Icon(items[i].selected),
+              label: Text(items[i].label),
+            ),
+        ];
 
-    final destinations = <NavigationRailDestination>[
-      NavigationRailDestination(
-        icon: const Icon(Icons.grid_view_rounded),
-        selectedIcon: const Icon(Icons.grid_view_rounded),
-        label: Text(l10n.navPlay),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.show_chart_outlined),
-        selectedIcon: const Icon(Icons.show_chart),
-        label: Text(l10n.navAnalysis),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.extension_outlined),
-        selectedIcon: const Icon(Icons.extension),
-        label: Text(l10n.navPuzzle),
-      ),
-      NavigationRailDestination(
-        icon: const Icon(Icons.insights_outlined),
-        selectedIcon: const Icon(Icons.insights),
-        label: Text(l10n.navProgress),
-      ),
-      NavigationRailDestination(
-        icon: settingsIcon(Icons.settings_outlined),
-        selectedIcon: settingsIcon(Icons.settings),
-        label: Text(l10n.navSettings),
-      ),
-    ];
+    if (phoneLandscape) {
+      return Scaffold(
+        body: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SafeArea(
+              right: false,
+              child: NavigationRail(
+                selectedIndex: tab,
+                onDestinationSelected: select,
+                minWidth: 64,
+                labelType: NavigationRailLabelType.selected,
+                groupAlignment: 0,
+                destinations: railDestinations(),
+              ),
+            ),
+            Expanded(
+              child: MediaQuery.removePadding(
+                context: context,
+                removeLeft: true,
+                child: indexed,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
-    final bottomDestinations = [
-      NavigationDestination(
-        icon: const Icon(Icons.grid_view_rounded),
-        selectedIcon: const Icon(Icons.grid_view_rounded),
-        label: l10n.navPlay,
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.show_chart_outlined),
-        selectedIcon: const Icon(Icons.show_chart),
-        label: l10n.navAnalysis,
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.extension_outlined),
-        selectedIcon: const Icon(Icons.extension),
-        label: l10n.navPuzzle,
-      ),
-      NavigationDestination(
-        icon: const Icon(Icons.insights_outlined),
-        selectedIcon: const Icon(Icons.insights),
-        label: l10n.navProgress,
-      ),
-      NavigationDestination(
-        icon: settingsIcon(Icons.settings_outlined),
-        selectedIcon: settingsIcon(Icons.settings),
-        label: l10n.navSettings,
-      ),
-    ];
+    if (!desktopShell) {
+      return Scaffold(
+        body: indexed,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: tab,
+          onDestinationSelected: select,
+          animationDuration: AppMotion.resolve(context, AppMotion.stateChange),
+          destinations: [
+            for (var i = 0; i < items.length; i++)
+              NavigationDestination(
+                tooltip: items[i].label,
+                icon: i == AppMainTab.settings
+                    ? settingsIcon(items[i].icon)
+                    : Icon(items[i].icon),
+                selectedIcon: i == AppMainTab.settings
+                    ? settingsIcon(items[i].selected)
+                    : Icon(items[i].selected),
+                label: items[i].label,
+              ),
+          ],
+        ),
+      );
+    }
 
     final railExtended = size.width >= 1280;
-    final body = desktopShell
-        ? Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              NavigationRail(
-                selectedIndex: tab,
-                onDestinationSelected: (i) =>
-                    ref.read(mainNavTabIndexProvider.notifier).state = i,
-                extended: railExtended,
-                minExtendedWidth: 212,
-                // With extended:true, Flutter requires labelType none/null (labels sit beside icons).
-                labelType: railExtended
-                    ? NavigationRailLabelType.none
-                    : (size.width >= 1100
-                        ? NavigationRailLabelType.all
-                        : NavigationRailLabelType.selected),
-                destinations: destinations,
-              ),
-              const VerticalDivider(width: 1, thickness: 1),
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final maxW = desktopContentMaxWidth(constraints.maxWidth);
-                    final w = math.min(constraints.maxWidth, maxW);
-                    return Padding(
-                      padding: desktopContentPadding(true),
-                      child: Center(
-                        child: SizedBox(
-                          width: w,
-                          height: constraints.maxHeight,
-                          child: indexed,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          )
-        : indexed;
-
     return Scaffold(
-      body: body,
-      bottomNavigationBar: desktopShell
-          ? null
-          : NavigationBar(
-              selectedIndex: tab,
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              onDestinationSelected: (i) =>
-                  ref.read(mainNavTabIndexProvider.notifier).state = i,
-              destinations: bottomDestinations,
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          NavigationRail(
+            selectedIndex: tab,
+            onDestinationSelected: select,
+            extended: railExtended,
+            minExtendedWidth: 212,
+            labelType: railExtended
+                ? NavigationRailLabelType.none
+                : NavigationRailLabelType.all,
+            destinations: railDestinations(),
+          ),
+          const VerticalDivider(width: 1, thickness: 1),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final maxW = desktopContentMaxWidth(constraints.maxWidth);
+                final w = math.min(constraints.maxWidth, maxW);
+                return Padding(
+                  padding: desktopContentPadding(true),
+                  child: Center(
+                    child: SizedBox(
+                      width: w,
+                      height: constraints.maxHeight,
+                      child: indexed,
+                    ),
+                  ),
+                );
+              },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Keeps every tab alive like [IndexedStack] and fades the newly selected tab
+/// in. Reduced motion switches instantly.
+class _FadeIndexedStack extends StatefulWidget {
+  const _FadeIndexedStack({required this.index, required this.children});
+
+  final int index;
+  final List<Widget> children;
+
+  @override
+  State<_FadeIndexedStack> createState() => _FadeIndexedStackState();
+}
+
+class _FadeIndexedStackState extends State<_FadeIndexedStack>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: AppMotion.crossFade,
+    value: 1,
+  );
+
+  @override
+  void didUpdateWidget(covariant _FadeIndexedStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.index != widget.index) {
+      if (AppMotion.reduced(context)) {
+        _c.value = 1;
+      } else {
+        _c.forward(from: 0);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(parent: _c, curve: AppMotion.standardCurve);
+    return FadeTransition(
+      opacity: Tween(begin: 0.4, end: 1.0).animate(curved),
+      child: SlideTransition(
+        position: Tween(begin: const Offset(0, 0.012), end: Offset.zero)
+            .animate(curved),
+        child: IndexedStack(index: widget.index, children: widget.children),
+      ),
     );
   }
 }

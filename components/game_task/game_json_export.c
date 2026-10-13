@@ -114,6 +114,28 @@ static esp_err_t game_status_json_append(size_t *offset, char *buffer, size_t si
   return ESP_OK;
 }
 
+static void game_json_escape(char *dst, size_t dst_len, const char *src) {
+  size_t j = 0;
+  if (dst == NULL || dst_len == 0) {
+    return;
+  }
+  if (src == NULL) {
+    dst[0] = '\0';
+    return;
+  }
+  for (size_t i = 0; src[i] != '\0' && j + 2 < dst_len; i++) {
+    unsigned char c = (unsigned char)src[i];
+    if (c < 0x20) {
+      continue;
+    }
+    if (c == '"' || c == '\\') {
+      dst[j++] = '\\';
+    }
+    dst[j++] = (char)c;
+  }
+  dst[j] = '\0';
+}
+
 #define GAME_STATUS_JSON_APPEND(...)                                           \
   do {                                                                         \
     if (game_status_json_append(&offset, buffer, size, __VA_ARGS__) !=         \
@@ -339,36 +361,53 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
       game_get_puzzle_definition(puzzle_setup_id);
   const game_puzzle_definition_t *pd =
       puzzle_active ? pd_play : (puzzle_setup_active ? pd_setup : NULL);
-  bool puzzle_phys_match = false;
-  if (puzzle_setup_active && pd_setup != NULL) {
-    puzzle_phys_match = game_puzzle_physical_matches_fen(pd_setup->fen);
+  bool puzzle_phys_match = game_puzzle_status_physical_match();
+  const char *puzzle_fen_src = "";
+  if ((puzzle_setup_active || puzzle_active) && pd != NULL && pd->fen != NULL) {
+    puzzle_fen_src = pd->fen;
+  } else if (puzzle_setup_active || puzzle_active) {
+    puzzle_fen_src = game_puzzle_staged_fen();
   }
-  const char *puzzle_fen_json = "";
-  if (puzzle_setup_active && pd_setup != NULL) {
-    puzzle_fen_json = pd_setup->fen;
-  } else if (puzzle_active && pd_play != NULL) {
-    puzzle_fen_json = pd_play->fen;
-  }
-  GAME_STATUS_JSON_APPEND(",\"puzzle\":{\"active\":%s,\"setup_active\":%s,"
-                          "\"setup_id\":%u,\"physical_match\":%s,\"fen\":\"%s\","
-                          "\"id\":%u,\"difficulty\":%u,"
-                          "\"title\":\"%s\",\"teaser\":\"%s\",\"feedback\":\"%s\","
-                          "\"message\":\"%s\"}",
-                          puzzle_active ? "true" : "false",
-                          puzzle_setup_active ? "true" : "false",
-                          (unsigned)puzzle_setup_id,
-                          puzzle_phys_match ? "true" : "false", puzzle_fen_json,
-                          (unsigned)(puzzle_active ? puzzle_active_id
-                                                   : (puzzle_setup_active
-                                                          ? puzzle_setup_id
-                                                          : 0)),
-                          (unsigned)(pd ? pd->difficulty : 0U), pd ? pd->title : "",
-                          pd ? pd->teaser : "", game_puzzle_feedback_key(),
-                          game_puzzle_feedback_message());
+  const char *puzzle_title_src =
+      (pd != NULL && pd->title != NULL && pd->title[0] != '\0')
+          ? pd->title
+          : game_puzzle_title();
+  char puzzle_fen_esc[160];
+  char puzzle_title_esc[96];
+  char puzzle_teaser_esc[160];
+  char puzzle_msg_esc[200];
+  game_json_escape(puzzle_fen_esc, sizeof(puzzle_fen_esc), puzzle_fen_src);
+  game_json_escape(puzzle_title_esc, sizeof(puzzle_title_esc), puzzle_title_src);
+  game_json_escape(puzzle_teaser_esc, sizeof(puzzle_teaser_esc),
+                   pd ? pd->teaser : "");
+  game_json_escape(puzzle_msg_esc, sizeof(puzzle_msg_esc),
+                   game_puzzle_feedback_message());
+  GAME_STATUS_JSON_APPEND(
+      ",\"puzzle\":{\"active\":%s,\"setup_active\":%s,"
+      "\"setup_id\":%u,\"physical_match\":%s,\"fen\":\"%s\","
+      "\"id\":%u,\"difficulty\":%u,"
+      "\"title\":\"%s\",\"teaser\":\"%s\",\"feedback\":\"%s\","
+      "\"message\":\"%s\",\"ply_index\":%u,\"ply_total\":%u,"
+      "\"expected_from\":\"%s\",\"expected_to\":\"%s\","
+      "\"awaiting_opponent\":%s,\"last_uci\":\"%s\",\"session\":%u,"
+      "\"solved\":%s,\"sync_hold\":%s}",
+      puzzle_active ? "true" : "false",
+      puzzle_setup_active ? "true" : "false", (unsigned)puzzle_setup_id,
+      puzzle_phys_match ? "true" : "false", puzzle_fen_esc,
+      (unsigned)(puzzle_active ? puzzle_active_id
+                               : (puzzle_setup_active ? puzzle_setup_id : 0)),
+      (unsigned)(pd ? pd->difficulty : 0U), puzzle_title_esc, puzzle_teaser_esc,
+      game_puzzle_feedback_key(), puzzle_msg_esc,
+      (unsigned)game_puzzle_ply(), (unsigned)game_puzzle_ply_total(),
+      game_puzzle_expected_from(), game_puzzle_expected_to(),
+      game_puzzle_awaiting_opponent() ? "true" : "false",
+      game_puzzle_last_uci(), (unsigned)game_puzzle_session_id(),
+      game_puzzle_is_solved() ? "true" : "false",
+      game_puzzle_sync_hold() ? "true" : "false");
 
   game_opening_export_status_json(buffer, size, &offset);
 
-  if (board_setup_tutorial_active || puzzle_setup_active ||
+  if (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
       game_opening_status_needs_squares()) {
     uint8_t occ[64];
     squares_get_state(occ);

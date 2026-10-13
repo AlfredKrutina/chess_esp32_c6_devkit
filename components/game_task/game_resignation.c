@@ -88,26 +88,23 @@ static void resignation_main_timer_callback(TimerHandle_t xTimer) {
 }
 
 /**
- * @brief Finalize resignation after 10s (runs in game_task context)
+ * @brief End the game by resignation of @p loser (runs in game_task context).
+ *
+ * Single end path for the king-lift timeout and the app command: result,
+ * endgame reason, statistics, clock pause, victory animation, button LEDs
+ * and snapshot are identical for both.
  */
-static void resignation_finalize_timeout(void) {
-  if (!resignation_state.active) {
-    return;
-  }
-
-  const char *player_name =
-      (resignation_state.player == PLAYER_WHITE) ? "White" : "Black";
-  const char *winner_name =
-      (resignation_state.player == PLAYER_WHITE) ? "Black" : "White";
+static void resignation_end_game(player_t loser) {
+  const char *player_name = (loser == PLAYER_WHITE) ? "White" : "Black";
+  const char *winner_name = (loser == PLAYER_WHITE) ? "Black" : "White";
 
   ESP_LOGI(TAG, "🏳️ %s resigned! %s wins!", player_name, winner_name);
 
   // End the game
   current_game_state = GAME_STATE_FINISHED;
   game_result = GAME_STATE_FINISHED;
-  current_result_type = (resignation_state.player == PLAYER_WHITE)
-                            ? RESULT_BLACK_WINS
-                            : RESULT_WHITE_WINS;
+  current_result_type =
+      (loser == PLAYER_WHITE) ? RESULT_BLACK_WINS : RESULT_WHITE_WINS;
   current_endgame_reason = ENDGAME_REASON_RESIGNATION;
   game_active = false;
 
@@ -118,13 +115,77 @@ static void resignation_finalize_timeout(void) {
   timer_pause();
 
   // Run the victory animation for the winner
-  player_t winner_player =
-      (resignation_state.player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+  player_t winner_player = (loser == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
   game_trigger_victory_animation(winner_player);
 
-  // Timeout = finalized cleanup (no cancel messages, do not restore king)
-  resignation_stop(true);
+  if (resignation_state.active) {
+    // Finalized cleanup (no cancel messages, do not restore king)
+    resignation_stop(true);
+  } else {
+    for (int i = 0; i < 8; i++) {
+      button_set_led_color(64 + i, 0, 0, 0);
+    }
+  }
   game_snapshot_persist_after_valid_move();
+}
+
+/**
+ * @brief Finalize resignation after 10s (runs in game_task context)
+ */
+static void resignation_finalize_timeout(void) {
+  if (!resignation_state.active) {
+    return;
+  }
+  resignation_end_game(resignation_state.player);
+}
+
+game_resign_result_t game_resign_check(uint8_t side) {
+  if (side > GAME_RESIGN_SIDE_BLACK) {
+    return GAME_RESIGN_ERR_SIDE;
+  }
+  if (game_is_board_setup_tutorial_active() || game_is_puzzle_active() ||
+      game_is_puzzle_setup_active() || game_is_opening_trainer_active() ||
+      game_is_opening_trainer_setup_active()) {
+    return GAME_RESIGN_ERR_MODE;
+  }
+  switch (current_game_state) {
+  case GAME_STATE_ACTIVE:
+  case GAME_STATE_PLAYING:
+  case GAME_STATE_PAUSED:
+  case GAME_STATE_PROMOTION:
+  case GAME_STATE_WAITING_FOR_RETURN:
+    break;
+  default:
+    return GAME_RESIGN_ERR_NOT_RUNNING;
+  }
+  if ((side == GAME_RESIGN_SIDE_WHITE && current_player != PLAYER_WHITE) ||
+      (side == GAME_RESIGN_SIDE_BLACK && current_player != PLAYER_BLACK)) {
+    return GAME_RESIGN_ERR_SIDE;
+  }
+  return GAME_RESIGN_OK;
+}
+
+bool game_resign_from_app(uint8_t side) {
+  game_resign_result_t check = game_resign_check(side);
+  ESP_LOGD(TAG,
+           "[STAGING] app resign: side=%u on_move=%s state=%d king_lift=%d "
+           "piece_lifted=%d check=%d",
+           (unsigned)side, (current_player == PLAYER_WHITE) ? "White" : "Black",
+           (int)current_game_state, (int)resignation_state.active,
+           (int)piece_lifted, (int)check);
+  if (check != GAME_RESIGN_OK) {
+    ESP_LOGW(TAG, "App resign refused (reason=%d)", (int)check);
+    return false;
+  }
+
+  player_t loser = current_player;
+  if (resignation_state.active && resignation_state.player != loser) {
+    // Not reachable today (only the side on move can lift its king); keep
+    // the board array consistent if it ever happens.
+    resignation_stop(false);
+  }
+  resignation_end_game(loser);
+  return true;
 }
 
 /**

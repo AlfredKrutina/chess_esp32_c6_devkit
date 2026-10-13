@@ -14,6 +14,7 @@
 
 #include "sdkconfig.h"
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
+#include "board_api_auth.h"
 #include "esp_http_server.h"
 #endif
 #include "esp_log.h"
@@ -473,6 +474,12 @@ esp_err_t http_get_advantage_handler(httpd_req_t *req) {
 esp_err_t http_post_game_move_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/move");
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+  if (board_pair_http_command_denied(req)) {
+    return ESP_OK;
+  }
+#endif
+
   // Kontrola web lock
   if (web_is_locked()) {
     ESP_LOGW(TAG, "Move blocked: web interface is locked");
@@ -571,19 +578,64 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
              from, to);
   }
 
-  // Pripravit command pro game task
+  bool accepted_async = false;
+  char move_err[96];
+  move_err[0] = '\0';
+  esp_err_t qerr =
+      web_game_enqueue_move(from, to, promotion, move_err, sizeof(move_err),
+                            &accepted_async);
+  if (qerr == ESP_ERR_INVALID_STATE) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Game queue not available", -1);
+    return ESP_FAIL;
+  }
+  if (qerr == ESP_ERR_NO_MEM || qerr == ESP_FAIL) {
+    httpd_resp_set_status(req, "500 Internal Server Error");
+    httpd_resp_send(req, "Failed to queue move", -1);
+    return ESP_FAIL;
+  }
+  if (qerr == ESP_ERR_INVALID_ARG) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_set_type(req, "application/json");
+    char error_json[256];
+    snprintf(error_json, sizeof(error_json),
+             "{\"success\":false,\"message\":\"%s\"}",
+             move_err[0] != '\0' ? move_err : "Illegal move");
+    httpd_resp_send(req, error_json, -1);
+    return ESP_OK;
+  }
+  httpd_resp_set_type(req, "application/json");
+  if (accepted_async) {
+    httpd_resp_set_status(req, "202 Accepted");
+    httpd_resp_send(
+        req, "{\"success\":true,\"message\":\"Move queued (timeout)\"}", -1);
+  } else {
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_send(req, "{\"success\":true,\"message\":\"Move processed\"}",
+                    -1);
+  }
+  return ESP_OK;
+}
+
+esp_err_t web_game_enqueue_move(const char *from, const char *to,
+                                const char *promotion, char *err, size_t err_cap,
+                                bool *accepted_async) {
+  if (accepted_async != NULL) {
+    *accepted_async = false;
+  }
+  if (err != NULL && err_cap > 0) {
+    err[0] = '\0';
+  }
+  if (from == NULL || to == NULL || from[0] == '\0' || to[0] == '\0') {
+    return ESP_ERR_INVALID_ARG;
+  }
   chess_move_command_t cmd = {0};
   cmd.type = GAME_CMD_MOVE;
   strncpy(cmd.from_notation, from, sizeof(cmd.from_notation) - 1);
   strncpy(cmd.to_notation, to, sizeof(cmd.to_notation) - 1);
-
   cmd.promotion_choice = PROMOTION_QUEEN;
-  if (strlen(promotion) > 0) {
+  if (promotion != NULL && promotion[0] != '\0') {
     switch (promotion[0]) {
-    case 'q':
-    case 'Q':
-      cmd.promotion_choice = PROMOTION_QUEEN;
-      break;
     case 'r':
     case 'R':
       cmd.promotion_choice = PROMOTION_ROOK;
@@ -600,67 +652,38 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
       cmd.promotion_choice = PROMOTION_QUEEN;
       break;
     }
+    cmd.promotion_from_remote = 1U;
   }
-  cmd.promotion_from_remote = (strlen(promotion) > 0) ? 1U : 0U;
-
-  // Send to queue
   if (game_command_queue == NULL) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Game queue not available", -1);
-    return ESP_FAIL;
+    return ESP_ERR_INVALID_STATE;
   }
-
-  // Synchronous Verification Setup
-  // Create a temporary queue to receive the validation result
-  // This allows us to return 400 Bad Request if the move is invalid
   QueueHandle_t response_queue = xQueueCreate(1, sizeof(game_response_t));
   if (response_queue == NULL) {
-    ESP_LOGE(TAG, "Failed to create response queue");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to create response queue", -1);
-    return ESP_FAIL;
+    return ESP_ERR_NO_MEM;
   }
   cmd.response_queue = response_queue;
-
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    vQueueDelete(response_queue); // Cleanup
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to queue move", -1);
+    vQueueDelete(response_queue);
     return ESP_FAIL;
   }
-
-  // Wait for response (validation result)
   game_response_t response;
-  // 500ms timeout should be enough for simple validation
   if (xQueueReceive(response_queue, &response, pdMS_TO_TICKS(1000)) == pdTRUE) {
-    // Check if move was successful
+    vQueueDelete(response_queue);
     if (response.type == GAME_RESPONSE_ERROR) {
-      ESP_LOGW(TAG, "❌ Move rejected by game task: %s", response.data);
-      httpd_resp_set_status(req, "400 Bad Request");
-      httpd_resp_set_type(req, "application/json");
-      char error_json[256];
-      snprintf(error_json, sizeof(error_json),
-               "{\"success\":false,\"message\":\"%s\"}", response.data);
-      httpd_resp_send(req, error_json, -1);
-    } else {
-      ESP_LOGI(TAG, "✅ Move accepted by game task");
-      httpd_resp_set_status(req, "200 OK");
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_send(req, "{\"success\":true,\"message\":\"Move processed\"}",
-                      -1);
+      ESP_LOGW(TAG, "Move rejected by game task: %s", response.data);
+      if (err != NULL && err_cap > 0) {
+        snprintf(err, err_cap, "%s", response.data);
+      }
+      return ESP_ERR_INVALID_ARG;
     }
-  } else {
-    // Timeout - treat as success (async fallback) or error?
-    // Let's treat as partial success but log warning
-    ESP_LOGW(TAG, "⚠️ Move validation timed out");
-    httpd_resp_set_status(req, "202 Accepted"); // Accepted but not verified yet
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":true,\"message\":\"Move queued (timeout)\"}", -1);
+    ESP_LOGI(TAG, "Move accepted by game task");
+    return ESP_OK;
   }
-
-  // Cleanup queue
   vQueueDelete(response_queue);
+  ESP_LOGW(TAG, "Move validation timed out");
+  if (accepted_async != NULL) {
+    *accepted_async = true;
+  }
   return ESP_OK;
 }
 
@@ -1139,10 +1162,203 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+static esp_err_t puzzle_queue_choice(uint8_t choice) {
+  if (game_command_queue == NULL) {
+    return ESP_FAIL;
+  }
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_PUZZLE;
+  cmd.promotion_choice = choice;
+  cmd.response_queue = NULL;
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    ESP_LOGE(TAG, "puzzle: queue send failed choice=%u", (unsigned)choice);
+    return ESP_FAIL;
+  }
+  if (choice == 0U) {
+    led_command_t lcmd = {0};
+    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+    led_execute_command_new(&lcmd);
+  }
+  return ESP_OK;
+}
+
+static void puzzle_copy_response(char *response, size_t response_len,
+                                 const char *json) {
+  if (response == NULL || response_len == 0 || json == NULL) {
+    return;
+  }
+  strncpy(response, json, response_len - 1);
+  response[response_len - 1] = '\0';
+}
+
+/**
+ * Shared HTTP/BLE puzzle command.
+ * action: load | start | prepare | cancel | hint
+ * load: fen + solution[] (solver, opponent, solver…). Empty solution only
+ * places the position after the matrix matches.
+ * Returns ESP_ERR_INVALID_STATE when start is refused because the board
+ * does not match (setup is queued instead).
+ */
+esp_err_t web_server_puzzle_dispatch_body(const char *json, char *response,
+                                         size_t response_len) {
+  if (json == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  cJSON *root = cJSON_Parse(json);
+  if (root == NULL) {
+    puzzle_copy_response(response, response_len,
+                         "{\"success\":false,\"error\":\"Invalid JSON\"}");
+    return ESP_ERR_INVALID_ARG;
+  }
+  cJSON *action_j = cJSON_GetObjectItemCaseSensitive(root, "action");
+  if (!cJSON_IsString(action_j) || action_j->valuestring == NULL) {
+    cJSON_Delete(root);
+    puzzle_copy_response(response, response_len,
+                         "{\"success\":false,\"error\":\"Missing action\"}");
+    return ESP_ERR_INVALID_ARG;
+  }
+  const char *action = action_j->valuestring;
+
+  if (strcmp(action, "cancel") == 0) {
+    cJSON_Delete(root);
+    if (puzzle_queue_choice(0) != ESP_OK) {
+      puzzle_copy_response(response, response_len,
+                           "{\"success\":false,\"error\":\"Queue full\"}");
+      return ESP_FAIL;
+    }
+    puzzle_copy_response(response, response_len, "{\"success\":true}");
+    return ESP_OK;
+  }
+
+  if (strcmp(action, "hint") == 0) {
+    cJSON_Delete(root);
+    if (!game_puzzle_hint()) {
+      puzzle_copy_response(
+          response, response_len,
+          "{\"success\":false,\"error\":\"hint_unavailable\"}");
+      return ESP_ERR_INVALID_STATE;
+    }
+    puzzle_copy_response(response, response_len, "{\"success\":true}");
+    return ESP_OK;
+  }
+
+  bool is_load = strcmp(action, "load") == 0;
+  bool is_start = strcmp(action, "start") == 0;
+  bool is_prepare = strcmp(action, "prepare") == 0;
+  if (!is_load && !is_start && !is_prepare) {
+    cJSON_Delete(root);
+    puzzle_copy_response(response, response_len,
+                         "{\"success\":false,\"error\":\"invalid_action\"}");
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  cJSON *id_j = cJSON_GetObjectItemCaseSensitive(root, "id");
+  int puzzle_id = cJSON_IsNumber(id_j) ? id_j->valueint : 0;
+  cJSON *fen_j = cJSON_GetObjectItemCaseSensitive(root, "fen");
+  cJSON *title_j = cJSON_GetObjectItemCaseSensitive(root, "title");
+  cJSON *sol_j = cJSON_GetObjectItemCaseSensitive(root, "solution");
+
+  bool staged = false;
+  if (is_load || (cJSON_IsString(fen_j) && fen_j->valuestring != NULL)) {
+    if (!cJSON_IsString(fen_j) || fen_j->valuestring == NULL) {
+      cJSON_Delete(root);
+      puzzle_copy_response(response, response_len,
+                           "{\"success\":false,\"error\":\"Missing fen\"}");
+      return ESP_ERR_INVALID_ARG;
+    }
+    char line[12][8];
+    memset(line, 0, sizeof(line));
+    uint8_t count = 0;
+    if (cJSON_IsArray(sol_j)) {
+      int n = cJSON_GetArraySize(sol_j);
+      if (n > 12) {
+        cJSON_Delete(root);
+        puzzle_copy_response(
+            response, response_len,
+            "{\"success\":false,\"error\":\"Too many solution plies\"}");
+        return ESP_ERR_INVALID_ARG;
+      }
+      for (int i = 0; i < n; i++) {
+        cJSON *item = cJSON_GetArrayItem(sol_j, i);
+        if (!cJSON_IsString(item) || item->valuestring == NULL) {
+          cJSON_Delete(root);
+          puzzle_copy_response(
+              response, response_len,
+              "{\"success\":false,\"error\":\"Bad solution move\"}");
+          return ESP_ERR_INVALID_ARG;
+        }
+        strncpy(line[count], item->valuestring, sizeof(line[count]) - 1);
+        count++;
+      }
+    }
+    const char *title = (cJSON_IsString(title_j) && title_j->valuestring != NULL)
+                            ? title_j->valuestring
+                            : "";
+    if (!game_puzzle_stage_line(fen_j->valuestring, title, line, count)) {
+      cJSON_Delete(root);
+      puzzle_copy_response(response, response_len,
+                           "{\"success\":false,\"error\":\"Bad fen or solution\"}");
+      return ESP_ERR_INVALID_ARG;
+    }
+    staged = true;
+  } else if (puzzle_id >= 1 && puzzle_id <= 5 && (is_start || is_prepare)) {
+    if (!game_puzzle_stage_builtin((uint8_t)puzzle_id)) {
+      cJSON_Delete(root);
+      puzzle_copy_response(response, response_len,
+                           "{\"success\":false,\"error\":\"Bad puzzle id\"}");
+      return ESP_ERR_INVALID_ARG;
+    }
+    staged = true;
+  }
+
+  if (!staged && is_start && game_puzzle_staged_fen()[0] == '\0') {
+    cJSON_Delete(root);
+    puzzle_copy_response(response, response_len,
+                         "{\"success\":false,\"error\":\"No staged puzzle\"}");
+    return ESP_ERR_INVALID_ARG;
+  }
+
+  const char *fen = game_puzzle_staged_fen();
+  bool match = (fen != NULL && fen[0] != '\0') &&
+               game_physical_squares_matches_fen(fen);
+  cJSON_Delete(root);
+
+  if (is_prepare || !match) {
+    if (puzzle_queue_choice(210) != ESP_OK) {
+      puzzle_copy_response(response, response_len,
+                           "{\"success\":false,\"error\":\"Queue full\"}");
+      return ESP_FAIL;
+    }
+    if (is_prepare || is_load) {
+      char ok_body[96];
+      snprintf(ok_body, sizeof(ok_body),
+               "{\"success\":true,\"physical_match\":%s,\"play_queued\":false}",
+               match ? "true" : "false");
+      puzzle_copy_response(response, response_len, ok_body);
+      return ESP_OK;
+    }
+    puzzle_copy_response(
+        response, response_len,
+        "{\"success\":false,\"error\":\"physical_mismatch\",\"physical_match\":false}");
+    return ESP_ERR_INVALID_STATE;
+  }
+
+  if (puzzle_queue_choice(211) != ESP_OK) {
+    puzzle_copy_response(response, response_len,
+                         "{\"success\":false,\"error\":\"Queue full\"}");
+    return ESP_FAIL;
+  }
+  puzzle_copy_response(
+      response, response_len,
+      "{\"success\":true,\"physical_match\":true,\"play_queued\":true}");
+  return ESP_OK;
+}
+
 /**
  * POST /api/game/puzzle
- * Body: {"action":"start","id":1..5} | {"action":"prepare","id":1..5} |
- * {"action":"cancel"}
+ * Body: {"action":"load","fen":"...","solution":["g6g8"],"title":"..."}
+ *       {"action":"start"} | {"action":"start","id":1}
+ *       {"action":"prepare","id":1} | {"action":"cancel"} | {"action":"hint"}
  */
 esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/puzzle");
@@ -1155,7 +1371,7 @@ esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  char buf[192] = {0};
+  char buf[1536] = {0};
   int r = httpd_req_recv(req, buf, (int)sizeof(buf) - 1);
   if (r <= 0) {
     httpd_resp_set_type(req, "application/json");
@@ -1165,72 +1381,29 @@ esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
   }
   buf[r] = '\0';
 
-  bool want_start = (strstr(buf, "\"start\"") != NULL);
-  bool want_cancel = (strstr(buf, "\"cancel\"") != NULL);
-  bool want_prepare = (strstr(buf, "\"prepare\"") != NULL);
-  int n = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) + (want_prepare ? 1 : 0);
-  if (n != 1) {
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"error\":\"Specify exactly one action: "
-                    "start, prepare, or cancel\"}",
-                    -1);
+  char response[192];
+  response[0] = '\0';
+  esp_err_t err = web_server_puzzle_dispatch_body(buf, response, sizeof(response));
+  const char *body =
+      response[0] != '\0' ? response : "{\"success\":false,\"error\":\"puzzle\"}";
+  httpd_resp_set_type(req, "application/json");
+  if (err == ESP_OK) {
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_send(req, body, -1);
     return ESP_OK;
   }
-
-  if (game_command_queue == NULL) {
-    httpd_resp_set_type(req, "application/json");
+  if (err == ESP_ERR_INVALID_STATE) {
+    httpd_resp_set_status(req, "409 Conflict");
+    httpd_resp_send(req, body, -1);
+    return ESP_OK;
+  }
+  if (err == ESP_FAIL) {
     httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Game command queue unavailable\"}",
-        -1);
+    httpd_resp_send(req, body, -1);
     return ESP_FAIL;
   }
-
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_PUZZLE;
-  cmd.promotion_choice = 0U;
-  cmd.response_queue = NULL;
-
-  if (want_start || want_prepare) {
-    int puzzle_id = -1;
-    char *id_ptr = strstr(buf, "\"id\"");
-    if (id_ptr != NULL) {
-      char *colon = strchr(id_ptr, ':');
-      if (colon != NULL) {
-        puzzle_id = atoi(colon + 1);
-      }
-    }
-    if (puzzle_id < 1 || puzzle_id > 5) {
-      httpd_resp_set_type(req, "application/json");
-      httpd_resp_set_status(req, "400 Bad Request");
-      httpd_resp_send(req,
-                      "{\"success\":false,\"error\":\"Puzzle id must be 1..5\"}",
-                      -1);
-      return ESP_OK;
-    }
-    cmd.promotion_choice =
-        want_prepare ? (uint8_t)(100 + puzzle_id) : (uint8_t)puzzle_id;
-  }
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    ESP_LOGE(TAG, "puzzle: queue send failed");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Queue full\"}", -1);
-    return ESP_FAIL;
-  }
-
-  if (want_cancel) {
-    led_command_t lcmd = {0};
-    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&lcmd);
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
+  httpd_resp_set_status(req, "400 Bad Request");
+  httpd_resp_send(req, body, -1);
   return ESP_OK;
 }
 

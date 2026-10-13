@@ -678,6 +678,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.';
 
   @override
+  String get discoveryPairTriplePress =>
+      'On the board, press the button three times. Pairing finishes on its own once the board opens the window.';
+
+  @override
+  String get discoveryNotInPairingMode => 'The board is not in pairing mode.';
+
+  @override
+  String get discoveryBoardOccupied =>
+      'The board is connected to another device.';
+
+  @override
+  String get discoveryPairWifi => 'Pair over Wi‑Fi';
+
+  @override
+  String get discoveryPairWifiNeedUrl =>
+      'Enter the board address under Advanced, then pair while the window is open.';
+
+  @override
   String errWifiIpThirdOctetBlocked(String host) {
     return 'That address ($host) is blocked in settings.';
   }
@@ -2037,6 +2055,24 @@ class AppLocalizationsEn extends AppLocalizations {
       'Connection restored — continuing firmware transfer.';
 
   @override
+  String get firmwareOtaWaitingConfirmDetail =>
+      'The board restarted into the new firmware — waiting until it confirms a stable start…';
+
+  @override
+  String errOtaRolledBack(String reason) {
+    return 'The new firmware did not confirm its start, so the board returned to the previous version ($reason). You can run the update again.';
+  }
+
+  @override
+  String errOtaAborted(String reason) {
+    return 'The transfer was interrupted ($reason) and the new firmware was not activated. The board keeps running the current version — start the update again.';
+  }
+
+  @override
+  String get errOtaOutcomeUnknown =>
+      'The board restarted but did not report whether the new firmware confirmed its start. Check the firmware version in settings before relying on it.';
+
+  @override
   String get firmwareOtaSlotsDisabledHint =>
       'This flash layout has no OTA slots (ota_0 + ota_1). Use USB/UART (esptool or idf.py flash) or rebuild firmware with a dual-OTA partition table (see project partitions CSV).';
 
@@ -2315,7 +2351,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get puzzleConnectBoardSnack => 'Connect the board (Wi‑Fi or BLE).';
 
   @override
-  String get puzzleNewGameSentSnack => 'new_game command sent.';
+  String get puzzleNewGameSentSnack =>
+      'Position sent. The board lights missing and extra squares until it matches.';
 
   @override
   String get puzzleBoardRiddleTitle => 'Board puzzle';
@@ -2324,7 +2361,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get puzzleTryOnScreen => 'Try on screen';
 
   @override
-  String get puzzleLoadToBoard => 'Load to board (new_game + FEN)';
+  String get puzzleLoadToBoard => 'Load to board';
 
   @override
   String get puzzleSetupWizardLabel => 'Board setup wizard';
@@ -3342,6 +3379,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupWizardErrGeneric => 'Error';
 
   @override
+  String get setupWizardErrPhysicalMismatch =>
+      'The pieces on the board do not match this position yet.';
+
+  @override
+  String get puzzleMoreActionsTooltip => 'More puzzle actions';
+
+  @override
+  String get puzzleLibSavedPositionCaption => 'Current sandbox position';
+
+  @override
+  String get puzzleSaveNeedPosition => 'Open a position on the Play tab first.';
+
+  @override
   String get setupWizardTitleStandard => 'Starting position';
 
   @override
@@ -4063,4 +4113,681 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsCoachSubtitleOfflineTips =>
       'Short on-device tips only (no cloud)';
+
+  @override
+  String get gameResign => 'Resign';
+
+  @override
+  String get gameResignUnavailable =>
+      'You can resign only while a game is running on the board.';
+
+  @override
+  String get gameResignConfirmTitleWhite => 'Resign for White?';
+
+  @override
+  String get gameResignConfirmTitleBlack => 'Resign for Black?';
+
+  @override
+  String get gameResignConfirmBodyWhite =>
+      'The game ends and Black wins. The board stops the clock, shows the result and saves it. This cannot be undone.';
+
+  @override
+  String get gameResignConfirmBodyBlack =>
+      'The game ends and White wins. The board stops the clock, shows the result and saves it. This cannot be undone.';
+
+  @override
+  String get gameResignSending => 'Sending…';
+
+  @override
+  String get gameResignSentSnack =>
+      'Resignation sent. The board is ending the game.';
+
+  @override
+  String get gameResignRefused =>
+      'The board refused: the game is no longer running or the other side is on move. Refresh the state and try again.';
+
+  @override
+  String gameResignFailed(String error) {
+    return 'Could not send the resignation: $error';
+  }
+
+  @override
+  String get endReasonResignation => 'Resignation';
+
+  @override
+  String get boardGuideTitle => 'Board guide';
+
+  @override
+  String boardGuideStepCounter(int n, int total) {
+    return 'Step $n of $total';
+  }
+
+  @override
+  String get boardGuideBack => 'Back';
+
+  @override
+  String get boardGuideDone => 'Done';
+
+  @override
+  String get settingsNavBoardGuide => 'Board guide (hints, resign, clock)';
+
+  @override
+  String get helpBoardGuideTitle => 'Board guide';
+
+  @override
+  String get helpBoardGuideBody =>
+      'Step by step: connecting, moves on the board, hints, the clock and resigning.';
+
+  @override
+  String get helpBoardGuideOpen => 'Open board guide';
+
+  @override
+  String get boardGuideConnectTitle => 'Connect the board';
+
+  @override
+  String get boardGuideConnectBody =>
+      'Switch the board on and find it on the Play tab over Bluetooth or Wi‑Fi. Once connected, the app shows the same position as the board. Without a board you can try everything on the demo board.';
+
+  @override
+  String get boardGuideMoveTitle => 'Move on the wooden board';
+
+  @override
+  String get boardGuideMoveBody =>
+      'Play with your hands as usual. When you lift a piece, the board lights the squares it may go to: green for empty squares, orange for captures. Put it down on the target square and the move appears in the app. How much the board lights up is set in the board settings under LED hints.';
+
+  @override
+  String get boardGuideHintTitle => 'Ask for a hint';
+
+  @override
+  String get boardGuideHintBody =>
+      'In Game controls, tap Move hint. The app asks the chess engine for the best move (needs internet), shows it on screen and lights the target square on the board. Turn those LEDs off with Clear hint LEDs.';
+
+  @override
+  String get boardGuideClockTitle => 'Play on the clock';
+
+  @override
+  String get boardGuideClockBody =>
+      'Pick a time control when you start a New game. The clock runs on the board and switches after every move by itself; the app shows its state. Pause and resume are in Game controls.';
+
+  @override
+  String get boardGuideResignTitle => 'Resign';
+
+  @override
+  String get boardGuideResignBody =>
+      'Choose Resign in Game controls or in the game menu (⋮). The side on move resigns and the app first asks which colour. The board then stops the clock, shows the winner and saves the result. On the board itself, lift your own king and hold it off the board for 10 seconds; put it back earlier to cancel.';
+
+  @override
+  String get onboardingPermissionsDesktopWindowsBody =>
+      'Windows needs no extra permissions here. Keep the computer and the board on the same Wi‑Fi network.';
+
+  @override
+  String get onboardingPermWifiBodyDesktop =>
+      'No Wi‑Fi permission is needed. Keep the computer on the same network as the board, or join the board’s hotspot.';
+
+  @override
+  String get analysisScoresheetEmpty => 'No moves in this game yet.';
+
+  @override
+  String analysisChartJumpedToMove(int n) {
+    return 'Showing move $n on Play.';
+  }
+
+  @override
+  String get analysisClearEvalConfirmTitle => 'Clear evaluations?';
+
+  @override
+  String get analysisClearEvalConfirmBody =>
+      'The chart and saved move evaluations for this game will be removed.';
+
+  @override
+  String get analysisClearEvalConfirmAction => 'Clear';
+
+  @override
+  String get coachSetupBannerAction => 'Open coach settings';
+
+  @override
+  String get coachChatExplanationLevelLabel => 'Explanation level';
+
+  @override
+  String get discoveryTransportAdvancedExplanation =>
+      'Auto tries Bluetooth first, then Wi‑Fi when the board is reachable. Wi‑Fi only skips Bluetooth. Bluetooth only stays on Bluetooth even if a Wi‑Fi address is known.';
+
+  @override
+  String get discoveryOpenTransportSettingsButton => 'Open connection settings';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsTitle => 'Blocked LAN addresses';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsBody =>
+      'IPv4 addresses whose third number is listed here are ignored (for example 88 blocks 192.168.88.*). Use this when a router address must not be treated as the board.';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsLabel => 'Third numbers';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsHint => 'e.g. 88, 1';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSave => 'Save';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsReset => 'Reset to 88';
+
+  @override
+  String get discoveryAdvancedBlockedOctetsSavedSnack =>
+      'Blocked addresses saved.';
+
+  @override
+  String get settingsAdvancedConnectionSubtitleV2 =>
+      'Board address, next connection, factory reset';
+
+  @override
+  String get settingsBleDesktopHint =>
+      'Bluetooth board scan is not available on this computer. Use Wi‑Fi or the demo board.';
+
+  @override
+  String get settingsNextConnectionTitle => 'Next connection';
+
+  @override
+  String get settingsNextConnectionIntro =>
+      'Override applies once, on the next connect. After that the app returns to automatic (Bluetooth, then Wi‑Fi).';
+
+  @override
+  String get settingsNextConnectionActiveWifiOnce =>
+      'Next connect uses Wi‑Fi only.';
+
+  @override
+  String get settingsNextConnectionActiveBleOnce =>
+      'Next connect uses Bluetooth only.';
+
+  @override
+  String get settingsNextConnectionUseAuto => 'Use automatic';
+
+  @override
+  String get settingsNextConnectionWifiOnceButton => 'Wi‑Fi once';
+
+  @override
+  String get settingsNextConnectionBleOnceButton => 'Bluetooth once';
+
+  @override
+  String get settingsAppFactoryResetTitle => 'Reset app data';
+
+  @override
+  String get settingsAppFactoryResetSubtitle =>
+      'Clears saved board, language, coach keys and other settings stored on this device. The board firmware is not changed.';
+
+  @override
+  String get settingsAppFactoryResetButton => 'Reset app';
+
+  @override
+  String get settingsAppFactoryResetConfirmTitle =>
+      'Reset everything in the app?';
+
+  @override
+  String get settingsAppFactoryResetConfirmBody =>
+      'Saved preferences on this device will be deleted. This cannot be undone.';
+
+  @override
+  String get settingsAppFactoryResetConfirmAction => 'Reset';
+
+  @override
+  String get settingsAppFactoryResetDoneSnack => 'App data was reset.';
+
+  @override
+  String get settingsAppFactoryResetRestartHint =>
+      'If something still looks old, close the app and open it again.';
+
+  @override
+  String get settingsDiagnosticsBoardNvsLockedHint =>
+      'Unlock developer mode to edit board NVS.';
+
+  @override
+  String get settingsAboutDeveloperModeTitle => 'Developer mode';
+
+  @override
+  String get settingsAboutDeveloperModeSubtitleOn =>
+      'Extra firmware and diagnostic tools are visible.';
+
+  @override
+  String get settingsDeveloperModeDisabledSnack => 'Developer mode turned off.';
+
+  @override
+  String get settingsAppUpdateBannerTitle => 'App update available';
+
+  @override
+  String settingsAppUpdateBannerSubtitle(String current, String latest) {
+    return 'Installed $current. Version $latest is available.';
+  }
+
+  @override
+  String settingsAppUpdateBannerSubtitleRequired(
+      String current, String required) {
+    return 'Installed $current. Version $required or newer is required.';
+  }
+
+  @override
+  String get settingsAppUpdateOpenDownloads => 'Open downloads';
+
+  @override
+  String get settingsAboutAppUpdateLineTitle => 'Newer app version';
+
+  @override
+  String settingsAboutAppUpdateLineBody(String current, String latest) {
+    return 'Installed $current. Latest $latest.';
+  }
+
+  @override
+  String get haMqttFormLead =>
+      'Point the board at your MQTT broker so Home Assistant can see games and the lamp.';
+
+  @override
+  String get haMqttSetupHelpLink => 'Setup help';
+
+  @override
+  String get lampStudioSelectedSwatchLabel => 'Selected color';
+
+  @override
+  String get lampStudioPresetColorsTitle => 'Preset colors';
+
+  @override
+  String get lampStudioDeveloperRgbTitle => 'RGB values';
+
+  @override
+  String get reportExportStylePickHint =>
+      'Tap a layout. The preview updates before you share.';
+
+  @override
+  String get reportExportThumbWideLabel => 'Wide';
+
+  @override
+  String get reportExportThumbWideAspect => 'Landscape 16:9';
+
+  @override
+  String get reportChartPaletteChoiceHint =>
+      'These colors are used for the evaluation line, elapsed time and the white and black bars.';
+
+  @override
+  String firmwareTileTitleDeveloperDowngrade(String ver) {
+    return 'Firmware — older build ($ver)';
+  }
+
+  @override
+  String firmwareTileTitleDeveloperReflash(String ver) {
+    return 'Firmware — same version ($ver)';
+  }
+
+  @override
+  String get firmwareTileSubtitleDeveloperDowngrade =>
+      'Developer mode: the manifest is older than the board. You can still flash it.';
+
+  @override
+  String get firmwareTileSubtitleDeveloperReflash =>
+      'Developer mode: the board already has this version. You can flash it again.';
+
+  @override
+  String get firmwareOtaRollbackBannerTitle =>
+      'Last firmware update did not stick';
+
+  @override
+  String firmwareOtaRollbackBannerBodyWithAttempt(
+      String current, String slot, String attempt) {
+    return 'The board is still on $current. The failed write targeted slot $slot (attempted $attempt).';
+  }
+
+  @override
+  String firmwareOtaRollbackBannerBodyNoAttempt(String current, String slot) {
+    return 'The board is still on $current. The failed write targeted slot $slot.';
+  }
+
+  @override
+  String get firmwareOtaSuccessTitle => 'Firmware sent';
+
+  @override
+  String firmwareOtaSuccessBody(String installed, String reported) {
+    return 'The app sent version $installed. The board reports $reported. It may reboot before the new version shows up.';
+  }
+
+  @override
+  String get firmwareBleOtaApHotspotTip =>
+      'If Bluetooth transfer is unreliable, join the board hotspot and send the file over HTTP instead.';
+
+  @override
+  String get firmwareDeveloperSameVersionBanner =>
+      'Developer mode: manifest matches the board. Reflashing the same version is allowed.';
+
+  @override
+  String get firmwareDeveloperOlderManifestBanner =>
+      'Developer mode: the manifest is older than the firmware on the board. Flashing it is a downgrade.';
+
+  @override
+  String get firmwareDeveloperManifestSectionTitle => 'Custom manifest';
+
+  @override
+  String get firmwareDeveloperManifestSectionBody =>
+      'Paste a version.json URL to check a build other than the default release.';
+
+  @override
+  String get firmwareOfflineSavedFirmwareBanner =>
+      'No manifest right now. You can still send the firmware already saved in the app.';
+
+  @override
+  String firmwareCachedDiffersFromManifestHint(String manifest, String cached) {
+    return 'Manifest is $manifest, but the file saved in the app is $cached. Download again before sending if you want the manifest build.';
+  }
+
+  @override
+  String firmwareDeveloperReflashChipTitle(String ver) {
+    return 'Reflash $ver';
+  }
+
+  @override
+  String firmwareDeveloperDowngradeChipTitle(String ver) {
+    return 'Downgrade to $ver';
+  }
+
+  @override
+  String firmwareSavedFirmwareChipTitle(String ver) {
+    return 'Saved in app: $ver';
+  }
+
+  @override
+  String get navLearn => 'Learn';
+
+  @override
+  String get gameTopNoBoard => 'No board';
+
+  @override
+  String get gameTopConnecting => 'Connecting…';
+
+  @override
+  String get gameTopNotResponding => 'Board not responding';
+
+  @override
+  String get gameTopNoClock => 'No clock';
+
+  @override
+  String gameTopTimeControl(int minutes, int increment) {
+    return '$minutes + $increment';
+  }
+
+  @override
+  String get gameTopBoardTooltip => 'Board connection';
+
+  @override
+  String get gameTopMenuTooltip => 'Game menu';
+
+  @override
+  String get gameBarPause => 'Pause';
+
+  @override
+  String get gameBarResume => 'Resume';
+
+  @override
+  String get gameBarHint => 'Hint';
+
+  @override
+  String get gameBarMore => 'More';
+
+  @override
+  String get gameBarPauseUnavailable => 'The clock is not running';
+
+  @override
+  String get clockWhite => 'White';
+
+  @override
+  String get clockBlack => 'Black';
+
+  @override
+  String get clockOnMove => 'On move';
+
+  @override
+  String get clockLowTime => 'Low time';
+
+  @override
+  String get clockFlagged => 'Time is up';
+
+  @override
+  String get clockPaused => 'Paused';
+
+  @override
+  String get clockOffline => 'No connection';
+
+  @override
+  String get clockWaiting => 'Waiting';
+
+  @override
+  String get clockNoTimeControl => 'No time control';
+
+  @override
+  String clockSemantics(String side, String time, String state) {
+    return '$side: $time, $state';
+  }
+
+  @override
+  String get gameEmptyTitle => 'Connect your board';
+
+  @override
+  String get gameEmptyBody =>
+      'The game, the clock and hints run on the physical board. Connect it over Bluetooth or Wi‑Fi.';
+
+  @override
+  String get gameReviewBanner => 'Viewing an earlier move';
+
+  @override
+  String get gameSandboxBanner => 'Position preview, not on the board';
+
+  @override
+  String get moreTitle => 'Game';
+
+  @override
+  String get moreMoves => 'Moves';
+
+  @override
+  String get moreAnalysis => 'Analysis';
+
+  @override
+  String get moreAnalysisSubtitle =>
+      'Evaluation and the best move for this position';
+
+  @override
+  String get moreNewGameSubtitle =>
+      'Pick a time control and start on the board';
+
+  @override
+  String get moreSwapSides => 'Swap sides';
+
+  @override
+  String get moreWhiteBottom =>
+      'White is at the bottom, like the board on your table';
+
+  @override
+  String get moreBlackBottom =>
+      'Black is at the bottom, like the board on your table';
+
+  @override
+  String get moreClearHint => 'Turn off hint lights';
+
+  @override
+  String get moreSummary => 'Game summary';
+
+  @override
+  String get moreDisconnect => 'Disconnect board';
+
+  @override
+  String get settingsBoardGuideSubtitle =>
+      'Step by step: connect, move, hint, clock, resign';
+
+  @override
+  String get settingsGroupBoard => 'Board';
+
+  @override
+  String get settingsGroupApp => 'App';
+
+  @override
+  String get settingsGroupCoach => 'Coach and AI';
+
+  @override
+  String get settingsGroupAdvanced => 'Advanced';
+
+  @override
+  String get settingsBoardScreenTitle => 'Board on screen';
+
+  @override
+  String get settingsBoardScreenSubtitle =>
+      'Square colours, piece motion, which side is at the bottom';
+
+  @override
+  String get settingsAppearanceTitle => 'Appearance';
+
+  @override
+  String get languageNativeCzech => 'Čeština';
+
+  @override
+  String get languageNativeEnglish => 'English';
+
+  @override
+  String get settingsFeedbackTitle => 'Sound and vibration';
+
+  @override
+  String get settingsFeedbackSubtitle => 'For moves made on the screen';
+
+  @override
+  String get settingsCoachAiEntrySubtitle =>
+      'Provider, Azure AI Foundry, keys and levels';
+
+  @override
+  String get settingsHelpSubtitle => 'How the board, clock and hints work';
+
+  @override
+  String get settingsTourSubtitle => 'Short introduction to the app';
+
+  @override
+  String get settingsSessionStatsTitle => 'Connection statistics';
+
+  @override
+  String get settingsSessionStatsSubtitle =>
+      'Polling, WebSocket and move counters';
+
+  @override
+  String get settingsBoardStyleWood => 'Wood';
+
+  @override
+  String get settingsBoardStyleSlate => 'Slate';
+
+  @override
+  String get settingsBoardCoordinatesNote =>
+      'Coordinates are always shown so squares match the physical board.';
+
+  @override
+  String get learnHubTitle => 'Learn';
+
+  @override
+  String get learnCoachTitle => 'AI coach';
+
+  @override
+  String get learnCoachSubtitle =>
+      'Ask about the position, a plan or a mistake';
+
+  @override
+  String get learnOpeningsTitle => 'Opening training';
+
+  @override
+  String get learnOpeningsSubtitle => 'Learn lines move by move on the board';
+
+  @override
+  String get learnProfileTitle => 'Your progress';
+
+  @override
+  String get learnProfileSubtitle => 'Puzzle rating and weekly activity';
+
+  @override
+  String get navTrain => 'Train';
+
+  @override
+  String get trainDaily => 'Daily puzzle';
+
+  @override
+  String get trainLibrary => 'Puzzle library';
+
+  @override
+  String get trainTimed => 'Timed puzzles';
+
+  @override
+  String get trainOpenings => 'Openings';
+
+  @override
+  String get trainCoach => 'Coach';
+
+  @override
+  String get trainSetup => 'Set up pieces';
+
+  @override
+  String get trainProgress => 'Progress';
+
+  @override
+  String get uiConnectBoard => 'Connect board';
+
+  @override
+  String get uiPreview => 'Preview';
+
+  @override
+  String get uiDemo => 'Demo';
+
+  @override
+  String get uiRetry => 'Retry';
+
+  @override
+  String get uiResignTitleWhite => 'White resigns?';
+
+  @override
+  String get uiResignTitleBlack => 'Black resigns?';
+
+  @override
+  String get uiResignBodyWhite => 'Black wins.';
+
+  @override
+  String get uiResignBodyBlack => 'White wins.';
+
+  @override
+  String get uiConnection => 'Connection';
+
+  @override
+  String get uiFirmware => 'Firmware';
+
+  @override
+  String get uiFirmwareNew => 'New version';
+
+  @override
+  String get uiGameSummary => 'Summary after game';
+
+  @override
+  String get uiDiagnostics => 'Diagnostics';
+
+  @override
+  String get uiGroupMore => 'More';
+
+  @override
+  String get uiCoachAi => 'Coach AI';
+
+  @override
+  String get uiMoveEval => 'Move evaluation';
+
+  @override
+  String get uiBoardDisplay => 'Board display';
+
+  @override
+  String get uiThemeDark => 'Dark';
+
+  @override
+  String get uiThemeLight => 'Light';
+
+  @override
+  String get uiFlipBoard => 'Flip board';
+
+  @override
+  String get uiClearHint => 'Clear hint';
+
+  @override
+  String get uiDisconnect => 'Disconnect';
 }

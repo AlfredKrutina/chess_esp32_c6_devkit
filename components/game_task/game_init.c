@@ -478,6 +478,7 @@ bool game_finish_board_setup_tutorial_from_web(void) {
 void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
   game_opening_cancel();
+  game_puzzle_cancel();
 
   game_task_wdt_reset_safe();
   game_task_wdt_reset_safe();
@@ -601,6 +602,7 @@ void game_start_new_game_from_fen(const char *fen) {
 
   ESP_LOGI(TAG, "Starting new game from FEN...");
   game_opening_cancel();
+  game_puzzle_cancel();
   game_task_wdt_reset_safe();
   game_task_wdt_reset_safe();
 

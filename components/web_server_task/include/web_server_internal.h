@@ -36,6 +36,8 @@ esp_err_t web_server_task_wdt_reset_safe(void);
 esp_err_t build_snapshot_json(size_t *out_len);
 esp_err_t web_server_apply_hint_highlight_json_body(const char *buf);
 esp_err_t web_server_opening_dispatch_body(const char *json);
+esp_err_t web_server_puzzle_dispatch_body(const char *json, char *response,
+                                         size_t response_len);
 esp_err_t web_server_opening_dispatch_json(struct cJSON *root);
 uint8_t web_opening_action_code(const char *action);
 void inject_web_status_fields(char *buf, size_t buf_size);
@@ -81,7 +83,16 @@ esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req);
 esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req);
 esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req);
 esp_err_t http_post_game_move_handler(httpd_req_t *req);
+
+/** Queue one move. @p err receives the game-task message on rejection. */
+esp_err_t web_game_enqueue_move(const char *from, const char *to,
+                                const char *promotion, char *err, size_t err_cap,
+                                bool *accepted_async);
 esp_err_t http_post_game_new_handler(httpd_req_t *req);
+esp_err_t http_post_game_resign_handler(httpd_req_t *req);
+/** Shared HTTP/BLE resign; @p out_error gets a short code on refusal. */
+esp_err_t web_server_resign_dispatch_body(const char *json,
+                                          const char **out_error);
 esp_err_t http_post_game_puzzle_handler(httpd_req_t *req);
 esp_err_t http_post_game_opening_handler(httpd_req_t *req);
 esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req);

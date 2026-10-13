@@ -42,22 +42,65 @@ class BoardFirmwareInfo {
   }
 }
 
+/// Board OTA state vocabulary (firmware `ota_guard`):
+/// `idle | receiving | verifying | rebooting | success | aborted | rolled_back | error`.
+/// Older firmware reports `idle | downloading | done | error` without [seq].
+abstract final class BoardOtaState {
+  static const idle = 'idle';
+  static const receiving = 'receiving';
+  static const verifying = 'verifying';
+  static const rebooting = 'rebooting';
+  static const success = 'success';
+  static const aborted = 'aborted';
+  static const rolledBack = 'rolled_back';
+  static const error = 'error';
+}
+
 class BoardOtaStatus {
   const BoardOtaStatus({
     required this.state,
     required this.percent,
     required this.message,
+    this.reason = '',
+    this.seq,
+    this.confirmed,
+    this.awaitingConfirm = false,
+    this.targetVersion,
+    this.runningVersion,
   });
 
   final String state;
   final int percent;
   final String message;
 
+  /// Stable reason code (`disconnected`, `confirm_timeout`, `image_invalid`, …).
+  final String reason;
+
+  /// Attempt counter; `null` on firmware without the OTA guard (legacy vocabulary).
+  final int? seq;
+
+  /// Running image is confirmed (no pending rollback).
+  final bool? confirmed;
+
+  /// The freshly flashed image runs but has not confirmed a stable start yet.
+  final bool awaitingConfirm;
+  final String? targetVersion;
+  final String? runningVersion;
+
+  bool get isGuardFirmware => seq != null;
+
   factory BoardOtaStatus.fromJson(Map<String, dynamic> json) {
+    final rawConfirmed = json['confirmed'];
     return BoardOtaStatus(
-      state: (json['state'] as String?)?.trim() ?? 'idle',
+      state: (json['state'] as String?)?.trim() ?? BoardOtaState.idle,
       percent: (json['percent'] as num?)?.toInt() ?? 0,
       message: (json['message'] as String?) ?? '',
+      reason: (json['reason'] as String?)?.trim() ?? '',
+      seq: (json['seq'] as num?)?.toInt(),
+      confirmed: rawConfirmed is bool ? rawConfirmed : null,
+      awaitingConfirm: json['awaiting_confirm'] == true,
+      targetVersion: (json['target_version'] as String?)?.trim(),
+      runningVersion: (json['running_version'] as String?)?.trim(),
     );
   }
 }

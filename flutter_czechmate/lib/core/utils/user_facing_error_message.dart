@@ -17,6 +17,8 @@ String userFacingErrorSummary(AppLocalizations l, Object? error) {
   if (error is BoardApiException) {
     if (error.isWebLocked) return l.userFacingBoardWebLocked;
     if (error.isApiTokenRequired) return l.userFacingBoardApiToken;
+    if (error.isBoardBusy) return l.discoveryBoardOccupied;
+    if (error.isNotInPairingMode) return l.discoveryNotInPairingMode;
     switch (error.statusCode) {
       case 400:
         return error.detail != null && error.detail!.isNotEmpty

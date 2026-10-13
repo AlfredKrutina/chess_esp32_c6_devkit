@@ -40,15 +40,24 @@ final class WatchBridge: NSObject, WCSessionDelegate {
     }
   }
 
-  private func forwardWatchCommandToFlutter(cmd: String, payload: [String: Any]) {
-    guard let messenger = flutterMessenger else { return }
+  /// `completion(true)` only when Flutter confirms the board accepted the command.
+  private func forwardWatchCommandToFlutter(
+    cmd: String, payload: [String: Any], completion: @escaping (Bool) -> Void
+  ) {
+    guard let messenger = flutterMessenger else {
+      completion(false)
+      return
+    }
     let channel = FlutterMethodChannel(name: "czechmate/watch", binaryMessenger: messenger)
     channel.invokeMethod(
       "onWatchCommand",
       arguments: [
         "cmd": cmd,
         "payload": payload,
-      ])
+      ]
+    ) { result in
+      completion((result as? Bool) == true)
+    }
   }
 
   func session(
@@ -73,15 +82,13 @@ final class WatchBridge: NSObject, WCSessionDelegate {
       return
     }
     DispatchQueue.main.async {
-      self.forwardWatchCommandToFlutter(cmd: cmd, payload: message)
-      replyHandler(["ok": true])
+      self.forwardWatchCommandToFlutter(cmd: cmd, payload: message) { ok in
+        replyHandler(["ok": ok])
+      }
     }
   }
 
-  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
-    guard let cmd = userInfo["cmd"] as? String else { return }
-    DispatchQueue.main.async {
-      self.forwardWatchCommandToFlutter(cmd: cmd, payload: userInfo)
-    }
-  }
+  /// Queued transfers can arrive long after the tap; clock commands are accepted
+  /// only as live messages (see `didReceiveMessage`).
+  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {}
 }

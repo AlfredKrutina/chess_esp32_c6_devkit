@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D5C0FF010000000000000001 /* CzechMateClockKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C0FF000000000000000001 /* CzechMateClockKit.swift */; };
+		D5C0FF010000000000000002 /* CzechMateClockKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C0FF000000000000000001 /* CzechMateClockKit.swift */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		310192395AC5E982B38416F5 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA3B53D5482B3E787F81BC68 /* Pods_RunnerTests.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
@@ -108,6 +110,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D5C0FF000000000000000001 /* CzechMateClockKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CzechMateClockKit.swift; sourceTree = "<group>"; };
 		05CB2F886D6156D7200CFEB1 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
@@ -187,6 +190,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D5C0FF020000000000000001 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D5C0FF000000000000000001 /* CzechMateClockKit.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -264,6 +275,7 @@
 				97C146F01CF9000F007C117D /* Runner */,
 				A8D4E2020123456789000001 /* ChessLiveActivityExtension */,
 				C7F0AA0123456789000E090 /* CzechMateWatch */,
+				D5C0FF020000000000000001 /* Shared */,
 				97C146EF1CF9000F007C117D /* Products */,
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				83D994EBA0E674FD8BC81EC7 /* Pods */,
@@ -631,6 +643,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C7F0AA0123456789000E010 /* WatchCompanionApp.swift in Sources */,
+				D5C0FF010000000000000001 /* CzechMateClockKit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,6 +655,7 @@
 				A8D4E2010123456789000014 /* ChessLiveActivityBundle.swift in Sources */,
 				A8D4E2010123456789000016 /* ChessLiveActivityWidget.swift in Sources */,
 				B1C3E5F012345678901234A5 /* ChessBoardHomeWidget.swift in Sources */,
+				D5C0FF010000000000000002 /* CzechMateClockKit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

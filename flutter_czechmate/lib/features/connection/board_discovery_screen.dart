@@ -11,6 +11,7 @@ import '../../core/debug/connection_debug_log.dart';
 import '../../core/platform/flutter_blue_plus_host_supported.dart';
 import '../../core/platform/host_runtime_permissions.dart';
 import '../../core/localization/context_l10n.dart';
+import '../../core/protocol/board_pairing.dart';
 import '../../core/services/ble_czechmate_client.dart';
 import '../../core/utils/user_facing_error_message.dart';
 import '../../core/theme/app_motion.dart';
@@ -296,6 +297,31 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     }
   }
 
+  Future<void> _pairOverWifi(WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context)!;
+    final prefs = ref.read(prefsRepositoryProvider);
+    final url = prefs.lastBoardBaseUrl?.trim();
+    if (url == null || url.isEmpty) {
+      showAppSnackBar(context, l10n.discoveryPairWifiNeedUrl, errorStyle: true);
+      return;
+    }
+    try {
+      final token = await ref.read(boardApiClientProvider).postPair(url);
+      await prefs.setBoardCommandToken(token);
+      connDebugLog('wifi pair', 'token saved for $url');
+      if (!mounted) return;
+      await ref.read(boardSessionNotifierProvider.notifier).connectWifi(url);
+    } catch (e) {
+      connDebugLog('wifi pair failed', e);
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        userFacingErrorSummary(l10n, e),
+        errorStyle: true,
+      );
+    }
+  }
+
   Future<void> _connectToScanResult(ScanResult r) async {
     connDebugLog(
       'Discovery tap → connectBle',
@@ -303,8 +329,27 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
           'platformName="${r.device.platformName}"',
     );
     final notifier = ref.read(boardSessionNotifierProvider.notifier);
-    final skipWifiProvision =
-        ref.read(prefsRepositoryProvider).effectiveConnectionMode == 'ble_only';
+    final prefs = ref.read(prefsRepositoryProvider);
+    final skipWifiProvision = prefs.effectiveConnectionMode == 'ble_only';
+    final air = boardAirStatusFromManufacturer(
+      r.advertisementData.manufacturerData,
+    );
+    final known = prefs.lastBleRemoteId == r.device.remoteId.str;
+    final join = decideBoardJoin(knownDevice: known, air: air);
+    connDebugLog('pairing join', 'air=$air known=$known join=$join');
+    final l10nEarly = AppLocalizations.of(context)!;
+    if (join == BoardJoin.occupied) {
+      showAppSnackBar(context, l10nEarly.discoveryBoardOccupied, errorStyle: true);
+      return;
+    }
+    if (join == BoardJoin.notInPairingMode) {
+      showAppSnackBar(
+        context,
+        l10nEarly.discoveryNotInPairingMode,
+        errorStyle: true,
+      );
+      return;
+    }
     if (ref.read(boardSessionNotifierProvider).busy) {
       await notifier.disconnectAwaitBle();
     }
@@ -314,7 +359,12 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
         ? AppLocalizations.of(context)!.defaultBoardName
         : d.platformName;
     await _stopBleScan();
-    await notifier.connectBle(d, label: name);
+    await notifier.connectBle(
+      d,
+      label: name,
+      requestPairToken:
+          join == BoardJoin.pairNew || join == BoardJoin.tryConnect,
+    );
     if (!mounted) return;
     if (_sessionConnectedForDiscovery(ref.read(boardSessionNotifierProvider))) {
       if (!skipWifiProvision) {
@@ -326,6 +376,10 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
       final err = ref.read(boardSessionNotifierProvider).lastError;
       final l10n = AppLocalizations.of(context)!;
       var msg = userFacingErrorSummary(l10n, err);
+      if (join == BoardJoin.tryConnect) {
+        msg = l10n.discoveryNotInPairingMode;
+        connDebugLog('pairing', 'new device rejected or window closed');
+      }
       if (msg.isEmpty) msg = l10n.userFacingErrGeneric;
       setState(() => _showConnectionRecovery = true);
       showAppSnackBar(context, msg, errorStyle: true);
@@ -478,6 +532,19 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                         color: cs.onSurfaceVariant,
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.discoveryPairTriplePress,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: session.busy
+                          ? null
+                          : () => unawaited(_pairOverWifi(ref)),
+                      icon: const Icon(Icons.link),
+                      label: Text(l10n.discoveryPairWifi),
+                    ),
                   ],
                 ),
               ),
@@ -508,6 +575,13 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
                       label: Text(_scanning
                           ? l10n.discoveryScanningBoards
                           : l10n.discoveryFindBle),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    l10n.discoveryPairTriplePress,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                   AnimatedSwitcher(
