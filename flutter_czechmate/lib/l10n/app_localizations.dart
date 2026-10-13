@@ -1238,6 +1238,54 @@ abstract class AppLocalizations {
   /// **'Allow Bluetooth permissions in system settings to scan for BLE boards.'**
   String get discoveryBlePermissionAndroid;
 
+  /// No description provided for @discoveryBlePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Bluetooth so the app can find your board.'**
+  String get discoveryBlePermissionDenied;
+
+  /// No description provided for @errBleHostUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer has no Bluetooth for the board. Connect over Wi‑Fi — the address is under Advanced.'**
+  String get errBleHostUnsupported;
+
+  /// No description provided for @discoveryDesktopBleUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bluetooth is not available here'**
+  String get discoveryDesktopBleUnavailableTitle;
+
+  /// No description provided for @discoveryDesktopBleUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.'**
+  String get discoveryDesktopBleUnavailableBody;
+
+  /// No description provided for @errWifiIpThirdOctetBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'That address ({host}) is blocked in settings.'**
+  String errWifiIpThirdOctetBlocked(String host);
+
+  /// No description provided for @errBoardSnapshotUnreachable.
+  ///
+  /// In en, this message translates to:
+  /// **'The board did not answer. Check that it is on and on the same network.'**
+  String get errBoardSnapshotUnreachable;
+
+  /// No description provided for @userFacingErrBlePairingReset.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone forgot this board. Pair it once more from Find board.'**
+  String get userFacingErrBlePairingReset;
+
+  /// No description provided for @userFacingErrBoardUrlHostMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'The board address is missing a host. Use the address from Find board, or type it under Advanced.'**
+  String get userFacingErrBoardUrlHostMissing;
+
   /// No description provided for @discoveryBluetoothNotReady.
   ///
   /// In en, this message translates to:
@@ -1669,6 +1717,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hint LEDs cleared'**
   String get gameHintLedsClearedSnackbar;
+
+  /// No description provided for @gameHideBoardHintTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide hint lights on the board'**
+  String get gameHideBoardHintTooltip;
+
+  /// No description provided for @puzzleCelebrationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle solved'**
+  String get puzzleCelebrationTitle;
+
+  /// No description provided for @puzzleCelebrationBodyElo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your puzzle rating went up by {delta}.'**
+  String puzzleCelebrationBodyElo(int delta);
+
+  /// No description provided for @puzzleCelebrationBodyPlain.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice. The next puzzle is ready.'**
+  String get puzzleCelebrationBodyPlain;
 
   /// No description provided for @gameMatrixGuardTitle.
   ///

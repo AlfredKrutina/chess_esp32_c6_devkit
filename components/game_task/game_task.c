@@ -1727,14 +1727,29 @@ void game_print_board(void) {
                                                        : "Finished");
 }
 
-void game_print_move_history(void) {
-  ESP_LOGI(TAG, "Move history (%lu moves):", history_index);
+uint32_t game_move_history_count(void) { return history_index; }
 
-  for (uint32_t i = 0; i < history_index; i++) {
-    const chess_move_t *move = &move_history[i];
-    ESP_LOGI(TAG, "  %lu. %c%d-%c%d %s", i + 1, 'a' + move->from_col,
-             move->from_row + 1, 'a' + move->to_col, move->to_row + 1,
-             game_get_piece_name(move->piece));
+bool game_format_move_history_line(uint32_t index, char *buf, size_t cap) {
+  if (buf == NULL || cap == 0 || index >= history_index) {
+    return false;
+  }
+  const chess_move_t *move = &move_history[index];
+  int n = snprintf(buf, cap, "%lu. %c%d-%c%d %s", (unsigned long)(index + 1),
+                   'a' + move->from_col, move->from_row + 1, 'a' + move->to_col,
+                   move->to_row + 1, game_get_piece_name(move->piece));
+  return n > 0 && (size_t)n < cap;
+}
+
+void game_print_move_history(void) {
+  uint32_t n = history_index;
+  ESP_LOGI(TAG, "Move history (%lu moves):", (unsigned long)n);
+
+  char line[80];
+  for (uint32_t i = 0; i < n; i++) {
+    if (!game_format_move_history_line(i, line, sizeof(line))) {
+      break;
+    }
+    ESP_LOGI(TAG, "  %s", line);
   }
 }
 
@@ -2027,44 +2042,32 @@ void game_toggle_timer(bool enabled) {
 }
 
 /**
- * @brief Save current game to NVS
- * @param game_name Name for the saved game
+ * @brief Named save is not a product path.
+ *
+ * The live writer is game_snapshot_persist_after_valid_move(). Calling it
+ * again from here would be a second writer of the same NVS snapshot, and a
+ * named slot does not exist. This function does not set game_saved.
+ * @param game_name Requested name. Logged only.
  */
 void game_save_game(const char *game_name) {
-  if (game_name == NULL || strlen(game_name) == 0) {
-    ESP_LOGE(TAG, "Invalid game name for save");
-    return;
-  }
-
-  // This is a placeholder - in a real implementation you would:
-  // 1. Save board state to NVS
-  // 2. Save move history to NVS
-  // 3. Save game statistics to NVS
-
-  strncpy(saved_game_name, game_name, sizeof(saved_game_name) - 1);
-  saved_game_name[sizeof(saved_game_name) - 1] = '\0';
-  game_saved = true;
-
-  ESP_LOGI(TAG, "💾 Game saved as: %s", saved_game_name);
+  ESP_LOGW(TAG,
+           "game_save_game('%s') refused: named save is not implemented. "
+           "Persistence is the automatic NVS snapshot after a valid move.",
+           (game_name != NULL && game_name[0] != '\0') ? game_name : "(none)");
 }
 
 /**
- * @brief Load game from NVS
- * @param game_name Name of the game to load
+ * @brief Named load is not a product path.
+ *
+ * Boot restore is game_snapshot_restore_on_boot(). Loading a named game
+ * mid-session would fight that snapshot.
+ * @param game_name Requested name. Logged only.
  */
 void game_load_game(const char *game_name) {
-  if (game_name == NULL || strlen(game_name) == 0) {
-    ESP_LOGE(TAG, "Invalid game name for load");
-    return;
-  }
-
-  // This is a placeholder - in a real implementation you would:
-  // 1. Load board state from NVS
-  // 2. Load move history from NVS
-  // 3. Load game statistics from NVS
-
-  ESP_LOGI(TAG, "📂 Loading game: %s", game_name);
-  ESP_LOGI(TAG, "⚠️  Game loading not yet implemented");
+  ESP_LOGW(TAG,
+           "game_load_game('%s') refused: named load is not implemented. "
+           "The NVS snapshot is restored only on boot.",
+           (game_name != NULL && game_name[0] != '\0') ? game_name : "(none)");
 }
 
 /**

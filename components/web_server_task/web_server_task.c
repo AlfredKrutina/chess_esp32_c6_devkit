@@ -1645,6 +1645,8 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
   const char *ap_ip_out = ap_on ? ap_ip_str : "";
 
   char blk_csv[96] = {0};
+  char mdns_host[24] = {0};
+  czechmate_mdns_copy_hostname(mdns_host, sizeof(mdns_host));
   nvs_handle_t nh;
   if (nvs_open(WIFI_NVS_NAMESPACE, NVS_READONLY, &nh) == ESP_OK) {
     size_t bsz = sizeof(blk_csv);
@@ -1674,6 +1676,7 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
       "\"sta_connected\":%s,"
       "\"online\":%s,"
       "\"sta_blk_oct\":\"%s\","
+      "\"mdns_host\":\"%s\","
       "\"locked\":%s"
       "}",
       wifi_ap_ssid_effective, ap_ip_out, ap_clients_out,
@@ -1682,6 +1685,7 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
       (sta_connected && sta_ip[0] != '\0') ? sta_ip : "Not connected",
       sta_connected ? "true" : "false", online ? "true" : "false",
       blk_csv,
+      mdns_host,
       web_locked ? "true" : "false");
 
   if (len < 0 || len >= (int)buffer_size) {
@@ -2899,6 +2903,19 @@ static void czechmate_push_ble_snapshot(void) {
   ble_task_push_snapshot_json((const uint8_t *)snapshot_buffer, len);
 }
 
+void czechmate_mdns_copy_hostname(char *out, size_t cap) {
+  if (out == NULL || cap == 0) {
+    return;
+  }
+  out[0] = '\0';
+  uint8_t mac[6] = {0};
+  if (esp_read_mac(mac, ESP_MAC_WIFI_STA) != ESP_OK &&
+      esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY) != ESP_OK) {
+    return;
+  }
+  snprintf(out, cap, "czechmate-%02x%02x%02x", mac[3], mac[4], mac[5]);
+}
+
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
 static bool czechmate_mdns_started = false;
 
@@ -2971,13 +2988,12 @@ static void czechmate_mdns_ensure_started(void) {
     ESP_LOGW(TAG, "mdns_init: %s", esp_err_to_name(e));
     return;
   }
-  uint8_t mac[6];
-  if (esp_read_mac(mac, ESP_MAC_WIFI_STA) != ESP_OK) {
-    (void)esp_read_mac(mac, ESP_MAC_EFUSE_FACTORY);
-  }
   char host[24];
-  snprintf(host, sizeof(host), "czechmate-%02x%02x%02x", mac[3], mac[4],
-           mac[5]);
+  czechmate_mdns_copy_hostname(host, sizeof(host));
+  if (host[0] == '\0') {
+    ESP_LOGW(TAG, "mDNS hostname unavailable (MAC read failed)");
+    return;
+  }
   mdns_hostname_set(host);
   mdns_instance_name_set("CZECHMATE");
   mdns_txt_item_t txt[] = {

@@ -392,6 +392,12 @@ bool web_server_ble_extract_cmd_for_ack(const char *json, char *cmd_out,
 esp_err_t wifi_get_sta_ip(char *buffer, size_t max_len);
 
 /**
+ * Stable mDNS hostname `czechmate-` + last three STA MAC bytes (no `.local`).
+ * Empty string if the MAC cannot be read. Additive; older apps ignore it.
+ */
+void czechmate_mdns_copy_hostname(char *out, size_t cap);
+
+/**
  * @brief Get the current SSID of the STA interface
  *
  * @param buffer Buffer for SSID (min 33 characters)

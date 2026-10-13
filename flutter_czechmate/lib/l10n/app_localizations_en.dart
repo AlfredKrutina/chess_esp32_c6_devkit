@@ -662,6 +662,39 @@ class AppLocalizationsEn extends AppLocalizations {
       'Allow Bluetooth permissions in system settings to scan for BLE boards.';
 
   @override
+  String get discoveryBlePermissionDenied =>
+      'Allow Bluetooth so the app can find your board.';
+
+  @override
+  String get errBleHostUnsupported =>
+      'This computer has no Bluetooth for the board. Connect over Wi‑Fi — the address is under Advanced.';
+
+  @override
+  String get discoveryDesktopBleUnavailableTitle =>
+      'Bluetooth is not available here';
+
+  @override
+  String get discoveryDesktopBleUnavailableBody =>
+      'On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.';
+
+  @override
+  String errWifiIpThirdOctetBlocked(String host) {
+    return 'That address ($host) is blocked in settings.';
+  }
+
+  @override
+  String get errBoardSnapshotUnreachable =>
+      'The board did not answer. Check that it is on and on the same network.';
+
+  @override
+  String get userFacingErrBlePairingReset =>
+      'The phone forgot this board. Pair it once more from Find board.';
+
+  @override
+  String get userFacingErrBoardUrlHostMissing =>
+      'The board address is missing a host. Use the address from Find board, or type it under Advanced.';
+
+  @override
   String get discoveryBluetoothNotReady =>
       'Bluetooth isn\'t ready. Turn it on in system settings, wait a few seconds, then try Find board again.';
 
@@ -902,6 +935,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameHintLedsClearedSnackbar => 'Hint LEDs cleared';
+
+  @override
+  String get gameHideBoardHintTooltip => 'Hide hint lights on the board';
+
+  @override
+  String get puzzleCelebrationTitle => 'Puzzle solved';
+
+  @override
+  String puzzleCelebrationBodyElo(int delta) {
+    return 'Your puzzle rating went up by $delta.';
+  }
+
+  @override
+  String get puzzleCelebrationBodyPlain => 'Nice. The next puzzle is ready.';
 
   @override
   String get gameMatrixGuardTitle => 'Board alignment required';

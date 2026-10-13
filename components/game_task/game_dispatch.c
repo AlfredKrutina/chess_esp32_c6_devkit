@@ -243,8 +243,14 @@ void game_process_commands(void) {
         break;
 
       case GAME_CMD_GET_VALID_MOVES: // 6
-        ESP_LOGI(TAG, "Processing GET VALID MOVES command from UART");
-        // TODO: Implement get valid moves
+        /* Nothing enqueues this. UART MOVES calls game_get_available_moves
+         * directly. Do not start a second generator here. */
+        ESP_LOGW(TAG,
+                 "GET_VALID_MOVES has no sender; refused. "
+                 "UART MOVES already calls game_get_available_moves.");
+        game_send_response_to_uart(
+            "GET_VALID_MOVES is not available. Use UART MOVES.",
+            true, (QueueHandle_t)chess_cmd.response_queue);
         break;
 
       case 7: // GAME_CMD_PICKUP_PIECE

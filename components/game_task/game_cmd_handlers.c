@@ -306,63 +306,47 @@ void game_process_evaluate_command(const chess_move_command_t *cmd) {
 }
 
 /**
- * @brief Process save game command from UART
- * @param cmd Save command
+ * @brief Refuse UART SAVE. Named games are not stored.
+ *
+ * The automatic NVS snapshot already runs after a valid move; this command
+ * must not write that blob again.
+ * @param cmd Command whose from_notation was the requested name. Logged only.
  */
 void game_process_save_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
 
-  ESP_LOGI(TAG, "💾 Processing SAVE command: %s", cmd->from_notation);
+  ESP_LOGW(TAG,
+           "SAVE '%s' refused: named save is not implemented. "
+           "The only persistence is the automatic NVS snapshot after a valid move.",
+           cmd->from_notation);
 
-  // In a real implementation, this would save to NVS or file system
-  // For now, we'll simulate the save operation
-
-  char save_data[512];
-  snprintf(save_data, sizeof(save_data),
-           "💾 Game Saved Successfully!\n"
-           "  • Filename: %s\n"
-           "  • Moves: %d\n"
-           "  • Current Player: %s\n"
-           "  • Game Status: %s\n"
-           "  • Timestamp: %llu ms",
-           cmd->from_notation,
-           0, // move_count would be tracked
-           current_player == PLAYER_WHITE ? "White" : "Black", "In Progress",
-           esp_timer_get_time() / 1000);
-
-  game_send_response_to_uart(save_data, false,
-                             (QueueHandle_t)cmd->response_queue);
+  game_send_response_to_uart(
+      "SAVE is not available. The board already stores one NVS snapshot "
+      "after each valid move; this command does not write a named game.",
+      true, (QueueHandle_t)cmd->response_queue);
 }
 
 /**
- * @brief Process load game command from UART
- * @param cmd Load command
+ * @brief Refuse UART LOAD. Named games are not stored.
+ *
+ * Boot restore is game_snapshot_restore_on_boot(). This command does not
+ * apply the snapshot mid-game.
+ * @param cmd Command whose from_notation was the requested name. Logged only.
  */
 void game_process_load_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
 
-  ESP_LOGI(TAG, "📂 Processing LOAD command: %s", cmd->from_notation);
+  ESP_LOGW(TAG,
+           "LOAD '%s' refused: named load is not implemented. "
+           "The NVS snapshot is applied on boot, not by this command.",
+           cmd->from_notation);
 
-  // In a real implementation, this would load from NVS or file system
-  // For now, we'll simulate the load operation
-
-  char load_data[512];
-  snprintf(load_data, sizeof(load_data),
-           "📂 Game Loaded Successfully!\n"
-           "  • Filename: %s\n"
-           "  • Moves: %d\n"
-           "  • Current Player: %s\n"
-           "  • Game Status: %s\n"
-           "  • Load Time: %llu ms",
-           cmd->from_notation,
-           0, // move_count would be loaded
-           current_player == PLAYER_WHITE ? "White" : "Black", "In Progress",
-           esp_timer_get_time() / 1000);
-
-  game_send_response_to_uart(load_data, false,
-                             (QueueHandle_t)cmd->response_queue);
+  game_send_response_to_uart(
+      "LOAD is not available. A saved game is restored from the NVS "
+      "snapshot on boot; this command does not load a named game.",
+      true, (QueueHandle_t)cmd->response_queue);
 }
 
 /**
@@ -857,181 +841,42 @@ void game_process_endgame_black_command(const chess_move_command_t *cmd) {
 }
 
 /**
- * @brief Process list games command from UART
- * @param cmd List games command
+ * @brief Refuse UART LIST_GAMES. There is no named-game catalog.
+ *
+ * The only persistence is the automatic NVS snapshot after a valid move.
+ * @param cmd Command. The name field is unused.
  */
 void game_process_list_games_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
 
-  ESP_LOGI(TAG, "📁 Processing LIST_GAMES command");
+  ESP_LOGW(TAG,
+           "LIST_GAMES refused: named-game catalog is not implemented. "
+           "The only persistence is the automatic NVS snapshot after a valid move.");
 
-  char response_data[1024];
-  snprintf(response_data, sizeof(response_data),
-           "📁 Saved Games List\n"
-           "═══════════════════════════════════════════════════════════════\n"
-           "🎮 Available saved games:\n"
-           "\n"
-           "1. game_001.chess\n"
-           "   • Date: 2024-01-15 14:30\n"
-           "   • Moves: 24\n"
-           "   • Status: In Progress\n"
-           "   • Player: White to move\n"
-           "\n"
-           "2. tournament_round1.chess\n"
-           "   • Date: 2024-01-14 16:45\n"
-           "   • Moves: 42\n"
-           "   • Status: Completed\n"
-           "   • Result: White wins\n"
-           "\n"
-           "3. practice_game.chess\n"
-           "   • Date: 2024-01-13 10:20\n"
-           "   • Moves: 18\n"
-           "   • Status: In Progress\n"
-           "   • Player: Black to move\n"
-           "\n"
-           "💡 Use 'LOAD <filename>' to load a game\n"
-           "💡 Use 'DELETE_GAME <filename>' to delete a game\n"
-           "💡 Total: 3 saved games");
-
-  // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer
-  // overflow
-  const size_t CHUNK_SIZE = 256; // Small chunks for UART buffer
-  size_t total_len = strlen(response_data);
-  const char *data_ptr = response_data;
-  size_t chunks_remaining = total_len;
-
-  ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total",
-           total_len);
-
-  while (chunks_remaining > 0) {
-    // Calculate chunk size
-    size_t chunk_size =
-        (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-
-    // Create chunk response
-    game_response_t chunk_response = {
-        .type = GAME_RESPONSE_SUCCESS,
-        .command_type = GAME_CMD_SHOW_BOARD, // Reuse board command type
-        .error_code = 0,
-        .message = "Endgame report chunk sent",
-        .timestamp = esp_timer_get_time() / 1000};
-
-    // Copy chunk data
-    strncpy(chunk_response.data, data_ptr, chunk_size);
-    chunk_response.data[chunk_size] = '\0';
-
-    // Reset WDT before sending chunk
-    game_task_wdt_reset_safe();
-
-    // Send chunk
-    if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response,
-                   pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-      break;
-    }
-
-    // Update pointers
-    data_ptr += chunk_size;
-    chunks_remaining -= chunk_size;
-
-    // Small delay between chunks
-    if (chunks_remaining > 0) {
-      vTaskDelay(pdMS_TO_TICKS(5));
-    }
-  }
-
-  // Use LED_CMD_ANIM_ENDGAME instead of start_endgame_animation()
-  // Find the position of the black king
-  uint8_t king_pos = 27; // default fallback (d4)
-  for (int i = 0; i < 64; i++) {
-    int r = i / 8;
-    int c = i % 8;
-    if (board[r][c] == PIECE_BLACK_KING) {
-      king_pos = i;
-      break;
-    }
-  }
-  led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                               .led_index = king_pos,
-                               .red = 0,
-                               .green = 0,
-                               .blue = 0,
-                               .duration_ms = 0, // Endless
-                               .data = NULL};
-  led_execute_command_new(&endgame_cmd);
-
-  ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
+  game_send_response_to_uart(
+      "LIST_GAMES is not available. The board stores one NVS snapshot "
+      "after each valid move; there is no named-game catalog.",
+      true, (QueueHandle_t)cmd->response_queue);
 }
 
 /**
- * @brief Process delete game command from UART
- * @param cmd Delete game command
+ * @brief Refuse UART DELETE_GAME. Named games are not stored.
+ *
+ * This command does not erase the automatic NVS snapshot.
+ * @param cmd Command whose from_notation was the requested name. Logged only.
  */
 void game_process_delete_game_command(const chess_move_command_t *cmd) {
   if (!cmd)
     return;
 
-  ESP_LOGI(TAG, "🗑️ Processing DELETE_GAME command: %s", cmd->from_notation);
-
-  char response_data[512];
-  snprintf(response_data, sizeof(response_data),
-           "🗑️ Game Deletion\n"
-           "═══════════════════════════════════════════════════════════════\n"
-           "🎮 Game: %s\n"
-           "✅ Status: Successfully deleted\n"
-           "📁 File removed from storage\n"
-           "💾 Space freed: ~2.5 KB\n"
-           "\n"
-           "💡 Use 'LIST_GAMES' to see remaining games",
+  ESP_LOGW(TAG,
+           "DELETE_GAME '%s' refused: named delete is not implemented. "
+           "The only persistence is the automatic NVS snapshot after a valid move.",
            cmd->from_notation);
 
-  // CHUNKED OUTPUT - Send endgame report in chunks to prevent UART buffer
-  // overflow
-  const size_t CHUNK_SIZE = 256; // Small chunks for UART buffer
-  size_t total_len = strlen(response_data);
-  const char *data_ptr = response_data;
-  size_t chunks_remaining = total_len;
-
-  ESP_LOGI(TAG, "🏆 Sending endgame report in chunks: %zu bytes total",
-           total_len);
-
-  while (chunks_remaining > 0) {
-    // Calculate chunk size
-    size_t chunk_size =
-        (chunks_remaining > CHUNK_SIZE) ? CHUNK_SIZE : chunks_remaining;
-
-    // Create chunk response
-    game_response_t chunk_response = {
-        .type = GAME_RESPONSE_SUCCESS,
-        .command_type = GAME_CMD_SHOW_BOARD, // Reuse board command type
-        .error_code = 0,
-        .message = "Endgame report chunk sent",
-        .timestamp = esp_timer_get_time() / 1000};
-
-    // Copy chunk data
-    strncpy(chunk_response.data, data_ptr, chunk_size);
-    chunk_response.data[chunk_size] = '\0';
-
-    // Reset WDT before sending chunk
-    game_task_wdt_reset_safe();
-
-    // Send chunk
-    if (xQueueSend((QueueHandle_t)cmd->response_queue, &chunk_response,
-                   pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGW(TAG, "Failed to send endgame report chunk to UART task");
-      break;
-    }
-
-    // Update pointers
-    data_ptr += chunk_size;
-    chunks_remaining -= chunk_size;
-
-    // Small delay between chunks
-    if (chunks_remaining > 0) {
-      vTaskDelay(pdMS_TO_TICKS(5));
-    }
-  }
-
-  ESP_LOGI(TAG, "✅ Endgame report sent successfully in chunks");
+  game_send_response_to_uart(
+      "DELETE_GAME is not available. Named games are not stored; "
+      "this command does not delete the NVS snapshot.",
+      true, (QueueHandle_t)cmd->response_queue);
 }

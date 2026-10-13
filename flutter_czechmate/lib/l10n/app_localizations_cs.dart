@@ -662,6 +662,39 @@ class AppLocalizationsCs extends AppLocalizations {
       'Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.';
 
   @override
+  String get discoveryBlePermissionDenied =>
+      'Povol Bluetooth, aby aplikace našla desku.';
+
+  @override
+  String get errBleHostUnsupported =>
+      'Tenhle počítač nemá Bluetooth k desce. Připoj ji přes Wi‑Fi — adresu najdeš v Pokročilém.';
+
+  @override
+  String get discoveryDesktopBleUnavailableTitle =>
+      'Bluetooth tu není k dispozici';
+
+  @override
+  String get discoveryDesktopBleUnavailableBody =>
+      'Na tomhle počítači se deska připojuje přes Wi‑Fi. Po prvním spárování se aplikace připojí sama.';
+
+  @override
+  String errWifiIpThirdOctetBlocked(String host) {
+    return 'Tahle adresa ($host) je v nastavení zablokovaná.';
+  }
+
+  @override
+  String get errBoardSnapshotUnreachable =>
+      'Deska neodpověděla. Zkontroluj, že je zapnutá a ve stejné síti.';
+
+  @override
+  String get userFacingErrBlePairingReset =>
+      'Telefon tuhle desku zapomněl. Spáruj ji ještě jednou přes Najít desku.';
+
+  @override
+  String get userFacingErrBoardUrlHostMissing =>
+      'Adrese desky chybí hostitel. Použij adresu z Najít desku, nebo ji zadej v Pokročilém.';
+
+  @override
   String get discoveryBluetoothNotReady =>
       'Bluetooth není připravené. Zapni ho v systémových nastaveních, počkej pár sekund a zkus znovu Najít desku.';
 
@@ -903,6 +936,20 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get gameHintLedsClearedSnackbar => 'Nápovědní LED zrušeny';
+
+  @override
+  String get gameHideBoardHintTooltip => 'Skrýt nápovědní světla na desce';
+
+  @override
+  String get puzzleCelebrationTitle => 'Puzzle vyřešeno';
+
+  @override
+  String puzzleCelebrationBodyElo(int delta) {
+    return 'Tvé puzzle hodnocení vzrostlo o $delta.';
+  }
+
+  @override
+  String get puzzleCelebrationBodyPlain => 'Dobře. Další puzzle je připravené.';
 
   @override
   String get gameMatrixGuardTitle => 'Nutné srovnat desku';

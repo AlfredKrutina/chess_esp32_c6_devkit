@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../protocol/board_command_payload.dart';
 import '../utils/http_json_decode.dart';
 import '../models/board_firmware_models.dart';
 import '../models/board_timer_state.dart';
@@ -107,13 +108,11 @@ class BoardApiClient {
     int? customIncrement,
   }) async {
     final uri = _api(baseUrl, 'api/timer/config');
-    final body = type == 14 && customMinutes != null && customIncrement != null
-        ? jsonEncode({
-            'type': 14,
-            'custom_minutes': customMinutes,
-            'custom_increment': customIncrement,
-          })
-        : jsonEncode({'type': type});
+    final body = jsonEncode(BoardCommandPayload.timerConfig(
+      type: type,
+      customMinutes: customMinutes,
+      customIncrement: customIncrement,
+    ));
     final res = await _client
         .post(uri, headers: _headersJson(), body: body)
         .timeout(_timeout);
@@ -129,16 +128,13 @@ class BoardApiClient {
 
   Future<void> postNewGame(String baseUrl, {String? fen}) async {
     final uri = _api(baseUrl, 'api/game/new');
-    final res = fen != null
+    final body = BoardCommandPayload.httpNewGame(fen: fen);
+    final res = body.isEmpty
         ? await _client
-            .post(
-              uri,
-              headers: _headersJson(),
-              body: jsonEncode({'fen': fen}),
-            )
+            .post(uri, headers: _headersOptional())
             .timeout(_timeout)
         : await _client
-            .post(uri, headers: _headersOptional())
+            .post(uri, headers: _headersJson(), body: jsonEncode(body))
             .timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
@@ -150,13 +146,11 @@ class BoardApiClient {
     String? promotion,
   }) async {
     final uri = _api(baseUrl, 'api/move');
-    final map = <String, dynamic>{
-      'from': from.toLowerCase(),
-      'to': to.toLowerCase(),
-    };
-    if (promotion != null && promotion.isNotEmpty) {
-      map['promotion'] = promotion.toUpperCase();
-    }
+    final map = BoardCommandPayload.httpMove(
+      from: from,
+      to: to,
+      promotion: promotion,
+    );
     final res = await _client
         .post(uri, headers: _headersJson(), body: jsonEncode(map))
         .timeout(_timeout);
@@ -181,9 +175,16 @@ class BoardApiClient {
     String? choice,
   }) async {
     final uri = _api(baseUrl, 'api/game/virtual_action');
-    final map = <String, dynamic>{'action': action};
-    if (square != null) map['square'] = square.toLowerCase();
-    if (choice != null) map['choice'] = choice.toUpperCase();
+    final Map<String, dynamic> map;
+    if (action == 'promote' && choice != null) {
+      map = BoardCommandPayload.httpPromote(choice: choice, square: square);
+    } else {
+      map = <String, dynamic>{'action': action};
+      if (square != null) map['square'] = BoardCommandPayload.square(square);
+      if (choice != null) {
+        map['choice'] = BoardCommandPayload.promotionLetter(choice) ?? choice;
+      }
+    }
     final res = await _client
         .post(uri, headers: _headersJson(), body: jsonEncode(map))
         .timeout(_timeout);
@@ -216,7 +217,9 @@ class BoardApiClient {
 
   Future<void> postHintHighlight(String baseUrl, {required String from, required String to}) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
-    final body = jsonEncode({'from': from.toLowerCase(), 'to': to.toLowerCase()});
+    final body = jsonEncode(
+      BoardCommandPayload.hintSquares(from: from, to: to),
+    );
     final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
@@ -230,7 +233,7 @@ class BoardApiClient {
   /// Like `ChessboardAPIClient+SetupWizard` — just target field on LED.
   Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) async {
     final uri = _api(baseUrl, 'api/game/hint_highlight');
-    final body = jsonEncode({'to': toSquare.toLowerCase()});
+    final body = jsonEncode(BoardCommandPayload.hintDestination(toSquare));
     final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
@@ -238,7 +241,7 @@ class BoardApiClient {
   /// `POST /api/game/setup_tutorial` — `start` | `cancel` | `finish`.
   Future<void> postSetupTutorial(String baseUrl, {required String action}) async {
     final uri = _api(baseUrl, 'api/game/setup_tutorial');
-    final body = jsonEncode({'action': action});
+    final body = jsonEncode(BoardCommandPayload.setupTutorial(action));
     final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
@@ -265,7 +268,7 @@ class BoardApiClient {
 
   Future<void> postBrightness(String baseUrl, int percent) async {
     final uri = _api(baseUrl, 'api/settings/brightness');
-    final body = jsonEncode({'brightness': percent.clamp(0, 100)});
+    final body = jsonEncode(BoardCommandPayload.httpBrightness(percent));
     final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
@@ -316,12 +319,13 @@ class BoardApiClient {
   }
 
   /// Phase 4C.4 — lamp: auto timeout in seconds (5..7200).
+  /// Firmware route is `POST /api/settings/auto_lamp_timeout` with `"seconds"`.
   Future<void> postAutoLampTimeout(String baseUrl, int seconds) async {
-    final uri = _api(baseUrl, 'api/settings/lamp');
+    final uri = _api(baseUrl, 'api/settings/auto_lamp_timeout');
     final res = await _client.post(
       uri,
       headers: _headersJson(),
-      body: jsonEncode({'auto_lamp_timeout_sec': seconds.clamp(5, 7200)}),
+      body: jsonEncode(BoardCommandPayload.autoLampTimeout(seconds)),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
@@ -332,7 +336,7 @@ class BoardApiClient {
     final res = await _client.post(
       uri,
       headers: _headersJson(),
-      body: jsonEncode({'led_guidance_level': level.clamp(1, 5)}),
+      body: jsonEncode(BoardCommandPayload.ledGuidanceLevel(level)),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
@@ -343,7 +347,7 @@ class BoardApiClient {
     final res = await _client.post(
       uri,
       headers: _headersJson(),
-      body: jsonEncode({'guided_capture_hints_enabled': enabled}),
+      body: jsonEncode(BoardCommandPayload.guidedCaptureHints(enabled)),
     ).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
@@ -357,12 +361,12 @@ class BoardApiClient {
     required int b,
   }) async {
     final uri = _api(baseUrl, 'api/light/command');
-    final body = jsonEncode({
-      'state': state,
-      'r': r.clamp(0, 255),
-      'g': g.clamp(0, 255),
-      'b': b.clamp(0, 255),
-    });
+    final body = jsonEncode(BoardCommandPayload.lightCommand(
+      state: state,
+      r: r,
+      g: g,
+      b: b,
+    ));
     final res =
         await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
@@ -476,7 +480,7 @@ class BoardApiClient {
         .post(
           uri,
           headers: _headersJson(),
-          body: jsonEncode({'url': url}),
+          body: jsonEncode(BoardCommandPayload.otaStartUrl(url)),
         )
         .timeout(_timeout);
     if (res.statusCode == 409) {

@@ -83,6 +83,7 @@ class EspWifiStatus {
     required this.online,
     required this.locked,
     this.staBlkOct = '',
+    this.mdnsHost = '',
   });
 
   final String apSsid;
@@ -97,6 +98,9 @@ class EspWifiStatus {
   final bool locked;
   /// CSV of blocked 3rd octets on the board (`sta_blk_oct`), set via BLE from the app.
   final String staBlkOct;
+
+  /// `czechmate-aabbcc` when firmware adds `mdns_host`. Empty on older images.
+  final String mdnsHost;
 
   factory EspWifiStatus.fromJson(Map<String, dynamic> json) {
     final apIp = json['ap_ip'] as String? ?? '';
@@ -118,6 +122,7 @@ class EspWifiStatus {
       online: json['online'] as bool? ?? false,
       locked: json['locked'] as bool? ?? false,
       staBlkOct: json['sta_blk_oct'] as String? ?? '',
+      mdnsHost: json['mdns_host'] as String? ?? '',
     );
   }
 }

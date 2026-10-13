@@ -74,13 +74,40 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_resumeKnownBoardThenMaybeScan());
+    });
+  }
+
+  /// A board that was paired before reconnects itself. Scan and manual URL
+  /// stay available when that fails.
+  Future<void> _resumeKnownBoardThenMaybeScan() async {
+    if (!mounted) return;
     final prefs = ref.read(prefsRepositoryProvider);
+    final session = ref.read(boardSessionNotifierProvider);
+    final hasSaved = (prefs.lastBleRemoteId?.trim().isNotEmpty ?? false) ||
+        (prefs.lastBoardBaseUrl?.trim().isNotEmpty ?? false) ||
+        (prefs.lastMdnsHost?.trim().isNotEmpty ?? false);
+    if (!_sessionConnectedForDiscovery(session) && hasSaved && !session.busy) {
+      connDebugLog(
+        'discovery',
+        'known board — reconnect without a transport picker',
+      );
+      await ref.read(boardSessionNotifierProvider.notifier).tryResumeFromPrefs();
+      if (!mounted) return;
+      if (_sessionConnectedForDiscovery(
+          ref.read(boardSessionNotifierProvider))) {
+        closeBoardDiscoveryAndFocusPlay(ref, context);
+        return;
+      }
+    }
+    if (!mounted) return;
     if (widget.autoStartBleScan &&
         isFlutterBluePlusHostSupported &&
-        prefs.effectiveConnectionMode != 'wifi_only') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) unawaited(_findBoardScan());
-      });
+        ref.read(prefsRepositoryProvider).effectiveConnectionMode !=
+            'wifi_only' &&
+        !_sessionConnectedForDiscovery(ref.read(boardSessionNotifierProvider))) {
+      await _findBoardScan();
     }
   }
 

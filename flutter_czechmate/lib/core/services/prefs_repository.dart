@@ -79,6 +79,7 @@ class PrefsRepository {
   static const keyLearningMode = 'czechmate.learningModeEnabled';
   static const keyLastBleName = 'czechmate.lastBLEDeviceDisplayName';
   static const keyLastLinkKind = 'czechmate.lastBoardLinkKind';
+  static const keyLastMdnsHost = 'czechmate.lastMdnsHost';
   static const keyLiveActivity = 'czechmate.liveActivityEnabled';
   static const keyWatchCompanionMirror = 'czechmate.watchCompanionMirrorEnabled';
   /// Wear OS Data Layer mirror from a paired Android device (`WearDataLayerMirror`).
@@ -588,6 +589,22 @@ class PrefsRepository {
 
   String get lastBoardLinkKind => _p.getString(keyLastLinkKind) ?? 'none';
   Future<void> setLastBoardLinkKind(String v) => _p.setString(keyLastLinkKind, v);
+
+  /// `czechmate-aabbcc` from firmware `mdns_host`. Not guessed from the BLE address.
+  String? get lastMdnsHost {
+    final v = _p.getString(keyLastMdnsHost)?.trim();
+    if (v == null || v.isEmpty) return null;
+    return v;
+  }
+
+  Future<void> setLastMdnsHost(String? v) async {
+    final t = v?.trim();
+    if (t == null || t.isEmpty) {
+      await _p.remove(keyLastMdnsHost);
+    } else {
+      await _p.setString(keyLastMdnsHost, t);
+    }
+  }
 
   bool get liveActivityEnabled => _p.getBool(keyLiveActivity) ?? false;
   Future<void> setLiveActivityEnabled(bool v) => _p.setBool(keyLiveActivity, v);

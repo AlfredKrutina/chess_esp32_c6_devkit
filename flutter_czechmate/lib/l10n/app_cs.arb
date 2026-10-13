@@ -346,6 +346,21 @@
   "telemetryIcloudBody": "Data partie zůstávají na zařízení, dokud je neexportuješ nebo nezapneš synchronizaci jinde.",
   "discoveryTitle": "Najít desku",
   "discoveryBlePermissionAndroid": "Povol Bluetooth oprávnění v nastavení systému, aby šlo desku vyhledat.",
+  "discoveryBlePermissionDenied": "Povol Bluetooth, aby aplikace našla desku.",
+  "errBleHostUnsupported": "Tenhle počítač nemá Bluetooth k desce. Připoj ji přes Wi‑Fi — adresu najdeš v Pokročilém.",
+  "discoveryDesktopBleUnavailableTitle": "Bluetooth tu není k dispozici",
+  "discoveryDesktopBleUnavailableBody": "Na tomhle počítači se deska připojuje přes Wi‑Fi. Po prvním spárování se aplikace připojí sama.",
+  "errWifiIpThirdOctetBlocked": "Tahle adresa ({host}) je v nastavení zablokovaná.",
+  "@errWifiIpThirdOctetBlocked": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "errBoardSnapshotUnreachable": "Deska neodpověděla. Zkontroluj, že je zapnutá a ve stejné síti.",
+  "userFacingErrBlePairingReset": "Telefon tuhle desku zapomněl. Spáruj ji ještě jednou přes Najít desku.",
+  "userFacingErrBoardUrlHostMissing": "Adrese desky chybí hostitel. Použij adresu z Najít desku, nebo ji zadej v Pokročilém.",
   "discoveryBluetoothNotReady": "Bluetooth není připravené. Zapni ho v systémových nastaveních, počkej pár sekund a zkus znovu Najít desku.",
   "discoveryBleScanFailed": "Sken Bluetooth selhal: {error}",
   "@discoveryBleScanFailed": {
@@ -479,6 +494,17 @@
   "gameClockPauseSent": "Příkaz pozastavit hodiny odeslán",
   "gameClockResumedSnackbar": "Hodiny pokračují",
   "gameHintLedsClearedSnackbar": "Nápovědní LED zrušeny",
+  "gameHideBoardHintTooltip": "Skrýt nápovědní světla na desce",
+  "puzzleCelebrationTitle": "Puzzle vyřešeno",
+  "puzzleCelebrationBodyElo": "Tvé puzzle hodnocení vzrostlo o {delta}.",
+  "@puzzleCelebrationBodyElo": {
+    "placeholders": {
+      "delta": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleCelebrationBodyPlain": "Dobře. Další puzzle je připravené.",
   "gameMatrixGuardTitle": "Nutné srovnat desku",
   "gameMatrixGuardPaused": "Srovnejte figurky podle LED na desce{squares}. Hra pokračuje po srovnání.",
   "@gameMatrixGuardPaused": {

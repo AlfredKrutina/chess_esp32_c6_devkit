@@ -346,6 +346,21 @@
   "telemetryIcloudBody": "Game data stays on device unless you export or enable sync elsewhere.",
   "discoveryTitle": "Find board",
   "discoveryBlePermissionAndroid": "Allow Bluetooth permissions in system settings to scan for BLE boards.",
+  "discoveryBlePermissionDenied": "Allow Bluetooth so the app can find your board.",
+  "errBleHostUnsupported": "This computer has no Bluetooth for the board. Connect over Wi‑Fi — the address is under Advanced.",
+  "discoveryDesktopBleUnavailableTitle": "Bluetooth is not available here",
+  "discoveryDesktopBleUnavailableBody": "On this computer the board connects over Wi‑Fi. After the first pairing, the app reconnects on its own.",
+  "errWifiIpThirdOctetBlocked": "That address ({host}) is blocked in settings.",
+  "@errWifiIpThirdOctetBlocked": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "errBoardSnapshotUnreachable": "The board did not answer. Check that it is on and on the same network.",
+  "userFacingErrBlePairingReset": "The phone forgot this board. Pair it once more from Find board.",
+  "userFacingErrBoardUrlHostMissing": "The board address is missing a host. Use the address from Find board, or type it under Advanced.",
   "discoveryBluetoothNotReady": "Bluetooth isn't ready. Turn it on in system settings, wait a few seconds, then try Find board again.",
   "discoveryBleScanFailed": "Bluetooth scan failed: {error}",
   "@discoveryBleScanFailed": {
@@ -479,6 +494,17 @@
   "gameClockPauseSent": "Clock pause sent",
   "gameClockResumedSnackbar": "Clock resumed",
   "gameHintLedsClearedSnackbar": "Hint LEDs cleared",
+  "gameHideBoardHintTooltip": "Hide hint lights on the board",
+  "puzzleCelebrationTitle": "Puzzle solved",
+  "puzzleCelebrationBodyElo": "Your puzzle rating went up by {delta}.",
+  "@puzzleCelebrationBodyElo": {
+    "placeholders": {
+      "delta": {
+        "type": "int"
+      }
+    }
+  },
+  "puzzleCelebrationBodyPlain": "Nice. The next puzzle is ready.",
   "gameMatrixGuardTitle": "Board alignment required",
   "gameMatrixGuardPaused": "Align pieces using board LEDs{squares}. Play resumes when matched.",
   "@gameMatrixGuardPaused": {

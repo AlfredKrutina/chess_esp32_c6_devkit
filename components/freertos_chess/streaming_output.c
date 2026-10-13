@@ -294,24 +294,19 @@ static esp_err_t stream_write_uart(const char* data, size_t len)
 }
 
 /**
- * @brief Writing data to the web server
- * 
- * Internal functions for writing data to the client's web server.
- * Then placeholder for future implementation - just logs data.
- * 
- * @param data Pointer to data to write
- * @param len Length of data in bytes
- * @return ESP_OK always (placeholder)
+ * @brief Web streaming is not implemented.
+ *
+ * @param data Unused. The bytes are dropped.
+ * @param len Length that would have been written.
+ * @return ESP_ERR_NOT_SUPPORTED. Callers must not treat this as a delivered write.
  */
 static esp_err_t stream_write_web(const char* data, size_t len)
 {
-    // Placeholder for future web server implementation
-    ESP_LOGD(TAG, "Web write: %zu bytes to client %p", len, current_output.web_client);
-    
-    // For now, just log the data
-    ESP_LOGI(TAG, "WEB: %.*s", len, data);
-    
-    return ESP_OK;
+    (void)data;
+    ESP_LOGW(TAG,
+             "WEB streaming is not supported; dropped %zu bytes (client %p)",
+             len, current_output.web_client);
+    return ESP_ERR_NOT_SUPPORTED;
 }
 
 /**

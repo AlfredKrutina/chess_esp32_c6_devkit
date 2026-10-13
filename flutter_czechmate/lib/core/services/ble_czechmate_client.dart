@@ -8,6 +8,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../constants/app_environment.dart';
 import '../debug/connection_debug_log.dart';
 import '../models/game_snapshot.dart';
+import '../protocol/board_command_payload.dart';
 import '../utils/game_snapshot_codec.dart';
 
 /// GATT UUID z `CZECHMATEBLEUUIDs.swift` / `ble_task.c`.
@@ -323,6 +324,8 @@ class BleCzechmateClient {
       }
       final apIp = apActive && apIpRaw.isNotEmpty ? apIpRaw : (apActive ? '192.168.4.1' : null);
       final apSsid = (parsed['ap_ssid'] as String?)?.trim();
+      final mdnsRaw = parsed['mdns_host'];
+      final mdnsHost = mdnsRaw is String ? mdnsRaw.trim() : null;
       return BleNetworkInfo(
         staIp: (staIp == null || staIp.isEmpty) ? null : staIp,
         apIp: apIp,
@@ -331,6 +334,7 @@ class BleCzechmateClient {
         online: online,
         apActive: apActive,
         apSsid: (apSsid == null || apSsid.isEmpty) ? null : apSsid,
+        mdnsHost: (mdnsHost == null || mdnsHost.isEmpty) ? null : mdnsHost,
       );
     } catch (_) {
       return null;
@@ -486,35 +490,30 @@ class BleCzechmateClient {
   }
 
   Future<void> postMove(String from, String to, {String? promotion}) async {
-    final cmd = {
-      'cmd': 'move',
-      'from': from.toLowerCase(),
-      'to': to.toLowerCase()
-    };
-    if (promotion != null) cmd['promotion'] = promotion.toLowerCase();
-    await _writeCmd(cmd);
+    await _writeCmd(BoardCommandPayload.bleMove(
+      from: from,
+      to: to,
+      promotion: promotion,
+    ));
   }
 
   Future<void> postNewGame({String? fen}) async {
-    final cmd = <String, dynamic>{'cmd': 'new_game'};
-    if (fen != null && fen.trim().isNotEmpty) cmd['fen'] = fen.trim();
-    await _writeCmd(cmd);
+    await _writeCmd(BoardCommandPayload.bleNewGame(fen: fen));
   }
 
   Future<void> postUndo() async => await _writeCmd({'cmd': 'undo'});
 
   Future<void> postPromotion(String choice) async {
-    await _writeCmd({'cmd': 'promotion', 'choice': choice.toLowerCase()});
+    await _writeCmd(BoardCommandPayload.blePromotion(choice));
   }
 
   Future<void> postTimerConfig(int type,
       {int? customMinutes, int? customIncrement}) async {
-    final cmd = <String, dynamic>{'cmd': 'timer_config', 'type': type};
-    if (type == 14) {
-      if (customMinutes != null) cmd['custom_minutes'] = customMinutes;
-      if (customIncrement != null) cmd['custom_increment'] = customIncrement;
-    }
-    await _writeCmd(cmd);
+    await _writeCmd(BoardCommandPayload.bleTimerConfig(
+      type: type,
+      customMinutes: customMinutes,
+      customIncrement: customIncrement,
+    ));
   }
 
   Future<void> postTimerPause() async =>
@@ -525,11 +524,9 @@ class BleCzechmateClient {
       await _writeCmd({'cmd': 'timer_reset'});
 
   Future<void> postHintHighlight(String from, String to) async {
-    await _writeCmd({
-      'cmd': 'hint_highlight',
-      'from': from.toLowerCase(),
-      'to': to.toLowerCase()
-    });
+    await _writeCmd(
+      BoardCommandPayload.bleHintSquares(from: from, to: to),
+    );
   }
 
   Future<void> postHintClear() async => await _writeCmd({'cmd': 'hint_clear'});
@@ -538,23 +535,21 @@ class BleCzechmateClient {
 
   /// Parity `BLEBoardTransport.postHintHighlightDestinationOnly`.
   Future<void> postHintHighlightDestinationOnly(String toSquare) async {
-    await _writeCmd({'cmd': 'hint_highlight', 'to': toSquare.toLowerCase()});
+    await _writeCmd(BoardCommandPayload.bleHintDestination(toSquare));
   }
 
   /// Parity `BLEBoardTransport.postSetupTutorial`.
   Future<void> postSetupTutorial(String action) async {
-    await _writeCmd({'cmd': 'setup_tutorial', 'action': action});
+    await _writeCmd(BoardCommandPayload.bleSetupTutorial(action));
   }
 
   /// Parity `POST /api/game/opening` — start | cancel | hint | checkpoint_ack.
   Future<void> postOpening(Map<String, dynamic> body) async {
-    final cmd = <String, dynamic>{'cmd': 'opening'};
-    cmd.addAll(body);
-    await _writeCmd(cmd);
+    await _writeCmd(BoardCommandPayload.bleOpening(body));
   }
 
   Future<void> postBrightness(int percent) async {
-    await _writeCmd({'cmd': 'brightness', 'percent': percent.clamp(0, 100)});
+    await _writeCmd(BoardCommandPayload.bleBrightness(percent));
   }
 
   /// Parity `BLEBoardTransport.postLightCommand` / `POST /api/light/command`.
@@ -564,16 +559,12 @@ class BleCzechmateClient {
     required int g,
     required int b,
   }) async {
-    final rs = r.clamp(0, 255);
-    final gs = g.clamp(0, 255);
-    final bs = b.clamp(0, 255);
-    await _writeCmd({
-      'cmd': 'light_command',
-      'state': state,
-      'r': rs,
-      'g': gs,
-      'b': bs,
-    });
+    await _writeCmd(BoardCommandPayload.bleLightCommand(
+      state: state,
+      r: r,
+      g: g,
+      b: b,
+    ));
   }
 
   /// Parity `POST /api/light/game_mode`.
@@ -584,7 +575,7 @@ class BleCzechmateClient {
   /// BLE ekvivalent `POST /api/system/ota` — pouze HTTPS URL na `.bin`.
   Future<void> postOtaStart(String httpsFirmwareUrl) async {
     await prepareEncryptedBleLink();
-    await _writeCmd({'cmd': 'ota_start', 'url': httpsFirmwareUrl.trim()});
+    await _writeCmd(BoardCommandPayload.bleOtaStart(httpsFirmwareUrl));
   }
 
   /// Begin OTA stream over BLE (`ota_ble_begin`); after her chunky with magic `OB`.
@@ -828,10 +819,9 @@ class BleCzechmateClient {
     }
   }
 
-  /// Parity `POST /api/settings/lamp` (`auto_lamp_timeout_sec`).
+  /// Firmware `settings_auto_lamp_timeout` (`seconds`, 5..7200).
   Future<void> postAutoLampTimeout(int seconds) async {
-    final v = seconds.clamp(5, 7200);
-    await _writeCmd({'cmd': 'settings_auto_lamp_timeout', 'seconds': v});
+    await _writeCmd(BoardCommandPayload.bleAutoLampTimeout(seconds));
   }
 
   /// Saves STA SSID/password to NVS on board and connects Wi‑Fi (`wifi_ble_prov` task).
@@ -1069,6 +1059,7 @@ class BleNetworkInfo {
     this.staConnected = false,
     this.apActive = false,
     this.apSsid,
+    this.mdnsHost,
   });
 
   final String? staIp;
@@ -1081,6 +1072,9 @@ class BleNetworkInfo {
   final bool apActive;
   /// Hotspot SSID from network notify (optional).
   final String? apSsid;
+
+  /// Stable mDNS host (`czechmate-aabbcc`) when the firmware includes it.
+  final String? mdnsHost;
 }
 
 class _BleChunkAssembler {

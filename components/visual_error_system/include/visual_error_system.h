@@ -1,6 +1,10 @@
 /**
  * @file visual_error_system.h
  * @brief Visual Error System - Visual error indications and instructions for users
+ *
+ * @note game_task and main do not call this module. It stays in the CMake
+ * REQUIRES list until a link audit. Illegal-move LEDs in the live game are
+ * drawn by game_task through led_task, not through visual_error_show().
  * 
  * This module provides a visual system for handling errors:
  * - LED error indication

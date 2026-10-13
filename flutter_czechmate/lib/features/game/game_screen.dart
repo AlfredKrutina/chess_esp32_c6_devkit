@@ -839,8 +839,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                   const SizedBox(height: 20),
                                   PressableScale(
                                     child: FilledButton.icon(
-                                      onPressed: () =>
-                                          pushBoardDiscoveryRoute(context),
+                                      onPressed: session.busy
+                                          ? null
+                                          : () =>
+                                              pushBoardDiscoveryRoute(context),
                                       icon:
                                           const Icon(Icons.bluetooth_searching),
                                       label: Text(l10n.gameFindBoard),

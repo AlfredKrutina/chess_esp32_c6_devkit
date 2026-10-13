@@ -1,6 +1,10 @@
 /**
  * @file led_state_manager.h
  * @brief LED State Manager - Advanced LED state and layer management
+ *
+ * @note game_task and main do not call this module. It stays in the CMake
+ * REQUIRES list until a link audit. Live LED writes go through led_task
+ * (led_set_pixel_safe / led_execute_command_new).
  * 
  * This module provides comprehensive LED status management:
  * - Layer system for LED effects

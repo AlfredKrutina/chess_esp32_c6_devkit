@@ -1095,23 +1095,26 @@ command_result_t uart_cmd_undo(const char *args) {
 }
 
 command_result_t uart_cmd_game_history(const char *args) {
-  (void)args; // Unused parameter
+  (void)args;
 
-  // Send get history command to game task
-  chess_move_command_t cmd = {.type = GAME_CMD_GET_STATUS,
-                              .player = 0, // Not relevant for history
-                              .response_queue = 0};
-  strcpy(cmd.from_notation, "");
-  strcpy(cmd.to_notation, "");
-
-  if (send_to_game_task(&cmd)) {
-    uart_send_formatted("Move History:");
-    uart_send_formatted("═══════════════");
-    uart_send_formatted("No moves yet. Start with 'GAME_NEW'");
-    uart_send_formatted("TODO: Get actual history from game engine");
+  /* One UART ply list. game_print_move_history() would ESP_LOGI the same
+   * lines onto this console. Do not enqueue GET_STATUS: that only dumped
+   * status and then claimed the list was empty. */
+  uint32_t n = game_move_history_count();
+  ESP_LOGI(TAG, "GAME_HISTORY: %lu move(s)", (unsigned long)n);
+  uart_send_formatted("Move History (%lu):", (unsigned long)n);
+  uart_send_formatted("═══════════════");
+  if (n == 0) {
+    uart_send_formatted("No moves yet.");
     return CMD_SUCCESS;
-  } else {
-    uart_send_error("Internal error: failed to get move history");
-    return CMD_ERROR_SYSTEM_ERROR;
   }
+
+  char line[80];
+  for (uint32_t i = 0; i < n; i++) {
+    if (!game_format_move_history_line(i, line, sizeof(line))) {
+      break;
+    }
+    uart_send_formatted("  %s", line);
+  }
+  return CMD_SUCCESS;
 }

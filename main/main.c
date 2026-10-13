@@ -902,23 +902,23 @@ esp_err_t create_system_tasks(void) {
                        &squares_task_handle);
 
   if (result != pdPASS) {
-    ESP_LOGE(TAG, "Failed to create Matrix task");
+    ESP_LOGE(TAG, "Failed to create squares_task");
     return ESP_FAIL;
   }
 
   // Task will register itself with TWDT internally
   ESP_LOGI(TAG,
-           "✓ Matrix task created successfully (%dKB stack) - will "
+           "✓ squares_task created successfully (%dKB stack) - will "
            "self-register with TWDT",
            SQUARES_TASK_STACK_SIZE / 1024);
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
   ESP_LOGI(TAG,
            "[staging] Waiting for STM32 auto-flash to finish (right after "
-           "matrix_task, before other tasks / WiFi)...");
+           "squares_task, before other tasks / WiFi)...");
   stm32_i2c_bl_boot_flash_sync_wait(pdMS_TO_TICKS(120000));
   ESP_LOGI(TAG,
-           "[staging] STM32 auto-flash attempt finished (sync with matrix_task) — "
+           "[staging] STM32 auto-flash attempt finished (sync with squares_task) — "
            "success/error see STM32_AUTO / STM32_I2C_BL above; continuing tasks "
            "and boot animation");
 #endif

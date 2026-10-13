@@ -1,19 +1,11 @@
 /**
- * @file led_unified_api.h  
- * @brief Unified LED API - Unified source of truth for LED control
- * 
- * This header provides a simplified, uniform API for all LED operations.
- * Replaces the messy mix of led_set_pixel_internal, led_set_pixel_safe,
- * led_execute_command_new, etc. with a clean, consistent interface.
- * 
- * @author Alfred Krutina
- * @version 1.8.0
- * @date 2025-09-06
- * 
- * @details
- * Unified LED API provides a simple, consistent interface for
- * all LED operations in the system. Eliminates duplicate functions and provides
- * clearly named functions for each use case.
+ * @file led_unified_api.h
+ * @brief Unused LED prototypes. Not the live API.
+ *
+ * @note This header has no .c and no callers. Do not treat led_set(),
+ * led_clear(), led_animate(), or the other prototypes below as the product
+ * API. Live LED writes go through led_set_pixel_safe and
+ * led_execute_command_new in led_task.
  */
 
 #ifndef LED_UNIFIED_API_H
@@ -27,9 +19,8 @@
 extern "C" {
 #endif
 
-// ============================================================================
-// JEDNOTNE LED API - JEDINY ZDROJ PRAVDY
-// ============================================================================
+/* Color constants below are not wired to hardware. The live API is
+ * led_set_pixel_safe / led_execute_command_new. */
 
 /**
  * @brief RGB barevna struktura
@@ -56,12 +47,10 @@ typedef struct {
 /** @brief Barva - fialova (magenta) */
 #define LED_COLOR_MAGENTA  ((led_color_t){255, 0, 255})
 
-// ============================================================================
-// BASE LED FUNCTIONS - ONLY USE THESE
-// ============================================================================
+/* Prototypes only. Nothing implements or calls them. */
 
 /**
- * @brief Set LED color (replaces all led_set_pixel_* variants)
+ * @brief Unused. Live equivalent is led_set_pixel_safe.
  * 
  * @param position LED position (0-63 drawer, 64-72 button)
  * @param color RGB color to set
@@ -110,7 +99,7 @@ esp_err_t led_show_moves(const uint8_t* positions, uint8_t count);
 esp_err_t led_show_movable_pieces(const uint8_t* positions, uint8_t count);
 
 /**
- * @brief Start animation (replace led_execute_command_new)
+ * @brief Unused. Live equivalent is led_execute_command_new.
  * 
  * @param type Animation type (string like "move", "check", "endgame")
  * @param from_pos Source position (if relevant)

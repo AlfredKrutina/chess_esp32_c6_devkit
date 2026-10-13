@@ -24,7 +24,7 @@ typedef void *httpd_handle_t;
 #define JSON_BUFFER_SIZE 8192
 #define SNAPSHOT_BUFFER_SIZE 20480
 #define TIMER_HTTP_JSON_MAX 1024
-#define WIFI_STATUS_JSON_MAX 640
+#define WIFI_STATUS_JSON_MAX 768
 
 extern char json_buffer[JSON_BUFFER_SIZE];
 extern char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];

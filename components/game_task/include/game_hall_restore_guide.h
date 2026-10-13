@@ -1,8 +1,10 @@
 /**
  * @file game_hall_restore_guide.h
- * @brief Hall type/color board-restore matching and guide orchestration.
+ * @brief Hall type/color board-restore matching and the LED guide around it.
+ *
+ * Compiled only for CONFIG_CHESS_MATRIX_INPUT_I2C_HALL. Uses the uncalibrated
+ * Hall POC (see hall_i2c_squares.h). LED output goes through led_task.
  */
-
 #ifndef GAME_HALL_RESTORE_GUIDE_H
 #define GAME_HALL_RESTORE_GUIDE_H
 
@@ -11,21 +13,40 @@
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 
+/**
+ * @brief Whether the restore-guide LED overlay is currently on.
+ * @return true while guide LEDs are active.
+ */
 bool game_hall_restore_guide_is_active(void);
 
-/** Recompute plan from stable sensors; may enter/exit pause + LED guide. */
+/**
+ * @brief Recompute the plan from stable sensors.
+ *
+ * May enter or leave the squares-guard pause and the LED guide. Returns
+ * immediately when Hall readings are not usable yet.
+ */
 void game_hall_restore_guide_sync(void);
 
-/** After matrix scan: compare stable occ/type/color fingerprint. */
+/**
+ * @brief Note a matrix scan and request sync if the occ/type/color digest changed.
+ * @param occ 64 occupancy bytes. Must be non-NULL.
+ */
 void game_hall_restore_guide_note_stable_squares(const uint8_t occ[64]);
 
-/** Matrix scan: stable occ/type/color changed — sync soon (game_task). */
+/** @brief Ask game_task to call game_hall_restore_guide_sync() soon. */
 void game_hall_restore_guide_request_sync(void);
 
-/** Consume a pending matrix-triggered sync request. */
+/**
+ * @brief Take and clear a pending matrix-triggered sync request.
+ * @return true if a request was pending.
+ */
 bool game_hall_restore_guide_take_sync_request(void);
 
-/** Stop guide LEDs and internal state (guard layer may remain). */
+/**
+ * @brief Turn guide LEDs off and clear guide-local state.
+ *
+ * The squares-guard pause layer is left as-is.
+ */
 void game_hall_restore_guide_stop_leds(void);
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */

@@ -1,6 +1,10 @@
 /**
  * @file game_task.h
- * @brief ESP32-C6 Chess System v1.8.0 - Game Task Header
+ * @brief Game task entry: rules, command dispatch, and JSON export.
+ *
+ * @note Physical moves live in game_physical. Power-loss persistence lives in
+ * game_snapshot (one automatic NVS snapshot after a valid move). Hall piece
+ * match and board-restore guidance are separate. LED writes go through led_task.
  *
  * This header defines the interface for the game task:
  * - Game state types and structures
@@ -681,6 +685,24 @@ void game_coords_to_square(uint8_t row, uint8_t col, char *square);
  * Displays detailed information about the state of the game (player on turn, number of turns, etc.).
  */
 void game_print_status(void);
+
+/**
+ * @brief Number of plies stored in the engine move history.
+ * @return history_index. Zero means no moves yet.
+ */
+uint32_t game_move_history_count(void);
+
+/**
+ * @brief Format one history ply the same way game_print_move_history() logs it.
+ * @param index Zero-based index.
+ * @param[out] buf Destination, NUL-terminated on success.
+ * @param cap Size of buf.
+ * @return false if buf is unusable or index is past the current history.
+ */
+bool game_format_move_history_line(uint32_t index, char *buf, size_t cap);
+
+/** @brief Log the engine move list with ESP_LOGI. */
+void game_print_move_history(void);
 
 // ============================================================================
 // STATISTIKY A DETEKCE KONCE HRY

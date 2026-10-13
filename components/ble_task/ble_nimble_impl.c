@@ -250,6 +250,8 @@ static int czechmate_build_network_json(char *buf, size_t cap) {
   const bool ap_on = wifi_ap_is_broadcasting();
   const char *ap_ip_lit = ap_on ? "192.168.4.1" : "";
   const char *ap_ssid_lit = wifi_ap_effective_ssid();
+  char mdns_host[24] = {0};
+  czechmate_mdns_copy_hostname(mdns_host, sizeof(mdns_host));
 
   snprintf(buf, cap,
            "{"
@@ -259,7 +261,8 @@ static int czechmate_build_network_json(char *buf, size_t cap) {
            "\"ap_ip\":\"%s\","
            "\"ap_ssid\":\"%s\","
            "\"ap_active\":%s,"
-           "\"online\":%s"
+           "\"online\":%s,"
+           "\"mdns_host\":\"%s\""
            "}",
            sta_connected ? "true" : "false",
            sta_connected ? sta_ip : "",
@@ -267,7 +270,8 @@ static int czechmate_build_network_json(char *buf, size_t cap) {
            ap_ip_lit,
            ap_ssid_lit,
            ap_on ? "true" : "false",
-           sta_connected ? "true" : "false");
+           sta_connected ? "true" : "false",
+           mdns_host);
   return 0;
 }
 
@@ -303,7 +307,7 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       return 0;
     }
     if (attr_handle == g_net_val_handle) {
-      char net_json[384];
+      char net_json[512];
       czechmate_build_network_json(net_json, sizeof(net_json));
       size_t len = strlen(net_json);
       int rc = os_mbuf_append(ctxt->om, net_json, (uint16_t)len);
@@ -960,7 +964,7 @@ void ble_task_push_network_info(void) {
              (int)s_conn_handle, (int)s_net_notify_enabled);
     return;
   }
-  char net_json[384];
+  char net_json[512];
   czechmate_build_network_json(net_json, sizeof(net_json));
   size_t len = strlen(net_json);
   struct os_mbuf *om = ble_hs_mbuf_from_flat(net_json, (uint16_t)len);

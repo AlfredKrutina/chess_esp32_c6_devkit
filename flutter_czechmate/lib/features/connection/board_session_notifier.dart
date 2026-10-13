@@ -18,10 +18,12 @@ import '../../core/models/game_snapshot.dart';
 import '../../core/models/game_status_models.dart';
 import '../../core/services/ble_czechmate_client.dart';
 import '../../core/services/board_api_client.dart';
-import '../../core/services/board_api_exception.dart';
 import '../../core/services/mock_board_simulator.dart';
 import '../../core/services/prefs_repository.dart';
 import '../../core/services/web_socket_manager.dart';
+import '../../core/protocol/board_command_port.dart';
+import '../../core/protocol/mock_board_command_port.dart';
+import '../../core/protocol/saved_board_reconnect.dart';
 import '../../core/utils/board_http_base_url.dart';
 import '../../core/utils/wifi_ip_third_octet_blocklist.dart';
 import '../../core/utils/game_snapshot_codec.dart';
@@ -64,7 +66,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   final SnapshotWebSocketClient _ws = SnapshotWebSocketClient();
   final BleCzechmateClient _ble = BleCzechmateClient();
 
-  bool _tryResumeFromPrefsInFlight = false;
+  Future<void>? _resumeInFlight;
 
   /// After passing to the end of the game, we send `timer_pause` once so that the time on the board does not stop "running".
   bool _pauseTimerSentForFinishedGame = false;
@@ -72,6 +74,34 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   Future<void> _setupTutorialMutexTail = Future<void>.value();
   DateTime? _lastPostHintDestBleAt;
   String? _lastPostHintDestBleSquare;
+
+  bool _linkRecoveryInFlight = false;
+  DateTime? _linkRecoveryNotBefore;
+  int _consecutivePollFails = 0;
+
+  late final MockBoardCommandPort _mockCommands = MockBoardCommandPort(
+    readSnapshot: () => state.snapshot,
+    readTimer: () => state.timer,
+    apply: (snap, timer) {
+      state = state.copyWith(
+        snapshot: snap,
+        timer: timer,
+        clearError: true,
+        lastIfNoneMatch: snap.etagTag,
+      );
+    },
+    plainNewGame: connectMock,
+    resetWithTime: _mockResetGame,
+    onGameFinished: () {
+      if (_pauseTimerSentForFinishedGame) return;
+      _pauseTimerSentForFinishedGame = true;
+      unawaited(_pauseTimerAfterGameEnd());
+    },
+    onTimerResumed: () {
+      _mockLastTickAt = DateTime.now();
+    },
+    refuse: _refuseMessage,
+  );
 
   @override
   void dispose() {
@@ -157,14 +187,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
-  Future<void> tryResumeFromPrefs() async {
-    if (_tryResumeFromPrefsInFlight) return;
-    _tryResumeFromPrefsInFlight = true;
-    try {
-      await _tryResumeFromPrefsBody();
-    } finally {
-      _tryResumeFromPrefsInFlight = false;
-    }
+  Future<void> tryResumeFromPrefs() {
+    final current = _resumeInFlight;
+    if (current != null) return current;
+    final run = _tryResumeFromPrefsBody();
+    late final Future<void> tracked;
+    tracked = run.whenComplete(() {
+      if (identical(_resumeInFlight, tracked)) {
+        _resumeInFlight = null;
+      }
+    });
+    _resumeInFlight = tracked;
+    return tracked;
   }
 
   Future<void> _tryResumeFromPrefsBody() async {
@@ -172,7 +206,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await connectMock();
       return;
     }
-    await _runResumeTransportAttemptsOnce();
+    await _runResumeTransportAttemptsOnce(preserveGame: true);
     if (_prefs.useMockBoard) return;
     if (state.busy || _resumeHasWorkingTransport()) return;
 
@@ -189,7 +223,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
     await Future<void>.delayed(const Duration(milliseconds: 750));
     if (state.busy || _resumeHasWorkingTransport()) return;
-    await _runResumeTransportAttemptsOnce();
+    await _runResumeTransportAttemptsOnce(preserveGame: true);
   }
 
   /// Wifi active polling or BLE GATT — no "dead" branch after resume.
@@ -205,68 +239,170 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     return false;
   }
 
-  Future<void> _runResumeTransportAttemptsOnce() async {
-    final mode = _prefs.effectiveConnectionMode;
-    final preferBleOnly = mode == 'ble_only';
-    final wifiOnly = mode == 'wifi_only';
-    final savedBle = _prefs.lastBleRemoteId;
-    final hasSavedBle = savedBle != null && savedBle.isNotEmpty;
-    final url = _prefs.lastBoardBaseUrl?.trim();
-    final hasWifiUrl = url != null && url.isNotEmpty;
-    final lastKind = _prefs.lastBoardLinkKind;
-
-    Future<bool> tryBle() async {
-      if (!hasSavedBle) return false;
-      if (!isFlutterBluePlusHostSupported) return false;
-      await reconnectSavedBle();
-      return state.transport == BoardTransport.ble && !state.busy;
-    }
-
-    Future<bool> tryWifi() async {
-      final base = url;
-      if (!hasWifiUrl || base == null) return false;
-      if (!wifiOnly &&
-          !await _phoneHasWifiInterface() &&
-          _savedBoardUrlLooksLikePrivateLan(base)) {
-        if (AppEnvironment.staging) {
-          debugPrint(
-            '[staging] resume: skip Wi‑Fi attempt (no Wi‑Fi link, saved URL is private LAN)',
+  Future<void> _runResumeTransportAttemptsOnce({
+    bool preserveGame = false,
+  }) async {
+    final lan = await _lanPathAvailableForResume();
+    final plan = planSavedBoardReconnect(
+      bleHostSupported: isFlutterBluePlusHostSupported,
+      lanPathAvailable: lan,
+      mode: _prefs.effectiveConnectionMode,
+      identity: SavedBoardIdentity(
+        bleRemoteId: _prefs.lastBleRemoteId,
+        httpBaseUrl: _prefs.lastBoardBaseUrl,
+        mdnsHost: _prefs.lastMdnsHost,
+        lastLinkKind: _prefs.lastBoardLinkKind,
+      ),
+      urlLooksLikePrivateLan: _savedBoardUrlLooksLikePrivateLan,
+    );
+    connDebugLog(
+      'reconnect plan',
+      plan.isEmpty
+          ? 'empty'
+          : plan.steps
+              .map((s) => s.kind == SavedReconnectKind.ble
+                  ? 'ble'
+                  : 'wifi ${s.url}')
+              .join(' -> '),
+    );
+    for (final step in plan.steps) {
+      if (_resumeHasWorkingTransport()) return;
+      switch (step.kind) {
+        case SavedReconnectKind.ble:
+          await reconnectSavedBle(preserveGameOnFailure: preserveGame);
+          if (state.transport == BoardTransport.ble &&
+              state.bleGattConnected &&
+              !state.busy) {
+            return;
+          }
+          break;
+        case SavedReconnectKind.wifi:
+          final url = step.url;
+          if (url == null || url.isEmpty) break;
+          await connectWifi(
+            url,
+            webSocket: _prefs.useWebSocket,
+            allowTransportFallback: false,
+            preserveGameOnFailure: preserveGame,
           );
+          if (state.transport == BoardTransport.wifi && !state.busy) return;
+          if (state.transport == BoardTransport.ble &&
+              state.bleGattConnected &&
+              !state.busy) {
+            return;
+          }
+          break;
+      }
+    }
+  }
+
+  /// Desktop has no BLE, so the saved URL is always worth trying.
+  /// Phones: Wi‑Fi or Ethernet. Cellular alone is not a LAN path.
+  Future<bool> _lanPathAvailableForResume() async {
+    if (!isFlutterBluePlusHostSupported) return true;
+    try {
+      final types = await Connectivity().checkConnectivity();
+      return types.contains(ConnectivityResult.wifi) ||
+          types.contains(ConnectivityResult.ethernet);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _rememberMdnsHost(String? raw) async {
+    final host = normalizeMdnsHost(raw);
+    if (host == null) return;
+    if (_prefs.lastMdnsHost == host) return;
+    await _prefs.setLastMdnsHost(host);
+    connDebugLog('saved mdns host', host);
+  }
+
+  Future<void> _persistMdnsHostFromWifiStatus(String base) async {
+    try {
+      final status = await _boardHttp.fetchWiFiStatus(base);
+      await _rememberMdnsHost(status.mdnsHost);
+    } catch (e) {
+      if (AppEnvironment.staging || kDebugMode) {
+        debugPrint('[staging] mdns host read skipped: $e');
+      }
+    }
+  }
+
+  String _refuseMessage(BoardCommandRefuse kind) {
+    return switch (kind) {
+      BoardCommandRefuse.connectBeforeMoves => _strings.errConnectBeforeMoves,
+      BoardCommandRefuse.demoNoSnapshot => _strings.errDemoNoSnapshot,
+      BoardCommandRefuse.setupNeedsConnection =>
+        _strings.errSetupNeedsConnection,
+      BoardCommandRefuse.hintsNeedConnection => _strings.errHintsNeedConnection,
+      BoardCommandRefuse.noActiveSession => _strings.errNoActiveSession,
+      BoardCommandRefuse.brightnessNeedsBoard =>
+        _strings.errBrightnessNeedsBoard,
+      BoardCommandRefuse.lampNeedsBoard => _strings.errLampNeedsBoard,
+      BoardCommandRefuse.gameLampNeedsBoard => _strings.errGameLampNeedsBoard,
+      BoardCommandRefuse.autoLampNeedsBoard => _strings.errAutoLampNeedsBoard,
+      BoardCommandRefuse.otaMock => _strings.errOtaMock,
+    };
+  }
+
+  BoardCommandPort? _commandPortOrNull() {
+    switch (state.transport) {
+      case BoardTransport.wifi:
+        final base = state.wifiBaseUrl;
+        if (base == null || base.isEmpty) return null;
+        return HttpBoardCommandPort(_boardHttp, base);
+      case BoardTransport.ble:
+        return BleBoardCommandPort(_ble);
+      case BoardTransport.mock:
+        return _mockCommands;
+      case BoardTransport.none:
+        return null;
+    }
+  }
+
+  Future<void> _refreshAfterWifiCommand() async {
+    if (state.transport != BoardTransport.wifi) return;
+    final base = state.wifiBaseUrl;
+    if (base == null || base.isEmpty) return;
+    await _pollOnce(base);
+  }
+
+  /// Drop mid-game: reconnect the saved board and read its snapshot.
+  /// Does not start a new game.
+  Future<void> _recoverLiveLink(String reason) async {
+    if (_linkRecoveryInFlight || _resumeInFlight != null) return;
+    if (state.transport == BoardTransport.mock) return;
+    if (state.busy) return;
+    final hold = _linkRecoveryNotBefore;
+    if (hold != null && DateTime.now().isBefore(hold)) return;
+    _linkRecoveryInFlight = true;
+    try {
+      connDebugLog('link recovery', reason);
+      await _failoverToWifiIfAvailable();
+      if (_resumeHasWorkingTransport()) {
+        await refreshNow();
+        connDebugLog('link recovery', 'resynced on existing wifi path');
+        return;
+      }
+      for (var attempt = 1; attempt <= 2; attempt++) {
+        if (_resumeHasWorkingTransport()) break;
+        connDebugLog('link recovery', 'quiet attempt $attempt');
+        await _runResumeTransportAttemptsOnce(preserveGame: true);
+        if (_resumeHasWorkingTransport()) {
+          await refreshNow();
+          connDebugLog(
+            'link recovery',
+            'resynced current position; no new game',
+          );
+          return;
         }
-        return false;
+        await Future<void>.delayed(Duration(milliseconds: 600 * attempt));
       }
-      await connectWifi(base, webSocket: _prefs.useWebSocket);
-      return state.transport == BoardTransport.wifi && !state.busy;
+      connDebugLog('link recovery', 'gave up ($reason)');
+      _linkRecoveryNotBefore = DateTime.now().add(const Duration(seconds: 20));
+    } finally {
+      _linkRecoveryInFlight = false;
     }
-
-    bool bleReadyAfterWifi() =>
-        state.transport == BoardTransport.ble &&
-        state.bleGattConnected &&
-        !state.busy;
-
-    if (preferBleOnly) {
-      if (await tryBle()) return;
-      if (!wifiOnly) {
-        await tryWifi();
-        if (state.transport == BoardTransport.wifi && !state.busy) return;
-        if (bleReadyAfterWifi()) return;
-      }
-      return;
-    }
-
-    if (wifiOnly) {
-      await tryWifi();
-      if (state.transport == BoardTransport.wifi && !state.busy) return;
-      if (bleReadyAfterWifi()) return;
-      await tryBle();
-      return;
-    }
-
-    if (lastKind == 'bluetooth' && await tryBle()) return;
-    await tryWifi();
-    if (state.transport == BoardTransport.wifi && !state.busy) return;
-    if (bleReadyAfterWifi()) return;
-    await tryBle();
   }
 
   /// A quick GET of the snapshot before `connectWifi` from the BLE handoff — we must not cancel the working GATT without success.
@@ -322,6 +458,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   /// (otherwise the home Wi‑Fi would store 192.168.4.1 and HTTP would timeout).
   Future<void> _persistBoardHttpUrlFromBle(BleNetworkInfo? info) async {
     if (info == null) return;
+    await _rememberMdnsHost(info.mdnsHost);
 
     String? raw;
     if (info.online == true) {
@@ -475,7 +612,10 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> connectWifi(String baseUrl,
-      {bool? webSocket, bool disconnectBle = true}) async {
+      {bool? webSocket,
+      bool disconnectBle = true,
+      bool allowTransportFallback = true,
+      bool preserveGameOnFailure = false}) async {
     final useWs = webSocket ?? _prefs.useWebSocket;
     connDebugLog('BoardSession.connectWifi',
         'raw="$baseUrl" ws=$useWs disconnectBle=$disconnectBle');
@@ -542,6 +682,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
           unawaited(_pollOnce(normalized));
         });
         state = state.copyWith(pollingActive: true, busy: false);
+        unawaited(_persistMdnsHostFromWifiStatus(normalized));
         if (useWs) {
           _ws.connect(
             normalized,
@@ -576,12 +717,14 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
             transport: BoardTransport.none,
             bleGattConnected: false,
             clearBleNetwork: true,
-            clearSnapshot: true,
-            clearSnapshotReceivedAt: true,
-            clearTransportStartedAt: true,
-            clearTimer: true,
+            clearSnapshot: !preserveGameOnFailure,
+            clearSnapshotReceivedAt: !preserveGameOnFailure,
+            clearTransportStartedAt: !preserveGameOnFailure,
+            clearTimer: !preserveGameOnFailure,
           );
-          await _bleFallbackAfterWifiFailure();
+          if (allowTransportFallback) {
+            await _bleFallbackAfterWifiFailure();
+          }
         } else {
           // Background Wi‑Fi channel failed; BLE realtime path stays up.
           state = state.copyWith(
@@ -632,7 +775,8 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await reconnectSavedBle();
   }
 
-  Future<void> connectBle(BluetoothDevice device, {String? label}) async {
+  Future<void> connectBle(BluetoothDevice device,
+      {String? label, bool preserveGameOnFailure = false}) async {
     final prev = _bleConnectSerial;
     final gate = Completer<void>();
     _bleConnectSerial = gate.future;
@@ -642,13 +786,18 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         state = state.copyWith(lastError: StateError(_strings.errBleHostUnsupported));
         return;
       }
-      await _connectBleBody(device, label: label);
+      await _connectBleBody(
+        device,
+        label: label,
+        preserveGameOnFailure: preserveGameOnFailure,
+      );
     } finally {
       if (!gate.isCompleted) gate.complete();
     }
   }
 
-  Future<void> _connectBleBody(BluetoothDevice device, {String? label}) async {
+  Future<void> _connectBleBody(BluetoothDevice device,
+      {String? label, bool preserveGameOnFailure = false}) async {
     connDebugLog(
       'BoardSession.connectBle start',
       'remoteId=${device.remoteId.str} label="${label ?? device.platformName}"',
@@ -682,7 +831,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
             bleGattConnected: false,
             clearBleNetwork: true,
           );
-          if (wasBle) {
+          if (wasBle &&
+              !_linkRecoveryInFlight &&
+              _resumeInFlight == null) {
+            unawaited(_recoverLiveLink('ble stream'));
+          } else if (wasBle) {
             unawaited(_failoverToWifiIfAvailable());
           }
         },
@@ -717,10 +870,10 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         transport: BoardTransport.none,
         bleGattConnected: false,
         clearBleNetwork: true,
-        clearSnapshot: true,
-        clearSnapshotReceivedAt: true,
-        clearTransportStartedAt: true,
-        clearTimer: true,
+        clearSnapshot: !preserveGameOnFailure,
+        clearSnapshotReceivedAt: !preserveGameOnFailure,
+        clearTransportStartedAt: !preserveGameOnFailure,
+        clearTimer: !preserveGameOnFailure,
       );
     } finally {
       _clearNextConnectionTransportOnce();
@@ -743,7 +896,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     }
   }
 
-  Future<void> reconnectSavedBle() async {
+  Future<void> reconnectSavedBle({bool preserveGameOnFailure = false}) async {
     if (!isFlutterBluePlusHostSupported) {
       connDebugLog('reconnectSavedBle', 'host without flutter_blue_plus');
       state = state.copyWith(lastError: StateError(_strings.errBleHostUnsupported));
@@ -760,7 +913,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       'remoteId=$id name="${_prefs.lastBleDisplayName ?? ''}"',
     );
     final dev = BluetoothDevice(remoteId: DeviceIdentifier(id));
-    await connectBle(dev, label: _prefs.lastBleDisplayName);
+    await connectBle(
+      dev,
+      label: _prefs.lastBleDisplayName,
+      preserveGameOnFailure: preserveGameOnFailure,
+    );
   }
 
   void disconnect() {
@@ -980,15 +1137,24 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       final tag = state.lastIfNoneMatch;
       final s = await _boardHttp.fetchSnapshotIfChanged(base, ifNoneMatch: tag);
       if (s != null) _applySnapshot(s, base);
+      _consecutivePollFails = 0;
       state = state.copyWith(
         pollSuccessCount: state.pollSuccessCount + 1,
         lastSuccessfulPoll: DateTime.now(),
       );
     } catch (e) {
+      _consecutivePollFails++;
       state = state.copyWith(
         lastError: e,
         pollFailureCount: state.pollFailureCount + 1,
       );
+      if (_consecutivePollFails >= 3 &&
+          state.transport == BoardTransport.wifi &&
+          !_linkRecoveryInFlight &&
+          _resumeInFlight == null) {
+        _consecutivePollFails = 0;
+        unawaited(_recoverLiveLink('http poll failed'));
+      }
     }
   }
 
@@ -1075,146 +1241,70 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       return;
     }
     if (state.transport == BoardTransport.mock) {
-      final snap = state.snapshot;
-      if (snap == null) {
+      final port = _commandPortOrNull();
+      if (port == null) {
         throw StateError(_strings.errDemoNoSnapshot);
       }
-      try {
-        if (AppEnvironment.staging) {
-          debugPrint(
-            '[staging] mock postRemoteMove $from→$to promotion=$promotion',
-          );
-        }
-        final r = mockApplyRemoteMove(
-          snap: snap,
-          timer: state.timer,
-          from: from,
-          to: to,
-          promotion: promotion,
+      if (AppEnvironment.staging) {
+        debugPrint(
+          '[staging] mock postRemoteMove $from→$to promotion=$promotion',
         );
-        state = state.copyWith(
-          snapshot: r.snapshot,
-          timer: r.timer,
-          clearError: true,
-          lastIfNoneMatch: r.snapshot.etagTag,
-        );
-        if (r.snapshot.status.isGameFinished &&
-            !_pauseTimerSentForFinishedGame) {
-          _pauseTimerSentForFinishedGame = true;
-          unawaited(_pauseTimerAfterGameEnd());
-        }
-      } on BoardApiException {
-        rethrow;
       }
+      await port.postMove(from: f, to: t, promotion: promotion);
       return;
     }
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final b = state.wifiBaseUrl!;
-      await _boardHttp.postGameMove(b,
-          from: from, to: to, promotion: promotion);
-      await _pollOnce(b);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errConnectBeforeMoves);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postMove(from, to, promotion: promotion);
-      return;
-    }
-    throw StateError(_strings.errConnectBeforeMoves);
+    await port.postMove(from: f, to: t, promotion: promotion);
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> postNewGame({String? fen}) async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final b = state.wifiBaseUrl!;
-      await _boardHttp.postNewGame(b, fen: fen);
-      await _pollOnce(b);
-      return;
-    }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postNewGame(fen: fen);
-      return;
-    }
-    if (state.transport == BoardTransport.mock) {
-      await connectMock();
-    }
+    final port = _commandPortOrNull();
+    if (port == null) return;
+    await port.postNewGame(fen: fen);
+    await _refreshAfterWifiCommand();
   }
 
   /// Puzzle / custom FEN on board — Wi‑Fi HTTP or BLE `new_game` command.
   Future<void> sendPuzzleFenToBoard(String fen) async {
     final f = fen.trim();
     if (f.isEmpty) return;
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await postNewGame(fen: f);
+    if (state.transport != BoardTransport.wifi &&
+        state.transport != BoardTransport.ble) {
       return;
     }
+    final port = _commandPortOrNull();
+    if (port == null) return;
     if (state.transport == BoardTransport.ble) {
       try {
-        await _ble.postNewGame(fen: f);
+        await port.postNewGame(fen: f);
       } catch (e) {
         state = state.copyWith(lastError: e);
       }
+      return;
     }
+    await port.postNewGame(fen: f);
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> postTimerPause() async {
-    if (state.transport == BoardTransport.mock) {
-      final t = state.timer;
-      if (t == null || !t.isTimeControlEnabled) return;
-      state = state.copyWith(
-        timer: BoardTimerState(
-          whiteTimeMs: t.whiteTimeMs,
-          blackTimeMs: t.blackTimeMs,
-          timerRunning: false,
-          isWhiteTurn: t.isWhiteTurn,
-          gamePaused: true,
-          timeExpired: t.timeExpired,
-          config: t.config,
-          totalMoves: t.totalMoves,
-          avgMoveTimeMs: t.avgMoveTimeMs,
-        ),
-      );
-      return;
-    }
+    final port = _commandPortOrNull();
+    if (port == null) return;
+    await port.postTimerPause();
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final b = state.wifiBaseUrl!;
-      await _boardHttp.postTimerPause(b);
-      await _refreshTimerHttp(b);
-      return;
-    }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postTimerPause();
+      await _refreshTimerHttp(state.wifiBaseUrl!);
     }
   }
 
   Future<void> postTimerResume() async {
-    if (state.transport == BoardTransport.mock) {
-      final t = state.timer;
-      final snap = state.snapshot;
-      if (t == null || !t.isTimeControlEnabled) return;
-      final finished = snap?.status.isGameFinished ?? false;
-      state = state.copyWith(
-        timer: BoardTimerState(
-          whiteTimeMs: t.whiteTimeMs,
-          blackTimeMs: t.blackTimeMs,
-          timerRunning: !finished,
-          isWhiteTurn: t.isWhiteTurn,
-          gamePaused: false,
-          timeExpired: t.timeExpired,
-          config: t.config,
-          totalMoves: t.totalMoves,
-          avgMoveTimeMs: t.avgMoveTimeMs,
-        ),
-      );
-      _mockLastTickAt = DateTime.now();
-      return;
-    }
+    final port = _commandPortOrNull();
+    if (port == null) return;
+    await port.postTimerResume();
     if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final b = state.wifiBaseUrl!;
-      await _boardHttp.postTimerResume(b);
-      await _refreshTimerHttp(b);
-      return;
-    }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postTimerResume();
+      await _refreshTimerHttp(state.wifiBaseUrl!);
     }
   }
 
@@ -1233,16 +1323,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await prev.catchError((_) {});
     try {
       final a = action.trim().toLowerCase();
-      if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-        await _boardHttp.postSetupTutorial(state.wifiBaseUrl!, action: a);
-        if (a != 'start') await refreshNow();
-        return;
+      final port = _commandPortOrNull();
+      if (port == null) {
+        throw StateError(_strings.errSetupNeedsConnection);
       }
-      if (state.transport == BoardTransport.ble) {
-        await _ble.postSetupTutorial(a);
-        return;
-      }
-      throw StateError(_strings.errSetupNeedsConnection);
+      await port.postSetupTutorial(a);
+      if (a != 'start') await refreshNow();
     } finally {
       if (!done.isCompleted) done.complete();
     }
@@ -1250,16 +1336,14 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   /// `POST /api/game/opening` — start | cancel | hint | checkpoint_ack (+ line payload on start).
   Future<void> postOpeningAction(Map<String, dynamic> body) async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _boardHttp.postOpening(state.wifiBaseUrl!, body);
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errSetupNeedsConnection);
+    }
+    await port.postOpening(body);
+    if (state.transport == BoardTransport.wifi) {
       await refreshNow();
-      return;
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postOpening(body);
-      return;
-    }
-    throw StateError(_strings.errSetupNeedsConnection);
   }
 
   Future<void> postOpeningRaw(Map<String, dynamic> body) => postOpeningAction(body);
@@ -1351,7 +1435,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       if (boardBase == null || boardBase.isEmpty) {
         throw StateError(_strings.errOtaBoardHttpMissingDetail);
       }
-      await _boardHttp.postBoardOtaStart(boardBase, url: u);
+      await HttpBoardCommandPort(_boardHttp, boardBase).postOtaStart(u);
       return;
     }
     // V2: use the background Wi‑Fi channel for bulk OTA whenever it is open,
@@ -1359,11 +1443,11 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     final boardBase = normalizeBoardHttpBaseUrl(
         httpBoardBaseUrl ?? (state.wifiChannelActive ? state.wifiBaseUrl : null));
     if (boardBase != null && boardBase.isNotEmpty) {
-      await _boardHttp.postBoardOtaStart(boardBase, url: u);
+      await HttpBoardCommandPort(_boardHttp, boardBase).postOtaStart(u);
       return;
     }
     if (state.transport == BoardTransport.ble) {
-      await _ble.postOtaStart(u);
+      await BleBoardCommandPort(_ble).postOtaStart(u);
       return;
     }
     throw StateError(_strings.errOtaConnectFirst);
@@ -1372,10 +1456,6 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   /// LED only on target field (`hint_highlight` with `to`).
   Future<void> postHintDestination(String square) async {
     final sq = square.trim().toLowerCase();
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _boardHttp.postHintHighlightDestinationOnly(state.wifiBaseUrl!, sq);
-      return;
-    }
     if (state.transport == BoardTransport.ble) {
       final now = DateTime.now();
       if (_lastPostHintDestBleSquare == sq &&
@@ -1386,33 +1466,27 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       }
       _lastPostHintDestBleSquare = sq;
       _lastPostHintDestBleAt = now;
-      await _ble.postHintHighlightDestinationOnly(sq);
-      return;
     }
-    throw StateError(_strings.errHintsNeedConnection);
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errHintsNeedConnection);
+    }
+    await port.postHintDestination(sq);
   }
 
   Future<void> postHintClearBoard() async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _boardHttp.postHintClear(state.wifiBaseUrl!);
-      return;
-    }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postHintClear();
-    }
+    final port = _commandPortOrNull();
+    if (port == null) return;
+    await port.postHintClear();
   }
 
   /// Emergency cancel matrix guard (board must be physically aligned).
   Future<void> postGuardClear() async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _boardHttp.postGuardClear(state.wifiBaseUrl!);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errHintsNeedConnection);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postGuardClear();
-      return;
-    }
-    throw StateError(_strings.errHintsNeedConnection);
+    await port.postGuardClear();
   }
 
   /// Reed matrix: Wi‑Fi `GET /api/status`, BLE last `snapshot.status.matrix_occupied`.
@@ -1438,37 +1512,17 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         '[staging] startNewGameWithTimeControl type=$type min=$customMinutes inc=$customIncrement ${state.transport}',
       );
     }
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final b = state.wifiBaseUrl!;
-      await _boardHttp.postTimerConfig(
-        b,
-        type: type,
-        customMinutes: customMinutes,
-        customIncrement: customIncrement,
-      );
-      await _boardHttp.postNewGame(b);
-      await _pollOnce(b);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errNoActiveSession);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postTimerConfig(
-        type,
-        customMinutes: customMinutes,
-        customIncrement: customIncrement,
-      );
-      await _ble.postNewGame();
-      return;
-    }
-    if (state.transport == BoardTransport.mock) {
-      final cfg = mockTimerConfigForFirmware(
-        type: type,
-        customMinutes: customMinutes,
-        customIncrement: customIncrement,
-      );
-      await _mockResetGame(cfg);
-      return;
-    }
-    throw StateError(_strings.errNoActiveSession);
+    await port.postTimerConfig(
+      type: type,
+      customMinutes: customMinutes,
+      customIncrement: customIncrement,
+    );
+    await port.postNewGame();
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> _mockResetGame(TimerConfigPart cfg) async {
@@ -1516,16 +1570,12 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   }
 
   Future<void> postBoardBrightness(int percent) async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _boardHttp.postBrightness(state.wifiBaseUrl!, percent);
-      await _pollOnce(state.wifiBaseUrl!);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errBrightnessNeedsBoard);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postBrightness(percent);
-      return;
-    }
-    throw StateError(_strings.errBrightnessNeedsBoard);
+    await port.postBrightness(percent);
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> postBoardLightCommand({
@@ -1534,49 +1584,29 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     required int g,
     required int b,
   }) async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final base = state.wifiBaseUrl!;
-      await _boardHttp.postLightCommand(
-        base,
-        state: lampState,
-        r: r,
-        g: g,
-        b: b,
-      );
-      await _pollOnce(base);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errLampNeedsBoard);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postLightCommand(state: lampState, r: r, g: g, b: b);
-      return;
-    }
-    throw StateError(_strings.errLampNeedsBoard);
+    await port.postLightCommand(lampState: lampState, r: r, g: g, b: b);
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> postBoardLightGameMode() async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      final base = state.wifiBaseUrl!;
-      await _boardHttp.postLightGameMode(base);
-      await _pollOnce(base);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errGameLampNeedsBoard);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postLightGameMode();
-      return;
-    }
-    throw StateError(_strings.errGameLampNeedsBoard);
+    await port.postLightGameMode();
+    await _refreshAfterWifiCommand();
   }
 
   Future<void> postBoardAutoLampTimeout(int seconds) async {
-    if (state.transport == BoardTransport.wifi && state.wifiBaseUrl != null) {
-      await _boardHttp.postAutoLampTimeout(state.wifiBaseUrl!, seconds);
-      await _pollOnce(state.wifiBaseUrl!);
-      return;
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errAutoLampNeedsBoard);
     }
-    if (state.transport == BoardTransport.ble) {
-      await _ble.postAutoLampTimeout(seconds);
-      return;
-    }
-    throw StateError(_strings.errAutoLampNeedsBoard);
+    await port.postAutoLampTimeout(seconds);
+    await _refreshAfterWifiCommand();
   }
 }
