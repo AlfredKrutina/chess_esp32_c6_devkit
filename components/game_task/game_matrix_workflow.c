@@ -9,6 +9,7 @@
 #include "chess_gameplay_policy.h"
 #include "game_move_validate.h"
 #include "game_hall_match.h"
+#include "../squares_task/include/hall_i2c_squares.h"
 
 #include "../led_task/include/led_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
@@ -649,6 +650,9 @@ bool game_execute_promotion(promotion_choice_t choice) {
  * @brief Highlight all movable pieces for current player
  */
 void game_highlight_movable_pieces(void) {
+#if HALL_DEBUG_LIGHT_WHERE_PIECE
+  return;
+#endif
   if (!chess_policy_move_hints_movable_yellow()) {
     return;
   }

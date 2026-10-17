@@ -2303,6 +2303,9 @@
       }
     }
   },
+  "settingsHallRestTitle": "Measure empty board",
+  "settingsHallRestStarted": "Empty-board measurement started. Leave the board clear until it finishes.",
+  "settingsHallRestFailed": "Could not start the measurement. Connect to the board and try again.",
   "navLearn": "Learn",
   "gameTopNoBoard": "No board",
   "gameTopConnecting": "Connecting…",

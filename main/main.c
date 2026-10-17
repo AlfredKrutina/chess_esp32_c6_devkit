@@ -75,7 +75,6 @@
 #include "ble_task.h"
 #include "game_led_animations.h"
 #include "ha_light_task.h"
-#include "uart_commands_extended.h"
 #include "web_server_task.h"
 
 // ============================================================================
@@ -465,16 +464,6 @@ esp_err_t main_system_init(void) {
     return ret;
   }
   ESP_LOGI(TAG, "✅ Endgame animation system initialized");
-
-  // Register extended UART commands
-  ESP_LOGI(TAG, "🔄 Registering extended UART commands...");
-  ret = register_extended_uart_commands();
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "Failed to register extended UART commands: %s",
-             esp_err_to_name(ret));
-    return ret;
-  }
-  ESP_LOGI(TAG, "✅ Extended UART commands registered");
 
   ble_task_init();
 
@@ -942,7 +931,12 @@ esp_err_t create_system_tasks(void) {
     return ESP_FAIL;
   }
 
-  // Suspend UART task until after boot animation
+  /* UART priority is above main, so the task has usually already subscribed
+   * to the task watchdog. It stays suspended for the whole logo (~10 s).
+   * A suspended subscriber cannot pet, and the watchdog then resets the
+   * chip mid progress-bar. Drop it here; resume puts it back. */
+  uart_task_wdt_set_subscribed(false);
+  (void)esp_task_wdt_delete(uart_task_handle);
   vTaskSuspend(uart_task_handle);
 
   // Task will register itself with TWDT internally
@@ -1070,7 +1064,9 @@ esp_err_t create_system_tasks(void) {
   ESP_LOGI(TAG, "All system tasks created successfully");
 
   // Cas pro start tasku pred boot animaci.
+  (void)chess_task_wdt_reset_safe(TAG);
   vTaskDelay(pdMS_TO_TICKS(1000));
+  (void)chess_task_wdt_reset_safe(TAG);
 
   // ASCII banner, progress bar, led_boot_animation_step, fade-out.
   show_boot_animation_and_board();
@@ -1078,7 +1074,10 @@ esp_err_t create_system_tasks(void) {
   // Sladeni s NVS: initialize_chess_game() nemusi poslat GAME_CMD_NEW_GAME.
   initialize_chess_game();
 
-  // UART bezel suspended until the end of the boot animation (output is not interrupted by the logo).
+  // UART stayed suspended so the logo is not mixed with the prompt.
+  esp_err_t uart_wdt = esp_task_wdt_add(uart_task_handle);
+  uart_task_wdt_set_subscribed(uart_wdt == ESP_OK ||
+                               uart_wdt == ESP_ERR_INVALID_ARG);
   vTaskResume(uart_task_handle);
   ESP_LOGI(TAG, "✅ UART task resumed after boot animation");
 
@@ -1105,6 +1104,8 @@ esp_err_t create_system_tasks(void) {
  * game_task_start).
  */
 void show_boot_animation_and_board(void) {
+  /* Banner printf can sit on USB longer than the watchdog. Pet before it. */
+  (void)chess_task_wdt_reset_safe(TAG);
   ESP_LOGI(TAG, "🎬 Starting centralized boot animation...");
 
   // Clear screen and show welcome logo
@@ -1305,6 +1306,7 @@ void show_boot_animation_and_board(void) {
   const int num_messages = sizeof(status_messages) / sizeof(status_messages[0]);
   // int current_message = 0; // Unused variable removed
 
+  (void)chess_task_wdt_reset_safe(TAG);
   for (int i = 0; i <= total_steps; i++) {
     int progress = (i * 100) / total_steps;
     int filled = (i * bar_width) / total_steps;
@@ -1411,7 +1413,7 @@ void app_main(void) {
 
   // Raise WDT timeout for initialization
   esp_task_wdt_config_t twdt_config = {
-      .timeout_ms = 10000, // 10 seconds for init - optimized for web server
+      .timeout_ms = 30000, // boot: STM flash + logo must finish inside this
       .idle_core_mask = 0,
       .trigger_panic = true};
   // Use reconfigure instead of init to avoid "TWDT already
@@ -1483,7 +1485,7 @@ void app_main(void) {
   chess_task_wdt_reset_safe(TAG);
 
   // Restore normal WDT timeout after init - optimized for web server
-  twdt_config.timeout_ms = 8000;          // Raised to 8 seconds for web server
+  twdt_config.timeout_ms = 20000;         // steady state, still catches a real stall
   esp_task_wdt_reconfigure(&twdt_config); // Use reconfigure instead of init
 
   // Main task is already registered with TWDT at the beginning of app_main()

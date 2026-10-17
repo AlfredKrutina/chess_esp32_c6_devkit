@@ -155,6 +155,7 @@
  * @see web_server_task.c Web interface
  */
 
+#include "game_gesture.h"
 #include "game_task.h"
 #include "game_board_core.h"
 #include "game_squares_guard.h"
@@ -2244,10 +2245,11 @@ void game_task_start(void *pvParameters) {
     // Auto new game detection, LED operation, anything could interrupt
     // animaci.
     if (led_is_booting()) {
-      // Reset WDT so that the task does not crash, but do nothing
       game_task_wdt_reset_safe();
-      vTaskDelay(pdMS_TO_TICKS(10)); // 10ms - quick wakeup after fade_out!
-      continue;                      // Skip the rest of the loop
+      /* Hall v2 SW1 (GPIO23). The rest of the game loop stays paused. */
+      game_gesture_poll();
+      vTaskDelay(pdMS_TO_TICKS(10));
+      continue;
     }
     game_snapshot_service_after_boot();
     // =========================================================================

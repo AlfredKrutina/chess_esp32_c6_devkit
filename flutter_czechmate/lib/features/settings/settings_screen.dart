@@ -194,6 +194,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   onTap: () => _pushPage(const SettingsBoardLightPage()),
                 ),
                 QuietRow(
+                  icon: Icons.sensors_outlined,
+                  title: l10n.settingsHallRestTitle,
+                  onTap: () async {
+                    try {
+                      await ref
+                          .read(boardSessionNotifierProvider.notifier)
+                          .postHallRest();
+                      if (!context.mounted) return;
+                      showGlassSnackBar(
+                        context,
+                        context.l10n.settingsHallRestStarted,
+                      );
+                    } catch (_) {
+                      if (!context.mounted) return;
+                      showGlassSnackBar(
+                        context,
+                        context.l10n.settingsHallRestFailed,
+                        errorStyle: true,
+                      );
+                    }
+                  },
+                ),
+                QuietRow(
                   icon: Icons.system_update_alt_outlined,
                   title: l10n.uiFirmware,
                   value: firmwareSnap.updateAvailable ? l10n.uiFirmwareNew : null,

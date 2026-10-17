@@ -40,6 +40,8 @@ abstract class BoardCommandPort {
 
   Future<void> postBrightness(int percent);
 
+  Future<void> postHallRest();
+
   Future<void> postLightCommand({
     required bool lampState,
     required int r,
@@ -129,6 +131,9 @@ class HttpBoardCommandPort implements BoardCommandPort {
   @override
   Future<void> postBrightness(int percent) =>
       _api.postBrightness(baseUrl, percent);
+
+  @override
+  Future<void> postHallRest() => _api.postHallRest(baseUrl);
 
   @override
   Future<void> postLightCommand({
@@ -222,6 +227,9 @@ class BleBoardCommandPort implements BoardCommandPort {
 
   @override
   Future<void> postBrightness(int percent) => _ble.postBrightness(percent);
+
+  @override
+  Future<void> postHallRest() => _ble.postHallRest();
 
   @override
   Future<void> postLightCommand({

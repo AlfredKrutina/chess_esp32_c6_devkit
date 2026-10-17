@@ -1,14 +1,13 @@
 /**
- * @file led_mapping.c  
- * @brief Correct mapping of the box position to the LED index (serpentine layout)
- * 
- * This module contains functions for converting drawer positions to LED indexes.
- * Uses a serpentine layout for optimal LED distribution on the box.
- * 
- * @details
- * Serpentine layout LED signs are laid out in a serpentine pattern:
- * a1,b1,c1,d1,e1,f1,g1,h1,h2,g2,f2,e2,d2,c2,b2,a2,a3,b3,c3...
- * This layout enables easy conversion of positions to LED indexes.
+ * @file led_mapping.c
+ * @brief Square to SK6812 index for the quadrant chain.
+ *
+ * Four identical 4x4 boards. Chain starts at e1. Each next board is
+ * rotated 90 degrees counter-clockwise from the previous one.
+ *   0-15  e1-h4  0 deg    e1..e4, f4..f1, g1..g4, h4..h1
+ *  16-31  e5-h8  90 CCW
+ *  32-47  a5-d8  180
+ *  48-63  a1-d4  270 CCW (quadrant not fitted on the bench)
  */
 
 #include "led_mapping.h"
@@ -18,15 +17,38 @@
 
 static const char *TAG = "LED_MAPPING";
 
+/* pos_to_led[rank 0..7][file a..h] */
+static const uint8_t pos_to_led[8][8] = {
+    {63, 62, 61, 60, 0, 7, 8, 15},
+    {56, 57, 58, 59, 1, 6, 9, 14},
+    {55, 54, 53, 52, 2, 5, 10, 13},
+    {48, 49, 50, 51, 3, 4, 11, 12},
+    {44, 43, 36, 35, 19, 18, 17, 16},
+    {45, 42, 37, 34, 20, 21, 22, 23},
+    {46, 41, 38, 33, 27, 26, 25, 24},
+    {47, 40, 39, 32, 28, 29, 30, 31},
+};
+
+static const uint8_t led_row[64] = {
+    0, 1, 2, 3, 3, 2, 1, 0, 0, 1, 2, 3, 3, 2, 1, 0,
+    4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
+    7, 6, 5, 4, 4, 5, 6, 7, 7, 6, 5, 4, 4, 5, 6, 7,
+    3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0,
+};
+
+static const uint8_t led_col[64] = {
+    4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
+    7, 6, 5, 4, 4, 5, 6, 7, 7, 6, 5, 4, 4, 5, 6, 7,
+    3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0,
+    0, 1, 2, 3, 3, 2, 1, 0, 0, 1, 2, 3, 3, 2, 1, 0,
+};
+
 /**
- * @brief Conversion of the box position to LED index (serpentine layout)
- * 
- * Layout: a1,b1,c1,d1,e1,f1,g1,h1,h2,g2,f2,e2,d2,c2,b2,a2,a3,b3,c3...
- * The box is rotated along the Y axis (a1 is at h1 position).
- * 
- * @param row Row (0-7, where 0=rank 1, 7=rank 8)  
- * @param col Column (0-7 where 0=a, 7=h)
- * @return LED index (0-63)
+ * @brief Square (row, col) to LED index on the quadrant chain.
+ *
+ * @param row Rank index (0 = rank 1, 7 = rank 8)
+ * @param col File index (0 = a, 7 = h)
+ * @return LED index 0-63
  */
 uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
 {
@@ -34,29 +56,16 @@ uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)
         ESP_LOGE(TAG, "Invalid chess position: row=%d, col=%d", row, col);
         return 0;
     }
-    
-    // The box is rotated along the Y axis (a1 is at h1 position)
-    // So col=0 (a) must be mapped to LED position 7 (h)
-    uint8_t mapped_col = 7 - col;
-    
-    if (row % 2 == 0) {
-        // Sude radky (0,2,4,6): normalni poradi a->h (ale s otocenymi sloupci)
-        return row * 8 + mapped_col;
-    } else {
-        // Liche radky (1,3,5,7): obracene poradi h->a (ale s otocenymi sloupci)
-        return row * 8 + (7 - mapped_col);
-    }
+
+    return pos_to_led[row][col];
 }
 
 /**
- * @brief Conversion of the LED index to a box position (serpentine layout)
- * 
- * Reverse operation to chess_pos_to_led_index(). Calculation from the LED index
- * the position of the row and column on the drawer.
- * 
+ * @brief LED index to square (row, col).
+ *
  * @param led_index LED index (0-63)
- * @param[out] row Pointer to row (0-7)
- * @param[out] col Pointer to column (0-7)
+ * @param[out] row Rank index (0 = rank 1)
+ * @param[out] col File index (0 = a)
  */
 void led_index_to_chess_pos(uint8_t led_index, uint8_t* row, uint8_t* col)
 {
@@ -66,17 +75,9 @@ void led_index_to_chess_pos(uint8_t led_index, uint8_t* row, uint8_t* col)
         if (col) *col = 0;
         return;
     }
-    
-    *row = led_index / 8;
-    uint8_t pos_in_row = led_index % 8;
-    
-    if (*row % 2 == 0) {
-        // Sude radky: normalni poradi (ale s otocenymi sloupci)
-        *col = 7 - pos_in_row;
-    } else {
-        // Liche radky: obracene poradi (ale s otocenymi sloupci)
-        *col = pos_in_row;
-    }
+
+    *row = led_row[led_index];
+    *col = led_col[led_index];
 }
 
 /**
@@ -126,13 +127,17 @@ void test_led_mapping(void)
         uint8_t expected_col;
         uint8_t expected_led;
     } test_cases[] = {
-        {"a1", 0, 0, 0},   // Prvni LED
-        {"h1", 0, 7, 7},   // Osma LED
-        {"h2", 1, 7, 8},   // Devata LED (zacatek druheho radku)
-        {"a2", 1, 0, 15},  // Sestnacta LED (konec druheho radku)
-        {"a3", 2, 0, 16},  // Sedmnacta LED
-        {"h8", 7, 7, 56},  // Prvni LED osmeho radku
-        {"a8", 7, 0, 63}   // Posledni LED
+        {"e1", 0, 4, 0},
+        {"e4", 3, 4, 3},
+        {"f4", 3, 5, 4},
+        {"h1", 0, 7, 15},
+        {"e5", 4, 4, 16},
+        {"e8", 7, 4, 28},
+        {"h8", 7, 7, 31},
+        {"d5", 4, 3, 35},
+        {"a5", 4, 0, 44},
+        {"a8", 7, 0, 47},
+        {"a1", 0, 0, 63},
     };
     
     for (int i = 0; i < sizeof(test_cases)/sizeof(test_cases[0]); i++) {

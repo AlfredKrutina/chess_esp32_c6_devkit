@@ -34,6 +34,9 @@ bool led_gesture_anim_busy(void);
 /** @brief Advance one frame. Called from the LED task. */
 void led_gesture_anim_tick(void);
 
+/** Held SW1. The LED task lights rank 1 and rank 8 until a gesture animation starts. */
+void led_gesture_set_button_held(bool held);
+
 /**
  * @brief Take the completion code and clear it.
  * @return The latched result, or LED_GESTURE_RESULT_NONE if nothing finished.

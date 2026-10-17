@@ -20,8 +20,24 @@ extern "C" {
 #define HALL_I2C_OWNADDR7BIT 0x30u
 #endif
 
+/**
+ * Eight ASCII bytes in flash, then the 7-bit address. The ESP bootloader
+ * finds "HALLADDR" in the image and writes 0x30+segment before programming
+ * that chip. Identical boards stay one binary.
+ */
+typedef struct __attribute__((packed)) {
+  char magic[8];
+  uint8_t addr7;
+  uint8_t reserved[3];
+} hall_i2c_addr_slot_t;
+
+extern const hall_i2c_addr_slot_t g_hall_i2c_addr_slot;
+
+/** 7-bit slave address, read from the slot so a patched image is honored. */
+uint8_t hall_i2c_own_addr7(void);
+
 /** OA1[7:1] value in STM32 LL format (7bit << 1). */
-#define HALL_I2C_ADDR_MATCH ((uint32_t)((uint32_t)HALL_I2C_OWNADDR7BIT << 1))
+#define HALL_I2C_ADDR_MATCH ((uint32_t)((uint32_t)hall_i2c_own_addr7() << 1))
 
 void SystemClock_Config(void);
 void Hall_RefreshPayload(void);

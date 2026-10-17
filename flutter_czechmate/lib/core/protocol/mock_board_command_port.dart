@@ -190,6 +190,11 @@ class MockBoardCommandPort implements BoardCommandPort {
   }
 
   @override
+  Future<void> postHallRest() async {
+    throw StateError(refuse(BoardCommandRefuse.brightnessNeedsBoard));
+  }
+
+  @override
   Future<void> postLightCommand({
     required bool lampState,
     required int r,

@@ -121,6 +121,23 @@ void stm32_i2c_bl_boot_flash_sync_prepare(void);
  */
 void stm32_i2c_bl_boot_flash_sync_wait(TickType_t timeout_ticks);
 
+/**
+ * Shared ESP-IDF i2c_master bus (driver/i2c_master.h). Idempotent.
+ * Hall calls this first; the bootloader reuses the same bus.
+ */
+esp_err_t chess_i2c_bus_init(int port, int sda_gpio, int scl_gpio);
+
+esp_err_t chess_i2c_transmit(uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us,
+                             const uint8_t *data, size_t len, int timeout_ms);
+
+esp_err_t chess_i2c_receive(uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us,
+                            uint8_t *data, size_t len, int timeout_ms);
+
+esp_err_t chess_i2c_transmit_receive(uint8_t addr7, uint32_t freq_hz,
+                                     uint32_t scl_wait_us, const uint8_t *wdata,
+                                     size_t wlen, uint8_t *rdata, size_t rlen,
+                                     int timeout_ms);
+
 #ifdef __cplusplus
 }
 #endif

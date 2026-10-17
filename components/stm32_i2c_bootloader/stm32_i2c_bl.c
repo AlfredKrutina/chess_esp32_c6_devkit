@@ -1,6 +1,6 @@
 #include "stm32_i2c_bl.h"
 #include "driver/gpio.h"
-#include "driver/i2c.h"
+#include "driver/i2c_master.h"
 #include "esp_check.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -8,6 +8,7 @@
 #include "freertos/task.h"
 #include "sdkconfig.h"
 #include <inttypes.h>
+#include <stdio.h>
 #include <string.h>
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
@@ -15,6 +16,150 @@
 #include "esp_rom_crc.h"
 #include "nvs.h"
 #endif
+
+static const char *CHESS_I2C_TAG = "CHESS_I2C";
+
+#define CHESS_I2C_DEV_SLOTS 8
+
+typedef struct {
+  bool used;
+  uint8_t addr7;
+  i2c_master_dev_handle_t dev;
+} chess_i2c_dev_slot_t;
+
+static i2c_master_bus_handle_t s_i2c_bus;
+static bool s_i2c_bus_ready;
+static SemaphoreHandle_t s_i2c_lock;
+static chess_i2c_dev_slot_t s_i2c_devs[CHESS_I2C_DEV_SLOTS];
+
+static void chess_i2c_recover(void) {
+  if (s_i2c_bus != NULL) {
+    i2c_master_bus_reset(s_i2c_bus);
+  }
+}
+
+esp_err_t chess_i2c_bus_init(int port, int sda_gpio, int scl_gpio) {
+  if (s_i2c_bus_ready) {
+    return ESP_OK;
+  }
+  if (s_i2c_lock == NULL) {
+    s_i2c_lock = xSemaphoreCreateMutex();
+    if (s_i2c_lock == NULL) {
+      return ESP_ERR_NO_MEM;
+    }
+  }
+  i2c_master_bus_config_t cfg = {
+      .i2c_port = (i2c_port_num_t)port,
+      .sda_io_num = (gpio_num_t)sda_gpio,
+      .scl_io_num = (gpio_num_t)scl_gpio,
+      .clk_source = I2C_CLK_SRC_DEFAULT,
+      .glitch_ignore_cnt = 7,
+      .flags.enable_internal_pullup = 1,
+  };
+  esp_err_t err = i2c_new_master_bus(&cfg, &s_i2c_bus);
+  if (err != ESP_OK) {
+    ESP_LOGE(CHESS_I2C_TAG, "i2c_new_master_bus: %s", esp_err_to_name(err));
+    return err;
+  }
+  s_i2c_bus_ready = true;
+  ESP_LOGI(CHESS_I2C_TAG, "i2c_master bus port=%d SDA=%d SCL=%d", port, sda_gpio,
+           scl_gpio);
+  return ESP_OK;
+}
+
+static esp_err_t chess_i2c_dev(uint8_t addr7, uint32_t freq_hz,
+                               uint32_t scl_wait_us,
+                               i2c_master_dev_handle_t *out) {
+  if (!s_i2c_bus_ready || s_i2c_bus == NULL) {
+    return ESP_ERR_INVALID_STATE;
+  }
+  if (freq_hz == 0 || out == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  if (s_i2c_lock != NULL) {
+    xSemaphoreTake(s_i2c_lock, portMAX_DELAY);
+  }
+  esp_err_t err = ESP_OK;
+  i2c_master_dev_handle_t found = NULL;
+  for (int i = 0; i < CHESS_I2C_DEV_SLOTS; i++) {
+    if (s_i2c_devs[i].used && s_i2c_devs[i].addr7 == addr7) {
+      found = s_i2c_devs[i].dev;
+      break;
+    }
+  }
+  if (found == NULL) {
+    int slot = -1;
+    for (int i = 0; i < CHESS_I2C_DEV_SLOTS; i++) {
+      if (!s_i2c_devs[i].used) {
+        slot = i;
+        break;
+      }
+    }
+    if (slot < 0) {
+      err = ESP_ERR_NO_MEM;
+    } else {
+      i2c_device_config_t dev_cfg = {
+          .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+          .device_address = addr7,
+          .scl_speed_hz = freq_hz,
+          .scl_wait_us = scl_wait_us,
+      };
+      err = i2c_master_bus_add_device(s_i2c_bus, &dev_cfg, &found);
+      if (err == ESP_OK) {
+        s_i2c_devs[slot].used = true;
+        s_i2c_devs[slot].addr7 = addr7;
+        s_i2c_devs[slot].dev = found;
+      }
+    }
+  }
+  if (s_i2c_lock != NULL) {
+    xSemaphoreGive(s_i2c_lock);
+  }
+  if (err == ESP_OK) {
+    *out = found;
+  }
+  return err;
+}
+
+static esp_err_t chess_i2c_checked(esp_err_t err) {
+  if (err == ESP_ERR_TIMEOUT || err == ESP_ERR_INVALID_STATE) {
+    chess_i2c_recover();
+  }
+  return err;
+}
+
+esp_err_t chess_i2c_transmit(uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us,
+                             const uint8_t *data, size_t len, int timeout_ms) {
+  i2c_master_dev_handle_t dev = NULL;
+  esp_err_t err = chess_i2c_dev(addr7, freq_hz, scl_wait_us, &dev);
+  if (err != ESP_OK) {
+    return err;
+  }
+  return chess_i2c_checked(i2c_master_transmit(dev, data, len, timeout_ms));
+}
+
+esp_err_t chess_i2c_receive(uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us,
+                            uint8_t *data, size_t len, int timeout_ms) {
+  i2c_master_dev_handle_t dev = NULL;
+  esp_err_t err = chess_i2c_dev(addr7, freq_hz, scl_wait_us, &dev);
+  if (err != ESP_OK) {
+    return err;
+  }
+  return chess_i2c_checked(i2c_master_receive(dev, data, len, timeout_ms));
+}
+
+esp_err_t chess_i2c_transmit_receive(uint8_t addr7, uint32_t freq_hz,
+                                     uint32_t scl_wait_us, const uint8_t *wdata,
+                                     size_t wlen, uint8_t *rdata, size_t rlen,
+                                     int timeout_ms) {
+  i2c_master_dev_handle_t dev = NULL;
+  esp_err_t err = chess_i2c_dev(addr7, freq_hz, scl_wait_us, &dev);
+  if (err != ESP_OK) {
+    return err;
+  }
+  return chess_i2c_checked(i2c_master_transmit_receive(dev, wdata, wlen, rdata,
+                                                       rlen, timeout_ms));
+}
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
 
@@ -37,11 +182,19 @@ extern bool squares_scanning_enabled;
 
 static bool s_inited;
 
-static i2c_port_t bl_port(void) {
+static int bl_port(void) {
 #if CONFIG_CHESS_STM32_BL_SHARE_I2C_HALL
-  return (i2c_port_t)CONFIG_CHESS_HALL_I2C_PORT_NUM;
+  return CONFIG_CHESS_HALL_I2C_PORT_NUM;
 #else
-  return (i2c_port_t)CONFIG_CHESS_STM32_BL_I2C_PORT_NUM;
+  return CONFIG_CHESS_STM32_BL_I2C_PORT_NUM;
+#endif
+}
+
+static uint32_t bl_i2c_freq_hz(void) {
+#if CONFIG_CHESS_STM32_BL_SHARE_I2C_HALL
+  return (uint32_t)CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ;
+#else
+  return (uint32_t)CONFIG_CHESS_STM32_BL_I2C_FREQ_HZ;
 #endif
 }
 
@@ -71,14 +224,118 @@ static uint8_t bl_xor_buf(const uint8_t *p, size_t n) {
   return x;
 }
 
+/** Bootloader clock-stretch budget. Replaces legacy i2c_set_timeout(0x1F). */
+#define BL_SCL_WAIT_US 100000u
+
 static esp_err_t bl_i2c_write(const uint8_t *data, size_t len) {
-  return i2c_master_write_to_device(bl_port(), bl_addr7(), data, len,
-                                    pdMS_TO_TICKS(500));
+  return chess_i2c_transmit(bl_addr7(), bl_i2c_freq_hz(), BL_SCL_WAIT_US, data,
+                            len, 500);
 }
 
 static esp_err_t bl_i2c_read(uint8_t *data, size_t len, int timeout_ms) {
-  return i2c_master_read_from_device(bl_port(), bl_addr7(), data, len,
-                                     pdMS_TO_TICKS(timeout_ms));
+  return chess_i2c_receive(bl_addr7(), bl_i2c_freq_hz(), BL_SCL_WAIT_US, data,
+                           len, timeout_ms);
+}
+
+static int bl_sda_gpio(void) {
+#if CONFIG_CHESS_STM32_BL_SHARE_I2C_HALL
+  return CONFIG_CHESS_HALL_I2C_SDA_GPIO;
+#else
+  return CONFIG_CHESS_STM32_BL_I2C_SDA_GPIO;
+#endif
+}
+
+static int bl_scl_gpio(void) {
+#if CONFIG_CHESS_STM32_BL_SHARE_I2C_HALL
+  return CONFIG_CHESS_HALL_I2C_SCL_GPIO;
+#else
+  return CONFIG_CHESS_STM32_BL_I2C_SCL_GPIO;
+#endif
+}
+
+/** DEBUG: raw SDA/SCL pad levels (who holds the bus low). */
+static void bl_log_bus(const char *tag) {
+  ESP_LOGI(TAG, "[bus] %s: SDA=%d SCL=%d", tag,
+           gpio_get_level((gpio_num_t)bl_sda_gpio()),
+           gpio_get_level((gpio_num_t)bl_scl_gpio()));
+}
+
+/** DEBUG: one read transaction with raw bytes + elapsed ms in the log. */
+static esp_err_t bl_dbg_read(const char *name, uint8_t *buf, size_t len,
+                             int timeout_ms) {
+  TickType_t t0 = xTaskGetTickCount();
+  esp_err_t e = bl_i2c_read(buf, len, timeout_ms);
+  uint32_t dt_ms = (uint32_t)pdTICKS_TO_MS(xTaskGetTickCount() - t0);
+  char hex[40] = {0};
+  size_t n = len > 8 ? 8 : len;
+  for (size_t i = 0; i < n; i++) {
+    snprintf(hex + 3 * i, sizeof(hex) - 3 * i, "%02X ", buf[i]);
+  }
+  if (e == ESP_OK) {
+    ESP_LOGI(TAG, "[dbg] %s: read %u B OK in %u ms: %s", name, (unsigned)len,
+             (unsigned)dt_ms, hex);
+  } else {
+    ESP_LOGE(TAG, "[dbg] %s: read %u B %s after %u ms (buf: %s)", name,
+             (unsigned)len, esp_err_to_name(e), (unsigned)dt_ms, hex);
+  }
+  return e;
+}
+
+/**
+ * GET_ID frames: cmd write | 1 B ACK | 3 B (N,PID,PID) | 1 B ACK.
+ * The closing ACK is its own read. A 4-byte read left SCL low on the legacy driver.
+ */
+static esp_err_t bl_get_id(uint16_t *pid_out) {
+  uint8_t pair[2] = {0x02u, (uint8_t)~0x02u};
+  ESP_LOGI(TAG, "[get_id] DEBUG: cmd write | ACK(1) | data(3) | ACK(1)");
+  bl_log_bus("get_id start");
+  esp_err_t err = bl_i2c_write(pair, sizeof(pair));
+  if (err != ESP_OK) {
+    ESP_LOGE(TAG, "[get_id] cmd write: %s", esp_err_to_name(err));
+    return err;
+  }
+  bl_log_bus("after cmd write");
+  bl_inter_frame();
+
+  uint8_t ack = 0;
+  err = bl_dbg_read("frame1 ACK", &ack, 1, 200);
+  bl_log_bus("after frame1");
+  if (err != ESP_OK) {
+    return err;
+  }
+  if (ack != STM32_ACK) {
+    ESP_LOGE(TAG, "[get_id] frame1 byte 0x%02x (expect ACK 0x79)", ack);
+    return ESP_ERR_INVALID_RESPONSE;
+  }
+  bl_inter_frame();
+
+  uint8_t d[3] = {0};
+  err = bl_dbg_read("frame2 data", d, sizeof(d), 200);
+  bl_log_bus("after frame2");
+  if (err != ESP_OK) {
+    return err;
+  }
+  if (d[0] != 1u) {
+    ESP_LOGE(TAG, "[get_id] N=0x%02x (expect 0x01): data not in this frame",
+             d[0]);
+    return ESP_ERR_INVALID_RESPONSE;
+  }
+  uint16_t pid = (uint16_t)(((uint16_t)d[1] << 8) | d[2]);
+  bl_inter_frame();
+  uint8_t ack2 = 0;
+  err = bl_dbg_read("frame3 ACK", &ack2, 1, 200);
+  bl_log_bus("after frame3");
+  if (err != ESP_OK) {
+    return err;
+  }
+  if (ack2 != STM32_ACK) {
+    ESP_LOGW(TAG, "[get_id] trailing byte 0x%02x (expect ACK 0x79)", ack2);
+  }
+  ESP_LOGI(TAG, "[get_id] PID=0x%04X", (unsigned)pid);
+  if (pid_out != NULL) {
+    *pid_out = pid;
+  }
+  return ESP_OK;
 }
 
 static esp_err_t bl_wait_ack(uint32_t timeout_ms) {
@@ -240,52 +497,26 @@ esp_err_t stm32_i2c_bl_init(void) {
   }
 
 #if !CONFIG_CHESS_STM32_BL_SHARE_I2C_HALL
-  i2c_config_t cfg = {
-      .mode = I2C_MODE_MASTER,
-      .sda_io_num = CONFIG_CHESS_STM32_BL_I2C_SDA_GPIO,
-      .scl_io_num = CONFIG_CHESS_STM32_BL_I2C_SCL_GPIO,
-      .sda_pullup_en = GPIO_PULLUP_ENABLE,
-      .scl_pullup_en = GPIO_PULLUP_ENABLE,
-      .master.clk_speed = CONFIG_CHESS_STM32_BL_I2C_FREQ_HZ,
-      .clk_flags = 0,
-  };
-  ESP_RETURN_ON_ERROR(i2c_param_config(bl_port(), &cfg), TAG,
-                      "i2c_param_config");
-  esp_err_t er =
-      i2c_driver_install(bl_port(), I2C_MODE_MASTER, 0, 0, 0);
-  if (er != ESP_OK && er != ESP_ERR_INVALID_STATE) {
-    ESP_LOGE(TAG, "i2c_driver_install: %s", esp_err_to_name(er));
-    return er;
-  }
+  ESP_RETURN_ON_ERROR(chess_i2c_bus_init(CONFIG_CHESS_STM32_BL_I2C_PORT_NUM,
+                                         CONFIG_CHESS_STM32_BL_I2C_SDA_GPIO,
+                                         CONFIG_CHESS_STM32_BL_I2C_SCL_GPIO),
+                      TAG, "i2c bus");
   bl_apply_bus_pullups(CONFIG_CHESS_STM32_BL_I2C_SDA_GPIO,
                        CONFIG_CHESS_STM32_BL_I2C_SCL_GPIO);
 #else
   {
-    i2c_config_t cfg = {
-        .mode = I2C_MODE_MASTER,
-        .sda_io_num = CONFIG_CHESS_HALL_I2C_SDA_GPIO,
-        .scl_io_num = CONFIG_CHESS_HALL_I2C_SCL_GPIO,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
-        .clk_flags = 0,
-    };
-    esp_err_t er = i2c_param_config(bl_port(), &cfg);
+    esp_err_t er = chess_i2c_bus_init(CONFIG_CHESS_HALL_I2C_PORT_NUM,
+                                      CONFIG_CHESS_HALL_I2C_SDA_GPIO,
+                                      CONFIG_CHESS_HALL_I2C_SCL_GPIO);
     if (er != ESP_OK) {
-      ESP_LOGE(TAG, "shared I2C param: %s", esp_err_to_name(er));
+      ESP_LOGE(TAG, "shared I2C bus: %s", esp_err_to_name(er));
       return er;
     }
     bl_apply_bus_pullups(CONFIG_CHESS_HALL_I2C_SDA_GPIO,
                          CONFIG_CHESS_HALL_I2C_SCL_GPIO);
-    /* Install driver if Hall init has not run yet; tolerate already-installed. */
-    er = i2c_driver_install(bl_port(), I2C_MODE_MASTER, 0, 0, 0);
-    if (er != ESP_OK && er != ESP_ERR_INVALID_STATE) {
-      ESP_LOGE(TAG, "shared I2C driver install: %s", esp_err_to_name(er));
-      return er;
-    }
     ESP_LOGI(TAG,
-             "STM32 BL shares Hall I2C port %d @ %d Hz (Hall init used %d Hz)",
-             (int)bl_port(), CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
+             "STM32 BL shares Hall i2c_master port %d @ %d Hz (Hall init used %d Hz)",
+             bl_port(), CONFIG_CHESS_STM32_BL_SHARED_I2C_FREQ_HZ,
              CONFIG_CHESS_HALL_I2C_FREQ_HZ);
   }
 #endif
@@ -440,35 +671,10 @@ esp_err_t stm32_i2c_bl_cmd_get_id(uint8_t segment_0_to_3, bool boot0_enter,
     return err;
   }
 
-  err = bl_send_command_byte_pair(0x02);
+  err = bl_get_id(pid_out);
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "[get_id] GET_ID cmd fail: %s", esp_err_to_name(err));
     goto done;
-  }
-
-  bl_inter_frame();
-  uint8_t blk[5];
-  memset(blk, 0, sizeof(blk));
-  ESP_LOGI(TAG, "[get_id] reading 5 B replies…");
-  err = bl_i2c_read(blk, sizeof(blk), 400);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "[get_id] read: %s", esp_err_to_name(err));
-    goto done;
-  }
-
-  ESP_LOGI(TAG, "[get_id] raw: %02X %02X %02X %02X %02X", blk[0], blk[1],
-           blk[2], blk[3], blk[4]);
-
-  if (blk[0] != STM32_ACK) {
-    ESP_LOGE(TAG, "[get_id] first byte not ACK (0x%02x)", blk[0]);
-    err = ESP_ERR_INVALID_RESPONSE;
-    goto done;
-  }
-
-  *pid_out = (uint16_t)(((uint16_t)blk[2] << 8) | blk[3]);
-  ESP_LOGI(TAG, "[get_id] PID=0x%04X", (unsigned)*pid_out);
-  if (blk[4] != STM32_ACK) {
-    ESP_LOGW(TAG, "[get_id] final byte 0x%02x (expect. ACK)", blk[4]);
   }
 
 done:
@@ -589,46 +795,26 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
   }
 
   ESP_LOGI(TAG, "[flash_bin] GET_ID (0x02) — kontrola ROM I²C bootloaderu…");
-  err = bl_send_command_byte_pair(0x02);
-  if (err == ESP_FAIL) {
-    ESP_LOGW(TAG,
-             "[flash_bin] GET_ID 1st attempt NACK/ESP_FAIL — I wait 120ms and repeat…");
-    vTaskDelay(pdMS_TO_TICKS(120));
-    err = bl_send_command_byte_pair(0x02);
-  }
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG,
-             "[flash_bin] GET_ID write failed (%s) on 7-bit 0x%02x — typically NACK: STM"
-             "not in system memory or bad bus. Check: ESP continuity "
-             "SDA/SCL (GPIO Hall) ↔ STM PB7/PB6, common ground, BOOT0 at NRST↑, NRST "
-             "polarity; chip other than C031 → address in AN2606 (C011=0x64).",
-             esp_err_to_name(err), (unsigned)bl_addr7());
-    goto restore;
-  }
-  bl_inter_frame();
   {
-    uint8_t gid[5];
-    memset(gid, 0, sizeof(gid));
-    err = bl_i2c_read(gid, sizeof(gid), 400);
+    uint16_t pid = 0;
+    err = bl_get_id(&pid);
+    if (err == ESP_FAIL) {
+      ESP_LOGW(TAG, "[flash_bin] GET_ID NACK — wait 120 ms and repeat");
+      vTaskDelay(pdMS_TO_TICKS(120));
+      err = bl_get_id(&pid);
+    }
+    if (err == ESP_FAIL) {
+      ESP_LOGW(TAG,
+               "[flash_bin] seg%u: no ROM bootloader (ESP_FAIL) — board not fitted, skip",
+               segment_0_to_3);
+      err = ESP_ERR_NOT_FOUND;
+      goto restore;
+    }
     if (err != ESP_OK) {
-      ESP_LOGE(TAG, "[flash_bin] GET_ID read: %s", esp_err_to_name(err));
+      ESP_LOGE(TAG, "[flash_bin] GET_ID: %s", esp_err_to_name(err));
       goto restore;
     }
-    ESP_LOGI(TAG,
-             "[flash_bin] GET_ID raw: %02X %02X %02X %02X %02X",
-             gid[0], gid[1], gid[2], gid[3], gid[4]);
-    if (gid[0] != STM32_ACK) {
-      ESP_LOGE(TAG,
-               "[flash_bin] GET_ID: first byte 0x%02x (expect. ACK 0x79) — bad "
-               "protocol or other device on the bus",
-               gid[0]);
-      err = ESP_ERR_INVALID_RESPONSE;
-      goto restore;
-    }
-    uint16_t pid =
-        (uint16_t)(((uint16_t)gid[2] << 8) | (uint16_t)gid[3]);
-    ESP_LOGI(TAG,
-             "[flash_bin] PID=0x%04X — continuing mass erase (0x44)",
+    ESP_LOGI(TAG, "[flash_bin] PID=0x%04X — continuing mass erase (0x44)",
              (unsigned)pid);
   }
 
@@ -734,6 +920,8 @@ restore:
     }
 #endif
     ESP_LOGI(TAG, "[flash_bin] KONEC seg=%u OK", segment_0_to_3);
+  } else if (err == ESP_ERR_NOT_FOUND) {
+    ESP_LOGW(TAG, "[flash_bin] END seg=%u not fitted", segment_0_to_3);
   } else {
     ESP_LOGE(TAG, "[flash_bin] END seg=%u error: %s", segment_0_to_3,
              esp_err_to_name(err));
@@ -832,9 +1020,60 @@ esp_err_t stm32_i2c_bl_flash_binary(uint8_t segment_0_to_3, bool boot0_enter,
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
 
-static esp_err_t stm32_bl_fill_from_partition(void *ctx, size_t off, uint8_t *dst,
-                                              size_t len) {
-  return esp_partition_read((const esp_partition_t *)ctx, off, dst, len);
+static const char k_hall_addr_magic[8] = {'H', 'A', 'L', 'L', 'A', 'D', 'D', 'R'};
+
+typedef struct {
+  const esp_partition_t *part;
+  uint8_t addr7;
+  size_t addr_off;
+} stm32_part_fill_ctx_t;
+
+static esp_err_t stm32_bl_find_addr_slot(const esp_partition_t *part, size_t eff,
+                                         size_t *addr_off) {
+  uint8_t buf[256];
+  uint8_t prev[7];
+  size_t prev_n = 0;
+  size_t off = 0;
+
+  *addr_off = SIZE_MAX;
+  while (off < eff) {
+    size_t n = eff - off;
+    if (n > sizeof(buf)) {
+      n = sizeof(buf);
+    }
+    esp_err_t e = esp_partition_read(part, off, buf, n);
+    if (e != ESP_OK) {
+      return e;
+    }
+    uint8_t look[sizeof(buf) + 7];
+    memcpy(look, prev, prev_n);
+    memcpy(look + prev_n, buf, n);
+    size_t look_n = prev_n + n;
+    size_t origin = off - prev_n;
+    for (size_t i = 0; i + 8 <= look_n; i++) {
+      if (memcmp(look + i, k_hall_addr_magic, 8) == 0) {
+        *addr_off = origin + i + 8;
+        return ESP_OK;
+      }
+    }
+    prev_n = look_n >= 7 ? 7 : look_n;
+    memcpy(prev, look + look_n - prev_n, prev_n);
+    off += n;
+  }
+  return ESP_ERR_NOT_FOUND;
+}
+
+static esp_err_t stm32_bl_fill_patched(void *ctx, size_t off, uint8_t *dst,
+                                       size_t len) {
+  stm32_part_fill_ctx_t *fill = (stm32_part_fill_ctx_t *)ctx;
+  esp_err_t e = esp_partition_read(fill->part, off, dst, len);
+  if (e != ESP_OK || fill->addr_off == SIZE_MAX) {
+    return e;
+  }
+  if (fill->addr_off >= off && fill->addr_off < off + len) {
+    dst[fill->addr_off - off] = fill->addr7;
+  }
+  return ESP_OK;
 }
 
 /** Content length without trailing 0xFF (read in blocks from the end — no big malloc). */
@@ -904,8 +1143,9 @@ static esp_err_t bl_probe_hall_segment_once(uint8_t seg, int timeout_ms) {
   uint8_t addr = bl_hall_segment_addr7(seg);
   uint8_t reg = (uint8_t)CONFIG_CHESS_HALL_REG_START;
   uint8_t buf[2];
-  return i2c_master_write_read_device(bl_port(), addr, &reg, 1, buf,
-                                      sizeof(buf), pdMS_TO_TICKS(timeout_ms));
+  return chess_i2c_transmit_receive(addr, (uint32_t)CONFIG_CHESS_HALL_I2C_FREQ_HZ,
+                                    20000, &reg, 1, buf, sizeof(buf),
+                                    timeout_ms);
 }
 
 static esp_err_t bl_probe_hall_segment_retries(uint8_t seg) {
@@ -926,8 +1166,8 @@ static esp_err_t bl_probe_hall_segment_retries(uint8_t seg) {
   return last;
 }
 
-/** Validates Hall response for all segments that have NRST GPIO. */
-static bool bl_probe_all_nrst_hall_segments(bool log_ok) {
+/** Hall check. fitted_mask 0 probes every segment in range; otherwise only those bits. */
+static bool bl_probe_all_nrst_hall_segments(bool log_ok, uint32_t fitted_mask) {
   bool all_ok = true;
   bool any = false;
 
@@ -935,6 +1175,15 @@ static bool bl_probe_all_nrst_hall_segments(bool log_ok) {
     if (NRST_CFG(seg) < 0) {
       continue;
     }
+    if (fitted_mask != 0 && (fitted_mask & (1u << seg)) == 0) {
+      continue;
+    }
+#if defined(CONFIG_CHESS_HALL_SEGMENT_COUNT)
+    /* PCB brings out NRST for four footprints; only populated segments are probed. */
+    if (fitted_mask == 0 && seg >= (unsigned)CONFIG_CHESS_HALL_SEGMENT_COUNT) {
+      continue;
+    }
+#endif
     any = true;
     esp_err_t pe = bl_probe_hall_segment_retries((uint8_t)seg);
     if (pe != ESP_OK) {
@@ -1073,14 +1322,19 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     if (nvs_open("stm32_bl", NVS_READONLY, &h) == ESP_OK) {
       uint32_t oc = 0;
       uint32_t ol = 0;
+      uint32_t omask = 0;
       esp_err_t ge1 = nvs_get_u32(h, "af_crc", &oc);
       esp_err_t ge2 = nvs_get_u32(h, "af_len", &ol);
+      esp_err_t ge3 = nvs_get_u32(h, "af_mask", &omask);
       nvs_close(h);
+      if (ge3 != ESP_OK) {
+        omask = 0;
+      }
       if (ge1 == ESP_OK && ge2 == ESP_OK && oc == crc &&
           ol == (uint32_t)eff) {
 #if CONFIG_CHESS_STM32_BL_REFLASH_IF_HALL_MISSING &&                          \
     CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-        if (!bl_probe_all_nrst_hall_segments(false)) {
+        if (!bl_probe_all_nrst_hall_segments(false, omask)) {
           ESP_LOGW(TAG_A,
                    "NVS says the same image, but Hall doesn't answer — "
                    "force auto-flash (STM replacement / blank chip?)");
@@ -1093,7 +1347,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
                    crc, (uint32_t)eff);
 #if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                            \
     CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-          (void)bl_probe_all_nrst_hall_segments(true);
+          (void)bl_probe_all_nrst_hall_segments(true, omask);
 #endif
           goto out;
         }
@@ -1111,8 +1365,17 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
            "(BOOT0 GPIO=%d)",
            base, use_boot ? 1 : 0, CONFIG_CHESS_STM32_BL_BOOT0_GPIO);
 
+  size_t addr_off = SIZE_MAX;
+  if (stm32_bl_find_addr_slot(part, eff, &addr_off) != ESP_OK) {
+    ESP_LOGE(TAG_A,
+             "STM image has no HALLADDR slot — rebuild firmware/stm32_hall_c031 "
+             "into embedded/stm32_fw_embedded.bin before flashing");
+    goto out;
+  }
+
   bool any_nrst = false;
   bool all_ok = true;
+  uint32_t written_mask = 0;
   for (unsigned seg = 0; seg < 4; seg++) {
     int nrst = seg == 0   ? CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0
                : seg == 1 ? CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG1
@@ -1121,17 +1384,36 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     if (nrst < 0) {
       continue;
     }
+#if defined(CONFIG_CHESS_HALL_SEGMENT_COUNT)
+    if (seg >= (unsigned)CONFIG_CHESS_HALL_SEGMENT_COUNT) {
+      continue;
+    }
+#endif
     any_nrst = true;
-    ESP_LOGI(TAG_A, "segment %u: uploading %" PRIu32 " B → STM @0x%08" PRIx32,
-             seg, (uint32_t)eff, base);
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    uint8_t addr7 = bl_hall_segment_addr7(seg);
+#else
+    uint8_t addr7 = (uint8_t)(0x30u + seg);
+#endif
+    stm32_part_fill_ctx_t fill_ctx = {
+        .part = part,
+        .addr7 = addr7,
+        .addr_off = addr_off,
+    };
+    ESP_LOGI(TAG_A,
+             "segment %u: uploading %" PRIu32 " B → STM @0x%08" PRIx32
+             " as I2C 0x%02x",
+             seg, (uint32_t)eff, base, addr7);
     esp_err_t fe = stm32_i2c_bl_flash_binary_impl(
-        (uint8_t)seg, use_boot, base, eff, stm32_bl_fill_from_partition,
-        (void *)part);
-    if (fe != ESP_OK) {
+        (uint8_t)seg, use_boot, base, eff, stm32_bl_fill_patched, &fill_ctx);
+    if (fe == ESP_ERR_NOT_FOUND) {
+      ESP_LOGW(TAG_A, "segment %u: not fitted", seg);
+    } else if (fe != ESP_OK) {
       ESP_LOGE(TAG_A, "segment %u: %s", seg, esp_err_to_name(fe));
       all_ok = false;
     } else {
-      ESP_LOGI(TAG_A, "segment %u: hotovo", seg);
+      written_mask |= (1u << seg);
+      ESP_LOGI(TAG_A, "segment %u: hotovo (I2C 0x%02x)", seg, addr7);
     }
   }
 
@@ -1140,11 +1422,11 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
              "no NRST GPIO — set CHESS_STM32_BL_NRST_GPIO_SEG* in menuconfig");
   }
 
-  if (all_ok && any_nrst) {
+  if (all_ok && written_mask != 0) {
     bool hall_ok = true;
 #if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                          \
     CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-    hall_ok = bl_probe_all_nrst_hall_segments(true);
+    hall_ok = bl_probe_all_nrst_hall_segments(true, written_mask);
     if (!hall_ok) {
       ESP_LOGE(TAG_A,
                "auto-flash write OK, but Hall doesn't respond — NVS won't save, "
@@ -1156,6 +1438,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
       if (nvs_open("stm32_bl", NVS_READWRITE, &hw) == ESP_OK) {
         nvs_set_u32(hw, "af_crc", crc);
         nvs_set_u32(hw, "af_len", (uint32_t)eff);
+        nvs_set_u32(hw, "af_mask", written_mask);
         nvs_commit(hw);
         nvs_close(hw);
         ESP_LOGI(TAG_A,

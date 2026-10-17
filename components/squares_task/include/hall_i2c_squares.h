@@ -45,6 +45,17 @@ esp_err_t hall_i2c_squares_probe_segment(uint8_t segment_0_to_3, int timeout_ms)
  */
 void hall_i2c_squares_fill_state(uint8_t squares_state[64]);
 
+/** How many segments this build reads (1…4). */
+unsigned hall_i2c_squares_segment_count(void);
+
+/**
+ * One raw STM payload: 32 little-endian samples (16 fields × 2 sensors).
+ * addr_out is set even when the read fails, so the console can show 0x30–0x33.
+ */
+esp_err_t hall_i2c_squares_read_segment_raw(uint8_t segment_0_to_3,
+                                            uint8_t *addr_out,
+                                            uint16_t raw[32]);
+
 /**
  * @brief Whether occupancy readings are safe to compare with the logical board.
  *
@@ -64,6 +75,20 @@ bool hall_i2c_squares_readings_usable(void);
  * @param empty_squares 64 bytes, 1 = logically empty. NULL is ignored.
  */
 void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64]);
+
+/**
+ * After boot, light a1, h1, h8, a8 one at a time. Place a piece on the lit
+ * square and leave it. Logs which segment/field moved. Does not change the map.
+ */
+void hall_i2c_squares_corner_probe(void);
+
+/* Debug: light the square whose Hall moved off the fresh rest value.
+ * Comment this out to return to the normal game scan. */
+#define HALL_DEBUG_LIGHT_WHERE_PIECE 1
+
+void hall_i2c_squares_debug_light_pieces(void);
+
+void hall_i2c_squares_request_rest_measure(void);
 
 /* Piece classification POC. Kept separate from engine piece_t; game_task
  * maps and compares. Thresholds are the POC constants in hall_i2c_squares.c,

@@ -3,25 +3,14 @@
  * @brief ESP32-C6 Chess System - LED Mapping function
  * 
  * This module provides functions to convert between drawer positions and LED indices.
- * Uses a serpentine layout for optimal LED distribution on the box.
- * 
- * @author Alfred Krutina
- * @version 1.8.0
- * @date 2025-08-24
- * 
- * @details
- * LED Mapping module converts box positions (row, column) to LED indexes
- * and vice versa. It uses a serpentine layout for the serpentine layout of the LED strip:
- * - Even rows: a->h (left to right)
- * - Odd rows: h->a (right to left)
- * 
- * Example serpentine layout:
- * @code
- * Row 1: LED 0, 1, 2, 3, 4, 5, 6, 7 (a1->h1)
- * Row 2: LED 15, 14, 13, 12, 11, 10, 9, 8 (h2->a2)
- * Row 3: LED 16, 17, 18, 19, 20, 21, 22, 23 (a3->h3)
- * ...
- * @endcode
+ * Four identical 4x4 boards. The chain starts at e1. Each next board
+ * is the same serpentine rotated 90 degrees counter-clockwise.
+ *
+ * Chain:
+ * - LEDs 0-15:  e1 e2 e3 e4 f4 f3 f2 f1 g1 g2 g3 g4 h4 h3 h2 h1
+ * - LEDs 16-31: h5 g5 f5 e5 e6 f6 g6 h6 h7 g7 f7 e7 e8 f8 g8 h8
+ * - LEDs 32-47: d8 d7 d6 d5 c5 c6 c7 c8 b8 b7 b6 b5 a5 a6 a7 a8
+ * - LEDs 48-63: a4 b4 c4 d4 d3 c3 b3 a3 a2 b2 c2 d2 d1 c1 b1 a1
  */
 
 #ifndef LED_MAPPING_H

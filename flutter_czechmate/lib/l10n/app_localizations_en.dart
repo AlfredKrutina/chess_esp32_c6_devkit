@@ -3574,6 +3574,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTileBoardLightTitle => 'Board light';
 
   @override
+  String get settingsHallRestTitle => 'Measure empty board';
+
+  @override
+  String get settingsHallRestStarted =>
+      'Empty-board measurement started. Leave the board clear until it finishes.';
+
+  @override
+  String get settingsHallRestFailed =>
+      'Could not start the measurement. Connect to the board and try again.';
+
+  @override
   String get settingsTileBoardLightSubtitle =>
       'Color, brightness, scenes, auto-off';
 

@@ -342,6 +342,14 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
+  Future<void> postHallRest(String baseUrl) async {
+    final uri = _api(baseUrl, 'api/settings/hall-rest');
+    final res = await _client
+        .post(uri, headers: _headersJson(), body: '{}')
+        .timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  }
+
   Future<ESPMQTTStatusJSON> fetchMQTTStatus(String baseUrl) async {
     final uri = _api(baseUrl, 'api/mqtt/status');
     final res = await _client.get(uri).timeout(_timeout);

@@ -122,6 +122,7 @@ static void fill_mode_colors(ha_mode_t mode, uint32_t out[64]) {
 
 static void gesture_power_off(void) {
   gpio_num_t pin = (gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO;
+  led_set_forced_blackout(true);
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
     led_set_pixel_internal((uint8_t)i, 0, 0, 0);
   }
@@ -158,16 +159,35 @@ static void gesture_power_off(void) {
            CONFIG_CHESS_GESTURE_BUTTON_GPIO);
   (void)esp_wifi_stop();
   esp_err_t sl = esp_light_sleep_start();
-  if (sl != ESP_OK) {
-    ESP_LOGE(TAG, "light sleep rejected: %s", esp_err_to_name(sl));
-    (void)esp_wifi_start();
-    gpio_wakeup_disable(pin);
-    if (ha_light_get_mode() == HA_MODE_HA) {
-      (void)ha_light_request_mode(HA_MODE_HA);
+  /* USB-Serial/JTAG wakes light sleep at once while the button is still
+   * released. That used to fall through into esp_restart(), so "off" never
+   * stuck and the next press was not a power-on. */
+  bool button_woke = (sl == ESP_OK && gpio_get_level(pin) == 0);
+  if (!button_woke) {
+    if (sl != ESP_OK) {
+      ESP_LOGW(TAG, "light sleep rejected (%s) — staying dark until SW1",
+               esp_err_to_name(sl));
     } else {
-      game_refresh_leds();
+      ESP_LOGW(TAG, "spurious wake — staying dark until SW1");
     }
-    return;
+    gpio_wakeup_disable(pin);
+    for (;;) {
+      (void)esp_task_wdt_reset();
+      if (gpio_get_level(pin) == 0) {
+        vTaskDelay(pdMS_TO_TICKS(25));
+        if (gpio_get_level(pin) == 0) {
+          while (gpio_get_level(pin) == 0) {
+            (void)esp_task_wdt_reset();
+            vTaskDelay(pdMS_TO_TICKS(25));
+          }
+          vTaskDelay(pdMS_TO_TICKS(25));
+          ESP_LOGI(TAG, "[STAGING] power on from GPIO%d, restart",
+                   CONFIG_CHESS_GESTURE_BUTTON_GPIO);
+          esp_restart();
+        }
+      }
+      vTaskDelay(pdMS_TO_TICKS(25));
+    }
   }
   while (gpio_get_level(pin) == 0) {
     (void)esp_task_wdt_reset();
@@ -180,6 +200,16 @@ static void gesture_power_off(void) {
 }
 
 static void handle_event(gesture_event_t ev) {
+  if (ev == GESTURE_SNAKE_START || ev == GESTURE_SHUTDOWN_START) {
+    if (!led_gesture_anim_busy()) {
+      bool started = (ev == GESTURE_SNAKE_START) ? led_gesture_start_snake()
+                                                 : led_gesture_start_shutdown();
+      if (!started) {
+        ESP_LOGW(TAG, "gesture animation did not start");
+      }
+    }
+    return;
+  }
   if (led_gesture_anim_busy() && ev != GESTURE_NONE) {
     ESP_LOGI(TAG, "[STAGING] gesture dropped, animation busy");
     return;

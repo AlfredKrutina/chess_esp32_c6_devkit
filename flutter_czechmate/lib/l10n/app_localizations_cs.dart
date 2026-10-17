@@ -3578,6 +3578,17 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsTileBoardLightTitle => 'Světlo desky';
 
   @override
+  String get settingsHallRestTitle => 'Změřit prázdnou desku';
+
+  @override
+  String get settingsHallRestStarted =>
+      'Měření prázdné desky začalo. Nech ji prázdnou, dokud neskončí.';
+
+  @override
+  String get settingsHallRestFailed =>
+      'Měření nešlo spustit. Připoj se k desce a zkus to znovu.';
+
+  @override
   String get settingsTileBoardLightSubtitle =>
       'Barva, jas, scény, auto‑vypnutí';
 

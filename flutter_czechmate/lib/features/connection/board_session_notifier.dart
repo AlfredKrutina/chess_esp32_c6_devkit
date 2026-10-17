@@ -1751,6 +1751,14 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await _refreshAfterWifiCommand();
   }
 
+  Future<void> postHallRest() async {
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errBrightnessNeedsBoard);
+    }
+    await port.postHallRest();
+  }
+
   Future<void> postBoardLightCommand({
     required bool lampState,
     required int r,

@@ -15,7 +15,9 @@
 
 #include "led_mapping.h"
 #include "led_task.h"
+#include "sdkconfig.h"
 
+#include "driver/gpio.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
@@ -47,6 +49,7 @@ static bool s_pair_captured;
 static bool s_pair_yield;
 static bool s_pair_stop;
 static uint8_t s_pair_step;
+static uint8_t s_snake_pace;
 static uint8_t s_black_leds[16];
 static bool s_black_ready;
 
@@ -89,6 +92,7 @@ static bool begin_phase(phase_t phase, bool keep_release) {
     }
     s_step = 0;
     s_rev_alt = 0;
+    s_snake_pace = 0;
     s_have_old = false;
     ok = true;
   }
@@ -176,15 +180,40 @@ static void tick_wave(void) {
   }
 }
 
+/** Board snake: rank 1 a→h, rank 2 h→a, and so on. */
+static void snake_square(uint8_t step, uint8_t *row, uint8_t *col) {
+  uint8_t rank = (uint8_t)(step / 8u);
+  uint8_t file = (uint8_t)(step % 8u);
+  if ((rank & 1u) != 0u) {
+    file = (uint8_t)(7u - file);
+  }
+  *row = rank;
+  *col = file;
+}
+
 static void paint_snake(uint8_t head) {
   for (uint8_t i = 0; i < 64; i++) {
+    uint8_t row;
+    uint8_t col;
+    snake_square(i, &row, &col);
+    uint8_t led = chess_pos_to_led_index(row, col);
     if (i < head) {
       uint32_t color = (i + 1u == head) ? 0x00FF00u : 0x008000u;
-      paint(i, color);
+      paint(led, color);
     } else {
-      paint(i, s_old[i]);
+      paint(led, s_old[led]);
     }
   }
+}
+
+/** One square about every 100 ms, so the crawl stays visible. */
+static bool snake_pace_ready(void) {
+  s_snake_pace++;
+  if (s_snake_pace < 3u) {
+    return false;
+  }
+  s_snake_pace = 0;
+  return true;
 }
 
 static void tick_snake_forward(void) {
@@ -207,6 +236,10 @@ static void tick_snake_forward(void) {
     post_result(LED_GESTURE_SNAKE_DONE);
     return;
   }
+  if (!snake_pace_ready()) {
+    paint_snake(s_step);
+    return;
+  }
   s_step++;
   paint_snake(s_step);
 }
@@ -215,6 +248,10 @@ static void tick_snake_reverse(void) {
   taskENTER_CRITICAL(&s_mux);
   s_release = false;
   taskEXIT_CRITICAL(&s_mux);
+  if (!snake_pace_ready()) {
+    paint_snake(s_step);
+    return;
+  }
   uint8_t back = (uint8_t)(2u + (s_rev_alt & 1u));
   s_rev_alt++;
   if (s_step <= back) {
@@ -306,7 +343,64 @@ static void tick_pair_hold(void) {
 
 bool led_gesture_anim_busy(void) { return s_phase != PH_IDLE; }
 
+static volatile bool s_button_held;
+static bool s_hold_lit;
+static uint32_t s_hold_saved[16];
+
+void led_gesture_set_button_held(bool held) { s_button_held = held; }
+
+static void hold_restore(void) {
+  for (uint8_t col = 0; col < 8; col++) {
+    paint(chess_pos_to_led_index(0, col), s_hold_saved[col]);
+    paint(chess_pos_to_led_index(7, col), s_hold_saved[8u + col]);
+  }
+  s_hold_lit = false;
+}
+
+static void hold_preview(void) {
+  if (s_phase != PH_IDLE) {
+    return;
+  }
+  /* Boot still owns the board. A floating gesture pin reads as held and
+   * would paint rank 1 and rank 8 orange on top of the boot snake. */
+  if (led_is_booting()) {
+    if (s_hold_lit) {
+      hold_restore();
+    }
+    return;
+  }
+  if (!s_button_held) {
+    if (s_hold_lit) {
+      hold_restore();
+    }
+    return;
+  }
+  if (!s_hold_lit) {
+    uint32_t all[73];
+    memset(all, 0, sizeof(all));
+    led_get_all_states(all, 73);
+    for (uint8_t col = 0; col < 8; col++) {
+      s_hold_saved[col] = all[chess_pos_to_led_index(0, col)];
+      s_hold_saved[8u + col] = all[chess_pos_to_led_index(7, col)];
+    }
+    s_hold_lit = true;
+  }
+  for (uint8_t col = 0; col < 8; col++) {
+    paint(chess_pos_to_led_index(0, col), 0xFF6600u);
+    paint(chess_pos_to_led_index(7, col), 0xFF6600u);
+  }
+}
+
 void led_gesture_anim_tick(void) {
+#if CONFIG_CHESS_GESTURE_BUTTON
+  /* Follow the pin here too. The button task owns the gesture timing, but
+   * the orange ranks must appear even if that task has not published yet. */
+  s_button_held =
+      gpio_get_level((gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO) == 0;
+#endif
+  if (s_phase != PH_IDLE && s_hold_lit) {
+    hold_restore();
+  }
   bool yield = false;
   bool stop = false;
   taskENTER_CRITICAL(&s_mux);
@@ -344,6 +438,10 @@ void led_gesture_anim_tick(void) {
   }
   if (s_pair_hold && s_phase == PH_IDLE && !stop) {
     tick_pair_hold();
+  }
+  hold_preview();
+  if (s_phase != PH_IDLE || s_hold_lit) {
+    led_force_immediate_update();
   }
 }
 

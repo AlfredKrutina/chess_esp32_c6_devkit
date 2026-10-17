@@ -6395,6 +6395,24 @@ abstract class AppLocalizations {
   /// **'Board light'**
   String get settingsTileBoardLightTitle;
 
+  /// No description provided for @settingsHallRestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure empty board'**
+  String get settingsHallRestTitle;
+
+  /// No description provided for @settingsHallRestStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty-board measurement started. Leave the board clear until it finishes.'**
+  String get settingsHallRestStarted;
+
+  /// No description provided for @settingsHallRestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the measurement. Connect to the board and try again.'**
+  String get settingsHallRestFailed;
+
   /// No description provided for @settingsTileBoardLightSubtitle.
   ///
   /// In en, this message translates to:

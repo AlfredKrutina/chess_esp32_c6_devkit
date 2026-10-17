@@ -67,11 +67,11 @@ GPIO 4 (NRST_SEG3) ──────────────── NRST (Chip 3
 2. **Shared Lines:** SDA, SCL, BOOT0, GND, and 3.3 V are common to all 4 STM32 chips.
 3. **Dedicated Reset Lines:** Each STM32 chip has a unique, dedicated NRST GPIO controlled by the ESP32-C6.
 4. **Flashing Bus Contention Rule:** The ST factory ROM bootloader operates at fixed 7-bit I2C address **`0x63`** (per ST AN2606 / AN4221). Because this address is hard-coded in silicon ROM across all STM32C031 devices, **only one STM32 chip may be released from reset at any given time during flashing**. When programming chip \(N\), chip \(N\)'s NRST is released HIGH with BOOT0 held HIGH, while all other chips must be held firmly in reset (NRST held LOW). Violating this creates multi-slave I2C bus contention on address `0x63`.
-5. **Runtime Addresses:** Once flashed and booted into user firmware with BOOT0 held LOW, each segment responds on its unique application I2C address:
-   - Segment 0 (squares a1–d4): `0x30`
-   - Segment 1 (squares e1–h4): `0x31`
-   - Segment 2 (squares e5–h8): `0x32`
-   - Segment 3 (squares a5–d8): `0x33`
+5. **Runtime Addresses:** Once flashed and booted into user firmware with BOOT0 held LOW, each segment responds on its unique application I2C address. The square block below is the measured map (magnet walk, 2026-10-17), not the earlier a1-quadrant guess:
+   - Segment 0 `0x30`: e5–h8
+   - Segment 1 `0x31`: a5–d8
+   - Segment 2 `0x32`: a1–d4
+   - Segment 3 `0x33`: e1–h4
 
 ---
 
@@ -79,11 +79,34 @@ GPIO 4 (NRST_SEG3) ──────────────── NRST (Chip 3
 
 - **Dual Hall arrangement:** 2 Hall effect sensors per square forming a differential pair (`sensor 0` and `sensor 1`).
 - **Pair spacing:** The center-to-center pitch between the two Hall sensors within one square is precisely **6.267 mm**.
-- **Analog front end:** Each STM32C031F6P6 uses two **CD74HC4067M96** 16-channel analog multiplexers:
-  - Multiplexer U37: `COM1` connects to `PA0` (ADC Channel 0).
-  - Multiplexer U38: `COM2` connects to `PA1` (ADC Channel 1).
-  - Channel select: Lines `PA2` (`S0`) through `PA5` (`S3`) drive the address pins of both multiplexers simultaneously.
-  - Enable: `PA6` (`E1`) and `PA7` (`E2`), active LOW.
+- **Analog front end:** Each STM32C031F6P6 uses two **CD74HC4067M96** 16-channel analog multiplexers. On the PCB they are U6 and U7; the STM32 firmware still calls those roles U37 and U38.
+  - U6 / U37: `COM1` to `PA0` (ADC channel 0). Scanned first. Its 16 inputs are local squares H_OUT_1..H_OUT_8.
+  - U7 / U38: `COM2` to `PA1` (ADC channel 1). Local squares H_OUT_9..H_OUT_16.
+  - Channel select: `PA2` (`S0`) through `PA5` (`S3`), shared by both muxes. Enable `PA6` / `PA7`, active LOW.
+- **Pairing:** The two Hall sensors of one square are adjacent inputs on the same mux (`I0`+`I1` = H_OUT_1, `I2`+`I3` = H_OUT_2, …). The STM32 payload already stores that pair as one field. The ESP driver does not reorder the bytes. Field `N` is local square `N+1` (0..7 on U6, 8..15 on U7).
+
+Field order inside each segment, confirmed on the board:
+
+| Field | Seg 0 `0x30` | Seg 1 `0x31` | Seg 2 `0x32` | Seg 3 `0x33` |
+| ---: | --- | --- | --- | --- |
+| 0 | h8 | a8 | a1 | h1 |
+| 1 | g8 | a7 | b1 | h2 |
+| 2 | f8 | a6 | c1 | h3 |
+| 3 | e8 | a5 | d1 | h4 |
+| 4 | h7 | b8 | a2 | g1 |
+| 5 | g7 | b7 | b2 | g2 |
+| 6 | f7 | b6 | c2 | g3 |
+| 7 | e7 | b5 | d2 | g4 |
+| 8 | h6 | c8 | a3 | f1 |
+| 9 | g6 | c7 | b3 | f2 |
+| 10 | f6 | c6 | c3 | f3 |
+| 11 | e6 | c5 | d3 | f4 |
+| 12 | h5 | d8 | a4 | e1 |
+| 13 | g5 | d7 | b4 | e2 |
+| 14 | f5 | d6 | c4 | e3 |
+| 15 | e5 | d5 | d4 | e4 |
+
+Square index in firmware is `(rank-1)*8 + file` with `a = 0`. The same numbers are `s_hall_square` in `components/squares_task/hall_i2c_squares.c`.
 
 ---
 

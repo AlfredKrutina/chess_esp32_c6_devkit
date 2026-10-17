@@ -15,6 +15,7 @@
 #include "game_task.h"
 #include "led_mapping.h"
 #include "led_task.h"
+#include "hall_i2c_squares.h"
 #include "squares_task.h"
 
 #include "esp_log.h"
@@ -131,6 +132,9 @@ void game_squares_guard_restore_after_clear(bool notify_clients) {
 }
 
 void game_squares_guard_render_leds(void) {
+#if HALL_DEBUG_LIGHT_WHERE_PIECE
+  return;
+#endif
   if (!squares_guard_pause_state.active) {
     return;
   }

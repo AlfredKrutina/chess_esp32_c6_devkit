@@ -10,6 +10,7 @@
 #include "../game_task/include/game_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
+#include "../squares_task/include/hall_i2c_squares.h"
 
 #include "esp_http_server.h"
 #include "esp_log.h"
@@ -299,6 +300,18 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
 // ============================================================================
 // SETTINGS API HANDLERS
 // ============================================================================
+
+esp_err_t http_post_settings_hall_rest_handler(httpd_req_t *req) {
+  if (web_is_locked()) {
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
+    return ESP_OK;
+  }
+  hall_i2c_squares_request_rest_measure();
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
 
 esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/brightness");

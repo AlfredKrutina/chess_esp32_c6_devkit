@@ -1504,6 +1504,21 @@ EXTRA_ROWS.extend([
     ("firmwareDeveloperReflashChipTitle", "Reflash {ver}", "Znovu nahrát {ver}"),
     ("firmwareDeveloperDowngradeChipTitle", "Downgrade to {ver}", "Snížit na {ver}"),
     ("firmwareSavedFirmwareChipTitle", "Saved in app: {ver}", "Uloženo v aplikaci: {ver}"),
+    (
+        "settingsHallRestTitle",
+        "Measure empty board",
+        "Změřit prázdnou desku",
+    ),
+    (
+        "settingsHallRestStarted",
+        "Empty-board measurement started. Leave the board clear until it finishes.",
+        "Měření prázdné desky začalo. Nech ji prázdnou, dokud neskončí.",
+    ),
+    (
+        "settingsHallRestFailed",
+        "Could not start the measurement. Connect to the board and try again.",
+        "Měření nešlo spustit. Připoj se k desce a zkus to znovu.",
+    ),
 ])
 EXTRA_PLACEHOLDER_META["analysisChartJumpedToMove"] = {"placeholders": {"n": {"type": "int"}}}
 EXTRA_PLACEHOLDER_META["settingsAppUpdateBannerSubtitle"] = {

@@ -6,7 +6,6 @@
 #ifndef UART_TASK_INTERNAL_H
 #define UART_TASK_INTERNAL_H
 
-#include "chess_types.h"
 #include "esp_err.h"
 #include <stdbool.h>
 #include <stdint.h>
@@ -48,7 +47,5 @@ void uart_send_warning(const char *message);
 void uart_send_info(const char *message);
 void uart_send_formatted(const char *format, ...);
 void uart_send_line(const char *str);
-
-const char *get_ascii_piece_symbol(piece_t piece);
 
 #endif /* UART_TASK_INTERNAL_H */

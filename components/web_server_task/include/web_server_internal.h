@@ -102,6 +102,7 @@ esp_err_t http_post_light_game_mode_handler(httpd_req_t *req);
 esp_err_t http_post_mqtt_config_handler(httpd_req_t *req);
 esp_err_t http_post_settings_auto_lamp_timeout_handler(httpd_req_t *req);
 esp_err_t http_post_settings_brightness_handler(httpd_req_t *req);
+esp_err_t http_post_settings_hall_rest_handler(httpd_req_t *req);
 esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req);
 esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req);
 esp_err_t http_post_settings_start_pos_check_handler(httpd_req_t *req);

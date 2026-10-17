@@ -590,6 +590,10 @@ class BleCzechmateClient {
     await _writeCmd(BoardCommandPayload.bleBrightness(percent));
   }
 
+  Future<void> postHallRest() async {
+    await _writeCmd({'cmd': 'hall_rest'});
+  }
+
   /// Parity `BLEBoardTransport.postLightCommand` / `POST /api/light/command`.
   Future<void> postLightCommand({
     required bool state,

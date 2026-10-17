@@ -26,6 +26,5 @@ idf_component_register(
         spi_flash
         console
         game_led_animations
-        uart_commands_extended
         ble_task
 )

@@ -4,6 +4,7 @@
  */
 
 #include "led_board_restore_guide.h"
+#include "led_gesture_anim.h"
 #include "led_task.h"
 
 #include "esp_timer.h"
@@ -108,6 +109,9 @@ void led_board_restore_guide_clear(void) {
 bool led_board_restore_guide_is_active(void) { return s_anim_active; }
 
 void led_board_restore_guide_tick(void) {
+  if (led_gesture_anim_busy()) {
+    return;
+  }
   if (!s_anim_active || !s_plan.active) {
     return;
   }

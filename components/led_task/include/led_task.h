@@ -239,6 +239,9 @@ void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue);
  */
 void led_force_immediate_update(void);
 
+/** Keep every LED off. The LED task clears the frame before each commit. */
+void led_set_forced_blackout(bool on);
+
 // ============================================================================
 // LED LAYER MANAGEMENT FUNCTION
 // ============================================================================

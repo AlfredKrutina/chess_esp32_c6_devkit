@@ -181,6 +181,7 @@
 #include "../unified_animation_manager/include/unified_animation_manager.h" // Non-blocking endgame animations
 #include "led_board_restore_guide.h"
 #include "led_gesture_anim.h"
+#include "led_gesture_anim.h"
 #include "led_mapping.h" // Include LED mapping functions
 
 // Define min macro if not available
@@ -639,13 +640,22 @@ void led_clear_all_internal(void) {
 }
 
 void led_show_chess_board(void) {
-  ESP_LOGI(TAG, "🔄 Setting chess board pattern...");
-
-  // Apply chess board pattern to board LEDs (0-63)
-  for (int i = 0; i < 64; i++) {
-    led_states[i] = chess_board_pattern[i];
+  if (led_is_booting()) {
+    return;
   }
-  ESP_LOGI(TAG, "✅ Board LEDs pattern set");
+  ESP_LOGI(TAG, "Setting chess board pattern...");
+
+  /* Pattern is stored in square order (a1 = index 0). The strip index is
+   * the quadrant map, so a checker follows the board on CzechMate v2. */
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      uint32_t color = chess_board_pattern[row * 8 + col];
+      led_set_pixel_internal(chess_pos_to_led_index(row, col),
+                             (uint8_t)((color >> 16) & 0xFF),
+                             (uint8_t)((color >> 8) & 0xFF),
+                             (uint8_t)(color & 0xFF));
+    }
+  }
 
   // Initialize button LED states and set to default colors
   // 8 promotion buttons (0-7) + 1 reset button (8) = 9 total
@@ -1975,6 +1985,10 @@ bool led_has_significant_changes(void) {
 // MAIN TASK FUNCTION
 // ============================================================================
 
+static bool s_forced_blackout;
+
+void led_set_forced_blackout(bool on) { s_forced_blackout = on; }
+
 void led_task_start(void *pvParameters) {
   led_task_handle = xTaskGetCurrentTaskHandle();
   ESP_LOGI(TAG, "🚀 LED task starting...");
@@ -2067,9 +2081,7 @@ void led_task_start(void *pvParameters) {
   // Initialize LED states
   ESP_LOGI(TAG, "🔄 Clearing all LEDs...");
   led_clear_all_internal();
-  ESP_LOGI(TAG, "🔄 Showing chess board pattern...");
-  led_show_chess_board();
-  ESP_LOGI(TAG, "✅ LED initialization complete, entering main loop...");
+  ESP_LOGI(TAG, "✅ LED initialization complete, board stays dark until boot ends");
 
   // Main task loop
   uint32_t loop_count = 0;
@@ -2106,6 +2118,9 @@ void led_task_start(void *pvParameters) {
     led_process_button_blink_timers();
 
     led_gesture_anim_tick();
+    if (s_forced_blackout) {
+      led_clear_all_internal();
+    }
 
     // COMMIT PENDING LED CHANGES - Use privileged batch commit for maximum
     // stability
@@ -3779,32 +3794,27 @@ void led_ota_restore_board_after_update_abort(void) {
  * @note The function is safe - it checks initialization and simulation mode
  */
 void led_boot_animation_step(uint8_t progress_percent) {
-  // Security checks
   if (!led_initialized || simulation_mode) {
-    ESP_LOGD(TAG, "LED boot: Progress %d%% - %s", progress_percent,
-             simulation_mode ? "simulation mode" : "not initialized");
     return;
   }
 
-  // Omezit na 0-100%
   if (progress_percent > 100) {
     progress_percent = 100;
   }
 
-  // Calculate LED index (only board LEDs 0-63)
-  int led_index = (progress_percent * CHESS_LED_COUNT_BOARD) / 100;
-  if (led_index >= CHESS_LED_COUNT_BOARD) {
-    led_index = CHESS_LED_COUNT_BOARD - 1;
+  int square = (progress_percent * CHESS_LED_COUNT_BOARD) / 100;
+  if (square >= CHESS_LED_COUNT_BOARD) {
+    square = CHESS_LED_COUNT_BOARD - 1;
   }
 
-  // Rozsvitit LED svetle zelenou
-  led_set_pixel_internal(led_index, 0, 128, 0);
-
-  // FORCE immediate update - the batch system would otherwise keep the changes
+  /* Snake: rank 1 left to right, rank 2 right to left, and so on. */
+  uint8_t row = (uint8_t)(square / 8);
+  uint8_t col = (uint8_t)(square % 8);
+  if ((row & 1u) != 0u) {
+    col = (uint8_t)(7u - col);
+  }
+  led_set_pixel_internal(chess_pos_to_led_index(row, col), 0, 128, 0);
   led_force_immediate_update();
-
-  ESP_LOGD(TAG, "LED boot: Progress %d%% -> LED[%d] RGB(0,128,0)",
-           progress_percent, led_index);
 }
 
 /**
@@ -3822,36 +3832,22 @@ void led_boot_animation_fade_out(void) {
     return;
   }
 
-  ESP_LOGI(TAG, "🌟 Starting LED boot animation fade out...");
+  ESP_LOGI(TAG, "Starting LED boot animation fade out...");
 
-  // Gradually muted from brightness 128 to 0
-  const int fade_steps = 20;    // 20 kroku pro plynule ztlumeni
-  const int step_delay_ms = 30; // 30ms mezi kroky
+  const int fade_steps = 20;
+  const int step_delay_ms = 30;
 
   for (int step = fade_steps; step >= 0; step--) {
-    // Vypocitat brightness (128 -> 0)
-    uint8_t brightness = (step * 128) / fade_steps;
-
-    // Dim all board LEDs (0-63)
+    uint8_t brightness = (uint8_t)((step * 128) / fade_steps);
     for (int led_index = 0; led_index < CHESS_LED_COUNT_BOARD; led_index++) {
       led_set_pixel_internal(led_index, 0, brightness, 0);
     }
-
-    // FORCE immediate update - the batch system would otherwise keep the changes
     led_force_immediate_update();
-
-    // Kratka pauza pro plynulou animaci
     vTaskDelay(pdMS_TO_TICKS(step_delay_ms));
-
-    // Reset watchdog behem animace
     led_task_wdt_reset_safe();
   }
 
-  // Erase all board LEDs
   led_clear_board_only();
-
-  // Clear boot flag - animation complete (controlled from main.c)
   led_booting_active = false;
-
-  ESP_LOGI(TAG, "✅ LED boot animation fade out completed - boot flag cleared");
+  ESP_LOGI(TAG, "LED boot animation fade out completed");
 }

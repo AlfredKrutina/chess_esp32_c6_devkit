@@ -13,6 +13,21 @@ volatile uint8_t g_hall_payload_raw[HALL_I2C_PAYLOAD_BYTES];
 volatile uint8_t g_hall_payload_ver[HALL_I2C_PAYLOAD_BYTES];
 volatile const uint8_t *volatile g_hall_active_tx;
 
+const hall_i2c_addr_slot_t g_hall_i2c_addr_slot
+    __attribute__((used)) = {
+        .magic = {'H', 'A', 'L', 'L', 'A', 'D', 'D', 'R'},
+        .addr7 = HALL_I2C_OWNADDR7BIT,
+        .reserved = {0, 0, 0},
+};
+
+uint8_t hall_i2c_own_addr7(void) {
+  uint8_t addr = *(volatile const uint8_t *)&g_hall_i2c_addr_slot.addr7;
+  if (addr < 0x08u || addr > 0x77u) {
+    return (uint8_t)HALL_I2C_OWNADDR7BIT;
+  }
+  return addr;
+}
+
 static void MX_I2C1_Init(void);
 #if !defined(BOARD_NUCLEO_C031) && !defined(BOARD_HALL_I2C_DEMO)
 static void MX_MATRIX_GPIO_Init(void);

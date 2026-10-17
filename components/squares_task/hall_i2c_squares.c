@@ -8,8 +8,12 @@
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 
 #include "driver/gpio.h"
-#include "driver/i2c.h"
 #include "esp_log.h"
+#include "esp_task_wdt.h"
+#include "led_board_restore_guide.h"
+#include "led_mapping.h"
+#include "led_task.h"
+#include "stm32_i2c_bl.h"
 #include "esp_timer.h"
 #include "nvs.h"
 
@@ -141,7 +145,7 @@ typedef struct {
 } hall_baseline_blob_t;
 #pragma pack(pop)
 
-/** Explicit internal pull-up on bus pins (complements i2c_config_t). */
+/** Explicit internal pull-up on bus pins (complements i2c_master bus). */
 static void hall_i2c_apply_bus_pullups(void) {
   gpio_num_t sda = (gpio_num_t)CONFIG_CHESS_HALL_I2C_SDA_GPIO;
   gpio_num_t scl = (gpio_num_t)CONFIG_CHESS_HALL_I2C_SCL_GPIO;
@@ -156,22 +160,20 @@ static void hall_i2c_apply_bus_pullups(void) {
   }
 }
 
-/** Mapping: segment 0 = BOARD at ESP (a–d × rows 1–4), further CCW like the squares of a chessboard. */
+/* Native STM field = both halls of one square (U6 I0+I1 is field 0).
+ * Quadrants from the PCB 4x4 and the squares that already lit correctly. */
+static const uint8_t s_hall_square[4][16] = {
+    {63, 62, 61, 60, 55, 54, 53, 52, 47, 46, 45, 44, 39, 38, 37, 36},
+    {56, 48, 40, 32, 57, 49, 41, 33, 58, 50, 42, 34, 59, 51, 43, 35},
+    {0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27},
+    {7, 15, 23, 31, 6, 14, 22, 30, 5, 13, 21, 29, 4, 12, 20, 28},
+};
+
 static uint8_t hall_map_segment_field_to_square(unsigned seg, unsigned field) {
-  unsigned lr = field / 4;
-  unsigned lc = field % 4;
-  switch (seg) {
-  case 0:
-    return (uint8_t)(lr * 8 + lc);
-  case 1:
-    return (uint8_t)(lr * 8 + (4 + lc));
-  case 2:
-    return (uint8_t)((4 + lr) * 8 + (4 + lc));
-  case 3:
-    return (uint8_t)((4 + lr) * 8 + lc);
-  default:
-    return 0;
+  if (seg > 3u || field > 15u) {
+    return 0xFFu;
   }
+  return s_hall_square[seg][field];
 }
 
 static uint8_t segment_addr(unsigned seg) {
@@ -606,28 +608,22 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     return (st->current_piece != HALL_PIECE_TYPE_NONE) ? 1u : 0u;
 }
 
+static esp_err_t hall_i2c_read_at(uint8_t addr7, uint8_t *buf, size_t len,
+                                  int timeout_ms) {
+  uint8_t reg = (uint8_t)CONFIG_CHESS_HALL_REG_START;
+  /* STM already packs adjacent mux channels. On this board those two
+   * channels are the two halls of one square, so the payload is used as-is. */
+  return chess_i2c_transmit_receive(
+      addr7, (uint32_t)CONFIG_CHESS_HALL_I2C_FREQ_HZ, 20000, &reg, 1, buf, len,
+      timeout_ms);
+}
+
 esp_err_t hall_i2c_squares_init(void) {
-  i2c_port_t port = (i2c_port_t)CONFIG_CHESS_HALL_I2C_PORT_NUM;
-
-  i2c_config_t cfg = {
-      .mode = I2C_MODE_MASTER,
-      .sda_io_num = CONFIG_CHESS_HALL_I2C_SDA_GPIO,
-      .scl_io_num = CONFIG_CHESS_HALL_I2C_SCL_GPIO,
-      .sda_pullup_en = GPIO_PULLUP_ENABLE,
-      .scl_pullup_en = GPIO_PULLUP_ENABLE,
-      .master.clk_speed = CONFIG_CHESS_HALL_I2C_FREQ_HZ,
-      .clk_flags = 0,
-  };
-
-  esp_err_t err = i2c_param_config(port, &cfg);
+  esp_err_t err = chess_i2c_bus_init(CONFIG_CHESS_HALL_I2C_PORT_NUM,
+                                     CONFIG_CHESS_HALL_I2C_SDA_GPIO,
+                                     CONFIG_CHESS_HALL_I2C_SCL_GPIO);
   if (err != ESP_OK) {
-    ESP_LOGE(TAG, "i2c_param_config: %s", esp_err_to_name(err));
-    return err;
-  }
-
-  err = i2c_driver_install(port, cfg.mode, 0, 0, 0);
-  if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) {
-    ESP_LOGE(TAG, "i2c_driver_install: %s", esp_err_to_name(err));
+    ESP_LOGE(TAG, "chess_i2c_bus_init: %s", esp_err_to_name(err));
     return err;
   }
 
@@ -645,8 +641,8 @@ esp_err_t hall_i2c_squares_init(void) {
 
   s_i2c_ready = true;
   ESP_LOGI(TAG,
-           "I2C Hall ready port=%d SDA=%d SCL=%d %d Hz segy 0x%02x 0x%02x 0x%02x 0x%02x POC_DEBOUNCE=%d",
-           (int)port, CONFIG_CHESS_HALL_I2C_SDA_GPIO,
+           "I2C Hall ready (i2c_master) port=%d SDA=%d SCL=%d %d Hz segy 0x%02x 0x%02x 0x%02x 0x%02x POC_DEBOUNCE=%d",
+           CONFIG_CHESS_HALL_I2C_PORT_NUM, CONFIG_CHESS_HALL_I2C_SDA_GPIO,
            CONFIG_CHESS_HALL_I2C_SCL_GPIO, CONFIG_CHESS_HALL_I2C_FREQ_HZ,
            CONFIG_CHESS_HALL_SEG0_ADDR, CONFIG_CHESS_HALL_SEG1_ADDR,
            CONFIG_CHESS_HALL_SEG2_ADDR, CONFIG_CHESS_HALL_SEG3_ADDR,
@@ -667,11 +663,8 @@ esp_err_t hall_i2c_squares_probe_segment(uint8_t segment_0_to_3, int timeout_ms)
   }
 
   uint8_t addr = segment_addr(segment_0_to_3);
-  uint8_t reg = (uint8_t)CONFIG_CHESS_HALL_REG_START;
   uint8_t buf[2];
-  esp_err_t err = i2c_master_write_read_device(
-      (i2c_port_t)CONFIG_CHESS_HALL_I2C_PORT_NUM, addr, &reg, 1, buf,
-      sizeof(buf), pdMS_TO_TICKS(timeout_ms));
+  esp_err_t err = hall_i2c_read_at(addr, buf, sizeof(buf), timeout_ms);
   if (err != ESP_OK) {
     ESP_LOGD(TAG, "probe seg%u addr 0x%02x: %s", segment_0_to_3, addr,
              esp_err_to_name(err));
@@ -689,8 +682,6 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
     return;
   }
 
-  i2c_port_t port = (i2c_port_t)CONFIG_CHESS_HALL_I2C_PORT_NUM;
-  uint8_t reg = (uint8_t)CONFIG_CHESS_HALL_REG_START;
   uint8_t buf[HALL_I2C_PAYLOAD_BYTES];
   static uint32_t s_scan;
 
@@ -718,14 +709,16 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
   for (unsigned seg = seg_max; seg < 4u; seg++) {
     for (unsigned field = 0; field < HALL_I2C_FIELDS_PER_SEGMENT; field++) {
       uint8_t sq = hall_map_segment_field_to_square(seg, field);
+      if (sq >= 64u) {
+        continue;
+      }
       squares_state[sq] = 0;
     }
   }
 
   for (unsigned seg = 0; seg < seg_max; seg++) {
     uint8_t addr = segment_addr(seg);
-    esp_err_t err = i2c_master_write_read_device(
-        port, addr, &reg, 1, buf, sizeof(buf), pdMS_TO_TICKS(80));
+    esp_err_t err = hall_i2c_read_at(addr, buf, sizeof(buf), 80);
 
     if (err != ESP_OK) {
       uint8_t bit = (uint8_t)(1u << seg);
@@ -749,11 +742,17 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
       uint16_t r0 = hall_i2c_spec_read_le16(&buf[off]);
       uint16_t r1 = hall_i2c_spec_read_le16(&buf[off + sizeof(uint16_t)]);
       uint8_t sq = hall_map_segment_field_to_square(seg, field);
+      if (sq >= 64u) {
+        continue;
+      }
       squares_state[sq] = hall_poc_update_square(sq, r0, r1);
     }
 
     if (do_log) {
       uint8_t sq0 = hall_map_segment_field_to_square(seg, 0);
+      if (sq0 >= 64u) {
+        continue;
+      }
       ESP_LOGI(TAG,
                "[staging] seg%u addr=0x%02x first_pair raw=(%u,%u) occ=%u type=%s color=%s",
                seg, addr, hall_i2c_spec_read_le16(&buf[0]),
@@ -764,6 +763,400 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
     }
   }
   hall_baseline_flush();
+}
+
+unsigned hall_i2c_squares_segment_count(void) {
+#if defined(CONFIG_CHESS_HALL_SEGMENT_COUNT)
+  unsigned n = (unsigned)CONFIG_CHESS_HALL_SEGMENT_COUNT;
+#else
+  unsigned n = 4u;
+#endif
+  if (n < 1u) {
+    n = 1u;
+  }
+  if (n > 4u) {
+    n = 4u;
+  }
+  return n;
+}
+
+esp_err_t hall_i2c_squares_read_segment_raw(uint8_t segment_0_to_3,
+                                            uint8_t *addr_out,
+                                            uint16_t raw[32]) {
+  if (segment_0_to_3 > 3u || raw == NULL) {
+    return ESP_ERR_INVALID_ARG;
+  }
+  uint8_t addr = segment_addr(segment_0_to_3);
+  if (addr_out != NULL) {
+    *addr_out = addr;
+  }
+  if (!s_i2c_ready) {
+    return ESP_ERR_INVALID_STATE;
+  }
+  uint8_t buf[HALL_I2C_PAYLOAD_BYTES];
+  esp_err_t err = hall_i2c_read_at(addr, buf, sizeof(buf), 80);
+  if (err != ESP_OK) {
+    return err;
+  }
+  for (unsigned i = 0; i < HALL_I2C_UINT16_PER_SEGMENT; i++) {
+    raw[i] = hall_i2c_spec_read_le16(&buf[i * sizeof(uint16_t)]);
+  }
+  return ESP_OK;
+}
+
+extern bool squares_scanning_enabled;
+
+#if HALL_DEBUG_LIGHT_WHERE_PIECE
+#define HALL_DBG_REST_SCANS 20
+#define HALL_DBG_DELTA 270
+#define HALL_DBG_DELTA_OFF 160
+#define HALL_DBG_HOLD 3
+#define HALL_DBG_HOLD_OFF 8
+#define HALL_DBG_SETTLE 25
+
+static uint32_t s_dbg_sum[4][32];
+static uint16_t s_dbg_rest[4][32];
+static uint8_t s_dbg_rest_n;
+static bool s_dbg_rest_request;
+static bool s_dbg_rest_checked;
+static uint8_t s_dbg_hold[4][16];
+static uint8_t s_dbg_off[4][16];
+static uint8_t s_dbg_announced[4][16];
+static uint8_t s_dbg_sq_users[64];
+static int32_t s_dbg_peak_e[4][16];
+static int16_t s_dbg_peak_s0[4][16];
+static int16_t s_dbg_peak_s1[4][16];
+static uint8_t s_dbg_settle[4][16];
+static uint8_t s_dbg_named[4][16];
+
+static hall_piece_type_t hall_dbg_piece_type(int32_t energy) {
+  /* Pawn 51k–67k. Knight magnet 114k–182k. The next magnet settles
+   * anywhere from ~300k to ~382k, so that span is bishop. */
+  static const hall_poc_threshold_t dbg_piece[] = {
+      {15000, 90000, HALL_PIECE_TYPE_PAWN},
+      {90001, 240000, HALL_PIECE_TYPE_KNIGHT},
+      {240001, 520000, HALL_PIECE_TYPE_BISHOP},
+      {520001, 800000, HALL_PIECE_TYPE_ROOK},
+      {800001, 1200000, HALL_PIECE_TYPE_QUEEN},
+      {1200001, 8000000, HALL_PIECE_TYPE_KING},
+  };
+  const hall_poc_threshold_t *thr = &dbg_piece[0];
+  for (unsigned i = 0; i < sizeof(dbg_piece) / sizeof(dbg_piece[0]); i++) {
+    if (energy >= dbg_piece[i].min_energy) {
+      thr = &dbg_piece[i];
+    }
+  }
+  return thr->type;
+}
+
+static void hall_dbg_log_settled(unsigned seg, unsigned field, uint8_t row,
+                                 uint8_t col) {
+  int32_t energy = s_dbg_peak_e[seg][field];
+  int s0 = s_dbg_peak_s0[seg][field];
+  int s1 = s_dbg_peak_s1[seg][field];
+  int d0 = (s0 < 0) ? -s0 : s0;
+  int d1 = (s1 < 0) ? -s1 : s1;
+  hall_piece_type_t piece = hall_dbg_piece_type(energy);
+  int dominant = (d0 > d1) ? s0 : s1;
+  hall_piece_color_t color =
+      (dominant > 0) ? HALL_PIECE_COLOR_WHITE : HALL_PIECE_COLOR_BLACK;
+  ESP_LOGW(TAG, "FIGURKA seg %u field %u -> %c%c %s %s delta=%d E=%ld", seg,
+           field, 'a' + col, '1' + row, hall_i2c_squares_piece_color_name(color),
+           hall_i2c_squares_piece_type_name(piece), d0 + d1, (long)energy);
+}
+
+void hall_i2c_squares_request_rest_measure(void) {
+  s_dbg_rest_request = true;
+}
+
+static bool hall_dbg_rest_load(void) {
+  nvs_handle_t handle;
+  if (nvs_open(HALL_BASE_NVS_NS, NVS_READONLY, &handle) != ESP_OK) {
+    return false;
+  }
+  uint32_t magic = 0;
+  uint16_t rest[4][32];
+  size_t magic_len = sizeof(magic);
+  size_t rest_len = sizeof(rest);
+  esp_err_t err_m = nvs_get_blob(handle, "dbg_magic", &magic, &magic_len);
+  esp_err_t err_r = nvs_get_blob(handle, "dbg_rest", rest, &rest_len);
+  nvs_close(handle);
+  if (err_m != ESP_OK || err_r != ESP_OK || magic != 0x4B4C4944u ||
+      rest_len != sizeof(rest)) {
+    return false;
+  }
+  memcpy(s_dbg_rest, rest, sizeof(rest));
+  return true;
+}
+
+static void hall_dbg_rest_save(void) {
+  nvs_handle_t handle;
+  if (nvs_open(HALL_BASE_NVS_NS, NVS_READWRITE, &handle) != ESP_OK) {
+    return;
+  }
+  uint32_t magic = 0x4B4C4944u;
+  if (nvs_set_blob(handle, "dbg_magic", &magic, sizeof(magic)) == ESP_OK &&
+      nvs_set_blob(handle, "dbg_rest", s_dbg_rest, sizeof(s_dbg_rest)) ==
+          ESP_OK) {
+    (void)nvs_commit(handle);
+  }
+  nvs_close(handle);
+}
+
+void hall_i2c_squares_debug_light_pieces(void) {
+  if (!s_i2c_ready || led_is_booting()) {
+    return;
+  }
+  squares_scanning_enabled = false;
+  led_board_restore_guide_clear();
+
+  if (s_dbg_rest_request) {
+    s_dbg_rest_request = false;
+    s_dbg_rest_n = 0;
+    memset(s_dbg_sum, 0, sizeof(s_dbg_sum));
+  } else if (!s_dbg_rest_checked) {
+    s_dbg_rest_checked = true;
+    s_dbg_rest_n = HALL_DBG_REST_SCANS;
+    if (hall_dbg_rest_load()) {
+      ESP_LOGW(TAG, "KLID nacten, mereni pri startu se nespousti.");
+    } else {
+      ESP_LOGW(TAG, "KLID pri startu preskocen. Spust ho z nastaveni aplikace.");
+    }
+  }
+
+  if (s_dbg_rest_n < HALL_DBG_REST_SCANS) {
+    if (s_dbg_rest_n == 0) {
+      ESP_LOGW(TAG, "KLID: nech desku prazdnou, merim %u snimku",
+               HALL_DBG_REST_SCANS);
+    }
+    uint16_t frame[4][32];
+    for (unsigned seg = 0; seg < 4u; seg++) {
+      if (hall_i2c_squares_read_segment_raw((uint8_t)seg, NULL, frame[seg]) !=
+          ESP_OK) {
+        return;
+      }
+    }
+    for (unsigned seg = 0; seg < 4u; seg++) {
+      for (unsigned i = 0; i < 32u; i++) {
+        s_dbg_sum[seg][i] += frame[seg][i];
+      }
+    }
+    s_dbg_rest_n++;
+    if (s_dbg_rest_n < HALL_DBG_REST_SCANS) {
+      return;
+    }
+    for (unsigned seg = 0; seg < 4u; seg++) {
+      for (unsigned i = 0; i < 32u; i++) {
+        s_dbg_rest[seg][i] =
+            (uint16_t)(s_dbg_sum[seg][i] / HALL_DBG_REST_SCANS);
+      }
+    }
+    led_clear_all_safe();
+    hall_dbg_rest_save();
+    ESP_LOGW(TAG, "KLID hotovo. Poloz figurku, rozsviti se prirazene pole.");
+    return;
+  }
+
+  for (unsigned seg = 0; seg < 4u; seg++) {
+    uint16_t raw[32];
+    if (hall_i2c_squares_read_segment_raw((uint8_t)seg, NULL, raw) != ESP_OK) {
+      continue;
+    }
+    for (unsigned field = 0; field < 16u; field++) {
+      int s0 = (int)raw[field * 2u] - (int)s_dbg_rest[seg][field * 2u];
+      int s1 = (int)raw[field * 2u + 1u] - (int)s_dbg_rest[seg][field * 2u + 1u];
+      int d0 = (s0 < 0) ? -s0 : s0;
+      int d1 = (s1 < 0) ? -s1 : s1;
+      int delta = d0 + d1;
+      uint8_t sq = hall_map_segment_field_to_square(seg, field);
+      if (sq >= 64u) {
+        if (s_dbg_announced[seg][field] == 0) {
+          if (delta < HALL_DBG_DELTA) {
+            s_dbg_hold[seg][field] = 0;
+            continue;
+          }
+          if (s_dbg_hold[seg][field] < HALL_DBG_HOLD) {
+            s_dbg_hold[seg][field]++;
+          }
+          if (s_dbg_hold[seg][field] < HALL_DBG_HOLD) {
+            continue;
+          }
+          s_dbg_announced[seg][field] = 1;
+          ESP_LOGW(TAG, "FIGURKA seg %u field %u -> BEZ MAPY delta=%d", seg,
+                   field, delta);
+        } else if (delta < HALL_DBG_DELTA_OFF) {
+          s_dbg_announced[seg][field] = 0;
+          s_dbg_hold[seg][field] = 0;
+        }
+        continue;
+      }
+      uint8_t row = (uint8_t)(sq / 8u);
+      uint8_t col = (uint8_t)(sq % 8u);
+      uint8_t led = chess_pos_to_led_index(row, col);
+      bool lit = s_dbg_announced[seg][field] != 0;
+
+      if (!lit) {
+        s_dbg_off[seg][field] = 0;
+        if (delta < HALL_DBG_DELTA) {
+          s_dbg_hold[seg][field] = 0;
+          continue;
+        }
+        if (s_dbg_hold[seg][field] < HALL_DBG_HOLD) {
+          s_dbg_hold[seg][field]++;
+        }
+        if (s_dbg_hold[seg][field] < HALL_DBG_HOLD) {
+          continue;
+        }
+        s_dbg_announced[seg][field] = 1;
+        s_dbg_named[seg][field] = 0;
+        s_dbg_settle[seg][field] = 0;
+        s_dbg_peak_e[seg][field] = (int32_t)s0 * (int32_t)s0 + (int32_t)s1 * (int32_t)s1;
+        s_dbg_peak_s0[seg][field] = (int16_t)s0;
+        s_dbg_peak_s1[seg][field] = (int16_t)s1;
+        if (s_dbg_sq_users[sq] == 0) {
+          led_set_pixel_safe(led, 0, 180, 0);
+        }
+        s_dbg_sq_users[sq]++;
+        continue;
+      }
+
+      s_dbg_hold[seg][field] = HALL_DBG_HOLD;
+      if (delta >= HALL_DBG_DELTA_OFF) {
+        int32_t energy = (int32_t)s0 * (int32_t)s0 + (int32_t)s1 * (int32_t)s1;
+        int32_t peak = s_dbg_peak_e[seg][field];
+        s_dbg_off[seg][field] = 0;
+        if (peak <= 0 || energy > peak + peak / 8) {
+          s_dbg_peak_e[seg][field] = energy;
+          s_dbg_peak_s0[seg][field] = (int16_t)s0;
+          s_dbg_peak_s1[seg][field] = (int16_t)s1;
+          s_dbg_settle[seg][field] = 0;
+          s_dbg_named[seg][field] = 0;
+        } else if (s_dbg_settle[seg][field] < HALL_DBG_SETTLE) {
+          s_dbg_settle[seg][field]++;
+        }
+        if (!s_dbg_named[seg][field] &&
+            s_dbg_settle[seg][field] >= HALL_DBG_SETTLE) {
+          hall_dbg_log_settled(seg, field, row, col);
+          s_dbg_named[seg][field] = 1;
+        }
+        continue;
+      }
+      if (s_dbg_off[seg][field] < HALL_DBG_HOLD_OFF) {
+        s_dbg_off[seg][field]++;
+      }
+      if (s_dbg_off[seg][field] < HALL_DBG_HOLD_OFF) {
+        continue;
+      }
+      s_dbg_announced[seg][field] = 0;
+      s_dbg_named[seg][field] = 0;
+      s_dbg_settle[seg][field] = 0;
+      s_dbg_peak_e[seg][field] = 0;
+      s_dbg_hold[seg][field] = 0;
+      s_dbg_off[seg][field] = 0;
+      if (s_dbg_sq_users[sq] > 0) {
+        s_dbg_sq_users[sq]--;
+      }
+      if (s_dbg_sq_users[sq] == 0) {
+        led_set_pixel_safe(led, 0, 0, 0);
+      }
+    }
+  }
+}
+#else
+void hall_i2c_squares_debug_light_pieces(void) {}
+void hall_i2c_squares_request_rest_measure(void) {}
+#endif
+
+void hall_i2c_squares_corner_probe(void) {
+  if (!s_i2c_ready) {
+    return;
+  }
+  static const struct {
+    uint8_t row;
+    uint8_t col;
+    const char *name;
+  } corners[] = {
+      {0, 0, "a1"},
+      {0, 7, "h1"},
+      {7, 7, "h8"},
+      {7, 0, "a8"},
+  };
+  bool scan_was = squares_scanning_enabled;
+  squares_scanning_enabled = false;
+  vTaskDelay(pdMS_TO_TICKS(50));
+  ESP_LOGW(TAG, "ROHY: postupne a1, h1, h8, a8. Figurku nech lezet na zelenem poli.");
+
+  for (unsigned c = 0; c < 4; c++) {
+    uint16_t base[4][32];
+    memset(base, 0, sizeof(base));
+    for (unsigned seg = 0; seg < 4; seg++) {
+      if (hall_i2c_squares_read_segment_raw((uint8_t)seg, NULL, base[seg]) != ESP_OK) {
+        ESP_LOGW(TAG, "ROH %s: seg %u cteci chyba, beru nulu", corners[c].name, seg);
+      }
+    }
+    uint8_t led = chess_pos_to_led_index(corners[c].row, corners[c].col);
+    ESP_LOGW(TAG, "ROH %s: poloz figurku na zelene pole (LED %u)", corners[c].name, led);
+    int stable_seg = -1;
+    int stable_field = -1;
+    int stable_hits = 0;
+    bool found = false;
+    TickType_t deadline = xTaskGetTickCount() + pdMS_TO_TICKS(45000);
+    while ((int32_t)(deadline - xTaskGetTickCount()) > 0) {
+      esp_task_wdt_reset();
+      led_clear_all_safe();
+      led_set_pixel_safe(led, 0, 255, 0);
+      int best_seg = -1;
+      int best_field = -1;
+      int best_delta = 0;
+      for (unsigned seg = 0; seg < 4; seg++) {
+        uint16_t now[32];
+        if (hall_i2c_squares_read_segment_raw((uint8_t)seg, NULL, now) != ESP_OK) {
+          continue;
+        }
+        for (unsigned field = 0; field < HALL_I2C_FIELDS_PER_SEGMENT; field++) {
+          int d0 = (int)now[field * 2] - (int)base[seg][field * 2];
+          int d1 = (int)now[field * 2 + 1] - (int)base[seg][field * 2 + 1];
+          if (d0 < 0) {
+            d0 = -d0;
+          }
+          if (d1 < 0) {
+            d1 = -d1;
+          }
+          int delta = d0 + d1;
+          if (delta > best_delta) {
+            best_delta = delta;
+            best_seg = (int)seg;
+            best_field = (int)field;
+          }
+        }
+      }
+      if (best_delta > 600 && best_seg == stable_seg && best_field == stable_field) {
+        stable_hits++;
+      } else if (best_delta > 600) {
+        stable_seg = best_seg;
+        stable_field = best_field;
+        stable_hits = 1;
+      } else {
+        stable_hits = 0;
+      }
+      if (stable_hits >= 3) {
+        uint8_t mapped = hall_map_segment_field_to_square((unsigned)stable_seg,
+                                                          (unsigned)stable_field);
+        ESP_LOGW(TAG, "ROH %s = seg %u field %u delta=%d (mapa ted rika pole %u)",
+                 corners[c].name, (unsigned)stable_seg, (unsigned)stable_field,
+                 best_delta, mapped);
+        found = true;
+        break;
+      }
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    if (!found) {
+      ESP_LOGW(TAG, "ROH %s: nic nepribylo, jdu dal", corners[c].name);
+    }
+  }
+  led_clear_all_safe();
+  squares_scanning_enabled = scan_was;
+  ESP_LOGW(TAG, "ROHY hotovo. Podle radku ROH = seg/field se opravi mapa.");
 }
 
 #else /* !CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
@@ -780,6 +1173,24 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
   if (squares_state) {
     memset(squares_state, 0, 64);
   }
+}
+
+unsigned hall_i2c_squares_segment_count(void) { return 0; }
+
+void hall_i2c_squares_corner_probe(void) {}
+
+void hall_i2c_squares_debug_light_pieces(void) {}
+void hall_i2c_squares_request_rest_measure(void) {}
+
+esp_err_t hall_i2c_squares_read_segment_raw(uint8_t segment_0_to_3,
+                                            uint8_t *addr_out,
+                                            uint16_t raw[32]) {
+  (void)segment_0_to_3;
+  (void)raw;
+  if (addr_out != NULL) {
+    *addr_out = 0;
+  }
+  return ESP_ERR_NOT_SUPPORTED;
 }
 
 bool hall_i2c_squares_readings_usable(void) { return true; }

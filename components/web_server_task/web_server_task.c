@@ -108,6 +108,7 @@
 #include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
 #include "../squares_task/include/squares_task.h"
+#include "../squares_task/include/hall_i2c_squares.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -2125,6 +2126,15 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       game_force_clear_squares_guard();
     }
     ESP_LOGD(TAG, "BLE cmd: guard_clear");
+    return ESP_OK;
+  }
+  if (strcmp(cmd, "hall_rest") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "BLE hall_rest blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    hall_i2c_squares_request_rest_measure();
+    ESP_LOGI(TAG, "BLE hall_rest");
     return ESP_OK;
   }
   if (strcmp(cmd, "brightness") == 0) {

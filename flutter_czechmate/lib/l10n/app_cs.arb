@@ -2303,6 +2303,9 @@
       }
     }
   },
+  "settingsHallRestTitle": "Změřit prázdnou desku",
+  "settingsHallRestStarted": "Měření prázdné desky začalo. Nech ji prázdnou, dokud neskončí.",
+  "settingsHallRestFailed": "Měření nešlo spustit. Připoj se k desce a zkus to znovu.",
   "navLearn": "Učení",
   "gameTopNoBoard": "Bez desky",
   "gameTopConnecting": "Připojuji…",

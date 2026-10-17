@@ -45,7 +45,6 @@ set(EXTRA_COMPONENT_DIRS
     components/web_server_task
     components/config_manager
     components/game_led_animations
-    components/uart_commands_extended
     components/unified_animation_manager
     components/led_state_manager
     components/visual_error_system
@@ -99,12 +98,12 @@ message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Version: ${PROJECT_VERSION}")
 message(STATUS "Target: ESP32-C6")
 message(STATUS "Features:")
-message(STATUS "  ✓ WS2812B 73 LEDs (64 board + 9 buttons)")
-message(STATUS "  ✓ 8x8 Reed Switch Matrix")
-message(STATUS "  ✓ Button LED Feedback")
-message(STATUS "  ✓ Time-multiplexing GPIO")
-message(STATUS "  ✓ UART Command Interface")
-message(STATUS "  ✓ Real Hardware Support")
+message(STATUS "  [ok] WS2812B 73 LEDs (64 board + 9 buttons)")
+message(STATUS "  [ok] 8x8 Reed Switch Matrix")
+message(STATUS "  [ok] Button LED Feedback")
+message(STATUS "  [ok] Time-multiplexing GPIO")
+message(STATUS "  [ok] UART Command Interface")
+message(STATUS "  [ok] Real Hardware Support")
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "IDF Version: $ENV{IDF_VERSION}")
 message(STATUS "IDF Path: $ENV{IDF_PATH}")

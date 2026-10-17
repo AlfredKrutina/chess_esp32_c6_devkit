@@ -60,6 +60,11 @@ static uint32_t gesture_now_ms(void) {
 
 static void gesture_emit(gesture_event_t id, const char *staging) {
   ESP_LOGI(TAG, "[STAGING] gesture: %s", staging);
+  if (id == GESTURE_SNAKE_START) {
+    (void)led_gesture_start_snake();
+  } else if (id == GESTURE_SHUTDOWN_START) {
+    (void)led_gesture_start_shutdown();
+  }
   if (s_queue == NULL) {
     return;
   }
@@ -121,6 +126,7 @@ void button_gesture_init(void) {
   if (s_queue == NULL) {
     s_queue = xQueueCreate(8, sizeof(gesture_event_t));
   }
+  gpio_reset_pin((gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO);
   gpio_config_t cfg = {
       .pin_bit_mask = 1ULL << CONFIG_CHESS_GESTURE_BUTTON_GPIO,
       .mode = GPIO_MODE_INPUT,
@@ -163,6 +169,9 @@ void button_gesture_poll(void) {
   }
   if ((now - s_change_ms) >= GESTURE_DEBOUNCE_MS && s_down != s_raw_down) {
     s_down = s_raw_down;
+    led_gesture_set_button_held(s_down);
+    ESP_LOGI(TAG, "SW1 %s GPIO%d raw=%d", s_down ? "down" : "up",
+             CONFIG_CHESS_GESTURE_BUTTON_GPIO, (int)raw);
     if (s_down) {
       gesture_on_press(now);
     } else {

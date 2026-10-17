@@ -102,6 +102,13 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_brightness_uri);
 
+  httpd_uri_t settings_hall_rest_uri = {
+      .uri = "/api/settings/hall-rest",
+      .method = HTTP_POST,
+      .handler = http_post_settings_hall_rest_handler,
+      .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &settings_hall_rest_uri);
+
   httpd_uri_t settings_auto_lamp_timeout_uri = {
       .uri = "/api/settings/auto_lamp_timeout",
       .method = HTTP_POST,

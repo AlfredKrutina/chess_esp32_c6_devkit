@@ -12,6 +12,7 @@
 #include "game_physical_undo.h"
 
 #include "../led_task/include/led_board_restore_guide.h"
+#include "../squares_task/include/hall_i2c_squares.h"
 #include "../squares_task/include/squares_task.h"
 
 #include "esp_log.h"
@@ -551,6 +552,10 @@ void game_hall_restore_guide_stop_leds(void) {
 }
 
 void game_hall_restore_guide_sync(void) {
+#if HALL_DEBUG_LIGHT_WHERE_PIECE
+  game_hall_restore_guide_stop_leds();
+  return;
+#endif
   if (!hall_i2c_squares_readings_usable()) {
     return;
   }
