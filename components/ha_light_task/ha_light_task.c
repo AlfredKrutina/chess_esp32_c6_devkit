@@ -84,8 +84,8 @@ static const char *TAG = "HA_LIGHT_TASK";
 // Default values ​​for MQTT configuration
 #define MQTT_DEFAULT_HOST "homeassistant.local"
 #define MQTT_DEFAULT_PORT 1883
-#define MQTT_DEFAULT_USERNAME "mqtt-user"
-#define MQTT_DEFAULT_PASSWORD "mqtt"
+#define MQTT_DEFAULT_USERNAME "alfred"
+#define MQTT_DEFAULT_PASSWORD "alfred"
 
 // ============================================================================
 // GLOBAL VARIABLES AND STATUS
@@ -848,27 +848,6 @@ static void mqtt_ensure_config_loaded(void) {
     mqtt_config.username[sizeof(mqtt_config.username) - 1] = '\0';
     strncpy(mqtt_config.password, password, sizeof(mqtt_config.password) - 1);
     mqtt_config.password[sizeof(mqtt_config.password) - 1] = '\0';
-    {
-      nvs_handle_t wifi_nvs;
-      char wifi_password[64] = {0};
-      if (nvs_open("wifi_config", NVS_READONLY, &wifi_nvs) == ESP_OK) {
-        size_t wifi_len = sizeof(wifi_password);
-        if (nvs_get_str(wifi_nvs, "sta_password", wifi_password, &wifi_len) ==
-                ESP_OK &&
-            wifi_password[0] != '\0') {
-          strncpy(mqtt_config.password, wifi_password,
-                  sizeof(mqtt_config.password) - 1);
-          mqtt_config.password[sizeof(mqtt_config.password) - 1] = '\0';
-          ESP_LOGI(TAG, "MQTT password taken from phone Wi-Fi STA");
-        }
-        nvs_close(wifi_nvs);
-      }
-    }
-    if (mqtt_config.username[0] == '\0' && mqtt_config.password[0] != '\0') {
-      strncpy(mqtt_config.username, "homeassistant",
-              sizeof(mqtt_config.username) - 1);
-      mqtt_config.username[sizeof(mqtt_config.username) - 1] = '\0';
-    }
     mqtt_config.loaded = true;
     ESP_LOGI(TAG, "MQTT config loaded: host=%s, port=%d", mqtt_config.host,
              mqtt_config.port);

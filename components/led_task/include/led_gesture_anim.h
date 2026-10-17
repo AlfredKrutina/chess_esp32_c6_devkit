@@ -47,14 +47,18 @@ bool led_gesture_button_down(void);
 led_gesture_result_t led_gesture_take_result(void);
 
 /**
- * @brief Wave from the physical button on h1.
+ * @brief Wave between the current board and new_colors.
  *
- * The mode flag itself is not changed here. Fails if new_colors is NULL or
- * another gesture is already running.
- * @param new_colors 64 LED-index colors for the mode being revealed.
+ * Outward (inward == false) spreads from the button on h1 and covers the
+ * board. Inward plays that wave backwards: the current picture shrinks back
+ * into h1 and new_colors show from the far corner. The mode flag itself is
+ * not changed here. Fails if new_colors is NULL or another gesture is already
+ * running.
+ * @param new_colors 64 LED-index colors for the picture left when the wave ends.
+ * @param inward true to run the wave from the far corner back to h1.
  * @return true if the wave started.
  */
-bool led_gesture_start_wave(const uint32_t new_colors[64]);
+bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward);
 
 /**
  * @brief Boot-style green fill along LED index order. Reverse on early release.

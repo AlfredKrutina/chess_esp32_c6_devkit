@@ -58,49 +58,13 @@ static void fill_checker(uint32_t out[64]) {
 }
 
 static void fill_game_colors(uint32_t out[64]) {
-  memset(out, 0, 64 * sizeof(uint32_t));
+  /* Quiet board only. Movable-piece yellow, lift highlights, and destination
+   * greens belong to the game LED refresh after the wave commits. */
   if (!game_active) {
     fill_checker(out);
     return;
   }
-  if (piece_lifted) {
-    out[chess_pos_to_led_index(lifted_piece_row, lifted_piece_col)] = 0xFFFF00u;
-    move_suggestion_t suggestions[32];
-    uint32_t n = game_get_available_moves(lifted_piece_row, lifted_piece_col,
-                                          suggestions, 32);
-    for (uint32_t i = 0; i < n; i++) {
-      piece_t dest = board[suggestions[i].to_row][suggestions[i].to_col];
-      bool enemy = (current_player == PLAYER_WHITE && dest >= PIECE_BLACK_PAWN &&
-                    dest <= PIECE_BLACK_KING) ||
-                   (current_player == PLAYER_BLACK && dest >= PIECE_WHITE_PAWN &&
-                    dest <= PIECE_WHITE_KING);
-      out[chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col)] =
-          enemy ? 0xFFA500u : 0x00FF00u;
-    }
-    return;
-  }
-  if (castling_state.in_progress ||
-      !chess_policy_move_hints_movable_yellow() ||
-      !game_led_guidance_show_movable_yellow()) {
-    return;
-  }
-  (void)esp_task_wdt_reset();
-  for (uint8_t row = 0; row < 8; row++) {
-    for (uint8_t col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
-      bool mine = (current_player == PLAYER_WHITE && piece >= PIECE_WHITE_PAWN &&
-                   piece <= PIECE_WHITE_KING) ||
-                  (current_player == PLAYER_BLACK && piece >= PIECE_BLACK_PAWN &&
-                   piece <= PIECE_BLACK_KING);
-      if (!mine) {
-        continue;
-      }
-      move_suggestion_t one;
-      if (game_get_available_moves(row, col, &one, 1) > 0) {
-        out[chess_pos_to_led_index(row, col)] = 0xFFFF00u;
-      }
-    }
-  }
+  memset(out, 0, 64 * sizeof(uint32_t));
 }
 
 static void fill_mode_colors(ha_mode_t mode, uint32_t out[64]) {
@@ -231,7 +195,9 @@ static void handle_event(gesture_event_t ev) {
         (ha_light_get_mode() == HA_MODE_HA) ? HA_MODE_GAME : HA_MODE_HA;
     uint32_t colors[64];
     fill_mode_colors(next, colors);
-    if (!led_gesture_start_wave(colors)) {
+    /* Lamp covers the board from h1. Leaving the lamp runs that wave backwards. */
+    bool inward = (next == HA_MODE_GAME);
+    if (!led_gesture_start_wave(colors, inward)) {
       ESP_LOGW(TAG, "wave did not start");
       return;
     }

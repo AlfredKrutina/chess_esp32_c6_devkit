@@ -5,16 +5,15 @@
 //
 // Převis: poloměr smí růst nejvýš o tan(28°) na milimetr výšky.
 // Zužování je volné. Drážka má horní stěnu strmou, bez vodorovného dna.
-// Výšky a magnety stejné jako u cybertruck řady.
+// Výšky stejné jako u cybertruck řady. Jeden kotouč ve středu patky,
+// rozměry z tools/magnet_sila.xlsx. Vůle 0,4 mm v průměru a 0,2 mm na výšku.
 
 /* [Piece] */
 part = "set"; // [set, lineup, pawn, rook, knight, bishop, queen, king]
 
-magnet_diameter = 6.2;
-magnet_thickness = 2.2;
+magnet_clear_d = 0.4;
+magnet_clear_h = 0.2;
 magnet_z_offset = 0.8;
-sensor_pitch = 6.267;
-sensor_axis = 0;
 
 base_d = 28;
 royal_d = 34;
@@ -23,20 +22,23 @@ pawn_h = 45;
 body_fn = 8;
 magnet_fn = 50;
 
-magnet_pause_z = magnet_z_offset + magnet_thickness;
-pocket_x = (magnet_diameter + 1.0) / 2;
-quad_r = (magnet_diameter + 1.15) / sqrt(2);
+pawn_magnet   = [10, 1];
+knight_magnet = [10, 2];
+bishop_magnet = [10, 3];
+rook_magnet   = [10, 5];
+queen_magnet  = [10, 8];
+king_magnet   = [12, 6];
+
+function pocket_d(spec) = spec[0] + magnet_clear_d;
+function pocket_h(spec) = spec[1] + magnet_clear_h;
+function pause_z(spec) = magnet_z_offset + pocket_h(spec);
+
 _steel = [0.73, 0.76, 0.80];
 _gap = 42;
 
-pawn_pockets   = [[0, 0, 1]];
-rook_pockets   = [[0, 0, -1]];
-knight_pockets = [[pocket_x, 0, 1]];
-bishop_pockets = [[pocket_x, 0, 1], [-pocket_x, 0, -1]];
-queen_pockets  = [[quad_r, 0, 1], [-quad_r, 0, 1], [0, quad_r, 1], [0, -quad_r, 1]];
-king_pockets   = [[quad_r, 0, -1], [-quad_r, 0, -1], [0, quad_r, -1], [0, -quad_r, -1]];
-
-echo(str("M600 pause Z = ", magnet_pause_z, " mm"));
+echo(str("M600 pawn ", pause_z(pawn_magnet), " knight ", pause_z(knight_magnet),
+    " bishop ", pause_z(bishop_magnet), " rook ", pause_z(rook_magnet),
+    " queen ", pause_z(queen_magnet), " king ", pause_z(king_magnet)));
 
 module disk(d, fn) {
     linear_extrude(height = 0.04)
@@ -64,17 +66,15 @@ module foot(ankle_z, ankle_d, d = base_d) {
     frustum(base_h, d - 3.4, ankle_z, ankle_d);
 }
 
-module magnet_cavities(pockets) {
-    for (p = pockets)
-        rotate([0, 0, sensor_axis])
-            translate([p[0], p[1], magnet_z_offset])
-                cylinder(d = magnet_diameter, h = magnet_thickness, $fn = magnet_fn);
+module magnet_cavity(spec) {
+    translate([0, 0, magnet_z_offset])
+        cylinder(d = pocket_d(spec), h = pocket_h(spec), $fn = magnet_fn);
 }
 
-module with_pockets(pockets) {
+module with_pockets(spec) {
     difference() {
         children();
-        magnet_cavities(pockets);
+        magnet_cavity(spec);
     }
 }
 
@@ -326,12 +326,12 @@ module king_shape() {
     }
 }
 
-module pawn() { with_pockets(pawn_pockets) pawn_shape(); }
-module rook() { with_pockets(rook_pockets) rook_shape(); }
-module knight() { with_pockets(knight_pockets) knight_shape(); }
-module bishop() { with_pockets(bishop_pockets) bishop_shape(); }
-module queen() { with_pockets(queen_pockets) queen_shape(); }
-module king() { with_pockets(king_pockets) king_shape(); }
+module pawn() { with_pockets(pawn_magnet) pawn_shape(); }
+module rook() { with_pockets(rook_magnet) rook_shape(); }
+module knight() { with_pockets(knight_magnet) knight_shape(); }
+module bishop() { with_pockets(bishop_magnet) bishop_shape(); }
+module queen() { with_pockets(queen_magnet) queen_shape(); }
+module king() { with_pockets(king_magnet) king_shape(); }
 
 module lineup() {
     translate([0 * _gap, 0, 0]) pawn();

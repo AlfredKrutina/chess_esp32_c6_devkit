@@ -46,6 +46,7 @@ static led_gesture_result_t s_result;
 static uint32_t s_old[64];
 static uint32_t s_new[64];
 static uint8_t s_step;
+static bool s_wave_in;
 static uint8_t s_rev_alt;
 static bool s_have_old;
 static bool s_pair_hold;
@@ -181,8 +182,18 @@ static void tick_wave(void) {
   if (!s_have_old) {
     capture_board();
   }
-  /* Farthest square from h1 is a8 at 14^2+14^2 = 392. radius 20 covers it. */
-  const int radius = (int)s_step;
+  /* Farthest square from h1 is a8 at 14^2+14^2 = 392.
+   * Outward radius 20 covers it. Inward starts past that (23) and shrinks
+   * through h1 (radius -3) so the same crest runs backwards. */
+  const int radius = s_wave_in ? (23 - (int)s_step) : (int)s_step;
+  if (s_wave_in && radius <= -3) {
+    for (int i = 0; i < 64; i++) {
+      paint((uint8_t)i, s_new[i]);
+    }
+    ESP_LOGI(TAG, "[STAGING] wave uncovered the board");
+    post_result(LED_GESTURE_WAVE_DONE);
+    return;
+  }
   const int radius2 = radius * radius;
   const int crest_lo = (radius > 2) ? (radius - 2) * (radius - 2) : -1;
   bool covered = true;
@@ -190,13 +201,16 @@ static void tick_wave(void) {
     for (uint8_t col = 0; col < 8; col++) {
       int d2 = dist2_half(row, col);
       uint8_t led = chess_pos_to_led_index(row, col);
-      uint32_t neu = s_new[led];
-      uint32_t crest = crest_rgb(neu);
+      /* Disk interior is the spreading color. Inward, that disk is the lamp
+       * shrinking toward h1 and the outside is the picture being revealed. */
+      uint32_t outside = s_wave_in ? s_new[led] : s_old[led];
+      uint32_t inside = s_wave_in ? s_old[led] : s_new[led];
+      uint32_t crest = crest_rgb(inside);
       int outer = radius + 3;
       int outer2 = outer * outer;
       uint32_t color;
       if (d2 >= outer2) {
-        color = s_old[led];
+        color = outside;
         covered = false;
       } else if (d2 > radius2) {
         int span = outer2 - radius2;
@@ -206,7 +220,7 @@ static void tick_wave(void) {
         } else if (t > 255) {
           t = 255;
         }
-        color = lerp_rgb(s_old[led], crest, smoothstep_u8((uint8_t)t));
+        color = lerp_rgb(outside, crest, smoothstep_u8((uint8_t)t));
         covered = false;
       } else if (radius > 2 && d2 > crest_lo) {
         int span = radius2 - crest_lo;
@@ -216,14 +230,14 @@ static void tick_wave(void) {
         } else if (t > 255) {
           t = 255;
         }
-        color = lerp_rgb(crest, neu, smoothstep_u8((uint8_t)t));
+        color = lerp_rgb(crest, inside, smoothstep_u8((uint8_t)t));
       } else {
-        color = neu;
+        color = inside;
       }
       paint(led, color);
     }
   }
-  if (covered && radius >= 20) {
+  if (!s_wave_in && covered && radius >= 20) {
     for (int i = 0; i < 64; i++) {
       paint((uint8_t)i, s_new[i]);
     }
@@ -478,11 +492,14 @@ static void paint_gesture_button(void) {
   bool own = false;
   uint32_t color = 0;
   if (s_phase == PH_WAVE) {
-    unsigned num = (unsigned)s_step * 255u / 20u;
+    unsigned span = s_wave_in ? 26u : 20u;
+    unsigned num = (unsigned)s_step * 255u / span;
     if (num > 255u) {
       num = 255u;
     }
-    color = lerp_rgb(0x402000u, 0xFFD646u, smoothstep_u8((uint8_t)num));
+    uint8_t t = smoothstep_u8((uint8_t)num);
+    color = s_wave_in ? lerp_rgb(0xFFD646u, 0x402000u, t)
+                      : lerp_rgb(0x402000u, 0xFFD646u, t);
     own = true;
   } else if (s_phase == PH_SNAKE_FWD || s_phase == PH_SNAKE_REV) {
     uint8_t t = smoothstep_u8(
@@ -588,7 +605,7 @@ led_gesture_result_t led_gesture_take_result(void) {
   return result;
 }
 
-bool led_gesture_start_wave(const uint32_t new_colors[64]) {
+bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward) {
   if (new_colors == NULL) {
     return false;
   }
@@ -604,6 +621,7 @@ bool led_gesture_start_wave(const uint32_t new_colors[64]) {
   s_phase = PH_WAVE;
   s_release = false;
   s_step = 0;
+  s_wave_in = inward;
   s_rev_alt = 0;
   s_have_old = false;
   taskEXIT_CRITICAL(&s_mux);

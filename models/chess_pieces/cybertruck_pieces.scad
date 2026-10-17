@@ -15,42 +15,39 @@
 // vzduchové mezeře. Proto je dno dutiny jen 0.8 mm (čtyři vrstvy 0.2 mm).
 //
 // Slicer: pauza (M600) ve výšce
-//   Z = magnet_z_offset + magnet_thickness
-// Všechny dutiny jedné figurky jsou v téže výšce — na pauze se vloží všechny
-// její magnety najednou, pak tisk strop zavře.
+//   Z = magnet_z_offset + výška kotouče + magnet_clear_h
+// Na pauze se vloží jeden kotouč, pak tisk strop zavře.
 //
-// Polarita (značka na magnetu, ta strana dolů, k desce):
-//   +1 sever dolů  — v náhledu červená
-//   -1 jih dolů    — v náhledu modrá
+// Jedna figurka, jeden kotouč ve středu patky. Typ čte firmware z energie
+// Hall senzoru, barvu ze znaménka (kterou stranou kotouč leží k desce).
+// Stejné STL pro bílou i černou — polaritu určí vložení, ne geometrie.
 //
-// Kódy jsou zvolené tak, aby se mraky (B0, B1) nepřekrývaly při mezeře 6–8 mm:
-//   pěšec   1× střed, sever     libovolné otočení
-//   věž     1× střed, jih       libovolné otočení
-//   dáma    4× na kříži, sever  libovolné otočení
-//   král    4× na kříži, jih    libovolné otočení
-//   jezdec  1× vpravo, sever    čumák dopředu nebo dozadu; bokem splyne s pěšcem
-//   střelec 1× vpravo sever + 1× vlevo jih
-//           čelem dopředu nebo dozadu; otočení o 90° se vyruší a pole je prázdné
+// Kotouče (unimagnet, list Figury v tools/magnet_sila.xlsx):
+//   pěšec   Ø 10×1 mm
+//   jezdec  Ø 10×2 mm
+//   střelec Ø 10×3 mm
+//   věž     Ø 10×5 mm
+//   dáma    Ø 10×8 mm
+//   král    Ø 12×6 mm
 //
-// sensor_axis = 0  pár leží vlevo-vpravo (osa X figurky)
-// sensor_axis = 90 pár leží dopředu-dozadu — celý kód se otočí
+// Dutina = kotouč + vůle 0,4 mm v průměru a 0,2 mm na výšku, ať kotouč
+// spadne dovnitř na pauze a tryska o něj nezavadí. Výška vůle je násobek
+// vrstvy 0,2 mm, takže M600 sedí na hraně vrstvy.
 //
 // Část: set | lineup | pawn | rook | knight | knight_low | knight_sketch | bishop | queen | king | section | pattern
-// knight_sketch je plochý výtlaček profilu, schovaný v archive/knight_sketch.stl.
-// knight_low je jezdec pro Blender. Jedna nakloněná hlava, úzký pas, bez uší,
-// huby a očí. Čumák přečnívá — netisknout bez podpěr. Tisknutelný jezdec je part knight.
+// Tisknutelný jezdec je knight_low: klín z Blenderu, bez uší a očí.
+// knight_sketch je starý plochý profil s výřezem huby.
 
 /* [Piece] */
 part = "set"; // [set, pawn, rook, knight, knight_low, knight_sketch, bishop, queen, king, section, pattern]
 
 /* [Magnet — kalibrace vůči Hall senzorům] */
-magnet_diameter = 6.2;  // disk 6 mm + 0.2 mm vůle
-magnet_thickness = 2.2; // výška 2 mm + 0.2 mm vůle
+magnet_clear_d = 0.4;   // vůle v průměru, ať kotouč spadne dovnitř
+magnet_clear_h = 0.2;   // vůle nad kotoučem, jedna vrstva 0.2 mm
 magnet_z_offset = 0.8;  // plast pod magnetem; senzor je až pod deskou, proto co nejníž
 
-sensor_pitch = 6.267; // mm, střed–střed páru na jednom poli
+sensor_pitch = 6.267; // mm, střed–střed páru na jednom poli (jen náhled)
 sensor_gap = 7;       // mm, horní hrana desky → Hall senzor (jen pro náhled)
-sensor_axis = 0;      // [0, 90]
 
 /* [Base] */
 base_d = 28;
@@ -62,25 +59,25 @@ head_fn = 6;     // hlavy: 6úhelník
 magnet_fn = 50;  // jen dutina magnetu
 
 /* [Hidden] */
-magnet_pause_z = magnet_z_offset + magnet_thickness;
-// Dva 6.2mm otvory vedle sebe potřebují mezeru; senzory jsou 6.267 mm,
-// takže dutina sedí 0.5 mm mimo střed senzoru a mezi otvory zbývá 1 mm stěny.
-pocket_x = (magnet_diameter + 1.0) / 2;
-quad_r = (magnet_diameter + 1.15) / sqrt(2);
+// [průměr, výška] jmenovitého kotouče, mm
+pawn_magnet   = [10, 1];
+knight_magnet = [10, 2];
+bishop_magnet = [10, 3];
+rook_magnet   = [10, 5];
+queen_magnet  = [10, 8];
+king_magnet   = [12, 6];
+
+function pocket_d(spec) = spec[0] + magnet_clear_d;
+function pocket_h(spec) = spec[1] + magnet_clear_h;
+function pause_z(spec) = magnet_z_offset + pocket_h(spec);
+
 _steel = [0.73, 0.76, 0.80];
 _north = [0.82, 0.14, 0.12];
-_south = [0.18, 0.38, 0.82];
 _gap = 42;
 
-pawn_pockets   = [[0, 0, 1]];
-rook_pockets   = [[0, 0, -1]];
-knight_pockets = [[pocket_x, 0, 1]];
-bishop_pockets = [[pocket_x, 0, 1], [-pocket_x, 0, -1]];
-queen_pockets  = [[quad_r, 0, 1], [-quad_r, 0, 1], [0, quad_r, 1], [0, -quad_r, 1]];
-king_pockets   = [[quad_r, 0, -1], [-quad_r, 0, -1], [0, quad_r, -1], [0, -quad_r, -1]];
-
-echo(str("M600 pause Z = ", magnet_pause_z, " mm"));
-echo(str("pocket offset from sensor mm ", pocket_x - sensor_pitch / 2));
+echo(str("M600 pawn ", pause_z(pawn_magnet), " knight ", pause_z(knight_magnet),
+    " bishop ", pause_z(bishop_magnet), " rook ", pause_z(rook_magnet),
+    " queen ", pause_z(queen_magnet), " king ", pause_z(king_magnet)));
 
 module disk(d, fn) {
     linear_extrude(height = 0.04)
@@ -110,26 +107,22 @@ module foot(ankle_z, ankle_d, d = base_d) {
     frustum(base_h, d - 3.4, ankle_z, ankle_d);
 }
 
-module magnet_cavities(pockets) {
-    for (p = pockets)
-        rotate([0, 0, sensor_axis])
-            translate([p[0], p[1], magnet_z_offset])
-                cylinder(d = magnet_diameter, h = magnet_thickness, $fn = magnet_fn);
+module magnet_cavity(spec) {
+    translate([0, 0, magnet_z_offset])
+        cylinder(d = pocket_d(spec), h = pocket_h(spec), $fn = magnet_fn);
 }
 
-module with_pockets(pockets) {
+module with_pockets(spec) {
     difference() {
         children();
-        magnet_cavities(pockets);
+        magnet_cavity(spec);
     }
 }
 
-module show_magnets(pockets) {
-    for (p = pockets)
-        color(p[2] > 0 ? _north : _south)
-            rotate([0, 0, sensor_axis])
-                translate([p[0], p[1], magnet_z_offset + 0.05])
-                    cylinder(d = magnet_diameter - 0.2, h = magnet_thickness - 0.1, $fn = magnet_fn);
+module show_magnet(spec) {
+    color(_north)
+        translate([0, 0, magnet_z_offset + 0.05])
+            cylinder(d = spec[0], h = max(spec[1] - 0.1, 0.2), $fn = magnet_fn);
 }
 
 module chamfer_slab(depth, ch) {
@@ -171,7 +164,7 @@ module pawn_shape() {
 }
 
 module pawn() {
-    with_pockets(pawn_pockets)
+    with_pockets(pawn_magnet)
         pawn_shape();
 }
 
@@ -207,7 +200,7 @@ module rook_shape() {
 }
 
 module rook() {
-    with_pockets(rook_pockets)
+    with_pockets(rook_magnet)
         rook_shape();
 }
 
@@ -233,7 +226,7 @@ module knight_panel_extrude(points, depth, chamfer) {
 }
 
 module knight_sketch_shape() {
-    // Plochý profil. Nechat. Nový jezdec je knight_shape.
+    // Starý plochý profil. Tisknutelný jezdec je knight_low.
     difference() {
         union() {
             foot(10, 18.4);
@@ -251,7 +244,7 @@ module knight_sketch_shape() {
 }
 
 module knight_sketch() {
-    with_pockets(knight_pockets)
+    with_pockets(knight_magnet)
         knight_sketch_shape();
 }
 
@@ -330,8 +323,8 @@ module knight_shape() {
 }
 
 module knight() {
-    with_pockets(knight_pockets)
-        knight_shape();
+    with_pockets(knight_magnet)
+        knight_low_shape();
 }
 
 // Jezdec pro Blender. Pas se stáhne, hlava je jeden klín nakloněný dopředu.
@@ -361,7 +354,7 @@ module knight_low_shape() {
 }
 
 module knight_low() {
-    with_pockets(knight_pockets)
+    with_pockets(knight_magnet)
         knight_low_shape();
 }
 
@@ -387,7 +380,7 @@ module bishop_shape() {
 }
 
 module bishop() {
-    with_pockets(bishop_pockets)
+    with_pockets(bishop_magnet)
         bishop_shape();
 }
 
@@ -425,7 +418,7 @@ module queen_shape() {
 }
 
 module queen() {
-    with_pockets(queen_pockets)
+    with_pockets(queen_magnet)
         queen_shape();
 }
 
@@ -497,7 +490,7 @@ module king_shape() {
 }
 
 module king() {
-    with_pockets(king_pockets)
+    with_pockets(king_magnet)
         king_shape();
 }
 
@@ -512,7 +505,7 @@ module pawn_section() {
                 cube([80, 40, 120]);
         }
     difference() {
-        show_magnets(pawn_pockets);
+        show_magnet(pawn_magnet);
         translate([-20, 0, -1])
             cube([40, 20, 12]);
     }
@@ -523,30 +516,28 @@ module pawn_section() {
                 cube([2.4, 3.2, 0.9]);
 }
 
-module pattern_base(pockets) {
+module pattern_base(spec) {
+    top = pause_z(spec);
+    slab = max(base_h, top + 1.6);
     difference() {
-        plinth();
-        translate([-22, -22, magnet_z_offset + magnet_thickness * 0.55])
-            cube([44, 44, 20]);
+        rotate([0, 0, 22.5])
+            cylinder(d = base_d, h = slab, $fn = body_fn);
+        translate([-22, -22, magnet_z_offset + pocket_h(spec) * 0.55])
+            cube([44, 44, slab]);
+        magnet_cavity(spec);
     }
-    for (p = pockets)
-        color(p[2] > 0 ? _north : _south)
-            rotate([0, 0, sensor_axis])
-                translate([p[0], p[1], magnet_z_offset])
-                    cylinder(
-                        d = magnet_diameter - 0.2,
-                        h = magnet_thickness * 0.55,
-                        $fn = magnet_fn
-                    );
+    color(_north)
+        translate([0, 0, magnet_z_offset])
+            cylinder(d = spec[0], h = spec[1] * 0.55, $fn = magnet_fn);
 }
 
 module pattern_card() {
-    translate([0 * _gap, 0, 0]) pattern_base(pawn_pockets);
-    translate([1 * _gap, 0, 0]) pattern_base(rook_pockets);
-    translate([2 * _gap, 0, 0]) pattern_base(knight_pockets);
-    translate([3 * _gap, 0, 0]) pattern_base(bishop_pockets);
-    translate([4 * _gap, 0, 0]) pattern_base(queen_pockets);
-    translate([5 * _gap, 0, 0]) pattern_base(king_pockets);
+    translate([0 * _gap, 0, 0]) pattern_base(pawn_magnet);
+    translate([1 * _gap, 0, 0]) pattern_base(rook_magnet);
+    translate([2 * _gap, 0, 0]) pattern_base(knight_magnet);
+    translate([3 * _gap, 0, 0]) pattern_base(bishop_magnet);
+    translate([4 * _gap, 0, 0]) pattern_base(queen_magnet);
+    translate([5 * _gap, 0, 0]) pattern_base(king_magnet);
 }
 
 module lineup() {

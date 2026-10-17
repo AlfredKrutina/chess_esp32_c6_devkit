@@ -90,15 +90,19 @@ typedef struct {
     hall_piece_type_t type;
 } hall_poc_threshold_t;
 
-/* Raw s0^2+s1^2 from this board. Pawn 51k–67k, the next magnet 114k–182k,
- * the one above that settles 300k–382k. */
+/* Measured 2026-10-17, one square, energy = dev0^2+dev1^2.
+ * Stacks: pawn 172420, knight 360797, bishop 642760, rook 1326866,
+ * queen 2145938. Edges are round(sqrt(left*right)).
+ * King is 6x the medium magnet plus the thin one, not measured yet.
+ * Its edge assumes 4.5e6, inside the 4.2–5.0e6 target. Above 5.5e6
+ * (the 6.0e6 and 7.3e6 magnets) is not a piece. */
 static const hall_poc_threshold_t s_poc_thresholds[] = {
-    { 15000,    90000,    HALL_PIECE_TYPE_PAWN   },
-    { 90001,    240000,   HALL_PIECE_TYPE_KNIGHT },
-    { 240001,   520000,   HALL_PIECE_TYPE_BISHOP },
-    { 520001,   800000,   HALL_PIECE_TYPE_ROOK   },
-    { 800001,   1200000,  HALL_PIECE_TYPE_QUEEN  },
-    { 1200001,  8000000,  HALL_PIECE_TYPE_KING   },
+    { 100000,   249417,   HALL_PIECE_TYPE_PAWN   },
+    { 249418,   481566,   HALL_PIECE_TYPE_KNIGHT },
+    { 481567,   923502,   HALL_PIECE_TYPE_BISHOP },
+    { 923503,   1687416,  HALL_PIECE_TYPE_ROOK   },
+    { 1687417,  3107527,  HALL_PIECE_TYPE_QUEEN  },
+    { 3107528,  5500000,  HALL_PIECE_TYPE_KING   },
 };
 #define HALL_POC_THRESHOLD_COUNT (sizeof(s_poc_thresholds) / sizeof(s_poc_thresholds[0]))
 
@@ -259,6 +263,10 @@ static void hall_poc_ring_push(hall_poc_square_state_t *st, uint16_t r0, uint16_
 static const hall_poc_threshold_t* hall_poc_classify(int32_t energy,
                                                      hall_piece_type_t locked_piece) {
     if (energy < HALL_POC_ENERGY_DEADBAND) {
+        return NULL;
+    }
+    /* The two strongest magnets sit above this. Hysteresis must not keep them. */
+    if (energy > s_poc_thresholds[HALL_POC_THRESHOLD_COUNT - 1].max_energy) {
         return NULL;
     }
 
@@ -613,18 +621,26 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         } else if (st->settle_scans < HALL_POC_SETTLE_SCANS) {
             st->settle_scans++;
         }
-        /* Live band, no locked window. A magnet between two types must keep
-         * switching (knight, bishop, ...) while the threshold is tuned. */
+        /* 20 % window around the type already on this square. A new piece
+         * still has to land in its own band; the window only stops flicker. */
         const hall_poc_threshold_t *thr =
-            hall_poc_classify(energy, HALL_PIECE_TYPE_NONE);
+            hall_poc_classify(energy, st->current_piece);
         hall_piece_type_t raw_piece =
             (thr != NULL) ? thr->type : HALL_PIECE_TYPE_NONE;
         int32_t dominant = (abs(dev0) > abs(dev1)) ? dev0 : dev1;
         hall_piece_color_t raw_color = (dominant > 0)
                                            ? HALL_PIECE_COLOR_WHITE
                                            : HALL_PIECE_COLOR_BLACK;
-        if (raw_piece != HALL_PIECE_TYPE_NONE &&
-            (st->current_piece != raw_piece || st->current_color != raw_color)) {
+        if (raw_piece == HALL_PIECE_TYPE_NONE) {
+            if (st->current_piece != HALL_PIECE_TYPE_NONE) {
+                st->current_piece = HALL_PIECE_TYPE_NONE;
+                st->current_color = HALL_PIECE_COLOR_NONE;
+                if (!s_mag_on) {
+                    ESP_LOGW(TAG, ">>> POC sq %02u changed to [Empty None] (E=%ld) <<<",
+                             (unsigned)sq, (long)energy);
+                }
+            }
+        } else if (st->current_piece != raw_piece || st->current_color != raw_color) {
             st->ever_locked = true;
             st->current_piece = raw_piece;
             st->current_color = raw_color;
@@ -888,23 +904,13 @@ static uint8_t s_dbg_settle[4][16];
 static uint8_t s_dbg_named[4][16];
 
 static hall_piece_type_t hall_dbg_piece_type(int32_t energy) {
-  /* Pawn 51k–67k. Knight magnet 114k–182k. The next magnet settles
-   * anywhere from ~300k to ~382k, so that span is bishop. */
-  static const hall_poc_threshold_t dbg_piece[] = {
-      {15000, 90000, HALL_PIECE_TYPE_PAWN},
-      {90001, 240000, HALL_PIECE_TYPE_KNIGHT},
-      {240001, 520000, HALL_PIECE_TYPE_BISHOP},
-      {520001, 800000, HALL_PIECE_TYPE_ROOK},
-      {800001, 1200000, HALL_PIECE_TYPE_QUEEN},
-      {1200001, 8000000, HALL_PIECE_TYPE_KING},
-  };
-  const hall_poc_threshold_t *thr = &dbg_piece[0];
-  for (unsigned i = 0; i < sizeof(dbg_piece) / sizeof(dbg_piece[0]); i++) {
-    if (energy >= dbg_piece[i].min_energy) {
-      thr = &dbg_piece[i];
+  for (int i = 0; i < HALL_POC_THRESHOLD_COUNT; i++) {
+    if (energy >= s_poc_thresholds[i].min_energy &&
+        energy <= s_poc_thresholds[i].max_energy) {
+      return s_poc_thresholds[i].type;
     }
   }
-  return thr->type;
+  return HALL_PIECE_TYPE_NONE;
 }
 
 static void hall_dbg_log_settled(unsigned seg, unsigned field, uint8_t row,

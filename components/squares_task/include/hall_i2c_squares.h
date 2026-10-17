@@ -90,9 +90,8 @@ void hall_i2c_squares_debug_light_pieces(void);
 
 void hall_i2c_squares_request_rest_measure(void);
 
-/* Piece classification POC. Kept separate from engine piece_t; game_task
- * maps and compares. Thresholds are the POC constants in hall_i2c_squares.c,
- * not a calibrated measurement. */
+/* Piece classification. Kept separate from engine piece_t; game_task
+ * maps and compares. Bands are the measured stacks in hall_i2c_squares.c. */
 
 typedef enum {
     HALL_PIECE_TYPE_NONE = 0,
