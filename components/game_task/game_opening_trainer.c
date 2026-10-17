@@ -427,6 +427,24 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
   return true;
 }
 
+bool game_opening_ensure_and_start(void) {
+  if (opening_state.line_uci_count == 0) {
+    static const char uci[][6] = {"e2e4", "e7e5", "g1f3", "b8c6", "f1c4"};
+    static const uint8_t player_plies[] = {0, 2, 4};
+    static const uint8_t checkpoint[] = {4};
+    const char *fen =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    if (!game_opening_load_config("italian", fen, uci, 5, player_plies, 3,
+                                  checkpoint, 1, 0, 1, 0)) {
+      return false;
+    }
+  }
+  if (game_opening_start()) {
+    return true;
+  }
+  return game_opening_enter_setup_phase();
+}
+
 bool game_opening_start(void) {
   if (opening_state.line_uci_count == 0) {
     return false;

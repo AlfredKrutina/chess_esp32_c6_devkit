@@ -13,6 +13,7 @@
 
 #include "freertos_chess.h"
 #include "game_task.h"
+#include "game_gesture.h"
 #include "led_mapping.h"
 #include "led_task.h"
 #include "hall_i2c_squares.h"
@@ -132,6 +133,9 @@ void game_squares_guard_restore_after_clear(bool notify_clients) {
 }
 
 void game_squares_guard_render_leds(void) {
+  if (game_demo_show_active()) {
+    return;
+  }
 #if HALL_DEBUG_LIGHT_WHERE_PIECE
   return;
 #endif

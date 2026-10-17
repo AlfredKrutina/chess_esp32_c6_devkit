@@ -1623,7 +1623,7 @@ command_result_t uart_cmd_demo(const char *args) {
   }
   game_demo_show_set(true);
   uart_send_line("Demo on: scholar's mate, light, colors, pairing, again");
-  uart_send_line("DEMO OFF, four clicks, or a piece move stops it");
+  uart_send_line("DEMO OFF or four clicks stops it");
   return CMD_SUCCESS;
 }
 

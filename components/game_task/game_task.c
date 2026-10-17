@@ -452,6 +452,8 @@ bool endgame_report_requested = false;
 
 endgame_reason_t current_endgame_reason = ENDGAME_REASON_CHECKMATE;
 
+uint8_t game_endgame_reason(void) { return (uint8_t)current_endgame_reason; }
+
 last_move_type_t last_move_type = LAST_MOVE_NORMAL;
 
 // Extended game statistics
@@ -1284,6 +1286,19 @@ void game_show_move_suggestions(uint8_t row, uint8_t col) {
   }
 }
 
+static bool suggestion_gives_check(uint8_t from_row, uint8_t from_col,
+                                   uint8_t to_row, uint8_t to_col,
+                                   piece_t piece) {
+  piece_t captured = board[to_row][to_col];
+  board[to_row][to_col] = piece;
+  board[from_row][from_col] = PIECE_EMPTY;
+  bool white = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
+  bool check = game_is_king_in_check(white ? PLAYER_BLACK : PLAYER_WHITE);
+  board[from_row][from_col] = piece;
+  board[to_row][to_col] = captured;
+  return check;
+}
+
 /**
  * @brief Get all available moves for a piece at given position
  * @param row Row coordinate
@@ -1347,7 +1362,9 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
         suggestions[count].to_col = castling_state.rook_to_col;
         suggestions[count].piece = piece;
         suggestions[count].is_capture = false;
-        suggestions[count].is_check = false;
+        suggestions[count].is_check = suggestion_gives_check(
+            row, col, castling_state.rook_to_row, castling_state.rook_to_col,
+            piece);
         suggestions[count].is_castling = false;
         suggestions[count].is_en_passant = false;
         suggestions[count].score = 0;
@@ -1411,7 +1428,8 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
         suggestions[count].to_col = to_col;
         suggestions[count].piece = piece;
         suggestions[count].is_capture = (target != PIECE_EMPTY);
-        suggestions[count].is_check = false; // TODO: Implement check detection
+        suggestions[count].is_check = suggestion_gives_check(
+            row, col, (uint8_t)to_row, (uint8_t)to_col, piece);
         suggestions[count].is_castling = false;
         suggestions[count].is_en_passant = false;
         suggestions[count].score = 0;
@@ -1449,8 +1467,8 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
           suggestions[count].piece = piece;
           suggestions[count].is_capture =
               (board[to_row][to_col] != PIECE_EMPTY);
-          suggestions[count].is_check =
-              false; // TODO: Implement check detection
+          suggestions[count].is_check = suggestion_gives_check(
+              row, col, (uint8_t)to_row, (uint8_t)to_col, piece);
 
           // Detect castling
           suggestions[count].is_castling =
@@ -2268,8 +2286,11 @@ void game_task_start(void *pvParameters) {
     if (promotion_state.pending) {
       game_promotion_sync_hall_if_pending();
     }
+    game_ep_capture_service();
     if (current_game_state == GAME_STATE_ACTIVE ||
-        current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+        current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP ||
+        current_game_state == GAME_STATE_FINISHED ||
+        current_game_state == GAME_STATE_WAITING_FOR_RETURN) {
       static uint32_t s_last_hall_restore_sync_ms = 0;
       uint32_t hall_now_ms = (uint32_t)(esp_timer_get_time() / 1000);
       if (game_hall_restore_guide_take_sync_request()) {
@@ -2329,7 +2350,7 @@ void game_task_start(void *pvParameters) {
         // Periodically update the LED indication of missing figures
         static uint32_t last_led_update = 0;
         uint32_t now = esp_timer_get_time() / 1000;
-        if (now - last_led_update > 500) { // Every 500ms
+        if (now - last_led_update > 500 && !game_demo_show_active()) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
           game_squares_guard_check_resync_after_restore();
           if (game_is_squares_guard_active()) {

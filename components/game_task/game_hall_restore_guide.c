@@ -12,6 +12,7 @@
 #include "game_physical_undo.h"
 
 #include "../led_task/include/led_board_restore_guide.h"
+#include "game_gesture.h"
 #include "../led_task/include/led_gesture_anim.h"
 #include "../led_task/include/led_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
@@ -47,22 +48,6 @@ static uint8_t s_last_sensor_digest[64];
 static volatile bool s_sync_requested;
 /** Set while sync() runs so a clear-from-matrix callback cannot re-enter it. */
 static bool s_in_sync;
-
-static int cheb_dist_sq(uint8_t a, uint8_t b) {
-  int ar = (int)(a / 8);
-  int ac = (int)(a % 8);
-  int br = (int)(b / 8);
-  int bc = (int)(b % 8);
-  int dr = ar - br;
-  int dc = ac - bc;
-  if (dr < 0) {
-    dr = -dr;
-  }
-  if (dc < 0) {
-    dc = -dc;
-  }
-  return (dr > dc) ? dr : dc;
-}
 
 static int build_manhattan_path(uint8_t from, uint8_t to, uint8_t *out, int cap,
                                 bool columns_first) {
@@ -189,12 +174,10 @@ static bool mode_blocks_guide(void) {
   if (piece_lifted && lifted_piece != PIECE_EMPTY) {
     return true;
   }
-  if (current_game_state == GAME_STATE_FINISHED ||
-      current_game_state == GAME_STATE_WAITING_FOR_RETURN) {
-    return true;
-  }
   if (current_game_state != GAME_STATE_ACTIVE &&
-      current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+      current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
+      current_game_state != GAME_STATE_FINISHED &&
+      current_game_state != GAME_STATE_WAITING_FOR_RETURN) {
     return true;
   }
   return false;
@@ -382,35 +365,6 @@ static bool board_fully_aligned(int job_n, uint8_t missing_n, uint8_t extra_n) {
   return job_n == 0 && missing_n == 0 && extra_n == 0;
 }
 
-static int min_path_pair_cheb(const restore_job_t *a, const restore_job_t *b) {
-  int best = 999;
-  for (uint8_t i = 0; i < a->path_len; i++) {
-    for (uint8_t j = 0; j < b->path_len; j++) {
-      int d = cheb_dist_sq(a->path[i], b->path[j]);
-      if (d < best) {
-        best = d;
-      }
-    }
-  }
-  return best;
-}
-
-static int score_path_set(const int *idx, int count, const restore_job_t *jobs) {
-  if (count <= 1) {
-    return 64;
-  }
-  int min_d = 999;
-  for (int i = 0; i < count; i++) {
-    for (int j = i + 1; j < count; j++) {
-      int d = min_path_pair_cheb(&jobs[idx[i]], &jobs[idx[j]]);
-      if (d < min_d) {
-        min_d = d;
-      }
-    }
-  }
-  return min_d;
-}
-
 static bool set_paths_conflict(const int *idx, int count,
                                const restore_job_t *jobs) {
   for (int i = 0; i < count; i++) {
@@ -535,42 +489,22 @@ static void pick_display_paths(restore_job_t *jobs, int job_n,
 
   int best_jobs[LED_RESTORE_GUIDE_MAX_PATHS];
   int best_count = 0;
-  int best_score = -1;
+  static int s_path_rotate;
+  int start = (cand_n > 0) ? (s_path_rotate % cand_n) : 0;
+  if (cand_n > LED_RESTORE_GUIDE_MAX_PATHS) {
+    s_path_rotate++;
+  }
 
-  for (int i0 = 0; i0 < cand_n; i0++) {
-    int j0 = candidates[i0];
-    if (!set_paths_conflict(&j0, 1, jobs)) {
-      int sc = score_path_set(&j0, 1, jobs);
-      if (sc > best_score || (sc == best_score && 1 > best_count)) {
-        best_score = sc;
-        best_count = 1;
-        best_jobs[0] = j0;
-      }
+  for (int step = 0; step < cand_n && best_count < LED_RESTORE_GUIDE_MAX_PATHS;
+       step++) {
+    int job_i = candidates[(start + step) % cand_n];
+    int trial[LED_RESTORE_GUIDE_MAX_PATHS];
+    for (int k = 0; k < best_count; k++) {
+      trial[k] = best_jobs[k];
     }
-    for (int i1 = i0 + 1; i1 < cand_n; i1++) {
-      int pair[2] = {candidates[i0], candidates[i1]};
-      if (!set_paths_conflict(pair, 2, jobs)) {
-        int sc = score_path_set(pair, 2, jobs);
-        if (sc > best_score || (sc == best_score && 2 > best_count)) {
-          best_score = sc;
-          best_count = 2;
-          best_jobs[0] = pair[0];
-          best_jobs[1] = pair[1];
-        }
-      }
-      for (int i2 = i1 + 1; i2 < cand_n; i2++) {
-        int triple[3] = {candidates[i0], candidates[i1], candidates[i2]};
-        if (!set_paths_conflict(triple, 3, jobs)) {
-          int sc = score_path_set(triple, 3, jobs);
-          if (sc > best_score || (sc == best_score && 3 > best_count)) {
-            best_score = sc;
-            best_count = 3;
-            best_jobs[0] = triple[0];
-            best_jobs[1] = triple[1];
-            best_jobs[2] = triple[2];
-          }
-        }
-      }
+    trial[best_count] = job_i;
+    if (!set_paths_conflict(trial, best_count + 1, jobs)) {
+      best_jobs[best_count++] = job_i;
     }
   }
 
@@ -682,6 +616,9 @@ void game_hall_restore_guide_stop_leds(void) {
 }
 
 void game_hall_restore_guide_sync(void) {
+  if (game_demo_show_active()) {
+    return;
+  }
 #if HALL_DEBUG_LIGHT_WHERE_PIECE
   game_hall_restore_guide_stop_leds();
   return;

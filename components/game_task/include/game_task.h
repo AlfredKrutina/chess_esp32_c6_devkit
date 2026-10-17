@@ -232,6 +232,7 @@ bool game_is_valid_position(int row, int col);
  * @return The type of the figure at the position
  */
 piece_t game_get_piece(int row, int col);
+uint8_t game_endgame_reason(void);
 
 /**
  * @brief Check if the position is empty
@@ -529,6 +530,8 @@ bool game_opening_load_config(const char *line_id, const char *start_fen,
                               uint8_t player_side_white,
                               uint8_t opponent_mode);
 bool game_opening_start(void);
+/** Load the built-in Italian line when none is loaded, then start or enter setup. */
+bool game_opening_ensure_and_start(void);
 bool game_opening_hint(void);
 bool game_opening_checkpoint_ack(void);
 bool game_opening_awaiting_opponent_physical(void);

@@ -284,7 +284,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
       snprintf(info_msg, sizeof(info_msg),
                "👑 Promotion pending at %c%d\n"
                "🔁 You can swap the pawn here now (optional)\n"
-               "➡️ Next: choose piece via green buttons / PROMOTE / web",
+               "➡️ Put a queen, rook, bishop, or knight of your color on this square",
                'a' + promotion_state.square_col,
                promotion_state.square_row + 1);
       game_send_response_to_uart(info_msg, false,
@@ -303,7 +303,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     snprintf(info_msg, sizeof(info_msg),
              "⏸️ Promotion pending at %c%d\n"
              "🔁 Swap allowed only on %c%d (optional)\n"
-             "➡️ Then choose piece via green buttons / PROMOTE / web",
+             "➡️ Put a queen, rook, bishop, or knight of your color on that square",
              'a' + promotion_state.square_col, promotion_state.square_row + 1,
              'a' + promotion_state.square_col, promotion_state.square_row + 1);
     game_send_response_to_uart(info_msg, false,
@@ -330,6 +330,31 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     ESP_LOGE(TAG, "❌ Invalid notation: %s", cmd->from_notation);
     game_send_response_to_uart("❌ Invalid square notation", true,
                                (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+  if (game_physical_undo_intercept_pickup(from_row, from_col)) {
+    game_send_response_to_uart(
+        "↩️ Physical takeback — follow blue return squares.", false,
+        (QueueHandle_t)cmd->response_queue);
+    return;
+  }
+
+  if (game_ep_capture_waiting()) {
+    if (!game_ep_capture_is_victim(from_row, from_col)) {
+      game_ep_capture_service();
+      game_send_response_to_uart(
+          "⚔️ En passant: lift the pawn on the orange square.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+    piece_t victim = (current_player == PLAYER_WHITE) ? PIECE_WHITE_PAWN
+                                                       : PIECE_BLACK_PAWN;
+    piece_lifted = true;
+    lifted_piece_row = from_row;
+    lifted_piece_col = from_col;
+    lifted_piece = victim;
+    game_ep_capture_service();
     return;
   }
 
@@ -873,6 +898,24 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
     return; // Do not continue with normal pickup flow
   }
 
+  if (castling_state.in_progress) {
+    bool rook_src = (from_row == castling_state.rook_from_row &&
+                     from_col == castling_state.rook_from_col);
+    game_show_castling_rook_guidance();
+    if (!rook_src) {
+      led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0);
+      game_send_response_to_uart(
+          "🏰 Move the rook from yellow to green.", true,
+          (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+    piece_lifted = true;
+    lifted_piece_row = from_row;
+    lifted_piece_col = from_col;
+    lifted_piece = piece;
+    return;
+  }
+
   // CASTLING INTERCEPTION: Re-lift of rook during active castling
   // If we are in castling mode (standard timer based), suppress standard move
   // hints and just reinforce guidance
@@ -943,7 +986,6 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
                    'a' + dest_col, dest_row + 1);
         }
       } else {
-        // Normal move handling (existing code)
         piece_t dest_piece = board[dest_row][dest_col];
         bool is_opponent_piece =
             (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN &&
@@ -951,8 +993,9 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
             (current_player == PLAYER_BLACK && dest_piece >= PIECE_WHITE_PAWN &&
              dest_piece <= PIECE_WHITE_KING);
 
-        if (is_opponent_piece) {
-          // Orange for opponent's pieces (capture)
+        if (suggestions[i].is_check) {
+          led_set_pixel_safe(led_index, 255, 255, 255);
+        } else if (is_opponent_piece) {
           led_set_pixel_safe(led_index, 255, 165, 0);
         } else {
           // Green for empty squares
@@ -1183,6 +1226,24 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     return;
   }
 
+  if (game_ep_capture_waiting()) {
+    bool lifted_victim =
+        piece_lifted && game_ep_capture_is_victim(lifted_piece_row, lifted_piece_col);
+    if (lifted_victim) {
+      piece_lifted = false;
+      lifted_piece = PIECE_EMPTY;
+      lifted_piece_row = 0;
+      lifted_piece_col = 0;
+    }
+    game_ep_capture_service();
+    if (game_ep_capture_waiting()) {
+      game_send_response_to_uart(
+          "⚔️ En passant: take the pawn off the orange square.", true,
+          (QueueHandle_t)cmd->response_queue);
+    }
+    return;
+  }
+
   if (game_physical_undo_handle_drop(cmd, to_row, to_col)) {
     if (game_physical_undo_is_active()) {
       game_send_response_to_uart(
@@ -1288,7 +1349,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       snprintf(info_msg, sizeof(info_msg),
                "👑 Promotion pending at %c%d\n"
                "✅ Swap on promo square registered (optional)\n"
-               "➡️ Next: choose piece via green buttons / PROMOTE / web",
+               "➡️ Put a queen, rook, bishop, or knight of your color on this square",
                'a' + promotion_state.square_col,
                promotion_state.square_row + 1);
       game_send_response_to_uart(info_msg, false,
@@ -1307,7 +1368,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     snprintf(info_msg, sizeof(info_msg),
              "⏸️ Promotion pending at %c%d\n"
              "🔁 Swap allowed only on %c%d (optional)\n"
-             "➡️ Then choose piece via green buttons / PROMOTE / web",
+             "➡️ Put a queen, rook, bishop, or knight of your color on that square",
              'a' + promotion_state.square_col, promotion_state.square_row + 1,
              'a' + promotion_state.square_col, promotion_state.square_row + 1);
     game_send_response_to_uart(info_msg, false,
@@ -1429,7 +1490,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
           snprintf(promo_msg, sizeof(promo_msg),
                    "👑 Promotion required at %c%d\n"
                    "🔁 You may swap on this square now (optional)\n"
-                   "➡️ Next: choose piece via green buttons / PROMOTE / web",
+                   "➡️ Put a queen, rook, bishop, or knight of your color on this square",
                    'a' + promotion_state.square_col,
                    promotion_state.square_row + 1);
           game_send_response_to_uart(promo_msg, false,
@@ -1710,13 +1771,37 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
     lifted_piece_col = 0;
     lifted_piece = PIECE_EMPTY;
 
-    // Show moving figures (blinking already broken at start of DROP)
-    led_clear_board_only();
-    chess_policy_highlight_movable_if_enabled();
+    if (castling_state.in_progress) {
+      game_show_castling_rook_guidance();
+    } else {
+      led_clear_board_only();
+      chess_policy_highlight_movable_if_enabled();
+    }
 
     game_send_response_to_uart("✅ Move cancelled", false,
                                (QueueHandle_t)cmd->response_queue);
     return;
+  }
+
+  if (castling_state.in_progress) {
+    bool rook_done = lifted_piece_row == castling_state.rook_from_row &&
+                     lifted_piece_col == castling_state.rook_from_col &&
+                     to_row == castling_state.rook_to_row &&
+                     to_col == castling_state.rook_to_col;
+    if (!rook_done) {
+      uint8_t wrong_row = to_row;
+      uint8_t wrong_col = to_col;
+      piece_lifted = false;
+      lifted_piece = PIECE_EMPTY;
+      lifted_piece_row = 0;
+      lifted_piece_col = 0;
+      game_show_castling_rook_guidance();
+      led_set_pixel_safe(chess_pos_to_led_index(wrong_row, wrong_col), 255, 0,
+                         0);
+      game_send_response_to_uart("🏰 Move the rook from yellow to green.", true,
+                                 (QueueHandle_t)cmd->response_queue);
+      return;
+    }
   }
 
   // PUSH VALIDATION
@@ -1976,7 +2061,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
                  "animations",
                  'a' + promotion_state.square_col,
                  promotion_state.square_row + 1);
-        ESP_LOGI(TAG, "⏸️  Awaiting promotion selection via buttons/UART/web");
+        ESP_LOGI(TAG, "⏸️  Awaiting promotion piece on the lit square");
         ESP_LOGI(TAG, "⏸️  Timer remains with %s player",
                  current_player == PLAYER_WHITE ? "White" : "Black");
 
@@ -1993,7 +2078,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
             "✅ Valid move: %c%d → %c%d\n"
             "👑 Promotion required at %c%d\n"
             "🔁 Optional: swap on %c%d now\n"
-            "➡️ Then choose piece (green buttons / PROMOTE / web)",
+            "➡️ Put a queen, rook, bishop, or knight of your color on that square",
             'a' + move.from_col, move.from_row + 1, 'a' + to_col, to_row + 1,
             'a' + promotion_state.square_col, promotion_state.square_row + 1,
             'a' + promotion_state.square_col, promotion_state.square_row + 1);
@@ -2601,7 +2686,7 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
     ESP_LOGW(TAG,
              "⚠️ Move ignored - promotion pending. Complete promotion first.");
     game_send_response_to_uart(
-        "⚠️ Promotion pending! Use PROMOTE command or physical buttons.", true,
+        "⚠️ Promotion pending. Put a queen, rook, bishop, or knight on the lit square.", true,
         (QueueHandle_t)cmd->response_queue);
     return;
   }

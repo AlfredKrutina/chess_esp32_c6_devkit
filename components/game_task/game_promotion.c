@@ -30,6 +30,8 @@ static const char *TAG = "GAME_PROMOTION";
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 static bool s_promo_hall_swap_blink;
+static piece_t s_promo_hall_seen = PIECE_EMPTY;
+static uint8_t s_promo_hall_seen_count;
 
 static bool game_promotion_is_final_piece(piece_t piece) {
   return piece == PIECE_WHITE_QUEEN || piece == PIECE_WHITE_ROOK ||
@@ -137,6 +139,8 @@ void game_promotion_finish_turn(void) {
 void game_promotion_sync_hall_if_pending(void) {
   if (!promotion_state.pending) {
     s_promo_hall_swap_blink = false;
+    s_promo_hall_seen = PIECE_EMPTY;
+    s_promo_hall_seen_count = 0;
     return;
   }
 
@@ -154,6 +158,8 @@ void game_promotion_sync_hall_if_pending(void) {
   hall_piece_color_t hc = squares_get_hall_piece_color(sq);
 
   if (phys[sq] == 0 || ht == HALL_PIECE_TYPE_NONE) {
+    s_promo_hall_seen = PIECE_EMPTY;
+    s_promo_hall_seen_count = 0;
     if (s_promo_hall_swap_blink) {
       game_stop_error_blink();
       s_promo_hall_swap_blink = false;
@@ -165,10 +171,38 @@ void game_promotion_sync_hall_if_pending(void) {
   piece_t mapped = PIECE_EMPTY;
   if (!game_hall_piece_for_promoting_player(ht, hc, promotion_state.player,
                                             &mapped)) {
+    s_promo_hall_seen = PIECE_EMPTY;
+    s_promo_hall_seen_count = 0;
     if (!s_promo_hall_swap_blink) {
       game_show_invalid_move_error_with_blink(row, col);
       s_promo_hall_swap_blink = true;
     }
+    xSemaphoreGiveRecursive(promotion_mutex);
+    return;
+  }
+
+  if (!game_promotion_is_final_piece(mapped)) {
+    s_promo_hall_seen = PIECE_EMPTY;
+    s_promo_hall_seen_count = 0;
+    if (s_promo_hall_swap_blink) {
+      game_stop_error_blink();
+      s_promo_hall_swap_blink = false;
+    }
+    game_update_promotion_anchor_led();
+    xSemaphoreGiveRecursive(promotion_mutex);
+    return;
+  }
+
+  if (mapped == s_promo_hall_seen) {
+    if (s_promo_hall_seen_count < 2) {
+      s_promo_hall_seen_count++;
+    }
+  } else {
+    s_promo_hall_seen = mapped;
+    s_promo_hall_seen_count = 1;
+  }
+  if (s_promo_hall_seen_count < 2) {
+    game_update_promotion_anchor_led();
     xSemaphoreGiveRecursive(promotion_mutex);
     return;
   }

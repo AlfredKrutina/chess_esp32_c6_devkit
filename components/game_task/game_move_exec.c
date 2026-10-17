@@ -15,6 +15,7 @@
 #include "led_mapping.h"
 
 #include "../led_task/include/led_task.h"
+#include "../squares_task/include/squares_task.h"
 
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -746,6 +747,44 @@ static piece_t game_piece_for_promotion_choice(piece_t pawn,
   return PIECE_WHITE_QUEEN;
 }
 
+static bool s_ep_wait;
+static uint8_t s_ep_row;
+static uint8_t s_ep_col;
+
+static void game_ep_capture_show(void) {
+  led_set_pixel_safe(chess_pos_to_led_index(s_ep_row, s_ep_col), 255, 80, 0);
+}
+
+void game_ep_capture_arm(uint8_t row, uint8_t col) {
+  s_ep_wait = true;
+  s_ep_row = row;
+  s_ep_col = col;
+  led_clear_board_only();
+  game_ep_capture_show();
+}
+
+bool game_ep_capture_waiting(void) { return s_ep_wait; }
+
+bool game_ep_capture_is_victim(uint8_t row, uint8_t col) {
+  return s_ep_wait && row == s_ep_row && col == s_ep_col;
+}
+
+void game_ep_capture_service(void) {
+  if (!s_ep_wait) {
+    return;
+  }
+  uint8_t phys[64] = {0};
+  squares_get_state(phys);
+  uint8_t sq = (uint8_t)(s_ep_row * 8 + s_ep_col);
+  if (phys[sq] == 0) {
+    s_ep_wait = false;
+    led_clear_board_only();
+    chess_policy_highlight_movable_if_enabled();
+    return;
+  }
+  game_ep_capture_show();
+}
+
 /**
  * @brief Execute an enhanced chess move on the board
  */
@@ -756,9 +795,9 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
   // Set last move type for special chess detection
   switch (move->move_type) {
   case MOVE_TYPE_EN_PASSANT:
-    // Remove the captured pawn
+    game_ep_capture_arm(en_passant_victim_row, en_passant_victim_col);
     board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
-    last_move_type = LAST_MOVE_EN_PASSANT; // Mark as en passant
+    last_move_type = LAST_MOVE_EN_PASSANT;
     ESP_LOGI(TAG, "⚔️ En passant move executed");
     break;
 

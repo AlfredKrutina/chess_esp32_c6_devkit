@@ -77,4 +77,10 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
 /** @brief Refresh pending-takeback LEDs. Called from the game command cycle. */
 void game_physical_undo_tick(void);
 
+/**
+ * @brief Continue a takeback when the last mover was set down off the return square.
+ * @return true when this pickup belongs to the active takeback and the caller should stop.
+ */
+bool game_physical_undo_intercept_pickup(uint8_t row, uint8_t col);
+
 #endif /* GAME_PHYSICAL_UNDO_H */

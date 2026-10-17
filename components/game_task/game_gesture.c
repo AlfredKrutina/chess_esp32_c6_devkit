@@ -137,13 +137,13 @@ static void demo_show_tick(void) {
     demo_play_move(k_demo_game[s_demo_ply][0], k_demo_game[s_demo_ply][1],
                    k_demo_game[s_demo_ply][2], k_demo_game[s_demo_ply][3]);
     s_demo_ply++;
-    s_demo_until = xTaskGetTickCount() + pdMS_TO_TICKS(450);
+    s_demo_until = xTaskGetTickCount() + pdMS_TO_TICKS(900);
     break;
   case DEMO_END:
     if (!s_demo_sent) {
       demo_play_end();
       s_demo_sent = true;
-      s_demo_until = now + pdMS_TO_TICKS(1600);
+      s_demo_until = now + pdMS_TO_TICKS(5500);
       break;
     }
     if ((int32_t)(now - s_demo_until) < 0) {
@@ -168,7 +168,7 @@ static void demo_show_tick(void) {
     demo_paint(0);
     s_demo_color = 1;
     s_demo_sent = false;
-    s_demo_until = now + pdMS_TO_TICKS(800);
+    s_demo_until = now + pdMS_TO_TICKS(1500);
     s_demo_phase = DEMO_COLOR;
     break;
   case DEMO_COLOR:
@@ -178,13 +178,13 @@ static void demo_show_tick(void) {
     if (s_demo_color < (uint8_t)(sizeof(k_demo_colors) / sizeof(k_demo_colors[0]))) {
       demo_paint(s_demo_color);
       s_demo_color++;
-      s_demo_until = now + pdMS_TO_TICKS(800);
+      s_demo_until = now + pdMS_TO_TICKS(1500);
       break;
     }
     if (!led_gesture_start_pair_pulse()) {
       break;
     }
-    s_demo_until = now + pdMS_TO_TICKS(2000);
+    s_demo_until = now + pdMS_TO_TICKS(3500);
     s_demo_phase = DEMO_PAIR;
     break;
   case DEMO_PAIR:
@@ -255,6 +255,8 @@ bool game_demo_show_active(void) { return s_demo_phase != DEMO_OFF; }
 #include "soc/soc_caps.h"
 
 static bool s_wave_wait;
+static bool s_opening_wave;
+static bool s_opening_wave;
 static bool s_pair_pulse_on;
 static ha_mode_t s_pending_mode;
 
@@ -387,7 +389,45 @@ static void gesture_power_off(void) {
 #endif
 }
 
+static bool gesture_in_puzzle(void) {
+  return game_is_puzzle_active() || game_is_puzzle_setup_active();
+}
+
+static void gesture_next_puzzle(void) {
+  uint8_t id = puzzle_active_id != 0 ? puzzle_active_id : puzzle_setup_id;
+  uint8_t next = 1;
+  if (id >= 1 && id < 5) {
+    next = (uint8_t)(id + 1);
+  }
+  if (!game_puzzle_start(next)) {
+    ESP_LOGW(TAG, "next puzzle %u did not start", (unsigned)next);
+  }
+}
+
+static void gesture_begin_opening(void) {
+  uint32_t colors[64];
+  for (int i = 0; i < 64; i++) {
+    uint8_t t = (uint8_t)((i * 255) / 63);
+    colors[i] = ((uint32_t)(40 + t / 4) << 16) | ((uint32_t)(80 + t / 3) << 8) |
+                (uint32_t)(180 + t / 5);
+  }
+  if (led_gesture_start_wave(colors, false, 0x2864C8u)) {
+    s_opening_wave = true;
+    s_wave_wait = true;
+    return;
+  }
+  (void)game_opening_ensure_and_start();
+}
+
 static void handle_event(gesture_event_t ev) {
+  if (gesture_in_puzzle() && ev == GESTURE_SNAKE_START) {
+    gesture_next_puzzle();
+    return;
+  }
+  if (gesture_in_puzzle() && ev == GESTURE_COLOR) {
+    gesture_begin_opening();
+    return;
+  }
   if (ev == GESTURE_DEMO) {
     game_demo_show_set(!game_demo_show_active());
     return;
@@ -501,6 +541,11 @@ static void handle_result(led_gesture_result_t result) {
       break;
     }
     s_wave_wait = false;
+    if (s_opening_wave) {
+      s_opening_wave = false;
+      (void)game_opening_ensure_and_start();
+      break;
+    }
     if (!ha_light_request_mode(s_pending_mode)) {
       ESP_LOGW(TAG, "mode commit queue full");
     } else {

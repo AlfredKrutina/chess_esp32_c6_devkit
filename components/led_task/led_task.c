@@ -2580,6 +2580,8 @@ typedef struct {
   float reveal;
   uint32_t last_update;
   bool initialized;
+  uint8_t reason;
+  uint8_t loops;
   piece_t winner_piece; // Store the actual winner piece for proper detection
 } endgame_wave_state_t;
 
@@ -2617,6 +2619,8 @@ void led_anim_endgame(const led_command_t *cmd) {
            endgame_wave.winner_piece);
 
   // Initialize animation state. Radius and reveal grow inside the LED tick.
+  endgame_wave.reason = game_endgame_reason();
+  endgame_wave.loops = 0;
   endgame_wave.radius = 0.f;
   endgame_wave.reveal = 0.f;
   endgame_wave.last_update = xTaskGetTickCount();
@@ -2661,6 +2665,21 @@ void led_update_endgame_wave(void) {
   endgame_wave.radius += 0.28f;
   if (endgame_wave.radius >= 16.f) {
     endgame_wave.radius -= 16.f;
+    if (endgame_wave.loops < 255) {
+      endgame_wave.loops++;
+    }
+  }
+  if (endgame_wave.loops >= 2) {
+    led_clear_board_only();
+    bool on = ((xTaskGetTickCount() / pdMS_TO_TICKS(400)) % 2U) == 0U;
+    if (on) {
+      const uint8_t corners[4][2] = {{0, 0}, {0, 7}, {7, 0}, {7, 7}};
+      for (int i = 0; i < 4; i++) {
+        led_set_pixel_safe(chess_pos_to_led_index(corners[i][0], corners[i][1]),
+                           255, 255, 255);
+      }
+    }
+    return;
   }
   if (endgame_wave.reveal < 1.f) {
     endgame_wave.reveal += 0.08f;
@@ -2701,6 +2720,36 @@ void led_update_endgame_wave(void) {
       uint8_t red;
       uint8_t green;
       uint8_t blue;
+      uint8_t reason = endgame_wave.reason;
+      if (reason == 10 || reason == 11 || reason == 12 || reason == 13 ||
+          reason == 20 || reason == 21) {
+        uint8_t cr = 180, cg = 180, cb = 180;
+        if (reason == 11) {
+          cr = 255;
+          cg = 160;
+          cb = 0;
+        } else if (reason == 12) {
+          cr = 40;
+          cg = 80;
+          cb = 255;
+        } else if (reason == 13) {
+          cr = 220;
+          cg = 220;
+          cb = 220;
+        } else if (reason == 20) {
+          cr = 255;
+          cg = 0;
+          cb = 0;
+        } else if (reason == 21) {
+          cr = 255;
+          cg = 60;
+          cb = 0;
+        }
+        led_set_pixel_safe(chess_pos_to_led_index(row, col),
+                           (uint8_t)(cr * intensity), (uint8_t)(cg * intensity),
+                           (uint8_t)(cb * intensity));
+        continue;
+      }
       if (piece != PIECE_EMPTY) {
         bool opponent = winner_is_white
                             ? (piece >= PIECE_BLACK_PAWN &&

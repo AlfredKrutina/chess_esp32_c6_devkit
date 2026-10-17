@@ -263,26 +263,8 @@ void ha_light_report_activity(const char *activity_type) {
  * @brief Kontroluje zda byl prekrocen 5 minutovy timeout
  */
 static void ha_light_check_activity_timeout(void) {
-  if (!task_running || current_mode == HA_MODE_HA) {
-    return; // Already in HA mode or task not running
-  }
-
-  if (last_activity_time_ms == 0) {
-    // First run - initialize timer
-    last_activity_time_ms = esp_timer_get_time() / 1000;
-    return;
-  }
-
-  uint32_t current_time_ms = esp_timer_get_time() / 1000;
-  uint32_t elapsed_ms = current_time_ms - last_activity_time_ms;
-  uint32_t timeout_ms = (uint32_t)activity_timeout_auto_sec * 1000;
-
-  if (elapsed_ms >= timeout_ms) {
-    ESP_LOGI(TAG,
-             "Activity timeout (%lu s) reached - auto-switching to last lamp state",
-             (unsigned long)activity_timeout_auto_sec);
-    ha_light_switch_to_ha_mode();
-  }
+  /* Idle must not switch the board into the lamp. The click gesture still does. */
+  (void)activity_timeout_auto_sec;
 }
 
 // ============================================================================

@@ -145,6 +145,12 @@ void game_promotion_finish_turn(void);
 void game_promotion_sync_hall_if_pending(void);
 #endif
 
+/** Light the en-passant victim until that pawn leaves the board. */
+void game_ep_capture_arm(uint8_t row, uint8_t col);
+void game_ep_capture_service(void);
+bool game_ep_capture_waiting(void);
+bool game_ep_capture_is_victim(uint8_t row, uint8_t col);
+
 typedef enum {
   LAST_MOVE_NORMAL = 0,
   LAST_MOVE_EN_PASSANT = 1,

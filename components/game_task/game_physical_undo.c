@@ -46,6 +46,9 @@ typedef struct {
   uint8_t blue_row;
   uint8_t blue_col;
   bool undo_castle_rook_lift;
+  bool stray_valid;
+  uint8_t stray_row;
+  uint8_t stray_col;
   piece_t target_board[8][8];
   uint32_t pending_blink_phase;
 } physical_undo_state_t;
@@ -489,6 +492,76 @@ void game_physical_undo_tick(void) {
   }
 }
 
+bool game_physical_undo_intercept_pickup(uint8_t row, uint8_t col) {
+  if (s_undo.phase != PHYS_UNDO_ARMED || !s_undo.stray_valid) {
+    return false;
+  }
+  if (row != s_undo.stray_row || col != s_undo.stray_col) {
+    return false;
+  }
+  s_undo.stray_valid = false;
+  piece_lifted = true;
+  lifted_piece_row = row;
+  lifted_piece_col = col;
+  lifted_piece = s_undo.lift_piece;
+  game_physical_undo_show_armed_leds();
+  ESP_LOGI(TAG, "Takeback resumed from stray %c%d", 'a' + col, row + 1);
+  return true;
+}
+
+static void game_physical_undo_arm_from_last(const chess_move_t *m,
+                                             move_type_t kind,
+                                             const move_undo_meta_t *meta,
+                                             uint8_t from_row, uint8_t from_col,
+                                             piece_t piece) {
+  s_undo.phase = PHYS_UNDO_ARMED;
+  s_undo.stray_valid = false;
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_restore_guide_stop_leds();
+#endif
+  s_undo.move = *m;
+  s_undo.kind = kind;
+  s_undo.meta = *meta;
+  s_undo.lift_row = from_row;
+  s_undo.lift_col = from_col;
+  s_undo.lift_piece = piece;
+  s_undo.undo_castle_rook_lift =
+      (from_row == m->from_row && from_col == meta->rook_castle_col);
+
+  if (s_undo.undo_castle_rook_lift) {
+    s_undo.blue_row = m->from_row;
+    s_undo.blue_col = meta->rook_home_col;
+  } else {
+    s_undo.blue_row = m->from_row;
+    s_undo.blue_col = m->from_col;
+  }
+
+  piece_lifted = true;
+  lifted_piece_row = from_row;
+  lifted_piece_col = from_col;
+  lifted_piece = piece;
+}
+
+static bool game_physical_undo_drop_is_last_reverse(uint8_t to_row,
+                                                    uint8_t to_col,
+                                                    chess_move_t *m,
+                                                    move_type_t *kind,
+                                                    move_undo_meta_t *meta) {
+  if (!piece_lifted || !game_physical_undo_load_last(m, kind, meta)) {
+    return false;
+  }
+  if (!game_physical_undo_lift_matches(m, *kind, meta, lifted_piece_row,
+                                       lifted_piece_col, lifted_piece)) {
+    return false;
+  }
+  if ((*kind == MOVE_TYPE_CASTLE_KING || *kind == MOVE_TYPE_CASTLE_QUEEN) &&
+      lifted_piece_row == m->from_row &&
+      lifted_piece_col == meta->rook_castle_col) {
+    return to_row == m->from_row && to_col == meta->rook_home_col;
+  }
+  return to_row == m->from_row && to_col == m->from_col;
+}
+
 bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
                                       uint8_t from_row, uint8_t from_col,
                                       piece_t piece) {
@@ -497,6 +570,10 @@ bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
   if (s_undo.phase != PHYS_UNDO_IDLE && !game_physical_undo_enabled()) {
     game_physical_undo_reset();
     return false;
+  }
+
+  if (game_physical_undo_intercept_pickup(from_row, from_col)) {
+    return true;
   }
 
   if (s_undo.phase == PHYS_UNDO_PENDING) {
@@ -523,32 +600,7 @@ bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
     return false;
   }
 
-  s_undo.phase = PHYS_UNDO_ARMED;
-#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-  game_hall_restore_guide_stop_leds();
-#endif
-  s_undo.move = m;
-  s_undo.kind = kind;
-  s_undo.meta = meta;
-  s_undo.lift_row = from_row;
-  s_undo.lift_col = from_col;
-  s_undo.lift_piece = piece;
-  s_undo.undo_castle_rook_lift =
-      (from_row == m.from_row && from_col == meta.rook_castle_col);
-
-  if (s_undo.undo_castle_rook_lift) {
-    s_undo.blue_row = m.from_row;
-    s_undo.blue_col = meta.rook_home_col;
-  } else {
-    s_undo.blue_row = m.from_row;
-    s_undo.blue_col = m.from_col;
-  }
-
-  piece_lifted = true;
-  lifted_piece_row = from_row;
-  lifted_piece_col = from_col;
-  lifted_piece = piece;
-
+  game_physical_undo_arm_from_last(&m, kind, &meta, from_row, from_col, piece);
   game_physical_undo_show_armed_leds();
   ESP_LOGI(TAG, "Takeback armed: lift %c%d blue return %c%d",
            'a' + from_col, from_row + 1, 'a' + s_undo.blue_col,
@@ -568,6 +620,23 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
   if (s_undo.phase == PHYS_UNDO_PENDING) {
     game_physical_undo_try_complete_engine();
     return true;
+  }
+
+  if (s_undo.phase == PHYS_UNDO_IDLE) {
+    if (!game_physical_undo_enabled() ||
+        game_physical_undo_mode_blocks_offer() || !piece_lifted) {
+      return false;
+    }
+    chess_move_t rev_m;
+    move_type_t rev_kind;
+    move_undo_meta_t rev_meta;
+    if (!game_physical_undo_drop_is_last_reverse(to_row, to_col, &rev_m,
+                                                 &rev_kind, &rev_meta)) {
+      return false;
+    }
+    game_physical_undo_arm_from_last(&rev_m, rev_kind, &rev_meta,
+                                     lifted_piece_row, lifted_piece_col,
+                                     lifted_piece);
   }
 
   if (s_undo.phase != PHYS_UNDO_ARMED || !piece_lifted) {
@@ -618,7 +687,16 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
     return true;
   }
 
-  ESP_LOGI(TAG, "Takeback disarmed — drop on non-undo square (normal move)");
-  game_physical_undo_reset();
-  return false;
+  ESP_LOGI(TAG, "Takeback held — %c%d is not the previous square",
+           'a' + to_col, to_row + 1);
+  s_undo.stray_valid = true;
+  s_undo.stray_row = to_row;
+  s_undo.stray_col = to_col;
+  piece_lifted = false;
+  lifted_piece = PIECE_EMPTY;
+  lifted_piece_row = 0;
+  lifted_piece_col = 0;
+  game_physical_undo_show_armed_leds();
+  led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
+  return true;
 }

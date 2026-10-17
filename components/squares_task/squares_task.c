@@ -119,6 +119,7 @@
 #include "stm32_i2c_bl.h"
 #endif
 #include "game_task.h"
+#include "game_gesture.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
 #endif
@@ -421,7 +422,8 @@ void squares_scan_all(void) {
 
       /* First stable frame after boot/baseline is the reference, not 64 drops. */
       bool accept_events = squares_sensors_accept_events();
-      bool detect_events = accept_events && s_squares_events_armed;
+      bool detect_events = accept_events && s_squares_events_armed &&
+                           !game_demo_show_active();
       if (detect_events) {
         for (int i = 0; i < 64; i++) {
           if (squares_state[i] != squares_previous[i]) {
@@ -472,7 +474,8 @@ void squares_scan_all(void) {
 #endif
 
     bool accept_events = squares_sensors_accept_events();
-    bool detect_events = accept_events && s_squares_events_armed;
+    bool detect_events = accept_events && s_squares_events_armed &&
+                         !game_demo_show_active();
     if (detect_events) {
       for (int i = 0; i < 64; i++) {
         if (squares_state[i] != squares_previous[i]) {

@@ -65,32 +65,15 @@ void game_detect_and_handle_castling(const chess_move_t *move) {
  * @brief Show LED guidance for castling rook move
  */
 void game_show_castling_rook_guidance() {
-  // Clear the board
   led_clear_board_only();
 
-  // A gradual animation from the tower to the goal
   uint8_t rook_from_led = chess_pos_to_led_index(castling_state.rook_from_row,
                                                  castling_state.rook_from_col);
   uint8_t rook_to_led = chess_pos_to_led_index(castling_state.rook_to_row,
                                                castling_state.rook_to_col);
 
-  // Highlight tower (yellow)
-  led_set_pixel_safe(rook_from_led, 255, 255, 0); // Yellow - lift from here
-
-  // Gradually light up the field from the tower to the target
-  int from_col = castling_state.rook_from_col;
-  int to_col = castling_state.rook_to_col;
-  int step = (to_col > from_col) ? 1 : -1;
-
-  for (int col = from_col + step; col != to_col + step; col += step) {
-    uint8_t led_index =
-        chess_pos_to_led_index(castling_state.rook_from_row, col);
-    led_set_pixel_safe(led_index, 0, 255, 0); // Green - the way
-    vTaskDelay(pdMS_TO_TICKS(300));
-  }
-
-  // Highlight target (green)
-  led_set_pixel_safe(rook_to_led, 0, 255, 0); // Green - put it here
+  led_set_pixel_safe(rook_from_led, 255, 255, 0);
+  led_set_pixel_safe(rook_to_led, 0, 255, 0);
 
   ESP_LOGI(TAG, "💡 Move rook from %c%d to %c%d to complete castling",
            'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
