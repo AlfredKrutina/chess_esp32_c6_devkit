@@ -174,7 +174,6 @@
  */
 
 #include "led_task.h"
-#include "../config_manager/include/config_manager.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
@@ -386,22 +385,9 @@ static led_duration_state_t led_durations[CHESS_LED_COUNT_TOTAL] = {0};
 static bool led_duration_system_enabled = true;
 
 // GLOBAL BRIGHTNESS CONTROL
-static uint8_t global_brightness = 50; // Default 50%
+static uint8_t global_brightness = 100; // Full scale; not dimmed by a stored value
 
-/*
- * +5V_LED rail (U40 TPS54560BDDAR, L5 FXL0530-4R7-M). The inductor's published
- * heating current is 4500 mA (Isat and the buck's operating current are 5 A).
- * Two paralleled 3 A connector contacts carry this rail to the next board, so
- * they are not the tighter rating.
- * OPSCO SK6812MINIRGBW-XX-P6-A (WS bin is SK6812MINIRGBW-WS-P6-A), VDD=5 V,
- * VDS=1 V: R/G/B 8 mA typical, W 16.5 mA typical, 8-bit PWM. A full RGBW
- * frame is 64 * (24 + 16.5) = 2592 mA, or 73 * 40.5 = 2956.5 mA, both under
- * 4500 mA, so it is not scaled. NVS brightness is applied before this check
- * and cannot raise it. One uniform scale covers R, G, B and W together.
- */
-#define LED_RAIL_BUDGET_MA 4500
-#define LED_RGB_FULL_UA 8000
-#define LED_W_FULL_UA 16500
+/* No rail scale and no stored dim. Every mode shifts out the requested level. */
 
 // LED patterns
 static const uint32_t chess_board_pattern[64] = {
@@ -742,7 +728,7 @@ static void led_split_lamp_white(uint8_t *red, uint8_t *green, uint8_t *blue,
 }
 
 void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
-  /* Rail current is limited once, at strip shift-out. No flat channel cap. */
+  /* Lamp brightness is the caller's 0-255 level. No extra cap. */
 
   // Apply brightness to RGB values
   uint8_t r_scaled = (r * brightness) / 255;
@@ -2050,15 +2036,9 @@ void led_task_start(void *pvParameters) {
   }
   ESP_LOGI(TAG, "✅ LED unified mutex created");
 
-  // Load brightness from NVS
-  system_config_t config;
-  if (config_load_from_nvs(&config) == ESP_OK) {
-    global_brightness = config.brightness_level;
-    ESP_LOGI(TAG, "Loaded global brightness from NVS: %d%%", global_brightness);
-  } else {
-    global_brightness = 50; // Default
-    ESP_LOGI(TAG, "Using default brightness: 50%%");
-  }
+  /* Stay at 100%. A stored NVS level must not dim the strip at boot. */
+  global_brightness = 100;
+  ESP_LOGI(TAG, "Global brightness: 100%%");
 
   // Initialize duration management system
   led_init_duration_system();
@@ -3001,11 +2981,9 @@ void led_set_button_promotion_available(uint8_t button_id, bool available) {
   if (button_id >= 4)
     return;
 
-  uint8_t led_index = 64 + button_id;
-  if (available) {
-    led_set_pixel_internal(led_index, 0, 255, 0); // Green
-  } else {
-    led_set_pixel_internal(led_index, 0, 0, 255); // Blue
+  button_available[button_id] = available;
+  if (!button_pressed[button_id] && !button_blinking[button_id]) {
+    led_update_button_led_state(button_id);
   }
 }
 
@@ -3067,6 +3045,16 @@ static const char *get_ansi_color_from_rgb(uint8_t r, uint8_t g, uint8_t b) {
   return "\033[0m";    // Default (reset)
 }
 
+static uint8_t led_smoothstep_u8(uint8_t x) {
+  uint32_t v = (uint32_t)x;
+  uint32_t s = (v * v * (765U - 2U * v)) / (255U * 255U);
+  return (uint8_t)s;
+}
+
+static uint8_t led_lerp_u8(uint8_t a, uint8_t b, uint8_t t) {
+  return (uint8_t)(((uint32_t)a * (255U - t) + (uint32_t)b * t) / 255U);
+}
+
 /**
  * @brief Update button LED state based on current conditions
  * @param button_id Button ID (0-8)
@@ -3079,21 +3067,19 @@ static void led_update_button_led_state(uint8_t button_id) {
   uint8_t led_index = led_get_button_led_index(button_id);
   uint32_t current_time = esp_timer_get_time() / 1000;
 
-  // Check if button is in blink state (0.5s after release)
-  if (button_blinking[button_id] &&
-      (current_time - button_release_time[button_id]) < 500) {
-    // Blink red (toggle every 100ms)
-    if (((current_time - button_release_time[button_id]) / 100) % 2 == 0) {
-      led_set_pixel_internal(led_index, 255, 0, 0); // Red
-    } else {
-      led_set_pixel_internal(led_index, 0, 0, 0); // Off
+  /* Release eases from red back to the resting color. Hard on/off blink
+   * only updated when the 500 ms window ended, so the flash never ran. */
+  if (button_blinking[button_id]) {
+    uint32_t age = current_time - button_release_time[button_id];
+    uint8_t rest_g = button_available[button_id] ? 255 : 0;
+    uint8_t rest_b = button_available[button_id] ? 0 : 255;
+    if (age < 420U) {
+      uint8_t t = led_smoothstep_u8((uint8_t)((age * 255U) / 420U));
+      led_set_pixel_internal(led_index, led_lerp_u8(255, 0, t),
+                             led_lerp_u8(0, rest_g, t),
+                             led_lerp_u8(0, rest_b, t));
+      return;
     }
-    return;
-  }
-
-  // Clear blink state if time expired
-  if (button_blinking[button_id] &&
-      (current_time - button_release_time[button_id]) >= 500) {
     button_blinking[button_id] = false;
   }
 
@@ -3140,20 +3126,12 @@ static void led_set_button_pressed(uint8_t button_id, bool pressed) {
  * @brief Process button blink timers (call from main loop)
  */
 static void led_process_button_blink_timers(void) {
-  uint32_t current_time = esp_timer_get_time() / 1000;
-
   for (int i = 0; i < CHESS_BUTTON_COUNT; i++) {
-    if (button_blinking[i] && (current_time - button_release_time[i]) >= 500) {
-      // Blink period ended
-      button_blinking[i] = false;
-      led_update_button_led_state(i);
+    if (button_blinking[i]) {
+      led_update_button_led_state((uint8_t)i);
     }
   }
 }
-
-static bool s_led_rail_scaled = false;
-static uint32_t s_led_rail_numer = 0;
-static uint32_t s_led_rail_denom = 0;
 
 static uint32_t led_logical_color(int index) {
   if (led_changed_flags[index]) {
@@ -3214,62 +3192,10 @@ static void led_decode_output(uint32_t color, uint8_t *red, uint8_t *green,
   led_move_neutral_white(red, green, blue, white);
 }
 
-/**
- * Uniform frame scale, including the white die. Returns false when this
- * frame is under LED_RAIL_BUDGET_MA. Current is (8000*(R+G+B) + 16500*W) / 255
- * µA per LED. There is no second per-channel cap.
- */
-static bool led_rail_over_budget(uint32_t *numer, uint32_t *denom,
-                                 uint32_t *lit) {
-  uint32_t used = 0;
-  uint32_t nlit = 0;
-  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    uint8_t red, green, blue, white;
-    led_decode_output(led_logical_color(i), &red, &green, &blue, &white);
-    used += (uint32_t)LED_RGB_FULL_UA * ((uint32_t)red + green + blue);
-    used += (uint32_t)LED_W_FULL_UA * white;
-    if ((red | green | blue | white) != 0) {
-      nlit++;
-    }
-  }
-  if (used == 0) {
-    return false;
-  }
-
-  const uint32_t limit = (uint32_t)LED_RAIL_BUDGET_MA * 1000u * 255u;
-  if (used <= limit) {
-    return false;
-  }
-
-  *numer = limit;
-  *denom = used;
-  *lit = nlit;
-  return true;
-}
-
-/** Shift-out pixels after NVS brightness, then the rail budget. One place. */
+/** Shift-out the requested level. No per-mode or rail scale. */
 static void led_write_budgeted_pixels(void) {
-  uint32_t numer = 0;
-  uint32_t denom = 1;
-  uint32_t lit = 0;
-  const bool scale = led_rail_over_budget(&numer, &denom, &lit);
-  const bool rewrite_all = scale || s_led_rail_scaled;
-
-  if (scale && (numer != s_led_rail_numer || denom != s_led_rail_denom)) {
-    ESP_LOGI(TAG, "LED rail scale: %u LEDs, factor %u/%u (budget %u mA)",
-             (unsigned)lit, (unsigned)numer, (unsigned)denom,
-             (unsigned)LED_RAIL_BUDGET_MA);
-    s_led_rail_numer = numer;
-    s_led_rail_denom = denom;
-  } else if (!scale && s_led_rail_scaled) {
-    ESP_LOGI(TAG, "LED rail scale: frame back under %u mA",
-             (unsigned)LED_RAIL_BUDGET_MA);
-    s_led_rail_numer = 0;
-    s_led_rail_denom = 0;
-  }
-
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    if (!rewrite_all && !led_changed_flags[i]) {
+    if (!led_changed_flags[i]) {
       continue;
     }
 
@@ -3282,12 +3208,6 @@ static void led_write_budgeted_pixels(void) {
 
     uint8_t red, green, blue, white;
     led_decode_output(led_logical_color(i), &red, &green, &blue, &white);
-    if (scale) {
-      red = (uint8_t)(((uint64_t)red * numer) / denom);
-      green = (uint8_t)(((uint64_t)green * numer) / denom);
-      blue = (uint8_t)(((uint64_t)blue * numer) / denom);
-      white = (uint8_t)(((uint64_t)white * numer) / denom);
-    }
 
     esp_err_t ret =
         led_strip_set_pixel_rgbw(led_strip, i, red, green, blue, white);
@@ -3297,8 +3217,6 @@ static void led_write_budgeted_pixels(void) {
     }
     led_changed_flags[i] = false;
   }
-
-  s_led_rail_scaled = scale;
 }
 
 /**
@@ -3793,28 +3711,51 @@ void led_ota_restore_board_after_update_abort(void) {
  * system initialization procedure. Turn on the LED light green.
  * @note The function is safe - it checks initialization and simulation mode
  */
-void led_boot_animation_step(uint8_t progress_percent) {
-  if (!led_initialized || simulation_mode) {
-    return;
+/* 8.8 squares. 164/256 per 25 ms call is ~2x the old 64 squares / 5 s crawl. */
+static uint16_t s_boot_snake_q8;
+static bool s_boot_faded;
+
+bool led_boot_animation_step(uint8_t progress_percent) {
+  (void)progress_percent;
+  if (!led_initialized || simulation_mode || s_boot_faded) {
+    return s_boot_faded;
   }
 
-  if (progress_percent > 100) {
-    progress_percent = 100;
+  bool covered = false;
+  if (s_boot_snake_q8 < (64u * 256u)) {
+    uint32_t next = (uint32_t)s_boot_snake_q8 + 164u;
+    if (next > (64u * 256u)) {
+      next = 64u * 256u;
+    }
+    s_boot_snake_q8 = (uint16_t)next;
+    covered = (s_boot_snake_q8 >= (64u * 256u));
+  } else {
+    covered = true;
   }
 
-  int square = (progress_percent * CHESS_LED_COUNT_BOARD) / 100;
-  if (square >= CHESS_LED_COUNT_BOARD) {
-    square = CHESS_LED_COUNT_BOARD - 1;
-  }
+  unsigned head_sq = (unsigned)(s_boot_snake_q8 >> 8);
+  uint8_t lead = led_smoothstep_u8((uint8_t)(s_boot_snake_q8 & 0xFFu));
 
-  /* Snake: rank 1 left to right, rank 2 right to left, and so on. */
-  uint8_t row = (uint8_t)(square / 8);
-  uint8_t col = (uint8_t)(square % 8);
-  if ((row & 1u) != 0u) {
-    col = (uint8_t)(7u - col);
+  for (unsigned i = 0; i < 64u; i++) {
+    uint8_t row = (uint8_t)(i / 8u);
+    uint8_t col = (uint8_t)(i % 8u);
+    if ((row & 1u) == 0u) {
+      col = (uint8_t)(7u - col);
+    }
+    uint8_t g = 0;
+    if (head_sq >= 64u || i + 2u < head_sq) {
+      g = 128;
+    } else if (i + 1u < head_sq) {
+      g = 200;
+    } else if (i < head_sq) {
+      g = 255;
+    } else if (i == head_sq && head_sq < 64u) {
+      g = lead;
+    }
+    led_set_pixel_internal(chess_pos_to_led_index(row, col), 0, g, 0);
   }
-  led_set_pixel_internal(chess_pos_to_led_index(row, col), 0, 128, 0);
   led_force_immediate_update();
+  return covered;
 }
 
 /**
@@ -3831,11 +3772,16 @@ void led_boot_animation_fade_out(void) {
              simulation_mode ? "simulation mode" : "not initialized");
     return;
   }
+  if (s_boot_faded) {
+    return;
+  }
+  s_boot_faded = true;
 
   ESP_LOGI(TAG, "Starting LED boot animation fade out...");
 
-  const int fade_steps = 20;
-  const int step_delay_ms = 30;
+  /* Full-board green after the snake: a few frames, not ~0.6 s. */
+  const int fade_steps = 4;
+  const int step_delay_ms = 12;
 
   for (int step = fade_steps; step >= 0; step--) {
     uint8_t brightness = (uint8_t)((step * 128) / fade_steps);
@@ -3848,6 +3794,7 @@ void led_boot_animation_fade_out(void) {
   }
 
   led_clear_board_only();
+  s_boot_snake_q8 = 0;
   led_booting_active = false;
   ESP_LOGI(TAG, "LED boot animation fade out completed");
 }

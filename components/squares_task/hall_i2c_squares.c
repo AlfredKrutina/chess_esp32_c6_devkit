@@ -2,6 +2,7 @@
 #include "hall_i2c_spec.h"
 #include "freertos_chess.h"
 #include "sdkconfig.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -32,8 +33,14 @@ static uint8_t s_read_fail_warned_mask;
  * Names are kept verbose so the origin is obvious.
  * ======================================================================== */
 
-/** POC: energy below this value means the square is empty. */
-#define HALL_POC_ENERGY_DEADBAND        800
+/** Sum of |dev| that latches a piece. Empty-board noise sits just under this. */
+#define HALL_POC_DELTA_ON               270
+/** Piece stays until the sum of |dev| falls under this. */
+#define HALL_POC_DELTA_OFF              160
+/** Scans the peak energy must stop rising before the type is named. */
+#define HALL_POC_SETTLE_SCANS           25
+/** Energy below the weakest real piece (pawn, measured 51k–67k) is not a type. */
+#define HALL_POC_ENERGY_DEADBAND        15000
 
 /** POC: quick samples per decision (trimmed mean of middle 3 after sort).
  *  V2 keeps the last N raw I2C pairs per square (one pair per matrix scan). */
@@ -83,15 +90,15 @@ typedef struct {
     hall_piece_type_t type;
 } hall_poc_threshold_t;
 
-/* POC energy windows, copied unchanged.  Gaps are intentionally avoided
- * so that every detected piece maps to a known type. */
+/* Raw s0^2+s1^2 from this board. Pawn 51k–67k, the next magnet 114k–182k,
+ * the one above that settles 300k–382k. */
 static const hall_poc_threshold_t s_poc_thresholds[] = {
-    { 800,      15000,    HALL_PIECE_TYPE_PAWN   },
-    { 15001,    50000,    HALL_PIECE_TYPE_KNIGHT },
-    { 50001,    150000,   HALL_PIECE_TYPE_BISHOP },
-    { 150001,   400000,   HALL_PIECE_TYPE_ROOK   },
-    { 400001,   1000000,  HALL_PIECE_TYPE_QUEEN  },
-    { 1000001,  4000000,  HALL_PIECE_TYPE_KING   },
+    { 15000,    90000,    HALL_PIECE_TYPE_PAWN   },
+    { 90001,    240000,   HALL_PIECE_TYPE_KNIGHT },
+    { 240001,   520000,   HALL_PIECE_TYPE_BISHOP },
+    { 520001,   800000,   HALL_PIECE_TYPE_ROOK   },
+    { 800001,   1200000,  HALL_PIECE_TYPE_QUEEN  },
+    { 1200001,  8000000,  HALL_PIECE_TYPE_KING   },
 };
 #define HALL_POC_THRESHOLD_COUNT (sizeof(s_poc_thresholds) / sizeof(s_poc_thresholds[0]))
 
@@ -112,10 +119,26 @@ typedef struct {
     bool confirmed_empty;           /**< Midpoint captured while the square was empty. */
     bool provisional;               /**< Midpoint copied from other empty squares. */
     bool ever_locked;               /**< Debounce has accepted one result since baseline. */
+    bool occupied;                  /**< Latched by |dev| sum, before the type is named. */
+    int32_t peak_energy;            /**< Highest energy since the piece arrived. */
+    int16_t peak_dev0;
+    int16_t peak_dev1;
+    uint8_t settle_scans;           /**< Scans since the peak last rose. */
+    int32_t live_energy;            /**< Last settled-candidate energy. */
+    int32_t live_dev0;
+    int32_t live_dev1;
+    bool live_valid;
 } hall_poc_square_state_t;
 
 /** Per-square state — hysteresis and debounce are NOT global across the board. */
 static hall_poc_square_state_t s_poc_state[64];
+/** Magnet bench: -1 = baseline may drift, else that square stays frozen. */
+static int s_mag_freeze_sq = -1;
+static bool s_mag_on;
+static uint8_t s_mag_sq = 255;
+static esp_log_level_t s_mag_log_was = ESP_LOG_INFO;
+static bool s_mag_log_saved;
+static void hall_mag_light_locked(void);
 
 /** 1 = logical game says this square is empty and may be zeroed from live ADC. */
 static uint8_t s_logical_empty[64];
@@ -126,7 +149,7 @@ static uint32_t s_baseline_saved_ms;
 static uint32_t s_baseline_seq;
 static uint8_t s_baseline_slot; /* 0 none, 1 base_a, 2 base_b */
 
-#define HALL_BASE_VERSION 1
+#define HALL_BASE_VERSION 2
 #define HALL_BASE_NVS_NS "hall_cal"
 #define HALL_BASE_KEY_A "base_a"
 #define HALL_BASE_KEY_B "base_b"
@@ -466,6 +489,9 @@ void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64]) {
     st->stable_ticks = 0;
     st->current_piece = HALL_PIECE_TYPE_NONE;
     st->current_color = HALL_PIECE_COLOR_NONE;
+    st->occupied = false;
+    st->peak_energy = 0;
+    st->settle_scans = 0;
   }
 }
 
@@ -499,6 +525,9 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         st->pending_piece = HALL_PIECE_TYPE_NONE;
         st->pending_color = HALL_PIECE_COLOR_NONE;
         st->stable_ticks = 0;
+        st->occupied = false;
+        st->peak_energy = 0;
+        st->settle_scans = 0;
         return 0;
     }
 
@@ -533,7 +562,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
 
     hall_poc_ring_push(st, r0, r1);
     if (st->ring_count < HALL_POC_SAMPLES_PER_CYCLE) {
-        return (st->current_piece != HALL_PIECE_TYPE_NONE) ? 1u : 0u;
+        return st->occupied ? 1u : 0u;
     }
 
     int filt0 = hall_poc_trimmed_mean_u16(st->ring_r0);
@@ -541,50 +570,79 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
 
     int32_t dev0 = (int32_t)filt0 - st->midpoint[0];
     int32_t dev1 = (int32_t)filt1 - st->midpoint[1];
+    int32_t ad0 = abs(dev0);
+    int32_t ad1 = abs(dev1);
+    int32_t delta = ad0 + ad1;
     int32_t energy = dev0 * dev0 + dev1 * dev1;
+    st->live_energy = energy;
+    st->live_dev0 = dev0;
+    st->live_dev1 = dev1;
+    st->live_valid = true;
+    bool present = st->occupied ? (delta >= HALL_POC_DELTA_OFF)
+                                : (delta >= HALL_POC_DELTA_ON);
 
-    /* 1. Raw detection from the current scan. */
-    hall_piece_color_t raw_color = HALL_PIECE_COLOR_NONE;
-    if (energy > HALL_POC_ENERGY_DEADBAND) {
-        int32_t dominant_dev = (abs(dev0) > abs(dev1)) ? dev0 : dev1;
-        raw_color = (dominant_dev > 0) ? HALL_PIECE_COLOR_WHITE
-                                       : HALL_PIECE_COLOR_BLACK;
-    }
-
-    const hall_poc_threshold_t *thr = hall_poc_classify(energy, st->current_piece);
-    hall_piece_type_t raw_piece = (thr != NULL) ? thr->type : HALL_PIECE_TYPE_NONE;
-
-    /* 2. Debounce / consecutive-sample guard.  Same logic as POC, but the
-     * delay is expressed as scan counts matching the POC 300 ms duration. */
-    if (raw_piece == st->pending_piece && raw_color == st->pending_color) {
-        if (st->stable_ticks < HALL_POC_DEBOUNCE_SCANS) {
-            st->stable_ticks++;
-        }
-        if (st->stable_ticks == HALL_POC_DEBOUNCE_SCANS) {
-            st->ever_locked = true;
-            /* Stable enough: accept the new result, but only log on change. */
-            if (st->current_piece != raw_piece || st->current_color != raw_color) {
-                st->current_piece = raw_piece;
-                st->current_color = raw_color;
-                if (raw_piece != HALL_PIECE_TYPE_NONE || energy > (HALL_POC_ENERGY_DEADBAND / 2)) {
-                    ESP_LOGW(TAG, ">>> POC sq %02u changed to [%s %s] (E=%ld) <<<",
-                             (unsigned)sq,
-                             hall_i2c_squares_piece_color_name(st->current_color),
-                             hall_i2c_squares_piece_type_name(st->current_piece),
-                             energy);
-                }
+    if (!present) {
+        st->occupied = false;
+        st->peak_energy = 0;
+        st->peak_dev0 = 0;
+        st->peak_dev1 = 0;
+        st->settle_scans = 0;
+        st->pending_piece = HALL_PIECE_TYPE_NONE;
+        st->pending_color = HALL_PIECE_COLOR_NONE;
+        st->stable_ticks = 0;
+        if (st->current_piece != HALL_PIECE_TYPE_NONE) {
+            st->current_piece = HALL_PIECE_TYPE_NONE;
+            st->current_color = HALL_PIECE_COLOR_NONE;
+            if (!s_mag_on) {
+                ESP_LOGW(TAG, ">>> POC sq %02u changed to [Empty None] (E=%ld) <<<",
+                         (unsigned)sq, (long)energy);
             }
         }
+        st->ever_locked = true;
     } else {
-        st->pending_piece = raw_piece;
-        st->pending_color = raw_color;
-        st->stable_ticks = 1;
+        st->occupied = true;
+        int32_t rise = st->peak_energy / 8;
+        if (rise < 1) {
+            rise = 1;
+        }
+        if (energy > st->peak_energy + rise) {
+            st->peak_energy = energy;
+            st->peak_dev0 = (int16_t)dev0;
+            st->peak_dev1 = (int16_t)dev1;
+            st->settle_scans = 0;
+        } else if (st->settle_scans < HALL_POC_SETTLE_SCANS) {
+            st->settle_scans++;
+        }
+        /* Live band, no locked window. A magnet between two types must keep
+         * switching (knight, bishop, ...) while the threshold is tuned. */
+        const hall_poc_threshold_t *thr =
+            hall_poc_classify(energy, HALL_PIECE_TYPE_NONE);
+        hall_piece_type_t raw_piece =
+            (thr != NULL) ? thr->type : HALL_PIECE_TYPE_NONE;
+        int32_t dominant = (abs(dev0) > abs(dev1)) ? dev0 : dev1;
+        hall_piece_color_t raw_color = (dominant > 0)
+                                           ? HALL_PIECE_COLOR_WHITE
+                                           : HALL_PIECE_COLOR_BLACK;
+        if (raw_piece != HALL_PIECE_TYPE_NONE &&
+            (st->current_piece != raw_piece || st->current_color != raw_color)) {
+            st->ever_locked = true;
+            st->current_piece = raw_piece;
+            st->current_color = raw_color;
+            if (!s_mag_on) {
+                ESP_LOGW(TAG, ">>> POC sq %02u changed to [%s %s] (E=%ld) <<<",
+                         (unsigned)sq,
+                         hall_i2c_squares_piece_color_name(st->current_color),
+                         hall_i2c_squares_piece_type_name(st->current_piece),
+                         (long)energy);
+            }
+        }
     }
 
-    /* 3. Environmental auto-zero (thermal drift tracking).
-     * Identical rule to POC: only when the square is confirmed empty and the
-     * deviations are tiny. */
-    if (st->current_piece == HALL_PIECE_TYPE_NONE &&
+    /* Auto-zero only on a square that is really empty, not while a piece is settling.
+     * The magnet bench freezes its square so later magnets share one baseline. */
+    if ((int)sq == s_mag_freeze_sq) {
+        st->empty_ticks = 0;
+    } else if (!st->occupied &&
         abs(dev0) < HALL_POC_AUTOZERO_DEV_LIMIT &&
         abs(dev1) < HALL_POC_AUTOZERO_DEV_LIMIT) {
         st->empty_ticks++;
@@ -605,7 +663,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         st->empty_ticks = 0;
     }
 
-    return (st->current_piece != HALL_PIECE_TYPE_NONE) ? 1u : 0u;
+    return st->occupied ? 1u : 0u;
 }
 
 static esp_err_t hall_i2c_read_at(uint8_t addr7, uint8_t *buf, size_t len,
@@ -748,7 +806,7 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
       squares_state[sq] = hall_poc_update_square(sq, r0, r1);
     }
 
-    if (do_log) {
+    if (do_log && !s_mag_on) {
       uint8_t sq0 = hall_map_segment_field_to_square(seg, 0);
       if (sq0 >= 64u) {
         continue;
@@ -763,6 +821,7 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
     }
   }
   hall_baseline_flush();
+  hall_mag_light_locked();
 }
 
 unsigned hall_i2c_squares_segment_count(void) {
@@ -818,7 +877,6 @@ static uint32_t s_dbg_sum[4][32];
 static uint16_t s_dbg_rest[4][32];
 static uint8_t s_dbg_rest_n;
 static bool s_dbg_rest_request;
-static bool s_dbg_rest_checked;
 static uint8_t s_dbg_hold[4][16];
 static uint8_t s_dbg_off[4][16];
 static uint8_t s_dbg_announced[4][16];
@@ -869,26 +927,6 @@ void hall_i2c_squares_request_rest_measure(void) {
   s_dbg_rest_request = true;
 }
 
-static bool hall_dbg_rest_load(void) {
-  nvs_handle_t handle;
-  if (nvs_open(HALL_BASE_NVS_NS, NVS_READONLY, &handle) != ESP_OK) {
-    return false;
-  }
-  uint32_t magic = 0;
-  uint16_t rest[4][32];
-  size_t magic_len = sizeof(magic);
-  size_t rest_len = sizeof(rest);
-  esp_err_t err_m = nvs_get_blob(handle, "dbg_magic", &magic, &magic_len);
-  esp_err_t err_r = nvs_get_blob(handle, "dbg_rest", rest, &rest_len);
-  nvs_close(handle);
-  if (err_m != ESP_OK || err_r != ESP_OK || magic != 0x4B4C4944u ||
-      rest_len != sizeof(rest)) {
-    return false;
-  }
-  memcpy(s_dbg_rest, rest, sizeof(rest));
-  return true;
-}
-
 static void hall_dbg_rest_save(void) {
   nvs_handle_t handle;
   if (nvs_open(HALL_BASE_NVS_NS, NVS_READWRITE, &handle) != ESP_OK) {
@@ -914,14 +952,6 @@ void hall_i2c_squares_debug_light_pieces(void) {
     s_dbg_rest_request = false;
     s_dbg_rest_n = 0;
     memset(s_dbg_sum, 0, sizeof(s_dbg_sum));
-  } else if (!s_dbg_rest_checked) {
-    s_dbg_rest_checked = true;
-    s_dbg_rest_n = HALL_DBG_REST_SCANS;
-    if (hall_dbg_rest_load()) {
-      ESP_LOGW(TAG, "KLID nacten, mereni pri startu se nespousti.");
-    } else {
-      ESP_LOGW(TAG, "KLID pri startu preskocen. Spust ho z nastaveni aplikace.");
-    }
   }
 
   if (s_dbg_rest_n < HALL_DBG_REST_SCANS) {
@@ -1246,5 +1276,117 @@ hall_piece_color_t hall_i2c_squares_get_piece_color(uint8_t square) {
   return s_poc_state[square].current_color;
 #else
   return HALL_PIECE_COLOR_NONE;
+#endif
+}
+
+static void hall_mag_light_locked(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (!s_mag_on || s_mag_sq >= 64u) {
+    return;
+  }
+  uint8_t led = chess_pos_to_led_index((uint8_t)(s_mag_sq / 8u),
+                                       (uint8_t)(s_mag_sq % 8u));
+  led_set_pixel_safe(led, 0, 180, 0);
+#else
+  return;
+#endif
+}
+
+bool hall_magnet_bench_start(uint8_t square) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  s_mag_on = true;
+  if (!s_mag_log_saved) {
+    s_mag_log_was = esp_log_level_get("*");
+    s_mag_log_saved = true;
+  }
+  esp_log_level_set("*", ESP_LOG_NONE);
+  if (square < 64u) {
+    s_mag_sq = square;
+    s_mag_freeze_sq = (int)square;
+    led_clear_board_only();
+    hall_mag_light_locked();
+  } else {
+    s_mag_sq = 255;
+    s_mag_freeze_sq = -1;
+  }
+  return true;
+#else
+  (void)square;
+  return false;
+#endif
+}
+
+void hall_magnet_bench_stop(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (s_mag_sq < 64u) {
+    uint8_t led = chess_pos_to_led_index((uint8_t)(s_mag_sq / 8u),
+                                         (uint8_t)(s_mag_sq % 8u));
+    led_set_pixel_safe(led, 0, 0, 0);
+  }
+  s_mag_on = false;
+  s_mag_sq = 255;
+  s_mag_freeze_sq = -1;
+  if (s_mag_log_saved) {
+    esp_log_level_set("*", s_mag_log_was);
+    s_mag_log_saved = false;
+  }
+#endif
+}
+
+bool hall_magnet_bench_active(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  return s_mag_on;
+#else
+  return false;
+#endif
+}
+
+uint8_t hall_magnet_bench_square(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  return s_mag_on ? s_mag_sq : 255;
+#else
+  return 255;
+#endif
+}
+
+void hall_magnet_bench_capture(void) {
+#if !CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  return;
+#else
+  if (!s_mag_on) {
+    return;
+  }
+
+  uint8_t sq = s_mag_sq;
+  if (sq >= 64u) {
+    int found = -1;
+    int occupied_n = 0;
+    int32_t best = -1;
+    for (uint8_t i = 0; i < 64u; i++) {
+      if (!s_poc_state[i].occupied || !s_poc_state[i].live_valid) {
+        continue;
+      }
+      occupied_n++;
+      if (s_poc_state[i].live_energy > best) {
+        best = s_poc_state[i].live_energy;
+        found = (int)i;
+      }
+    }
+    if (occupied_n != 1 || found < 0) {
+      return;
+    }
+    sq = (uint8_t)found;
+    s_mag_sq = sq;
+    s_mag_freeze_sq = (int)sq;
+    led_clear_board_only();
+    hall_mag_light_locked();
+  }
+
+  const hall_poc_square_state_t *st = &s_poc_state[sq];
+  if (!st->live_valid) {
+    return;
+  }
+  printf("%ld\n", (long)st->live_energy);
+  fflush(stdout);
 #endif
 }

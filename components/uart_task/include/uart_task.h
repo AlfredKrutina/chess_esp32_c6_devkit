@@ -125,6 +125,7 @@ command_result_t uart_cmd_reset(const char* args);
 command_result_t uart_cmd_ledtest(const char* args);
 command_result_t uart_cmd_hall(const char* args);
 command_result_t uart_cmd_hall_stop(const char* args);
+command_result_t uart_cmd_mag(const char* args);
 command_result_t uart_cmd_stm32(const char* args);
 command_result_t uart_cmd_log(const char* args);
 

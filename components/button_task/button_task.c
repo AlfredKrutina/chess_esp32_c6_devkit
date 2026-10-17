@@ -234,11 +234,17 @@ void button_scan_all(void) {
     bool current_state = false;
 
     if (i == 8) {
+#if CONFIG_CHESS_GESTURE_BUTTON
+      /* GPIO15 is the live gesture switch. A reset here clears the board
+       * before the wave or the hold preview can show. */
+      current_state = false;
+#else
       if (chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
         current_state = false;
       } else {
         current_state = (gpio_get_level(BUTTON_RESET) == 0);
       }
+#endif
 
     } else if (i >= 0 && i <= 3) {
       // Promotion buttons (0-3): MATRIX_COL_0-3

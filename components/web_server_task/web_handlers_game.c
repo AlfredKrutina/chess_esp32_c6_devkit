@@ -70,7 +70,7 @@ void inject_web_status_fields(char *buf, size_t buf_size) {
              remaining, buf_size);
     return;
   }
-  uint8_t b = cached_brightness_valid ? cached_brightness : 50;
+  uint8_t b = cached_brightness_valid ? cached_brightness : 100;
   int hint_lim = config_ui_prefs_get_chess_hint_limit();
   int wr =
       snprintf(last_brace, remaining,

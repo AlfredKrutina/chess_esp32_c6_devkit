@@ -10,6 +10,7 @@
 #include "game_move_validate.h"
 #include "game_hall_match.h"
 #include "../squares_task/include/hall_i2c_squares.h"
+#include "../squares_task/include/squares_task.h"
 
 #include "../led_task/include/led_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
@@ -680,6 +681,27 @@ void game_highlight_movable_pieces(void) {
              (unsigned)game_get_led_guidance_level());
     return;
   }
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* Logical pieces must not light an empty or not-yet-locked Hall board. */
+  if (!hall_i2c_squares_readings_usable()) {
+    return;
+  }
+  {
+    uint8_t occ[64] = {0};
+    bool any_piece = false;
+    squares_get_state(occ);
+    for (int i = 0; i < 64; i++) {
+      if (occ[i] != 0) {
+        any_piece = true;
+        break;
+      }
+    }
+    if (!any_piece) {
+      return;
+    }
+  }
+#endif
 
   ESP_LOGI(TAG, "🟡 Highlighting movable pieces for %s player",
            current_player == PLAYER_WHITE ? "white" : "black");

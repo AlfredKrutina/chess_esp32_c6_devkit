@@ -153,6 +153,17 @@ void game_squares_guard_render_leds(void) {
   uint8_t phys[64] = {0};
   squares_get_state(phys);
 
+  bool any_piece = false;
+  for (uint8_t i = 0; i < 64; i++) {
+    if (phys[i] != 0) {
+      any_piece = true;
+      break;
+    }
+  }
+  if (!any_piece) {
+    return;
+  }
+
   for (uint8_t square = 0; square < 64; square++) {
     uint8_t row = square / 8;
     uint8_t col = square % 8;

@@ -37,6 +37,9 @@ void led_gesture_anim_tick(void);
 /** Held SW1. The LED task lights rank 1 and rank 8 until a gesture animation starts. */
 void led_gesture_set_button_held(bool held);
 
+/** Active-low. True for the gesture GPIO or for GPIO15 when it is not an NRST pin. */
+bool led_gesture_button_down(void);
+
 /**
  * @brief Take the completion code and clear it.
  * @return The latched result, or LED_GESTURE_RESULT_NONE if nothing finished.
@@ -44,7 +47,7 @@ void led_gesture_set_button_held(bool held);
 led_gesture_result_t led_gesture_take_result(void);
 
 /**
- * @brief Wave from the physical button (edge between a1 and b1, just outside rank 1).
+ * @brief Wave from the physical button on h1.
  *
  * The mode flag itself is not changed here. Fails if new_colors is NULL or
  * another gesture is already running.

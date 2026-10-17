@@ -322,11 +322,11 @@ static void game_physical_undo_show_pending_leds(void) {
     uint8_t phys[64] = {0};
     squares_get_state(phys);
     uint8_t sq = (uint8_t)(rr * 8 + rc);
-    bool need_piece = (expect != PIECE_EMPTY);
     bool ok = false;
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
     ok = game_hall_square_agrees_with_logic(sq, expect, phys[sq]);
 #else
+    bool need_piece = (expect != PIECE_EMPTY);
     ok = (!need_piece && phys[sq] == 0) || (need_piece && phys[sq] != 0);
 #endif
     if (!ok && chess_policy_error_recovery_led_red_blink()) {

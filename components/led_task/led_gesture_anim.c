@@ -6,13 +6,17 @@
  * (e1 is row 0, col 4), col 0 is the a-file. The column mirror inside that
  * function is the wiring map; this file does not flip it.
  *
- * The physical button sits just outside the board on the edge between a1
- * (row 0, col 0) and b1 (row 0, col 1). The wave origin is the midpoint of
- * that edge, half a square off the board: (file 0.5, rank -0.5).
+ * The physical button sits on h1 (row 0, col 7). The wave origin is the
+ * center of that square. The snake starts there and crawls h1→a1, then a2→h2.
+ *
+ * LED 72 (reset / gesture button) follows the same phase: orange while held,
+ * gold through the wave, green along the snake, white-to-off on shutdown,
+ * blue during pairing. Edges ease instead of popping one square per frame.
  */
 
 #include "led_gesture_anim.h"
 
+#include "freertos_chess.h"
 #include "led_mapping.h"
 #include "led_task.h"
 #include "sdkconfig.h"
@@ -50,8 +54,17 @@ static bool s_pair_yield;
 static bool s_pair_stop;
 static uint8_t s_pair_step;
 static uint8_t s_snake_pace;
+static uint16_t s_snake_q8;
 static uint8_t s_black_leds[16];
 static bool s_black_ready;
+static uint8_t s_pair_amount;
+static uint8_t s_hold_level;
+static uint32_t s_btn_rgb;
+static bool s_btn_saved;
+static bool s_btn_owned;
+static bool s_btn_leave_dark;
+
+#define GESTURE_BUTTON_LED 72
 
 static void post_result(led_gesture_result_t result) {
   s_result = result;
@@ -93,6 +106,7 @@ static bool begin_phase(phase_t phase, bool keep_release) {
     s_step = 0;
     s_rev_alt = 0;
     s_snake_pace = 0;
+    s_snake_q8 = 0;
     s_have_old = false;
     ok = true;
   }
@@ -122,10 +136,10 @@ static void ensure_black_order(void) {
   s_black_ready = true;
 }
 
-/** Half-square units. Origin is (1, -1), square (col,row) center is (2*col, 2*row). */
+/** Half-square units. Origin is h1 (14, 0). Square (col,row) center is (2*col, 2*row). */
 static int dist2_half(uint8_t row, uint8_t col) {
-  int dx = (int)col * 2 - 1;
-  int dy = (int)row * 2 + 1;
+  int dx = (int)col * 2 - 14;
+  int dy = (int)row * 2;
   return dx * dx + dy * dy;
 }
 
@@ -137,11 +151,37 @@ static uint8_t crest_channel(uint8_t base) {
   return (uint8_t)v;
 }
 
+static uint8_t smoothstep_u8(uint8_t x) {
+  uint32_t v = (uint32_t)x;
+  uint32_t s = (v * v * (765U - 2U * v)) / (255U * 255U);
+  return (uint8_t)s;
+}
+
+static uint8_t lerp_u8(uint8_t a, uint8_t b, uint8_t t) {
+  return (uint8_t)(((uint32_t)a * (255U - t) + (uint32_t)b * t) / 255U);
+}
+
+static uint32_t lerp_rgb(uint32_t a, uint32_t b, uint8_t t) {
+  return ((uint32_t)lerp_u8((uint8_t)((a >> 16) & 0xFFu),
+                            (uint8_t)((b >> 16) & 0xFFu), t)
+          << 16) |
+         ((uint32_t)lerp_u8((uint8_t)((a >> 8) & 0xFFu),
+                            (uint8_t)((b >> 8) & 0xFFu), t)
+          << 8) |
+         (uint32_t)lerp_u8((uint8_t)(a & 0xFFu), (uint8_t)(b & 0xFFu), t);
+}
+
+static uint32_t crest_rgb(uint32_t base) {
+  return ((uint32_t)crest_channel((uint8_t)((base >> 16) & 0xFFu)) << 16) |
+         ((uint32_t)crest_channel((uint8_t)((base >> 8) & 0xFFu)) << 8) |
+         (uint32_t)crest_channel((uint8_t)(base & 0xFFu));
+}
+
 static void tick_wave(void) {
   if (!s_have_old) {
     capture_board();
   }
-  /* 19^2 = 361 does not cover h8 (394). 20^2 = 400 does. */
+  /* Farthest square from h1 is a8 at 14^2+14^2 = 392. radius 20 covers it. */
   const int radius = (int)s_step;
   const int radius2 = radius * radius;
   const int crest_lo = (radius > 2) ? (radius - 2) * (radius - 2) : -1;
@@ -150,19 +190,35 @@ static void tick_wave(void) {
     for (uint8_t col = 0; col < 8; col++) {
       int d2 = dist2_half(row, col);
       uint8_t led = chess_pos_to_led_index(row, col);
+      uint32_t neu = s_new[led];
+      uint32_t crest = crest_rgb(neu);
+      int outer = radius + 3;
+      int outer2 = outer * outer;
       uint32_t color;
-      if (d2 > radius2) {
+      if (d2 >= outer2) {
         color = s_old[led];
         covered = false;
-      } else if (d2 > crest_lo) {
-        uint32_t base = s_new[led];
-        color = ((uint32_t)crest_channel((uint8_t)((base >> 16) & 0xFFu))
-                  << 16) |
-                 ((uint32_t)crest_channel((uint8_t)((base >> 8) & 0xFFu))
-                  << 8) |
-                 (uint32_t)crest_channel((uint8_t)(base & 0xFFu));
+      } else if (d2 > radius2) {
+        int span = outer2 - radius2;
+        int t = (span > 0) ? ((outer2 - d2) * 255) / span : 255;
+        if (t < 0) {
+          t = 0;
+        } else if (t > 255) {
+          t = 255;
+        }
+        color = lerp_rgb(s_old[led], crest, smoothstep_u8((uint8_t)t));
+        covered = false;
+      } else if (radius > 2 && d2 > crest_lo) {
+        int span = radius2 - crest_lo;
+        int t = (span > 0) ? ((radius2 - d2) * 255) / span : 255;
+        if (t < 0) {
+          t = 0;
+        } else if (t > 255) {
+          t = 255;
+        }
+        color = lerp_rgb(crest, neu, smoothstep_u8((uint8_t)t));
       } else {
-        color = s_new[led];
+        color = neu;
       }
       paint(led, color);
     }
@@ -180,40 +236,42 @@ static void tick_wave(void) {
   }
 }
 
-/** Board snake: rank 1 a→h, rank 2 h→a, and so on. */
+/** Board snake: rank 1 h→a, rank 2 a→h, and so on. Head starts on h1. */
 static void snake_square(uint8_t step, uint8_t *row, uint8_t *col) {
   uint8_t rank = (uint8_t)(step / 8u);
   uint8_t file = (uint8_t)(step % 8u);
-  if ((rank & 1u) != 0u) {
+  if ((rank & 1u) == 0u) {
     file = (uint8_t)(7u - file);
   }
   *row = rank;
   *col = file;
 }
 
-static void paint_snake(uint8_t head) {
-  for (uint8_t i = 0; i < 64; i++) {
+/* Same crawl as led_boot_animation_step (164/25 ms). Hold runs a bit faster:
+ * 300 counts per 33 ms frame, about 1.8 s across the board. */
+#define SNAKE_Q8_END (64u * 256u)
+#define SNAKE_Q8_FWD 300u
+#define SNAKE_Q8_REV 420u
+
+static void paint_boot_snake(uint16_t q8) {
+  unsigned head_sq = (unsigned)(q8 >> 8);
+  uint8_t lead = smoothstep_u8((uint8_t)(q8 & 0xFFu));
+  for (unsigned i = 0; i < 64u; i++) {
     uint8_t row;
     uint8_t col;
-    snake_square(i, &row, &col);
-    uint8_t led = chess_pos_to_led_index(row, col);
-    if (i < head) {
-      uint32_t color = (i + 1u == head) ? 0x00FF00u : 0x008000u;
-      paint(led, color);
-    } else {
-      paint(led, s_old[led]);
+    snake_square((uint8_t)i, &row, &col);
+    uint8_t g = 0;
+    if (head_sq >= 64u || i + 2u < head_sq) {
+      g = 128;
+    } else if (i + 1u < head_sq) {
+      g = 200;
+    } else if (i < head_sq) {
+      g = 255;
+    } else if (i == head_sq && head_sq < 64u) {
+      g = lead;
     }
+    paint(chess_pos_to_led_index(row, col), (uint32_t)g << 8);
   }
-}
-
-/** One square about every 100 ms, so the crawl stays visible. */
-static bool snake_pace_ready(void) {
-  s_snake_pace++;
-  if (s_snake_pace < 3u) {
-    return false;
-  }
-  s_snake_pace = 0;
-  return true;
 }
 
 static void tick_snake_forward(void) {
@@ -227,45 +285,35 @@ static void tick_snake_forward(void) {
   taskEXIT_CRITICAL(&s_mux);
   if (released) {
     s_phase = PH_SNAKE_REV;
-    s_rev_alt = 0;
     ESP_LOGI(TAG, "[STAGING] snake reverse (released early)");
     return;
   }
-  if (s_step >= 64) {
+  if (s_snake_q8 >= SNAKE_Q8_END) {
     ESP_LOGI(TAG, "[STAGING] snake reached the end");
     post_result(LED_GESTURE_SNAKE_DONE);
     return;
   }
-  if (!snake_pace_ready()) {
-    paint_snake(s_step);
-    return;
+  uint32_t next = (uint32_t)s_snake_q8 + SNAKE_Q8_FWD;
+  if (next > SNAKE_Q8_END) {
+    next = SNAKE_Q8_END;
   }
-  s_step++;
-  paint_snake(s_step);
+  s_snake_q8 = (uint16_t)next;
+  paint_boot_snake(s_snake_q8);
 }
 
 static void tick_snake_reverse(void) {
   taskENTER_CRITICAL(&s_mux);
   s_release = false;
   taskEXIT_CRITICAL(&s_mux);
-  if (!snake_pace_ready()) {
-    paint_snake(s_step);
-    return;
-  }
-  uint8_t back = (uint8_t)(2u + (s_rev_alt & 1u));
-  s_rev_alt++;
-  if (s_step <= back) {
-    s_step = 0;
-  } else {
-    s_step = (uint8_t)(s_step - back);
-  }
-  if (s_step == 0) {
+  if (s_snake_q8 <= SNAKE_Q8_REV) {
+    s_snake_q8 = 0;
     restore_board();
     ESP_LOGI(TAG, "[STAGING] snake reverse finished, game not started");
     post_result(LED_GESTURE_SNAKE_CANCELLED);
     return;
   }
-  paint_snake(s_step);
+  s_snake_q8 = (uint16_t)(s_snake_q8 - SNAKE_Q8_REV);
+  paint_boot_snake(s_snake_q8);
 }
 
 static void tick_shutdown(void) {
@@ -284,29 +332,38 @@ static void tick_shutdown(void) {
     post_result(LED_GESTURE_SHUTDOWN_CANCELLED);
     return;
   }
-  /* 0..15 chase, 16..17 whole board dark, then done. */
-  if (s_step >= 18) {
+  /* Each black-player square eases white, then out, over two frames.
+   * After the last square the board stays dark for a short beat. */
+  if (s_step >= 16) {
     for (int i = 0; i < 64; i++) {
       paint((uint8_t)i, 0);
     }
-    ESP_LOGI(TAG, "[STAGING] shutdown chase finished");
-    post_result(LED_GESTURE_SHUTDOWN_DONE);
+    s_snake_pace++;
+    if (s_snake_pace >= 6) {
+      s_btn_leave_dark = true;
+      ESP_LOGI(TAG, "[STAGING] shutdown chase finished");
+      post_result(LED_GESTURE_SHUTDOWN_DONE);
+    }
     return;
   }
-  if (s_step < 16) {
-    for (int i = 0; i < 64; i++) {
-      paint((uint8_t)i, s_old[i]);
-    }
-    for (uint8_t i = 0; i < s_step; i++) {
-      paint(s_black_leds[i], 0);
-    }
-    paint(s_black_leds[s_step], 0xDCDCDCu);
-  } else {
-    for (int i = 0; i < 64; i++) {
-      paint((uint8_t)i, 0);
-    }
+  uint8_t fade = (s_snake_pace == 0) ? 70 : 210;
+  for (int i = 0; i < 64; i++) {
+    paint((uint8_t)i, s_old[i]);
   }
-  s_step++;
+  for (uint8_t i = 0; i < s_step; i++) {
+    paint(s_black_leds[i], 0);
+  }
+  {
+    uint8_t led = s_black_leds[s_step];
+    uint32_t mid = lerp_rgb(s_old[led], 0xDCDCDCu, (uint8_t)(255u - fade));
+    paint(led, lerp_rgb(mid, 0, fade));
+  }
+  s_snake_pace++;
+  if (s_snake_pace >= 2) {
+    paint(s_black_leds[s_step], 0);
+    s_snake_pace = 0;
+    s_step++;
+  }
 }
 
 static uint8_t mix_channel(uint8_t base, uint8_t tint, uint8_t amount) {
@@ -322,9 +379,11 @@ static void tick_pair_hold(void) {
     s_pair_step = 0;
     return;
   }
-  /* 0..47 rise, 48..95 fall. */
+  /* 0..47 rise, 48..95 fall. Smoothstep keeps the turn at the top soft. */
   uint8_t tri = s_pair_step < 48 ? s_pair_step : (uint8_t)(96 - s_pair_step);
-  uint8_t amount = (uint8_t)((unsigned)tri * 140u / 48u);
+  uint8_t shaped = smoothstep_u8((uint8_t)((unsigned)tri * 255u / 48u));
+  uint8_t amount = (uint8_t)((unsigned)shaped * 140u / 255u);
+  s_pair_amount = amount;
   for (int i = 0; i < 64; i++) {
     uint32_t base = s_old[i];
     uint32_t color =
@@ -345,60 +404,134 @@ bool led_gesture_anim_busy(void) { return s_phase != PH_IDLE; }
 
 static volatile bool s_button_held;
 static bool s_hold_lit;
-static uint32_t s_hold_saved[16];
+
+static void hold_step(uint8_t target) {
+  if (s_hold_level < target) {
+    uint8_t room = (uint8_t)(target - s_hold_level);
+    s_hold_level = (uint8_t)(s_hold_level + (room > 48u ? 48u : room));
+  } else if (s_hold_level > target) {
+    uint8_t room = (uint8_t)(s_hold_level - target);
+    s_hold_level = (uint8_t)(s_hold_level - (room > 48u ? 48u : room));
+  }
+}
 
 void led_gesture_set_button_held(bool held) { s_button_held = held; }
 
-static void hold_restore(void) {
-  for (uint8_t col = 0; col < 8; col++) {
-    paint(chess_pos_to_led_index(0, col), s_hold_saved[col]);
-    paint(chess_pos_to_led_index(7, col), s_hold_saved[8u + col]);
+bool led_gesture_button_down(void) {
+#if CONFIG_CHESS_GESTURE_BUTTON
+  if (gpio_get_level((gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO) == 0) {
+    return true;
   }
-  s_hold_lit = false;
+  /* This board's switch is the reset pin (log: Button ID 8), not IO23. */
+  if ((int)BUTTON_RESET != CONFIG_CHESS_GESTURE_BUTTON_GPIO &&
+      !chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
+    return gpio_get_level(BUTTON_RESET) == 0;
+  }
+#else
+  (void)0;
+#endif
+  return false;
 }
+
+static void hold_restore(void) { s_hold_lit = false; }
 
 static void hold_preview(void) {
   if (s_phase != PH_IDLE) {
     return;
   }
   /* Boot still owns the board. A floating gesture pin reads as held and
-   * would paint rank 1 and rank 8 orange on top of the boot snake. */
+   * would turn the button LED orange on top of the boot snake. */
   if (led_is_booting()) {
     if (s_hold_lit) {
+      s_hold_level = 0;
       hold_restore();
     }
     return;
   }
   if (!s_button_held) {
-    if (s_hold_lit) {
+    if (!s_hold_lit) {
+      return;
+    }
+    hold_step(0);
+    if (s_hold_level == 0) {
       hold_restore();
     }
     return;
   }
   if (!s_hold_lit) {
-    uint32_t all[73];
-    memset(all, 0, sizeof(all));
-    led_get_all_states(all, 73);
-    for (uint8_t col = 0; col < 8; col++) {
-      s_hold_saved[col] = all[chess_pos_to_led_index(0, col)];
-      s_hold_saved[8u + col] = all[chess_pos_to_led_index(7, col)];
-    }
     s_hold_lit = true;
+    s_hold_level = 0;
   }
-  for (uint8_t col = 0; col < 8; col++) {
-    paint(chess_pos_to_led_index(0, col), 0xFF6600u);
-    paint(chess_pos_to_led_index(7, col), 0xFF6600u);
+  hold_step(255);
+}
+
+static void paint_gesture_button(void) {
+  if (s_btn_leave_dark) {
+    paint(GESTURE_BUTTON_LED, 0);
+    s_btn_leave_dark = false;
+    s_btn_owned = false;
+    s_btn_saved = false;
+    s_pair_amount = 0;
+    return;
+  }
+
+  bool own = false;
+  uint32_t color = 0;
+  if (s_phase == PH_WAVE) {
+    unsigned num = (unsigned)s_step * 255u / 20u;
+    if (num > 255u) {
+      num = 255u;
+    }
+    color = lerp_rgb(0x402000u, 0xFFD646u, smoothstep_u8((uint8_t)num));
+    own = true;
+  } else if (s_phase == PH_SNAKE_FWD || s_phase == PH_SNAKE_REV) {
+    uint8_t t = smoothstep_u8(
+        (uint8_t)(((unsigned)s_snake_q8 * 255u) / SNAKE_Q8_END));
+    uint8_t g = (s_phase == PH_SNAKE_FWD)
+                    ? (uint8_t)(40u + ((unsigned)t * 215u) / 255u)
+                    : (uint8_t)(((unsigned)t * 180u) / 255u);
+    color = (uint32_t)g << 8;
+    own = true;
+  } else if (s_phase == PH_SHUTDOWN) {
+    uint8_t t = (s_step >= 16) ? 255 : (uint8_t)((unsigned)s_step * 255u / 16u);
+    color = lerp_rgb(0xDCDCDCu, 0, smoothstep_u8(t));
+    own = true;
+  } else if (s_pair_hold && s_pair_captured && s_phase == PH_IDLE) {
+    color = (uint32_t)((160u * s_pair_amount) / 140u);
+    own = true;
+  } else if (s_hold_level > 0) {
+    color = lerp_rgb(s_btn_rgb, 0xFF6600u, smoothstep_u8(s_hold_level));
+    own = true;
+  }
+
+  if (own) {
+    if (!s_btn_saved) {
+      uint32_t all[73];
+      memset(all, 0, sizeof(all));
+      led_get_all_states(all, 73);
+      s_btn_rgb = all[GESTURE_BUTTON_LED];
+      s_btn_saved = true;
+    }
+    paint(GESTURE_BUTTON_LED, color);
+    s_btn_owned = true;
+    return;
+  }
+  if (s_btn_owned) {
+    paint(GESTURE_BUTTON_LED, s_btn_rgb);
+    s_btn_owned = false;
+    s_btn_saved = false;
+    s_pair_amount = 0;
   }
 }
 
 void led_gesture_anim_tick(void) {
 #if CONFIG_CHESS_GESTURE_BUTTON
   /* Follow the pin here too. The button task owns the gesture timing, but
-   * the orange ranks must appear even if that task has not published yet. */
-  s_button_held =
-      gpio_get_level((gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO) == 0;
+   * the button LED must turn orange even if that task has not published yet. */
+  s_button_held = led_gesture_button_down();
 #endif
   if (s_phase != PH_IDLE && s_hold_lit) {
+    s_hold_level = 0;
     hold_restore();
   }
   bool yield = false;
@@ -440,7 +573,8 @@ void led_gesture_anim_tick(void) {
     tick_pair_hold();
   }
   hold_preview();
-  if (s_phase != PH_IDLE || s_hold_lit) {
+  paint_gesture_button();
+  if (s_phase != PH_IDLE || s_hold_lit || s_btn_owned) {
     led_force_immediate_update();
   }
 }

@@ -28,8 +28,6 @@ CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG1=2
 CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG2=3
 CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG3=4
 
-# SW1 TC-6615: pins 3 and 4 are one metal frame, pins 1 and 2 are the switch.
-# The footprint ties frame+contact across GND and NEWGAME_SWITCH, so the
-# key never pulls IO23 down. R16 holds the net high. Leave the gesture off
-# until the footprint uses only pins 1 and 2.
-# CONFIG_CHESS_GESTURE_BUTTON is not set
+# SW1 on IO23, active-low. Gesture code lights the board and LED 72.
+CONFIG_CHESS_GESTURE_BUTTON=y
+CONFIG_CHESS_GESTURE_BUTTON_GPIO=23

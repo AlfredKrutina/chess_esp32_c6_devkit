@@ -1307,6 +1307,7 @@ void show_boot_animation_and_board(void) {
   // int current_message = 0; // Unused variable removed
 
   (void)chess_task_wdt_reset_safe(TAG);
+  bool boot_led_done = false;
   for (int i = 0; i <= total_steps; i++) {
     int progress = (i * 100) / total_steps;
     int filled = (i * bar_width) / total_steps;
@@ -1328,8 +1329,13 @@ void show_boot_animation_and_board(void) {
     printf("] %3d%% - %s", progress, status_messages[message_index]);
     fflush(stdout);
 
-    // Run LED boot animation according to progress
-    led_boot_animation_step((uint8_t)progress);
+    /* Snake covers the board in ~2.5 s; fade immediately, do not hold green. */
+    if (!boot_led_done) {
+      boot_led_done = led_boot_animation_step((uint8_t)progress);
+      if (boot_led_done) {
+        led_boot_animation_fade_out();
+      }
+    }
 
     // CRITICAL: Reset watchdog timer during loading (only if registered)
     esp_err_t wdt_ret = chess_task_wdt_reset_safe(TAG);
@@ -1342,8 +1348,9 @@ void show_boot_animation_and_board(void) {
     }
   }
 
-  // Fade out after the boot animation completes.
-  led_boot_animation_fade_out();
+  if (!boot_led_done) {
+    led_boot_animation_fade_out();
+  }
 
   printf("\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n"); // Success message
 

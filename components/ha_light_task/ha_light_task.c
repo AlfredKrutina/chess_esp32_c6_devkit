@@ -72,6 +72,7 @@ static const char *TAG = "HA_LIGHT_TASK";
 #define LAMP_NVS_KEY_R "r"
 #define LAMP_NVS_KEY_G "g"
 #define LAMP_NVS_KEY_B "b"
+#define LAMP_NVS_KEY_BRIGHTNESS "br"
 #define LAMP_NVS_KEY_AUTO_TIMEOUT_SEC "auto_sec"
 #define LAMP_NVS_KEY_MODE "mode"
 
@@ -83,8 +84,8 @@ static const char *TAG = "HA_LIGHT_TASK";
 // Default values ​​for MQTT configuration
 #define MQTT_DEFAULT_HOST "homeassistant.local"
 #define MQTT_DEFAULT_PORT 1883
-#define MQTT_DEFAULT_USERNAME ""
-#define MQTT_DEFAULT_PASSWORD ""
+#define MQTT_DEFAULT_USERNAME "mqtt-user"
+#define MQTT_DEFAULT_PASSWORD "mqtt"
 
 // ============================================================================
 // GLOBAL VARIABLES AND STATUS
@@ -277,16 +278,10 @@ static void ha_light_check_activity_timeout(void) {
   uint32_t timeout_ms = (uint32_t)activity_timeout_auto_sec * 1000;
 
   if (elapsed_ms >= timeout_ms) {
-    if (ha_light_check_wifi_sta_connected()) {
-      ESP_LOGI(TAG,
-               "Activity timeout (%lu s) reached - auto-switching to HA mode",
-               (unsigned long)activity_timeout_auto_sec);
-      ha_light_switch_to_ha_mode();
-    } else {
-      ESP_LOGD(
-          TAG,
-          "Timeout reached but WiFi STA not connected - staying in GAME mode");
-    }
+    ESP_LOGI(TAG,
+             "Activity timeout (%lu s) reached - auto-switching to last lamp state",
+             (unsigned long)activity_timeout_auto_sec);
+    ha_light_switch_to_ha_mode();
   }
 }
 
@@ -350,6 +345,9 @@ static void ha_light_switch_to_game_mode(void) {
   ESP_LOGI(TAG, "Switching to GAME MODE");
   ha_light_wdt_feed_if_own_task();
   current_mode = HA_MODE_GAME;
+  /* Idle time already expired while the lamp was on. Without a fresh
+   * timestamp the next loop would switch straight back to the lamp. */
+  last_activity_time_ms = esp_timer_get_time() / 1000;
   lamp_nvs_save_mode();
 
   // Restore game LED state (refresh based on current game status)
@@ -430,7 +428,7 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
   ret =
       nvs_get_str(nvs_handle, MQTT_NVS_KEY_USERNAME, username, &required_size);
   if (ret != ESP_OK) {
-    ESP_LOGD(TAG, "MQTT username not in NVS, using empty");
+    ESP_LOGD(TAG, "MQTT username not in NVS, using default");
     strncpy(username, MQTT_DEFAULT_USERNAME, username_len - 1);
     username[username_len - 1] = '\0';
   }
@@ -440,7 +438,7 @@ static esp_err_t mqtt_load_config_from_nvs(char *host, size_t host_len,
   ret =
       nvs_get_str(nvs_handle, MQTT_NVS_KEY_PASSWORD, password, &required_size);
   if (ret != ESP_OK) {
-    ESP_LOGD(TAG, "MQTT password not in NVS, using empty");
+    ESP_LOGD(TAG, "MQTT password not in NVS, using default");
     strncpy(password, MQTT_DEFAULT_PASSWORD, password_len - 1);
     password[password_len - 1] = '\0';
   }
@@ -597,18 +595,9 @@ static void ha_light_publish_discovery(void) {
                           HA_MQTT_PAYLOAD_OFFLINE);
   cJSON_AddStringToObject(json, "schema", "json");
   cJSON_AddBoolToObject(json, "brightness", true);
-  cJSON_AddBoolToObject(json, "color_mode", true);
   cJSON *color_modes = cJSON_CreateArray();
   cJSON_AddItemToArray(color_modes, cJSON_CreateString("rgb"));
   cJSON_AddItemToObject(json, "supported_color_modes", color_modes);
-
-  // Effect support
-  cJSON_AddBoolToObject(json, "effect", true);
-  cJSON *effects = cJSON_CreateArray();
-  cJSON_AddItemToArray(effects, cJSON_CreateString("rainbow"));
-  cJSON_AddItemToArray(effects, cJSON_CreateString("pulse"));
-  cJSON_AddItemToArray(effects, cJSON_CreateString("static"));
-  cJSON_AddItemToObject(json, "effect_list", effects);
 
   // Device info
   cJSON *device = cJSON_CreateObject();
@@ -670,7 +659,9 @@ static void ha_light_mqtt_event_handler(void *handler_args,
     char topic[128] = {0};
     char data[512] = {0};
 
-    if (event->topic_len < sizeof(topic) && event->data_len < sizeof(data)) {
+    if (event->topic != NULL && event->data != NULL &&
+        event->topic_len > 0 && event->topic_len < (int)sizeof(topic) &&
+        event->data_len > 0 && event->data_len < (int)sizeof(data)) {
       memcpy(topic, event->topic, event->topic_len);
       memcpy(data, event->data, event->data_len);
       ha_light_handle_mqtt_command(topic, data, event->data_len);
@@ -693,35 +684,6 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
                                          int data_len) {
   if (strcmp(topic, HA_TOPIC_LIGHT_COMMAND) != 0) {
     return; // Not our topic
-  }
-
-  // Check if we can apply HA command during GAME mode
-  bool can_apply_command = true;
-  if (current_mode == HA_MODE_GAME) {
-    uint32_t current_time_ms = esp_timer_get_time() / 1000;
-    uint32_t idle_ms = current_time_ms - last_activity_time_ms;
-
-    if (idle_ms >= HA_ACTIVITY_TIMEOUT_COMMAND_MS ||
-        game_get_move_count() == 0) {
-      // Idle ≥ 2min OR no moves yet → allow switch to HA mode
-      if (game_get_move_count() == 0) {
-        ESP_LOGI(TAG,
-                 "HA command accepted immediately (game not started, moves=0)");
-      } else {
-        ESP_LOGI(
-            TAG,
-            "HA command after %lu ms idle (≥2min) - will switch to HA mode",
-            idle_ms);
-      }
-      can_apply_command = true;
-    } else {
-      // Idle < 2min AND game in progress → ignore command (game has priority)
-      ESP_LOGI(
-          TAG,
-          "HA command IGNORED (game active, moves=%lu, idle=%lu ms < 2min)",
-          game_get_move_count(), idle_ms);
-      can_apply_command = false;
-    }
   }
 
   // Parse JSON
@@ -774,42 +736,23 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
     new_b = (uint8_t)cJSON_GetNumberValue(cJSON_GetArrayItem(rgb_item, 2));
   }
 
-  char new_effect[32] = "solid";
-  cJSON *effect_item = cJSON_GetObjectItem(json, "effect");
-  if (cJSON_IsString(effect_item) && effect_item->valuestring) {
-    strncpy(new_effect, effect_item->valuestring, sizeof(new_effect) - 1);
-    new_effect[sizeof(new_effect) - 1] = '\0';
-  }
-
-  if (ha_light_state_mutex != NULL &&
-      xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
-    ha_light_state.state = new_state;
-    ha_light_state.r = new_r;
-    ha_light_state.g = new_g;
-    ha_light_state.b = new_b;
-    ha_light_state.brightness = new_brightness;
-    strncpy(ha_light_state.effect, new_effect,
-            sizeof(ha_light_state.effect) - 1);
-    ha_light_state.effect[sizeof(ha_light_state.effect) - 1] = '\0';
-    xSemaphoreGive(ha_light_state_mutex);
-  }
-
   cJSON_Delete(json);
 
-  // Apply changes based on mode and idle time
-  if (can_apply_command) {
-    if (current_mode == HA_MODE_GAME) {
-      // Switch from GAME to HA mode
-      ESP_LOGI(TAG, "Switching from GAME to HA mode (HA command accepted)");
-      ha_light_switch_to_ha_mode();
-    } else {
-      // Already in HA mode, just re-apply
-      ha_light_switch_to_ha_mode(); // Re-apply with new settings
-    }
+  if (ha_light_cmd_queue == NULL) {
+    return;
   }
 
-  // Always publish state update (virtual state)
-  ha_light_publish_state();
+  ha_light_command_t cmd = {0};
+  cmd.type = HA_CMD_MQTT_STATE;
+  cmd.u.web_lamp.state = new_state ? 1 : 0;
+  cmd.u.web_lamp.r = new_r;
+  cmd.u.web_lamp.g = new_g;
+  cmd.u.web_lamp.b = new_b;
+  cmd.u.web_lamp.brightness = new_brightness;
+  cmd.u.web_lamp.set_brightness = 1;
+  if (xQueueSend(ha_light_cmd_queue, &cmd, 0) != pdTRUE) {
+    ESP_LOGW(TAG, "MQTT state queue full");
+  }
 }
 
 /**
@@ -854,7 +797,7 @@ static void ha_light_publish_state(void) {
   cJSON_AddNumberToObject(color, "g", rg);
   cJSON_AddNumberToObject(color, "b", rb);
   cJSON_AddItemToObject(json, "color", color);
-  cJSON_AddStringToObject(json, "effect", eff);
+  (void)eff;
 
   // Mode
   cJSON_AddStringToObject(json, "mode",
@@ -905,6 +848,27 @@ static void mqtt_ensure_config_loaded(void) {
     mqtt_config.username[sizeof(mqtt_config.username) - 1] = '\0';
     strncpy(mqtt_config.password, password, sizeof(mqtt_config.password) - 1);
     mqtt_config.password[sizeof(mqtt_config.password) - 1] = '\0';
+    {
+      nvs_handle_t wifi_nvs;
+      char wifi_password[64] = {0};
+      if (nvs_open("wifi_config", NVS_READONLY, &wifi_nvs) == ESP_OK) {
+        size_t wifi_len = sizeof(wifi_password);
+        if (nvs_get_str(wifi_nvs, "sta_password", wifi_password, &wifi_len) ==
+                ESP_OK &&
+            wifi_password[0] != '\0') {
+          strncpy(mqtt_config.password, wifi_password,
+                  sizeof(mqtt_config.password) - 1);
+          mqtt_config.password[sizeof(mqtt_config.password) - 1] = '\0';
+          ESP_LOGI(TAG, "MQTT password taken from phone Wi-Fi STA");
+        }
+        nvs_close(wifi_nvs);
+      }
+    }
+    if (mqtt_config.username[0] == '\0' && mqtt_config.password[0] != '\0') {
+      strncpy(mqtt_config.username, "homeassistant",
+              sizeof(mqtt_config.username) - 1);
+      mqtt_config.username[sizeof(mqtt_config.username) - 1] = '\0';
+    }
     mqtt_config.loaded = true;
     ESP_LOGI(TAG, "MQTT config loaded: host=%s, port=%d", mqtt_config.host,
              mqtt_config.port);
@@ -940,16 +904,8 @@ static esp_err_t ha_light_init_mqtt(void) {
 
   // Build MQTT broker URI (buffer size 512 to avoid format-truncation warning)
   char mqtt_broker_uri[512];
-  if (mqtt_config.username[0] != '\0' && mqtt_config.password[0] != '\0') {
-    // MQTT URI with username/password: mqtt://user:pass@host:port
-    snprintf(mqtt_broker_uri, sizeof(mqtt_broker_uri), "mqtt://%s:%s@%s:%d",
-             mqtt_config.username, mqtt_config.password, mqtt_config.host,
-             mqtt_config.port);
-  } else {
-    // MQTT URI without auth: mqtt://host:port
-    snprintf(mqtt_broker_uri, sizeof(mqtt_broker_uri), "mqtt://%s:%d",
-             mqtt_config.host, mqtt_config.port);
-  }
+  snprintf(mqtt_broker_uri, sizeof(mqtt_broker_uri), "mqtt://%s:%d",
+           mqtt_config.host, mqtt_config.port);
 
   // Generate unique Client ID combined from Base + MAC
   uint8_t mac_raw[6];
@@ -965,6 +921,10 @@ static esp_err_t ha_light_init_mqtt(void) {
   esp_mqtt_client_config_t mqtt_cfg = {
       .broker.address.uri = mqtt_broker_uri,
       .credentials.client_id = client_id,
+      .credentials.username =
+          mqtt_config.username[0] != '\0' ? mqtt_config.username : NULL,
+      .credentials.authentication.password =
+          mqtt_config.password[0] != '\0' ? mqtt_config.password : NULL,
       .session.last_will.topic = HA_TOPIC_LIGHT_AVAILABILITY,
       .session.last_will.msg = HA_MQTT_PAYLOAD_OFFLINE,
       .session.last_will.qos = 1,
@@ -1006,12 +966,13 @@ static void lamp_nvs_load(void) {
     return;
   }
 
-  uint8_t state_u8 = 1, r = 255, g = 255, b = 255;
+  uint8_t state_u8 = 1, r = 255, g = 255, b = 255, brightness = 255;
   uint32_t auto_sec = HA_ACTIVITY_TIMEOUT_AUTO_DEFAULT_SEC;
   nvs_get_u8(handle, LAMP_NVS_KEY_STATE, &state_u8);
   nvs_get_u8(handle, LAMP_NVS_KEY_R, &r);
   nvs_get_u8(handle, LAMP_NVS_KEY_G, &g);
   nvs_get_u8(handle, LAMP_NVS_KEY_B, &b);
+  nvs_get_u8(handle, LAMP_NVS_KEY_BRIGHTNESS, &brightness);
   if (nvs_get_u32(handle, LAMP_NVS_KEY_AUTO_TIMEOUT_SEC, &auto_sec) == ESP_OK &&
       auto_sec >= HA_ACTIVITY_TIMEOUT_AUTO_MIN_SEC &&
       auto_sec <= HA_ACTIVITY_TIMEOUT_AUTO_MAX_SEC) {
@@ -1031,7 +992,7 @@ static void lamp_nvs_load(void) {
     ha_light_state.r = r;
     ha_light_state.g = g;
     ha_light_state.b = b;
-    ha_light_state.brightness = 255;
+    ha_light_state.brightness = brightness;
     xSemaphoreGive(ha_light_state_mutex);
   }
 }
@@ -1039,13 +1000,14 @@ static void lamp_nvs_load(void) {
 static void lamp_nvs_save(void) {
   chess_task_wdt_reset_safe(TAG);
   bool st;
-  uint8_t r, g, b;
+  uint8_t r, g, b, brightness;
   if (ha_light_state_mutex != NULL &&
       xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
     st = ha_light_state.state;
     r = ha_light_state.r;
     g = ha_light_state.g;
     b = ha_light_state.b;
+    brightness = ha_light_state.brightness;
     xSemaphoreGive(ha_light_state_mutex);
   } else {
     return;
@@ -1060,6 +1022,7 @@ static void lamp_nvs_save(void) {
   nvs_set_u8(handle, LAMP_NVS_KEY_R, r);
   nvs_set_u8(handle, LAMP_NVS_KEY_G, g);
   nvs_set_u8(handle, LAMP_NVS_KEY_B, b);
+  nvs_set_u8(handle, LAMP_NVS_KEY_BRIGHTNESS, brightness);
   chess_task_wdt_reset_safe(TAG);
   esp_err_t err = nvs_commit(handle);
   chess_task_wdt_reset_safe(TAG);
@@ -1174,7 +1137,7 @@ void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *brightness,
  * full
  */
 bool ha_light_request_web_lamp(bool state, uint8_t r, uint8_t g, uint8_t b) {
-  ha_light_command_t cmd;
+  ha_light_command_t cmd = {0};
   cmd.type = HA_CMD_WEB_LAMP;
   cmd.u.web_lamp.state = state ? 1 : 0;
   cmd.u.web_lamp.r = r;
@@ -1331,11 +1294,42 @@ void ha_light_task_start(void *pvParameters) {
           ha_light_state.r = cmd.u.web_lamp.r;
           ha_light_state.g = cmd.u.web_lamp.g;
           ha_light_state.b = cmd.u.web_lamp.b;
-          ha_light_state.brightness = 255;
+          if (cmd.u.web_lamp.set_brightness) {
+            ha_light_state.brightness = cmd.u.web_lamp.brightness;
+          }
           xSemaphoreGive(ha_light_state_mutex);
         }
         lamp_nvs_save();
         ha_light_switch_to_ha_mode();
+      } else if (cmd.type == HA_CMD_MQTT_STATE) {
+        if (ha_light_state_mutex != NULL &&
+            xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) ==
+                pdTRUE) {
+          ha_light_state.state = (cmd.u.web_lamp.state != 0);
+          ha_light_state.r = cmd.u.web_lamp.r;
+          ha_light_state.g = cmd.u.web_lamp.g;
+          ha_light_state.b = cmd.u.web_lamp.b;
+          ha_light_state.brightness = cmd.u.web_lamp.brightness;
+          xSemaphoreGive(ha_light_state_mutex);
+        }
+        lamp_nvs_save();
+        bool apply = true;
+        if (current_mode == HA_MODE_GAME) {
+          uint32_t now_ms = esp_timer_get_time() / 1000;
+          uint32_t idle_ms = now_ms - last_activity_time_ms;
+          apply = (idle_ms >= HA_ACTIVITY_TIMEOUT_COMMAND_MS ||
+                   game_get_move_count() == 0);
+          if (!apply) {
+            ESP_LOGI(TAG,
+                     "MQTT state stored (game active, moves=%lu, idle=%lu ms)",
+                     game_get_move_count(), idle_ms);
+          }
+        }
+        if (apply) {
+          ha_light_switch_to_ha_mode();
+        } else {
+          ha_light_publish_state();
+        }
       } else if (cmd.type == HA_CMD_SET_MODE) {
         if (cmd.u.web_lamp.state == HA_MODE_HA) {
           ha_light_switch_to_ha_mode();
@@ -1422,11 +1416,7 @@ void ha_light_task_start(void *pvParameters) {
         sta_connected = false;
         mqtt_connected = false; // Just mark disconnected, don't destroy client
                                 // to avoid complex cleanup
-        ESP_LOGI(TAG, "WiFi STA disconnected - MQTT unavailable");
-        if (current_mode == HA_MODE_HA) {
-          // Switch back to game mode
-          ha_light_switch_to_game_mode();
-        }
+        ESP_LOGI(TAG, "WiFi STA disconnected - MQTT unavailable, lamp state kept");
       }
       last_wifi_check = current_time_ms;
     }

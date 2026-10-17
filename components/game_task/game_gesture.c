@@ -6,11 +6,13 @@
  * covers every square, so a reset mid-wave leaves the previous mode.
  */
 
+#include "freertos_chess.h"
 #include "game_gesture.h"
 
 #include "sdkconfig.h"
 
 #include "button_gesture.h"
+#include "hall_i2c_squares.h"
 #include "chess_gameplay_policy.h"
 #include "game_task.h"
 #include "game_task_internal.h"
@@ -131,7 +133,7 @@ static void gesture_power_off(void) {
 
   /* The hold that finished the chase must be released first, otherwise a
    * level-low wake fires immediately. */
-  while (gpio_get_level(pin) == 0) {
+  while (led_gesture_button_down()) {
     (void)esp_task_wdt_reset();
     vTaskDelay(pdMS_TO_TICKS(25));
   }
@@ -139,6 +141,11 @@ static void gesture_power_off(void) {
 
   gpio_wakeup_disable(pin);
   gpio_wakeup_enable(pin, GPIO_INTR_LOW_LEVEL);
+  if ((int)BUTTON_RESET != (int)pin &&
+      !chess_gpio_pin_is_stm32_nrst_output((int)BUTTON_RESET)) {
+    gpio_wakeup_disable(BUTTON_RESET);
+    gpio_wakeup_enable(BUTTON_RESET, GPIO_INTR_LOW_LEVEL);
+  }
   esp_sleep_enable_gpio_wakeup();
 
 #if ((SOC_GPIO_DEEP_SLEEP_WAKE_VALID_GPIO_MASK) & \
@@ -162,7 +169,7 @@ static void gesture_power_off(void) {
   /* USB-Serial/JTAG wakes light sleep at once while the button is still
    * released. That used to fall through into esp_restart(), so "off" never
    * stuck and the next press was not a power-on. */
-  bool button_woke = (sl == ESP_OK && gpio_get_level(pin) == 0);
+  bool button_woke = (sl == ESP_OK && led_gesture_button_down());
   if (!button_woke) {
     if (sl != ESP_OK) {
       ESP_LOGW(TAG, "light sleep rejected (%s) — staying dark until SW1",
@@ -173,10 +180,10 @@ static void gesture_power_off(void) {
     gpio_wakeup_disable(pin);
     for (;;) {
       (void)esp_task_wdt_reset();
-      if (gpio_get_level(pin) == 0) {
+      if (led_gesture_button_down()) {
         vTaskDelay(pdMS_TO_TICKS(25));
-        if (gpio_get_level(pin) == 0) {
-          while (gpio_get_level(pin) == 0) {
+        if (led_gesture_button_down()) {
+          while (led_gesture_button_down()) {
             (void)esp_task_wdt_reset();
             vTaskDelay(pdMS_TO_TICKS(25));
           }
@@ -189,7 +196,7 @@ static void gesture_power_off(void) {
       vTaskDelay(pdMS_TO_TICKS(25));
     }
   }
-  while (gpio_get_level(pin) == 0) {
+  while (led_gesture_button_down()) {
     (void)esp_task_wdt_reset();
     vTaskDelay(pdMS_TO_TICKS(25));
   }
@@ -216,6 +223,10 @@ static void handle_event(gesture_event_t ev) {
   }
   switch (ev) {
   case GESTURE_TOGGLE: {
+    if (hall_magnet_bench_active()) {
+      hall_magnet_bench_capture();
+      break;
+    }
     ha_mode_t next =
         (ha_light_get_mode() == HA_MODE_HA) ? HA_MODE_GAME : HA_MODE_HA;
     uint32_t colors[64];
@@ -229,6 +240,39 @@ static void handle_event(gesture_event_t ev) {
     ESP_LOGI(TAG, "[STAGING] wave preview %s -> %s (commit after cover)",
              next == HA_MODE_HA ? "game" : "lamp",
              next == HA_MODE_HA ? "lamp" : "game");
+    break;
+  }
+  case GESTURE_COLOR: {
+    if (ha_light_get_mode() != HA_MODE_HA) {
+      ESP_LOGI(TAG, "[STAGING] double click ignored outside lamp");
+      break;
+    }
+    static const uint8_t k_lamp_colors[][3] = {
+        {255, 255, 255}, /* daylight white */
+        {255, 214, 170}, /* warm white */
+        {0, 0, 255},     /* blue */
+        {255, 0, 0},     /* red */
+    };
+    uint8_t r = 0, g = 0, b = 0, bright = 255;
+    bool on = true;
+    ha_light_get_state(&r, &g, &b, &bright, &on);
+    unsigned next = 0;
+    for (unsigned i = 0; i < 4u; i++) {
+      if (r == k_lamp_colors[i][0] && g == k_lamp_colors[i][1] &&
+          b == k_lamp_colors[i][2]) {
+        next = (i + 1u) % 4u;
+        break;
+      }
+    }
+    if (!ha_light_request_web_lamp(true, k_lamp_colors[next][0],
+                                   k_lamp_colors[next][1],
+                                   k_lamp_colors[next][2])) {
+      ESP_LOGW(TAG, "lamp color queue full");
+      break;
+    }
+    ESP_LOGI(TAG, "[STAGING] lamp color %u RGB(%u,%u,%u)", next,
+             k_lamp_colors[next][0], k_lamp_colors[next][1],
+             k_lamp_colors[next][2]);
     break;
   }
   case GESTURE_PAIR:
@@ -293,9 +337,9 @@ static void handle_result(led_gesture_result_t result) {
 
 void game_gesture_poll(void) {
   QueueHandle_t q = button_gesture_queue();
-  if (q != NULL) {
+  if (q != NULL && !s_wave_wait && !led_gesture_anim_busy()) {
     gesture_event_t ev;
-    while (xQueueReceive(q, &ev, 0) == pdTRUE) {
+    if (xQueueReceive(q, &ev, 0) == pdTRUE) {
       handle_event(ev);
     }
   }

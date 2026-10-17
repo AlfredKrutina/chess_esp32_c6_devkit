@@ -1,109 +1,123 @@
 /**
  * @file led_board_restore_guide.c
- * @brief Orange bar + bright pip animation for restore paths (LED task thread).
+ * @brief Per-piece setup glow. Homes breathe in piece color, no path bars.
  */
 
 #include "led_board_restore_guide.h"
 #include "led_gesture_anim.h"
+#include "led_mapping.h"
 #include "led_task.h"
 
 #include "esp_timer.h"
 
 #include <string.h>
 
-#define RESTORE_ORANGE_R 255U
-#define RESTORE_ORANGE_G 140U
-#define RESTORE_ORANGE_B 0U
-
-#define RESTORE_PIP_MS 140U
-#define RESTORE_MISSING_MS 500U
-#define RESTORE_EXTRA_MS 800U
-#define RESTORE_SWAP_PULSE_MS 1200U
-#define RESTORE_SWAP_FLOOR_R 22U
-#define RESTORE_SWAP_FLOOR_G 10U
-#define RESTORE_SWAP_FLOOR_B 0U
+#define WHITE_FLOOR 170U
+#define WHITE_HOME_PEAK 255U
+#define WHITE_SIT_PEAK 215U
+#define BLACK_FLOOR 16U
+#define BLACK_HOME_PEAK 120U
+#define BLACK_SIT_PEAK 64U
+#define EXTRA_R 255U
+#define EXTRA_G 36U
+#define EXTRA_B 48U
 
 static led_restore_guide_plan_t s_plan;
 static bool s_anim_active;
-static uint32_t s_last_pip_ms;
-static uint8_t s_pip_phase[LED_RESTORE_GUIDE_MAX_PATHS];
-static uint32_t s_last_missing_ms;
-static bool s_missing_bright;
-static uint32_t s_last_extra_ms;
-static bool s_extra_bright;
 
-static uint8_t scale_channel(uint8_t v, uint8_t num, uint8_t den) {
-  return (uint8_t)(((uint16_t)v * num) / den);
+typedef struct {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+} guide_rgb_t;
+
+static uint8_t square_to_led(uint8_t sq) {
+  return chess_pos_to_led_index((uint8_t)(sq / 8u), (uint8_t)(sq % 8u));
 }
 
-static void orange_dim(uint8_t *r, uint8_t *g, uint8_t *b) {
-  uint8_t paths = s_plan.path_count;
-  if (paths == 0) {
-    paths = 1;
+static uint32_t period_for_type(uint8_t type) {
+  switch (type) {
+  case 1:
+    return 2000U;
+  case 2:
+    return 2400U;
+  case 3:
+    return 2600U;
+  case 4:
+    return 2300U;
+  case 5:
+    return 2800U;
+  case 6:
+    return 3200U;
+  default:
+    return 2200U;
   }
-  uint8_t den = (uint8_t)(paths + 1U);
-  *r = scale_channel(RESTORE_ORANGE_R, 1U, den);
-  *g = scale_channel(RESTORE_ORANGE_G, 1U, den);
-  *b = scale_channel(RESTORE_ORANGE_B, 1U, den);
 }
 
-static void orange_bright(uint8_t *r, uint8_t *g, uint8_t *b) {
-  *r = RESTORE_ORANGE_R;
-  *g = RESTORE_ORANGE_G;
-  *b = RESTORE_ORANGE_B;
-}
-
-static void swap_corridor_color(uint32_t now_ms, uint8_t *r, uint8_t *g,
-                                uint8_t *b) {
-  uint32_t phase = now_ms % RESTORE_SWAP_PULSE_MS;
-  uint32_t tri = phase * 2U;
-  if (tri > RESTORE_SWAP_PULSE_MS) {
-    tri = RESTORE_SWAP_PULSE_MS * 2U - tri;
+static guide_rgb_t color_for_piece(uint8_t type, uint8_t color) {
+  /* White hues stay saturated so pawn, knight and bishop stay apart.
+   * Black uses another hue and stays dark. */
+  static const guide_rgb_t white_pieces[7] = {
+      {0, 0, 0},       {0, 255, 0},     {255, 80, 0},    {0, 90, 255},
+      {255, 0, 160},   {255, 255, 230}, {255, 220, 0},
+  };
+  static const guide_rgb_t black_pieces[7] = {
+      {0, 0, 0},       {0, 40, 255},   {130, 0, 255},  {255, 0, 50},
+      {0, 170, 40},    {30, 0, 140},   {255, 50, 0},
+  };
+  if (type < 1 || type > 6) {
+    guide_rgb_t red = {EXTRA_R, EXTRA_G, EXTRA_B};
+    return red;
   }
-  uint8_t bright = (uint8_t)((tri * 255U) / RESTORE_SWAP_PULSE_MS);
-  *r = (uint8_t)(RESTORE_SWAP_FLOOR_R +
-                 ((uint16_t)(RESTORE_ORANGE_R - RESTORE_SWAP_FLOOR_R) * bright) /
-                     255U);
-  *g = (uint8_t)(RESTORE_SWAP_FLOOR_G +
-                 ((uint16_t)(RESTORE_ORANGE_G - RESTORE_SWAP_FLOOR_G) * bright) /
-                     255U);
-  *b = (uint8_t)(RESTORE_SWAP_FLOOR_B +
-                 ((uint16_t)(RESTORE_ORANGE_B - RESTORE_SWAP_FLOOR_B) * bright) /
-                     255U);
+  if (color == 2) {
+    return black_pieces[type];
+  }
+  return white_pieces[type];
 }
 
-static bool square_on_any_path(uint8_t sq) {
-  for (uint8_t p = 0; p < s_plan.path_count; p++) {
-    const led_restore_guide_path_t *path = &s_plan.paths[p];
-    for (uint8_t i = 0; i < path->len; i++) {
-      if (path->squares[i] == sq) {
-        return true;
-      }
-    }
+static uint8_t smoothstep_u8(uint8_t x) {
+  uint32_t v = (uint32_t)x;
+  uint32_t s = (v * v * (765U - 2U * v)) / (255U * 255U);
+  return (uint8_t)s;
+}
+
+static uint8_t breathe_level(uint32_t now_ms, uint32_t period_ms, uint32_t phase_ms,
+                             uint8_t floor_lv, uint8_t peak_lv) {
+  if (period_ms < 2U) {
+    return peak_lv;
   }
-  return false;
+  uint32_t t = (now_ms + phase_ms) % period_ms;
+  uint32_t half = period_ms / 2U;
+  uint32_t up = (t < half) ? t : (period_ms - t);
+  uint8_t x = (uint8_t)((up * 255U) / half);
+  uint8_t s = smoothstep_u8(x);
+  return (uint8_t)(floor_lv + ((uint16_t)(peak_lv - floor_lv) * s) / 255U);
+}
+
+static void scale_rgb(guide_rgb_t src, uint8_t level, uint8_t *r, uint8_t *g,
+                      uint8_t *b) {
+  *r = (uint8_t)(((uint16_t)src.r * level) / 255U);
+  *g = (uint8_t)(((uint16_t)src.g * level) / 255U);
+  *b = (uint8_t)(((uint16_t)src.b * level) / 255U);
 }
 
 void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan) {
-  if (plan == NULL) {
+  if (plan == NULL || !plan->active || plan->mark_count == 0) {
     led_board_restore_guide_clear();
     return;
   }
   memcpy(&s_plan, plan, sizeof(s_plan));
-  s_anim_active = plan->active;
-  if (s_anim_active) {
-    memset(s_pip_phase, 0, sizeof(s_pip_phase));
-    s_last_pip_ms = esp_timer_get_time() / 1000U;
-    s_last_missing_ms = s_last_pip_ms;
-    s_last_extra_ms = s_last_pip_ms;
-    s_missing_bright = true;
-    s_extra_bright = true;
-  }
+  s_anim_active = true;
 }
 
 void led_board_restore_guide_clear(void) {
-  memset(&s_plan, 0, sizeof(s_plan));
+  bool was_lit = s_anim_active || s_plan.active;
+  s_plan.active = false;
+  s_plan.mark_count = 0;
   s_anim_active = false;
+  if (was_lit) {
+    led_clear_board_only();
+  }
 }
 
 bool led_board_restore_guide_is_active(void) { return s_anim_active; }
@@ -112,90 +126,62 @@ void led_board_restore_guide_tick(void) {
   if (led_gesture_anim_busy()) {
     return;
   }
-  if (!s_anim_active || !s_plan.active) {
+  if (!s_plan.active || s_plan.mark_count == 0) {
+    if (s_anim_active) {
+      s_anim_active = false;
+      led_clear_board_only();
+    }
     return;
   }
-  if (s_plan.path_count == 0 && s_plan.missing_count == 0 &&
-      s_plan.extra_count == 0) {
-    s_anim_active = false;
-    return;
-  }
+  s_anim_active = true;
 
   uint32_t now = esp_timer_get_time() / 1000U;
-
-  if (now - s_last_pip_ms >= RESTORE_PIP_MS) {
-    s_last_pip_ms = now;
-    for (uint8_t p = 0; p < s_plan.path_count; p++) {
-      if (s_plan.paths[p].len > 0 && !s_plan.paths[p].pulse_corridor) {
-        s_pip_phase[p] =
-            (uint8_t)((s_pip_phase[p] + 1U) % s_plan.paths[p].len);
-      }
-    }
-  }
-
-  if (now - s_last_missing_ms >= RESTORE_MISSING_MS) {
-    s_last_missing_ms = now;
-    s_missing_bright = !s_missing_bright;
-  }
-
-  if (now - s_last_extra_ms >= RESTORE_EXTRA_MS) {
-    s_last_extra_ms = now;
-    s_extra_bright = !s_extra_bright;
-  }
-
-  if (!s_anim_active || !s_plan.active) {
-    return;
-  }
-
   led_clear_board_only();
 
-  uint8_t dr = 0;
-  uint8_t dg = 0;
-  uint8_t db = 0;
-  orange_dim(&dr, &dg, &db);
-
-  for (uint8_t p = 0; p < s_plan.path_count; p++) {
-    const led_restore_guide_path_t *path = &s_plan.paths[p];
-    for (uint8_t i = 0; i < path->len; i++) {
-      uint8_t sq = path->squares[i];
-      if (sq >= 64) {
-        continue;
-      }
-      uint8_t r = dr;
-      uint8_t g = dg;
-      uint8_t b = db;
-      if (path->pulse_corridor) {
-        swap_corridor_color(now, &r, &g, &b);
-      } else if (i == s_pip_phase[p]) {
-        orange_bright(&r, &g, &b);
-      }
-      led_set_pixel_internal(sq, r, g, b);
-    }
-  }
-
-  for (uint8_t m = 0; m < s_plan.missing_count; m++) {
-    uint8_t sq = s_plan.missing_homes[m];
-    if (sq >= 64 || square_on_any_path(sq)) {
+  for (uint8_t i = 0; i < s_plan.mark_count; i++) {
+    const led_restore_guide_mark_t *mark = &s_plan.marks[i];
+    if (mark->square >= 64) {
       continue;
     }
-    if (s_missing_bright) {
-      led_set_pixel_internal(sq, RESTORE_ORANGE_R, RESTORE_ORANGE_G,
-                             RESTORE_ORANGE_B);
+    guide_rgb_t rgb;
+    uint32_t period;
+    uint32_t phase;
+    uint8_t peak;
+    if (mark->role == LED_RESTORE_MARK_EXTRA) {
+      rgb.r = EXTRA_R;
+      rgb.g = EXTRA_G;
+      rgb.b = EXTRA_B;
+      period = 1800U;
+      phase = (uint32_t)mark->square * 70U;
+      peak = 220U;
     } else {
-      led_set_pixel_internal(sq, dr, dg, db);
+      rgb = color_for_piece(mark->type, mark->color);
+      period = period_for_type(mark->type);
+      phase = (uint32_t)mark->square * 90U;
+      if (mark->color == 2) {
+        peak = (mark->role == LED_RESTORE_MARK_SITTING) ? BLACK_SIT_PEAK
+                                                        : BLACK_HOME_PEAK;
+      } else {
+        peak = (mark->role == LED_RESTORE_MARK_SITTING) ? WHITE_SIT_PEAK
+                                                        : WHITE_HOME_PEAK;
+      }
+      if (mark->role == LED_RESTORE_MARK_SITTING) {
+        phase += period / 2U;
+      }
     }
-  }
-
-  for (uint8_t e = 0; e < s_plan.extra_count; e++) {
-    uint8_t sq = s_plan.extra_squares[e];
-    if (sq >= 64 || square_on_any_path(sq)) {
-      continue;
-    }
-    if (s_extra_bright) {
-      led_set_pixel_internal(sq, 255, 0, 0);
+    uint8_t floor_lv;
+    if (mark->role == LED_RESTORE_MARK_EXTRA) {
+      floor_lv = 40U;
+    } else if (mark->color == 2) {
+      floor_lv = BLACK_FLOOR;
     } else {
-      led_set_pixel_internal(sq, 40, 0, 0);
+      floor_lv = WHITE_FLOOR;
     }
+    uint8_t level = breathe_level(now, period, phase, floor_lv, peak);
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    scale_rgb(rgb, level, &r, &g, &b);
+    led_set_pixel_internal(square_to_led(mark->square), r, g, b);
   }
-
 }

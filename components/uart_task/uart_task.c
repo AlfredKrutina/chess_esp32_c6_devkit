@@ -1717,6 +1717,31 @@ command_result_t uart_cmd_hall_stop(const char *args) {
   return CMD_SUCCESS;
 }
 
+command_result_t uart_cmd_mag(const char *args) {
+  if (args != NULL && strcasecmp(args, "OFF") == 0) {
+    hall_magnet_bench_stop();
+    return CMD_SUCCESS;
+  }
+
+  /* e4 when no square is given: one lit field, ready for the magnet. */
+  uint8_t square = 28;
+  if (args != NULL && args[0] != '\0') {
+    char file = (char)tolower((unsigned char)args[0]);
+    char rank = args[1];
+    if (args[2] != '\0' || file < 'a' || file > 'h' || rank < '1' || rank > '8') {
+      uart_send_line("Usage: MAG e4   or   MAG OFF");
+      return CMD_ERROR_INVALID_SYNTAX;
+    }
+    square = (uint8_t)((rank - '1') * 8 + (file - 'a'));
+  }
+
+  if (!hall_magnet_bench_start(square)) {
+    uart_send_line("Magnet bench needs the Hall build");
+    return CMD_ERROR_INVALID_PARAMETER;
+  }
+  return CMD_SUCCESS;
+}
+
 /**
  * @brief Check memory health and report status
  * @return ESP_OK if memory is healthy, ESP_ERR_NO_MEM if low

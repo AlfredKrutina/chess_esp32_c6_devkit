@@ -265,7 +265,7 @@ static unsigned s_sta_blk_reject_streak;
 
 /* Brightness cache for GET /api/status - prevents NVS + CONFIG_MANAGER on each
  * request */
-uint8_t cached_brightness = 50;
+uint8_t cached_brightness = 100;
 bool cached_brightness_valid = false;
 
 // Externi promenne
@@ -2158,7 +2158,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     }
     led_set_brightness_global((uint8_t)brightness_val);
     system_config_t config;
-    config.brightness_level = 50;
+    config.brightness_level = 100;
     if (config_load_from_nvs(&config) == ESP_OK) {
       config.brightness_level = (uint8_t)brightness_val;
       config_save_to_nvs(&config);
@@ -3498,15 +3498,9 @@ void web_server_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "HTTP server started");
   czechmate_mdns_ensure_started();
 
-  /* One-time loading of the brightness into the cache - GET /api/status does not access the NVS
-   */
-  {
-    system_config_t config;
-    if (config_load_from_nvs(&config) == ESP_OK) {
-      cached_brightness = config.brightness_level;
-      cached_brightness_valid = true;
-    }
-  }
+  /* Do not restore a stored dim. Status stays at 100% until the user changes it. */
+  cached_brightness = 100;
+  cached_brightness_valid = true;
 
   task_running = true;
   ESP_LOGI(TAG, "Web server task started successfully");

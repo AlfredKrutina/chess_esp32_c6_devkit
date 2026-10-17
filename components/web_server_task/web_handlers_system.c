@@ -348,7 +348,7 @@ esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
       // 2. Ulozit do configu (load-modify-save)
       system_config_t config;
       // Default init v pripade chyby loadu
-      config.brightness_level = 50;
+      config.brightness_level = 100;
 
       if (config_load_from_nvs(&config) == ESP_OK) {
         config.brightness_level = (uint8_t)brightness_val;

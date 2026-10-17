@@ -5,7 +5,7 @@
  * Short click is a press shorter than 400 ms. A second press inside 400 ms
  * that is held becomes power-off (it wins over a triple-click and over
  * new-game). Three short clicks start pairing once; a fourth click in the
- * same burst does not start it again. Two clicks do nothing. A hold that
+ * same burst does not start it again. Two clicks step the lamp color. A hold that
  * begins with no click in the previous 400 ms starts the new-game snake.
  * The 1 s legacy long-press threshold is not a commit point.
  */
@@ -29,7 +29,6 @@ static const char *TAG = "BTN_GESTURE";
 #define GESTURE_DEBOUNCE_MS 25
 #define GESTURE_CLICK_MAX_MS 400
 #define GESTURE_GAP_MS 400
-#define GESTURE_LOCK_FALLBACK_MS 800
 
 typedef enum {
   GS_IDLE = 0,
@@ -51,7 +50,7 @@ static uint8_t s_clicks;
 static uint32_t s_press_ms;
 static uint32_t s_up_ms;
 static uint32_t s_lock_ms;
-static bool s_saw_busy;
+static bool s_latched;
 static bool s_gpio_ready;
 
 static uint32_t gesture_now_ms(void) {
@@ -59,21 +58,22 @@ static uint32_t gesture_now_ms(void) {
 }
 
 static void gesture_emit(gesture_event_t id, const char *staging) {
+  if (s_latched) {
+    return;
+  }
+  s_latched = true;
+  s_clicks = 0;
   ESP_LOGI(TAG, "[STAGING] gesture: %s", staging);
   if (id == GESTURE_SNAKE_START) {
     (void)led_gesture_start_snake();
   } else if (id == GESTURE_SHUTDOWN_START) {
     (void)led_gesture_start_shutdown();
   }
-  if (s_queue == NULL) {
-    return;
-  }
-  if (xQueueSend(s_queue, &id, 0) != pdTRUE) {
+  if (s_queue != NULL && xQueueSend(s_queue, &id, 0) != pdTRUE) {
     ESP_LOGW(TAG, "gesture queue full, drop %d", (int)id);
   }
   s_phase = GS_LOCK;
   s_lock_ms = gesture_now_ms();
-  s_saw_busy = false;
 }
 
 static void gesture_on_press(uint32_t now) {
@@ -141,6 +141,7 @@ void button_gesture_init(void) {
   s_change_valid = false;
   s_phase = GS_IDLE;
   s_clicks = 0;
+  s_latched = false;
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "GPIO%d config failed: %s", CONFIG_CHESS_GESTURE_BUTTON_GPIO,
              esp_err_to_name(err));
@@ -161,7 +162,7 @@ void button_gesture_poll(void) {
     return;
   }
   uint32_t now = gesture_now_ms();
-  bool raw = (gpio_get_level((gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO) == 0);
+  bool raw = led_gesture_button_down();
   if (!s_change_valid || raw != s_raw_down) {
     s_raw_down = raw;
     s_change_ms = now;
@@ -180,15 +181,16 @@ void button_gesture_poll(void) {
   }
 
   if (s_phase == GS_LOCK) {
-    if (led_gesture_anim_busy()) {
-      s_saw_busy = true;
+    /* One action at a time. Clicks during the action, or in the quiet after
+     * it, do not start a second or third gesture. */
+    if (s_down || led_gesture_anim_busy()) {
+      s_lock_ms = now;
+      return;
     }
-    if (s_saw_busy && !led_gesture_anim_busy()) {
-      s_phase = s_down ? GS_WAIT_UP : GS_IDLE;
+    if ((now - s_lock_ms) >= GESTURE_GAP_MS) {
+      s_phase = GS_IDLE;
       s_clicks = 0;
-    } else if (!s_saw_busy && (now - s_lock_ms) > GESTURE_LOCK_FALLBACK_MS) {
-      s_phase = s_down ? GS_WAIT_UP : GS_IDLE;
-      s_clicks = 0;
+      s_latched = false;
     }
     return;
   }
@@ -220,11 +222,7 @@ void button_gesture_poll(void) {
     if (s_clicks == 1) {
       gesture_emit(GESTURE_TOGGLE, "single click -> game/lamp toggle");
     } else if (s_clicks == 2) {
-      ESP_LOGI(TAG,
-               "[STAGING] gesture: two clicks ignored "
-               "(not a second toggle, not pairing)");
-      s_phase = GS_IDLE;
-      s_clicks = 0;
+      gesture_emit(GESTURE_COLOR, "double click -> next lamp color");
     } else {
       s_phase = GS_IDLE;
       s_clicks = 0;

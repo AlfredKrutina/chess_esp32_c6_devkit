@@ -82,8 +82,8 @@ esp_err_t config_reset_to_defaults(void);
 #define CONFIG_DEFAULT_COMMAND_TIMEOUT 5000
 /** @brief Defaults to echo (on) */
 #define CONFIG_DEFAULT_ECHO_ENABLED true
-/** @brief Default brightness (50%) */
-#define CONFIG_DEFAULT_BRIGHTNESS 50
+/** @brief Default brightness (100%) */
+#define CONFIG_DEFAULT_BRIGHTNESS 100
 
 // Konfiguracni klice pro NVS
 /** @brief NVS namespace for sach configuration */

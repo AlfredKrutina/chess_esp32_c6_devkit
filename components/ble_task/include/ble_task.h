@@ -92,6 +92,9 @@ void ble_task_notify_cmd_ack_json(const char *json_utf8);
  */
 void ble_task_request_pairing(void);
 
+/** Kept for callers. Does not open pairing; only a triple click does. */
+void ble_task_pair_after_first_flash(void);
+
 /** @return true while a new device may complete pairing. */
 bool ble_task_pairing_window_is_open(void);
 

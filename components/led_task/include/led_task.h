@@ -96,8 +96,8 @@ void led_set_pixel_internal(uint8_t led_index, uint8_t red, uint8_t green,
  * @brief Set one LED including the white die
  *
  * RGB callers keep using led_set_pixel_internal(). Pass white when the lamp
- * (or another caller) must drive the white die itself. The budgeted writer
- * still applies NVS brightness and the rail cap.
+ * (or another caller) must drive the white die itself. The writer does not
+ * scale the frame.
  */
 void led_set_pixel_rgbw(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue, uint8_t white);
@@ -417,8 +417,9 @@ bool led_is_booting(void);
  * @details
  * Light up the LED according to the progress of the boot process. Used for display
  * system initialization procedure. Turn on the LED light green.
+ * @return true once the snake has covered the board (caller should fade out)
  */
-void led_boot_animation_step(uint8_t progress_percent);
+bool led_boot_animation_step(uint8_t progress_percent);
 
 /**
  * @brief LED boot animation fade out - gradually fade all LEDs to 0

@@ -165,8 +165,24 @@ bool game_is_board_in_starting_position(void) {
  * the user, which fields must be filled with figures.
  */
 void game_show_missing_pieces_led(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* Setup glow is drawn by the Hall restore guide. */
+  return;
+#else
   uint8_t squares_state[64] = {0};
   squares_get_state(squares_state);
+
+  bool any_piece = false;
+  for (int i = 0; i < 64; i++) {
+    if (squares_state[i] != 0) {
+      any_piece = true;
+      break;
+    }
+  }
+  if (!any_piece) {
+    led_clear_board_only();
+    return;
+  }
   
   // Clean the board
   led_clear_board_only();
@@ -202,6 +218,7 @@ void game_show_missing_pieces_led(void) {
   }
   
   ESP_LOGI(TAG, "🔴 LED: Showing missing pieces in red");
+#endif
 }
 
 

@@ -22,7 +22,8 @@ typedef enum {
   GESTURE_TOGGLE,        ///< One short click, then quiet: game <-> lamp
   GESTURE_PAIR,          ///< Three short clicks: BLE pairing
   GESTURE_SNAKE_START,   ///< Hold from idle: new-game snake
-  GESTURE_SHUTDOWN_START ///< Click, then hold: power off
+  GESTURE_SHUTDOWN_START, ///< Click, then hold: power off
+  GESTURE_COLOR          ///< Two short clicks: next lamp color
 } gesture_event_t;
 
 void button_gesture_init(void);

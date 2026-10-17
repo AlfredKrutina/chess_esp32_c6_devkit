@@ -1,6 +1,6 @@
 /**
  * @file led_board_restore_guide.h
- * @brief Non-blocking orange path animation for Hall board-restore guide.
+ * @brief Smooth per-piece setup glow for the Hall board-restore guide.
  */
 
 #ifndef LED_BOARD_RESTORE_GUIDE_H
@@ -11,15 +11,27 @@
 
 #define LED_RESTORE_GUIDE_MAX_PATHS 3
 #define LED_RESTORE_GUIDE_MAX_PATH_LEN 16
-#define LED_RESTORE_GUIDE_MAX_MISSING 16
+#define LED_RESTORE_GUIDE_MAX_MISSING 32
 #define LED_RESTORE_GUIDE_MAX_EXTRA 16
+#define LED_RESTORE_GUIDE_MAX_MARKS 80
+
+#define LED_RESTORE_MARK_HOME 0
+#define LED_RESTORE_MARK_SITTING 1
+#define LED_RESTORE_MARK_EXTRA 2
 
 typedef struct {
   uint8_t squares[LED_RESTORE_GUIDE_MAX_PATH_LEN];
   uint8_t len;
-  /** Swap pair: whole corridor pulses together (no traveling pip). */
+  /** Unused by the setup glow. Kept so path picking still compiles. */
   bool pulse_corridor;
 } led_restore_guide_path_t;
+
+typedef struct {
+  uint8_t square;
+  uint8_t type;
+  uint8_t color;
+  uint8_t role;
+} led_restore_guide_mark_t;
 
 typedef struct {
   bool active;
@@ -29,6 +41,8 @@ typedef struct {
   uint8_t missing_count;
   uint8_t extra_squares[LED_RESTORE_GUIDE_MAX_EXTRA];
   uint8_t extra_count;
+  uint8_t mark_count;
+  led_restore_guide_mark_t marks[LED_RESTORE_GUIDE_MAX_MARKS];
 } led_restore_guide_plan_t;
 
 void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan);

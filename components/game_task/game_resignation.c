@@ -65,29 +65,6 @@ static void resignation_update_button_leds(uint32_t elapsed_ms) {
 }
 
 /**
- * @brief Animation timer callback - vola se kazdych 50ms
- */
-static void resignation_animation_timer_callback(TimerHandle_t xTimer) {
-  // IMPORTANT:
-  // Timer callbacks run in FreeRTOS "Tmr Svc" task context.
-  // Avoid heavy work here (printf/ESP_LOG*, mutex waits, LED commits, game
-  // logic), otherwise Timer Service stack can overflow and crash the system.
-  //
-  // Resignation visuals and timeout are handled from the main `game_task` loop
-  // via `resignation_tick()`.
-  (void)xTimer;
-}
-
-/**
- * @brief Main timer callback - called after 10 seconds
- */
-static void resignation_main_timer_callback(TimerHandle_t xTimer) {
-  // See comment in `resignation_animation_timer_callback()`.
-  // Finalization is handled from `game_task` context via `resignation_tick()`.
-  (void)xTimer;
-}
-
-/**
  * @brief End the game by resignation of @p loser (runs in game_task context).
  *
  * Single end path for the king-lift timeout and the app command: result,

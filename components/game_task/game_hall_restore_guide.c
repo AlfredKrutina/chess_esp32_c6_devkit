@@ -12,6 +12,7 @@
 #include "game_physical_undo.h"
 
 #include "../led_task/include/led_board_restore_guide.h"
+#include "../led_task/include/led_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "../squares_task/include/squares_task.h"
 
@@ -34,6 +35,7 @@ typedef struct {
 typedef struct {
   uint8_t from_sq;
   uint8_t home_sq;
+  hall_piece_type_t type;
   uint8_t path[LED_RESTORE_GUIDE_MAX_PATH_LEN];
   uint8_t path_len;
   bool swap_corridor;
@@ -94,6 +96,34 @@ static int build_manhattan_path(uint8_t from, uint8_t to, uint8_t *out, int cap,
   return len;
 }
 
+static int build_knight_path(uint8_t from, uint8_t to, uint8_t *out, int cap) {
+  if (cap < 2 || from >= 64 || to >= 64 || from == to) {
+    return 0;
+  }
+  int r = (int)(from / 8);
+  int c = (int)(from % 8);
+  int tr = (int)(to / 8);
+  int tc = (int)(to % 8);
+  int dr = tr - r;
+  int dc = tc - c;
+  int adr = (dr < 0) ? -dr : dr;
+  int adc = (dc < 0) ? -dc : dc;
+  out[0] = from;
+  if (((adr == 2 && adc == 1) || (adr == 1 && adc == 2)) && cap >= 3) {
+    int sr = (dr > 0) ? 1 : ((dr < 0) ? -1 : 0);
+    int sc = (dc > 0) ? 1 : ((dc < 0) ? -1 : 0);
+    if (adr == 2) {
+      out[1] = (uint8_t)((r + 2 * sr) * 8 + c);
+    } else {
+      out[1] = (uint8_t)(r * 8 + (c + 2 * sc));
+    }
+    out[2] = to;
+    return 3;
+  }
+  out[1] = to;
+  return 2;
+}
+
 static int manhattan_steps(uint8_t a, uint8_t b) {
   int ar = (int)(a / 8);
   int ac = (int)(a % 8);
@@ -131,12 +161,24 @@ static void digest_sensors(const uint8_t occ[64], uint8_t out[64]) {
   }
 }
 
+static bool occupancy_empty(const uint8_t occ[64]) {
+  for (int i = 0; i < 64; i++) {
+    if (occ[i] != 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 static bool sensors_unchanged(const uint8_t digest[64]) {
   return memcmp(digest, s_last_sensor_digest, 64) == 0;
 }
 
+static bool s_digest_valid;
+
 static void remember_digest(const uint8_t digest[64]) {
   memcpy(s_last_sensor_digest, digest, 64);
+  s_digest_valid = true;
 }
 
 static bool mode_blocks_guide(void) {
@@ -265,8 +307,14 @@ static void match_group(const hall_piece_slot_t *expect, int e_count,
     }
     jobs[*job_n].from_sq = from;
     jobs[*job_n].home_sq = home;
-    jobs[*job_n].path_len = (uint8_t)build_manhattan_path(
-        from, home, jobs[*job_n].path, LED_RESTORE_GUIDE_MAX_PATH_LEN, false);
+    jobs[*job_n].type = expect[best_e].type;
+    if (expect[best_e].type == HALL_PIECE_TYPE_KNIGHT) {
+      jobs[*job_n].path_len = (uint8_t)build_knight_path(
+          from, home, jobs[*job_n].path, LED_RESTORE_GUIDE_MAX_PATH_LEN);
+    } else {
+      jobs[*job_n].path_len = (uint8_t)build_manhattan_path(
+          from, home, jobs[*job_n].path, LED_RESTORE_GUIDE_MAX_PATH_LEN, false);
+    }
     jobs[*job_n].swap_corridor = false;
     (*job_n)++;
   }
@@ -389,10 +437,19 @@ static void merge_swap_pairs(restore_job_t *jobs, int *job_n) {
           jobs[j].from_sq == jobs[i].home_sq) {
         uint8_t end_a = jobs[i].from_sq;
         uint8_t end_b = jobs[j].from_sq;
-        jobs[i].path_len = (uint8_t)build_manhattan_path(
-            end_a, end_b, jobs[i].path, LED_RESTORE_GUIDE_MAX_PATH_LEN, false);
-        jobs[i].swap_corridor = true;
-        jobs[i].home_sq = jobs[j].home_sq;
+        bool knight = jobs[i].type == HALL_PIECE_TYPE_KNIGHT ||
+                      jobs[j].type == HALL_PIECE_TYPE_KNIGHT;
+        jobs[i].home_sq = end_b;
+        jobs[i].type = knight ? HALL_PIECE_TYPE_KNIGHT : jobs[i].type;
+        if (knight) {
+          jobs[i].path_len = (uint8_t)build_knight_path(
+              end_a, end_b, jobs[i].path, LED_RESTORE_GUIDE_MAX_PATH_LEN);
+          jobs[i].swap_corridor = false;
+        } else {
+          jobs[i].path_len = (uint8_t)build_manhattan_path(
+              end_a, end_b, jobs[i].path, LED_RESTORE_GUIDE_MAX_PATH_LEN, false);
+          jobs[i].swap_corridor = true;
+        }
         if (j < *job_n - 1) {
           jobs[j] = jobs[*job_n - 1];
         }
@@ -420,7 +477,11 @@ static bool path_crosses_missing_home(const restore_job_t *job,
 static void prefer_path_clear_of_missing(restore_job_t *job,
                                          const uint8_t *missing,
                                          uint8_t missing_n) {
-  if (job->path_len == 0) {
+  if (job->path_len == 0 || job->type == HALL_PIECE_TYPE_KNIGHT) {
+    if (job->type == HALL_PIECE_TYPE_KNIGHT) {
+      job->path_len = (uint8_t)build_knight_path(
+          job->from_sq, job->home_sq, job->path, LED_RESTORE_GUIDE_MAX_PATH_LEN);
+    }
     return;
   }
   uint8_t from = job->path[0];
@@ -465,7 +526,8 @@ static void pick_display_paths(restore_job_t *jobs, int job_n,
   for (int i = 0; i < job_n; i++) {
     prefer_path_clear_of_missing(&jobs[i], missing, missing_n);
     if (jobs[i].path_len > 0 &&
-        !path_crosses_missing_home(&jobs[i], missing, missing_n)) {
+        (jobs[i].type == HALL_PIECE_TYPE_KNIGHT ||
+         !path_crosses_missing_home(&jobs[i], missing, missing_n))) {
       candidates[cand_n++] = i;
     }
   }
@@ -517,6 +579,71 @@ static void pick_display_paths(restore_job_t *jobs, int job_n,
     plan->paths[i].len = job->path_len;
     plan->paths[i].pulse_corridor = job->swap_corridor;
     memcpy(plan->paths[i].squares, job->path, job->path_len);
+  }
+}
+
+static bool engine_mark(uint8_t sq, hall_piece_type_t *t, hall_piece_color_t *c) {
+  if (sq >= 64) {
+    return false;
+  }
+  return game_hall_engine_to_sensor(board[sq / 8][sq % 8], t, c);
+}
+
+static void push_setup_mark(led_restore_guide_plan_t *plan, uint8_t sq,
+                            uint8_t type, uint8_t color, uint8_t role) {
+  if (sq >= 64 || plan->mark_count >= LED_RESTORE_GUIDE_MAX_MARKS) {
+    return;
+  }
+  for (uint8_t i = 0; i < plan->mark_count; i++) {
+    if (plan->marks[i].square == sq) {
+      return;
+    }
+  }
+  led_restore_guide_mark_t *mark = &plan->marks[plan->mark_count++];
+  mark->square = sq;
+  mark->type = type;
+  mark->color = color;
+  mark->role = role;
+}
+
+static void fill_setup_marks(const restore_job_t *jobs, int job_n,
+                             const uint8_t *missing, uint8_t missing_n,
+                             const uint8_t *extra, uint8_t extra_n,
+                             led_restore_guide_plan_t *plan) {
+  plan->mark_count = 0;
+  for (int i = 0; i < job_n; i++) {
+    hall_piece_type_t t = jobs[i].type;
+    hall_piece_color_t c = HALL_PIECE_COLOR_WHITE;
+    hall_piece_type_t et;
+    hall_piece_color_t ec;
+    if (engine_mark(jobs[i].home_sq, &et, &ec)) {
+      t = et;
+      c = ec;
+    }
+    push_setup_mark(plan, jobs[i].home_sq, (uint8_t)t, (uint8_t)c,
+                    LED_RESTORE_MARK_HOME);
+  }
+  for (uint8_t i = 0; i < missing_n; i++) {
+    hall_piece_type_t t = HALL_PIECE_TYPE_PAWN;
+    hall_piece_color_t c = HALL_PIECE_COLOR_WHITE;
+    engine_mark(missing[i], &t, &c);
+    push_setup_mark(plan, missing[i], (uint8_t)t, (uint8_t)c,
+                    LED_RESTORE_MARK_HOME);
+  }
+  for (int i = 0; i < job_n; i++) {
+    hall_piece_type_t t = jobs[i].type;
+    hall_piece_color_t c = HALL_PIECE_COLOR_WHITE;
+    hall_piece_type_t et;
+    hall_piece_color_t ec;
+    if (engine_mark(jobs[i].home_sq, &et, &ec)) {
+      t = et;
+      c = ec;
+    }
+    push_setup_mark(plan, jobs[i].from_sq, (uint8_t)t, (uint8_t)c,
+                    LED_RESTORE_MARK_SITTING);
+  }
+  for (uint8_t i = 0; i < extra_n; i++) {
+    push_setup_mark(plan, extra[i], 0, 0, LED_RESTORE_MARK_EXTRA);
   }
 }
 
@@ -590,7 +717,15 @@ void game_hall_restore_guide_sync(void) {
 
   squares_get_state(occ);
   digest_sensors(occ, digest);
-  if (s_guide_led_active && sensors_unchanged(digest)) {
+  if (s_digest_valid && sensors_unchanged(digest)) {
+    goto out;
+  }
+
+  /* Empty board stays dark. Missing homes are capped at 16, which is both pawn ranks. */
+  if (occupancy_empty(occ)) {
+    game_hall_restore_guide_stop_leds();
+    led_clear_board_only();
+    remember_digest(digest);
     goto out;
   }
 
@@ -604,9 +739,6 @@ void game_hall_restore_guide_sync(void) {
   if (board_fully_aligned(job_n, missing_n, extra_n)) {
     game_hall_restore_guide_stop_leds();
     remember_digest(digest);
-    if (game_is_squares_guard_active()) {
-      game_squares_guard_try_clear_from_matrix();
-    }
     goto out;
   }
 
@@ -624,8 +756,9 @@ void game_hall_restore_guide_sync(void) {
   memcpy(plan.missing_homes, missing, missing_n);
   plan.extra_count = extra_n;
   memcpy(plan.extra_squares, extra, extra_n);
+  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, &plan);
 
-  has_led_work = plan.path_count > 0 || missing_n > 0 || extra_n > 0;
+  has_led_work = plan.mark_count > 0;
   if (!has_led_work) {
     game_hall_restore_guide_stop_leds();
     remember_digest(digest);

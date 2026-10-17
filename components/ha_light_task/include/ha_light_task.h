@@ -92,6 +92,8 @@ typedef enum {
 #define HA_CMD_WEB_LAMP 2
 /** Commit game or lamp after the gesture wave has covered the board. */
 #define HA_CMD_SET_MODE 3
+/** MQTT JSON light state (on, RGB, brightness). Applied in the HA task. */
+#define HA_CMD_MQTT_STATE 4
 
 /**
  * @brief HA Light command for internal communication
@@ -101,8 +103,10 @@ typedef struct {
   union {
     void *data; ///< Pro HA_CMD_ACTIVITY: (const char*) activity_type
     struct {
-      uint8_t state; ///< Pro HA_CMD_WEB_LAMP: 0=off, 1=on
+      uint8_t state; ///< 0=off, 1=on (web lamp, MQTT, or mode)
       uint8_t r, g, b;
+      uint8_t brightness;     ///< MQTT brightness 0-255
+      uint8_t set_brightness; ///< 1 = write brightness, 0 = keep the last one
     } web_lamp;
   } u;
 } ha_light_command_t;

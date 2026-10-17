@@ -10,8 +10,10 @@
 
 #include "ble_task.h"
 #include "board_api_auth.h"
+#include "esp_app_desc.h"
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "nvs.h"
 #include "host/ble_att.h"
 #include "host/ble_gap.h"
 #include "host/ble_gatt.h"
@@ -1179,6 +1181,9 @@ static void czechmate_gatt_register_before_host_start(void) {
                 "ble_gatts_start()");
 }
 
+/** Pairing starts only from the triple-click gesture. */
+void ble_task_pair_after_first_flash(void) {}
+
 static void ble_on_sync(void) {
   ESP_LOGI(TAG,
            "ble_on_sync: ATT done — snap=%u cmd=%u net=%u ack=%u, start advertising",
@@ -1408,6 +1413,7 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
 void ble_task_notify_cmd_ack_json(const char *json_utf8) { (void)json_utf8; }
 
 void ble_task_request_pairing(void) {}
+void ble_task_pair_after_first_flash(void) {}
 bool ble_task_pairing_window_is_open(void) { return false; }
 bool ble_task_pairing_pulse_wanted(void) { return false; }
 bool ble_task_claim_pairing_success(void) { return false; }

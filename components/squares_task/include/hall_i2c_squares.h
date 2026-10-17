@@ -83,8 +83,8 @@ void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64]);
 void hall_i2c_squares_corner_probe(void);
 
 /* Debug: light the square whose Hall moved off the fresh rest value.
- * Comment this out to return to the normal game scan. */
-#define HALL_DEBUG_LIGHT_WHERE_PIECE 1
+ * Set to 1 to pause the game scan and map pieces by hand. */
+#define HALL_DEBUG_LIGHT_WHERE_PIECE 0
 
 void hall_i2c_squares_debug_light_pieces(void);
 
@@ -141,6 +141,20 @@ const char* hall_i2c_squares_piece_type_name(hall_piece_type_t type);
  * @return "WHITE", "BLACK", or "----".
  */
 const char* hall_i2c_squares_piece_color_name(hall_piece_color_t color);
+
+/**
+ * Magnet-strength bench. Lights one square. Each short click prints one
+ * energy integer and nothing else. square >= 64 stays dark until a click
+ * locks the only occupied square.
+ * @return false on a reed build.
+ */
+bool hall_magnet_bench_start(uint8_t square);
+void hall_magnet_bench_stop(void);
+bool hall_magnet_bench_active(void);
+/** @return locked square, or 255 when the bench is off or not locked yet. */
+uint8_t hall_magnet_bench_square(void);
+/** Short click. Prints one energy integer when a sample exists. */
+void hall_magnet_bench_capture(void);
 
 #ifdef __cplusplus
 }

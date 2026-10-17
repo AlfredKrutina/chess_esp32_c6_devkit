@@ -1238,16 +1238,6 @@ void squares_task_start(void *pvParameters) {
                loop_count, esp_get_free_heap_size());
     }
 
-#if HALL_DEBUG_LIGHT_WHERE_PIECE
-    hall_i2c_squares_debug_light_pieces();
-#else
-    static bool corner_probe_done;
-    if (!corner_probe_done && !led_is_booting()) {
-      corner_probe_done = true;
-      hall_i2c_squares_corner_probe();
-    }
-#endif
-
     // Process matrix commands
     squares_process_commands();
 
