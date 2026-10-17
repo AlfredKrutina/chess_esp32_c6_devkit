@@ -534,8 +534,6 @@ static void squares_send_pickup_command(uint8_t square) {
 
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
     ESP_LOGI(TAG, "PICKUP command sent to game_command_queue: %s", notation);
-    // Report activity to HA light task
-    ha_light_report_activity("pickup");
   } else {
     ESP_LOGW(TAG, "Failed to send PICKUP command to game_command_queue");
   }
@@ -610,8 +608,9 @@ static void squares_send_drop_command_with_from(uint8_t from_square,
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
     ESP_LOGI(TAG, "DROP command with from sent to game_command_queue: %s -> %s",
              from_notation, to_notation);
-    // Report activity to HA light task
-    ha_light_report_activity("drop");
+    if (from_square != to_square) {
+      ha_light_report_activity("move");
+    }
   } else {
     ESP_LOGW(TAG,
              "Failed to send DROP command with from to game_command_queue");

@@ -4,8 +4,8 @@
  *
  * Short click is a press shorter than 400 ms. A second press inside 400 ms
  * that is held becomes power-off (it wins over a triple-click and over
- * new-game). Three short clicks start pairing once; a fourth click in the
- * same burst does not start it again. Two clicks step the lamp color. A hold that
+ * new-game). Three short clicks start pairing after a short quiet. Four short
+ * clicks start the animation show. Two clicks step the lamp color. A hold that
  * begins with no click in the previous 400 ms starts the new-game snake.
  * The 1 s legacy long-press threshold is not a commit point.
  */
@@ -114,8 +114,8 @@ static void gesture_on_release(uint32_t now) {
     if (s_clicks < 255) {
       s_clicks++;
     }
-    if (s_clicks >= 3) {
-      gesture_emit(GESTURE_PAIR, "triple click -> BLE pairing");
+    if (s_clicks >= 4) {
+      gesture_emit(GESTURE_DEMO, "four clicks -> demo");
       return;
     }
     s_phase = GS_GAP;
@@ -223,6 +223,8 @@ void button_gesture_poll(void) {
       gesture_emit(GESTURE_TOGGLE, "single click -> game/lamp toggle");
     } else if (s_clicks == 2) {
       gesture_emit(GESTURE_COLOR, "double click -> next lamp color");
+    } else if (s_clicks == 3) {
+      gesture_emit(GESTURE_PAIR, "triple click -> BLE pairing");
     } else {
       s_phase = GS_IDLE;
       s_clicks = 0;

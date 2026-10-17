@@ -217,6 +217,16 @@ void led_start_quiet_period(uint32_t duration_ms);
  * @param green Green (0-255)
  * @param blue Blue (0-255)
  */
+/**
+ * @brief While set, game pixel writes must not cover the lamp.
+ *
+ * The gesture wave still paints. Cleared when the board returns to the game.
+ */
+void led_set_lamp_hold(bool hold);
+
+/** @return true while the lamp owns the board squares. */
+bool led_lamp_board_held(void);
+
 void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue);
 

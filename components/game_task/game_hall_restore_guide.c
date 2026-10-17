@@ -12,6 +12,7 @@
 #include "game_physical_undo.h"
 
 #include "../led_task/include/led_board_restore_guide.h"
+#include "../led_task/include/led_gesture_anim.h"
 #include "../led_task/include/led_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "../squares_task/include/squares_task.h"
@@ -671,7 +672,9 @@ static void ensure_squares_pause(void) {
   }
 }
 
-bool game_hall_restore_guide_is_active(void) { return s_guide_led_active; }
+bool game_hall_restore_guide_is_active(void) {
+  return s_guide_led_active || led_board_restore_guide_is_active();
+}
 
 void game_hall_restore_guide_stop_leds(void) {
   s_guide_led_active = false;
@@ -683,6 +686,9 @@ void game_hall_restore_guide_sync(void) {
   game_hall_restore_guide_stop_leds();
   return;
 #endif
+  if (led_lamp_board_held() || led_gesture_anim_busy()) {
+    return;
+  }
   if (!hall_i2c_squares_readings_usable()) {
     return;
   }
@@ -721,10 +727,14 @@ void game_hall_restore_guide_sync(void) {
     goto out;
   }
 
-  /* Empty board stays dark. Missing homes are capped at 16, which is both pawn ranks. */
+  /* Empty board ends dark. Lights that were on fade out instead of snapping off. */
   if (occupancy_empty(occ)) {
-    game_hall_restore_guide_stop_leds();
-    led_clear_board_only();
+    if (led_board_restore_guide_is_active()) {
+      led_board_restore_guide_fade_out();
+      s_guide_led_active = false;
+    } else {
+      led_clear_board_only();
+    }
     remember_digest(digest);
     goto out;
   }

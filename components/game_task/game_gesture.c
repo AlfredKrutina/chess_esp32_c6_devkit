@@ -25,8 +25,224 @@
 
 #include "esp_log.h"
 #include "esp_task_wdt.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include <string.h>
+
+static const char *TAG = "GAME_GESTURE";
+
+enum {
+  DEMO_OFF = 0,
+  DEMO_MOVE,
+  DEMO_END,
+  DEMO_LAMP,
+  DEMO_COLOR,
+  DEMO_PAIR,
+  DEMO_CLOSE
+};
+
+/* Scholar's mate. Stored in flash, not as a saved demo state. */
+static const uint8_t k_demo_game[][4] = {
+    {1, 4, 3, 4}, /* e2 e4 */
+    {6, 4, 4, 4}, /* e7 e5 */
+    {0, 5, 3, 2}, /* f1 c4 */
+    {7, 1, 5, 2}, /* b8 c6 */
+    {0, 3, 4, 7}, /* d1 h5 */
+    {7, 6, 5, 5}, /* g8 f6 */
+    {4, 7, 6, 5}, /* h5 f7 mate */
+};
+
+static uint8_t s_demo_phase;
+static uint8_t s_demo_color;
+static uint8_t s_demo_ply;
+static bool s_demo_sent;
+static TickType_t s_demo_until;
+
+static const uint8_t k_demo_colors[][3] = {
+    {255, 0, 0},   /* red */
+    {0, 255, 0},   /* green */
+    {0, 0, 255},   /* blue */
+    {255, 255, 0}, /* yellow */
+};
+
+static void demo_show_stop_leds(void) {
+  led_gesture_stop_pair_pulse();
+  led_stop_endgame_animation();
+  led_set_lamp_hold(false);
+}
+
+static void demo_play_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+                           uint8_t to_col) {
+  static uint8_t to_led;
+  to_led = chess_pos_to_led_index(to_row, to_col);
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_MOVE_PATH,
+      .led_index = chess_pos_to_led_index(from_row, from_col),
+      .red = 0,
+      .green = 0,
+      .blue = 255,
+      .duration_ms = 0,
+      .data = &to_led,
+  };
+  led_execute_command_new(&cmd);
+}
+
+static void demo_play_end(void) {
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_ENDGAME,
+      .led_index = chess_pos_to_led_index(0, 4),
+      .red = 0,
+      .green = 0,
+      .blue = 0,
+      .duration_ms = 0,
+      .data = NULL,
+  };
+  led_execute_command_new(&cmd);
+}
+
+static void demo_paint(uint8_t index) {
+  led_set_lamp_hold(true);
+  led_set_ha_color(k_demo_colors[index][0], k_demo_colors[index][1],
+                   k_demo_colors[index][2], 255);
+}
+
+static bool demo_wave(bool inward, uint8_t index) {
+  uint32_t color = ((uint32_t)k_demo_colors[index][0] << 16) |
+                   ((uint32_t)k_demo_colors[index][1] << 8) |
+                   (uint32_t)k_demo_colors[index][2];
+  uint32_t colors[64];
+  for (int i = 0; i < 64; i++) {
+    colors[i] = inward ? 0 : color;
+  }
+  return led_gesture_start_wave(colors, inward, color);
+}
+
+static void demo_show_tick(void) {
+  if (s_demo_phase == DEMO_OFF) {
+    return;
+  }
+  TickType_t now = xTaskGetTickCount();
+  switch (s_demo_phase) {
+  case DEMO_MOVE:
+    if ((int32_t)(now - s_demo_until) < 0) {
+      break;
+    }
+    led_set_lamp_hold(false);
+    if (s_demo_ply >= (uint8_t)(sizeof(k_demo_game) / sizeof(k_demo_game[0]))) {
+      s_demo_sent = false;
+      s_demo_phase = DEMO_END;
+      break;
+    }
+    demo_play_move(k_demo_game[s_demo_ply][0], k_demo_game[s_demo_ply][1],
+                   k_demo_game[s_demo_ply][2], k_demo_game[s_demo_ply][3]);
+    s_demo_ply++;
+    s_demo_until = xTaskGetTickCount() + pdMS_TO_TICKS(450);
+    break;
+  case DEMO_END:
+    if (!s_demo_sent) {
+      demo_play_end();
+      s_demo_sent = true;
+      s_demo_until = now + pdMS_TO_TICKS(1600);
+      break;
+    }
+    if ((int32_t)(now - s_demo_until) < 0) {
+      break;
+    }
+    led_stop_endgame_animation();
+    s_demo_sent = false;
+    s_demo_phase = DEMO_LAMP;
+    break;
+  case DEMO_LAMP:
+    if (!s_demo_sent) {
+      if (!demo_wave(false, 0)) {
+        break;
+      }
+      s_demo_sent = true;
+      break;
+    }
+    if (led_gesture_anim_busy()) {
+      break;
+    }
+    (void)led_gesture_take_result();
+    demo_paint(0);
+    s_demo_color = 1;
+    s_demo_sent = false;
+    s_demo_until = now + pdMS_TO_TICKS(800);
+    s_demo_phase = DEMO_COLOR;
+    break;
+  case DEMO_COLOR:
+    if ((int32_t)(now - s_demo_until) < 0) {
+      break;
+    }
+    if (s_demo_color < (uint8_t)(sizeof(k_demo_colors) / sizeof(k_demo_colors[0]))) {
+      demo_paint(s_demo_color);
+      s_demo_color++;
+      s_demo_until = now + pdMS_TO_TICKS(800);
+      break;
+    }
+    if (!led_gesture_start_pair_pulse()) {
+      break;
+    }
+    s_demo_until = now + pdMS_TO_TICKS(2000);
+    s_demo_phase = DEMO_PAIR;
+    break;
+  case DEMO_PAIR:
+    if ((int32_t)(now - s_demo_until) < 0) {
+      break;
+    }
+    led_gesture_stop_pair_pulse();
+    s_demo_sent = false;
+    s_demo_phase = DEMO_CLOSE;
+    break;
+  case DEMO_CLOSE:
+    if (!s_demo_sent) {
+      if (!demo_wave(true, (uint8_t)(sizeof(k_demo_colors) / sizeof(k_demo_colors[0]) - 1))) {
+        break;
+      }
+      s_demo_sent = true;
+      break;
+    }
+    if (led_gesture_anim_busy()) {
+      break;
+    }
+    (void)led_gesture_take_result();
+    led_set_lamp_hold(false);
+    s_demo_sent = false;
+    s_demo_ply = 0;
+    s_demo_until = 0;
+    s_demo_phase = DEMO_MOVE;
+    break;
+  default:
+    s_demo_phase = DEMO_OFF;
+    break;
+  }
+}
+
+void game_demo_show_set(bool on) {
+  if (!on) {
+    if (s_demo_phase == DEMO_OFF) {
+      return;
+    }
+    s_demo_phase = DEMO_OFF;
+    s_demo_sent = false;
+    demo_show_stop_leds();
+    ESP_LOGI(TAG, "demo show off");
+    return;
+  }
+  if (s_demo_phase != DEMO_OFF) {
+    return;
+  }
+  demo_show_stop_leds();
+  s_demo_sent = false;
+  s_demo_color = 0;
+  s_demo_ply = 0;
+  s_demo_until = 0;
+  s_demo_phase = DEMO_MOVE;
+  ESP_LOGI(TAG, "demo show on");
+}
+
+bool game_demo_show_active(void) { return s_demo_phase != DEMO_OFF; }
 
 #if CONFIG_CHESS_GESTURE_BUTTON
 
@@ -37,8 +253,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "soc/soc_caps.h"
-
-static const char *TAG = "GAME_GESTURE";
 
 static bool s_wave_wait;
 static bool s_pair_pulse_on;
@@ -67,17 +281,20 @@ static void fill_game_colors(uint32_t out[64]) {
   memset(out, 0, 64 * sizeof(uint32_t));
 }
 
+static uint32_t lamp_rgb(void) {
+  uint8_t r = 255, g = 255, b = 255, bright = 255;
+  bool on = true;
+  ha_light_get_state(&r, &g, &b, &bright, &on);
+  if (!on) {
+    return 0;
+  }
+  return rgb_of((uint8_t)((r * bright) / 255), (uint8_t)((g * bright) / 255),
+                (uint8_t)((b * bright) / 255));
+}
+
 static void fill_mode_colors(ha_mode_t mode, uint32_t out[64]) {
   if (mode == HA_MODE_HA) {
-    uint8_t r = 255, g = 255, b = 255, bright = 255;
-    bool on = true;
-    ha_light_get_state(&r, &g, &b, &bright, &on);
-    uint32_t color = 0;
-    if (on) {
-      color = rgb_of((uint8_t)((r * bright) / 255),
-                     (uint8_t)((g * bright) / 255),
-                     (uint8_t)((b * bright) / 255));
-    }
+    uint32_t color = lamp_rgb();
     for (int i = 0; i < 64; i++) {
       out[i] = color;
     }
@@ -171,6 +388,14 @@ static void gesture_power_off(void) {
 }
 
 static void handle_event(gesture_event_t ev) {
+  if (ev == GESTURE_DEMO) {
+    game_demo_show_set(!game_demo_show_active());
+    return;
+  }
+  if (game_demo_show_active() && ev != GESTURE_NONE) {
+    game_demo_show_set(false);
+    return;
+  }
   if (ev == GESTURE_SNAKE_START || ev == GESTURE_SHUTDOWN_START) {
     if (!led_gesture_anim_busy()) {
       bool started = (ev == GESTURE_SNAKE_START) ? led_gesture_start_snake()
@@ -191,13 +416,22 @@ static void handle_event(gesture_event_t ev) {
       hall_magnet_bench_capture();
       break;
     }
+    /* One click while pairing is open closes the window. The lamp wave must
+     * not start, or it fights the blue pulse. */
+    if (ble_task_pairing_window_is_open() &&
+        ble_task_claim_pairing_success()) {
+      ESP_LOGI(TAG, "[STAGING] single click closes pairing");
+      ble_task_finish_pairing_window();
+      break;
+    }
     ha_mode_t next =
         (ha_light_get_mode() == HA_MODE_HA) ? HA_MODE_GAME : HA_MODE_HA;
     uint32_t colors[64];
+    uint32_t lamp = lamp_rgb();
     fill_mode_colors(next, colors);
-    /* Lamp covers the board from h1. Leaving the lamp runs that wave backwards. */
+    /* Opening spreads the last lamp color. Closing shrinks that same color. */
     bool inward = (next == HA_MODE_GAME);
-    if (!led_gesture_start_wave(colors, inward)) {
+    if (!led_gesture_start_wave(colors, inward, lamp)) {
       ESP_LOGW(TAG, "wave did not start");
       return;
     }
@@ -309,23 +543,27 @@ void game_gesture_poll(void) {
       handle_event(ev);
     }
   }
-  bool want_pulse = ble_task_pairing_pulse_wanted();
-  if (want_pulse != s_pair_pulse_on) {
-    if (want_pulse) {
-      (void)led_gesture_start_pair_pulse();
-      ESP_LOGI(TAG, "[STAGING] pairing pulse on");
-    } else {
-      led_gesture_stop_pair_pulse();
-      ESP_LOGI(TAG, "[STAGING] pairing pulse off");
+  if (!game_demo_show_active()) {
+    bool want_pulse = ble_task_pairing_pulse_wanted();
+    if (want_pulse != s_pair_pulse_on) {
+      if (want_pulse) {
+        (void)led_gesture_start_pair_pulse();
+        ESP_LOGI(TAG, "[STAGING] pairing pulse on");
+      } else {
+        led_gesture_stop_pair_pulse();
+        ESP_LOGI(TAG, "[STAGING] pairing pulse off");
+      }
+      s_pair_pulse_on = want_pulse;
     }
-    s_pair_pulse_on = want_pulse;
   }
+  demo_show_tick();
   handle_result(led_gesture_take_result());
 }
 
 #else /* !CONFIG_CHESS_GESTURE_BUTTON */
 
 void game_gesture_poll(void) {
+  demo_show_tick();
   (void)led_gesture_take_result();
 }
 

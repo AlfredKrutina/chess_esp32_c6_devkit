@@ -55,6 +55,7 @@
 #include "freertos_chess.h"
 #include "task_wdt.h"
 #include "game_task.h"
+#include "game_gesture.h"
 #include "led_task.h"
 #include "squares_task.h"
 #include "board_api_auth.h"
@@ -596,6 +597,9 @@ void demo_report_activity(void) {
     demo_mode_enabled = false;
     ESP_LOGW(TAG, "✋ DEMO INTERRUPTED by user activity!");
     // Optional: Send feedback to Web/UART if needed
+  }
+  if (game_demo_show_active()) {
+    game_demo_show_set(false);
   }
 }
 

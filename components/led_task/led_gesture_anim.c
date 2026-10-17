@@ -47,6 +47,7 @@ static uint32_t s_old[64];
 static uint32_t s_new[64];
 static uint8_t s_step;
 static bool s_wave_in;
+static uint32_t s_cover;
 static uint8_t s_rev_alt;
 static bool s_have_old;
 static bool s_pair_hold;
@@ -85,11 +86,31 @@ static void restore_board(void) {
   }
 }
 
+/** Lamp white sits in the top byte. The wave paints RGB, so fold it back. */
+static uint32_t visible_rgb(uint32_t state) {
+  unsigned w = (state >> 24) & 0xFFu;
+  unsigned r = ((state >> 16) & 0xFFu) + w;
+  unsigned g = ((state >> 8) & 0xFFu) + w;
+  unsigned b = (state & 0xFFu) + w;
+  if (r > 255u) {
+    r = 255u;
+  }
+  if (g > 255u) {
+    g = 255u;
+  }
+  if (b > 255u) {
+    b = 255u;
+  }
+  return (r << 16) | (g << 8) | b;
+}
+
 static void capture_board(void) {
   uint32_t all[73];
   memset(all, 0, sizeof(all));
   led_get_all_states(all, 73);
-  memcpy(s_old, all, sizeof(s_old));
+  for (int i = 0; i < 64; i++) {
+    s_old[i] = visible_rgb(all[i]);
+  }
   s_have_old = true;
 }
 
@@ -144,14 +165,6 @@ static int dist2_half(uint8_t row, uint8_t col) {
   return dx * dx + dy * dy;
 }
 
-static uint8_t crest_channel(uint8_t base) {
-  unsigned v = (unsigned)base / 3u + 210u;
-  if (v > 255u) {
-    v = 255u;
-  }
-  return (uint8_t)v;
-}
-
 static uint8_t smoothstep_u8(uint8_t x) {
   uint32_t v = (uint32_t)x;
   uint32_t s = (v * v * (765U - 2U * v)) / (255U * 255U);
@@ -170,12 +183,6 @@ static uint32_t lerp_rgb(uint32_t a, uint32_t b, uint8_t t) {
                             (uint8_t)((b >> 8) & 0xFFu), t)
           << 8) |
          (uint32_t)lerp_u8((uint8_t)(a & 0xFFu), (uint8_t)(b & 0xFFu), t);
-}
-
-static uint32_t crest_rgb(uint32_t base) {
-  return ((uint32_t)crest_channel((uint8_t)((base >> 16) & 0xFFu)) << 16) |
-         ((uint32_t)crest_channel((uint8_t)((base >> 8) & 0xFFu)) << 8) |
-         (uint32_t)crest_channel((uint8_t)(base & 0xFFu));
 }
 
 static void tick_wave(void) {
@@ -205,7 +212,7 @@ static void tick_wave(void) {
        * shrinking toward h1 and the outside is the picture being revealed. */
       uint32_t outside = s_wave_in ? s_new[led] : s_old[led];
       uint32_t inside = s_wave_in ? s_old[led] : s_new[led];
-      uint32_t crest = crest_rgb(inside);
+      uint32_t crest = s_cover;
       int outer = radius + 3;
       int outer2 = outer * outer;
       uint32_t color;
@@ -380,12 +387,17 @@ static void tick_shutdown(void) {
   }
 }
 
-static uint8_t mix_channel(uint8_t base, uint8_t tint, uint8_t amount) {
-  unsigned v = (unsigned)base * (255u - amount) + (unsigned)tint * amount;
-  return (uint8_t)(v / 255u);
+/** Pairing blue only. amount is 0..140. The picture underneath stays saved. */
+static uint32_t pair_rgb(uint8_t amount) {
+  unsigned level = 80u + ((175u * (unsigned)amount) / 140u);
+  if (level > 255u) {
+    level = 255u;
+  }
+  return ((uint32_t)((40u * level) / 255u) << 8) |
+         ((160u * level) / 255u);
 }
 
-/** ~3 s breathe. Amount 0 shows the saved game colors. */
+/** ~3 s breathe. The board is pairing blue until the pulse stops. */
 static void tick_pair_hold(void) {
   if (!s_pair_captured) {
     capture_board();
@@ -398,14 +410,8 @@ static void tick_pair_hold(void) {
   uint8_t shaped = smoothstep_u8((uint8_t)((unsigned)tri * 255u / 48u));
   uint8_t amount = (uint8_t)((unsigned)shaped * 140u / 255u);
   s_pair_amount = amount;
+  uint32_t color = pair_rgb(amount);
   for (int i = 0; i < 64; i++) {
-    uint32_t base = s_old[i];
-    uint32_t color =
-        ((uint32_t)mix_channel((uint8_t)((base >> 16) & 0xFFu), 0, amount)
-         << 16) |
-        ((uint32_t)mix_channel((uint8_t)((base >> 8) & 0xFFu), 40, amount)
-         << 8) |
-        (uint32_t)mix_channel((uint8_t)(base & 0xFFu), 160, amount);
     paint((uint8_t)i, color);
   }
   s_pair_step++;
@@ -498,8 +504,7 @@ static void paint_gesture_button(void) {
       num = 255u;
     }
     uint8_t t = smoothstep_u8((uint8_t)num);
-    color = s_wave_in ? lerp_rgb(0xFFD646u, 0x402000u, t)
-                      : lerp_rgb(0x402000u, 0xFFD646u, t);
+    color = s_wave_in ? lerp_rgb(s_cover, 0, t) : lerp_rgb(0, s_cover, t);
     own = true;
   } else if (s_phase == PH_SNAKE_FWD || s_phase == PH_SNAKE_REV) {
     uint8_t t = smoothstep_u8(
@@ -514,7 +519,7 @@ static void paint_gesture_button(void) {
     color = lerp_rgb(0xDCDCDCu, 0, smoothstep_u8(t));
     own = true;
   } else if (s_pair_hold && s_pair_captured && s_phase == PH_IDLE) {
-    color = (uint32_t)((160u * s_pair_amount) / 140u);
+    color = pair_rgb(s_pair_amount);
     own = true;
   } else if (s_hold_level > 0) {
     color = lerp_rgb(s_btn_rgb, 0xFF6600u, smoothstep_u8(s_hold_level));
@@ -605,7 +610,8 @@ led_gesture_result_t led_gesture_take_result(void) {
   return result;
 }
 
-bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward) {
+bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward,
+                            uint32_t cover_rgb) {
   if (new_colors == NULL) {
     return false;
   }
@@ -618,12 +624,19 @@ bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward) {
     s_pair_yield = true;
   }
   memcpy(s_new, new_colors, sizeof(s_new));
+  s_cover = cover_rgb;
   s_phase = PH_WAVE;
   s_release = false;
   s_step = 0;
   s_wave_in = inward;
   s_rev_alt = 0;
   s_have_old = false;
+  if (inward) {
+    for (int i = 0; i < 64; i++) {
+      s_old[i] = cover_rgb;
+    }
+    s_have_old = true;
+  }
   taskEXIT_CRITICAL(&s_mux);
   return true;
 }

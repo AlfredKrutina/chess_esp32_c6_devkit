@@ -12,7 +12,8 @@
 // Hall V2: dva analogové senzory na pole, rozteč sensor_pitch, citlivá osa kolmo
 // k desce. Senzor je sensor_gap mm POD horní hranou hrací plochy. Figurka stojí
 // na té hraně, takže každý milimetr plastu pod magnetem je milimetr navíc ve
-// vzduchové mezeře. Proto je dno dutiny jen 0.8 mm (čtyři vrstvy 0.2 mm).
+// vzduchové mezeře. Dno je 1.2 mm (šest vrstev 0.2 mm): níž by král (tah 4.5 kg)
+// při kontaktu s jiným silným magnetem dno prohnul.
 //
 // Slicer: pauza (M600) ve výšce
 //   Z = magnet_z_offset + výška kotouče + magnet_clear_h
@@ -44,7 +45,7 @@ part = "set"; // [set, pawn, rook, knight, knight_low, knight_sketch, bishop, qu
 /* [Magnet — kalibrace vůči Hall senzorům] */
 magnet_clear_d = 0.4;   // vůle v průměru, ať kotouč spadne dovnitř
 magnet_clear_h = 0.2;   // vůle nad kotoučem, jedna vrstva 0.2 mm
-magnet_z_offset = 0.8;  // plast pod magnetem; senzor je až pod deskou, proto co nejníž
+magnet_z_offset = 1.2;  // plast pod magnetem; níž už dno neudrží tah silného magnetu
 
 sensor_pitch = 6.267; // mm, střed–střed páru na jednom poli (jen náhled)
 sensor_gap = 7;       // mm, horní hrana desky → Hall senzor (jen pro náhled)

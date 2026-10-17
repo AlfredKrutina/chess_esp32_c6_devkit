@@ -22,14 +22,21 @@
 #define EXTRA_G 36U
 #define EXTRA_B 48U
 
-static led_restore_guide_plan_t s_plan;
-static bool s_anim_active;
+#define REVEAL_MS 420U
 
 typedef struct {
   uint8_t r;
   uint8_t g;
   uint8_t b;
 } guide_rgb_t;
+
+static led_restore_guide_plan_t s_plan;
+static bool s_anim_active;
+static uint8_t s_gain[64];
+static uint8_t s_on[64];
+static uint8_t s_want[64];
+static guide_rgb_t s_hold[64];
+static uint32_t s_last_ms;
 
 static uint8_t square_to_led(uint8_t sq) {
   return chess_pos_to_led_index((uint8_t)(sq / 8u), (uint8_t)(sq % 8u));
@@ -101,13 +108,50 @@ static void scale_rgb(guide_rgb_t src, uint8_t level, uint8_t *r, uint8_t *g,
   *b = (uint8_t)(((uint16_t)src.b * level) / 255U);
 }
 
+static void paint_square(uint8_t sq) {
+  uint8_t gain = s_gain[sq];
+  uint8_t r = (uint8_t)(((uint16_t)s_hold[sq].r * gain) / 255U);
+  uint8_t g = (uint8_t)(((uint16_t)s_hold[sq].g * gain) / 255U);
+  uint8_t b = (uint8_t)(((uint16_t)s_hold[sq].b * gain) / 255U);
+  led_set_pixel_internal(square_to_led(sq), r, g, b);
+  s_on[sq] = (gain > 0U) ? 1U : 0U;
+}
+
+static unsigned reveal_step(uint32_t now) {
+  uint32_t dt = (s_last_ms == 0U) ? 33U : (now - s_last_ms);
+  s_last_ms = now;
+  if (dt == 0U || dt > 80U) {
+    dt = 33U;
+  }
+  unsigned step = (unsigned)((dt * 255U) / REVEAL_MS);
+  if (step < 1U) {
+    step = 1U;
+  }
+  return step;
+}
+
 void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan) {
   if (plan == NULL || !plan->active || plan->mark_count == 0) {
     led_board_restore_guide_clear();
     return;
   }
+  bool fresh = !s_anim_active;
   memcpy(&s_plan, plan, sizeof(s_plan));
   s_anim_active = true;
+  if (fresh) {
+    memset(s_gain, 0, sizeof(s_gain));
+    memset(s_on, 0, sizeof(s_on));
+    memset(s_hold, 0, sizeof(s_hold));
+    s_last_ms = 0;
+  }
+}
+
+void led_board_restore_guide_fade_out(void) {
+  if (!s_anim_active && !s_plan.active) {
+    return;
+  }
+  s_plan.active = false;
+  s_plan.mark_count = 0;
 }
 
 void led_board_restore_guide_clear(void) {
@@ -115,6 +159,8 @@ void led_board_restore_guide_clear(void) {
   s_plan.active = false;
   s_plan.mark_count = 0;
   s_anim_active = false;
+  memset(s_gain, 0, sizeof(s_gain));
+  memset(s_on, 0, sizeof(s_on));
   if (was_lit) {
     led_clear_board_only();
   }
@@ -123,20 +169,39 @@ void led_board_restore_guide_clear(void) {
 bool led_board_restore_guide_is_active(void) { return s_anim_active; }
 
 void led_board_restore_guide_tick(void) {
-  if (led_gesture_anim_busy()) {
+  if (led_gesture_anim_busy() || led_lamp_board_held()) {
     return;
   }
   if (!s_plan.active || s_plan.mark_count == 0) {
-    if (s_anim_active) {
+    if (!s_anim_active) {
+      return;
+    }
+    uint32_t now = esp_timer_get_time() / 1000U;
+    unsigned step = reveal_step(now);
+    bool any = false;
+    for (uint8_t sq = 0; sq < 64U; sq++) {
+      if (s_gain[sq] > 0U) {
+        unsigned gain = (unsigned)s_gain[sq];
+        s_gain[sq] = (gain > step) ? (uint8_t)(gain - step) : 0U;
+        paint_square(sq);
+        if (s_gain[sq] > 0U) {
+          any = true;
+        }
+      } else if (s_on[sq]) {
+        led_set_pixel_internal(square_to_led(sq), 0, 0, 0);
+        s_on[sq] = 0U;
+      }
+    }
+    if (!any) {
       s_anim_active = false;
-      led_clear_board_only();
     }
     return;
   }
   s_anim_active = true;
 
   uint32_t now = esp_timer_get_time() / 1000U;
-  led_clear_board_only();
+  unsigned step = reveal_step(now);
+  memset(s_want, 0, sizeof(s_want));
 
   for (uint8_t i = 0; i < s_plan.mark_count; i++) {
     const led_restore_guide_mark_t *mark = &s_plan.marks[i];
@@ -178,10 +243,23 @@ void led_board_restore_guide_tick(void) {
       floor_lv = WHITE_FLOOR;
     }
     uint8_t level = breathe_level(now, period, phase, floor_lv, peak);
-    uint8_t r = 0;
-    uint8_t g = 0;
-    uint8_t b = 0;
-    scale_rgb(rgb, level, &r, &g, &b);
-    led_set_pixel_internal(square_to_led(mark->square), r, g, b);
+    uint8_t sq = mark->square;
+    s_want[sq] = 1U;
+    scale_rgb(rgb, level, &s_hold[sq].r, &s_hold[sq].g, &s_hold[sq].b);
+  }
+
+  for (uint8_t sq = 0; sq < 64U; sq++) {
+    if (s_want[sq]) {
+      unsigned gain = (unsigned)s_gain[sq] + step;
+      s_gain[sq] = (gain > 255U) ? 255U : (uint8_t)gain;
+      paint_square(sq);
+    } else if (s_gain[sq] > 0U) {
+      unsigned gain = (unsigned)s_gain[sq];
+      s_gain[sq] = (gain > step) ? (uint8_t)(gain - step) : 0U;
+      paint_square(sq);
+    } else if (s_on[sq]) {
+      led_set_pixel_internal(square_to_led(sq), 0, 0, 0);
+      s_on[sq] = 0U;
+    }
   }
 }

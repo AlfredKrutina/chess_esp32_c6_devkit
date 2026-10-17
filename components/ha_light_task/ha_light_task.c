@@ -303,6 +303,8 @@ static void ha_light_switch_to_ha_mode(void) {
     lamp_nvs_save_mode();
   }
   current_mode = HA_MODE_HA;
+  /* Game LED writes stop before the lamp color is applied. */
+  led_set_lamp_hold(true);
 
   uint8_t r, g, b, brightness;
   bool state;
@@ -345,6 +347,7 @@ static void ha_light_switch_to_game_mode(void) {
   ESP_LOGI(TAG, "Switching to GAME MODE");
   ha_light_wdt_feed_if_own_task();
   current_mode = HA_MODE_GAME;
+  led_set_lamp_hold(false);
   /* Idle time already expired while the lamp was on. Without a fresh
    * timestamp the next loop would switch straight back to the lamp. */
   last_activity_time_ms = esp_timer_get_time() / 1000;
@@ -1320,10 +1323,17 @@ void ha_light_task_start(void *pvParameters) {
         // Reset activity timer in HA task context
         last_activity_time_ms = esp_timer_get_time() / 1000;
 
-        // If currently in HA mode, switch back to GAME mode on first activity
-        if (current_mode == HA_MODE_HA) {
+        /* A bump that only renames a piece, or a piece put back on the same
+         * square, is not a move. Only a real relocation leaves the lamp. */
+        bool leave_lamp = false;
+        if (activity_name != NULL &&
+            (strcmp(activity_name, "move") == 0 ||
+             strcmp(activity_name, "web_game_mode") == 0)) {
+          leave_lamp = true;
+        }
+        if (current_mode == HA_MODE_HA && leave_lamp) {
           ESP_LOGI(TAG, "Switching from HA mode to GAME mode (activity: %s)",
-                   activity_name ? activity_name : "unknown");
+                   activity_name);
           ha_light_switch_to_game_mode();
         }
 

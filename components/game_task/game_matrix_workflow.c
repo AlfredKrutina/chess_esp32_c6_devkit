@@ -13,6 +13,7 @@
 #include "../squares_task/include/squares_task.h"
 
 #include "../led_task/include/led_task.h"
+#include "../led_task/include/led_gesture_anim.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "led_mapping.h"
 #include "freertos_chess.h"
@@ -654,6 +655,9 @@ void game_highlight_movable_pieces(void) {
 #if HALL_DEBUG_LIGHT_WHERE_PIECE
   return;
 #endif
+  if (led_lamp_board_held() || led_gesture_anim_busy()) {
+    return;
+  }
   if (!chess_policy_move_hints_movable_yellow()) {
     return;
   }

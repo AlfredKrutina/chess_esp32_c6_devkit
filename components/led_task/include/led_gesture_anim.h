@@ -56,9 +56,12 @@ led_gesture_result_t led_gesture_take_result(void);
  * running.
  * @param new_colors 64 LED-index colors for the picture left when the wave ends.
  * @param inward true to run the wave from the far corner back to h1.
+ * @param cover_rgb Color of the light disk. Outward this is what spreads.
+ *                  Inward this is what shrinks back into h1.
  * @return true if the wave started.
  */
-bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward);
+bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward,
+                            uint32_t cover_rgb);
 
 /**
  * @brief Boot-style green fill along LED index order. Reverse on early release.

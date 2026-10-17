@@ -47,6 +47,8 @@ typedef struct {
 
 void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan);
 void led_board_restore_guide_clear(void);
+/** Drop the plan and fade whatever is still lit. */
+void led_board_restore_guide_fade_out(void);
 bool led_board_restore_guide_is_active(void);
 void led_board_restore_guide_tick(void);
 

@@ -2239,108 +2239,112 @@ void led_anim_player_change(const led_command_t *cmd) {
   ESP_LOGI(TAG, "✅ Player change animation completed");
 }
 
+static float led_smoothstep(float t) {
+  if (t < 0.f) {
+    return 0.f;
+  }
+  if (t > 1.f) {
+    return 1.f;
+  }
+  return t * t * (3.f - 2.f * t);
+}
+
+/** Slide a color across the four squares around a fractional board point. */
+static void led_blend_add(uint16_t acc[64][3], float row, float col, float red,
+                          float green, float blue) {
+  if (row < 0.f) {
+    row = 0.f;
+  } else if (row > 7.f) {
+    row = 7.f;
+  }
+  if (col < 0.f) {
+    col = 0.f;
+  } else if (col > 7.f) {
+    col = 7.f;
+  }
+  int row0 = (int)row;
+  int col0 = (int)col;
+  float fr = row - (float)row0;
+  float fc = col - (float)col0;
+  for (int dr = 0; dr <= 1; dr++) {
+    for (int dc = 0; dc <= 1; dc++) {
+      int rr = row0 + dr;
+      int cc = col0 + dc;
+      if (rr > 7 || cc > 7) {
+        continue;
+      }
+      float w = (dr ? fr : (1.f - fr)) * (dc ? fc : (1.f - fc));
+      if (w <= 0.001f) {
+        continue;
+      }
+      uint8_t led = chess_pos_to_led_index((uint8_t)rr, (uint8_t)cc);
+      acc[led][0] = (uint16_t)fminf(255.f, (float)acc[led][0] + red * w);
+      acc[led][1] = (uint16_t)fminf(255.f, (float)acc[led][1] + green * w);
+      acc[led][2] = (uint16_t)fminf(255.f, (float)acc[led][2] + blue * w);
+    }
+  }
+}
+
+static void led_blend_flush(uint16_t acc[64][3]) {
+  led_clear_board_only();
+  for (int i = 0; i < 64; i++) {
+    if (acc[i][0] == 0 && acc[i][1] == 0 && acc[i][2] == 0) {
+      continue;
+    }
+    led_set_pixel_safe((uint8_t)i, (uint8_t)acc[i][0], (uint8_t)acc[i][1],
+                       (uint8_t)acc[i][2]);
+  }
+  led_force_immediate_update();
+}
+
 void led_anim_move_path(const led_command_t *cmd) {
   if (!cmd || cmd->led_index >= 64)
     return;
 
   uint8_t from_led = cmd->led_index;
-  uint8_t to_led = (cmd->data ? *((uint8_t *)cmd->data) : 63); // default to h8
+  uint8_t to_led = (cmd->data ? *((uint8_t *)cmd->data) : 63);
 
   ESP_LOGI(TAG, "🎬 Enhanced move path animation: %d -> %d", from_led, to_led);
 
-  // Use led_index_to_chess_pos() instead of simple division (due to
-  // serpentine layoutu)
   uint8_t from_row, from_col, to_row, to_col;
   led_index_to_chess_pos(from_led, &from_row, &from_col);
   led_index_to_chess_pos(to_led, &to_row, &to_col);
 
-  // ENHANCED: Ultra-smooth move animation with brightness control (25 frames, 6
-  // trails)
-  for (int frame = 0; frame < 25; frame++) { // More frames for ultra-smoothness
-    led_clear_board_only();
-
-    float progress = (float)frame / 24.0f;
-
-    // Create enhanced trail effect with multiple brightness levels (6 trails)
-    for (int trail = 0; trail < 6; trail++) {
-      float trail_progress = progress - (trail * 0.08f);
-      if (trail_progress < 0)
+  static uint16_t acc[64][3];
+  const int frames = 12;
+  for (int frame = 0; frame < frames; frame++) {
+    memset(acc, 0, sizeof(acc));
+    float progress = (float)frame / (float)(frames - 1);
+    for (int trail = 0; trail < 4; trail++) {
+      float trail_progress = progress - (trail * 0.12f);
+      if (trail_progress < 0.f) {
         continue;
-      if (trail_progress > 1)
-        break;
-
-      // Calculate current position with smooth easing
-      float eased_progress = trail_progress * trail_progress *
-                             (3.0f - 2.0f * trail_progress); // Smooth step
-      float current_row = from_row + (to_row - from_row) * eased_progress;
-      float current_col = from_col + (to_col - from_col) * eased_progress;
-
-      uint8_t current_led =
-          chess_pos_to_led_index((uint8_t)current_row, (uint8_t)current_col);
-
-      // Blue color for move animation (according to user request)
-      // Blue with different intensity depending on the position in the trail
-      uint8_t red, green, blue;
-
-      // Blue color with brightness gradient according to trail_progress
-      float blue_intensity = 1.0f;
-      if (trail_progress < 0.2f) {
-        // Start: darker blue
-        blue_intensity = 0.5f + (trail_progress / 0.2f) * 0.5f; // 0.5 -> 1.0
-      } else if (trail_progress > 0.8f) {
-        // Finish: lighter blue
-        blue_intensity = 1.0f;
       }
-
-      red = 0;
-      green = 0;
-      blue = (uint8_t)(255 * blue_intensity);
-
-      // Enhanced trail brightness with exponential fade
-      float trail_brightness = powf(1.0f - (trail * 0.15f), 1.5f);
-
-      // Advanced pulsing with multiple harmonics
-      float pulse1 = 0.6f + 0.4f * sin(progress * 12.56f + trail * 1.26f);
-      float pulse2 = 0.8f + 0.2f * sin(progress * 25.12f + trail * 2.51f);
-      float pulse3 = 0.9f + 0.1f * sin(progress * 50.24f + trail * 3.77f);
-      float combined_pulse = pulse1 * pulse2 * pulse3;
-
-      // Apply brightness and pulsing
-      red = (uint8_t)(red * trail_brightness * combined_pulse);
-      green = (uint8_t)(green * trail_brightness * combined_pulse);
-      blue = (uint8_t)(blue * trail_brightness * combined_pulse);
-
-      led_set_pixel_safe(current_led, red, green, blue);
+      if (trail_progress > 1.f) {
+        break;
+      }
+      float eased = led_smoothstep(trail_progress);
+      float row = (float)from_row + ((float)to_row - (float)from_row) * eased;
+      float col = (float)from_col + ((float)to_col - (float)from_col) * eased;
+      float bright = powf(fmaxf(0.f, 1.f - (trail * 0.22f)), 1.3f);
+      led_blend_add(acc, row, col, 0.f, 0.f, 255.f * bright);
     }
-
-    // CRITICAL: Update the LED immediately after each frame (as in the old
-    // projektu)
-    led_force_immediate_update();
-
-    vTaskDelay(pdMS_TO_TICKS(2)); // Optimized timing: 25 frames × 2ms = 50ms
-                                  // total for better responsiveness
+    led_blend_flush(acc);
+    vTaskDelay(pdMS_TO_TICKS(8));
   }
 
-  // Enhanced final destination effect with breathing (8 breaths)
-  for (int breath = 0; breath < 8; breath++) {
+  const int breaths = 5;
+  for (int breath = 0; breath < breaths; breath++) {
+    float t = (float)breath / (float)(breaths - 1);
+    float level = sinf(t * (float)M_PI);
     led_clear_board_only();
-
-    float breath_intensity =
-        0.5f + 0.5f * sin(breath * 0.785f); // Breathing effect
-    // Blue color for final destination (according to user request)
-    uint8_t final_red = 0;
-    uint8_t final_green = 0;
-    uint8_t final_blue = (uint8_t)(255 * breath_intensity);
-
-    led_set_pixel_safe(to_led, final_red, final_green, final_blue);
-
-    // CRITICAL: Update LED immediately after each breath frame
+    led_set_pixel_safe(to_led, 0, 0, (uint8_t)(255.f * level));
     led_force_immediate_update();
-
-    vTaskDelay(pdMS_TO_TICKS(20)); // Optimized breathing timing
+    vTaskDelay(pdMS_TO_TICKS(8));
   }
 
   led_clear_board_only();
+  led_force_immediate_update();
 }
 
 void led_anim_castle(const led_command_t *cmd) {
@@ -2380,72 +2384,60 @@ void led_anim_castle(const led_command_t *cmd) {
     return;
   }
 
-  // ENHANCED: Multi-point trail animation with brightness effects
-  for (int frame = 0; frame < 15; frame++) {
-    led_clear_board_only();
+  uint8_t king_from_row, king_from_col, king_to_row, king_to_col;
+  uint8_t rook_from_row, rook_from_col, rook_to_row, rook_to_col;
+  led_index_to_chess_pos(king_from, &king_from_row, &king_from_col);
+  led_index_to_chess_pos(king_to, &king_to_row, &king_to_col);
+  led_index_to_chess_pos(rook_from, &rook_from_row, &rook_from_col);
+  led_index_to_chess_pos(rook_to, &rook_to_row, &rook_to_col);
 
-    float progress = (float)frame / 14.0f;
-
-    // Create trail effect for both pieces
-    for (int trail = 0; trail < 4; trail++) {
-      float trail_progress = progress - (trail * 0.15f);
-      if (trail_progress < 0)
+  static uint16_t acc[64][3];
+  const int frames = 12;
+  for (int frame = 0; frame < frames; frame++) {
+    memset(acc, 0, sizeof(acc));
+    float progress = (float)frame / (float)(frames - 1);
+    for (int trail = 0; trail < 3; trail++) {
+      float trail_progress = progress - (trail * 0.14f);
+      if (trail_progress < 0.f) {
         continue;
-      if (trail_progress > 1)
+      }
+      if (trail_progress > 1.f) {
         break;
-
-      // King animation with smooth easing
-      float eased_progress =
-          trail_progress * trail_progress * (3.0f - 2.0f * trail_progress);
-      uint8_t king_current = king_from + (king_to - king_from) * eased_progress;
-
-      // Rook animation with smooth easing
-      uint8_t rook_current = rook_from + (rook_to - rook_from) * eased_progress;
-
-      // King color: Gold with pulsing effect
-      float king_pulse = 0.8f + 0.2f * sin(progress * 6.28f + trail * 1.57f);
-      uint8_t king_red = (uint8_t)(255 * king_pulse);
-      uint8_t king_green = (uint8_t)(215 * king_pulse);
-      uint8_t king_blue = (uint8_t)(0 * king_pulse);
-
-      // Rook color: Silver with pulsing effect
-      float rook_pulse = 0.7f + 0.3f * sin(progress * 6.28f + trail * 2.09f);
-      uint8_t rook_red = (uint8_t)(192 * rook_pulse);
-      uint8_t rook_green = (uint8_t)(192 * rook_pulse);
-      uint8_t rook_blue = (uint8_t)(192 * rook_pulse);
-
-      // Trail brightness effect
-      float trail_brightness = 1.0f - (trail * 0.2f);
-      king_red = (uint8_t)(king_red * trail_brightness);
-      king_green = (uint8_t)(king_green * trail_brightness);
-      king_blue = (uint8_t)(king_blue * trail_brightness);
-
-      rook_red = (uint8_t)(rook_red * trail_brightness);
-      rook_green = (uint8_t)(rook_green * trail_brightness);
-      rook_blue = (uint8_t)(rook_blue * trail_brightness);
-
-      led_set_pixel_safe(king_current, king_red, king_green, king_blue);
-      led_set_pixel_safe(rook_current, rook_red, rook_green, rook_blue);
+      }
+      float eased = led_smoothstep(trail_progress);
+      float bright = fmaxf(0.f, 1.f - (trail * 0.28f));
+      float king_row = (float)king_from_row +
+                       ((float)king_to_row - (float)king_from_row) * eased;
+      float king_col = (float)king_from_col +
+                       ((float)king_to_col - (float)king_from_col) * eased;
+      float rook_row = (float)rook_from_row +
+                       ((float)rook_to_row - (float)rook_from_row) * eased;
+      float rook_col = (float)rook_from_col +
+                       ((float)rook_to_col - (float)rook_from_col) * eased;
+      led_blend_add(acc, king_row, king_col, 255.f * bright, 215.f * bright,
+                    0.f);
+      led_blend_add(acc, rook_row, rook_col, 192.f * bright, 192.f * bright,
+                    192.f * bright);
     }
-
-    vTaskDelay(pdMS_TO_TICKS(60)); // Smooth animation
+    led_blend_flush(acc);
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 
-  // Final highlight on destination squares
-  for (int burst = 0; burst < 3; burst++) {
+  const int breaths = 5;
+  for (int breath = 0; breath < breaths; breath++) {
+    float t = (float)breath / (float)(breaths - 1);
+    float level = sinf(t * (float)M_PI);
     led_clear_board_only();
-
-    float brightness = 0.5f + 0.5f * sin(burst * 2.09f);
-    led_set_pixel_safe(king_to, (uint8_t)(255 * brightness),
-                       (uint8_t)(215 * brightness), 0);
-    led_set_pixel_safe(rook_to, (uint8_t)(192 * brightness),
-                       (uint8_t)(192 * brightness),
-                       (uint8_t)(192 * brightness));
-
-    vTaskDelay(pdMS_TO_TICKS(100));
+    led_set_pixel_safe(king_to, (uint8_t)(255.f * level),
+                       (uint8_t)(215.f * level), 0);
+    led_set_pixel_safe(rook_to, (uint8_t)(192.f * level),
+                       (uint8_t)(192.f * level), (uint8_t)(192.f * level));
+    led_force_immediate_update();
+    vTaskDelay(pdMS_TO_TICKS(10));
   }
 
   led_clear_board_only();
+  led_force_immediate_update();
   ESP_LOGI(TAG, "🏰 Castling animation completed");
 }
 
@@ -2584,7 +2576,8 @@ typedef struct {
   uint8_t win_king_col;
   uint8_t lose_king_row;
   uint8_t lose_king_col;
-  uint8_t radius;
+  float radius;
+  float reveal;
   uint32_t last_update;
   bool initialized;
   piece_t winner_piece; // Store the actual winner piece for proper detection
@@ -2623,8 +2616,9 @@ void led_anim_endgame(const led_command_t *cmd) {
            endgame_wave.win_king_row, endgame_wave.win_king_col,
            endgame_wave.winner_piece);
 
-  // Initialize animation state
-  endgame_wave.radius = 1;
+  // Initialize animation state. Radius and reveal grow inside the LED tick.
+  endgame_wave.radius = 0.f;
+  endgame_wave.reveal = 0.f;
   endgame_wave.last_update = xTaskGetTickCount();
   endgame_wave.active = true;
   endgame_wave.initialized = true;
@@ -2639,114 +2633,101 @@ void led_anim_endgame(const led_command_t *cmd) {
  * @brief Update enhanced wave endgame animation with improved colors, faster
  * animation and perfect piece highlighting (according to the old project)
  */
+static float endgame_ring(float dist, float radius) {
+  float d = dist - radius;
+  return expf(-(d * d) / 1.8f);
+}
+
+static float endgame_amp(float radius) {
+  if (radius < 0.f || radius > 16.f) {
+    return 0.f;
+  }
+  if (radius < 1.6f) {
+    return radius / 1.6f;
+  }
+  if (radius > 13.5f) {
+    return (16.f - radius) / 2.5f;
+  }
+  return 1.f;
+}
+
 void led_update_endgame_wave(void) {
   if (!endgame_wave.active || !endgame_wave.initialized) {
     return;
   }
 
-  const uint32_t WAVE_STEP_MS = 100; // Slower animation (100ms instead of 30ms)
-  const uint8_t MAX_RADIUS = 14;     // Larger radius for better coverage
-  const float WAVE_THICKNESS = 1.2f; // Thinner waves for more precise effect
-  const int WAVE_LAYERS = 4;         // Fewer layers but with higher FPS
-
-  // Check if it's time for next wave step
-  if (xTaskGetTickCount() - endgame_wave.last_update <
-      pdMS_TO_TICKS(WAVE_STEP_MS)) {
-    return; // Not time yet
+  /* 33 ms LED frame. Two soft rings, half a cycle apart, fade in at the
+   * king and out past the edge so the repeat does not jump. */
+  endgame_wave.radius += 0.28f;
+  if (endgame_wave.radius >= 16.f) {
+    endgame_wave.radius -= 16.f;
   }
-
-  endgame_wave.last_update = xTaskGetTickCount();
-
-  // Clear board
-  led_clear_board_only();
-
-  // Use stored winner piece for reliable detection
-  piece_t winner_king = endgame_wave.winner_piece;
-  bool winner_is_white = (winner_king == PIECE_WHITE_KING);
-
-  // Draw multiple overlapping wave rings for ultra-smooth effect
-  for (int ring = 0; ring < WAVE_LAYERS; ring++) {
-    float current_radius = endgame_wave.radius - (ring * 0.3f);
-    if (current_radius < 0.2f)
-      continue;
-
-    for (int dy = -endgame_wave.radius; dy <= endgame_wave.radius; dy++) {
-      for (int dx = -endgame_wave.radius; dx <= endgame_wave.radius; dx++) {
-        // Calculate distance from center
-        float dist = sqrtf(dx * dx + dy * dy);
-
-        // Check if this pixel is part of the wave ring with smooth gradient
-        float ring_distance = fabsf(dist - current_radius);
-        if (ring_distance <= WAVE_THICKNESS) {
-          int row = endgame_wave.win_king_row + dy;
-          int col = endgame_wave.win_king_col + dx;
-
-          // Check bounds
-          if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-            uint8_t square = chess_pos_to_led_index(row, col);
-
-            // Get piece at this position
-            piece_t piece = game_get_piece(row, col);
-
-            // Use intensities instead of gradient (as in old
-            // projektu) Calculate intensity based on distance from ring center
-            // (smooth gradient)
-            float intensity = 1.0f - (ring_distance / WAVE_THICKNESS);
-            intensity = fmaxf(0.15f, intensity); // Higher minimum brightness
-
-            // Colors according to the old project - all colors are multiplied
-            // intensity
-            uint8_t red, green, blue;
-
-            if (piece != PIECE_EMPTY) {
-              // Check if it's an opponent piece - use direct piece comparison
-              // for reliability
-              bool is_opponent_piece = false;
-
-              if (winner_is_white) {
-                // Winner is white, check if piece is black
-                is_opponent_piece =
-                    (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
-              } else {
-                // Winner is black, check if piece is white
-                is_opponent_piece =
-                    (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
-              }
-
-              if (is_opponent_piece) {
-                // BRIGHT RED for opponent pieces - very visible!
-                red = (uint8_t)(255 * intensity);
-                green = (uint8_t)(30 * intensity);
-                blue = (uint8_t)(30 * intensity);
-              } else {
-                // BRIGHT GREEN for own pieces - high contrast
-                red = (uint8_t)(30 * intensity);
-                green = (uint8_t)(255 * intensity);
-                blue = (uint8_t)(80 * intensity);
-              }
-            } else {
-              // BRIGHT BLUE for empty squares - very visible
-              red = (uint8_t)(30 * intensity);
-              green = (uint8_t)(100 * intensity);
-              blue = (uint8_t)(255 * intensity);
-            }
-
-            led_set_pixel_safe(square, red, green, blue);
-          }
-        }
-      }
+  if (endgame_wave.reveal < 1.f) {
+    endgame_wave.reveal += 0.08f;
+    if (endgame_wave.reveal > 1.f) {
+      endgame_wave.reveal = 1.f;
     }
   }
 
-  // Always highlight winner king in BRIGHT GOLD (mimo wave loop,
-  // as in the old project)
-  led_set_pixel_safe(endgame_wave.win_king_led, 255, 215, 0);
-
-  // Increment radius for next wave
-  endgame_wave.radius++;
-  if (endgame_wave.radius > MAX_RADIUS) {
-    endgame_wave.radius = 1; // Reset for continuous wave effect
+  float r0 = endgame_wave.radius;
+  float r1 = r0 + 8.f;
+  if (r1 >= 16.f) {
+    r1 -= 16.f;
   }
+  float a0 = endgame_amp(r0);
+  float a1 = endgame_amp(r1);
+
+  led_clear_board_only();
+
+  piece_t winner_king = endgame_wave.winner_piece;
+  bool winner_is_white = (winner_king == PIECE_WHITE_KING);
+
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      float dx = (float)col - (float)endgame_wave.win_king_col;
+      float dy = (float)row - (float)endgame_wave.win_king_row;
+      float dist = sqrtf(dx * dx + dy * dy);
+      float intensity =
+          fmaxf(endgame_ring(dist, r0) * a0, endgame_ring(dist, r1) * a1);
+      intensity *= endgame_wave.reveal;
+      if (intensity < 0.02f) {
+        continue;
+      }
+      if (intensity > 1.f) {
+        intensity = 1.f;
+      }
+
+      piece_t piece = game_get_piece(row, col);
+      uint8_t red;
+      uint8_t green;
+      uint8_t blue;
+      if (piece != PIECE_EMPTY) {
+        bool opponent = winner_is_white
+                            ? (piece >= PIECE_BLACK_PAWN &&
+                               piece <= PIECE_BLACK_KING)
+                            : (piece >= PIECE_WHITE_PAWN &&
+                               piece <= PIECE_WHITE_KING);
+        if (opponent) {
+          red = (uint8_t)(255.f * intensity);
+          green = (uint8_t)(30.f * intensity);
+          blue = (uint8_t)(30.f * intensity);
+        } else {
+          red = (uint8_t)(30.f * intensity);
+          green = (uint8_t)(255.f * intensity);
+          blue = (uint8_t)(80.f * intensity);
+        }
+      } else {
+        red = (uint8_t)(30.f * intensity);
+        green = (uint8_t)(100.f * intensity);
+        blue = (uint8_t)(255.f * intensity);
+      }
+      led_set_pixel_safe(chess_pos_to_led_index(row, col), red, green, blue);
+    }
+  }
+
+  led_set_pixel_safe(endgame_wave.win_king_led,
+                     (uint8_t)(255.f * endgame_wave.reveal),
+                     (uint8_t)(215.f * endgame_wave.reveal), 0);
 }
 
 /**
@@ -2868,12 +2849,22 @@ void led_anim_checkmate(const led_command_t *cmd) {
 // LED UTILITY FUNCTIONS
 // ============================================================================
 
+static bool s_lamp_hold;
+
+void led_set_lamp_hold(bool hold) { s_lamp_hold = hold; }
+
+bool led_lamp_board_held(void) { return s_lamp_hold; }
+
+static bool led_game_pixels_blocked(void) {
+  return s_lamp_hold || led_gesture_anim_busy();
+}
+
 void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue) {
   if (led_index >= CHESS_LED_COUNT_TOTAL)
     return;
   /* Boot animation in main.c uses led_set_pixel_internal + force update. */
-  if (led_is_booting()) {
+  if (led_is_booting() || led_game_pixels_blocked()) {
     return;
   }
 
@@ -2893,6 +2884,9 @@ void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue) {
 }
 
 void led_clear_board_only(void) {
+  if (led_game_pixels_blocked()) {
+    return;
+  }
   // Clear only board LEDs (0-63), preserve buttons (64+)
   for (int i = 0; i < 64; i++) {
     led_set_pixel_internal(i, 0, 0, 0);

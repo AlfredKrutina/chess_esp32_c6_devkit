@@ -123,6 +123,8 @@ command_result_t uart_cmd_status(const char* args);
 command_result_t uart_cmd_clear(const char* args);
 command_result_t uart_cmd_reset(const char* args);
 command_result_t uart_cmd_ledtest(const char* args);
+command_result_t uart_cmd_anim(const char* args);
+command_result_t uart_cmd_demo(const char* args);
 command_result_t uart_cmd_hall(const char* args);
 command_result_t uart_cmd_hall_stop(const char* args);
 command_result_t uart_cmd_mag(const char* args);

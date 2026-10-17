@@ -174,8 +174,10 @@
 #include "freertos_chess.h"
 #include "task_wdt.h"
 #include "game_task.h"
+#include "game_gesture.h"
 #include "led_mapping.h"
 #include "led_task.h"
+#include "led_gesture_anim.h"
 #include "uart_commands_table.h"
 #include "uart_cli_panel.h"
 #include "uart_parse.h"
@@ -1600,6 +1602,31 @@ command_result_t uart_cmd_clear(const char *args) {
  * @brief Show demo mode status
  */
 
+command_result_t uart_cmd_demo(const char *args) {
+  bool stop = false;
+  if (args != NULL && args[0] != '\0') {
+    if (strcasecmp(args, "OFF") == 0 || strcasecmp(args, "STOP") == 0) {
+      stop = true;
+    } else if (strcasecmp(args, "ON") != 0 && strcasecmp(args, "START") != 0) {
+      uart_send_line("DEMO ON | DEMO OFF");
+      return CMD_ERROR_INVALID_PARAMETER;
+    }
+  }
+  if (stop || (args != NULL && args[0] == '\0' && game_demo_show_active())) {
+    game_demo_show_set(false);
+    uart_send_line("Demo off");
+    return CMD_SUCCESS;
+  }
+  if (game_demo_show_active()) {
+    uart_send_line("Demo already running");
+    return CMD_SUCCESS;
+  }
+  game_demo_show_set(true);
+  uart_send_line("Demo on: scholar's mate, light, colors, pairing, again");
+  uart_send_line("DEMO OFF, four clicks, or a piece move stops it");
+  return CMD_SUCCESS;
+}
+
 command_result_t uart_cmd_reset(const char *args) {
   (void)args; // Unused parameter
 
@@ -1665,6 +1692,244 @@ command_result_t uart_cmd_ledtest(const char *args) {
   led_clear_board_only();
   uart_send_line("LED test done");
   return CMD_SUCCESS;
+}
+
+static bool uart_anim_square(const char *text, uint8_t *row, uint8_t *col) {
+  if (text == NULL || text[0] == '\0' || text[1] == '\0') {
+    return false;
+  }
+  char file = (char)tolower((unsigned char)text[0]);
+  char rank = text[1];
+  if (file < 'a' || file > 'h' || rank < '1' || rank > '8') {
+    return false;
+  }
+  if (text[2] != '\0') {
+    return false;
+  }
+  *col = (uint8_t)(file - 'a');
+  *row = (uint8_t)(rank - '1');
+  return true;
+}
+
+static uint32_t uart_anim_lamp_rgb(void) {
+  uint8_t r = 255, g = 255, b = 255, bright = 255;
+  bool on = true;
+  ha_light_get_state(&r, &g, &b, &bright, &on);
+  if (!on) {
+    return 0;
+  }
+  return ((uint32_t)((r * bright) / 255) << 16) |
+         ((uint32_t)((g * bright) / 255) << 8) |
+         (uint32_t)((b * bright) / 255);
+}
+
+static void uart_anim_wait_wave(void) {
+  for (int i = 0; i < 90; i++) {
+    if (!led_gesture_anim_busy()) {
+      return;
+    }
+    SAFE_WDT_RESET();
+    vTaskDelay(pdMS_TO_TICKS(30));
+  }
+}
+
+static void uart_anim_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+                           uint8_t to_col) {
+  static uint8_t to_led;
+  to_led = chess_pos_to_led_index(to_row, to_col);
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_MOVE_PATH,
+      .led_index = chess_pos_to_led_index(from_row, from_col),
+      .red = 0,
+      .green = 0,
+      .blue = 255,
+      .duration_ms = 0,
+      .data = &to_led,
+  };
+  led_execute_command_new(&cmd);
+}
+
+static void uart_anim_castle(bool queenside, bool black) {
+  uint8_t row = black ? 7 : 0;
+  uint8_t king_from_col = 4;
+  uint8_t king_to_col = queenside ? 2 : 6;
+  static uint8_t king_to_led;
+  king_to_led = chess_pos_to_led_index(row, king_to_col);
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_CASTLE,
+      .led_index = chess_pos_to_led_index(row, king_from_col),
+      .red = 255,
+      .green = 215,
+      .blue = 0,
+      .duration_ms = 0,
+      .data = &king_to_led,
+  };
+  led_execute_command_new(&cmd);
+}
+
+static void uart_anim_end(uint8_t row, uint8_t col) {
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_ENDGAME,
+      .led_index = chess_pos_to_led_index(row, col),
+      .red = 0,
+      .green = 0,
+      .blue = 0,
+      .duration_ms = 0,
+      .data = NULL,
+  };
+  led_execute_command_new(&cmd);
+}
+
+static void uart_anim_lamp_wave(bool inward) {
+  uint32_t lamp = uart_anim_lamp_rgb();
+  uint32_t colors[64];
+  for (int i = 0; i < 64; i++) {
+    colors[i] = inward ? 0 : lamp;
+  }
+  if (!led_gesture_start_wave(colors, inward, lamp)) {
+    uart_send_line("Wave did not start");
+    return;
+  }
+  uart_anim_wait_wave();
+  (void)led_gesture_take_result();
+  if (!inward) {
+    uint8_t r = (uint8_t)((lamp >> 16) & 0xFFu);
+    uint8_t g = (uint8_t)((lamp >> 8) & 0xFFu);
+    uint8_t b = (uint8_t)(lamp & 0xFFu);
+    led_set_lamp_hold(true);
+    led_set_ha_color(r, g, b, 255);
+  } else {
+    led_set_lamp_hold(false);
+  }
+}
+
+static void uart_anim_help(void) {
+  uart_send_line("ANIM MOVE [e2 e4]");
+  uart_send_line("ANIM CASTLE [Q] [B]");
+  uart_send_line("ANIM END [e1]");
+  uart_send_line("ANIM LAMP");
+  uart_send_line("ANIM GAME");
+  uart_send_line("ANIM PAIR");
+  uart_send_line("ANIM STOP");
+  uart_send_line("ANIM ALL");
+}
+
+command_result_t uart_cmd_anim(const char *args) {
+  char buf[48];
+  char *token;
+  char *save = NULL;
+  if (args == NULL || args[0] == '\0' || strcasecmp(args, "HELP") == 0) {
+    uart_anim_help();
+    return CMD_SUCCESS;
+  }
+  strncpy(buf, args, sizeof(buf) - 1);
+  buf[sizeof(buf) - 1] = '\0';
+  token = strtok_r(buf, " \t", &save);
+  if (token == NULL) {
+    uart_anim_help();
+    return CMD_SUCCESS;
+  }
+
+  if (strcasecmp(token, "MOVE") == 0) {
+    uint8_t fr = 1, fc = 4, tr = 3, tc = 4;
+    char *a = strtok_r(NULL, " \t", &save);
+    char *b = strtok_r(NULL, " \t", &save);
+    if (a != NULL || b != NULL) {
+      if (!uart_anim_square(a, &fr, &fc) || !uart_anim_square(b, &tr, &tc)) {
+        uart_send_line("ANIM MOVE e2 e4");
+        return CMD_ERROR_INVALID_PARAMETER;
+      }
+    }
+    uart_send_line("Move animation");
+    uart_anim_move(fr, fc, tr, tc);
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "CASTLE") == 0 || strcasecmp(token, "ROSADA") == 0) {
+    bool queenside = false;
+    bool black = false;
+    for (char *opt = strtok_r(NULL, " \t", &save); opt != NULL;
+         opt = strtok_r(NULL, " \t", &save)) {
+      if (strcasecmp(opt, "Q") == 0 || strcasecmp(opt, "QUEEN") == 0) {
+        queenside = true;
+      } else if (strcasecmp(opt, "B") == 0 || strcasecmp(opt, "BLACK") == 0) {
+        black = true;
+      } else {
+        uart_send_line("ANIM CASTLE [Q] [B]");
+        return CMD_ERROR_INVALID_PARAMETER;
+      }
+    }
+    uart_send_line("Castle animation");
+    uart_anim_castle(queenside, black);
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "END") == 0 || strcasecmp(token, "WIN") == 0) {
+    uint8_t row = 0, col = 4;
+    char *sq = strtok_r(NULL, " \t", &save);
+    if (sq != NULL && !uart_anim_square(sq, &row, &col)) {
+      uart_send_line("ANIM END e1");
+      return CMD_ERROR_INVALID_PARAMETER;
+    }
+    uart_send_line("Endgame wave. ANIM STOP to end it.");
+    uart_anim_end(row, col);
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "LAMP") == 0 || strcasecmp(token, "LIGHT") == 0) {
+    uart_send_line("Lamp wave in the last light color");
+    uart_anim_lamp_wave(false);
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "GAME") == 0) {
+    uart_send_line("Lamp closing wave");
+    uart_anim_lamp_wave(true);
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "PAIR") == 0) {
+    if (!led_gesture_start_pair_pulse()) {
+      uart_send_line("Pairing pulse did not start");
+      return CMD_ERROR_SYSTEM_ERROR;
+    }
+    uart_send_line("Pairing blue. ANIM STOP to end it.");
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "STOP") == 0) {
+    led_gesture_stop_pair_pulse();
+    led_stop_endgame_animation();
+    led_set_lamp_hold(false);
+    uart_send_line("Animations stopped");
+    return CMD_SUCCESS;
+  }
+  if (strcasecmp(token, "ALL") == 0) {
+    uart_send_line("Move");
+    uart_anim_move(1, 4, 3, 4);
+    SAFE_WDT_RESET();
+    uart_send_line("Castle");
+    uart_anim_castle(false, false);
+    SAFE_WDT_RESET();
+    uart_send_line("Lamp");
+    uart_anim_lamp_wave(false);
+    uart_send_line("Game");
+    uart_anim_lamp_wave(true);
+    uart_send_line("Pair");
+    (void)led_gesture_start_pair_pulse();
+    for (int i = 0; i < 30; i++) {
+      SAFE_WDT_RESET();
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    led_gesture_stop_pair_pulse();
+    uart_send_line("Endgame");
+    uart_anim_end(0, 4);
+    for (int i = 0; i < 20; i++) {
+      SAFE_WDT_RESET();
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    led_stop_endgame_animation();
+    led_set_lamp_hold(false);
+    uart_send_line("ANIM ALL done");
+    return CMD_SUCCESS;
+  }
+
+  uart_anim_help();
+  return CMD_ERROR_INVALID_PARAMETER;
 }
 
 static bool s_hall_stream;
