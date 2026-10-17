@@ -39,6 +39,7 @@ var led__task_8h =
     [ "led_set_button_press", "led__task_8h.html#a8a31606dca399a00351e3ef16cc3a737", null ],
     [ "led_set_button_promotion_available", "led__task_8h.html#ac30980ab24cfbd6fe5684d6ade1c1f7a", null ],
     [ "led_set_button_release", "led__task_8h.html#a8c05ca5afd0c6a5184c88ee8e05f37b0", null ],
+    [ "led_set_forced_blackout", "led__task_8h.html#abb3eb301ef28a7fc0912d457ade43acf", null ],
     [ "led_set_ha_color", "led__task_8h.html#acd139d9f40454ed76aa1f080f2299d07", null ],
     [ "led_set_pixel_internal", "led__task_8h.html#a7cb7bb0774dead39c3607d19de9f9d34", null ],
     [ "led_set_pixel_rgbw", "led__task_8h.html#aa782f9baca8ebfe78ca5595ec031e55d", null ],

@@ -91,13 +91,16 @@ $(document).ready(function(){initNavTree('stm32__i2c__bl_8c.html',''); initResiz
 
 <div class="header">
   <div class="summary">
-<a href="#func-members">Functions</a>  </div>
+<a href="#nested-classes">Data Structures</a> &#124;
+<a href="#define-members">Macros</a> &#124;
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">stm32_i2c_bl.c File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="stm32__i2c__bl_8h_source.html">stm32_i2c_bl.h</a>&quot;</code><br />
 <code>#include &quot;driver/gpio.h&quot;</code><br />
-<code>#include &quot;driver/i2c.h&quot;</code><br />
+<code>#include &quot;driver/i2c_master.h&quot;</code><br />
 <code>#include &quot;esp_check.h&quot;</code><br />
 <code>#include &quot;esp_log.h&quot;</code><br />
 <code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
@@ -105,35 +108,38 @@ $(document).ready(function(){initNavTree('stm32__i2c__bl_8c.html',''); initResiz
 <code>#include &quot;freertos/task.h&quot;</code><br />
 <code>#include &quot;sdkconfig.h&quot;</code><br />
 <code>#include &lt;inttypes.h&gt;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for stm32_i2c_bl.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="stm32__i2c__bl_8c__incl.png" border="0" usemap="#astm32__i2c__bl_8c" alt=""/></div>
 <map name="astm32__i2c__bl_8c" id="astm32__i2c__bl_8c">
-<area shape="rect" title=" " alt="" coords="715,5,833,31"/>
+<area shape="rect" title=" " alt="" coords="833,5,952,31"/>
 <area shape="rect" href="stm32__i2c__bl_8h.html" title="STM32 ROM I2C bootloader for the four Hall segments (AN4221)." alt="" coords="214,79,334,104"/>
-<area shape="poly" title=" " alt="" coords="715,30,348,81,347,76,714,25"/>
+<area shape="poly" title=" " alt="" coords="833,28,623,49,348,81,347,76,623,43,833,22"/>
 <area shape="rect" title=" " alt="" coords="5,152,156,177"/>
-<area shape="poly" title=" " alt="" coords="715,24,446,42,304,59,246,69,203,81,175,94,148,111,105,145,101,140,145,106,172,90,201,76,245,64,303,53,445,37,714,19"/>
+<area shape="poly" title=" " alt="" coords="833,23,689,28,506,38,329,55,257,67,203,81,175,94,148,110,104,144,101,140,145,106,172,89,201,76,256,62,328,50,506,33,689,23,833,18"/>
 <area shape="rect" title=" " alt="" coords="358,79,462,104"/>
-<area shape="poly" title=" " alt="" coords="716,33,476,80,475,75,715,28"/>
-<area shape="rect" title=" " alt="" coords="487,79,581,104"/>
-<area shape="poly" title=" " alt="" coords="736,33,587,77,585,72,735,28"/>
-<area shape="rect" title=" " alt="" coords="605,79,708,104"/>
-<area shape="poly" title=" " alt="" coords="757,33,689,74,686,69,754,28"/>
-<area shape="rect" title=" " alt="" coords="732,79,816,104"/>
-<area shape="poly" title=" " alt="" coords="777,31,777,65,771,65,771,31"/>
-<area shape="rect" title=" " alt="" coords="840,79,977,104"/>
-<area shape="poly" title=" " alt="" coords="797,28,876,70,873,74,794,33"/>
-<area shape="rect" title=" " alt="" coords="1002,79,1119,104"/>
-<area shape="poly" title=" " alt="" coords="821,28,1002,73,1000,78,819,33"/>
-<area shape="rect" title=" " alt="" coords="1143,79,1239,104"/>
-<area shape="poly" title=" " alt="" coords="834,26,1130,76,1129,81,833,31"/>
-<area shape="rect" title=" " alt="" coords="1264,79,1351,104"/>
-<area shape="poly" title=" " alt="" coords="834,23,1016,43,1251,76,1250,81,1015,48,833,28"/>
-<area shape="rect" title=" " alt="" coords="1375,79,1445,104"/>
-<area shape="poly" title=" " alt="" coords="834,20,1062,38,1209,54,1362,76,1361,81,1209,59,1061,43,833,25"/>
+<area shape="poly" title=" " alt="" coords="834,30,476,81,475,76,833,24"/>
+<area shape="rect" title=" " alt="" coords="486,79,633,104"/>
+<area shape="poly" title=" " alt="" coords="840,33,627,78,626,73,839,28"/>
+<area shape="rect" title=" " alt="" coords="657,79,760,104"/>
+<area shape="poly" title=" " alt="" coords="864,33,753,76,751,71,862,28"/>
+<area shape="rect" title=" " alt="" coords="784,79,868,104"/>
+<area shape="poly" title=" " alt="" coords="884,33,848,70,844,67,880,29"/>
+<area shape="rect" title=" " alt="" coords="892,79,1029,104"/>
+<area shape="poly" title=" " alt="" coords="906,29,942,67,938,70,902,33"/>
+<area shape="rect" title=" " alt="" coords="1054,79,1171,104"/>
+<area shape="poly" title=" " alt="" coords="929,28,1065,72,1064,77,927,33"/>
+<area shape="rect" title=" " alt="" coords="1195,79,1291,104"/>
+<area shape="poly" title=" " alt="" coords="950,28,1182,75,1181,80,948,33"/>
+<area shape="rect" title=" " alt="" coords="1316,79,1403,104"/>
+<area shape="poly" title=" " alt="" coords="953,24,1107,45,1303,76,1302,81,1106,51,952,30"/>
+<area shape="rect" title=" " alt="" coords="1427,79,1494,104"/>
+<area shape="poly" title=" " alt="" coords="952,21,1153,40,1281,55,1414,76,1413,81,1281,61,1153,45,952,26"/>
+<area shape="rect" title=" " alt="" coords="1519,79,1589,104"/>
+<area shape="poly" title=" " alt="" coords="952,20,1190,37,1345,54,1506,76,1505,82,1345,59,1190,43,952,25"/>
 <area shape="rect" title=" " alt="" coords="180,152,261,177"/>
 <area shape="poly" title=" " alt="" coords="267,106,240,143,235,140,263,103"/>
 <area shape="poly" title=" " alt="" coords="244,107,126,150,124,145,242,102"/>
@@ -148,8 +154,33 @@ Include dependency graph for stm32_i2c_bl.c:</div>
 </div>
 <p><a href="stm32__i2c__bl_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__i2c__dev__slot__t.html">chess_i2c_dev_slot_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a41b950d22792fd45bd053c8f42759dc7" id="r_a41b950d22792fd45bd053c8f42759dc7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a41b950d22792fd45bd053c8f42759dc7">CHESS_I2C_DEV_SLOTS</a>&#160;&#160;&#160;8</td></tr>
+<tr class="separator:a41b950d22792fd45bd053c8f42759dc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aeb38093aac016a88677f8de38cde1c71" id="r_aeb38093aac016a88677f8de38cde1c71"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#aeb38093aac016a88677f8de38cde1c71">chess_i2c_recover</a> (void)</td></tr>
+<tr class="separator:aeb38093aac016a88677f8de38cde1c71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adb2ac400490737ff5cb0895036477244" id="r_adb2ac400490737ff5cb0895036477244"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#adb2ac400490737ff5cb0895036477244">chess_i2c_bus_init</a> (int <a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">port</a>, int sda_gpio, int scl_gpio)</td></tr>
+<tr class="memdesc:adb2ac400490737ff5cb0895036477244"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shared ESP-IDF i2c_master bus (driver/i2c_master.h).  <br /></td></tr>
+<tr class="separator:adb2ac400490737ff5cb0895036477244"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d8ddeac16acc16023049aeb3336dfab" id="r_a6d8ddeac16acc16023049aeb3336dfab"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a6d8ddeac16acc16023049aeb3336dfab">chess_i2c_dev</a> (uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us, i2c_master_dev_handle_t *out)</td></tr>
+<tr class="separator:a6d8ddeac16acc16023049aeb3336dfab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca99e2dde632e87912aad813ea298ea9" id="r_aca99e2dde632e87912aad813ea298ea9"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#aca99e2dde632e87912aad813ea298ea9">chess_i2c_checked</a> (esp_err_t err)</td></tr>
+<tr class="separator:aca99e2dde632e87912aad813ea298ea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb6182b0a885db77f402bb4715f063c4" id="r_aeb6182b0a885db77f402bb4715f063c4"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#aeb6182b0a885db77f402bb4715f063c4">chess_i2c_transmit</a> (uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us, const uint8_t *data, size_t len, int timeout_ms)</td></tr>
+<tr class="separator:aeb6182b0a885db77f402bb4715f063c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9c33395e52ad94c3a81800a74c4d186" id="r_af9c33395e52ad94c3a81800a74c4d186"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#af9c33395e52ad94c3a81800a74c4d186">chess_i2c_receive</a> (uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us, uint8_t *data, size_t len, int timeout_ms)</td></tr>
+<tr class="separator:af9c33395e52ad94c3a81800a74c4d186"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a526c2c8e2ba1e0ddedb16237df938f41" id="r_a526c2c8e2ba1e0ddedb16237df938f41"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a526c2c8e2ba1e0ddedb16237df938f41">chess_i2c_transmit_receive</a> (uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us, const uint8_t *wdata, size_t wlen, uint8_t *rdata, size_t rlen, int timeout_ms)</td></tr>
+<tr class="separator:a526c2c8e2ba1e0ddedb16237df938f41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a669106fbaf22820b54c0d1d71cef52b7" id="r_a669106fbaf22820b54c0d1d71cef52b7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a669106fbaf22820b54c0d1d71cef52b7">stm32_i2c_bl_init</a> (void)</td></tr>
 <tr class="memdesc:a669106fbaf22820b54c0d1d71cef52b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Configure NRST/BOOT0 and, if the bus is not shared, the I2C driver.  <br /></td></tr>
 <tr class="separator:a669106fbaf22820b54c0d1d71cef52b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -183,8 +214,357 @@ Functions</h2></td></tr>
 <tr class="memitem:a2a0d0482fa89c05c6066d2330c17c3a8" id="r_a2a0d0482fa89c05c6066d2330c17c3a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a2a0d0482fa89c05c6066d2330c17c3a8">stm32_i2c_bl_maybe_auto_flash_on_boot</a> (void)</td></tr>
 <tr class="memdesc:a2a0d0482fa89c05c6066d2330c17c3a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">If auto-flash-on-boot is enabled, program each STM from its partition.  <br /></td></tr>
 <tr class="separator:a2a0d0482fa89c05c6066d2330c17c3a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a162c665651d1335f963e0f31fe62e118" id="r_a162c665651d1335f963e0f31fe62e118"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a162c665651d1335f963e0f31fe62e118">CHESS_I2C_TAG</a> = &quot;CHESS_I2C&quot;</td></tr>
+<tr class="separator:a162c665651d1335f963e0f31fe62e118"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d66c003be72e84553a4ea8263a8f8b0" id="r_a4d66c003be72e84553a4ea8263a8f8b0"><td class="memItemLeft" align="right" valign="top">static i2c_master_bus_handle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a4d66c003be72e84553a4ea8263a8f8b0">s_i2c_bus</a></td></tr>
+<tr class="separator:a4d66c003be72e84553a4ea8263a8f8b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afab59ee255bd80811c04500656575545" id="r_afab59ee255bd80811c04500656575545"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#afab59ee255bd80811c04500656575545">s_i2c_bus_ready</a></td></tr>
+<tr class="separator:afab59ee255bd80811c04500656575545"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa83369e40f067e59520ad25d31d3dc81" id="r_aa83369e40f067e59520ad25d31d3dc81"><td class="memItemLeft" align="right" valign="top">static SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#aa83369e40f067e59520ad25d31d3dc81">s_i2c_lock</a></td></tr>
+<tr class="separator:aa83369e40f067e59520ad25d31d3dc81"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7169cd89612d7f2e0013d510db44dfcb" id="r_a7169cd89612d7f2e0013d510db44dfcb"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structchess__i2c__dev__slot__t.html">chess_i2c_dev_slot_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a7169cd89612d7f2e0013d510db44dfcb">s_i2c_devs</a> [8]</td></tr>
+<tr class="separator:a7169cd89612d7f2e0013d510db44dfcb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a41b950d22792fd45bd053c8f42759dc7" name="a41b950d22792fd45bd053c8f42759dc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41b950d22792fd45bd053c8f42759dc7">&#9670;&#160;</a></span>CHESS_I2C_DEV_SLOTS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define CHESS_I2C_DEV_SLOTS&#160;&#160;&#160;8</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00022">22</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="adb2ac400490737ff5cb0895036477244" name="adb2ac400490737ff5cb0895036477244"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adb2ac400490737ff5cb0895036477244">&#9670;&#160;</a></span>chess_i2c_bus_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t chess_i2c_bus_init </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>port</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>sda_gpio</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>scl_gpio</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Shared ESP-IDF i2c_master bus (driver/i2c_master.h). </p>
+<p>Idempotent. Hall calls this first; the bootloader reuses the same bus. </p>
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00041">41</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="aca99e2dde632e87912aad813ea298ea9" name="aca99e2dde632e87912aad813ea298ea9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aca99e2dde632e87912aad813ea298ea9">&#9670;&#160;</a></span>chess_i2c_checked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t chess_i2c_checked </td>
+          <td>(</td>
+          <td class="paramtype">esp_err_t&#160;</td>
+          <td class="paramname"><em>err</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00124">124</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a6d8ddeac16acc16023049aeb3336dfab" name="a6d8ddeac16acc16023049aeb3336dfab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d8ddeac16acc16023049aeb3336dfab">&#9670;&#160;</a></span>chess_i2c_dev()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static esp_err_t chess_i2c_dev </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>freq_hz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>scl_wait_us</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">i2c_master_dev_handle_t *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00070">70</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="af9c33395e52ad94c3a81800a74c4d186" name="af9c33395e52ad94c3a81800a74c4d186"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9c33395e52ad94c3a81800a74c4d186">&#9670;&#160;</a></span>chess_i2c_receive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t chess_i2c_receive </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>freq_hz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>scl_wait_us</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>timeout_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00141">141</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="aeb38093aac016a88677f8de38cde1c71" name="aeb38093aac016a88677f8de38cde1c71"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb38093aac016a88677f8de38cde1c71">&#9670;&#160;</a></span>chess_i2c_recover()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void chess_i2c_recover </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00035">35</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="aeb6182b0a885db77f402bb4715f063c4" name="aeb6182b0a885db77f402bb4715f063c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeb6182b0a885db77f402bb4715f063c4">&#9670;&#160;</a></span>chess_i2c_transmit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t chess_i2c_transmit </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>freq_hz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>scl_wait_us</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>timeout_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00131">131</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a526c2c8e2ba1e0ddedb16237df938f41" name="a526c2c8e2ba1e0ddedb16237df938f41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a526c2c8e2ba1e0ddedb16237df938f41">&#9670;&#160;</a></span>chess_i2c_transmit_receive()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t chess_i2c_transmit_receive </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>addr7</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>freq_hz</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>scl_wait_us</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>wdata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>wlen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>rdata</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>rlen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>timeout_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00151">151</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
 <a id="ad75b508362e3fd1653603922ecac72c1" name="ad75b508362e3fd1653603922ecac72c1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad75b508362e3fd1653603922ecac72c1">&#9670;&#160;</a></span>stm32_i2c_bl_boot_flash_sync_prepare()</h2>
 
@@ -204,7 +584,7 @@ Functions</h2></td></tr>
 <p>Create the binary semaphore main waits on before squares_task starts. </p>
 <p>No-op when auto-flash-on-boot is compiled out, or if the semaphore exists. </p>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00990">990</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01239">1239</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -232,7 +612,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00992">992</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01241">1241</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -279,7 +659,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK and writes *pid_out, ESP_ERR_INVALID_ARG if pid_out is NULL, ESP_ERR_NOT_SUPPORTED when compiled out, otherwise the transaction error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00787">787</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00975">975</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -319,7 +699,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, a bootloader NACK/timeout, or ESP_ERR_NOT_SUPPORTED. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00795">795</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00983">983</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -380,7 +760,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, ESP_ERR_INVALID_ARG, ESP_ERR_INVALID_SIZE, ESP_ERR_NOT_SUPPORTED, or the erase/write error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00820">820</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01008">1008</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -427,7 +807,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if the MCU accepted GO, otherwise the transaction error or ESP_ERR_NOT_SUPPORTED. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00812">812</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01000">1000</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -450,7 +830,7 @@ Functions</h2></td></tr>
 <p>Configure NRST/BOOT0 and, if the bus is not shared, the I2C driver. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if already inited or GPIO/I2C setup succeeded, ESP_ERR_NOT_SUPPORTED when the bootloader is compiled out, otherwise the I2C error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00774">774</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00962">962</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -473,7 +853,7 @@ Functions</h2></td></tr>
 <p>If auto-flash-on-boot is enabled, program each STM from its partition. </p>
 <p>Call after shared I2C init (for example right after hall_i2c_squares_init). No-op when that Kconfig is off. Does not return a status; result is logged. </p>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00997">997</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01246">1246</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -496,7 +876,7 @@ Functions</h2></td></tr>
 <p>BOOT0 low (if connected) and NRST high so every segment runs its app. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, or ESP_ERR_NOT_SUPPORTED when the bootloader is compiled out. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00783">783</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00971">971</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -536,7 +916,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, ESP_ERR_INVALID_ARG if the segment is not 0…3, ESP_ERR_NOT_SUPPORTED when compiled out, or an error from init. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00776">776</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00964">964</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -597,7 +977,128 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, ESP_ERR_INVALID_ARG, ESP_ERR_NOT_SUPPORTED, or the transaction error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00801">801</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00989">989</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Variable Documentation</h2>
+<a id="a162c665651d1335f963e0f31fe62e118" name="a162c665651d1335f963e0f31fe62e118"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a162c665651d1335f963e0f31fe62e118">&#9670;&#160;</a></span>CHESS_I2C_TAG</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* CHESS_I2C_TAG = &quot;CHESS_I2C&quot;</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00020">20</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a4d66c003be72e84553a4ea8263a8f8b0" name="a4d66c003be72e84553a4ea8263a8f8b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d66c003be72e84553a4ea8263a8f8b0">&#9670;&#160;</a></span>s_i2c_bus</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">i2c_master_bus_handle_t s_i2c_bus</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00030">30</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="afab59ee255bd80811c04500656575545" name="afab59ee255bd80811c04500656575545"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afab59ee255bd80811c04500656575545">&#9670;&#160;</a></span>s_i2c_bus_ready</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_i2c_bus_ready</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00031">31</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a7169cd89612d7f2e0013d510db44dfcb" name="a7169cd89612d7f2e0013d510db44dfcb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7169cd89612d7f2e0013d510db44dfcb">&#9670;&#160;</a></span>s_i2c_devs</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__i2c__dev__slot__t.html">chess_i2c_dev_slot_t</a> s_i2c_devs[8]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00033">33</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="aa83369e40f067e59520ad25d31d3dc81" name="aa83369e40f067e59520ad25d31d3dc81"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa83369e40f067e59520ad25d31d3dc81">&#9670;&#160;</a></span>s_i2c_lock</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t s_i2c_lock</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00032">32</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>

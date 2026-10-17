@@ -225,6 +225,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a35ed753e036a2372ea57df822d92f154" id="r_a35ed753e036a2372ea57df822d92f154"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a35ed753e036a2372ea57df822d92f154">led_force_immediate_update</a> (void)</td></tr>
 <tr class="memdesc:a35ed753e036a2372ea57df822d92f154"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vynuceni okamzita LED aktualizace pro kriticke operace.  <br /></td></tr>
 <tr class="separator:a35ed753e036a2372ea57df822d92f154"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb3eb301ef28a7fc0912d457ade43acf" id="r_abb3eb301ef28a7fc0912d457ade43acf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#abb3eb301ef28a7fc0912d457ade43acf">led_set_forced_blackout</a> (bool on)</td></tr>
+<tr class="memdesc:abb3eb301ef28a7fc0912d457ade43acf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keep every LED off.  <br /></td></tr>
+<tr class="separator:abb3eb301ef28a7fc0912d457ade43acf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab245ceabb580934b6117f59343c6d9a2" id="r_ab245ceabb580934b6117f59343c6d9a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#ab245ceabb580934b6117f59343c6d9a2">led_clear_board_only</a> (void)</td></tr>
 <tr class="memdesc:ab245ceabb580934b6117f59343c6d9a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear only the drawer LEDs (0-63), keep the buttons.  <br /></td></tr>
 <tr class="separator:ab245ceabb580934b6117f59343c6d9a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -357,7 +360,7 @@ Functions</h2></td></tr>
 </dl>
 <p>LED endgame animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02603">2603</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02618">2618</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -381,7 +384,7 @@ Functions</h2></td></tr>
 <p>Gradually dim all board LEDs from brightness 128 to 0. Used at the end of the boot process for smooth muting.</p>
 <p>Gradually dim all board LEDs from brightness 128 to 0. Used at the end of the boot process for smooth muting. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03817">3817</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03827">3827</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -417,7 +420,7 @@ Functions</h2></td></tr>
 </dl>
 <p>Light up the LED according to the progress of the boot process. Used for display system initialization procedure. Turn on the LED light green. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03781">3781</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03796">3796</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -440,7 +443,7 @@ Functions</h2></td></tr>
 <p>Start boot animation (progressive light up) </p>
 <p>Start boot animation (progressive light up) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02492">2492</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02507">2507</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -484,7 +487,7 @@ Functions</h2></td></tr>
 <p>Clear all highlights. </p>
 <p>Clear all highlights. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01747">1747</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01757">1757</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -506,7 +509,7 @@ Functions</h2></td></tr>
 
 <p>Clear all LEDs (internal function without mutex) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00618">618</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00619">619</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -528,7 +531,7 @@ Functions</h2></td></tr>
 
 <p>Clear all LEDs (thread-safe with mutex) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02888">2888</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02903">2903</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -550,7 +553,7 @@ Functions</h2></td></tr>
 
 <p>Clear only the drawer LEDs (0-63), keep the buttons. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02900">2900</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02915">2915</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -572,7 +575,7 @@ Functions</h2></td></tr>
 
 <p>Clear only the button LEDs (64-72), keep the case. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02907">2907</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02922">2922</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -600,7 +603,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02931">2931</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02946">2946</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -628,7 +631,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02967">2967</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02982">2982</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -656,7 +659,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02949">2949</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02964">2964</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -686,7 +689,7 @@ Functions</h2></td></tr>
 </dl>
 <p>Execute a new LED command. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01023">1023</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01033">1033</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -710,7 +713,7 @@ Functions</h2></td></tr>
 <p>Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback.</p>
 <p>Vynuceni okamzita LED aktualizace pro kriticke operace. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03348">3348</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03363">3363</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -751,7 +754,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00893">893</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00903">903</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -780,7 +783,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Color as uint32_t RGB </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00847">847</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00857">857</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -817,7 +820,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RGB color value (0xRRGGBB) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00864">864</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00874">874</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -841,7 +844,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if there are significant changes</dd></dl>
 <p>Check if the LED has changed. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01958">1958</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01968">1968</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -864,7 +867,7 @@ Functions</h2></td></tr>
 <p>Highlight figures that can move. </p>
 <p>Highlight figures that can move. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01689">1689</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01699">1699</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -899,7 +902,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01714">1714</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01724">1724</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -922,7 +925,7 @@ Functions</h2></td></tr>
 <p>Find out if the boot animation is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the boot animation is in progress </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02487">2487</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02502">2502</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -951,7 +954,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03691">3691</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03706">3706</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -973,7 +976,7 @@ Functions</h2></td></tr>
 
 <p>Restore checkerboard after OTA abort / error (eg BLE abort). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03762">3762</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03777">3777</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -996,7 +999,7 @@ Functions</h2></td></tr>
 <p>Game change animation. </p>
 <p>Game change animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01761">1761</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01771">1771</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1018,7 +1021,7 @@ Functions</h2></td></tr>
 
 <p>Preserve button states during operation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02914">2914</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02929">2929</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1041,7 +1044,7 @@ Functions</h2></td></tr>
 <p>List only LED changes. </p>
 <p>List only LED changes. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01895">1895</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01905">1905</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1064,7 +1067,7 @@ Functions</h2></td></tr>
 <p>Vypis kompaktni status LED. </p>
 <p>Vypis kompaktni status LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01378">1378</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01388">1388</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1087,7 +1090,7 @@ Functions</h2></td></tr>
 <p>Vypis detailni status LED. </p>
 <p>Vypis detailni status LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01504">1504</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01514">1514</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1109,7 +1112,7 @@ Functions</h2></td></tr>
 
 <p>Process LED commands from the queue. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00998">998</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01008">1008</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1132,7 +1135,7 @@ Functions</h2></td></tr>
 <p>Reset the LED display of all buttons according to the current state (availability/press) Call after returning from HA mode. </p>
 <p>Reset the LED display of all buttons according to the current state (availability/press) Call after returning from HA mode. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00780">780</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00790">790</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1157,7 +1160,7 @@ Functions</h2></td></tr>
 <p>Restore inbox after HA mod.</p>
 <p>This function restores the normal display of the chessboard (black/white squares). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00771">771</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00781">781</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1203,7 +1206,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00592">592</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00593">593</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1249,7 +1252,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02894">2894</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02909">2909</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1277,7 +1280,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00474">474</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00475">475</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1316,7 +1319,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00787">787</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00797">797</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1344,7 +1347,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00806">806</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00816">816</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1383,7 +1386,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02985">2985</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03000">3000</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1411,7 +1414,30 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00825">825</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00835">835</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abb3eb301ef28a7fc0912d457ade43acf" name="abb3eb301ef28a7fc0912d457ade43acf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb3eb301ef28a7fc0912d457ade43acf">&#9670;&#160;</a></span>led_set_forced_blackout()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_forced_blackout </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>on</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Keep every LED off. </p>
+<p>The LED task clears the frame before each commit. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01990">1990</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1464,7 +1490,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00734">734</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00744">744</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1517,7 +1543,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00582">582</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00583">583</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1568,7 +1594,7 @@ Functions</h2></td></tr>
 <p>Set one LED including the white die. </p>
 <p>RGB callers keep using <a class="el" href="led__task_8h.html#a7cb7bb0774dead39c3607d19de9f9d34" title="Set LED pixel (internal functions without mutex)">led_set_pixel_internal()</a>. Pass white when the lamp (or another caller) must drive the white die itself. The budgeted writer still applies NVS brightness and the rail cap. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00587">587</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00588">588</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1621,7 +1647,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02876">2876</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02891">2891</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1644,7 +1670,7 @@ Functions</h2></td></tr>
 <p>Set animation after endgame. </p>
 <p>Set animation after endgame. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02776">2776</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02791">2791</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1666,7 +1692,7 @@ Functions</h2></td></tr>
 
 <p>Show the box on the LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00641">641</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00642">642</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1694,7 +1720,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02919">2919</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02934">2934</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1722,7 +1748,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00918">918</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00928">928</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1751,7 +1777,7 @@ Functions</h2></td></tr>
 </dl>
 <p>Start a quiet exit period. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01948">1948</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01958">1958</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1774,7 +1800,7 @@ Functions</h2></td></tr>
 <p>Zastav endgame animaci. </p>
 <p>Zastav endgame animaci. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02760">2760</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02775">2775</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1802,7 +1828,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01978">1978</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01992">1992</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1824,7 +1850,7 @@ Functions</h2></td></tr>
 
 <p>Show the test pattern. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00929">929</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00939">939</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1846,7 +1872,7 @@ Functions</h2></td></tr>
 
 <p>Update button availability based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02997">2997</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03012">3012</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1869,7 +1895,7 @@ Functions</h2></td></tr>
 <p>Update LED based on game state. </p>
 <p>Update LED based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01674">1674</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01684">1684</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1892,7 +1918,7 @@ Functions</h2></td></tr>
 <p>Update the LED hardware. </p>
 <p>Send current LED data to WS2812B LED strip. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01284">1284</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01294">1294</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>

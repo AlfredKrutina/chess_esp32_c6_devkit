@@ -332,7 +332,7 @@ Variables</h2></td></tr>
 <p>Ping queue from game_task — WS + BLE snapshot in web_server_task (does not block game_task at httpd_ws_send_data / malloc). </p>
 <p>Must be outside #if WS — BLE always. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03051">3051</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03061">3061</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -352,7 +352,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00731">731</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00744">744</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -404,7 +404,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00699">699</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00712">712</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -526,7 +526,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03740">3740</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l03750">3750</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -627,7 +627,7 @@ Variables</h2></td></tr>
 <p><code>build_snapshot_json</code> and mutex waits are also called from <code>httpd</code> workers (GET snapshot) – these are not in TWDT; <code>esp_task_wdt_reset()</code> then returns ESP_ERR_NOT_FOUND and the task_wdt component spams the serial number ERROR lines.</p>
 <p>Returns ESP_OK even when skipped (foreign task or NULL handle). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00166">166</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00167">167</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -669,7 +669,7 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure</dd></dl>
 <p>Function to create JSON with AP information (SSID, IP, clients) and STA (SSID, IP, connected status). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01615">1615</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l01616">1616</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -694,7 +694,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00267">267</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00268">268</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -718,7 +718,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00268">268</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00269">269</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>
@@ -816,7 +816,7 @@ Variables</h2></td></tr>
 
 <p>Ping queue — build snapshot only in web_server_task (not in esp_timer: small stack). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00280">280</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__server__task_8c_source.html#l00281">281</a> of file <a class="el" href="web__server__task_8c_source.html">web_server_task.c</a>.</p>
 
 </div>
 </div>

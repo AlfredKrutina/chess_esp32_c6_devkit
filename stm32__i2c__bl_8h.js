@@ -1,5 +1,9 @@
 var stm32__i2c__bl_8h =
 [
+    [ "chess_i2c_bus_init", "stm32__i2c__bl_8h.html#adb2ac400490737ff5cb0895036477244", null ],
+    [ "chess_i2c_receive", "stm32__i2c__bl_8h.html#af9c33395e52ad94c3a81800a74c4d186", null ],
+    [ "chess_i2c_transmit", "stm32__i2c__bl_8h.html#aeb6182b0a885db77f402bb4715f063c4", null ],
+    [ "chess_i2c_transmit_receive", "stm32__i2c__bl_8h.html#a526c2c8e2ba1e0ddedb16237df938f41", null ],
     [ "stm32_i2c_bl_boot_flash_sync_prepare", "stm32__i2c__bl_8h.html#ad75b508362e3fd1653603922ecac72c1", null ],
     [ "stm32_i2c_bl_boot_flash_sync_wait", "stm32__i2c__bl_8h.html#a5898c2a7fcb83b26a3256be4792b9868", null ],
     [ "stm32_i2c_bl_cmd_get_id", "stm32__i2c__bl_8h.html#a0026bc691ada5dcd2de54640461bd51c", null ],

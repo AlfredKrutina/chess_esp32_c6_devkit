@@ -129,19 +129,14 @@ Functions</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>ESP32-C6 Chess System - LED Mapping function. </p>
-<p>This module provides functions to convert between drawer positions and LED indices. Uses a serpentine layout for optimal LED distribution on the box.</p>
-<dl class="section author"><dt>Author</dt><dd>Alfred Krutina </dd></dl>
-<dl class="section version"><dt>Version</dt><dd>1.8.0 </dd></dl>
-<dl class="section date"><dt>Date</dt><dd>2025-08-24</dd></dl>
-<p>LED Mapping module converts box positions (row, column) to LED indexes and vice versa. It uses a serpentine layout for the serpentine layout of the LED strip:</p><ul>
-<li>Even rows: a-&gt;h (left to right)</li>
-<li>Odd rows: h-&gt;a (right to left)</li>
+<p>This module provides functions to convert between drawer positions and LED indices. Four identical 4x4 boards. The chain starts at e1. Each next board is the same serpentine rotated 90 degrees counter-clockwise.</p>
+<p>Chain:</p><ul>
+<li>LEDs 0-15: e1 e2 e3 e4 f4 f3 f2 f1 g1 g2 g3 g4 h4 h3 h2 h1</li>
+<li>LEDs 16-31: h5 g5 f5 e5 e6 f6 g6 h6 h7 g7 f7 e7 e8 f8 g8 h8</li>
+<li>LEDs 32-47: d8 d7 d6 d5 c5 c6 c7 c8 b8 b7 b6 b5 a5 a6 a7 a8</li>
+<li>LEDs 48-63: a4 b4 c4 d4 d3 c3 b3 a3 a2 b2 c2 d2 d1 c1 b1 a1 </li>
 </ul>
-<p>Example serpentine layout: </p><div class="fragment"><div class="line">Row 1: LED 0, 1, 2, 3, 4, 5, 6, 7 (a1-&gt;h1)</div>
-<div class="line">Row 2: LED 15, 14, 13, 12, 11, 10, 9, 8 (h2-&gt;a2)</div>
-<div class="line">Row 3: LED 16, 17, 18, 19, 20, 21, 22, 23 (a3-&gt;h3)</div>
-<div class="line">...</div>
-</div><!-- fragment --> 
+
 <p class="definition">Definition in file <a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a id="ac190470b2f78837d3df987b0951264dd" name="ac190470b2f78837d3df987b0951264dd"></a>
@@ -171,7 +166,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>LED index (0-63) for the given notation, or 0 on error</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The function automatically handles invalid inputs and logs the error</dd></dl>
 <dl class="section user"><dt>Example to use:</dt><dd><div class="fragment"><div class="line">uint8_t led = <a class="code hl_function" href="led__mapping_8h.html#ac190470b2f78837d3df987b0951264dd">chess_notation_to_led_index</a>(<span class="stringliteral">&quot;e4&quot;</span>);  <span class="comment">// LED for field e4</span></div>
-<div class="ttc" id="aled__mapping_8h_html_ac190470b2f78837d3df987b0951264dd"><div class="ttname"><a href="led__mapping_8h.html#ac190470b2f78837d3df987b0951264dd">chess_notation_to_led_index</a></div><div class="ttdeci">uint8_t chess_notation_to_led_index(const char *notation)</div><div class="ttdoc">Converts Sach notation to LED index.</div><div class="ttdef"><b>Definition</b> <a href="led__mapping_8c_source.html#l00091">led_mapping.c:91</a></div></div>
+<div class="ttc" id="aled__mapping_8h_html_ac190470b2f78837d3df987b0951264dd"><div class="ttname"><a href="led__mapping_8h.html#ac190470b2f78837d3df987b0951264dd">chess_notation_to_led_index</a></div><div class="ttdeci">uint8_t chess_notation_to_led_index(const char *notation)</div><div class="ttdoc">Converts Sach notation to LED index.</div><div class="ttdef"><b>Definition</b> <a href="led__mapping_8c_source.html#l00092">led_mapping.c:92</a></div></div>
 </div><!-- fragment --></dd></dl>
 <p>Converts Sach notation to LED index.</p>
 <p>Translates Sacha notation (e.g. "e2", "a1") to LED index. Notation must be in [a-h][1-8] format.</p>
@@ -183,7 +178,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>LED index (0-63) or 0 on error </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00091">91</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00092">92</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
 
 </div>
 </div>
@@ -225,18 +220,16 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>LED index (0-63) for the position on the box</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>The function automatically handles invalid inputs and logs the error</dd></dl>
 <p>Converts the box position to an LED index.</p>
-<p>Layout: a1,b1,c1,d1,e1,f1,g1,h1,h2,g2,f2,e2,d2,c2,b2,a2,a3,b3,c3... The box is rotated along the Y axis (a1 is at h1 position).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">row</td><td>Row (0-7, where 0=rank 1, 7=rank 8) <br  />
- </td></tr>
-    <tr><td class="paramname">col</td><td>Column (0-7 where 0=a, 7=h) </td></tr>
+    <tr><td class="paramname">row</td><td>Rank index (0 = rank 1, 7 = rank 8) </td></tr>
+    <tr><td class="paramname">col</td><td>File index (0 = a, 7 = h) </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>LED index (0-63) </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>LED index 0-63 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00031">31</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00053">53</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
 
 </div>
 </div>
@@ -284,17 +277,16 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>The function automatically handles invalid inputs and logs the error</dd></dl>
 <p>Converts the LED index to the box position.</p>
-<p>Reverse operation to <a class="el" href="led__mapping_8h.html#a6f6c321f16b2494986ebfb82fa9bf5df" title="Converts the box position to an LED index.">chess_pos_to_led_index()</a>. Calculation from the LED index the position of the row and column on the drawer.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir"></td><td class="paramname">led_index</td><td>LED index (0-63) </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">row</td><td>Pointer to row (0-7) </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">col</td><td>Pointer to column (0-7) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">row</td><td>Rank index (0 = rank 1) </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">col</td><td>File index (0 = a) </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00061">61</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00070">70</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
 
 </div>
 </div>
@@ -320,7 +312,7 @@ Functions</h2></td></tr>
 <p>Tests the correctness of the LED mapping.</p>
 <p>Tests the LED mapping functionality at known positions. Checks notation-&gt;LED and LED-&gt;position conversions. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00118">118</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__mapping_8c_source.html#l00119">119</a> of file <a class="el" href="led__mapping_8c_source.html">led_mapping.c</a>.</p>
 
 </div>
 </div>

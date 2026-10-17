@@ -96,42 +96,37 @@ $(document).ready(function(){initNavTree('uart__parse_8h.html',''); initResizabl
 </div><!--header-->
 <div class="contents">
 
-<p>Command parsing and game-task dispatch (internal to uart_task component).  
+<p>Command lookup and dispatch.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="uart__task_8h_source.html">uart_task.h</a>&quot;</code><br />
-<code>#include &lt;stdbool.h&gt;</code><br />
-<code>#include &lt;stddef.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for uart_parse.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="uart__parse_8h__incl.png" border="0" usemap="#auart__parse_8h" alt=""/></div>
 <map name="auart__parse_8h" id="auart__parse_8h">
-<area shape="rect" title="Command parsing and game&#45;task dispatch (internal to uart_task component)." alt="" coords="279,5,382,31"/>
-<area shape="rect" href="uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="283,79,378,104"/>
-<area shape="poly" title=" " alt="" coords="333,31,333,65,328,65,328,31"/>
-<area shape="rect" title=" " alt="" coords="63,225,145,251"/>
-<area shape="poly" title=" " alt="" coords="280,26,215,37,141,60,104,76,69,97,38,123,13,153,9,163,9,171,19,189,38,204,62,217,59,222,35,209,15,192,3,173,3,162,8,151,34,119,66,93,101,72,139,55,214,32,279,21"/>
-<area shape="rect" title=" " alt="" coords="403,79,477,104"/>
-<area shape="poly" title=" " alt="" coords="350,28,412,69,409,73,347,33"/>
-<area shape="rect" title=" " alt="" coords="603,225,674,251"/>
-<area shape="poly" title=" " alt="" coords="371,102,432,122,500,150,561,183,612,215,609,220,558,187,497,154,430,127,369,107"/>
-<area shape="poly" title=" " alt="" coords="316,106,209,180,139,221,136,216,206,175,313,102"/>
-<area shape="rect" title=" " alt="" coords="170,225,321,251"/>
-<area shape="poly" title=" " alt="" coords="326,106,261,215,257,212,321,103"/>
-<area shape="rect" title=" " alt="" coords="345,225,474,251"/>
-<area shape="poly" title=" " alt="" coords="379,101,418,120,436,133,450,151,455,168,452,185,433,216,429,214,447,184,450,168,445,153,432,137,415,124,377,106"/>
-<area shape="rect" title=" " alt="" coords="498,225,579,251"/>
-<area shape="poly" title=" " alt="" coords="371,102,420,121,469,150,501,180,526,212,521,215,497,184,466,154,417,126,369,107"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="321,152,436,177"/>
-<area shape="poly" title=" " alt="" coords="341,103,365,139,361,142,336,106"/>
-<area shape="rect" href="uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="23,152,196,177"/>
-<area shape="poly" title=" " alt="" coords="296,107,159,150,157,145,294,101"/>
-<area shape="poly" title=" " alt="" coords="421,175,591,221,589,226,420,180"/>
-<area shape="poly" title=" " alt="" coords="335,180,159,225,158,220,334,175"/>
-<area shape="poly" title=" " alt="" coords="358,180,280,221,278,216,356,175"/>
-<area shape="poly" title=" " alt="" coords="386,177,401,212,396,214,381,179"/>
-<area shape="poly" title=" " alt="" coords="405,175,501,217,499,222,403,180"/>
-<area shape="poly" title=" " alt="" coords="111,178,108,212,103,212,106,177"/>
+<area shape="rect" title="Command lookup and dispatch." alt="" coords="266,5,369,31"/>
+<area shape="rect" href="uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="270,79,365,104"/>
+<area shape="poly" title=" " alt="" coords="320,31,320,65,315,65,315,31"/>
+<area shape="rect" title=" " alt="" coords="173,225,243,251"/>
+<area shape="poly" title=" " alt="" coords="311,106,227,216,223,213,306,103"/>
+<area shape="rect" title=" " alt="" coords="65,225,148,251"/>
+<area shape="poly" title=" " alt="" coords="302,106,137,219,134,215,299,102"/>
+<area shape="rect" title=" " alt="" coords="267,225,418,251"/>
+<area shape="poly" title=" " alt="" coords="322,104,341,211,336,212,317,105"/>
+<area shape="rect" title=" " alt="" coords="442,225,571,251"/>
+<area shape="poly" title=" " alt="" coords="366,96,426,113,457,129,483,150,501,180,508,211,503,213,496,182,479,154,454,133,424,118,364,101"/>
+<area shape="rect" title=" " alt="" coords="595,225,677,251"/>
+<area shape="poly" title=" " alt="" coords="366,101,435,121,509,150,566,182,613,215,610,219,563,187,507,154,433,126,364,106"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="355,152,469,177"/>
+<area shape="poly" title=" " alt="" coords="334,102,387,141,384,146,331,106"/>
+<area shape="rect" href="uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="5,152,179,177"/>
+<area shape="poly" title=" " alt="" coords="282,107,142,150,141,145,280,101"/>
+<area shape="poly" title=" " alt="" coords="380,180,255,223,253,218,378,175"/>
+<area shape="poly" title=" " alt="" coords="364,180,162,227,161,221,362,175"/>
+<area shape="poly" title=" " alt="" coords="402,180,365,217,361,214,399,176"/>
+<area shape="poly" title=" " alt="" coords="429,175,482,215,479,219,426,179"/>
+<area shape="poly" title=" " alt="" coords="449,175,588,219,586,224,447,180"/>
+<area shape="poly" title=" " alt="" coords="97,177,104,211,99,212,92,178"/>
 </map>
 </div>
 </div>
@@ -145,21 +140,9 @@ Functions</h2></td></tr>
 <tr class="separator:a015b3be04ff0b73780f9c39e0197a98f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd86b6f2266678ad987dbac5f16f055d" id="r_abd86b6f2266678ad987dbac5f16f055d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__parse_8h.html#abd86b6f2266678ad987dbac5f16f055d">uart_parse_command</a> (const char *input)</td></tr>
 <tr class="separator:abd86b6f2266678ad987dbac5f16f055d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5375af563f4375b03e16cb5516f3e06f" id="r_a5375af563f4375b03e16cb5516f3e06f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__parse_8h.html#a5375af563f4375b03e16cb5516f3e06f">parse_move_notation</a> (const char *input, char *from, char *to)</td></tr>
-<tr class="separator:a5375af563f4375b03e16cb5516f3e06f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a86e9ed02bc7633c27662831ea262f799" id="r_a86e9ed02bc7633c27662831ea262f799"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__parse_8h.html#a86e9ed02bc7633c27662831ea262f799">validate_chess_squares</a> (const char *from, const char *to)</td></tr>
-<tr class="separator:a86e9ed02bc7633c27662831ea262f799"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a557b6aeba60814f680be2e1cc9dd8164" id="r_a557b6aeba60814f680be2e1cc9dd8164"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__parse_8h.html#a557b6aeba60814f680be2e1cc9dd8164">send_to_game_task</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *move_cmd)</td></tr>
-<tr class="separator:a557b6aeba60814f680be2e1cc9dd8164"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e794219ce8f13265cbb99ff00780a1b" id="r_a3e794219ce8f13265cbb99ff00780a1b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__parse_8h.html#a3e794219ce8f13265cbb99ff00780a1b">send_to_game_task_with_response</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *move_cmd, char *response_buffer, size_t buffer_size, uint32_t timeout_ms)</td></tr>
-<tr class="memdesc:a3e794219ce8f13265cbb99ff00780a1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send command to game task and wait for response.  <br /></td></tr>
-<tr class="separator:a3e794219ce8f13265cbb99ff00780a1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19705a349c243f2fcaca1d209b11aa26" id="r_a19705a349c243f2fcaca1d209b11aa26"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__parse_8h.html#a19705a349c243f2fcaca1d209b11aa26">is_valid_move_notation</a> (const char *move)</td></tr>
-<tr class="memdesc:a19705a349c243f2fcaca1d209b11aa26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validate chess move notation (e.g., "e2e4")  <br /></td></tr>
-<tr class="separator:a19705a349c243f2fcaca1d209b11aa26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Command parsing and game-task dispatch (internal to uart_task component). </p>
+<div class="textblock"><p>Command lookup and dispatch. </p>
 
 <p class="definition">Definition in file <a class="el" href="uart__parse_8h_source.html">uart_parse.h</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
@@ -189,7 +172,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00267">267</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00043">43</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
 
 </div>
 </div>
@@ -209,139 +192,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00238">238</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
-
-</div>
-</div>
-<a id="a19705a349c243f2fcaca1d209b11aa26" name="a19705a349c243f2fcaca1d209b11aa26"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a19705a349c243f2fcaca1d209b11aa26">&#9670;&#160;</a></span>is_valid_move_notation()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool is_valid_move_notation </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>move</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Validate chess move notation (e.g., "e2e4") </p>
-
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00194">194</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
-
-</div>
-</div>
-<a id="a5375af563f4375b03e16cb5516f3e06f" name="a5375af563f4375b03e16cb5516f3e06f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5375af563f4375b03e16cb5516f3e06f">&#9670;&#160;</a></span>parse_move_notation()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool parse_move_notation </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>input</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>from</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>to</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00023">23</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
-
-</div>
-</div>
-<a id="a557b6aeba60814f680be2e1cc9dd8164" name="a557b6aeba60814f680be2e1cc9dd8164"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a557b6aeba60814f680be2e1cc9dd8164">&#9670;&#160;</a></span>send_to_game_task()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool send_to_game_task </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
-          <td class="paramname"><em>move_cmd</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00122">122</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
-
-</div>
-</div>
-<a id="a3e794219ce8f13265cbb99ff00780a1b" name="a3e794219ce8f13265cbb99ff00780a1b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3e794219ce8f13265cbb99ff00780a1b">&#9670;&#160;</a></span>send_to_game_task_with_response()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool send_to_game_task_with_response </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
-          <td class="paramname"><em>move_cmd</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">char *&#160;</td>
-          <td class="paramname"><em>response_buffer</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>buffer_size</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>timeout_ms</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Send command to game task and wait for response. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">move_cmd</td><td>Command to send </td></tr>
-    <tr><td class="paramname">response_buffer</td><td>Buffer to store response message </td></tr>
-    <tr><td class="paramname">buffer_size</td><td>Size of response buffer </td></tr>
-    <tr><td class="paramname">timeout_ms</td><td>Timeout in milliseconds </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true if command sent and response received successfully </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00151">151</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00018">18</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
 
 </div>
 </div>
@@ -361,37 +212,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00333">333</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
-
-</div>
-</div>
-<a id="a86e9ed02bc7633c27662831ea262f799" name="a86e9ed02bc7633c27662831ea262f799"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a86e9ed02bc7633c27662831ea262f799">&#9670;&#160;</a></span>validate_chess_squares()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool validate_chess_squares </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>from</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>to</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00095">95</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__parse_8c_source.html#l00074">74</a> of file <a class="el" href="uart__parse_8c_source.html">uart_parse.c</a>.</p>
 
 </div>
 </div>

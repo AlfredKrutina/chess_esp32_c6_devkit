@@ -100,8 +100,7 @@ $(document).ready(function(){initNavTree('uart__task__internal_8h.html',''); ini
 
 <p>Internal API between <a class="el" href="uart__task_8c.html" title="UART Terminal Task - interactive command line for chess control.">uart_task.c</a> and sibling source files.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
-<code>#include &quot;esp_err.h&quot;</code><br />
+<div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -109,22 +108,13 @@ Include dependency graph for uart_task_internal.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="uart__task__internal_8h__incl.png" border="0" usemap="#auart__task__internal_8h" alt=""/></div>
 <map name="auart__task__internal_8h" id="auart__task__internal_8h">
-<area shape="rect" title="Internal API between uart_task.c and sibling source files." alt="" coords="322,5,474,31"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="294,79,409,104"/>
-<area shape="poly" title=" " alt="" coords="393,32,369,69,364,66,388,30"/>
-<area shape="rect" title=" " alt="" coords="5,152,87,177"/>
-<area shape="poly" title=" " alt="" coords="371,33,87,149,85,144,369,28"/>
-<area shape="rect" title=" " alt="" coords="439,152,522,177"/>
-<area shape="poly" title=" " alt="" coords="407,30,470,139,465,141,402,32"/>
-<area shape="rect" title=" " alt="" coords="547,152,617,177"/>
-<area shape="poly" title=" " alt="" coords="415,29,558,141,555,145,411,33"/>
-<area shape="poly" title=" " alt="" coords="303,107,101,153,100,148,302,101"/>
-<area shape="rect" title=" " alt="" coords="264,152,415,177"/>
-<area shape="poly" title=" " alt="" coords="352,105,346,139,341,138,347,104"/>
-<area shape="rect" title=" " alt="" coords="111,152,240,177"/>
-<area shape="poly" title=" " alt="" coords="324,106,218,149,216,144,322,102"/>
-<area shape="poly" title=" " alt="" coords="373,102,448,143,446,147,371,106"/>
-<area shape="poly" title=" " alt="" coords="389,101,535,146,533,151,388,107"/>
+<area shape="rect" title="Internal API between uart_task.c and sibling source files." alt="" coords="77,5,229,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,87,104"/>
+<area shape="poly" title=" " alt="" coords="137,33,76,73,73,69,134,28"/>
+<area shape="rect" title=" " alt="" coords="111,79,194,104"/>
+<area shape="poly" title=" " alt="" coords="155,31,155,65,150,65,150,31"/>
+<area shape="rect" title=" " alt="" coords="219,79,289,104"/>
+<area shape="poly" title=" " alt="" coords="170,28,228,68,225,73,167,33"/>
 </map>
 </div>
 </div>
@@ -174,7 +164,6 @@ Macros</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:af23b99c8b643d458fb1a6212dad5826c" id="r_af23b99c8b643d458fb1a6212dad5826c"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task__internal_8h.html#af23b99c8b643d458fb1a6212dad5826c">uart_task_wdt_reset_safe</a> (void)</td></tr>
-<tr class="memdesc:af23b99c8b643d458fb1a6212dad5826c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safe WDT reset with WARNING instead of ERROR logging for ESP_ERR_NOT_FOUND.  <br /></td></tr>
 <tr class="separator:af23b99c8b643d458fb1a6212dad5826c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24fe1d895d08ee05b18db4ebe08f7aa4" id="r_a24fe1d895d08ee05b18db4ebe08f7aa4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task__internal_8h.html#a24fe1d895d08ee05b18db4ebe08f7aa4">uart_send_colored_line</a> (const char *color, const char *message)</td></tr>
 <tr class="memdesc:a24fe1d895d08ee05b18db4ebe08f7aa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send colored text with a new line via UART.  <br /></td></tr>
@@ -197,9 +186,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a5e73cb389b8160054b07da47410b12da" id="r_a5e73cb389b8160054b07da47410b12da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task__internal_8h.html#a5e73cb389b8160054b07da47410b12da">uart_send_line</a> (const char *str)</td></tr>
 <tr class="memdesc:a5e73cb389b8160054b07da47410b12da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send lines of text via UART.  <br /></td></tr>
 <tr class="separator:a5e73cb389b8160054b07da47410b12da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23cdba6f3e9cde28600d5540afcc0531" id="r_a23cdba6f3e9cde28600d5540afcc0531"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task__internal_8h.html#a23cdba6f3e9cde28600d5540afcc0531">get_ascii_piece_symbol</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
-<tr class="memdesc:a23cdba6f3e9cde28600d5540afcc0531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziska ASCII symbol for chess piece (base variant)  <br /></td></tr>
-<tr class="separator:a23cdba6f3e9cde28600d5540afcc0531"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -229,7 +215,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00028">28</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00027">27</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -245,7 +231,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00032">32</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00031">31</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -261,7 +247,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00030">30</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00029">29</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -277,7 +263,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00041">41</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00040">40</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -293,7 +279,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00033">33</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00032">32</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -309,7 +295,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00035">35</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00034">34</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -325,7 +311,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00026">26</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00025">25</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -341,7 +327,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00042">42</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00041">41</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -357,7 +343,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00038">38</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00037">37</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -373,7 +359,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00029">29</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00028">28</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -389,7 +375,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00039">39</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00038">38</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -405,7 +391,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00025">25</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00024">24</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -421,7 +407,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00024">24</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00023">23</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -437,7 +423,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00040">40</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00039">39</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -453,7 +439,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00036">36</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00035">35</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -469,7 +455,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00037">37</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00036">36</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -485,7 +471,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00031">31</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00030">30</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -501,7 +487,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00027">27</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00026">26</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -520,40 +506,11 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00021">21</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task__internal_8h_source.html#l00020">20</a> of file <a class="el" href="uart__task__internal_8h_source.html">uart_task_internal.h</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="a23cdba6f3e9cde28600d5540afcc0531" name="a23cdba6f3e9cde28600d5540afcc0531"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a23cdba6f3e9cde28600d5540afcc0531">&#9670;&#160;</a></span>get_ascii_piece_symbol()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">const char * get_ascii_piece_symbol </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
-          <td class="paramname"><em>piece</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Ziska ASCII symbol for chess piece (base variant) </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">piece</td><td>Piece type from <a class="el" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export.">game_task.h</a> </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>ASCII symbol string </dd></dl>
-
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l03479">3479</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
-
-</div>
-</div>
 <a id="a24fe1d895d08ee05b18db4ebe08f7aa4" name="a24fe1d895d08ee05b18db4ebe08f7aa4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a24fe1d895d08ee05b18db4ebe08f7aa4">&#9670;&#160;</a></span>uart_send_colored_line()</h2>
 
@@ -591,7 +548,7 @@ Variables</h2></td></tr>
 </dl>
 <p>The function automatically adds new lines and resets the color to the end of the text and uses a mutex for thread-safe operations. </p>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00760">760</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00783">783</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -620,7 +577,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00787">787</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00810">810</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -661,7 +618,7 @@ Variables</h2></td></tr>
 </dl>
 <p>The function uses vsnprintf for safe formatting and automatically adds a newline to the end of the message. </p>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00880">880</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00903">903</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -690,7 +647,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00820">820</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00843">843</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -720,7 +677,7 @@ Variables</h2></td></tr>
 </dl>
 <p>The function automatically adds new lines to the end of the text and uses short mutex timeouts to prevent WDT problems. </p>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00903">903</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00926">926</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -749,7 +706,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00798">798</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00821">821</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -778,7 +735,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00809">809</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00832">832</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -798,12 +755,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Safe WDT reset with WARNING instead of ERROR logging for ESP_ERR_NOT_FOUND. </p>
-<p>This function safely resets the Task Watchdog Timer. If the task is not yet registered (which is normal during startup), WARNING is logged instead of ERROR.</p>
-<dl class="section return"><dt>Returns</dt><dd>ESP_OK if successful, ESP_ERR_NOT_FOUND if the task is not registered (WARNING only)</dd></dl>
-<p>The function is used to safely reset the watchdog timer during UART operation. Prevents startup errors when the task is not yet registered. </p>
-
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00208">208</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00217">217</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -828,7 +780,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00424">424</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00447">447</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -852,7 +804,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00443">443</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00466">466</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -876,7 +828,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00444">444</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00467">467</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -900,7 +852,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00445">445</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l00468">468</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>

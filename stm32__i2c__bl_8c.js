@@ -1,5 +1,14 @@
 var stm32__i2c__bl_8c =
 [
+    [ "chess_i2c_dev_slot_t", "structchess__i2c__dev__slot__t.html", "structchess__i2c__dev__slot__t" ],
+    [ "CHESS_I2C_DEV_SLOTS", "stm32__i2c__bl_8c.html#a41b950d22792fd45bd053c8f42759dc7", null ],
+    [ "chess_i2c_bus_init", "stm32__i2c__bl_8c.html#adb2ac400490737ff5cb0895036477244", null ],
+    [ "chess_i2c_checked", "stm32__i2c__bl_8c.html#aca99e2dde632e87912aad813ea298ea9", null ],
+    [ "chess_i2c_dev", "stm32__i2c__bl_8c.html#a6d8ddeac16acc16023049aeb3336dfab", null ],
+    [ "chess_i2c_receive", "stm32__i2c__bl_8c.html#af9c33395e52ad94c3a81800a74c4d186", null ],
+    [ "chess_i2c_recover", "stm32__i2c__bl_8c.html#aeb38093aac016a88677f8de38cde1c71", null ],
+    [ "chess_i2c_transmit", "stm32__i2c__bl_8c.html#aeb6182b0a885db77f402bb4715f063c4", null ],
+    [ "chess_i2c_transmit_receive", "stm32__i2c__bl_8c.html#a526c2c8e2ba1e0ddedb16237df938f41", null ],
     [ "stm32_i2c_bl_boot_flash_sync_prepare", "stm32__i2c__bl_8c.html#ad75b508362e3fd1653603922ecac72c1", null ],
     [ "stm32_i2c_bl_boot_flash_sync_wait", "stm32__i2c__bl_8c.html#a5898c2a7fcb83b26a3256be4792b9868", null ],
     [ "stm32_i2c_bl_cmd_get_id", "stm32__i2c__bl_8c.html#a0026bc691ada5dcd2de54640461bd51c", null ],
@@ -10,5 +19,10 @@ var stm32__i2c__bl_8c =
     [ "stm32_i2c_bl_maybe_auto_flash_on_boot", "stm32__i2c__bl_8c.html#a2a0d0482fa89c05c6066d2330c17c3a8", null ],
     [ "stm32_i2c_bl_release_all_run_app", "stm32__i2c__bl_8c.html#ad22002579c3a306a2eb80955c59c1dfb", null ],
     [ "stm32_i2c_bl_select_target", "stm32__i2c__bl_8c.html#a2e619febfa74a5acef7dc60a4651de97", null ],
-    [ "stm32_i2c_bl_write_memory", "stm32__i2c__bl_8c.html#a27aa1a886b20647cac459b95a4d2e078", null ]
+    [ "stm32_i2c_bl_write_memory", "stm32__i2c__bl_8c.html#a27aa1a886b20647cac459b95a4d2e078", null ],
+    [ "CHESS_I2C_TAG", "stm32__i2c__bl_8c.html#a162c665651d1335f963e0f31fe62e118", null ],
+    [ "s_i2c_bus", "stm32__i2c__bl_8c.html#a4d66c003be72e84553a4ea8263a8f8b0", null ],
+    [ "s_i2c_bus_ready", "stm32__i2c__bl_8c.html#afab59ee255bd80811c04500656575545", null ],
+    [ "s_i2c_devs", "stm32__i2c__bl_8c.html#a7169cd89612d7f2e0013d510db44dfcb", null ],
+    [ "s_i2c_lock", "stm32__i2c__bl_8c.html#aa83369e40f067e59520ad25d31d3dc81", null ]
 ];

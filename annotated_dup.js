@@ -9,6 +9,7 @@ var annotated_dup =
     [ "buffer_pool_stats_t", "structbuffer__pool__stats__t.html", "structbuffer__pool__stats__t" ],
     [ "button_event_t", "structbutton__event__t.html", "structbutton__event__t" ],
     [ "castling_state_t", "structcastling__state__t.html", "structcastling__state__t" ],
+    [ "chess_i2c_dev_slot_t", "structchess__i2c__dev__slot__t.html", "structchess__i2c__dev__slot__t" ],
     [ "chess_move_command_t", "structchess__move__command__t.html", "structchess__move__command__t" ],
     [ "chess_move_extended_t", "structchess__move__extended__t.html", "structchess__move__extended__t" ],
     [ "chess_move_t", "structchess__move__t.html", "structchess__move__t" ],

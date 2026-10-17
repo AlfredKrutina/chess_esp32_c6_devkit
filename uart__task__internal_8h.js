@@ -19,7 +19,6 @@ var uart__task__internal_8h =
     [ "COLOR_WHITE", "uart__task__internal_8h.html#a9b44987ffdc2af19b635206b94334b69", null ],
     [ "COLOR_YELLOW", "uart__task__internal_8h.html#a4534b577b74a58b0f4b7be027af664e0", null ],
     [ "SAFE_WDT_RESET", "uart__task__internal_8h.html#a817d1b9d4253b32aa883d9bf92aae705", null ],
-    [ "get_ascii_piece_symbol", "uart__task__internal_8h.html#a23cdba6f3e9cde28600d5540afcc0531", null ],
     [ "uart_send_colored_line", "uart__task__internal_8h.html#a24fe1d895d08ee05b18db4ebe08f7aa4", null ],
     [ "uart_send_error", "uart__task__internal_8h.html#a997485823479f84fcbc9b5121128fb8b", null ],
     [ "uart_send_formatted", "uart__task__internal_8h.html#a3fe9e611dc4f252d5c7cb8cc26ecb232", null ],

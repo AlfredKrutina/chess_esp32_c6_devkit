@@ -16,7 +16,6 @@ var dir_409f97388efe006bc3438b95e9edef48 =
     [ "test_task", "dir_1991cc6dea0a63cfb4490c20aac875c0.html", "dir_1991cc6dea0a63cfb4490c20aac875c0" ],
     [ "timer_system", "dir_37ff961cb22580004e48f495a430ad7c.html", "dir_37ff961cb22580004e48f495a430ad7c" ],
     [ "transport_policy", "dir_fd23b6c07c617646ad5de4c9b5b0d92d.html", "dir_fd23b6c07c617646ad5de4c9b5b0d92d" ],
-    [ "uart_commands_extended", "dir_01cfb48b9a719d4c3c7a5fd96745a96a.html", "dir_01cfb48b9a719d4c3c7a5fd96745a96a" ],
     [ "uart_task", "dir_d0ae06983db71f379ba075ec013a456f.html", "dir_d0ae06983db71f379ba075ec013a456f" ],
     [ "unified_animation_manager", "dir_823818b8139416439cc2663b18364e63.html", "dir_823818b8139416439cc2663b18364e63" ],
     [ "visual_error_system", "dir_27a0c766b97c45b6deeaa7a8c2e2ed8a.html", "dir_27a0c766b97c45b6deeaa7a8c2e2ed8a" ],

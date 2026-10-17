@@ -5,6 +5,5 @@ var searchData=
   ['fill_5ftoken_2',['fill_token',['../test__board__pair__policy_8c.html#a025241c764593dbc64471190726db8b8',1,'test_board_pair_policy.c']]],
   ['find_5fcommand_3',['find_command',['../uart__parse_8h.html#a35d6750b6e64838fc7397da5f65c0056',1,'find_command(const char *command):&#160;uart_parse.c'],['../uart__parse_8c.html#a35d6750b6e64838fc7397da5f65c0056',1,'find_command(const char *command):&#160;uart_parse.c']]],
   ['firmware_5fjson_5fadd_5fguard_5ffields_4',['firmware_json_add_guard_fields',['../ota__update_8c.html#aca625bb951bc24c9191a31f2a414aafa',1,'ota_update.c']]],
-  ['firmware_5fjson_5fadd_5frollback_5ffields_5',['firmware_json_add_rollback_fields',['../ota__update_8c.html#aed47391e2dfccdc2f4df9c5d7506c4c8',1,'ota_update.c']]],
-  ['format_5ftime_5fmmss_6',['format_time_mmss',['../uart__handlers__wifi_8c.html#abc07526e4d22deb256e3182b5f6857b8',1,'uart_handlers_wifi.c']]]
+  ['firmware_5fjson_5fadd_5frollback_5ffields_5',['firmware_json_add_rollback_fields',['../ota__update_8c.html#aed47391e2dfccdc2f4df9c5d7506c4c8',1,'ota_update.c']]]
 ];

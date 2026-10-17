@@ -139,6 +139,9 @@ Functions</h2></td></tr>
 <tr class="memitem:aa6d9bd7e1f9ce3a59a82f0050a1d4d51" id="r_aa6d9bd7e1f9ce3a59a82f0050a1d4d51"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8h.html#aa6d9bd7e1f9ce3a59a82f0050a1d4d51">led_gesture_anim_tick</a> (void)</td></tr>
 <tr class="memdesc:aa6d9bd7e1f9ce3a59a82f0050a1d4d51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advance one frame.  <br /></td></tr>
 <tr class="separator:aa6d9bd7e1f9ce3a59a82f0050a1d4d51"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40130e8c1f3bfc694da753ebc6ee631a" id="r_a40130e8c1f3bfc694da753ebc6ee631a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8h.html#a40130e8c1f3bfc694da753ebc6ee631a">led_gesture_set_button_held</a> (bool held)</td></tr>
+<tr class="memdesc:a40130e8c1f3bfc694da753ebc6ee631a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Held SW1.  <br /></td></tr>
+<tr class="separator:a40130e8c1f3bfc694da753ebc6ee631a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8202dc910c328812f8c9335b6bacaa94" id="r_a8202dc910c328812f8c9335b6bacaa94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961">led_gesture_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8h.html#a8202dc910c328812f8c9335b6bacaa94">led_gesture_take_result</a> (void)</td></tr>
 <tr class="memdesc:a8202dc910c328812f8c9335b6bacaa94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Take the completion code and clear it.  <br /></td></tr>
 <tr class="separator:a8202dc910c328812f8c9335b6bacaa94"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -212,7 +215,7 @@ Functions</h2></td></tr>
 <p>Whether a gesture animation is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when the phase is not idle. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00307">307</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00344">344</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -235,7 +238,7 @@ Functions</h2></td></tr>
 <p>Advance one frame. </p>
 <p>Called from the LED task. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00309">309</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00394">394</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -258,7 +261,30 @@ Functions</h2></td></tr>
 <p>Button went up. </p>
 <p>Cancels a forward snake (plays it backwards) or a shutdown that has not finished. A release during the reverse does nothing. Wave and pulse ignore the latch. The flag is stored even if the LED phase has not started yet. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00412">412</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00510">510</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+
+</div>
+</div>
+<a id="a40130e8c1f3bfc694da753ebc6ee631a" name="a40130e8c1f3bfc694da753ebc6ee631a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a40130e8c1f3bfc694da753ebc6ee631a">&#9670;&#160;</a></span>led_gesture_set_button_held()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_gesture_set_button_held </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>held</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Held SW1. </p>
+<p>The LED task lights rank 1 and rank 8 until a gesture animation starts. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00350">350</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -281,7 +307,7 @@ Functions</h2></td></tr>
 <p>Calm blue pulse for as long as the pairing window is open. </p>
 <p>Does not take the exclusive gesture phase, so a lamp toggle or another triple-click still runs. Stop restores the board picture from when the pulse last had the squares to itself. </p><dl class="section return"><dt>Returns</dt><dd>true once the pulse is requested. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00389">389</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00487">487</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -304,7 +330,7 @@ Functions</h2></td></tr>
 <p>Chase along the black player's squares, then the board goes dark. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if shutdown started. false if another gesture is running. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00385">385</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00483">483</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -327,7 +353,7 @@ Functions</h2></td></tr>
 <p>Boot-style green fill along LED index order. </p>
 <p>Reverse on early release. </p><dl class="section return"><dt>Returns</dt><dd>true if the snake started (idle). false if another gesture is running. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00381">381</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00479">479</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -356,7 +382,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the wave started. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00359">359</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00457">457</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -378,7 +404,7 @@ Functions</h2></td></tr>
 
 <p>End the pairing pulse and give the squares back to the game. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00400">400</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00498">498</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -401,7 +427,7 @@ Functions</h2></td></tr>
 <p>Take the completion code and clear it. </p>
 <dl class="section return"><dt>Returns</dt><dd>The latched result, or LED_GESTURE_RESULT_NONE if nothing finished. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00350">350</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00448">448</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>

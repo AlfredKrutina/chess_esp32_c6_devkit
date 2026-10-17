@@ -12,6 +12,7 @@ var led__gesture__anim_8h =
     [ "led_gesture_anim_busy", "led__gesture__anim_8h.html#af79e2a09e6951a9073b8518b2912e721", null ],
     [ "led_gesture_anim_tick", "led__gesture__anim_8h.html#aa6d9bd7e1f9ce3a59a82f0050a1d4d51", null ],
     [ "led_gesture_note_release", "led__gesture__anim_8h.html#ae2f077302251b589f4371a95899023cd", null ],
+    [ "led_gesture_set_button_held", "led__gesture__anim_8h.html#a40130e8c1f3bfc694da753ebc6ee631a", null ],
     [ "led_gesture_start_pair_pulse", "led__gesture__anim_8h.html#a0a580078551dcb66e39ebd39039fffef", null ],
     [ "led_gesture_start_shutdown", "led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175", null ],
     [ "led_gesture_start_snake", "led__gesture__anim_8h.html#aea0bf0b54c66510d79f073b4d54c6548", null ],

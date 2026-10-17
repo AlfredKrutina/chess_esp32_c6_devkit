@@ -489,6 +489,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a13a1293f8ac28cbf7cd0d7b08cb58c5c" id="r_a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a13a1293f8ac28cbf7cd0d7b08cb58c5c">led_has_significant_changes</a> (void)</td></tr>
 <tr class="memdesc:a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if LED states have changed significantly.  <br /></td></tr>
 <tr class="separator:a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb3eb301ef28a7fc0912d457ade43acf" id="r_abb3eb301ef28a7fc0912d457ade43acf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#abb3eb301ef28a7fc0912d457ade43acf">led_set_forced_blackout</a> (bool on)</td></tr>
+<tr class="memdesc:abb3eb301ef28a7fc0912d457ade43acf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Keep every LED off.  <br /></td></tr>
+<tr class="separator:abb3eb301ef28a7fc0912d457ade43acf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c2b466a04fcadba97ca90ee811927d8" id="r_a5c2b466a04fcadba97ca90ee811927d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a5c2b466a04fcadba97ca90ee811927d8">led_task_start</a> (void *pvParameters)</td></tr>
 <tr class="memdesc:a5c2b466a04fcadba97ca90ee811927d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the LED task.  <br /></td></tr>
 <tr class="separator:a5c2b466a04fcadba97ca90ee811927d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -624,6 +627,8 @@ Variables</h2></td></tr>
 <tr class="separator:a95fe2d6cbd671926e57533891a3b8cac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a8451e4ed607d6e653e39c1122ae600" id="r_a5a8451e4ed607d6e653e39c1122ae600"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a5a8451e4ed607d6e653e39c1122ae600">button_names</a> []</td></tr>
 <tr class="separator:a5a8451e4ed607d6e653e39c1122ae600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64017202253c6693481656741bb55574" id="r_a64017202253c6693481656741bb55574"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a64017202253c6693481656741bb55574">s_forced_blackout</a></td></tr>
+<tr class="separator:a64017202253c6693481656741bb55574"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c488b223b05495652330bf542a90669" id="r_a7c488b223b05495652330bf542a90669"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a7c488b223b05495652330bf542a90669">endgame_animation_active</a> = false</td></tr>
 <tr class="separator:a7c488b223b05495652330bf542a90669"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7005076d8f4d04f878fd4c8e3efdcce5" id="r_a7005076d8f4d04f878fd4c8e3efdcce5"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a7005076d8f4d04f878fd4c8e3efdcce5">led_booting_active</a> = true</td></tr>
@@ -696,11 +701,11 @@ COMMUNICATION (FIFOS &amp; MUTEXY)</h1>
 <div class="line"><a class="code hl_variable" href="led__task_8c.html#a375865749e012db86fd64b8e8c009a8d">led_pending_changes</a>[index] = color;</div>
 <div class="line"><a class="code hl_variable" href="led__task_8c.html#a48cabdbc525e751226e39f78a0c146b6">led_changed_flags</a>[index] = <span class="keyword">true</span>;</div>
 <div class="line">xSemaphoreGive(<a class="code hl_variable" href="led__task_8c.html#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a>);</div>
-<div class="ttc" id="aled__task_8c_html_a375865749e012db86fd64b8e8c009a8d"><div class="ttname"><a href="led__task_8c.html#a375865749e012db86fd64b8e8c009a8d">led_pending_changes</a></div><div class="ttdeci">static uint32_t led_pending_changes[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00379">led_task.c:379</a></div></div>
-<div class="ttc" id="aled__task_8c_html_a48cabdbc525e751226e39f78a0c146b6"><div class="ttname"><a href="led__task_8c.html#a48cabdbc525e751226e39f78a0c146b6">led_changed_flags</a></div><div class="ttdeci">static bool led_changed_flags[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00380">led_task.c:380</a></div></div>
-<div class="ttc" id="aled__task_8c_html_a7f9294a3bacbcefcc6e33dec7d72ea5f"><div class="ttname"><a href="led__task_8c.html#a7f9294a3bacbcefcc6e33dec7d72ea5f">led_states</a></div><div class="ttdeci">static uint32_t led_states[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00338">led_task.c:338</a></div></div>
-<div class="ttc" id="aled__task_8c_html_abf08412fd7527bf3e406512943ab8ec7"><div class="ttname"><a href="led__task_8c.html#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a></div><div class="ttdeci">static SemaphoreHandle_t led_unified_mutex</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00374">led_task.c:374</a></div></div>
-<div class="ttc" id="aled__task_8c_html_acd37c9dc96b5ed1245631969b5daa3f2"><div class="ttname"><a href="led__task_8c.html#acd37c9dc96b5ed1245631969b5daa3f2">LED_TASK_MUTEX_TIMEOUT_TICKS</a></div><div class="ttdeci">#define LED_TASK_MUTEX_TIMEOUT_TICKS</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00238">led_task.c:238</a></div></div>
+<div class="ttc" id="aled__task_8c_html_a375865749e012db86fd64b8e8c009a8d"><div class="ttname"><a href="led__task_8c.html#a375865749e012db86fd64b8e8c009a8d">led_pending_changes</a></div><div class="ttdeci">static uint32_t led_pending_changes[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00380">led_task.c:380</a></div></div>
+<div class="ttc" id="aled__task_8c_html_a48cabdbc525e751226e39f78a0c146b6"><div class="ttname"><a href="led__task_8c.html#a48cabdbc525e751226e39f78a0c146b6">led_changed_flags</a></div><div class="ttdeci">static bool led_changed_flags[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00381">led_task.c:381</a></div></div>
+<div class="ttc" id="aled__task_8c_html_a7f9294a3bacbcefcc6e33dec7d72ea5f"><div class="ttname"><a href="led__task_8c.html#a7f9294a3bacbcefcc6e33dec7d72ea5f">led_states</a></div><div class="ttdeci">static uint32_t led_states[(64+9)]</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00339">led_task.c:339</a></div></div>
+<div class="ttc" id="aled__task_8c_html_abf08412fd7527bf3e406512943ab8ec7"><div class="ttname"><a href="led__task_8c.html#abf08412fd7527bf3e406512943ab8ec7">led_unified_mutex</a></div><div class="ttdeci">static SemaphoreHandle_t led_unified_mutex</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00375">led_task.c:375</a></div></div>
+<div class="ttc" id="aled__task_8c_html_acd37c9dc96b5ed1245631969b5daa3f2"><div class="ttname"><a href="led__task_8c.html#acd37c9dc96b5ed1245631969b5daa3f2">LED_TASK_MUTEX_TIMEOUT_TICKS</a></div><div class="ttdeci">#define LED_TASK_MUTEX_TIMEOUT_TICKS</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l00239">led_task.c:239</a></div></div>
 </div><!-- fragment --><hr  />
  <h1><a class="anchor" id="autotoc_md36"></a>
 LED ANIMATION</h1>
@@ -793,7 +798,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00244">244</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00245">245</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -809,7 +814,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00236">236</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00237">237</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -825,7 +830,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00295">295</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00296">296</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -841,7 +846,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00242">242</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00243">243</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -857,7 +862,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00240">240</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00241">241</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -873,7 +878,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00243">243</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00244">244</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -889,7 +894,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00241">241</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00242">242</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -905,7 +910,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00401">401</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00402">402</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -921,7 +926,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00402">402</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00403">403</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -937,7 +942,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00237">237</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00238">238</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -953,7 +958,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00238">238</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00239">239</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -969,7 +974,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00403">403</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00404">404</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -985,7 +990,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00246">246</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00247">247</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1001,7 +1006,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00212">212</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00213">213</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1031,7 +1036,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00188">188</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00189">189</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1087,7 +1092,7 @@ CRITICAL RULES</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ANSI color escape sequence </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03034">3034</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03049">3049</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1107,7 +1112,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02351">2351</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02366">2366</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1127,7 +1132,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02836">2836</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02851">2851</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1147,7 +1152,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02850">2850</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02865">2865</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1170,7 +1175,7 @@ CRITICAL RULES</h1>
 <p>Initialize AVR-style wave endgame animation (according to old project) </p>
 <p>LED endgame animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02603">2603</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02618">2618</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1190,7 +1195,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02247">2247</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02262">2262</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1219,7 +1224,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02144">2144</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02159">2159</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1239,7 +1244,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02457">2457</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02472">2472</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1262,7 +1267,7 @@ CRITICAL RULES</h1>
 <p>LED boot animation fade out - gradually fade all LEDs to 0. </p>
 <p>Gradually dim all board LEDs from brightness 128 to 0. Used at the end of the boot process for smooth muting. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03817">3817</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03827">3827</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1291,7 +1296,7 @@ CRITICAL RULES</h1>
 </dl>
 <p>Light up the LED according to the progress of the boot process. Used for display system initialization procedure. Turn on the LED light green. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03781">3781</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03796">3796</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1314,7 +1319,7 @@ CRITICAL RULES</h1>
 <p>Booting animation - progressive LED illumination. </p>
 <p>Start boot animation (progressive light up) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02492">2492</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02507">2507</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1337,7 +1342,7 @@ CRITICAL RULES</h1>
 <p>Clear all board highlights and return to chess board pattern. </p>
 <p>Clear all highlights. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01747">1747</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01757">1757</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1359,7 +1364,7 @@ CRITICAL RULES</h1>
 
 <p>Clear all LEDs (internal function without mutex) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00618">618</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00619">619</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1382,7 +1387,7 @@ CRITICAL RULES</h1>
 <p>Clear all LEDs (thread-safe with mutex) </p>
 <p>Safely clear all LEDs from multiple fibers. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02888">2888</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02903">2903</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1404,7 +1409,7 @@ CRITICAL RULES</h1>
 
 <p>Clear only the drawer LEDs (0-63), keep the buttons. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02900">2900</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02915">2915</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1426,7 +1431,7 @@ CRITICAL RULES</h1>
 
 <p>Clear only the button LEDs (64-72), keep the case. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02907">2907</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02922">2922</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1456,7 +1461,7 @@ CRITICAL RULES</h1>
 
 <p>Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates are sent to hardware in one critical section. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03294">3294</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03309">3309</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1512,7 +1517,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03187">3187</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03202">3202</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1534,7 +1539,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling celebration LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03615">3615</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03630">3630</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1556,7 +1561,7 @@ CRITICAL RULES</h1>
 
 <p>Clear enhanced castling indications. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03682">3682</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03697">3697</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1578,7 +1583,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling error LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03594">3594</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03609">3609</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1600,7 +1605,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling guidance LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03570">3570</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03585">3585</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1622,7 +1627,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling tutorial LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03648">3648</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03663">3663</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1650,7 +1655,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02931">2931</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02946">2946</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1678,7 +1683,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02967">2967</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02982">2982</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1706,7 +1711,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02949">2949</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02964">2964</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1729,7 +1734,7 @@ CRITICAL RULES</h1>
 <p>Execute LED command with full command structure. </p>
 <p>Execute a new LED command. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01023">1023</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01033">1033</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1752,7 +1757,7 @@ CRITICAL RULES</h1>
 <p>Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback. </p>
 <p>Vynuceni okamzita LED aktualizace pro kriticke operace. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03348">3348</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03363">3363</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1791,7 +1796,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00893">893</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00903">903</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1820,7 +1825,7 @@ CRITICAL RULES</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Color as uint32_t RGB </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00847">847</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00857">857</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1857,7 +1862,7 @@ CRITICAL RULES</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>LED index (64-72) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00508">508</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00509">509</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1887,7 +1892,7 @@ CRITICAL RULES</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RGB color value (0xRRGGBB) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00864">864</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00874">874</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1918,7 +1923,7 @@ CRITICAL RULES</h1>
 <p>OBSOLETE: Hardware update function no longer needed All LED updates now happen immediately via <a class="el" href="led__task_8c.html#a7cb7bb0774dead39c3607d19de9f9d34" title="Set LED pixel (internal functions without mutex)">led_set_pixel_internal()</a> This function kept only for compatibility - does nothing useful. </p>
 <p>Cleanup hardware resources </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01881">1881</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01891">1891</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1949,7 +1954,7 @@ CRITICAL RULES</h1>
 <p>Initialize RMT hardware for WS2812B LED control. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01798">1798</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01808">1808</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1972,7 +1977,7 @@ CRITICAL RULES</h1>
 <p>Check if LED states have changed significantly. </p>
 <p>Check if the LED has changed. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01958">1958</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01968">1968</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1995,7 +2000,7 @@ CRITICAL RULES</h1>
 <p>Highlight pieces that can move for current player. </p>
 <p>Highlight figures that can move. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01689">1689</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01699">1699</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2024,7 +2029,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01714">1714</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01724">1724</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2054,7 +2059,7 @@ CRITICAL RULES</h1>
 
 <p>Initialize duration management system. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03552">3552</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03567">3567</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2077,7 +2082,7 @@ CRITICAL RULES</h1>
 <p>Find out if the boot animation is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the boot animation is in progress </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02487">2487</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02502">2502</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2105,7 +2110,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03143">3143</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03158">3158</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2158,7 +2163,7 @@ CRITICAL RULES</h1>
 <p>Neutral RGB uses the white die. </p>
 <p>(200,180,180) spreads 20 counts, which is within 20% of the peak, so W = 180 and RGB becomes (20,0,0). A saturated color has a zero channel, or a wider spread (yellow, orange, pink), and keeps W = 0. A caller that already stored W (lamp) is left alone. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03156">3156</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03171">3171</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2187,7 +2192,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03691">3691</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03706">3706</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2209,7 +2214,7 @@ CRITICAL RULES</h1>
 
 <p>Restore checkerboard after OTA abort / error (eg BLE abort). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03762">3762</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03777">3777</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2232,7 +2237,7 @@ CRITICAL RULES</h1>
 <p>Player change animation. </p>
 <p>Game change animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01761">1761</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01771">1771</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2254,7 +2259,7 @@ CRITICAL RULES</h1>
 
 <p>Preserve button states during operation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02914">2914</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02929">2929</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2277,7 +2282,7 @@ CRITICAL RULES</h1>
 <p>Print only LED changes since last status. </p>
 <p>List only LED changes. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01895">1895</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01905">1905</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2300,7 +2305,7 @@ CRITICAL RULES</h1>
 <p>Print compact LED status showing only lit LEDs. </p>
 <p>Vypis kompaktni status LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01378">1378</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01388">1388</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2323,7 +2328,7 @@ CRITICAL RULES</h1>
 <p>Print detailed LED status showing all LED states. </p>
 <p>Vypis detailni status LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01504">1504</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01514">1514</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2353,7 +2358,7 @@ CRITICAL RULES</h1>
 
 <p>Optimized batch commit with privileged mutex synchronization This function provides maximum stability for LED updates. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03377">3377</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03392">3392</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2383,7 +2388,7 @@ CRITICAL RULES</h1>
 
 <p>Process button blink timers (call from main loop) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03127">3127</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03142">3142</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2405,7 +2410,7 @@ CRITICAL RULES</h1>
 
 <p>Process LED commands from the queue. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00998">998</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01008">1008</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2439,7 +2444,7 @@ CRITICAL RULES</h1>
 <li>We process expirations in the main LED task loop (33ms), then commit via the existing batch system. </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03497">3497</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03512">3512</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2486,7 +2491,7 @@ CRITICAL RULES</h1>
 <p>Uniform frame scale, including the white die. </p>
 <p>Returns false when this frame is under LED_RAIL_BUDGET_MA. Current is (8000*(R+G+B) + 16500*W) / 255 µA per LED. There is no second per-channel cap. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03207">3207</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03222">3222</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2509,7 +2514,7 @@ CRITICAL RULES</h1>
 <p>Resets the display of all buttons according to the current state (available/pressed) Called after returning from HA mode so that the buttons display the correct colors. </p>
 <p>Reset the LED display of all buttons according to the current state (availability/press) Call after returning from HA mode. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00780">780</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00790">790</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2533,7 +2538,7 @@ CRITICAL RULES</h1>
 <p>Restore inbox after HA mod.</p>
 <p>This function restores the normal display of the chessboard (black/white squares). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00771">771</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00781">781</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2563,7 +2568,7 @@ CRITICAL RULES</h1>
 
 <p>Send LED status to UART task immediately without delays (for real-time response) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01549">1549</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01559">1559</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2609,7 +2614,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00592">592</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00593">593</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2656,7 +2661,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02894">2894</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02909">2909</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2684,7 +2689,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00474">474</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00475">475</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2723,7 +2728,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00787">787</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00797">797</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2751,7 +2756,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00806">806</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00816">816</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2798,7 +2803,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03103">3103</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03118">3118</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2837,7 +2842,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02985">2985</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03000">3000</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2865,7 +2870,30 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00825">825</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00835">835</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="abb3eb301ef28a7fc0912d457ade43acf" name="abb3eb301ef28a7fc0912d457ade43acf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb3eb301ef28a7fc0912d457ade43acf">&#9670;&#160;</a></span>led_set_forced_blackout()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_forced_blackout </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>on</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Keep every LED off. </p>
+<p>The LED task clears the frame before each commit. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01990">1990</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2918,7 +2946,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00734">734</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00744">744</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2974,7 +3002,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00518">518</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00519">519</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3027,7 +3055,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00582">582</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00583">583</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3078,7 +3106,7 @@ CRITICAL RULES</h1>
 <p>Set one LED including the white die. </p>
 <p>RGB callers keep using <a class="el" href="led__task_8h.html#a7cb7bb0774dead39c3607d19de9f9d34" title="Set LED pixel (internal functions without mutex)">led_set_pixel_internal()</a>. Pass white when the lamp (or another caller) must drive the white die itself. The budgeted writer still applies NVS brightness and the rail cap. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00587">587</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00588">588</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3132,7 +3160,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02876">2876</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02891">2891</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3200,7 +3228,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03449">3449</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03464">3464</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3223,7 +3251,7 @@ CRITICAL RULES</h1>
 <p>Setup animation after endgame - reset pieces to starting positions. </p>
 <p>Set animation after endgame. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02776">2776</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02791">2791</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3245,7 +3273,7 @@ CRITICAL RULES</h1>
 
 <p>Show the box on the LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00641">641</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00642">642</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3273,7 +3301,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02919">2919</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02934">2934</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3326,7 +3354,7 @@ CRITICAL RULES</h1>
 <p>Warm/cool lamp white is not "close" enough for the generic writer rule (255,214,170 spreads 85 counts) but it is still lamp white. </p>
 <p>Weakest channel at least 2/3 of the strongest: W = min, RGB keeps the tint. (255,214,170) is the boundary, 170*3 == 255*2. Red, amber, blue, green stay on the RGB dice because their min fails that test. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00706">706</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00716">716</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3354,7 +3382,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00918">918</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00928">928</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3377,7 +3405,7 @@ CRITICAL RULES</h1>
 <p>Start quiet period (suppress LED status reports) </p>
 <p>Start a quiet exit period. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01948">1948</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01958">1958</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3400,7 +3428,7 @@ CRITICAL RULES</h1>
 <p>Stop endless endgame animation. </p>
 <p>Zastav endgame animaci. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02760">2760</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02775">2775</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3429,7 +3457,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01978">1978</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01992">1992</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3460,7 +3488,7 @@ CRITICAL RULES</h1>
 <p>Safe WDT reset that logs WARNING instead of ERROR for ESP_ERR_NOT_FOUND. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if successful, ESP_ERR_NOT_FOUND if task not registered (WARNING only) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00227">227</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00228">228</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3480,7 +3508,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00947">947</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00957">957</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3502,7 +3530,7 @@ CRITICAL RULES</h1>
 
 <p>Show the test pattern. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00929">929</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00939">939</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3522,7 +3550,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01297">1297</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01307">1307</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3544,7 +3572,7 @@ CRITICAL RULES</h1>
 
 <p>Update button availability based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02997">2997</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03012">3012</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3580,7 +3608,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03059">3059</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03074">3074</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3602,7 +3630,7 @@ CRITICAL RULES</h1>
 
 <p>Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (according to the old project) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02647">2647</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02662">2662</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3625,7 +3653,7 @@ CRITICAL RULES</h1>
 <p>Update LEDs based on current game state. </p>
 <p>Update LED based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01674">1674</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01684">1684</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3648,7 +3676,7 @@ CRITICAL RULES</h1>
 <p>Update the LED hardware. </p>
 <p>Send current LED data to WS2812B LED strip. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01284">1284</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01294">1294</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3679,7 +3707,7 @@ CRITICAL RULES</h1>
 <p>Shift-out pixels after NVS brightness, then the rail budget. </p>
 <p>One place. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03236">3236</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03251">3251</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3704,7 +3732,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00352">352</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00353">353</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3728,7 +3756,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00354">354</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00355">355</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3752,7 +3780,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00355">355</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00356">356</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3776,7 +3804,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00353">353</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00354">354</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3803,7 +3831,7 @@ CRITICAL RULES</h1>
 <div class="line">    <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>,</div>
 <div class="line">    <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">false</span>, <span class="keyword">true</span>}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00343">343</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00344">344</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3827,7 +3855,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00349">349</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00350">350</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3856,7 +3884,7 @@ CRITICAL RULES</h1>
 <div class="line">                       </div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00464">464</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00465">465</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3880,7 +3908,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00342">342</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00343">343</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3906,7 +3934,7 @@ CRITICAL RULES</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
 <div class="line">    0}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00347">347</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00348">348</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3942,7 +3970,7 @@ CRITICAL RULES</h1>
 <div class="line">    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF, 0x000000,</div>
 <div class="line">    0xFFFFFF}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00406">406</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00407">407</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3968,7 +3996,7 @@ CRITICAL RULES</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;Black&quot;</span>, <span class="stringliteral">&quot;Blue&quot;</span>,    <span class="stringliteral">&quot;Green&quot;</span>,  <span class="stringliteral">&quot;Cyan&quot;</span>,</div>
 <div class="line">                                    <span class="stringliteral">&quot;Red&quot;</span>,   <span class="stringliteral">&quot;Magenta&quot;</span>, <span class="stringliteral">&quot;Yellow&quot;</span>, <span class="stringliteral">&quot;White&quot;</span>}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00460">460</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00461">461</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3992,7 +4020,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02130">2130</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02145">2145</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4016,7 +4044,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02598">2598</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02613">2613</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4040,7 +4068,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00388">388</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00389">389</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4064,7 +4092,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00452">452</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00453">453</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4090,7 +4118,7 @@ CRITICAL RULES</h1>
 
 <p>Booting animation - progressive LED illumination. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02485">2485</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02500">2500</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4114,7 +4142,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00380">380</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00381">381</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4138,7 +4166,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00453">453</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00454">454</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4162,7 +4190,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00377">377</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00378">378</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4186,7 +4214,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00360">360</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00361">361</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4210,7 +4238,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00385">385</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00386">386</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4234,7 +4262,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00384">384</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00385">385</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4258,7 +4286,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00366">366</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00367">367</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4282,7 +4310,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00379">379</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00380">380</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4308,7 +4336,7 @@ CRITICAL RULES</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
 <div class="line">    0}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00338">338</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00339">339</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4332,7 +4360,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00451">451</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00452">452</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4356,7 +4384,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00365">365</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00366">366</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4380,7 +4408,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00374">374</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00375">375</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4404,7 +4432,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00359">359</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00360">360</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4428,7 +4456,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00450">450</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00451">451</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4452,7 +4480,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00454">454</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00455">455</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4478,7 +4506,7 @@ CRITICAL RULES</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">    5000</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00456">456</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00457">457</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4502,7 +4530,31 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00455">455</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00456">456</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a64017202253c6693481656741bb55574" name="a64017202253c6693481656741bb55574"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64017202253c6693481656741bb55574">&#9670;&#160;</a></span>s_forced_blackout</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_forced_blackout</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01988">1988</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4526,7 +4578,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03141">3141</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03156">3156</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4550,7 +4602,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03140">3140</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03155">3155</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4574,7 +4626,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03139">3139</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03154">3154</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4600,7 +4652,7 @@ CRITICAL RULES</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">    <span class="keyword">false</span></div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00361">361</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00362">362</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4624,7 +4676,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00215">215</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00216">216</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4648,7 +4700,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00358">358</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00359">359</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4682,7 +4734,7 @@ CRITICAL RULES</h1>
 <div class="line">    0xFF8000  </div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00433">433</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00434">434</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>

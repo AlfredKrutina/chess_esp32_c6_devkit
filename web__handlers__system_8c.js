@@ -17,6 +17,7 @@ var web__handlers__system_8c =
     [ "http_post_settings_auto_lamp_timeout_handler", "web__handlers__system_8c.html#a9f7663f3ece27cb7da8009321d3983a1", null ],
     [ "http_post_settings_brightness_handler", "web__handlers__system_8c.html#a878505bfd1d1a8ed7d68809beab4224c", null ],
     [ "http_post_settings_guided_hints_handler", "web__handlers__system_8c.html#afbba31bd50c7d1b975c05d55f86d0778", null ],
+    [ "http_post_settings_hall_rest_handler", "web__handlers__system_8c.html#ae894b9817f737905778275b3efe1445c", null ],
     [ "http_post_settings_led_guidance_handler", "web__handlers__system_8c.html#accae4f36c6e999b035bcacc93f64c863", null ],
     [ "http_post_settings_start_pos_check_handler", "web__handlers__system_8c.html#a785ee24f1073fe582f8ebdf2d8606da5", null ],
     [ "http_post_settings_ui_handler", "web__handlers__system_8c.html#a73d18e8885d72a75e2cdc7f9a2f3330d", null ],

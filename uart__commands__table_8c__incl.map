@@ -1,5 +1,5 @@
 <map id="uart_commands_table.c" name="uart_commands_table.c">
-<area shape="rect" id="Node000001" title="UART command name/handler registry (extracted from uart_task.c)." alt="" coords="228,5,407,31"/>
+<area shape="rect" id="Node000001" title="UART command name/handler registry." alt="" coords="228,5,407,31"/>
 <area shape="rect" id="Node000002" href="$uart__commands__table_8h.html" title="UART command registry (name → handler)." alt="" coords="292,79,471,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="330,29,364,67,360,70,326,33"/>
 <area shape="rect" id="Node000003" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="270,152,365,177"/>
