@@ -40,6 +40,7 @@
 #include "freertos_chess.h"
 #include "task_wdt.h"
 #include "game_task.h"
+#include "game_gesture.h"
 #include "led_task.h"
 #include "mqtt_client.h"
 #include "nvs.h"
@@ -1266,9 +1267,11 @@ void ha_light_task_start(void *pvParameters) {
         lamp_nvs_save();
         ha_light_switch_to_ha_mode();
       } else if (cmd.type == HA_CMD_MQTT_STATE) {
+        bool was_on = ha_light_state.state;
         if (ha_light_state_mutex != NULL &&
             xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) ==
                 pdTRUE) {
+          was_on = ha_light_state.state;
           ha_light_state.state = (cmd.u.web_lamp.state != 0);
           ha_light_state.r = cmd.u.web_lamp.r;
           ha_light_state.g = cmd.u.web_lamp.g;
@@ -1277,8 +1280,12 @@ void ha_light_task_start(void *pvParameters) {
           xSemaphoreGive(ha_light_state_mutex);
         }
         lamp_nvs_save();
+        bool now_on = (cmd.u.web_lamp.state != 0);
+        /* Turning the lamp on leaves whatever is on the board, game included. */
+        bool entering_light =
+            now_on && (current_mode != HA_MODE_HA || !was_on);
         bool apply = true;
-        if (current_mode == HA_MODE_GAME) {
+        if (!entering_light && current_mode == HA_MODE_GAME) {
           uint32_t now_ms = esp_timer_get_time() / 1000;
           uint32_t idle_ms = now_ms - last_activity_time_ms;
           apply = (idle_ms >= HA_ACTIVITY_TIMEOUT_COMMAND_MS ||
@@ -1289,7 +1296,9 @@ void ha_light_task_start(void *pvParameters) {
                      game_get_move_count(), idle_ms);
           }
         }
-        if (apply) {
+        if (apply && entering_light) {
+          game_gesture_request_lamp_wave();
+        } else if (apply) {
           ha_light_switch_to_ha_mode();
         } else {
           ha_light_publish_state();

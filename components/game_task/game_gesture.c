@@ -320,6 +320,7 @@ bool game_demo_show_active(void) { return s_demo_phase != DEMO_OFF; }
 static bool s_wave_wait;
 static bool s_opening_wave;
 static bool s_pair_pulse_on;
+static volatile bool s_lamp_wave_req;
 static ha_mode_t s_pending_mode;
 
 static uint32_t rgb_of(uint8_t r, uint8_t g, uint8_t b) {
@@ -451,6 +452,31 @@ static void gesture_power_off(void) {
 #endif
 }
 
+static bool gesture_begin_mode_wave(ha_mode_t next) {
+  uint32_t colors[64];
+  uint32_t lamp = lamp_rgb();
+  fill_mode_colors(next, colors);
+  /* Opening spreads the last lamp color. Closing shrinks that same color. */
+  bool inward = (next == HA_MODE_GAME);
+  if (!led_gesture_start_wave(colors, inward, lamp)) {
+    return false;
+  }
+  s_pending_mode = next;
+  s_opening_wave = false;
+  s_wave_wait = true;
+  ESP_LOGI(TAG, "[STAGING] wave preview %s -> %s (commit after cover)",
+           next == HA_MODE_HA ? "game" : "lamp",
+           next == HA_MODE_HA ? "lamp" : "game");
+  return true;
+}
+
+void game_gesture_request_lamp_wave(void) {
+  if (s_wave_wait && s_pending_mode == HA_MODE_HA) {
+    return;
+  }
+  s_lamp_wave_req = true;
+}
+
 static bool gesture_in_puzzle(void) {
   return game_is_puzzle_active() || game_is_puzzle_setup_active();
 }
@@ -528,20 +554,10 @@ static void handle_event(gesture_event_t ev) {
     }
     ha_mode_t next =
         (ha_light_get_mode() == HA_MODE_HA) ? HA_MODE_GAME : HA_MODE_HA;
-    uint32_t colors[64];
-    uint32_t lamp = lamp_rgb();
-    fill_mode_colors(next, colors);
-    /* Opening spreads the last lamp color. Closing shrinks that same color. */
-    bool inward = (next == HA_MODE_GAME);
-    if (!led_gesture_start_wave(colors, inward, lamp)) {
+    if (!gesture_begin_mode_wave(next)) {
       ESP_LOGW(TAG, "wave did not start");
       return;
     }
-    s_pending_mode = next;
-    s_wave_wait = true;
-    ESP_LOGI(TAG, "[STAGING] wave preview %s -> %s (commit after cover)",
-             next == HA_MODE_HA ? "game" : "lamp",
-             next == HA_MODE_HA ? "lamp" : "game");
     break;
   }
   case GESTURE_COLOR: {
@@ -643,6 +659,16 @@ static void handle_result(led_gesture_result_t result) {
 }
 
 void game_gesture_poll(void) {
+  if (s_lamp_wave_req && !s_wave_wait && !led_gesture_anim_busy()) {
+    s_lamp_wave_req = false;
+    if (game_demo_show_active()) {
+      game_demo_show_set(false);
+    }
+    if (!gesture_begin_mode_wave(HA_MODE_HA)) {
+      ESP_LOGW(TAG, "lamp wave did not start");
+      (void)ha_light_request_mode(HA_MODE_HA);
+    }
+  }
   QueueHandle_t q = button_gesture_queue();
   if (q != NULL && !s_wave_wait && !led_gesture_anim_busy()) {
     gesture_event_t ev;
@@ -668,6 +694,10 @@ void game_gesture_poll(void) {
 }
 
 #else /* !CONFIG_CHESS_GESTURE_BUTTON */
+
+void game_gesture_request_lamp_wave(void) {
+  (void)ha_light_request_mode(HA_MODE_HA);
+}
 
 void game_gesture_poll(void) {
   demo_show_tick();
