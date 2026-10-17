@@ -1,0 +1,9 @@
+<map id="power_guard.h" name="power_guard.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="123,5,242,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,117,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,33,94,74,91,69,162,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="141,79,224,104"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,31,185,65,180,65,180,31"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="249,79,319,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="200,28,258,68,255,73,197,33"/>
+</map>

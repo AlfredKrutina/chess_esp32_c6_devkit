@@ -10,7 +10,7 @@ var searchData=
   ['waves_7',['waves',['../structwave__animation__state__t.html#ad00eb787772807623eeb9ec904de2737',1,'wave_animation_state_t']]],
   ['web_5fclient_8',['web_client',['../structstreaming__output__t.html#a4e343bdd2228d1d6b6ba12be90294f79',1,'streaming_output_t']]],
   ['web_5fcommand_5fqueue_9',['web_command_queue',['../freertos__chess_8h.html#a642abc1652d446215a18d55b0517edba',1,'web_command_queue:&#160;freertos_chess.c'],['../freertos__chess_8c.html#a642abc1652d446215a18d55b0517edba',1,'web_command_queue:&#160;freertos_chess.c']]],
-  ['web_5flamp_10',['web_lamp',['../structha__light__command__t.html#a3b467eee7d275f55b48fc75690d078fe',1,'ha_light_command_t']]],
+  ['web_5flamp_10',['web_lamp',['../structha__light__command__t.html#a2127103c4d36ddef14dff58f21d50112',1,'ha_light_command_t']]],
   ['web_5flocked_11',['web_locked',['../web__server__task_8c.html#aa21e15af227cd88b231854eef4d9a1cc',1,'web_server_task.c']]],
   ['web_5fserver_5factive_12',['web_server_active',['../web__server__task_8c.html#aafa0fef29f6314e439892920011c0612',1,'web_server_task.c']]],
   ['web_5fserver_5fcommand_5fqueue_13',['web_server_command_queue',['../web__server__task_8c.html#aaed4d7c5bc3e8140853498b965ec94e2',1,'web_server_command_queue:&#160;web_server_task.c'],['../web__server__task_8h.html#aaed4d7c5bc3e8140853498b965ec94e2',1,'web_server_command_queue:&#160;web_server_task.c'],['../freertos__chess_8h.html#aaed4d7c5bc3e8140853498b965ec94e2',1,'web_server_command_queue:&#160;web_server_task.c'],['../freertos__chess_8c.html#aaed4d7c5bc3e8140853498b965ec94e2',1,'web_server_command_queue:&#160;web_server_task.c']]],

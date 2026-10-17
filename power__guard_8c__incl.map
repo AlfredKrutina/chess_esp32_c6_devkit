@@ -1,0 +1,17 @@
+<map id="power_guard.c" name="power_guard.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="296,5,413,31"/>
+<area shape="rect" id="Node000002" href="$power__guard_8h.html" title=" " alt="" coords="123,79,242,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="328,33,224,76,222,71,326,28"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="266,79,350,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="349,32,325,69,321,66,345,30"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="374,79,431,104"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="365,30,390,66,385,69,360,33"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="455,79,550,104"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="380,28,467,70,465,75,377,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,117,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="165,106,94,147,91,143,162,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="141,152,224,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="185,104,185,138,180,138,180,104"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="249,152,319,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="200,102,258,142,255,146,197,106"/>
+</map>
