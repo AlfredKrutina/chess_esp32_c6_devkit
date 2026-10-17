@@ -192,6 +192,8 @@ Macros</h2></td></tr>
 <tr class="separator:aa15f6282d411d3f4db9302f0d441b4bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63eeddf6a7bb3ed20fd4777b659a25bd" id="r_a63eeddf6a7bb3ed20fd4777b659a25bd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a63eeddf6a7bb3ed20fd4777b659a25bd">EXTRA_B</a>&#160;&#160;&#160;48U</td></tr>
 <tr class="separator:a63eeddf6a7bb3ed20fd4777b659a25bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac861af999c79d072bc315e26443b2453" id="r_ac861af999c79d072bc315e26443b2453"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#ac861af999c79d072bc315e26443b2453">REVEAL_MS</a>&#160;&#160;&#160;420U</td></tr>
+<tr class="separator:ac861af999c79d072bc315e26443b2453"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -207,8 +209,15 @@ Functions</h2></td></tr>
 <tr class="separator:aead075d859b57ec07abdd427b1819a60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38e7b41a7f5c733ea58177c855ea24b4" id="r_a38e7b41a7f5c733ea58177c855ea24b4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a38e7b41a7f5c733ea58177c855ea24b4">scale_rgb</a> (<a class="el" href="structguide__rgb__t.html">guide_rgb_t</a> src, uint8_t level, uint8_t *<a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t *<a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t *<a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>)</td></tr>
 <tr class="separator:a38e7b41a7f5c733ea58177c855ea24b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38c9931274a284be044a0354e166a43c" id="r_a38c9931274a284be044a0354e166a43c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a38c9931274a284be044a0354e166a43c">paint_square</a> (uint8_t sq)</td></tr>
+<tr class="separator:a38c9931274a284be044a0354e166a43c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c228ed546a92921785bffd48f902718" id="r_a7c228ed546a92921785bffd48f902718"><td class="memItemLeft" align="right" valign="top">static unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a7c228ed546a92921785bffd48f902718">reveal_step</a> (uint32_t now)</td></tr>
+<tr class="separator:a7c228ed546a92921785bffd48f902718"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aafe5a5ce8456e609cec2dc1ed1f90b68" id="r_aafe5a5ce8456e609cec2dc1ed1f90b68"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#aafe5a5ce8456e609cec2dc1ed1f90b68">led_board_restore_guide_apply</a> (const <a class="el" href="structled__restore__guide__plan__t.html">led_restore_guide_plan_t</a> *plan)</td></tr>
 <tr class="separator:aafe5a5ce8456e609cec2dc1ed1f90b68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19f51f22ffbf2e7a382503112f08bf2d" id="r_a19f51f22ffbf2e7a382503112f08bf2d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a19f51f22ffbf2e7a382503112f08bf2d">led_board_restore_guide_fade_out</a> (void)</td></tr>
+<tr class="memdesc:a19f51f22ffbf2e7a382503112f08bf2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop the plan and fade whatever is still lit.  <br /></td></tr>
+<tr class="separator:a19f51f22ffbf2e7a382503112f08bf2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab105bd680253db0f13b3506e6e30f3a1" id="r_ab105bd680253db0f13b3506e6e30f3a1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#ab105bd680253db0f13b3506e6e30f3a1">led_board_restore_guide_clear</a> (void)</td></tr>
 <tr class="separator:ab105bd680253db0f13b3506e6e30f3a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aefed614337e9f0d5de858a889caf36d7" id="r_aefed614337e9f0d5de858a889caf36d7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#aefed614337e9f0d5de858a889caf36d7">led_board_restore_guide_is_active</a> (void)</td></tr>
@@ -222,6 +231,16 @@ Variables</h2></td></tr>
 <tr class="separator:a6c4e3989ce7e50beff71a7ec8a0a0d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67c61ee0a1aebca4eeb6444c9fbea0e1" id="r_a67c61ee0a1aebca4eeb6444c9fbea0e1"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a67c61ee0a1aebca4eeb6444c9fbea0e1">s_anim_active</a></td></tr>
 <tr class="separator:a67c61ee0a1aebca4eeb6444c9fbea0e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35f5772f3119dadbf9f715649d71a04e" id="r_a35f5772f3119dadbf9f715649d71a04e"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a35f5772f3119dadbf9f715649d71a04e">s_gain</a> [64]</td></tr>
+<tr class="separator:a35f5772f3119dadbf9f715649d71a04e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add7ca35df581f0e64daf7a76fec0b092" id="r_add7ca35df581f0e64daf7a76fec0b092"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#add7ca35df581f0e64daf7a76fec0b092">s_on</a> [64]</td></tr>
+<tr class="separator:add7ca35df581f0e64daf7a76fec0b092"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b904e7426a5b8172b56d45f76fa8406" id="r_a7b904e7426a5b8172b56d45f76fa8406"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a7b904e7426a5b8172b56d45f76fa8406">s_want</a> [64]</td></tr>
+<tr class="separator:a7b904e7426a5b8172b56d45f76fa8406"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc5cfb506954e82802823315cd9396e2" id="r_afc5cfb506954e82802823315cd9396e2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structguide__rgb__t.html">guide_rgb_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#afc5cfb506954e82802823315cd9396e2">s_hold</a> [64]</td></tr>
+<tr class="separator:afc5cfb506954e82802823315cd9396e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04ef807d732149094f6cb4c21a6760f2" id="r_a04ef807d732149094f6cb4c21a6760f2"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8c.html#a04ef807d732149094f6cb4c21a6760f2">s_last_ms</a></td></tr>
+<tr class="separator:a04ef807d732149094f6cb4c21a6760f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Per-piece setup glow. </p>
@@ -322,6 +341,22 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00021">21</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="ac861af999c79d072bc315e26443b2453" name="ac861af999c79d072bc315e26443b2453"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac861af999c79d072bc315e26443b2453">&#9670;&#160;</a></span>REVEAL_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define REVEAL_MS&#160;&#160;&#160;420U</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00025">25</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -426,7 +461,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00084">84</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00091">91</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -464,7 +499,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00057">57</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00064">64</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -484,7 +519,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00104">104</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00133">133</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -504,7 +539,29 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00113">113</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00157">157</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a19f51f22ffbf2e7a382503112f08bf2d" name="a19f51f22ffbf2e7a382503112f08bf2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19f51f22ffbf2e7a382503112f08bf2d">&#9670;&#160;</a></span>led_board_restore_guide_fade_out()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_board_restore_guide_fade_out </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Drop the plan and fade whatever is still lit. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00149">149</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -524,7 +581,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00123">123</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00169">169</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -544,7 +601,35 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00125">125</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00171">171</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a38c9931274a284be044a0354e166a43c" name="a38c9931274a284be044a0354e166a43c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38c9931274a284be044a0354e166a43c">&#9670;&#160;</a></span>paint_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void paint_square </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>sq</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00111">111</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -572,7 +657,35 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00038">38</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00045">45</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a7c228ed546a92921785bffd48f902718" name="a7c228ed546a92921785bffd48f902718"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c228ed546a92921785bffd48f902718">&#9670;&#160;</a></span>reveal_step()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static unsigned reveal_step </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>now</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00120">120</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -628,7 +741,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00097">97</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00104">104</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -656,7 +769,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00078">78</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00085">85</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -684,7 +797,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00034">34</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00041">41</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -709,7 +822,103 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00026">26</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00034">34</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a35f5772f3119dadbf9f715649d71a04e" name="a35f5772f3119dadbf9f715649d71a04e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35f5772f3119dadbf9f715649d71a04e">&#9670;&#160;</a></span>s_gain</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t s_gain[64]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00035">35</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="afc5cfb506954e82802823315cd9396e2" name="afc5cfb506954e82802823315cd9396e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afc5cfb506954e82802823315cd9396e2">&#9670;&#160;</a></span>s_hold</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structguide__rgb__t.html">guide_rgb_t</a> s_hold[64]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00038">38</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a04ef807d732149094f6cb4c21a6760f2" name="a04ef807d732149094f6cb4c21a6760f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04ef807d732149094f6cb4c21a6760f2">&#9670;&#160;</a></span>s_last_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_last_ms</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00039">39</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="add7ca35df581f0e64daf7a76fec0b092" name="add7ca35df581f0e64daf7a76fec0b092"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add7ca35df581f0e64daf7a76fec0b092">&#9670;&#160;</a></span>s_on</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t s_on[64]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00036">36</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -733,7 +942,31 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00025">25</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00033">33</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a7b904e7426a5b8172b56d45f76fa8406" name="a7b904e7426a5b8172b56d45f76fa8406"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b904e7426a5b8172b56d45f76fa8406">&#9670;&#160;</a></span>s_want</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t s_want[64]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00037">37</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>

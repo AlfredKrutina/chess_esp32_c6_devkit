@@ -169,6 +169,7 @@ var menudata={children:[
 {text:"a",url:"globals_eval.html#index_a"},
 {text:"b",url:"globals_eval_b.html#index_b"},
 {text:"c",url:"globals_eval_c.html#index_c"},
+{text:"d",url:"globals_eval_d.html#index_d"},
 {text:"e",url:"globals_eval_e.html#index_e"},
 {text:"g",url:"globals_eval_g.html#index_g"},
 {text:"h",url:"globals_eval_h.html#index_h"},

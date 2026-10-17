@@ -98,19 +98,78 @@ $(document).ready(function(){initNavTree('game__gesture_8h.html',''); initResiza
 
 <p>Game-task side of the V2 button: mode commit, new game, pairing, sleep.  
 <a href="#details">More...</a></p>
-
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for game_gesture.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="game__gesture_8h__incl.png" border="0" usemap="#agame__gesture_8h" alt=""/></div>
+<map name="agame__gesture_8h" id="agame__gesture_8h">
+<area shape="rect" title="Game&#45;task side of the V2 button: mode commit, new game, pairing, sleep." alt="" coords="5,5,132,31"/>
+<area shape="rect" title=" " alt="" coords="27,79,110,104"/>
+<area shape="poly" title=" " alt="" coords="71,31,71,65,66,65,66,31"/>
+</map>
+</div>
+</div>
 <p><a href="game__gesture_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a1426014ec7b0f7ded133e12150f59007" id="r_a1426014ec7b0f7ded133e12150f59007"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__gesture_8h.html#a1426014ec7b0f7ded133e12150f59007">game_gesture_poll</a> (void)</td></tr>
 <tr class="separator:a1426014ec7b0f7ded133e12150f59007"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad70d73bde2d94783c13a3d0ae15e12fe" id="r_ad70d73bde2d94783c13a3d0ae15e12fe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__gesture_8h.html#ad70d73bde2d94783c13a3d0ae15e12fe">game_demo_show_set</a> (bool on)</td></tr>
+<tr class="memdesc:ad70d73bde2d94783c13a3d0ae15e12fe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Live animation show.  <br /></td></tr>
+<tr class="separator:ad70d73bde2d94783c13a3d0ae15e12fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21257a11e93f2123d418e5418f679c78" id="r_a21257a11e93f2123d418e5418f679c78"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__gesture_8h.html#a21257a11e93f2123d418e5418f679c78">game_demo_show_active</a> (void)</td></tr>
+<tr class="separator:a21257a11e93f2123d418e5418f679c78"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Game-task side of the V2 button: mode commit, new game, pairing, sleep. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__gesture_8h_source.html">game_gesture.h</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a21257a11e93f2123d418e5418f679c78" name="a21257a11e93f2123d418e5418f679c78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21257a11e93f2123d418e5418f679c78">&#9670;&#160;</a></span>game_demo_show_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_demo_show_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__gesture_8c_source.html#l00245">245</a> of file <a class="el" href="game__gesture_8c_source.html">game_gesture.c</a>.</p>
+
+</div>
+</div>
+<a id="ad70d73bde2d94783c13a3d0ae15e12fe" name="ad70d73bde2d94783c13a3d0ae15e12fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad70d73bde2d94783c13a3d0ae15e12fe">&#9670;&#160;</a></span>game_demo_show_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_demo_show_set </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>on</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Live animation show. </p>
+<p>Nothing is stored; it ends on reset, stop, or a piece move. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__gesture_8c_source.html#l00222">222</a> of file <a class="el" href="game__gesture_8c_source.html">game_gesture.c</a>.</p>
+
+</div>
+</div>
 <a id="a1426014ec7b0f7ded133e12150f59007" name="a1426014ec7b0f7ded133e12150f59007"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1426014ec7b0f7ded133e12150f59007">&#9670;&#160;</a></span>game_gesture_poll()</h2>
 
@@ -127,7 +186,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__gesture_8c_source.html#l00328">328</a> of file <a class="el" href="game__gesture_8c_source.html">game_gesture.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__gesture_8c_source.html#l00565">565</a> of file <a class="el" href="game__gesture_8c_source.html">game_gesture.c</a>.</p>
 
 </div>
 </div>

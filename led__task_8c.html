@@ -421,7 +421,6 @@ Functions</h2></td></tr>
 <tr class="memdesc:a69379eed351dd045d9d23cda7ec86a69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize AVR-style wave endgame animation (according to old project)  <br /></td></tr>
 <tr class="separator:a69379eed351dd045d9d23cda7ec86a69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d7ed5f284182a8b0bf27f9fc2537445" id="r_a0d7ed5f284182a8b0bf27f9fc2537445"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a0d7ed5f284182a8b0bf27f9fc2537445">led_update_endgame_wave</a> (void)</td></tr>
-<tr class="memdesc:a0d7ed5f284182a8b0bf27f9fc2537445"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (according to the old project)  <br /></td></tr>
 <tr class="separator:a0d7ed5f284182a8b0bf27f9fc2537445"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0eaa8914041f19a17236659faf64f3b9" id="r_a0eaa8914041f19a17236659faf64f3b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a0eaa8914041f19a17236659faf64f3b9">led_anim_check</a> (const <a class="el" href="structled__command__t.html">led_command_t</a> *cmd)</td></tr>
 <tr class="separator:a0eaa8914041f19a17236659faf64f3b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -483,17 +482,36 @@ Functions</h2></td></tr>
 <tr class="memitem:a5c2b466a04fcadba97ca90ee811927d8" id="r_a5c2b466a04fcadba97ca90ee811927d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a5c2b466a04fcadba97ca90ee811927d8">led_task_start</a> (void *pvParameters)</td></tr>
 <tr class="memdesc:a5c2b466a04fcadba97ca90ee811927d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the LED task.  <br /></td></tr>
 <tr class="separator:a5c2b466a04fcadba97ca90ee811927d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afea4acc64cf6a337690b441a9c5f5fac" id="r_afea4acc64cf6a337690b441a9c5f5fac"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#afea4acc64cf6a337690b441a9c5f5fac">led_smoothstep</a> (float t)</td></tr>
+<tr class="separator:afea4acc64cf6a337690b441a9c5f5fac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b8832f461610c80ab53ba9e417328e1" id="r_a1b8832f461610c80ab53ba9e417328e1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a1b8832f461610c80ab53ba9e417328e1">led_blend_add</a> (uint16_t acc[64][3], float row, float col, float red, float green, float blue)</td></tr>
+<tr class="memdesc:a1b8832f461610c80ab53ba9e417328e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Slide a color across the four squares around a fractional board point.  <br /></td></tr>
+<tr class="separator:a1b8832f461610c80ab53ba9e417328e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9da62217ed7a63eeddd0018d67af914" id="r_ae9da62217ed7a63eeddd0018d67af914"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#ae9da62217ed7a63eeddd0018d67af914">led_blend_flush</a> (uint16_t acc[64][3])</td></tr>
+<tr class="separator:ae9da62217ed7a63eeddd0018d67af914"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a533dfd80b93f0821af12a5f929dcc40b" id="r_a533dfd80b93f0821af12a5f929dcc40b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a533dfd80b93f0821af12a5f929dcc40b">led_booting_animation</a> (void)</td></tr>
 <tr class="memdesc:a533dfd80b93f0821af12a5f929dcc40b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Booting animation - progressive LED illumination.  <br /></td></tr>
 <tr class="separator:a533dfd80b93f0821af12a5f929dcc40b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25492c83058ecdbb369d7242a08f6e02" id="r_a25492c83058ecdbb369d7242a08f6e02"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a25492c83058ecdbb369d7242a08f6e02">endgame_ring</a> (float dist, float radius)</td></tr>
+<tr class="memdesc:a25492c83058ecdbb369d7242a08f6e02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (according to the old project)  <br /></td></tr>
+<tr class="separator:a25492c83058ecdbb369d7242a08f6e02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a441f4c807d0678b3c2a46030e0f3abd8" id="r_a441f4c807d0678b3c2a46030e0f3abd8"><td class="memItemLeft" align="right" valign="top">static float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a441f4c807d0678b3c2a46030e0f3abd8">endgame_amp</a> (float radius)</td></tr>
+<tr class="separator:a441f4c807d0678b3c2a46030e0f3abd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a081382ca7f7a773156291851fdbe6f5f" id="r_a081382ca7f7a773156291851fdbe6f5f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a081382ca7f7a773156291851fdbe6f5f">led_stop_endgame_animation</a> (void)</td></tr>
 <tr class="memdesc:a081382ca7f7a773156291851fdbe6f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop endless endgame animation.  <br /></td></tr>
 <tr class="separator:a081382ca7f7a773156291851fdbe6f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38353130f2210565c3c71c96f05ecf04" id="r_a38353130f2210565c3c71c96f05ecf04"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a38353130f2210565c3c71c96f05ecf04">led_setup_animation_after_endgame</a> (void)</td></tr>
 <tr class="memdesc:a38353130f2210565c3c71c96f05ecf04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setup animation after endgame - reset pieces to starting positions.  <br /></td></tr>
 <tr class="separator:a38353130f2210565c3c71c96f05ecf04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ce5feb2c1b5a96c8e46f1f24ce63a05" id="r_a8ce5feb2c1b5a96c8e46f1f24ce63a05"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a8ce5feb2c1b5a96c8e46f1f24ce63a05">led_set_lamp_hold</a> (bool hold)</td></tr>
+<tr class="memdesc:a8ce5feb2c1b5a96c8e46f1f24ce63a05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set LED pixel (thread-safe with mutex)  <br /></td></tr>
+<tr class="separator:a8ce5feb2c1b5a96c8e46f1f24ce63a05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a830202fcbe65edefa48fced5e3d2ed2f" id="r_a830202fcbe65edefa48fced5e3d2ed2f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a830202fcbe65edefa48fced5e3d2ed2f">led_lamp_board_held</a> (void)</td></tr>
+<tr class="separator:a830202fcbe65edefa48fced5e3d2ed2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad57f9f4e0845797fee0ce2308c4506c0" id="r_ad57f9f4e0845797fee0ce2308c4506c0"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#ad57f9f4e0845797fee0ce2308c4506c0">led_game_pixels_blocked</a> (void)</td></tr>
+<tr class="separator:ad57f9f4e0845797fee0ce2308c4506c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4b7ef962f86de71ef5f934f2a92544a" id="r_ad4b7ef962f86de71ef5f934f2a92544a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#ad4b7ef962f86de71ef5f934f2a92544a">led_set_pixel_safe</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue)</td></tr>
-<tr class="memdesc:ad4b7ef962f86de71ef5f934f2a92544a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set LED pixel (thread-safe with mutex)  <br /></td></tr>
+<tr class="memdesc:ad4b7ef962f86de71ef5f934f2a92544a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safe LED pixel setup from multiple fibers.  <br /></td></tr>
 <tr class="separator:ad4b7ef962f86de71ef5f934f2a92544a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afff280b4c9b7261d1a086e0cfa356604" id="r_afff280b4c9b7261d1a086e0cfa356604"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#afff280b4c9b7261d1a086e0cfa356604">led_clear_all_safe</a> (void)</td></tr>
 <tr class="memdesc:afff280b4c9b7261d1a086e0cfa356604"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear all LEDs (thread-safe with mutex)  <br /></td></tr>
@@ -625,6 +643,8 @@ Variables</h2></td></tr>
 <tr class="separator:a7005076d8f4d04f878fd4c8e3efdcce5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ed1a514affa226ab201a5e7334e32a7" id="r_a1ed1a514affa226ab201a5e7334e32a7"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structendgame__wave__state__t.html">endgame_wave_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a1ed1a514affa226ab201a5e7334e32a7">endgame_wave</a> = {0}</td></tr>
 <tr class="separator:a1ed1a514affa226ab201a5e7334e32a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49a99bdf92ae2eb22bdd676b2ae793fe" id="r_a49a99bdf92ae2eb22bdd676b2ae793fe"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a49a99bdf92ae2eb22bdd676b2ae793fe">s_lamp_hold</a></td></tr>
+<tr class="separator:a49a99bdf92ae2eb22bdd676b2ae793fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5f66b4494c6240ff3a50c7b176bad870" id="r_a5f66b4494c6240ff3a50c7b176bad870"><td class="memItemLeft" align="right" valign="top">static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8c.html#a5f66b4494c6240ff3a50c7b176bad870">s_boot_snake_q8</a></td></tr>
 <tr class="memdesc:a5f66b4494c6240ff3a50c7b176bad870"><td class="mdescLeft">&#160;</td><td class="mdescRight">LED boot animation step - light up the LED according to progress.  <br /></td></tr>
 <tr class="separator:a5f66b4494c6240ff3a50c7b176bad870"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -750,7 +770,7 @@ CRITICAL RULES</h1>
 <ol type="1">
 <li>NEVER call led_strip_refresh() directly! ❌ led_strip_refresh(led_strip); // WRONG - breaks the batch system ✅ <a class="el" href="led__task_8c.html#af39bda75c597894d99ae8a5a35542fe9" title="Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates ...">led_commit_pending_changes()</a>; // CORRECT - commit all changes</li>
 <li>NEVER hold the mutex too long! ❌ xSemaphoreTake(...); vTaskDelay(100); xSemaphoreGive(...); ✅ Perform only necessary operations under the mutex</li>
-<li>NEVER call blocking animations in the main loop! ❌ led_anim_endgame_blocking(); // Blocks the system for 10s ✅ <a class="el" href="led__task_8c.html#a0d7ed5f284182a8b0bf27f9fc2537445" title="Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highl...">led_update_endgame_wave()</a>; // Non-blocking update</li>
+<li>NEVER call blocking animations in the main loop! ❌ led_anim_endgame_blocking(); // Blocks the system for 10s ✅ <a class="el" href="led__task_8c.html#a0d7ed5f284182a8b0bf27f9fc2537445">led_update_endgame_wave()</a>; // Non-blocking update</li>
 <li>ALWAYS check LED index bounds! ❌ led_states[100] = color; // Buffer overrun! ✅ if (index &lt; CHESS_LED_COUNT_TOTAL) { led_states[index] = color; }</li>
 <li>ALWAYS use the batch system for multiple LEDs! ❌ for (i=0; i&lt;64; i++) <a class="el" href="led__task_8c.html#a35ed753e036a2372ea57df822d92f154" title="Force immediate LED update for critical operations Use this only for startup tests or critical visual...">led_force_immediate_update()</a>; // 64x refresh! ✅ for (i=0; i&lt;64; i++) <a class="el" href="led__task__simple_8h.html#ada9e83fe87bb057aa60e7bf6d3b23215" title="Compatible functions for existing code.">led_set_pixel()</a>; // 64x change <a class="el" href="led__task_8c.html#af39bda75c597894d99ae8a5a35542fe9" title="Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates ...">led_commit_pending_changes()</a>; // 1x refresh</li>
 </ol>
@@ -981,6 +1001,74 @@ CRITICAL RULES</h1>
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="a441f4c807d0678b3c2a46030e0f3abd8" name="a441f4c807d0678b3c2a46030e0f3abd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a441f4c807d0678b3c2a46030e0f3abd8">&#9670;&#160;</a></span>endgame_amp()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static float endgame_amp </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>radius</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02641">2641</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a25492c83058ecdbb369d7242a08f6e02" name="a25492c83058ecdbb369d7242a08f6e02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a25492c83058ecdbb369d7242a08f6e02">&#9670;&#160;</a></span>endgame_ring()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static float endgame_ring </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>dist</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>radius</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (according to the old project) </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02636">2636</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
 <a id="adab4e0aa5871161ca4d0f13c4c2e9f63" name="adab4e0aa5871161ca4d0f13c4c2e9f63"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#adab4e0aa5871161ca4d0f13c4c2e9f63">&#9670;&#160;</a></span>get_ansi_color_from_rgb()</h2>
 
@@ -1032,7 +1120,7 @@ CRITICAL RULES</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ANSI color escape sequence </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03027">3027</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03021">3021</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1052,7 +1140,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02346">2346</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02350">2350</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1072,7 +1160,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02831">2831</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02812">2812</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1092,7 +1180,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02845">2845</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02826">2826</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1115,7 +1203,7 @@ CRITICAL RULES</h1>
 <p>Initialize AVR-style wave endgame animation (according to old project) </p>
 <p>LED endgame animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02598">2598</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02591">2591</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1135,7 +1223,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02242">2242</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02300">2300</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1184,7 +1272,99 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02452">2452</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02444">2444</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1b8832f461610c80ab53ba9e417328e1" name="a1b8832f461610c80ab53ba9e417328e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b8832f461610c80ab53ba9e417328e1">&#9670;&#160;</a></span>led_blend_add()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void led_blend_add </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>acc</em>[64][3], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>red</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>green</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>blue</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Slide a color across the four squares around a fractional board point. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02253">2253</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae9da62217ed7a63eeddd0018d67af914" name="ae9da62217ed7a63eeddd0018d67af914"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9da62217ed7a63eeddd0018d67af914">&#9670;&#160;</a></span>led_blend_flush()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void led_blend_flush </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>acc</em>[64][3]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02288">2288</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1207,7 +1387,7 @@ CRITICAL RULES</h1>
 <p>LED boot animation fade out - gradually fade all LEDs to 0. </p>
 <p>Gradually dim all board LEDs from brightness 128 to 0. Used at the end of the boot process for smooth muting. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03768">3768</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03762">3762</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1236,7 +1416,7 @@ CRITICAL RULES</h1>
 </dl>
 <p>Light up the LED according to the progress of the boot process. Used for display system initialization procedure. Turn on the LED light green. </p><dl class="section return"><dt>Returns</dt><dd>true once the snake has covered the board (caller should fade out) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03718">3718</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03712">3712</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1259,7 +1439,7 @@ CRITICAL RULES</h1>
 <p>Booting animation - progressive LED illumination. </p>
 <p>Start boot animation (progressive light up) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02487">2487</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02479">2479</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1327,7 +1507,7 @@ CRITICAL RULES</h1>
 <p>Clear all LEDs (thread-safe with mutex) </p>
 <p>Safely clear all LEDs from multiple fibers. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02883">2883</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02874">2874</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1349,7 +1529,7 @@ CRITICAL RULES</h1>
 
 <p>Clear only the drawer LEDs (0-63), keep the buttons. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02895">2895</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02886">2886</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1371,7 +1551,7 @@ CRITICAL RULES</h1>
 
 <p>Clear only the button LEDs (64-72), keep the case. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02902">2902</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02896">2896</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1401,7 +1581,7 @@ CRITICAL RULES</h1>
 
 <p>Commit all pending LED changes atomically with watchdog safety This function ensures all LED updates are sent to hardware in one critical section. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03227">3227</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03221">3221</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1457,7 +1637,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03180">3180</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03174">3174</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1479,7 +1659,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling celebration LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03548">3548</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03542">3542</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1501,7 +1681,7 @@ CRITICAL RULES</h1>
 
 <p>Clear enhanced castling indications. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03615">3615</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03609">3609</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1523,7 +1703,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling error LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03527">3527</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03521">3521</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1545,7 +1725,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling guidance LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03503">3503</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03497">3497</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1567,7 +1747,7 @@ CRITICAL RULES</h1>
 
 <p>Enhanced castling tutorial LED function. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03581">3581</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03575">3575</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1595,7 +1775,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02926">2926</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02920">2920</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1623,7 +1803,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02962">2962</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02956">2956</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1651,7 +1831,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02944">2944</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02938">2938</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1697,7 +1877,35 @@ CRITICAL RULES</h1>
 <p>Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback. </p>
 <p>Vynuceni okamzita LED aktualizace pro kriticke operace. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03281">3281</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03275">3275</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad57f9f4e0845797fee0ce2308c4506c0" name="ad57f9f4e0845797fee0ce2308c4506c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad57f9f4e0845797fee0ce2308c4506c0">&#9670;&#160;</a></span>led_game_pixels_blocked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool led_game_pixels_blocked </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02858">2858</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1999,7 +2207,7 @@ CRITICAL RULES</h1>
 
 <p>Initialize duration management system. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03485">3485</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03479">3479</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2022,7 +2230,28 @@ CRITICAL RULES</h1>
 <p>Find out if the boot animation is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the boot animation is in progress </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02482">2482</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02474">2474</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a830202fcbe65edefa48fced5e3d2ed2f" name="a830202fcbe65edefa48fced5e3d2ed2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a830202fcbe65edefa48fced5e3d2ed2f">&#9670;&#160;</a></span>led_lamp_board_held()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_lamp_board_held </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>true while the lamp owns the board squares. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02856">2856</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2066,7 +2295,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03054">3054</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03048">3048</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2094,7 +2323,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03136">3136</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03130">3130</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2147,7 +2376,7 @@ CRITICAL RULES</h1>
 <p>Neutral RGB uses the white die. </p>
 <p>(200,180,180) spreads 20 counts, which is within 20% of the peak, so W = 180 and RGB becomes (20,0,0). A saturated color has a zero channel, or a wider spread (yellow, orange, pink), and keeps W = 0. A caller that already stored W (lamp) is left alone. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03149">3149</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03143">3143</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2176,7 +2405,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03624">3624</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03618">3618</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2198,7 +2427,7 @@ CRITICAL RULES</h1>
 
 <p>Restore checkerboard after OTA abort / error (eg BLE abort). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03695">3695</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03689">3689</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2243,7 +2472,7 @@ CRITICAL RULES</h1>
 
 <p>Preserve button states during operation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02909">2909</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02903">2903</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2342,7 +2571,7 @@ CRITICAL RULES</h1>
 
 <p>Optimized batch commit with privileged mutex synchronization This function provides maximum stability for LED updates. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03310">3310</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03304">3304</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2372,7 +2601,7 @@ CRITICAL RULES</h1>
 
 <p>Process button blink timers (call from main loop) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03128">3128</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03122">3122</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2428,7 +2657,7 @@ CRITICAL RULES</h1>
 <li>We process expirations in the main LED task loop (33ms), then commit via the existing batch system. </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03430">3430</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03424">3424</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2598,7 +2827,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02889">2889</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02880">2880</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2740,7 +2969,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03104">3104</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03098">3098</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2779,7 +3008,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02980">2980</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02974">2974</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -2884,6 +3113,39 @@ CRITICAL RULES</h1>
 </dl>
 
 <p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00730">730</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8ce5feb2c1b5a96c8e46f1f24ce63a05" name="a8ce5feb2c1b5a96c8e46f1f24ce63a05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8ce5feb2c1b5a96c8e46f1f24ce63a05">&#9670;&#160;</a></span>led_set_lamp_hold()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_set_lamp_hold </td>
+          <td>(</td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>hold</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Set LED pixel (thread-safe with mutex) </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">led_index</td><td>LED index (0-72) </td></tr>
+    <tr><td class="paramname">red</td><td>Red (0-255) </td></tr>
+    <tr><td class="paramname">green</td><td>Green (0-255) </td></tr>
+    <tr><td class="paramname">blue</td><td>Blue (0-255)</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>While set, game pixel writes must not cover the lamp.</p>
+<p>The gesture wave still paints. Cleared when the board returns to the game. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02854">2854</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3057,25 +3319,25 @@ CRITICAL RULES</h1>
           <td class="memname">void led_set_pixel_safe </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>led_index</em>, </td>
+          <td class="paramname"><em>index</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>red</em>, </td>
+          <td class="paramname"><em>r</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>green</em>, </td>
+          <td class="paramname"><em>g</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>blue</em>&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -3085,19 +3347,21 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p>Set LED pixel (thread-safe with mutex) </p>
-<p>Safe LED pixel setup from multiple fibers.</p>
+<p>Safe LED pixel setup from multiple fibers. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">led_index</td><td>LED index (0-72) </td></tr>
-    <tr><td class="paramname">red</td><td>Red (0-255) </td></tr>
-    <tr><td class="paramname">green</td><td>Green (0-255) </td></tr>
-    <tr><td class="paramname">blue</td><td>Blue (0-255) </td></tr>
+    <tr><td class="paramname">index</td><td>LED index (0-72, where 0-63 case, 64-72 button) </td></tr>
+    <tr><td class="paramname">r</td><td>Red component (0-255) </td></tr>
+    <tr><td class="paramname">g</td><td>Green component (0-255) </td></tr>
+    <tr><td class="paramname">b</td><td>Blue component (0-255) </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure</dd></dl>
+<p>Set the color of a single LED pixel. The feature will update instantly without tax system. It uses mutex for multi-fiber security and is optimized for ESP32-C6 RMT.</p>
+<dl class="section note"><dt>Note</dt><dd>This function is thread-safe and can be called from any task </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02871">2871</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02862">2862</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3165,7 +3429,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03382">3382</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03376">3376</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3188,7 +3452,7 @@ CRITICAL RULES</h1>
 <p>Setup animation after endgame - reset pieces to starting positions. </p>
 <p>Set animation after endgame. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02771">2771</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02752">2752</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3238,7 +3502,35 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02914">2914</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02908">2908</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="afea4acc64cf6a337690b441a9c5f5fac" name="afea4acc64cf6a337690b441a9c5f5fac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afea4acc64cf6a337690b441a9c5f5fac">&#9670;&#160;</a></span>led_smoothstep()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static float led_smoothstep </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>t</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02242">2242</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3266,7 +3558,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03048">3048</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03042">3042</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3393,7 +3685,7 @@ CRITICAL RULES</h1>
 <p>Stop endless endgame animation. </p>
 <p>Zastav endgame animaci. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02755">2755</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02736">2736</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3537,7 +3829,7 @@ CRITICAL RULES</h1>
 
 <p>Update button availability based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02990">2990</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02984">2984</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3573,7 +3865,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03062">3062</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03056">3056</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3593,9 +3885,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p>Update enhanced wave endgame animation with improved colors, faster animation and perfect piece highlighting (according to the old project) </p>
-
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02642">2642</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02654">2654</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -3672,7 +3962,7 @@ CRITICAL RULES</h1>
 <p>Shift-out the requested level. </p>
 <p>No per-mode or rail scale. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03196">3196</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03190">3190</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4009,7 +4299,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02593">2593</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02586">2586</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4083,7 +4373,7 @@ CRITICAL RULES</h1>
 
 <p>Booting animation - progressive LED illumination. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02480">2480</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02472">2472</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4519,7 +4809,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03716">3716</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03710">3710</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4552,7 +4842,7 @@ CRITICAL RULES</h1>
 </dl>
 <p>Light up the LED according to the progress of the boot process. Used for display system initialization procedure. Turn on the LED light green. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03715">3715</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03709">3709</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -4577,6 +4867,30 @@ CRITICAL RULES</h1>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01974">1974</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a49a99bdf92ae2eb22bdd676b2ae793fe" name="a49a99bdf92ae2eb22bdd676b2ae793fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49a99bdf92ae2eb22bdd676b2ae793fe">&#9670;&#160;</a></span>s_lamp_hold</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_lamp_hold</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02852">2852</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>

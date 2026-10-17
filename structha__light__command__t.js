@@ -8,6 +8,6 @@ var structha__light__command__t =
     [ "set_brightness", "structha__light__command__t.html#abf6c8da019a65386e8f884a823c58a20", null ],
     [ "state", "structha__light__command__t.html#a2490cf50d9626c13eb15864b189e7037", null ],
     [ "type", "structha__light__command__t.html#aa655a0a61f12692c31c68803ae070fcf", null ],
-    [ "u", "structha__light__command__t.html#a9d57e5a7ca0a8f994946cba1c0b20e92", null ],
-    [ "web_lamp", "structha__light__command__t.html#a855be911f700faa948af5f73b57bb784", null ]
+    [ "u", "structha__light__command__t.html#adcabc89c3e2b98b825310b9c0032a8a6", null ],
+    [ "web_lamp", "structha__light__command__t.html#a3b467eee7d275f55b48fc75690d078fe", null ]
 ];

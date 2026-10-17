@@ -102,18 +102,25 @@ $(document).ready(function(){initNavTree('game__gesture_8h_source.html',''); ini
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#ifndef GAME_GESTURE_H</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#define GAME_GESTURE_H</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__gesture_8h.html#a1426014ec7b0f7ded133e12150f59007">game_gesture_poll</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;stdbool.h&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">extern</span> <span class="stringliteral">&quot;C&quot;</span> {</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#endif</span></div>
 <div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="preprocessor">#ifdef __cplusplus</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>}</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#endif</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="preprocessor">#endif </span><span class="comment">/* GAME_GESTURE_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="agame__gesture_8h_html_a1426014ec7b0f7ded133e12150f59007"><div class="ttname"><a href="game__gesture_8h.html#a1426014ec7b0f7ded133e12150f59007">game_gesture_poll</a></div><div class="ttdeci">void game_gesture_poll(void)</div><div class="ttdef"><b>Definition</b> <a href="game__gesture_8c_source.html#l00328">game_gesture.c:328</a></div></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__gesture_8h.html#a1426014ec7b0f7ded133e12150f59007">game_gesture_poll</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="keywordtype">void</span> <a class="code hl_function" href="game__gesture_8h.html#ad70d73bde2d94783c13a3d0ae15e12fe">game_demo_show_set</a>(<span class="keywordtype">bool</span> on);</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="keywordtype">bool</span> <a class="code hl_function" href="game__gesture_8h.html#a21257a11e93f2123d418e5418f679c78">game_demo_show_active</a>(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="preprocessor">#ifdef __cplusplus</span></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>}</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="preprocessor">#endif </span><span class="comment">/* GAME_GESTURE_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="agame__gesture_8h_html_a1426014ec7b0f7ded133e12150f59007"><div class="ttname"><a href="game__gesture_8h.html#a1426014ec7b0f7ded133e12150f59007">game_gesture_poll</a></div><div class="ttdeci">void game_gesture_poll(void)</div><div class="ttdef"><b>Definition</b> <a href="game__gesture_8c_source.html#l00565">game_gesture.c:565</a></div></div>
+<div class="ttc" id="agame__gesture_8h_html_a21257a11e93f2123d418e5418f679c78"><div class="ttname"><a href="game__gesture_8h.html#a21257a11e93f2123d418e5418f679c78">game_demo_show_active</a></div><div class="ttdeci">bool game_demo_show_active(void)</div><div class="ttdef"><b>Definition</b> <a href="game__gesture_8c_source.html#l00245">game_gesture.c:245</a></div></div>
+<div class="ttc" id="agame__gesture_8h_html_ad70d73bde2d94783c13a3d0ae15e12fe"><div class="ttname"><a href="game__gesture_8h.html#ad70d73bde2d94783c13a3d0ae15e12fe">game_demo_show_set</a></div><div class="ttdeci">void game_demo_show_set(bool on)</div><div class="ttdoc">Live animation show.</div><div class="ttdef"><b>Definition</b> <a href="game__gesture_8c_source.html#l00222">game_gesture.c:222</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

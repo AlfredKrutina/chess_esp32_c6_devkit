@@ -9,7 +9,9 @@ var uart__task_8h =
       [ "CMD_ERROR_SYSTEM_ERROR", "uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63aedd36bebd00d835aedb3b165d95687b1", null ],
       [ "CMD_ERROR_NOT_FOUND", "uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63a8d68e7510dde3829311ed679636f0fd2", null ]
     ] ],
+    [ "uart_cmd_anim", "uart__task_8h.html#a7bdf944197064a7daf05666345650c9c", null ],
     [ "uart_cmd_clear", "uart__task_8h.html#adbe2f7e4f05f1b0c256c81eefb34e95a", null ],
+    [ "uart_cmd_demo", "uart__task_8h.html#ae3e1d270bce963f46ae25884ff307b33", null ],
     [ "uart_cmd_hall", "uart__task_8h.html#ad361491fdcfaf9f9fb1515f5464ece17", null ],
     [ "uart_cmd_hall_stop", "uart__task_8h.html#a6af874e0f87720e05598373335bdc2ad", null ],
     [ "uart_cmd_help", "uart__task_8h.html#a25d0a7a7a3f253ef4ba5f55e6764f879", null ],

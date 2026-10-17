@@ -134,6 +134,7 @@ var NAVTREEINDEX0 =
 "button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a0273e520560c3fc28cb3f1de0f996ae7":[3,0,0,1,0,0,0,2],
 "button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a1ba278a511ecfacdc12fa736adbe1b57":[3,0,0,1,0,0,0,5],
 "button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f":[3,0,0,1,0,0,0,1],
+"button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a89197ce88becc70ce9e8c3b5b3bfaf1a":[3,0,0,1,0,0,0,6],
 "button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39":[3,0,0,1,0,0,0,4],
 "button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07abc76c50ba9bf454600d15eb73e991b6b":[3,0,0,1,0,0,0,0],
 "button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96":[3,0,0,1,0,0,0,3],
@@ -248,6 +249,5 @@ var NAVTREEINDEX0 =
 "chess__gameplay__policy_8h.html#aeca3ab9f9ed1083891d0413ebad50799":[3,0,0,6,0,0,15],
 "chess__gameplay__policy_8h_source.html":[3,0,0,6,0,0],
 "chess__types_8h.html":[3,0,0,3,0,0],
-"chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502":[3,0,0,3,0,0,23],
-"chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a081aadcf7717c7bdc4e86232c8c8185a":[3,0,0,3,0,0,23,5]
+"chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502":[3,0,0,3,0,0,23]
 };

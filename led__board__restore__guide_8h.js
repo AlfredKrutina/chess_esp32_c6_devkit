@@ -13,6 +13,7 @@ var led__board__restore__guide_8h =
     [ "LED_RESTORE_MARK_SITTING", "led__board__restore__guide_8h.html#a95133e84ecf281a6b632017d2a48341b", null ],
     [ "led_board_restore_guide_apply", "led__board__restore__guide_8h.html#aafe5a5ce8456e609cec2dc1ed1f90b68", null ],
     [ "led_board_restore_guide_clear", "led__board__restore__guide_8h.html#ab105bd680253db0f13b3506e6e30f3a1", null ],
+    [ "led_board_restore_guide_fade_out", "led__board__restore__guide_8h.html#a19f51f22ffbf2e7a382503112f08bf2d", null ],
     [ "led_board_restore_guide_is_active", "led__board__restore__guide_8h.html#aefed614337e9f0d5de858a889caf36d7", null ],
     [ "led_board_restore_guide_tick", "led__board__restore__guide_8h.html#a84d6544e0a20d33b1a6b3099cfe4c2df", null ]
 ];

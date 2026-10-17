@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"config__manager_8h.html#a5ef6f95cddc59d84ddc37fbbd001890d":[3,0,0,2,0,0,9],
 "config__manager_8h.html#a7136ade0342038b48a2369926811182b":[3,0,0,2,0,0,12],
 "config__manager_8h.html#a738c632d7567c38a428c149e9b60c78c":[3,0,0,2,0,0,1],
 "config__manager_8h.html#a7a1556a5e46704a83988a2b86b205d95":[3,0,0,2,0,0,17],
@@ -248,6 +249,5 @@ var NAVTREEINDEX2 =
 "freertos__chess_8h.html#abbbf482ffdb0974bacaae7bd0e06862c":[3,0,0,3,0,1,79],
 "freertos__chess_8h.html#ac18820617d1dcd813d8ac903a5c93a8d":[3,0,0,3,0,1,33],
 "freertos__chess_8h.html#ac2f54e3f77005d32b1df12eca333ed3e":[3,0,0,3,0,1,83],
-"freertos__chess_8h.html#ac550726b2b0adb0539e9dc4f8a1be108":[3,0,0,3,0,1,71],
-"freertos__chess_8h.html#ac861d083f88a75aef0cb5a65ba142f97":[3,0,0,3,0,1,3]
+"freertos__chess_8h.html#ac550726b2b0adb0539e9dc4f8a1be108":[3,0,0,3,0,1,71]
 };

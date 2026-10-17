@@ -1,24 +1,9 @@
 var searchData=
 [
-  ['squares_5fcmd_5fcalibrate_0',['SQUARES_CMD_CALIBRATE',['../chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a57e8dae7d8ba2a976c34ffb9540ed516',1,'chess_types.h']]],
-  ['squares_5fcmd_5fdisable_1',['SQUARES_CMD_DISABLE',['../chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a28d73282bd2ea65075720f19472d8e47',1,'chess_types.h']]],
-  ['squares_5fcmd_5fenable_2',['SQUARES_CMD_ENABLE',['../chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a99bef9d0fa14b115e4b06a1c75efbeea',1,'chess_types.h']]],
-  ['squares_5fcmd_5freset_3',['SQUARES_CMD_RESET',['../chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ac888837149a6e00a6791f653b6d74cc5',1,'chess_types.h']]],
-  ['squares_5fcmd_5fscan_4',['SQUARES_CMD_SCAN',['../chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ab0cd5eeffcfda1056ea54921b7d5ad8b',1,'chess_types.h']]],
-  ['squares_5fcmd_5ftest_5',['SQUARES_CMD_TEST',['../chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a919a167dad6d8f56cc00d591d36e741e',1,'chess_types.h']]],
-  ['squares_5fevent_5ferror_6',['SQUARES_EVENT_ERROR',['../chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9aa0aa5e12856a15409b78d29a0db351ff',1,'chess_types.h']]],
-  ['squares_5fevent_5fmove_5fdetected_7',['SQUARES_EVENT_MOVE_DETECTED',['../chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a1b66323325b4f10c9dd69ce3814890e3',1,'chess_types.h']]],
-  ['squares_5fevent_5fpiece_5flifted_8',['SQUARES_EVENT_PIECE_LIFTED',['../chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a0641764a07f00a815b24d9af78711f06',1,'chess_types.h']]],
-  ['squares_5fevent_5fpiece_5fplaced_9',['SQUARES_EVENT_PIECE_PLACED',['../chess__types_8h.html#a29f7db6c7a27cff70a423776ebd77fd9a4496d35fb6743fc7d1cff0fb09bd019c',1,'chess_types.h']]],
-  ['stream_5fcrlf_10',['STREAM_CRLF',['../streaming__output_8h.html#affdaded1b69ffceddaa030802cd994a8a54fc8c6ca2040ea2b614ef90ae36a068',1,'streaming_output.h']]],
-  ['stream_5flf_11',['STREAM_LF',['../streaming__output_8h.html#affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88',1,'streaming_output.h']]],
-  ['stream_5fqueue_12',['STREAM_QUEUE',['../streaming__output_8h.html#aebb40016c198e3e5e1f82c86929dc454ab09258d1ed838a3032df63357bc7d4b7',1,'streaming_output.h']]],
-  ['stream_5fuart_13',['STREAM_UART',['../streaming__output_8h.html#aebb40016c198e3e5e1f82c86929dc454a041393ad29ad01be710ecd3d8d77c2b9',1,'streaming_output.h']]],
-  ['stream_5fweb_14',['STREAM_WEB',['../streaming__output_8h.html#aebb40016c198e3e5e1f82c86929dc454ae9b3c32d282a15b603c991744840756b',1,'streaming_output.h']]],
-  ['subtle_5fanim_5fblack_5fwins_15',['SUBTLE_ANIM_BLACK_WINS',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae5bf0eff905cbae51e1700277a3d2fb3',1,'game_led_animations.h']]],
-  ['subtle_5fanim_5fcool_5fpulse_16',['SUBTLE_ANIM_COOL_PULSE',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aeb7102f738091f89240283cb70a787e4',1,'game_led_animations.h']]],
-  ['subtle_5fanim_5fdraw_17',['SUBTLE_ANIM_DRAW',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08aa698d92cab2634b768d1062dfb68e61f',1,'game_led_animations.h']]],
-  ['subtle_5fanim_5fgentle_5fwave_18',['SUBTLE_ANIM_GENTLE_WAVE',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ad9382dfe9593aaba6deae21d6cac0a03',1,'game_led_animations.h']]],
-  ['subtle_5fanim_5fwarm_5fglow_19',['SUBTLE_ANIM_WARM_GLOW',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08abfaa1ef48fd45abad603d05144e2d0e0',1,'game_led_animations.h']]],
-  ['subtle_5fanim_5fwhite_5fwins_20',['SUBTLE_ANIM_WHITE_WINS',['../game__led__animations_8h.html#aaf8aea34899d30734001c2e6a651bc08ae03d9ddc78ae7a6b61ab70c35b0f0dcf',1,'game_led_animations.h']]]
+  ['result_5fblack_5fwins_0',['RESULT_BLACK_WINS',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0f3de4cbc4ca712f898984075e875990',1,'chess_types.h']]],
+  ['result_5fdraw_5f50_5fmove_1',['RESULT_DRAW_50_MOVE',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b',1,'chess_types.h']]],
+  ['result_5fdraw_5finsufficient_2',['RESULT_DRAW_INSUFFICIENT',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad',1,'chess_types.h']]],
+  ['result_5fdraw_5frepetition_3',['RESULT_DRAW_REPETITION',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208',1,'chess_types.h']]],
+  ['result_5fdraw_5fstalemate_4',['RESULT_DRAW_STALEMATE',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e',1,'chess_types.h']]],
+  ['result_5fwhite_5fwins_5',['RESULT_WHITE_WINS',['../chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602',1,'chess_types.h']]]
 ];
