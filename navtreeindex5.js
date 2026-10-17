@@ -1,5 +1,8 @@
 var NAVTREEINDEX5 =
 {
+"game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652a163bd37d98fde10d026dbcbfd1795f37":[3,0,0,6,22,1,2],
+"game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652ab27427e19ebbe542869522b7850bafad":[3,0,0,6,22,1,0],
+"game__physical__undo_8c.html#a136c0b11a5e39514cefcd9c32392b652ad9d75fe1cfed6166e7f51c78a9f8758e":[3,0,0,6,22,1,1],
 "game__physical__undo_8c.html#a139cc05587438735be74586b69c24350":[3,0,0,6,22,17],
 "game__physical__undo_8c.html#a1ef7a9e1dd1a2cb5f19448fd729e3923":[3,0,0,6,22,12],
 "game__physical__undo_8c.html#a1f1ed6febef68e2f5b85f7dbcbb08355":[3,0,0,6,22,2],
@@ -118,17 +121,15 @@ var NAVTREEINDEX5 =
 "game__puzzle_8c.html#afd07fc0924bb8951e711fc07d6256926":[3,0,0,6,24,40],
 "game__puzzle_8c_source.html":[3,0,0,6,24],
 "game__resignation_8c.html":[3,0,0,6,25],
-"game__resignation_8c.html#a09788a334791cc160b0f72cdfe7649f3":[3,0,0,6,25,3],
+"game__resignation_8c.html#a09788a334791cc160b0f72cdfe7649f3":[3,0,0,6,25,2],
 "game__resignation_8c.html#a09b5532ca3e546a3b9a541975b0e9bf1":[3,0,0,6,25,1],
-"game__resignation_8c.html#a40374b39b8cbe6fecea219144af3b3dd":[3,0,0,6,25,5],
-"game__resignation_8c.html#a46ffa46dd43290f359f785472f45d175":[3,0,0,6,25,7],
-"game__resignation_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c":[3,0,0,6,25,10],
-"game__resignation_8c.html#a5e2939300449fca26ad46d2a04e6ec08":[3,0,0,6,25,4],
-"game__resignation_8c.html#a6b536ba6f8bb5ebf7a76124fbb8d9b10":[3,0,0,6,25,9],
-"game__resignation_8c.html#a71085e0827522509e5791df1cfa9f129":[3,0,0,6,25,2],
-"game__resignation_8c.html#a794e20c20949f63ca0954ebaaea90891":[3,0,0,6,25,8],
+"game__resignation_8c.html#a46ffa46dd43290f359f785472f45d175":[3,0,0,6,25,5],
+"game__resignation_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c":[3,0,0,6,25,8],
+"game__resignation_8c.html#a5e2939300449fca26ad46d2a04e6ec08":[3,0,0,6,25,3],
+"game__resignation_8c.html#a6b536ba6f8bb5ebf7a76124fbb8d9b10":[3,0,0,6,25,7],
+"game__resignation_8c.html#a794e20c20949f63ca0954ebaaea90891":[3,0,0,6,25,6],
 "game__resignation_8c.html#ac1f1965307d1a4a8ed48280d8aa94d03":[3,0,0,6,25,0],
-"game__resignation_8c.html#acbf110fdfd6d83d9db30abcfdfffd8e0":[3,0,0,6,25,6],
+"game__resignation_8c.html#acbf110fdfd6d83d9db30abcfdfffd8e0":[3,0,0,6,25,4],
 "game__resignation_8c_source.html":[3,0,0,6,25],
 "game__snapshot_8c.html":[3,0,0,6,26],
 "game__snapshot_8c.html#a0199d59042808334f8c0cf37283c76b5":[3,0,0,6,26,28],
@@ -248,6 +249,5 @@ var NAVTREEINDEX5 =
 "game__task_8c.html#a19da473c3ec7190a7a9219fb1bfb8a81":[3,0,0,6,28,41],
 "game__task_8c.html#a1dde824f085a5aeb5d38891ebd71496b":[3,0,0,6,28,114],
 "game__task_8c.html#a1f70b0c8dbc0c485ab51c2892c75b959":[3,0,0,6,28,110],
-"game__task_8c.html#a20b79ef4675f25cd3f39ddcdaf65243c":[3,0,0,6,28,18],
-"game__task_8c.html#a229b05a8e7118cfca7f6bec35c02334b":[3,0,0,6,28,138]
+"game__task_8c.html#a20b79ef4675f25cd3f39ddcdaf65243c":[3,0,0,6,28,18]
 };

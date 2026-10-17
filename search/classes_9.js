@@ -9,7 +9,8 @@ var searchData=
   ['led_5flayer_5fstate_5ft_6',['led_layer_state_t',['../structled__layer__state__t.html',1,'']]],
   ['led_5fmanager_5fconfig_5ft_7',['led_manager_config_t',['../structled__manager__config__t.html',1,'']]],
   ['led_5fpixel_5ft_8',['led_pixel_t',['../structled__pixel__t.html',1,'']]],
-  ['led_5frestore_5fguide_5fpath_5ft_9',['led_restore_guide_path_t',['../structled__restore__guide__path__t.html',1,'']]],
-  ['led_5frestore_5fguide_5fplan_5ft_10',['led_restore_guide_plan_t',['../structled__restore__guide__plan__t.html',1,'']]],
-  ['led_5fstate_5ft_11',['led_state_t',['../structled__state__t.html',1,'']]]
+  ['led_5frestore_5fguide_5fmark_5ft_9',['led_restore_guide_mark_t',['../structled__restore__guide__mark__t.html',1,'']]],
+  ['led_5frestore_5fguide_5fpath_5ft_10',['led_restore_guide_path_t',['../structled__restore__guide__path__t.html',1,'']]],
+  ['led_5frestore_5fguide_5fplan_5ft_11',['led_restore_guide_plan_t',['../structled__restore__guide__plan__t.html',1,'']]],
+  ['led_5fstate_5ft_12',['led_state_t',['../structled__state__t.html',1,'']]]
 ];

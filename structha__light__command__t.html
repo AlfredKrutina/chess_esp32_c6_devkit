@@ -114,7 +114,7 @@ Data Fields</h2></td></tr>
 <tr class="memitem:a9b4e0b6e03efc7abef86c08c6b0c190c" id="r_a9b4e0b6e03efc7abef86c08c6b0c190c"><td class="memItemLeft" >&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a855be911f700faa948af5f73b57bb784"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a0c54ba753f67a1a7e794b85cdf8422" id="r_a2a0c54ba753f67a1a7e794b85cdf8422"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structha__light__command__t.html#a2490cf50d9626c13eb15864b189e7037">state</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a2a0c54ba753f67a1a7e794b85cdf8422"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pro HA_CMD_WEB_LAMP: 0=off, 1=on.  <a href="structha__light__command__t.html#a2490cf50d9626c13eb15864b189e7037">More...</a><br /></td></tr>
+<tr class="memdesc:a2a0c54ba753f67a1a7e794b85cdf8422"><td class="mdescLeft">&#160;</td><td class="mdescRight">0=off, 1=on (web lamp, MQTT, or mode)  <a href="structha__light__command__t.html#a2490cf50d9626c13eb15864b189e7037">More...</a><br /></td></tr>
 <tr class="separator:a2a0c54ba753f67a1a7e794b85cdf8422"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bce087e1203e49e02671121d7d780f1" id="r_a6bce087e1203e49e02671121d7d780f1"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structha__light__command__t.html#a3e086a18624effe55d318b717328c9fb">r</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a6bce087e1203e49e02671121d7d780f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -122,6 +122,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a2b2f771f2bf3e8e6a3c3b1942e07ad52"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a384697bbef067a35fa015490d840737f" id="r_a384697bbef067a35fa015490d840737f"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structha__light__command__t.html#ac0d94b0ad425ea4ccca6791883c34a1a">b</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a384697bbef067a35fa015490d840737f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11aefb8e08229c5667a537306c1873c6" id="r_a11aefb8e08229c5667a537306c1873c6"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structha__light__command__t.html#a682b290a513bf27b18db2c465f04b6de">brightness</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a11aefb8e08229c5667a537306c1873c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">MQTT brightness 0-255.  <a href="structha__light__command__t.html#a682b290a513bf27b18db2c465f04b6de">More...</a><br /></td></tr>
+<tr class="separator:a11aefb8e08229c5667a537306c1873c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86c6e569dcc0bfce4c2e7fd61bcd55f3" id="r_a86c6e569dcc0bfce4c2e7fd61bcd55f3"><td class="memItemLeft" >&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<a class="el" href="structha__light__command__t.html#abf6c8da019a65386e8f884a823c58a20">set_brightness</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a86c6e569dcc0bfce4c2e7fd61bcd55f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">1 = write brightness, 0 = keep the last one  <a href="structha__light__command__t.html#abf6c8da019a65386e8f884a823c58a20">More...</a><br /></td></tr>
+<tr class="separator:a86c6e569dcc0bfce4c2e7fd61bcd55f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b4e0b6e03efc7abef86c08c6b0c190c" id="r_a9b4e0b6e03efc7abef86c08c6b0c190c"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<a class="el" href="structha__light__command__t.html#a855be911f700faa948af5f73b57bb784">web_lamp</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a9b4e0b6e03efc7abef86c08c6b0c190c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d57e5a7ca0a8f994946cba1c0b20e92" id="r_a9d57e5a7ca0a8f994946cba1c0b20e92"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structha__light__command__t.html#a9d57e5a7ca0a8f994946cba1c0b20e92">u</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
@@ -130,7 +136,7 @@ Data Fields</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>HA Light command for internal communication. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00099">99</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00101">101</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="ac0d94b0ad425ea4ccca6791883c34a1a" name="ac0d94b0ad425ea4ccca6791883c34a1a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac0d94b0ad425ea4ccca6791883c34a1a">&#9670;&#160;</a></span>b</h2>
@@ -144,7 +150,25 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00105">105</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00107">107</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+
+</div>
+</div>
+<a id="a682b290a513bf27b18db2c465f04b6de" name="a682b290a513bf27b18db2c465f04b6de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a682b290a513bf27b18db2c465f04b6de">&#9670;&#160;</a></span>brightness</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t ha_light_command_t::brightness</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>MQTT brightness 0-255. </p>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00108">108</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>
@@ -162,7 +186,7 @@ Data Fields</h2></td></tr>
 
 <p>Pro HA_CMD_ACTIVITY: (const char*) activity_type. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00102">102</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00104">104</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>
@@ -178,7 +202,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00105">105</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00107">107</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>
@@ -194,7 +218,25 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00105">105</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00107">107</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+
+</div>
+</div>
+<a id="abf6c8da019a65386e8f884a823c58a20" name="abf6c8da019a65386e8f884a823c58a20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf6c8da019a65386e8f884a823c58a20">&#9670;&#160;</a></span>set_brightness</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t ha_light_command_t::set_brightness</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>1 = write brightness, 0 = keep the last one </p>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00109">109</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>
@@ -210,9 +252,9 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Pro HA_CMD_WEB_LAMP: 0=off, 1=on. </p>
+<p>0=off, 1=on (web lamp, MQTT, or mode) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00104">104</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00106">106</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>
@@ -230,7 +272,7 @@ Data Fields</h2></td></tr>
 
 <p>Command type (HA_CMD_ACTIVITY, HA_CMD_WEB_LAMP) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00100">100</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8h_source.html#l00102">102</a> of file <a class="el" href="ha__light__task_8h_source.html">ha_light_task.h</a>.</p>
 
 </div>
 </div>

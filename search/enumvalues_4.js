@@ -74,9 +74,10 @@ var searchData=
   ['game_5fstate_5fpromotion_71',['GAME_STATE_PROMOTION',['../chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da755790e6ec07d2f80a27fab71e9c5735',1,'chess_types.h']]],
   ['game_5fstate_5fwaiting_5ffor_5fboard_5fsetup_72',['GAME_STATE_WAITING_FOR_BOARD_SETUP',['../chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414dadb832f8f2d7cd8e48688d8a4c2f864aa',1,'chess_types.h']]],
   ['game_5fstate_5fwaiting_5ffor_5freturn_73',['GAME_STATE_WAITING_FOR_RETURN',['../chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414da8d38d078f83ba6d016773d797e914e80',1,'chess_types.h']]],
-  ['gesture_5fnone_74',['GESTURE_NONE',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07abc76c50ba9bf454600d15eb73e991b6b',1,'button_gesture.h']]],
-  ['gesture_5fpair_75',['GESTURE_PAIR',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a0273e520560c3fc28cb3f1de0f996ae7',1,'button_gesture.h']]],
-  ['gesture_5fshutdown_5fstart_76',['GESTURE_SHUTDOWN_START',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39',1,'button_gesture.h']]],
-  ['gesture_5fsnake_5fstart_77',['GESTURE_SNAKE_START',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96',1,'button_gesture.h']]],
-  ['gesture_5ftoggle_78',['GESTURE_TOGGLE',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f',1,'button_gesture.h']]]
+  ['gesture_5fcolor_74',['GESTURE_COLOR',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a1ba278a511ecfacdc12fa736adbe1b57',1,'button_gesture.h']]],
+  ['gesture_5fnone_75',['GESTURE_NONE',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07abc76c50ba9bf454600d15eb73e991b6b',1,'button_gesture.h']]],
+  ['gesture_5fpair_76',['GESTURE_PAIR',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a0273e520560c3fc28cb3f1de0f996ae7',1,'button_gesture.h']]],
+  ['gesture_5fshutdown_5fstart_77',['GESTURE_SHUTDOWN_START',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39',1,'button_gesture.h']]],
+  ['gesture_5fsnake_5fstart_78',['GESTURE_SNAKE_START',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96',1,'button_gesture.h']]],
+  ['gesture_5ftoggle_79',['GESTURE_TOGGLE',['../button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f',1,'button_gesture.h']]]
 ];

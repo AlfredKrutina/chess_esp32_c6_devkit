@@ -7,6 +7,7 @@ var ha__light__task_8c =
     [ "HA_MQTT_STOP_HEAP_BYTES", "ha__light__task_8c.html#a38376f5a11ecbe426778c8b7048e57a6", null ],
     [ "LAMP_NVS_KEY_AUTO_TIMEOUT_SEC", "ha__light__task_8c.html#a911937abc730a55b7fa782a318b9d302", null ],
     [ "LAMP_NVS_KEY_B", "ha__light__task_8c.html#ada993b0feac98bded7661560e40e3a12", null ],
+    [ "LAMP_NVS_KEY_BRIGHTNESS", "ha__light__task_8c.html#a79ec8d3531f652d53401243f72b7c5a0", null ],
     [ "LAMP_NVS_KEY_G", "ha__light__task_8c.html#ab2afae5456aa17362f4089f28182d696", null ],
     [ "LAMP_NVS_KEY_MODE", "ha__light__task_8c.html#a9fa1a0cfd7fb1a1730cde45027f9c693", null ],
     [ "LAMP_NVS_KEY_R", "ha__light__task_8c.html#a679ffc58fbca48fef29728668920eca5", null ],

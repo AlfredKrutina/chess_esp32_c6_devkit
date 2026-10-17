@@ -2,7 +2,7 @@ var led__task_8h =
 [
     [ "led_anim_endgame", "led__task_8h.html#a69379eed351dd045d9d23cda7ec86a69", null ],
     [ "led_boot_animation_fade_out", "led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9", null ],
-    [ "led_boot_animation_step", "led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc", null ],
+    [ "led_boot_animation_step", "led__task_8h.html#ac65f2b5f10eac7da883a053583c52117", null ],
     [ "led_booting_animation", "led__task_8h.html#a533dfd80b93f0821af12a5f929dcc40b", null ],
     [ "led_clear_all", "led__task_8h.html#a323c87898912a4a4d62383dbe8bd7099", null ],
     [ "led_clear_all_highlights", "led__task_8h.html#a3f8208e54db356a3a750b566d5bd763f", null ],

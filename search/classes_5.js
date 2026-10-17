@@ -9,5 +9,6 @@ var searchData=
   ['game_5fsnapshot_5fv2_5ft_6',['game_snapshot_v2_t',['../structgame__snapshot__v2__t.html',1,'']]],
   ['game_5ftask_5ferror_5frecovery_5ft_7',['game_task_error_recovery_t',['../structgame__task__error__recovery__t.html',1,'']]],
   ['game_5ftask_5fpromotion_5fstate_5ft_8',['game_task_promotion_state_t',['../structgame__task__promotion__state__t.html',1,'']]],
-  ['guided_5fcapture_5fstate_5ft_9',['guided_capture_state_t',['../structguided__capture__state__t.html',1,'']]]
+  ['guide_5frgb_5ft_9',['guide_rgb_t',['../structguide__rgb__t.html',1,'']]],
+  ['guided_5fcapture_5fstate_5ft_10',['guided_capture_state_t',['../structguided__capture__state__t.html',1,'']]]
 ];

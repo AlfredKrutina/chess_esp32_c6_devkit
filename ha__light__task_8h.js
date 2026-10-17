@@ -4,6 +4,7 @@ var ha__light__task_8h =
     [ "HA_ACTIVITY_TIMEOUT_AUTO_MS", "ha__light__task_8h.html#a59a4f99e5382fed36fc539ce0b1b79c5", null ],
     [ "HA_ACTIVITY_TIMEOUT_COMMAND_MS", "ha__light__task_8h.html#a59e49211d6a9fc9ca8c1481be531753d", null ],
     [ "HA_CMD_ACTIVITY", "ha__light__task_8h.html#a37f95262744dfba54fee6a96e8c7a453", null ],
+    [ "HA_CMD_MQTT_STATE", "ha__light__task_8h.html#aeadf419722048a79242345c3cf7938f3", null ],
     [ "HA_CMD_SET_MODE", "ha__light__task_8h.html#ae5f2ed7610f103c4436f4fd4b585fdcb", null ],
     [ "HA_CMD_WEB_LAMP", "ha__light__task_8h.html#a08a1f3e1bf3f29355b526af9058122c0", null ],
     [ "HA_COMPONENT_LIGHT", "ha__light__task_8h.html#a88f6ce72b1c205860c6f824cf2b23d8e", null ],

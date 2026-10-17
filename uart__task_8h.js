@@ -15,6 +15,7 @@ var uart__task_8h =
     [ "uart_cmd_help", "uart__task_8h.html#a25d0a7a7a3f253ef4ba5f55e6764f879", null ],
     [ "uart_cmd_ledtest", "uart__task_8h.html#ac0b5541aa713dea4c61168ad9bb49118", null ],
     [ "uart_cmd_log", "uart__task_8h.html#ad4d957bf08f9f0c3667ce1909378b269", null ],
+    [ "uart_cmd_mag", "uart__task_8h.html#ab1540937c3c2ea9ff23c071a73ec3c5d", null ],
     [ "uart_cmd_reset", "uart__task_8h.html#af305f126d46460f209547def7ade998f", null ],
     [ "uart_cmd_status", "uart__task_8h.html#a21313e7215e44d82c987a6e19ec0dbf3", null ],
     [ "uart_cmd_stm32", "uart__task_8h.html#ac421e26a41b78ff56764d4c1d2cd01b9", null ],

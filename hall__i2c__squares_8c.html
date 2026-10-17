@@ -99,6 +99,7 @@ $(document).ready(function(){initNavTree('hall__i2c__squares_8c.html',''); initR
 <code>#include &quot;<a class="el" href="hall__i2c__spec_8h_source.html">hall_i2c_spec.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="freertos__chess_8h_source.html">freertos_chess.h</a>&quot;</code><br />
 <code>#include &quot;sdkconfig.h&quot;</code><br />
+<code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -106,49 +107,51 @@ Include dependency graph for hall_i2c_squares.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="hall__i2c__squares_8c__incl.png" border="0" usemap="#ahall__i2c__squares_8c" alt=""/></div>
 <map name="ahall__i2c__squares_8c" id="ahall__i2c__squares_8c">
-<area shape="rect" title=" " alt="" coords="422,5,563,31"/>
+<area shape="rect" title=" " alt="" coords="548,5,690,31"/>
 <area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="194,152,337,177"/>
-<area shape="poly" title=" " alt="" coords="476,33,297,147,294,142,473,29"/>
-<area shape="rect" href="hall__i2c__spec_8h.html" title="I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields." alt="" coords="34,79,156,104"/>
-<area shape="poly" title=" " alt="" coords="429,33,170,79,169,74,428,28"/>
+<area shape="poly" title=" " alt="" coords="592,33,307,149,305,144,590,28"/>
+<area shape="rect" href="hall__i2c__spec_8h.html" title="I2C standard between ESP32 (master) and 4× STM32 — 128 Hall channels → 64 fields." alt="" coords="17,79,138,104"/>
+<area shape="poly" title=" " alt="" coords="548,31,152,83,152,78,548,26"/>
 <area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="554,79,684,104"/>
-<area shape="poly" title=" " alt="" coords="514,28,588,69,585,74,512,33"/>
+<area shape="poly" title=" " alt="" coords="622,31,622,65,616,65,616,31"/>
 <area shape="rect" title=" " alt="" coords="23,152,119,177"/>
-<area shape="poly" title=" " alt="" coords="460,33,118,150,117,145,458,28"/>
-<area shape="rect" title=" " alt="" coords="708,79,778,104"/>
-<area shape="poly" title=" " alt="" coords="533,28,695,74,693,79,532,33"/>
-<area shape="rect" title=" " alt="" coords="802,79,873,104"/>
-<area shape="poly" title=" " alt="" coords="554,28,790,76,789,81,553,33"/>
+<area shape="poly" title=" " alt="" coords="576,33,128,151,127,146,575,28"/>
+<area shape="rect" title=" " alt="" coords="708,79,775,104"/>
+<area shape="poly" title=" " alt="" coords="640,28,711,69,708,74,637,33"/>
+<area shape="rect" title=" " alt="" coords="800,79,870,104"/>
+<area shape="poly" title=" " alt="" coords="654,28,788,72,786,77,653,33"/>
+<area shape="rect" title=" " alt="" coords="894,79,965,104"/>
+<area shape="poly" title=" " alt="" coords="671,28,881,76,880,81,670,33"/>
 <area shape="rect" title=" " alt="" coords="726,225,808,251"/>
-<area shape="poly" title=" " alt="" coords="338,173,350,175,530,196,713,223,713,228,529,202,349,180,337,178"/>
+<area shape="poly" title=" " alt="" coords="337,173,350,175,530,196,713,223,712,228,529,202,349,180,337,178"/>
 <area shape="rect" title=" " alt="" coords="619,225,702,251"/>
-<area shape="poly" title=" " alt="" coords="330,175,606,224,605,229,329,180"/>
+<area shape="poly" title=" " alt="" coords="329,175,606,224,605,229,329,180"/>
 <area shape="rect" title=" " alt="" coords="176,225,246,251"/>
-<area shape="poly" title=" " alt="" coords="259,179,230,216,226,213,255,176"/>
-<area shape="poly" title=" " alt="" coords="70,106,45,120,22,137,9,157,9,166,13,176,27,191,44,204,82,221,123,231,162,235,161,240,123,236,81,226,41,208,24,195,9,179,3,167,4,155,18,134,42,116,67,102"/>
-<area shape="poly" title=" " alt="" coords="674,101,774,126,815,138,837,150,843,170,836,189,820,206,801,220,798,216,816,202,831,186,838,170,833,154,813,143,773,131,673,107"/>
+<area shape="poly" title=" " alt="" coords="259,179,230,216,226,213,254,176"/>
+<area shape="poly" title=" " alt="" coords="59,106,38,121,19,138,9,158,9,167,13,176,27,191,44,204,82,221,123,231,162,235,161,240,122,236,81,226,41,208,24,195,9,179,3,168,3,156,15,135,34,116,56,102"/>
+<area shape="poly" title=" " alt="" coords="674,101,774,126,815,138,837,150,843,170,835,189,820,206,801,220,798,216,816,202,831,186,838,170,833,154,813,143,772,131,673,107"/>
 <area shape="poly" title=" " alt="" coords="628,103,648,151,660,211,655,212,643,153,623,105"/>
-<area shape="poly" title=" " alt="" coords="554,94,457,96,345,104,292,111,245,122,208,136,184,154,178,167,179,182,194,213,190,215,174,183,172,166,180,150,206,131,244,117,291,106,344,99,456,90,554,89"/>
-<area shape="poly" title=" " alt="" coords="555,102,367,124,138,155,133,155,132,150,137,149,367,119,554,97"/>
+<area shape="poly" title=" " alt="" coords="554,99,334,120,234,135,201,145,184,154,178,167,179,182,194,213,190,215,174,183,172,166,180,150,199,140,233,130,333,114,554,94"/>
+<area shape="poly" title=" " alt="" coords="554,102,367,124,138,155,133,155,132,150,137,149,367,119,554,97"/>
 <area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="708,152,823,177"/>
-<area shape="poly" title=" " alt="" coords="644,102,731,144,729,148,642,106"/>
+<area shape="poly" title=" " alt="" coords="644,102,731,144,728,148,641,106"/>
 <area shape="rect" title=" " alt="" coords="834,225,985,251"/>
-<area shape="poly" title=" " alt="" coords="685,101,783,122,828,135,858,150,885,179,903,211,898,214,881,182,855,154,826,140,782,127,684,106"/>
+<area shape="poly" title=" " alt="" coords="685,101,783,122,827,135,858,150,885,179,903,211,898,214,881,182,855,154,825,140,782,127,684,106"/>
 <area shape="rect" title=" " alt="" coords="1098,225,1228,251"/>
-<area shape="poly" title=" " alt="" coords="684,100,697,101,969,112,1136,124,1196,135,1216,142,1229,150,1236,169,1229,187,1214,205,1196,220,1192,215,1210,201,1225,185,1231,169,1225,154,1214,147,1195,140,1135,130,969,117,696,107,684,105"/>
+<area shape="poly" title=" " alt="" coords="684,100,696,101,969,112,1136,124,1196,135,1216,142,1229,150,1236,169,1229,187,1214,205,1195,220,1192,215,1210,201,1225,185,1231,169,1225,154,1214,147,1194,140,1135,130,968,117,696,107,684,105"/>
 <area shape="rect" title=" " alt="" coords="948,152,1052,177"/>
 <area shape="poly" title=" " alt="" coords="681,101,935,149,934,154,680,107"/>
 <area shape="rect" title=" " alt="" coords="1077,152,1214,177"/>
-<area shape="poly" title=" " alt="" coords="684,100,697,101,1064,149,1063,155,696,107,684,105"/>
+<area shape="poly" title=" " alt="" coords="684,100,697,101,1063,149,1063,155,696,107,683,105"/>
 <area shape="rect" title=" " alt="" coords="362,152,479,177"/>
 <area shape="poly" title=" " alt="" coords="588,107,467,150,465,145,586,102"/>
 <area shape="rect" title=" " alt="" coords="503,152,634,177"/>
-<area shape="poly" title=" " alt="" coords="613,106,587,142,582,139,609,103"/>
-<area shape="poly" title=" " alt="" coords="769,178,769,212,764,212,763,178"/>
+<area shape="poly" title=" " alt="" coords="613,106,587,142,582,139,608,103"/>
+<area shape="poly" title=" " alt="" coords="768,178,769,212,764,212,763,178"/>
 <area shape="poly" title=" " alt="" coords="750,180,690,220,687,215,747,175"/>
-<area shape="poly" title=" " alt="" coords="708,176,260,233,260,228,708,171"/>
+<area shape="poly" title=" " alt="" coords="708,176,260,233,259,228,707,171"/>
 <area shape="poly" title=" " alt="" coords="790,175,875,217,873,221,788,180"/>
-<area shape="poly" title=" " alt="" coords="824,174,1086,220,1085,226,823,179"/>
+<area shape="poly" title=" " alt="" coords="823,174,1086,220,1085,226,822,179"/>
 </map>
 </div>
 </div>
@@ -196,6 +199,20 @@ Functions</h2></td></tr>
 <tr class="memitem:a485b2def4f44f801fd014941452c2a44" id="r_a485b2def4f44f801fd014941452c2a44"><td class="memItemLeft" align="right" valign="top"><a class="el" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a485b2def4f44f801fd014941452c2a44">hall_i2c_squares_get_piece_color</a> (uint8_t square)</td></tr>
 <tr class="memdesc:a485b2def4f44f801fd014941452c2a44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last debounced POC piece color for one square.  <br /></td></tr>
 <tr class="separator:a485b2def4f44f801fd014941452c2a44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a515d47495513bbaba4dbd9ca6cdad1e7" id="r_a515d47495513bbaba4dbd9ca6cdad1e7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a515d47495513bbaba4dbd9ca6cdad1e7">hall_mag_light_locked</a> (void)</td></tr>
+<tr class="separator:a515d47495513bbaba4dbd9ca6cdad1e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50ebc214fb7ce42f9550c192eb23e6f9" id="r_a50ebc214fb7ce42f9550c192eb23e6f9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a50ebc214fb7ce42f9550c192eb23e6f9">hall_magnet_bench_start</a> (uint8_t square)</td></tr>
+<tr class="memdesc:a50ebc214fb7ce42f9550c192eb23e6f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Magnet-strength bench.  <br /></td></tr>
+<tr class="separator:a50ebc214fb7ce42f9550c192eb23e6f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8419b5cfa812309db0f8d5fe1deb5c02" id="r_a8419b5cfa812309db0f8d5fe1deb5c02"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a8419b5cfa812309db0f8d5fe1deb5c02">hall_magnet_bench_stop</a> (void)</td></tr>
+<tr class="separator:a8419b5cfa812309db0f8d5fe1deb5c02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af36989a232d4f08e124cea145da93cf6" id="r_af36989a232d4f08e124cea145da93cf6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#af36989a232d4f08e124cea145da93cf6">hall_magnet_bench_active</a> (void)</td></tr>
+<tr class="separator:af36989a232d4f08e124cea145da93cf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94864aa3136cdf6765fce1ab99e390d4" id="r_a94864aa3136cdf6765fce1ab99e390d4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a94864aa3136cdf6765fce1ab99e390d4">hall_magnet_bench_square</a> (void)</td></tr>
+<tr class="separator:a94864aa3136cdf6765fce1ab99e390d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aace3a75027843091440900940964e26f" id="r_aace3a75027843091440900940964e26f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#aace3a75027843091440900940964e26f">hall_magnet_bench_capture</a> (void)</td></tr>
+<tr class="memdesc:aace3a75027843091440900940964e26f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Short click.  <br /></td></tr>
+<tr class="separator:aace3a75027843091440900940964e26f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a58557a23ffe03c863d076997816b3605" name="a58557a23ffe03c863d076997816b3605"></a>
@@ -217,7 +234,7 @@ Functions</h2></td></tr>
 <p>After boot, light a1, h1, h8, a8 one at a time. </p>
 <p>Place a piece on the lit square and leave it. Logs which segment/field moved. Does not change the map. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01180">1180</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01210">1210</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -237,7 +254,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01182">1182</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01212">1212</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -265,7 +282,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01172">1172</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01202">1202</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -294,7 +311,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Debounced color, or HALL_PIECE_COLOR_NONE. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01241">1241</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01271">1271</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -323,7 +340,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Debounced type, or HALL_PIECE_TYPE_NONE. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01230">1230</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01260">1260</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -346,7 +363,7 @@ Functions</h2></td></tr>
 <p>Install the Hall I2C master and clear per-square POC state. </p>
 <p>Reed builds do not touch the bus. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK, or the I2C driver error. Reed builds return ESP_OK. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01164">1164</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01194">1194</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -375,7 +392,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>"WHITE", "BLACK", or "----". </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01222">1222</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01252">1252</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -404,7 +421,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>"Pawn" … "King", or "None". </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01210">1210</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01240">1240</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -444,7 +461,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if the slave answered, ESP_ERR_INVALID_ARG if the segment is out of range, ESP_ERR_INVALID_STATE if init has not run, ESP_ERR_NOT_SUPPORTED on a reed build, otherwise the I2C error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01166">1166</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01196">1196</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -483,7 +500,7 @@ Functions</h2></td></tr>
 <p>One raw STM payload: 32 little-endian samples (16 fields × 2 sensors). </p>
 <p>addr_out is set even when the read fails, so the console can show 0x30–0x33. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01185">1185</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01215">1215</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -506,7 +523,7 @@ Functions</h2></td></tr>
 <p>Whether occupancy readings are safe to compare with the logical board. </p>
 <p>Hall: true once every square has a baseline that was not taken from a magnet, the trimmed-mean ring is full, and debounce has locked once. Reed builds have no Hall baseline and always return true. </p><dl class="section return"><dt>Returns</dt><dd>true when a scan may be trusted for guard / restore. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01196">1196</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01226">1226</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -526,7 +543,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01183">1183</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01213">1213</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -548,7 +565,7 @@ Functions</h2></td></tr>
 
 <p>How many segments this build reads (1…4). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01178">1178</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01208">1208</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -576,7 +593,142 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01198">1198</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01228">1228</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="a515d47495513bbaba4dbd9ca6cdad1e7" name="a515d47495513bbaba4dbd9ca6cdad1e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a515d47495513bbaba4dbd9ca6cdad1e7">&#9670;&#160;</a></span>hall_mag_light_locked()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void hall_mag_light_locked </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01282">1282</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="af36989a232d4f08e124cea145da93cf6" name="af36989a232d4f08e124cea145da93cf6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af36989a232d4f08e124cea145da93cf6">&#9670;&#160;</a></span>hall_magnet_bench_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hall_magnet_bench_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01336">1336</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="aace3a75027843091440900940964e26f" name="aace3a75027843091440900940964e26f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aace3a75027843091440900940964e26f">&#9670;&#160;</a></span>hall_magnet_bench_capture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hall_magnet_bench_capture </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Short click. </p>
+<p>Prints one energy integer when a sample exists. </p>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01352">1352</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="a94864aa3136cdf6765fce1ab99e390d4" name="a94864aa3136cdf6765fce1ab99e390d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94864aa3136cdf6765fce1ab99e390d4">&#9670;&#160;</a></span>hall_magnet_bench_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t hall_magnet_bench_square </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section return"><dt>Returns</dt><dd>locked square, or 255 when the bench is off or not locked yet. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01344">1344</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="a50ebc214fb7ce42f9550c192eb23e6f9" name="a50ebc214fb7ce42f9550c192eb23e6f9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50ebc214fb7ce42f9550c192eb23e6f9">&#9670;&#160;</a></span>hall_magnet_bench_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hall_magnet_bench_start </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>square</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Magnet-strength bench. </p>
+<p>Lights one square. Each short click prints one energy integer and nothing else. square &gt;= 64 stays dark until a click locks the only occupied square. </p><dl class="section return"><dt>Returns</dt><dd>false on a reed build. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01295">1295</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="a8419b5cfa812309db0f8d5fe1deb5c02" name="a8419b5cfa812309db0f8d5fe1deb5c02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8419b5cfa812309db0f8d5fe1deb5c02">&#9670;&#160;</a></span>hall_magnet_bench_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hall_magnet_bench_stop </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01319">1319</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>

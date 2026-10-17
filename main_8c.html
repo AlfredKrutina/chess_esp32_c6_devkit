@@ -602,7 +602,7 @@ Boot and NVS</h2>
 <li>Waits 1 second between iterations </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l01393">1393</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="main_8c_source.html#l01400">1400</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
 
 </div>
 </div>
@@ -1040,7 +1040,7 @@ Boot and NVS</h2>
 </div><div class="memdoc">
 
 <p>Centralized boot animation: ASCII logo, progress bar, LED step, fade-out. </p>
-<p>Call after creating a task. During the loop, call <a class="el" href="led__task_8h.html#ad9333c97e3a0d22851f18f91e890e3dc" title="LED boot animation step - light up the LED according to progress.">led_boot_animation_step()</a> and WDT reset in main; at the end of <a class="el" href="led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9" title="LED boot animation fade out - gradually fade all LEDs to 0.">led_boot_animation_fade_out()</a> clear the board and set led_booting_active = false. This is followed by <a class="el" href="main_8c.html#acf3129796410e265806bde4edacf4d85" title="Complete game start after boot animation: optional GAME_CMD_NEW_GAME, LED, button.">initialize_chess_game()</a>.</p>
+<p>Call after creating a task. During the loop, call <a class="el" href="led__task_8h.html#ac65f2b5f10eac7da883a053583c52117" title="LED boot animation step - light up the LED according to progress.">led_boot_animation_step()</a> and WDT reset in main; at the end of <a class="el" href="led__task_8h.html#a51cc23ac460421224cfaf847669ab1d9" title="LED boot animation fade out - gradually fade all LEDs to 0.">led_boot_animation_fade_out()</a> clear the board and set led_booting_active = false. This is followed by <a class="el" href="main_8c.html#acf3129796410e265806bde4edacf4d85" title="Complete game start after boot animation: optional GAME_CMD_NEW_GAME, LED, button.">initialize_chess_game()</a>.</p>
 <dl class="section note"><dt>Note</dt><dd>game_task during <a class="el" href="led__task_8h.html#a006a24ec8e7f302c4a6f8481675803d1" title="Find out if the boot animation is running.">led_is_booting()</a> does not process moves (see game_task_start). </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="main_8c_source.html#l01106">1106</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>

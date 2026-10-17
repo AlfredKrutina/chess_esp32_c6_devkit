@@ -13,5 +13,11 @@ var hall__i2c__squares_8c =
     [ "hall_i2c_squares_readings_usable", "hall__i2c__squares_8c.html#a66b38c74236b2a1517f79d2c10fa7d65", null ],
     [ "hall_i2c_squares_request_rest_measure", "hall__i2c__squares_8c.html#ad3a267f12566cb5eeb262390f6241f50", null ],
     [ "hall_i2c_squares_segment_count", "hall__i2c__squares_8c.html#a2aba0e6d759e6996753ae69796a532d7", null ],
-    [ "hall_i2c_squares_set_logical_empty", "hall__i2c__squares_8c.html#aeecabf4af0e847860d6bdf5c6925b181", null ]
+    [ "hall_i2c_squares_set_logical_empty", "hall__i2c__squares_8c.html#aeecabf4af0e847860d6bdf5c6925b181", null ],
+    [ "hall_mag_light_locked", "hall__i2c__squares_8c.html#a515d47495513bbaba4dbd9ca6cdad1e7", null ],
+    [ "hall_magnet_bench_active", "hall__i2c__squares_8c.html#af36989a232d4f08e124cea145da93cf6", null ],
+    [ "hall_magnet_bench_capture", "hall__i2c__squares_8c.html#aace3a75027843091440900940964e26f", null ],
+    [ "hall_magnet_bench_square", "hall__i2c__squares_8c.html#a94864aa3136cdf6765fce1ab99e390d4", null ],
+    [ "hall_magnet_bench_start", "hall__i2c__squares_8c.html#a50ebc214fb7ce42f9550c192eb23e6f9", null ],
+    [ "hall_magnet_bench_stop", "hall__i2c__squares_8c.html#a8419b5cfa812309db0f8d5fe1deb5c02", null ]
 ];

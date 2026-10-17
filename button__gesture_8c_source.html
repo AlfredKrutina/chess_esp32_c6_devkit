@@ -118,51 +118,51 @@ $(document).ready(function(){initNavTree('button__gesture_8c_source.html',''); i
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#define GESTURE_DEBOUNCE_MS 25</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span><span class="preprocessor">#define GESTURE_CLICK_MAX_MS 400</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span><span class="preprocessor">#define GESTURE_GAP_MS 400</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span><span class="preprocessor">#define GESTURE_LOCK_FALLBACK_MS 800</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  GS_IDLE = 0,</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  GS_DOWN_IDLE,</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  GS_GAP,</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  GS_DOWN_SEQ,</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  GS_SWALLOW,</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  GS_LOCK,</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  GS_WAIT_UP</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>} gesture_phase_t;</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span> </div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">static</span> QueueHandle_t s_queue;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_raw_down;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_down;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">static</span> uint32_t s_change_ms;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_change_valid;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keyword">static</span> gesture_phase_t <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a>;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">static</span> uint8_t s_clicks;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">static</span> uint32_t s_press_ms;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">static</span> uint32_t s_up_ms;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keyword">static</span> uint32_t s_lock_ms;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_saw_busy;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_gpio_ready;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keyword">static</span> uint32_t gesture_now_ms(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>  <span class="keywordflow">return</span> (uint32_t)(esp_timer_get_time() / 1000);</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>}</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span><span class="keyword">static</span> <span class="keywordtype">void</span> gesture_emit(<a class="code hl_enumeration" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07">gesture_event_t</a> <span class="keywordtype">id</span>, <span class="keyword">const</span> <span class="keywordtype">char</span> *staging) {</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;[STAGING] gesture: %s&quot;</span>, staging);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  <span class="keywordflow">if</span> (<span class="keywordtype">id</span> == <a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96">GESTURE_SNAKE_START</a>) {</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    (void)<a class="code hl_function" href="led__gesture__anim_8h.html#aea0bf0b54c66510d79f073b4d54c6548">led_gesture_start_snake</a>();</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<span class="keywordtype">id</span> == <a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39">GESTURE_SHUTDOWN_START</a>) {</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    (void)<a class="code hl_function" href="led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175">led_gesture_start_shutdown</a>();</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  }</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>  <span class="keywordflow">if</span> (s_queue == NULL) {</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>  }</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  <span class="keywordflow">if</span> (xQueueSend(s_queue, &amp;<span class="keywordtype">id</span>, 0) != pdTRUE) {</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>    ESP_LOGW(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;gesture queue full, drop %d&quot;</span>, (<span class="keywordtype">int</span>)<span class="keywordtype">id</span>);</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>  }</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_LOCK;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  s_lock_ms = gesture_now_ms();</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  s_saw_busy = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span><span class="keyword">typedef</span> <span class="keyword">enum</span> {</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>  GS_IDLE = 0,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>  GS_DOWN_IDLE,</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>  GS_GAP,</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  GS_DOWN_SEQ,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  GS_SWALLOW,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  GS_LOCK,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  GS_WAIT_UP</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>} gesture_phase_t;</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">static</span> QueueHandle_t s_queue;</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_raw_down;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_down;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="keyword">static</span> uint32_t s_change_ms;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_change_valid;</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="keyword">static</span> gesture_phase_t <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="keyword">static</span> uint8_t s_clicks;</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">static</span> uint32_t s_press_ms;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">static</span> uint32_t s_up_ms;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">static</span> uint32_t s_lock_ms;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_latched;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span><span class="keyword">static</span> <span class="keywordtype">bool</span> s_gpio_ready;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keyword">static</span> uint32_t gesture_now_ms(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>  <span class="keywordflow">return</span> (uint32_t)(esp_timer_get_time() / 1000);</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>}</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span><span class="keyword">static</span> <span class="keywordtype">void</span> gesture_emit(<a class="code hl_enumeration" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07">gesture_event_t</a> <span class="keywordtype">id</span>, <span class="keyword">const</span> <span class="keywordtype">char</span> *staging) {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>  <span class="keywordflow">if</span> (s_latched) {</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>  }</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>  s_latched = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>  s_clicks = 0;</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;[STAGING] gesture: %s&quot;</span>, staging);</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>  <span class="keywordflow">if</span> (<span class="keywordtype">id</span> == <a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96">GESTURE_SNAKE_START</a>) {</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    (void)<a class="code hl_function" href="led__gesture__anim_8h.html#aea0bf0b54c66510d79f073b4d54c6548">led_gesture_start_snake</a>();</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>  } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<span class="keywordtype">id</span> == <a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39">GESTURE_SHUTDOWN_START</a>) {</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    (void)<a class="code hl_function" href="led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175">led_gesture_start_shutdown</a>();</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>  }</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>  <span class="keywordflow">if</span> (s_queue != NULL &amp;&amp; xQueueSend(s_queue, &amp;<span class="keywordtype">id</span>, 0) != pdTRUE) {</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>    ESP_LOGW(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;gesture queue full, drop %d&quot;</span>, (<span class="keywordtype">int</span>)<span class="keywordtype">id</span>);</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>  }</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>  <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_LOCK;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>  s_lock_ms = gesture_now_ms();</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>}</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">static</span> <span class="keywordtype">void</span> gesture_on_press(uint32_t now) {</div>
@@ -230,122 +230,122 @@ $(document).ready(function(){initNavTree('button__gesture_8c_source.html',''); i
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>  s_change_valid = <span class="keyword">false</span>;</div>
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>  <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>  s_clicks = 0;</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  <span class="keywordflow">if</span> (err != ESP_OK) {</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;GPIO%d config failed: %s&quot;</span>, CONFIG_CHESS_GESTURE_BUTTON_GPIO,</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>             esp_err_to_name(err));</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>  }</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>           <span class="stringliteral">&quot;Gesture button GPIO%d active-low, debounce %d ms &quot;</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>           <span class="stringliteral">&quot;(promotion buttons stay at 50 ms)&quot;</span>,</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>           CONFIG_CHESS_GESTURE_BUTTON_GPIO, GESTURE_DEBOUNCE_MS);</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>}</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span><span class="keywordtype">bool</span> <a class="code hl_function" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture_is_down</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> s_down; }</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>QueueHandle_t <a class="code hl_function" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture_queue</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> s_queue; }</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="keywordtype">void</span> <a class="code hl_function" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture_poll</a>(<span class="keywordtype">void</span>) {</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>  <span class="keywordflow">if</span> (!s_gpio_ready) {</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>  }</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  uint32_t now = gesture_now_ms();</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>  <span class="keywordtype">bool</span> raw = (gpio_get_level((gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO) == 0);</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  <span class="keywordflow">if</span> (!s_change_valid || raw != s_raw_down) {</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    s_raw_down = raw;</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    s_change_ms = now;</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    s_change_valid = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>  }</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>  <span class="keywordflow">if</span> ((now - s_change_ms) &gt;= GESTURE_DEBOUNCE_MS &amp;&amp; s_down != s_raw_down) {</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    s_down = s_raw_down;</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <a class="code hl_function" href="led__gesture__anim_8h.html#a40130e8c1f3bfc694da753ebc6ee631a">led_gesture_set_button_held</a>(s_down);</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;SW1 %s GPIO%d raw=%d&quot;</span>, s_down ? <span class="stringliteral">&quot;down&quot;</span> : <span class="stringliteral">&quot;up&quot;</span>,</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>             CONFIG_CHESS_GESTURE_BUTTON_GPIO, (int)raw);</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordflow">if</span> (s_down) {</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>      gesture_on_press(now);</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>      gesture_on_release(now);</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    }</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>  }</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_LOCK) {</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    <span class="keywordflow">if</span> (<a class="code hl_function" href="led__gesture__anim_8h.html#af79e2a09e6951a9073b8518b2912e721">led_gesture_anim_busy</a>()) {</div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>      s_saw_busy = <span class="keyword">true</span>;</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    }</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordflow">if</span> (s_saw_busy &amp;&amp; !<a class="code hl_function" href="led__gesture__anim_8h.html#af79e2a09e6951a9073b8518b2912e721">led_gesture_anim_busy</a>()) {</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = s_down ? GS_WAIT_UP : GS_IDLE;</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>      s_clicks = 0;</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (!s_saw_busy &amp;&amp; (now - s_lock_ms) &gt; GESTURE_LOCK_FALLBACK_MS) {</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = s_down ? GS_WAIT_UP : GS_IDLE;</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>      s_clicks = 0;</div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    }</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>  }</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_WAIT_UP) {</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="keywordflow">if</span> (!s_down) {</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>      s_clicks = 0;</div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    }</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>  }</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_SWALLOW) {</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    <span class="keywordflow">if</span> (!s_down &amp;&amp; (now - s_up_ms) &gt;= GESTURE_GAP_MS) {</div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>      s_clicks = 0;</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    }</div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>  }</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_DOWN_IDLE &amp;&amp; s_down &amp;&amp;</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>      (now - s_press_ms) &gt;= GESTURE_CLICK_MAX_MS) {</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>    gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96">GESTURE_SNAKE_START</a>, <span class="stringliteral">&quot;hold from idle -&gt; new game snake&quot;</span>);</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>  }</div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_DOWN_SEQ &amp;&amp; s_down &amp;&amp; s_clicks == 1 &amp;&amp;</div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>      (now - s_press_ms) &gt;= GESTURE_CLICK_MAX_MS) {</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>    gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39">GESTURE_SHUTDOWN_START</a>, <span class="stringliteral">&quot;click then hold -&gt; power off&quot;</span>);</div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>  }</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_GAP &amp;&amp; !s_down &amp;&amp; (now - s_up_ms) &gt;= GESTURE_GAP_MS) {</div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>    <span class="keywordflow">if</span> (s_clicks == 1) {</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>      gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f">GESTURE_TOGGLE</a>, <span class="stringliteral">&quot;single click -&gt; game/lamp toggle&quot;</span>);</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (s_clicks == 2) {</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>      ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>               <span class="stringliteral">&quot;[STAGING] gesture: two clicks ignored &quot;</span></div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>               <span class="stringliteral">&quot;(not a second toggle, not pairing)&quot;</span>);</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>      s_clicks = 0;</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    } <span class="keywordflow">else</span> {</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>      s_clicks = 0;</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>    }</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>  }</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>}</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>  s_latched = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>  <span class="keywordflow">if</span> (err != ESP_OK) {</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    ESP_LOGE(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;GPIO%d config failed: %s&quot;</span>, CONFIG_CHESS_GESTURE_BUTTON_GPIO,</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>             esp_err_to_name(err));</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>  }</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>  ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>,</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>           <span class="stringliteral">&quot;Gesture button GPIO%d active-low, debounce %d ms &quot;</span></div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>           <span class="stringliteral">&quot;(promotion buttons stay at 50 ms)&quot;</span>,</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>           CONFIG_CHESS_GESTURE_BUTTON_GPIO, GESTURE_DEBOUNCE_MS);</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>}</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span><span class="keywordtype">bool</span> <a class="code hl_function" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture_is_down</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> s_down; }</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>QueueHandle_t <a class="code hl_function" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture_queue</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> s_queue; }</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span><span class="keywordtype">void</span> <a class="code hl_function" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture_poll</a>(<span class="keywordtype">void</span>) {</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>  <span class="keywordflow">if</span> (!s_gpio_ready) {</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>  }</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>  uint32_t now = gesture_now_ms();</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>  <span class="keywordtype">bool</span> raw = <a class="code hl_function" href="led__gesture__anim_8h.html#a7c75c2a15c202dac7af9072f0baa5b0d">led_gesture_button_down</a>();</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>  <span class="keywordflow">if</span> (!s_change_valid || raw != s_raw_down) {</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    s_raw_down = raw;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    s_change_ms = now;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    s_change_valid = <span class="keyword">true</span>;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>  }</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>  <span class="keywordflow">if</span> ((now - s_change_ms) &gt;= GESTURE_DEBOUNCE_MS &amp;&amp; s_down != s_raw_down) {</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    s_down = s_raw_down;</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    <a class="code hl_function" href="led__gesture__anim_8h.html#a40130e8c1f3bfc694da753ebc6ee631a">led_gesture_set_button_held</a>(s_down);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    ESP_LOGI(<a class="code hl_variable" href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a>, <span class="stringliteral">&quot;SW1 %s GPIO%d raw=%d&quot;</span>, s_down ? <span class="stringliteral">&quot;down&quot;</span> : <span class="stringliteral">&quot;up&quot;</span>,</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>             CONFIG_CHESS_GESTURE_BUTTON_GPIO, (int)raw);</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="keywordflow">if</span> (s_down) {</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>      gesture_on_press(now);</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>      gesture_on_release(now);</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    }</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>  }</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_LOCK) {</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    <span class="comment">/* One action at a time. Clicks during the action, or in the quiet after</span></div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="comment">     * it, do not start a second or third gesture. */</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    <span class="keywordflow">if</span> (s_down || <a class="code hl_function" href="led__gesture__anim_8h.html#af79e2a09e6951a9073b8518b2912e721">led_gesture_anim_busy</a>()) {</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>      s_lock_ms = now;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>      <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    }</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordflow">if</span> ((now - s_lock_ms) &gt;= GESTURE_GAP_MS) {</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>      s_clicks = 0;</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>      s_latched = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    }</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  }</div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_WAIT_UP) {</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    <span class="keywordflow">if</span> (!s_down) {</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>      s_clicks = 0;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    }</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>  }</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_SWALLOW) {</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    <span class="keywordflow">if</span> (!s_down &amp;&amp; (now - s_up_ms) &gt;= GESTURE_GAP_MS) {</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>      s_clicks = 0;</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    }</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  }</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_DOWN_IDLE &amp;&amp; s_down &amp;&amp;</div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>      (now - s_press_ms) &gt;= GESTURE_CLICK_MAX_MS) {</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96">GESTURE_SNAKE_START</a>, <span class="stringliteral">&quot;hold from idle -&gt; new game snake&quot;</span>);</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span>  }</div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_DOWN_SEQ &amp;&amp; s_down &amp;&amp; s_clicks == 1 &amp;&amp;</div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>      (now - s_press_ms) &gt;= GESTURE_CLICK_MAX_MS) {</div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39">GESTURE_SHUTDOWN_START</a>, <span class="stringliteral">&quot;click then hold -&gt; power off&quot;</span>);</div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>    <span class="keywordflow">return</span>;</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>  }</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>  <span class="keywordflow">if</span> (<a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> == GS_GAP &amp;&amp; !s_down &amp;&amp; (now - s_up_ms) &gt;= GESTURE_GAP_MS) {</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keywordflow">if</span> (s_clicks == 1) {</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>      gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f">GESTURE_TOGGLE</a>, <span class="stringliteral">&quot;single click -&gt; game/lamp toggle&quot;</span>);</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    } <span class="keywordflow">else</span> <span class="keywordflow">if</span> (s_clicks == 2) {</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>      gesture_emit(<a class="code hl_enumvalue" href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a1ba278a511ecfacdc12fa736adbe1b57">GESTURE_COLOR</a>, <span class="stringliteral">&quot;double click -&gt; next lamp color&quot;</span>);</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>    } <span class="keywordflow">else</span> {</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>      <a class="code hl_variable" href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a> = GS_IDLE;</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>      s_clicks = 0;</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>    }</div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>  }</div>
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>}</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span> </div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span><span class="preprocessor">#else </span><span class="comment">/* !CONFIG_CHESS_GESTURE_BUTTON */</span><span class="preprocessor"></span></div>
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="preprocessor">#else </span><span class="comment">/* !CONFIG_CHESS_GESTURE_BUTTON */</span><span class="preprocessor"></span></div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span> </div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">  237</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">button_gesture_init</a>(<span class="keywordtype">void</span>) {}</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">  238</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture_poll</a>(<span class="keywordtype">void</span>) {}</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">  239</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture_is_down</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> <span class="keyword">false</span>; }</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">  240</a></span>QueueHandle_t <a class="code hl_function" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture_queue</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> NULL; }</div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="preprocessor">#endif</span></div>
-<div class="ttc" id="abutton__gesture_8c_html_a54208b726455b1c501e05d24c4591739"><div class="ttname"><a href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture_poll</a></div><div class="ttdeci">void button_gesture_poll(void)</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00238">button_gesture.c:238</a></div></div>
-<div class="ttc" id="abutton__gesture_8c_html_a6e9176c71e6cbac1f6589747487463a0"><div class="ttname"><a href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">button_gesture_init</a></div><div class="ttdeci">void button_gesture_init(void)</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00237">button_gesture.c:237</a></div></div>
-<div class="ttc" id="abutton__gesture_8c_html_aacb19f64898b68dba78f0859a8a3fde7"><div class="ttname"><a href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture_queue</a></div><div class="ttdeci">QueueHandle_t button_gesture_queue(void)</div><div class="ttdoc">Queue of gesture_event_t.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00240">button_gesture.c:240</a></div></div>
-<div class="ttc" id="abutton__gesture_8c_html_abb216fcae0950d7f3fbcadd82710bcb3"><div class="ttname"><a href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture_is_down</a></div><div class="ttdeci">bool button_gesture_is_down(void)</div><div class="ttdoc">Stable, debounced level.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00239">button_gesture.c:239</a></div></div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">  235</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">button_gesture_init</a>(<span class="keywordtype">void</span>) {}</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">  236</a></span><span class="keywordtype">void</span> <a class="code hl_function" href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture_poll</a>(<span class="keywordtype">void</span>) {}</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">  237</a></span><span class="keywordtype">bool</span> <a class="code hl_function" href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture_is_down</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> <span class="keyword">false</span>; }</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno"><a class="line" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">  238</a></span>QueueHandle_t <a class="code hl_function" href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture_queue</a>(<span class="keywordtype">void</span>) { <span class="keywordflow">return</span> NULL; }</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span> </div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span><span class="preprocessor">#endif</span></div>
+<div class="ttc" id="abutton__gesture_8c_html_a54208b726455b1c501e05d24c4591739"><div class="ttname"><a href="button__gesture_8c.html#a54208b726455b1c501e05d24c4591739">button_gesture_poll</a></div><div class="ttdeci">void button_gesture_poll(void)</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00236">button_gesture.c:236</a></div></div>
+<div class="ttc" id="abutton__gesture_8c_html_a6e9176c71e6cbac1f6589747487463a0"><div class="ttname"><a href="button__gesture_8c.html#a6e9176c71e6cbac1f6589747487463a0">button_gesture_init</a></div><div class="ttdeci">void button_gesture_init(void)</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00235">button_gesture.c:235</a></div></div>
+<div class="ttc" id="abutton__gesture_8c_html_aacb19f64898b68dba78f0859a8a3fde7"><div class="ttname"><a href="button__gesture_8c.html#aacb19f64898b68dba78f0859a8a3fde7">button_gesture_queue</a></div><div class="ttdeci">QueueHandle_t button_gesture_queue(void)</div><div class="ttdoc">Queue of gesture_event_t.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00238">button_gesture.c:238</a></div></div>
+<div class="ttc" id="abutton__gesture_8c_html_abb216fcae0950d7f3fbcadd82710bcb3"><div class="ttname"><a href="button__gesture_8c.html#abb216fcae0950d7f3fbcadd82710bcb3">button_gesture_is_down</a></div><div class="ttdeci">bool button_gesture_is_down(void)</div><div class="ttdoc">Stable, debounced level.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8c_source.html#l00237">button_gesture.c:237</a></div></div>
 <div class="ttc" id="abutton__gesture_8h_html"><div class="ttname"><a href="button__gesture_8h.html">button_gesture.h</a></div><div class="ttdoc">One-button gesture decoder for the V2 hall PCB (GPIO23).</div></div>
 <div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07">gesture_event_t</a></div><div class="ttdeci">gesture_event_t</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00020">button_gesture.h:20</a></div></div>
 <div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07a0273e520560c3fc28cb3f1de0f996ae7"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a0273e520560c3fc28cb3f1de0f996ae7">GESTURE_PAIR</a></div><div class="ttdeci">@ GESTURE_PAIR</div><div class="ttdoc">Three short clicks: BLE pairing.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00023">button_gesture.h:23</a></div></div>
+<div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07a1ba278a511ecfacdc12fa736adbe1b57"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a1ba278a511ecfacdc12fa736adbe1b57">GESTURE_COLOR</a></div><div class="ttdeci">@ GESTURE_COLOR</div><div class="ttdoc">Two short clicks: next lamp color.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00027">button_gesture.h:26</a></div></div>
 <div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07a7c23959eb91c74afa3f56ef7e5873d7f">GESTURE_TOGGLE</a></div><div class="ttdeci">@ GESTURE_TOGGLE</div><div class="ttdoc">One short click, then quiet: game &lt;-&gt; lamp.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00022">button_gesture.h:22</a></div></div>
-<div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39">GESTURE_SHUTDOWN_START</a></div><div class="ttdeci">@ GESTURE_SHUTDOWN_START</div><div class="ttdoc">Click, then hold: power off.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00026">button_gesture.h:25</a></div></div>
+<div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07aa65d6b8b0d9a3406a8d324d700a59e39">GESTURE_SHUTDOWN_START</a></div><div class="ttdeci">@ GESTURE_SHUTDOWN_START</div><div class="ttdoc">Click, then hold: power off.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00025">button_gesture.h:25</a></div></div>
 <div class="ttc" id="abutton__gesture_8h_html_abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96"><div class="ttname"><a href="button__gesture_8h.html#abc4fd64e3f6b9eba848ca76a65bfff07ac638adb229a510af0e0aa2485ff4ee96">GESTURE_SNAKE_START</a></div><div class="ttdeci">@ GESTURE_SNAKE_START</div><div class="ttdoc">Hold from idle: new-game snake.</div><div class="ttdef"><b>Definition</b> <a href="button__gesture_8h_source.html#l00024">button_gesture.h:24</a></div></div>
-<div class="ttc" id="aled__gesture__anim_8c_html_a63dd6e42011d5ca97f59c7fec2b58427"><div class="ttname"><a href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a></div><div class="ttdeci">static phase_t s_phase</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00039">led_gesture_anim.c:39</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8c_html_a63dd6e42011d5ca97f59c7fec2b58427"><div class="ttname"><a href="led__gesture__anim_8c.html#a63dd6e42011d5ca97f59c7fec2b58427">s_phase</a></div><div class="ttdeci">static phase_t s_phase</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00043">led_gesture_anim.c:43</a></div></div>
 <div class="ttc" id="aled__gesture__anim_8h_html"><div class="ttname"><a href="led__gesture__anim_8h.html">led_gesture_anim.h</a></div><div class="ttdoc">Non-blocking board animations for the V2 gesture button.</div></div>
-<div class="ttc" id="aled__gesture__anim_8h_html_a40130e8c1f3bfc694da753ebc6ee631a"><div class="ttname"><a href="led__gesture__anim_8h.html#a40130e8c1f3bfc694da753ebc6ee631a">led_gesture_set_button_held</a></div><div class="ttdeci">void led_gesture_set_button_held(bool held)</div><div class="ttdoc">Held SW1.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00350">led_gesture_anim.c:350</a></div></div>
-<div class="ttc" id="aled__gesture__anim_8h_html_a4526051ff2b17b0ae93d0e29ad5a1175"><div class="ttname"><a href="led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175">led_gesture_start_shutdown</a></div><div class="ttdeci">bool led_gesture_start_shutdown(void)</div><div class="ttdoc">Chase along the black player's squares, then the board goes dark.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00483">led_gesture_anim.c:483</a></div></div>
-<div class="ttc" id="aled__gesture__anim_8h_html_ae2f077302251b589f4371a95899023cd"><div class="ttname"><a href="led__gesture__anim_8h.html#ae2f077302251b589f4371a95899023cd">led_gesture_note_release</a></div><div class="ttdeci">void led_gesture_note_release(void)</div><div class="ttdoc">Button went up.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00510">led_gesture_anim.c:510</a></div></div>
-<div class="ttc" id="aled__gesture__anim_8h_html_aea0bf0b54c66510d79f073b4d54c6548"><div class="ttname"><a href="led__gesture__anim_8h.html#aea0bf0b54c66510d79f073b4d54c6548">led_gesture_start_snake</a></div><div class="ttdeci">bool led_gesture_start_snake(void)</div><div class="ttdoc">Boot-style green fill along LED index order.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00479">led_gesture_anim.c:479</a></div></div>
-<div class="ttc" id="aled__gesture__anim_8h_html_af79e2a09e6951a9073b8518b2912e721"><div class="ttname"><a href="led__gesture__anim_8h.html#af79e2a09e6951a9073b8518b2912e721">led_gesture_anim_busy</a></div><div class="ttdeci">bool led_gesture_anim_busy(void)</div><div class="ttdoc">Whether a gesture animation is running.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00344">led_gesture_anim.c:344</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8h_html_a40130e8c1f3bfc694da753ebc6ee631a"><div class="ttname"><a href="led__gesture__anim_8h.html#a40130e8c1f3bfc694da753ebc6ee631a">led_gesture_set_button_held</a></div><div class="ttdeci">void led_gesture_set_button_held(bool held)</div><div class="ttdoc">Held SW1.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00418">led_gesture_anim.c:418</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8h_html_a4526051ff2b17b0ae93d0e29ad5a1175"><div class="ttname"><a href="led__gesture__anim_8h.html#a4526051ff2b17b0ae93d0e29ad5a1175">led_gesture_start_shutdown</a></div><div class="ttdeci">bool led_gesture_start_shutdown(void)</div><div class="ttdoc">Chase along the black player's squares, then the board goes dark.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00617">led_gesture_anim.c:617</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8h_html_a7c75c2a15c202dac7af9072f0baa5b0d"><div class="ttname"><a href="led__gesture__anim_8h.html#a7c75c2a15c202dac7af9072f0baa5b0d">led_gesture_button_down</a></div><div class="ttdeci">bool led_gesture_button_down(void)</div><div class="ttdoc">Active-low.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00420">led_gesture_anim.c:420</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8h_html_ae2f077302251b589f4371a95899023cd"><div class="ttname"><a href="led__gesture__anim_8h.html#ae2f077302251b589f4371a95899023cd">led_gesture_note_release</a></div><div class="ttdeci">void led_gesture_note_release(void)</div><div class="ttdoc">Button went up.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00644">led_gesture_anim.c:644</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8h_html_aea0bf0b54c66510d79f073b4d54c6548"><div class="ttname"><a href="led__gesture__anim_8h.html#aea0bf0b54c66510d79f073b4d54c6548">led_gesture_start_snake</a></div><div class="ttdeci">bool led_gesture_start_snake(void)</div><div class="ttdoc">Boot-style green fill along LED index order.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00613">led_gesture_anim.c:613</a></div></div>
+<div class="ttc" id="aled__gesture__anim_8h_html_af79e2a09e6951a9073b8518b2912e721"><div class="ttname"><a href="led__gesture__anim_8h.html#af79e2a09e6951a9073b8518b2912e721">led_gesture_anim_busy</a></div><div class="ttdeci">bool led_gesture_anim_busy(void)</div><div class="ttdoc">Whether a gesture animation is running.</div><div class="ttdef"><b>Definition</b> <a href="led__gesture__anim_8c_source.html#l00403">led_gesture_anim.c:403</a></div></div>
 <div class="ttc" id="amain_8c_html_a5a85b9c772bbeb480b209a3e6ea92b4c"><div class="ttname"><a href="main_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a></div><div class="ttdeci">static const char * TAG</div><div class="ttdef"><b>Definition</b> <a href="main_8c_source.html#l00111">main.c:111</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
