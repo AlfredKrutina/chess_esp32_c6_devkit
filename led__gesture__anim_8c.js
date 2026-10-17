@@ -29,7 +29,7 @@ var led__gesture__anim_8c =
     [ "led_gesture_start_pair_pulse", "led__gesture__anim_8c.html#a0a580078551dcb66e39ebd39039fffef", null ],
     [ "led_gesture_start_shutdown", "led__gesture__anim_8c.html#a4526051ff2b17b0ae93d0e29ad5a1175", null ],
     [ "led_gesture_start_snake", "led__gesture__anim_8c.html#aea0bf0b54c66510d79f073b4d54c6548", null ],
-    [ "led_gesture_start_wave", "led__gesture__anim_8c.html#abf0d0f6c25e88f8f42878e6b608ac3b1", null ],
+    [ "led_gesture_start_wave", "led__gesture__anim_8c.html#abbe3c49048e15905c83e215f9bfbb978", null ],
     [ "led_gesture_stop_pair_pulse", "led__gesture__anim_8c.html#a1e4174fded2bf894c9186b2f20ec7934", null ],
     [ "led_gesture_take_result", "led__gesture__anim_8c.html#a8202dc910c328812f8c9335b6bacaa94", null ],
     [ "lerp_rgb", "led__gesture__anim_8c.html#a147f88a91bfc1fbdc6ec3cd39640172b", null ],
@@ -73,5 +73,6 @@ var led__gesture__anim_8c =
     [ "s_snake_pace", "led__gesture__anim_8c.html#a9d85ec1e3656e32f8c2762a930fd5e70", null ],
     [ "s_snake_q8", "led__gesture__anim_8c.html#a7001350da75f341e17f2bfe9aab38dec", null ],
     [ "s_step", "led__gesture__anim_8c.html#a8af70cd183748aa5c4d09638ab318305", null ],
+    [ "s_wave_in", "led__gesture__anim_8c.html#aa91ad7f1e3eb3f3c768c7983dcd30d8a", null ],
     [ "TAG", "led__gesture__anim_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

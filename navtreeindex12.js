@@ -1,5 +1,6 @@
 var NAVTREEINDEX12 =
 {
+"ota__update_8c.html#a845dc9970f3f614fe724b60e07824266":[3,0,0,19,3,29],
 "ota__update_8c.html#a87f17a4d196f17cf70e6a399e80c1c28":[3,0,0,19,3,19],
 "ota__update_8c.html#a88acbd3d46c17168c091474faddfccce":[3,0,0,19,3,37],
 "ota__update_8c.html#a88aefe37dfb5e72176b027c6db30ef65":[3,0,0,19,3,51],
@@ -248,6 +249,5 @@ var NAVTREEINDEX12 =
 "streaming__output_8h.html#affdaded1b69ffceddaa030802cd994a8aabee12901eb5b407a8ed908c56f14c88":[3,0,0,3,0,4,8,0],
 "streaming__output_8h_source.html":[3,0,0,3,0,4],
 "structactive__error__t.html":[2,0,0],
-"structactive__error__t.html#a0084c8ccc5ca684603c69d4c7bb56852":[2,0,0,6],
-"structactive__error__t.html#a240a5c11f613516aa8e3816f64350ff6":[2,0,0,1]
+"structactive__error__t.html#a0084c8ccc5ca684603c69d4c7bb56852":[2,0,0,6]
 };
