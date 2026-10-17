@@ -294,6 +294,13 @@ Functions</h2></td></tr>
 <tr class="memitem:a37f097ae937dba1d78770d62b0ecf5e7" id="r_a37f097ae937dba1d78770d62b0ecf5e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8c.html#a37f097ae937dba1d78770d62b0ecf5e7">game_physical_undo_tick</a> (void)</td></tr>
 <tr class="memdesc:a37f097ae937dba1d78770d62b0ecf5e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refresh pending-takeback LEDs.  <br /></td></tr>
 <tr class="separator:a37f097ae937dba1d78770d62b0ecf5e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52f32c271a77697e45d88e3a8b0f4b91" id="r_a52f32c271a77697e45d88e3a8b0f4b91"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8c.html#a52f32c271a77697e45d88e3a8b0f4b91">game_physical_undo_intercept_pickup</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a52f32c271a77697e45d88e3a8b0f4b91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Continue a takeback when the last mover was set down off the return square.  <br /></td></tr>
+<tr class="separator:a52f32c271a77697e45d88e3a8b0f4b91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab85a1426e92f45e1ff80b579e6612bc7" id="r_ab85a1426e92f45e1ff80b579e6612bc7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8c.html#ab85a1426e92f45e1ff80b579e6612bc7">game_physical_undo_arm_from_last</a> (const <a class="el" href="structchess__move__t.html">chess_move_t</a> *m, <a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a> kind, const <a class="el" href="structmove__undo__meta__t.html">move_undo_meta_t</a> *meta, uint8_t from_row, uint8_t from_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:ab85a1426e92f45e1ff80b579e6612bc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acad7a3308d11be22cee6c963b46a7053" id="r_acad7a3308d11be22cee6c963b46a7053"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8c.html#acad7a3308d11be22cee6c963b46a7053">game_physical_undo_drop_is_last_reverse</a> (uint8_t to_row, uint8_t to_col, <a class="el" href="structchess__move__t.html">chess_move_t</a> *m, <a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a> *kind, <a class="el" href="structmove__undo__meta__t.html">move_undo_meta_t</a> *meta)</td></tr>
+<tr class="separator:acad7a3308d11be22cee6c963b46a7053"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67fca8ae3f7f5f165ddf7e93e3bdb459" id="r_a67fca8ae3f7f5f165ddf7e93e3bdb459"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8c.html#a67fca8ae3f7f5f165ddf7e93e3bdb459">game_physical_undo_handle_pickup</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd, uint8_t from_row, uint8_t from_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
 <tr class="memdesc:a67fca8ae3f7f5f165ddf7e93e3bdb459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offer or continue a takeback when the lifted piece is the last mover.  <br /></td></tr>
 <tr class="separator:a67fca8ae3f7f5f165ddf7e93e3bdb459"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -379,7 +386,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00082">82</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00085">85</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -407,7 +414,69 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00128">128</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00131">131</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
+<a id="ab85a1426e92f45e1ff80b579e6612bc7" name="ab85a1426e92f45e1ff80b579e6612bc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab85a1426e92f45e1ff80b579e6612bc7">&#9670;&#160;</a></span>game_physical_undo_arm_from_last()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void game_physical_undo_arm_from_last </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a>&#160;</td>
+          <td class="paramname"><em>kind</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="structmove__undo__meta__t.html">move_undo_meta_t</a> *&#160;</td>
+          <td class="paramname"><em>meta</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00512">512</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -457,7 +526,63 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00202">202</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00205">205</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
+<a id="acad7a3308d11be22cee6c963b46a7053" name="acad7a3308d11be22cee6c963b46a7053"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acad7a3308d11be22cee6c963b46a7053">&#9670;&#160;</a></span>game_physical_undo_drop_is_last_reverse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool game_physical_undo_drop_is_last_reverse </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structchess__move__t.html">chess_move_t</a> *&#160;</td>
+          <td class="paramname"><em>m</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a> *&#160;</td>
+          <td class="paramname"><em>kind</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structmove__undo__meta__t.html">move_undo_meta_t</a> *&#160;</td>
+          <td class="paramname"><em>meta</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00545">545</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -480,7 +605,7 @@ Variables</h2></td></tr>
 <p>Whether the physical-takeback preference is on. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when <a class="el" href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0" title="Physical takeback on board (default true when key missing).">config_ui_prefs_get_chess_physical_takeback()</a> is set. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00135">135</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00138">138</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -527,7 +652,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the drop was fully handled and the caller should return. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00559">559</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00611">611</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -581,7 +706,40 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if this pickup was consumed by the undo flow. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00492">492</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00565">565</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
+<a id="a52f32c271a77697e45d88e3a8b0f4b91" name="a52f32c271a77697e45d88e3a8b0f4b91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52f32c271a77697e45d88e3a8b0f4b91">&#9670;&#160;</a></span>game_physical_undo_intercept_pickup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_physical_undo_intercept_pickup </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Continue a takeback when the last mover was set down off the return square. </p>
+<dl class="section return"><dt>Returns</dt><dd>true when this pickup belongs to the active takeback and the caller should stop. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00495">495</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -604,7 +762,7 @@ Variables</h2></td></tr>
 <p>Whether a physical takeback phase is in progress. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when the phase is not idle. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00143">143</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00146">146</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -666,7 +824,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00177">177</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00180">180</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -710,7 +868,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00161">161</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00164">164</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -738,7 +896,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00147">147</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00150">150</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -766,7 +924,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00277">277</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00280">280</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -789,7 +947,7 @@ Variables</h2></td></tr>
 <p>Clear the in-progress physical takeback. </p>
 <p>Does not rewind the engine. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00139">139</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00142">142</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -817,7 +975,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00173">173</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00176">176</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -845,7 +1003,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00286">286</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00289">289</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -873,7 +1031,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00296">296</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00299">299</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -917,7 +1075,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00254">254</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00257">257</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -940,7 +1098,7 @@ Variables</h2></td></tr>
 <p>Refresh pending-takeback LEDs. </p>
 <p>Called from the game command cycle. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00486">486</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00489">489</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -968,7 +1126,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00342">342</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00345">345</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -991,7 +1149,7 @@ Variables</h2></td></tr>
 <p>Rewind the engine by one history entry (UART undo and the end of a takeback). </p>
 <dl class="section return"><dt>Returns</dt><dd>false when history is empty; true after the position is restored. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00357">357</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00360">360</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -1029,7 +1187,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00055">55</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00058">58</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -1070,7 +1228,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00053">53</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00056">56</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>

@@ -130,6 +130,12 @@ Data Fields</h2></td></tr>
 <tr class="separator:a6ef646e8b2ad99aeb1a121d14504fe10"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a993fb4972c7b226890b6333e09818806" id="r_a993fb4972c7b226890b6333e09818806"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structphysical__undo__state__t.html#a993fb4972c7b226890b6333e09818806">undo_castle_rook_lift</a></td></tr>
 <tr class="separator:a993fb4972c7b226890b6333e09818806"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2a9fba5f4491d0fbb735da2a751dc45" id="r_ae2a9fba5f4491d0fbb735da2a751dc45"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structphysical__undo__state__t.html#ae2a9fba5f4491d0fbb735da2a751dc45">stray_valid</a></td></tr>
+<tr class="separator:ae2a9fba5f4491d0fbb735da2a751dc45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f87a823fe85db5563bffc8f38a704aa" id="r_a7f87a823fe85db5563bffc8f38a704aa"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structphysical__undo__state__t.html#a7f87a823fe85db5563bffc8f38a704aa">stray_row</a></td></tr>
+<tr class="separator:a7f87a823fe85db5563bffc8f38a704aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55ef0afacee8612ea49d16af49b896c4" id="r_a55ef0afacee8612ea49d16af49b896c4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structphysical__undo__state__t.html#a55ef0afacee8612ea49d16af49b896c4">stray_col</a></td></tr>
+<tr class="separator:a55ef0afacee8612ea49d16af49b896c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeade0674b8ea48b8b9740fac14fa9f7f" id="r_aeade0674b8ea48b8b9740fac14fa9f7f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structphysical__undo__state__t.html#aeade0674b8ea48b8b9740fac14fa9f7f">target_board</a> [8][8]</td></tr>
 <tr class="separator:aeade0674b8ea48b8b9740fac14fa9f7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaae25c8696838d03f328cc36c931a12f" id="r_aaae25c8696838d03f328cc36c931a12f"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structphysical__undo__state__t.html#aaae25c8696838d03f328cc36c931a12f">pending_blink_phase</a></td></tr>
@@ -279,7 +285,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00050">50</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00053">53</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -299,6 +305,54 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
+<a id="a55ef0afacee8612ea49d16af49b896c4" name="a55ef0afacee8612ea49d16af49b896c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55ef0afacee8612ea49d16af49b896c4">&#9670;&#160;</a></span>stray_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t physical_undo_state_t::stray_col</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00051">51</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f87a823fe85db5563bffc8f38a704aa" name="a7f87a823fe85db5563bffc8f38a704aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f87a823fe85db5563bffc8f38a704aa">&#9670;&#160;</a></span>stray_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t physical_undo_state_t::stray_row</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00050">50</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
+<a id="ae2a9fba5f4491d0fbb735da2a751dc45" name="ae2a9fba5f4491d0fbb735da2a751dc45"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2a9fba5f4491d0fbb735da2a751dc45">&#9670;&#160;</a></span>stray_valid</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool physical_undo_state_t::stray_valid</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00049">49</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
 <a id="aeade0674b8ea48b8b9740fac14fa9f7f" name="aeade0674b8ea48b8b9740fac14fa9f7f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aeade0674b8ea48b8b9740fac14fa9f7f">&#9670;&#160;</a></span>target_board</h2>
 
@@ -311,7 +365,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00049">49</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00052">52</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>

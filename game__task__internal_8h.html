@@ -251,6 +251,15 @@ Functions</h2></td></tr>
 <tr class="memitem:a4129eb57bf04c402c9e12ee72e3ef35f" id="r_a4129eb57bf04c402c9e12ee72e3ef35f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a4129eb57bf04c402c9e12ee72e3ef35f">game_promotion_finish_turn</a> (void)</td></tr>
 <tr class="memdesc:a4129eb57bf04c402c9e12ee72e3ef35f"><td class="mdescLeft">&#160;</td><td class="mdescRight">After board[] holds the promoted piece — timer, player switch, LEDs.  <br /></td></tr>
 <tr class="separator:a4129eb57bf04c402c9e12ee72e3ef35f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0fb0d4699762ed8b44d7059be7eeeb48" id="r_a0fb0d4699762ed8b44d7059be7eeeb48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a0fb0d4699762ed8b44d7059be7eeeb48">game_ep_capture_arm</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a0fb0d4699762ed8b44d7059be7eeeb48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Light the en-passant victim until that pawn leaves the board.  <br /></td></tr>
+<tr class="separator:a0fb0d4699762ed8b44d7059be7eeeb48"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9124f8467f6ad8201ef55de1600803ff" id="r_a9124f8467f6ad8201ef55de1600803ff"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a9124f8467f6ad8201ef55de1600803ff">game_ep_capture_service</a> (void)</td></tr>
+<tr class="separator:a9124f8467f6ad8201ef55de1600803ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4daf4abb7d4e3c34729ae370022b979a" id="r_a4daf4abb7d4e3c34729ae370022b979a"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a4daf4abb7d4e3c34729ae370022b979a">game_ep_capture_waiting</a> (void)</td></tr>
+<tr class="separator:a4daf4abb7d4e3c34729ae370022b979a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f6cf39559e6695c2a5ba20a56ccb3b6" id="r_a4f6cf39559e6695c2a5ba20a56ccb3b6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#a4f6cf39559e6695c2a5ba20a56ccb3b6">game_ep_capture_is_victim</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="separator:a4f6cf39559e6695c2a5ba20a56ccb3b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9573718b1c9e531b771c3d938ff88e3" id="r_af9573718b1c9e531b771c3d938ff88e3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__task__internal_8h.html#af9573718b1c9e531b771c3d938ff88e3">game_add_captured_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
 <tr class="memdesc:af9573718b1c9e531b771c3d938ff88e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add captured piece to tracking.  <br /></td></tr>
 <tr class="separator:af9573718b1c9e531b771c3d938ff88e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -658,7 +667,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00253">253</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00259">259</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -711,7 +720,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635" name="a35ee807e9b8fc9f96e7a97f77e38b428a1f704b3fdc9edf5defa5ca3f23fef635"></a>LAST_MOVE_DISCOVERED&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00148">148</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00154">154</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -735,7 +744,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac" name="a3d8b7bd72f649980cf9a4432e3523705a2ca0aea6f50c3cfe1fc5c880551c15ac"></a>PUZZLE_FEEDBACK_READY&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00268">268</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task__internal_8h_source.html#l00274">274</a> of file <a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>.</p>
 
 </div>
 </div>
@@ -758,7 +767,7 @@ Variables</h2></td></tr>
 
 <p>Add captured piece to tracking. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00600">600</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00602">602</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -833,7 +842,7 @@ Variables</h2></td></tr>
 <li>Reset button (LED 72): Always green </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00256">256</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00290">290</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
 
 </div>
 </div>
@@ -853,7 +862,109 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01806">1806</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01824">1824</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0fb0d4699762ed8b44d7059be7eeeb48" name="a0fb0d4699762ed8b44d7059be7eeeb48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0fb0d4699762ed8b44d7059be7eeeb48">&#9670;&#160;</a></span>game_ep_capture_arm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_ep_capture_arm </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Light the en-passant victim until that pawn leaves the board. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00758">758</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+
+</div>
+</div>
+<a id="a4f6cf39559e6695c2a5ba20a56ccb3b6" name="a4f6cf39559e6695c2a5ba20a56ccb3b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f6cf39559e6695c2a5ba20a56ccb3b6">&#9670;&#160;</a></span>game_ep_capture_is_victim()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_ep_capture_is_victim </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00768">768</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+
+</div>
+</div>
+<a id="a9124f8467f6ad8201ef55de1600803ff" name="a9124f8467f6ad8201ef55de1600803ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9124f8467f6ad8201ef55de1600803ff">&#9670;&#160;</a></span>game_ep_capture_service()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_ep_capture_service </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00772">772</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+
+</div>
+</div>
+<a id="a4daf4abb7d4e3c34729ae370022b979a" name="a4daf4abb7d4e3c34729ae370022b979a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4daf4abb7d4e3c34729ae370022b979a">&#9670;&#160;</a></span>game_ep_capture_waiting()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_ep_capture_waiting </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00766">766</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
 
 </div>
 </div>
@@ -940,7 +1051,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00040">40</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00041">41</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
 
 </div>
 </div>
@@ -1435,7 +1546,7 @@ Variables</h2></td></tr>
 </ul>
 <p>There are only 4 physical buttons (QUEEN, ROOK, BISHOP, KNIGHT), which maps to 0-3 or 4-7 according to current_player. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00405">405</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00439">439</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
 
 </div>
 </div>
@@ -1514,7 +1625,7 @@ Variables</h2></td></tr>
 
 <p>After board[] holds the promoted piece — timer, player switch, LEDs. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00042">42</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00046">46</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
 
 </div>
 </div>
@@ -1596,7 +1707,7 @@ Variables</h2></td></tr>
 
 <p>Save the current material output to history. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00588">588</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00590">590</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1654,7 +1765,7 @@ Variables</h2></td></tr>
 
 <p>Send response to UART task via queue. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01764">1764</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01782">1782</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1674,7 +1785,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00042">42</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__exec_8c_source.html#l00043">43</a> of file <a class="el" href="game__move__exec_8c_source.html">game_move_exec.c</a>.</p>
 
 </div>
 </div>
@@ -1745,7 +1856,7 @@ Variables</h2></td></tr>
 
 <p>Stop error blink animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01909">1909</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01927">1927</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1767,7 +1878,7 @@ Variables</h2></td></tr>
 
 <p>Clear transient lift state when matrix guard activates. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01824">1824</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01842">1842</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1789,7 +1900,7 @@ Variables</h2></td></tr>
 
 <p>True when matrix guard must not pause normal play (tutorial, castling, …). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01814">1814</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01832">1832</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1848,7 +1959,7 @@ Variables</h2></td></tr>
 <li>Blue for empty squares </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01928">1928</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01946">1946</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1898,7 +2009,7 @@ Variables</h2></td></tr>
 
 <p>Update non-blocking blink animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01871">1871</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l01889">1889</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -1924,7 +2035,7 @@ Variables</h2></td></tr>
 <li>Does not extend to other LEDs (only 1 square on the board) </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00211">211</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__promotion_8c_source.html#l00245">245</a> of file <a class="el" href="game__promotion_8c_source.html">game_promotion.c</a>.</p>
 
 </div>
 </div>
@@ -1946,7 +2057,7 @@ Variables</h2></td></tr>
 
 <p>Convert piece_t to character representation. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00486">486</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00488">488</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2059,7 +2170,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00481">481</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00483">483</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2182,7 +2293,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00475">475</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00477">477</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2206,7 +2317,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00477">477</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00479">479</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2230,7 +2341,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00473">473</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00475">475</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2254,7 +2365,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00465">465</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00467">467</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2278,7 +2389,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00469">469</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00471">471</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2302,7 +2413,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00467">467</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00469">469</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2350,7 +2461,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00463">463</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00465">465</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2422,7 +2533,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00461">461</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00463">463</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2496,7 +2607,7 @@ Variables</h2></td></tr>
 
 <p>"baseline" web: empty logic, matrix guard suppressed. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00906">906</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00908">908</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2736,7 +2847,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00629">629</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00631">631</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -2976,7 +3087,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00628">628</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00630">630</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3000,7 +3111,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00626">626</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00628">628</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3024,7 +3135,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00458">458</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00460">460</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3098,7 +3209,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00894">894</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00896">896</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3170,7 +3281,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00891">891</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00893">893</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3194,7 +3305,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00890">890</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00892">892</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3218,7 +3329,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00459">459</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00461">461</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3242,7 +3353,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00893">893</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00895">895</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3266,7 +3377,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00892">892</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00894">894</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3290,7 +3401,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00455">455</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00457">457</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3434,7 +3545,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00480">480</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00482">482</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3458,7 +3569,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00620">620</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00622">622</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3578,7 +3689,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00619">619</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00621">621</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3794,7 +3905,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00917">917</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00919">919</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -3818,7 +3929,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00622">622</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00624">624</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4303,7 +4414,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00627">627</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00629">629</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4378,7 +4489,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00474">474</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00476">476</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4402,7 +4513,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00476">476</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00478">478</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4426,7 +4537,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00472">472</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00474">474</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4450,7 +4561,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00464">464</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00466">466</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4474,7 +4585,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00468">468</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00470">470</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4498,7 +4609,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00466">466</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00468">468</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4549,7 +4660,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00462">462</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00464">464</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>
@@ -4621,7 +4732,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00460">460</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__task_8c_source.html#l00462">462</a> of file <a class="el" href="game__task_8c_source.html">game_task.c</a>.</p>
 
 </div>
 </div>

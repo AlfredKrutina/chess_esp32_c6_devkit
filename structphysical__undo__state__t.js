@@ -10,6 +10,9 @@ var structphysical__undo__state__t =
     [ "move", "structphysical__undo__state__t.html#aa7647d36e46ec4c2ffc77c037a5915eb", null ],
     [ "pending_blink_phase", "structphysical__undo__state__t.html#aaae25c8696838d03f328cc36c931a12f", null ],
     [ "phase", "structphysical__undo__state__t.html#a05a753f0813ce01f93e5f08e5ba83526", null ],
+    [ "stray_col", "structphysical__undo__state__t.html#a55ef0afacee8612ea49d16af49b896c4", null ],
+    [ "stray_row", "structphysical__undo__state__t.html#a7f87a823fe85db5563bffc8f38a704aa", null ],
+    [ "stray_valid", "structphysical__undo__state__t.html#ae2a9fba5f4491d0fbb735da2a751dc45", null ],
     [ "target_board", "structphysical__undo__state__t.html#aeade0674b8ea48b8b9740fac14fa9f7f", null ],
     [ "undo_castle_rook_lift", "structphysical__undo__state__t.html#a993fb4972c7b226890b6333e09818806", null ]
 ];
