@@ -1,5 +1,7 @@
 var NAVTREEINDEX13 =
 {
+"stm32__i2c__bl_8c.html#aca99e2dde632e87912aad813ea298ea9":[3,0,0,12,1,3],
+"stm32__i2c__bl_8c.html#ad22002579c3a306a2eb80955c59c1dfb":[3,0,0,12,1,17],
 "stm32__i2c__bl_8c.html#ad75b508362e3fd1653603922ecac72c1":[3,0,0,12,1,9],
 "stm32__i2c__bl_8c.html#adb2ac400490737ff5cb0895036477244":[3,0,0,12,1,2],
 "stm32__i2c__bl_8c.html#aeb38093aac016a88677f8de38cde1c71":[3,0,0,12,1,6],
@@ -247,7 +249,5 @@ var NAVTREEINDEX13 =
 "structendgame__wave__state__t.html":[2,0,15],
 "structendgame__wave__state__t.html#a242e59ba36a19f566a9e8aab498406bb":[2,0,15,9],
 "structendgame__wave__state__t.html#a27d3a2de8932f03f1fd0d4e75c3b0858":[2,0,15,12],
-"structendgame__wave__state__t.html#a329a347d4dfd1cdfb862d3a4a0eb4b4b":[2,0,15,5],
-"structendgame__wave__state__t.html#a33ad93583f7aa05aab9e22119c93fd1b":[2,0,15,10],
-"structendgame__wave__state__t.html#a4021256197ca82c15a0f27f26c51bfd1":[2,0,15,6]
+"structendgame__wave__state__t.html#a329a347d4dfd1cdfb862d3a4a0eb4b4b":[2,0,15,5]
 };

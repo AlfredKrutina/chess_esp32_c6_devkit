@@ -1,5 +1,7 @@
 var NAVTREEINDEX9 =
 {
+"ha__light__task_8c.html#a79ec8d3531f652d53401243f72b7c5a0":[3,0,0,7,1,7],
+"ha__light__task_8c.html#a7e07130323450a1fa79ce839eea40ed3":[3,0,0,7,1,76],
 "ha__light__task_8c.html#a7f38fb48c581f40707dbed343cedb07c":[3,0,0,7,1,30],
 "ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4":[3,0,0,7,1,55],
 "ha__light__task_8c.html#a841339184f4dba27c769216e9b7e8a6f":[3,0,0,7,1,64],
@@ -247,7 +249,5 @@ var NAVTREEINDEX9 =
 "led__gesture__anim_8c.html#a82dcb9928f208e2f695bf492848b9b8e":[3,0,0,9,2,61],
 "led__gesture__anim_8c.html#a8572acb41b770d6c07670701e076ef0b":[3,0,0,9,2,1],
 "led__gesture__anim_8c.html#a88f411ee33153afcd7f235d198b2a80d":[3,0,0,9,2,11],
-"led__gesture__anim_8c.html#a8af70cd183748aa5c4d09638ab318305":[3,0,0,9,2,65],
-"led__gesture__anim_8c.html#a8e6e3c2587aaf59254a758e6114f20ab":[3,0,0,9,2,54],
-"led__gesture__anim_8c.html#a8ef89ee1e4a3da216bcd827b046e3a1d":[3,0,0,9,2,3]
+"led__gesture__anim_8c.html#a8af70cd183748aa5c4d09638ab318305":[3,0,0,9,2,65]
 };

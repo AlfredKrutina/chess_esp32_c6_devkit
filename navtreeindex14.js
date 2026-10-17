@@ -1,5 +1,7 @@
 var NAVTREEINDEX14 =
 {
+"structendgame__wave__state__t.html#a33ad93583f7aa05aab9e22119c93fd1b":[2,0,15,10],
+"structendgame__wave__state__t.html#a4021256197ca82c15a0f27f26c51bfd1":[2,0,15,6],
 "structendgame__wave__state__t.html#a457cf965cbb2e4a8acbaf4c42eaa6ab4":[2,0,15,3],
 "structendgame__wave__state__t.html#a4816664cc0fad0ddab256fde1c68561d":[2,0,15,0],
 "structendgame__wave__state__t.html#a5da1a65206e58ad2a8e9124000233e32":[2,0,15,2],
@@ -247,7 +249,5 @@ var NAVTREEINDEX14 =
 "structled__command__t.html":[2,0,35],
 "structled__command__t.html#a42fe1a9d7b5330a035a60be952b37dfc":[2,0,35,2],
 "structled__command__t.html#a4c27aa01b250ef21991565d3876cc24f":[2,0,35,6],
-"structled__command__t.html#a6465f3443696b28dbff862b0cd143257":[2,0,35,5],
-"structled__command__t.html#a7665b1fa37b249a3377af43862c1040b":[2,0,35,7],
-"structled__command__t.html#a79b80c2980e53738a06f92d305bba3a7":[2,0,35,0]
+"structled__command__t.html#a6465f3443696b28dbff862b0cd143257":[2,0,35,5]
 };

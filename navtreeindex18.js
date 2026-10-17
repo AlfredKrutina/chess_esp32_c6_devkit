@@ -1,5 +1,7 @@
 var NAVTREEINDEX18 =
 {
+"unified__animation__manager_8c.html#a056b36df10f165cd5a6b993fc63fa152":[3,0,0,17,1,48],
+"unified__animation__manager_8c.html#a0b5d021f7052366508f19b0db7306d40":[3,0,0,17,1,38],
 "unified__animation__manager_8c.html#a0bb6dcf519e5bcc59b766b1a23c2535c":[3,0,0,17,1,47],
 "unified__animation__manager_8c.html#a0cd70e6c0a667a6075d7d11ceec61451":[3,0,0,17,1,2],
 "unified__animation__manager_8c.html#a0e552d083d40a494e5bec582a329faac":[3,0,0,17,1,41],
@@ -247,7 +249,5 @@ var NAVTREEINDEX18 =
 "web__handlers__wifi_8c.html#abbe850cf6b01634042dbe088bd681dac":[3,0,0,19,7,3],
 "web__handlers__wifi_8c.html#abe0c7c2d6b3deda0b818dfc3a5d05505":[3,0,0,19,7,0],
 "web__handlers__wifi_8c_source.html":[3,0,0,19,7],
-"web__opening__dispatch_8c.html":[3,0,0,19,8],
-"web__opening__dispatch_8c.html#a2a234bbf8947a15eaa69092f5785e09b":[3,0,0,19,8,2],
-"web__opening__dispatch_8c.html#a365a01f6d8e54ee7370be9de9fe990c5":[3,0,0,19,8,1]
+"web__opening__dispatch_8c.html":[3,0,0,19,8]
 };

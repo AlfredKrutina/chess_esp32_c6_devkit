@@ -11,6 +11,7 @@ var game__gesture_8c =
     [ "game_demo_show_active", "game__gesture_8c.html#a21257a11e93f2123d418e5418f679c78", null ],
     [ "game_demo_show_set", "game__gesture_8c.html#ad70d73bde2d94783c13a3d0ae15e12fe", null ],
     [ "game_gesture_poll", "game__gesture_8c.html#a1426014ec7b0f7ded133e12150f59007", null ],
+    [ "game_gesture_request_lamp_wave", "game__gesture_8c.html#a6f16458e10b1daa78645695815bdb49c", null ],
     [ "k_demo_colors", "game__gesture_8c.html#a2ab1e538f76e23c571845284edfa206e", null ],
     [ "k_demo_game", "game__gesture_8c.html#a1777b6f6440b7426b904ea2321316fa9", null ],
     [ "s_demo_color", "game__gesture_8c.html#a45205882f6f2455f846bd3a3304df1f2", null ],
