@@ -3574,17 +3574,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTileBoardLightTitle => 'Board light';
 
   @override
-  String get settingsHallRestTitle => 'Measure empty board';
-
-  @override
-  String get settingsHallRestStarted =>
-      'Empty-board measurement started. Leave the board clear until it finishes.';
-
-  @override
-  String get settingsHallRestFailed =>
-      'Could not start the measurement. Connect to the board and try again.';
-
-  @override
   String get settingsTileBoardLightSubtitle =>
       'Color, brightness, scenes, auto-off';
 
@@ -4500,6 +4489,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String firmwareSavedFirmwareChipTitle(String ver) {
     return 'Saved in app: $ver';
+  }
+
+  @override
+  String get settingsHallRestTitle => 'Measure empty board';
+
+  @override
+  String get settingsHallRestStarted =>
+      'Empty-board measurement started. Leave the board clear until it finishes.';
+
+  @override
+  String get settingsHallRestFailed =>
+      'Could not start the measurement. Connect to the board and try again.';
+
+  @override
+  String powerLimitBanner(String count, String total, String scale) {
+    return 'Supply sag: $count brownouts in a row ($total total). LEDs are at $scale% of the set brightness. Unplug the board and plug it back in to try full brightness.';
   }
 
   @override

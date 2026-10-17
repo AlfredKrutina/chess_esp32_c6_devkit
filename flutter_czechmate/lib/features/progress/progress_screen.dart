@@ -345,10 +345,39 @@ class _LearnBody extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         if (session.lastError != null)
-          SessionErrorPanel(
-            error: session.lastError!,
-            title: l10n.progressBoardErrorTitle,
-            devMode: devMode,
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              tooltip: l10n.progressBoardErrorTitle,
+              onPressed: () {
+                final err = session.lastError;
+                if (err == null) return;
+                showDialog<void>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    content: SizedBox(
+                      width: math.min(420, MediaQuery.sizeOf(ctx).width - 96),
+                      child: SingleChildScrollView(
+                        child: SessionErrorPanel(
+                          error: err,
+                          title: l10n.progressBoardErrorTitle,
+                          devMode: devMode,
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        child: Text(
+                          MaterialLocalizations.of(ctx).okButtonLabel,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              icon: Icon(Icons.error_outline_rounded, color: cs.error),
+            ),
           ),
         Card(
           elevation: 0,

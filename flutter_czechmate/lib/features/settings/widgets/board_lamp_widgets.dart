@@ -40,6 +40,17 @@ class BoardLampQuickStrip extends ConsumerWidget {
               '${st.lightMode ?? "?"} • $onOff • ${l10n.lampBrightnessLabel("${st.brightness ?? "?"}")}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            if (st.powerLimit == true) ...[
+              const SizedBox(height: 8),
+              Text(
+                l10n.powerLimitBanner(
+                  '${st.powerBrownoutStreak ?? 0}',
+                  '${st.powerBrownoutTotal ?? 0}',
+                  '${st.powerScale ?? 50}',
+                ),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: () => Navigator.push(
@@ -178,6 +189,17 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
                       _lampOn = v;
                     }),
           ),
+          if (st?.powerLimit == true) ...[
+            const SizedBox(height: 8),
+            Text(
+              l10n.powerLimitBanner(
+                '${st!.powerBrownoutStreak ?? 0}',
+                '${st.powerBrownoutTotal ?? 0}',
+                '${st.powerScale ?? 50}',
+              ),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
           Text(l10n.lampBrightnessLabel('${_bright.round()}')),
           Slider(
             min: 0,

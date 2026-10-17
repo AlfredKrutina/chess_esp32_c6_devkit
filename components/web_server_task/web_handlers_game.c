@@ -9,6 +9,7 @@
 #include "../squares_task/include/squares_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
+#include "../led_task/include/power_guard.h"
 #include "led_mapping.h"
 #include "../config_manager/include/config_manager.h"
 
@@ -63,7 +64,7 @@ void inject_web_status_fields(char *buf, size_t buf_size) {
   }
   size_t remaining = buf_size - (size_t)(last_brace - buf);
   /* The first block ~370 B (+ chess_hint_limit) + the second ~120 B — with a tight buffer, it is better not to send truncated JSON. */
-  if (remaining < 430) {
+  if (remaining < 560) {
     ESP_LOGE(TAG,
              "[STAGING] inject_web_status_fields: remaining=%zu B too small for "
              "web fields (cap=%zu)",
@@ -80,7 +81,9 @@ void inject_web_status_fields(char *buf, size_t buf_size) {
                "\"matrix_guard_conflicts\":%u,"
                "\"matrix_guard_lifted_low\":%lu,\"matrix_guard_lifted_high\":%lu,"
                "\"matrix_guard_dropped_low\":%lu,\"matrix_guard_dropped_high\":%lu,"
-               "\"chess_hint_limit\":%d}",
+               "\"chess_hint_limit\":%d,"
+               "\"power_limit\":%s,\"power_scale\":%u,"
+               "\"power_brownout_streak\":%u,\"power_brownout_total\":%u}",
                web_is_locked() ? "true" : "false",
                wifi_is_sta_connected() ? "true" : "false", (int)b,
                game_get_guided_capture_hints_enabled() ? "true" : "false",
@@ -91,7 +94,11 @@ void inject_web_status_fields(char *buf, size_t buf_size) {
                (unsigned long)game_get_squares_guard_lifted_mask_high(),
                (unsigned long)game_get_squares_guard_dropped_mask_low(),
                (unsigned long)game_get_squares_guard_dropped_mask_high(),
-               hint_lim);
+               hint_lim,
+               power_guard_output_half() ? "true" : "false",
+               (unsigned)power_guard_scale_percent(),
+               (unsigned)power_guard_brownout_streak(),
+               (unsigned)power_guard_brownout_total());
   if (wr < 0 || (size_t)wr >= remaining) {
     ESP_LOGE(TAG,
              "[STAGING] inject_web_status_fields: first snprintf truncated "

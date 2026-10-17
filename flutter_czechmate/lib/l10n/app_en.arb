@@ -2306,6 +2306,20 @@
   "settingsHallRestTitle": "Measure empty board",
   "settingsHallRestStarted": "Empty-board measurement started. Leave the board clear until it finishes.",
   "settingsHallRestFailed": "Could not start the measurement. Connect to the board and try again.",
+  "powerLimitBanner": "Supply sag: {count} brownouts in a row ({total} total). LEDs are at {scale}% of the set brightness. Unplug the board and plug it back in to try full brightness.",
+  "@powerLimitBanner": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "scale": {
+        "type": "String"
+      }
+    }
+  },
   "navLearn": "Learn",
   "gameTopNoBoard": "No board",
   "gameTopConnecting": "Connecting…",

@@ -182,7 +182,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget build(BuildContext context) {
     _registerListeners();
     final session = ref.watch(boardSessionNotifierProvider);
-    final devMode = ref.watch(prefsRepositoryProvider).developerModeUnlocked;
     final tier = connectionTierOf(session);
     final hasBoard = session.snapshot != null;
     final fade = AppMotion.resolve(context, AppMotion.crossFade);
@@ -213,12 +212,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   children: [
                     const LiveActivitySessionListener(),
                     if (stripOnTop) strip,
-                    _ErrorLine(
-                      error: session.lastError,
-                      devMode: devMode,
-                    ),
-                    if (session.snapshot != null)
-                      MatrixGuardBanner(snapshot: session.snapshot!),
                     Expanded(
                       child: AnimatedSwitcher(
                         duration: fade,
@@ -248,8 +241,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   ],
                 ),
                 const Positioned(
-                  left: 12,
-                  right: 12,
+                  right: 4,
                   top: 52,
                   child: NetworkStatusBanners(
                     presentation: NetworkBannerPresentation.overlay,
@@ -265,7 +257,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 }
 
 /// One quiet row: connection glyph, time control, then pause / hint / more as
-/// icons. Words appear only when something is wrong.
+/// icons. Status text stays behind a tap.
 class _StatusStrip extends ConsumerWidget {
   const _StatusStrip({
     required this.session,
@@ -327,6 +319,23 @@ class _StatusStrip extends ConsumerWidget {
             Flexible(
               child: _ConnectionButton(session: session, tier: tier),
             ),
+            if (snap?.status.matrixGuardActive == true)
+              iconAction(
+                tooltip: l10n.gameMatrixGuardTitle,
+                onPressed: () {
+                  final shot = snap;
+                  if (shot == null) return;
+                  showDialog<void>(
+                    context: context,
+                    builder: (ctx) => Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      child: MatrixGuardBanner(snapshot: shot),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.grid_on_outlined, color: cs.error),
+              ),
             if (timeControl != null)
               Padding(
                 padding: const EdgeInsets.only(left: 4),
@@ -399,29 +408,30 @@ class _StatusStrip extends ConsumerWidget {
   }
 }
 
-/// Transport glyph only while the link is healthy; a short word when it is
-/// connecting, not responding, or running the demo board.
-class _ConnectionButton extends StatelessWidget {
+/// Transport glyph only. Status text opens after a tap so the strip does not
+/// reflow the board.
+class _ConnectionButton extends ConsumerWidget {
   const _ConnectionButton({required this.session, required this.tier});
 
   final BoardSessionState session;
   final ConnectionTier tier;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     final none = session.transport == BoardTransport.none;
     final demo = session.transport == BoardTransport.mock;
+    final error = session.lastError;
     final (IconData icon, Color color, String? word) = switch (tier) {
       ConnectionTier.connecting => (
           Icons.sync_rounded,
           cs.onSurfaceVariant,
           l10n.gameTopConnecting,
         ),
-      ConnectionTier.offline when none => (
+      ConnectionTier.offline when none && error == null => (
           Icons.link_off_rounded,
           cs.onSurfaceVariant,
           null,
@@ -437,17 +447,24 @@ class _ConnectionButton extends StatelessWidget {
             BoardTransport.ble => Icons.bluetooth_rounded,
             _ => Icons.smart_toy_outlined,
           },
-          cs.onSurfaceVariant,
-          demo ? l10n.uiDemo : null,
+          error == null ? cs.onSurfaceVariant : cs.error,
+          null,
         ),
     };
 
+    final tooltip = [
+      if (demo) l10n.uiDemo,
+      word,
+      if (error != null) l10n.lastErrorTitle,
+      l10n.gameTopBoardTooltip,
+    ].whereType<String>().join(' · ');
+
     return Tooltip(
-      message: l10n.gameTopBoardTooltip,
+      message: tooltip,
       child: PressableScale(
         pressedScale: 0.94,
         child: TextButton(
-          onPressed: () => pushBoardDiscoveryRoute(context),
+          onPressed: () => _onPressed(context, ref, word: word, error: error),
           style: TextButton.styleFrom(
             foregroundColor: color,
             minimumSize: const Size(44, 44),
@@ -457,94 +474,60 @@ class _ConnectionButton extends StatelessWidget {
             duration: AppMotion.resolve(context, AppMotion.crossFade),
             switchInCurve: AppMotion.standardCurve,
             switchOutCurve: AppMotion.reverseCurve,
-            child: Row(
-              key: ValueKey('$icon$word'),
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, size: 20, color: color),
-                if (word != null) ...[
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      word,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.labelLarge?.copyWith(color: color),
-                    ),
-                  ),
-                ],
-              ],
-            ),
+            child: Icon(icon, key: ValueKey(icon), size: 20, color: color),
           ),
         ),
       ),
     );
   }
-}
 
-/// Single line in the error colour with a retry icon. Developers keep the
-/// detailed panel.
-class _ErrorLine extends ConsumerWidget {
-  const _ErrorLine({required this.error, required this.devMode});
+  void _onPressed(
+    BuildContext context,
+    WidgetRef ref, {
+    required String? word,
+    required Object? error,
+  }) {
+    final quiet = tier == ConnectionTier.live && error == null;
+    if (quiet || (word == null && error == null)) {
+      pushBoardDiscoveryRoute(context);
+      return;
+    }
 
-  final Object? error;
-  final bool devMode;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final e = error;
-    final duration = AppMotion.resolve(context, AppMotion.stateChange);
-
-    Widget child;
-    if (e == null) {
-      child = const SizedBox(width: double.infinity);
-    } else if (devMode) {
-      child = Padding(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-        child: SessionErrorPanel(
-          error: e,
-          title: l10n.lastErrorTitle,
-          devMode: true,
-          compact: true,
-        ),
-      );
-    } else {
-      child = Semantics(
-        liveRegion: true,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 4, 4),
-          child: Row(
-            children: [
-              Icon(Icons.error_outline_rounded, size: 18, color: cs.error),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  userFacingErrorSummary(l10n, e),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodyMedium?.copyWith(color: cs.error),
+    final devMode = ref.read(prefsRepositoryProvider).developerModeUnlocked;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(word ?? l10n.lastErrorTitle),
+        content: error == null
+            ? null
+            : SizedBox(
+                width: math.min(420, MediaQuery.sizeOf(ctx).width - 96),
+                child: SessionErrorPanel(
+                  error: error,
+                  title: l10n.lastErrorTitle,
+                  devMode: devMode,
+                  compact: true,
                 ),
               ),
-              IconButton(
-                tooltip: l10n.uiRetry,
-                onPressed: () => ref
-                    .read(boardSessionNotifierProvider.notifier)
-                    .refreshNow(),
-                icon: Icon(Icons.refresh_rounded, color: cs.error),
-              ),
-            ],
+        actions: [
+          if (error != null)
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                ref.read(boardSessionNotifierProvider.notifier).refreshNow();
+              },
+              child: Text(l10n.uiRetry),
+            ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              pushBoardDiscoveryRoute(context);
+            },
+            child: Text(l10n.gameFindBoard),
           ),
-        ),
-      );
-    }
-    return AnimatedSize(
-      duration: duration,
-      curve: AppMotion.standardCurve,
-      alignment: Alignment.topCenter,
-      child: AnimatedSwitcher(duration: duration, child: child),
+        ],
+      ),
     );
   }
 }
@@ -678,82 +661,126 @@ class _TableLayout extends ConsumerWidget {
           ),
         );
 
+    Widget clockColumn() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (strip != null) strip!,
+          if (puzzle != null) ...[
+            _PuzzleStrip(puzzle: puzzle),
+            const Spacer(),
+          ] else ...[
+            Expanded(
+              child: PlayerClock(
+                face: faceFor(!bottomIsWhite),
+                compact: true,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: PlayerClock(
+                face: faceFor(bottomIsWhite),
+                compact: true,
+              ),
+            ),
+          ],
+        ],
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, c) {
         if (landscape) {
-          final side = math.max(
+          final byWidth = math.min(
+            c.maxWidth * 0.55,
+            math.max(0.0, c.maxWidth - 16),
+          );
+          final fitted = math.max(
             200.0,
-            math.min(c.maxHeight - 16, c.maxWidth * 0.55),
+            math.min(c.maxHeight - 16, byWidth),
+          );
+          final natural = math.min(
+            math.max(200.0, byWidth),
+            math.max(0.0, c.maxWidth - 16),
+          );
+          final overflows = natural + 16 > c.maxHeight;
+          final side = overflows ? natural : fitted;
+          final row = Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              board(side),
+              const SizedBox(width: 16),
+              Expanded(child: clockColumn()),
+            ],
           );
           return SafeArea(
             top: false,
             left: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(8, 4, 12, 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  board(side),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (strip != null) strip!,
-                        if (puzzle != null) ...[
-                          _PuzzleStrip(puzzle: puzzle),
-                          const Spacer(),
-                        ] else ...[
-                          Expanded(
-                            child: PlayerClock(
-                              face: faceFor(!bottomIsWhite),
-                              compact: true,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Expanded(
-                            child: PlayerClock(
-                              face: faceFor(bottomIsWhite),
-                              compact: true,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+            child: overflows
+                ? SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(8, 4, 12, 8),
+                    child: SizedBox(height: side, child: row),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 12, 8),
+                    child: row,
                   ),
-                ],
-              ),
-            ),
           );
         }
 
-        return Center(
+        final viewport = c.maxHeight.isFinite ? c.maxHeight : 0.0;
+        final side = math.max(
+          0.0,
+          math.min(c.maxWidth, 720.0) - 24,
+        );
+        // Clocks use minHeight 112; reserve a little more so a flagged label
+        // does not overflow the fitted layout.
+        const clockReserve = 144.0;
+        final headerReserve = puzzle != null ? 120.0 : clockReserve;
+        final tailReserve = puzzle != null ? 0.0 : clockReserve;
+        final needed = headerReserve + 8 + side + (tailReserve == 0 ? 0 : 8 + tailReserve) + 8;
+        final overflows = needed > viewport;
+
+        final column = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: overflows || puzzle != null
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.spaceBetween,
+          children: [
+            if (puzzle != null)
+              _PuzzleStrip(puzzle: puzzle)
+            else
+              PlayerClock(face: faceFor(!bottomIsWhite)),
+            const SizedBox(height: 8),
+            if (!overflows && puzzle != null)
+              Expanded(child: Center(child: board(side)))
+            else
+              Center(child: board(side)),
+            if (puzzle == null) ...[
+              const SizedBox(height: 8),
+              PlayerClock(face: faceFor(bottomIsWhite)),
+            ],
+          ],
+        );
+
+        return Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 720),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (puzzle != null)
-                    _PuzzleStrip(puzzle: puzzle)
-                  else
-                    PlayerClock(face: faceFor(!bottomIsWhite)),
-                  const SizedBox(height: 8),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, bc) => Center(
-                        child: board(
-                          math.max(160.0, math.min(bc.maxWidth, bc.maxHeight)),
-                        ),
-                      ),
+            child: overflows
+                ? SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                    child: column,
+                  )
+                : SizedBox(
+                    height: viewport,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                      child: column,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  if (puzzle == null) PlayerClock(face: faceFor(bottomIsWhite)),
-                ],
-              ),
-            ),
           ),
         );
       },

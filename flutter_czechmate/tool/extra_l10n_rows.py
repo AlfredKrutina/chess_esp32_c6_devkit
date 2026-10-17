@@ -1519,6 +1519,11 @@ EXTRA_ROWS.extend([
         "Could not start the measurement. Connect to the board and try again.",
         "Měření nešlo spustit. Připoj se k desce a zkus to znovu.",
     ),
+    (
+        "powerLimitBanner",
+        "Supply sag: {count} brownouts in a row ({total} total). LEDs are at {scale}% of the set brightness. Unplug the board and plug it back in to try full brightness.",
+        "Propady napájení: {count}× za sebou (celkem {total}). LEDky jedou na {scale} % nastaveného jasu. Odpoj desku a znovu ji zapoj, ať se zkusí plný jas.",
+    ),
 ])
 EXTRA_PLACEHOLDER_META["analysisChartJumpedToMove"] = {"placeholders": {"n": {"type": "int"}}}
 EXTRA_PLACEHOLDER_META["settingsAppUpdateBannerSubtitle"] = {
@@ -1551,3 +1556,10 @@ EXTRA_PLACEHOLDER_META["firmwareCachedDiffersFromManifestHint"] = {
 EXTRA_PLACEHOLDER_META["firmwareDeveloperReflashChipTitle"] = {"placeholders": {"ver": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareDeveloperDowngradeChipTitle"] = {"placeholders": {"ver": {"type": "String"}}}
 EXTRA_PLACEHOLDER_META["firmwareSavedFirmwareChipTitle"] = {"placeholders": {"ver": {"type": "String"}}}
+EXTRA_PLACEHOLDER_META["powerLimitBanner"] = {
+    "placeholders": {
+        "count": {"type": "String"},
+        "total": {"type": "String"},
+        "scale": {"type": "String"},
+    }
+}

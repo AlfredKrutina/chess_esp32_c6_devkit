@@ -3578,17 +3578,6 @@ class AppLocalizationsCs extends AppLocalizations {
   String get settingsTileBoardLightTitle => 'Světlo desky';
 
   @override
-  String get settingsHallRestTitle => 'Změřit prázdnou desku';
-
-  @override
-  String get settingsHallRestStarted =>
-      'Měření prázdné desky začalo. Nech ji prázdnou, dokud neskončí.';
-
-  @override
-  String get settingsHallRestFailed =>
-      'Měření nešlo spustit. Připoj se k desce a zkus to znovu.';
-
-  @override
   String get settingsTileBoardLightSubtitle =>
       'Barva, jas, scény, auto‑vypnutí';
 
@@ -4500,6 +4489,22 @@ class AppLocalizationsCs extends AppLocalizations {
   @override
   String firmwareSavedFirmwareChipTitle(String ver) {
     return 'Uloženo v aplikaci: $ver';
+  }
+
+  @override
+  String get settingsHallRestTitle => 'Změřit prázdnou desku';
+
+  @override
+  String get settingsHallRestStarted =>
+      'Měření prázdné desky začalo. Nech ji prázdnou, dokud neskončí.';
+
+  @override
+  String get settingsHallRestFailed =>
+      'Měření nešlo spustit. Připoj se k desce a zkus to znovu.';
+
+  @override
+  String powerLimitBanner(String count, String total, String scale) {
+    return 'Propady napájení: $count× za sebou (celkem $total). LEDky jedou na $scale % nastaveného jasu. Odpoj desku a znovu ji zapoj, ať se zkusí plný jas.';
   }
 
   @override

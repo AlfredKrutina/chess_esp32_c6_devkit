@@ -6395,24 +6395,6 @@ abstract class AppLocalizations {
   /// **'Board light'**
   String get settingsTileBoardLightTitle;
 
-  /// No description provided for @settingsHallRestTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Measure empty board'**
-  String get settingsHallRestTitle;
-
-  /// No description provided for @settingsHallRestStarted.
-  ///
-  /// In en, this message translates to:
-  /// **'Empty-board measurement started. Leave the board clear until it finishes.'**
-  String get settingsHallRestStarted;
-
-  /// No description provided for @settingsHallRestFailed.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not start the measurement. Connect to the board and try again.'**
-  String get settingsHallRestFailed;
-
   /// No description provided for @settingsTileBoardLightSubtitle.
   ///
   /// In en, this message translates to:
@@ -7940,6 +7922,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved in app: {ver}'**
   String firmwareSavedFirmwareChipTitle(String ver);
+
+  /// No description provided for @settingsHallRestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Measure empty board'**
+  String get settingsHallRestTitle;
+
+  /// No description provided for @settingsHallRestStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty-board measurement started. Leave the board clear until it finishes.'**
+  String get settingsHallRestStarted;
+
+  /// No description provided for @settingsHallRestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not start the measurement. Connect to the board and try again.'**
+  String get settingsHallRestFailed;
+
+  /// No description provided for @powerLimitBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Supply sag: {count} brownouts in a row ({total} total). LEDs are at {scale}% of the set brightness. Unplug the board and plug it back in to try full brightness.'**
+  String powerLimitBanner(String count, String total, String scale);
 
   /// No description provided for @navLearn.
   ///

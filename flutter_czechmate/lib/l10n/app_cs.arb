@@ -2306,6 +2306,20 @@
   "settingsHallRestTitle": "Změřit prázdnou desku",
   "settingsHallRestStarted": "Měření prázdné desky začalo. Nech ji prázdnou, dokud neskončí.",
   "settingsHallRestFailed": "Měření nešlo spustit. Připoj se k desce a zkus to znovu.",
+  "powerLimitBanner": "Propady napájení: {count}× za sebou (celkem {total}). LEDky jedou na {scale} % nastaveného jasu. Odpoj desku a znovu ji zapoj, ať se zkusí plný jas.",
+  "@powerLimitBanner": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "scale": {
+        "type": "String"
+      }
+    }
+  },
   "navLearn": "Učení",
   "gameTopNoBoard": "Bez desky",
   "gameTopConnecting": "Připojuji…",

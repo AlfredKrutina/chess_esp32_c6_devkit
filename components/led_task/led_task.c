@@ -174,6 +174,7 @@
  */
 
 #include "led_task.h"
+#include "power_guard.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
@@ -2357,17 +2358,17 @@ void led_anim_castle(const led_command_t *cmd) {
   uint8_t king_from = cmd->led_index;
   uint8_t king_to = (cmd->data ? *((uint8_t *)cmd->data) : king_from + 2);
 
-  // Calculate rook positions based on castling direction
-  uint8_t rook_from, rook_to;
-  if (king_to > king_from) {
-    // Kingside castling - rook moves from h to f
-    rook_from = king_from + 3; // h1 or h8
-    rook_to = king_from + 1;   // f1 or f8
-  } else {
-    // Queenside castling - rook moves from a to d
-    rook_from = king_from - 4; // a1 or a8
-    rook_to = king_from - 1;   // d1 or d8
+  /* Rook squares from the chess rank. LED indices are not linear on a rank. */
+  uint8_t king_from_row, king_from_col, king_to_row, king_to_col;
+  led_index_to_chess_pos(king_from, &king_from_row, &king_from_col);
+  led_index_to_chess_pos(king_to, &king_to_row, &king_to_col);
+  if (king_from_row != king_to_row) {
+    return;
   }
+  bool kingside = king_to_col > king_from_col;
+  uint8_t rook_from =
+      chess_pos_to_led_index(king_from_row, kingside ? 7 : 0);
+  uint8_t rook_to = chess_pos_to_led_index(king_from_row, kingside ? 5 : 3);
 
   // ED: Ensure valid LED indices
   if (rook_from >= 64)
@@ -2384,10 +2385,7 @@ void led_anim_castle(const led_command_t *cmd) {
     return;
   }
 
-  uint8_t king_from_row, king_from_col, king_to_row, king_to_col;
   uint8_t rook_from_row, rook_from_col, rook_to_row, rook_to_col;
-  led_index_to_chess_pos(king_from, &king_from_row, &king_from_col);
-  led_index_to_chess_pos(king_to, &king_to_row, &king_to_col);
   led_index_to_chess_pos(rook_from, &rook_from_row, &rook_from_col);
   led_index_to_chess_pos(rook_to, &rook_to_row, &rook_to_col);
 
@@ -3229,11 +3227,15 @@ static void led_decode_output(uint32_t color, uint8_t *red, uint8_t *green,
   *green = (color >> 8) & 0xFF;
   *blue = color & 0xFF;
   *white = (color >> 24) & 0xFF;
-  if (global_brightness < 100) {
-    *red = (uint8_t)((*red * global_brightness) / 100);
-    *green = (uint8_t)((*green * global_brightness) / 100);
-    *blue = (uint8_t)((*blue * global_brightness) / 100);
-    *white = (uint8_t)((*white * global_brightness) / 100);
+  unsigned scale = global_brightness;
+  if (power_guard_output_half()) {
+    scale /= 2u;
+  }
+  if (scale < 100u) {
+    *red = (uint8_t)((*red * scale) / 100u);
+    *green = (uint8_t)((*green * scale) / 100u);
+    *blue = (uint8_t)((*blue * scale) / 100u);
+    *white = (uint8_t)((*white * scale) / 100u);
   }
   led_move_neutral_white(red, green, blue, white);
 }

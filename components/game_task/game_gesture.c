@@ -42,15 +42,37 @@ enum {
   DEMO_CLOSE
 };
 
-/* Scholar's mate. Stored in flash, not as a saved demo state. */
-static const uint8_t k_demo_game[][4] = {
-    {1, 4, 3, 4}, /* e2 e4 */
-    {6, 4, 4, 4}, /* e7 e5 */
-    {0, 5, 3, 2}, /* f1 c4 */
-    {7, 1, 5, 2}, /* b8 c6 */
-    {0, 3, 4, 7}, /* d1 h5 */
-    {7, 6, 5, 5}, /* g8 f6 */
-    {4, 7, 6, 5}, /* h5 f7 mate */
+/* Lesson line, not a saved game. Both sides castle, then the a-pawn promotes.
+ * {from_row, from_col, to_row, to_col, kind}: 0 move, 1 castle, 2 promote.
+ * Castle stores the king squares; the rook is drawn with it. row 0 = rank 1.
+ */
+enum { DEMO_KIND_MOVE = 0, DEMO_KIND_CASTLE = 1, DEMO_KIND_PROMOTE = 2 };
+
+static const uint8_t k_demo_game[][5] = {
+    {1, 4, 3, 4, DEMO_KIND_MOVE},    /* e2 e4 */
+    {6, 4, 4, 4, DEMO_KIND_MOVE},    /* e7 e5 */
+    {0, 6, 2, 5, DEMO_KIND_MOVE},    /* g1 f3 */
+    {7, 1, 5, 2, DEMO_KIND_MOVE},    /* b8 c6 */
+    {0, 5, 3, 2, DEMO_KIND_MOVE},    /* f1 c4 */
+    {7, 5, 4, 2, DEMO_KIND_MOVE},    /* f8 c5 */
+    {0, 4, 0, 6, DEMO_KIND_CASTLE},  /* white O-O */
+    {7, 6, 5, 5, DEMO_KIND_MOVE},    /* g8 f6 */
+    {1, 3, 2, 3, DEMO_KIND_MOVE},    /* d2 d3 */
+    {7, 4, 7, 6, DEMO_KIND_CASTLE},  /* black O-O */
+    {0, 1, 2, 2, DEMO_KIND_MOVE},    /* b1 c3 */
+    {6, 3, 5, 3, DEMO_KIND_MOVE},    /* d7 d6 */
+    {1, 0, 3, 0, DEMO_KIND_MOVE},    /* a2 a4 */
+    {6, 0, 4, 0, DEMO_KIND_MOVE},    /* a7 a5 */
+    {1, 1, 3, 1, DEMO_KIND_MOVE},    /* b2 b4 */
+    {4, 0, 3, 1, DEMO_KIND_MOVE},    /* a5xb4 */
+    {3, 0, 4, 0, DEMO_KIND_MOVE},    /* a4 a5 */
+    {7, 2, 5, 4, DEMO_KIND_MOVE},    /* c8 e6 */
+    {4, 0, 5, 0, DEMO_KIND_MOVE},    /* a5 a6 */
+    {7, 3, 6, 3, DEMO_KIND_MOVE},    /* d8 d7 */
+    {5, 0, 6, 0, DEMO_KIND_MOVE},    /* a6 a7 */
+    {7, 0, 7, 1, DEMO_KIND_MOVE},    /* a8 b8 */
+    {6, 0, 7, 0, DEMO_KIND_PROMOTE}, /* a7 a8=Q */
+    {7, 0, 6, 1, DEMO_KIND_MOVE},    /* Qa8xb7 */
 };
 
 static uint8_t s_demo_phase;
@@ -88,10 +110,39 @@ static void demo_play_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
   led_execute_command_new(&cmd);
 }
 
+/* King and rook travel together. King squares only; rook is derived. */
+static void demo_play_castle(uint8_t row, uint8_t from_col, uint8_t to_col) {
+  static uint8_t king_to;
+  king_to = chess_pos_to_led_index(row, to_col);
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_CASTLE,
+      .led_index = chess_pos_to_led_index(row, from_col),
+      .red = 255,
+      .green = 215,
+      .blue = 0,
+      .duration_ms = 0,
+      .data = &king_to,
+  };
+  led_execute_command_new(&cmd);
+}
+
+static void demo_play_promote(uint8_t row, uint8_t col) {
+  led_command_t cmd = {
+      .type = LED_CMD_ANIM_PROMOTE,
+      .led_index = chess_pos_to_led_index(row, col),
+      .red = 255,
+      .green = 215,
+      .blue = 0,
+      .duration_ms = 0,
+      .data = NULL,
+  };
+  led_execute_command_new(&cmd);
+}
+
 static void demo_play_end(void) {
   led_command_t cmd = {
       .type = LED_CMD_ANIM_ENDGAME,
-      .led_index = chess_pos_to_led_index(0, 4),
+      .led_index = chess_pos_to_led_index(6, 1),
       .red = 0,
       .green = 0,
       .blue = 0,
@@ -134,10 +185,22 @@ static void demo_show_tick(void) {
       s_demo_phase = DEMO_END;
       break;
     }
-    demo_play_move(k_demo_game[s_demo_ply][0], k_demo_game[s_demo_ply][1],
-                   k_demo_game[s_demo_ply][2], k_demo_game[s_demo_ply][3]);
-    s_demo_ply++;
-    s_demo_until = xTaskGetTickCount() + pdMS_TO_TICKS(900);
+    {
+      const uint8_t *step = k_demo_game[s_demo_ply];
+      uint32_t hold_ms = 1100;
+      if (step[4] == DEMO_KIND_CASTLE) {
+        demo_play_castle(step[0], step[1], step[3]);
+        hold_ms = 1600;
+      } else if (step[4] == DEMO_KIND_PROMOTE) {
+        demo_play_move(step[0], step[1], step[2], step[3]);
+        demo_play_promote(step[2], step[3]);
+        hold_ms = 3400;
+      } else {
+        demo_play_move(step[0], step[1], step[2], step[3]);
+      }
+      s_demo_ply++;
+      s_demo_until = xTaskGetTickCount() + pdMS_TO_TICKS(hold_ms);
+    }
     break;
   case DEMO_END:
     if (!s_demo_sent) {

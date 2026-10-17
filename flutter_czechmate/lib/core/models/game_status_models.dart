@@ -287,6 +287,10 @@ class GameStatus {
     this.autoLampTimeoutSec,
     this.chessHintLimit,
     this.matrixOccupied,
+    this.powerLimit,
+    this.powerScale,
+    this.powerBrownoutStreak,
+    this.powerBrownoutTotal,
   });
 
   final String gameState;
@@ -324,6 +328,10 @@ class GameStatus {
   final int? autoLampTimeoutSec;
   final int? chessHintLimit;
   final List<int>? matrixOccupied;
+  final bool? powerLimit;
+  final int? powerScale;
+  final int? powerBrownoutStreak;
+  final int? powerBrownoutTotal;
 
   bool get isTimerRunning {
     final s = gameState.toLowerCase();
@@ -404,6 +412,10 @@ class GameStatus {
       matrixOccupied: (json['matrix_occupied'] as List<dynamic>?)
           ?.map((e) => (e as num).toInt())
           .toList(),
+      powerLimit: json['power_limit'] as bool?,
+      powerScale: (json['power_scale'] as num?)?.toInt(),
+      powerBrownoutStreak: (json['power_brownout_streak'] as num?)?.toInt(),
+      powerBrownoutTotal: (json['power_brownout_total'] as num?)?.toInt(),
     );
   }
 
@@ -446,6 +458,10 @@ class GameStatus {
       autoLampTimeoutSec: autoLampTimeoutSec ?? previous.autoLampTimeoutSec,
       chessHintLimit: chessHintLimit ?? previous.chessHintLimit,
       matrixOccupied: matrixOccupied ?? previous.matrixOccupied,
+      powerLimit: powerLimit ?? previous.powerLimit,
+      powerScale: powerScale ?? previous.powerScale,
+      powerBrownoutStreak: powerBrownoutStreak ?? previous.powerBrownoutStreak,
+      powerBrownoutTotal: powerBrownoutTotal ?? previous.powerBrownoutTotal,
     );
   }
 
@@ -494,6 +510,10 @@ class GameStatus {
       autoLampTimeoutSec: autoLampTimeoutSec,
       chessHintLimit: chessHintLimit,
       matrixOccupied: matrixOccupied,
+      powerLimit: powerLimit,
+      powerScale: powerScale,
+      powerBrownoutStreak: powerBrownoutStreak,
+      powerBrownoutTotal: powerBrownoutTotal,
     );
   }
 }

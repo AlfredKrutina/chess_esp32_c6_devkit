@@ -71,6 +71,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
   final _found = <String, ScanResult>{};
   bool _scanning = false;
   bool _showConnectionRecovery = false;
+  String? _connectionFailureMessage;
 
   @override
   void initState() {
@@ -202,6 +203,7 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     setState(() {
       _scanning = true;
       _showConnectionRecovery = false;
+      _connectionFailureMessage = null;
     });
     connDebugLog(
         'BLE scan start', 'timeout=12s client-side filtr CZECHMATE/service');
@@ -381,9 +383,104 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
         connDebugLog('pairing', 'new device rejected or window closed');
       }
       if (msg.isEmpty) msg = l10n.userFacingErrGeneric;
-      setState(() => _showConnectionRecovery = true);
-      showAppSnackBar(context, msg, errorStyle: true);
+      setState(() {
+        _showConnectionRecovery = true;
+        _connectionFailureMessage = msg;
+      });
     }
+  }
+
+  void _clearConnectionRecovery() {
+    setState(() {
+      _showConnectionRecovery = false;
+      _connectionFailureMessage = null;
+    });
+  }
+
+  void _openConnectionRecovery(AppLocalizations l10n) {
+    final message = _connectionFailureMessage;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (message != null && message.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Text(message),
+                ),
+              DiscoveryConnectionRecoveryCard(
+                l10n: l10n,
+                onDismiss: () {
+                  Navigator.of(ctx).pop();
+                  _clearConnectionRecovery();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openBoardHotspot() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Consumer(
+        builder: (ctx, ref, _) {
+          final session = ref.watch(boardSessionNotifierProvider);
+          final l10n = ctx.l10n;
+          final theme = Theme.of(ctx);
+          final cs = theme.colorScheme;
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.discoveryBoardApSubtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                if (session.bleApSsid != null &&
+                    session.bleApSsid!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    session.bleApSsid!,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                FilledButton.tonalIcon(
+                  onPressed: session.busy
+                      ? null
+                      : () => unawaited(_toggleBoardHotspot(
+                            ref,
+                            enable: !session.bleApBroadcasting,
+                          )),
+                  icon: Icon(
+                    session.bleApBroadcasting
+                        ? Icons.portable_wifi_off_outlined
+                        : Icons.wifi_tethering,
+                  ),
+                  label: Text(
+                    session.bleApBroadcasting
+                        ? l10n.discoveryBoardApDisable
+                        : l10n.discoveryBoardApEnable,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -401,6 +498,26 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.discoveryTitle),
+        actions: [
+          if (_showConnectionRecovery)
+            IconButton(
+              tooltip: l10n.discoveryRecoveryTitle,
+              onPressed: () => _openConnectionRecovery(l10n),
+              icon: Icon(Icons.troubleshoot_outlined, color: cs.error),
+            ),
+          if (session.transport == BoardTransport.ble &&
+              session.bleGattConnected)
+            IconButton(
+              tooltip: l10n.discoveryBoardApEnable,
+              onPressed: _openBoardHotspot,
+              icon: Icon(
+                session.bleApBroadcasting
+                    ? Icons.wifi_tethering
+                    : Icons.wifi_tethering_off,
+                color: cs.primary,
+              ),
+            ),
+        ],
         leading: IconButton(
           tooltip: l10n.discoveryCloseTooltip,
           icon: const Icon(Icons.close),
@@ -627,70 +744,6 @@ class _BoardDiscoveryScreenState extends ConsumerState<BoardDiscoveryScreen> {
               ),
             );
           }),
-          if (_showConnectionRecovery) ...[
-            const SizedBox(height: 12),
-            DiscoveryConnectionRecoveryCard(
-              l10n: l10n,
-              onDismiss: () => setState(() => _showConnectionRecovery = false),
-            ),
-          ],
-          if (session.transport == BoardTransport.ble &&
-              session.bleGattConnected) ...[
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.wifi_tethering, color: cs.primary),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            l10n.discoveryBoardApSubtitle,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (session.bleApSsid != null &&
-                        session.bleApSsid!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        session.bleApSsid!,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    FilledButton.tonalIcon(
-                      onPressed: session.busy
-                          ? null
-                          : () => unawaited(_toggleBoardHotspot(
-                                ref,
-                                enable: !session.bleApBroadcasting,
-                              )),
-                      icon: Icon(
-                        session.bleApBroadcasting
-                            ? Icons.portable_wifi_off_outlined
-                            : Icons.wifi_tethering,
-                      ),
-                      label: Text(
-                        session.bleApBroadcasting
-                            ? l10n.discoveryBoardApDisable
-                            : l10n.discoveryBoardApEnable,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
           const SizedBox(height: 8),
           Card(
             clipBehavior: Clip.antiAlias,

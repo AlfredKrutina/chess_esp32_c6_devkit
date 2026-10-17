@@ -40,13 +40,23 @@ class _BoardDiscoveryAdvancedScreenState
     extends ConsumerState<BoardDiscoveryAdvancedScreen> {
   late final TextEditingController _url;
   bool _showConnectionRecovery = false;
+  String? _connectionFailureMessage;
 
   void _onConnectionAttemptFailed(AppLocalizations l10n) {
     final err = ref.read(boardSessionNotifierProvider).lastError;
     var msg = userFacingErrorSummary(l10n, err);
     if (msg.isEmpty) msg = l10n.userFacingErrGeneric;
-    setState(() => _showConnectionRecovery = true);
-    showAppSnackBar(context, msg, errorStyle: true);
+    setState(() {
+      _showConnectionRecovery = true;
+      _connectionFailureMessage = msg;
+    });
+  }
+
+  void _clearConnectionRecovery() {
+    setState(() {
+      _showConnectionRecovery = false;
+      _connectionFailureMessage = null;
+    });
   }
 
   @override
@@ -75,17 +85,49 @@ class _BoardDiscoveryAdvancedScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settingsAdvanced),
+        actions: [
+          if (_showConnectionRecovery)
+            IconButton(
+              tooltip: l10n.discoveryRecoveryTitle,
+              onPressed: () {
+                final message = _connectionFailureMessage;
+                showDialog<void>(
+                  context: context,
+                  builder: (ctx) => Dialog(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (message != null && message.isNotEmpty)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                              child: Text(message),
+                            ),
+                          DiscoveryConnectionRecoveryCard(
+                            l10n: l10n,
+                            onDismiss: () {
+                              Navigator.of(ctx).pop();
+                              _clearConnectionRecovery();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+              icon: Icon(
+                Icons.troubleshoot_outlined,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          if (_showConnectionRecovery) ...[
-            const SizedBox(height: 16),
-            DiscoveryConnectionRecoveryCard(
-              l10n: l10n,
-              onDismiss: () => setState(() => _showConnectionRecovery = false),
-            ),
-          ],
           const SizedBox(height: 16),
           Card(
             child: Padding(
@@ -120,7 +162,7 @@ class _BoardDiscoveryAdvancedScreenState
                         if (!context.mounted) return;
                         if (_sessionConnectedForAdvanced(
                             ref.read(boardSessionNotifierProvider))) {
-                          setState(() => _showConnectionRecovery = false);
+                          _clearConnectionRecovery();
                           closeBoardDiscoveryAndFocusPlay(ref, context);
                         } else {
                           _onConnectionAttemptFailed(l10n);
@@ -177,7 +219,7 @@ class _BoardDiscoveryAdvancedScreenState
                         if (!context.mounted) return;
                         if (_sessionConnectedForAdvanced(
                             ref.read(boardSessionNotifierProvider))) {
-                          setState(() => _showConnectionRecovery = false);
+                          _clearConnectionRecovery();
                           closeBoardDiscoveryAndFocusPlay(ref, context);
                         } else {
                           _onConnectionAttemptFailed(l10n);
@@ -217,7 +259,7 @@ class _BoardDiscoveryAdvancedScreenState
                         if (!context.mounted) return;
                         if (_sessionConnectedForAdvanced(
                             ref.read(boardSessionNotifierProvider))) {
-                          setState(() => _showConnectionRecovery = false);
+                          _clearConnectionRecovery();
                           closeBoardDiscoveryAndFocusPlay(ref, context);
                         } else {
                           _onConnectionAttemptFailed(l10n);

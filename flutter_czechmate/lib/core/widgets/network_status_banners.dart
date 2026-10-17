@@ -14,12 +14,12 @@ bool networkResultsWifi(List<ConnectivityResult> results) {
   return results.contains(ConnectivityResult.wifi);
 }
 
-/// How connectivity hints occupy space in the widget tree.
+/// Where the connectivity icon sits. The hint itself is only an icon until tapped.
 enum NetworkBannerPresentation {
-  /// Full-width cards that participate in layout (legacy).
+  /// Icon aligned to the start of a scrolling page.
   flow,
 
-  /// Compact strip meant for a top overlay — avoids shrinking the board area.
+  /// Icon aligned to the end, meant for a corner overlay.
   overlay,
 }
 
@@ -45,122 +45,53 @@ class NetworkStatusBanners extends ConsumerWidget {
         final online = networkResultsSatisfied(results);
         final wifi = networkResultsWifi(results);
         final cs = Theme.of(context).colorScheme;
-        final children = <Widget>[];
 
+        final IconData icon;
+        final Color color;
+        final String title;
+        final String body;
         if (!online) {
-          children.add(
-            presentation == NetworkBannerPresentation.overlay
-                ? _OverlayBanner(
-                    color: cs.errorContainer,
-                    foreground: cs.onErrorContainer,
-                    icon: Icons.cloud_off_rounded,
-                    text:
-                        '${l10n.netNoInternetTitle} · ${l10n.netNoInternetBody}',
-                  )
-                : Material(
-                    color: cs.errorContainer,
-                    borderRadius: BorderRadius.circular(12),
-                    child: ListTile(
-                      leading:
-                          Icon(Icons.cloud_off, color: cs.onErrorContainer),
-                      title: Text(
-                        l10n.netNoInternetTitle,
-                        style: TextStyle(
-                          color: cs.onErrorContainer,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l10n.netNoInternetBody,
-                        style: TextStyle(color: cs.onErrorContainer),
-                      ),
-                    ),
-                  ),
-          );
+          icon = Icons.cloud_off_rounded;
+          color = cs.error;
+          title = l10n.netNoInternetTitle;
+          body = l10n.netNoInternetBody;
         } else if (showWifiLanHint && !wifi) {
-          children.add(
-            presentation == NetworkBannerPresentation.overlay
-                ? _OverlayBanner(
-                    color: cs.surfaceContainerHighest,
-                    foreground: cs.onSurface,
-                    icon: Icons.network_cell_rounded,
-                    text:
-                        '${l10n.netNotOnWifiTitle} · ${l10n.netNotOnWifiBody}',
-                  )
-                : Material(
-                    color: cs.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
-                    child: ListTile(
-                      leading: Icon(Icons.network_cell, color: cs.primary),
-                      title: Text(l10n.netNotOnWifiTitle),
-                      subtitle: Text(l10n.netNotOnWifiBody),
-                    ),
-                  ),
-          );
+          icon = Icons.network_cell_rounded;
+          color = cs.primary;
+          title = l10n.netNotOnWifiTitle;
+          body = l10n.netNotOnWifiBody;
+        } else {
+          return const SizedBox.shrink();
         }
 
-        if (children.isEmpty) return const SizedBox.shrink();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0)
-                SizedBox(
-                    height: presentation == NetworkBannerPresentation.overlay
-                        ? 6
-                        : 8),
-              children[i],
-            ],
-          ],
+        return Align(
+          alignment: presentation == NetworkBannerPresentation.overlay
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          child: IconButton(
+            tooltip: title,
+            color: color,
+            onPressed: () {
+              showDialog<void>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(title),
+                  content: Text(body),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(ctx).pop(),
+                      child: Text(
+                        MaterialLocalizations.of(ctx).okButtonLabel,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: Icon(icon),
+          ),
         );
       },
-    );
-  }
-}
-
-class _OverlayBanner extends StatelessWidget {
-  const _OverlayBanner({
-    required this.color,
-    required this.foreground,
-    required this.icon,
-    required this.text,
-  });
-
-  final Color color;
-  final Color foreground;
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: color,
-      elevation: 3,
-      shadowColor: Colors.black38,
-      borderRadius: BorderRadius.circular(10),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 18, color: foreground),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                text,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: foreground,
-                      height: 1.25,
-                      fontSize: 12.5,
-                    ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

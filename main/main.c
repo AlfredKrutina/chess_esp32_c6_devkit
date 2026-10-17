@@ -56,6 +56,7 @@
 #include "task_wdt.h"
 #include "game_task.h"
 #include "led_task.h"
+#include "power_guard.h"
 #include "squares_task.h"
 #include "board_api_auth.h"
 #include "nvs_flash.h"
@@ -806,6 +807,7 @@ static void init_console(void) {
     ret = nvs_flash_init();
   }
   ESP_ERROR_CHECK(ret);
+  power_guard_on_boot(esp_reset_reason());
 
   esp_err_t tok_ret = board_api_auth_init();
   if (tok_ret != ESP_OK) {
