@@ -2659,6 +2659,9 @@ void led_update_endgame_wave(void) {
   if (!endgame_wave.active || !endgame_wave.initialized) {
     return;
   }
+  if (led_board_restore_guide_is_active() || game_ep_capture_waiting()) {
+    return;
+  }
 
   /* 33 ms LED frame. Two soft rings, half a cycle apart, fade in at the
    * king and out past the edge so the repeat does not jump. */

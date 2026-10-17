@@ -256,7 +256,6 @@ bool game_demo_show_active(void) { return s_demo_phase != DEMO_OFF; }
 
 static bool s_wave_wait;
 static bool s_opening_wave;
-static bool s_opening_wave;
 static bool s_pair_pulse_on;
 static ha_mode_t s_pending_mode;
 

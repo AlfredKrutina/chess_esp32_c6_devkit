@@ -31,7 +31,9 @@ static const char *TAG = "GAME_PROMOTION";
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 static bool s_promo_hall_swap_blink;
 static piece_t s_promo_hall_seen = PIECE_EMPTY;
-static uint8_t s_promo_hall_seen_count;
+static int64_t s_promo_hall_since_us;
+
+#define PROMO_HALL_STABLE_US (2000000LL)
 
 static bool game_promotion_is_final_piece(piece_t piece) {
   return piece == PIECE_WHITE_QUEEN || piece == PIECE_WHITE_ROOK ||
@@ -140,7 +142,7 @@ void game_promotion_sync_hall_if_pending(void) {
   if (!promotion_state.pending) {
     s_promo_hall_swap_blink = false;
     s_promo_hall_seen = PIECE_EMPTY;
-    s_promo_hall_seen_count = 0;
+    s_promo_hall_since_us = 0;
     return;
   }
 
@@ -159,7 +161,7 @@ void game_promotion_sync_hall_if_pending(void) {
 
   if (phys[sq] == 0 || ht == HALL_PIECE_TYPE_NONE) {
     s_promo_hall_seen = PIECE_EMPTY;
-    s_promo_hall_seen_count = 0;
+    s_promo_hall_since_us = 0;
     if (s_promo_hall_swap_blink) {
       game_stop_error_blink();
       s_promo_hall_swap_blink = false;
@@ -172,7 +174,7 @@ void game_promotion_sync_hall_if_pending(void) {
   if (!game_hall_piece_for_promoting_player(ht, hc, promotion_state.player,
                                             &mapped)) {
     s_promo_hall_seen = PIECE_EMPTY;
-    s_promo_hall_seen_count = 0;
+    s_promo_hall_since_us = 0;
     if (!s_promo_hall_swap_blink) {
       game_show_invalid_move_error_with_blink(row, col);
       s_promo_hall_swap_blink = true;
@@ -183,7 +185,7 @@ void game_promotion_sync_hall_if_pending(void) {
 
   if (!game_promotion_is_final_piece(mapped)) {
     s_promo_hall_seen = PIECE_EMPTY;
-    s_promo_hall_seen_count = 0;
+    s_promo_hall_since_us = 0;
     if (s_promo_hall_swap_blink) {
       game_stop_error_blink();
       s_promo_hall_swap_blink = false;
@@ -193,15 +195,13 @@ void game_promotion_sync_hall_if_pending(void) {
     return;
   }
 
-  if (mapped == s_promo_hall_seen) {
-    if (s_promo_hall_seen_count < 2) {
-      s_promo_hall_seen_count++;
-    }
-  } else {
+  int64_t now_us = esp_timer_get_time();
+  if (mapped != s_promo_hall_seen) {
     s_promo_hall_seen = mapped;
-    s_promo_hall_seen_count = 1;
+    s_promo_hall_since_us = now_us;
   }
-  if (s_promo_hall_seen_count < 2) {
+  if (s_promo_hall_since_us == 0 ||
+      (now_us - s_promo_hall_since_us) < PROMO_HALL_STABLE_US) {
     game_update_promotion_anchor_led();
     xSemaphoreGiveRecursive(promotion_mutex);
     return;

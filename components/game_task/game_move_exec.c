@@ -776,10 +776,14 @@ void game_ep_capture_service(void) {
   uint8_t phys[64] = {0};
   squares_get_state(phys);
   uint8_t sq = (uint8_t)(s_ep_row * 8 + s_ep_col);
-  if (phys[sq] == 0) {
+  bool in_hand = piece_lifted && lifted_piece_row == s_ep_row &&
+                 lifted_piece_col == s_ep_col;
+  if (phys[sq] == 0 && !in_hand) {
     s_ep_wait = false;
-    led_clear_board_only();
-    chess_policy_highlight_movable_if_enabled();
+    if (current_game_state != GAME_STATE_FINISHED) {
+      led_clear_board_only();
+      chess_policy_highlight_movable_if_enabled();
+    }
     return;
   }
   game_ep_capture_show();

@@ -174,6 +174,11 @@ static bool mode_blocks_guide(void) {
   if (piece_lifted && lifted_piece != PIECE_EMPTY) {
     return true;
   }
+  if (game_physical_undo_is_active() || game_ep_capture_waiting() ||
+      castling_state.in_progress || castle_animation_active ||
+      promotion_state.pending) {
+    return true;
+  }
   if (current_game_state != GAME_STATE_ACTIVE &&
       current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
       current_game_state != GAME_STATE_FINISHED &&

@@ -233,6 +233,7 @@ bool game_is_valid_position(int row, int col);
  */
 piece_t game_get_piece(int row, int col);
 uint8_t game_endgame_reason(void);
+bool game_ep_capture_waiting(void);
 
 /**
  * @brief Check if the position is empty

@@ -903,6 +903,10 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
                      from_col == castling_state.rook_from_col);
     game_show_castling_rook_guidance();
     if (!rook_src) {
+      piece_lifted = true;
+      lifted_piece_row = from_row;
+      lifted_piece_col = from_col;
+      lifted_piece = piece;
       led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 0, 0);
       game_send_response_to_uart(
           "🏰 Move the rook from yellow to green.", true,
