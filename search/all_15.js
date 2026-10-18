@@ -105,8 +105,9 @@ var searchData=
   ['url_5fis_5fhttp_102',['url_is_http',['../ota__update_8c.html#a88acbd3d46c17168c091474faddfccce',1,'ota_update.c']]],
   ['url_5fis_5fhttps_103',['url_is_https',['../ota__update_8c.html#a83cac12df33215375d8151d0675b866b',1,'ota_update.c']]],
   ['usage_104',['usage',['..//home/runner/work/chess_esp32_c6_devkit/chess_esp32_c6_devkit/README.md#autotoc_md104',1,'Usage'],['../structuart__command__t.html#af54b176c77095097bdde582f4d1cbc26',1,'uart_command_t::usage']]],
-  ['used_105',['used',['../structchess__i2c__dev__slot__t.html#a9661d2ea94ddf4b02fdd0f14d492674c',1,'chess_i2c_dev_slot_t']]],
-  ['user_5fconfirmed_106',['user_confirmed',['../structactive__error__t.html#ace7dcdd59cad912bc07b3fc6c4fdb007',1,'active_error_t']]],
-  ['user_5fmessage_107',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]],
-  ['username_108',['username',['../ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018',1,'ha_light_task.c']]]
+  ['usb_5fconsole_5fkeep_5fclock_105',['usb_console_keep_clock',['../main_8c.html#a75404e79e1be89eeb4d781c73c39202b',1,'main.c']]],
+  ['used_106',['used',['../structchess__i2c__dev__slot__t.html#a9661d2ea94ddf4b02fdd0f14d492674c',1,'chess_i2c_dev_slot_t']]],
+  ['user_5fconfirmed_107',['user_confirmed',['../structactive__error__t.html#ace7dcdd59cad912bc07b3fc6c4fdb007',1,'active_error_t']]],
+  ['user_5fmessage_108',['user_message',['../structerror__guidance__t.html#a2d4d5d7f00c4613b12fd59a5e48b123c',1,'error_guidance_t']]],
+  ['username_109',['username',['../ha__light__task_8c.html#acfea5fbe8295640a1489399ceeb6c018',1,'ha_light_task.c']]]
 ];

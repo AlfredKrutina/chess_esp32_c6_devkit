@@ -23,6 +23,7 @@ var main_8c =
     [ "set_demo_speed_ms", "main_8c.html#a570c98f23cd91c36ce62964733732cdf", null ],
     [ "show_boot_animation_and_board", "main_8c.html#a4894ad0ac4d99cffa56d58649a1850fb", null ],
     [ "toggle_demo_mode", "main_8c.html#a6e05201e522856e3cd984bade768be7e", null ],
+    [ "usb_console_keep_clock", "main_8c.html#a75404e79e1be89eeb4d781c73c39202b", null ],
     [ "animation_task_handle", "main_8c.html#a2a20898222a990efbce3e4239f2d9aee", null ],
     [ "button_task_handle", "main_8c.html#aba5c2db71f9fa5cd9f3e506e91ffe6d3", null ],
     [ "current_demo_delay_ms", "main_8c.html#aa999d9fce86efd55be4fb1bce525e69e", null ],
