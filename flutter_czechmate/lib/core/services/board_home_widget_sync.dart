@@ -52,19 +52,15 @@ class BoardHomeWidgetSync {
     );
 
     Future<void> saveOptInt(String key, dynamic v) async {
-      if (v == null) {
-        await HomeWidget.saveWidgetData<int>(key, null);
-        return;
-      }
+      // home_widget forwards null as NSNull. UserDefaults then throws and
+      // aborts the process, so a missing value is left unset.
+      if (v == null) return;
       final n = v is int ? v : (v as num).toInt();
       await HomeWidget.saveWidgetData<int>(key, n);
     }
 
     Future<void> saveOptBool(String key, dynamic v) async {
-      if (v == null) {
-        await HomeWidget.saveWidgetData<bool>(key, null);
-        return;
-      }
+      if (v == null) return;
       await HomeWidget.saveWidgetData<bool>(key, v == true);
     }
 
