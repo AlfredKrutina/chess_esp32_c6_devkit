@@ -45,4 +45,11 @@ flutter {
 
 dependencies {
     implementation("com.google.android.gms:play-services-wearable:18.2.0")
+    // home_widget asks for glance-appwidget 1.+, which resolves to 1.3 alpha.
+    // That alpha needs compileSdk 37 and Android Gradle Plugin 9.1.
+    implementation("androidx.glance:glance-appwidget") {
+        version {
+            strictly("1.1.1")
+        }
+    }
 }

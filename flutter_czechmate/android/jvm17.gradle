@@ -1,0 +1,14 @@
+// home_widget compiles Kotlin for JVM 1.8. Glance 1.1 bytecode needs 11+.
+// Registered before evaluationDependsOn(":app") in build.gradle.kts.
+subprojects { subproject ->
+    subproject.afterEvaluate {
+        def androidExt = subproject.extensions.findByName("android")
+        if (androidExt != null) {
+            androidExt.compileOptions.sourceCompatibility = JavaVersion.VERSION_17
+            androidExt.compileOptions.targetCompatibility = JavaVersion.VERSION_17
+        }
+        subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
+}

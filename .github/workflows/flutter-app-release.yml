@@ -76,7 +76,7 @@ jobs:
         with:
           packages: >-
             tools platform-tools
-            platforms;android-35
+            platforms;android-35 platforms;android-36
             build-tools;35.0.0
 
       - uses: subosito/flutter-action@v2

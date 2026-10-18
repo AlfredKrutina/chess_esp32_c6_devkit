@@ -1,3 +1,5 @@
+apply(from = "jvm17.gradle")
+
 allprojects {
     repositories {
         google()
