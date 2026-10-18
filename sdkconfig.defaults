@@ -92,6 +92,8 @@ CONFIG_ESP_COEX_SW_COEXIST_ENABLE=y
 # Power Management
 CONFIG_PM_ENABLE=y
 CONFIG_PM_DFS_INIT_AUTO=y
+# USB-Serial/JTAG dies if the chip light-sleeps while the cable is connected.
+CONFIG_USJ_NO_AUTO_LS_ON_CONNECTION=y
 
 # Debug Configuration
 CONFIG_ESP_DEBUG_STUBS_ENABLE=y

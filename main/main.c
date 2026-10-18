@@ -41,6 +41,8 @@
 // #include "driver/uart_vfs.h" // UNUSED
 #include "esp_console.h"
 #include "esp_log.h"
+#include "esp_pm.h"
+#include "esp_private/rtc_clk.h"
 // #include "esp_random.h" // UNUSED
 #include "esp_sleep.h"
 #include "esp_system.h"
@@ -1065,12 +1067,9 @@ esp_err_t create_system_tasks(void) {
 
   ESP_LOGI(TAG, "All system tasks created successfully");
 
-  // Cas pro start tasku pred boot animaci.
-  (void)chess_task_wdt_reset_safe(TAG);
-  vTaskDelay(pdMS_TO_TICKS(1000));
   (void)chess_task_wdt_reset_safe(TAG);
 
-  // ASCII banner, progress bar, led_boot_animation_step, fade-out.
+  /* LED bloom and fade. Serial logo used to block this path on USB. */
   show_boot_animation_and_board();
 
   // Sladeni s NVS: initialize_chess_game() nemusi poslat GAME_CMD_NEW_GAME.
@@ -1094,265 +1093,29 @@ esp_err_t create_system_tasks(void) {
 // ============================================================================
 
 /**
- * @brief Centralized boot animation: ASCII logo, progress bar, LED step,
- * fade-out.
+ * @brief Centralized boot animation: LED bloom, fade-out.
  *
  * @details
- * Call after creating a task. During the loop, call led_boot_animation_step() and
- * WDT reset in main; at the end of led_boot_animation_fade_out() clear the board and
- * set led_booting_active = false. This is followed by initialize_chess_game().
+ * Call after creating a task. Step led_boot_animation_step() until the bloom
+ * covers the board, then led_boot_animation_fade_out() clears it and
+ * led_booting_active. This is followed by initialize_chess_game().
  *
  * @note game_task during led_is_booting() does not process moves (see
  * game_task_start).
  */
 void show_boot_animation_and_board(void) {
-  /* Banner printf can sit on USB longer than the watchdog. Pet before it. */
   (void)chess_task_wdt_reset_safe(TAG);
   ESP_LOGI(TAG, "🎬 Starting centralized boot animation...");
 
-  // Clear screen and show welcome logo
-  printf("\033[2J\033[H");
-
-  // Greek-inspired CZECHMAT banner with ANSI colors
-  // New ASCII art logo - using fputs to avoid printf formatting issues
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs("\x1b[0m............................................................"
-        "\x1b[34m:=*+-\x1b[0m.................................................."
-        ".............\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................................................\x1b[34m:="
-        "#%@@%*=-=+#@@@%*=:\x1b[0m............................................."
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m..............................................\x1b[34m-=*%@@%*="
-        "-=*%@%@=*@%@%*=-+#%@@%*=-\x1b[0m......................................"
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m......................................\x1b[34m:-+#@@@%+--+#%@%+"
-        "@+#@@%@%%@%@@-*@=@@%#=-=*%@@@#+-:\x1b[0m.............................."
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m...............................\x1b[34m:-+%@@@#+--*%@@*@=*@*@@@"
-        "#=\x1b[0m...........\x1b[34m:+%@@%+@:#@*@@%+--+%@@@%+-:\x1b[0m........"
-        ".......................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m........................\x1b[34m:-*@@@@#-:=#@@*@*+@+@@@%+:\x1b["
-        "0m.........................\x1b[34m-*@@@%+@:@@#@@#-:=#@@@@#-:\x1b[0m.."
-        "......................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m....................\x1b[34m%@@@@**#@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-        "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@%%%@@@@#\x1b[0m........"
-        "............\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m....................\x1b[34m%@#################################"
-        "################################################%@#\x1b[0m............"
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[34m:%@=@+#@+@##@=@#%@+@*#@+@#%@=@*#@+"
-        "@#*@+@#*@+@%*@+@%=@=%@+@**@=@%+@+#@=@%=@+#@+%%=@+:\x1b[0m............."
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m......................\x1b[34m#@==============================="
-        "===============================================@+\x1b[0m.............."
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.......................\x1b[34m##==========@\x1b[0m::::::::::::"
-        ":::::::::::::::::::::::::::::::::::::::::\x1b[34m*@==========@+\x1b["
-        "0m........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m........................\x1b[34m:@*******%@:\x1b[0m.\x1b[34m:%%"
-        "%%%%%%%%%%%%%%%%%%%--#@@#.+%%%%%%%%%%%%%%%%%%%%*\x1b[0m..\x1b[34m-@#**"
-        "****%%\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m-@#+%:%.@\x1b[0m...\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%%%=:+@@=\x1b[0m..:::::::::::::::::::\x1b[37m@%\x1b["
-        "0m....\x1b[34m@+#+*%*@:\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m=@#=%:%.@\x1b[0m...\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%#--:*@@@@+-*-\x1b[0m.................\x1b[37m@%\x1b["
-        "0m....\x1b[34m@+#+*%*@-\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m=%#=%:%.@\x1b[0m...\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%#.%@@@@@@@@%:\x1b[0m.................\x1b[37m@%\x1b["
-        "0m...\x1b[34m:%**+*%+@-\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m=%#-%:%.@\x1b[0m...\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%#-@@@@@@@@:\x1b[0m..................\x1b[37m@%\x1b["
-        "0m...\x1b[34m-%**+*#+@-\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m+#%-%:%:@\x1b[0m...\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%#-########-\x1b[0m..................\x1b[37m@%\x1b["
-        "0m...\x1b[34m=%**+*#+@=\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m**%-%:%:@\x1b[0m...\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%:#%%%##%%%*\x1b[0m..................\x1b[37m@%\x1b["
-        "0m...\x1b[34m+#**+*#*%=\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m#+%:%:%-%:\x1b[0m..\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%*::@@@@@%\x1b[0m....................\x1b[37m@%\x1b["
-        "0m...\x1b[34m*##*+***%+\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m#=%:%:#-%:\x1b[0m..\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%%%.%@@@@*\x1b[0m....................\x1b[37m@%\x1b["
-        "0m...\x1b[34m#*#++***#+\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m%:%:%:#=%=\x1b[0m..\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%%#:@@@@@%\x1b[0m....................\x1b[37m@%\x1b["
-        "0m...\x1b[34m%*#++*+***\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m%:%:%:#=#+\x1b[0m..\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%%%-*@@@@@@-\x1b[0m...................\x1b[37m@%\x1b["
-        "0m...\x1b[34m%+%++*+#+#\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m@:%:%:#+#*\x1b[0m..\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%#:=%%%%%%%%:\x1b[0m..................\x1b[37m@%\x1b["
-        "0m...\x1b[34m@+%++*+#=#\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.........................\x1b[34m@:%:%:#+*#\x1b[0m..\x1b[34m-@@"
-        "%%%%%%%%%%%%%%%%-=%@%%%%%%%%-\x1b[0m.................\x1b[37m@%\x1b["
-        "0m...\x1b[34m@=%=+*=#-%\x1b[0m.........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.......................\x1b[34m:@*++++++++%#.-@@%%%%%%%%%%%%%%%"
-        ".%@@@@@@@@@@@@#\x1b[0m................\x1b[37m@%\x1b[0m..\x1b[34m@*+++"
-        "+++++%%\x1b[0m........................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m......................\x1b[34m=@=----------*@-@@@@@@@@@@@@@@@@@"
-        ":*############=:@@@@@@@@@@@@@@@@%-@=----------=@:\x1b[0m.............."
-        ".........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m....................\x1b[34m*@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-        "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@=\x1b[0m............"
-        ".........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m........................."
-        ".......................................................\x1b[37m@+\x1b["
-        "0m.....................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m=@@@@@:+@@@@@@"
-        "..@@@@@+..%@@@@@.-@%...+@%..@@#...=@@:...=@@-.=@@@@@@%-@@@@@-\x1b[0m.."
-        "\x1b[37m@+\x1b[0m.....................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m%@+....:...:@@:"
-        "..@@....-@@:...:::@#...=@#..@@@#.*@@@:..:%@@@:...@@:..:@@\x1b[0m......"
-        "\x1b[37m@+\x1b[0m.....................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m@@:.......=@%.."
-        "..@@%%%.+@#......:@@%%%%@#.:@*+@@@:%@-..+@.*@#...@@:..:@@#@*\x1b[0m..."
-        "\x1b[37m@+\x1b[0m.....................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m..\x1b[34m+@%:..-*.=@%..:"
-        "=.@@...*:@@=...+-:@#...=@#.=@=.+@:.#@=.=@#**%@+..@@:..:@@...=\x1b[0m.."
-        "\x1b[37m@+\x1b[0m.....................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#*\x1b[0m...\x1b[34m:*%@@#.=%%%%%%"
-        ":-%%%%%*..-#@@%+.#%%:..#%#:#%=.....#%*:%%-..*%%=-%%+..=%%%%%=\x1b[0m.."
-        "\x1b[37m@+\x1b[0m.....................\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m##--------------------------------"
-        "------------------------------------------------@+\x1b[0m............."
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m#%================================"
-        "================================================@+\x1b[0m............."
-        "........\x1b[0m\n",
-        stdout);
-  fputs("\x1b[0m.....................\x1b[37m+#################################"
-        "#################################################-\x1b[0m............."
-        "........\x1b[0m\n",
-        stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-  fputs(
-      "\x1b[0m................................................................."
-      "............................................................\x1b[0m\n",
-      stdout);
-
-  // Show boot progress with smooth animation and status messages
-  printf("\033[1;32m"); // bold green
-  printf("Initializing Chess Engine...\n");
-
-  const int bar_width = 50;    // Longer bar for better visibility
-  const int total_steps = 200; // More steps for smoother animation
-  const int step_delay = 25;   // 25ms per step for ultra-smooth animation
-
-  // Status messages with progress thresholds
-  const char *status_messages[] = {
-      "Starting system...",   "Creating tasks...",   "Initializing GPIO...",
-      "Setting up matrix...", "Configuring LEDs...", "Loading chess engine...",
-      "Preparing board...",   "System ready!"};
-  const int num_messages = sizeof(status_messages) / sizeof(status_messages[0]);
-  // int current_message = 0; // Unused variable removed
-
-  (void)chess_task_wdt_reset_safe(TAG);
   bool boot_led_done = false;
-  for (int i = 0; i <= total_steps; i++) {
-    int progress = (i * 100) / total_steps;
-    int filled = (i * bar_width) / total_steps;
-
-    // Update status message based on progress
-    int message_index = (progress * num_messages) / 100;
-    if (message_index >= num_messages)
-      message_index = num_messages - 1;
-
-    // Clear current line and redraw
-    printf("\rBooting: [");
-    for (int j = 0; j < bar_width; j++) {
-      if (j < filled) {
-        printf("\033[1;32m█\033[0m"); // Bright green
-      } else {
-        printf("\033[2;37m░\033[0m"); // Dim gray
-      }
-    }
-    printf("] %3d%% - %s", progress, status_messages[message_index]);
-    fflush(stdout);
-
-    /* Snake covers the board in ~2.5 s; fade immediately, do not hold green. */
+  while (!boot_led_done) {
+    boot_led_done = led_boot_animation_step(0);
+    (void)chess_task_wdt_reset_safe(TAG);
     if (!boot_led_done) {
-      boot_led_done = led_boot_animation_step((uint8_t)progress);
-      if (boot_led_done) {
-        led_boot_animation_fade_out();
-      }
-    }
-
-    // CRITICAL: Reset watchdog timer during loading (only if registered)
-    esp_err_t wdt_ret = chess_task_wdt_reset_safe(TAG);
-    if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-      // Task not registered with TWDT yet - this is normal during startup
-    }
-
-    if (i < total_steps) {
-      vTaskDelay(pdMS_TO_TICKS(step_delay));
+      vTaskDelay(pdMS_TO_TICKS(25));
     }
   }
-
-  if (!boot_led_done) {
-    led_boot_animation_fade_out();
-  }
+  led_boot_animation_fade_out();
 
   printf("\n\033[1;32m✓ Chess Engine Ready!\033[0m\n\n"); // Success message
 
@@ -1378,6 +1141,46 @@ void show_boot_animation_and_board(void) {
 }
 
 // ============================================================================
+// USB CONSOLE CLOCK
+// ============================================================================
+
+/* ESP32-C6 USB-Serial/JTAG PHY uses the 48 MHz BBPLL output. The IDF
+ * connection monitor drops its PLL consumer after three missed SOF samples.
+ * At CONFIG_FREERTOS_HZ=1000 those misses are not required to be consecutive
+ * (the grace counter is never refilled), so after a short busy stretch DFS
+ * scales to 40 MHz XTAL, turns the PLL off, and the COM port stays dead.
+ * Tasks that then write the console stall. An extra consumer keeps the PHY
+ * clock up for the whole run. Manual esp_light_sleep_start() is unaffected. */
+static void usb_console_keep_clock(void) {
+  rtc_clk_bbpll_add_consumer();
+
+#if CONFIG_PM_ENABLE
+  esp_pm_config_t pm = {
+      .max_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ,
+      .min_freq_mhz = 80, /* 80 MHz is still PLL; XTAL 40 MHz is what gates it */
+      .light_sleep_enable = false,
+  };
+  esp_err_t err = esp_pm_configure(&pm);
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "USB keep-awake PM config failed: %s", esp_err_to_name(err));
+  }
+
+  static esp_pm_lock_handle_t usb_lock;
+  err = esp_pm_lock_create(ESP_PM_NO_LIGHT_SLEEP, 0, "usb_alive", &usb_lock);
+  if (err == ESP_OK) {
+    err = esp_pm_lock_acquire(usb_lock);
+  }
+  if (err != ESP_OK) {
+    ESP_LOGW(TAG, "USB no-light-sleep lock failed: %s", esp_err_to_name(err));
+  } else {
+    ESP_LOGI(TAG, "USB console clock held (PLL consumer, min 80 MHz)");
+  }
+#else
+  ESP_LOGW(TAG, "PM disabled; USB PLL consumer is the only keep-alive");
+#endif
+}
+
+// ============================================================================
 // MAIN APPLICATION FUNCTION
 // ============================================================================
 
@@ -1400,6 +1203,8 @@ void show_boot_animation_and_board(void) {
  * - Waits 1 second between iterations
  */
 void app_main(void) {
+  usb_console_keep_clock();
+
   ESP_LOGI(TAG, "🎯 ESP32-C6 Chess System v1.8.0 starting...");
   ESP_LOGI(TAG, "📅 Build Timestamp: %s %s", __DATE__, __TIME__);
   esp_reset_reason_t rr = esp_reset_reason();

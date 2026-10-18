@@ -25,6 +25,8 @@ idf_component_register(
     PRIV_REQUIRES
         spi_flash
         console
+        esp_pm
+        esp_hw_support
         game_led_animations
         ble_task
 )

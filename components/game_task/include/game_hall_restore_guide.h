@@ -36,6 +36,18 @@ void game_hall_restore_guide_note_stable_squares(const uint8_t occ[64]);
 /** @brief Ask game_task to call game_hall_restore_guide_sync() soon. */
 void game_hall_restore_guide_request_sync(void);
 
+/** @brief Drop the sensor digest and sync even if the pieces did not move. */
+void game_hall_restore_guide_force_resync(void);
+
+/**
+ * @brief Light every starting home while the board is empty.
+ *
+ * Holds about 5 s. A piece placed on the board ends the hold and the normal
+ * guide takes over. If the board stays empty, the glow fades out.
+ * @return true when the opening glow is showing.
+ */
+bool game_hall_restore_guide_show_opening(void);
+
 /**
  * @brief Take and clear a pending matrix-triggered sync request.
  * @return true if a request was pending.

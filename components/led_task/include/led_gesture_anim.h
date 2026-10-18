@@ -64,13 +64,13 @@ bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward,
                             uint32_t cover_rgb);
 
 /**
- * @brief Boot-style green fill along LED index order. Reverse on early release.
+ * @brief Smooth sweep from h1 that wipes the board to black. Reverse on early release.
  * @return true if the snake started (idle). false if another gesture is running.
  */
 bool led_gesture_start_snake(void);
 
 /**
- * @brief Chase along the black player's squares, then the board goes dark.
+ * @brief Red power symbol, then the ring goes out and the bar sinks.
  * @return true if shutdown started. false if another gesture is running.
  */
 bool led_gesture_start_shutdown(void);
@@ -91,8 +91,9 @@ void led_gesture_stop_pair_pulse(void);
 /**
  * @brief Button went up.
  *
- * Cancels a forward snake (plays it backwards) or a shutdown that has not
- * finished. A release during the reverse does nothing. Wave and pulse ignore
+ * Cancels a forward snake or a shutdown by playing it backwards from the
+ * current frame. Neither powers off or starts a game. A release during the
+ * reverse does nothing. Wave and pulse ignore
  * the latch. The flag is stored even if the LED phase has not started yet.
  */
 void led_gesture_note_release(void);

@@ -1,17 +1,19 @@
 /**
  * @file led_gesture_anim.c
- * @brief Wave, boot snake, shutdown chase, and pairing pulse.
+ * @brief Wave, new-game sweep, shutdown power symbol, and pairing pulse.
  *
  * Square orientation follows chess_pos_to_led_index(): row 0 is rank 1
  * (e1 is row 0, col 4), col 0 is the a-file. The column mirror inside that
  * function is the wiring map; this file does not flip it.
  *
  * The physical button sits on h1 (row 0, col 7). The wave origin is the
- * center of that square. The snake starts there and crawls h1→a1, then a2→h2.
+ * center of that square. The new-game sweep starts there and crawls
+ * h1→a1, then a2→h2, wiping the picture to black behind it.
  *
  * LED 72 (reset / gesture button) follows the same phase: orange while held,
- * gold through the wave, green along the snake, white-to-off on shutdown,
- * blue during pairing. Edges ease instead of popping one square per frame.
+ * gold through the wave, amber along the new-game sweep, red power symbol
+ * on shutdown, blue during pairing with a darker rune in the center. Edges ease instead of popping one
+ * square per frame.
  */
 
 #include "led_gesture_anim.h"
@@ -46,6 +48,7 @@ static led_gesture_result_t s_result;
 static uint32_t s_old[64];
 static uint32_t s_new[64];
 static uint8_t s_step;
+static bool s_shut_back;
 static bool s_wave_in;
 static uint32_t s_cover;
 static uint8_t s_rev_alt;
@@ -55,10 +58,7 @@ static bool s_pair_captured;
 static bool s_pair_yield;
 static bool s_pair_stop;
 static uint8_t s_pair_step;
-static uint8_t s_snake_pace;
 static uint16_t s_snake_q8;
-static uint8_t s_black_leds[16];
-static bool s_black_ready;
 static uint8_t s_pair_amount;
 static uint8_t s_hold_level;
 static uint32_t s_btn_rgb;
@@ -126,36 +126,14 @@ static bool begin_phase(phase_t phase, bool keep_release) {
       s_release = false;
     }
     s_step = 0;
+    s_shut_back = false;
     s_rev_alt = 0;
-    s_snake_pace = 0;
     s_snake_q8 = 0;
     s_have_old = false;
     ok = true;
   }
   taskEXIT_CRITICAL(&s_mux);
   return ok;
-}
-
-static void ensure_black_order(void) {
-  if (s_black_ready) {
-    return;
-  }
-  uint8_t n = 0;
-  for (uint8_t row = 6; row <= 7; row++) {
-    for (uint8_t col = 0; col < 8; col++) {
-      s_black_leds[n++] = chess_pos_to_led_index(row, col);
-    }
-  }
-  for (int i = 1; i < 16; i++) {
-    uint8_t v = s_black_leds[i];
-    int j = i;
-    while (j > 0 && s_black_leds[j - 1] > v) {
-      s_black_leds[j] = s_black_leds[j - 1];
-      j--;
-    }
-    s_black_leds[j] = v;
-  }
-  s_black_ready = true;
 }
 
 /** Half-square units. Origin is h1 (14, 0). Square (col,row) center is (2*col, 2*row). */
@@ -268,31 +246,53 @@ static void snake_square(uint8_t step, uint8_t *row, uint8_t *col) {
   *col = file;
 }
 
-/* Same crawl as led_boot_animation_step (164/25 ms). Hold runs a bit faster:
- * 300 counts per 33 ms frame, about 1.8 s across the board. */
-#define SNAKE_Q8_END (64u * 256u)
-#define SNAKE_Q8_FWD 300u
-#define SNAKE_Q8_REV 420u
+/* Head position is in 1/256 of a square. The crest eases in over 3 squares
+ * and the tail fades out over 5, so the wipe is a soft brush. The head must
+ * travel past a8 until that tail leaves the board black. ~3.4 s at 33 ms. */
+#define SWEEP_AHEAD_Q8 768
+#define SWEEP_BEHIND_Q8 1280
+#define SWEEP_CREST 0xFFE6B0u
+#define SNAKE_Q8_END (64u * 256u + SWEEP_BEHIND_Q8)
+#define SNAKE_Q8_FWD 170u
 
-static void paint_boot_snake(uint16_t q8) {
-  unsigned head_sq = (unsigned)(q8 >> 8);
-  uint8_t lead = smoothstep_u8((uint8_t)(q8 & 0xFFu));
+static uint8_t sweep_glow(int dist_q8) {
+  int reach = (dist_q8 >= 0) ? SWEEP_AHEAD_Q8 : SWEEP_BEHIND_Q8;
+  int ad = dist_q8 < 0 ? -dist_q8 : dist_q8;
+  if (ad >= reach) {
+    return 0;
+  }
+  uint8_t t = (uint8_t)((ad * 255) / reach);
+  uint8_t eased = smoothstep_u8(smoothstep_u8(t));
+  return (uint8_t)(255u - eased);
+}
+
+/** Ahead of the head the saved picture stays. Behind it the square is black. */
+static void paint_new_game_sweep(uint16_t q8) {
+  int head = (int)q8;
   for (unsigned i = 0; i < 64u; i++) {
     uint8_t row;
     uint8_t col;
     snake_square((uint8_t)i, &row, &col);
-    uint8_t g = 0;
-    if (head_sq >= 64u || i + 2u < head_sq) {
-      g = 128;
-    } else if (i + 1u < head_sq) {
-      g = 200;
-    } else if (i < head_sq) {
-      g = 255;
-    } else if (i == head_sq && head_sq < 64u) {
-      g = lead;
-    }
-    paint(chess_pos_to_led_index(row, col), (uint32_t)g << 8);
+    uint8_t led = chess_pos_to_led_index(row, col);
+    int dist = (int)i * 256 + 128 - head;
+    uint32_t base = (dist > 0) ? s_old[led] : 0;
+    paint(led, lerp_rgb(base, SWEEP_CREST, sweep_glow(dist)));
   }
+}
+
+static uint32_t sweep_button_rgb(uint16_t q8, bool reverse) {
+  unsigned board = 64u * 256u;
+  unsigned level;
+  if (reverse) {
+    level = (q8 >= board) ? 255u : ((unsigned)q8 * 255u) / board;
+  } else if (q8 <= board) {
+    level = 255u;
+  } else {
+    unsigned tail = (unsigned)SNAKE_Q8_END - board;
+    unsigned gone = (unsigned)q8 - board;
+    level = (gone >= tail) ? 0u : 255u - (gone * 255u) / tail;
+  }
+  return lerp_rgb(0, SWEEP_CREST, smoothstep_u8((uint8_t)level));
 }
 
 static void tick_snake_forward(void) {
@@ -310,81 +310,190 @@ static void tick_snake_forward(void) {
     return;
   }
   if (s_snake_q8 >= SNAKE_Q8_END) {
-    ESP_LOGI(TAG, "[STAGING] snake reached the end");
+    for (int i = 0; i < 64; i++) {
+      paint((uint8_t)i, 0);
+    }
+    ESP_LOGI(TAG, "[STAGING] new-game sweep finished");
     post_result(LED_GESTURE_SNAKE_DONE);
     return;
   }
+  paint_new_game_sweep(s_snake_q8);
   uint32_t next = (uint32_t)s_snake_q8 + SNAKE_Q8_FWD;
   if (next > SNAKE_Q8_END) {
     next = SNAKE_Q8_END;
   }
   s_snake_q8 = (uint16_t)next;
-  paint_boot_snake(s_snake_q8);
 }
 
 static void tick_snake_reverse(void) {
   taskENTER_CRITICAL(&s_mux);
   s_release = false;
   taskEXIT_CRITICAL(&s_mux);
-  if (s_snake_q8 <= SNAKE_Q8_REV) {
-    s_snake_q8 = 0;
+  /* Same step as the way out. At the button the saved picture comes back
+   * and the new game does not start. */
+  if (s_snake_q8 == 0) {
     restore_board();
     ESP_LOGI(TAG, "[STAGING] snake reverse finished, game not started");
     post_result(LED_GESTURE_SNAKE_CANCELLED);
     return;
   }
-  s_snake_q8 = (uint16_t)(s_snake_q8 - SNAKE_Q8_REV);
-  paint_boot_snake(s_snake_q8);
+  if (s_snake_q8 <= SNAKE_Q8_FWD) {
+    s_snake_q8 = 0;
+  } else {
+    s_snake_q8 = (uint16_t)(s_snake_q8 - SNAKE_Q8_FWD);
+  }
+  paint_new_game_sweep(s_snake_q8);
+}
+
+/** IEC 5009, white's view (row 7 is rank 8). The bar stands in the top gap
+ * and does not touch the ring. */
+#define SHUT_RED 0xFF1408u
+#define SHUT_FADE 12
+#define SHUT_HOLD_END 26
+#define SHUT_RING_N 16
+#define SHUT_RING_FRAMES 48
+#define SHUT_RING_END (SHUT_HOLD_END + SHUT_RING_FRAMES)
+#define SHUT_STEM_N 8
+#define SHUT_STEM_FRAMES 28
+#define SHUT_STEM_END (SHUT_RING_END + SHUT_STEM_FRAMES)
+#define SHUT_DARK 8
+#define SHUT_DONE (SHUT_STEM_END + SHUT_DARK)
+#define SHUT_TAIL_Q8 512
+
+/* Clockwise from the right shoulder of the gap. Then the bar, tip first. */
+static const uint8_t s_shut_ring[SHUT_RING_N] = {
+    (6u << 3) | 5u, (5u << 3) | 6u, (4u << 3) | 7u, (3u << 3) | 7u,
+    (2u << 3) | 7u, (1u << 3) | 6u, (0u << 3) | 5u, (0u << 3) | 4u,
+    (0u << 3) | 3u, (0u << 3) | 2u, (1u << 3) | 1u, (2u << 3) | 0u,
+    (3u << 3) | 0u, (4u << 3) | 0u, (5u << 3) | 1u, (6u << 3) | 2u,
+};
+static const uint8_t s_shut_stem[SHUT_STEM_N] = {
+    (7u << 3) | 3u, (7u << 3) | 4u, (5u << 3) | 3u, (5u << 3) | 4u,
+    (4u << 3) | 3u, (4u << 3) | 4u, (3u << 3) | 3u, (3u << 3) | 4u,
+};
+
+/** Brightness left as an extinguish head passes this point. 255 = still full. */
+static uint8_t shut_trail(int head_q8, int index) {
+  int d = head_q8 - index * 256;
+  if (d <= 0) {
+    return 255;
+  }
+  if (d >= SHUT_TAIL_Q8) {
+    return 0;
+  }
+  uint8_t t = (uint8_t)((d * 255) / SHUT_TAIL_Q8);
+  return (uint8_t)(255u - smoothstep_u8(t));
+}
+
+/** 0 = this square is not part of the lit symbol right now. 255 = full red. */
+static uint8_t shut_glyph_level(uint8_t rc, uint8_t frame) {
+  int ring_i = -1;
+  int stem_i = -1;
+  for (int i = 0; i < SHUT_RING_N; i++) {
+    if (s_shut_ring[i] == rc) {
+      ring_i = i;
+    }
+  }
+  for (int i = 0; i < SHUT_STEM_N; i++) {
+    if (s_shut_stem[i] == rc) {
+      stem_i = i;
+    }
+  }
+  if (ring_i < 0 && stem_i < 0) {
+    return 0;
+  }
+  if (frame < SHUT_HOLD_END) {
+    return 255;
+  }
+  if (frame < SHUT_RING_END) {
+    if (stem_i >= 0) {
+      return 255;
+    }
+    int span = SHUT_RING_N * 256 + SHUT_TAIL_Q8;
+    int head = ((int)frame - SHUT_HOLD_END) * span / SHUT_RING_FRAMES;
+    return shut_trail(head, ring_i);
+  }
+  if (frame < SHUT_STEM_END && stem_i >= 0) {
+    int span = SHUT_STEM_N * 256 + SHUT_TAIL_Q8;
+    int head = ((int)frame - SHUT_RING_END) * span / SHUT_STEM_FRAMES;
+    return shut_trail(head, stem_i);
+  }
+  return 0;
+}
+
+static uint8_t shut_intro(uint8_t frame) {
+  if (frame >= SHUT_FADE) {
+    return 255;
+  }
+  return smoothstep_u8((uint8_t)((unsigned)frame * 255u / (SHUT_FADE - 1u)));
+}
+
+static void paint_shutdown(uint8_t frame) {
+  uint8_t intro = shut_intro(frame);
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      uint8_t led = chess_pos_to_led_index(row, col);
+      uint8_t rc = (uint8_t)((row << 3) | col);
+      uint32_t bg = (frame >= SHUT_FADE) ? 0 : lerp_rgb(s_old[led], 0, intro);
+      uint8_t level = shut_glyph_level(rc, frame);
+      if (level == 0) {
+        paint(led, bg);
+      } else {
+        uint8_t t = (uint8_t)(((unsigned)level * intro) / 255u);
+        paint(led, lerp_rgb(bg, SHUT_RED, t));
+      }
+    }
+  }
+}
+
+static uint32_t shutdown_button_rgb(uint8_t frame) {
+  if (frame >= SHUT_STEM_END) {
+    return 0;
+  }
+  if (frame >= SHUT_RING_END) {
+    unsigned span = (unsigned)(SHUT_STEM_END - SHUT_RING_END);
+    unsigned num = (unsigned)(frame - SHUT_RING_END) * 255u / span;
+    return lerp_rgb(SHUT_RED, 0, smoothstep_u8((uint8_t)num));
+  }
+  return lerp_rgb(0, SHUT_RED, shut_intro(frame));
 }
 
 static void tick_shutdown(void) {
   if (!s_have_old) {
     capture_board();
-    ensure_black_order();
   }
   bool released = false;
   taskENTER_CRITICAL(&s_mux);
   released = s_release;
   s_release = false;
   taskEXIT_CRITICAL(&s_mux);
-  if (released) {
-    restore_board();
-    ESP_LOGI(TAG, "[STAGING] shutdown cancelled, lights restored");
-    post_result(LED_GESTURE_SHUTDOWN_CANCELLED);
+  if (released && !s_shut_back) {
+    s_shut_back = true;
+  }
+  /* Release runs the same frames backwards and does not power off. */
+  if (s_shut_back) {
+    if (s_step == 0) {
+      restore_board();
+      s_shut_back = false;
+      ESP_LOGI(TAG, "[STAGING] shutdown reversed, power stays on");
+      post_result(LED_GESTURE_SHUTDOWN_CANCELLED);
+      return;
+    }
+    s_step--;
+    paint_shutdown(s_step);
     return;
   }
-  /* Each black-player square eases white, then out, over two frames.
-   * After the last square the board stays dark for a short beat. */
-  if (s_step >= 16) {
+  if (s_step >= SHUT_DONE) {
     for (int i = 0; i < 64; i++) {
       paint((uint8_t)i, 0);
     }
-    s_snake_pace++;
-    if (s_snake_pace >= 6) {
-      s_btn_leave_dark = true;
-      ESP_LOGI(TAG, "[STAGING] shutdown chase finished");
-      post_result(LED_GESTURE_SHUTDOWN_DONE);
-    }
+    s_btn_leave_dark = true;
+    ESP_LOGI(TAG, "[STAGING] shutdown power symbol finished");
+    post_result(LED_GESTURE_SHUTDOWN_DONE);
     return;
   }
-  uint8_t fade = (s_snake_pace == 0) ? 70 : 210;
-  for (int i = 0; i < 64; i++) {
-    paint((uint8_t)i, s_old[i]);
-  }
-  for (uint8_t i = 0; i < s_step; i++) {
-    paint(s_black_leds[i], 0);
-  }
-  {
-    uint8_t led = s_black_leds[s_step];
-    uint32_t mid = lerp_rgb(s_old[led], 0xDCDCDCu, (uint8_t)(255u - fade));
-    paint(led, lerp_rgb(mid, 0, fade));
-  }
-  s_snake_pace++;
-  if (s_snake_pace >= 2) {
-    paint(s_black_leds[s_step], 0);
-    s_snake_pace = 0;
-    s_step++;
-  }
+  paint_shutdown(s_step);
+  s_step++;
 }
 
 /** Pairing blue only. amount is 0..140. The picture underneath stays saved. */
@@ -396,6 +505,22 @@ static uint32_t pair_rgb(uint8_t amount) {
   return ((uint32_t)((40u * level) / 255u) << 8) |
          ((160u * level) / 255u);
 }
+
+/** Darker blue, same breathe as the field so the mark pulses with the board. */
+static uint32_t pair_logo_rgb(uint8_t amount) {
+  unsigned level = 18u + ((70u * (unsigned)amount) / 140u);
+  return (uint32_t)level;
+}
+
+/* Bluetooth rune, white's view (row 7 is rank 8), sitting on the center files. */
+static const uint8_t s_ble_logo[] = {
+    (7u << 3) | 3u, (7u << 3) | 4u, (6u << 3) | 3u, (6u << 3) | 4u,
+    (6u << 3) | 5u, (5u << 3) | 2u, (5u << 3) | 3u, (5u << 3) | 5u,
+    (4u << 3) | 1u, (4u << 3) | 3u, (4u << 3) | 4u, (4u << 3) | 6u,
+    (3u << 3) | 2u, (3u << 3) | 3u, (3u << 3) | 5u, (2u << 3) | 3u,
+    (2u << 3) | 4u, (2u << 3) | 5u, (1u << 3) | 2u, (1u << 3) | 3u,
+    (1u << 3) | 5u, (0u << 3) | 3u, (0u << 3) | 4u,
+};
 
 /** ~3 s breathe. The board is pairing blue until the pulse stops. */
 static void tick_pair_hold(void) {
@@ -411,8 +536,13 @@ static void tick_pair_hold(void) {
   uint8_t amount = (uint8_t)((unsigned)shaped * 140u / 255u);
   s_pair_amount = amount;
   uint32_t color = pair_rgb(amount);
+  uint32_t logo = pair_logo_rgb(amount);
   for (int i = 0; i < 64; i++) {
     paint((uint8_t)i, color);
+  }
+  for (unsigned i = 0; i < sizeof(s_ble_logo); i++) {
+    uint8_t rc = s_ble_logo[i];
+    paint(chess_pos_to_led_index((uint8_t)(rc >> 3), (uint8_t)(rc & 7u)), logo);
   }
   s_pair_step++;
   if (s_pair_step >= 96) {
@@ -507,16 +637,11 @@ static void paint_gesture_button(void) {
     color = s_wave_in ? lerp_rgb(s_cover, 0, t) : lerp_rgb(0, s_cover, t);
     own = true;
   } else if (s_phase == PH_SNAKE_FWD || s_phase == PH_SNAKE_REV) {
-    uint8_t t = smoothstep_u8(
-        (uint8_t)(((unsigned)s_snake_q8 * 255u) / SNAKE_Q8_END));
-    uint8_t g = (s_phase == PH_SNAKE_FWD)
-                    ? (uint8_t)(40u + ((unsigned)t * 215u) / 255u)
-                    : (uint8_t)(((unsigned)t * 180u) / 255u);
-    color = (uint32_t)g << 8;
+    color = sweep_button_rgb(s_snake_q8, s_phase == PH_SNAKE_REV);
     own = true;
   } else if (s_phase == PH_SHUTDOWN) {
-    uint8_t t = (s_step >= 16) ? 255 : (uint8_t)((unsigned)s_step * 255u / 16u);
-    color = lerp_rgb(0xDCDCDCu, 0, smoothstep_u8(t));
+    uint8_t frame = (s_shut_back || s_step == 0) ? s_step : (uint8_t)(s_step - 1);
+    color = shutdown_button_rgb(frame);
     own = true;
   } else if (s_pair_hold && s_pair_captured && s_phase == PH_IDLE) {
     color = pair_rgb(s_pair_amount);

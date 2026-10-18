@@ -12,6 +12,7 @@
 #include "sdkconfig.h"
 
 #include "button_gesture.h"
+#include "game_hall_restore_guide.h"
 #include "hall_i2c_squares.h"
 #include "chess_gameplay_policy.h"
 #include "game_task.h"
@@ -524,12 +525,22 @@ static void handle_event(gesture_event_t ev) {
     game_demo_show_set(false);
     return;
   }
-  if (ev == GESTURE_SNAKE_START || ev == GESTURE_SHUTDOWN_START) {
-    if (!led_gesture_anim_busy()) {
-      bool started = (ev == GESTURE_SNAKE_START) ? led_gesture_start_snake()
-                                                 : led_gesture_start_shutdown();
-      if (!started) {
-        ESP_LOGW(TAG, "gesture animation did not start");
+  if (ev == GESTURE_SHUTDOWN_START) {
+    /* Button task already started this. A second start after the player lets
+     * go replays the symbol and then powers off. */
+    if (!led_gesture_anim_busy() && button_gesture_is_down()) {
+      if (!led_gesture_start_shutdown()) {
+        ESP_LOGW(TAG, "shutdown did not start");
+      }
+    }
+    return;
+  }
+  if (ev == GESTURE_SNAKE_START) {
+    /* Button task already started this. A second start after release would
+     * play the sweep again. */
+    if (!led_gesture_anim_busy() && button_gesture_is_down()) {
+      if (!led_gesture_start_snake()) {
+        ESP_LOGW(TAG, "snake did not start");
       }
     }
     return;
@@ -639,8 +650,20 @@ static void handle_result(led_gesture_result_t result) {
     if (ha_light_get_mode() == HA_MODE_HA) {
       (void)ha_light_request_mode(HA_MODE_GAME);
     }
-    ESP_LOGI(TAG, "[STAGING] new game (snake finished while held)");
+    ESP_LOGI(TAG, "[STAGING] new game (sweep finished while held)");
     game_start_new_game();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    if (game_hall_restore_guide_show_opening()) {
+      /* Empty board: starting homes glow. Sync fades them after 5 s
+       * unless a piece is put down. */
+    } else if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+      game_hall_restore_guide_stop_leds();
+      game_hall_restore_guide_force_resync();
+    } else {
+      game_hall_restore_guide_stop_leds();
+      chess_policy_highlight_movable_if_enabled();
+    }
+#endif
     break;
   case LED_GESTURE_SNAKE_CANCELLED:
     ESP_LOGI(TAG, "[STAGING] new game cancelled");

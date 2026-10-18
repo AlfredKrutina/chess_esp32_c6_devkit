@@ -3755,13 +3755,54 @@ void led_ota_restore_board_after_update_abort(void) {
  * @brief LED boot animation step - light up the LED according to progress
  * @param progress_percent Progress in percent (0-100)
  * @details
- * Light up the LED according to the progress of the boot process. Used for display
- * system initialization procedure. Turn on the LED light green.
+ * Bloom a warm checkerboard out from the center. The percent is unused; the
+ * picture advances one smooth step per call (about 25 ms).
  * @note The function is safe - it checks initialization and simulation mode
  */
-/* 8.8 squares. 164/256 per 25 ms call is ~2x the old 64 squares / 5 s crawl. */
-static uint16_t s_boot_snake_q8;
+/* Clock units per 25 ms boot tick. Rings overlap, so the bloom stays smooth. */
+#define BOOT_CLOCK_STEP 18u
+#define BOOT_RING_GAP 22u
+#define BOOT_SQUARE_SPAN 110u
+#define BOOT_CLOCK_END ((7u * BOOT_RING_GAP) + BOOT_SQUARE_SPAN)
+
+static uint16_t s_boot_clock;
 static bool s_boot_faded;
+
+static uint8_t boot_center_dist(uint8_t row, uint8_t col) {
+  int dr = (int)row * 2 - 7;
+  int dc = (int)col * 2 - 7;
+  if (dr < 0) {
+    dr = -dr;
+  }
+  if (dc < 0) {
+    dc = -dc;
+  }
+  return (uint8_t)(dr > dc ? dr : dc);
+}
+
+static uint8_t boot_scale(uint8_t channel, uint8_t amount, uint8_t gain) {
+  return (uint8_t)(((uint32_t)channel * amount * gain) / (255u * 255u));
+}
+
+/** Warm light squares, quiet dark squares, brightness blooming from the center. */
+static void boot_paint_board(uint16_t clock, uint8_t gain) {
+  for (uint8_t row = 0; row < 8u; row++) {
+    for (uint8_t col = 0; col < 8u; col++) {
+      int local = (int)clock - (int)boot_center_dist(row, col) * (int)BOOT_RING_GAP;
+      uint8_t amount = 0;
+      if (local >= (int)BOOT_SQUARE_SPAN) {
+        amount = 255;
+      } else if (local > 0) {
+        amount = led_smoothstep_u8((uint8_t)((local * 255) / (int)BOOT_SQUARE_SPAN));
+      }
+      bool light = ((row + col) & 1u) != 0u;
+      uint8_t r = boot_scale(light ? 230u : 22u, amount, gain);
+      uint8_t g = boot_scale(light ? 186u : 30u, amount, gain);
+      uint8_t b = boot_scale(light ? 120u : 52u, amount, gain);
+      led_set_pixel_internal(chess_pos_to_led_index(row, col), r, g, b);
+    }
+  }
+}
 
 bool led_boot_animation_step(uint8_t progress_percent) {
   (void)progress_percent;
@@ -3770,38 +3811,18 @@ bool led_boot_animation_step(uint8_t progress_percent) {
   }
 
   bool covered = false;
-  if (s_boot_snake_q8 < (64u * 256u)) {
-    uint32_t next = (uint32_t)s_boot_snake_q8 + 164u;
-    if (next > (64u * 256u)) {
-      next = 64u * 256u;
+  if (s_boot_clock < BOOT_CLOCK_END) {
+    uint32_t next = (uint32_t)s_boot_clock + BOOT_CLOCK_STEP;
+    if (next > BOOT_CLOCK_END) {
+      next = BOOT_CLOCK_END;
     }
-    s_boot_snake_q8 = (uint16_t)next;
-    covered = (s_boot_snake_q8 >= (64u * 256u));
+    s_boot_clock = (uint16_t)next;
+    covered = (s_boot_clock >= BOOT_CLOCK_END);
   } else {
     covered = true;
   }
 
-  unsigned head_sq = (unsigned)(s_boot_snake_q8 >> 8);
-  uint8_t lead = led_smoothstep_u8((uint8_t)(s_boot_snake_q8 & 0xFFu));
-
-  for (unsigned i = 0; i < 64u; i++) {
-    uint8_t row = (uint8_t)(i / 8u);
-    uint8_t col = (uint8_t)(i % 8u);
-    if ((row & 1u) == 0u) {
-      col = (uint8_t)(7u - col);
-    }
-    uint8_t g = 0;
-    if (head_sq >= 64u || i + 2u < head_sq) {
-      g = 128;
-    } else if (i + 1u < head_sq) {
-      g = 200;
-    } else if (i < head_sq) {
-      g = 255;
-    } else if (i == head_sq && head_sq < 64u) {
-      g = lead;
-    }
-    led_set_pixel_internal(chess_pos_to_led_index(row, col), 0, g, 0);
-  }
+  boot_paint_board(s_boot_clock, 255);
   led_force_immediate_update();
   return covered;
 }
@@ -3809,8 +3830,7 @@ bool led_boot_animation_step(uint8_t progress_percent) {
 /**
  * @brief LED boot animation fade out - gradually fade all LEDs to 0
  * @details
- * Gradually dim all board LEDs from brightness 128 to 0.
- * Used at the end of the boot process for smooth muting.
+ * Ease the finished checkerboard down to black.
  * @note The function is safe - it checks initialization and simulation mode
  */
 void led_boot_animation_fade_out(void) {
@@ -3827,22 +3847,20 @@ void led_boot_animation_fade_out(void) {
 
   ESP_LOGI(TAG, "Starting LED boot animation fade out...");
 
-  /* Full-board green after the snake: a few frames, not ~0.6 s. */
-  const int fade_steps = 4;
+  /* Ease the checker back to black. Short, so boot does not sit on the picture. */
+  const int fade_steps = 8;
   const int step_delay_ms = 12;
 
   for (int step = fade_steps; step >= 0; step--) {
-    uint8_t brightness = (uint8_t)((step * 128) / fade_steps);
-    for (int led_index = 0; led_index < CHESS_LED_COUNT_BOARD; led_index++) {
-      led_set_pixel_internal(led_index, 0, brightness, 0);
-    }
+    uint8_t lin = (uint8_t)((step * 255) / fade_steps);
+    boot_paint_board(BOOT_CLOCK_END, led_smoothstep_u8(lin));
     led_force_immediate_update();
     vTaskDelay(pdMS_TO_TICKS(step_delay_ms));
     led_task_wdt_reset_safe();
   }
 
   led_clear_board_only();
-  s_boot_snake_q8 = 0;
+  s_boot_clock = 0;
   led_booting_active = false;
   ESP_LOGI(TAG, "LED boot animation fade out completed");
 }

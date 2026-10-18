@@ -19,6 +19,7 @@
 #include "../squares_task/include/squares_task.h"
 
 #include "esp_log.h"
+#include "esp_timer.h"
 #include <string.h>
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -161,6 +162,7 @@ static bool sensors_unchanged(const uint8_t digest[64]) {
 }
 
 static bool s_digest_valid;
+static uint32_t s_opening_deadline_ms;
 
 static void remember_digest(const uint8_t digest[64]) {
   memcpy(s_last_sensor_digest, digest, 64);
@@ -589,6 +591,45 @@ static void fill_setup_marks(const restore_job_t *jobs, int job_n,
 
 void game_hall_restore_guide_request_sync(void) { s_sync_requested = true; }
 
+void game_hall_restore_guide_force_resync(void) {
+  s_digest_valid = false;
+  s_sync_requested = true;
+}
+
+bool game_hall_restore_guide_show_opening(void) {
+  uint8_t occ[64];
+  led_restore_guide_plan_t plan;
+
+  if (!hall_i2c_squares_readings_usable()) {
+    return false;
+  }
+  squares_get_state(occ);
+  if (!occupancy_empty(occ)) {
+    return false;
+  }
+  memset(&plan, 0, sizeof(plan));
+  plan.active = true;
+  for (uint8_t sq = 0; sq < 64; sq++) {
+    hall_piece_type_t type = HALL_PIECE_TYPE_NONE;
+    hall_piece_color_t color = HALL_PIECE_COLOR_NONE;
+    if (!engine_mark(sq, &type, &color)) {
+      continue;
+    }
+    push_setup_mark(&plan, sq, (uint8_t)type, (uint8_t)color,
+                    LED_RESTORE_MARK_HOME);
+  }
+  if (plan.mark_count == 0) {
+    return false;
+  }
+  led_board_restore_guide_apply(&plan);
+  s_guide_led_active = true;
+  s_opening_deadline_ms = (uint32_t)(esp_timer_get_time() / 1000) + 5000U;
+  s_digest_valid = false;
+  ESP_LOGI(TAG, "[STAGING] opening setup guide, %u homes, 5s",
+           (unsigned)plan.mark_count);
+  return true;
+}
+
 bool game_hall_restore_guide_take_sync_request(void) {
   if (!s_sync_requested) {
     return false;
@@ -665,6 +706,22 @@ void game_hall_restore_guide_sync(void) {
 
   squares_get_state(occ);
   digest_sensors(occ, digest);
+  if (s_opening_deadline_ms != 0) {
+    uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+    if (!occupancy_empty(occ)) {
+      s_opening_deadline_ms = 0;
+    } else if ((int32_t)(now_ms - s_opening_deadline_ms) >= 0) {
+      s_opening_deadline_ms = 0;
+      led_board_restore_guide_fade_out();
+      s_guide_led_active = false;
+      remember_digest(digest);
+      ESP_LOGI(TAG, "[STAGING] opening setup guide faded, board still empty");
+      goto out;
+    } else {
+      remember_digest(digest);
+      goto out;
+    }
+  }
   if (s_digest_valid && sensors_unchanged(digest)) {
     goto out;
   }
