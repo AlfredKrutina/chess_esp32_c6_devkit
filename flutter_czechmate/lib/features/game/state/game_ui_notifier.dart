@@ -832,7 +832,6 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         if (moveReject != null) {
           _moveFeedback(invalid: true);
           final msg = _messageForRemoteReject(moveReject);
-          showTransientBoardMessage(msg);
           snack(msg);
           _startInvalidDestinationPulse(to);
           state = state.copyWith(clearPromotion: true);
@@ -854,7 +853,6 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       if (e is BoardApiException && e.statusCode == 400) {
         _moveFeedback(invalid: true);
         final msg = e.detail ?? _l10n.gameSandboxIllegalMove;
-        showTransientBoardMessage(msg);
         snack(msg);
         _startInvalidDestinationPulse(to);
       } else {
@@ -957,13 +955,11 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
       final rej = _remoteFirstTapReject(snap, algebraic);
       if (rej == 'empty') {
         snack(_l10n.gameRemoteEmptySquareSnack);
-        showTransientBoardMessage(_l10n.gameRemoteEmptySquareHud);
         return;
       }
       if (rej == 'turn') {
         _moveFeedback(invalid: true);
         snack(_l10n.gameRemoteWrongTurnSnack);
-        showTransientBoardMessage(_l10n.gameRemoteWrongTurnHud);
         return;
       }
       _remoteFrom = algebraic;
@@ -997,7 +993,6 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         state = state.copyWith(clearSelection: true);
         _moveFeedback(invalid: true);
         final msg = _messageForRemoteReject(moveReject);
-        showTransientBoardMessage(msg);
         snack(msg);
         _startInvalidDestinationPulse(to);
         return;
@@ -1015,7 +1010,6 @@ class GameUiNotifier extends StateNotifier<GameUiState> {
         _moveFeedback(invalid: true);
         _startInvalidDestinationPulse(to);
         final msg = e.detail ?? _l10n.gameSandboxIllegalMove;
-        showTransientBoardMessage(msg);
         snack(msg);
       } else {
         snack(userFacingErrorSummary(_l10n, e));
