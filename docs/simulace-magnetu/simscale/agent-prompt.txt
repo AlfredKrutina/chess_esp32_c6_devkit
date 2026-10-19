@@ -1,0 +1,24 @@
+Set up a magnetostatic simulation. Do not create a fluid or structural simulation.
+
+The geometry is vsechny.step, units millimetres. Twelve volumes, six pairs, centres 35 mm apart along x. There is no air solid. Create one air region around the whole row before meshing. Relative permeability of air is 1.
+
+Each pair is a neodymium disc above a mild-steel disc. The steel is under the magnet, on the board side, with an empty gap of 6 mm between the top of the steel and the bottom of the magnet. z = 0 is the bottom of the steel. The steel is the purchased part: diameter 11 mm, thickness 1 mm, for every piece including the king. Do not move the parts together.
+
+Volumes and remanence:
+- pesec_magnet at x = 0: diameter 10 mm, thickness 1 mm, remanence 1.30 T
+- jezdec_magnet at x = 35: diameter 10 mm, thickness 2 mm, remanence 1.30 T
+- strelec_magnet at x = 70: diameter 10 mm, thickness 3 mm, remanence 1.30 T
+- vez_magnet at x = 105: diameter 10 mm, thickness 5 mm, remanence 1.24 T
+- dama_magnet at x = 140: diameter 10 mm, thickness 8 mm, remanence 1.30 T
+- kral_magnet at x = 175: diameter 12 mm, thickness 6 mm, remanence 1.30 T
+- each *_plech: soft magnetic, nonlinear isotropic, same B-H curve. H in A/m, B in T: (100, 0.40), (200, 0.80), (300, 1.05), (500, 1.25), (1000, 1.45), (2000, 1.55), (5000, 1.70), (10000, 1.85), (20000, 1.95), (50000, 2.05), (100000, 2.15)
+
+Every magnet: relative permeability 1.05, conductivity 0, magnetization Global Cartesian (0, 0, 1).
+
+Mesh element size 0.4 mm on the discs and the plates.
+
+Report Bz at 5 mm under the bottom of each plate, 3.1335 mm off the piece axis, both sides. For the pawn that is (±3.1335, 0, -5) mm. Shift x by 35 mm for each next piece.
+
+Show magnetic field lines as streamlines of magnetic flux density on the plane y = 0.
+
+If a disc is 10 m instead of 10 mm, stop and say the units were imported wrong.
