@@ -233,6 +233,13 @@ Functions</h2></td></tr>
 <tr class="separator:a4fa844b497ec88535e57a818c0795f67"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1dd53e2e32dbb1b880a33b9a8aed1d32" id="r_a1dd53e2e32dbb1b880a33b9a8aed1d32"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a1dd53e2e32dbb1b880a33b9a8aed1d32">paint</a> (uint8_t index, uint32_t rgb)</td></tr>
 <tr class="separator:a1dd53e2e32dbb1b880a33b9a8aed1d32"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97b4b4c52834891d5812a7fd951037d8" id="r_a97b4b4c52834891d5812a7fd951037d8"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a97b4b4c52834891d5812a7fd951037d8">sq_of</a> (uint8_t row, uint8_t col)</td></tr>
+<tr class="memdesc:a97b4b4c52834891d5812a7fd951037d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Chess slot.  <br /></td></tr>
+<tr class="separator:a97b4b4c52834891d5812a7fd951037d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa78dc68a08cfe6f32c5f04476584c333" id="r_aa78dc68a08cfe6f32c5f04476584c333"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#aa78dc68a08cfe6f32c5f04476584c333">paint_square</a> (uint8_t row, uint8_t col, uint32_t rgb)</td></tr>
+<tr class="separator:aa78dc68a08cfe6f32c5f04476584c333"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42917adc49c0ced87a95ba9245f7f320" id="r_a42917adc49c0ced87a95ba9245f7f320"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a42917adc49c0ced87a95ba9245f7f320">paint_squares</a> (const uint32_t squares[64])</td></tr>
+<tr class="separator:a42917adc49c0ced87a95ba9245f7f320"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a552f43e8395cfb153dc389aee8cf8cb8" id="r_a552f43e8395cfb153dc389aee8cf8cb8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a552f43e8395cfb153dc389aee8cf8cb8">restore_board</a> (void)</td></tr>
 <tr class="separator:a552f43e8395cfb153dc389aee8cf8cb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e193a88239eb1695afe2770542e4e31" id="r_a4e193a88239eb1695afe2770542e4e31"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a4e193a88239eb1695afe2770542e4e31">visible_rgb</a> (uint32_t <a class="el" href="ha__light__task_8c.html#ab30ba07e2a0bd07a15e45a92c32db9c5">state</a>)</td></tr>
@@ -270,9 +277,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a54fb36478ec25d40b21ba2fafb812a9b" id="r_a54fb36478ec25d40b21ba2fafb812a9b"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a54fb36478ec25d40b21ba2fafb812a9b">shut_trail</a> (int head_q8, int index)</td></tr>
 <tr class="memdesc:a54fb36478ec25d40b21ba2fafb812a9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Brightness left as an extinguish head passes this point.  <br /></td></tr>
 <tr class="separator:a54fb36478ec25d40b21ba2fafb812a9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a39ed4a91122a828aa522b3e572d24077" id="r_a39ed4a91122a828aa522b3e572d24077"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a39ed4a91122a828aa522b3e572d24077">shut_glyph_level</a> (uint8_t rc, uint8_t frame)</td></tr>
-<tr class="memdesc:a39ed4a91122a828aa522b3e572d24077"><td class="mdescLeft">&#160;</td><td class="mdescRight">0 = this square is not part of the lit symbol right now.  <br /></td></tr>
-<tr class="separator:a39ed4a91122a828aa522b3e572d24077"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30e5af509cf01dcd351dc12ba43460bb" id="r_a30e5af509cf01dcd351dc12ba43460bb"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a30e5af509cf01dcd351dc12ba43460bb">shut_glyph_level</a> (uint8_t row, uint8_t col, uint8_t frame)</td></tr>
+<tr class="memdesc:a30e5af509cf01dcd351dc12ba43460bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">0 = this square is not part of the lit symbol right now.  <br /></td></tr>
+<tr class="separator:a30e5af509cf01dcd351dc12ba43460bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d5cda9206f2d3e0c19698a0686aedf5" id="r_a2d5cda9206f2d3e0c19698a0686aedf5"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a2d5cda9206f2d3e0c19698a0686aedf5">shut_intro</a> (uint8_t frame)</td></tr>
 <tr class="separator:a2d5cda9206f2d3e0c19698a0686aedf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1b45e1cb660d0c795503d8794c4ebeba" id="r_a1b45e1cb660d0c795503d8794c4ebeba"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a1b45e1cb660d0c795503d8794c4ebeba">paint_shutdown</a> (uint8_t frame)</td></tr>
@@ -282,10 +289,10 @@ Functions</h2></td></tr>
 <tr class="memitem:a5ddb894fd52d545533a346ade1ec393a" id="r_a5ddb894fd52d545533a346ade1ec393a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a5ddb894fd52d545533a346ade1ec393a">tick_shutdown</a> (void)</td></tr>
 <tr class="separator:a5ddb894fd52d545533a346ade1ec393a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a502533394ea2ff487ff66ba7a760c6fc" id="r_a502533394ea2ff487ff66ba7a760c6fc"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a502533394ea2ff487ff66ba7a760c6fc">pair_rgb</a> (uint8_t amount)</td></tr>
-<tr class="memdesc:a502533394ea2ff487ff66ba7a760c6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pairing blue only.  <br /></td></tr>
+<tr class="memdesc:a502533394ea2ff487ff66ba7a760c6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Light-blue field.  <br /></td></tr>
 <tr class="separator:a502533394ea2ff487ff66ba7a760c6fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e5d4deeb2f5403dfa402b40eb21d386" id="r_a8e5d4deeb2f5403dfa402b40eb21d386"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a8e5d4deeb2f5403dfa402b40eb21d386">pair_logo_rgb</a> (uint8_t amount)</td></tr>
-<tr class="memdesc:a8e5d4deeb2f5403dfa402b40eb21d386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Darker blue, same breathe as the field so the mark pulses with the board.  <br /></td></tr>
+<tr class="memdesc:a8e5d4deeb2f5403dfa402b40eb21d386"><td class="mdescLeft">&#160;</td><td class="mdescRight">Dark rune, the inverse of the field, so the mark reads as ink.  <br /></td></tr>
 <tr class="separator:a8e5d4deeb2f5403dfa402b40eb21d386"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fbb0ef62ac16016d6cec4df14b04a6a" id="r_a7fbb0ef62ac16016d6cec4df14b04a6a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a7fbb0ef62ac16016d6cec4df14b04a6a">tick_pair_hold</a> (void)</td></tr>
 <tr class="memdesc:a7fbb0ef62ac16016d6cec4df14b04a6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">~3 s breathe.  <br /></td></tr>
@@ -384,12 +391,12 @@ Variables</h2></td></tr>
 <tr class="separator:aa94eb256332cadf6419291a58b1cbe42"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0269843db1d76c3ea7312a9f1966a931" id="r_a0269843db1d76c3ea7312a9f1966a931"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a0269843db1d76c3ea7312a9f1966a931">s_btn_leave_dark</a></td></tr>
 <tr class="separator:a0269843db1d76c3ea7312a9f1966a931"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97a3d767561828363407ed48cffb8f6a" id="r_a97a3d767561828363407ed48cffb8f6a"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a97a3d767561828363407ed48cffb8f6a">s_shut_ring</a> [16]</td></tr>
-<tr class="separator:a97a3d767561828363407ed48cffb8f6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1ec9ed53ba23d8e0034cc40f33aa864f" id="r_a1ec9ed53ba23d8e0034cc40f33aa864f"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a1ec9ed53ba23d8e0034cc40f33aa864f">s_shut_stem</a> [8]</td></tr>
-<tr class="separator:a1ec9ed53ba23d8e0034cc40f33aa864f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf385c56d6fbdecb538492c3e9d7f014" id="r_aaf385c56d6fbdecb538492c3e9d7f014"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#aaf385c56d6fbdecb538492c3e9d7f014">s_ble_logo</a> []</td></tr>
-<tr class="separator:aaf385c56d6fbdecb538492c3e9d7f014"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99dc43f011480df265415653a27cd289" id="r_a99dc43f011480df265415653a27cd289"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a99dc43f011480df265415653a27cd289">s_shut_ring</a> [16][2]</td></tr>
+<tr class="separator:a99dc43f011480df265415653a27cd289"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4308aad8a1afedf7331bbcd0f76890d6" id="r_a4308aad8a1afedf7331bbcd0f76890d6"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a4308aad8a1afedf7331bbcd0f76890d6">s_shut_stem</a> [8][2]</td></tr>
+<tr class="separator:a4308aad8a1afedf7331bbcd0f76890d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84682f6aed5c650a03d50a1bd3f3549b" id="r_a84682f6aed5c650a03d50a1bd3f3549b"><td class="memItemLeft" align="right" valign="top">static const uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a84682f6aed5c650a03d50a1bd3f3549b">s_ble_logo</a> [][2]</td></tr>
+<tr class="separator:a84682f6aed5c650a03d50a1bd3f3549b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90394b55b2fc0adbc22bf2ad70ed5521" id="r_a90394b55b2fc0adbc22bf2ad70ed5521"><td class="memItemLeft" align="right" valign="top">static volatile bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a90394b55b2fc0adbc22bf2ad70ed5521">s_button_held</a></td></tr>
 <tr class="separator:a90394b55b2fc0adbc22bf2ad70ed5521"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a12b0989264e31d4cd4f30706ff5a77eb" id="r_a12b0989264e31d4cd4f30706ff5a77eb"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__gesture__anim_8c.html#a12b0989264e31d4cd4f30706ff5a77eb">s_hold_lit</a></td></tr>
@@ -397,9 +404,9 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Wave, new-game sweep, shutdown power symbol, and pairing pulse. </p>
-<p>Square orientation follows <a class="el" href="led__mapping_8h.html#a6f6c321f16b2494986ebfb82fa9bf5df" title="Converts the box position to an LED index.">chess_pos_to_led_index()</a>: row 0 is rank 1 (e1 is row 0, col 4), col 0 is the a-file. The column mirror inside that function is the wiring map; this file does not flip it.</p>
+<p>Pictures and glyphs are chess coordinates: row 0 is rank 1, col 0 is the a-file, and a square's slot is row * 8 + col. The strip index is only the value <a class="el" href="led__mapping_8h.html#a6f6c321f16b2494986ebfb82fa9bf5df" title="Converts the box position to an LED index.">chess_pos_to_led_index()</a> returns at the moment of the pixel write. That function does not mirror the file. See context/firmware/LED_MAP.md.</p>
 <p>The physical button sits on h1 (row 0, col 7). The wave origin is the center of that square. The new-game sweep starts there and crawls h1→a1, then a2→h2, wiping the picture to black behind it.</p>
-<p>LED 72 (reset / gesture button) follows the same phase: orange while held, gold through the wave, amber along the new-game sweep, red power symbol on shutdown, blue during pairing with a darker rune in the center. Edges ease instead of popping one square per frame. </p>
+<p>LED 72 (reset / gesture button) follows the same phase: orange while held, gold through the wave, amber along the new-game sweep, red power symbol on shutdown, light blue during pairing with the rune as the dark mark. Edges ease instead of popping one square per frame. </p>
 
 <p class="definition">Definition in file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
@@ -415,7 +422,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00069">69</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00070">70</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -431,7 +438,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00359">359</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00373">373</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -447,7 +454,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00360">360</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00374">374</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -463,7 +470,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00351">351</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00365">365</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -479,7 +486,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00352">352</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00366">366</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -498,7 +505,7 @@ Variables</h2></td></tr>
 <p>IEC 5009, white's view (row 7 is rank 8). </p>
 <p>The bar stands in the top gap and does not touch the ring. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00350">350</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00364">364</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -514,7 +521,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00355">355</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00369">369</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -530,7 +537,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00354">354</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00368">368</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -546,7 +553,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00353">353</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00367">367</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -562,7 +569,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00358">358</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00372">372</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -578,7 +585,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00357">357</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00371">371</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -594,7 +601,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00356">356</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00370">370</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -610,7 +617,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00361">361</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00375">375</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -626,7 +633,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00255">255</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00268">268</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -642,7 +649,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00256">256</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00269">269</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -658,7 +665,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00252">252</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00265">265</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -674,7 +681,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00253">253</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00266">266</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -690,7 +697,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00254">254</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00267">267</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -715,7 +722,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a66ca68ef48aebf991e14c0fa908fb71ca199cbdf2aef68e5954c1ae03e6354ccd" name="a66ca68ef48aebf991e14c0fa908fb71ca199cbdf2aef68e5954c1ae03e6354ccd"></a>PH_PULSE&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00035">35</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00036">36</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -754,7 +761,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00117">117</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00134">134</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -782,7 +789,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00107">107</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00121">121</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -823,7 +830,7 @@ Variables</h2></td></tr>
 <p>Half-square units. </p>
 <p>Origin is h1 (14, 0). Square (col,row) center is (2*col, 2*row). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00140">140</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00157">157</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -851,7 +858,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00588">588</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00599">599</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -879,7 +886,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00586">586</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00597">597</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -907,7 +914,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00558">558</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00569">569</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -930,7 +937,7 @@ Variables</h2></td></tr>
 <p>Whether a gesture animation is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when the phase is not idle. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00553">553</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00564">564</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -953,7 +960,7 @@ Variables</h2></td></tr>
 <p>Advance one frame. </p>
 <p>Called from the LED task. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00674">674</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00685">685</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -976,7 +983,7 @@ Variables</h2></td></tr>
 <p>Active-low. </p>
 <p>True for the gesture GPIO or for GPIO15 when it is not an NRST pin. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00570">570</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00581">581</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -999,7 +1006,7 @@ Variables</h2></td></tr>
 <p>Button went up. </p>
 <p>Cancels a forward snake or a shutdown by playing it backwards from the current frame. Neither powers off or starts a game. A release during the reverse does nothing. Wave and pulse ignore the latch. The flag is stored even if the LED phase has not started yet. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00800">800</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00811">811</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1022,7 +1029,7 @@ Variables</h2></td></tr>
 <p>Held SW1. </p>
 <p>The LED task lights rank 1 and rank 8 until a gesture animation starts. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00568">568</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00579">579</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1045,7 +1052,7 @@ Variables</h2></td></tr>
 <p>Calm blue pulse for as long as the pairing window is open. </p>
 <p>Does not take the exclusive gesture phase, so a lamp toggle or another triple-click still runs. Stop restores the board picture from when the pulse last had the squares to itself. </p><dl class="section return"><dt>Returns</dt><dd>true once the pulse is requested. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00777">777</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00788">788</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1068,7 +1075,7 @@ Variables</h2></td></tr>
 <p>Red power symbol, then the ring goes out and the bar sinks. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if shutdown started. false if another gesture is running. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00773">773</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00784">784</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1091,7 +1098,7 @@ Variables</h2></td></tr>
 <p>Smooth sweep from h1 that wipes the board to black. </p>
 <p>Reverse on early release. </p><dl class="section return"><dt>Returns</dt><dd>true if the snake started (idle). false if another gesture is running. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00769">769</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00780">780</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1130,7 +1137,7 @@ Variables</h2></td></tr>
 <p>Wave between the current board and new_colors. </p>
 <p>Outward (inward == false) spreads from the button on h1 and covers the board. Inward plays that wave backwards: the current picture shrinks back into h1 and new_colors show from the far corner. The mode flag itself is not changed here. Fails if new_colors is NULL or another gesture is already running. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">new_colors</td><td>64 LED-index colors for the picture left when the wave ends. </td></tr>
+    <tr><td class="paramname">new_colors</td><td>64 chess-order colors (index = row * 8 + col, row 0 = rank 1, col 0 = file a) for the picture left when the wave ends. </td></tr>
     <tr><td class="paramname">inward</td><td>true to run the wave from the far corner back to h1. </td></tr>
     <tr><td class="paramname">cover_rgb</td><td>Color of the light disk. Outward this is what spreads. Inward this is what shrinks back into h1. </td></tr>
   </table>
@@ -1138,7 +1145,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the wave started. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00738">738</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00749">749</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1160,7 +1167,7 @@ Variables</h2></td></tr>
 
 <p>End the pairing pulse and give the squares back to the game. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00788">788</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00799">799</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1183,7 +1190,7 @@ Variables</h2></td></tr>
 <p>Take the completion code and clear it. </p>
 <dl class="section return"><dt>Returns</dt><dd>The latched result, or LED_GESTURE_RESULT_NONE if nothing finished. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00729">729</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00740">740</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1227,7 +1234,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00156">156</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00173">173</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1271,7 +1278,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00152">152</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00169">169</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1309,7 +1316,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00077">77</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00078">78</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1337,7 +1344,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00618">618</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00629">629</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1368,7 +1375,7 @@ Variables</h2></td></tr>
 <p>Ahead of the head the saved picture stays. </p>
 <p>Behind it the square is black. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00270">270</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00283">283</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1396,7 +1403,79 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00431">431</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00443">443</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+
+</div>
+</div>
+<a id="aa78dc68a08cfe6f32c5f04476584c333" name="aa78dc68a08cfe6f32c5f04476584c333"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa78dc68a08cfe6f32c5f04476584c333">&#9670;&#160;</a></span>paint_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void paint_square </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>rgb</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00089">89</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+
+</div>
+</div>
+<a id="a42917adc49c0ced87a95ba9245f7f320" name="a42917adc49c0ced87a95ba9245f7f320"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42917adc49c0ced87a95ba9245f7f320">&#9670;&#160;</a></span>paint_squares()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void paint_squares </td>
+          <td>(</td>
+          <td class="paramtype">const uint32_t&#160;</td>
+          <td class="paramname"><em>squares</em>[64]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00093">93</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1424,9 +1503,9 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Darker blue, same breathe as the field so the mark pulses with the board. </p>
+<p>Dark rune, the inverse of the field, so the mark reads as ink. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00510">510</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00521">521</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1454,10 +1533,10 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Pairing blue only. </p>
+<p>Light-blue field. </p>
 <p>amount is 0..140. The picture underneath stays saved. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00500">500</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00513">513</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1485,7 +1564,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00071">71</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00072">72</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1513,12 +1592,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00083">83</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00101">101</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
-<a id="a39ed4a91122a828aa522b3e572d24077" name="a39ed4a91122a828aa522b3e572d24077"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a39ed4a91122a828aa522b3e572d24077">&#9670;&#160;</a></span>shut_glyph_level()</h2>
+<a id="a30e5af509cf01dcd351dc12ba43460bb" name="a30e5af509cf01dcd351dc12ba43460bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30e5af509cf01dcd351dc12ba43460bb">&#9670;&#160;</a></span>shut_glyph_level()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1530,7 +1609,13 @@ Variables</h2></td></tr>
           <td class="memname">static uint8_t shut_glyph_level </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>rc</em>, </td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1554,7 +1639,7 @@ Variables</h2></td></tr>
 <p>0 = this square is not part of the lit symbol right now. </p>
 <p>255 = full red. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00389">389</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00401">401</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1582,7 +1667,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00424">424</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00436">436</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1623,7 +1708,7 @@ Variables</h2></td></tr>
 <p>Brightness left as an extinguish head passes this point. </p>
 <p>255 = still full. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00376">376</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00388">388</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1651,7 +1736,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00449">449</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00460">460</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1679,7 +1764,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00146">146</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00163">163</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1726,7 +1811,48 @@ Variables</h2></td></tr>
 <p>Board snake: rank 1 h→a, rank 2 a→h, and so on. </p>
 <p>Head starts on h1. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00239">239</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00252">252</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+
+</div>
+</div>
+<a id="a97b4b4c52834891d5812a7fd951037d8" name="a97b4b4c52834891d5812a7fd951037d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97b4b4c52834891d5812a7fd951037d8">&#9670;&#160;</a></span>sq_of()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint8_t sq_of </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Chess slot. </p>
+<p>row 0 = rank 1, col 0 = file a. Not a strip index. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00085">85</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1764,7 +1890,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00283">283</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00295">295</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1792,7 +1918,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00258">258</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00271">271</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1823,7 +1949,7 @@ Variables</h2></td></tr>
 <p>~3 s breathe. </p>
 <p>The board is pairing blue until the pulse stops. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00526">526</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00536">536</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1851,7 +1977,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00461">461</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00472">472</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1879,7 +2005,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00298">298</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00310">310</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1907,7 +2033,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00328">328</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00342">342</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1935,7 +2061,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00166">166</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00183">183</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -1966,13 +2092,13 @@ Variables</h2></td></tr>
 <p>Lamp white sits in the top byte. </p>
 <p>The wave paints RGB, so fold it back. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00090">90</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00104">104</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
-<a id="aaf385c56d6fbdecb538492c3e9d7f014" name="aaf385c56d6fbdecb538492c3e9d7f014"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaf385c56d6fbdecb538492c3e9d7f014">&#9670;&#160;</a></span>s_ble_logo</h2>
+<a id="a84682f6aed5c650a03d50a1bd3f3549b" name="a84682f6aed5c650a03d50a1bd3f3549b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84682f6aed5c650a03d50a1bd3f3549b">&#9670;&#160;</a></span>s_ble_logo</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1981,7 +2107,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint8_t s_ble_logo[]</td>
+          <td class="memname">const uint8_t s_ble_logo[][2]</td>
         </tr>
       </table>
   </td>
@@ -1991,15 +2117,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    (7u &lt;&lt; 3) | 3u, (7u &lt;&lt; 3) | 4u, (6u &lt;&lt; 3) | 3u, (6u &lt;&lt; 3) | 4u,</div>
-<div class="line">    (6u &lt;&lt; 3) | 5u, (5u &lt;&lt; 3) | 2u, (5u &lt;&lt; 3) | 3u, (5u &lt;&lt; 3) | 5u,</div>
-<div class="line">    (4u &lt;&lt; 3) | 1u, (4u &lt;&lt; 3) | 3u, (4u &lt;&lt; 3) | 4u, (4u &lt;&lt; 3) | 6u,</div>
-<div class="line">    (3u &lt;&lt; 3) | 2u, (3u &lt;&lt; 3) | 3u, (3u &lt;&lt; 3) | 5u, (2u &lt;&lt; 3) | 3u,</div>
-<div class="line">    (2u &lt;&lt; 3) | 4u, (2u &lt;&lt; 3) | 5u, (1u &lt;&lt; 3) | 2u, (1u &lt;&lt; 3) | 3u,</div>
-<div class="line">    (1u &lt;&lt; 3) | 5u, (0u &lt;&lt; 3) | 3u, (0u &lt;&lt; 3) | 4u,</div>
+<div class="line">    {7, 3}, {6, 3}, {6, 4}, {5, 1}, {5, 3}, {5, 5}, {4, 2}, {4, 3}, {4, 6},</div>
+<div class="line">    {3, 3}, {3, 4}, {3, 5}, {2, 2}, {2, 3}, {2, 6}, {1, 1}, {1, 3}, {1, 5},</div>
+<div class="line">    {0, 3}, {0, 4},</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00516">516</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00529">529</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2023,7 +2146,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00067">67</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00068">68</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2047,7 +2170,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00066">66</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00067">67</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2071,7 +2194,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00064">64</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00065">65</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2095,7 +2218,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00065">65</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00066">66</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2119,7 +2242,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00555">555</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00566">566</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2143,7 +2266,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00053">53</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00054">54</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2167,7 +2290,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00055">55</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00056">56</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2191,7 +2314,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00063">63</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00064">64</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2215,7 +2338,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00556">556</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00567">567</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2239,7 +2362,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00044">44</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00045">45</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2263,7 +2386,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00049">49</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00050">50</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2287,7 +2410,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00048">48</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00049">49</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2311,7 +2434,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00062">62</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00063">63</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2335,7 +2458,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00057">57</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00058">58</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2359,7 +2482,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00056">56</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00057">57</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2383,7 +2506,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00060">60</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00061">61</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2407,7 +2530,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00059">59</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00060">60</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2431,7 +2554,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00058">58</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00059">59</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2455,7 +2578,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00045">45</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00046">46</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2479,7 +2602,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00046">46</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00047">47</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2503,7 +2626,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00047">47</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00048">48</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2527,7 +2650,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00054">54</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00055">55</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2551,12 +2674,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00051">51</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00052">52</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
-<a id="a97a3d767561828363407ed48cffb8f6a" name="a97a3d767561828363407ed48cffb8f6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a97a3d767561828363407ed48cffb8f6a">&#9670;&#160;</a></span>s_shut_ring</h2>
+<a id="a99dc43f011480df265415653a27cd289" name="a99dc43f011480df265415653a27cd289"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a99dc43f011480df265415653a27cd289">&#9670;&#160;</a></span>s_shut_ring</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2565,7 +2688,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint8_t s_shut_ring[16]</td>
+          <td class="memname">const uint8_t s_shut_ring[16][2]</td>
         </tr>
       </table>
   </td>
@@ -2575,18 +2698,16 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    (6u &lt;&lt; 3) | 5u, (5u &lt;&lt; 3) | 6u, (4u &lt;&lt; 3) | 7u, (3u &lt;&lt; 3) | 7u,</div>
-<div class="line">    (2u &lt;&lt; 3) | 7u, (1u &lt;&lt; 3) | 6u, (0u &lt;&lt; 3) | 5u, (0u &lt;&lt; 3) | 4u,</div>
-<div class="line">    (0u &lt;&lt; 3) | 3u, (0u &lt;&lt; 3) | 2u, (1u &lt;&lt; 3) | 1u, (2u &lt;&lt; 3) | 0u,</div>
-<div class="line">    (3u &lt;&lt; 3) | 0u, (4u &lt;&lt; 3) | 0u, (5u &lt;&lt; 3) | 1u, (6u &lt;&lt; 3) | 2u,</div>
+<div class="line">    {6, 5}, {5, 6}, {4, 7}, {3, 7}, {2, 7}, {1, 6}, {0, 5}, {0, 4},</div>
+<div class="line">    {0, 3}, {0, 2}, {1, 1}, {2, 0}, {3, 0}, {4, 0}, {5, 1}, {6, 2},</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00364">364</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00379">379</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
-<a id="a1ec9ed53ba23d8e0034cc40f33aa864f" name="a1ec9ed53ba23d8e0034cc40f33aa864f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1ec9ed53ba23d8e0034cc40f33aa864f">&#9670;&#160;</a></span>s_shut_stem</h2>
+<a id="a4308aad8a1afedf7331bbcd0f76890d6" name="a4308aad8a1afedf7331bbcd0f76890d6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4308aad8a1afedf7331bbcd0f76890d6">&#9670;&#160;</a></span>s_shut_stem</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2595,7 +2716,7 @@ Variables</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const uint8_t s_shut_stem[8]</td>
+          <td class="memname">const uint8_t s_shut_stem[8][2]</td>
         </tr>
       </table>
   </td>
@@ -2605,11 +2726,10 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
-<div class="line">    (7u &lt;&lt; 3) | 3u, (7u &lt;&lt; 3) | 4u, (5u &lt;&lt; 3) | 3u, (5u &lt;&lt; 3) | 4u,</div>
-<div class="line">    (4u &lt;&lt; 3) | 3u, (4u &lt;&lt; 3) | 4u, (3u &lt;&lt; 3) | 3u, (3u &lt;&lt; 3) | 4u,</div>
+<div class="line">    {7, 3}, {7, 4}, {5, 3}, {5, 4}, {4, 3}, {4, 4}, {3, 3}, {3, 4},</div>
 <div class="line">}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00370">370</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00383">383</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2633,7 +2753,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00061">61</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00062">62</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2657,7 +2777,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00050">50</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00051">51</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2681,7 +2801,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00052">52</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00053">53</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>
@@ -2705,7 +2825,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00033">33</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__gesture__anim_8c_source.html#l00034">34</a> of file <a class="el" href="led__gesture__anim_8c_source.html">led_gesture_anim.c</a>.</p>
 
 </div>
 </div>

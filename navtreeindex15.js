@@ -1,5 +1,10 @@
 var NAVTREEINDEX15 =
 {
+"structinput__buffer__t.html":[2,0,31],
+"structinput__buffer__t.html#a2dd4c5a97c85c19099c1696e5083e69c":[2,0,31,1],
+"structinput__buffer__t.html#a46a4cd3407d6ca0eadb41800b7e52e54":[2,0,31,2],
+"structinput__buffer__t.html#a49d086081ae7176f57ff7ee4f5564375":[2,0,31,3],
+"structinput__buffer__t.html#a5e1a0d38646ef4e3b2ee1b2c049c2d22":[2,0,31,0],
 "structking__resignation__state__t.html":[2,0,32],
 "structking__resignation__state__t.html#a1186d33a02c7b828ad090842484f8f8c":[2,0,32,0],
 "structking__resignation__state__t.html#a1c717d8def9f7fdab3de11b94f78fd8a":[2,0,32,1],
@@ -244,10 +249,5 @@ var NAVTREEINDEX15 =
 "structsquares__guard__pause__state__t.html#ac8c6b6236626ed379bfdc75fb6a41046":[2,0,57,5],
 "structstreaming__output__t.html":[2,0,58],
 "structstreaming__output__t.html#a0d62b26ed0234853854e4c89678bdedf":[2,0,58,4],
-"structstreaming__output__t.html#a4e343bdd2228d1d6b6ba12be90294f79":[2,0,58,5],
-"structstreaming__output__t.html#a69827b451c4042f64dfccd148efd41b7":[2,0,58,0],
-"structstreaming__output__t.html#a895a5d5ffe995c94373720aa83bd6f24":[2,0,58,3],
-"structstreaming__output__t.html#a977a9f506e1525f07917df0db54ddf4f":[2,0,58,1],
-"structstreaming__output__t.html#aca41fa5e6f2cf2ddf2d0693cdb71cbc9":[2,0,58,2],
-"structstreaming__stats__t.html":[2,0,59]
+"structstreaming__output__t.html#a4e343bdd2228d1d6b6ba12be90294f79":[2,0,58,5]
 };

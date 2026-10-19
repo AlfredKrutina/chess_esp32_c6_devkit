@@ -38,7 +38,7 @@ var searchData=
   ['uart_5fdisplay_5fmain_5fhelp_35',['uart_display_main_help',['../uart__task_8h.html#a751f514352196d75fcb5afef4a54bc76',1,'uart_display_main_help(void):&#160;uart_task.c'],['../uart__task_8c.html#a751f514352196d75fcb5afef4a54bc76',1,'uart_display_main_help(void):&#160;uart_task.c']]],
   ['uart_5fenabled_36',['UART_ENABLED',['../uart__task_8c.html#add7b6c4234d476bd8bb529019b9f48e9',1,'uart_task.c']]],
   ['uart_5ffputs_37',['uart_fputs',['../uart__task_8c.html#a40999291ae23f6ab62823ec1a1595e73',1,'uart_task.c']]],
-  ['uart_5fhall_5fprint_5fonce_38',['uart_hall_print_once',['../uart__task_8c.html#a1baa260dea5402ced02c15f3233596a2',1,'uart_task.c']]],
+  ['uart_5fhall_5fsquare_5farg_38',['uart_hall_square_arg',['../uart__task_8c.html#a89398e87623a6f1c8f62ea97069798f8',1,'uart_task.c']]],
   ['uart_5flog_5flevel_5fname_39',['uart_log_level_name',['../uart__task_8c.html#aa51818ed0a63737a574a519d121fa3d3',1,'uart_task.c']]],
   ['uart_5fmax_5fargs_40',['UART_MAX_ARGS',['../uart__task_8c.html#a92730fc97f7b604391b5b3f913ad824e',1,'uart_task.c']]],
   ['uart_5fmessage_5ft_41',['uart_message_t',['../structuart__message__t.html',1,'']]],

@@ -550,8 +550,8 @@ Functions</h2></td></tr>
 <tr class="separator:a56acd8d2730dd37a60be2b3b25a93401"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bdf944197064a7daf05666345650c9c" id="r_a7bdf944197064a7daf05666345650c9c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#a7bdf944197064a7daf05666345650c9c">uart_cmd_anim</a> (const char *args)</td></tr>
 <tr class="separator:a7bdf944197064a7daf05666345650c9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1baa260dea5402ced02c15f3233596a2" id="r_a1baa260dea5402ced02c15f3233596a2"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#a1baa260dea5402ced02c15f3233596a2">uart_hall_print_once</a> (void)</td></tr>
-<tr class="separator:a1baa260dea5402ced02c15f3233596a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89398e87623a6f1c8f62ea97069798f8" id="r_a89398e87623a6f1c8f62ea97069798f8"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#a89398e87623a6f1c8f62ea97069798f8">uart_hall_square_arg</a> (const char *args, uint8_t *square_out)</td></tr>
+<tr class="separator:a89398e87623a6f1c8f62ea97069798f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad361491fdcfaf9f9fb1515f5464ece17" id="r_ad361491fdcfaf9f9fb1515f5464ece17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#ad361491fdcfaf9f9fb1515f5464ece17">uart_cmd_hall</a> (const char *args)</td></tr>
 <tr class="separator:ad361491fdcfaf9f9fb1515f5464ece17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6af874e0f87720e05598373335bdc2ad" id="r_a6af874e0f87720e05598373335bdc2ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="uart__task_8h.html#ad67e3977ebd069018cc01fb52b551c63">command_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#a6af874e0f87720e05598373335bdc2ad">uart_cmd_hall_stop</a> (const char *args)</td></tr>
@@ -627,10 +627,6 @@ Variables</h2></td></tr>
 <tr class="separator:aedd33235b875180b4a57e5bd210cadd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c4e957de70c57192735974adca4c520" id="r_a8c4e957de70c57192735974adca4c520"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#a8c4e957de70c57192735974adca4c520">last_command_time</a> = 0</td></tr>
 <tr class="separator:a8c4e957de70c57192735974adca4c520"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a1af2d29c2d151c6a82b98db1185b19" id="r_a9a1af2d29c2d151c6a82b98db1185b19"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#a9a1af2d29c2d151c6a82b98db1185b19">s_hall_stream</a></td></tr>
-<tr class="separator:a9a1af2d29c2d151c6a82b98db1185b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afcc3f280fc6f509de521352b24cf5da2" id="r_afcc3f280fc6f509de521352b24cf5da2"><td class="memItemLeft" align="right" valign="top">static int64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uart__task_8c.html#afcc3f280fc6f509de521352b24cf5da2">s_hall_next_us</a></td></tr>
-<tr class="separator:afcc3f280fc6f509de521352b24cf5da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>UART Terminal Task - interactive command line for chess control. </p>
@@ -1943,7 +1939,7 @@ CRITICAL RULES</h1>
 <p>Check memory health and report status. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if memory is healthy, ESP_ERR_NO_MEM if low </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02014">2014</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02003">2003</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2082,7 +2078,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01968">1968</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01949">1949</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2102,7 +2098,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01978">1978</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01968">1968</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2186,7 +2182,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01985">1985</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01974">1974</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2298,8 +2294,8 @@ CRITICAL RULES</h1>
 
 </div>
 </div>
-<a id="a1baa260dea5402ced02c15f3233596a2" name="a1baa260dea5402ced02c15f3233596a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1baa260dea5402ced02c15f3233596a2">&#9670;&#160;</a></span>uart_hall_print_once()</h2>
+<a id="a89398e87623a6f1c8f62ea97069798f8" name="a89398e87623a6f1c8f62ea97069798f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a89398e87623a6f1c8f62ea97069798f8">&#9670;&#160;</a></span>uart_hall_square_arg()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2308,11 +2304,21 @@ CRITICAL RULES</h1>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void uart_hall_print_once </td>
+          <td class="memname">static bool uart_hall_square_arg </td>
           <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>args</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>square_out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
   </td>
@@ -2322,7 +2328,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01938">1938</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01935">1935</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2370,7 +2376,7 @@ CRITICAL RULES</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02115">2115</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02104">2104</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2953,7 +2959,7 @@ CRITICAL RULES</h1>
 
 <p>Check if UART task is healthy and recover if needed. </p>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02089">2089</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02078">2078</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -2981,7 +2987,7 @@ CRITICAL RULES</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02296">2296</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02285">2285</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -3003,7 +3009,7 @@ CRITICAL RULES</h1>
 
 <p>Recover UART task from errors and system crashes This function ensures UART continues to work even after WDT errors. </p>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02048">2048</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02037">2037</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -3031,7 +3037,7 @@ CRITICAL RULES</h1>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02197">2197</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l02186">2186</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>
@@ -3415,54 +3421,6 @@ CRITICAL RULES</h1>
 <p>Handle pro LED task. </p>
 
 <p class="definition">Definition at line <a class="el" href="main_8c_source.html#l00267">267</a> of file <a class="el" href="main_8c_source.html">main.c</a>.</p>
-
-</div>
-</div>
-<a id="afcc3f280fc6f509de521352b24cf5da2" name="afcc3f280fc6f509de521352b24cf5da2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afcc3f280fc6f509de521352b24cf5da2">&#9670;&#160;</a></span>s_hall_next_us</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">int64_t s_hall_next_us</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01936">1936</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a9a1af2d29c2d151c6a82b98db1185b19" name="a9a1af2d29c2d151c6a82b98db1185b19"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9a1af2d29c2d151c6a82b98db1185b19">&#9670;&#160;</a></span>s_hall_stream</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool s_hall_stream</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="uart__task_8c_source.html#l01935">1935</a> of file <a class="el" href="uart__task_8c_source.html">uart_task.c</a>.</p>
 
 </div>
 </div>

@@ -171,6 +171,10 @@ Functions</h2></td></tr>
 <tr class="memitem:adb2ac400490737ff5cb0895036477244" id="r_adb2ac400490737ff5cb0895036477244"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#adb2ac400490737ff5cb0895036477244">chess_i2c_bus_init</a> (int <a class="el" href="ha__light__task_8c.html#a8e0798404bf2cf5dabb84c5ba9a4f236">port</a>, int sda_gpio, int scl_gpio)</td></tr>
 <tr class="memdesc:adb2ac400490737ff5cb0895036477244"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shared ESP-IDF i2c_master bus (driver/i2c_master.h).  <br /></td></tr>
 <tr class="separator:adb2ac400490737ff5cb0895036477244"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59626b87b2113414c437ee1530400cc8" id="r_a59626b87b2113414c437ee1530400cc8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a59626b87b2113414c437ee1530400cc8">chess_i2c_lock</a> (void)</td></tr>
+<tr class="separator:a59626b87b2113414c437ee1530400cc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a684f77247227f0e0353233b1c92e0b" id="r_a2a684f77247227f0e0353233b1c92e0b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a2a684f77247227f0e0353233b1c92e0b">chess_i2c_unlock</a> (void)</td></tr>
+<tr class="separator:a2a684f77247227f0e0353233b1c92e0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d8ddeac16acc16023049aeb3336dfab" id="r_a6d8ddeac16acc16023049aeb3336dfab"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#a6d8ddeac16acc16023049aeb3336dfab">chess_i2c_dev</a> (uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us, i2c_master_dev_handle_t *out)</td></tr>
 <tr class="separator:a6d8ddeac16acc16023049aeb3336dfab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca99e2dde632e87912aad813ea298ea9" id="r_aca99e2dde632e87912aad813ea298ea9"><td class="memItemLeft" align="right" valign="top">static esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stm32__i2c__bl_8c.html#aca99e2dde632e87912aad813ea298ea9">chess_i2c_checked</a> (esp_err_t err)</td></tr>
@@ -309,7 +313,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00124">124</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00133">133</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -350,6 +354,34 @@ Variables</h2></td></tr>
           <td></td>
           <td>)</td>
           <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00085">85</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a59626b87b2113414c437ee1530400cc8" name="a59626b87b2113414c437ee1530400cc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a59626b87b2113414c437ee1530400cc8">&#9670;&#160;</a></span>chess_i2c_lock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void chess_i2c_lock </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
         </tr>
       </table>
   </td>
@@ -413,7 +445,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00141">141</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00152">152</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -495,7 +527,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00131">131</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00140">140</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -561,7 +593,35 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00151">151</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00164">164</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+
+</div>
+</div>
+<a id="a2a684f77247227f0e0353233b1c92e0b" name="a2a684f77247227f0e0353233b1c92e0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a684f77247227f0e0353233b1c92e0b">&#9670;&#160;</a></span>chess_i2c_unlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void chess_i2c_unlock </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00076">76</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -584,7 +644,7 @@ Variables</h2></td></tr>
 <p>Create the binary semaphore main waits on before squares_task starts. </p>
 <p>No-op when auto-flash-on-boot is compiled out, or if the semaphore exists. </p>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01239">1239</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01254">1254</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -612,7 +672,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01241">1241</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01256">1256</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -659,7 +719,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK and writes *pid_out, ESP_ERR_INVALID_ARG if pid_out is NULL, ESP_ERR_NOT_SUPPORTED when compiled out, otherwise the transaction error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00975">975</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00990">990</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -699,7 +759,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, a bootloader NACK/timeout, or ESP_ERR_NOT_SUPPORTED. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00983">983</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00998">998</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -760,7 +820,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, ESP_ERR_INVALID_ARG, ESP_ERR_INVALID_SIZE, ESP_ERR_NOT_SUPPORTED, or the erase/write error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01008">1008</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01023">1023</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -807,7 +867,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if the MCU accepted GO, otherwise the transaction error or ESP_ERR_NOT_SUPPORTED. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01000">1000</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01015">1015</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -830,7 +890,7 @@ Variables</h2></td></tr>
 <p>Configure NRST/BOOT0 and, if the bus is not shared, the I2C driver. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if already inited or GPIO/I2C setup succeeded, ESP_ERR_NOT_SUPPORTED when the bootloader is compiled out, otherwise the I2C error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00962">962</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00977">977</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -853,7 +913,7 @@ Variables</h2></td></tr>
 <p>If auto-flash-on-boot is enabled, program each STM from its partition. </p>
 <p>Call after shared I2C init (for example right after hall_i2c_squares_init). No-op when that Kconfig is off. Does not return a status; result is logged. </p>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01246">1246</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01261">1261</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -876,7 +936,7 @@ Variables</h2></td></tr>
 <p>BOOT0 low (if connected) and NRST high so every segment runs its app. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, or ESP_ERR_NOT_SUPPORTED when the bootloader is compiled out. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00971">971</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00986">986</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -916,7 +976,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, ESP_ERR_INVALID_ARG if the segment is not 0…3, ESP_ERR_NOT_SUPPORTED when compiled out, or an error from init. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00964">964</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00979">979</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
@@ -977,7 +1037,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK, ESP_ERR_INVALID_ARG, ESP_ERR_NOT_SUPPORTED, or the transaction error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l00989">989</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="stm32__i2c__bl_8c_source.html#l01004">1004</a> of file <a class="el" href="stm32__i2c__bl_8c_source.html">stm32_i2c_bl.c</a>.</p>
 
 </div>
 </div>
