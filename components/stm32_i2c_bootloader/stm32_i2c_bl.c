@@ -67,6 +67,21 @@ esp_err_t chess_i2c_bus_init(int port, int sda_gpio, int scl_gpio) {
   return ESP_OK;
 }
 
+static void chess_i2c_lock(void) {
+  if (s_i2c_lock != NULL) {
+    xSemaphoreTake(s_i2c_lock, portMAX_DELAY);
+  }
+}
+
+static void chess_i2c_unlock(void) {
+  if (s_i2c_lock != NULL) {
+    xSemaphoreGive(s_i2c_lock);
+  }
+}
+
+/* Caller holds s_i2c_lock. The transfer must stay inside the same hold:
+ * a second caller used to reset the bus while the first was still in
+ * i2c_master_transmit_receive, which surfaced as ESP_ERR_INVALID_STATE. */
 static esp_err_t chess_i2c_dev(uint8_t addr7, uint32_t freq_hz,
                                uint32_t scl_wait_us,
                                i2c_master_dev_handle_t *out) {
@@ -75,9 +90,6 @@ static esp_err_t chess_i2c_dev(uint8_t addr7, uint32_t freq_hz,
   }
   if (freq_hz == 0 || out == NULL) {
     return ESP_ERR_INVALID_ARG;
-  }
-  if (s_i2c_lock != NULL) {
-    xSemaphoreTake(s_i2c_lock, portMAX_DELAY);
   }
   esp_err_t err = ESP_OK;
   i2c_master_dev_handle_t found = NULL;
@@ -112,9 +124,6 @@ static esp_err_t chess_i2c_dev(uint8_t addr7, uint32_t freq_hz,
       }
     }
   }
-  if (s_i2c_lock != NULL) {
-    xSemaphoreGive(s_i2c_lock);
-  }
   if (err == ESP_OK) {
     *out = found;
   }
@@ -130,35 +139,41 @@ static esp_err_t chess_i2c_checked(esp_err_t err) {
 
 esp_err_t chess_i2c_transmit(uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us,
                              const uint8_t *data, size_t len, int timeout_ms) {
+  chess_i2c_lock();
   i2c_master_dev_handle_t dev = NULL;
   esp_err_t err = chess_i2c_dev(addr7, freq_hz, scl_wait_us, &dev);
-  if (err != ESP_OK) {
-    return err;
+  if (err == ESP_OK) {
+    err = chess_i2c_checked(i2c_master_transmit(dev, data, len, timeout_ms));
   }
-  return chess_i2c_checked(i2c_master_transmit(dev, data, len, timeout_ms));
+  chess_i2c_unlock();
+  return err;
 }
 
 esp_err_t chess_i2c_receive(uint8_t addr7, uint32_t freq_hz, uint32_t scl_wait_us,
                             uint8_t *data, size_t len, int timeout_ms) {
+  chess_i2c_lock();
   i2c_master_dev_handle_t dev = NULL;
   esp_err_t err = chess_i2c_dev(addr7, freq_hz, scl_wait_us, &dev);
-  if (err != ESP_OK) {
-    return err;
+  if (err == ESP_OK) {
+    err = chess_i2c_checked(i2c_master_receive(dev, data, len, timeout_ms));
   }
-  return chess_i2c_checked(i2c_master_receive(dev, data, len, timeout_ms));
+  chess_i2c_unlock();
+  return err;
 }
 
 esp_err_t chess_i2c_transmit_receive(uint8_t addr7, uint32_t freq_hz,
                                      uint32_t scl_wait_us, const uint8_t *wdata,
                                      size_t wlen, uint8_t *rdata, size_t rlen,
                                      int timeout_ms) {
+  chess_i2c_lock();
   i2c_master_dev_handle_t dev = NULL;
   esp_err_t err = chess_i2c_dev(addr7, freq_hz, scl_wait_us, &dev);
-  if (err != ESP_OK) {
-    return err;
+  if (err == ESP_OK) {
+    err = chess_i2c_checked(i2c_master_transmit_receive(dev, wdata, wlen, rdata,
+                                                        rlen, timeout_ms));
   }
-  return chess_i2c_checked(i2c_master_transmit_receive(dev, wdata, wlen, rdata,
-                                                       rlen, timeout_ms));
+  chess_i2c_unlock();
+  return err;
 }
 
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE

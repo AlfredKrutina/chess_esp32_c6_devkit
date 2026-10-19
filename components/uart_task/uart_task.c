@@ -1932,53 +1932,42 @@ command_result_t uart_cmd_anim(const char *args) {
   return CMD_ERROR_INVALID_PARAMETER;
 }
 
-static bool s_hall_stream;
-static int64_t s_hall_next_us;
-
-static void uart_hall_print_once(void) {
-  unsigned n = hall_i2c_squares_segment_count();
-  if (n == 0) {
-    uart_send_line("hall: build has no I2C Hall");
-    return;
+static bool uart_hall_square_arg(const char *args, uint8_t *square_out) {
+  if (args == NULL || args[0] == '\0') {
+    *square_out = 28;
+    return true;
   }
-  for (unsigned seg = 0; seg < n; seg++) {
-    uint8_t addr = 0;
-    uint16_t raw[32];
-    esp_err_t err = hall_i2c_squares_read_segment_raw((uint8_t)seg, &addr, raw);
-    char line[192];
-    if (err != ESP_OK) {
-      snprintf(line, sizeof(line), "seg%u 0x%02x FAIL %s", seg, addr,
-               esp_err_to_name(err));
-    } else {
-      int pos = snprintf(line, sizeof(line), "seg%u 0x%02x f0=%u/%u |d|", seg,
-                         addr, raw[0], raw[1]);
-      for (unsigned field = 0; field < 16 && pos > 0 && pos < (int)sizeof(line) - 8;
-           field++) {
-        uint16_t a = raw[field * 2];
-        uint16_t b = raw[field * 2 + 1];
-        unsigned d = (a > b) ? (unsigned)(a - b) : (unsigned)(b - a);
-        pos += snprintf(line + pos, sizeof(line) - (size_t)pos, " %u", d);
-      }
-    }
-    uart_send_line(line);
-    SAFE_WDT_RESET();
+  char file = (char)tolower((unsigned char)args[0]);
+  char rank = args[1];
+  if (args[2] != '\0' || file < 'a' || file > 'h' || rank < '1' || rank > '8') {
+    return false;
   }
+  *square_out = (uint8_t)((rank - '1') * 8 + (file - 'a'));
+  return true;
 }
 
 command_result_t uart_cmd_hall(const char *args) {
-  (void)args;
-  s_hall_stream = true;
-  s_hall_next_us = esp_timer_get_time();
-  uart_send_line("Hall stream on. Type STOP to end.");
-  uart_hall_print_once();
-  s_hall_next_us = esp_timer_get_time() + 500000;
+  if (args != NULL &&
+      (strcasecmp(args, "OFF") == 0 || strcasecmp(args, "STOP") == 0)) {
+    hall_magnet_bench_stop();
+    return CMD_SUCCESS;
+  }
+
+  uint8_t square = 28;
+  if (!uart_hall_square_arg(args, &square)) {
+    uart_send_line("Usage: HALL [e4]   or   HALL OFF");
+    return CMD_ERROR_INVALID_SYNTAX;
+  }
+  if (!hall_magnet_bench_start(square)) {
+    uart_send_line("Hall needs the Hall build");
+    return CMD_ERROR_INVALID_PARAMETER;
+  }
   return CMD_SUCCESS;
 }
 
 command_result_t uart_cmd_hall_stop(const char *args) {
   (void)args;
-  s_hall_stream = false;
-  uart_send_line("Hall stream off");
+  hall_magnet_bench_stop();
   return CMD_SUCCESS;
 }
 
@@ -2431,14 +2420,6 @@ void uart_task_legacy_loop(void) {
     if (loop_count % 6000 == 0) {
       ESP_LOGI(TAG, "UART Task Status: Commands=%lu, Errors=%lu", command_count,
                error_count);
-    }
-
-    if (s_hall_stream) {
-      int64_t now = esp_timer_get_time();
-      if (now >= s_hall_next_us) {
-        uart_hall_print_once();
-        s_hall_next_us = esp_timer_get_time() + 500000;
-      }
     }
 
     loop_count++;

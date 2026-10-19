@@ -53,7 +53,7 @@ const uart_command_t uart_commands[] = {
      {"RESTART", "R", "", "", ""}},
     {"HALL",
      uart_cmd_hall,
-     "Print raw STM Hall values until STOP",
+     "Light one square. A click prints its energy. HALL OFF ends it.",
      "",
      false,
      {"HALLS", "", "", "", ""}},

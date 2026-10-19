@@ -2,9 +2,10 @@
  * @file led_gesture_anim.c
  * @brief Wave, new-game sweep, shutdown power symbol, and pairing pulse.
  *
- * Square orientation follows chess_pos_to_led_index(): row 0 is rank 1
- * (e1 is row 0, col 4), col 0 is the a-file. The column mirror inside that
- * function is the wiring map; this file does not flip it.
+ * Pictures and glyphs are chess coordinates: row 0 is rank 1, col 0 is the
+ * a-file, and a square's slot is row * 8 + col. The strip index is only the
+ * value chess_pos_to_led_index() returns at the moment of the pixel write.
+ * That function does not mirror the file. See context/firmware/LED_MAP.md.
  *
  * The physical button sits on h1 (row 0, col 7). The wave origin is the
  * center of that square. The new-game sweep starts there and crawls
@@ -12,7 +13,7 @@
  *
  * LED 72 (reset / gesture button) follows the same phase: orange while held,
  * gold through the wave, amber along the new-game sweep, red power symbol
- * on shutdown, blue during pairing with a darker rune in the center. Edges ease instead of popping one
+ * on shutdown, light blue during pairing with the rune as the dark mark. Edges ease instead of popping one
  * square per frame.
  */
 
@@ -80,11 +81,24 @@ static void paint(uint8_t index, uint32_t rgb) {
                          (uint8_t)(rgb & 0xFFu));
 }
 
-static void restore_board(void) {
-  for (int i = 0; i < 64; i++) {
-    paint((uint8_t)i, s_old[i]);
+/** Chess slot. row 0 = rank 1, col 0 = file a. Not a strip index. */
+static uint8_t sq_of(uint8_t row, uint8_t col) {
+  return (uint8_t)((row << 3) | col);
+}
+
+static void paint_square(uint8_t row, uint8_t col, uint32_t rgb) {
+  paint(chess_pos_to_led_index(row, col), rgb);
+}
+
+static void paint_squares(const uint32_t squares[64]) {
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      paint_square(row, col, squares[sq_of(row, col)]);
+    }
   }
 }
+
+static void restore_board(void) { paint_squares(s_old); }
 
 /** Lamp white sits in the top byte. The wave paints RGB, so fold it back. */
 static uint32_t visible_rgb(uint32_t state) {
@@ -108,8 +122,11 @@ static void capture_board(void) {
   uint32_t all[73];
   memset(all, 0, sizeof(all));
   led_get_all_states(all, 73);
-  for (int i = 0; i < 64; i++) {
-    s_old[i] = visible_rgb(all[i]);
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      uint8_t led = chess_pos_to_led_index(row, col);
+      s_old[sq_of(row, col)] = visible_rgb(all[led]);
+    }
   }
   s_have_old = true;
 }
@@ -172,9 +189,7 @@ static void tick_wave(void) {
    * through h1 (radius -3) so the same crest runs backwards. */
   const int radius = s_wave_in ? (23 - (int)s_step) : (int)s_step;
   if (s_wave_in && radius <= -3) {
-    for (int i = 0; i < 64; i++) {
-      paint((uint8_t)i, s_new[i]);
-    }
+    paint_squares(s_new);
     ESP_LOGI(TAG, "[STAGING] wave uncovered the board");
     post_result(LED_GESTURE_WAVE_DONE);
     return;
@@ -185,11 +200,11 @@ static void tick_wave(void) {
   for (uint8_t row = 0; row < 8; row++) {
     for (uint8_t col = 0; col < 8; col++) {
       int d2 = dist2_half(row, col);
-      uint8_t led = chess_pos_to_led_index(row, col);
+      uint8_t sq = sq_of(row, col);
       /* Disk interior is the spreading color. Inward, that disk is the lamp
        * shrinking toward h1 and the outside is the picture being revealed. */
-      uint32_t outside = s_wave_in ? s_new[led] : s_old[led];
-      uint32_t inside = s_wave_in ? s_old[led] : s_new[led];
+      uint32_t outside = s_wave_in ? s_new[sq] : s_old[sq];
+      uint32_t inside = s_wave_in ? s_old[sq] : s_new[sq];
       uint32_t crest = s_cover;
       int outer = radius + 3;
       int outer2 = outer * outer;
@@ -219,13 +234,11 @@ static void tick_wave(void) {
       } else {
         color = inside;
       }
-      paint(led, color);
+      paint_square(row, col, color);
     }
   }
   if (!s_wave_in && covered && radius >= 20) {
-    for (int i = 0; i < 64; i++) {
-      paint((uint8_t)i, s_new[i]);
-    }
+    paint_squares(s_new);
     ESP_LOGI(TAG, "[STAGING] wave covered the board");
     post_result(LED_GESTURE_WAVE_DONE);
     return;
@@ -273,10 +286,9 @@ static void paint_new_game_sweep(uint16_t q8) {
     uint8_t row;
     uint8_t col;
     snake_square((uint8_t)i, &row, &col);
-    uint8_t led = chess_pos_to_led_index(row, col);
     int dist = (int)i * 256 + 128 - head;
-    uint32_t base = (dist > 0) ? s_old[led] : 0;
-    paint(led, lerp_rgb(base, SWEEP_CREST, sweep_glow(dist)));
+    uint32_t base = (dist > 0) ? s_old[sq_of(row, col)] : 0;
+    paint_square(row, col, lerp_rgb(base, SWEEP_CREST, sweep_glow(dist)));
   }
 }
 
@@ -310,8 +322,10 @@ static void tick_snake_forward(void) {
     return;
   }
   if (s_snake_q8 >= SNAKE_Q8_END) {
-    for (int i = 0; i < 64; i++) {
-      paint((uint8_t)i, 0);
+    for (uint8_t row = 0; row < 8; row++) {
+      for (uint8_t col = 0; col < 8; col++) {
+        paint_square(row, col, 0);
+      }
     }
     ESP_LOGI(TAG, "[STAGING] new-game sweep finished");
     post_result(LED_GESTURE_SNAKE_DONE);
@@ -360,16 +374,14 @@ static void tick_snake_reverse(void) {
 #define SHUT_DONE (SHUT_STEM_END + SHUT_DARK)
 #define SHUT_TAIL_Q8 512
 
-/* Clockwise from the right shoulder of the gap. Then the bar, tip first. */
-static const uint8_t s_shut_ring[SHUT_RING_N] = {
-    (6u << 3) | 5u, (5u << 3) | 6u, (4u << 3) | 7u, (3u << 3) | 7u,
-    (2u << 3) | 7u, (1u << 3) | 6u, (0u << 3) | 5u, (0u << 3) | 4u,
-    (0u << 3) | 3u, (0u << 3) | 2u, (1u << 3) | 1u, (2u << 3) | 0u,
-    (3u << 3) | 0u, (4u << 3) | 0u, (5u << 3) | 1u, (6u << 3) | 2u,
+/* Chess {row, col}. Row 0 is rank 1, col 0 is the a-file. Clockwise from
+ * the right shoulder of the gap (f7), then the bar, tip first (d8, e8). */
+static const uint8_t s_shut_ring[SHUT_RING_N][2] = {
+    {6, 5}, {5, 6}, {4, 7}, {3, 7}, {2, 7}, {1, 6}, {0, 5}, {0, 4},
+    {0, 3}, {0, 2}, {1, 1}, {2, 0}, {3, 0}, {4, 0}, {5, 1}, {6, 2},
 };
-static const uint8_t s_shut_stem[SHUT_STEM_N] = {
-    (7u << 3) | 3u, (7u << 3) | 4u, (5u << 3) | 3u, (5u << 3) | 4u,
-    (4u << 3) | 3u, (4u << 3) | 4u, (3u << 3) | 3u, (3u << 3) | 4u,
+static const uint8_t s_shut_stem[SHUT_STEM_N][2] = {
+    {7, 3}, {7, 4}, {5, 3}, {5, 4}, {4, 3}, {4, 4}, {3, 3}, {3, 4},
 };
 
 /** Brightness left as an extinguish head passes this point. 255 = still full. */
@@ -386,16 +398,16 @@ static uint8_t shut_trail(int head_q8, int index) {
 }
 
 /** 0 = this square is not part of the lit symbol right now. 255 = full red. */
-static uint8_t shut_glyph_level(uint8_t rc, uint8_t frame) {
+static uint8_t shut_glyph_level(uint8_t row, uint8_t col, uint8_t frame) {
   int ring_i = -1;
   int stem_i = -1;
   for (int i = 0; i < SHUT_RING_N; i++) {
-    if (s_shut_ring[i] == rc) {
+    if (s_shut_ring[i][0] == row && s_shut_ring[i][1] == col) {
       ring_i = i;
     }
   }
   for (int i = 0; i < SHUT_STEM_N; i++) {
-    if (s_shut_stem[i] == rc) {
+    if (s_shut_stem[i][0] == row && s_shut_stem[i][1] == col) {
       stem_i = i;
     }
   }
@@ -432,15 +444,14 @@ static void paint_shutdown(uint8_t frame) {
   uint8_t intro = shut_intro(frame);
   for (uint8_t row = 0; row < 8; row++) {
     for (uint8_t col = 0; col < 8; col++) {
-      uint8_t led = chess_pos_to_led_index(row, col);
-      uint8_t rc = (uint8_t)((row << 3) | col);
-      uint32_t bg = (frame >= SHUT_FADE) ? 0 : lerp_rgb(s_old[led], 0, intro);
-      uint8_t level = shut_glyph_level(rc, frame);
+      uint8_t sq = sq_of(row, col);
+      uint32_t bg = (frame >= SHUT_FADE) ? 0 : lerp_rgb(s_old[sq], 0, intro);
+      uint8_t level = shut_glyph_level(row, col, frame);
       if (level == 0) {
-        paint(led, bg);
+        paint_square(row, col, bg);
       } else {
         uint8_t t = (uint8_t)(((unsigned)level * intro) / 255u);
-        paint(led, lerp_rgb(bg, SHUT_RED, t));
+        paint_square(row, col, lerp_rgb(bg, SHUT_RED, t));
       }
     }
   }
@@ -484,8 +495,10 @@ static void tick_shutdown(void) {
     return;
   }
   if (s_step >= SHUT_DONE) {
-    for (int i = 0; i < 64; i++) {
-      paint((uint8_t)i, 0);
+    for (uint8_t row = 0; row < 8; row++) {
+      for (uint8_t col = 0; col < 8; col++) {
+        paint_square(row, col, 0);
+      }
     }
     s_btn_leave_dark = true;
     ESP_LOGI(TAG, "[STAGING] shutdown power symbol finished");
@@ -496,30 +509,27 @@ static void tick_shutdown(void) {
   s_step++;
 }
 
-/** Pairing blue only. amount is 0..140. The picture underneath stays saved. */
+/** Light-blue field. amount is 0..140. The picture underneath stays saved. */
 static uint32_t pair_rgb(uint8_t amount) {
-  unsigned level = 80u + ((175u * (unsigned)amount) / 140u);
-  if (level > 255u) {
-    level = 255u;
-  }
-  return ((uint32_t)((40u * level) / 255u) << 8) |
-         ((160u * level) / 255u);
+  unsigned r = 48u + ((36u * (unsigned)amount) / 140u);
+  unsigned g = 150u + ((55u * (unsigned)amount) / 140u);
+  unsigned b = 210u + ((45u * (unsigned)amount) / 140u);
+  return (r << 16) | (g << 8) | b;
 }
 
-/** Darker blue, same breathe as the field so the mark pulses with the board. */
+/** Dark rune, the inverse of the field, so the mark reads as ink. */
 static uint32_t pair_logo_rgb(uint8_t amount) {
-  unsigned level = 18u + ((70u * (unsigned)amount) / 140u);
-  return (uint32_t)level;
+  unsigned b = 6u + ((24u * (unsigned)amount) / 140u);
+  return b;
 }
 
-/* Bluetooth rune, white's view (row 7 is rank 8), sitting on the center files. */
-static const uint8_t s_ble_logo[] = {
-    (7u << 3) | 3u, (7u << 3) | 4u, (6u << 3) | 3u, (6u << 3) | 4u,
-    (6u << 3) | 5u, (5u << 3) | 2u, (5u << 3) | 3u, (5u << 3) | 5u,
-    (4u << 3) | 1u, (4u << 3) | 3u, (4u << 3) | 4u, (4u << 3) | 6u,
-    (3u << 3) | 2u, (3u << 3) | 3u, (3u << 3) | 5u, (2u << 3) | 3u,
-    (2u << 3) | 4u, (2u << 3) | 5u, (1u << 3) | 2u, (1u << 3) | 3u,
-    (1u << 3) | 5u, (0u << 3) | 3u, (0u << 3) | 4u,
+/* Bluetooth rune in chess coordinates. {row, col}, row 0 = rank 1,
+ * col 0 = file a. Rank 8 is the far side, so the mark stands upright
+ * for white. Stem on the d-file, right tips on the g-file. */
+static const uint8_t s_ble_logo[][2] = {
+    {7, 3}, {6, 3}, {6, 4}, {5, 1}, {5, 3}, {5, 5}, {4, 2}, {4, 3}, {4, 6},
+    {3, 3}, {3, 4}, {3, 5}, {2, 2}, {2, 3}, {2, 6}, {1, 1}, {1, 3}, {1, 5},
+    {0, 3}, {0, 4},
 };
 
 /** ~3 s breathe. The board is pairing blue until the pulse stops. */
@@ -537,12 +547,13 @@ static void tick_pair_hold(void) {
   s_pair_amount = amount;
   uint32_t color = pair_rgb(amount);
   uint32_t logo = pair_logo_rgb(amount);
-  for (int i = 0; i < 64; i++) {
-    paint((uint8_t)i, color);
+  for (uint8_t row = 0; row < 8; row++) {
+    for (uint8_t col = 0; col < 8; col++) {
+      paint_square(row, col, color);
+    }
   }
-  for (unsigned i = 0; i < sizeof(s_ble_logo); i++) {
-    uint8_t rc = s_ble_logo[i];
-    paint(chess_pos_to_led_index((uint8_t)(rc >> 3), (uint8_t)(rc & 7u)), logo);
+  for (unsigned i = 0; i < sizeof(s_ble_logo) / sizeof(s_ble_logo[0]); i++) {
+    paint_square(s_ble_logo[i][0], s_ble_logo[i][1], logo);
   }
   s_pair_step++;
   if (s_pair_step >= 96) {

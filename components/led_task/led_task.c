@@ -729,6 +729,12 @@ static void led_split_lamp_white(uint8_t *red, uint8_t *green, uint8_t *blue,
 }
 
 void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
+  /* A gesture animation (shutdown, sweep, wave) owns the squares until it
+   * finishes. Applying the lamp here would wipe that picture. */
+  if (led_gesture_anim_busy()) {
+    ESP_LOGI(TAG, "HA color deferred, gesture animation owns the board");
+    return;
+  }
   /* Lamp brightness is the caller's 0-255 level. No extra cap. */
 
   // Apply brightness to RGB values

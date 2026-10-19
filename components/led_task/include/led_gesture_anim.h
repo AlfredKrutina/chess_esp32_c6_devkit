@@ -54,7 +54,8 @@ led_gesture_result_t led_gesture_take_result(void);
  * into h1 and new_colors show from the far corner. The mode flag itself is
  * not changed here. Fails if new_colors is NULL or another gesture is already
  * running.
- * @param new_colors 64 LED-index colors for the picture left when the wave ends.
+ * @param new_colors 64 chess-order colors (index = row * 8 + col, row 0 = rank 1,
+ *                   col 0 = file a) for the picture left when the wave ends.
  * @param inward true to run the wave from the far corner back to h1.
  * @param cover_rgb Color of the light disk. Outward this is what spreads.
  *                  Inward this is what shrinks back into h1.

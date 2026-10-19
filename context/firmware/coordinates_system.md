@@ -131,6 +131,8 @@ col: 0   1   2   3   4   5   6   7
 - **e2 → [1, 4]** ✓
 - **e4 → [3, 4]** ✓
 
+Square LEDs are not `row * 8 + col`. The strip is four rotated 4×4 boards, chain starting at e1, and a1–d4 is not fitted on the bench. Map, index table, and where a glyph can actually light: [LED_MAP.md](LED_MAP.md).
+
 ---
 
-**Last unified:** 2026-04-30
+**Last unified:** 2026-04-30. LED pointer: 2026-10-18.

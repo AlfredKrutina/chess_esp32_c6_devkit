@@ -332,7 +332,7 @@ static void fill_checker(uint32_t out[64]) {
   for (uint8_t row = 0; row < 8; row++) {
     for (uint8_t col = 0; col < 8; col++) {
       uint32_t color = ((row + col) & 1u) ? 0xFFFFFFu : 0u;
-      out[chess_pos_to_led_index(row, col)] = color;
+      out[(row << 3) | col] = color;
     }
   }
 }

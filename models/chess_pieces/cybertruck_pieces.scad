@@ -31,9 +31,14 @@
 //   dáma    Ø 10×8 mm
 //   král    Ø 12×6 mm
 //
-// Dutina = kotouč + vůle 0,4 mm v průměru a 0,2 mm na výšku, ať kotouč
-// spadne dovnitř na pauze a tryska o něj nezavadí. Výška vůle je násobek
-// vrstvy 0,2 mm, takže M600 sedí na hraně vrstvy.
+// Dutina = jmenovitý kotouč, bez vůle. Lisovaný spoj: kotouč se zarazí
+// a drží třením, takže ho ocelová tryska na pauze nevytáhne. M600 sedí
+// přesně na horní hraně kotouče (výšky jsou násobky vrstvy 0,2 mm).
+//
+// Závaží do patky, objednáno 2026-10-18 (unimagnet): ocelový protiplech
+// OP-11-01-Zn, 80 ks, vkládá se s kotoučem. Kód je Ø 11×1 mm, jeden kus
+// ~0,7 g. Do dutiny Ø 10 mm se nevejde a výška dutiny je přesně výška
+// kotouče, takže kapsa na protiplech ve STL zatím není.
 //
 // Část: set | lineup | pawn | rook | knight | knight_low | knight_sketch | bishop | queen | king | section | pattern
 // Tisknutelný jezdec je knight_low: klín z Blenderu, bez uší a očí.
@@ -43,8 +48,8 @@
 part = "set"; // [set, pawn, rook, knight, knight_low, knight_sketch, bishop, queen, king, section, pattern]
 
 /* [Magnet — kalibrace vůči Hall senzorům] */
-magnet_clear_d = 0.4;   // vůle v průměru, ať kotouč spadne dovnitř
-magnet_clear_h = 0.2;   // vůle nad kotoučem, jedna vrstva 0.2 mm
+magnet_clear_d = 0;     // bez vůle v průměru: lisovaný spoj, kotouč se zarazí
+magnet_clear_h = 0;     // bez vůle nad kotoučem: strop hned na magnetu
 magnet_z_offset = 1.2;  // plast pod magnetem; níž už dno neudrží tah silného magnetu
 
 sensor_pitch = 6.267; // mm, střed–střed páru na jednom poli (jen náhled)
