@@ -1,5 +1,5 @@
-# home_widget and current CocoaPods guidance require an explicit minimum iOS version (≥ 14).
-platform :ios, '14.0'
+# home_widget and Xcode 27 require an explicit minimum iOS version (≥ 15).
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -49,12 +49,12 @@ post_install do |installer|
         'PERMISSION_NOTIFICATIONS=1',
       ]
 
-      # Align pods with Runner / home_widget (avoids legacy 9.0 targets on resource bundles).
+      # Align pods with Runner. Xcode 27 rejects targets below 15.0.
       cur = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
       next if cur.nil?
-      next if cur.to_f >= 14.0
+      next if cur.to_f >= 15.0
 
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
     end
   end
 end
