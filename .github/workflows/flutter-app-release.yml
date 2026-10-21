@@ -148,13 +148,9 @@ jobs:
       - name: Install Inno Setup 6
         run: choco install innosetup -y --no-progress
 
-      # Stable fails this job since 2026-07-10 (first release after Flutter 3.44).
-      # 3.41.9 is the SDK this repo is built with; it produces czechmate.exe locally.
-      # Do not pin macOS/Android here: macOS already passes on stable, and the
-      # Android Gradle fix must be proven on that same stable.
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.41.9'
+          channel: stable
           cache: true
 
       # CMake / link potřebují MSVC z Visual Studio (na hosted runneru často bez „Dev Prompt“ selže linker).
@@ -167,15 +163,7 @@ jobs:
         run: |
           flutter config --enable-windows-desktop
           flutter pub get
-          $log = Join-Path $env:RUNNER_TEMP 'flutter-windows-build.log'
-          cmd /c "flutter build windows --release > `"$log`" 2>&1"
-          $code = $LASTEXITCODE
-          Get-Content $log | Write-Host
-          if ($code -ne 0) {
-            $tail = ((Get-Content $log -Tail 30) -join "`n").Replace('%','%25').Replace("`r",'').Replace("`n",'%0A')
-            Write-Host "::error title=flutter build windows::$tail"
-            exit $code
-          }
+          flutter build windows --release
 
       - name: Compile installer (Inno Setup)
         working-directory: ${{ github.workspace }}
