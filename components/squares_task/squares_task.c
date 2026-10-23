@@ -710,7 +710,8 @@ void squares_detect_moves(void) {
 
   // Two UP in a row: normally ambiguous (matrix guard), but guided capture
   // (victim first, then attacker) and 3-step defense (own → opponent) require it.
-  bool multi_change = (lift_count > 1) || (drop_count > 1);
+  bool multi_change = (lift_count > 2) || (drop_count > 1) ||
+                      (lift_count == 2 && drop_count > 0);
   bool pending_lift_and_new_up =
       (last_piece_lifted != 255 && lift_count > 0);
   bool ambiguous_state = multi_change;
@@ -749,6 +750,17 @@ void squares_detect_moves(void) {
     if (lift_count == 0 && drop_count == 0 && back_to_expected) {
       squares_guard_mode_active = false;
       squares_send_guard_command(0, 0, 0, 0, 0);
+    }
+    return;
+  }
+
+  if (lift_count == 2 && drop_count == 0) {
+    for (int i = 0; i < 64; i++) {
+      if (squares_previous[i] == 1 && squares_state[i] == 0) {
+        last_piece_lifted = (uint8_t)i;
+        move_detection_timeout = esp_timer_get_time() / 1000 + 5000;
+        squares_send_pickup_command((uint8_t)i);
+      }
     }
     return;
   }

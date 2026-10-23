@@ -240,10 +240,19 @@ static bool game_snapshot_side_mode_active(void) {
 static void game_snapshot_publish_hall_empty(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   uint8_t empty[64];
+  uint8_t types[64];
   for (int i = 0; i < 64; i++) {
-    empty[i] = (board[i / 8][i % 8] == PIECE_EMPTY) ? 1u : 0u;
+    piece_t p = board[i / 8][i % 8];
+    uint8_t t = 0;
+    if (p >= PIECE_WHITE_PAWN && p <= PIECE_WHITE_KING) {
+      t = (uint8_t)p;
+    } else if (p >= PIECE_BLACK_PAWN && p <= PIECE_BLACK_KING) {
+      t = (uint8_t)(p - PIECE_WHITE_KING);
+    }
+    types[i] = t;
+    empty[i] = (t == 0) ? 1u : 0u;
   }
-  hall_i2c_squares_set_logical_empty(empty);
+  hall_i2c_squares_set_logical_empty(empty, types);
 #else
   (void)0;
 #endif

@@ -163,6 +163,19 @@ static bool sensors_unchanged(const uint8_t digest[64]) {
 
 static bool s_digest_valid;
 static uint32_t s_opening_deadline_ms;
+static uint8_t s_pending_digest[64];
+static uint32_t s_pending_since_ms;
+static bool s_pending_valid;
+#define GUIDE_STABLE_MS 150U
+
+static bool occupancy_same(const uint8_t a[64], const uint8_t b[64]) {
+  for (int i = 0; i < 64; i++) {
+    if ((a[i] ^ b[i]) & 1U) {
+      return false;
+    }
+  }
+  return true;
+}
 
 static void remember_digest(const uint8_t digest[64]) {
   memcpy(s_last_sensor_digest, digest, 64);
@@ -173,15 +186,15 @@ static bool mode_blocks_guide(void) {
   if (game_task_squares_guard_mode_conflict_active()) {
     return true;
   }
-  if (piece_lifted && lifted_piece != PIECE_EMPTY) {
-    return true;
-  }
+  /* A piece in the hand must not abort the guide. The last piece lifted
+   * is exactly that case, and the empty-board lights never got drawn. */
   if (game_physical_undo_is_active() || game_ep_capture_waiting() ||
       castling_state.in_progress || castle_animation_active ||
       promotion_state.pending) {
     return true;
   }
-  if (current_game_state != GAME_STATE_ACTIVE &&
+  if (current_game_state != GAME_STATE_IDLE &&
+      current_game_state != GAME_STATE_ACTIVE &&
       current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
       current_game_state != GAME_STATE_FINISHED &&
       current_game_state != GAME_STATE_WAITING_FOR_RETURN) {
@@ -195,6 +208,25 @@ static bool square_phys_identity(uint8_t sq, hall_piece_type_t *ht,
   *ht = squares_get_hall_piece_type(sq);
   *hc = squares_get_hall_piece_color(sq);
   return *ht != HALL_PIECE_TYPE_NONE && *hc != HALL_PIECE_COLOR_NONE;
+}
+
+/* Home light goes out only when this square is definitely that piece.
+ * An unnamed reading is not enough. King and queen share one band, so a
+ * same-color royal counts on a royal home and nowhere else. */
+static bool sensor_is_this_piece(uint8_t sq, hall_piece_type_t want_t,
+                                 hall_piece_color_t want_c) {
+  hall_piece_type_t t;
+  hall_piece_color_t c;
+  if (!square_phys_identity(sq, &t, &c) || c != want_c) {
+    return false;
+  }
+  if (t == want_t) {
+    return true;
+  }
+  bool want_royal = want_t == HALL_PIECE_TYPE_KING ||
+                    want_t == HALL_PIECE_TYPE_QUEEN;
+  bool seen_royal = t == HALL_PIECE_TYPE_KING || t == HALL_PIECE_TYPE_QUEEN;
+  return want_royal && seen_royal;
 }
 
 static bool collect_board(hall_piece_slot_t *expect, int *expect_n,
@@ -333,6 +365,9 @@ static void match_all(const hall_piece_slot_t *expect, int expect_n,
   *extra_n = 0;
 
   for (int t = HALL_PIECE_TYPE_PAWN; t <= HALL_PIECE_TYPE_KING; t++) {
+    if (t == HALL_PIECE_TYPE_QUEEN || t == HALL_PIECE_TYPE_KING) {
+      continue;
+    }
     for (int c = HALL_PIECE_COLOR_WHITE; c <= HALL_PIECE_COLOR_BLACK; c++) {
       int e_idx[MAX_PIECES];
       int p_idx[MAX_PIECES];
@@ -361,6 +396,32 @@ static void match_all(const hall_piece_slot_t *expect, int expect_n,
       match_group(e_slice, ec, p_slice, pc, jobs, job_n, missing, missing_n,
                   extra, extra_n);
     }
+  }
+
+  /* Queen and king energies overlap. A royal piece already on a royal home
+   * of the same color belongs to that home, whichever of the two the sensor
+   * names. */
+  for (int c = HALL_PIECE_COLOR_WHITE; c <= HALL_PIECE_COLOR_BLACK; c++) {
+    hall_piece_slot_t e_slice[MAX_PIECES];
+    hall_piece_slot_t p_slice[MAX_PIECES];
+    int ec = 0;
+    int pc = 0;
+    for (int i = 0; i < expect_n; i++) {
+      if (expect[i].color == (hall_piece_color_t)c &&
+          (expect[i].type == HALL_PIECE_TYPE_QUEEN ||
+           expect[i].type == HALL_PIECE_TYPE_KING)) {
+        e_slice[ec++] = expect[i];
+      }
+    }
+    for (int i = 0; i < phys_n; i++) {
+      if (phys[i].color == (hall_piece_color_t)c &&
+          (phys[i].type == HALL_PIECE_TYPE_QUEEN ||
+           phys[i].type == HALL_PIECE_TYPE_KING)) {
+        p_slice[pc++] = phys[i];
+      }
+    }
+    match_group(e_slice, ec, p_slice, pc, jobs, job_n, missing, missing_n,
+                extra, extra_n);
   }
 }
 
@@ -551,6 +612,7 @@ static void push_setup_mark(led_restore_guide_plan_t *plan, uint8_t sq,
 static void fill_setup_marks(const restore_job_t *jobs, int job_n,
                              const uint8_t *missing, uint8_t missing_n,
                              const uint8_t *extra, uint8_t extra_n,
+                             const uint8_t occ[64],
                              led_restore_guide_plan_t *plan) {
   plan->mark_count = 0;
   for (int i = 0; i < job_n; i++) {
@@ -562,30 +624,46 @@ static void fill_setup_marks(const restore_job_t *jobs, int job_n,
       t = et;
       c = ec;
     }
+    if (sensor_is_this_piece(jobs[i].home_sq, t, c)) {
+      continue;
+    }
     push_setup_mark(plan, jobs[i].home_sq, (uint8_t)t, (uint8_t)c,
                     LED_RESTORE_MARK_HOME);
   }
   for (uint8_t i = 0; i < missing_n; i++) {
     hall_piece_type_t t = HALL_PIECE_TYPE_PAWN;
     hall_piece_color_t c = HALL_PIECE_COLOR_WHITE;
-    engine_mark(missing[i], &t, &c);
+    if (!engine_mark(missing[i], &t, &c) ||
+        sensor_is_this_piece(missing[i], t, c)) {
+      continue;
+    }
     push_setup_mark(plan, missing[i], (uint8_t)t, (uint8_t)c,
                     LED_RESTORE_MARK_HOME);
   }
-  for (int i = 0; i < job_n; i++) {
-    hall_piece_type_t t = jobs[i].type;
-    hall_piece_color_t c = HALL_PIECE_COLOR_WHITE;
-    hall_piece_type_t et;
-    hall_piece_color_t ec;
-    if (engine_mark(jobs[i].home_sq, &et, &ec)) {
-      t = et;
-      c = ec;
-    }
-    push_setup_mark(plan, jobs[i].from_sq, (uint8_t)t, (uint8_t)c,
-                    LED_RESTORE_MARK_SITTING);
-  }
   for (uint8_t i = 0; i < extra_n; i++) {
+    if (occ[extra[i]] != 0) {
+      continue;
+    }
     push_setup_mark(plan, extra[i], 0, 0, LED_RESTORE_MARK_EXTRA);
+  }
+  /* Ranks 3–6 are empty in the start position. A piece on an engine-empty
+   * square there is lit in its own color, including king and queen.
+   * This does not wait for the setup state: a new game often goes
+   * straight to active and that gate never ran. */
+  for (uint8_t sq = 0; sq < 64; sq++) {
+    uint8_t rank = (uint8_t)(sq / 8U);
+    if (rank < 2U || rank > 5U || occ[sq] == 0) {
+      continue;
+    }
+    if (board[sq / 8U][sq % 8U] != PIECE_EMPTY) {
+      continue;
+    }
+    hall_piece_type_t t = squares_get_hall_piece_type(sq);
+    hall_piece_color_t c = squares_get_hall_piece_color(sq);
+    if (c == HALL_PIECE_COLOR_NONE || t == HALL_PIECE_TYPE_NONE) {
+      continue;
+    }
+    push_setup_mark(plan, sq, (uint8_t)t, (uint8_t)c, LED_RESTORE_MARK_HOME);
   }
 }
 
@@ -596,17 +674,9 @@ void game_hall_restore_guide_force_resync(void) {
   s_sync_requested = true;
 }
 
-bool game_hall_restore_guide_show_opening(void) {
-  uint8_t occ[64];
+static bool apply_opening_homes(void) {
   led_restore_guide_plan_t plan;
 
-  if (!hall_i2c_squares_readings_usable()) {
-    return false;
-  }
-  squares_get_state(occ);
-  if (!occupancy_empty(occ)) {
-    return false;
-  }
   memset(&plan, 0, sizeof(plan));
   plan.active = true;
   for (uint8_t sq = 0; sq < 64; sq++) {
@@ -623,11 +693,24 @@ bool game_hall_restore_guide_show_opening(void) {
   }
   led_board_restore_guide_apply(&plan);
   s_guide_led_active = true;
-  s_opening_deadline_ms = (uint32_t)(esp_timer_get_time() / 1000) + 5000U;
-  s_digest_valid = false;
-  ESP_LOGI(TAG, "[STAGING] opening setup guide, %u homes, 5s",
+  s_opening_deadline_ms = (uint32_t)(esp_timer_get_time() / 1000) + 10000U;
+  ESP_LOGI(TAG, "[STAGING] opening setup guide, %u homes, 10s",
            (unsigned)plan.mark_count);
   return true;
+}
+
+bool game_hall_restore_guide_show_opening(void) {
+  uint8_t occ[64];
+
+  if (!hall_i2c_squares_readings_usable()) {
+    return false;
+  }
+  squares_get_state(occ);
+  if (!occupancy_empty(occ)) {
+    return false;
+  }
+  s_digest_valid = false;
+  return apply_opening_homes();
 }
 
 bool game_hall_restore_guide_take_sync_request(void) {
@@ -706,6 +789,19 @@ void game_hall_restore_guide_sync(void) {
 
   squares_get_state(occ);
   digest_sensors(occ, digest);
+  {
+    uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+    if (!s_pending_valid || !occupancy_same(digest, s_pending_digest)) {
+      memcpy(s_pending_digest, digest, 64);
+      s_pending_valid = true;
+      s_pending_since_ms = now_ms;
+      goto out;
+    }
+    memcpy(s_pending_digest, digest, 64);
+    if ((uint32_t)(now_ms - s_pending_since_ms) < GUIDE_STABLE_MS) {
+      goto out;
+    }
+  }
   if (s_opening_deadline_ms != 0) {
     uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
     if (!occupancy_empty(occ)) {
@@ -726,13 +822,17 @@ void game_hall_restore_guide_sync(void) {
     goto out;
   }
 
-  /* Empty board ends dark. Lights that were on fade out instead of snapping off. */
+  /* Last piece off the board: light every engine home and hold 10 s.
+   * This used to fade immediately, and only the new-game gesture on an
+   * already empty board ever started the timer. */
   if (occupancy_empty(occ)) {
+    if (apply_opening_homes()) {
+      remember_digest(digest);
+      goto out;
+    }
     if (led_board_restore_guide_is_active()) {
       led_board_restore_guide_fade_out();
       s_guide_led_active = false;
-    } else {
-      led_clear_board_only();
     }
     remember_digest(digest);
     goto out;
@@ -751,7 +851,8 @@ void game_hall_restore_guide_sync(void) {
     goto out;
   }
 
-  if (is_single_lift(job_n, missing_n, extra_n)) {
+  if (current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
+      is_single_lift(job_n, missing_n, extra_n)) {
     game_hall_restore_guide_stop_leds();
     remember_digest(digest);
     goto out;
@@ -765,7 +866,7 @@ void game_hall_restore_guide_sync(void) {
   memcpy(plan.missing_homes, missing, missing_n);
   plan.extra_count = extra_n;
   memcpy(plan.extra_squares, extra, extra_n);
-  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, &plan);
+  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, occ, &plan);
 
   has_led_work = plan.mark_count > 0;
   if (!has_led_work) {

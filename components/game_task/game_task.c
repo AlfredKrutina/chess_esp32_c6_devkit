@@ -1550,18 +1550,9 @@ bool game_squares_allow_second_sequential_lift(void) {
   if (pending_piece == PIECE_EMPTY) {
     return false;
   }
-
-  bool is_white_piece =
-      (pending_piece >= PIECE_WHITE_PAWN && pending_piece <= PIECE_WHITE_KING);
-  bool is_black_piece =
-      (pending_piece >= PIECE_BLACK_PAWN && pending_piece <= PIECE_BLACK_KING);
-  if (current_player == PLAYER_WHITE && is_white_piece) {
-    return true;
-  }
-  if (current_player == PLAYER_BLACK && is_black_piece) {
-    return true;
-  }
-  return false;
+  /* Phase 2b: a second lift is the other piece of a capture or a swap.
+   * The hand keeps both. Guard still owns a scan that lifts more than two. */
+  return true;
 }
 
 uint8_t game_get_led_guidance_level(void) { return led_guidance_level; }
@@ -2287,12 +2278,18 @@ void game_task_start(void *pvParameters) {
       game_promotion_sync_hall_if_pending();
     }
     game_ep_capture_service();
-    if (current_game_state == GAME_STATE_ACTIVE ||
+    if (current_game_state == GAME_STATE_IDLE ||
+        current_game_state == GAME_STATE_ACTIVE ||
         current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP ||
         current_game_state == GAME_STATE_FINISHED ||
         current_game_state == GAME_STATE_WAITING_FOR_RETURN) {
       static uint32_t s_last_hall_restore_sync_ms = 0;
+      static bool s_boot_guide_done = false;
       uint32_t hall_now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+      if (!s_boot_guide_done) {
+        s_boot_guide_done = true;
+        game_hall_restore_guide_force_resync();
+      }
       if (game_hall_restore_guide_take_sync_request()) {
         game_hall_restore_guide_sync();
       } else if (hall_now_ms - s_last_hall_restore_sync_ms >= 400U) {
@@ -2318,6 +2315,7 @@ void game_task_start(void *pvParameters) {
         game_active = true;
         game_start_time = esp_timer_get_time() / 1000;
         last_move_time = game_start_time;
+        ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
         
         // Stop any running animations
         unified_animation_stop_all();

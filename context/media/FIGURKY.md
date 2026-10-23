@@ -31,6 +31,8 @@ Jezdec ve scéně není tisknutelný `knight`. Ten má uši, oči a hubu. Film b
 
 ## Magnety (rozpoznání figurky)
 
+Rozpoznání ve firmwaru desky V2 je jinde: jeden disk na figurku, barva je polarita, dáma a král se dělí součinem obou Hall senzorů. Stav z 23. října 2026 je v [context/firmware/rozpoznani-figur-2026-10-23.md](../firmware/rozpoznani-figur-2026-10-23.md). Tabulka níže je rozvržení dutin pro tisk a pro film, ne klasifikátor na desce.
+
 Rozpoznání nedělá tvar, ale magnety v patce. Hall V2: dva analogové senzory na pole, rozteč `sensor_pitch` 6,267 mm, citlivá osa kolmo k desce. Senzor je asi 7 mm pod horní hranou hrací plochy. Figurka stojí na té hraně, takže každý milimetr plastu pod magnetem zvětšuje vzduchovou mezeru. Dno dutiny je proto jen 0,8 mm (čtyři vrstvy 0,2 mm).
 
 Dutina: disk 6 mm + vůle, 6,2 × 2,2 mm. Slicer pauza `M600` ve výšce `magnet_z_offset + magnet_thickness` = 3,0 mm. Všechny dutiny jedné figurky jsou v téže výšce — na pauze se vloží všechny její magnety najednou, pak tisk strop zavře.

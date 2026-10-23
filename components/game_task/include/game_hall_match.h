@@ -45,17 +45,16 @@ bool game_hall_stable_reading_matches(piece_t engine_piece,
  * @param row 0…7.
  * @param col 0…7.
  * @param engine_piece Piece the engine believes was lifted.
- * @return true if that piece is acceptable for this lift.
+ * @return true when the engine piece is real. A Hall mismatch is only logged.
  */
 bool game_hall_validate_pickup_square(uint8_t row, uint8_t col,
                                      piece_t engine_piece);
 
 /**
- * @brief Drop check. Destination must stably show the piece being moved.
- * @param row 0…7.
- * @param col 0…7.
- * @param moving_piece Piece the engine is placing.
- * @return true if the stable Hall reading matches moving_piece.
+ * @brief Drop check. Destination must be occupied by the moving piece's color.
+ *
+ * The Hall type may disagree. The game already knows which piece was lifted.
+ * @return true when the square is occupied and the color matches.
  */
 bool game_hall_validate_drop_square(uint8_t row, uint8_t col,
                                     piece_t moving_piece);
@@ -101,12 +100,14 @@ bool game_hall_square_agrees_with_logic(uint8_t square, piece_t engine_piece,
 /**
  * @brief Map a debounced Hall reading to an engine piece for the promoting side.
  *
- * Allows pawn and Q/R/B/N of that color only.
+ * Allows pawn and Q/R/B/N of that color. A king-band reading is the queen
+ * default: those two magnets sit too close to reject a promotion for it.
  * @param ht Hall type.
  * @param hc Hall color.
  * @param promoting_player Side that is promoting.
  * @param[out] out_piece Engine piece. Required.
- * @return false for king, the other color, unknown type, or a NULL out_piece.
+ * @return false for the other color, unknown type, or a NULL out_piece.
+ *         A king-band reading of the promoting color maps to the queen.
  */
 bool game_hall_piece_for_promoting_player(hall_piece_type_t ht,
                                           hall_piece_color_t hc,

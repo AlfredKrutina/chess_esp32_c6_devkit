@@ -304,7 +304,15 @@ static esp_err_t bl_get_id(uint16_t *pid_out) {
   uint8_t pair[2] = {0x02u, (uint8_t)~0x02u};
   ESP_LOGI(TAG, "[get_id] DEBUG: cmd write | ACK(1) | data(3) | ACK(1)");
   bl_log_bus("get_id start");
+  /* Address NACK is logged by the driver as an error and returned as
+   * INVALID_STATE. The bootloader protocol never started; treat it as NACK. */
+  esp_log_level_t saved_i2c_log = esp_log_level_get("i2c.master");
+  esp_log_level_set("i2c.master", ESP_LOG_NONE);
   esp_err_t err = bl_i2c_write(pair, sizeof(pair));
+  esp_log_level_set("i2c.master", saved_i2c_log);
+  if (err == ESP_ERR_INVALID_STATE) {
+    return ESP_FAIL;
+  }
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "[get_id] cmd write: %s", esp_err_to_name(err));
     return err;
@@ -820,7 +828,7 @@ static esp_err_t stm32_i2c_bl_flash_binary_impl(
     }
     if (err == ESP_FAIL) {
       ESP_LOGW(TAG,
-               "[flash_bin] seg%u: no ROM bootloader (ESP_FAIL) — board not fitted, skip",
+               "[flash_bin] seg%u: ROM bootloader neodpověděl — aplikace zůstává",
                segment_0_to_3);
       err = ESP_ERR_NOT_FOUND;
       goto restore;
@@ -936,7 +944,7 @@ restore:
 #endif
     ESP_LOGI(TAG, "[flash_bin] KONEC seg=%u OK", segment_0_to_3);
   } else if (err == ESP_ERR_NOT_FOUND) {
-    ESP_LOGW(TAG, "[flash_bin] END seg=%u not fitted", segment_0_to_3);
+    ESP_LOGW(TAG, "[flash_bin] END seg=%u bez bootloaderu", segment_0_to_3);
   } else {
     ESP_LOGE(TAG, "[flash_bin] END seg=%u error: %s", segment_0_to_3,
              esp_err_to_name(err));
@@ -1422,7 +1430,7 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     esp_err_t fe = stm32_i2c_bl_flash_binary_impl(
         (uint8_t)seg, use_boot, base, eff, stm32_bl_fill_patched, &fill_ctx);
     if (fe == ESP_ERR_NOT_FOUND) {
-      ESP_LOGW(TAG_A, "segment %u: not fitted", seg);
+      ESP_LOGW(TAG_A, "segment %u: ROM bootloader neodpověděl", seg);
     } else if (fe != ESP_OK) {
       ESP_LOGE(TAG_A, "segment %u: %s", seg, esp_err_to_name(fe));
       all_ok = false;
@@ -1464,6 +1472,15 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     ESP_LOGE(TAG_A,
              "auto-flash failed on at least one segment — Hall reading "
              "nebude fungovat");
+  } else if (any_nrst && written_mask == 0) {
+    ESP_LOGW(TAG_A,
+             "ROM bootloader neodpověděl, STM32 jedou dál ze své aplikace");
+#if CONFIG_CHESS_STM32_BL_VERIFY_HALL_AFTER_FLASH &&                            \
+    CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    if (!bl_probe_all_nrst_hall_segments(true, 0)) {
+      ESP_LOGE(TAG_A, "po návratu z bootloaderu Hall neodpovídá");
+    }
+#endif
   }
 
 out:

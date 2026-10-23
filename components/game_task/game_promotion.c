@@ -197,6 +197,10 @@ void game_promotion_sync_hall_if_pending(void) {
 
   int64_t now_us = esp_timer_get_time();
   if (mapped != s_promo_hall_seen) {
+    if (ht == HALL_PIECE_TYPE_KING) {
+      ESP_LOGW(TAG, "promotion %c%d: king band, using queen", 'a' + col,
+               row + 1);
+    }
     s_promo_hall_seen = mapped;
     s_promo_hall_since_us = now_us;
   }

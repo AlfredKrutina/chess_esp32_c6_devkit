@@ -73,8 +73,11 @@ bool hall_i2c_squares_readings_usable(void);
  * stored empty baseline or a provisional copy of confirmed empty squares.
  * Reed builds ignore the buffer.
  * @param empty_squares 64 bytes, 1 = logically empty. NULL is ignored.
+ * @param piece_types 64 bytes, Hall type of the logical piece, 0 if empty.
+ *        NULL treats every occupied square as a king (widest stray field).
  */
-void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64]);
+void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64],
+                                        const uint8_t piece_types[64]);
 
 /**
  * After boot, light a1, h1, h8, a8 one at a time. Place a piece on the lit
@@ -126,6 +129,13 @@ hall_piece_type_t hall_i2c_squares_get_piece_type(uint8_t square);
  * @return Debounced color, or HALL_PIECE_COLOR_NONE.
  */
 hall_piece_color_t hall_i2c_squares_get_piece_color(uint8_t square);
+
+/**
+ * One confirmed landing. Learns how strongly this square reads, for pawn,
+ * knight and bishop only. Classification uses that gain after four samples.
+ */
+void hall_i2c_squares_note_confirmed(uint8_t square, hall_piece_type_t type,
+                                    hall_piece_color_t color);
 
 /**
  * @brief Name for a POC type.

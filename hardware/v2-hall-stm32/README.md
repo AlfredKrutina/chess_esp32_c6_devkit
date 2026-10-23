@@ -118,15 +118,13 @@ It is critical to distinguish between what the firmware implements today and the
 
 1. The STM32 companion firmware (`firmware/stm32_hall_c031/`) performs round-robin ADC sampling across the 16 dual-Hall squares and packages the raw 12-bit ADC results into a 64-byte payload transmitted over I2C.
 2. The ESP32 driver (`components/squares_task/hall_i2c_squares.c`) reads this raw payload every 25 ms.
-3. The driver evaluates square occupancy by calculating differential magnitude:
-   $$\Delta = |r_0 - r_1|$$
-   If $\Delta \ge \text{CONFIG\_CHESS\_HALL\_PAIR\_DIFF\_THRESHOLD}$, the square is marked **occupied**; otherwise it is marked **empty**.
-4. This differential occupancy calculation outputs a standard 64-bit occupancy bitmask. The bitmask is passed directly to the existing move detection logic in `squares_task.c`, generating the exact same `GAME_CMD_PICKUP` and `GAME_CMD_DROP` events as the V1 reed matrix.
-5. In current firmware, **chess piece identity is tracked entirely in software** from the initial board setup and move history.
+3. Occupancy is the sum of absolute deviations from the empty-square baseline (on from 270, off below 160). Piece type and color are named in the same driver. Energy `dev0² + dev1²` separates pawn, knight, bishop, and the unmeasured rook gap. Queen and king share one energy span; the king is the wider magnet, so the type is the product of the two deviations. The measured state as of 23 Oct 2026 is [context/firmware/rozpoznani-figur-2026-10-23.md](../../context/firmware/rozpoznani-figur-2026-10-23.md).
+4. Occupancy is still published as a 64-bit mask into `squares_task.c`, which emits `GAME_CMD_PICKUP` and `GAME_CMD_DROP` the same way as the V1 reed matrix. The Hall type travels with that reading.
+5. KiCad does not store a piece lookup table. The thresholds and the queen/king product test live only in `hall_i2c_squares.c`.
 
-### Design Goal (Next Version Development)
+### Still open
 
-Magnet layouts in physical piece bases may support automated type/color decoding in firmware, but the **KiCad `czechmate_CH224A` project does not define a piece-encoding lookup table**—only the analog front end and bus wiring. **Piece type and color from Hall energy (POC-style thresholds) is implemented in `hall_i2c_squares.c` on the ESP32**; long-term magnet geometry vs. threshold tuning remains hardware/firmware integration work.
+Rook energy has not been measured. Learned per-square type bands, a crosstalk model, and full-board restore after power loss are not in the firmware yet. Per-square gain for pawn, knight, and bishop is RAM-only.
 
 ---
 

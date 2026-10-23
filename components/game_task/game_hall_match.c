@@ -93,15 +93,14 @@ bool game_hall_validate_pickup_square(uint8_t row, uint8_t col,
   if (!game_hall_reading_for_pickup(sq, &ht, &hc)) {
     ESP_LOGW(TAG, "pickup %u: no stable Hall identity (engine %d)", (unsigned)sq,
              (int)engine_piece);
-    return false;
+    return true;
   }
 
   if (!game_hall_stable_reading_matches(engine_piece, ht, hc)) {
     ESP_LOGW(TAG,
-             "pickup %u: Hall [%s %s] != engine piece %d",
+             "pickup %u: Hall [%s %s] != engine piece %d (kept)",
              (unsigned)sq, squares_get_hall_piece_color_name(hc),
              squares_get_hall_piece_type_name(ht), (int)engine_piece);
-    return false;
   }
   return true;
 }
@@ -121,11 +120,20 @@ bool game_hall_validate_drop_square(uint8_t row, uint8_t col,
     return false;
   }
 
-  if (!game_hall_stable_reading_matches(moving_piece, ht, hc)) {
+  hall_piece_type_t want_type;
+  hall_piece_color_t want_color;
+  if (!game_hall_engine_to_sensor(moving_piece, &want_type, &want_color) ||
+      hc != want_color) {
     ESP_LOGW(TAG, "drop %u: Hall [%s %s] != moving piece %d", (unsigned)sq,
              squares_get_hall_piece_color_name(hc),
              squares_get_hall_piece_type_name(ht), (int)moving_piece);
     return false;
+  }
+
+  if (ht != want_type) {
+    ESP_LOGW(TAG, "drop %u: Hall type %s, kept %s by color", (unsigned)sq,
+             squares_get_hall_piece_type_name(ht),
+             squares_get_hall_piece_type_name(want_type));
   }
   return true;
 }
@@ -200,6 +208,7 @@ bool game_hall_piece_for_promoting_player(hall_piece_type_t ht,
       *out_piece = PIECE_WHITE_ROOK;
       return true;
     case HALL_PIECE_TYPE_QUEEN:
+    case HALL_PIECE_TYPE_KING:
       *out_piece = PIECE_WHITE_QUEEN;
       return true;
     default:
@@ -220,9 +229,10 @@ bool game_hall_piece_for_promoting_player(hall_piece_type_t ht,
   case HALL_PIECE_TYPE_ROOK:
     *out_piece = PIECE_BLACK_ROOK;
     return true;
-  case HALL_PIECE_TYPE_QUEEN:
-    *out_piece = PIECE_BLACK_QUEEN;
-    return true;
+    case HALL_PIECE_TYPE_QUEEN:
+    case HALL_PIECE_TYPE_KING:
+      *out_piece = PIECE_BLACK_QUEEN;
+      return true;
   default:
     return false;
   }
@@ -252,7 +262,13 @@ bool game_hall_square_agrees_with_logic(uint8_t square, piece_t engine_piece,
   }
   hall_piece_type_t ht = squares_get_hall_piece_type(square);
   hall_piece_color_t hc = squares_get_hall_piece_color(square);
-  return game_hall_stable_reading_matches(engine_piece, ht, hc);
+  hall_piece_type_t want_type;
+  hall_piece_color_t want_color;
+  if (!game_hall_engine_to_sensor(engine_piece, &want_type, &want_color)) {
+    return false;
+  }
+  (void)want_type;
+  return ht != HALL_PIECE_TYPE_NONE && hc == want_color;
 }
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */

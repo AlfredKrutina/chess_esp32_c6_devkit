@@ -16,6 +16,8 @@
 
 #include "../led_task/include/led_task.h"
 #include "../squares_task/include/squares_task.h"
+#include "../squares_task/include/hall_i2c_squares.h"
+#include "game_hall_match.h"
 
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -907,6 +909,18 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
   // DO NOT CHANGE PLAYER HERE - player is changed in game_execute_move() after
   // turn completion Switch players - REMOVED: player is switched in
   // game_execute_move() after move execution
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (move->move_type != MOVE_TYPE_PROMOTION) {
+    piece_t landed = board[move->to_row][move->to_col];
+    hall_piece_type_t ht = HALL_PIECE_TYPE_NONE;
+    hall_piece_color_t hc = HALL_PIECE_COLOR_NONE;
+    if (game_hall_engine_to_sensor(landed, &ht, &hc)) {
+      hall_i2c_squares_note_confirmed(
+          (uint8_t)(move->to_row * 8 + move->to_col), ht, hc);
+    }
+  }
+#endif
 
   return true;
 }

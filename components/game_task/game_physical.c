@@ -8,6 +8,7 @@
 #include "chess_gameplay_policy.h"
 #include "game_squares_guard.h"
 #include "game_hall_match.h"
+#include "game_hall_hand.h"
 #include "game_move_exec.h"
 #include "game_move_validate.h"
 #include "game_snapshot.h"
@@ -37,6 +38,91 @@
 #endif
 
 static const char *TAG = "GAME_PHYSICAL";
+
+static int hand_manhattan(uint8_t r0, uint8_t c0, uint8_t r1, uint8_t c1) {
+  int dr = (int)r0 - (int)r1;
+  int dc = (int)c0 - (int)c1;
+  if (dr < 0) {
+    dr = -dr;
+  }
+  if (dc < 0) {
+    dc = -dc;
+  }
+  return dr + dc;
+}
+
+static void hand_flash_pair(uint8_t r0, uint8_t c0, uint8_t r1, uint8_t c1) {
+  for (int n = 0; n < 2; n++) {
+    led_set_pixel_safe(chess_pos_to_led_index(r0, c0), 255, 180, 0);
+    led_set_pixel_safe(chess_pos_to_led_index(r1, c1), 0, 180, 255);
+    vTaskDelay(pdMS_TO_TICKS(160));
+    led_set_pixel_safe(chess_pos_to_led_index(r0, c0), 0, 0, 0);
+    led_set_pixel_safe(chess_pos_to_led_index(r1, c1), 0, 0, 0);
+    vTaskDelay(pdMS_TO_TICKS(120));
+  }
+}
+
+/** Which piece in the hand just landed. Blinks the two origins when both are legal. */
+static int hand_choose_landing(uint8_t to_row, uint8_t to_col) {
+  int best = -1;
+  int best_score = -1;
+  int second = -1;
+  int second_score = -1;
+  uint8_t sq = (uint8_t)(to_row * 8 + to_col);
+  hall_piece_type_t seen = squares_get_hall_piece_type(sq);
+  for (int i = 0; i < game_hall_hand_count(); i++) {
+    piece_t piece;
+    uint8_t row;
+    uint8_t col;
+    if (!game_hall_hand_get(i, &piece, &row, &col)) {
+      continue;
+    }
+    int score = 0;
+    if (row == to_row && col == to_col) {
+      score = 1000;
+    } else {
+      chess_move_t move = {.from_row = row,
+                           .from_col = col,
+                           .to_row = to_row,
+                           .to_col = to_col,
+                           .piece = piece,
+                           .captured_piece = board[to_row][to_col]};
+      if (game_is_valid_move(&move) == MOVE_ERROR_NONE) {
+        score = 200;
+      }
+      hall_piece_type_t want = HALL_PIECE_TYPE_NONE;
+      hall_piece_color_t want_color = HALL_PIECE_COLOR_NONE;
+      if (game_hall_engine_to_sensor(piece, &want, &want_color) &&
+          want == seen && seen != HALL_PIECE_TYPE_NONE) {
+        score += 40;
+      }
+      score += 14 - hand_manhattan(row, col, to_row, to_col);
+    }
+    if (score > best_score) {
+      second = best;
+      second_score = best_score;
+      best = i;
+      best_score = score;
+    } else if (score > second_score) {
+      second = i;
+      second_score = score;
+    }
+  }
+  if (best >= 0 && second >= 0 && best_score < 1000 &&
+      (best_score - second_score) <= 10 && second_score >= 200) {
+    piece_t p0;
+    piece_t p1;
+    uint8_t r0, c0, r1, c1;
+    game_hall_hand_get(best, &p0, &r0, &c0);
+    game_hall_hand_get(second, &p1, &r1, &c1);
+    (void)p0;
+    (void)p1;
+    hand_flash_pair(r0, c0, r1, c1);
+    ESP_LOGW(TAG, "two pieces fit %c%d, keeping the higher score",
+             'a' + to_col, to_row + 1);
+  }
+  return best;
+}
 
 void game_reset_guided_capture_state(void) {
   guided_capture_state.active = false;
@@ -172,6 +258,7 @@ void game_show_guided_capture_leds(void) {
 
 static void game_exit_guided_capture(bool restore_highlights) {
   game_reset_guided_capture_state();
+  game_hall_hand_reset();
   piece_lifted = false;
   lifted_piece = PIECE_EMPTY;
   lifted_piece_row = 0;
@@ -647,6 +734,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
 
         // Odstranit opponent piece z boardu
         board[from_row][from_col] = PIECE_EMPTY;
+        game_hall_hand_note_captured(piece);
 
         // Nastavit capture state
         capture_in_progress = true;
@@ -734,6 +822,20 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
           TAG,
           "⚠️ Opponent's piece lifted WITHOUT own piece lifted at %s - ERROR",
           safe_notation);
+    }
+
+    if (!piece_lifted && game_hall_hand_count() == 0) {
+      game_hall_hand_push(piece, from_row, from_col);
+      piece_lifted = true;
+      lifted_piece_row = from_row;
+      lifted_piece_col = from_col;
+      lifted_piece = piece;
+      led_clear_board_only();
+      led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 128, 0, 128);
+      game_send_response_to_uart(
+          "♟️ Opponent piece held. Lift your attacker, or put this piece back.",
+          false, (QueueHandle_t)cmd->response_queue);
+      return;
     }
 
     // CRITICAL: Set error_recovery_state for proper recovery flow
@@ -945,6 +1047,79 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
   }
 
   // ED: No animation when lifting piece, just highlight possible moves
+  if (game_hall_hand_count() > 0 &&
+      piece != PIECE_WHITE_KING && piece != PIECE_BLACK_KING) {
+    bool own = (current_player == PLAYER_WHITE &&
+                piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) ||
+               (current_player == PLAYER_BLACK &&
+                piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING);
+    if (own) {
+      for (int i = 0; i < game_hall_hand_count(); i++) {
+        piece_t held;
+        uint8_t hr;
+        uint8_t hc;
+        if (!game_hall_hand_get(i, &held, &hr, &hc)) {
+          continue;
+        }
+        bool held_own =
+            (current_player == PLAYER_WHITE && held >= PIECE_WHITE_PAWN &&
+             held <= PIECE_WHITE_KING) ||
+            (current_player == PLAYER_BLACK && held >= PIECE_BLACK_PAWN &&
+             held <= PIECE_BLACK_KING);
+        if (held_own) {
+          continue;
+        }
+        chess_move_t capture_attempt = {.from_row = from_row,
+                                        .from_col = from_col,
+                                        .to_row = hr,
+                                        .to_col = hc,
+                                        .piece = piece,
+                                        .captured_piece = held};
+        if (game_is_valid_move(&capture_attempt) != MOVE_ERROR_NONE) {
+          continue;
+        }
+        board[hr][hc] = PIECE_EMPTY;
+        game_hall_hand_note_captured(held);
+        game_hall_hand_remove_at(i);
+        capture_in_progress = true;
+        capture_target_row = hr;
+        capture_target_col = hc;
+        capture_removed_piece = held;
+        piece_lifted = true;
+        lifted_piece_row = from_row;
+        lifted_piece_col = from_col;
+        lifted_piece = piece;
+        game_hall_hand_push(piece, from_row, from_col);
+        led_clear_board_only();
+        led_set_pixel_safe(chess_pos_to_led_index(from_row, from_col), 255, 255,
+                           0);
+        led_set_pixel_safe(chess_pos_to_led_index(hr, hc), 128, 0, 128);
+        game_send_response_to_uart(
+            "♟️ Attacker lifted after the victim. Place it on the purple square.",
+            false, (QueueHandle_t)cmd->response_queue);
+        return;
+      }
+      game_hall_hand_push(piece, from_row, from_col);
+      piece_lifted = true;
+      lifted_piece_row = from_row;
+      lifted_piece_col = from_col;
+      lifted_piece = piece;
+      led_clear_board_only();
+      for (int i = 0; i < game_hall_hand_count(); i++) {
+        piece_t held;
+        uint8_t hr;
+        uint8_t hc;
+        if (game_hall_hand_get(i, &held, &hr, &hc)) {
+          led_set_pixel_safe(chess_pos_to_led_index(hr, hc), 255, 180, 0);
+        }
+      }
+      game_send_response_to_uart(
+          "✋ Two pieces in hand. Put one down; the board picks by the rules.",
+          false, (QueueHandle_t)cmd->response_queue);
+      return;
+    }
+  }
+
   ESP_LOGI(TAG, "🔄 Piece lifted from %s - showing possible moves",
            cmd->from_notation);
 
@@ -960,6 +1135,7 @@ void game_process_pickup_command(const chess_move_command_t *cmd) {
   lifted_piece_row = from_row;
   lifted_piece_col = from_col;
   lifted_piece = piece;
+  game_hall_hand_push(piece, from_row, from_col);
 
   // Give FreeRTOS scheduler time to process LED commands
   vTaskDelay(pdMS_TO_TICKS(10)); // BUG FIX 3a: Changed from 50ms to 10ms
@@ -1757,7 +1933,7 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
   }
 
   // NORMAL PROCESSING - checking if we have a lifted piece
-  if (!piece_lifted) {
+  if (!piece_lifted && game_hall_hand_count() == 0) {
     ESP_LOGE(TAG, "❌ No piece was lifted - use UP command first");
     game_send_response_to_uart("❌ No piece was lifted - use UP command first",
                                true, (QueueHandle_t)cmd->response_queue);
@@ -1765,15 +1941,27 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
   }
 
   // CHECK CANCEL MOVE (drop on same field)
-  if (to_row == lifted_piece_row && to_col == lifted_piece_col) {
+  if (piece_lifted && to_row == lifted_piece_row &&
+      to_col == lifted_piece_col) {
     ESP_LOGI(TAG, "🔄 Move cancelled: piece placed on source square %c%d",
              'a' + to_col, to_row + 1);
 
-    // Reset lifted piece state
-    piece_lifted = false;
-    lifted_piece_row = 0;
-    lifted_piece_col = 0;
-    lifted_piece = PIECE_EMPTY;
+    game_hall_hand_remove_origin(to_row, to_col);
+    piece_t held = PIECE_EMPTY;
+    uint8_t hr = 0;
+    uint8_t hc = 0;
+    if (game_hall_hand_count() > 0 &&
+        game_hall_hand_get(0, &held, &hr, &hc)) {
+      piece_lifted = true;
+      lifted_piece = held;
+      lifted_piece_row = hr;
+      lifted_piece_col = hc;
+    } else {
+      piece_lifted = false;
+      lifted_piece_row = 0;
+      lifted_piece_col = 0;
+      lifted_piece = PIECE_EMPTY;
+    }
 
     if (castling_state.in_progress) {
       game_show_castling_rook_guidance();
@@ -1805,6 +1993,34 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       game_send_response_to_uart("🏰 Move the rook from yellow to green.", true,
                                  (QueueHandle_t)cmd->response_queue);
       return;
+    }
+  }
+
+  if (game_hall_hand_count() > 1 ||
+      (!piece_lifted && game_hall_hand_count() > 0)) {
+    int picked = hand_choose_landing(to_row, to_col);
+    piece_t held;
+    uint8_t hr;
+    uint8_t hc;
+    if (picked >= 0 && game_hall_hand_get(picked, &held, &hr, &hc)) {
+      if (hr == to_row && hc == to_col) {
+        game_hall_hand_remove_at(picked);
+        if (game_hall_hand_count() == 0) {
+          piece_lifted = false;
+          lifted_piece = PIECE_EMPTY;
+        } else if (game_hall_hand_get(0, &held, &hr, &hc)) {
+          piece_lifted = true;
+          lifted_piece = held;
+          lifted_piece_row = hr;
+          lifted_piece_col = hc;
+        }
+        game_send_response_to_uart("↩️ Piece put back.", false,
+                                   (QueueHandle_t)cmd->response_queue);
+        return;
+      }
+      lifted_piece = held;
+      lifted_piece_row = hr;
+      lifted_piece_col = hc;
     }
   }
 
@@ -2012,7 +2228,12 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
              "current_player=%s, is_castling_completion_before_move=%d",
              current_player == PLAYER_WHITE ? "White" : "Black",
              is_castling_completion_before_move);
+    uint8_t hand_from_row = move.from_row;
+    uint8_t hand_from_col = move.from_col;
     bool move_success = game_execute_move(&move);
+    if (move_success) {
+      game_hall_hand_remove_origin(hand_from_row, hand_from_col);
+    }
     ESP_LOGI(TAG,
              "🔍 game_process_drop_command: AFTER game_execute_move, "
              "move_success=%d",

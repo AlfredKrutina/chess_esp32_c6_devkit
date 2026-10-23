@@ -10,8 +10,10 @@
 #include "game_snapshot.h"
 #include "game_squares_guard.h"
 #include "game_hall_match.h"
+#include "game_hall_hand.h"
 #include "chess_gameplay_policy.h"
 
+#include "../ha_light_task/include/ha_light_task.h"
 #include "../squares_task/include/squares_task.h"
 #include "../led_task/include/led_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
@@ -253,6 +255,7 @@ uint32_t game_get_state_revision(void) { return game_state_revision; }
  */
 void game_reset_game(void) {
   ESP_LOGI(TAG, "Resetting game...");
+  game_hall_hand_reset();
 
   // Stop resignation timer if it is running (silent cleanup, game resets)
   if (resignation_state.active) {
@@ -532,6 +535,7 @@ void game_start_new_game(void) {
   game_active = true;
   game_start_time = esp_timer_get_time() / 1000;
   last_move_time = game_start_time;
+  ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
 
   // Start timer for white player if time control is active
   if (game_is_timer_active()) {
@@ -660,6 +664,7 @@ void game_start_new_game_from_fen(const char *fen) {
   game_active = true;
   game_start_time = esp_timer_get_time() / 1000;
   last_move_time = game_start_time;
+  ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
 
   if (game_is_timer_active()) {
     game_start_timer_move(fen_player == PLAYER_WHITE);
