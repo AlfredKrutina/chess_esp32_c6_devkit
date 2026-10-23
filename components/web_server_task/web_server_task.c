@@ -3084,10 +3084,9 @@ void web_server_process_snapshot_notify_queue(void) {
    * TWDT reset reports web_server_task timeout. */
   (void)web_server_task_wdt_reset_safe();
   size_t fh = esp_get_free_heap_size();
-  if (fh < 10240) {
-    ESP_LOGW(TAG,
-             "low heap before snapshot push: %zu B (goal to keep ~8–10kB+ free)",
-             fh);
+  if (fh < 16384) {
+    ESP_LOGW(TAG, "snapshot skipped, free heap %zu B", fh);
+    return;
   }
 #if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
   ws_broadcast_snapshot();

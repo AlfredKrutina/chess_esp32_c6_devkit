@@ -287,6 +287,15 @@ void led_update_button_availability_from_game(void);
 void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness);
 
 /**
+ * Map an sRGB lamp color onto OPSCO SK6812MINI RGBW dice.
+ * PWM is linear; green at 530 nm is much brighter than red, so uncorrected
+ * orange comes out yellow. White die is not mixed in (its CCT bin is not
+ * recorded, and it repaints near-whites).
+ */
+void led_correct_sk6812(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness,
+                        uint8_t *out_r, uint8_t *out_g, uint8_t *out_b);
+
+/**
  * @brief Restore inbox after HA mod
  *
  * This function restores the normal display of the inbox (black/white field).

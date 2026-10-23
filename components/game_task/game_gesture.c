@@ -322,6 +322,8 @@ static bool s_wave_wait;
 static bool s_opening_wave;
 static bool s_pair_pulse_on;
 static volatile bool s_lamp_wave_req;
+static volatile bool s_off_wave_req;
+static uint32_t s_off_cover;
 static ha_mode_t s_pending_mode;
 
 static uint32_t rgb_of(uint8_t r, uint8_t g, uint8_t b) {
@@ -354,8 +356,9 @@ static uint32_t lamp_rgb(void) {
   if (!on) {
     return 0;
   }
-  return rgb_of((uint8_t)((r * bright) / 255), (uint8_t)((g * bright) / 255),
-                (uint8_t)((b * bright) / 255));
+  uint8_t cr = 0, cg = 0, cb = 0;
+  led_correct_sk6812(r, g, b, bright, &cr, &cg, &cb);
+  return rgb_of(cr, cg, cb);
 }
 
 static void fill_mode_colors(ha_mode_t mode, uint32_t out[64]) {
@@ -475,7 +478,22 @@ void game_gesture_request_lamp_wave(void) {
   if (s_wave_wait && s_pending_mode == HA_MODE_HA) {
     return;
   }
+  s_off_wave_req = false;
   s_lamp_wave_req = true;
+}
+
+void game_gesture_request_lamp_off_wave(void) {
+  if (s_wave_wait) {
+    return;
+  }
+  uint8_t r = 255, g = 255, b = 255, bright = 255;
+  bool on = true;
+  ha_light_get_state(&r, &g, &b, &bright, &on);
+  uint8_t cr = 0, cg = 0, cb = 0;
+  led_correct_sk6812(r, g, b, bright, &cr, &cg, &cb);
+  s_off_cover = rgb_of(cr, cg, cb);
+  s_lamp_wave_req = false;
+  s_off_wave_req = true;
 }
 
 static bool gesture_in_puzzle(void) {
@@ -654,7 +672,7 @@ static void handle_result(led_gesture_result_t result) {
     game_start_new_game();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
     if (game_hall_restore_guide_show_opening()) {
-      /* Empty board: starting homes glow. Sync fades them after 5 s
+      /* Empty board: starting homes glow. Sync fades them after 10 s
        * unless a piece is put down. */
     } else if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
       game_hall_restore_guide_stop_leds();
@@ -682,6 +700,23 @@ static void handle_result(led_gesture_result_t result) {
 }
 
 void game_gesture_poll(void) {
+  if (s_off_wave_req && !s_wave_wait && !led_gesture_anim_busy()) {
+    s_off_wave_req = false;
+    if (game_demo_show_active()) {
+      game_demo_show_set(false);
+    }
+    uint32_t colors[64] = {0};
+    if (s_off_cover != 0 &&
+        led_gesture_start_wave(colors, true, s_off_cover)) {
+      s_pending_mode = HA_MODE_HA;
+      s_opening_wave = false;
+      s_wave_wait = true;
+      ESP_LOGI(TAG, "[STAGING] lamp off wave");
+    } else {
+      ESP_LOGW(TAG, "lamp off wave did not start");
+      (void)ha_light_request_mode(HA_MODE_HA);
+    }
+  }
   if (s_lamp_wave_req && !s_wave_wait && !led_gesture_anim_busy()) {
     s_lamp_wave_req = false;
     if (game_demo_show_active()) {
@@ -719,6 +754,10 @@ void game_gesture_poll(void) {
 #else /* !CONFIG_CHESS_GESTURE_BUTTON */
 
 void game_gesture_request_lamp_wave(void) {
+  (void)ha_light_request_mode(HA_MODE_HA);
+}
+
+void game_gesture_request_lamp_off_wave(void) {
   (void)ha_light_request_mode(HA_MODE_HA);
 }
 

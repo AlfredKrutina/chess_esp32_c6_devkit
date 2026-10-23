@@ -16,6 +16,9 @@ void game_gesture_poll(void);
 /** Outward lamp wave, then commit HA mode. Same picture as the button. */
 void game_gesture_request_lamp_wave(void);
 
+/** Inward wave that shrinks the current lamp color to black, then leaves the lamp off. */
+void game_gesture_request_lamp_off_wave(void);
+
 /** Live animation show. Nothing is stored; it ends on reset, stop, or a piece move. */
 void game_demo_show_set(bool on);
 bool game_demo_show_active(void);

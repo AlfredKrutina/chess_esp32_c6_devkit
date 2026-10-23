@@ -440,14 +440,15 @@ static const hall_poc_threshold_t* hall_poc_classify(int32_t energy,
 }
 
 /* King is the wider disc, so the weak sensor stays stronger.
- * Product |dev0|*|dev1| on the seated samples:
- *   kings  1701630, 1896294, 2028686, 2663981
- *   queens 1217223, 1375136, 1497568, 1504016
- * A queen pushed to 4544912 with that same shape lands near 1773000.
- * Line is 1800000. The centered king (1295 and 1314, product 1701630)
- * is the second clause. */
-#define HALL_ROYAL_KING_PRODUCT     1800000
-#define HALL_ROYAL_CENTER_PRODUCT   1600000
+ * Product |dev0|*|dev1|:
+ *   queens seated <= 1504016
+ *   kings seated  1701630, 1896294, 2028686, 2663981
+ *   king slid     1599136 (1232 and 1298), 1704888 (972 and 1754)
+ * The 1800000 line named both of those slides a queen. The line now
+ * sits at 1650000, above the seated queens. A centered king whose
+ * product is only just over the queens uses the second clause. */
+#define HALL_ROYAL_KING_PRODUCT     1650000
+#define HALL_ROYAL_CENTER_PRODUCT   1550000
 #define HALL_ROYAL_SWITCH_SCANS     (HALL_STABLE_SCANS * 3)
 
 static hall_piece_type_t hall_name_royal(int32_t c0, int32_t c1) {

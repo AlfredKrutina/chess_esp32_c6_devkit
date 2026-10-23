@@ -5,6 +5,7 @@
 
 #include "game_task_internal.h"
 #include "game_task.h"
+#include "../ha_light_task/include/ha_light_task.h"
 
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -46,6 +47,57 @@ void game_update_endgame_statistics(game_result_type_t result_type) {
   }
   total_games++;
   ESP_LOGI(TAG, "📊 Total games: %" PRIu32, total_games);
+
+  uint8_t fact = HA_GAME_DRAW;
+  uint8_t reason = HA_REASON_NONE;
+  if (result_type == RESULT_WHITE_WINS) {
+    fact = HA_GAME_WHITE_WIN;
+  } else if (result_type == RESULT_BLACK_WINS) {
+    fact = HA_GAME_BLACK_WIN;
+  }
+  switch (current_endgame_reason) {
+  case ENDGAME_REASON_CHECKMATE:
+  case ENDGAME_REASON_CHECKMATE_EN_PASSANT:
+  case ENDGAME_REASON_CHECKMATE_CASTLING:
+  case ENDGAME_REASON_CHECKMATE_PROMOTION:
+  case ENDGAME_REASON_CHECKMATE_DISCOVERED:
+    reason = HA_REASON_CHECKMATE;
+    break;
+  case ENDGAME_REASON_STALEMATE:
+    reason = HA_REASON_STALEMATE;
+    break;
+  case ENDGAME_REASON_50_MOVE:
+    reason = HA_REASON_FIFTY;
+    break;
+  case ENDGAME_REASON_REPETITION:
+    reason = HA_REASON_REPETITION;
+    break;
+  case ENDGAME_REASON_INSUFFICIENT:
+    reason = HA_REASON_INSUFFICIENT;
+    break;
+  case ENDGAME_REASON_TIMEOUT:
+    reason = HA_REASON_TIMEOUT;
+    break;
+  case ENDGAME_REASON_RESIGNATION:
+    reason = HA_REASON_RESIGNATION;
+    break;
+  default:
+    break;
+  }
+  if (reason == HA_REASON_NONE) {
+    if (result_type == RESULT_DRAW_STALEMATE) {
+      reason = HA_REASON_STALEMATE;
+    } else if (result_type == RESULT_DRAW_50_MOVE) {
+      reason = HA_REASON_FIFTY;
+    } else if (result_type == RESULT_DRAW_REPETITION) {
+      reason = HA_REASON_REPETITION;
+    } else if (result_type == RESULT_DRAW_INSUFFICIENT) {
+      reason = HA_REASON_INSUFFICIENT;
+    } else {
+      reason = HA_REASON_CHECKMATE;
+    }
+  }
+  ha_game_report(fact, reason);
 }
 
 /**

@@ -58,6 +58,26 @@ extern "C" {
 #define HA_TOPIC_LIGHT_STATE "esp32-chess/light/state"
 #define HA_TOPIC_LIGHT_AVAILABILITY "esp32-chess/light/availability"
 #define HA_TOPIC_GAME_ACTIVITY "esp32-chess/game/activity"
+#define HA_TOPIC_GAME_STATE "esp32-chess/game/state"
+#define HA_TOPIC_GAME_EVENT "esp32-chess/game/event"
+
+/* Facts the board reports. HA keeps the sensor state and fires one trigger. */
+#define HA_GAME_MOVE 1
+#define HA_GAME_WHITE_WIN 2
+#define HA_GAME_BLACK_WIN 3
+#define HA_GAME_DRAW 4
+#define HA_GAME_LAMP 5
+#define HA_GAME_BOARD 6
+#define HA_GAME_NEW 7
+
+#define HA_REASON_NONE 0
+#define HA_REASON_CHECKMATE 1
+#define HA_REASON_STALEMATE 2
+#define HA_REASON_FIFTY 3
+#define HA_REASON_REPETITION 4
+#define HA_REASON_INSUFFICIENT 5
+#define HA_REASON_TIMEOUT 6
+#define HA_REASON_RESIGNATION 7
 
 // MQTT Payloads
 #define HA_MQTT_PAYLOAD_ONLINE "online"
@@ -94,6 +114,8 @@ typedef enum {
 #define HA_CMD_SET_MODE 3
 /** MQTT JSON light state (on, RGB, brightness). Applied in the HA task. */
 #define HA_CMD_MQTT_STATE 4
+/** Game fact for the HA sensor and device triggers. state = fact, r = reason. */
+#define HA_CMD_GAME_FACT 5
 
 /**
  * @brief HA Light command for internal communication
@@ -177,6 +199,13 @@ bool ha_light_is_available(void);
  * @param activity_type Activity type ("move", "pickup", "drop", "command")
  */
 void ha_light_report_activity(const char *activity_type);
+
+/**
+ * Report a game fact to Home Assistant.
+ * Safe from the game task. If MQTT is down, the sensor state is remembered
+ * and published on the next connect. Move events are not replayed.
+ */
+void ha_game_report(uint8_t fact, uint8_t reason);
 
 /**
  * @brief Save MQTT configuration to NVS

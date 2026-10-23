@@ -54,11 +54,11 @@ Součiny klidných odečtů:
 | Král | 4568597 | 1111, 1826 | 2028686 |
 | Král | 5443562 | 1811, 1471 | 2663981 |
 
-Král je součin aspoň **1800000**. Dáma posunutá na 4544912 se stejným tvarem jako klidný odečet 848/1766 vyjde asi na 1773000 a zůstane dáma. Král uprostřed (1295 a 1314, skoro stejné senzory, slabší aspoň 1100, součin aspoň 1600000) je druhá větev, jinak by spadl pod 1800000.
+Král je součin aspoň **1650000**. Dáma v klidu končí na 1504016. Posun krále z 23. října dal součiny 1599136 (1232 a 1298, skoro střed) a 1704888 (972 a 1754). Hranice 1800000 z obou udělala dámu. Středový král se bere od součinu **1550000**, když je slabší senzor aspoň 1100 a oba jsou do 10 %.
 
 Než se na obsazeném poli přepne dáma na krále nebo zpět, musí nové čtení vydržet tři ustálení, asi 0,75 s (`HALL_ROYAL_SWITCH_SCANS`). První jméno po položení padne hned po běžném ustálení. Zámek „jednou král, navždy král“ se neosvědčil: první špička při najetí na pole držela špatný typ i potom, co se figurka usadila.
 
-Když dáma sedí přesně uprostřed citlivého pole a oba senzory jsou silné, součin může přelézt 1800000. V logu je to vidět na `d0` a `d1`. Slabý král na kraji, kde je druhý senzor skoro tichý, zůstane dáma.
+Když dáma sedí přesně uprostřed citlivého pole a oba senzory jsou silné, součin může přelézt 1650000. V logu to bude vidět na `d0` a `d1`. Slabý král na kraji, kde je druhý senzor skoro tichý, zůstane dáma.
 
 Krátký „Rook“ kolem 1,4 milionu při najíždění dámy je energie, která ještě nedosáhla královského pásma. Není to změřená věž.
 

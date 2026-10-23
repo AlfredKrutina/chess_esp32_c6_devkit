@@ -693,38 +693,71 @@ void led_show_chess_board(void) {
   ESP_LOGI(TAG, "🎉 Chess board pattern complete!");
 }
 
-/**
- * Warm/cool lamp white is not "close" enough for the generic writer rule
- * (255,214,170 spreads 85 counts) but it is still lamp white. Weakest channel
- * at least 2/3 of the strongest: W = min, RGB keeps the tint.
- * (255,214,170) is the boundary, 170*3 == 255*2. Red, amber, blue, green stay
- * on the RGB dice because their min fails that test.
+/* sRGB gamma (IEC 61966-2-1) as 0–255 linear. */
+static const uint8_t k_sk6812_srgb_lin[256] = {
+    0,   0,   0,   0,   0,   0,   0,   1,   1,   1,   1,   1,   1,   1,   1,
+    1,   1,   1,   2,   2,   2,   2,   2,   2,   2,   2,   3,   3,   3,   3,
+    3,   3,   4,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6,   6,   6,
+    7,   7,   7,   8,   8,   8,   8,   9,   9,   9,   10,  10,  10,  11,  11,
+    12,  12,  12,  13,  13,  13,  14,  14,  15,  15,  16,  16,  17,  17,  17,
+    18,  18,  19,  19,  20,  20,  21,  22,  22,  23,  23,  24,  24,  25,  25,
+    26,  27,  27,  28,  29,  29,  30,  30,  31,  32,  32,  33,  34,  35,  35,
+    36,  37,  37,  38,  39,  40,  41,  41,  42,  43,  44,  45,  45,  46,  47,
+    48,  49,  50,  51,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,
+    62,  63,  64,  65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  76,  77,
+    78,  79,  80,  81,  82,  84,  85,  86,  87,  88,  90,  91,  92,  93,  95,
+    96,  97,  99,  100, 101, 103, 104, 105, 107, 108, 109, 111, 112, 114, 115,
+    116, 118, 119, 121, 122, 124, 125, 127, 128, 130, 131, 133, 134, 136, 138,
+    139, 141, 142, 144, 146, 147, 149, 151, 152, 154, 156, 157, 159, 161, 163,
+    164, 166, 168, 170, 171, 173, 175, 177, 179, 181, 183, 184, 186, 188, 190,
+    192, 194, 196, 198, 200, 202, 204, 206, 208, 210, 212, 214, 216, 218, 220,
+    222, 224, 226, 229, 231, 233, 235, 237, 239, 242, 244, 246, 248, 250, 253,
+    255};
+
+/*
+ * OPSCO SK6812MINIRGBW-XX-P6-A-000, typical mid of the datasheet window at
+ * Vds = 1 V: R 620 nm / 293 mcd, G 530 nm / 815 mcd, B 470 nm / 210 mcd.
+ * Q8 matrix maps linear sRGB onto those dice so equal requested white is not
+ * a green-heavy mix. Orange stays red-orange instead of sliding to yellow.
+ * W is left at 0: the CCT bin (BW/NW/WS/GW) is not in the BOM, and the old
+ * min(RGB) split painted near-whites with that unknown phosphor.
  */
-static void led_split_lamp_white(uint8_t *red, uint8_t *green, uint8_t *blue,
-                                 uint8_t *white) {
-  uint8_t lo = *red;
-  uint8_t hi = *red;
-  if (*green < lo) {
-    lo = *green;
+void led_correct_sk6812(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness,
+                        uint8_t *out_r, uint8_t *out_g, uint8_t *out_b) {
+  uint8_t lr = k_sk6812_srgb_lin[r];
+  uint8_t lg = k_sk6812_srgb_lin[g];
+  uint8_t lb = k_sk6812_srgb_lin[b];
+  int32_t rr = (154 * (int32_t)lr + 87 * (int32_t)lg + 15 * (int32_t)lb) >> 8;
+  int32_t gg = (10 * (int32_t)lr + 187 * (int32_t)lg - 4 * (int32_t)lb) >> 8;
+  int32_t bb = (1 * (int32_t)lr + 8 * (int32_t)lg + 80 * (int32_t)lb) >> 8;
+  if (brightness != 255) {
+    rr = rr * brightness / 255;
+    gg = gg * brightness / 255;
+    bb = bb * brightness / 255;
   }
-  if (*blue < lo) {
-    lo = *blue;
+  if (rr < 0) {
+    rr = 0;
+  } else if (rr > 255) {
+    rr = 255;
   }
-  if (*green > hi) {
-    hi = *green;
+  if (gg < 0) {
+    gg = 0;
+  } else if (gg > 255) {
+    gg = 255;
   }
-  if (*blue > hi) {
-    hi = *blue;
+  if (bb < 0) {
+    bb = 0;
+  } else if (bb > 255) {
+    bb = 255;
   }
-  *white = 0;
-  if (lo == 0) {
-    return;
+  if (out_r) {
+    *out_r = (uint8_t)rr;
   }
-  if ((uint16_t)lo * 3u >= (uint16_t)hi * 2u) {
-    *white = lo;
-    *red = (uint8_t)(*red - lo);
-    *green = (uint8_t)(*green - lo);
-    *blue = (uint8_t)(*blue - lo);
+  if (out_g) {
+    *out_g = (uint8_t)gg;
+  }
+  if (out_b) {
+    *out_b = (uint8_t)bb;
   }
 }
 
@@ -737,12 +770,9 @@ void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
   }
   /* Lamp brightness is the caller's 0-255 level. No extra cap. */
 
-  // Apply brightness to RGB values
-  uint8_t r_scaled = (r * brightness) / 255;
-  uint8_t g_scaled = (g * brightness) / 255;
-  uint8_t b_scaled = (b * brightness) / 255;
+  uint8_t r_scaled = 0, g_scaled = 0, b_scaled = 0;
+  led_correct_sk6812(r, g, b, brightness, &r_scaled, &g_scaled, &b_scaled);
   uint8_t w_scaled = 0;
-  led_split_lamp_white(&r_scaled, &g_scaled, &b_scaled, &w_scaled);
 
   ESP_LOGI(TAG,
            "Setting HA color: RGB(%d,%d,%d) brightness=%d -> RGBW(%d,%d,%d,%d)",
