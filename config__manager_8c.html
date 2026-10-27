@@ -190,6 +190,8 @@ Functions</h2></td></tr>
 <tr class="memitem:ababa7ac95bd8941407fd857d511e4173" id="r_ababa7ac95bd8941407fd857d511e4173"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#ababa7ac95bd8941407fd857d511e4173">config_erase_key_from_nvs</a> (const char *key)</td></tr>
 <tr class="memdesc:ababa7ac95bd8941407fd857d511e4173"><td class="mdescLeft">&#160;</td><td class="mdescRight">Smaze hodnotu pod danym klicem z NVS.  <br /></td></tr>
 <tr class="separator:ababa7ac95bd8941407fd857d511e4173"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e28996662f413c40b50841ebe18ecd1" id="r_a3e28996662f413c40b50841ebe18ecd1"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#a3e28996662f413c40b50841ebe18ecd1">config_ui_prefs_note_saved</a> (const char *json, size_t len)</td></tr>
+<tr class="separator:a3e28996662f413c40b50841ebe18ecd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aec173cc4386c2247aae898a09e3035fa" id="r_aec173cc4386c2247aae898a09e3035fa"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#aec173cc4386c2247aae898a09e3035fa">config_save_ui_prefs_json</a> (const char *json, size_t len)</td></tr>
 <tr class="memdesc:aec173cc4386c2247aae898a09e3035fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ulozi web UI JSON do NVS (jednoducha validace tvaru).  <br /></td></tr>
 <tr class="separator:aec173cc4386c2247aae898a09e3035fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,6 +200,12 @@ Functions</h2></td></tr>
 <tr class="separator:adc3adbe5159f66435ab716dc74026f9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe78d0f2ba75481d47c2f958b38654ae" id="r_afe78d0f2ba75481d47c2f958b38654ae"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae">config_ui_prefs_parse_bool_key</a> (const char *json, const char *key, bool default_value)</td></tr>
 <tr class="separator:afe78d0f2ba75481d47c2f958b38654ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a09bddd0a72ba391a66160d5cbabca18a" id="r_a09bddd0a72ba391a66160d5cbabca18a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#a09bddd0a72ba391a66160d5cbabca18a">config_ui_prefs_parse_hint</a> (const char *json)</td></tr>
+<tr class="separator:a09bddd0a72ba391a66160d5cbabca18a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ad7682ce2a635de1edc5454e3198bbb" id="r_a6ad7682ce2a635de1edc5454e3198bbb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#a6ad7682ce2a635de1edc5454e3198bbb">config_ui_prefs_apply_json</a> (const char *json)</td></tr>
+<tr class="separator:a6ad7682ce2a635de1edc5454e3198bbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afdfadde9793b4abfa21e5646084513f5" id="r_afdfadde9793b4abfa21e5646084513f5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#afdfadde9793b4abfa21e5646084513f5">config_ui_prefs_ensure</a> (void)</td></tr>
+<tr class="separator:afdfadde9793b4abfa21e5646084513f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4b3c9a341d63bf470ac2f0213fe9cc0" id="r_aa4b3c9a341d63bf470ac2f0213fe9cc0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0">config_ui_prefs_get_chess_physical_takeback</a> (void)</td></tr>
 <tr class="memdesc:aa4b3c9a341d63bf470ac2f0213fe9cc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Physical takeback on board (default true when key missing).  <br /></td></tr>
 <tr class="separator:aa4b3c9a341d63bf470ac2f0213fe9cc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,6 +219,14 @@ Variables</h2></td></tr>
 <tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8afb2db2bb5f0a2920f95df018b0f3ed" id="r_a8afb2db2bb5f0a2920f95df018b0f3ed"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="structsystem__config__t.html">system_config_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#a8afb2db2bb5f0a2920f95df018b0f3ed">default_config</a></td></tr>
 <tr class="separator:a8afb2db2bb5f0a2920f95df018b0f3ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1daf8783f0152c03396d466758770c9" id="r_ab1daf8783f0152c03396d466758770c9"><td class="memItemLeft" align="right" valign="top">static char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#ab1daf8783f0152c03396d466758770c9">s_ui_prefs_json</a> [<a class="el" href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a>+1]</td></tr>
+<tr class="separator:ab1daf8783f0152c03396d466758770c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab60ede8a978c0cae1a3603618464d04e" id="r_ab60ede8a978c0cae1a3603618464d04e"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#ab60ede8a978c0cae1a3603618464d04e">s_takeback</a> = true</td></tr>
+<tr class="separator:ab60ede8a978c0cae1a3603618464d04e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae97aa3a4f6b645c4c93c26cc1e8072fe" id="r_ae97aa3a4f6b645c4c93c26cc1e8072fe"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#ae97aa3a4f6b645c4c93c26cc1e8072fe">s_hint_limit</a> = 0</td></tr>
+<tr class="separator:ae97aa3a4f6b645c4c93c26cc1e8072fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa67ef7f45d98177000ea0c237debce88" id="r_aa67ef7f45d98177000ea0c237debce88"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="config__manager_8c.html#aa67ef7f45d98177000ea0c237debce88">s_prefs_ready</a> = false</td></tr>
+<tr class="separator:aa67ef7f45d98177000ea0c237debce88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>ESP32-C6 Chess System v1.8.0 - Configuration management. </p>
@@ -399,7 +415,7 @@ Variables</h2></td></tr>
 
 <p>Load web UI JSON from NVS into buffer (null terminator if misto). </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00384">384</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00391">391</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -546,7 +562,63 @@ Variables</h2></td></tr>
 
 <p>Ulozi web UI JSON do NVS (jednoducha validace tvaru). </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00361">361</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00363">363</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="a6ad7682ce2a635de1edc5454e3198bbb" name="a6ad7682ce2a635de1edc5454e3198bbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ad7682ce2a635de1edc5454e3198bbb">&#9670;&#160;</a></span>config_ui_prefs_apply_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void config_ui_prefs_apply_json </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>json</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00467">467</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="afdfadde9793b4abfa21e5646084513f5" name="afdfadde9793b4abfa21e5646084513f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afdfadde9793b4abfa21e5646084513f5">&#9670;&#160;</a></span>config_ui_prefs_ensure()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void config_ui_prefs_ensure </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00483">483</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -568,7 +640,7 @@ Variables</h2></td></tr>
 
 <p>Returns chessHintLimit from stored UI prefs JSON (0-99, 0 = unlimited / key missing). </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00440">440</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00504">504</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -590,7 +662,45 @@ Variables</h2></td></tr>
 
 <p>Physical takeback on board (default true when key missing). </p>
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00429">429</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00499">499</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="a3e28996662f413c40b50841ebe18ecd1" name="a3e28996662f413c40b50841ebe18ecd1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e28996662f413c40b50841ebe18ecd1">&#9670;&#160;</a></span>config_ui_prefs_note_saved()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void config_ui_prefs_note_saved </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>len</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00474">474</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -634,7 +744,35 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00401">401</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00408">408</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="a09bddd0a72ba391a66160d5cbabca18a" name="a09bddd0a72ba391a66160d5cbabca18a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09bddd0a72ba391a66160d5cbabca18a">&#9670;&#160;</a></span>config_ui_prefs_parse_hint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int config_ui_prefs_parse_hint </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>json</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00441">441</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>
@@ -673,6 +811,102 @@ Variables</h2></td></tr>
 <div class="ttc" id="aconfig__manager_8h_html_ab761ad48a054d663ba21852111fdc330"><div class="ttname"><a href="config__manager_8h.html#ab761ad48a054d663ba21852111fdc330">CONFIG_DEFAULT_BRIGHTNESS</a></div><div class="ttdeci">#define CONFIG_DEFAULT_BRIGHTNESS</div><div class="ttdoc">Default brightness (100%)</div><div class="ttdef"><b>Definition</b> <a href="config__manager_8h_source.html#l00086">config_manager.h:86</a></div></div>
 </div><!-- fragment -->
 <p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00032">32</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="ae97aa3a4f6b645c4c93c26cc1e8072fe" name="ae97aa3a4f6b645c4c93c26cc1e8072fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae97aa3a4f6b645c4c93c26cc1e8072fe">&#9670;&#160;</a></span>s_hint_limit</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int s_hint_limit = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00438">438</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="aa67ef7f45d98177000ea0c237debce88" name="aa67ef7f45d98177000ea0c237debce88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa67ef7f45d98177000ea0c237debce88">&#9670;&#160;</a></span>s_prefs_ready</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_prefs_ready = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00439">439</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="ab60ede8a978c0cae1a3603618464d04e" name="ab60ede8a978c0cae1a3603618464d04e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab60ede8a978c0cae1a3603618464d04e">&#9670;&#160;</a></span>s_takeback</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_takeback = true</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00437">437</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
+
+</div>
+</div>
+<a id="ab1daf8783f0152c03396d466758770c9" name="ab1daf8783f0152c03396d466758770c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1daf8783f0152c03396d466758770c9">&#9670;&#160;</a></span>s_ui_prefs_json</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">char s_ui_prefs_json[<a class="el" href="config__manager_8h.html#aff6c6cb291f9c6f723df0ca1196ca745">CONFIG_UI_PREFS_MAX_BYTES</a>+1]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="config__manager_8c_source.html#l00436">436</a> of file <a class="el" href="config__manager_8c_source.html">config_manager.c</a>.</p>
 
 </div>
 </div>

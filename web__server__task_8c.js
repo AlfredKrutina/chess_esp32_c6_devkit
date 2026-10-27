@@ -34,6 +34,7 @@ var web__server__task_8c =
     [ "czechmate_mdns_ensure_started", "web__server__task_8c.html#a46a782103d8abce533075acbb06280bb", null ],
     [ "czechmate_mdns_refresh_sta_txt", "web__server__task_8c.html#ad4a9d214719b6cb61cee0abe47c1e96f", null ],
     [ "czechmate_on_game_state_changed", "web__server__task_8c.html#a8ea4cd3058a83430186ff45a9834eb3d", null ],
+    [ "czechmate_push_ble_ready", "web__server__task_8c.html#a7483d2770fd4b4f3acd55984ef02466f", null ],
     [ "czechmate_push_ble_snapshot", "web__server__task_8c.html#aa84b749ab43060fcbb4c40e39852ffc9", null ],
     [ "http_get_chess_js_handler", "web__server__task_8c.html#a6e19e69bb269ea230b7adf21505b17e3", null ],
     [ "http_get_favicon_handler", "web__server__task_8c.html#a2c1cdc150334a9d47d719105f50d7c31", null ],

@@ -173,7 +173,7 @@ Functions</h2></td></tr>
 
 <p>Cancels the ongoing BLE OTA stream (releases the semaphore). </p>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00874">874</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00886">886</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -195,7 +195,7 @@ Functions</h2></td></tr>
 
 <p>BLE JSON {"cmd":"ota_ble_begin","size":&lt;bytes&gt;} before <code>OB…</code> chunks. </p>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00785">785</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00797">797</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -228,7 +228,7 @@ Functions</h2></td></tr>
 <p>JSON for cmd_ack notify (≤ ~380 B): channel/cmd_ack + ota_ble_status field. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK or ESP_ERR_INVALID_STATE if the buffer is small. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00900">900</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00912">912</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -261,7 +261,7 @@ Functions</h2></td></tr>
 <p>BLE CMD write with <code>OB</code> header + uint16 LE chunk_idx + uint16 LE chunk_total + raw payload. </p>
 <p>After the last byte according to <code>size</code> from begin, esp_ota_end and restart. </p>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00930">930</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00942">942</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -284,7 +284,7 @@ Functions</h2></td></tr>
 <p>Actively receiving BLE OTA chunks (not paused). </p>
 <p>To suppress snapshot notify / secondary load during transfer. </p>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00896">896</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00908">908</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -307,7 +307,7 @@ Functions</h2></td></tr>
 <p>Call from GAP disconnect (NimBLE). </p>
 <p>After a line failure after <code>ota_ble_begin</code> otherwise the RX status + held semaphore will remain and another <code>ota_ble_begin</code> ends with ESP_ERR_INVALID_STATE ("busy"). </p>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00883">883</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00895">895</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -330,7 +330,7 @@ Functions</h2></td></tr>
 <p>BLE JSON {"cmd":"ota_start","url":"https://…"}. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if the command has been received and scheduled (or is already running), otherwise error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l01000">1000</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l01012">1012</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -350,7 +350,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00749">749</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00761">761</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>
@@ -372,7 +372,7 @@ Functions</h2></td></tr>
 
 <p>Same as HTTP POST /api/system/ota — from UART to STA and https URL. </p>
 
-<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00783">783</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ota__update_8c_source.html#l00795">795</a> of file <a class="el" href="ota__update_8c_source.html">ota_update.c</a>.</p>
 
 </div>
 </div>

@@ -101,6 +101,7 @@ $(document).ready(function(){initNavTree('game__board__core_8c.html',''); initRe
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__hall__position_8h_source.html">game_hall_position.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
 <code>#include &quot;esp_log.h&quot;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
@@ -109,55 +110,63 @@ Include dependency graph for game_board_core.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__board__core_8c__incl.png" border="0" usemap="#agame__board__core_8c" alt=""/></div>
 <map name="agame__board__core_8c" id="agame__board__core_8c">
-<area shape="rect" title="Board setup, FEN parsing, and piece/position helpers." alt="" coords="917,5,1066,31"/>
-<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="5,152,156,177"/>
-<area shape="poly" title=" " alt="" coords="920,33,166,153,165,147,919,28"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="910,79,1073,104"/>
-<area shape="poly" title=" " alt="" coords="994,31,994,65,989,65,989,31"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="765,152,871,177"/>
-<area shape="poly" title=" " alt="" coords="972,33,937,54,900,81,866,112,838,143,835,139,862,108,896,77,934,49,969,28"/>
-<area shape="rect" title=" " alt="" coords="1097,79,1181,104"/>
-<area shape="poly" title=" " alt="" coords="1016,28,1104,70,1102,75,1014,33"/>
-<area shape="rect" title=" " alt="" coords="1205,79,1276,104"/>
-<area shape="poly" title=" " alt="" coords="1032,28,1193,74,1191,79,1031,33"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="469,233,583,258"/>
-<area shape="poly" title=" " alt="" coords="156,173,297,193,457,223,474,227,473,232,456,228,296,199,156,178"/>
-<area shape="rect" title=" " alt="" coords="187,313,270,339"/>
-<area shape="poly" title=" " alt="" coords="91,176,121,216,161,263,205,303,201,307,157,267,116,219,87,179"/>
-<area shape="rect" title=" " alt="" coords="485,313,567,339"/>
-<area shape="poly" title=" " alt="" coords="529,258,529,299,523,299,523,258"/>
-<area shape="rect" title=" " alt="" coords="761,313,912,339"/>
-<area shape="poly" title=" " alt="" coords="572,255,779,307,778,313,571,261"/>
-<area shape="rect" title=" " alt="" coords="936,313,1065,339"/>
-<area shape="poly" title=" " alt="" coords="584,254,923,309,922,314,583,259"/>
-<area shape="poly" title=" " alt="" coords="485,261,457,268,284,313,283,308,456,263,483,255"/>
-<area shape="rect" title=" " alt="" coords="641,313,712,339"/>
-<area shape="poly" title=" " alt="" coords="549,256,644,305,641,309,547,261"/>
-<area shape="poly" title=" " alt="" coords="937,107,850,127,753,155,650,193,564,229,562,224,648,188,752,149,849,122,936,101"/>
-<area shape="poly" title=" " alt="" coords="1073,100,1214,123,1272,136,1302,150,1321,180,1328,209,1322,238,1303,267,1275,287,1235,300,1186,308,1132,311,1020,313,926,316,926,311,1020,308,1131,306,1185,302,1233,295,1272,282,1299,263,1317,236,1323,209,1316,182,1299,154,1270,141,1213,128,1073,106"/>
-<area shape="poly" title=" " alt="" coords="1073,101,1248,126,1319,139,1353,150,1372,179,1378,209,1372,238,1353,267,1335,282,1308,293,1238,310,1156,320,1080,325,1079,320,1156,315,1237,305,1307,288,1332,277,1349,264,1367,236,1373,209,1367,182,1350,154,1318,145,1247,132,1073,106"/>
-<area shape="poly" title=" " alt="" coords="910,97,740,105,638,113,534,126,435,143,346,165,275,193,249,209,229,227,221,243,218,262,223,300,218,301,212,262,216,242,225,224,246,205,273,188,345,160,434,137,534,120,638,108,740,100,910,91"/>
-<area shape="poly" title=" " alt="" coords="1043,102,1127,126,1172,142,1214,162,1247,184,1269,209,1274,223,1275,237,1270,252,1259,267,1246,275,1227,282,1169,292,1010,305,749,316,726,319,725,314,748,311,1009,300,1169,287,1226,277,1244,270,1255,263,1265,250,1269,236,1269,224,1265,211,1244,188,1211,166,1170,147,1126,131,1042,107"/>
-<area shape="rect" title=" " alt="" coords="952,233,1089,258"/>
-<area shape="poly" title=" " alt="" coords="996,104,1018,219,1013,220,991,105"/>
-<area shape="rect" title=" " alt="" coords="1114,233,1245,258"/>
-<area shape="poly" title=" " alt="" coords="1007,102,1156,222,1153,226,1004,106"/>
-<area shape="poly" title=" " alt="" coords="964,106,860,149,858,144,962,102"/>
-<area shape="poly" title=" " alt="" coords="776,180,582,232,581,227,775,175"/>
-<area shape="poly" title=" " alt="" coords="772,180,711,199,647,228,551,306,548,302,645,223,709,194,770,175"/>
-<area shape="poly" title=" " alt="" coords="824,177,834,225,839,299,834,300,829,226,819,178"/>
-<area shape="poly" title=" " alt="" coords="833,175,979,302,975,306,829,179"/>
-<area shape="poly" title=" " alt="" coords="764,171,634,178,474,189,332,206,282,216,256,227,243,243,236,261,230,300,225,299,231,260,239,240,252,223,281,211,331,201,473,184,633,172,764,166"/>
-<area shape="poly" title=" " alt="" coords="820,178,812,220,803,245,789,267,760,293,726,311,723,306,757,289,785,264,798,242,807,219,815,177"/>
-<area shape="poly" title=" " alt="" coords="848,175,980,225,978,230,847,180"/>
-<area shape="poly" title=" " alt="" coords="872,174,1101,223,1120,227,1118,232,1100,228,871,179"/>
-<area shape="rect" title=" " alt="" coords="658,233,775,258"/>
-<area shape="poly" title=" " alt="" coords="805,180,744,226,741,222,801,175"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="266,225,445,265"/>
-<area shape="poly" title=" " alt="" coords="765,177,459,228,458,222,764,172"/>
-<area shape="poly" title=" " alt="" coords="397,263,490,305,488,310,395,268"/>
-<area shape="poly" title=" " alt="" coords="326,268,260,308,257,304,323,263"/>
-<area shape="poly" title=" " alt="" coords="433,263,629,310,628,315,432,268"/>
+<area shape="rect" title="Board setup, FEN parsing, and piece/position helpers." alt="" coords="798,5,947,31"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="256,152,407,177"/>
+<area shape="poly" title=" " alt="" coords="830,33,388,151,387,146,829,28"/>
+<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="851,79,1014,104"/>
+<area shape="poly" title=" " alt="" coords="885,29,916,66,912,70,881,33"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="879,152,986,177"/>
+<area shape="poly" title=" " alt="" coords="864,32,843,65,838,84,842,103,862,127,889,144,886,148,859,131,837,105,832,84,838,63,860,29"/>
+<area shape="rect" href="game__hall__position_8h.html" title="Last legal position compared with the live Hall snapshot." alt="" coords="5,152,167,177"/>
+<area shape="poly" title=" " alt="" coords="811,33,162,152,161,147,810,28"/>
+<area shape="rect" title=" " alt="" coords="1039,79,1123,104"/>
+<area shape="poly" title=" " alt="" coords="907,28,1035,72,1033,77,905,33"/>
+<area shape="rect" title=" " alt="" coords="1147,79,1217,104"/>
+<area shape="poly" title=" " alt="" coords="924,28,1134,76,1133,81,923,33"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="685,233,799,258"/>
+<area shape="poly" title=" " alt="" coords="407,174,532,195,673,223,689,227,688,232,672,228,531,200,407,180"/>
+<area shape="rect" title=" " alt="" coords="454,313,537,339"/>
+<area shape="poly" title=" " alt="" coords="343,176,428,263,472,303,469,307,424,267,340,179"/>
+<area shape="rect" title=" " alt="" coords="308,313,379,339"/>
+<area shape="poly" title=" " alt="" coords="332,178,326,217,327,265,336,300,331,301,322,266,321,217,326,177"/>
+<area shape="rect" title=" " alt="" coords="701,313,783,339"/>
+<area shape="poly" title=" " alt="" coords="745,258,745,299,739,299,739,258"/>
+<area shape="rect" title=" " alt="" coords="1111,313,1261,339"/>
+<area shape="poly" title=" " alt="" coords="800,254,1109,308,1108,314,799,259"/>
+<area shape="rect" title=" " alt="" coords="957,313,1087,339"/>
+<area shape="poly" title=" " alt="" coords="783,255,969,307,967,312,782,261"/>
+<area shape="poly" title=" " alt="" coords="707,261,545,312,543,307,705,255"/>
+<area shape="poly" title=" " alt="" coords="703,261,673,268,520,298,393,320,392,315,519,293,672,263,702,255"/>
+<area shape="poly" title=" " alt="" coords="920,106,769,226,766,222,917,102"/>
+<area shape="poly" title=" " alt="" coords="1014,101,1178,125,1312,149,1373,160,1424,166,1448,172,1469,183,1490,199,1511,224,1519,246,1511,267,1495,280,1473,291,1413,307,1343,317,1275,323,1275,318,1343,312,1412,301,1471,285,1492,275,1507,264,1514,246,1506,227,1487,203,1467,187,1446,177,1423,171,1372,165,1311,155,1177,130,1014,106"/>
+<area shape="poly" title=" " alt="" coords="998,101,1126,125,1276,157,1406,191,1451,208,1474,223,1517,270,1520,277,1517,282,1495,285,1372,289,1257,297,1100,316,1100,310,1257,292,1371,283,1495,279,1514,277,1515,276,1512,273,1471,227,1448,213,1404,196,1275,162,1125,131,997,107"/>
+<area shape="poly" title=" " alt="" coords="852,107,749,125,634,151,580,168,533,186,496,206,472,227,465,244,466,263,482,301,477,303,461,264,460,243,468,224,493,201,531,181,579,163,633,146,748,120,852,101"/>
+<area shape="poly" title=" " alt="" coords="851,96,688,100,497,110,331,127,275,140,256,146,245,154,235,172,233,191,238,211,250,232,283,271,318,303,315,307,279,275,245,235,233,213,228,192,230,170,241,150,254,142,273,134,330,122,497,105,688,95,851,91"/>
+<area shape="rect" title=" " alt="" coords="1168,233,1305,258"/>
+<area shape="poly" title=" " alt="" coords="957,102,1203,224,1200,229,954,106"/>
+<area shape="rect" title=" " alt="" coords="1330,233,1461,258"/>
+<area shape="poly" title=" " alt="" coords="968,102,1348,226,1346,231,967,107"/>
+<area shape="poly" title=" " alt="" coords="935,104,935,138,930,138,930,104"/>
+<area shape="poly" title=" " alt="" coords="906,180,784,230,782,225,904,175"/>
+<area shape="poly" title=" " alt="" coords="956,175,983,195,1006,224,1013,246,1012,256,1005,267,991,279,971,289,917,305,855,316,797,323,796,318,854,310,916,299,969,284,989,274,1001,264,1007,255,1008,246,1001,227,980,199,953,180"/>
+<area shape="poly" title=" " alt="" coords="968,175,1018,195,1071,223,1125,263,1167,301,1163,305,1121,267,1069,228,1016,200,966,180"/>
+<area shape="poly" title=" " alt="" coords="981,175,1019,193,1036,207,1050,224,1056,244,1055,265,1040,302,1035,300,1050,263,1051,244,1045,227,1032,211,1016,198,978,180"/>
+<area shape="poly" title=" " alt="" coords="921,179,813,268,744,293,674,310,607,320,551,325,550,320,606,315,673,305,743,288,810,263,917,175"/>
+<area shape="poly" title=" " alt="" coords="879,172,663,191,550,207,505,217,471,228,440,244,411,264,365,305,361,301,408,260,437,240,469,223,504,212,549,202,662,186,879,167"/>
+<area shape="poly" title=" " alt="" coords="978,175,1180,227,1179,232,976,180"/>
+<area shape="poly" title=" " alt="" coords="987,170,1136,192,1317,223,1338,227,1337,232,1316,228,1135,197,986,176"/>
+<area shape="rect" title=" " alt="" coords="874,233,991,258"/>
+<area shape="poly" title=" " alt="" coords="935,178,935,219,930,219,930,178"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="482,225,661,265"/>
+<area shape="poly" title=" " alt="" coords="881,180,672,225,671,220,880,175"/>
+<area shape="poly" title=" " alt="" coords="613,263,706,305,704,310,611,268"/>
+<area shape="poly" title=" " alt="" coords="555,267,518,305,514,301,551,264"/>
+<area shape="poly" title=" " alt="" coords="518,268,391,311,389,306,516,263"/>
+<area shape="poly" title=" " alt="" coords="167,170,436,194,573,209,673,223,691,227,690,232,672,228,573,214,436,199,167,175"/>
+<area shape="poly" title=" " alt="" coords="116,175,454,306,452,311,114,180"/>
+<area shape="poly" title=" " alt="" coords="76,179,61,197,47,220,41,243,43,254,48,264,64,276,88,287,154,303,228,314,295,320,294,325,228,319,153,309,86,292,61,281,44,267,38,255,36,243,42,218,57,194,72,176"/>
+<area shape="rect" title=" " alt="" coords="58,233,154,258"/>
+<area shape="poly" title=" " alt="" coords="92,177,102,219,97,220,86,178"/>
 </map>
 </div>
 </div>
@@ -170,6 +179,21 @@ Functions</h2></td></tr>
 <tr class="separator:a9b4b4ef6ba4260c09a59192fc68be834"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a079591ca02ed34677c282d5f1bbb6c1f" id="r_a079591ca02ed34677c282d5f1bbb6c1f"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a079591ca02ed34677c282d5f1bbb6c1f">game_parse_piece_from_fen</a> (char c, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *out_piece)</td></tr>
 <tr class="separator:a079591ca02ed34677c282d5f1bbb6c1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad48bbb5abf6e27d4f1d49b2ceb69550c" id="r_ad48bbb5abf6e27d4f1d49b2ceb69550c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#ad48bbb5abf6e27d4f1d49b2ceb69550c">fen_take_token</a> (const char **pp, char *tok, size_t cap)</td></tr>
+<tr class="separator:ad48bbb5abf6e27d4f1d49b2ceb69550c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3face2fefeae68d97926e39b5796267d" id="r_a3face2fefeae68d97926e39b5796267d"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a3face2fefeae68d97926e39b5796267d">fen_parse_u32</a> (const char *s, uint32_t *out, uint32_t maxv)</td></tr>
+<tr class="separator:a3face2fefeae68d97926e39b5796267d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31b0080374c6bc381d18b464ca0ef251" id="r_a31b0080374c6bc381d18b464ca0ef251"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a31b0080374c6bc381d18b464ca0ef251">fen_infer_castling</a> (<a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *out)</td></tr>
+<tr class="separator:a31b0080374c6bc381d18b464ca0ef251"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cb40ab7bafe493536cd4fbf732eaf6b" id="r_a8cb40ab7bafe493536cd4fbf732eaf6b"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a8cb40ab7bafe493536cd4fbf732eaf6b">fen_apply_castling_token</a> (<a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *out, const char *tok)</td></tr>
+<tr class="separator:a8cb40ab7bafe493536cd4fbf732eaf6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ef0026e7cd84fb9a89471625a36f3ce" id="r_a7ef0026e7cd84fb9a89471625a36f3ce"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a7ef0026e7cd84fb9a89471625a36f3ce">fen_apply_ep_token</a> (<a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *out, const char *tok)</td></tr>
+<tr class="separator:a7ef0026e7cd84fb9a89471625a36f3ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82911f3de3532adff78673389f184950" id="r_a82911f3de3532adff78673389f184950"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a82911f3de3532adff78673389f184950">fen_commit_meta</a> (const <a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *pos)</td></tr>
+<tr class="separator:a82911f3de3532adff78673389f184950"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2fece07cf1a0e656387ebff64200332" id="r_ae2fece07cf1a0e656387ebff64200332"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#ae2fece07cf1a0e656387ebff64200332">game_parse_fen</a> (const char *fen, <a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *out)</td></tr>
+<tr class="memdesc:ae2fece07cf1a0e656387ebff64200332"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pure parse.  <br /></td></tr>
+<tr class="separator:ae2fece07cf1a0e656387ebff64200332"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2bee90ad546979bc31ca65dfde7d94af" id="r_a2bee90ad546979bc31ca65dfde7d94af"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a2bee90ad546979bc31ca65dfde7d94af">game_load_position_from_fen</a> (const char *fen, <a class="el" href="chess__types_8h.html#a49ff5e2d7800ecd3792c990f4445c3f1">player_t</a> *active_player)</td></tr>
 <tr class="separator:a2bee90ad546979bc31ca65dfde7d94af"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93dee8ccd518ae0092501007a420e4bb" id="r_a93dee8ccd518ae0092501007a420e4bb"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__board__core_8c.html#a93dee8ccd518ae0092501007a420e4bb">game_is_valid_position</a> (int row, int col)</td></tr>
@@ -205,6 +229,226 @@ Variables</h2></td></tr>
 
 <p class="definition">Definition in file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a id="a8cb40ab7bafe493536cd4fbf732eaf6b" name="a8cb40ab7bafe493536cd4fbf732eaf6b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8cb40ab7bafe493536cd4fbf732eaf6b">&#9670;&#160;</a></span>fen_apply_castling_token()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool fen_apply_castling_token </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>tok</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00174">174</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a7ef0026e7cd84fb9a89471625a36f3ce" name="a7ef0026e7cd84fb9a89471625a36f3ce"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ef0026e7cd84fb9a89471625a36f3ce">&#9670;&#160;</a></span>fen_apply_ep_token()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool fen_apply_ep_token </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>tok</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00219">219</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a82911f3de3532adff78673389f184950" name="a82911f3de3532adff78673389f184950"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a82911f3de3532adff78673389f184950">&#9670;&#160;</a></span>fen_commit_meta()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fen_commit_meta </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *&#160;</td>
+          <td class="paramname"><em>pos</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00259">259</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a31b0080374c6bc381d18b464ca0ef251" name="a31b0080374c6bc381d18b464ca0ef251"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a31b0080374c6bc381d18b464ca0ef251">&#9670;&#160;</a></span>fen_infer_castling()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void fen_infer_castling </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00157">157</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="a3face2fefeae68d97926e39b5796267d" name="a3face2fefeae68d97926e39b5796267d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3face2fefeae68d97926e39b5796267d">&#9670;&#160;</a></span>fen_parse_u32()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool fen_parse_u32 </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>s</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t *&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>maxv</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00139">139</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="ad48bbb5abf6e27d4f1d49b2ceb69550c" name="ad48bbb5abf6e27d4f1d49b2ceb69550c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad48bbb5abf6e27d4f1d49b2ceb69550c">&#9670;&#160;</a></span>fen_take_token()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static bool fen_take_token </td>
+          <td>(</td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>pp</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>tok</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>cap</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00118">118</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
 <a id="ab1f6294f23b24a27514d95c3b0ca0a4d" name="ab1f6294f23b24a27514d95c3b0ca0a4d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab1f6294f23b24a27514d95c3b0ca0a4d">&#9670;&#160;</a></span>game_get_piece()</h2>
 
@@ -241,7 +485,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The type of the figure at the position </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00173">173</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00411">411</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -264,7 +508,7 @@ Variables</h2></td></tr>
 <p>Initialize the inbox to the default position. </p>
 <p>Set all pieces to the standard starting position. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00016">16</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00017">17</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -293,7 +537,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the figure is black </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00195">195</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00433">433</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -333,7 +577,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if position is empty </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00187">187</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00425">425</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -363,7 +607,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00207">207</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00445">445</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -403,7 +647,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the pieces are the same color </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00199">199</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00437">437</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -443,7 +687,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if position is valid </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00169">169</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00407">407</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -472,7 +716,7 @@ Variables</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the figure was beaten </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00191">191</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00429">429</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -502,7 +746,40 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00114">114</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00393">393</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+
+</div>
+</div>
+<a id="ae2fece07cf1a0e656387ebff64200332" name="ae2fece07cf1a0e656387ebff64200332"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2fece07cf1a0e656387ebff64200332">&#9670;&#160;</a></span>game_parse_fen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_parse_fen </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fen</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structgame__fen__position__t.html">game_fen_position_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Pure parse. </p>
+<p>Does not touch the live board. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00285">285</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -540,7 +817,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00068">68</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00072">72</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -576,7 +853,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00180">180</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00418">418</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>
@@ -601,7 +878,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00014">14</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__board__core_8c_source.html#l00015">15</a> of file <a class="el" href="game__board__core_8c_source.html">game_board_core.c</a>.</p>
 
 </div>
 </div>

@@ -1,8 +1,21 @@
 var searchData=
 [
-  ['name_0',['name',['../structtest__t.html#acddfc812ecb222dd97c13ff22f806812',1,'test_t::name'],['../structtest__suite__t.html#ab0ca04cbd4d16fcc3d594179914ce48c',1,'test_suite_t::name'],['../structtime__control__config__t.html#ac5f05a43dfc9af7383b21d26235c8425',1,'time_control_config_t::name'],['../structuart__command__t.html#af0ce3b293bd17508b348c57501626039',1,'uart_command_t::name']]],
-  ['needs_5fcomposite_1',['needs_composite',['../structled__layer__state__t.html#ae5d91895551c0ec81b39011bcc7a07ff',1,'led_layer_state_t']]],
-  ['needs_5fupdate_2',['needs_update',['../structled__state__t.html#a2d6fa87d252e94ba3acf105b8f33eeae',1,'led_state_t']]],
-  ['next_5fanimation_5fid_3',['next_animation_id',['../unified__animation__manager_8c.html#ad3b6e14b9ad4bca4c07f67b318ed0e79',1,'unified_animation_manager.c']]],
-  ['next_5fseq_4',['next_seq',['../structboard__pair__book__t.html#a3a2642d26eb90dd897e8354862dbd205',1,'board_pair_book_t']]]
+  ['occupied_0',['occupied',['../structhall__square__reading__t.html#ae2ad35c6cf1bf4f20c99b5f6b98272ca',1,'hall_square_reading_t']]],
+  ['on_5fcomplete_1',['on_complete',['../structanimation__state__struct.html#a1257c5b14f68eec69cc6a480895748d0',1,'animation_state_struct']]],
+  ['on_5fframe_2',['on_frame',['../structanimation__state__struct.html#a5596162671dcc10a67f1eeeb102da26a',1,'animation_state_struct']]],
+  ['opening_5fstate_3',['opening_state',['../game__opening__trainer_8c.html#a24344f093fdca1950920b7c011ba0651',1,'game_opening_trainer.c']]],
+  ['opponent_5fcurrent_5fcol_4',['opponent_current_col',['../game__task_8c.html#aeb8179882039bb317d2467c1954ecf27',1,'opponent_current_col:&#160;game_task.c'],['../game__task__internal_8h.html#aeb8179882039bb317d2467c1954ecf27',1,'opponent_current_col:&#160;game_task.c']]],
+  ['opponent_5fcurrent_5frow_5',['opponent_current_row',['../game__task_8c.html#a5ad5daaa132c46754e7718518aac40fd',1,'opponent_current_row:&#160;game_task.c'],['../game__task__internal_8h.html#a5ad5daaa132c46754e7718518aac40fd',1,'opponent_current_row:&#160;game_task.c']]],
+  ['opponent_5fmode_6',['opponent_mode',['../structopening__trainer__state__t.html#aea92c04b180e1478a2cad4095e0fb567',1,'opening_trainer_state_t']]],
+  ['opponent_5foriginal_5fcol_7',['opponent_original_col',['../game__task__internal_8h.html#a83b693be32848ae61a88d70f0c1eb629',1,'opponent_original_col:&#160;game_task.c'],['../game__task_8c.html#a83b693be32848ae61a88d70f0c1eb629',1,'opponent_original_col:&#160;game_task.c']]],
+  ['opponent_5foriginal_5frow_8',['opponent_original_row',['../game__task__internal_8h.html#ae11c7fc1300aa53228b21f38059bda32',1,'opponent_original_row:&#160;game_task.c'],['../game__task_8c.html#ae11c7fc1300aa53228b21f38059bda32',1,'opponent_original_row:&#160;game_task.c']]],
+  ['opponent_5fpiece_5fmoved_9',['opponent_piece_moved',['../game__task__internal_8h.html#a43cb8f21829cb4cc35a7335fdf1465c1',1,'opponent_piece_moved:&#160;game_task.c'],['../game__task_8c.html#a43cb8f21829cb4cc35a7335fdf1465c1',1,'opponent_piece_moved:&#160;game_task.c']]],
+  ['opponent_5fpiece_5ftype_10',['opponent_piece_type',['../game__task__internal_8h.html#a229b05a8e7118cfca7f6bec35c02334b',1,'opponent_piece_type:&#160;game_task.c'],['../game__task_8c.html#a229b05a8e7118cfca7f6bec35c02334b',1,'opponent_piece_type:&#160;game_task.c']]],
+  ['original_5fcolor_11',['original_color',['../structled__duration__state__t.html#a8aba5c7b290cef110bf2e11ee4c7c1e6',1,'led_duration_state_t']]],
+  ['original_5fvalid_5fcol_12',['original_valid_col',['../structgame__task__error__recovery__t.html#aceb518a700ae80e3c908fbf79ca4a055',1,'game_task_error_recovery_t']]],
+  ['original_5fvalid_5frow_13',['original_valid_row',['../structgame__task__error__recovery__t.html#acc30154e227394cdc9060a9aad054763',1,'game_task_error_recovery_t']]],
+  ['out_5fb_14',['out_b',['../structled__tgt__t.html#aec4d843dbe1345cbf9c7172e034ed531',1,'led_tgt_t']]],
+  ['out_5fg_15',['out_g',['../structled__tgt__t.html#a32a6b803006304d824b09a0560049168',1,'led_tgt_t']]],
+  ['out_5fr_16',['out_r',['../structled__tgt__t.html#ac860692cd258761846d507edf20a70a4',1,'led_tgt_t']]],
+  ['owner_17',['owner',['../structshared__buffer__t.html#aa9d19708eca1a5a3dd0589e3e1f73ad6',1,'shared_buffer_t']]]
 ];

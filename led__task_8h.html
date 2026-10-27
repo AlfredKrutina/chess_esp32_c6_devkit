@@ -91,6 +91,8 @@ $(document).ready(function(){initNavTree('led__task_8h.html',''); initResizable(
 
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
+<a href="#enum-members">Enumerations</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">led_task.h File Reference</div></div>
 </div><!--header-->
@@ -145,6 +147,20 @@ Include dependency graph for led_task.h:</div>
 </div>
 <p><a href="led__task_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a6d5aed57b572a0042003504fb417ef62" id="r_a6d5aed57b572a0042003504fb417ef62"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a6d5aed57b572a0042003504fb417ef62">HINT_FADE_MS</a>&#160;&#160;&#160;180U</td></tr>
+<tr class="separator:a6d5aed57b572a0042003504fb417ef62"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a5d013010406192fb2e0cd007f0a94b04" id="r_a5d013010406192fb2e0cd007f0a94b04"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04">led_vis_mode_t</a> { <a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04afb5e0bd641a82c1f8334e77b83581aee">LED_VIS_SNAP</a> = 0
+, <a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04a34ffb7dc429c65a84de85e22a05a8ec5">LED_VIS_FADE</a> = 1
+, <a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684">LED_VIS_BREATHE</a> = 2
+ }</td></tr>
+<tr class="memdesc:a5d013010406192fb2e0cd007f0a94b04"><td class="mdescLeft">&#160;</td><td class="mdescRight">Board picture (squares 0-63).  <a href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04">More...</a><br /></td></tr>
+<tr class="separator:a5d013010406192fb2e0cd007f0a94b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a5c2b466a04fcadba97ca90ee811927d8" id="r_a5c2b466a04fcadba97ca90ee811927d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a5c2b466a04fcadba97ca90ee811927d8">led_task_start</a> (void *pvParameters)</td></tr>
@@ -235,6 +251,55 @@ Functions</h2></td></tr>
 <tr class="memitem:ab245ceabb580934b6117f59343c6d9a2" id="r_ab245ceabb580934b6117f59343c6d9a2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#ab245ceabb580934b6117f59343c6d9a2">led_clear_board_only</a> (void)</td></tr>
 <tr class="memdesc:ab245ceabb580934b6117f59343c6d9a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear only the drawer LEDs (0-63), keep the buttons.  <br /></td></tr>
 <tr class="separator:ab245ceabb580934b6117f59343c6d9a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9bef572a677f50e14c39bc3dce20470" id="r_af9bef572a677f50e14c39bc3dce20470"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#af9bef572a677f50e14c39bc3dce20470">led_target_begin</a> (void)</td></tr>
+<tr class="separator:af9bef572a677f50e14c39bc3dce20470"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35fc3e6d232a6955753dc5f352b43a6d" id="r_a35fc3e6d232a6955753dc5f352b43a6d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a35fc3e6d232a6955753dc5f352b43a6d">led_board_picture_gen</a> (void)</td></tr>
+<tr class="memdesc:a35fc3e6d232a6955753dc5f352b43a6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Bumps when something other than the target renderer paints the board.  <br /></td></tr>
+<tr class="separator:a35fc3e6d232a6955753dc5f352b43a6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3fa8489270f931d7b7b45464bec91713" id="r_a3fa8489270f931d7b7b45464bec91713"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a3fa8489270f931d7b7b45464bec91713">led_target_begin_fade</a> (uint16_t fade_ms)</td></tr>
+<tr class="memdesc:a3fa8489270f931d7b7b45464bec91713"><td class="mdescLeft">&#160;</td><td class="mdescRight">Like begin, but squares ease from the colour on the strip.  <br /></td></tr>
+<tr class="separator:a3fa8489270f931d7b7b45464bec91713"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae89fd846c63cfec14b8218d814112548" id="r_ae89fd846c63cfec14b8218d814112548"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#ae89fd846c63cfec14b8218d814112548">led_arm_direct_handover</a> (void)</td></tr>
+<tr class="memdesc:ae89fd846c63cfec14b8218d814112548"><td class="mdescLeft">&#160;</td><td class="mdescRight">Freeze targets to the direct-pixel picture so the next fade starts there.  <br /></td></tr>
+<tr class="separator:ae89fd846c63cfec14b8218d814112548"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28befd4712cc5953536f72dd01dcc573" id="r_a28befd4712cc5953536f72dd01dcc573"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a28befd4712cc5953536f72dd01dcc573">led_release_direct_hold</a> (void)</td></tr>
+<tr class="separator:a28befd4712cc5953536f72dd01dcc573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d1e7e252b23657ee8c68142ce4691d1" id="r_a8d1e7e252b23657ee8c68142ce4691d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a8d1e7e252b23657ee8c68142ce4691d1">led_target_set</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue, <a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04">led_vis_mode_t</a> mode)</td></tr>
+<tr class="separator:a8d1e7e252b23657ee8c68142ce4691d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58ed8b3f469872d6e3540768d1fe1a9c" id="r_a58ed8b3f469872d6e3540768d1fe1a9c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a58ed8b3f469872d6e3540768d1fe1a9c">led_target_set_breathe_sq</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue, uint8_t floor, uint16_t period_ms, uint16_t phase_ms, uint16_t fade_ms)</td></tr>
+<tr class="memdesc:a58ed8b3f469872d6e3540768d1fe1a9c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Guide breathe.  <br /></td></tr>
+<tr class="separator:a58ed8b3f469872d6e3540768d1fe1a9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52166e472e31f8a9d0f3dbfebcf602d3" id="r_a52166e472e31f8a9d0f3dbfebcf602d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a52166e472e31f8a9d0f3dbfebcf602d3">led_target_end</a> (void)</td></tr>
+<tr class="separator:a52166e472e31f8a9d0f3dbfebcf602d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e693bcfa8c122684338d17aa99730f4" id="r_a7e693bcfa8c122684338d17aa99730f4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a7e693bcfa8c122684338d17aa99730f4">led_target_is_open</a> (void)</td></tr>
+<tr class="separator:a7e693bcfa8c122684338d17aa99730f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ed2dfe8e851313eb629620ebcc3083a" id="r_a1ed2dfe8e851313eb629620ebcc3083a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a1ed2dfe8e851313eb629620ebcc3083a">led_target_pulse</a> (uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue)</td></tr>
+<tr class="memdesc:a1ed2dfe8e851313eb629620ebcc3083a"><td class="mdescLeft">&#160;</td><td class="mdescRight">One-shot ease to rgb and back to the square's target.  <br /></td></tr>
+<tr class="separator:a1ed2dfe8e851313eb629620ebcc3083a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ffbb7a48132c956515a905a97192b19" id="r_a0ffbb7a48132c956515a905a97192b19"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a0ffbb7a48132c956515a905a97192b19">led_target_pulse_cancel</a> (uint8_t led_index)</td></tr>
+<tr class="separator:a0ffbb7a48132c956515a905a97192b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff344971262344c32285e4bcbffa76b1" id="r_aff344971262344c32285e4bcbffa76b1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#aff344971262344c32285e4bcbffa76b1">led_move_collapse_capture</a> (void)</td></tr>
+<tr class="memdesc:aff344971262344c32285e4bcbffa76b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remember the lit pickup squares.  <br /></td></tr>
+<tr class="separator:aff344971262344c32285e4bcbffa76b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad56b2f8859706252d1dc81152d47686e" id="r_ad56b2f8859706252d1dc81152d47686e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#ad56b2f8859706252d1dc81152d47686e">led_move_trail_start</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col)</td></tr>
+<tr class="memdesc:ad56b2f8859706252d1dc81152d47686e"><td class="mdescLeft">&#160;</td><td class="mdescRight">After the next hint picture is set: pickup squares fade into it, farthest from the destination first.  <br /></td></tr>
+<tr class="separator:ad56b2f8859706252d1dc81152d47686e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a751aade7dc8eb285ceb631196647d21f" id="r_a751aade7dc8eb285ceb631196647d21f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a751aade7dc8eb285ceb631196647d21f">led_move_trail_cancel</a> (void)</td></tr>
+<tr class="separator:a751aade7dc8eb285ceb631196647d21f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29a322088a8d21740ce74cc348f41b6e" id="r_a29a322088a8d21740ce74cc348f41b6e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a29a322088a8d21740ce74cc348f41b6e">led_takeback_arm</a> (const uint8_t *led_index, uint8_t count)</td></tr>
+<tr class="memdesc:a29a322088a8d21740ce74cc348f41b6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cyan takeback squares.  <br /></td></tr>
+<tr class="separator:a29a322088a8d21740ce74cc348f41b6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54b1f60faa2433dc368194510ae49985" id="r_a54b1f60faa2433dc368194510ae49985"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a54b1f60faa2433dc368194510ae49985">led_takeback_clear</a> (void)</td></tr>
+<tr class="separator:a54b1f60faa2433dc368194510ae49985"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc38fc13754cdaa94cbd39efd30b5ff1" id="r_acc38fc13754cdaa94cbd39efd30b5ff1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#acc38fc13754cdaa94cbd39efd30b5ff1">led_resign_ring_start</a> (uint8_t king_row, uint8_t king_col, bool white_side)</td></tr>
+<tr class="memdesc:acc38fc13754cdaa94cbd39efd30b5ff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resignation ring on the resigning side.  <br /></td></tr>
+<tr class="separator:acc38fc13754cdaa94cbd39efd30b5ff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1085a88822633f4c15903fb78a815897" id="r_a1085a88822633f4c15903fb78a815897"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a1085a88822633f4c15903fb78a815897">led_resign_ring_cancel</a> (void)</td></tr>
+<tr class="separator:a1085a88822633f4c15903fb78a815897"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a46a2d64799c09cc9a7e7c2dd2a040ad9" id="r_a46a2d64799c09cc9a7e7c2dd2a040ad9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a46a2d64799c09cc9a7e7c2dd2a040ad9">led_resign_ring_stop</a> (void)</td></tr>
+<tr class="separator:a46a2d64799c09cc9a7e7c2dd2a040ad9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38cbd73c72612a91ef54869c4b1280d8" id="r_a38cbd73c72612a91ef54869c4b1280d8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a38cbd73c72612a91ef54869c4b1280d8">led_resign_ring_busy</a> (void)</td></tr>
+<tr class="separator:a38cbd73c72612a91ef54869c4b1280d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f7ff7068535f3818fb37654f5bffdad" id="r_a4f7ff7068535f3818fb37654f5bffdad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a4f7ff7068535f3818fb37654f5bffdad">led_clear_buttons_only</a> (void)</td></tr>
 <tr class="memdesc:a4f7ff7068535f3818fb37654f5bffdad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear only the button LEDs (64-72), keep the case.  <br /></td></tr>
 <tr class="separator:a4f7ff7068535f3818fb37654f5bffdad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -247,6 +312,9 @@ Functions</h2></td></tr>
 <tr class="memitem:acd139d9f40454ed76aa1f080f2299d07" id="r_acd139d9f40454ed76aa1f080f2299d07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#acd139d9f40454ed76aa1f080f2299d07">led_set_ha_color</a> (uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4">brightness</a>)</td></tr>
 <tr class="memdesc:acd139d9f40454ed76aa1f080f2299d07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the color of all 64 LED boards for HA mod.  <br /></td></tr>
 <tr class="separator:acd139d9f40454ed76aa1f080f2299d07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5dab65148f9a062ec74ad2532f5e75e" id="r_ac5dab65148f9a062ec74ad2532f5e75e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#ac5dab65148f9a062ec74ad2532f5e75e">led_correct_sk6812</a> (uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a837c871f200f8c3d19d0c7f2e031ffc4">brightness</a>, uint8_t *out_r, uint8_t *out_g, uint8_t *out_b)</td></tr>
+<tr class="memdesc:ac5dab65148f9a062ec74ad2532f5e75e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map an sRGB lamp color onto OPSCO SK6812MINI RGBW dice.  <br /></td></tr>
+<tr class="separator:ac5dab65148f9a062ec74ad2532f5e75e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed864c4fd31d53e8498014ffda17dcc6" id="r_aed864c4fd31d53e8498014ffda17dcc6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#aed864c4fd31d53e8498014ffda17dcc6">led_restore_chess_board</a> (void)</td></tr>
 <tr class="memdesc:aed864c4fd31d53e8498014ffda17dcc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restore inbox after HA mod.  <br /></td></tr>
 <tr class="separator:aed864c4fd31d53e8498014ffda17dcc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -280,9 +348,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a3f8208e54db356a3a750b566d5bd763f" id="r_a3f8208e54db356a3a750b566d5bd763f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a3f8208e54db356a3a750b566d5bd763f">led_clear_all_highlights</a> (void)</td></tr>
 <tr class="memdesc:a3f8208e54db356a3a750b566d5bd763f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear all highlights.  <br /></td></tr>
 <tr class="separator:a3f8208e54db356a3a750b566d5bd763f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e000dafeeac5016d70d5d182b89c10f" id="r_a7e000dafeeac5016d70d5d182b89c10f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a7e000dafeeac5016d70d5d182b89c10f">led_player_change_animation</a> (void)</td></tr>
-<tr class="memdesc:a7e000dafeeac5016d70d5d182b89c10f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game change animation.  <br /></td></tr>
-<tr class="separator:a7e000dafeeac5016d70d5d182b89c10f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a13a1293f8ac28cbf7cd0d7b08cb58c5c" id="r_a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a13a1293f8ac28cbf7cd0d7b08cb58c5c">led_has_significant_changes</a> (void)</td></tr>
 <tr class="memdesc:a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the LED has changed.  <br /></td></tr>
 <tr class="separator:a13a1293f8ac28cbf7cd0d7b08cb58c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -298,6 +363,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a081382ca7f7a773156291851fdbe6f5f" id="r_a081382ca7f7a773156291851fdbe6f5f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a081382ca7f7a773156291851fdbe6f5f">led_stop_endgame_animation</a> (void)</td></tr>
 <tr class="memdesc:a081382ca7f7a773156291851fdbe6f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Zastav endgame animaci.  <br /></td></tr>
 <tr class="separator:a081382ca7f7a773156291851fdbe6f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a815e3ff3e9df5e01c258ba51ea6a062e" id="r_a815e3ff3e9df5e01c258ba51ea6a062e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a815e3ff3e9df5e01c258ba51ea6a062e">led_board_show_active</a> (void)</td></tr>
+<tr class="memdesc:a815e3ff3e9df5e01c258ba51ea6a062e"><td class="mdescLeft">&#160;</td><td class="mdescRight">True while a wave, mate flash, or move animation owns the board.  <br /></td></tr>
+<tr class="separator:a815e3ff3e9df5e01c258ba51ea6a062e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a533dfd80b93f0821af12a5f929dcc40b" id="r_a533dfd80b93f0821af12a5f929dcc40b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__task_8h.html#a533dfd80b93f0821af12a5f929dcc40b">led_booting_animation</a> (void)</td></tr>
 <tr class="memdesc:a533dfd80b93f0821af12a5f929dcc40b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start boot animation (progressive light up)  <br /></td></tr>
 <tr class="separator:a533dfd80b93f0821af12a5f929dcc40b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -337,7 +405,49 @@ Functions</h2></td></tr>
 </ul>
 
 <p class="definition">Definition in file <a class="el" href="led__task_8h_source.html">led_task.h</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a6d5aed57b572a0042003504fb417ef62" name="a6d5aed57b572a0042003504fb417ef62"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d5aed57b572a0042003504fb417ef62">&#9670;&#160;</a></span>HINT_FADE_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HINT_FADE_MS&#160;&#160;&#160;180U</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8h_source.html#l00274">274</a> of file <a class="el" href="led__task_8h_source.html">led_task.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a id="a5d013010406192fb2e0cd007f0a94b04" name="a5d013010406192fb2e0cd007f0a94b04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5d013010406192fb2e0cd007f0a94b04">&#9670;&#160;</a></span>led_vis_mode_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04">led_vis_mode_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Board picture (squares 0-63). </p>
+<p>Buttons 64-72 are left alone. Unset squares snap off in the same frame. Lift overlays use LED_VIS_SNAP. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a5d013010406192fb2e0cd007f0a94b04afb5e0bd641a82c1f8334e77b83581aee" name="a5d013010406192fb2e0cd007f0a94b04afb5e0bd641a82c1f8334e77b83581aee"></a>LED_VIS_SNAP&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a5d013010406192fb2e0cd007f0a94b04a34ffb7dc429c65a84de85e22a05a8ec5" name="a5d013010406192fb2e0cd007f0a94b04a34ffb7dc429c65a84de85e22a05a8ec5"></a>LED_VIS_FADE&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684" name="a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684"></a>LED_VIS_BREATHE&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8h_source.html#l00268">268</a> of file <a class="el" href="led__task_8h_source.html">led_task.h</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
 <a id="a69379eed351dd045d9d23cda7ec86a69" name="a69379eed351dd045d9d23cda7ec86a69"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a69379eed351dd045d9d23cda7ec86a69">&#9670;&#160;</a></span>led_anim_endgame()</h2>
 
@@ -355,16 +465,80 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>LED endgame animation. </p>
-<p>Initialize AVR-style wave endgame animation (according to old project)</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">cmd</td><td>LED display with animation parameters</td></tr>
+    <tr><td class="paramname">cmd</td><td>LED display with animation parameters </td></tr>
   </table>
   </dd>
 </dl>
-<p>LED endgame animation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02597">2597</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02668">2668</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae89fd846c63cfec14b8218d814112548" name="ae89fd846c63cfec14b8218d814112548"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae89fd846c63cfec14b8218d814112548">&#9670;&#160;</a></span>led_arm_direct_handover()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_arm_direct_handover </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Freeze targets to the direct-pixel picture so the next fade starts there. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03213">3213</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a35fc3e6d232a6955753dc5f352b43a6d" name="a35fc3e6d232a6955753dc5f352b43a6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a35fc3e6d232a6955753dc5f352b43a6d">&#9670;&#160;</a></span>led_board_picture_gen()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t led_board_picture_gen </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Bumps when something other than the target renderer paints the board. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03191">3191</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a815e3ff3e9df5e01c258ba51ea6a062e" name="a815e3ff3e9df5e01c258ba51ea6a062e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a815e3ff3e9df5e01c258ba51ea6a062e">&#9670;&#160;</a></span>led_board_show_active()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_board_show_active </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True while a wave, mate flash, or move animation owns the board. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02656">2656</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -388,7 +562,7 @@ Functions</h2></td></tr>
 <p>Gradually dim all board LEDs from brightness 128 to 0. Used at the end of the boot process for smooth muting.</p>
 <p>Ease the finished checkerboard down to black. </p><dl class="section note"><dt>Note</dt><dd>The function is safe - it checks initialization and simulation mode </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03842">3842</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l04672">4672</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -417,7 +591,7 @@ Functions</h2></td></tr>
 </dl>
 <p>Light up the LED according to the progress of the boot process. Used for display system initialization procedure. Turn on the LED light green. </p><dl class="section return"><dt>Returns</dt><dd>true once the snake has covered the board (caller should fade out) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03813">3813</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l04637">4637</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -440,7 +614,7 @@ Functions</h2></td></tr>
 <p>Start boot animation (progressive light up) </p>
 <p>Start boot animation (progressive light up) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02483">2483</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02542">2542</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -484,7 +658,7 @@ Functions</h2></td></tr>
 <p>Clear all highlights. </p>
 <p>Clear all highlights. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01750">1750</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01961">1961</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -506,7 +680,7 @@ Functions</h2></td></tr>
 
 <p>Clear all LEDs (internal function without mutex) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00606">606</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00758">758</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -528,7 +702,7 @@ Functions</h2></td></tr>
 
 <p>Clear all LEDs (thread-safe with mutex) </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02930">2930</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03360">3360</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -550,7 +724,7 @@ Functions</h2></td></tr>
 
 <p>Clear only the drawer LEDs (0-63), keep the buttons. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02942">2942</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03376">3376</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -572,7 +746,70 @@ Functions</h2></td></tr>
 
 <p>Clear only the button LEDs (64-72), keep the case. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02952">2952</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03417">3417</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac5dab65148f9a062ec74ad2532f5e75e" name="ac5dab65148f9a062ec74ad2532f5e75e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5dab65148f9a062ec74ad2532f5e75e">&#9670;&#160;</a></span>led_correct_sk6812()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_correct_sk6812 </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>brightness</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>out_r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>out_g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t *&#160;</td>
+          <td class="paramname"><em>out_b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Map an sRGB lamp color onto OPSCO SK6812MINI RGBW dice. </p>
+<p>PWM is linear; green at 530 nm is much brighter than red, so uncorrected orange comes out yellow. White die is not mixed in (its CCT bin is not recorded, and it repaints near-whites). </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00888">888</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -600,7 +837,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02976">2976</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03443">3443</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -628,7 +865,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03012">3012</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03479">3479</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -656,7 +893,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02994">2994</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03461">3461</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -677,16 +914,14 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Execute a new LED command. </p>
-<p>Execute LED command with full command structure.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">cmd</td><td>Pointer to the LED command</td></tr>
+    <tr><td class="paramname">cmd</td><td>Pointer to the LED command </td></tr>
   </table>
   </dd>
 </dl>
-<p>Execute a new LED command. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01026">1026</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01235">1235</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -710,7 +945,7 @@ Functions</h2></td></tr>
 <p>Force immediate LED update for critical operations Use this only for startup tests or critical visual feedback.</p>
 <p>Vynuceni okamzita LED aktualizace pro kriticke operace. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03335">3335</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03845">3845</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -751,7 +986,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00896">896</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01091">1091</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -780,7 +1015,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Color as uint32_t RGB </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00850">850</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01045">1045</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -817,7 +1052,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>RGB color value (0xRRGGBB) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00867">867</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01062">1062</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -841,7 +1076,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if there are significant changes</dd></dl>
 <p>Check if the LED has changed. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01961">1961</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02143">2143</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -864,7 +1099,7 @@ Functions</h2></td></tr>
 <p>Highlight figures that can move. </p>
 <p>Highlight figures that can move. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01692">1692</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01903">1903</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -899,7 +1134,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01717">1717</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01928">1928</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -922,7 +1157,7 @@ Functions</h2></td></tr>
 <p>Find out if the boot animation is running. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the boot animation is in progress </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02478">2478</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02537">2537</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -943,7 +1178,95 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>true while the lamp owns the board squares. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02912">2912</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03010">3010</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aff344971262344c32285e4bcbffa76b1" name="aff344971262344c32285e4bcbffa76b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff344971262344c32285e4bcbffa76b1">&#9670;&#160;</a></span>led_move_collapse_capture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_move_collapse_capture </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Remember the lit pickup squares. </p>
+<p>Call after the lift picture is set. led_move_trail_start then collapses them toward the post-move hints. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03040">3040</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a751aade7dc8eb285ceb631196647d21f" name="a751aade7dc8eb285ceb631196647d21f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a751aade7dc8eb285ceb631196647d21f">&#9670;&#160;</a></span>led_move_trail_cancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_move_trail_cancel </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03056">3056</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad56b2f8859706252d1dc81152d47686e" name="ad56b2f8859706252d1dc81152d47686e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad56b2f8859706252d1dc81152d47686e">&#9670;&#160;</a></span>led_move_trail_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_move_trail_start </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>After the next hint picture is set: pickup squares fade into it, farthest from the destination first. </p>
+<p>No capture → hints already crossfade. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03058">3058</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -972,7 +1295,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03678">3678</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l04499">4499</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -994,30 +1317,7 @@ Functions</h2></td></tr>
 
 <p>Restore checkerboard after OTA abort / error (eg BLE abort). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03749">3749</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a7e000dafeeac5016d70d5d182b89c10f" name="a7e000dafeeac5016d70d5d182b89c10f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e000dafeeac5016d70d5d182b89c10f">&#9670;&#160;</a></span>led_player_change_animation()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void led_player_change_animation </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Game change animation. </p>
-<p>Game change animation. </p>
-
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01764">1764</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l04570">4570</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1039,7 +1339,7 @@ Functions</h2></td></tr>
 
 <p>Preserve button states during operation. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02959">2959</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03426">3426</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1062,7 +1362,7 @@ Functions</h2></td></tr>
 <p>List only LED changes. </p>
 <p>List only LED changes. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01898">1898</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02080">2080</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1085,7 +1385,7 @@ Functions</h2></td></tr>
 <p>Vypis kompaktni status LED. </p>
 <p>Vypis kompaktni status LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01381">1381</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01592">1592</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1108,7 +1408,7 @@ Functions</h2></td></tr>
 <p>Vypis detailni status LED. </p>
 <p>Vypis detailni status LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01507">1507</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01718">1718</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1130,7 +1430,7 @@ Functions</h2></td></tr>
 
 <p>Process LED commands from the queue. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01001">1001</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01196">1196</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1153,7 +1453,126 @@ Functions</h2></td></tr>
 <p>Reset the LED display of all buttons according to the current state (availability/press) Call after returning from HA mode. </p>
 <p>Reset the LED display of all buttons according to the current state (availability/press) Call after returning from HA mode. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00783">783</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00978">978</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a28befd4712cc5953536f72dd01dcc573" name="a28befd4712cc5953536f72dd01dcc573"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a28befd4712cc5953536f72dd01dcc573">&#9670;&#160;</a></span>led_release_direct_hold()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_release_direct_hold </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03240">3240</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a38cbd73c72612a91ef54869c4b1280d8" name="a38cbd73c72612a91ef54869c4b1280d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38cbd73c72612a91ef54869c4b1280d8">&#9670;&#160;</a></span>led_resign_ring_busy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_resign_ring_busy </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l04011">4011</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1085a88822633f4c15903fb78a815897" name="a1085a88822633f4c15903fb78a815897"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1085a88822633f4c15903fb78a815897">&#9670;&#160;</a></span>led_resign_ring_cancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_resign_ring_cancel </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03995">3995</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="acc38fc13754cdaa94cbd39efd30b5ff1" name="acc38fc13754cdaa94cbd39efd30b5ff1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acc38fc13754cdaa94cbd39efd30b5ff1">&#9670;&#160;</a></span>led_resign_ring_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_resign_ring_start </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>king_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>king_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>white_side</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Resignation ring on the resigning side. </p>
+<p>Spreads for 6 s (the hold's 4–10 s). Cancel fades it out over 400 ms. Stop drops it so the endgame wave can own the strip. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03952">3952</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a46a2d64799c09cc9a7e7c2dd2a040ad9" name="a46a2d64799c09cc9a7e7c2dd2a040ad9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a46a2d64799c09cc9a7e7c2dd2a040ad9">&#9670;&#160;</a></span>led_resign_ring_stop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_resign_ring_stop </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l04006">4006</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1178,7 +1597,7 @@ Functions</h2></td></tr>
 <p>Restore inbox after HA mod.</p>
 <p>This function restores the normal display of the chessboard (black/white squares). </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00774">774</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00969">969</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1224,7 +1643,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00580">580</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00721">721</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1270,7 +1689,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02936">2936</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03368">3368</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1298,7 +1717,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00462">462</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00588">588</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1337,7 +1756,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00790">790</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00985">985</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1365,7 +1784,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00809">809</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01004">1004</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1404,7 +1823,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03030">3030</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03497">3497</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1432,7 +1851,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00828">828</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01023">1023</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1455,7 +1874,7 @@ Functions</h2></td></tr>
 <p>Keep every LED off. </p>
 <p>The LED task clears the frame before each commit. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01983">1983</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02165">2165</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1508,7 +1927,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00731">731</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00927">927</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1541,7 +1960,7 @@ Functions</h2></td></tr>
 <p>While set, game pixel writes must not cover the lamp.</p>
 <p>The gesture wave still paints. Cleared when the board returns to the game. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02910">2910</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02997">2997</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1594,7 +2013,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00570">570</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00711">711</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1645,7 +2064,7 @@ Functions</h2></td></tr>
 <p>Set one LED including the white die. </p>
 <p>RGB callers keep using <a class="el" href="led__task_8h.html#a7cb7bb0774dead39c3607d19de9f9d34" title="Set LED pixel (internal functions without mutex)">led_set_pixel_internal()</a>. Pass white when the lamp (or another caller) must drive the white die itself. The writer does not scale the frame. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00575">575</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00716">716</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1687,7 +2106,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02918">2918</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03339">3339</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1710,7 +2129,7 @@ Functions</h2></td></tr>
 <p>Set animation after endgame. </p>
 <p>Set animation after endgame. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02808">2808</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02896">2896</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1732,7 +2151,7 @@ Functions</h2></td></tr>
 
 <p>Show the box on the LED. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00629">629</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00790">790</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1760,7 +2179,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02964">2964</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03431">3431</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1788,7 +2207,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00921">921</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01116">1116</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1817,7 +2236,7 @@ Functions</h2></td></tr>
 </dl>
 <p>Start a quiet exit period. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01951">1951</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02133">2133</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1840,7 +2259,325 @@ Functions</h2></td></tr>
 <p>Zastav endgame animaci. </p>
 <p>Zastav endgame animaci. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02792">2792</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02880">2880</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a29a322088a8d21740ce74cc348f41b6e" name="a29a322088a8d21740ce74cc348f41b6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29a322088a8d21740ce74cc348f41b6e">&#9670;&#160;</a></span>led_takeback_arm()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_takeback_arm </td>
+          <td>(</td>
+          <td class="paramtype">const uint8_t *&#160;</td>
+          <td class="paramname"><em>led_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Cyan takeback squares. </p>
+<p>The LED task speeds the shared breathe over 600 ms. Confirm is a 240 ms pulse back to whatever picture is set afterwards. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03896">3896</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a54b1f60faa2433dc368194510ae49985" name="a54b1f60faa2433dc368194510ae49985"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54b1f60faa2433dc368194510ae49985">&#9670;&#160;</a></span>led_takeback_clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_takeback_clear </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03916">3916</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="af9bef572a677f50e14c39bc3dce20470" name="af9bef572a677f50e14c39bc3dce20470"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9bef572a677f50e14c39bc3dce20470">&#9670;&#160;</a></span>led_target_begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_begin </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03193">3193</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3fa8489270f931d7b7b45464bec91713" name="a3fa8489270f931d7b7b45464bec91713"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fa8489270f931d7b7b45464bec91713">&#9670;&#160;</a></span>led_target_begin_fade()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_begin_fade </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>fade_ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Like begin, but squares ease from the colour on the strip. </p>
+<p>Pickup stays on begin. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03208">3208</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a52166e472e31f8a9d0f3dbfebcf602d3" name="a52166e472e31f8a9d0f3dbfebcf602d3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a52166e472e31f8a9d0f3dbfebcf602d3">&#9670;&#160;</a></span>led_target_end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_end </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03271">3271</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7e693bcfa8c122684338d17aa99730f4" name="a7e693bcfa8c122684338d17aa99730f4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e693bcfa8c122684338d17aa99730f4">&#9670;&#160;</a></span>led_target_is_open()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool led_target_is_open </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03299">3299</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a1ed2dfe8e851313eb629620ebcc3083a" name="a1ed2dfe8e851313eb629620ebcc3083a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ed2dfe8e851313eb629620ebcc3083a">&#9670;&#160;</a></span>led_target_pulse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_pulse </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>led_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>red</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>green</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>blue</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One-shot ease to rgb and back to the square's target. </p>
+<p>Does not clear the board. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03301">3301</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a0ffbb7a48132c956515a905a97192b19" name="a0ffbb7a48132c956515a905a97192b19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ffbb7a48132c956515a905a97192b19">&#9670;&#160;</a></span>led_target_pulse_cancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_pulse_cancel </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>led_index</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03327">3327</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a8d1e7e252b23657ee8c68142ce4691d1" name="a8d1e7e252b23657ee8c68142ce4691d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8d1e7e252b23657ee8c68142ce4691d1">&#9670;&#160;</a></span>led_target_set()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_set </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>led_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>red</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>green</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>blue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04">led_vis_mode_t</a>&#160;</td>
+          <td class="paramname"><em>mode</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03242">3242</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a58ed8b3f469872d6e3540768d1fe1a9c" name="a58ed8b3f469872d6e3540768d1fe1a9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a58ed8b3f469872d6e3540768d1fe1a9c">&#9670;&#160;</a></span>led_target_set_breathe_sq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_target_set_breathe_sq </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>led_index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>red</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>green</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>blue</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>floor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>period_ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>phase_ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>fade_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Guide breathe. </p>
+<p>period 0 is the shared phase. fade_ms crossfades from out_*. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03256">3256</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1868,7 +2605,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01985">1985</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l02167">2167</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1890,7 +2627,7 @@ Functions</h2></td></tr>
 
 <p>Show the test pattern. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l00932">932</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01127">1127</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1912,7 +2649,7 @@ Functions</h2></td></tr>
 
 <p>Update button availability based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03040">3040</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l03507">3507</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1935,7 +2672,7 @@ Functions</h2></td></tr>
 <p>Update LED based on game state. </p>
 <p>Update LED based on game state. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01677">1677</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01888">1888</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>
@@ -1958,7 +2695,7 @@ Functions</h2></td></tr>
 <p>Update the LED hardware. </p>
 <p>Send current LED data to WS2812B LED strip. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01287">1287</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__task_8c_source.html#l01498">1498</a> of file <a class="el" href="led__task_8c_source.html">led_task.c</a>.</p>
 
 </div>
 </div>

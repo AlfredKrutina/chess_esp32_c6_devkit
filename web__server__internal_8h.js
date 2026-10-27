@@ -20,11 +20,11 @@ var web__server__internal_8h =
     [ "web_server_opening_dispatch_json", "web__server__internal_8h.html#a591cdaf22423bbfdb1e7b5c1b8502fba", null ],
     [ "web_server_puzzle_dispatch_body", "web__server__internal_8h.html#aae8e06549a723e72a415f012dff72ee0", null ],
     [ "web_server_task_wdt_reset_safe", "web__server__internal_8h.html#a55bb096de1c30250cf17daaf49e423a9", null ],
+    [ "web_snapshot_buffer_release", "web__server__internal_8h.html#a3b3459a9d81f9d62490b22675214d278", null ],
     [ "wifi_get_sta_status_json", "web__server__internal_8h.html#abe3fd9f4abc134a2e04a1281aa685fab", null ],
     [ "cached_brightness", "web__server__internal_8h.html#ab17ad7844a24ac3ce03f648f18a3c976", null ],
     [ "cached_brightness_valid", "web__server__internal_8h.html#a10437ead7390b9e656788a7546bb15b2", null ],
-    [ "json_buffer", "web__server__internal_8h.html#a4a7ce2f31b8eb2ae9b2c75a2e75147bd", null ],
-    [ "snapshot_buffer", "web__server__internal_8h.html#a59e2189b179fe26098bde1ae3dfbb20a", null ],
+    [ "snapshot_buffer", "web__server__internal_8h.html#a3b880fffb86202fda1f9406c4db484f2", null ],
     [ "snapshot_build_mutex", "web__server__internal_8h.html#a481e9b08e82551919739d6f2388ea96e", null ],
     [ "snapshot_notify_queue", "web__server__internal_8h.html#a63927ab8c5be90b09ed638d9eb4ad162", null ]
 ];

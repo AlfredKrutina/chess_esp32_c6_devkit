@@ -29,6 +29,7 @@ var game__puzzle_8c =
     [ "game_puzzle_physical_matches_fen", "game__puzzle_8c.html#ad22efb0260b6734fc6f8bd0eda3e6a91", null ],
     [ "game_puzzle_ply", "game__puzzle_8c.html#a899b50eef1832467f6593711515a0745", null ],
     [ "game_puzzle_ply_total", "game__puzzle_8c.html#a55adb6dc05bf2c0d5046773b0e7b38f3", null ],
+    [ "game_puzzle_service_hall_move", "game__puzzle_8c.html#a8be09515e9b0469233e515e43cb27f27", null ],
     [ "game_puzzle_service_leds", "game__puzzle_8c.html#aa9d6ab5079871fd8172c4f005fc24218", null ],
     [ "game_puzzle_session_id", "game__puzzle_8c.html#a7a3b79cabad6464a9e6f6ac38a542c1a", null ],
     [ "game_puzzle_stage_builtin", "game__puzzle_8c.html#a6ae4ea5b51932c697197877e4e1dae30", null ],

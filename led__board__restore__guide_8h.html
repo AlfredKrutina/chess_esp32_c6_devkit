@@ -158,6 +158,15 @@ Functions</h2></td></tr>
 <tr class="separator:aefed614337e9f0d5de858a889caf36d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84d6544e0a20d33b1a6b3099cfe4c2df" id="r_a84d6544e0a20d33b1a6b3099cfe4c2df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8h.html#a84d6544e0a20d33b1a6b3099cfe4c2df">led_board_restore_guide_tick</a> (void)</td></tr>
 <tr class="separator:a84d6544e0a20d33b1a6b3099cfe4c2df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0606b22b8d8159e761242a426f9063f2" id="r_a0606b22b8d8159e761242a426f9063f2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8h.html#a0606b22b8d8159e761242a426f9063f2">led_board_restore_guide_yield</a> (void)</td></tr>
+<tr class="memdesc:a0606b22b8d8159e761242a426f9063f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forget the last painted guide colors so the next tick draws them again.  <br /></td></tr>
+<tr class="separator:a0606b22b8d8159e761242a426f9063f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e7db39754176d6ef2b451beeb1b89b2" id="r_a4e7db39754176d6ef2b451beeb1b89b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8h.html#a4e7db39754176d6ef2b451beeb1b89b2">led_board_restore_guide_cancel</a> (void)</td></tr>
+<tr class="memdesc:a4e7db39754176d6ef2b451beeb1b89b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop the guide without painting, so a demo or a game can own the squares.  <br /></td></tr>
+<tr class="separator:a4e7db39754176d6ef2b451beeb1b89b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3ab81bf863c1d16cd2838271bce4597" id="r_ac3ab81bf863c1d16cd2838271bce4597"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="led__board__restore__guide_8h.html#ac3ab81bf863c1d16cd2838271bce4597">led_board_restore_guide_blank</a> (void)</td></tr>
+<tr class="memdesc:ac3ab81bf863c1d16cd2838271bce4597"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop the plan and fade every square toward off.  <br /></td></tr>
+<tr class="separator:ac3ab81bf863c1d16cd2838271bce4597"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Smooth per-piece setup glow for the Hall board-restore guide. </p>
@@ -309,7 +318,51 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00133">133</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00137">137</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="ac3ab81bf863c1d16cd2838271bce4597" name="ac3ab81bf863c1d16cd2838271bce4597"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3ab81bf863c1d16cd2838271bce4597">&#9670;&#160;</a></span>led_board_restore_guide_blank()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_board_restore_guide_blank </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Drop the plan and fade every square toward off. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00156">156</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a4e7db39754176d6ef2b451beeb1b89b2" name="a4e7db39754176d6ef2b451beeb1b89b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e7db39754176d6ef2b451beeb1b89b2">&#9670;&#160;</a></span>led_board_restore_guide_cancel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_board_restore_guide_cancel </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Drop the guide without painting, so a demo or a game can own the squares. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00201">201</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -329,7 +382,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00157">157</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00189">189</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -351,7 +404,7 @@ Functions</h2></td></tr>
 
 <p>Drop the plan and fade whatever is still lit. </p>
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00149">149</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00165">165</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -371,7 +424,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00169">169</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00193">193</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>
@@ -391,7 +444,29 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00171">171</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00207">207</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
+
+</div>
+</div>
+<a id="a0606b22b8d8159e761242a426f9063f2" name="a0606b22b8d8159e761242a426f9063f2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0606b22b8d8159e761242a426f9063f2">&#9670;&#160;</a></span>led_board_restore_guide_yield()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void led_board_restore_guide_yield </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Forget the last painted guide colors so the next tick draws them again. </p>
+
+<p class="definition">Definition at line <a class="el" href="led__board__restore__guide_8c_source.html#l00195">195</a> of file <a class="el" href="led__board__restore__guide_8c_source.html">led_board_restore_guide.c</a>.</p>
 
 </div>
 </div>

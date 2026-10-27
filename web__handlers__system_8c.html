@@ -289,6 +289,10 @@ Functions</h2></td></tr>
 <tr class="separator:a785ee24f1073fe582f8ebdf2d8606da5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65fd67e695fe76ac6ad9e82386037a1d" id="r_a65fd67e695fe76ac6ad9e82386037a1d"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__system_8c.html#a65fd67e695fe76ac6ad9e82386037a1d">http_post_light_command_handler</a> (httpd_req_t *req)</td></tr>
 <tr class="separator:a65fd67e695fe76ac6ad9e82386037a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a608189bbbe6478ef3d22c3ef2896cddf" id="r_a608189bbbe6478ef3d22c3ef2896cddf"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__system_8c.html#a608189bbbe6478ef3d22c3ef2896cddf">light_json_int</a> (const char *content, const char *key, int fallback)</td></tr>
+<tr class="separator:a608189bbbe6478ef3d22c3ef2896cddf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad623a785a0cb84f53cd346933bd959f7" id="r_ad623a785a0cb84f53cd346933bd959f7"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__system_8c.html#ad623a785a0cb84f53cd346933bd959f7">http_post_light_pattern_handler</a> (httpd_req_t *req)</td></tr>
+<tr class="separator:ad623a785a0cb84f53cd346933bd959f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa39b20be8257e6b466f27e154cc9684e" id="r_aa39b20be8257e6b466f27e154cc9684e"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__system_8c.html#aa39b20be8257e6b466f27e154cc9684e">http_post_light_game_mode_handler</a> (httpd_req_t *req)</td></tr>
 <tr class="separator:aa39b20be8257e6b466f27e154cc9684e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a49e76efcca45222b5f264c1408e47447" id="r_a49e76efcca45222b5f264c1408e47447"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__system_8c.html#a49e76efcca45222b5f264c1408e47447">http_post_demo_config_handler</a> (httpd_req_t *req)</td></tr>
@@ -337,7 +341,7 @@ Variables</h2></td></tr>
 
 <p>Must sit exactly with web (POST /api/system/factory_reset) and iOS. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00710">710</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00764">764</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -358,7 +362,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00744">744</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00798">798</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -386,7 +390,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00722">722</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00776">776</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -406,7 +410,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00691">691</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00745">745</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -482,7 +486,7 @@ Variables</h2></td></tr>
 
 <p>GET /api/settings/ui — JSON preferences from NVS (or default). </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00761">761</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00815">815</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -532,7 +536,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00637">637</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00691">691</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -552,7 +556,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00675">675</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00729">729</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -575,7 +579,7 @@ Variables</h2></td></tr>
 <p>POST /api/system/factory_reset. </p>
 <p>Deletes the entire NVS partition (raw erase) and restarts the MCU. Does not solve web lock — rescue path The body must contain: {"confirm":"erase_all_nvs"} </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00832">832</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00886">886</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -615,7 +619,27 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00625">625</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00679">679</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+
+</div>
+</div>
+<a id="ad623a785a0cb84f53cd346933bd959f7" name="ad623a785a0cb84f53cd346933bd959f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad623a785a0cb84f53cd346933bd959f7">&#9670;&#160;</a></span>http_post_light_pattern_handler()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">esp_err_t http_post_light_pattern_handler </td>
+          <td>(</td>
+          <td class="paramtype">httpd_req_t *&#160;</td>
+          <td class="paramname"><em>req</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00643">643</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -791,7 +815,7 @@ Variables</h2></td></tr>
 
 <p>POST /api/settings/ui — save web UI JSON to NVS. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00779">779</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00833">833</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>
@@ -843,7 +867,51 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00712">712</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00766">766</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
+
+</div>
+</div>
+<a id="a608189bbbe6478ef3d22c3ef2896cddf" name="a608189bbbe6478ef3d22c3ef2896cddf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a608189bbbe6478ef3d22c3ef2896cddf">&#9670;&#160;</a></span>light_json_int()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int light_json_int </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>content</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>key</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>fallback</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="web__handlers__system_8c_source.html#l00625">625</a> of file <a class="el" href="web__handlers__system_8c_source.html">web_handlers_system.c</a>.</p>
 
 </div>
 </div>

@@ -11,11 +11,11 @@ var web__handlers__game_8c =
     [ "web_server_apply_hint_highlight_json_body", "web__handlers__game_8c.html#ae2ee8d0febaa6efbb435ca1a93784fa2", null ],
     [ "web_server_build_game_snapshot_json", "web__handlers__game_8c.html#af5b5cad95519a4822754d8caed31e3c9", null ],
     [ "web_server_build_game_snapshot_json_shared", "web__handlers__game_8c.html#a3595c3ff5038a64f10d58b22aa7961ee", null ],
+    [ "web_snapshot_buffer_release", "web__handlers__game_8c.html#a3b3459a9d81f9d62490b22675214d278", null ],
     [ "game_command_queue", "web__handlers__game_8c.html#a4ed770cbe46604586e494bae84b62304", null ],
-    [ "json_buffer", "web__handlers__game_8c.html#ae7e1d6cf30d41e42812fe413fdfcefd6", null ],
     [ "s_clock_json_build_scratch", "web__handlers__game_8c.html#a92ab82dd7ecc9be694f201047df8554b", null ],
     [ "s_setup_tutorial_finish_conflict_until_tick", "web__handlers__game_8c.html#adc44afbaafdd95e621face23b464eea4", null ],
-    [ "snapshot_buffer", "web__handlers__game_8c.html#abb6c90a494eed8308b59a78b601f2cb8", null ],
+    [ "snapshot_buffer", "web__handlers__game_8c.html#a3b880fffb86202fda1f9406c4db484f2", null ],
     [ "snapshot_build_mutex", "web__handlers__game_8c.html#a481e9b08e82551919739d6f2388ea96e", null ],
     [ "TAG", "web__handlers__game_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

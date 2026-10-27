@@ -19,6 +19,7 @@ var chess__gameplay__policy_8c =
     [ "chess_policy_move_hints_movable_yellow", "chess__gameplay__policy_8c.html#aa01b73e8e0a672bfd25a47b981e41d26", null ],
     [ "chess_policy_move_hints_promotion_blue", "chess__gameplay__policy_8c.html#a2f426a59a16c6a51607172c2a96abc4a", null ],
     [ "chess_policy_profile_name", "chess__gameplay__policy_8c.html#a007d451e76ca310e848cd5e710854354", null ],
+    [ "chess_policy_refresh_idle_board_leds", "chess__gameplay__policy_8c.html#a2a54a31c8363e48a0ffe0c8e068e6ee0", null ],
     [ "chess_policy_squares_guard_auto_clear_enabled", "chess__gameplay__policy_8c.html#a22eb81fd7671382cb8e9d3d4e4a50880", null ],
     [ "chess_policy_squares_guard_enabled", "chess__gameplay__policy_8c.html#aa463e0d2f11b1a2e25b209785895668d", null ],
     [ "chess_policy_squares_guard_led_enabled", "chess__gameplay__policy_8c.html#a7d1833534a9ec7d700f87c31abc58874", null ],

@@ -158,6 +158,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a52f32c271a77697e45d88e3a8b0f4b91" id="r_a52f32c271a77697e45d88e3a8b0f4b91"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#a52f32c271a77697e45d88e3a8b0f4b91">game_physical_undo_intercept_pickup</a> (uint8_t row, uint8_t col)</td></tr>
 <tr class="memdesc:a52f32c271a77697e45d88e3a8b0f4b91"><td class="mdescLeft">&#160;</td><td class="mdescRight">Continue a takeback when the last mover was set down off the return square.  <br /></td></tr>
 <tr class="separator:a52f32c271a77697e45d88e3a8b0f4b91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff33a207c553ceaeeff9fba18d3ebb44" id="r_aff33a207c553ceaeeff9fba18d3ebb44"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical__undo_8h.html#aff33a207c553ceaeeff9fba18d3ebb44">game_physical_undo_copy_previous</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> dest[8][8])</td></tr>
+<tr class="memdesc:aff33a207c553ceaeeff9fba18d3ebb44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy the position before the last history ply into dest.  <br /></td></tr>
+<tr class="separator:aff33a207c553ceaeeff9fba18d3ebb44"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Physical takeback: lift the last mover, restore the piece, then rewind. </p>
@@ -207,7 +210,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00085">85</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00086">86</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -235,7 +238,30 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00131">131</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00132">132</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+
+</div>
+</div>
+<a id="aff33a207c553ceaeeff9fba18d3ebb44" name="aff33a207c553ceaeeff9fba18d3ebb44"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff33a207c553ceaeeff9fba18d3ebb44">&#9670;&#160;</a></span>game_physical_undo_copy_previous()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_physical_undo_copy_previous </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>dest</em>[8][8]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy the position before the last history ply into dest. </p>
+<dl class="section return"><dt>Returns</dt><dd>false when history is empty or dest is NULL. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00273">273</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -258,7 +284,7 @@ Functions</h2></td></tr>
 <p>Whether the physical-takeback preference is on. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when <a class="el" href="config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0" title="Physical takeback on board (default true when key missing).">config_ui_prefs_get_chess_physical_takeback()</a> is set. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00138">138</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00139">139</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -305,7 +331,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the drop was fully handled and the caller should return. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00611">611</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00631">631</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -359,7 +385,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if this pickup was consumed by the undo flow. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00565">565</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00577">577</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -392,7 +418,7 @@ Functions</h2></td></tr>
 <p>Continue a takeback when the last mover was set down off the return square. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when this pickup belongs to the active takeback and the caller should stop. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00495">495</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00507">507</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -415,7 +441,7 @@ Functions</h2></td></tr>
 <p>Whether a physical takeback phase is in progress. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when the phase is not idle. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00146">146</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00147">147</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -438,7 +464,7 @@ Functions</h2></td></tr>
 <p>Clear the in-progress physical takeback. </p>
 <p>Does not rewind the engine. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00142">142</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00143">143</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -461,7 +487,7 @@ Functions</h2></td></tr>
 <p>Refresh pending-takeback LEDs. </p>
 <p>Called from the game command cycle. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00489">489</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00496">496</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>
@@ -484,7 +510,7 @@ Functions</h2></td></tr>
 <p>Rewind the engine by one history entry (UART undo and the end of a takeback). </p>
 <dl class="section return"><dt>Returns</dt><dd>false when history is empty; true after the position is restored. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00360">360</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical__undo_8c_source.html#l00364">364</a> of file <a class="el" href="game__physical__undo_8c_source.html">game_physical_undo.c</a>.</p>
 
 </div>
 </div>

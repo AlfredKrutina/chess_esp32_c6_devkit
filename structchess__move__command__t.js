@@ -5,6 +5,7 @@ var structchess__move__command__t =
     [ "custom_minutes", "structchess__move__command__t.html#ab1469d3613ac521e6521da4c7fabad75", null ],
     [ "dropped_mask_high", "structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0", null ],
     [ "dropped_mask_low", "structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52", null ],
+    [ "event_ms", "structchess__move__command__t.html#ae71d04ee0c39290abf988909426a133c", null ],
     [ "fen", "structchess__move__command__t.html#a5f2cb06f60e6e18cc5ed4764092c26e5", null ],
     [ "fen_new_game", "structchess__move__command__t.html#aed02ebe68f628800d2616570cc5653da", null ],
     [ "from_notation", "structchess__move__command__t.html#a51b8eb6617ef0642c722008827f2d3d1", null ],

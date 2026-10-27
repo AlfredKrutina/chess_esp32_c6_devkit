@@ -24,7 +24,6 @@
 */
 var menudata={children:[
 {text:"Main Page",url:"index.html"},
-{text:"Related Pages",url:"pages.html"},
 {text:"Data Structures",url:"annotated.html",children:[
 {text:"Data Structures",url:"annotated.html"},
 {text:"Data Structure Index",url:"classes.html"},
@@ -135,7 +134,6 @@ var menudata={children:[
 {text:"g",url:"globals_vars_g.html#index_g"},
 {text:"h",url:"globals_vars_h.html#index_h"},
 {text:"i",url:"globals_vars_i.html#index_i"},
-{text:"j",url:"globals_vars_j.html#index_j"},
 {text:"k",url:"globals_vars_k.html#index_k"},
 {text:"l",url:"globals_vars_l.html#index_l"},
 {text:"m",url:"globals_vars_m.html#index_m"},

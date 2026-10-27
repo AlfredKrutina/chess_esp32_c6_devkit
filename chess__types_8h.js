@@ -78,7 +78,8 @@ var chess__types_8h =
       [ "GAME_CMD_PUZZLE", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0", null ],
       [ "GAME_CMD_NEW_GAME_FROM_FEN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b", null ],
       [ "GAME_CMD_OPENING_TRAINER", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72", null ],
-      [ "GAME_CMD_RESIGN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8", null ]
+      [ "GAME_CMD_RESIGN", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8", null ],
+      [ "GAME_CMD_DRAW", "chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc", null ]
     ] ],
     [ "game_response_type_t", "chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502", [
       [ "GAME_RESPONSE_SUCCESS", "chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d", null ],
@@ -96,7 +97,8 @@ var chess__types_8h =
       [ "RESULT_DRAW_STALEMATE", "chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a05e8dcf1a732c2020d364fb5d9cea20e", null ],
       [ "RESULT_DRAW_50_MOVE", "chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a6577cffad8cbf7e5ca95dd46e504705b", null ],
       [ "RESULT_DRAW_REPETITION", "chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208", null ],
-      [ "RESULT_DRAW_INSUFFICIENT", "chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad", null ]
+      [ "RESULT_DRAW_INSUFFICIENT", "chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad", null ],
+      [ "RESULT_DRAW_AGREEMENT", "chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a01986a09c29c054aee187e20e8544490", null ]
     ] ],
     [ "game_state_t", "chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d", [
       [ "GAME_STATE_IDLE", "chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414dac440660deb460f2f6ad318818cd0458f", null ],

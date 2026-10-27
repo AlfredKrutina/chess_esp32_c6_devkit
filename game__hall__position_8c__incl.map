@@ -1,0 +1,21 @@
+<map id="game_hall_position.c" name="game_hall_position.c">
+<area shape="rect" id="Node000001" title="Diff the Hall occupancy snapshot against the last legal position." alt="" coords="353,5,513,31"/>
+<area shape="rect" id="Node000002" href="$game__hall__position_8h.html" title="Last legal position compared with the live Hall snapshot." alt="" coords="352,79,513,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="435,31,435,65,430,65,430,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="209,152,305,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,106,299,149,297,144,403,102"/>
+<area shape="rect" id="Node000004" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="329,152,443,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="427,106,403,142,399,139,423,103"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="439,225,522,251"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="440,103,458,151,476,211,471,213,453,153,435,105"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="547,225,617,251"/>
+<area shape="poly" id="edge10_Node000002_Node000009" title=" " alt="" coords="447,103,562,214,558,218,443,106"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,225,87,251"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="330,180,101,227,100,222,329,175"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="111,225,261,251"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="355,180,233,223,231,218,353,175"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="285,225,415,251"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="382,179,364,214,360,212,378,176"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="403,175,456,215,453,219,400,179"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="418,175,538,218,536,223,417,180"/>
+</map>

@@ -22,7 +22,8 @@ var game__task__internal_8h =
       [ "ENDGAME_REASON_REPETITION", "game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caac48674036719b12ebdccbcaef0724ef8", null ],
       [ "ENDGAME_REASON_INSUFFICIENT", "game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa07cc538fbe0da7f3c53e2a65dc4cb764", null ],
       [ "ENDGAME_REASON_TIMEOUT", "game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caaf504ae744a15e3a3ec113ff53541df72", null ],
-      [ "ENDGAME_REASON_RESIGNATION", "game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa6572be1bd9ec4bf05582b9506e79f869", null ]
+      [ "ENDGAME_REASON_RESIGNATION", "game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa6572be1bd9ec4bf05582b9506e79f869", null ],
+      [ "ENDGAME_REASON_AGREEMENT", "game__task__internal_8h.html#ac2c530ea32ce9318e13d562eb6ed63caadbb1b04a5778df260b8d98658ef63d55", null ]
     ] ],
     [ "last_move_type_t", "game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428", [
       [ "LAST_MOVE_NORMAL", "game__task__internal_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428adaa3371423259563b378fbafc75fd5d7", null ],
@@ -87,7 +88,6 @@ var game__task__internal_8h =
     [ "game_task_wdt_reset_safe", "game__task__internal_8h.html#a08549fa23000890e826c78146ddaeda8", null ],
     [ "game_trigger_victory_animation", "game__task__internal_8h.html#a8ffc3e4b7385ec855b4098504e6637f6", null ],
     [ "game_update_endgame_statistics", "game__task__internal_8h.html#a9b4cb898b4bc25bca38d4533fc6ff025", null ],
-    [ "game_update_error_blink", "game__task__internal_8h.html#accf34dd84b20310558e589194f84657a", null ],
     [ "game_update_promotion_anchor_led", "game__task__internal_8h.html#aac877a354405fb4152672fa247dcda87", null ],
     [ "piece_to_char", "game__task__internal_8h.html#a2f0344775e155aaaaa2c896a13453228", null ],
     [ "resignation_start", "game__task__internal_8h.html#acbf110fdfd6d83d9db30abcfdfffd8e0", null ],

@@ -1,0 +1,9 @@
+<map id="game_hall_led.c" name="game_hall_led.c">
+<area shape="rect" id="Node000001" title="Takeback overlay." alt="" coords="43,5,171,31"/>
+<area shape="rect" id="Node000002" href="$game__hall__led_8h.html" title="One&#45;shot Hall overlays that are not move hints or the restore guide." alt="" coords="42,79,171,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,31,109,65,104,65,104,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,101,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="100,106,72,143,68,140,96,103"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="126,152,197,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="118,103,146,140,142,143,114,106"/>
+</map>

@@ -1,4 +1,13 @@
 var searchData=
 [
-  ['json_5fbuffer_0',['json_buffer',['../web__server__internal_8h.html#a4a7ce2f31b8eb2ae9b2c75a2e75147bd',1,'json_buffer:&#160;web_handlers_game.c'],['../web__handlers__game_8c.html#ae7e1d6cf30d41e42812fe413fdfcefd6',1,'json_buffer:&#160;web_handlers_game.c']]]
+  ['k_5fbreathe_5fgain_0',['k_breathe_gain',['../led__task_8c.html#aca476780a0298edecd0a74b0ee9bd077',1,'led_task.c']]],
+  ['k_5fdemo_5fcolors_1',['k_demo_colors',['../game__gesture_8c.html#a2ab1e538f76e23c571845284edfa206e',1,'game_gesture.c']]],
+  ['k_5fdemo_5fgame_2',['k_demo_game',['../game__gesture_8c.html#a1777b6f6440b7426b904ea2321316fa9',1,'game_gesture.c']]],
+  ['k_5fhttp_5froot_5fjson_3',['k_http_root_json',['../web__server__task_8c.html#a8022a1e78e78515682e9ac22fc7f5593',1,'web_server_task.c']]],
+  ['k_5fsk6812_5fsrgb_5flin_4',['k_sk6812_srgb_lin',['../led__task_8c.html#aa44e35bc72df1ef7ebf6af495d49c93a',1,'led_task.c']]],
+  ['kind_5',['kind',['../structphysical__undo__state__t.html#aaa7979c8018f7f56ea6e732e62a52664',1,'physical_undo_state_t::kind'],['../structgame__snapshot__hist__v2__t.html#a970f4ea4bf4c4a82c159b4daa2273087',1,'game_snapshot_hist_v2_t::kind'],['../structboard__pair__slot__t.html#a888d9db6a4fd94df87c62823f0b16b96',1,'board_pair_slot_t::kind']]],
+  ['king_5fcol_6',['king_col',['../structking__resignation__state__t.html#a37e62616ed1e01e5461649b7fbe074e2',1,'king_resignation_state_t']]],
+  ['king_5fmoves_7',['king_moves',['../game__move__gen_8c.html#a7ba91d42df01587a1fa707b8a6e65c8c',1,'game_move_gen.c']]],
+  ['king_5frow_8',['king_row',['../structking__resignation__state__t.html#a8aa2d198aefd1c851caa794ed1c1af41',1,'king_resignation_state_t']]],
+  ['knight_5fmoves_9',['knight_moves',['../game__move__gen_8c.html#aa8992a10c771c05333aaea769d0cc506',1,'knight_moves:&#160;game_move_gen.c'],['../game__task__internal_8h.html#aa8992a10c771c05333aaea769d0cc506',1,'knight_moves:&#160;game_move_gen.c']]]
 ];

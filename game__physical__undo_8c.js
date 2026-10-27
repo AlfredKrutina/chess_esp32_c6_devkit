@@ -10,6 +10,7 @@ var game__physical__undo_8c =
     [ "game_move_undo_meta_on_promotion_completed", "game__physical__undo_8c.html#a885557b12578a8c185d531d0ae69d32c", null ],
     [ "game_physical_undo_arm_from_last", "game__physical__undo_8c.html#ab85a1426e92f45e1ff80b579e6612bc7", null ],
     [ "game_physical_undo_build_target_board", "game__physical__undo_8c.html#a648637c5264d58ff6642ff3b7ace8c18", null ],
+    [ "game_physical_undo_copy_previous", "game__physical__undo_8c.html#aff33a207c553ceaeeff9fba18d3ebb44", null ],
     [ "game_physical_undo_drop_is_last_reverse", "game__physical__undo_8c.html#acad7a3308d11be22cee6c963b46a7053", null ],
     [ "game_physical_undo_enabled", "game__physical__undo_8c.html#ad48d8275432f8e42175fe0711e306ece", null ],
     [ "game_physical_undo_handle_drop", "game__physical__undo_8c.html#a8e114e94e6635f66b587d350fd3a6da2", null ],

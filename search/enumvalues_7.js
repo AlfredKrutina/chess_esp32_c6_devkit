@@ -71,5 +71,8 @@ var searchData=
   ['led_5flayer_5fmoves_68',['LED_LAYER_MOVES',['../led__state__manager_8h.html#af4c342c31ff859428428924ca8a0231ba258749d3fd51d257da5e667a6055f583',1,'led_state_manager.h']]],
   ['led_5flayer_5fpieces_69',['LED_LAYER_PIECES',['../led__state__manager_8h.html#af4c342c31ff859428428924ca8a0231ba61181a2d6018dd35a6107f7c092723e2',1,'led_state_manager.h']]],
   ['led_5flayer_5fselection_70',['LED_LAYER_SELECTION',['../led__state__manager_8h.html#af4c342c31ff859428428924ca8a0231ba8924cdd0ec60caffea8ad4a03e3a1ef7',1,'led_state_manager.h']]],
-  ['led_5flayer_5fstatus_71',['LED_LAYER_STATUS',['../led__state__manager_8h.html#af4c342c31ff859428428924ca8a0231ba231ba4fa658ed751cbe6b230aa550325',1,'led_state_manager.h']]]
+  ['led_5flayer_5fstatus_71',['LED_LAYER_STATUS',['../led__state__manager_8h.html#af4c342c31ff859428428924ca8a0231ba231ba4fa658ed751cbe6b230aa550325',1,'led_state_manager.h']]],
+  ['led_5fvis_5fbreathe_72',['LED_VIS_BREATHE',['../led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684',1,'led_task.h']]],
+  ['led_5fvis_5ffade_73',['LED_VIS_FADE',['../led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04a34ffb7dc429c65a84de85e22a05a8ec5',1,'led_task.h']]],
+  ['led_5fvis_5fsnap_74',['LED_VIS_SNAP',['../led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04afb5e0bd641a82c1f8334e77b83581aee',1,'led_task.h']]]
 ];

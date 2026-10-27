@@ -17,6 +17,6 @@ var game__init_8c =
     [ "game_reset_game", "game__init_8c.html#ac75becc8b5888b8fa31045d7c28c085e", null ],
     [ "game_show_missing_pieces_led", "game__init_8c.html#abe64830444e345d32ae5d59716f0e8a3", null ],
     [ "game_start_new_game", "game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44", null ],
-    [ "game_start_new_game_from_fen", "game__init_8c.html#aa74e40d5d2135727cdaf43e72e8c1db5", null ],
+    [ "game_start_new_game_from_fen", "game__init_8c.html#acb4b693e8b219f086cd2082b87406da9", null ],
     [ "TAG", "game__init_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

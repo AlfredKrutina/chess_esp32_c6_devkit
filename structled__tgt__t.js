@@ -1,0 +1,25 @@
+var structled__tgt__t =
+[
+    [ "br_delay", "structled__tgt__t.html#a94388f7c81c3bf141edb620bbc7b26ee", null ],
+    [ "br_fade_ms", "structled__tgt__t.html#a1c4403e4b3f809bf12d89d8a7bfc36fb", null ],
+    [ "br_fading", "structled__tgt__t.html#a8cc3f5f83e6b15348a9eb8d9b2f6d1ac", null ],
+    [ "br_floor", "structled__tgt__t.html#a3d3c9383d215e5051e2179f3cee1d695", null ],
+    [ "br_period", "structled__tgt__t.html#a7c6ac8bf354281db63e14c28747a1ef5", null ],
+    [ "br_phase", "structled__tgt__t.html#a8a95f48f2ab43d7cef361d434e129091", null ],
+    [ "mode", "structled__tgt__t.html#a064248868a0518859091eb050e645f03", null ],
+    [ "out_b", "structled__tgt__t.html#aec4d843dbe1345cbf9c7172e034ed531", null ],
+    [ "out_g", "structled__tgt__t.html#a32a6b803006304d824b09a0560049168", null ],
+    [ "out_r", "structled__tgt__t.html#ac860692cd258761846d507edf20a70a4", null ],
+    [ "pb", "structled__tgt__t.html#ace400105d76ec0230e17f430af410718", null ],
+    [ "pg", "structled__tgt__t.html#a993dcc761b997b60691e851dff45d3c6", null ],
+    [ "pr", "structled__tgt__t.html#aa34826cb3067e3d405d61319aeb4a492", null ],
+    [ "pulse", "structled__tgt__t.html#a75ae23f34c4e615cd5a5df34bf2a0c68", null ],
+    [ "sb", "structled__tgt__t.html#ae810230eba460af02fc3b0a836c262d7", null ],
+    [ "sg", "structled__tgt__t.html#afb92f4a11544681e476337c764227a75", null ],
+    [ "sr", "structled__tgt__t.html#a2a39c5080d42e0bf6044e742b39a5282", null ],
+    [ "t0", "structled__tgt__t.html#a11f1a25cf36fb721ec7c01535a9e6e62", null ],
+    [ "tb", "structled__tgt__t.html#a6115eea26c4ef9f12268818eae16df0c", null ],
+    [ "tg", "structled__tgt__t.html#ada0a9e28b2e69ed558c767aafb646b0a", null ],
+    [ "touched", "structled__tgt__t.html#a1d326dba64c432ae6fb80f82ce291803", null ],
+    [ "tr", "structled__tgt__t.html#a6458d6be0bc124a9be732c406d4f4234", null ]
+];

@@ -11,9 +11,17 @@ var config__manager_8c =
     [ "config_save_blob_to_nvs", "config__manager_8c.html#a2ba1745f97042165032c102c1957290b", null ],
     [ "config_save_to_nvs", "config__manager_8c.html#a24aceb1224555fd605ab85c9b0842357", null ],
     [ "config_save_ui_prefs_json", "config__manager_8c.html#aec173cc4386c2247aae898a09e3035fa", null ],
+    [ "config_ui_prefs_apply_json", "config__manager_8c.html#a6ad7682ce2a635de1edc5454e3198bbb", null ],
+    [ "config_ui_prefs_ensure", "config__manager_8c.html#afdfadde9793b4abfa21e5646084513f5", null ],
     [ "config_ui_prefs_get_chess_hint_limit", "config__manager_8c.html#a2384ec2b6d40470fce3f919e0aa3ae86", null ],
     [ "config_ui_prefs_get_chess_physical_takeback", "config__manager_8c.html#aa4b3c9a341d63bf470ac2f0213fe9cc0", null ],
+    [ "config_ui_prefs_note_saved", "config__manager_8c.html#a3e28996662f413c40b50841ebe18ecd1", null ],
     [ "config_ui_prefs_parse_bool_key", "config__manager_8c.html#afe78d0f2ba75481d47c2f958b38654ae", null ],
+    [ "config_ui_prefs_parse_hint", "config__manager_8c.html#a09bddd0a72ba391a66160d5cbabca18a", null ],
     [ "default_config", "config__manager_8c.html#a8afb2db2bb5f0a2920f95df018b0f3ed", null ],
+    [ "s_hint_limit", "config__manager_8c.html#ae97aa3a4f6b645c4c93c26cc1e8072fe", null ],
+    [ "s_prefs_ready", "config__manager_8c.html#aa67ef7f45d98177000ea0c237debce88", null ],
+    [ "s_takeback", "config__manager_8c.html#ab60ede8a978c0cae1a3603618464d04e", null ],
+    [ "s_ui_prefs_json", "config__manager_8c.html#ab1daf8783f0152c03396d466758770c9", null ],
     [ "TAG", "config__manager_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

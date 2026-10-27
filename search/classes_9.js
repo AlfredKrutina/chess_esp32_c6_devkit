@@ -12,5 +12,6 @@ var searchData=
   ['led_5frestore_5fguide_5fmark_5ft_9',['led_restore_guide_mark_t',['../structled__restore__guide__mark__t.html',1,'']]],
   ['led_5frestore_5fguide_5fpath_5ft_10',['led_restore_guide_path_t',['../structled__restore__guide__path__t.html',1,'']]],
   ['led_5frestore_5fguide_5fplan_5ft_11',['led_restore_guide_plan_t',['../structled__restore__guide__plan__t.html',1,'']]],
-  ['led_5fstate_5ft_12',['led_state_t',['../structled__state__t.html',1,'']]]
+  ['led_5fstate_5ft_12',['led_state_t',['../structled__state__t.html',1,'']]],
+  ['led_5ftgt_5ft_13',['led_tgt_t',['../structled__tgt__t.html',1,'']]]
 ];

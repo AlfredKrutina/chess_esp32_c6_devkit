@@ -1,7 +1,9 @@
 var game__resignation_8c =
 [
+    [ "game_agree_draw", "game__resignation_8c.html#afd488a460cff1c12ce9abcc7db79cd0f", null ],
     [ "game_resign_check", "game__resignation_8c.html#ac1f1965307d1a4a8ed48280d8aa94d03", null ],
     [ "game_resign_from_app", "game__resignation_8c.html#a09b5532ca3e546a3b9a541975b0e9bf1", null ],
+    [ "game_resign_from_king_hold", "game__resignation_8c.html#a73dad937839c0456283f42345dae798c", null ],
     [ "resignation_end_game", "game__resignation_8c.html#a09788a334791cc160b0f72cdfe7649f3", null ],
     [ "resignation_finalize_timeout", "game__resignation_8c.html#a5e2939300449fca26ad46d2a04e6ec08", null ],
     [ "resignation_start", "game__resignation_8c.html#acbf110fdfd6d83d9db30abcfdfffd8e0", null ],

@@ -174,7 +174,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>true if the last restore attempt failed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00216">216</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00217">217</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -195,7 +195,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>true if the last snapshot save failed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00218">218</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00219">219</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -218,7 +218,7 @@ Functions</h2></td></tr>
 <p>Whether the last save or restore used the minimal snapshot. </p>
 <p>Set when the full blob cannot be written or is not the blob that was loaded. </p><dl class="section return"><dt>Returns</dt><dd>true if the minimal snapshot was the one used. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00214">214</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00215">215</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -240,7 +240,7 @@ Functions</h2></td></tr>
 
 <p>Erase snapshot and boot-tracker NVS keys (new game). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00222">222</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00223">223</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -263,7 +263,7 @@ Functions</h2></td></tr>
 <p>Whether NVS holds a full or minimal snapshot with a valid CRC. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when at least one snapshot blob checks out. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00539">539</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00549">549</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -285,7 +285,7 @@ Functions</h2></td></tr>
 
 <p>Save snapshot to NVS and update boot tracker after a valid move. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00731">731</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00741">741</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -307,7 +307,7 @@ Functions</h2></td></tr>
 
 <p>Clear save/restore failure flags after starting a fresh game. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00229">229</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00230">230</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -330,7 +330,7 @@ Functions</h2></td></tr>
 <p>Boot path after <a class="el" href="game__board__core_8c.html#a9b4b4ef6ba4260c09a59192fc68be834" title="Initialize the inbox to the default position.">game_initialize_board()</a>: boot tracker, load NVS or force new game. </p>
 <p>May call <a class="el" href="game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44" title="Start a new game.">game_start_new_game()</a>, <a class="el" href="game__squares__guard_8c.html#a50afe72176873627b6d0fc68fdc0fa13" title="After an NVS restore, pause if sensors still disagree with logic.">game_squares_guard_check_resync_after_restore()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00788">788</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00798">798</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -353,7 +353,7 @@ Functions</h2></td></tr>
 <p>Whether sensors are ready to compare with a restored board. </p>
 <dl class="section return"><dt>Returns</dt><dd>false while Hall has no trustworthy baseline. Reed builds return true. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00746">746</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00756">756</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -375,7 +375,7 @@ Functions</h2></td></tr>
 
 <p>After boot animation: once Hall (or reed) readings are usable, compare them to the restored board and, if they match, start the paused clock. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00754">754</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00764">764</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -398,7 +398,7 @@ Functions</h2></td></tr>
 <p>Whether the boot tracker forced a new game (two boots, no move). </p>
 <dl class="section return"><dt>Returns</dt><dd>true when that rule fired and a valid snapshot was not present. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00220">220</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00221">221</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -421,7 +421,7 @@ Functions</h2></td></tr>
 <p>Whether this boot applied an NVS snapshot to the live game. </p>
 <dl class="section return"><dt>Returns</dt><dd>true after a successful full or minimal restore. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00212">212</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00213">213</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>

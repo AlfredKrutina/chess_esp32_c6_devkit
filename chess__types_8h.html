@@ -250,6 +250,7 @@ Enumerations</h2></td></tr>
 , <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208">RESULT_DRAW_REPETITION</a> = 4
 , <a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad">RESULT_DRAW_INSUFFICIENT</a> = 5
+, <a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10a01986a09c29c054aee187e20e8544490">RESULT_DRAW_AGREEMENT</a> = 6
 <br />
  }</td></tr>
 <tr class="memdesc:a4d48e82714c3766a44b6ae5378386b10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game result types for stats.  <a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10">More...</a><br /></td></tr>
@@ -366,6 +367,7 @@ Enumerations</h2></td></tr>
 &#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b">GAME_CMD_NEW_GAME_FROM_FEN</a>
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72">GAME_CMD_OPENING_TRAINER</a>
 , <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8">GAME_CMD_RESIGN</a>
+, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc">GAME_CMD_DRAW</a> = 51
 <br />
  }</td></tr>
 <tr class="memdesc:ade7744437207164be6ca650b128bd9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game command types for UART communication.  <a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4">More...</a><br /></td></tr>
@@ -540,7 +542,7 @@ Functions</h2></td></tr>
 
 <p>Number of buttons in the system (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00591">591</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00594">594</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -558,7 +560,7 @@ Functions</h2></td></tr>
 
 <p>Celkovy pocet LED v systemu (alias pro CHESS_LED_COUNT_TOTAL) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00587">587</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00590">590</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -576,7 +578,7 @@ Functions</h2></td></tr>
 
 <p>Number of LEDs for the box (8x8 = 64) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00581">581</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00584">584</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -594,7 +596,7 @@ Functions</h2></td></tr>
 
 <p>Number of LEDs for buttons (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00583">583</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00586">586</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -612,7 +614,7 @@ Functions</h2></td></tr>
 
 <p>Total number of LEDs (64 boxes + 9 buttons = 73) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00585">585</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00588">588</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -630,7 +632,7 @@ Functions</h2></td></tr>
 
 <p>Velikost matrix (8x8 = 64 poli) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00595">595</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00598">598</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -648,7 +650,7 @@ Functions</h2></td></tr>
 
 <p>Refuse unless Black is on move. </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00309">309</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00311">311</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -667,7 +669,7 @@ Functions</h2></td></tr>
 <p>GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move. </p>
 <p>Resign whoever is on move </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00307">307</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00309">309</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -685,7 +687,7 @@ Functions</h2></td></tr>
 
 <p>Refuse unless White is on move. </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00308">308</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00310">310</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -703,7 +705,7 @@ Functions</h2></td></tr>
 
 <p>Maximum number of moves in history (200 moves) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00599">599</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00602">602</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -733,7 +735,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00497">497</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00500">500</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -848,15 +850,17 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0" name="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0"></a>GAME_CMD_PUZZLE&#160;</td><td class="fielddoc"><p>Puzzle: 0=cancel, 1..5=start builtin, 101..105=prepare builtin, 210=apply staged setup, 211=start staged line. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b" name="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b"></a>GAME_CMD_NEW_GAME_FROM_FEN&#160;</td><td class="fielddoc"><p>New game from FEN (placement + page); data in timer_data.fen_new_game. </p>
+<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b" name="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b"></a>GAME_CMD_NEW_GAME_FROM_FEN&#160;</td><td class="fielddoc"><p>New game from FEN (placement, side, optional rights); timer_data.fen_new_game. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72" name="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72"></a>GAME_CMD_OPENING_TRAINER&#160;</td><td class="fielddoc"><p>Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8" name="ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8"></a>GAME_CMD_RESIGN&#160;</td><td class="fielddoc"><p>Resign from app (same end path as king lift); promotion_choice = GAME_RESIGN_SIDE_*. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc" name="ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc"></a>GAME_CMD_DRAW&#160;</td><td class="fielddoc"><p>Agreed draw while a game is running. </p>
+</td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00230">230</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00231">231</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -893,7 +897,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00360">360</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00363">363</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -923,6 +927,8 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208" name="a4d48e82714c3766a44b6ae5378386b10a0486ad918f30f8bb5d8db5d92f72c208"></a>RESULT_DRAW_REPETITION&#160;</td><td class="fielddoc"><p>Draw - repeat position. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad" name="a4d48e82714c3766a44b6ae5378386b10a330166862ce8a46d98a340b42435faad"></a>RESULT_DRAW_INSUFFICIENT&#160;</td><td class="fielddoc"><p>Remiza - nedostatecny material. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a4d48e82714c3766a44b6ae5378386b10a01986a09c29c054aee187e20e8544490" name="a4d48e82714c3766a44b6ae5378386b10a01986a09c29c054aee187e20e8544490"></a>RESULT_DRAW_AGREEMENT&#160;</td><td class="fielddoc"><p>Remiza dohodou. </p>
 </td></tr>
 </table>
 
@@ -1092,7 +1098,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00398">398</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00401">401</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1153,7 +1159,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00122">122</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00123">123</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1186,7 +1192,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00189">189</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00190">190</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1287,7 +1293,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00157">157</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00158">158</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1320,7 +1326,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00556">556</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00559">559</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1349,7 +1355,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00527">527</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00530">530</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>

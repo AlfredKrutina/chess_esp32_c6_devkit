@@ -168,6 +168,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a27cf1d4ef55b2ee18feb3e95807312a1" id="r_a27cf1d4ef55b2ee18feb3e95807312a1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a27cf1d4ef55b2ee18feb3e95807312a1">hall_i2c_squares_fill_state</a> (uint8_t <a class="el" href="squares__task_8c.html#ab452176c61cd479991ca81956c3744ea">squares_state</a>[64])</td></tr>
 <tr class="memdesc:a27cf1d4ef55b2ee18feb3e95807312a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fill squares_state[64] with occupancy 0 (empty) or 1 (occupied).  <br /></td></tr>
 <tr class="separator:a27cf1d4ef55b2ee18feb3e95807312a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6cdf9e35ccdc86d95768ddcc2fdd972" id="r_ab6cdf9e35ccdc86d95768ddcc2fdd972"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#ab6cdf9e35ccdc86d95768ddcc2fdd972">hall_i2c_squares_prepare_scan</a> (void)</td></tr>
+<tr class="memdesc:ab6cdf9e35ccdc86d95768ddcc2fdd972"><td class="mdescLeft">&#160;</td><td class="mdescRight">I2C only.  <br /></td></tr>
+<tr class="separator:ab6cdf9e35ccdc86d95768ddcc2fdd972"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3278a7bff324a927ff9c6d198f47d8b" id="r_aa3278a7bff324a927ff9c6d198f47d8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#aa3278a7bff324a927ff9c6d198f47d8b">hall_i2c_squares_publish_scan</a> (uint8_t <a class="el" href="squares__task_8c.html#ab452176c61cd479991ca81956c3744ea">squares_state</a>[64])</td></tr>
+<tr class="memdesc:aa3278a7bff324a927ff9c6d198f47d8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy the prepared scan into occupancy and Hall type/color.  <br /></td></tr>
+<tr class="separator:aa3278a7bff324a927ff9c6d198f47d8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2aba0e6d759e6996753ae69796a532d7" id="r_a2aba0e6d759e6996753ae69796a532d7"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a2aba0e6d759e6996753ae69796a532d7">hall_i2c_squares_segment_count</a> (void)</td></tr>
 <tr class="memdesc:a2aba0e6d759e6996753ae69796a532d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">How many segments this build reads (1…4).  <br /></td></tr>
 <tr class="separator:a2aba0e6d759e6996753ae69796a532d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,21 +190,33 @@ Functions</h2></td></tr>
 <tr class="memitem:a66b38c74236b2a1517f79d2c10fa7d65" id="r_a66b38c74236b2a1517f79d2c10fa7d65"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a66b38c74236b2a1517f79d2c10fa7d65">hall_i2c_squares_readings_usable</a> (void)</td></tr>
 <tr class="memdesc:a66b38c74236b2a1517f79d2c10fa7d65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether occupancy readings are safe to compare with the logical board.  <br /></td></tr>
 <tr class="separator:a66b38c74236b2a1517f79d2c10fa7d65"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeecabf4af0e847860d6bdf5c6925b181" id="r_aeecabf4af0e847860d6bdf5c6925b181"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#aeecabf4af0e847860d6bdf5c6925b181">hall_i2c_squares_set_logical_empty</a> (const uint8_t empty_squares[64])</td></tr>
-<tr class="memdesc:aeecabf4af0e847860d6bdf5c6925b181"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell Hall which squares the logical game says are empty.  <br /></td></tr>
-<tr class="separator:aeecabf4af0e847860d6bdf5c6925b181"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f0cc3b341110869cd187befac3b1b87" id="r_a0f0cc3b341110869cd187befac3b1b87"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a0f0cc3b341110869cd187befac3b1b87">hall_i2c_squares_segments_ok</a> (void)</td></tr>
+<tr class="memdesc:a0f0cc3b341110869cd187befac3b1b87"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when every configured segment returned a payload on the last prepare.  <br /></td></tr>
+<tr class="separator:a0f0cc3b341110869cd187befac3b1b87"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44755b87a7c35b634f30630d7efe5b6c" id="r_a44755b87a7c35b634f30630d7efe5b6c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a44755b87a7c35b634f30630d7efe5b6c">hall_i2c_squares_set_logical_empty</a> (const uint8_t empty_squares[64], const uint8_t piece_types[64])</td></tr>
+<tr class="memdesc:a44755b87a7c35b634f30630d7efe5b6c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tell Hall which squares the logical game says are empty.  <br /></td></tr>
+<tr class="separator:a44755b87a7c35b634f30630d7efe5b6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a454a887c39b2abd00c73dd086c9775cd" id="r_a454a887c39b2abd00c73dd086c9775cd"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a454a887c39b2abd00c73dd086c9775cd">hall_i2c_squares_piece_type_name</a> (<a class="el" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> type)</td></tr>
 <tr class="memdesc:a454a887c39b2abd00c73dd086c9775cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name for a POC type.  <br /></td></tr>
 <tr class="separator:a454a887c39b2abd00c73dd086c9775cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5a5bd26e6c7147d7d48c04f9ba5722a" id="r_aa5a5bd26e6c7147d7d48c04f9ba5722a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#aa5a5bd26e6c7147d7d48c04f9ba5722a">hall_i2c_squares_piece_color_name</a> (<a class="el" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> color)</td></tr>
 <tr class="memdesc:aa5a5bd26e6c7147d7d48c04f9ba5722a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name for a POC color.  <br /></td></tr>
 <tr class="separator:aa5a5bd26e6c7147d7d48c04f9ba5722a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afcfeda64e7d0f1e9fbfa0fa870915c8e" id="r_afcfeda64e7d0f1e9fbfa0fa870915c8e"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#afcfeda64e7d0f1e9fbfa0fa870915c8e">hall_i2c_squares_identity_settled</a> (uint8_t square)</td></tr>
+<tr class="memdesc:afcfeda64e7d0f1e9fbfa0fa870915c8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">True when type and color were named while the piece was still seated.  <br /></td></tr>
+<tr class="separator:afcfeda64e7d0f1e9fbfa0fa870915c8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5164d6247b30eee3a07b4b035a7adfb" id="r_aa5164d6247b30eee3a07b4b035a7adfb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#aa5164d6247b30eee3a07b4b035a7adfb">hall_i2c_squares_get_piece_type</a> (uint8_t square)</td></tr>
 <tr class="memdesc:aa5164d6247b30eee3a07b4b035a7adfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last debounced POC piece type for one square.  <br /></td></tr>
 <tr class="separator:aa5164d6247b30eee3a07b4b035a7adfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ffdafc7aabe2381877fb4c94615afd1" id="r_a4ffdafc7aabe2381877fb4c94615afd1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a4ffdafc7aabe2381877fb4c94615afd1">hall_i2c_squares_get_reading</a> (uint8_t square, <a class="el" href="structhall__square__reading__t.html">hall_square_reading_t</a> *out)</td></tr>
+<tr class="memdesc:a4ffdafc7aabe2381877fb4c94615afd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last energy, both deviations, occupancy and named piece.  <br /></td></tr>
+<tr class="separator:a4ffdafc7aabe2381877fb4c94615afd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a485b2def4f44f801fd014941452c2a44" id="r_a485b2def4f44f801fd014941452c2a44"><td class="memItemLeft" align="right" valign="top"><a class="el" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a485b2def4f44f801fd014941452c2a44">hall_i2c_squares_get_piece_color</a> (uint8_t square)</td></tr>
 <tr class="memdesc:a485b2def4f44f801fd014941452c2a44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Last debounced POC piece color for one square.  <br /></td></tr>
 <tr class="separator:a485b2def4f44f801fd014941452c2a44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac382e41a34915bcd241bf7f5dd8ce694" id="r_ac382e41a34915bcd241bf7f5dd8ce694"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#ac382e41a34915bcd241bf7f5dd8ce694">hall_i2c_squares_note_confirmed</a> (uint8_t square, <a class="el" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a> type, <a class="el" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a> color)</td></tr>
+<tr class="memdesc:ac382e41a34915bcd241bf7f5dd8ce694"><td class="mdescLeft">&#160;</td><td class="mdescRight">One confirmed landing.  <br /></td></tr>
+<tr class="separator:ac382e41a34915bcd241bf7f5dd8ce694"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a515d47495513bbaba4dbd9ca6cdad1e7" id="r_a515d47495513bbaba4dbd9ca6cdad1e7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a515d47495513bbaba4dbd9ca6cdad1e7">hall_mag_light_locked</a> (void)</td></tr>
 <tr class="separator:a515d47495513bbaba4dbd9ca6cdad1e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50ebc214fb7ce42f9550c192eb23e6f9" id="r_a50ebc214fb7ce42f9550c192eb23e6f9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="hall__i2c__squares_8c.html#a50ebc214fb7ce42f9550c192eb23e6f9">hall_magnet_bench_start</a> (uint8_t square)</td></tr>
@@ -234,7 +252,7 @@ Functions</h2></td></tr>
 <p>After boot, light a1, h1, h8, a8 one at a time. </p>
 <p>Place a piece on the lit square and leave it. Logs which segment/field moved. Does not change the map. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01216">1216</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02027">2027</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -254,7 +272,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01218">1218</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02029">2029</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -282,7 +300,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01208">1208</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02013">2013</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -311,7 +329,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Debounced color, or HALL_PIECE_COLOR_NONE. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01277">1277</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02123">2123</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -340,7 +358,62 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Debounced type, or HALL_PIECE_TYPE_NONE. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01266">1266</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02092">2092</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="a4ffdafc7aabe2381877fb4c94615afd1" name="a4ffdafc7aabe2381877fb4c94615afd1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ffdafc7aabe2381877fb4c94615afd1">&#9670;&#160;</a></span>hall_i2c_squares_get_reading()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hall_i2c_squares_get_reading </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>square</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structhall__square__reading__t.html">hall_square_reading_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Last energy, both deviations, occupancy and named piece. </p>
+<dl class="section return"><dt>Returns</dt><dd>false on a reed build or a square outside 0..63. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02103">2103</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="afcfeda64e7d0f1e9fbfa0fa870915c8e" name="afcfeda64e7d0f1e9fbfa0fa870915c8e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afcfeda64e7d0f1e9fbfa0fa870915c8e">&#9670;&#160;</a></span>hall_i2c_squares_identity_settled()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hall_i2c_squares_identity_settled </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>square</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True when type and color were named while the piece was still seated. </p>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02081">2081</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -363,7 +436,46 @@ Functions</h2></td></tr>
 <p>Install the Hall I2C master and clear per-square POC state. </p>
 <p>Reed builds do not touch the bus. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK, or the I2C driver error. Reed builds return ESP_OK. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01200">1200</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02005">2005</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="ac382e41a34915bcd241bf7f5dd8ce694" name="ac382e41a34915bcd241bf7f5dd8ce694"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac382e41a34915bcd241bf7f5dd8ce694">&#9670;&#160;</a></span>hall_i2c_squares_note_confirmed()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hall_i2c_squares_note_confirmed </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>square</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="hall__i2c__squares_8h.html#ac07912e8ec1b98ad1512e0c85f2b8190">hall_piece_type_t</a>&#160;</td>
+          <td class="paramname"><em>type</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="hall__i2c__squares_8h.html#acce509769d8c510e185108e8104a8766">hall_piece_color_t</a>&#160;</td>
+          <td class="paramname"><em>color</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One confirmed landing. </p>
+<p>Learns how strongly this square reads, for pawn, knight and bishop only. Classification uses that gain after four samples. </p>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02134">2134</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -392,7 +504,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>"WHITE", "BLACK", or "----". </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01258">1258</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02073">2073</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -421,7 +533,30 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>"Pawn" … "King", or "None". </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01246">1246</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02061">2061</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="ab6cdf9e35ccdc86d95768ddcc2fdd972" name="ab6cdf9e35ccdc86d95768ddcc2fdd972"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6cdf9e35ccdc86d95768ddcc2fdd972">&#9670;&#160;</a></span>hall_i2c_squares_prepare_scan()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hall_i2c_squares_prepare_scan </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>I2C only. </p>
+<p>Safe to call without squares_mutex. </p>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02019">2019</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -461,7 +596,30 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if the slave answered, ESP_ERR_INVALID_ARG if the segment is out of range, ESP_ERR_INVALID_STATE if init has not run, ESP_ERR_NOT_SUPPORTED on a reed build, otherwise the I2C error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01202">1202</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02007">2007</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="aa3278a7bff324a927ff9c6d198f47d8b" name="aa3278a7bff324a927ff9c6d198f47d8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3278a7bff324a927ff9c6d198f47d8b">&#9670;&#160;</a></span>hall_i2c_squares_publish_scan()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void hall_i2c_squares_publish_scan </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>squares_state</em>[64]</td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Copy the prepared scan into occupancy and Hall type/color. </p>
+<p>Call under the mutex. </p>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02021">2021</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -500,7 +658,7 @@ Functions</h2></td></tr>
 <p>One raw STM payload: 32 little-endian samples (16 fields × 2 sensors). </p>
 <p>addr_out is set even when the read fails, so the console can show 0x30–0x33. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01221">1221</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02032">2032</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -521,9 +679,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Whether occupancy readings are safe to compare with the logical board. </p>
-<p>Hall: true once every square has a baseline that was not taken from a magnet, the trimmed-mean ring is full, and debounce has locked once. Reed builds have no Hall baseline and always return true. </p><dl class="section return"><dt>Returns</dt><dd>true when a scan may be trusted for guard / restore. </dd></dl>
+<p>Hall: true once every square has a baseline that was not taken from a magnet and the trimmed-mean ring is full. A square that has not named its piece yet still counts, so one unsettled magnet cannot keep the guide off. Reed builds have no Hall baseline and always return true. </p><dl class="section return"><dt>Returns</dt><dd>true when a scan may be trusted for guard / restore. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01232">1232</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02043">2043</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -543,7 +701,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01219">1219</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02030">2030</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -565,12 +723,34 @@ Functions</h2></td></tr>
 
 <p>How many segments this build reads (1…4). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01214">1214</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02025">2025</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
-<a id="aeecabf4af0e847860d6bdf5c6925b181" name="aeecabf4af0e847860d6bdf5c6925b181"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aeecabf4af0e847860d6bdf5c6925b181">&#9670;&#160;</a></span>hall_i2c_squares_set_logical_empty()</h2>
+<a id="a0f0cc3b341110869cd187befac3b1b87" name="a0f0cc3b341110869cd187befac3b1b87"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f0cc3b341110869cd187befac3b1b87">&#9670;&#160;</a></span>hall_i2c_squares_segments_ok()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hall_i2c_squares_segments_ok </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>True when every configured segment returned a payload on the last prepare. </p>
+
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02045">2045</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+
+</div>
+</div>
+<a id="a44755b87a7c35b634f30630d7efe5b6c" name="a44755b87a7c35b634f30630d7efe5b6c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44755b87a7c35b634f30630d7efe5b6c">&#9670;&#160;</a></span>hall_i2c_squares_set_logical_empty()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -579,8 +759,18 @@ Functions</h2></td></tr>
           <td class="memname">void hall_i2c_squares_set_logical_empty </td>
           <td>(</td>
           <td class="paramtype">const uint8_t&#160;</td>
-          <td class="paramname"><em>empty_squares</em>[64]</td><td>)</td>
+          <td class="paramname"><em>empty_squares</em>[64], </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const uint8_t&#160;</td>
+          <td class="paramname"><em>piece_types</em>[64]&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -589,11 +779,12 @@ Functions</h2></td></tr>
 <p>Only those squares may be zeroed from live ADC. Occupied squares reuse a stored empty baseline or a provisional copy of confirmed empty squares. Reed builds ignore the buffer. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">empty_squares</td><td>64 bytes, 1 = logically empty. NULL is ignored. </td></tr>
+    <tr><td class="paramname">piece_types</td><td>64 bytes, Hall type of the logical piece, 0 if empty. NULL treats every occupied square as a king (widest stray field). </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01234">1234</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02047">2047</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -621,7 +812,7 @@ Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01288">1288</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02145">2145</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -641,7 +832,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01342">1342</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02199">2199</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -664,7 +855,7 @@ Functions</h2></td></tr>
 <p>Short click. </p>
 <p>Prints one energy integer when a sample exists. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01358">1358</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02215">2215</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -685,7 +876,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>locked square, or 255 when the bench is off or not locked yet. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01350">1350</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02207">2207</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -708,7 +899,7 @@ Functions</h2></td></tr>
 <p>Magnet-strength bench. </p>
 <p>Lights one square. Each short click prints one energy integer and nothing else. square &gt;= 64 stays dark until a click locks the only occupied square. </p><dl class="section return"><dt>Returns</dt><dd>false on a reed build. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01301">1301</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02158">2158</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -728,7 +919,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l01325">1325</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02182">2182</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>

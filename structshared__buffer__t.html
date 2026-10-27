@@ -98,8 +98,10 @@ $(document).ready(function(){initNavTree('structshared__buffer__t.html',''); ini
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a6e6b1fce9ee8c0ae6f0668470107d385" id="r_a6e6b1fce9ee8c0ae6f0668470107d385"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structshared__buffer__t.html#a6e6b1fce9ee8c0ae6f0668470107d385">data</a> [2048]</td></tr>
-<tr class="separator:a6e6b1fce9ee8c0ae6f0668470107d385"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a318b8619e094a0d29285c042b171d4cd" id="r_a318b8619e094a0d29285c042b171d4cd"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structshared__buffer__t.html#a318b8619e094a0d29285c042b171d4cd">data</a></td></tr>
+<tr class="separator:a318b8619e094a0d29285c042b171d4cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88c2c39a5489c233772b5089d18fde0b" id="r_a88c2c39a5489c233772b5089d18fde0b"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structshared__buffer__t.html#a88c2c39a5489c233772b5089d18fde0b">capacity</a></td></tr>
+<tr class="separator:a88c2c39a5489c233772b5089d18fde0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac84993dc918ca7386ae7b700c99039ef" id="r_ac84993dc918ca7386ae7b700c99039ef"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structshared__buffer__t.html#ac84993dc918ca7386ae7b700c99039ef">in_use</a></td></tr>
 <tr class="separator:ac84993dc918ca7386ae7b700c99039ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9d19708eca1a5a3dd0589e3e1f73ad6" id="r_aa9d19708eca1a5a3dd0589e3e1f73ad6"><td class="memItemLeft" align="right" valign="top">TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structshared__buffer__t.html#aa9d19708eca1a5a3dd0589e3e1f73ad6">owner</a></td></tr>
@@ -113,7 +115,7 @@ Data Fields</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00041">41</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00039">39</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 </div><h2 class="groupheader">Field Documentation</h2>
 <a id="ae40a61faa1d8719d9410054f24306a35" name="ae40a61faa1d8719d9410054f24306a35"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae40a61faa1d8719d9410054f24306a35">&#9670;&#160;</a></span>allocated_time</h2>
@@ -127,23 +129,39 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00045">45</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00044">44</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
-<a id="a6e6b1fce9ee8c0ae6f0668470107d385" name="a6e6b1fce9ee8c0ae6f0668470107d385"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6e6b1fce9ee8c0ae6f0668470107d385">&#9670;&#160;</a></span>data</h2>
+<a id="a88c2c39a5489c233772b5089d18fde0b" name="a88c2c39a5489c233772b5089d18fde0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a88c2c39a5489c233772b5089d18fde0b">&#9670;&#160;</a></span>capacity</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">char shared_buffer_t::data[2048]</td>
+          <td class="memname">size_t shared_buffer_t::capacity</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00042">42</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00041">41</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+
+</div>
+</div>
+<a id="a318b8619e094a0d29285c042b171d4cd" name="a318b8619e094a0d29285c042b171d4cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a318b8619e094a0d29285c042b171d4cd">&#9670;&#160;</a></span>data</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* shared_buffer_t::data</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00040">40</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -159,7 +177,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00046">46</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00045">45</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -175,7 +193,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00043">43</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00042">42</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -191,7 +209,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00047">47</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00046">46</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
@@ -207,7 +225,7 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00044">44</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="shared__buffer__pool_8c_source.html#l00043">43</a> of file <a class="el" href="shared__buffer__pool_8c_source.html">shared_buffer_pool.c</a>.</p>
 
 </div>
 </div>
