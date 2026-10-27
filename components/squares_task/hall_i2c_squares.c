@@ -117,6 +117,16 @@ static const int8_t HALL_REACH_ROYAL[]  = {0, 1, 1, 1, 0, 2, 1, 2, 2, 2, 0, 3};
  *  stable window, so a real placement still publishes in about 250 ms. */
 #define HALL_REOCCUPY_ENERGY            18000
 #define HALL_REOCCUPY_SCANS             4
+/** Opposite-polarity fringe under a bishop or stronger. Empty d2 beside the
+ *  queen measured −100/−100, energy 100^2+100^2 = 20000, and was named a
+ *  black pawn. Seated pawns beside those pieces were at least ~36000.
+ *  613705 is the bishop band floor in s_poc_thresholds. */
+#define HALL_FRINGE_ENERGY              30000
+#define HALL_STRONG_NEIGHBOR_ENERGY     613705
+/** Midpoint may walk toward a stable empty reading by at most this many
+ *  counts. A seated piece is well past it, so drift can heal and a piece
+ *  cannot be absorbed. One count per HALL_STABLE_SCANS. */
+#define HALL_DRIFT_MAX_DEV              120
 #define HALL_I2C_READ_TIMEOUT_MS        20
 #define HALL_I2C_FAIL_BACKOFF_SCANS     16
 /** Allowed scan-to-scan change while steady: max(abs, sum|dev| / div). */
@@ -247,6 +257,7 @@ typedef struct {
     bool reported;                  /**< Settled occupancy published to the matrix. */
     uint8_t prove_scans;            /**< Consecutive scans at or above HALL_REOCCUPY_ENERGY. */
     bool lift_block;                /**< Published piece left; delta-hold stays off. */
+    uint8_t drift_phase;            /**< Counts toward one midpoint step. */
     bool identity_settled;          /**< Type/color stable while the magnet is still seated. */
     int32_t ctx_ref[2];             /**< Last steady empty reading, neighbor crosstalk included. */
     bool ctx_valid;
@@ -986,6 +997,52 @@ static bool hall_neighbor_is_royal(uint8_t sq) {
     return false;
 }
 
+/** Moderate opposite-polarity reading next to a strong piece is that
+ *  piece's fringe, not a magnet on this square. A real opposite-color
+ *  piece is well above HALL_FRINGE_ENERGY. */
+static bool hall_opposite_fringe(uint8_t sq, int32_t dev0, int32_t dev1,
+                                 int32_t energy) {
+    if (energy >= HALL_FRINGE_ENERGY) {
+        return false;
+    }
+    int32_t dom = (abs(dev0) > abs(dev1)) ? dev0 : dev1;
+    if (dom == 0) {
+        return false;
+    }
+    int row = (int)sq / 8;
+    int col = (int)sq % 8;
+    for (int dr = -1; dr <= 1; dr++) {
+        for (int dc = -1; dc <= 1; dc++) {
+            if (dr == 0 && dc == 0) {
+                continue;
+            }
+            int r = row + dr;
+            int c = col + dc;
+            if (r < 0 || r > 7 || c < 0 || c > 7) {
+                continue;
+            }
+            const hall_poc_square_state_t *nb = &s_poc_state[r * 8 + c];
+            if (!nb->occupied && !nb->reported) {
+                continue;
+            }
+            bool strong = nb->current_piece >= HALL_PIECE_TYPE_BISHOP ||
+                          (nb->live_valid &&
+                           nb->live_energy >= HALL_STRONG_NEIGHBOR_ENERGY);
+            if (!strong) {
+                continue;
+            }
+            int32_t nd = (abs(nb->live_dev0) > abs(nb->live_dev1))
+                             ? nb->live_dev0
+                             : nb->live_dev1;
+            if (nd == 0 || (dom > 0) == (nd > 0)) {
+                continue;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Run one POC state-machine step for a single square.
  * @param sq        square index 0..63
@@ -1083,9 +1140,24 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
      * vacant: king bleed (empty d8, energy 15725, delta up to ~177) sits
      * above DELTA_OFF (160) and below DELTA_ON (270), so a lifted square
      * never opened. 18000 is under the weakest seated pawn (20098). */
-    bool energy_present = energy >= HALL_POC_ENERGY_ON;
     bool royal = hall_neighbor_is_royal(sq);
-    bool above = energy >= HALL_REOCCUPY_ENERGY;
+    /* Dump energy is the empty-reference (ctx) residual once a square is
+     * stable. A stale midpoint still looks like a piece (e1 after the king
+     * left: ctx energy 8744, type None, occupied 1). Veto that. Delta alone
+     * must not hold or latch under the same floor. */
+    int32_t ctx_energy = energy;
+    bool ctx_low = false;
+    if (st->ctx_valid) {
+        int32_t c0 = (int32_t)filt0 - st->ctx_ref[0];
+        int32_t c1 = (int32_t)filt1 - st->ctx_ref[1];
+        ctx_energy = c0 * c0 + c1 * c1;
+        if (ctx_energy < HALL_REOCCUPY_ENERGY &&
+            st->current_piece == HALL_PIECE_TYPE_NONE) {
+            ctx_low = true;
+        }
+    }
+    bool above = !ctx_low && !hall_opposite_fringe(sq, dev0, dev1, energy) &&
+                 energy >= HALL_REOCCUPY_ENERGY;
     /* A piece already published beside a king keeps its seat. A one-scan
      * spike that never became reported must still earn the four scans. */
     if (royal && st->occupied && st->reported && !st->lift_block && above &&
@@ -1106,12 +1178,10 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
             st->prove_scans = 0;
         }
         sensor_present = above && st->prove_scans >= HALL_REOCCUPY_SCANS;
-    } else if (st->occupied && !above) {
+    } else if (!above) {
         sensor_present = false;
     } else {
-        sensor_present = st->occupied
-                             ? (delta >= HALL_POC_DELTA_OFF || energy_present)
-                             : (delta >= HALL_POC_DELTA_ON || energy_present);
+        sensor_present = true;
     }
     if (!st->occupied || sensor_present) {
         st->vacant_scans = 0;
@@ -1123,6 +1193,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     bool mask_hold = st->occupied && st->mask_scans > 0 && above;
     bool present = sensor_present || mask_hold ||
                    (st->occupied &&
+                    st->current_piece != HALL_PIECE_TYPE_NONE &&
                     st->vacant_scans < HALL_LIFT_CONFIRM_SCANS);
     if (present != st->occupied && !(present && strict)) {
         st->stable_scans = 0;
@@ -1152,7 +1223,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         st->pending_color = HALL_PIECE_COLOR_NONE;
         st->stable_ticks = 0;
         if (st->stable_scans >= HALL_STABLE_SCANS &&
-            delta <= HALL_CTX_MAX_SHIFT) {
+            (delta <= HALL_CTX_MAX_SHIFT || energy < HALL_REOCCUPY_ENERGY)) {
             int32_t held = 0;
             if (st->ctx_valid) {
                 held = abs(st->ctx_ref[0] - st->midpoint[0]) +
@@ -1185,7 +1256,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         /* Occupancy is published once the piece itself is steady. A neighbor
          * move may delay the name, but it must not keep the square "empty"
          * or the setup light stays on after the piece is already there. */
-        if (st->stable_scans >= HALL_STABLE_SCANS) {
+        if (st->stable_scans >= HALL_STABLE_SCANS && above) {
             st->reported = true;
         }
         /* Do not rename a piece from the collapsing field as it leaves. */
@@ -1282,6 +1353,33 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
                 }
             }
         }
+    }
+
+    /* Stale midpoint after a piece leaves. Ctx still says empty. Walk one
+     * count per stable window, and only inside the drift cap. */
+    if (ctx_low && !st->occupied && st->stable_scans >= HALL_STABLE_SCANS) {
+        int32_t md0 = (int32_t)filt0 - st->midpoint[0];
+        int32_t md1 = (int32_t)filt1 - st->midpoint[1];
+        if (abs(md0) <= HALL_DRIFT_MAX_DEV && abs(md1) <= HALL_DRIFT_MAX_DEV &&
+            (md0 != 0 || md1 != 0)) {
+            if (st->drift_phase + 1u < HALL_STABLE_SCANS) {
+                st->drift_phase++;
+            } else {
+                st->drift_phase = 0;
+                if (md0 > 0) {
+                    st->midpoint[0]++;
+                } else if (md0 < 0) {
+                    st->midpoint[0]--;
+                }
+                if (md1 > 0) {
+                    st->midpoint[1]++;
+                } else if (md1 < 0) {
+                    st->midpoint[1]--;
+                }
+            }
+        }
+    } else if (!ctx_low) {
+        st->drift_phase = 0;
     }
 
     /* Auto-zero only on a square that is really empty, not while a piece is settling.
