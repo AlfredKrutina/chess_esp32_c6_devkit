@@ -297,7 +297,7 @@ game_state_t game_check_end_game_conditions(void) {
   // BUG #13: Check for draw conditions
   // 50-move rule: 50 full moves = 100 half-moves/ply
   // moves_without_capture counts half moves so >= 100
-  if (moves_without_capture >= 100) {
+  if (game_get_fifty_move_counter() >= 100) {
     game_result = GAME_STATE_FINISHED;
     current_result_type = RESULT_DRAW_50_MOVE;
     current_endgame_reason =

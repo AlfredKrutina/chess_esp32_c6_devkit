@@ -34,6 +34,16 @@ Následující soubory byly v repozitáři označeny jako nepoužívané (orphan
 - `components/game_task/`, `components/led_task/`, `components/web_server_task/`, `components/ble_task/`, `components/ha_light_task/`, `components/unified_animation_manager/`, `components/game_led_animations/`, `components/button_task/` a další sdílené komponenty zůstávají, protože je V2 stále používá (pravidla hry, LED, web, BLE, tlačítka, animace, OTA).
 - `components/test_task/` zůstává — není reed-only jako celek, obsahuje obecné testy a je volitelně linkovaný přes menuconfig.
 
+## Mrtvé herní handlery (2026-10-26)
+
+Přesunuto z živého `game_task`, protože v celém stromu neměly volajícího. Firmware je nelinkuje.
+
+- `unused/components/game_task/matrix_event_handlers.c` — `game_detect_new_game_setup`, `game_handle_piece_lifted`, `game_handle_piece_placed`, `game_handle_squares_move`, `game_highlight_opponent_pieces`. Tahy z matice jdou přes `GAME_CMD_PICKUP` / `GAME_CMD_DROP`.
+- `unused/components/game_task/board_print_and_squares_events.c` — prázdné `game_process_squares_events` a `game_print_board_enhanced` bez volání.
+- `unused/components/game_task/dead_highlight_skip.c` — větev `else` po `total_games++`, která se nespustila, protože čítač je v tu chvíli nejméně 1.
+
+V souboru zůstalo a je živé: promoce, `game_execute_promotion`, `game_highlight_movable_pieces`, `game_is_castling_expected` (volá `game_physical.c`).
+
 ## Prohlížečové UI (2026-10-11)
 
 Do `kos/unused/web_ui/` šla lidská šachová stránka: `web/` (JS moduly, `chess_app.js`, katalog zahájení, PNG figurek), `chess_piece_http.c` s hlavičkou a skripty, které JS a PNG balily do firmwaru. Živý `web_server_task` dál servíruje WiFi, REST `/api/*`, WebSocket `/ws` a OTA pro Flutter a desktop. `GET /` vrací JSON pro aplikaci, `GET /chess_app.js` vrací 404. Volba `CHESS_ENABLE_EMBEDDED_WEB_UI` v Kconfig už není.

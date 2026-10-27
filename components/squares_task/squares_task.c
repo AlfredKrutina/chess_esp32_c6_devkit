@@ -114,6 +114,7 @@
 #include "sdkconfig.h"
 #include "squares_task.h"
 #include "hall_i2c_squares.h"
+#include "game_hall_match.h"
 #include "led_task.h"
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE
 #include "stm32_i2c_bl.h"
@@ -185,7 +186,8 @@ static hall_piece_color_t squares_hall_last_color[64];
 
 static void squares_hall_refresh_last_occupied_snapshot(void) {
   for (int i = 0; i < 64; i++) {
-    if (squares_state[i] != 0) {
+    if (squares_state[i] != 0 &&
+        hall_i2c_squares_identity_settled((uint8_t)i)) {
       squares_hall_last_type[i] = hall_i2c_squares_get_piece_type((uint8_t)i);
       squares_hall_last_color[i] = hall_i2c_squares_get_piece_color((uint8_t)i);
     }
@@ -397,6 +399,13 @@ static bool squares_sensors_accept_events(void) {
 void squares_scan_all(void) {
   uint32_t current_time = esp_timer_get_time() / 1000;
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* I2C stays outside squares_mutex. Four segments must not block the guard. */
+  if (!simulation_mode) {
+    hall_i2c_squares_prepare_scan();
+  }
+#endif
+
   // NOTE: Don't call esp_task_wdt_reset() here because this function
   // is called from timer callbacks which run in timer service task
   // that is not registered with TWDT
@@ -409,7 +418,7 @@ void squares_scan_all(void) {
         memcpy(squares_state, simulation_patterns[current_pattern],
                sizeof(squares_state));
       } else {
-        hall_i2c_squares_fill_state(squares_state);
+        hall_i2c_squares_publish_scan(squares_state);
       }
       if (!simulation_mode) {
         squares_hall_refresh_last_occupied_snapshot();
@@ -462,7 +471,7 @@ void squares_scan_all(void) {
       memcpy(squares_state, simulation_patterns[current_pattern],
              sizeof(squares_state));
     } else {
-      hall_i2c_squares_fill_state(squares_state);
+      hall_i2c_squares_publish_scan(squares_state);
     }
     if (!simulation_mode) {
       squares_hall_refresh_last_occupied_snapshot();
@@ -515,6 +524,9 @@ void squares_scan_all(void) {
  * @param square Square index (0-63)
  */
 static void squares_send_pickup_command(uint8_t square) {
+  if (ha_pattern_is_active()) {
+    return;
+  }
   extern QueueHandle_t game_command_queue;
 
   if (game_command_queue == NULL) {
@@ -534,6 +546,7 @@ static void squares_send_pickup_command(uint8_t square) {
   strncpy(cmd.from_notation, notation, sizeof(cmd.from_notation) - 1);
   cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
   strcpy(cmd.to_notation, "");
+  cmd.event_ms = (uint32_t)(esp_timer_get_time() / 1000);
 
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
     ESP_LOGI(TAG, "PICKUP command sent to game_command_queue: %s", notation);
@@ -586,6 +599,12 @@ static void squares_send_drop_command(uint8_t square) {
  */
 static void squares_send_drop_command_with_from(uint8_t from_square,
                                                uint8_t to_square) {
+  if (ha_pattern_is_active()) {
+    (void)from_square;
+    (void)ha_pattern_request(HA_PAT_STAMP, to_square, 0, 0, 0, 0, 0, 0, 0, 0,
+                             0);
+    return;
+  }
   extern QueueHandle_t game_command_queue;
 
   if (game_command_queue == NULL) {
@@ -661,8 +680,71 @@ static void squares_send_guard_command(uint32_t lifted_mask_low,
   }
 }
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+static void squares_send_hall_place(uint8_t square) {
+  if (ha_pattern_is_active()) {
+    return;
+  }
+  extern QueueHandle_t game_command_queue;
+  if (game_command_queue == NULL) {
+    return;
+  }
+  char notation[4];
+  squares_square_to_notation(square, notation);
+  chess_move_command_t cmd = {
+      .type = GAME_CMD_DROP,
+      .player = 0,
+      .response_queue = NULL,
+  };
+  strncpy(cmd.to_notation, notation, sizeof(cmd.to_notation) - 1);
+  cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
+  cmd.from_notation[0] = '\0';
+  cmd.event_ms = (uint32_t)(esp_timer_get_time() / 1000);
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    ESP_LOGW(TAG, "Failed to send Hall place command");
+  }
+}
+
+static bool s_segments_seen_ok;
+
+static void squares_hall_publish_changes(void) {
+  bool segments_ok = hall_i2c_squares_segments_ok();
+  if (segments_ok) {
+    s_segments_seen_ok = true;
+    if (squares_guard_mode_active) {
+      squares_guard_mode_active = false;
+      last_piece_lifted = 255;
+      squares_send_guard_command(0, 0, 0, 0, 0);
+    }
+  } else if (s_segments_seen_ok) {
+    if (!squares_guard_mode_active) {
+      squares_guard_mode_active = true;
+      last_piece_lifted = 255;
+      squares_send_guard_command(0, 0, 0, 0, 1);
+      ESP_LOGW(TAG, "Hall segment unread — matrix guard");
+    }
+    return;
+  }
+  if (squares_guard_mode_active) {
+    return;
+  }
+  for (int i = 0; i < 64; i++) {
+    if (squares_previous[i] == 1 && squares_state[i] == 0) {
+      squares_send_pickup_command((uint8_t)i);
+    } else if (squares_previous[i] == 0 && squares_state[i] == 1) {
+      squares_send_hall_place((uint8_t)i);
+    }
+  }
+}
+#endif
+
 void squares_detect_moves(void) {
-  // Check for move timeout - change from RESET to WARNING + EXTEND
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* Per-square wakeups only. The game diffs the snapshot; nothing is tracked. */
+  squares_hall_publish_changes();
+  return;
+#else
+  // Reed: one lifted square, then the drop that completes it.
   if (last_piece_lifted != 255) {
     uint32_t current_time = esp_timer_get_time() / 1000;
     if (current_time > move_detection_timeout) {
@@ -805,11 +887,11 @@ void squares_detect_moves(void) {
       }
       last_piece_lifted = 255; // Reset
     } else {
-      // Piece placed without lift - IGNORE
       ESP_LOGW(TAG, "Piece placed without previous lift (square %d) - ignoring",
                piece_placed);
     }
   }
+#endif
 }
 
 void squares_detect_complete_move(uint8_t from_square, uint8_t to_square) {

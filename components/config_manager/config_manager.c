@@ -358,6 +358,8 @@ esp_err_t config_erase_key_from_nvs(const char *key) {
   return ret;
 }
 
+static void config_ui_prefs_note_saved(const char *json, size_t len);
+
 esp_err_t config_save_ui_prefs_json(const char *json, size_t len) {
   if (json == NULL || len == 0 || len > CONFIG_UI_PREFS_MAX_BYTES) {
     return ESP_ERR_INVALID_ARG;
@@ -378,7 +380,12 @@ esp_err_t config_save_ui_prefs_json(const char *json, size_t len) {
   if (end <= i || json[end - 1] != '}') {
     return ESP_ERR_INVALID_ARG;
   }
-  return config_save_blob_to_nvs(CONFIG_NVS_KEY_UI_PREFS, json + i, end - i);
+  esp_err_t saved =
+      config_save_blob_to_nvs(CONFIG_NVS_KEY_UI_PREFS, json + i, end - i);
+  if (saved == ESP_OK) {
+    config_ui_prefs_note_saved(json + i, end - i);
+  }
+  return saved;
 }
 
 esp_err_t config_load_ui_prefs_json(char *out_buf, size_t out_buf_size,
@@ -426,26 +433,13 @@ static bool config_ui_prefs_parse_bool_key(const char *json, const char *key,
   return default_value;
 }
 
-bool config_ui_prefs_get_chess_physical_takeback(void) {
-  char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
-  size_t len = 0;
-  esp_err_t err = config_load_ui_prefs_json(buf, sizeof(buf), &len);
-  if (err != ESP_OK || len == 0) {
-    return true;
-  }
-  buf[len] = '\0';
-  return config_ui_prefs_parse_bool_key(buf, "chessPhysicalTakeback", true);
-}
+static char s_ui_prefs_json[CONFIG_UI_PREFS_MAX_BYTES + 1];
+static bool s_takeback = true;
+static int s_hint_limit = 0;
+static bool s_prefs_ready = false;
 
-int config_ui_prefs_get_chess_hint_limit(void) {
-  char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
-  size_t len = 0;
-  esp_err_t err = config_load_ui_prefs_json(buf, sizeof(buf), &len);
-  if (err != ESP_OK || len == 0) {
-    return 0;
-  }
-  buf[len] = '\0';
-  const char *p = strstr(buf, "\"chessHintLimit\"");
+static int config_ui_prefs_parse_hint(const char *json) {
+  const char *p = strstr(json, "\"chessHintLimit\"");
   if (p == NULL) {
     return 0;
   }
@@ -468,4 +462,46 @@ int config_ui_prefs_get_chess_hint_limit(void) {
     v = 99;
   }
   return v;
+}
+
+static void config_ui_prefs_apply_json(const char *json) {
+  s_takeback =
+      config_ui_prefs_parse_bool_key(json, "chessPhysicalTakeback", true);
+  s_hint_limit = config_ui_prefs_parse_hint(json);
+  s_prefs_ready = true;
+}
+
+static void config_ui_prefs_note_saved(const char *json, size_t len) {
+  if (len > CONFIG_UI_PREFS_MAX_BYTES) {
+    len = CONFIG_UI_PREFS_MAX_BYTES;
+  }
+  memcpy(s_ui_prefs_json, json, len);
+  s_ui_prefs_json[len] = '\0';
+  config_ui_prefs_apply_json(s_ui_prefs_json);
+}
+
+static void config_ui_prefs_ensure(void) {
+  if (s_prefs_ready) {
+    return;
+  }
+  size_t len = 0;
+  esp_err_t err =
+      config_load_ui_prefs_json(s_ui_prefs_json, sizeof(s_ui_prefs_json), &len);
+  if (err != ESP_OK || len == 0) {
+    s_takeback = true;
+    s_hint_limit = 0;
+    s_prefs_ready = true;
+    return;
+  }
+  config_ui_prefs_apply_json(s_ui_prefs_json);
+}
+
+bool config_ui_prefs_get_chess_physical_takeback(void) {
+  config_ui_prefs_ensure();
+  return s_takeback;
+}
+
+int config_ui_prefs_get_chess_hint_limit(void) {
+  config_ui_prefs_ensure();
+  return s_hint_limit;
 }

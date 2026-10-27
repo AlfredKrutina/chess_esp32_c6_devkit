@@ -18,6 +18,7 @@
 #include "../squares_task/include/squares_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "game_hall_match.h"
+#include "game_hall_position.h"
 
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -330,6 +331,46 @@ bool game_execute_move(const chess_move_t *move) {
         castling_state.rook_to_col = 3; // d-file
       }
 
+      // Hall already has the rook on its square. Finish without the second step.
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      {
+        uint8_t rr = castling_state.rook_from_row;
+        uint8_t rc = castling_state.rook_from_col;
+        uint8_t tr = castling_state.rook_to_row;
+        uint8_t tc = castling_state.rook_to_col;
+        piece_t rook_piece = board[rr][rc];
+        board[rr][rc] = PIECE_EMPTY;
+        board[tr][tc] = rook_piece;
+        piece_moved[rr][rc] = true;
+        if (castling_state.player == PLAYER_WHITE) {
+          white_castles++;
+          if (rc == 7) {
+            white_rook_h_moved = true;
+          } else {
+            white_rook_a_moved = true;
+          }
+        } else {
+          black_castles++;
+          if (rc == 7) {
+            black_rook_h_moved = true;
+          } else {
+            black_rook_a_moved = true;
+          }
+        }
+        castling_state.in_progress = false;
+        current_player =
+            (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        game_end_timer_move();
+        game_start_timer_move(current_player == PLAYER_WHITE);
+        if (game_check_end_game_conditions() == GAME_STATE_FINISHED) {
+          current_game_state = GAME_STATE_FINISHED;
+          game_active = false;
+        }
+        game_hall_snapshot_last_valid();
+        game_snapshot_persist_after_valid_move();
+        return success;
+      }
+#else
       // Show LED indication for tower with pulsation for better visibility
       led_clear_board_only();
 
@@ -374,6 +415,7 @@ bool game_execute_move(const chess_move_t *move) {
       game_snapshot_persist_after_valid_move();
       return success; // Return success but don't change player - the player will change
                       // only after the casting is complete
+#endif
     }
 
     // Check for promotion - start promotion animation (only if the API was not immediate)
@@ -534,23 +576,6 @@ bool game_execute_move(const chess_move_t *move) {
               TAG,
               "✅ Endgame animation started - player change animation SKIPPED");
         } else {
-          // It is not endgame - start the player change animation
-          uint8_t player_color =
-              (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
-          led_command_t player_change_cmd = {
-              .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
-                                                  // ANIM_PLAYER_CHANGE instead
-                                                  // PLAYER_CHANGE
-              .led_index = 0,
-              .red = 0,
-              .green = 0,
-              .blue = 0,
-              .duration_ms = 0,
-              .data = &player_color // Pass the player's color
-          };
-          led_execute_command_new(&player_change_cmd);
-
-          // Show moveable figures for new player
           led_clear_board_only();
           chess_policy_highlight_movable_if_enabled();
 
@@ -861,22 +886,34 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
     }
   }
 
-  // Update castling flags
-  if (move->piece == PIECE_WHITE_KING)
+  // Update castling flags and the squares the repetition hash reads.
+  if (move->piece == PIECE_WHITE_KING) {
     white_king_moved = true;
-  if (move->piece == PIECE_BLACK_KING)
+    piece_moved[0][4] = true;
+  }
+  if (move->piece == PIECE_BLACK_KING) {
     black_king_moved = true;
+    piece_moved[7][4] = true;
+  }
   if (move->piece == PIECE_WHITE_ROOK) {
-    if (move->from_col == 0)
+    if (move->from_col == 0) {
       white_rook_a_moved = true;
-    if (move->from_col == 7)
+      piece_moved[0][0] = true;
+    }
+    if (move->from_col == 7) {
       white_rook_h_moved = true;
+      piece_moved[0][7] = true;
+    }
   }
   if (move->piece == PIECE_BLACK_ROOK) {
-    if (move->from_col == 0)
+    if (move->from_col == 0) {
       black_rook_a_moved = true;
-    if (move->from_col == 7)
+      piece_moved[7][0] = true;
+    }
+    if (move->from_col == 7) {
       black_rook_h_moved = true;
+      piece_moved[7][7] = true;
+    }
   }
 
   // Update en passant state
@@ -920,6 +957,7 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
           (uint8_t)(move->to_row * 8 + move->to_col), ht, hc);
     }
   }
+  game_hall_snapshot_last_valid();
 #endif
 
   return true;

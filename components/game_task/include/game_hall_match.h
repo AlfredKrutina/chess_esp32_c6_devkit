@@ -121,6 +121,21 @@ bool game_hall_piece_for_promoting_player(hall_piece_type_t ht,
  */
 bool game_hall_logic_matches_stable_sensors(const uint8_t sensor_occ[64]);
 
+/**
+ * @brief Type and color match, with king and queen of one color sharing a band.
+ * @return false for an empty piece or a color mismatch.
+ */
+bool game_hall_identity_matches(piece_t piece, hall_piece_type_t ht,
+                                hall_piece_color_t hc);
+
+/**
+ * @brief Square that just became occupied with no tracked lift.
+ * @param placed Destination square 0…63.
+ * @param occ Current occupancy, 0 empty.
+ * @return Origin square, or -1 when the Hall name is missing or not unique.
+ */
+int game_hall_relocated_origin(uint8_t placed, const uint8_t occ[64]);
+
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
 
 #endif /* GAME_HALL_MATCH_H */

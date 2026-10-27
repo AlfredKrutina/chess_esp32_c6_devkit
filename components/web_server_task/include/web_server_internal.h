@@ -26,8 +26,10 @@ typedef void *httpd_handle_t;
 #define TIMER_HTTP_JSON_MAX 1024
 #define WIFI_STATUS_JSON_MAX 768
 
-extern char json_buffer[JSON_BUFFER_SIZE];
-extern char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
+/** Large snapshot JSON; valid until web_snapshot_buffer_release(). */
+extern char *snapshot_buffer;
+
+void web_snapshot_buffer_release(void);
 extern SemaphoreHandle_t snapshot_build_mutex;
 extern uint8_t cached_brightness;
 extern bool cached_brightness_valid;
@@ -52,6 +54,8 @@ httpd_handle_t web_server_get_httpd_handle(void);
 void czechmate_ensure_snapshot_notify_queue(void);
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
 void ws_broadcast_snapshot(void);
+/** Send `snapshot_buffer` of `len` bytes. The caller already built it. */
+void ws_broadcast_prepared(size_t len);
 void web_ws_shutdown(void);
 #endif
 
@@ -90,6 +94,8 @@ esp_err_t web_game_enqueue_move(const char *from, const char *to,
                                 bool *accepted_async);
 esp_err_t http_post_game_new_handler(httpd_req_t *req);
 esp_err_t http_post_game_resign_handler(httpd_req_t *req);
+esp_err_t http_post_game_draw_handler(httpd_req_t *req);
+esp_err_t web_server_draw_dispatch(const char **out_error);
 /** Shared HTTP/BLE resign; @p out_error gets a short code on refusal. */
 esp_err_t web_server_resign_dispatch_body(const char *json,
                                           const char **out_error);
@@ -99,6 +105,7 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req);
 esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req);
 esp_err_t http_post_light_command_handler(httpd_req_t *req);
 esp_err_t http_post_light_game_mode_handler(httpd_req_t *req);
+esp_err_t http_post_light_pattern_handler(httpd_req_t *req);
 esp_err_t http_post_mqtt_config_handler(httpd_req_t *req);
 esp_err_t http_post_settings_auto_lamp_timeout_handler(httpd_req_t *req);
 esp_err_t http_post_settings_brightness_handler(httpd_req_t *req);

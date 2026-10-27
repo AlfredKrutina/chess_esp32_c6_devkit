@@ -304,6 +304,9 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     case ENDGAME_REASON_INSUFFICIENT:
       end_reason = "Insufficient material";
       break;
+    case ENDGAME_REASON_AGREEMENT:
+      end_reason = "Agreement";
+      break;
     }
 
     GAME_STATUS_JSON_APPEND(",\"game_end\":{\"ended\":true,\"reason\":\"%s\","

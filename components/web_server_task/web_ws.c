@@ -304,32 +304,24 @@ static bool ws_has_clients(void) {
   return false;
 }
 
-void ws_broadcast_snapshot(void) {
-  if (web_server_get_httpd_handle() == NULL || !web_server_is_active()) {
+void ws_broadcast_prepared(size_t len) {
+  if (len == 0 || web_server_get_httpd_handle() == NULL ||
+      !web_server_is_active()) {
     return;
   }
   if (!ws_has_clients()) {
     return;
   }
   (void)web_server_task_wdt_reset_safe();
-  size_t len = 0;
-  if (build_snapshot_json(&len) != ESP_OK) {
-    ESP_LOGD(TAG, "WS broadcast: build_snapshot_json failed");
+  if (snapshot_buffer == NULL) {
     return;
   }
-  uint8_t *payload = (uint8_t *)malloc(len);
-  if (payload == NULL) {
-    ESP_LOGE(TAG, "WS broadcast: malloc %u B failed", (unsigned)len);
-    return;
-  }
-  memcpy(payload, snapshot_buffer, len);
   httpd_ws_frame_t ws_pkt = {.type = HTTPD_WS_TYPE_TEXT,
-                             .payload = payload,
+                             .payload = (uint8_t *)snapshot_buffer,
                              .len = len};
   size_t n = WS_MAX_CLIENT_FDS;
   int fds[WS_MAX_CLIENT_FDS];
   if (httpd_get_client_list(web_server_get_httpd_handle(), &n, fds) != ESP_OK) {
-    free(payload);
     return;
   }
   size_t ws_count = 0;
@@ -353,7 +345,16 @@ void ws_broadcast_snapshot(void) {
                                                                   : WS_MAX_CLIENT_FDS));
   ESP_LOGD(TAG, "[STAGING] WS broadcast → %u WS client(s), %u B payload",
            (unsigned)ws_count, (unsigned)len);
-  free(payload);
+}
+
+void ws_broadcast_snapshot(void) {
+  size_t len = 0;
+  if (build_snapshot_json(&len) != ESP_OK) {
+    ESP_LOGD(TAG, "WS broadcast: build_snapshot_json failed");
+    return;
+  }
+  ws_broadcast_prepared(len);
+  web_snapshot_buffer_release();
 }
 
 static void ws_broadcast_timer_cb(void *arg) {

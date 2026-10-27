@@ -66,4 +66,7 @@ void game_squares_guard_check_resync_after_restore(void);
  */
 void game_squares_guard_enter_pause_from_hall_guide(void);
 
+/** Drop a Hall-guide hold whose lifted and dropped masks are all zero. */
+bool game_squares_guard_release_hall_hold(void);
+
 #endif /* GAME_SQUARES_GUARD_H */

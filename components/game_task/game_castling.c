@@ -105,16 +105,24 @@ bool game_check_castling_completion(const chess_move_t *move) {
     // Update flags for king and rook
     if (castling_state.player == PLAYER_WHITE) {
       white_king_moved = true;
-      if (castling_state.rook_from_col == 7)
+      piece_moved[0][4] = true;
+      if (castling_state.rook_from_col == 7) {
         white_rook_h_moved = true;
-      else
+        piece_moved[0][7] = true;
+      } else {
         white_rook_a_moved = true;
+        piece_moved[0][0] = true;
+      }
     } else {
       black_king_moved = true;
-      if (castling_state.rook_from_col == 7)
+      piece_moved[7][4] = true;
+      if (castling_state.rook_from_col == 7) {
         black_rook_h_moved = true;
-      else
+        piece_moved[7][7] = true;
+      } else {
         black_rook_a_moved = true;
+        piece_moved[7][0] = true;
+      }
     }
 
     // Golden cast completion animation
@@ -163,23 +171,6 @@ bool game_check_castling_completion(const chess_move_t *move) {
           TAG,
           "✅ Endgame animation started - player change animation SKIPPED");
     } else {
-      // It is not endgame - start the player change animation
-      uint8_t player_color =
-          (current_player == PLAYER_WHITE) ? 1 : 0; // 1=white, 0=black
-      led_command_t player_change_cmd = {
-          .type = LED_CMD_ANIM_PLAYER_CHANGE, // Use
-                                              // ANIM_PLAYER_CHANGE instead
-                                              // PLAYER_CHANGE
-          .led_index = 0,
-          .red = 0,
-          .green = 0,
-          .blue = 0,
-          .duration_ms = 0,
-          .data = &player_color // Pass the player's color
-      };
-      led_execute_command_new(&player_change_cmd);
-
-      // Clear cast status
       memset(&castling_state, 0, sizeof(castling_state));
 
       // Show moveable figures for new player
@@ -385,12 +376,8 @@ bool game_is_castling_expected(void) {
   // Check if a king is lifted and about to be placed 2 squares away
   if (piece_lifted &&
       (lifted_piece == PIECE_WHITE_KING || lifted_piece == PIECE_BLACK_KING)) {
-    // This function is called from game_handle_piece_placed
-    // We need to check if the king is being placed 2 squares away from its
-    // original position But we don't have access to the destination
-    // coordinates here So we return true to prevent premature opponent piece
-    // highlighting The actual castling detection will happen in
-    // game_handle_squares_move
+    /* Destination is unknown here. game_physical.c uses this to hold
+     * opponent highlighting while the king is in the hand. */
     ESP_LOGI(TAG, "🏰 King is lifted - castling might be expected");
     return true;
   }
@@ -429,12 +416,8 @@ bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
     castle_animation_active = false;
 
     // Switch players now that castle is complete
-    player_t previous_player = current_player;
     current_player =
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
-
-    // After a successful roll, start the player change animation
-    game_show_player_change_animation(previous_player, current_player);
 
     // Clear board and show movable pieces for new player
     led_clear_board_only();

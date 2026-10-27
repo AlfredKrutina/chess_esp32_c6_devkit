@@ -32,12 +32,14 @@
 #include "esp_log.h"
 #include "esp_mac.h"
 #include "esp_netif.h"
+#include "esp_heap_caps.h"
 #include "esp_system.h"
 #include "esp_task_wdt.h"
 #include "esp_timer.h"
 #include "esp_wifi.h"
 #include "freertos/semphr.h"
 #include "freertos_chess.h"
+#include "led_mapping.h"
 #include "task_wdt.h"
 #include "game_task.h"
 #include "game_gesture.h"
@@ -45,16 +47,20 @@
 #include "mqtt_client.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
 static const char *TAG = "HA_LIGHT_TASK";
 
-/** Min. free heap before esp_mqtt_client_start. Kept above the stop line so a
- * client is not created into the same shortage that just destroyed one. */
-#define HA_MQTT_MIN_FREE_HEAP_BYTES (28 * 1024)
-/** Drop the client before the Wi-Fi task starts failing malloc ("m f null"). */
-#define HA_MQTT_STOP_HEAP_BYTES (20 * 1024)
+/** The client takes ~10 KB (task stack + buffers). Start only if Wi-Fi still
+ * keeps headroom for RX/TX bursts afterwards ("m f null" = Wi-Fi malloc fail). */
+#define HA_MQTT_MIN_FREE_HEAP_BYTES (32 * 1024)
+/** Drop the client before the Wi-Fi task starts failing malloc. */
+#define HA_MQTT_STOP_HEAP_BYTES (16 * 1024)
+/* One reused payload. The client copies it before publish returns. */
+#define HA_MQTT_PAYLOAD_MAX 768
+static char s_mqtt_payload[HA_MQTT_PAYLOAD_MAX];
 
 // ============================================================================
 // NVS KONFIGURACE PRO MQTT
@@ -110,6 +116,9 @@ static bool sta_connected = false;
 
 // MQTT client
 static esp_mqtt_client_handle_t mqtt_client = NULL;
+static bool s_mqtt_down = false;
+/** Next discovery message, or -1 when idle. Written from the MQTT task too. */
+static volatile int s_disc_step = -1;
 static bool mqtt_connected = false;
 
 // HA Light state
@@ -124,6 +133,21 @@ static struct {
                     .g = 255,
                     .b = 255,
                     .effect = "solid"};
+
+/** Color that was on the lamp before it was switched off. Never black. */
+static uint8_t s_lit_r = 255, s_lit_g = 255, s_lit_b = 255, s_lit_br = 255;
+
+static void remember_lit_color(uint8_t r, uint8_t g, uint8_t b, uint8_t br) {
+  if ((r | g | b) == 0) {
+    return;
+  }
+  s_lit_r = r;
+  s_lit_g = g;
+  s_lit_b = b;
+  if (br > 0) {
+    s_lit_br = br;
+  }
+}
 
 // MQTT configuration (loaded from NVS)
 static struct {
@@ -161,13 +185,16 @@ static void ha_light_mqtt_event_handler(void *handler_args,
                                         void *event_data);
 static void ha_light_handle_mqtt_command(const char *topic, const char *data,
                                          int data_len);
-static void ha_light_publish_state(void);
+static bool ha_light_publish_state(void);
 static void ha_game_apply(uint8_t fact, uint8_t reason);
-static void ha_game_publish_discovery(void);
-static void ha_game_publish_state(void);
+static void ha_discovery_pump(void);
+static bool ha_game_publish_state(void);
 static void lamp_nvs_load(void);
 static void lamp_nvs_save(void);
 static void lamp_nvs_save_mode(void);
+static void ha_pattern_paint_all(void);
+static void ha_pattern_nvs_load(void);
+static volatile bool s_pat_on;
 
 // ============================================================================
 // WDT HELPER FUNCTIONS
@@ -308,11 +335,18 @@ static void ha_light_switch_to_ha_mode(void) {
     state = true;
   }
 
-  // Apply HA color/state to all 64 board LEDs
-  if (state) {
+  remember_lit_color(r, g, b, brightness);
+
+  /* A drawing owns the squares. A solid lamp color is everything else.
+   * Light off releases the board: a lift then continues the game, or the
+   * starting-position piece colors come back. */
+  if (s_pat_on) {
+    ha_pattern_paint_all();
+  } else if (state) {
     led_set_ha_color(r, g, b, brightness);
   } else {
     led_set_ha_color(0, 0, 0, 0);
+    led_set_lamp_hold(false);
   }
   ha_light_wdt_feed_if_own_task();
 
@@ -545,16 +579,38 @@ esp_err_t mqtt_save_config_to_nvs(const char *host, uint16_t port,
 // MQTT FUNCTIONS
 // ============================================================================
 
+static bool ha_mqtt_set(const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  int n = vsnprintf(s_mqtt_payload, sizeof(s_mqtt_payload), fmt, ap);
+  va_end(ap);
+  if (n < 0 || n >= (int)sizeof(s_mqtt_payload)) {
+    ESP_LOGW(TAG, "MQTT payload truncated");
+    s_mqtt_payload[0] = '\0';
+    return false;
+  }
+  return true;
+}
+
+/* QoS 0: the outbox does not keep a copy until PUBACK. */
+static bool ha_mqtt_send(const char *topic, int retain) {
+  if (!mqtt_connected || mqtt_client == NULL || s_mqtt_payload[0] == '\0') {
+    return false;
+  }
+  return esp_mqtt_client_publish(mqtt_client, topic, s_mqtt_payload, 0, 0,
+                                 retain) >= 0;
+}
+
 /**
  * @brief Publish Home Assistant Auto-Discovery configuration
  */
-static void ha_light_publish_discovery(void) {
+static bool ha_light_publish_discovery(void) {
   if (!mqtt_connected || mqtt_client == NULL) {
-    return;
+    return false;
   }
   if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
     ESP_LOGD(TAG, "[STAGING] ha_light_publish_discovery: skip (low heap)");
-    return;
+    return false;
   }
 
   // Get MAC address for unique ID
@@ -574,42 +630,24 @@ static void ha_light_publish_discovery(void) {
            HA_DISCOVERY_PREFIX, HA_COMPONENT_LIGHT, unique_id);
 
   ESP_LOGI(TAG, "Publishing HA Discovery to %s", discovery_topic);
-
-  // Create JSON payload
-  cJSON *json = cJSON_CreateObject();
-  cJSON_AddStringToObject(json, "name", "CzechMate");
-  cJSON_AddStringToObject(json, "unique_id", unique_id);
-  cJSON_AddStringToObject(json, "command_topic", HA_TOPIC_LIGHT_COMMAND);
-  cJSON_AddStringToObject(json, "state_topic", HA_TOPIC_LIGHT_STATE);
-  cJSON_AddStringToObject(json, "availability_topic",
-                          HA_TOPIC_LIGHT_AVAILABILITY);
-  cJSON_AddStringToObject(json, "payload_available", HA_MQTT_PAYLOAD_ONLINE);
-  cJSON_AddStringToObject(json, "payload_not_available",
-                          HA_MQTT_PAYLOAD_OFFLINE);
-  cJSON_AddStringToObject(json, "schema", "json");
-  /* Same payload: HA light uses state/color; mode stays visible as an attribute. */
-  cJSON_AddStringToObject(json, "json_attributes_topic", HA_TOPIC_LIGHT_STATE);
-  cJSON_AddBoolToObject(json, "brightness", true);
-  cJSON *color_modes = cJSON_CreateArray();
-  cJSON_AddItemToArray(color_modes, cJSON_CreateString("rgb"));
-  cJSON_AddItemToObject(json, "supported_color_modes", color_modes);
-
-  // Device info
-  cJSON *device = cJSON_CreateObject();
-  cJSON_AddStringToObject(device, "identifiers", unique_id);
-  cJSON_AddStringToObject(device, "name", "ESP32 Chess System");
-  cJSON_AddStringToObject(device, "manufacturer", HA_DEVICE_MANUFACTURER);
-  cJSON_AddStringToObject(device, "model", HA_DEVICE_MODEL);
-  cJSON_AddStringToObject(device, "sw_version", HA_DEVICE_SW_VERSION);
-  cJSON_AddItemToObject(json, "device", device);
-
-  char *json_str = cJSON_PrintUnformatted(json);
-  if (json_str != NULL) {
-    // Publish with retain=true so HA picks it up anytime
-    esp_mqtt_client_publish(mqtt_client, discovery_topic, json_str, 0, 1, 1);
-    free(json_str);
+  if (!ha_mqtt_set(
+          "{\"name\":\"CzechMate\",\"unique_id\":\"%s\","
+          "\"command_topic\":\"" HA_TOPIC_LIGHT_COMMAND "\","
+          "\"state_topic\":\"" HA_TOPIC_LIGHT_STATE "\","
+          "\"availability_topic\":\"" HA_TOPIC_LIGHT_AVAILABILITY "\","
+          "\"payload_available\":\"" HA_MQTT_PAYLOAD_ONLINE "\","
+          "\"payload_not_available\":\"" HA_MQTT_PAYLOAD_OFFLINE "\","
+          "\"schema\":\"json\","
+          "\"json_attributes_topic\":\"" HA_TOPIC_LIGHT_STATE "\","
+          "\"brightness\":true,\"supported_color_modes\":[\"rgb\"],"
+          "\"device\":{\"identifiers\":\"%s\",\"name\":\"ESP32 Chess System\","
+          "\"manufacturer\":\"" HA_DEVICE_MANUFACTURER "\","
+          "\"model\":\"" HA_DEVICE_MODEL "\","
+          "\"sw_version\":\"" HA_DEVICE_SW_VERSION "\"}}",
+          unique_id, unique_id)) {
+    return false;
   }
-  cJSON_Delete(json);
+  return ha_mqtt_send(discovery_topic, 1);
 }
 
 /**
@@ -625,27 +663,21 @@ static void ha_light_mqtt_event_handler(void *handler_args,
   case MQTT_EVENT_CONNECTED:
     ESP_LOGI(TAG, "MQTT Connected");
     mqtt_connected = true;
+    s_mqtt_down = false;
 
     // Subscribe to light command topic
     esp_mqtt_client_subscribe(client, HA_TOPIC_LIGHT_COMMAND, 0);
     ESP_LOGI(TAG, "Subscribed to %s", HA_TOPIC_LIGHT_COMMAND);
 
-    // Publish Auto-Discovery Config
-    ha_light_publish_discovery();
-    ha_game_publish_discovery();
-
-    // Publish availability: online
-    esp_mqtt_client_publish(client, HA_TOPIC_LIGHT_AVAILABILITY,
-                            HA_MQTT_PAYLOAD_ONLINE, 0, 1, 1);
-
-    // Publish initial state
-    ha_light_publish_state();
-    ha_game_publish_state();
+    /* Discovery and state go out one message per loop, not in this callback. */
+    s_disc_step = 0;
     break;
 
   case MQTT_EVENT_DISCONNECTED:
     ESP_LOGI(TAG, "MQTT Disconnected");
     mqtt_connected = false;
+    s_mqtt_down = true;
+    s_disc_step = -1;
     break;
 
   case MQTT_EVENT_DATA:
@@ -666,7 +698,17 @@ static void ha_light_mqtt_event_handler(void *handler_args,
     break;
 
   case MQTT_EVENT_ERROR:
-    ESP_LOGW(TAG, "MQTT Error");
+    mqtt_connected = false;
+    s_mqtt_down = true;
+    s_disc_step = -1;
+    if (event->error_handle != NULL) {
+      ESP_LOGW(TAG, "MQTT Error type=%d sock=%d tls=%s",
+               (int)event->error_handle->error_type,
+               (int)event->error_handle->esp_transport_sock_errno,
+               esp_err_to_name(event->error_handle->esp_tls_last_esp_err));
+    } else {
+      ESP_LOGW(TAG, "MQTT Error");
+    }
     break;
 
   default:
@@ -755,19 +797,18 @@ static void ha_light_handle_mqtt_command(const char *topic, const char *data,
 /**
  * @brief Publikuje stav do MQTT
  */
-static void ha_light_publish_state(void) {
+static bool ha_light_publish_state(void) {
   if (!mqtt_connected || mqtt_client == NULL) {
-    return;
+    return false;
   }
   if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
     ESP_LOGD(TAG, "[STAGING] ha_light_publish_state: skip (heap < %d B)",
              HA_MQTT_STOP_HEAP_BYTES);
-    return;
+    return false;
   }
 
   bool st;
   uint8_t br, rr, rg, rb;
-  char eff[32];
   if (ha_light_state_mutex != NULL &&
       xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
     st = ha_light_state.state;
@@ -775,35 +816,16 @@ static void ha_light_publish_state(void) {
     rr = ha_light_state.r;
     rg = ha_light_state.g;
     rb = ha_light_state.b;
-    strncpy(eff, ha_light_state.effect, sizeof(eff) - 1);
-    eff[sizeof(eff) - 1] = '\0';
     xSemaphoreGive(ha_light_state_mutex);
   } else {
     st = true;
     br = 255;
     rr = rg = rb = 255;
-    eff[0] = '\0';
   }
 
-  cJSON *json = cJSON_CreateObject();
   /* Remembered lamp switch stays in NVS. While chess is on the LEDs, HA must
    * show the lamp off and mode "game", matching the button. */
   bool lamp_showing = st && (current_mode == HA_MODE_HA);
-  cJSON_AddStringToObject(json, "state", lamp_showing ? "ON" : "OFF");
-  cJSON_AddNumberToObject(json, "brightness", br);
-  cJSON_AddStringToObject(json, "color_mode", "rgb");
-  cJSON *color = cJSON_CreateObject();
-  cJSON_AddNumberToObject(color, "r", rr);
-  cJSON_AddNumberToObject(color, "g", rg);
-  cJSON_AddNumberToObject(color, "b", rb);
-  cJSON_AddItemToObject(json, "color", color);
-  (void)eff;
-
-  // Mode
-  cJSON_AddStringToObject(json, "mode",
-                          (current_mode == HA_MODE_GAME) ? "game" : "ha");
-
-  // Activity timeout
   uint32_t current_time_ms = esp_timer_get_time() / 1000;
   uint32_t time_until_timeout = 0;
   if (last_activity_time_ms > 0 && current_mode == HA_MODE_GAME) {
@@ -812,15 +834,17 @@ static void ha_light_publish_state(void) {
       time_until_timeout = HA_ACTIVITY_TIMEOUT_AUTO_MS - elapsed;
     }
   }
-  cJSON_AddNumberToObject(json, "activity_timeout_ms", time_until_timeout);
-
-  char *json_str = cJSON_Print(json);
-  if (json_str != NULL) {
-    esp_mqtt_client_publish(mqtt_client, HA_TOPIC_LIGHT_STATE, json_str, 0, 1,
-                            0);
-    free(json_str);
+  if (!ha_mqtt_set(
+          "{\"state\":\"%s\",\"brightness\":%u,\"color_mode\":\"rgb\","
+          "\"color\":{\"r\":%u,\"g\":%u,\"b\":%u},\"mode\":\"%s\","
+          "\"activity_timeout_ms\":%lu}",
+          lamp_showing ? "ON" : "OFF", (unsigned)br, (unsigned)rr,
+          (unsigned)rg, (unsigned)rb,
+          (current_mode == HA_MODE_GAME) ? "game" : "ha",
+          (unsigned long)time_until_timeout)) {
+    return false;
   }
-  cJSON_Delete(json);
+  return ha_mqtt_send(HA_TOPIC_LIGHT_STATE, 0);
 }
 
 static const char *s_game_state = "idle";
@@ -844,6 +868,8 @@ static const char *ha_game_reason_name(uint8_t reason) {
     return "timeout";
   case HA_REASON_RESIGNATION:
     return "resignation";
+  case HA_REASON_AGREEMENT:
+    return "agreement";
   default:
     return "none";
   }
@@ -914,29 +940,23 @@ static void ha_game_publish_event(const char *event) {
   if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
     return;
   }
-  esp_mqtt_client_publish(mqtt_client, HA_TOPIC_GAME_EVENT, event, 0, 1, 0);
+  esp_mqtt_client_publish(mqtt_client, HA_TOPIC_GAME_EVENT, event, 0, 0, 0);
 }
 
-static void ha_game_publish_state(void) {
+static bool ha_game_publish_state(void) {
   if (!mqtt_connected || mqtt_client == NULL) {
-    return;
+    return false;
   }
   if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
-    return;
+    return false;
   }
-  cJSON *json = cJSON_CreateObject();
-  cJSON_AddStringToObject(json, "state", s_game_state);
-  cJSON_AddStringToObject(json, "reason", s_game_reason);
-  cJSON_AddStringToObject(json, "result", s_game_result);
-  cJSON_AddStringToObject(json, "mode",
-                          (current_mode == HA_MODE_GAME) ? "game" : "ha");
-  char *json_str = cJSON_PrintUnformatted(json);
-  if (json_str != NULL) {
-    esp_mqtt_client_publish(mqtt_client, HA_TOPIC_GAME_STATE, json_str, 0, 1,
-                            1);
-    free(json_str);
+  if (!ha_mqtt_set("{\"state\":\"%s\",\"reason\":\"%s\",\"result\":\"%s\","
+                   "\"mode\":\"%s\"}",
+                   s_game_state, s_game_reason, s_game_result,
+                   (current_mode == HA_MODE_GAME) ? "game" : "ha")) {
+    return false;
   }
-  cJSON_Delete(json);
+  return ha_mqtt_send(HA_TOPIC_GAME_STATE, 1);
 }
 
 static void ha_game_apply(uint8_t fact, uint8_t reason) {
@@ -972,74 +992,114 @@ void ha_game_report(uint8_t fact, uint8_t reason) {
   }
 }
 
-static void ha_game_add_device(cJSON *json, const char *light_id) {
-  cJSON *device = cJSON_CreateObject();
-  cJSON_AddStringToObject(device, "identifiers", light_id);
-  cJSON_AddStringToObject(device, "name", "ESP32 Chess System");
-  cJSON_AddStringToObject(device, "manufacturer", HA_DEVICE_MANUFACTURER);
-  cJSON_AddStringToObject(device, "model", HA_DEVICE_MODEL);
-  cJSON_AddStringToObject(device, "sw_version", HA_DEVICE_SW_VERSION);
-  cJSON_AddItemToObject(json, "device", device);
-}
+static const char *s_game_events[] = {"move",     "white_win", "black_win",
+                                      "draw",     "lamp_on",   "game_mode"};
 
-static void ha_game_publish_discovery(void) {
-  if (!mqtt_connected || mqtt_client == NULL) {
-    return;
-  }
-  if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
-    return;
-  }
+static void ha_game_ids(char *light_id, size_t light_cap, char *game_id,
+                        size_t game_cap) {
   uint8_t mac_raw[6];
   esp_read_mac(mac_raw, ESP_MAC_WIFI_STA);
   char mac_str[13];
   snprintf(mac_str, sizeof(mac_str), "%02x%02x%02x%02x%02x%02x", mac_raw[0],
            mac_raw[1], mac_raw[2], mac_raw[3], mac_raw[4], mac_raw[5]);
-  char light_id[64];
-  snprintf(light_id, sizeof(light_id), "esp32_chess_light_%s", mac_str);
+  snprintf(light_id, light_cap, "esp32_chess_light_%s", mac_str);
+  snprintf(game_id, game_cap, "esp32_chess_game_%s", mac_str);
+}
 
+static bool ha_game_publish_sensor(void) {
+  char light_id[64];
   char game_id[64];
-  snprintf(game_id, sizeof(game_id), "esp32_chess_game_%s", mac_str);
   char topic[128];
+  ha_game_ids(light_id, sizeof(light_id), game_id, sizeof(game_id));
   snprintf(topic, sizeof(topic), "%s/sensor/%s/config", HA_DISCOVERY_PREFIX,
            game_id);
-  cJSON *sensor = cJSON_CreateObject();
-  cJSON_AddStringToObject(sensor, "name", "Game");
-  cJSON_AddStringToObject(sensor, "unique_id", game_id);
-  cJSON_AddStringToObject(sensor, "state_topic", HA_TOPIC_GAME_STATE);
-  cJSON_AddStringToObject(sensor, "value_template", "{{ value_json.state }}");
-  cJSON_AddStringToObject(sensor, "json_attributes_topic", HA_TOPIC_GAME_STATE);
-  cJSON_AddStringToObject(sensor, "availability_topic",
-                          HA_TOPIC_LIGHT_AVAILABILITY);
-  cJSON_AddStringToObject(sensor, "payload_available", HA_MQTT_PAYLOAD_ONLINE);
-  cJSON_AddStringToObject(sensor, "payload_not_available",
-                          HA_MQTT_PAYLOAD_OFFLINE);
-  cJSON_AddStringToObject(sensor, "icon", "mdi:chess-king");
-  ha_game_add_device(sensor, light_id);
-  char *sensor_json = cJSON_PrintUnformatted(sensor);
-  if (sensor_json != NULL) {
-    esp_mqtt_client_publish(mqtt_client, topic, sensor_json, 0, 1, 1);
-    free(sensor_json);
+  if (!ha_mqtt_set(
+          "{\"name\":\"Game\",\"unique_id\":\"%s\","
+          "\"state_topic\":\"" HA_TOPIC_GAME_STATE "\","
+          "\"value_template\":\"{{ value_json.state }}\","
+          "\"json_attributes_topic\":\"" HA_TOPIC_GAME_STATE "\","
+          "\"availability_topic\":\"" HA_TOPIC_LIGHT_AVAILABILITY "\","
+          "\"payload_available\":\"" HA_MQTT_PAYLOAD_ONLINE "\","
+          "\"payload_not_available\":\"" HA_MQTT_PAYLOAD_OFFLINE "\","
+          "\"icon\":\"mdi:chess-king\","
+          "\"device\":{\"identifiers\":\"%s\",\"name\":\"ESP32 Chess System\","
+          "\"manufacturer\":\"" HA_DEVICE_MANUFACTURER "\","
+          "\"model\":\"" HA_DEVICE_MODEL "\","
+          "\"sw_version\":\"" HA_DEVICE_SW_VERSION "\"}}",
+          game_id, light_id)) {
+    return false;
   }
-  cJSON_Delete(sensor);
+  return ha_mqtt_send(topic, 1);
+}
 
-  static const char *k_events[] = {"move",     "white_win", "black_win",
-                                   "draw",     "lamp_on",   "game_mode"};
-  for (unsigned i = 0; i < sizeof(k_events) / sizeof(k_events[0]); i++) {
-    snprintf(topic, sizeof(topic), "%s/device_automation/%s_%s/config",
-             HA_DISCOVERY_PREFIX, game_id, k_events[i]);
-    cJSON *trig = cJSON_CreateObject();
-    cJSON_AddStringToObject(trig, "automation_type", "trigger");
-    cJSON_AddStringToObject(trig, "topic", HA_TOPIC_GAME_EVENT);
-    cJSON_AddStringToObject(trig, "type", k_events[i]);
-    cJSON_AddStringToObject(trig, "subtype", "chess");
-    cJSON_AddStringToObject(trig, "payload", k_events[i]);
-    ha_game_add_device(trig, light_id);
-    char *trig_json = cJSON_PrintUnformatted(trig);
-    if (trig_json != NULL) {
-      esp_mqtt_client_publish(mqtt_client, topic, trig_json, 0, 1, 1);
-      free(trig_json);
+static bool ha_game_publish_trigger(unsigned index) {
+  if (index >= sizeof(s_game_events) / sizeof(s_game_events[0])) {
+    return false;
+  }
+  char light_id[64];
+  char game_id[64];
+  char topic[128];
+  ha_game_ids(light_id, sizeof(light_id), game_id, sizeof(game_id));
+  snprintf(topic, sizeof(topic), "%s/device_automation/%s_%s/config",
+           HA_DISCOVERY_PREFIX, game_id, s_game_events[index]);
+  if (!ha_mqtt_set("{\"automation_type\":\"trigger\","
+                   "\"topic\":\"" HA_TOPIC_GAME_EVENT "\","
+                   "\"type\":\"%s\",\"subtype\":\"chess\",\"payload\":\"%s\","
+                   "\"device\":{\"identifiers\":\"%s\","
+                   "\"name\":\"ESP32 Chess System\","
+                   "\"manufacturer\":\"" HA_DEVICE_MANUFACTURER "\","
+                   "\"model\":\"" HA_DEVICE_MODEL "\","
+                   "\"sw_version\":\"" HA_DEVICE_SW_VERSION "\"}}",
+                   s_game_events[index], s_game_events[index], light_id)) {
+    return false;
+  }
+  return ha_mqtt_send(topic, 1);
+}
+
+/** One retained config per call. Steps follow s_game_events, so a new
+ *  trigger is published without editing this ladder. */
+static void ha_discovery_pump(void) {
+  int step = s_disc_step;
+  if (step < 0 || !mqtt_connected || mqtt_client == NULL) {
+    return;
+  }
+  if (esp_get_free_heap_size() < HA_MQTT_MIN_FREE_HEAP_BYTES) {
+    return;
+  }
+  static int64_t s_disc_next_us;
+  int64_t now = esp_timer_get_time();
+  if (now < s_disc_next_us) {
+    return;
+  }
+  const int trigger0 = 4;
+  const int trigger_n =
+      (int)(sizeof(s_game_events) / sizeof(s_game_events[0]));
+  const int state_step = trigger0 + trigger_n;
+  bool sent = false;
+  if (step == 0) {
+    sent = ha_light_publish_discovery();
+  } else if (step == 1) {
+    /* One QoS 1 so Home Assistant keeps the online state. */
+    sent = esp_mqtt_client_publish(mqtt_client, HA_TOPIC_LIGHT_AVAILABILITY,
+                                   HA_MQTT_PAYLOAD_ONLINE, 0, 1, 1) >= 0;
+  } else if (step == 2) {
+    sent = ha_light_publish_state();
+  } else if (step == 3) {
+    sent = ha_game_publish_sensor();
+  } else if (step < state_step) {
+    sent = ha_game_publish_trigger((unsigned)(step - trigger0));
+  } else {
+    sent = ha_game_publish_state();
+    if (sent && s_disc_step == step) {
+      s_disc_step = -1;
     }
-    cJSON_Delete(trig);
+    s_disc_next_us = now + 100000;
+    return;
+  }
+  s_disc_next_us = now + 100000;
+  /* A failed send stays on this step. Disconnect must not be overwritten. */
+  if (sent && s_disc_step == step) {
+    s_disc_step = step + 1;
   }
 }
 
@@ -1131,6 +1191,9 @@ static esp_err_t ha_light_init_mqtt(void) {
       .session.keepalive = 120, // Increase keepalive to 120s for stability
       .network.timeout_ms = 4000,
       .network.disable_auto_reconnect = false,
+      /* Incoming commands are small. Outgoing discovery fits in 768. */
+      .buffer.size = 512,
+      .buffer.out_size = HA_MQTT_PAYLOAD_MAX,
   };
 
   mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
@@ -1158,6 +1221,151 @@ static esp_err_t ha_light_init_mqtt(void) {
 // LAMP NVS PERSISTENCE
 // ============================================================================
 
+static uint8_t s_pat_a[3] = {255, 255, 255};
+static uint8_t s_pat_b[3] = {40, 90, 255};
+static uint8_t s_pat_pen;
+static uint8_t s_pat_map[64];
+
+static void ha_pattern_nvs_save(bool colors, bool map) {
+  nvs_handle_t handle;
+  if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READWRITE, &handle) != ESP_OK) {
+    return;
+  }
+  if (colors) {
+    uint8_t pack[7] = {s_pat_a[0], s_pat_a[1], s_pat_a[2], s_pat_b[0],
+                       s_pat_b[1], s_pat_b[2], s_pat_pen};
+    nvs_set_blob(handle, "pat_col", pack, sizeof(pack));
+  }
+  if (map) {
+    nvs_set_blob(handle, "pat_map", s_pat_map, sizeof(s_pat_map));
+  }
+  nvs_commit(handle);
+  nvs_close(handle);
+}
+
+static void ha_pattern_nvs_load(void) {
+  nvs_handle_t handle;
+  if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READONLY, &handle) != ESP_OK) {
+    return;
+  }
+  uint8_t pack[7];
+  size_t len = sizeof(pack);
+  if (nvs_get_blob(handle, "pat_col", pack, &len) == ESP_OK && len == sizeof(pack)) {
+    memcpy(s_pat_a, pack, 3);
+    memcpy(s_pat_b, pack + 3, 3);
+    s_pat_pen = pack[6] & 1u;
+  }
+  len = sizeof(s_pat_map);
+  nvs_get_blob(handle, "pat_map", s_pat_map, &len);
+  nvs_close(handle);
+}
+
+static void ha_pattern_paint_square(uint8_t square) {
+  if (square >= 64) {
+    return;
+  }
+  uint8_t which = s_pat_map[square];
+  uint8_t r = 0, g = 0, b = 0;
+  if (which == 1) {
+    r = s_pat_a[0];
+    g = s_pat_a[1];
+    b = s_pat_a[2];
+  } else if (which == 2) {
+    r = s_pat_b[0];
+    g = s_pat_b[1];
+    b = s_pat_b[2];
+  }
+  uint8_t cr = 0, cg = 0, cb = 0;
+  if (which != 0) {
+    led_correct_sk6812(r, g, b, 255, &cr, &cg, &cb);
+  }
+  uint8_t led = chess_pos_to_led_index(square / 8u, square % 8u);
+  led_set_pixel_rgbw(led, cr, cg, cb, 0);
+}
+
+static void ha_pattern_paint_all(void) {
+  led_set_lamp_hold(true);
+  for (uint8_t i = 0; i < 64; i++) {
+    ha_pattern_paint_square(i);
+  }
+  led_force_immediate_update();
+}
+
+static void ha_pattern_apply(const ha_light_command_t *cmd) {
+  if (cmd->u.pattern.clear_map) {
+    memset(s_pat_map, 0, sizeof(s_pat_map));
+    ha_pattern_nvs_save(false, true);
+  }
+  if (cmd->u.pattern.write_colors) {
+    s_pat_a[0] = cmd->u.pattern.ar;
+    s_pat_a[1] = cmd->u.pattern.ag;
+    s_pat_a[2] = cmd->u.pattern.ab;
+    s_pat_b[0] = cmd->u.pattern.br;
+    s_pat_b[1] = cmd->u.pattern.bg;
+    s_pat_b[2] = cmd->u.pattern.bb;
+    s_pat_pen = cmd->u.pattern.pen & 1u;
+    ha_pattern_nvs_save(true, false);
+  }
+  if (cmd->u.pattern.action == HA_PAT_STAMP) {
+    if (!s_pat_on || cmd->u.pattern.square >= 64) {
+      return;
+    }
+    s_pat_map[cmd->u.pattern.square] = (uint8_t)(s_pat_pen ? 2 : 1);
+    ha_pattern_paint_square(cmd->u.pattern.square);
+    led_force_immediate_update();
+    ha_pattern_nvs_save(false, true);
+    return;
+  }
+  if (cmd->u.pattern.action == HA_PAT_OFF) {
+    s_pat_on = false;
+    return;
+  }
+  if (cmd->u.pattern.action == HA_PAT_CLEAR) {
+    if (s_pat_on) {
+      ha_pattern_paint_all();
+    }
+    return;
+  }
+  if (cmd->u.pattern.action == HA_PAT_COLORS) {
+    if (s_pat_on) {
+      ha_pattern_paint_all();
+    }
+    return;
+  }
+  if (cmd->u.pattern.action == HA_PAT_ON) {
+    s_pat_on = true;
+    if (current_mode != HA_MODE_HA) {
+      game_gesture_request_lamp_wave();
+    } else {
+      ha_pattern_paint_all();
+    }
+  }
+}
+
+bool ha_pattern_is_active(void) { return s_pat_on; }
+
+bool ha_pattern_request(uint8_t action, uint8_t square, uint8_t pen, uint8_t ar,
+                        uint8_t ag, uint8_t ab, uint8_t br, uint8_t bg,
+                        uint8_t bb, uint8_t write_colors, uint8_t clear_map) {
+  if (!task_running || ha_light_cmd_queue == NULL) {
+    return false;
+  }
+  ha_light_command_t cmd = {0};
+  cmd.type = HA_CMD_PATTERN;
+  cmd.u.pattern.action = action;
+  cmd.u.pattern.square = square;
+  cmd.u.pattern.pen = pen;
+  cmd.u.pattern.ar = ar;
+  cmd.u.pattern.ag = ag;
+  cmd.u.pattern.ab = ab;
+  cmd.u.pattern.br = br;
+  cmd.u.pattern.bg = bg;
+  cmd.u.pattern.bb = bb;
+  cmd.u.pattern.write_colors = write_colors;
+  cmd.u.pattern.clear_map = clear_map;
+  return xQueueSend(ha_light_cmd_queue, &cmd, 0) == pdTRUE;
+}
+
 static void lamp_nvs_load(void) {
   nvs_handle_t handle;
   esp_err_t ret = nvs_open(LAMP_NVS_NAMESPACE, NVS_READONLY, &handle);
@@ -1184,6 +1392,7 @@ static void lamp_nvs_load(void) {
     s_nvs_mode_found = true;
   }
   nvs_close(handle);
+  ha_pattern_nvs_load();
 
   if (ha_light_state_mutex != NULL &&
       xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
@@ -1194,6 +1403,7 @@ static void lamp_nvs_load(void) {
     ha_light_state.brightness = brightness;
     xSemaphoreGive(ha_light_state_mutex);
   }
+  remember_lit_color(r, g, b, brightness);
 }
 
 static void lamp_nvs_save(void) {
@@ -1328,6 +1538,18 @@ void ha_light_get_state(uint8_t *r, uint8_t *g, uint8_t *b, uint8_t *brightness,
   if (state)
     *state = ha_light_state.state;
   xSemaphoreGive(ha_light_state_mutex);
+}
+
+void ha_light_last_lit_color(uint8_t *r, uint8_t *g, uint8_t *b,
+                             uint8_t *brightness) {
+  if (r)
+    *r = s_lit_r;
+  if (g)
+    *g = s_lit_g;
+  if (b)
+    *b = s_lit_b;
+  if (brightness)
+    *brightness = s_lit_br;
 }
 
 /**
@@ -1481,14 +1703,19 @@ void ha_light_task_start(void *pvParameters) {
     // Reset WDT
     chess_task_wdt_reset_safe(TAG);
 
+    ha_discovery_pump();
+
     // Process queue with timeout (100ms) - replaces vTaskDelay
     ha_light_command_t cmd;
     if (ha_light_cmd_queue &&
         xQueueReceive(ha_light_cmd_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
       if (cmd.type == HA_CMD_WEB_LAMP) {
+        s_pat_on = false;
         if (ha_light_state_mutex != NULL &&
             xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) ==
                 pdTRUE) {
+          remember_lit_color(ha_light_state.r, ha_light_state.g, ha_light_state.b,
+                             ha_light_state.brightness);
           ha_light_state.state = (cmd.u.web_lamp.state != 0);
           ha_light_state.r = cmd.u.web_lamp.r;
           ha_light_state.g = cmd.u.web_lamp.g;
@@ -1496,11 +1723,16 @@ void ha_light_task_start(void *pvParameters) {
           if (cmd.u.web_lamp.set_brightness) {
             ha_light_state.brightness = cmd.u.web_lamp.brightness;
           }
+          remember_lit_color(ha_light_state.r, ha_light_state.g, ha_light_state.b,
+                             ha_light_state.brightness);
           xSemaphoreGive(ha_light_state_mutex);
         }
         lamp_nvs_save();
         ha_light_switch_to_ha_mode();
+      } else if (cmd.type == HA_CMD_PATTERN) {
+        ha_pattern_apply(&cmd);
       } else if (cmd.type == HA_CMD_MQTT_STATE) {
+        s_pat_on = false;
         bool was_on = ha_light_state.state;
         bool now_on_cmd = (cmd.u.web_lamp.state != 0);
         /* Capture the lit color before state becomes off, so the shrink wave
@@ -1514,11 +1746,15 @@ void ha_light_task_start(void *pvParameters) {
             xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) ==
                 pdTRUE) {
           was_on = ha_light_state.state;
+          remember_lit_color(ha_light_state.r, ha_light_state.g, ha_light_state.b,
+                             ha_light_state.brightness);
           ha_light_state.state = (cmd.u.web_lamp.state != 0);
           ha_light_state.r = cmd.u.web_lamp.r;
           ha_light_state.g = cmd.u.web_lamp.g;
           ha_light_state.b = cmd.u.web_lamp.b;
           ha_light_state.brightness = cmd.u.web_lamp.brightness;
+          remember_lit_color(ha_light_state.r, ha_light_state.g, ha_light_state.b,
+                             ha_light_state.brightness);
           xSemaphoreGive(ha_light_state_mutex);
         }
         lamp_nvs_save();
@@ -1553,6 +1789,23 @@ void ha_light_task_start(void *pvParameters) {
         ha_game_apply(cmd.u.web_lamp.state, cmd.u.web_lamp.r);
       } else if (cmd.type == HA_CMD_SET_MODE) {
         if (cmd.u.web_lamp.state == HA_MODE_HA) {
+          /* Coming from the game, the lamp comes back in the last real color. */
+          if (current_mode == HA_MODE_GAME && ha_light_state_mutex != NULL &&
+              xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(50)) ==
+                  pdTRUE) {
+            if (!ha_light_state.state ||
+                (ha_light_state.r | ha_light_state.g | ha_light_state.b) == 0) {
+              ha_light_state.r = s_lit_r;
+              ha_light_state.g = s_lit_g;
+              ha_light_state.b = s_lit_b;
+              ha_light_state.brightness = s_lit_br;
+              ha_light_state.state = true;
+              xSemaphoreGive(ha_light_state_mutex);
+              lamp_nvs_save();
+            } else {
+              xSemaphoreGive(ha_light_state_mutex);
+            }
+          }
           ha_light_switch_to_ha_mode();
         } else {
           ha_light_switch_to_game_mode();
@@ -1587,19 +1840,11 @@ void ha_light_task_start(void *pvParameters) {
         if (now - last_mqtt_activity > 500) { // 500ms limit
           last_mqtt_activity = now;
 
-          if (mqtt_connected && mqtt_client != NULL) {
-            char topic[128];
-            snprintf(topic, sizeof(topic), "%s", HA_TOPIC_GAME_ACTIVITY);
-            cJSON *json = cJSON_CreateObject();
-            cJSON_AddStringToObject(json, "event",
-                                    activity_name ? activity_name : "unknown");
-            cJSON_AddNumberToObject(json, "timestamp_ms", now);
-            char *json_str = cJSON_PrintUnformatted(json);
-            if (json_str) {
-              esp_mqtt_client_publish(mqtt_client, topic, json_str, 0, 0, 0);
-              free(json_str);
-            }
-            cJSON_Delete(json);
+          if (mqtt_connected && mqtt_client != NULL &&
+              ha_mqtt_set("{\"event\":\"%s\",\"timestamp_ms\":%lu}",
+                          activity_name ? activity_name : "unknown",
+                          (unsigned long)now)) {
+            ha_mqtt_send(HA_TOPIC_GAME_ACTIVITY, 0);
           }
         }
       }
@@ -1611,6 +1856,20 @@ void ha_light_task_start(void *pvParameters) {
     static uint32_t last_mqtt_retry_ms = 0;
     uint32_t current_time_ms = esp_timer_get_time() / 1000;
     if (current_time_ms - last_wifi_check >= 5000) {
+      static uint32_t last_heap_log_ms;
+      if (current_time_ms - last_heap_log_ms >= 10000) {
+        last_heap_log_ms = current_time_ms;
+        size_t free_b = esp_get_free_heap_size();
+        size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
+        size_t least = esp_get_minimum_free_heap_size();
+        if (free_b < 16384) {
+          ESP_LOGW(TAG, "heap free=%u largest=%u min=%u", (unsigned)free_b,
+                   (unsigned)largest, (unsigned)least);
+        } else {
+          ESP_LOGI(TAG, "heap free=%u largest=%u min=%u", (unsigned)free_b,
+                   (unsigned)largest, (unsigned)least);
+        }
+      }
       bool wifi_connected = ha_light_check_wifi_sta_connected();
       if (wifi_connected && sta_connected && mqtt_client != NULL) {
         size_t fh = esp_get_free_heap_size();
@@ -1630,6 +1889,15 @@ void ha_light_task_start(void *pvParameters) {
         ESP_LOGI(TAG, "WiFi STA connected - initializing MQTT");
         chess_task_wdt_reset_safe(TAG);
         ha_light_init_mqtt();
+      } else if (wifi_connected && sta_connected && mqtt_client != NULL &&
+                 s_mqtt_down && !mqtt_connected) {
+        if (current_time_ms - last_mqtt_retry_ms >= 15000) {
+          last_mqtt_retry_ms = current_time_ms;
+          esp_err_t rr = esp_mqtt_client_reconnect(mqtt_client);
+          if (rr != ESP_OK) {
+            ESP_LOGW(TAG, "MQTT reconnect: %s", esp_err_to_name(rr));
+          }
+        }
       } else if (wifi_connected && sta_connected && mqtt_client == NULL) {
         /* Repeat after freeing the heap; with NO_MEM no more often than 1×/30 s (saves
          *CPU and WDT) */
@@ -1676,7 +1944,7 @@ void ha_light_task_start(void *pvParameters) {
       static uint32_t last_avail_publish = 0;
       if (current_time_ms - last_avail_publish >= 60000) {
         esp_mqtt_client_publish(mqtt_client, HA_TOPIC_LIGHT_AVAILABILITY,
-                                HA_MQTT_PAYLOAD_ONLINE, 0, 1, 1);
+                                HA_MQTT_PAYLOAD_ONLINE, 0, 0, 1);
         last_avail_publish = current_time_ms;
       }
     }

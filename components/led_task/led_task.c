@@ -178,6 +178,9 @@
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
 #include "../game_task/include/game_task.h" // For game_get_piece() function
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+#include "../game_task/include/game_hall_restore_guide.h"
+#endif
 #include "../unified_animation_manager/include/unified_animation_manager.h" // Non-blocking endgame animations
 #include "led_board_restore_guide.h"
 #include "led_gesture_anim.h"
@@ -307,6 +310,9 @@ static void led_hardware_cleanup(void);
 // BATCH UPDATE FUNCTIONS
 static void
 led_commit_pending_changes(void); // Commit all pending changes atomically
+static void led_frame_begin(void);
+static void led_frame_end(void);
+static void led_release_held_picture(bool force);
 void led_force_immediate_update(
     void); // Force immediate update for critical operations
 static void led_privileged_batch_commit(
@@ -380,6 +386,15 @@ static uint32_t
     led_pending_changes[CHESS_LED_COUNT_TOTAL];       // Pending color changes
 static bool led_changed_flags[CHESS_LED_COUNT_TOTAL]; // Track which LEDs
                                                       // actually changed
+/* >0 while a multi-pixel picture is still being written. The strip stays dark
+ * of that picture until the matching led_frame_end(). */
+static portMUX_TYPE s_led_compose_mux = portMUX_INITIALIZER_UNLOCKED;
+static uint8_t s_led_compose;
+/* Naked clear from another task stays open until its following pixel writes
+ * land, so the periodic commit cannot publish the black frame in between. */
+#define LED_PICTURE_SETTLE_MS 20
+static volatile bool s_held_picture;
+static volatile TickType_t s_picture_touch;
 
 // NEW: Duration management system
 static led_duration_state_t led_durations[CHESS_LED_COUNT_TOTAL] = {0};
@@ -546,6 +561,15 @@ static void led_set_pixel_channels(uint8_t led_index, uint8_t red, uint8_t green
   uint32_t color = ((uint32_t)white << 24) | ((uint32_t)red << 16) |
                    ((uint32_t)green << 8) | blue;
 
+  /* Same color is already on the strip. A refresh here is a full frame and
+   * the guide used to request one 30 times a second, which blinks under WiFi. */
+  if (led_states[led_index] == color) {
+    if (led_unified_mutex != NULL) {
+      xSemaphoreGive(led_unified_mutex);
+    }
+    return;
+  }
+
   // Update internal state
   led_states[led_index] = color;
 
@@ -580,50 +604,70 @@ void led_set_pixel_rgbw(uint8_t led_index, uint8_t red, uint8_t green,
 void led_set_all_internal(uint8_t red, uint8_t green, uint8_t blue) {
   uint32_t color = (red << 16) | (green << 8) | blue;
 
-  // BATCH UPDATE - use batch system instead of immediate hardware access
-  if (led_initialized && led_strip && !simulation_mode) {
-    // Mark all LEDs as changed for batch commit
-    for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-      led_pending_changes[i] = color;
-      led_changed_flags[i] = true;
+  led_frame_begin();
+  if (led_unified_mutex != NULL) {
+    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
+        pdTRUE) {
+      led_frame_end();
+      ESP_LOGW(TAG, "Failed to take LED mutex for set-all");
+      return;
     }
-    led_changes_pending = true;
-
-    // Force immediate commit for this operation
-    led_commit_pending_changes();
   }
-
-  // Update internal states
+  bool any = false;
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+    if (led_states[i] == color) {
+      continue;
+    }
     led_states[i] = color;
+    led_pending_changes[i] = color;
+    led_changed_flags[i] = true;
+    any = true;
   }
+  if (any) {
+    led_changes_pending = true;
+  }
+  if (led_unified_mutex != NULL) {
+    xSemaphoreGive(led_unified_mutex);
+  }
+  led_frame_end();
+  led_commit_pending_changes();
 
   if (simulation_mode) {
-    ESP_LOGI(TAG, "All LEDs = RGB(%d,%d,%d) = 0x%06" PRIX32, red, green, blue, color);
+    ESP_LOGI(TAG, "All LEDs = RGB(%d,%d,%d) = 0x%06" PRIX32, red, green, blue,
+             color);
   }
 }
 
 void led_clear_all_internal(void) {
-  ESP_LOGI(TAG, "🔄 Clearing all LED states...");
-
-  // SIMPLE CLEAR OPERATION - let driver handle timing
-  if (led_initialized && led_strip != NULL && !simulation_mode) {
-    esp_err_t ret = led_strip_clear(led_strip);
-    if (ret == ESP_OK) {
-      ret = led_strip_refresh(led_strip); // Let driver handle timing
-    }
-
-    if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "❌ LED strip clear failed: %s", esp_err_to_name(ret));
+  led_frame_begin();
+  if (led_unified_mutex != NULL) {
+    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
+        pdTRUE) {
+      led_frame_end();
+      ESP_LOGW(TAG, "Failed to take LED mutex for clear");
+      return;
     }
   }
-
-  // Update internal states
-  memset(led_states, 0, sizeof(led_states));
-
-  if (simulation_mode) {
-    ESP_LOGI(TAG, "✅ All LEDs cleared");
+  bool any = false;
+  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+    if (led_states[i] == 0 && !led_changed_flags[i]) {
+      continue;
+    }
+    led_states[i] = 0;
+    led_pending_changes[i] = 0;
+    led_changed_flags[i] = true;
+    any = true;
   }
+  if (any) {
+    led_changes_pending = true;
+  }
+  if (led_unified_mutex != NULL) {
+    xSemaphoreGive(led_unified_mutex);
+  }
+  led_frame_end();
+  /* One black frame after the logical buffer is finished. Nested inside
+   * another frame, this returns and the outer end sends it. */
+  led_commit_pending_changes();
 }
 
 void led_show_chess_board(void) {
@@ -632,6 +676,7 @@ void led_show_chess_board(void) {
   }
   ESP_LOGI(TAG, "Setting chess board pattern...");
 
+  led_frame_begin();
   /* Pattern is stored in square order (a1 = index 0). The strip index is
    * the quadrant map, so a checker follows the board on CzechMate v2. */
   for (uint8_t row = 0; row < 8; row++) {
@@ -661,6 +706,7 @@ void led_show_chess_board(void) {
       led_set_pixel_internal(led_index, 0, 0, 255); // Blue - unavailable
     }
   }
+  led_frame_end();
   ESP_LOGI(TAG, "✅ Button LEDs initialized - reset button (LED 72) green, "
                 "promotion buttons (LED 64-71) blue");
 
@@ -779,6 +825,7 @@ void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
            r, g, b, brightness, r_scaled, g_scaled, b_scaled, w_scaled);
 
   // Set all 64 board LEDs (indices 0-63)
+  led_frame_begin();
   for (int i = 0; i < CHESS_LED_COUNT_BOARD; i++) {
     led_set_pixel_rgbw(i, r_scaled, g_scaled, b_scaled, w_scaled);
   }
@@ -788,6 +835,7 @@ void led_set_ha_color(uint8_t r, uint8_t g, uint8_t b, uint8_t brightness) {
     uint8_t led_index = led_get_button_led_index((uint8_t)i);
     led_set_pixel_rgbw(led_index, r_scaled, g_scaled, b_scaled, w_scaled);
   }
+  led_frame_end();
 
   // Force immediate update
   led_force_immediate_update();
@@ -1033,7 +1081,6 @@ void led_process_commands(void) {
 }
 
 // Forward declarations for animation functions
-void led_anim_player_change(const led_command_t *cmd);
 void led_anim_move_path(const led_command_t *cmd);
 void led_anim_castle(const led_command_t *cmd);
 void led_anim_promote(const led_command_t *cmd);
@@ -1053,6 +1100,21 @@ void led_enhanced_castling_clear(void);
 /**
  * @brief Execute LED command with full command structure
  */
+static uint8_t s_board_show;
+
+static void led_show_begin(void) {
+  if (s_board_show < 255) {
+    s_board_show++;
+  }
+  led_board_restore_guide_yield();
+}
+
+static void led_show_end(void) {
+  if (s_board_show > 0) {
+    s_board_show--;
+  }
+}
+
 void led_execute_command_new(const led_command_t *cmd) {
   if (!cmd) {
     return;
@@ -1092,13 +1154,18 @@ void led_execute_command_new(const led_command_t *cmd) {
       ESP_LOGI(TAG, "💡 Setting global brightness: %d%%", new_brightness);
       global_brightness = new_brightness;
 
-      // Force refresh of current state with new brightness
-      led_changes_pending = true;
-      // Mark all LEDs as changed to re-render them
-      for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-        led_pending_changes[i] = led_states[i];
-        led_changed_flags[i] = true;
+      led_frame_begin();
+      if (led_unified_mutex != NULL &&
+          xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
+              pdTRUE) {
+        led_changes_pending = true;
+        for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+          led_pending_changes[i] = led_states[i];
+          led_changed_flags[i] = true;
+        }
+        xSemaphoreGive(led_unified_mutex);
       }
+      led_frame_end();
       led_commit_pending_changes();
     }
     break;
@@ -1156,19 +1223,18 @@ void led_execute_command_new(const led_command_t *cmd) {
     break;
 
   // Advanced Chess Animation Cases
-  case LED_CMD_ANIM_PLAYER_CHANGE:
-    ESP_LOGI(TAG, "🌟 Player change animation");
-    led_anim_player_change(cmd);
-    break;
-
   case LED_CMD_ANIM_MOVE_PATH:
     ESP_LOGI(TAG, "➡️ Move path animation");
+    led_show_begin();
     led_anim_move_path(cmd);
+    led_show_end();
     break;
 
   case LED_CMD_ANIM_CASTLE:
     ESP_LOGI(TAG, "🏰 Castling animation");
+    led_show_begin();
     led_anim_castle(cmd);
+    led_show_end();
     break;
 
   case LED_CMD_ANIM_PROMOTE:
@@ -1183,12 +1249,16 @@ void led_execute_command_new(const led_command_t *cmd) {
 
   case LED_CMD_ANIM_CHECK:
     ESP_LOGI(TAG, "⚠️ Check animation");
+    led_show_begin();
     led_anim_check(cmd);
+    led_show_end();
     break;
 
   case LED_CMD_ANIM_CHECKMATE:
     ESP_LOGI(TAG, "☠️ Checkmate animation");
+    led_show_begin();
     led_anim_checkmate(cmd);
+    led_show_end();
     break;
 
   case LED_CMD_BUTTON_PROMOTION_AVAILABLE:
@@ -1238,12 +1308,6 @@ void led_execute_command_new(const led_command_t *cmd) {
     led_clear_all_highlights();
     break;
 
-  case LED_CMD_PLAYER_CHANGE:
-    ESP_LOGI(TAG, "🔄 Player change animation");
-    led_player_change_animation();
-    break;
-
-  // Error handling commands
   case LED_CMD_ERROR_INVALID_MOVE:
     ESP_LOGI(TAG, "🚨 Error: Invalid move at LED %d", cmd->led_index);
     led_error_invalid_move(cmd);
@@ -1788,38 +1852,6 @@ void led_clear_all_highlights(void) {
   ESP_LOGI(TAG, "✅ All board highlights cleared");
 }
 
-/**
- * @brief Player change animation
- */
-void led_player_change_animation(void) {
-  ESP_LOGI(TAG, "🔄 Starting player change animation");
-
-  // Simple animation: flash all board LEDs white, then restore pattern
-  for (int flash = 0; flash < 3; flash++) {
-    // Flash white
-    for (int i = 0; i < 64; i++) {
-      led_set_pixel_internal(i, 255, 255, 255);
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(200));
-
-    // Flash black
-    for (int i = 0; i < 64; i++) {
-      led_set_pixel_internal(i, 0, 0, 0);
-    }
-
-    vTaskDelay(pdMS_TO_TICKS(200));
-  }
-
-  // Clear all LEDs after animation
-  led_clear_all_highlights();
-
-  // Highlight pieces for new player
-  led_highlight_pieces_that_can_move();
-
-  ESP_LOGI(TAG, "✅ Player change animation completed");
-}
-
 // ============================================================================
 // HARDWARE INTEGRATION FUNCTIONS
 // ============================================================================
@@ -1873,8 +1905,11 @@ static esp_err_t led_hardware_init(void) {
     return ESP_ERR_INVALID_STATE;
   }
 
-  // CLEAR ALL LEDS
+  // CLEAR ALL LEDS, then one refresh of that finished black frame.
   ret = led_strip_clear(led_strip);
+  if (ret == ESP_OK) {
+    ret = led_strip_refresh(led_strip);
+  }
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "❌ LED strip clear failed: %s", esp_err_to_name(ret));
     led_strip_del(led_strip);
@@ -2118,29 +2153,28 @@ void led_task_start(void *pvParameters) {
     }
 
     // Process LED commands from queue
+    led_frame_begin();
     led_process_commands();
 
-    // Update animations
-    led_update_animation();
+    /* Game animations paint and refresh their own frames. Drawing the board
+     * again here mixes the two pictures onto the strip. */
+    if (s_board_show == 0) {
+      led_update_animation();
+      led_update_endgame_wave();
+      if (!led_board_show_active()) {
+        led_board_restore_guide_tick();
+      }
+      led_process_duration_expirations();
+      led_gesture_anim_tick();
+    }
 
-    // Update endgame wave animation (non-blocking, according to the old project)
-    led_update_endgame_wave();
-
-    led_board_restore_guide_tick();
-
-    // Process LED duration expirations (task-driven, no FreeRTOS timer)
-    led_process_duration_expirations();
-
-    // Process button blink timers
     led_process_button_blink_timers();
-
-    led_gesture_anim_tick();
     if (s_forced_blackout) {
       led_clear_all_internal();
     }
+    led_frame_end();
 
-    // COMMIT PENDING LED CHANGES - Use privileged batch commit for maximum
-    // stability
+    // One finished frame. Nothing above is allowed to refresh the strip.
     led_privileged_batch_commit();
 
     // Update hardware (simulation mode)
@@ -2163,118 +2197,6 @@ static bool endgame_animation_active = false;
 // ============================================================================
 // ADVANCED CHESS ANIMATION IMPLEMENTATIONS
 // ============================================================================
-
-/**
- * @brief Player change animation - wave animation according to the old project
- *
- * Professional wave animation with Gaussian distribution that passes through
- * chess board. The animation goes from the previous player to the new player (passing scepter
- * effects).
- *
- * @param cmd LED command with data pointer to player_t (0=white, 1=black)
- */
-void led_anim_player_change(const led_command_t *cmd) {
-  if (!cmd)
-    return;
-
-  // Get new player color from data (1=white, 0=black)
-  uint8_t player_color_data = cmd->data ? (*((uint8_t *)cmd->data)) : 1;
-  player_t current_player =
-      (player_color_data == 1) ? PLAYER_WHITE : PLAYER_BLACK;
-
-  ESP_LOGI(TAG, "🔄 Starting player change animation - passing scepter to %s",
-           current_player == PLAYER_WHITE ? "White" : "Black");
-
-  // Clear board first
-  led_clear_board_only();
-  vTaskDelay(pdMS_TO_TICKS(30));
-
-  // REVERSED: Determine row lighting direction based on PREVIOUS player
-  // (passing scepter) This creates the effect of passing the scepter TO the
-  // current player
-  int start_row, end_row;
-  if (current_player == PLAYER_WHITE) {
-    // Passing scepter TO white: animate from black side (8) to white side (1)
-    start_row = 7; // Start from black side
-    end_row = 0;   // End at white side
-  } else {
-    // Passing scepter TO black: animate from white side (1) to black side (8)
-    start_row = 0; // Start from white side
-    end_row = 7;   // End at black side
-  }
-
-  // Professional wave animation with S-curve and Gaussian distribution
-  const float wave_width = 2.5f; // Narrower wave width for more focused effect
-  const int total_steps = 50;    // Reduced for faster animation
-
-  float wave_position = (float)start_row;
-  float target_position = (float)end_row;
-
-  for (int frame = 0; frame < total_steps; frame++) {
-    // Clear board first
-    led_clear_board_only();
-
-    // Calculate current wave position with S-curve easing
-    float progress = (float)frame / (float)(total_steps - 1);
-    float eased_progress =
-        0.5f * (1.0f - cosf(progress * M_PI)); // S-curve using cosine
-
-    float current_wave_pos =
-        wave_position + (target_position - wave_position) * eased_progress;
-
-    // Add gradual startup effect - gradually increase overall brightness at the
-    // beginning
-    float startup_factor = 1.0f;
-    if (frame < 15) { // First 15 frames (180ms) for gradual startup
-      startup_factor = (float)frame / 15.0f; // 0.0 to 1.0
-      startup_factor =
-          0.5f *
-          (1.0f - cosf(startup_factor * M_PI)); // S-curve for smooth startup
-    }
-
-    // Render wave with Gaussian brightness distribution
-    for (int row = 0; row < 8; row++) {
-      // Calculate distance from wave center
-      float distance = fabsf((float)row - current_wave_pos);
-
-      // Gaussian brightness distribution (exp(-distance²/(2σ²)))
-      float gaussian_factor =
-          expf(-(distance * distance) / (2.0f * wave_width * wave_width));
-
-      // Apply startup factor for gradual brightness increase
-      gaussian_factor *= startup_factor;
-
-      // Apply brightness to entire row
-      for (int col = 0; col < 8; col++) {
-        uint8_t led_index = chess_pos_to_led_index(row, col);
-
-        // Apply Gaussian brightness gradient with startup effect in dark gray
-        // RGB(31, 31, 31) - dark gray color
-        uint8_t red =
-            (uint8_t)(31 * gaussian_factor); // Dark gray red component
-        uint8_t green =
-            (uint8_t)(31 * gaussian_factor); // Dark gray green component
-        uint8_t blue =
-            (uint8_t)(31 * gaussian_factor); // Dark gray blue component
-
-        // Add brightness threshold - only show if bright enough to be visible
-        if (gaussian_factor > 0.15f) { // Only show if > 15% brightness
-          led_set_pixel_safe(led_index, red, green, blue);
-        }
-        // If too dim, leave LED off (don't set pixel)
-      }
-    }
-
-    // Faster delay for quicker animation
-    vTaskDelay(pdMS_TO_TICKS(12)); // 12ms = ~83 FPS (faster)
-  }
-
-  // Clear board after animation
-  led_clear_board_only();
-  vTaskDelay(pdMS_TO_TICKS(30));
-
-  ESP_LOGI(TAG, "✅ Player change animation completed");
-}
 
 static float led_smoothstep(float t) {
   if (t < 0.f) {
@@ -2323,6 +2245,7 @@ static void led_blend_add(uint16_t acc[64][3], float row, float col, float red,
 }
 
 static void led_blend_flush(uint16_t acc[64][3]) {
+  led_frame_begin();
   led_clear_board_only();
   for (int i = 0; i < 64; i++) {
     if (acc[i][0] == 0 && acc[i][1] == 0 && acc[i][2] == 0) {
@@ -2331,6 +2254,7 @@ static void led_blend_flush(uint16_t acc[64][3]) {
     led_set_pixel_safe((uint8_t)i, (uint8_t)acc[i][0], (uint8_t)acc[i][1],
                        (uint8_t)acc[i][2]);
   }
+  led_frame_end();
   led_force_immediate_update();
 }
 
@@ -2374,8 +2298,10 @@ void led_anim_move_path(const led_command_t *cmd) {
   for (int breath = 0; breath < breaths; breath++) {
     float t = (float)breath / (float)(breaths - 1);
     float level = sinf(t * (float)M_PI);
+    led_frame_begin();
     led_clear_board_only();
     led_set_pixel_safe(to_led, 0, 0, (uint8_t)(255.f * level));
+    led_frame_end();
     led_force_immediate_update();
     vTaskDelay(pdMS_TO_TICKS(8));
   }
@@ -2461,11 +2387,13 @@ void led_anim_castle(const led_command_t *cmd) {
   for (int breath = 0; breath < breaths; breath++) {
     float t = (float)breath / (float)(breaths - 1);
     float level = sinf(t * (float)M_PI);
+    led_frame_begin();
     led_clear_board_only();
     led_set_pixel_safe(king_to, (uint8_t)(255.f * level),
                        (uint8_t)(215.f * level), 0);
     led_set_pixel_safe(rook_to, (uint8_t)(192.f * level),
                        (uint8_t)(192.f * level), (uint8_t)(192.f * level));
+    led_frame_end();
     led_force_immediate_update();
     vTaskDelay(pdMS_TO_TICKS(10));
   }
@@ -2516,6 +2444,7 @@ void led_booting_animation(void) {
 
   // Progressive illumination of board LEDs (0-63) - start at 20% for visibility
   for (int brightness = 20; brightness <= 100; brightness += 5) {
+    led_frame_begin();
     for (int led = 0; led < 64; led++) {
       // Calculate color based on position
       uint8_t row = led / 8;
@@ -2535,17 +2464,16 @@ void led_booting_animation(void) {
         b = (uint8_t)(255 * brightness / 100);
       }
 
-      led_set_pixel_safe(led, r, g, b);
+      led_set_pixel_internal(led, r, g, b);
     }
 
     // Pulse buttons green (indices 64-72)
     uint8_t btn_brightness = (uint8_t)(255 * brightness / 100);
     for (int btn = 64; btn < 73; btn++) {
-      led_set_pixel_safe(btn, 0, btn_brightness, 0); // Green pulse
+      led_set_pixel_internal(btn, 0, btn_brightness, 0); // Green pulse
     }
-
-    // Show current brightness
-    led_strip_refresh(led_strip);
+    led_frame_end();
+    led_commit_pending_changes();
     vTaskDelay(pdMS_TO_TICKS(50));
 
     // Reset WDT during animation
@@ -2557,6 +2485,7 @@ void led_booting_animation(void) {
 
   // Fade out
   for (int brightness = 100; brightness >= 0; brightness -= 10) {
+    led_frame_begin();
     for (int led = 0; led < 64; led++) {
       uint8_t row = led / 8;
       uint8_t col = led % 8;
@@ -2572,30 +2501,31 @@ void led_booting_animation(void) {
         b = (uint8_t)(255 * brightness / 100);
       }
 
-      led_set_pixel_safe(led, r, g, b);
+      led_set_pixel_internal(led, r, g, b);
     }
 
     // Fade out buttons too
     uint8_t btn_brightness = (uint8_t)(255 * brightness / 100);
     for (int btn = 64; btn < 73; btn++) {
-      led_set_pixel_safe(btn, 0, btn_brightness, 0);
+      led_set_pixel_internal(btn, 0, btn_brightness, 0);
     }
-
-    led_strip_refresh(led_strip);
+    led_frame_end();
+    led_commit_pending_changes();
     vTaskDelay(pdMS_TO_TICKS(30));
     led_task_wdt_reset_safe();
   }
 
   // Clear board LEDs
+  led_frame_begin();
   led_clear_board_only();
 
   // Set default button state (dim blue) so they are not dark
   // Game logic will update this shortly
   for (int btn = 64; btn < 73; btn++) {
-    led_set_pixel_safe(btn, 0, 0, 32);
+    led_set_pixel_internal(btn, 0, 0, 32);
   }
-
-  led_strip_refresh(led_strip);
+  led_frame_end();
+  led_commit_pending_changes();
 
   // NOW clear boot flag - animation is fully done (including fade-out)
   led_booting_active = false;
@@ -2620,6 +2550,10 @@ typedef struct {
 } endgame_wave_state_t;
 
 static endgame_wave_state_t endgame_wave = {0};
+
+bool led_board_show_active(void) {
+  return s_board_show > 0 || endgame_wave.active;
+}
 
 /**
  * @brief Initialize AVR-style wave endgame animation (according to old project)
@@ -2660,6 +2594,7 @@ void led_anim_endgame(const led_command_t *cmd) {
   endgame_wave.last_update = xTaskGetTickCount();
   endgame_wave.active = true;
   endgame_wave.initialized = true;
+  led_board_restore_guide_yield();
 
   // Set global endgame state
   endgame_animation_active = true;
@@ -2693,7 +2628,7 @@ void led_update_endgame_wave(void) {
   if (!endgame_wave.active || !endgame_wave.initialized) {
     return;
   }
-  if (led_board_restore_guide_is_active() || game_ep_capture_waiting()) {
+  if (game_ep_capture_waiting()) {
     return;
   }
 
@@ -2913,22 +2848,25 @@ void led_anim_checkmate(const led_command_t *cmd) {
   if (!cmd)
     return;
 
-  // Flashing red and white warning
   for (int flash = 0; flash < 8; flash++) {
-    led_clear_board_only();
-    vTaskDelay(pdMS_TO_TICKS(150));
-
+    uint8_t red = 255;
+    uint8_t green = (flash % 2 == 0) ? 0 : 255;
+    uint8_t blue = (flash % 2 == 0) ? 0 : 255;
+    led_frame_begin();
     for (int i = 0; i < 64; i++) {
-      if (flash % 2 == 0) {
-        led_set_pixel_safe(i, 255, 0, 0); // Red
-      } else {
-        led_set_pixel_safe(i, 255, 255, 255); // White
-      }
+      led_set_pixel_internal((uint8_t)i, red, green, blue);
     }
-    vTaskDelay(pdMS_TO_TICKS(150));
+    led_frame_end();
+    led_force_immediate_update();
+    vTaskDelay(pdMS_TO_TICKS(180));
   }
 
-  led_clear_board_only();
+  led_frame_begin();
+  for (int i = 0; i < 64; i++) {
+    led_set_pixel_internal((uint8_t)i, 0, 0, 0);
+  }
+  led_frame_end();
+  led_force_immediate_update();
 }
 
 // ============================================================================
@@ -2937,7 +2875,18 @@ void led_anim_checkmate(const led_command_t *cmd) {
 
 static bool s_lamp_hold;
 
-void led_set_lamp_hold(bool hold) { s_lamp_hold = hold; }
+void led_set_lamp_hold(bool hold) {
+  bool was = s_lamp_hold;
+  s_lamp_hold = hold;
+  if (was && !hold) {
+    /* The lamp overwrote the strip. The guide still remembers the old
+     * colors and would otherwise leave the pieces dark. */
+    led_board_restore_guide_yield();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    game_hall_restore_guide_force_resync();
+#endif
+  }
+}
 
 bool led_lamp_board_held(void) { return s_lamp_hold; }
 
@@ -2955,35 +2904,64 @@ void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
   }
 
   led_set_pixel_internal(led_index, red, green, blue);
+  if (s_held_picture && led_task_handle != NULL &&
+      xTaskGetCurrentTaskHandle() != led_task_handle) {
+    s_picture_touch = xTaskGetTickCount();
+  }
 }
 
 void led_clear_all_safe(void) {
+  led_frame_begin();
   for (int i = 0; i < 64; i++) {
     led_set_pixel_internal(i, 0, 0, 0);
   }
+  led_frame_end();
 }
 
 void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue) {
+  led_frame_begin();
   for (int i = 0; i < 64; i++) {
     led_set_pixel_internal(i, red, green, blue);
   }
+  led_frame_end();
 }
 
 void led_clear_board_only(void) {
   if (led_game_pixels_blocked()) {
     return;
   }
-  // Clear only board LEDs (0-63), preserve buttons (64+)
+  /* Another task's clear is the start of a picture, not a frame to send.
+   * Keep the picture open across the pixel writes that follow it. */
+  bool hold = false;
+  portENTER_CRITICAL(&s_led_compose_mux);
+  hold = (s_led_compose == 0) && (led_task_handle != NULL) &&
+         (xTaskGetCurrentTaskHandle() != led_task_handle);
+  if (s_led_compose < 255) {
+    s_led_compose++;
+  }
+  if (hold) {
+    s_held_picture = true;
+    s_picture_touch = xTaskGetTickCount();
+  }
+  portEXIT_CRITICAL(&s_led_compose_mux);
   for (int i = 0; i < 64; i++) {
     led_set_pixel_internal(i, 0, 0, 0);
   }
+  if (hold) {
+    s_picture_touch = xTaskGetTickCount();
+  } else {
+    led_frame_end();
+  }
+  led_board_restore_guide_yield();
 }
 
 void led_clear_buttons_only(void) {
+  led_frame_begin();
   // Clear only button LEDs (64+), preserve board (0-63)
   for (int i = 64; i < 80; i++) {
     led_set_pixel_internal(i, 0, 0, 0);
   }
+  led_frame_end();
 }
 
 void led_preserve_buttons(void) {
@@ -3276,31 +3254,38 @@ static void led_decode_output(uint32_t color, uint8_t *red, uint8_t *green,
   led_move_neutral_white(red, green, blue, white);
 }
 
-/** Shift-out the requested level. No per-mode or rail scale. */
-static void led_write_budgeted_pixels(void) {
-  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    if (!led_changed_flags[i]) {
-      continue;
-    }
-
-    if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
-      esp_err_t wdt_ret = led_task_wdt_reset_safe();
-      if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-        // Task not registered with TWDT yet - this is normal during startup
-      }
-    }
-
-    uint8_t red, green, blue, white;
-    led_decode_output(led_logical_color(i), &red, &green, &blue, &white);
-
-    esp_err_t ret =
-        led_strip_set_pixel_rgbw(led_strip, i, red, green, blue, white);
-    if (ret != ESP_OK) {
-      ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(ret));
-      continue;
-    }
-    led_changed_flags[i] = false;
+static void led_frame_begin(void) {
+  portENTER_CRITICAL(&s_led_compose_mux);
+  if (s_led_compose < 255) {
+    s_led_compose++;
   }
+  portEXIT_CRITICAL(&s_led_compose_mux);
+}
+
+static void led_frame_end(void) {
+  portENTER_CRITICAL(&s_led_compose_mux);
+  if (s_led_compose > 0) {
+    s_led_compose--;
+  }
+  portEXIT_CRITICAL(&s_led_compose_mux);
+}
+
+static void led_release_held_picture(bool force) {
+  TickType_t now = xTaskGetTickCount();
+  portENTER_CRITICAL(&s_led_compose_mux);
+  if (s_held_picture && s_led_compose == 1 &&
+      (force || (now - s_picture_touch) >= pdMS_TO_TICKS(LED_PICTURE_SETTLE_MS))) {
+    s_held_picture = false;
+    s_led_compose = 0;
+  }
+  portEXIT_CRITICAL(&s_led_compose_mux);
+}
+
+static bool led_frame_busy(void) {
+  portENTER_CRITICAL(&s_led_compose_mux);
+  bool busy = s_led_compose > 0;
+  portEXIT_CRITICAL(&s_led_compose_mux);
+  return busy;
 }
 
 /**
@@ -3313,48 +3298,88 @@ static void led_commit_pending_changes(void) {
       simulation_mode) {
     return;
   }
-
-  // Reset watchdog BEFORE critical section (only if registered)
-  esp_err_t wdt_ret = led_task_wdt_reset_safe();
-  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-    // Task not registered with TWDT yet - this is normal during startup
+  /* A picture is still being assembled. The caller sends it after end(). */
+  if (led_frame_busy()) {
+    return;
   }
 
-  // Count changes for watchdog timing
+  if (led_unified_mutex != NULL &&
+      xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
+          pdTRUE) {
+    ESP_LOGW(TAG, "Failed to take LED mutex for strip commit");
+    return;
+  }
+  if (led_frame_busy() || !led_changes_pending) {
+    if (led_unified_mutex != NULL) {
+      xSemaphoreGive(led_unified_mutex);
+    }
+    return;
+  }
+
+  bool dirty[CHESS_LED_COUNT_TOTAL];
+  uint32_t snap[CHESS_LED_COUNT_TOTAL];
   uint32_t changed_count = 0;
   for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    if (led_changed_flags[i]) {
-      changed_count++;
+    dirty[i] = led_changed_flags[i];
+    if (!dirty[i]) {
+      continue;
+    }
+    snap[i] = led_logical_color(i);
+    changed_count++;
+  }
+  if (changed_count == 0) {
+    led_changes_pending = false;
+    if (led_unified_mutex != NULL) {
+      xSemaphoreGive(led_unified_mutex);
+    }
+    return;
+  }
+
+  esp_err_t wdt_ret = led_task_wdt_reset_safe();
+  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
+  }
+
+  /* Driver buffer is filled from the frozen snapshot, then sent once.
+   * Nothing else can refresh or rewrite it: this task holds the mutex. */
+  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+    if (!dirty[i]) {
+      continue;
+    }
+    if ((i % LED_WATCHDOG_RESET_INTERVAL) == 0) {
+      led_task_wdt_reset_safe();
+    }
+    uint8_t red, green, blue, white;
+    led_decode_output(snap[i], &red, &green, &blue, &white);
+    esp_err_t set_ret =
+        led_strip_set_pixel_rgbw(led_strip, i, red, green, blue, white);
+    if (set_ret != ESP_OK) {
+      ESP_LOGE(TAG, "Failed to set LED %d: %s", i, esp_err_to_name(set_ret));
     }
   }
 
-  ESP_LOGD(TAG, "Committing %lu LED changes...", changed_count);
-
-  // NO CRITICAL SECTION - let led_strip driver handle timing internally
-  led_write_budgeted_pixels();
-
-  // Final watchdog reset before refresh (only if registered)
-  wdt_ret = led_task_wdt_reset_safe();
-  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-    // Task not registered with TWDT yet - this is normal during startup
-  }
-
-  // SINGLE REFRESH - driver handles timing
+  led_task_wdt_reset_safe();
   esp_err_t ret = led_strip_refresh(led_strip);
   if (ret == ESP_OK) {
+    for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+      if (dirty[i]) {
+        led_changed_flags[i] = false;
+      }
+    }
     led_changes_pending = false;
-    ESP_LOGD(TAG, "LED batch update successful (%lu LEDs)", changed_count);
+    for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
+      if (led_changed_flags[i]) {
+        led_changes_pending = true;
+        break;
+      }
+    }
   } else if (ret == ESP_ERR_INVALID_STATE) {
-    // RMT channel not ready yet - this is normal during startup
     ESP_LOGD(TAG, "LED strip refresh skipped (RMT not ready)");
   } else {
     ESP_LOGW(TAG, "LED strip refresh warning: %s", esp_err_to_name(ret));
   }
 
-  // Final reset after refresh (only if registered)
-  wdt_ret = led_task_wdt_reset_safe();
-  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-    // Task not registered with TWDT yet - this is normal during startup
+  if (led_unified_mutex != NULL) {
+    xSemaphoreGive(led_unified_mutex);
   }
 }
 
@@ -3373,18 +3398,19 @@ void led_force_immediate_update(void) {
   // Race condition protection is solved by skipping LED operations in game_task
   // (total_games check).
 
-  // FORCE COMMIT ANY PENDING CHANGES WITH MUTEX PROTECTION
-  if (led_unified_mutex != NULL) {
-    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
-        pdTRUE) {
-      led_commit_pending_changes();
-      xSemaphoreGive(led_unified_mutex);
-    } else {
-      ESP_LOGW(TAG, "Failed to take mutex for immediate update");
-    }
-  } else {
+  /* The LED task is inside its own frame. Sending here would publish that
+   * half-built picture. The loop commit sends it when the frame closes.
+   * Another task waits out that frame, then sends the finished one. */
+  if (led_task_handle != NULL &&
+      xTaskGetCurrentTaskHandle() == led_task_handle) {
     led_commit_pending_changes();
+    return;
   }
+  led_release_held_picture(true);
+  for (int wait = 0; wait < 40 && led_frame_busy(); wait++) {
+    vTaskDelay(pdMS_TO_TICKS(1));
+  }
+  led_commit_pending_changes();
 }
 
 /**
@@ -3392,67 +3418,8 @@ void led_force_immediate_update(void) {
  * This function provides maximum stability for LED updates
  */
 static void led_privileged_batch_commit(void) {
-  if (!led_changes_pending || !led_initialized || led_strip == NULL ||
-      simulation_mode) {
-    return;
-  }
-
-  // Privileged mutex synchronization with timeout
-  if (led_unified_mutex != NULL) {
-    if (xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) !=
-        pdTRUE) {
-      ESP_LOGW(TAG, "Failed to take LED mutex for privileged batch commit");
-      return;
-    }
-  }
-
-  // Reset watchdog BEFORE critical section
-  esp_err_t wdt_ret = led_task_wdt_reset_safe();
-  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-    // Task not registered with TWDT yet - this is normal during startup
-  }
-
-  // Count changes for performance monitoring
-  uint32_t changed_count = 0;
-  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    if (led_changed_flags[i]) {
-      changed_count++;
-    }
-  }
-
-  ESP_LOGD(TAG, "Privileged batch commit: %lu LED changes", changed_count);
-
-  led_write_budgeted_pixels();
-
-  // Final watchdog reset before refresh
-  wdt_ret = led_task_wdt_reset_safe();
-  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-    // Task not registered with TWDT yet - this is normal during startup
-  }
-
-  // Single refresh with WS2812B timing handled by driver
-  esp_err_t ret = led_strip_refresh(led_strip);
-  if (ret == ESP_OK) {
-    led_changes_pending = false;
-    ESP_LOGD(TAG, "Privileged batch update successful (%lu LEDs)",
-             changed_count);
-  } else if (ret == ESP_ERR_INVALID_STATE) {
-    // RMT channel not ready yet - this is normal during startup
-    ESP_LOGD(TAG, "LED strip refresh skipped (RMT not ready)");
-  } else {
-    ESP_LOGW(TAG, "LED strip refresh warning: %s", esp_err_to_name(ret));
-  }
-
-  // Final watchdog reset after refresh
-  wdt_ret = led_task_wdt_reset_safe();
-  if (wdt_ret != ESP_OK && wdt_ret != ESP_ERR_NOT_FOUND) {
-    // Task not registered with TWDT yet - this is normal during startup
-  }
-
-  // Release privileged mutex
-  if (led_unified_mutex != NULL) {
-    xSemaphoreGive(led_unified_mutex);
-  }
+  led_release_held_picture(false);
+  led_commit_pending_changes();
 }
 
 /**

@@ -318,6 +318,7 @@ bool game_demo_show_active(void) { return s_demo_phase != DEMO_OFF; }
 #include "freertos/task.h"
 #include "soc/soc_caps.h"
 
+static bool s_new_game_after_boot;
 static bool s_wave_wait;
 static bool s_opening_wave;
 static bool s_pair_pulse_on;
@@ -349,21 +350,36 @@ static void fill_game_colors(uint32_t out[64]) {
   memset(out, 0, 64 * sizeof(uint32_t));
 }
 
-static uint32_t lamp_rgb(void) {
-  uint8_t r = 255, g = 255, b = 255, bright = 255;
-  bool on = true;
-  ha_light_get_state(&r, &g, &b, &bright, &on);
-  if (!on) {
-    return 0;
-  }
+static uint32_t lamp_rgb_from(uint8_t r, uint8_t g, uint8_t b, uint8_t bright) {
   uint8_t cr = 0, cg = 0, cb = 0;
   led_correct_sk6812(r, g, b, bright, &cr, &cg, &cb);
   return rgb_of(cr, cg, cb);
 }
 
+static uint32_t lamp_rgb(void) {
+  uint8_t r = 255, g = 255, b = 255, bright = 255;
+  bool on = true;
+  ha_light_get_state(&r, &g, &b, &bright, &on);
+  if (!on || (r | g | b) == 0) {
+    return 0;
+  }
+  return lamp_rgb_from(r, g, b, bright);
+}
+
+/** Color the board spreads when the game switches into the lamp. */
+static uint32_t lamp_rgb_entering(void) {
+  uint32_t now = lamp_rgb();
+  if (now != 0) {
+    return now;
+  }
+  uint8_t r = 255, g = 255, b = 255, bright = 255;
+  ha_light_last_lit_color(&r, &g, &b, &bright);
+  return lamp_rgb_from(r, g, b, bright);
+}
+
 static void fill_mode_colors(ha_mode_t mode, uint32_t out[64]) {
   if (mode == HA_MODE_HA) {
-    uint32_t color = lamp_rgb();
+    uint32_t color = lamp_rgb_entering();
     for (int i = 0; i < 64; i++) {
       out[i] = color;
     }
@@ -458,10 +474,10 @@ static void gesture_power_off(void) {
 
 static bool gesture_begin_mode_wave(ha_mode_t next) {
   uint32_t colors[64];
-  uint32_t lamp = lamp_rgb();
-  fill_mode_colors(next, colors);
   /* Opening spreads the last lamp color. Closing shrinks that same color. */
   bool inward = (next == HA_MODE_GAME);
+  uint32_t lamp = inward ? lamp_rgb() : lamp_rgb_entering();
+  fill_mode_colors(next, colors);
   if (!led_gesture_start_wave(colors, inward, lamp)) {
     return false;
   }
@@ -600,16 +616,33 @@ static void handle_event(gesture_event_t ev) {
         {0, 0, 255},     /* blue */
         {255, 0, 0},     /* red */
     };
+    if (ha_pattern_is_active()) {
+      (void)ha_pattern_request(HA_PAT_OFF, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      if (!ha_light_request_web_lamp(true, k_lamp_colors[0][0],
+                                     k_lamp_colors[0][1],
+                                     k_lamp_colors[0][2])) {
+        ESP_LOGW(TAG, "lamp color queue full");
+      }
+      break;
+    }
     uint8_t r = 0, g = 0, b = 0, bright = 255;
     bool on = true;
     ha_light_get_state(&r, &g, &b, &bright, &on);
     unsigned next = 0;
+    bool matched = false;
     for (unsigned i = 0; i < 4u; i++) {
       if (r == k_lamp_colors[i][0] && g == k_lamp_colors[i][1] &&
           b == k_lamp_colors[i][2]) {
         next = (i + 1u) % 4u;
+        matched = true;
         break;
       }
+    }
+    if (matched && next == 0) {
+      if (!ha_pattern_request(HA_PAT_ON, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
+        ESP_LOGW(TAG, "pattern queue full");
+      }
+      break;
     }
     if (!ha_light_request_web_lamp(true, k_lamp_colors[next][0],
                                    k_lamp_colors[next][1],
@@ -669,6 +702,12 @@ static void handle_result(led_gesture_result_t result) {
       (void)ha_light_request_mode(HA_MODE_GAME);
     }
     ESP_LOGI(TAG, "[STAGING] new game (sweep finished while held)");
+    if (led_is_booting()) {
+      s_new_game_after_boot = true;
+      ESP_LOGI(TAG, "[STAGING] new game waits until boot animation ends");
+      break;
+    }
+    s_new_game_after_boot = false;
     game_start_new_game();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
     if (game_hall_restore_guide_show_opening()) {
@@ -700,6 +739,20 @@ static void handle_result(led_gesture_result_t result) {
 }
 
 void game_gesture_poll(void) {
+  if (s_new_game_after_boot && !led_is_booting()) {
+    s_new_game_after_boot = false;
+    ESP_LOGI(TAG, "[STAGING] deferred new game after boot");
+    game_start_new_game();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+      game_hall_restore_guide_stop_leds();
+      game_hall_restore_guide_force_resync();
+    } else if (!game_hall_restore_guide_show_opening()) {
+      game_hall_restore_guide_stop_leds();
+      chess_policy_highlight_movable_if_enabled();
+    }
+#endif
+  }
   if (s_off_wave_req && !s_wave_wait && !led_gesture_anim_busy()) {
     s_off_wave_req = false;
     if (game_demo_show_active()) {

@@ -15,7 +15,7 @@
  * @details
  * Shared Buffer Pool is a system for effective memory management in the system.
  * Instead of dynamic allocation, it uses pre-allocated buffers, which eliminates
- * heap fragmentation and improves performance. It contains 4 buffers with a size of 2KB.
+ * heap fragmentation and improves performance. Tiered slots (8 KiB / 20 KiB).
  */
 
 #include "freertos/FreeRTOS.h"
@@ -33,19 +33,21 @@ static const char *TAG = "BUFFER_POOL";
 // BUFFER POOL CONFIGURATION
 // ============================================================================
 
-#define BUFFER_POOL_SIZE 4          // Number of buffers in pool (reduced from 8 to save ~8 KB)
-#define BUFFER_SIZE 2048            // Size of each buffer (was malloc(1536))
-#define MAX_BUFFER_WAIT_MS 5000     // Maximum wait time for buffer
+#define BUFFER_POOL_SIZE (SHARED_BUFFER_MEDIUM_COUNT + SHARED_BUFFER_LARGE_COUNT)
+#define MAX_BUFFER_WAIT_MS 5000
 
-// Buffer pool structure
 typedef struct {
-    char data[BUFFER_SIZE];
+    char *data;
+    size_t capacity;
     bool in_use;
     TaskHandle_t owner;
     uint32_t allocated_time;
-    const char* file;
+    const char *file;
     int line;
 } shared_buffer_t;
+
+static char s_medium_mem[SHARED_BUFFER_MEDIUM_COUNT][SHARED_BUFFER_MEDIUM_BYTES];
+static char s_large_mem[SHARED_BUFFER_LARGE_BYTES];
 
 // ============================================================================
 // GLOBAL VARIABLES
@@ -54,6 +56,19 @@ typedef struct {
 static shared_buffer_t buffer_pool[BUFFER_POOL_SIZE];
 static SemaphoreHandle_t buffer_pool_mutex = NULL;
 static bool pool_initialized = false;
+
+static void buffer_pool_bind_slots(void)
+{
+    int idx = 0;
+    for (int m = 0; m < SHARED_BUFFER_MEDIUM_COUNT; m++, idx++) {
+        buffer_pool[idx].data = s_medium_mem[m];
+        buffer_pool[idx].capacity = SHARED_BUFFER_MEDIUM_BYTES;
+    }
+    for (int l = 0; l < SHARED_BUFFER_LARGE_COUNT; l++, idx++) {
+        buffer_pool[idx].data = s_large_mem;
+        buffer_pool[idx].capacity = SHARED_BUFFER_LARGE_BYTES;
+    }
+}
 
 // Statistics
 static uint32_t total_allocations = 0;
@@ -82,14 +97,14 @@ esp_err_t buffer_pool_init(void)
         return ESP_ERR_NO_MEM;
     }
 
-    // Initialize all buffers as free
+    buffer_pool_bind_slots();
     for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
         buffer_pool[i].in_use = false;
         buffer_pool[i].owner = NULL;
         buffer_pool[i].allocated_time = 0;
         buffer_pool[i].file = NULL;
         buffer_pool[i].line = 0;
-        memset(buffer_pool[i].data, 0, BUFFER_SIZE);
+        memset(buffer_pool[i].data, 0, buffer_pool[i].capacity);
     }
 
     // Reset statistics
@@ -101,8 +116,10 @@ esp_err_t buffer_pool_init(void)
 
     pool_initialized = true;
     
-    ESP_LOGI(TAG, "✓ Buffer pool initialized: %d buffers × %dB = %dKB total",
-             BUFFER_POOL_SIZE, BUFFER_SIZE, (BUFFER_POOL_SIZE * BUFFER_SIZE) / 1024);
+    size_t total_bytes = (SHARED_BUFFER_MEDIUM_COUNT * SHARED_BUFFER_MEDIUM_BYTES) +
+                         (SHARED_BUFFER_LARGE_COUNT * SHARED_BUFFER_LARGE_BYTES);
+    ESP_LOGD(TAG, "Buffer pool: %d slots, %u B static", BUFFER_POOL_SIZE,
+             (unsigned)total_bytes);
     
     return ESP_OK;
 }
@@ -148,8 +165,9 @@ char* get_shared_buffer_debug(size_t min_size, const char* file, int line)
         return NULL;
     }
 
-    if (min_size > BUFFER_SIZE) {
-        ESP_LOGE(TAG, "Requested buffer size %zu exceeds maximum %d", min_size, BUFFER_SIZE);
+    if (min_size > SHARED_BUFFER_LARGE_BYTES) {
+        ESP_LOGE(TAG, "Requested buffer size %zu exceeds pool max %d",
+                 min_size, SHARED_BUFFER_LARGE_BYTES);
         allocation_failures++;
         return NULL;
     }
@@ -160,19 +178,22 @@ char* get_shared_buffer_debug(size_t min_size, const char* file, int line)
         return NULL;
     }
 
-    // Find free buffer
     int buffer_index = -1;
+    size_t best_cap = SIZE_MAX;
     for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
-        if (!buffer_pool[i].in_use) {
+        if (buffer_pool[i].in_use || buffer_pool[i].capacity < min_size) {
+            continue;
+        }
+        if (buffer_pool[i].capacity < best_cap) {
+            best_cap = buffer_pool[i].capacity;
             buffer_index = i;
-            break;
         }
     }
 
     if (buffer_index == -1) {
         xSemaphoreGive(buffer_pool_mutex);
-        ESP_LOGW(TAG, "No free buffers available (requested from %s:%d)", 
-                 file ? file : "unknown", line);
+        ESP_LOGW(TAG, "No free buffer >= %zu B (%s:%d)",
+                 min_size, file ? file : "unknown", line);
         allocation_failures++;
         return NULL;
     }
@@ -243,7 +264,7 @@ esp_err_t release_shared_buffer(char* buffer)
     buffer_pool[buffer_index].line = 0;
     
     // Clear buffer contents for security
-    memset(buffer_pool[buffer_index].data, 0, BUFFER_SIZE);
+    memset(buffer_pool[buffer_index].data, 0, buffer_pool[buffer_index].capacity);
 
     // Update statistics
     total_releases++;
@@ -255,6 +276,19 @@ esp_err_t release_shared_buffer(char* buffer)
              buffer_index, current_usage, BUFFER_POOL_SIZE);
 
     return ESP_OK;
+}
+
+size_t shared_buffer_capacity(const char *buffer)
+{
+    if (!pool_initialized || buffer == NULL) {
+        return 0;
+    }
+    for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
+        if (buffer_pool[i].data == buffer) {
+            return buffer_pool[i].capacity;
+        }
+    }
+    return 0;
 }
 
 // ============================================================================
@@ -274,8 +308,9 @@ void buffer_pool_print_status(void)
     }
 
     ESP_LOGI(TAG, "=== SHARED BUFFER POOL STATUS ===");
-    ESP_LOGI(TAG, "Pool size: %d buffers × %dB = %dKB", 
-             BUFFER_POOL_SIZE, BUFFER_SIZE, (BUFFER_POOL_SIZE * BUFFER_SIZE) / 1024);
+    size_t total_bytes = (SHARED_BUFFER_MEDIUM_COUNT * SHARED_BUFFER_MEDIUM_BYTES) +
+                         (SHARED_BUFFER_LARGE_COUNT * SHARED_BUFFER_LARGE_BYTES);
+    ESP_LOGI(TAG, "Pool: %d slots, %u B static", BUFFER_POOL_SIZE, (unsigned)total_bytes);
     ESP_LOGI(TAG, "Current usage: %" PRIu32 "/%d buffers (%.1f%%)", 
              current_usage, BUFFER_POOL_SIZE, 
              (float)current_usage / BUFFER_POOL_SIZE * 100.0f);
@@ -289,8 +324,9 @@ void buffer_pool_print_status(void)
         if (buffer_pool[i].in_use) {
             uint32_t age_ms = (xTaskGetTickCount() * portTICK_PERIOD_MS) - 
                               buffer_pool[i].allocated_time;
-            ESP_LOGI(TAG, "  Buffer %d: Task %p, Age %" PRIu32 "ms (%s:%d)", 
-                     i, buffer_pool[i].owner, age_ms,
+            ESP_LOGI(TAG, "  Slot %d (%u B): task %p, age %" PRIu32 "ms (%s:%d)",
+                     i, (unsigned)buffer_pool[i].capacity, buffer_pool[i].owner,
+                     age_ms,
                      buffer_pool[i].file ? buffer_pool[i].file : "unknown",
                      buffer_pool[i].line);
         }
@@ -309,7 +345,7 @@ buffer_pool_stats_t buffer_pool_get_stats(void)
     }
 
     stats.pool_size = BUFFER_POOL_SIZE;
-    stats.buffer_size = BUFFER_SIZE;
+    stats.buffer_size = SHARED_BUFFER_LARGE_BYTES;
     stats.current_usage = current_usage;
     stats.peak_usage = peak_usage;
     stats.total_allocations = total_allocations;

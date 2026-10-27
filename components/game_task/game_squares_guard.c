@@ -9,6 +9,7 @@
 #include "game_hall_match.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
+#include "game_hall_position.h"
 #endif
 
 #include "freertos_chess.h"
@@ -147,12 +148,12 @@ void game_squares_guard_render_leds(void) {
   }
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* Yellow and blue here mean "a piece should stand on this square".
+   * On Hall that locked the board after boot. The opening guide draws
+   * those homes instead, and only before the first move. */
   game_hall_restore_guide_sync();
-  if (game_hall_restore_guide_is_active()) {
-    return;
-  }
-#endif
-
+  return;
+#else
   led_clear_board_only();
   uint8_t phys[64] = {0};
   squares_get_state(phys);
@@ -192,6 +193,7 @@ void game_squares_guard_render_leds(void) {
       led_set_pixel_safe(chess_pos_to_led_index(row, col), 220, 220, 220);
     }
   }
+#endif
 }
 
 void game_squares_guard_handle_command(const chess_move_command_t *cmd) {
@@ -211,6 +213,15 @@ void game_squares_guard_handle_command(const chess_move_command_t *cmd) {
     squares_abort_ambiguous_guard_baseline();
     return;
   }
+
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (hall_i2c_squares_readings_usable() &&
+      game_hall_position_mismatch_count() <= 4) {
+    STAGING_LOGI(TAG, "Matrix guard left to Hall restore (mismatch<=4)");
+    squares_abort_ambiguous_guard_baseline();
+    return;
+  }
+#endif
 
   if (game_task_squares_guard_mode_conflict_active()) {
     STAGING_LOGI(TAG,
@@ -254,9 +265,9 @@ void game_squares_guard_handle_command(const chess_move_command_t *cmd) {
 
 void game_squares_guard_check_resync_after_restore(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-  if (!hall_i2c_squares_readings_usable()) {
-    return;
-  }
+  /* Restoring a saved game must not paint blue on every unseen black home
+   * and then refuse lifts until those homes read as occupied. */
+  return;
 #endif
   if (!chess_policy_squares_guard_enabled() ||
       !chess_policy_squares_guard_nvs_resync_enabled()) {
@@ -341,12 +352,25 @@ void game_squares_guard_enter_pause_from_hall_guide(void) {
   squares_guard_pause_state.dropped_mask_high = 0;
   squares_guard_pause_state.conflict_count = 1;
 
-  uint8_t expected[64];
-  game_board_to_occupancy(expected);
-  squares_guard_apply_expected_occupancy(expected);
-
+  /* Do not call squares_guard_apply_expected_occupancy(). Occupancy often
+   * already matches, and the scan would send action=0, which clears this
+   * hold and the guide enters it again. */
   if (chess_policy_squares_guard_should_freeze()) {
     game_task_squares_guard_freeze_move_flow();
   }
   STAGING_LOGI(TAG, "Matrix guard entered from Hall restore guide");
+}
+
+bool game_squares_guard_release_hall_hold(void) {
+  if (!squares_guard_pause_state.active) {
+    return false;
+  }
+  if ((squares_guard_pause_state.lifted_mask_low |
+       squares_guard_pause_state.lifted_mask_high |
+       squares_guard_pause_state.dropped_mask_low |
+       squares_guard_pause_state.dropped_mask_high) != 0) {
+    return false;
+  }
+  memset(&squares_guard_pause_state, 0, sizeof(squares_guard_pause_state));
+  return true;
 }

@@ -106,6 +106,26 @@ static void resignation_end_game(player_t loser) {
   game_snapshot_persist_after_valid_move();
 }
 
+bool game_agree_draw(void) {
+  if (game_resign_check(GAME_RESIGN_SIDE_TO_MOVE) != GAME_RESIGN_OK) {
+    return false;
+  }
+  ESP_LOGI(TAG, "Agreed draw");
+  current_game_state = GAME_STATE_FINISHED;
+  game_result = GAME_STATE_FINISHED;
+  current_result_type = RESULT_DRAW_AGREEMENT;
+  current_endgame_reason = ENDGAME_REASON_AGREEMENT;
+  game_active = false;
+  game_update_endgame_statistics(current_result_type);
+  endgame_report_requested = true;
+  timer_pause();
+  if (resignation_state.active) {
+    resignation_stop(true);
+  }
+  game_snapshot_persist_after_valid_move();
+  return true;
+}
+
 /**
  * @brief Finalize resignation after 10s (runs in game_task context)
  */

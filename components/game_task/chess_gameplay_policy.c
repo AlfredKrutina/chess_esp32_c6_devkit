@@ -7,8 +7,12 @@
 #include "game_task_internal.h"
 #include "game_task.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+#include "game_hall_position.h"
 #include "game_hall_restore_guide.h"
 #endif
+
+#include "../led_task/include/led_task.h"
+#include "led_mapping.h"
 
 #include "esp_log.h"
 #include "sdkconfig.h"
@@ -194,6 +198,64 @@ void chess_policy_highlight_movable_if_enabled(void) {
   if (chess_policy_move_hints_movable_yellow()) {
     game_highlight_movable_pieces();
   }
+}
+
+void chess_policy_refresh_idle_board_leds(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (game_hall_restore_guide_is_active()) {
+    return;
+  }
+  if (game_hall_position_blocks_idle_leds()) {
+    return;
+  }
+#endif
+  if (piece_lifted || castling_state.in_progress ||
+      promotion_state.pending || game_ep_capture_waiting() ||
+      game_is_castle_animation_active() || game_is_castling_expected() ||
+      game_puzzle_suppress_move_hints()) {
+    return;
+  }
+  if (current_game_state != GAME_STATE_ACTIVE &&
+      current_game_state != GAME_STATE_IDLE) {
+    return;
+  }
+
+  led_clear_board_only();
+  chess_policy_highlight_movable_if_enabled();
+
+  if (!game_is_king_in_check(current_player)) {
+    return;
+  }
+  int king_row = -1;
+  int king_col = -1;
+  piece_t king_piece = (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING
+                                                        : PIECE_BLACK_KING;
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      if (board[row][col] == king_piece) {
+        king_row = row;
+        king_col = col;
+        break;
+      }
+    }
+    if (king_row != -1) {
+      break;
+    }
+  }
+  if (king_row == -1 || king_col == -1 ||
+      !game_led_guidance_show_check_anim()) {
+    return;
+  }
+  uint8_t king_led_index =
+      chess_pos_to_led_index((uint8_t)king_row, (uint8_t)king_col);
+  led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
+                             .led_index = king_led_index,
+                             .red = 0,
+                             .green = 0,
+                             .blue = 0,
+                             .duration_ms = 0,
+                             .data = NULL};
+  led_execute_command_new(&check_cmd);
 }
 
 bool chess_policy_uart_error_detail_enabled(void) {

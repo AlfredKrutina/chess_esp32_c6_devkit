@@ -1229,6 +1229,21 @@ static bool bl_probe_all_nrst_hall_segments(bool log_ok, uint32_t fitted_mask) {
 
 #endif /* BL + HALL */
 
+#if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT && \
+    CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+/** Image we will not push again while Hall stays up. A new CRC tries once. */
+static void bl_remember_held_image(uint32_t crc, uint32_t len) {
+  nvs_handle_t hw;
+  if (nvs_open("stm32_bl", NVS_READWRITE, &hw) != ESP_OK) {
+    return;
+  }
+  nvs_set_u32(hw, "af_hold", crc);
+  nvs_set_u32(hw, "af_hold_len", len);
+  nvs_commit(hw);
+  nvs_close(hw);
+}
+#endif
+
 #if CONFIG_CHESS_STM32_I2C_BL_ENABLE && CONFIG_CHESS_STM32_BL_AUTO_FLASH_ON_BOOT
 static SemaphoreHandle_t s_boot_flash_done_sem;
 
@@ -1380,6 +1395,39 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
 #endif
 #endif
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL &&                                      \
+    !(defined(CONFIG_CHESS_STM32_BL_AUTO_FLASH_FORCE) &&                       \
+      CONFIG_CHESS_STM32_BL_AUTO_FLASH_FORCE)
+  /* Hall up: do not reset into the ROM on every boot. Remember this image.
+   * A different CRC gets one attempt, then is remembered too if the ROM
+   * still does not answer. */
+  bool nrst_set = CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG0 >= 0 ||
+                  CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG1 >= 0 ||
+                  CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG2 >= 0 ||
+                  CONFIG_CHESS_STM32_BL_NRST_GPIO_SEG3 >= 0;
+  if (nrst_set && bl_probe_all_nrst_hall_segments(false, 0)) {
+    uint32_t hold = 0;
+    uint32_t hold_len = 0;
+    bool known = false;
+    nvs_handle_t hh;
+    if (nvs_open("stm32_bl", NVS_READONLY, &hh) == ESP_OK) {
+      known = nvs_get_u32(hh, "af_hold", &hold) == ESP_OK &&
+              nvs_get_u32(hh, "af_hold_len", &hold_len) == ESP_OK;
+      nvs_close(hh);
+    }
+    if (!known || (hold == crc && hold_len == (uint32_t)eff)) {
+      if (!known) {
+        bl_remember_held_image(crc, (uint32_t)eff);
+        ESP_LOGW(TAG_A, "Hall běží, tento obraz do bootloaderu neposílám");
+      } else {
+        ESP_LOGI(TAG_A, "auto-flash skipped, Hall běží, stejný obraz");
+      }
+      goto out;
+    }
+    ESP_LOGW(TAG_A, "nový obraz STM32, jeden pokus o bootloader");
+  }
+#endif
+
   bool use_boot = CONFIG_CHESS_STM32_BL_AUTO_USE_BOOT0 &&
                   CONFIG_CHESS_STM32_BL_BOOT0_GPIO >= 0;
   uint32_t base = (uint32_t)CONFIG_CHESS_STM32_BL_AUTO_FLASH_BASE;
@@ -1479,6 +1527,8 @@ void stm32_i2c_bl_maybe_auto_flash_on_boot(void) {
     CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
     if (!bl_probe_all_nrst_hall_segments(true, 0)) {
       ESP_LOGE(TAG_A, "po návratu z bootloaderu Hall neodpovídá");
+    } else {
+      bl_remember_held_image(crc, (uint32_t)eff);
     }
 #endif
   }

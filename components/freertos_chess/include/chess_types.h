@@ -110,7 +110,8 @@ typedef enum {
   RESULT_DRAW_STALEMATE = 2,   ///< Remiza - pat (stalemate)
   RESULT_DRAW_50_MOVE = 3,     ///< Tie - 50 turn rule
   RESULT_DRAW_REPETITION = 4,  ///< Draw - repeat position
-  RESULT_DRAW_INSUFFICIENT = 5 ///< Remiza - nedostatecny material
+  RESULT_DRAW_INSUFFICIENT = 5, ///< Remiza - nedostatecny material
+  RESULT_DRAW_AGREEMENT = 6     ///< Remiza dohodou
 } game_result_type_t;
 
 /**
@@ -296,11 +297,12 @@ typedef enum {
       47, ///< Puzzle: 0=cancel, 1..5=start builtin, 101..105=prepare builtin,
           ///< 210=apply staged setup, 211=start staged line
   GAME_CMD_NEW_GAME_FROM_FEN =
-      48, ///< New game from FEN (placement + page); data in timer_data.fen_new_game
+      48, ///< New game from FEN (placement, side, optional rights); timer_data.fen_new_game
   GAME_CMD_OPENING_TRAINER =
       49, ///< Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack
   GAME_CMD_RESIGN =
-      50 ///< Resign from app (same end path as king lift); promotion_choice = GAME_RESIGN_SIDE_*
+      50, ///< Resign from app (same end path as king lift); promotion_choice = GAME_RESIGN_SIDE_*
+  GAME_CMD_DRAW = 51 ///< Agreed draw while a game is running
 } game_command_type_t;
 
 /** GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move. */
@@ -350,6 +352,7 @@ typedef struct {
     } fen_new_game;
   } timer_data;           ///< Union pro timer data
   bool is_demo_mode;      ///< Flag pro demo mode (skip resignation timer)
+  uint32_t event_ms;      ///< Scan time when a matrix pickup/drop was detected
 } chess_move_command_t;
 
 /**

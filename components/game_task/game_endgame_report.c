@@ -41,6 +41,7 @@ void game_update_endgame_statistics(game_result_type_t result_type) {
   case RESULT_DRAW_50_MOVE:
   case RESULT_DRAW_REPETITION:
   case RESULT_DRAW_INSUFFICIENT:
+  case RESULT_DRAW_AGREEMENT:
     draws++;
     ESP_LOGI(TAG, "📊 Statistics: Draw! (Total: %" PRIu32 ")", draws);
     break;
@@ -81,6 +82,9 @@ void game_update_endgame_statistics(game_result_type_t result_type) {
   case ENDGAME_REASON_RESIGNATION:
     reason = HA_REASON_RESIGNATION;
     break;
+  case ENDGAME_REASON_AGREEMENT:
+    reason = HA_REASON_AGREEMENT;
+    break;
   default:
     break;
   }
@@ -93,6 +97,8 @@ void game_update_endgame_statistics(game_result_type_t result_type) {
       reason = HA_REASON_REPETITION;
     } else if (result_type == RESULT_DRAW_INSUFFICIENT) {
       reason = HA_REASON_INSUFFICIENT;
+    } else if (result_type == RESULT_DRAW_AGREEMENT) {
+      reason = HA_REASON_AGREEMENT;
     } else {
       reason = HA_REASON_CHECKMATE;
     }
@@ -246,6 +252,10 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
     printf("🤝 Game Result: DRAW - Insufficient material\r\n");
     end_reason = "Insufficient material";
     break;
+  case ENDGAME_REASON_AGREEMENT:
+    printf("🤝 Game Result: DRAW - Agreement\r\n");
+    end_reason = "Agreement";
+    break;
   }
 
   print_separator();
@@ -254,7 +264,8 @@ void game_print_endgame_report_uart(game_result_type_t result_type) {
   if (result_type != RESULT_DRAW_STALEMATE &&
       result_type != RESULT_DRAW_50_MOVE &&
       result_type != RESULT_DRAW_REPETITION &&
-      result_type != RESULT_DRAW_INSUFFICIENT) {
+      result_type != RESULT_DRAW_INSUFFICIENT &&
+      result_type != RESULT_DRAW_AGREEMENT) {
     print_report_line("Loser", "%s", loser);
   }
   print_report_line("End Reason", "%s", end_reason);

@@ -23,6 +23,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
+#include "freertos/task.h"
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -180,7 +181,9 @@ void game_process_commands(void) {
         15; // Limit to prevent watchdog timeout
 
     // Process all commands in queue (up to limit)
-    while (xQueueReceive(game_command_queue, &chess_cmd, 0) == pdTRUE) {
+    TickType_t wait = pdMS_TO_TICKS(25);
+    while (xQueueReceive(game_command_queue, &chess_cmd, wait) == pdTRUE) {
+      wait = 0;
       commands_processed++;
       ESP_LOGI(TAG, "📥 Received command type: %d (processed: %lu/%lu)",
                chess_cmd.type, commands_processed, MAX_COMMANDS_PER_CYCLE);
@@ -197,15 +200,29 @@ void game_process_commands(void) {
       case GAME_CMD_NEW_GAME: // 0
         ESP_LOGI(TAG, "Processing NEW GAME command from UART");
         game_start_new_game();
-        game_send_response_to_uart("New game started successfully!", false,
-                                   (QueueHandle_t)chess_cmd.response_queue);
+        if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+          game_send_response_to_uart("Waiting for pieces on start squares",
+                                     false,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        } else {
+          game_send_response_to_uart("New game started, white to move", false,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        }
         break;
 
       case GAME_CMD_NEW_GAME_FROM_FEN:
         ESP_LOGI(TAG, "Processing NEW_GAME_FROM_FEN");
-        game_start_new_game_from_fen(chess_cmd.timer_data.fen_new_game.fen);
-        game_send_response_to_uart("New game from FEN started", false,
-                                   (QueueHandle_t)chess_cmd.response_queue);
+        if (!game_start_new_game_from_fen(
+                chess_cmd.timer_data.fen_new_game.fen)) {
+          game_send_response_to_uart("FEN rejected", true,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        } else if (current_player == PLAYER_BLACK) {
+          game_send_response_to_uart("New game from FEN, black to move", false,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        } else {
+          game_send_response_to_uart("New game from FEN, white to move", false,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        }
         break;
 
       case GAME_CMD_RESET_GAME: // 1
@@ -362,6 +379,17 @@ void game_process_commands(void) {
         }
         break;
 
+      case GAME_CMD_DRAW: // 51
+        ESP_LOGI(TAG, "Processing DRAW command");
+        if (!game_agree_draw()) {
+          game_send_response_to_uart("Draw refused", true,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        } else {
+          game_send_response_to_uart("Draw agreed", false,
+                                     (QueueHandle_t)chess_cmd.response_queue);
+        }
+        break;
+
       case 27: // GAME_CMD_LIST_GAMES
         ESP_LOGI(TAG, "Processing LIST_GAMES command from UART");
         game_process_list_games_command(&chess_cmd);
@@ -379,8 +407,7 @@ void game_process_commands(void) {
         break;
 
       case 34: // GAME_CMD_TEST_PLAYER_ANIM
-        ESP_LOGI(TAG, "Processing TEST_PLAYER_ANIM command from UART");
-        game_test_player_change_animation();
+        ESP_LOGW(TAG, "Player-change animation removed");
         break;
 
       case 35: // GAME_CMD_TEST_CASTLE_ANIM
@@ -443,6 +470,17 @@ void game_process_commands(void) {
           break;
         case 1:
           game_exit_board_setup_tutorial(false);
+          break;
+        case 2:
+          if (!game_finish_board_setup_tutorial_from_web()) {
+            game_send_response_to_uart(
+                "Tutorial finish refused", true,
+                (QueueHandle_t)chess_cmd.response_queue);
+          } else {
+            game_send_response_to_uart(
+                "New game started", false,
+                (QueueHandle_t)chess_cmd.response_queue);
+          }
           break;
         default:
           ESP_LOGW(TAG, "BOARD_SETUP_TUTORIAL unknown action");
@@ -527,6 +565,8 @@ void game_process_commands(void) {
       ESP_LOGI(TAG, "✅ Processed %lu commands in this cycle",
                commands_processed);
     }
+  } else {
+    vTaskDelay(pdMS_TO_TICKS(25));
   }
 
   // ============================================================================

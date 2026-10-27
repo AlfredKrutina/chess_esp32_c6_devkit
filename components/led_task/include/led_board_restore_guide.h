@@ -51,5 +51,9 @@ void led_board_restore_guide_clear(void);
 void led_board_restore_guide_fade_out(void);
 bool led_board_restore_guide_is_active(void);
 void led_board_restore_guide_tick(void);
+/** Forget the last painted guide colors so the next tick draws them again. */
+void led_board_restore_guide_yield(void);
+/** Drop the guide without painting, so a demo or a game can own the squares. */
+void led_board_restore_guide_cancel(void);
 
 #endif /* LED_BOARD_RESTORE_GUIDE_H */

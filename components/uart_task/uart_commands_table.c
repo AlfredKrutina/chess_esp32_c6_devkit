@@ -53,7 +53,7 @@ const uart_command_t uart_commands[] = {
      {"RESTART", "R", "", "", ""}},
     {"HALL",
      uart_cmd_hall,
-     "Light one square. A click prints its energy. HALL OFF ends it.",
+     "HALL BOARD prints every square. HALL e4 lights one. HALL OFF ends it.",
      "",
      false,
      {"HALLS", "", "", "", ""}},

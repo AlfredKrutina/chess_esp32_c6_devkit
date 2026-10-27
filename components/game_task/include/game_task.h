@@ -195,9 +195,10 @@ void game_reset_game(void);
 void game_start_new_game(void);
 
 /**
- * @brief New game from FEN (only setup + turn side). Without checking the physical default position.
+ * @brief New game from FEN. Keeps castling, en passant and the halfmove clock.
+ *        Returns false when the FEN is rejected and leaves the current game.
  */
-void game_start_new_game_from_fen(const char *fen);
+bool game_start_new_game_from_fen(const char *fen);
 
 /**
  * @brief Monotone version of game state (ETag / If-None-Match on snapshot).
@@ -451,6 +452,9 @@ game_resign_result_t game_resign_check(uint8_t side);
  */
 bool game_resign_from_app(uint8_t side);
 
+/** Agreed draw. Game task only. Same guards as resign of the side on move. */
+bool game_agree_draw(void);
+
 /**
  * @brief Turns guided capture LED on/off (game logic remains active)
  */
@@ -651,23 +655,12 @@ void game_process_commands(void);
  */
 void game_handle_invalid_move(move_error_t error, const chess_move_t *move);
 
-/**
- * @brief Display the game change animation
- *
- * @param previous_player Previous player
- * @param current_player The current player
- */
-void game_show_player_change_animation(player_t previous_player,
-                                       player_t current_player);
-
 // ============================================================================
 // TEST FUNCTIONS FOR ANIMATIONS
 // ============================================================================
 
 /** @brief Test the move animation */
 void game_test_move_animation(void);
-/** @brief Test the player change animation */
-void game_test_player_change_animation(void);
 /** @brief Test dewdrop animation */
 void game_test_castle_animation(void);
 /** @brief Test graduation animation */
@@ -684,8 +677,6 @@ void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row,
                            uint8_t to_col);
 /** @brief Show check directly via LED */
 void game_show_check_direct(uint8_t king_row, uint8_t king_col);
-/** @brief Display the game change directly via LED */
-void game_show_player_change_direct(player_t current_player);
 /** @brief Clear highlight directly via LED */
 void game_clear_highlights_direct(void);
 
@@ -791,28 +782,11 @@ game_state_t game_check_end_game_conditions(void);
 // ============================================================================
 
 /**
- * @brief Process event matrix (turns)
- *
- * Reads events from squares_event_queue and handles pull detection.
- */
-void game_process_squares_events(void);
-
-/**
  * @brief Highlight all moving pieces of the current player
  *
  * Display a soft yellow animation on all figures that can move.
  */
 void game_highlight_movable_pieces(void);
-
-/**
- * @brief Detect if the figures are in their default position
- *
- * Checks whether the pieces are spread out in rows 1, 2, 7, 8 (starting room
- * position).
- *
- * @return true if the pieces are in their default positions
- */
-bool game_detect_new_game_setup(void);
 
 // ============================================================================
 // CASTLING ANIMATION SYSTEM

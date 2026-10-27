@@ -374,11 +374,6 @@ void led_highlight_possible_moves(uint8_t from_square);
 void led_clear_all_highlights(void);
 
 /**
- * @brief Game change animation
- */
-void led_player_change_animation(void);
-
-/**
  * @brief Check if the LED has changed
  *
  * @return true if there are significant changes
@@ -414,6 +409,9 @@ void led_setup_animation_after_endgame(void);
  * @brief Zastav endgame animaci
  */
 void led_stop_endgame_animation(void);
+
+/** True while a wave, mate flash, or move animation owns the board. */
+bool led_board_show_active(void);
 
 // BOOT ANIMATION LED FUNCTION
 // ============================================================================

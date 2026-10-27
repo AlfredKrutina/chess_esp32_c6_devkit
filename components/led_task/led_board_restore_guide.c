@@ -12,8 +12,6 @@
 
 #include <string.h>
 
-#define WHITE_LEVEL 150U
-#define BLACK_LEVEL 56U
 #define EXTRA_LEVEL 120U
 #define EXTRA_R 255U
 #define EXTRA_G 36U
@@ -25,6 +23,7 @@ typedef struct {
   uint8_t r;
   uint8_t g;
   uint8_t b;
+  uint8_t level;
 } guide_rgb_t;
 
 static led_restore_guide_plan_t s_plan;
@@ -33,6 +32,7 @@ static uint8_t s_gain[64];
 static uint8_t s_on[64];
 static uint8_t s_want[64];
 static guide_rgb_t s_hold[64];
+static guide_rgb_t s_sent[64];
 static uint32_t s_last_ms;
 
 static uint8_t square_to_led(uint8_t sq) {
@@ -40,18 +40,27 @@ static uint8_t square_to_led(uint8_t sq) {
 }
 
 static guide_rgb_t color_for_piece(uint8_t type, uint8_t color) {
-  /* White hues stay saturated so pawn, knight and bishop stay apart.
-   * Black uses another hue and stays dark. */
+  /* Hue stays saturated. The fourth number is that color's own brightness. */
   static const guide_rgb_t white_pieces[7] = {
-      {0, 0, 0},       {0, 255, 0},     {255, 80, 0},    {0, 90, 255},
-      {255, 0, 160},   {255, 255, 230}, {255, 220, 0},
+      {0, 0, 0, 0},
+      {0, 255, 0, 120},
+      {255, 80, 0, 170},
+      {0, 90, 255, 200},
+      {255, 0, 160, 150},
+      {255, 255, 230, 90},
+      {255, 220, 0, 140},
   };
   static const guide_rgb_t black_pieces[7] = {
-      {0, 0, 0},       {0, 40, 255},   {130, 0, 255},  {255, 0, 50},
-      {0, 170, 40},    {30, 0, 140},   {255, 50, 0},
+      {0, 0, 0, 0},
+      {0, 40, 255, 90},
+      {130, 0, 255, 80},
+      {255, 0, 50, 70},
+      {0, 170, 40, 48},
+      {30, 0, 140, 110},
+      {255, 50, 0, 64},
   };
   if (type < 1 || type > 6) {
-    guide_rgb_t red = {EXTRA_R, EXTRA_G, EXTRA_B};
+    guide_rgb_t red = {EXTRA_R, EXTRA_G, EXTRA_B, EXTRA_LEVEL};
     return red;
   }
   if (color == 2) {
@@ -72,6 +81,13 @@ static void paint_square(uint8_t sq) {
   uint8_t r = (uint8_t)(((uint16_t)s_hold[sq].r * gain) / 255U);
   uint8_t g = (uint8_t)(((uint16_t)s_hold[sq].g * gain) / 255U);
   uint8_t b = (uint8_t)(((uint16_t)s_hold[sq].b * gain) / 255U);
+  if (s_sent[sq].r == r && s_sent[sq].g == g && s_sent[sq].b == b &&
+      (s_on[sq] || (r == 0U && g == 0U && b == 0U))) {
+    return;
+  }
+  s_sent[sq].r = r;
+  s_sent[sq].g = g;
+  s_sent[sq].b = b;
   led_set_pixel_internal(square_to_led(sq), r, g, b);
   s_on[sq] = (gain > 0U) ? 1U : 0U;
 }
@@ -92,6 +108,12 @@ static unsigned reveal_step(uint32_t now) {
 void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan) {
   if (plan == NULL || !plan->active || plan->mark_count == 0) {
     led_board_restore_guide_clear();
+    return;
+  }
+  if (s_anim_active && s_plan.active &&
+      s_plan.mark_count == plan->mark_count &&
+      memcmp(s_plan.marks, plan->marks,
+             (size_t)plan->mark_count * sizeof(plan->marks[0])) == 0) {
     return;
   }
   bool fresh = !s_anim_active;
@@ -115,6 +137,21 @@ void led_board_restore_guide_clear(void) {
 }
 
 bool led_board_restore_guide_is_active(void) { return s_anim_active; }
+
+void led_board_restore_guide_yield(void) {
+  memset(s_sent, 0xFF, sizeof(s_sent));
+  memset(s_on, 0, sizeof(s_on));
+}
+
+void led_board_restore_guide_cancel(void) {
+  memset(&s_plan, 0, sizeof(s_plan));
+  memset(s_gain, 0, sizeof(s_gain));
+  memset(s_on, 0, sizeof(s_on));
+  memset(s_want, 0, sizeof(s_want));
+  memset(s_sent, 0xFF, sizeof(s_sent));
+  s_anim_active = false;
+  s_last_ms = 0;
+}
 
 void led_board_restore_guide_tick(void) {
   if (led_gesture_anim_busy() || led_lamp_board_held()) {
@@ -156,16 +193,13 @@ void led_board_restore_guide_tick(void) {
     if (mark->square >= 64) {
       continue;
     }
-    guide_rgb_t rgb;
-    uint8_t level;
+    guide_rgb_t rgb = color_for_piece(mark->type, mark->color);
+    uint8_t level = rgb.level;
     if (mark->role == LED_RESTORE_MARK_EXTRA) {
       rgb.r = EXTRA_R;
       rgb.g = EXTRA_G;
       rgb.b = EXTRA_B;
       level = EXTRA_LEVEL;
-    } else {
-      rgb = color_for_piece(mark->type, mark->color);
-      level = (mark->color == 2) ? BLACK_LEVEL : WHITE_LEVEL;
     }
     uint8_t sq = mark->square;
     s_want[sq] = 1U;

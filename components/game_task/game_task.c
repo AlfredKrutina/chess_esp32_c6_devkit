@@ -161,6 +161,7 @@
 #include "game_squares_guard.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
+#include "game_hall_position.h"
 #endif
 #include "game_snapshot.h"
 #include "game_task_internal.h"
@@ -641,7 +642,6 @@ game_result_type_t current_result_type =
 // FORWARD DECLARATIONS
 // ============================================================================
 
-void game_print_board_enhanced(void);
 
 // Error recovery functions
 void game_update_error_blink(void);
@@ -2244,7 +2244,6 @@ void game_task_start(void *pvParameters) {
 
   // Main task loop
   uint32_t loop_count = 0;
-  TickType_t last_wake_time = xTaskGetTickCount();
 
   for (;;) {
     // =========================================================================
@@ -2297,6 +2296,7 @@ void game_task_start(void *pvParameters) {
         game_hall_restore_guide_sync();
       }
     }
+    game_hall_position_service();
 #endif
 
     // BUG FIX 1: Automatic transition from WAITING_FOR_BOARD_SETUP to ACTIVE
@@ -2374,10 +2374,6 @@ void game_task_start(void *pvParameters) {
       }
     }
 
-    // Process matrix events (moves)
-    // DEPRECATED: Matrix events are now processed via game_command_queue
-    // game_process_squares_events();  // No longer needed
-
     // Update timer display and check for timeout
     game_update_timer_display();
 
@@ -2438,113 +2434,9 @@ void game_task_start(void *pvParameters) {
     }
 
     loop_count++;
-
-    // Wait for next cycle (100ms)
-    vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(100));
   }
 }
 
-/**
- * @brief [DEPRECATED] Process matrix events from queue
- * @deprecated Matrix events are now sent as chess_move_command_t to
- * game_command_queue and processed by game_process_pickup_command() /
- * game_process_drop_command(). This function is kept for compatibility but
- * does nothing.
- */
-void game_process_squares_events(void) {
-  // Matrix events are now processed via game_command_queue
-  // This function is kept for compatibility but does nothing
-}
-
-
-
-// ============================================================================
-// ENHANCED BOARD DISPLAY
-// ============================================================================
-
-/**
- * @brief Print enhanced chess board with coordinates and status
- */
-void game_print_board_enhanced(void) {
-  ESP_LOGI(TAG, "╔═══════════════════════════════╗");
-  ESP_LOGI(TAG, "║        CHESS BOARD            ║");
-  ESP_LOGI(TAG, "╚═══════════════════════════════╝");
-
-  // Print board from rank 8 to rank 1
-  for (int row = 7; row >= 0; row--) {
-    char line[64] = "";
-    char *ptr = line;
-
-    ptr += sprintf(ptr, " %d │", row + 1);
-
-    for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
-      const char *symbol;
-
-      switch (piece) {
-      case PIECE_WHITE_PAWN:
-        symbol = "♙";
-        break;
-      case PIECE_WHITE_KNIGHT:
-        symbol = "♘";
-        break;
-      case PIECE_WHITE_BISHOP:
-        symbol = "♗";
-        break;
-      case PIECE_WHITE_ROOK:
-        symbol = "♖";
-        break;
-      case PIECE_WHITE_QUEEN:
-        symbol = "♕";
-        break;
-      case PIECE_WHITE_KING:
-        symbol = "♔";
-        break;
-      case PIECE_BLACK_PAWN:
-        symbol = "♟";
-        break;
-      case PIECE_BLACK_KNIGHT:
-        symbol = "♞";
-        break;
-      case PIECE_BLACK_BISHOP:
-        symbol = "♝";
-        break;
-      case PIECE_BLACK_ROOK:
-        symbol = "♜";
-        break;
-      case PIECE_BLACK_QUEEN:
-        symbol = "♛";
-        break;
-      case PIECE_BLACK_KING:
-        symbol = "♚";
-        break;
-      default:
-        symbol = "·";
-        break;
-      }
-
-      ptr += sprintf(ptr, " %s │", symbol);
-    }
-
-    ESP_LOGI(TAG, "%s", line);
-    if (row > 0) {
-      ESP_LOGI(TAG, "   ├───┼───┼───┼───┼───┼───┼───┼───┤");
-    }
-  }
-
-  ESP_LOGI(TAG, "   └───┴───┴───┴───┴───┴───┴───┴───┘");
-  ESP_LOGI(TAG, "     a   b   c   d   e   f   g   h  ");
-
-  // Print game status
-  ESP_LOGI(TAG, "");
-  ESP_LOGI(TAG, "Game Status: %s to move",
-           (current_player == PLAYER_WHITE) ? "White" : "Black");
-  ESP_LOGI(TAG, "Move #%lu", move_count + 1);
-
-  if (game_is_king_in_check(current_player)) {
-    ESP_LOGI(TAG, "⚠️  CHECK!");
-  }
-}
 
 
 

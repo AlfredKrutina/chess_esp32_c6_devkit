@@ -83,4 +83,10 @@ void game_physical_undo_tick(void);
  */
 bool game_physical_undo_intercept_pickup(uint8_t row, uint8_t col);
 
+/**
+ * @brief Copy the position before the last history ply into dest.
+ * @return false when history is empty or dest is NULL.
+ */
+bool game_physical_undo_copy_previous(piece_t dest[8][8]);
+
 #endif /* GAME_PHYSICAL_UNDO_H */

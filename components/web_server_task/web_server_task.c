@@ -107,6 +107,7 @@
 #include "web_server_internal.h"
 #include "../game_hooks/include/game_state_notify.h"
 #include "../game_task/include/game_task.h"
+#include "../game_task/include/game_board_core.h"
 #include "../squares_task/include/squares_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "../ha_light_task/include/ha_light_task.h"
@@ -130,6 +131,8 @@
 #include "nvs_flash.h"
 #include "esp_partition.h"
 #include "esp_system.h"
+#include "esp_heap_caps.h"
+#include "shared_buffer_pool.h"
 #include "cJSON.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
@@ -792,9 +795,19 @@ static void wifi_ble_survey_task(void *arg) {
     kSurveyOutCap = 24,
   };
 
-  wifi_ap_record_t records[kSurveyRecordCap];
+  const size_t rec_bytes =
+      (size_t)kSurveyRecordCap * sizeof(wifi_ap_record_t);
+  wifi_ap_record_t *records =
+      (wifi_ap_record_t *)get_shared_buffer(rec_bytes);
+  if (records == NULL) {
+    ble_task_notify_cmd_ack_json(
+        "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"pool_busy\","
+        "\"cmd\":\"wifi_survey\",\"message\":\"buffer_pool\"}");
+    vTaskDelete(NULL);
+    return;
+  }
   uint16_t number = kSurveyRecordCap;
-  memset(records, 0, sizeof(records));
+  memset(records, 0, rec_bytes);
 
   wifi_scan_config_t scan_cfg = {0};
   scan_cfg.show_hidden = true;
@@ -809,6 +822,7 @@ static void wifi_ble_survey_task(void *arg) {
              "\"cmd\":\"wifi_survey\",\"message\":\"scan_start\",\"esp\":%d}",
              (int)err);
     ble_task_notify_cmd_ack_json(buf);
+    (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
   }
@@ -821,6 +835,7 @@ static void wifi_ble_survey_task(void *arg) {
              "\"cmd\":\"wifi_survey\",\"message\":\"get_ap_records\",\"esp\":%d}",
              (int)err);
     ble_task_notify_cmd_ack_json(buf);
+    (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
   }
@@ -874,6 +889,7 @@ static void wifi_ble_survey_task(void *arg) {
     ble_task_notify_cmd_ack_json(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"json\","
         "\"cmd\":\"wifi_survey\",\"message\":\"root\",\"esp\":-1}");
+    (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
   }
@@ -887,6 +903,7 @@ static void wifi_ble_survey_task(void *arg) {
     ble_task_notify_cmd_ack_json(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"json\","
         "\"cmd\":\"wifi_survey\",\"message\":\"array\",\"esp\":-1}");
+    (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
   }
@@ -907,11 +924,13 @@ static void wifi_ble_survey_task(void *arg) {
     ble_task_notify_cmd_ack_json(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"json\","
         "\"cmd\":\"wifi_survey\",\"message\":\"print\",\"esp\":-1}");
+    (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
   }
   ble_task_notify_cmd_ack_json(printed);
   cJSON_free(printed);
+  (void)release_shared_buffer((char *)records);
   vTaskDelete(NULL);
 }
 
@@ -1109,13 +1128,22 @@ static void wifi_select_ap_ssid_by_scan(void) {
     return;
   }
 
-  wifi_ap_record_t ap_records[WIFI_AP_SCAN_MAX_APS];
-  memset(ap_records, 0, sizeof(ap_records));
+  const size_t ap_rec_bytes =
+      (size_t)WIFI_AP_SCAN_MAX_APS * sizeof(wifi_ap_record_t);
+  wifi_ap_record_t *ap_records =
+      (wifi_ap_record_t *)get_shared_buffer(ap_rec_bytes);
+  if (ap_records == NULL) {
+    ESP_LOGW(TAG, "AP SSID scan: buffer pool busy — using %s", base);
+    esp_wifi_stop();
+    return;
+  }
+  memset(ap_records, 0, ap_rec_bytes);
   uint16_t number = WIFI_AP_SCAN_MAX_APS;
   ret = esp_wifi_scan_get_ap_records(&number, ap_records);
   if (ret != ESP_OK) {
     ESP_LOGW(TAG, "AP SSID scan: get_ap_records failed: %s — using %s",
              esp_err_to_name(ret), base);
+    (void)release_shared_buffer((char *)ap_records);
     esp_wifi_stop();
     return;
   }
@@ -1161,6 +1189,7 @@ static void wifi_select_ap_ssid_by_scan(void) {
   ESP_LOGI(TAG, "AP SSID po skenu okoli: %s (zaklad=%s)", wifi_ap_ssid_effective,
            base);
 
+  (void)release_shared_buffer((char *)ap_records);
   esp_wifi_stop();
 }
 
@@ -1581,6 +1610,11 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     sta_connected = true;
     sta_connecting = false;
     sta_reconnect_delay_ms = STA_RECONNECT_DELAY_MIN_MS; // Reset backoff
+    /* Modem sleep drops the MQTT keepalive and the broker aborts the socket. */
+    esp_err_t ps = esp_wifi_set_ps(WIFI_PS_NONE);
+    if (ps != ESP_OK) {
+      ESP_LOGW(TAG, "STA: wifi power save off failed: %s", esp_err_to_name(ps));
+    }
     czechmate_mdns_refresh_sta_txt();
     ble_task_push_network_info(); // Notify BLE clients about new IP
   } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_LOST_IP) {
@@ -1733,17 +1767,20 @@ static esp_err_t start_http_server(void) {
   /* Number of httpd_register_uri_handler in start_http_server: 54+ (2026-04, incl. WS + PNG figures).
    * Increase stock when adding endpoint (HTTPD doesn't register "quietly" extra). */
   config.max_uri_handlers = 64;
-  // Keep within LWIP limits. HTTP server internally reserves 3 sockets.
-#if CONFIG_LWIP_MAX_SOCKETS > 6
+  /* httpd keeps 3 sockets internally. One active TCP PCB stays for MQTT. */
+#if (CONFIG_LWIP_MAX_ACTIVE_TCP > 1) && \
+    ((CONFIG_LWIP_MAX_ACTIVE_TCP - 1) < (CONFIG_LWIP_MAX_SOCKETS - 3))
+  config.max_open_sockets = CONFIG_LWIP_MAX_ACTIVE_TCP - 1;
+#elif CONFIG_LWIP_MAX_SOCKETS > 4
   config.max_open_sockets = CONFIG_LWIP_MAX_SOCKETS - 3;
 #else
-  config.max_open_sockets = 3;
+  config.max_open_sockets = 1;
 #endif
   config.lru_purge_enable = false; // CRITICAL: Disabled to prevent socket
                                    // closure during chunked transfer
   config.recv_wait_timeout = 20;    // 20 s – stable connection with a slower network
   config.send_wait_timeout =
-      5000; // 5 s – spolehlivy chunked transfer pri vykyvech
+      5; // seconds – spolehlivy chunked transfer pri vykyvech
   config.max_resp_headers = 8;
   config.backlog_conn = 6;         // Vetsi fronta pri napadu klientu
   config.stack_size = 8192;        // Zvysena velikost stacku pro HTTP server task
@@ -2227,6 +2264,47 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     ESP_LOGI(TAG, "BLE light_game_mode");
     return ESP_OK;
   }
+  if (strcmp(cmd, "light_pattern") == 0) {
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool on = false;
+    bool clear_map = false;
+    int pen = 0, ar = 255, ag = 255, ab = 255, br = 40, bg = 90, bb = 255;
+    cJSON *jon = cJSON_GetObjectItemCaseSensitive(root, "on");
+    cJSON *jclear = cJSON_GetObjectItemCaseSensitive(root, "clear");
+    if (cJSON_IsBool(jon) && cJSON_IsTrue(jon)) {
+      on = true;
+    }
+    if (cJSON_IsBool(jclear) && cJSON_IsTrue(jclear)) {
+      clear_map = true;
+    }
+    cJSON *jp = cJSON_GetObjectItemCaseSensitive(root, "pen");
+    if (cJSON_IsNumber(jp)) {
+      pen = (int)cJSON_GetNumberValue(jp) ? 1 : 0;
+    }
+    cJSON *jar = cJSON_GetObjectItemCaseSensitive(root, "ar");
+    cJSON *jag = cJSON_GetObjectItemCaseSensitive(root, "ag");
+    cJSON *jab = cJSON_GetObjectItemCaseSensitive(root, "ab");
+    cJSON *jbr = cJSON_GetObjectItemCaseSensitive(root, "br");
+    cJSON *jbg = cJSON_GetObjectItemCaseSensitive(root, "bg");
+    cJSON *jbb = cJSON_GetObjectItemCaseSensitive(root, "bb");
+    if (cJSON_IsNumber(jar)) ar = (int)cJSON_GetNumberValue(jar);
+    if (cJSON_IsNumber(jag)) ag = (int)cJSON_GetNumberValue(jag);
+    if (cJSON_IsNumber(jab)) ab = (int)cJSON_GetNumberValue(jab);
+    if (cJSON_IsNumber(jbr)) br = (int)cJSON_GetNumberValue(jbr);
+    if (cJSON_IsNumber(jbg)) bg = (int)cJSON_GetNumberValue(jbg);
+    if (cJSON_IsNumber(jbb)) bb = (int)cJSON_GetNumberValue(jbb);
+    cJSON_Delete(root);
+    uint8_t action = on ? HA_PAT_ON : (clear_map ? HA_PAT_CLEAR : HA_PAT_COLORS);
+    if (!ha_pattern_request(action, 0, (uint8_t)pen, (uint8_t)ar, (uint8_t)ag,
+                            (uint8_t)ab, (uint8_t)br, (uint8_t)bg, (uint8_t)bb,
+                            1, clear_map ? 1 : 0)) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    return ESP_OK;
+  }
 
   /* ============================================
    * NEW BLE COMMANDS - Beginning
@@ -2338,6 +2416,13 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       }
       cJSON_Delete(root);
     }
+    if (new_cmd.type == GAME_CMD_NEW_GAME_FROM_FEN) {
+      game_fen_position_t parsed;
+      if (!game_parse_fen(new_cmd.timer_data.fen_new_game.fen, &parsed)) {
+        ESP_LOGW(TAG, "[BLE] new_game: FEN rejected");
+        return ESP_ERR_INVALID_ARG;
+      }
+    }
     if (xQueueSend(game_command_queue, &new_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
       ESP_LOGI(TAG, "[BLE] new_game: type=%d", (int)new_cmd.type);
     } else {
@@ -2358,9 +2443,24 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return rr;
   }
 
+  if (strcmp(cmd, "draw") == 0) {
+    const char *derr = NULL;
+    esp_err_t dr = web_server_draw_dispatch(&derr);
+    if (dr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] draw: command sent");
+    } else {
+      ESP_LOGW(TAG, "[BLE] draw refused: %s", derr != NULL ? derr : "?");
+    }
+    return dr;
+  }
+
   if (strcmp(cmd, "undo") == 0) {
     if (web_is_locked()) {
       ESP_LOGW(TAG, "[BLE] undo blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (game_move_history_count() == 0) {
+      ESP_LOGW(TAG, "[BLE] undo: nothing to undo");
       return ESP_ERR_INVALID_STATE;
     }
     if (game_command_queue != NULL) {
@@ -2852,16 +2952,11 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       if (setup_tutorial_finish_in_cooldown()) {
         return ESP_ERR_NOT_FINISHED;
       }
-      if (!game_finish_board_setup_tutorial_from_web()) {
-        if (game_is_board_setup_tutorial_active()) {
-          setup_tutorial_note_finish_conflict();
-          return ESP_ERR_NOT_FINISHED;
-        }
-        setup_tutorial_reset_finish_cooldown();
-        return ESP_FAIL;
+      if (!game_is_physical_board_starting_occupancy()) {
+        setup_tutorial_note_finish_conflict();
+        return ESP_ERR_NOT_FINISHED;
       }
       setup_tutorial_reset_finish_cooldown();
-      return ESP_OK;
     }
 
     if (game_command_queue == NULL) {
@@ -2870,7 +2965,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     }
     chess_move_command_t gcmd = {0};
     gcmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
-    gcmd.promotion_choice = want_start ? 0U : 1U;
+    gcmd.promotion_choice = want_start ? 0U : (want_finish ? 2U : 1U);
     gcmd.response_queue = NULL;
     if (xQueueSend(game_command_queue, &gcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
       ESP_LOGE(TAG, "[BLE] setup_tutorial: queue send failed");
@@ -2882,7 +2977,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       led_execute_command_new(&lcmd);
     }
     ESP_LOGI(TAG, "[BLE] setup_tutorial action=%s queued",
-             want_start ? "start" : "cancel");
+             want_start ? "start" : (want_finish ? "finish" : "cancel"));
     return ESP_OK;
   }
 
@@ -2930,16 +3025,21 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   return ESP_ERR_NOT_SUPPORTED;
 }
 
-static void czechmate_push_ble_snapshot(void) {
+static void czechmate_push_ble_ready(size_t len) {
   (void)web_server_task_wdt_reset_safe();
-  if (!ble_task_should_push_snapshot()) {
+  if (len == 0 || !ble_task_should_push_snapshot()) {
     return;
   }
+  ble_task_push_snapshot_json((const uint8_t *)snapshot_buffer, len);
+}
+
+static void czechmate_push_ble_snapshot(void) {
   size_t len = 0;
   if (build_snapshot_json(&len) != ESP_OK) {
     return;
   }
-  ble_task_push_snapshot_json((const uint8_t *)snapshot_buffer, len);
+  czechmate_push_ble_ready(len);
+  web_snapshot_buffer_release();
 }
 
 void czechmate_mdns_copy_hostname(char *out, size_t cap) {
@@ -3072,12 +3172,18 @@ void web_server_process_snapshot_notify_queue(void) {
   if (snapshot_notify_queue == NULL) {
     return;
   }
+  static TickType_t s_snap_last_send;
+  static TickType_t s_snap_skip_log;
+  static bool s_snap_pending;
   uint8_t ping;
-  int n = 0;
   while (xQueueReceive(snapshot_notify_queue, &ping, 0) == pdTRUE) {
-    n++;
+    s_snap_pending = true;
   }
-  if (n == 0) {
+  if (!s_snap_pending) {
+    return;
+  }
+  TickType_t now = xTaskGetTickCount();
+  if (s_snap_last_send != 0 && (now - s_snap_last_send) < pdMS_TO_TICKS(250)) {
     return;
   }
   /* Snapshot + WS sending can block for a long time (httpd send timeout) — no
@@ -3085,15 +3191,28 @@ void web_server_process_snapshot_notify_queue(void) {
   (void)web_server_task_wdt_reset_safe();
   size_t fh = esp_get_free_heap_size();
   if (fh < 16384) {
-    ESP_LOGW(TAG, "snapshot skipped, free heap %zu B", fh);
+    if ((now - s_snap_skip_log) >= pdMS_TO_TICKS(5000)) {
+      s_snap_skip_log = now;
+      ESP_LOGW(TAG, "snapshot skipped, free heap %zu B", fh);
+    }
+    s_snap_last_send = now;
+    return;
+  }
+  size_t snap_len = 0;
+  if (build_snapshot_json(&snap_len) != ESP_OK) {
+    s_snap_pending = false;
+    s_snap_last_send = now;
     return;
   }
 #if CONFIG_CHESS_ENABLE_WEB_SERVER && CONFIG_HTTPD_WS_SUPPORT
-  ws_broadcast_snapshot();
+  ws_broadcast_prepared(snap_len);
 #endif
   (void)web_server_task_wdt_reset_safe();
-  czechmate_push_ble_snapshot();
+  czechmate_push_ble_ready(snap_len);
   (void)web_server_task_wdt_reset_safe();
+  web_snapshot_buffer_release();
+  s_snap_pending = false;
+  s_snap_last_send = now;
 }
 
 /** Strong implementation — overrides weak from game_hooks (WS + BLE, independent of
@@ -3496,6 +3615,12 @@ void web_server_task_start(void *pvParameters) {
   web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
   ESP_LOGI(TAG, "HTTP server started");
   czechmate_mdns_ensure_started();
+  {
+    size_t free_b = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
+    ESP_LOGW(TAG, "SRAM after HTTP+mDNS: free=%u B, largest_block=%u B",
+             (unsigned)free_b, (unsigned)largest);
+  }
 
   /* Do not restore a stored dim. Status stays at 100% until the user changes it. */
   cached_brightness = 100;

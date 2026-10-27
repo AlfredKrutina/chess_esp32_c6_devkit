@@ -36,6 +36,9 @@ CONFIG_CHESS_DIAG_UART_ERROR_DETAIL=y
 # HTTP server — WebSocket /ws (watchOS/iOS); without it the client gets “bad response” (-1011)
 CONFIG_HTTPD_WS_SUPPORT=y
 
+# Simultaneous TCP sessions (app, WebSocket, MQTT). Listening sockets stay at the IDF default.
+CONFIG_LWIP_MAX_ACTIVE_TCP=4
+
 # System
 CONFIG_ESP_SYSTEM_EVENT_TASK_STACK_SIZE=4096
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
@@ -66,8 +69,14 @@ CONFIG_SECURE_BOOT_V2_ENABLED=n
 
 # WiFi — required for web_server (AP/STA), HTTP, WebSocket, mDNS. Without it the LAN app path does not work.
 CONFIG_ESP_WIFI_ENABLED=y
-CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=6
 CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=8
+CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=16
+# C6 IRAM and DRAM share one SRAM: these IRAM options cost ~32 KB of heap.
+# Traffic here is small JSON, so the throughput loss does not matter.
+# CONFIG_ESP_WIFI_IRAM_OPT is not set
+# CONFIG_ESP_WIFI_EXTRA_IRAM_OPT is not set
+# CONFIG_ESP_WIFI_RX_IRAM_OPT is not set
 
 # Bluetooth — NimBLE GATT (CZECHMATE). After changing, run `idf.py fullclean reconfigure build`.
 # If sdkconfig overrides defaults, enable BT in menuconfig Component config → Bluetooth.

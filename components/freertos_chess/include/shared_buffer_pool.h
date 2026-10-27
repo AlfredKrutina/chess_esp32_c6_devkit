@@ -12,7 +12,7 @@
  * @details
  * Shared Buffer Pool provides pre-allocated buffers instead of dynamic allocation.
  * Eliminates heap fragmentation and improves memory allocation performance.
- * Contains 4 buffers of 2KB size each (total 8KB).
+ * Tiered static slots: 2×8 KiB (JSON/scratch) + 1×20 KiB (snapshot / WiFi scan).
  * 
  * Advantages:
  * - Eliminate heap fragmentation
@@ -42,6 +42,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define SHARED_BUFFER_MEDIUM_BYTES 8192
+#define SHARED_BUFFER_LARGE_BYTES 20480
+#define SHARED_BUFFER_MEDIUM_COUNT 2
+#define SHARED_BUFFER_LARGE_COUNT 1
 
 // ============================================================================
 // MAKRA PRO SNADNE POUZITI
@@ -126,6 +131,9 @@ char* get_shared_buffer_debug(size_t min_size, const char* file, int line);
  * @return ESP_OK on success, ESP_ERR_INVALID_ARG if the buffer is invalid
  */
 esp_err_t release_shared_buffer(char* buffer);
+
+/** Capacity in bytes of a buffer returned by get_shared_buffer(), or 0 if unknown. */
+size_t shared_buffer_capacity(const char *buffer);
 
 // ============================================================================
 // UTILITIES AND FUNCTION STATUS

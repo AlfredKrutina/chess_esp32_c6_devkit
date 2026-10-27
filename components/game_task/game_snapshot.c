@@ -6,6 +6,7 @@
 #include "game_snapshot.h"
 #include "game_squares_guard.h"
 #include "game_hall_restore_guide.h"
+#include "game_hall_position.h"
 #include "game_task_internal.h"
 
 #include "../config_manager/include/config_manager.h"
@@ -821,4 +822,7 @@ void game_snapshot_restore_on_boot(void) {
     }
   }
   game_snapshot_publish_hall_empty();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_snapshot_last_valid();
+#endif
 }

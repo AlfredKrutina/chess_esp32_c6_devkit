@@ -6,6 +6,7 @@
 #include "web_server_task.h"
 #include "web_server_internal.h"
 #include "../game_task/include/game_task.h"
+#include "../game_task/include/game_board_core.h"
 #include "../squares_task/include/squares_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
@@ -23,6 +24,7 @@
 #include "freertos/queue.h"
 #include "freertos/semphr.h"
 #include "cJSON.h"
+#include "../freertos_chess/include/shared_buffer_pool.h"
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -33,9 +35,22 @@ extern QueueHandle_t game_command_queue;
 static const char *TAG = "WEB_GAME";
 
 
-char json_buffer[JSON_BUFFER_SIZE];
-char snapshot_buffer[SNAPSHOT_BUFFER_SIZE];
+char *snapshot_buffer;
 SemaphoreHandle_t snapshot_build_mutex;
+
+void web_snapshot_buffer_release(void) {
+  if (snapshot_buffer != NULL) {
+    (void)release_shared_buffer(snapshot_buffer);
+    snapshot_buffer = NULL;
+  }
+}
+
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+static void http_resp_pool_busy(httpd_req_t *req) {
+  httpd_resp_set_status(req, "503 Service Unavailable");
+  httpd_resp_send(req, "Buffer pool busy", HTTPD_RESP_USE_STRLEN);
+}
+#endif
 
 /** After a conflict during the finish setup tutorial, briefly do not call validation again (BLE + HTTP). */
 static TickType_t s_setup_tutorial_finish_conflict_until_tick;
@@ -162,77 +177,91 @@ static char s_clock_json_build_scratch[TIMER_HTTP_JSON_MAX];
 static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
                                                size_t *out_len) {
   snapshot_build_mutex_take();
+  char *json_buf = get_shared_buffer(JSON_BUFFER_SIZE);
+  if (json_buf == NULL) {
+    snapshot_build_mutex_give();
+    return ESP_ERR_NO_MEM;
+  }
   (void)web_server_task_wdt_reset_safe();
-  esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
+  esp_err_t ret = game_get_board_json(json_buf, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ret;
   }
   (void)web_server_task_wdt_reset_safe();
-  size_t L = strlen(json_buffer);
-  if (L < 4 || json_buffer[0] != '{' || json_buffer[L - 1] != '}') {
+  size_t L = strlen(json_buf);
+  if (L < 4 || json_buf[0] != '{' || json_buf[L - 1] != '}') {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ESP_FAIL;
   }
-  json_buffer[L - 1] = '\0';
+  json_buf[L - 1] = '\0';
   uint32_t srev = game_get_state_revision();
   size_t pos = (size_t)snprintf(out, cap, "{\"state_version\":%" PRIu32 ",%s",
-                                srev, json_buffer + 1);
+                                srev, json_buf + 1);
   if (pos >= cap) {
-    json_buffer[L - 1] = '}';
+    json_buf[L - 1] = '}';
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ESP_FAIL;
   }
 
-  ret = game_get_status_json(json_buffer, sizeof(json_buffer));
+  ret = game_get_status_json(json_buf, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ret;
   }
   (void)web_server_task_wdt_reset_safe();
 #ifndef NDEBUG
-  ESP_LOGI(TAG,
-           "[STAGING] build_snapshot: status raw len=%zu / cap=%zu",
-           strlen(json_buffer), sizeof(json_buffer));
+  ESP_LOGI(TAG, "[STAGING] build_snapshot: status raw len=%zu / cap=%d",
+           strlen(json_buf), JSON_BUFFER_SIZE);
 #endif
-  inject_web_status_fields(json_buffer, sizeof(json_buffer));
+  inject_web_status_fields(json_buf, JSON_BUFFER_SIZE);
 #ifndef NDEBUG
-  ESP_LOGI(TAG,
-           "[STAGING] build_snapshot: status after inject len=%zu / cap=%zu",
-           strlen(json_buffer), sizeof(json_buffer));
+  ESP_LOGI(TAG, "[STAGING] build_snapshot: status after inject len=%zu / cap=%d",
+           strlen(json_buf), JSON_BUFFER_SIZE);
 #endif
-  int n = snprintf(out + pos, cap - pos, ",\"status\":%s", json_buffer);
+  int n = snprintf(out + pos, cap - pos, ",\"status\":%s", json_buf);
   if (n < 0 || (size_t)n >= cap - pos) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ESP_FAIL;
   }
   pos += (size_t)n;
 
-  ret = game_get_history_json(json_buffer, sizeof(json_buffer));
+  ret = game_get_history_json(json_buf, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ret;
   }
   (void)web_server_task_wdt_reset_safe();
-  n = snprintf(out + pos, cap - pos, ",\"history\":%s", json_buffer);
+  n = snprintf(out + pos, cap - pos, ",\"history\":%s", json_buf);
   if (n < 0 || (size_t)n >= cap - pos) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ESP_FAIL;
   }
   pos += (size_t)n;
 
-  ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
+  ret = game_get_captured_json(json_buf, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ret;
   }
   (void)web_server_task_wdt_reset_safe();
-  n = snprintf(out + pos, cap - pos, ",\"captured\":%s", json_buffer);
+  n = snprintf(out + pos, cap - pos, ",\"captured\":%s", json_buf);
   if (n < 0 || (size_t)n >= cap - pos) {
+    (void)release_shared_buffer(json_buf);
     snapshot_build_mutex_give();
     return ESP_FAIL;
   }
   pos += (size_t)n;
+
+  (void)release_shared_buffer(json_buf);
 
   ret = game_get_timer_json(s_clock_json_build_scratch,
                             sizeof(s_clock_json_build_scratch));
@@ -258,8 +287,18 @@ static esp_err_t build_snapshot_json_to_buffer(char *out, size_t cap,
 }
 
 esp_err_t build_snapshot_json(size_t *out_len) {
-  return build_snapshot_json_to_buffer(snapshot_buffer, sizeof(snapshot_buffer),
-                                       out_len);
+  web_snapshot_buffer_release();
+  char *snap = get_shared_buffer(SNAPSHOT_BUFFER_SIZE);
+  if (snap == NULL) {
+    return ESP_ERR_NO_MEM;
+  }
+  snapshot_buffer = snap;
+  esp_err_t e = build_snapshot_json_to_buffer(
+      snap, shared_buffer_capacity(snap), out_len);
+  if (e != ESP_OK) {
+    web_snapshot_buffer_release();
+  }
+  return e;
 }
 
 esp_err_t web_server_build_game_snapshot_json(char *out, size_t cap,
@@ -275,11 +314,18 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
   if (out_json == NULL || out_len == NULL) {
     return ESP_ERR_INVALID_ARG;
   }
-  esp_err_t e =
-      build_snapshot_json_to_buffer(snapshot_buffer, sizeof(snapshot_buffer),
-                                    out_len);
+  web_snapshot_buffer_release();
+  char *snap = get_shared_buffer(SNAPSHOT_BUFFER_SIZE);
+  if (snap == NULL) {
+    return ESP_ERR_NO_MEM;
+  }
+  snapshot_buffer = snap;
+  esp_err_t e = build_snapshot_json_to_buffer(
+      snap, shared_buffer_capacity(snap), out_len);
   if (e == ESP_OK) {
     *out_json = snapshot_buffer;
+  } else {
+    web_snapshot_buffer_release();
   }
   return e;
 }
@@ -349,70 +395,90 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
 esp_err_t http_get_board_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/board");
 
-  // Get inbox status from game task
-  esp_err_t ret = game_get_board_json(json_buffer, sizeof(json_buffer));
+  char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
+  if (jb == NULL) {
+    http_resp_pool_busy(req);
+    return ESP_FAIL;
+  }
+  esp_err_t ret = game_get_board_json(jb, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(jb);
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to get board state", -1);
     return ESP_FAIL;
   }
 
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
+  httpd_resp_send(req, jb, strlen(jb));
+  (void)release_shared_buffer(jb);
   return ESP_OK;
 }
 
 esp_err_t http_get_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/status");
 
-  // Get game state from game task
-  esp_err_t ret = game_get_status_json(json_buffer, sizeof(json_buffer));
+  char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
+  if (jb == NULL) {
+    http_resp_pool_busy(req);
+    return ESP_FAIL;
+  }
+  esp_err_t ret = game_get_status_json(jb, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(jb);
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to get game status", -1);
     return ESP_FAIL;
   }
 
-  inject_web_status_fields(json_buffer, sizeof(json_buffer));
+  inject_web_status_fields(jb, JSON_BUFFER_SIZE);
 
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
+  httpd_resp_send(req, jb, strlen(jb));
+  (void)release_shared_buffer(jb);
   return ESP_OK;
 }
 
 esp_err_t http_get_history_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/history");
 
-  // Get move history from game task
-  esp_err_t ret = game_get_history_json(json_buffer, sizeof(json_buffer));
+  char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
+  if (jb == NULL) {
+    http_resp_pool_busy(req);
+    return ESP_FAIL;
+  }
+  esp_err_t ret = game_get_history_json(jb, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(jb);
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to get move history", -1);
     return ESP_FAIL;
   }
 
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
+  httpd_resp_send(req, jb, strlen(jb));
+  (void)release_shared_buffer(jb);
   return ESP_OK;
 }
 
 esp_err_t http_get_captured_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/captured");
 
-  // Get the collected figures from the game task
-  esp_err_t ret = game_get_captured_json(json_buffer, sizeof(json_buffer));
+  char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
+  if (jb == NULL) {
+    http_resp_pool_busy(req);
+    return ESP_FAIL;
+  }
+  esp_err_t ret = game_get_captured_json(jb, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(jb);
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to get captured pieces", -1);
     return ESP_FAIL;
   }
 
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
+  httpd_resp_send(req, jb, strlen(jb));
+  (void)release_shared_buffer(jb);
   return ESP_OK;
 }
 
@@ -434,6 +500,10 @@ esp_err_t http_get_game_snapshot_handler(httpd_req_t *req) {
 
   size_t pos = 0;
   esp_err_t ret = build_snapshot_json(&pos);
+  if (ret == ESP_ERR_NO_MEM) {
+    http_resp_pool_busy(req);
+    return ESP_FAIL;
+  }
   if (ret != ESP_OK) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to build game snapshot", -1);
@@ -444,23 +514,29 @@ esp_err_t http_get_game_snapshot_handler(httpd_req_t *req) {
     ESP_LOGD(TAG, "ETag header not set");
   }
   httpd_resp_send(req, snapshot_buffer, pos);
+  web_snapshot_buffer_release();
   return ESP_OK;
 }
 
 esp_err_t http_get_advantage_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/advantage");
 
-  // Ziskat historii material advantage z game tasku
-  esp_err_t ret = game_get_advantage_json(json_buffer, sizeof(json_buffer));
+  char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
+  if (jb == NULL) {
+    http_resp_pool_busy(req);
+    return ESP_FAIL;
+  }
+  esp_err_t ret = game_get_advantage_json(jb, JSON_BUFFER_SIZE);
   if (ret != ESP_OK) {
+    (void)release_shared_buffer(jb);
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to get advantage history", -1);
     return ESP_FAIL;
   }
 
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, json_buffer, strlen(json_buffer));
-
+  httpd_resp_send(req, jb, strlen(jb));
+  (void)release_shared_buffer(jb);
   return ESP_OK;
 }
 // ============================================================================
@@ -933,6 +1009,17 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
+  if (cmd.type == GAME_CMD_NEW_GAME_FROM_FEN) {
+    game_fen_position_t parsed;
+    if (!game_parse_fen(cmd.timer_data.fen_new_game.fen, &parsed)) {
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_set_type(req, "application/json");
+      httpd_resp_send(req, "{\"success\":false,\"error\":\"FEN rejected\"}",
+                      -1);
+      return ESP_OK;
+    }
+  }
+
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
     ESP_LOGE(TAG, "Failed to send NEW_GAME command to queue");
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -946,7 +1033,7 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
 
   httpd_resp_set_status(req, "200 OK");
   httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"New game started\"}",
+  httpd_resp_send(req, "{\"success\":true,\"message\":\"New game accepted\"}",
                   -1);
 
   return ESP_OK;
@@ -1106,33 +1193,18 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
                       -1);
       return ESP_OK;
     }
-    if (!game_finish_board_setup_tutorial_from_web()) {
+    if (!game_is_physical_board_starting_occupancy()) {
+      setup_tutorial_note_finish_conflict();
       httpd_resp_set_type(req, "application/json");
-      if (game_is_board_setup_tutorial_active()) {
-        setup_tutorial_note_finish_conflict();
-        httpd_resp_set_status(req, "409 Conflict");
-        httpd_resp_send(req,
-                        "{\"success\":false,\"error\":\"Physical board does "
-                        "not match starting occupancy (rows 0-1,6-7 full; "
-                        "2-5 empty)\"}",
-                        -1);
-      } else {
-        setup_tutorial_reset_finish_cooldown();
-        httpd_resp_set_status(req, "400 Bad Request");
-        httpd_resp_send(
-            req, "{\"success\":false,\"error\":\"Could not finish tutorial\"}",
-            -1);
-      }
+      httpd_resp_set_status(req, "409 Conflict");
+      httpd_resp_send(req,
+                      "{\"success\":false,\"error\":\"Physical board does "
+                      "not match starting occupancy (rows 0-1,6-7 full; "
+                      "2-5 empty)\"}",
+                      -1);
       return ESP_OK;
     }
     setup_tutorial_reset_finish_cooldown();
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req,
-                    "{\"success\":true,\"message\":\"Starting position "
-                    "confirmed; new game started\"}",
-                    -1);
-    return ESP_OK;
   }
 
   if (game_command_queue == NULL) {
@@ -1146,7 +1218,7 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
 
   chess_move_command_t cmd = {0};
   cmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
-  cmd.promotion_choice = want_start ? 0U : 1U;
+  cmd.promotion_choice = want_start ? 0U : (want_finish ? 2U : 1U);
   cmd.response_queue = NULL;
 
   if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {

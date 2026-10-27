@@ -45,6 +45,15 @@ esp_err_t hall_i2c_squares_probe_segment(uint8_t segment_0_to_3, int timeout_ms)
  */
 void hall_i2c_squares_fill_state(uint8_t squares_state[64]);
 
+/** I2C only. Safe to call without squares_mutex. */
+void hall_i2c_squares_prepare_scan(void);
+
+/** Copy the prepared scan into occupancy and Hall type/color. Call under the mutex. */
+void hall_i2c_squares_publish_scan(uint8_t squares_state[64]);
+
+/** True when type and color were named while the piece was still seated. */
+bool hall_i2c_squares_identity_settled(uint8_t square);
+
 /** How many segments this build reads (1…4). */
 unsigned hall_i2c_squares_segment_count(void);
 
@@ -59,12 +68,16 @@ esp_err_t hall_i2c_squares_read_segment_raw(uint8_t segment_0_to_3,
 /**
  * @brief Whether occupancy readings are safe to compare with the logical board.
  *
- * Hall: true once every square has a baseline that was not taken from a magnet,
- * the trimmed-mean ring is full, and debounce has locked once.
+ * Hall: true once every square has a baseline that was not taken from a magnet
+ * and the trimmed-mean ring is full. A square that has not named its piece yet
+ * still counts, so one unsettled magnet cannot keep the guide off.
  * Reed builds have no Hall baseline and always return true.
  * @return true when a scan may be trusted for guard / restore.
  */
 bool hall_i2c_squares_readings_usable(void);
+
+/** True when every configured segment returned a payload on the last prepare. */
+bool hall_i2c_squares_segments_ok(void);
 
 /**
  * @brief Tell Hall which squares the logical game says are empty.
@@ -150,6 +163,23 @@ const char* hall_i2c_squares_piece_type_name(hall_piece_type_t type);
  * @return "WHITE", "BLACK", or "----".
  */
 const char* hall_i2c_squares_piece_color_name(hall_piece_color_t color);
+
+/** One square as the scan task last left it. */
+typedef struct {
+  int32_t energy;
+  int32_t dev0;
+  int32_t dev1;
+  hall_piece_type_t type;
+  hall_piece_color_t color;
+  uint8_t occupied;
+  uint8_t valid;
+} hall_square_reading_t;
+
+/**
+ * @brief Last energy, both deviations, occupancy and named piece.
+ * @return false on a reed build or a square outside 0..63.
+ */
+bool hall_i2c_squares_get_reading(uint8_t square, hall_square_reading_t *out);
 
 /**
  * Magnet-strength bench. Lights one square. Each short click prints one

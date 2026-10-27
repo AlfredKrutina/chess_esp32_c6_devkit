@@ -33,6 +33,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "shared_buffer_pool.h"
 
 #include "led_task.h"
 
@@ -363,6 +364,7 @@ static void ota_http_worker_task(void *arg) {
   const esp_partition_t *update_partition = NULL;
   bool ota_begin_done = false;
   bool http_open = false;
+  char *buf = NULL;
   char why[48];
   why[0] = '\0';
 
@@ -425,10 +427,15 @@ static void ota_http_worker_task(void *arg) {
   }
   ota_begin_done = true;
 
-  char buf[4096];
+  buf = get_shared_buffer(OTA_HTTP_POST_BODY_CAP);
+  if (buf == NULL) {
+    snprintf(why, sizeof(why), "buffer_pool");
+    err = ESP_ERR_NO_MEM;
+    goto http_fail;
+  }
   int received = 0;
   while (1) {
-    int data_read = esp_http_client_read(client, buf, sizeof(buf));
+    int data_read = esp_http_client_read(client, buf, OTA_HTTP_POST_BODY_CAP);
     if (data_read < 0) {
       snprintf(why, sizeof(why), "http_read_failed");
       err = ESP_FAIL;
@@ -492,10 +499,15 @@ static void ota_http_worker_task(void *arg) {
   ESP_LOGI(TAG, "HTTP OTA: image verified, boot -> %s, restart in %u ms",
            update_partition->label, (unsigned)OTA_RESTART_DELAY_MS);
   ota_guard_schedule_restart(OTA_RESTART_DELAY_MS);
+  (void)release_shared_buffer(buf);
   vTaskDelete(NULL);
   return;
 
 http_fail:
+  if (buf != NULL) {
+    (void)release_shared_buffer(buf);
+    buf = NULL;
+  }
   if (client != NULL) {
     if (http_open) {
       esp_http_client_close(client);

@@ -37,10 +37,15 @@ static uint8_t s_read_fail_warned_mask;
 #define HALL_POC_DELTA_ON               270
 /** Piece stays until the sum of |dev| falls under this. */
 #define HALL_POC_DELTA_OFF              160
+/* 2026-10-26: d2 pawn sat at energy 36569 with dev 187/40. Sum 227 never
+ * reached 270, so the square stayed empty and the guide kept lighting it.
+ * Strongest empty neighbor that reading was d8 at 15725 (king/bishop
+ * crosstalk). Energy latches a piece the sum still calls a gap. */
+#define HALL_POC_ENERGY_ON              25000
 /** Scans the peak energy must stop rising before the type is named. */
 #define HALL_POC_SETTLE_SCANS           25
 /** Below this the square is not a piece. Pawn band starts higher (see thresholds). */
-#define HALL_POC_ENERGY_DEADBAND        15000
+#define HALL_POC_ENERGY_DEADBAND        10000
 
 /** POC: quick samples per decision (trimmed mean of middle 3 after sort).
  *  V2 keeps the last N raw I2C pairs per square (one pair per matrix scan). */
@@ -104,6 +109,10 @@ static const int8_t HALL_REACH_ROYAL[]  = {0, 1, 1, 1, 0, 2, 1, 2, 2, 2, 0, 3};
  *  been steady this long. A piece sliding across the square does not count. */
 #define HALL_STABLE_MS                  250
 #define HALL_STABLE_SCANS               (HALL_STABLE_MS / TOTAL_CYCLE_TIME_MS)
+/** Lift publishes after this many consecutive vacant scans (~50 ms at 25 ms). */
+#define HALL_LIFT_CONFIRM_SCANS         2
+#define HALL_I2C_READ_TIMEOUT_MS        20
+#define HALL_I2C_FAIL_BACKOFF_SCANS     16
 /** Allowed scan-to-scan change while steady: max(abs, sum|dev| / div). */
 #define HALL_STABLE_ABS_TOL             12
 #define HALL_STABLE_REL_DIV             25
@@ -130,21 +139,29 @@ typedef struct {
 } hall_poc_threshold_t;
 
 /* Measured 2026-10-23, physical pieces, energy = dev0^2+dev1^2.
+ * A lone pawn sat at 77837 and above. In the starting row, 2026-10-26,
+ * the neighbors pull the white pawns down to 20098..81940. The old floor
+ * 71610 left six of those eight with no name, so the guide drew them as
+ * missing. Floor is 10000: the strongest empty neighbor in that same
+ * reading (c3, crosstalk only) was 5141.
  * Knight cluster 421057..577792. Bishop cluster 651850..1242413.
  * One bishop tail, 489376, sits inside the knights. The edge that put
  * every knight above 444887 into the bishop made knights read as bishops.
  * Edge is round(sqrt(577792 * 651850)). Bishop still reaches 1380458 so
  * 1107410 and 1242413 stay bishops, not rooks.
- * Queen and king share one energy span. A queen slid across the
- * board reads 2745865..4544912, and seated kings read 3403621..5443562.
- * The type inside that span comes from hall_name_royal(), the product
- * of the two sensor deviations, not from this table. */
+ * Rooks measured 2026-10-26: 1450345..2528461. The old ceiling 1724251
+ * was an unmeasured gap, so seven of those nine were named queen.
+ * The ceiling is the weakest seated queen, 2511730. One rook (2528461,
+ * deviations 870 and 1331) still sits above her. hall_name_rook_or_royal()
+ * pulls that overlap back by the product of the two deviations.
+ * Queen and king share the span above the rook. A queen slid across the
+ * board reads 2745865..4544912, and seated kings read 3403621..5443562. */
 static const hall_poc_threshold_t s_poc_thresholds[] = {
-    {   71610,   250080,   HALL_PIECE_TYPE_PAWN   },
+    {   10000,   250080,   HALL_PIECE_TYPE_PAWN   },
     {  250081,   613704,   HALL_PIECE_TYPE_KNIGHT },
     {  613705,  1380458,   HALL_PIECE_TYPE_BISHOP },
-    { 1380459,  1724251,   HALL_PIECE_TYPE_ROOK   },
-    { 1724252,  7500000,   HALL_PIECE_TYPE_QUEEN  },
+    { 1380459,  2511729,   HALL_PIECE_TYPE_ROOK   },
+    { 2511730,  7500000,   HALL_PIECE_TYPE_QUEEN  },
 };
 #define HALL_POC_THRESHOLD_COUNT (sizeof(s_poc_thresholds) / sizeof(s_poc_thresholds[0]))
 
@@ -209,6 +226,7 @@ typedef struct {
     bool provisional;               /**< Midpoint copied from other empty squares. */
     bool ever_locked;               /**< Debounce has accepted one result since baseline. */
     bool occupied;                  /**< Latched by |dev| sum, before the type is named. */
+    uint8_t vacant_scans;           /**< Consecutive scans under the off threshold while occupied. */
     int32_t peak_energy;            /**< Highest energy since the piece arrived. */
     int16_t peak_dev0;
     int16_t peak_dev1;
@@ -221,6 +239,7 @@ typedef struct {
     int32_t prev_dev1;
     uint8_t stable_scans;           /**< Consecutive scans with a steady deviation. */
     bool reported;                  /**< Settled occupancy published to the matrix. */
+    bool identity_settled;          /**< Type/color stable while the magnet is still seated. */
     int32_t ctx_ref[2];             /**< Last steady empty reading, neighbor crosstalk included. */
     bool ctx_valid;
     bool prev_occupied;             /**< Occupancy at the end of the previous update. */
@@ -439,17 +458,27 @@ static const hall_poc_threshold_t* hall_poc_classify(int32_t energy,
     return NULL;
 }
 
-/* King is the wider disc, so the weak sensor stays stronger.
- * Product |dev0|*|dev1|:
- *   queens seated <= 1504016
- *   kings seated  1701630, 1896294, 2028686, 2663981
- *   king slid     1599136 (1232 and 1298), 1704888 (972 and 1754)
- * The 1800000 line named both of those slides a queen. The line now
- * sits at 1650000, above the seated queens. A centered king whose
- * product is only just over the queens uses the second clause. */
-#define HALL_ROYAL_KING_PRODUCT     1650000
-#define HALL_ROYAL_CENTER_PRODUCT   1550000
-#define HALL_ROYAL_SWITCH_SCANS     (HALL_STABLE_SCANS * 3)
+/* King is the wider disc. Product |dev0|*|dev1|, lo = weaker sensor.
+ * Queens stay at or under 1855701 unless both sensors are close
+ * (1461/1742 = 2545062, ratio 0.84). That one stays a queen below
+ * 2600000. Weaker kings sit just above the queen cluster when the
+ * sensors differ (1027/1905 = 1956435, 1326/1905 = 2526030) or near
+ * the center (1151/1325, 1297/1467). */
+#define HALL_ROYAL_KING_PRODUCT      2600000
+#define HALL_ROYAL_WEAK_KING_PRODUCT 1930000
+#define HALL_ROYAL_CENTER_PRODUCT    1500000
+#define HALL_ROYAL_SWITCH_SCANS      (HALL_STABLE_SCANS * 3)
+
+/* Rook products on 2026-10-26 top out at 1175640 (1212*970). The weakest
+ * seated queen is 1217223 (973*1251). The cut is round(sqrt of that pair).
+ * Later the same day a1 rook moved to 1220*1023 = 1248060 and crossed it,
+ * so a centered rook above the cut is recovered by hall_name_rook_or_royal().
+ * Queens and kings otherwise sit above the cut. */
+#define HALL_ROOK_QUEEN_PRODUCT      1196251
+/* Centered-rook recovery: both axes >= 1000, within 20 %, product under this.
+ * a1 at 1248060 qualifies. Queen e1 is 1002*1491 (ratio 0.67). The weak
+ * queen 973*1251 fails the 1000 axis. Kings are past 1.8M. */
+#define HALL_ROOK_CENTER_PRODUCT     1400000
 
 static hall_piece_type_t hall_name_royal(int32_t c0, int32_t c1) {
     int32_t lo = abs(c0);
@@ -466,11 +495,40 @@ static hall_piece_type_t hall_name_royal(int32_t c0, int32_t c1) {
     if (product >= HALL_ROYAL_KING_PRODUCT) {
         return HALL_PIECE_TYPE_KING;
     }
+    /* Uneven sensors: king from 1930000. Ratio under 0.82, so the
+     * balanced queen at 2545062 is not pulled down with this line. */
+    if (product >= HALL_ROYAL_WEAK_KING_PRODUCT && lo * 100 < hi * 82) {
+        return HALL_PIECE_TYPE_KING;
+    }
+    /* Centered king: weaker sensor >= 1100, within 14 %, product
+     * from 1500000. Measured queens in this band stay past 16 %. */
     if (product >= HALL_ROYAL_CENTER_PRODUCT && lo >= 1100 &&
-        lo * 10 >= hi * 9) {
+        lo * 50 >= hi * 43) {
         return HALL_PIECE_TYPE_KING;
     }
     return HALL_PIECE_TYPE_QUEEN;
+}
+
+/* Rook and queen energies overlap by one measured rook. Below the product
+ * cut the reading is a rook even when the energy table said queen. At or
+ * above it, a rook-band reading is a queen that dipped under 2511730. */
+static hall_piece_type_t hall_name_rook_or_royal(int32_t c0, int32_t c1) {
+    int32_t lo = abs(c0);
+    int32_t hi = abs(c1);
+    if (lo > hi) {
+        int32_t swap = lo;
+        lo = hi;
+        hi = swap;
+    }
+    if ((int64_t)lo * hi < HALL_ROOK_QUEEN_PRODUCT) {
+        return HALL_PIECE_TYPE_ROOK;
+    }
+    /* 1220 and 1023: 1023*5 >= 1220*4, product 1248060. */
+    if (lo >= 1000 && lo * 5 >= hi * 4 &&
+        (int64_t)lo * hi < HALL_ROOK_CENTER_PRODUCT) {
+        return HALL_PIECE_TYPE_ROOK;
+    }
+    return hall_name_royal(c0, c1);
 }
 
 static uint32_t hall_crc32(const uint8_t *data, size_t len) {
@@ -759,6 +817,7 @@ void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64],
     st->current_piece = HALL_PIECE_TYPE_NONE;
     st->current_color = HALL_PIECE_COLOR_NONE;
     st->occupied = false;
+    st->vacant_scans = 0;
     st->peak_energy = 0;
     st->settle_scans = 0;
     st->stable_scans = 0;
@@ -857,10 +916,12 @@ bool hall_i2c_squares_readings_usable(void) {
   if (!s_i2c_ready || !s_logical_known) {
     return false;
   }
+  /* ever_locked is not required. An occupied square names itself only after
+   * the deviation settles, and one noisy piece used to keep this false.
+   * The guide then never ran, and the boot fade left the whole board dark. */
   for (int sq = 0; sq < 64; sq++) {
     const hall_poc_square_state_t *st = &s_poc_state[sq];
-    if (!st->initialized || !st->ever_locked ||
-        st->ring_count < HALL_POC_SAMPLES_PER_CYCLE) {
+    if (!st->initialized || st->ring_count < HALL_POC_SAMPLES_PER_CYCLE) {
       return false;
     }
   }
@@ -875,6 +936,7 @@ bool hall_i2c_squares_readings_usable(void) {
  */
 static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     hall_poc_square_state_t *st = &s_poc_state[sq];
+    st->identity_settled = false;
 
     /* Nucleo / no-real-data guard: a zero-filled payload is not a Hall sample. */
     if (r0 == HALL_POC_NO_DATA_RAW && r1 == HALL_POC_NO_DATA_RAW) {
@@ -958,8 +1020,24 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     st->live_dev0 = dev0;
     st->live_dev1 = dev1;
     st->live_valid = true;
-    bool present = st->occupied ? (delta >= HALL_POC_DELTA_OFF)
-                                : (delta >= HALL_POC_DELTA_ON);
+    /* One sample under the off threshold used to publish a lift. The king
+     * leaving (or a noisy scan) moves a neighbor for a few scans, the guide
+     * redrew the board, and the lamp path never runs that guide. Hold the
+     * latched piece through a neighbor mask and until the low reading has
+     * lasted a full settle. */
+    bool energy_present = energy >= HALL_POC_ENERGY_ON;
+    bool sensor_present = st->occupied
+                              ? (delta >= HALL_POC_DELTA_OFF || energy_present)
+                              : (delta >= HALL_POC_DELTA_ON || energy_present);
+    if (!st->occupied || sensor_present) {
+        st->vacant_scans = 0;
+    } else if (st->vacant_scans < 255) {
+        st->vacant_scans++;
+    }
+    bool present = sensor_present ||
+                   (st->occupied &&
+                    (st->mask_scans > 0 ||
+                     st->vacant_scans < HALL_LIFT_CONFIRM_SCANS));
     if (present != st->occupied) {
         st->stable_scans = 0;
     }
@@ -1006,8 +1084,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
             st->current_piece = HALL_PIECE_TYPE_NONE;
             st->current_color = HALL_PIECE_COLOR_NONE;
             if (!s_mag_on) {
-                ESP_LOGW(TAG, ">>> POC sq %02u changed to [Empty None] (E=%ld) <<<",
-                         (unsigned)sq, (long)energy);
+                ESP_LOGI(TAG, "sq %u empty E=%ld", (unsigned)sq, (long)energy);
             }
         }
         st->ever_locked = true;
@@ -1019,7 +1096,9 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         if (st->stable_scans >= HALL_STABLE_SCANS) {
             st->reported = true;
         }
-        if (!hold_neighbor && st->stable_scans >= HALL_STABLE_SCANS) {
+        /* Do not rename a piece from the collapsing field as it leaves. */
+        if (!hold_neighbor && sensor_present && st->vacant_scans == 0 &&
+            st->stable_scans >= HALL_STABLE_SCANS) {
             int32_t base0 = st->ctx_valid ? st->ctx_ref[0] : st->midpoint[0];
             int32_t base1 = st->ctx_valid ? st->ctx_ref[1] : st->midpoint[1];
             int32_t c0 = (int32_t)filt0 - base0;
@@ -1036,53 +1115,78 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
                                   st->current_piece);
             hall_piece_type_t raw_piece =
                 (thr != NULL) ? thr->type : HALL_PIECE_TYPE_NONE;
-            if (raw_piece == HALL_PIECE_TYPE_QUEEN) {
-                raw_piece = hall_name_royal(c0, c1);
-                bool was_royal =
-                    st->current_piece == HALL_PIECE_TYPE_QUEEN ||
-                    st->current_piece == HALL_PIECE_TYPE_KING;
-                if (was_royal && raw_piece != st->current_piece) {
-                    if (st->pending_piece == raw_piece) {
-                        if (st->stable_ticks < 1000) {
-                            st->stable_ticks++;
-                        }
-                    } else {
-                        st->pending_piece = raw_piece;
-                        st->stable_ticks = 1;
-                    }
-                    if (st->stable_ticks < HALL_ROYAL_SWITCH_SCANS) {
-                        raw_piece = st->current_piece;
-                    }
-                } else {
-                    st->pending_piece = HALL_PIECE_TYPE_NONE;
-                    st->stable_ticks = 0;
-                }
+            if (raw_piece == HALL_PIECE_TYPE_ROOK ||
+                raw_piece == HALL_PIECE_TYPE_QUEEN) {
+                raw_piece = hall_name_rook_or_royal(c0, c1);
             }
             int32_t dominant = (abs(c0) > abs(c1)) ? c0 : c1;
             hall_piece_color_t raw_color = (dominant > 0)
                                                ? HALL_PIECE_COLOR_WHITE
                                                : HALL_PIECE_COLOR_BLACK;
             if (raw_piece == HALL_PIECE_TYPE_NONE) {
-                if (st->current_piece != HALL_PIECE_TYPE_NONE) {
-                    st->current_piece = HALL_PIECE_TYPE_NONE;
-                    st->current_color = HALL_PIECE_COLOR_NONE;
-                    if (!s_mag_on) {
-                        ESP_LOGW(TAG, ">>> POC sq %02u changed to [Empty None] (E=%ld %s) <<<",
-                                 (unsigned)sq, (long)energy,
-                                 st->ctx_valid ? "ctx" : "mid");
-                    }
-                }
-            } else if (st->current_piece != raw_piece || st->current_color != raw_color) {
+                raw_color = HALL_PIECE_COLOR_NONE;
+            }
+            /* The guide lights a square from this name. One noisy scan used
+             * to retitle a piece that had not moved, and the color blinked.
+             * The first name still lands immediately. A later change has to
+             * repeat. Queen and king keep the longer switch. */
+            bool same = st->current_piece == raw_piece &&
+                        st->current_color == raw_color;
+            if (same) {
+                st->pending_piece = HALL_PIECE_TYPE_NONE;
+                st->pending_color = HALL_PIECE_COLOR_NONE;
+                st->stable_ticks = 0;
+            } else if (st->current_piece == HALL_PIECE_TYPE_NONE &&
+                       raw_piece != HALL_PIECE_TYPE_NONE) {
                 st->ever_locked = true;
                 st->current_piece = raw_piece;
                 st->current_color = raw_color;
+                st->pending_piece = HALL_PIECE_TYPE_NONE;
+                st->pending_color = HALL_PIECE_COLOR_NONE;
+                st->stable_ticks = 0;
                 if (!s_mag_on) {
-                    ESP_LOGW(TAG, ">>> POC sq %02u changed to [%s %s] (E=%ld d0=%ld d1=%ld %s) <<<",
+                    ESP_LOGI(TAG, "sq %u %s %s E=%ld d0=%ld d1=%ld",
                              (unsigned)sq,
                              hall_i2c_squares_piece_color_name(st->current_color),
                              hall_i2c_squares_piece_type_name(st->current_piece),
-                             (long)energy, (long)c0, (long)c1,
-                             st->ctx_valid ? "ctx" : "mid");
+                             (long)energy, (long)c0, (long)c1);
+                }
+            } else if (st->pending_piece == raw_piece &&
+                       st->pending_color == raw_color) {
+                if (st->stable_ticks < 1000) {
+                    st->stable_ticks++;
+                }
+            } else {
+                st->pending_piece = raw_piece;
+                st->pending_color = raw_color;
+                st->stable_ticks = 1;
+            }
+            if (!same && st->stable_ticks > 0) {
+                bool royal_pair =
+                    (st->current_piece == HALL_PIECE_TYPE_QUEEN ||
+                     st->current_piece == HALL_PIECE_TYPE_KING) &&
+                    (raw_piece == HALL_PIECE_TYPE_QUEEN ||
+                     raw_piece == HALL_PIECE_TYPE_KING);
+                int need = royal_pair ? HALL_ROYAL_SWITCH_SCANS : HALL_STABLE_SCANS;
+                if (st->stable_ticks >= need) {
+                    st->ever_locked = true;
+                    st->current_piece = raw_piece;
+                    st->current_color = raw_color;
+                    st->pending_piece = HALL_PIECE_TYPE_NONE;
+                    st->pending_color = HALL_PIECE_COLOR_NONE;
+                    st->stable_ticks = 0;
+                    if (!s_mag_on) {
+                        if (raw_piece == HALL_PIECE_TYPE_NONE) {
+                            ESP_LOGI(TAG, "sq %u empty E=%ld", (unsigned)sq,
+                                     (long)energy);
+                        } else {
+                            ESP_LOGI(TAG, "sq %u %s %s E=%ld d0=%ld d1=%ld",
+                                     (unsigned)sq,
+                                     hall_i2c_squares_piece_color_name(st->current_color),
+                                     hall_i2c_squares_piece_type_name(st->current_piece),
+                                     (long)energy, (long)c0, (long)c1);
+                        }
+                    }
                 }
             }
         }
@@ -1127,6 +1231,11 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         }
     }
 
+    st->identity_settled = sensor_present && st->vacant_scans == 0 &&
+                           st->occupied &&
+                           st->stable_scans >= HALL_STABLE_SCANS &&
+                           st->current_piece != HALL_PIECE_TYPE_NONE &&
+                           st->current_color != HALL_PIECE_COLOR_NONE;
     return st->reported ? 1u : 0u;
 }
 
@@ -1201,23 +1310,17 @@ esp_err_t hall_i2c_squares_probe_segment(uint8_t segment_0_to_3, int timeout_ms)
 #endif
 }
 
-void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
-  if (!s_i2c_ready || squares_state == NULL) {
-    return;
-  }
+static uint8_t s_seg_backoff[4];
 
-  uint8_t buf[HALL_I2C_PAYLOAD_BYTES];
-  static uint32_t s_scan;
+typedef struct {
+  uint8_t valid;
+  uint8_t seg_ok[4];
+  uint8_t payload[4][HALL_I2C_PAYLOAD_BYTES];
+} hall_scan_scratch_t;
 
-  s_scan++;
+static hall_scan_scratch_t s_hall_scan;
 
-#if CONFIG_CHESS_HALL_LOG_INTERVAL_SCANS > 0
-  bool do_log = (s_scan % (uint32_t)CONFIG_CHESS_HALL_LOG_INTERVAL_SCANS) == 1;
-#else
-  bool do_log = false;
-#endif
-
-  /* After adding a Kconfig entry, the old sdkconfig macro may not have — default 4 segments. */
+static unsigned hall_cfg_segment_count(void) {
 #if defined(CONFIG_CHESS_HALL_SEGMENT_COUNT)
   unsigned seg_max = (unsigned)CONFIG_CHESS_HALL_SEGMENT_COUNT;
 #else
@@ -1229,7 +1332,76 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
   if (seg_max < 1u) {
     seg_max = 1u;
   }
+  return seg_max;
+}
 
+void hall_i2c_squares_prepare_scan(void) {
+  s_hall_scan.valid = 0;
+  if (!s_i2c_ready) {
+    return;
+  }
+
+  unsigned seg_max = hall_cfg_segment_count();
+  memset(s_hall_scan.seg_ok, 0, sizeof(s_hall_scan.seg_ok));
+  for (unsigned seg = 0; seg < seg_max; seg++) {
+    if (s_seg_backoff[seg] > 0) {
+      s_seg_backoff[seg]--;
+      continue;
+    }
+    uint8_t addr = segment_addr(seg);
+    esp_err_t err = hall_i2c_read_at(addr, s_hall_scan.payload[seg],
+                                    HALL_I2C_PAYLOAD_BYTES,
+                                    HALL_I2C_READ_TIMEOUT_MS);
+    if (err != ESP_OK) {
+      s_seg_backoff[seg] = HALL_I2C_FAIL_BACKOFF_SCANS;
+      uint8_t bit = (uint8_t)(1u << seg);
+      if ((s_read_fail_warned_mask & bit) == 0) {
+        ESP_LOGW(TAG,
+                 "segment %u addr 0x%02x read failed: %s "
+                 "(backing off %u scans)",
+                 seg, addr, esp_err_to_name(err),
+                 (unsigned)HALL_I2C_FAIL_BACKOFF_SCANS);
+        s_read_fail_warned_mask |= bit;
+      } else {
+        ESP_LOGD(TAG, "segment %u addr 0x%02x read failed: %s", seg, addr,
+                 esp_err_to_name(err));
+      }
+      continue;
+    }
+    s_read_fail_warned_mask &= (uint8_t)~((uint8_t)(1u << seg));
+    s_hall_scan.seg_ok[seg] = 1;
+  }
+  s_hall_scan.valid = 1;
+}
+
+bool hall_i2c_squares_segments_ok(void) {
+  if (!s_i2c_ready) {
+    return false;
+  }
+  unsigned seg_max = hall_cfg_segment_count();
+  for (unsigned seg = 0; seg < seg_max; seg++) {
+    if (!s_hall_scan.seg_ok[seg]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void hall_i2c_squares_publish_scan(uint8_t squares_state[64]) {
+  if (!s_i2c_ready || squares_state == NULL || !s_hall_scan.valid) {
+    return;
+  }
+  s_hall_scan.valid = 0;
+
+  static uint32_t s_scan;
+  s_scan++;
+#if CONFIG_CHESS_HALL_LOG_INTERVAL_SCANS > 0
+  bool do_log = (s_scan % (uint32_t)CONFIG_CHESS_HALL_LOG_INTERVAL_SCANS) == 1;
+#else
+  bool do_log = false;
+#endif
+
+  unsigned seg_max = hall_cfg_segment_count();
   for (unsigned seg = seg_max; seg < 4u; seg++) {
     for (unsigned field = 0; field < HALL_I2C_FIELDS_PER_SEGMENT; field++) {
       uint8_t sq = hall_map_segment_field_to_square(seg, field);
@@ -1241,26 +1413,11 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
   }
 
   for (unsigned seg = 0; seg < seg_max; seg++) {
-    uint8_t addr = segment_addr(seg);
-    esp_err_t err = hall_i2c_read_at(addr, buf, sizeof(buf), 80);
-
-    if (err != ESP_OK) {
-      uint8_t bit = (uint8_t)(1u << seg);
-      if ((s_read_fail_warned_mask & bit) == 0) {
-        ESP_LOGW(TAG,
-                 "segment %u addr 0x%02x read failed: %s "
-                 "(another failure of the same segment only DEBUG)",
-                 seg, addr, esp_err_to_name(err));
-        s_read_fail_warned_mask |= bit;
-      } else {
-        ESP_LOGD(TAG, "segment %u addr 0x%02x read failed: %s", seg, addr,
-                 esp_err_to_name(err));
-      }
+    if (!s_hall_scan.seg_ok[seg]) {
       continue;
     }
-
-    s_read_fail_warned_mask &= (uint8_t)~((uint8_t)(1u << seg));
-
+    uint8_t addr = segment_addr(seg);
+    const uint8_t *buf = s_hall_scan.payload[seg];
     for (unsigned field = 0; field < HALL_I2C_FIELDS_PER_SEGMENT; field++) {
       unsigned off = field * sizeof(uint16_t) * HALL_I2C_SENSORS_PER_FIELD;
       uint16_t r0 = hall_i2c_spec_read_le16(&buf[off]);
@@ -1288,6 +1445,11 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
   }
   hall_baseline_flush();
   hall_mag_light_locked();
+}
+
+void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
+  hall_i2c_squares_prepare_scan();
+  hall_i2c_squares_publish_scan(squares_state);
 }
 
 unsigned hall_i2c_squares_segment_count(void) {
@@ -1371,8 +1533,8 @@ static void hall_dbg_log_settled(unsigned seg, unsigned field, uint8_t row,
   int d0 = (s0 < 0) ? -s0 : s0;
   int d1 = (s1 < 0) ? -s1 : s1;
   hall_piece_type_t piece = hall_dbg_piece_type(energy);
-  if (piece == HALL_PIECE_TYPE_QUEEN) {
-    piece = hall_name_royal(s0, s1);
+  if (piece == HALL_PIECE_TYPE_ROOK || piece == HALL_PIECE_TYPE_QUEEN) {
+    piece = hall_name_rook_or_royal(s0, s1);
   }
   int dominant = (d0 > d1) ? s0 : s1;
   hall_piece_color_t color =
@@ -1664,6 +1826,12 @@ void hall_i2c_squares_fill_state(uint8_t squares_state[64]) {
   }
 }
 
+void hall_i2c_squares_prepare_scan(void) {}
+
+void hall_i2c_squares_publish_scan(uint8_t squares_state[64]) {
+  (void)squares_state;
+}
+
 unsigned hall_i2c_squares_segment_count(void) { return 0; }
 
 void hall_i2c_squares_corner_probe(void) {}
@@ -1683,6 +1851,8 @@ esp_err_t hall_i2c_squares_read_segment_raw(uint8_t segment_0_to_3,
 }
 
 bool hall_i2c_squares_readings_usable(void) { return true; }
+
+bool hall_i2c_squares_segments_ok(void) { return true; }
 
 void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64],
                                         const uint8_t piece_types[64]) {
@@ -1718,6 +1888,17 @@ const char* hall_i2c_squares_piece_color_name(hall_piece_color_t color) {
   }
 }
 
+bool hall_i2c_squares_identity_settled(uint8_t square) {
+  if (square >= 64) {
+    return false;
+  }
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  return s_poc_state[square].identity_settled;
+#else
+  return false;
+#endif
+}
+
 hall_piece_type_t hall_i2c_squares_get_piece_type(uint8_t square) {
   if (square >= 64) {
     return HALL_PIECE_TYPE_NONE;
@@ -1726,6 +1907,26 @@ hall_piece_type_t hall_i2c_squares_get_piece_type(uint8_t square) {
   return s_poc_state[square].current_piece;
 #else
   return HALL_PIECE_TYPE_NONE;
+#endif
+}
+
+bool hall_i2c_squares_get_reading(uint8_t square, hall_square_reading_t *out) {
+  if (square >= 64 || out == NULL) {
+    return false;
+  }
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  const hall_poc_square_state_t *st = &s_poc_state[square];
+  out->energy = st->live_energy;
+  out->dev0 = st->live_dev0;
+  out->dev1 = st->live_dev1;
+  out->type = st->current_piece;
+  out->color = st->current_color;
+  out->occupied = st->occupied ? 1u : 0u;
+  out->valid = st->live_valid ? 1u : 0u;
+  return true;
+#else
+  (void)out;
+  return false;
 #endif
 }
 

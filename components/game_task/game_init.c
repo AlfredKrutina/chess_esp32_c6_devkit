@@ -11,6 +11,7 @@
 #include "game_squares_guard.h"
 #include "game_hall_match.h"
 #include "game_hall_hand.h"
+#include "game_hall_restore_guide.h"
 #include "chess_gameplay_policy.h"
 
 #include "../ha_light_task/include/ha_light_task.h"
@@ -449,29 +450,13 @@ bool game_is_physical_board_starting_occupancy(void) {
 }
 
 bool game_finish_board_setup_tutorial_from_web(void) {
-  bool physical_ok = false;
-  if (game_mutex != NULL) {
-    if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(2000)) != pdTRUE) {
-      return false;
-    }
-  }
   if (!board_setup_tutorial_active) {
-    if (game_mutex != NULL) {
-      xSemaphoreGive(game_mutex);
-    }
     return false;
   }
-  physical_ok = game_is_board_in_starting_position();
-  if (!physical_ok) {
-    if (game_mutex != NULL) {
-      xSemaphoreGive(game_mutex);
-    }
+  if (!game_is_board_in_starting_position()) {
     return false;
   }
   board_setup_tutorial_active = false;
-  if (game_mutex != NULL) {
-    xSemaphoreGive(game_mutex);
-  }
   game_start_new_game();
   STAGING_LOGI(TAG,
                "board_setup_tutorial: finish OK — physical start, new game");
@@ -499,6 +484,9 @@ void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
   game_opening_cancel();
   game_puzzle_cancel();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_restore_guide_force_resync();
+#endif
 
   game_task_wdt_reset_safe();
   game_task_wdt_reset_safe();
@@ -596,29 +584,24 @@ void game_start_new_game(void) {
   auto_new_game_blocked_until_move = false; // Reset block flag too
   ESP_LOGI(TAG, "✅ Auto new game detection flags reset for new game");
 
-  // Boot sequence: first game vs. restart.
-  if (total_games >= 1) { // Enable highlight even for the first game!
-    // Restart the game - highlight moving pieces
-    vTaskDelay(pdMS_TO_TICKS(100)); // A short pause for stabilization
-    game_task_wdt_reset_safe();
-    chess_policy_highlight_movable_if_enabled();
-    game_task_wdt_reset_safe();
-    ESP_LOGI(TAG,
-             "✅ Highlighted movable pieces for starting player (restart)");
-  } else {
-    // First game - boot sequence still in progress, skip highlight
-    ESP_LOGI(
-        TAG,
-        "⏸️  Boot sequence: Skipping movable pieces highlight (first game)");
-  }
+  vTaskDelay(pdMS_TO_TICKS(100));
+  game_task_wdt_reset_safe();
+  chess_policy_highlight_movable_if_enabled();
+  game_task_wdt_reset_safe();
   game_bump_revision_and_notify();
   game_snapshot_persist_after_valid_move();
 }
 
-void game_start_new_game_from_fen(const char *fen) {
+bool game_start_new_game_from_fen(const char *fen) {
   if (fen == NULL || fen[0] == '\0') {
     game_start_new_game();
-    return;
+    return true;
+  }
+
+  game_fen_position_t parsed;
+  if (!game_parse_fen(fen, &parsed)) {
+    ESP_LOGE(TAG, "FEN rejected, current game left unchanged");
+    return false;
   }
 
   ESP_LOGI(TAG, "Starting new game from FEN...");
@@ -635,22 +618,9 @@ void game_start_new_game_from_fen(const char *fen) {
 
   player_t fen_player = PLAYER_WHITE;
   if (!game_load_position_from_fen(fen, &fen_player)) {
-    ESP_LOGE(TAG, "FEN parse failed, falling back to standard new game");
-    game_start_new_game();
-    return;
+    ESP_LOGE(TAG, "FEN rejected after reset");
+    return false;
   }
-
-  white_king_moved = true;
-  black_king_moved = true;
-  white_rook_a_moved = true;
-  white_rook_h_moved = true;
-  black_rook_a_moved = true;
-  black_rook_h_moved = true;
-  en_passant_available = false;
-  en_passant_target_row = 0;
-  en_passant_target_col = 0;
-  en_passant_victim_row = 0;
-  en_passant_victim_col = 0;
 
   puzzle_active = false;
   puzzle_active_id = 0;
@@ -680,10 +650,7 @@ void game_start_new_game_from_fen(const char *fen) {
   black_checks = 0;
   white_castles = 0;
   black_castles = 0;
-  moves_without_capture = 0;
   max_moves_without_capture = 0;
-  game_set_fifty_move_counter(0);
-  position_history_count = 0;
   game_result = GAME_STATE_IDLE;
   game_saved = false;
   saved_game_name[0] = '\0';
@@ -705,13 +672,12 @@ void game_start_new_game_from_fen(const char *fen) {
   auto_new_game_triggered = false;
   auto_new_game_blocked_until_move = false;
 
-  if (total_games >= 1) {
-    vTaskDelay(pdMS_TO_TICKS(100));
-    game_task_wdt_reset_safe();
-    chess_policy_highlight_movable_if_enabled();
-    game_task_wdt_reset_safe();
-  }
+  vTaskDelay(pdMS_TO_TICKS(100));
+  game_task_wdt_reset_safe();
+  chess_policy_highlight_movable_if_enabled();
+  game_task_wdt_reset_safe();
   game_bump_revision_and_notify();
   game_snapshot_persist_after_valid_move();
+  return true;
 }
 

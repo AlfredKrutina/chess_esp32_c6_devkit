@@ -1953,6 +1953,34 @@ command_result_t uart_cmd_hall(const char *args) {
     return CMD_SUCCESS;
   }
 
+  if (args != NULL && strcasecmp(args, "BOARD") == 0) {
+    hall_square_reading_t reading;
+    if (!hall_i2c_squares_get_reading(0, &reading)) {
+      uart_send_line("Hall board needs the Hall build");
+      return CMD_ERROR_INVALID_PARAMETER;
+    }
+    uart_send_line("sq  type   color occ   energy   dev0   dev1");
+    for (int rank = 7; rank >= 0; rank--) {
+      for (int file = 0; file < 8; file++) {
+        char line[80];
+        uint8_t square = (uint8_t)(rank * 8 + file);
+        hall_i2c_squares_get_reading(square, &reading);
+        if (!reading.valid) {
+          snprintf(line, sizeof(line), "%c%d  ----", 'a' + file, rank + 1);
+        } else {
+          snprintf(line, sizeof(line), "%c%d  %-6s %-5s %u %8ld %6ld %6ld",
+                   'a' + file, rank + 1,
+                   hall_i2c_squares_piece_type_name(reading.type),
+                   hall_i2c_squares_piece_color_name(reading.color),
+                   (unsigned)reading.occupied, (long)reading.energy,
+                   (long)reading.dev0, (long)reading.dev1);
+        }
+        uart_send_line(line);
+      }
+    }
+    return CMD_SUCCESS;
+  }
+
   uint8_t square = 28;
   if (!uart_hall_square_arg(args, &square)) {
     uart_send_line("Usage: HALL [e4]   or   HALL OFF");

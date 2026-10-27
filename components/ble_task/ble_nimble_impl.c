@@ -37,6 +37,7 @@ void ble_store_config_init(void);
 #include "ota_update.h"
 #include "transport_policy.h"
 #include "web_server_task.h"
+#include "web_server_internal.h"
 #include <assert.h>
 #include <inttypes.h>
 #include <string.h>
@@ -319,9 +320,11 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       }
       if (len > 65535U) {
         ESP_LOGW(TAG, "[STAGING] BLE read snapshot: JSON > 65535 B");
+        web_snapshot_buffer_release();
         return BLE_ATT_ERR_UNLIKELY;
       }
       int rc = os_mbuf_append(ctxt->om, snap, (uint16_t)len);
+      web_snapshot_buffer_release();
       if (rc != 0) {
         ESP_LOGW(TAG, "[STAGING] os_mbuf_append failed rc=%d", rc);
         return BLE_ATT_ERR_INSUFFICIENT_RES;

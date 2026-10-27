@@ -270,6 +270,12 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                             .user_ctx = NULL};
   httpd_register_uri_handler(handle, &resign_uri);
 
+  httpd_uri_t draw_uri = {.uri = "/api/game/draw",
+                          .method = HTTP_POST,
+                          .handler = http_post_game_draw_handler,
+                          .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &draw_uri);
+
   // Handler for Hint highlight (LED)
   httpd_uri_t hint_highlight_uri = {.uri = "/api/game/hint_highlight",
                                     .method = HTTP_POST,
@@ -333,6 +339,12 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
                                     .handler = http_post_light_game_mode_handler,
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &light_game_mode_uri);
+
+  httpd_uri_t light_pattern_uri = {.uri = "/api/light/pattern",
+                                   .method = HTTP_POST,
+                                   .handler = http_post_light_pattern_handler,
+                                   .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &light_pattern_uri);
 
   // Handlers for the MQTT API
   httpd_uri_t mqtt_status_uri = {.uri = "/api/mqtt/status",

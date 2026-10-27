@@ -622,6 +622,60 @@ esp_err_t http_post_light_command_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+static int light_json_int(const char *content, const char *key, int fallback) {
+  char pat[16];
+  snprintf(pat, sizeof(pat), "\"%s\":", key);
+  const char *p = strstr(content, pat);
+  if (p == NULL) {
+    return fallback;
+  }
+  int v = fallback;
+  sscanf(p + strlen(pat), "%d", &v);
+  if (v < 0) {
+    v = 0;
+  }
+  if (v > 255) {
+    v = 255;
+  }
+  return v;
+}
+
+esp_err_t http_post_light_pattern_handler(httpd_req_t *req) {
+  char content[256];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "{\"success\":false}", -1);
+    return ESP_OK;
+  }
+  content[ret] = '\0';
+  bool on = strstr(content, "\"on\":true") != NULL ||
+            strstr(content, "\"on\": true") != NULL;
+  bool clear_map = strstr(content, "\"clear\":true") != NULL ||
+                   strstr(content, "\"clear\": true") != NULL;
+  int pen = light_json_int(content, "pen", 0) ? 1 : 0;
+  int ar = light_json_int(content, "ar", 255);
+  int ag = light_json_int(content, "ag", 255);
+  int ab = light_json_int(content, "ab", 255);
+  int br = light_json_int(content, "br", 40);
+  int bg = light_json_int(content, "bg", 90);
+  int bb = light_json_int(content, "bb", 255);
+  uint8_t action = on ? HA_PAT_ON : HA_PAT_COLORS;
+  if (!on && clear_map) {
+    action = HA_PAT_CLEAR;
+  }
+  if (!ha_pattern_request(action, 0, (uint8_t)pen, (uint8_t)ar, (uint8_t)ag,
+                          (uint8_t)ab, (uint8_t)br, (uint8_t)bg, (uint8_t)bb, 1,
+                          clear_map ? 1 : 0)) {
+    httpd_resp_set_status(req, "503 Service Unavailable");
+    httpd_resp_send(req, "{\"success\":false}", -1);
+    return ESP_OK;
+  }
+  httpd_resp_set_type(req, "application/json");
+  httpd_resp_send(req, "{\"success\":true}", -1);
+  return ESP_OK;
+}
+
 esp_err_t http_post_light_game_mode_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/light/game_mode");
   ha_light_report_activity("web_game_mode");

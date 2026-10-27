@@ -12,6 +12,7 @@
 #include "game_hall_match.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
+#include "game_hall_position.h"
 #endif
 
 #include "../config_manager/include/config_manager.h"
@@ -243,15 +244,7 @@ static void game_physical_undo_build_target_board(piece_t target[8][8],
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 static bool game_physical_undo_target_matches_hall(const piece_t target[8][8]) {
-  uint8_t phys[64] = {0};
-  squares_get_state(phys);
-  for (uint8_t sq = 0; sq < 64; sq++) {
-    piece_t expect = target[sq / 8][sq % 8];
-    if (!game_hall_square_agrees_with_logic(sq, expect, phys[sq])) {
-      return false;
-    }
-  }
-  return true;
+  return game_hall_positions_equal(target);
 }
 #else
 static bool game_physical_undo_target_matches_reed(const piece_t target[8][8],
@@ -276,6 +269,17 @@ static bool game_physical_undo_target_matches_reed(const piece_t target[8][8],
   return true;
 }
 #endif
+
+bool game_physical_undo_copy_previous(piece_t dest[8][8]) {
+  chess_move_t m;
+  move_type_t kind;
+  move_undo_meta_t meta;
+  if (dest == NULL || !game_physical_undo_load_last(&m, &kind, &meta)) {
+    return false;
+  }
+  game_physical_undo_build_target_board(dest, &m, kind, &meta);
+  return true;
+}
 
 static bool game_physical_undo_physical_matches_target(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -483,13 +487,21 @@ bool game_undo_rewind_last_move(void) {
 
   ESP_LOGI(TAG, "Undo applied (kind=%d), side to move: %s", (int)kind,
            current_player == PLAYER_WHITE ? "White" : "Black");
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_snapshot_last_valid();
+#endif
   return true;
 }
 
 void game_physical_undo_tick(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* Hall takeback is a stable previous position, not a per-tick LED redraw. */
+  return;
+#else
   if (s_undo.phase == PHYS_UNDO_PENDING) {
     game_physical_undo_show_pending_leds();
   }
+#endif
 }
 
 bool game_physical_undo_intercept_pickup(uint8_t row, uint8_t col) {
@@ -565,6 +577,13 @@ static bool game_physical_undo_drop_is_last_reverse(uint8_t to_row,
 bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
                                       uint8_t from_row, uint8_t from_col,
                                       piece_t piece) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  (void)cmd;
+  (void)from_row;
+  (void)from_col;
+  (void)piece;
+  return false;
+#else
   (void)cmd;
 
   if (s_undo.phase != PHYS_UNDO_IDLE && !game_physical_undo_enabled()) {
@@ -606,10 +625,17 @@ bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
            'a' + from_col, from_row + 1, 'a' + s_undo.blue_col,
            s_undo.blue_row + 1);
   return true;
+#endif
 }
 
 bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
                                     uint8_t to_row, uint8_t to_col) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  (void)cmd;
+  (void)to_row;
+  (void)to_col;
+  return false;
+#else
   (void)cmd;
 
   if (s_undo.phase != PHYS_UNDO_IDLE && !game_physical_undo_enabled()) {
@@ -699,4 +725,5 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
   game_physical_undo_show_armed_leds();
   led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
   return true;
+#endif
 }

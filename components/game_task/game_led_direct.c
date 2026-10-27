@@ -202,40 +202,6 @@ void game_show_check_direct(uint8_t king_row, uint8_t king_col) {
     ESP_LOGI(TAG, "Check indication: King at %d,%d (LED %d) - PURPLE", king_row, king_col, led_index);
 }
 
-/**
- * @brief Show player change with wave animation
- * 
- * @param current_player The current player
- * 
- * @details
- * Shows a wave animation from the center when the player changes.
- */
-void game_show_player_change_direct(player_t current_player) {
-    // Clear previous highlights
-    game_clear_highlights_direct();
-    
-    // Wave animation from center
-    uint8_t r = (current_player == PLAYER_WHITE) ? 255 : 0;
-    uint8_t g = (current_player == PLAYER_WHITE) ? 255 : 255;
-    uint8_t b = (current_player == PLAYER_WHITE) ? 255 : 0;
-    
-    // Wave animation - progressive lighting from center
-    for (int wave = 0; wave < 4; wave++) {
-        for (int i = 0; i < 64; i++) {
-            int row = i / 8;
-            int col = i % 8;
-            int center_dist = abs(row - 3) + abs(col - 3); // Distance from center
-            
-            if (center_dist == wave) {
-                led_set_pixel_safe(i, r, g, b);
-            }
-        }
-        vTaskDelay(pdMS_TO_TICKS(100)); // 100ms delay between waves
-    }
-    
-    ESP_LOGI(TAG, "Player change animation: %s - WAVE", (current_player == PLAYER_WHITE) ? "WHITE" : "BLACK");
-}
-
 // ============================================================================
 // ERROR HANDLING LED FUNCTIONS
 // ============================================================================

@@ -12,6 +12,7 @@
 #include "game_squares_guard.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
+#include "game_hall_position.h"
 #endif
 
 #include "../led_task/include/led_task.h"
@@ -87,16 +88,6 @@ void game_promotion_finish_turn(void) {
                                  .data = NULL};
     led_execute_command_new(&endgame_cmd);
   } else {
-    uint8_t player_color = (current_player == PLAYER_WHITE) ? 1 : 0;
-    led_command_t player_change_cmd = {.type = LED_CMD_ANIM_PLAYER_CHANGE,
-                                       .led_index = 0,
-                                       .red = 0,
-                                       .green = 0,
-                                       .blue = 0,
-                                       .duration_ms = 0,
-                                       .data = &player_color};
-    led_execute_command_new(&player_change_cmd);
-
     game_check_promotion_needed();
     chess_policy_highlight_movable_if_enabled();
     led_force_immediate_update();
@@ -228,6 +219,7 @@ void game_promotion_sync_hall_if_pending(void) {
     promotion_state.pending = false;
     game_move_undo_meta_on_promotion_completed(mapped);
     game_promotion_finish_turn();
+    game_hall_snapshot_last_valid();
   }
 
   xSemaphoreGiveRecursive(promotion_mutex);

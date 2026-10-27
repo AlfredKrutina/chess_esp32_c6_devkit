@@ -451,8 +451,10 @@ bool game_puzzle_try_start_staged(void) {
     char fen_copy[PUZZLE_FEN_MAX];
     strncpy(fen_copy, puzzle_fen, sizeof(fen_copy) - 1);
     fen_copy[sizeof(fen_copy) - 1] = '\0';
-    game_puzzle_cancel();
-    game_start_new_game_from_fen(fen_copy);
+    if (!game_start_new_game_from_fen(fen_copy)) {
+      STAGING_LOGI(TAG, "puzzle: position-only FEN rejected");
+      return false;
+    }
     STAGING_LOGI(TAG, "puzzle: position only (no solution line)");
     return true;
   }

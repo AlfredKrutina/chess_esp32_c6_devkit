@@ -4,6 +4,7 @@
  */
 
 #include "game_hall_match.h"
+#include "game_hall_hand.h"
 #include "game_task_internal.h"
 #include "../squares_task/include/squares_task.h"
 
@@ -97,10 +98,7 @@ bool game_hall_validate_pickup_square(uint8_t row, uint8_t col,
   }
 
   if (!game_hall_stable_reading_matches(engine_piece, ht, hc)) {
-    ESP_LOGW(TAG,
-             "pickup %u: Hall [%s %s] != engine piece %d (kept)",
-             (unsigned)sq, squares_get_hall_piece_color_name(hc),
-             squares_get_hall_piece_type_name(ht), (int)engine_piece);
+    /* game keeps the engine piece. A settled contradiction is attention, not a rename. */
   }
   return true;
 }
@@ -254,21 +252,85 @@ bool game_hall_logic_matches_stable_sensors(const uint8_t sensor_occ[64]) {
 bool game_hall_square_agrees_with_logic(uint8_t square, piece_t engine_piece,
                                         uint8_t sensor_occ) {
   if (engine_piece == PIECE_EMPTY) {
-    return sensor_occ == 0 &&
-           squares_get_hall_piece_type(square) == HALL_PIECE_TYPE_NONE;
+    return sensor_occ == 0;
   }
   if (sensor_occ == 0) {
     return false;
   }
   hall_piece_type_t ht = squares_get_hall_piece_type(square);
   hall_piece_color_t hc = squares_get_hall_piece_color(square);
-  hall_piece_type_t want_type;
+  if (!hall_i2c_squares_identity_settled(square) || ht == HALL_PIECE_TYPE_NONE ||
+      hc == HALL_PIECE_COLOR_NONE) {
+    return true;
+  }
+  return game_hall_identity_matches(engine_piece, ht, hc);
+}
+
+static bool hall_piece_matches_reading(piece_t piece, hall_piece_type_t ht,
+                                      hall_piece_color_t hc) {
+  hall_piece_type_t want;
   hall_piece_color_t want_color;
-  if (!game_hall_engine_to_sensor(engine_piece, &want_type, &want_color)) {
+  if (!game_hall_engine_to_sensor(piece, &want, &want_color) ||
+      hc != want_color) {
     return false;
   }
-  (void)want_type;
-  return ht != HALL_PIECE_TYPE_NONE && hc == want_color;
+  if (ht == want) {
+    return true;
+  }
+  bool want_royal = want == HALL_PIECE_TYPE_KING || want == HALL_PIECE_TYPE_QUEEN;
+  bool seen_royal = ht == HALL_PIECE_TYPE_KING || ht == HALL_PIECE_TYPE_QUEEN;
+  return want_royal && seen_royal;
+}
+
+bool game_hall_identity_matches(piece_t piece, hall_piece_type_t ht,
+                                hall_piece_color_t hc) {
+  return hall_piece_matches_reading(piece, ht, hc);
+}
+
+int game_hall_relocated_origin(uint8_t placed, const uint8_t occ[64]) {
+  if (occ == NULL || placed >= 64) {
+    return -1;
+  }
+  hall_piece_type_t ht = squares_get_hall_piece_type(placed);
+  hall_piece_color_t hc = squares_get_hall_piece_color(placed);
+  if (ht == HALL_PIECE_TYPE_NONE || hc == HALL_PIECE_COLOR_NONE) {
+    return -1;
+  }
+
+  uint8_t seen[64] = {0};
+  int found = -1;
+  int n = 0;
+  for (uint8_t sq = 0; sq < 64; sq++) {
+    if (sq == placed || occ[sq] != 0) {
+      continue;
+    }
+    piece_t piece = board[sq / 8][sq % 8];
+    if (!hall_piece_matches_reading(piece, ht, hc)) {
+      continue;
+    }
+    seen[sq] = 1;
+    found = (int)sq;
+    n++;
+  }
+  for (int i = 0; i < game_hall_hand_count(); i++) {
+    piece_t piece;
+    uint8_t row;
+    uint8_t col;
+    if (!game_hall_hand_get(i, &piece, &row, &col)) {
+      continue;
+    }
+    uint8_t sq = (uint8_t)(row * 8 + col);
+    if (sq >= 64 || sq == placed || occ[sq] != 0 || seen[sq]) {
+      continue;
+    }
+    if (!hall_piece_matches_reading(piece, ht, hc)) {
+      continue;
+    }
+    seen[sq] = 1;
+    found = (int)sq;
+    n++;
+  }
+  return (n == 1) ? found : -1;
 }
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */

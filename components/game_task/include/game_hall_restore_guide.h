@@ -39,6 +39,19 @@ void game_hall_restore_guide_request_sync(void);
 /** @brief Drop the sensor digest and sync even if the pieces did not move. */
 void game_hall_restore_guide_force_resync(void);
 
+/** @brief Opening colors are done. A lifted piece is a move, not setup. */
+void game_hall_restore_guide_end_for_play(void);
+
+/** @brief True after the opening guide has been retired for this game. */
+bool game_hall_restore_guide_in_play(void);
+
+/**
+ * @brief Draw restore paths from the sensors back to board[][] during a game.
+ * Does not arm the matrix-guard baseline. @return true when a plan was applied
+ * or the board is already aligned.
+ */
+bool game_hall_restore_guide_show_play(void);
+
 /**
  * @brief Light every starting home while the board is empty.
  *

@@ -92,6 +92,13 @@ bool chess_policy_move_hints_movable_yellow(void);
  */
 void chess_policy_highlight_movable_if_enabled(void);
 
+/**
+ * @brief Clear the board, draw movable hints, then check overlay if needed.
+ *
+ * No-op while restore guide LEDs are active or special move UX is pending.
+ */
+void chess_policy_refresh_idle_board_leds(void);
+
 /** @return true when CONFIG_CHESS_DIAG_UART_ERROR_DETAIL is set. */
 bool chess_policy_uart_error_detail_enabled(void);
 

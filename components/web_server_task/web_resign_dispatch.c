@@ -151,3 +151,55 @@ esp_err_t http_post_game_resign_handler(httpd_req_t *req) {
   httpd_resp_send(req, out, -1);
   return ESP_OK;
 }
+
+esp_err_t web_server_draw_dispatch(const char **out_error) {
+  if (web_is_locked()) {
+    return resign_refuse("web_locked", out_error);
+  }
+  game_resign_result_t check = game_resign_check(GAME_RESIGN_SIDE_TO_MOVE);
+  if (check != GAME_RESIGN_OK) {
+    return resign_refuse(resign_error_code(check), out_error);
+  }
+  if (game_command_queue == NULL) {
+    if (out_error != NULL) {
+      *out_error = "queue_unavailable";
+    }
+    return ESP_FAIL;
+  }
+  chess_move_command_t cmd = {0};
+  cmd.type = GAME_CMD_DRAW;
+  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+    if (out_error != NULL) {
+      *out_error = "queue_failed";
+    }
+    return ESP_FAIL;
+  }
+  ESP_LOGI(TAG, "draw: queued");
+  return ESP_OK;
+}
+
+esp_err_t http_post_game_draw_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/game/draw");
+  const char *err_code = NULL;
+  esp_err_t err = web_server_draw_dispatch(&err_code);
+  httpd_resp_set_type(req, "application/json");
+  if (err == ESP_OK) {
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_send(req, "{\"success\":true,\"message\":\"Draw agreed\"}", -1);
+    return ESP_OK;
+  }
+  const char *status = "500 Internal Server Error";
+  if (err == ESP_ERR_INVALID_ARG) {
+    status = "400 Bad Request";
+  } else if (err == ESP_ERR_INVALID_STATE) {
+    status = (err_code != NULL && strcmp(err_code, "web_locked") == 0)
+                 ? "403 Forbidden"
+                 : "409 Conflict";
+  }
+  char out[96];
+  snprintf(out, sizeof(out), "{\"success\":false,\"error\":\"%s\"}",
+           err_code != NULL ? err_code : "unknown");
+  httpd_resp_set_status(req, status);
+  httpd_resp_send(req, out, -1);
+  return ESP_OK;
+}

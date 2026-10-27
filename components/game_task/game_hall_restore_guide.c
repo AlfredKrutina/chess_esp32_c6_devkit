@@ -162,6 +162,7 @@ static bool sensors_unchanged(const uint8_t digest[64]) {
 }
 
 static bool s_digest_valid;
+static bool s_opening_done;
 static uint32_t s_opening_deadline_ms;
 static uint8_t s_pending_digest[64];
 static uint32_t s_pending_since_ms;
@@ -180,6 +181,22 @@ static bool occupancy_same(const uint8_t a[64], const uint8_t b[64]) {
 static void remember_digest(const uint8_t digest[64]) {
   memcpy(s_last_sensor_digest, digest, 64);
   s_digest_valid = true;
+}
+
+static bool initial_setup_guide(void) {
+  /* Piece colors are the opening guide only. A game that already has moves,
+   * and the demo, draw their own lights. Once the pieces have sat correctly,
+   * or the player has lifted one to move, those colors stay off. */
+  if (s_opening_done || game_demo_show_active()) {
+    return false;
+  }
+  if (current_game_state == GAME_STATE_IDLE ||
+      current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+    return true;
+  }
+  /* Position check is often off, so the game is already ACTIVE before the
+   * pieces are placed. No moves yet means this is still the opening. */
+  return current_game_state == GAME_STATE_ACTIVE && game_get_move_count() == 0;
 }
 
 static bool mode_blocks_guide(void) {
@@ -254,8 +271,13 @@ static bool collect_board(hall_piece_slot_t *expect, int *expect_n,
     if (occ[sq] != 0) {
       hall_piece_type_t t;
       hall_piece_color_t c;
-      if (!square_phys_identity(sq, &t, &c)) {
-        continue;
+      bool named = square_phys_identity(sq, &t, &c);
+      if (!named) {
+        piece_t home = board[sq / 8][sq % 8];
+        if (home == PIECE_EMPTY || !game_hall_engine_to_sensor(home, &t, &c)) {
+          t = HALL_PIECE_TYPE_NONE;
+          c = HALL_PIECE_COLOR_NONE;
+        }
       }
       if (*phys_n >= MAX_PIECES) {
         return false;
@@ -423,10 +445,16 @@ static void match_all(const hall_piece_slot_t *expect, int expect_n,
     match_group(e_slice, ec, p_slice, pc, jobs, job_n, missing, missing_n,
                 extra, extra_n);
   }
-}
 
-static bool is_single_lift(int job_n, uint8_t missing_n, uint8_t extra_n) {
-  return missing_n == 1 && extra_n == 0 && job_n == 0;
+  for (int i = 0; i < phys_n; i++) {
+    if (phys[i].type != HALL_PIECE_TYPE_NONE ||
+        phys[i].color != HALL_PIECE_COLOR_NONE) {
+      continue;
+    }
+    if (*extra_n < LED_RESTORE_GUIDE_MAX_EXTRA) {
+      extra[(*extra_n)++] = phys[i].phys_sq;
+    }
+  }
 }
 
 static bool board_fully_aligned(int job_n, uint8_t missing_n, uint8_t extra_n) {
@@ -669,7 +697,17 @@ static void fill_setup_marks(const restore_job_t *jobs, int job_n,
 
 void game_hall_restore_guide_request_sync(void) { s_sync_requested = true; }
 
+void game_hall_restore_guide_stop_leds(void);
+
+void game_hall_restore_guide_end_for_play(void) {
+  s_opening_done = true;
+  game_hall_restore_guide_stop_leds();
+}
+
+bool game_hall_restore_guide_in_play(void) { return s_opening_done; }
+
 void game_hall_restore_guide_force_resync(void) {
+  s_opening_done = false;
   s_digest_valid = false;
   s_sync_requested = true;
 }
@@ -722,6 +760,9 @@ bool game_hall_restore_guide_take_sync_request(void) {
 }
 
 void game_hall_restore_guide_note_stable_squares(const uint8_t occ[64]) {
+  if (s_opening_done || occ == NULL) {
+    return;
+  }
   uint8_t digest[64];
   digest_sensors(occ, digest);
   if (memcmp(digest, s_last_sensor_digest, 64) != 0) {
@@ -745,7 +786,16 @@ void game_hall_restore_guide_stop_leds(void) {
 }
 
 void game_hall_restore_guide_sync(void) {
+  if (s_opening_done) {
+    s_sync_requested = false;
+    return;
+  }
   if (game_demo_show_active()) {
+    s_guide_led_active = false;
+    led_board_restore_guide_cancel();
+    return;
+  }
+  if (led_board_show_active()) {
     return;
   }
 #if HALL_DEBUG_LIGHT_WHERE_PIECE
@@ -779,6 +829,10 @@ void game_hall_restore_guide_sync(void) {
   s_in_sync = true;
 
   if (!chess_policy_squares_guard_enabled() || !chess_policy_squares_guard_led_enabled()) {
+    game_hall_restore_guide_stop_leds();
+    goto out;
+  }
+  if (!initial_setup_guide()) {
     game_hall_restore_guide_stop_leds();
     goto out;
   }
@@ -846,13 +900,7 @@ void game_hall_restore_guide_sync(void) {
             extra, &extra_n);
 
   if (board_fully_aligned(job_n, missing_n, extra_n)) {
-    game_hall_restore_guide_stop_leds();
-    remember_digest(digest);
-    goto out;
-  }
-
-  if (current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
-      is_single_lift(job_n, missing_n, extra_n)) {
+    s_opening_done = true;
     game_hall_restore_guide_stop_leds();
     remember_digest(digest);
     goto out;
@@ -887,6 +935,62 @@ void game_hall_restore_guide_sync(void) {
            job_n);
 out:
   s_in_sync = false;
+}
+
+bool game_hall_restore_guide_show_play(void) {
+  uint8_t occ[64];
+  hall_piece_slot_t expect[MAX_PIECES];
+  hall_piece_slot_t phys[MAX_PIECES];
+  restore_job_t jobs[MAX_JOBS];
+  uint8_t missing[LED_RESTORE_GUIDE_MAX_MISSING];
+  uint8_t extra[LED_RESTORE_GUIDE_MAX_EXTRA];
+  led_restore_guide_plan_t plan;
+  int expect_n = 0;
+  int phys_n = 0;
+  int job_n = 0;
+  uint8_t missing_n = 0;
+  uint8_t extra_n = 0;
+
+  if (s_in_sync || !s_opening_done) {
+    return false;
+  }
+  if (game_demo_show_active() || led_board_show_active() ||
+      led_lamp_board_held() || led_gesture_anim_busy() ||
+      !hall_i2c_squares_readings_usable() || mode_blocks_guide()) {
+    return false;
+  }
+
+  s_in_sync = true;
+  squares_get_state(occ);
+  if (!collect_board(expect, &expect_n, phys, &phys_n, occ)) {
+    s_in_sync = false;
+    return false;
+  }
+  match_all(expect, expect_n, phys, phys_n, jobs, &job_n, missing, &missing_n,
+            extra, &extra_n);
+  if (board_fully_aligned(job_n, missing_n, extra_n)) {
+    game_hall_restore_guide_stop_leds();
+    s_in_sync = false;
+    return true;
+  }
+  merge_swap_pairs(jobs, &job_n);
+  memset(&plan, 0, sizeof(plan));
+  pick_display_paths(jobs, job_n, missing, missing_n, &plan);
+  plan.missing_count = missing_n;
+  memcpy(plan.missing_homes, missing, missing_n);
+  plan.extra_count = extra_n;
+  memcpy(plan.extra_squares, extra, extra_n);
+  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, occ, &plan);
+  if (plan.mark_count == 0 && plan.path_count == 0) {
+    game_hall_restore_guide_stop_leds();
+    s_in_sync = false;
+    return true;
+  }
+  plan.active = true;
+  led_board_restore_guide_apply(&plan);
+  s_guide_led_active = true;
+  s_in_sync = false;
+  return true;
 }
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
