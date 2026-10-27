@@ -111,6 +111,12 @@ static const int8_t HALL_REACH_ROYAL[]  = {0, 1, 1, 1, 0, 2, 1, 2, 2, 2, 0, 3};
 #define HALL_STABLE_SCANS               (HALL_STABLE_MS / TOTAL_CYCLE_TIME_MS)
 /** Lift publishes after this many consecutive vacant scans (~50 ms at 25 ms). */
 #define HALL_LIFT_CONFIRM_SCANS         2
+/** Empty square beside a king measured 15725 (d8, 2026-10-26). Weakest
+ *  seated pawn that day was 20098. 18000 is the gap: bleed releases, a
+ *  real pawn still holds. Four scans are 100 ms and run inside the 250 ms
+ *  stable window, so a real placement still publishes in about 250 ms. */
+#define HALL_REOCCUPY_ENERGY            18000
+#define HALL_REOCCUPY_SCANS             4
 #define HALL_I2C_READ_TIMEOUT_MS        20
 #define HALL_I2C_FAIL_BACKOFF_SCANS     16
 /** Allowed scan-to-scan change while steady: max(abs, sum|dev| / div). */
@@ -239,6 +245,8 @@ typedef struct {
     int32_t prev_dev1;
     uint8_t stable_scans;           /**< Consecutive scans with a steady deviation. */
     bool reported;                  /**< Settled occupancy published to the matrix. */
+    uint8_t prove_scans;            /**< Consecutive scans at or above HALL_REOCCUPY_ENERGY. */
+    bool lift_block;                /**< Published piece left; delta-hold stays off. */
     bool identity_settled;          /**< Type/color stable while the magnet is still seated. */
     int32_t ctx_ref[2];             /**< Last steady empty reading, neighbor crosstalk included. */
     bool ctx_valid;
@@ -829,6 +837,8 @@ void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64],
     st->zero_pending = false;
     st->zero_has_backup = false;
     st->prev_occupied = false;
+    st->prove_scans = 0;
+    st->lift_block = false;
   }
 }
 
@@ -893,6 +903,14 @@ static void hall_zero_discard(uint8_t sq) {
   st->zero_quarantine = 0;
   st->zero_pending = false;
   st->ctx_valid = false;
+  /* Restoring the midpoint changes the next deviation. An emptied square
+   * must earn occupancy again; otherwise the jump looks like the piece
+   * is still standing. */
+  if (!st->occupied) {
+    st->reported = false;
+    st->prove_scans = 0;
+    st->lift_block = true;
+  }
   if (st->zero_has_backup) {
     st->midpoint[0] = st->zero_backup[0];
     st->midpoint[1] = st->zero_backup[1];
@@ -928,6 +946,46 @@ bool hall_i2c_squares_readings_usable(void) {
   return true;
 }
 
+/** King or queen in the 8-neighbourhood. Crosstalk from that magnet is what
+ *  keeps a lifted square looking occupied. */
+static bool hall_neighbor_is_royal(uint8_t sq) {
+    int row = (int)sq / 8;
+    int col = (int)sq % 8;
+    int32_t royal_energy =
+        s_poc_thresholds[HALL_POC_THRESHOLD_COUNT - 1].min_energy;
+    for (int dr = -1; dr <= 1; dr++) {
+        for (int dc = -1; dc <= 1; dc++) {
+            if (dr == 0 && dc == 0) {
+                continue;
+            }
+            int r = row + dr;
+            int c = col + dc;
+            if (r < 0 || r > 7 || c < 0 || c > 7) {
+                continue;
+            }
+            uint8_t n = (uint8_t)(r * 8 + c);
+            const hall_poc_square_state_t *nb = &s_poc_state[n];
+            if (nb->current_piece == HALL_PIECE_TYPE_KING ||
+                nb->current_piece == HALL_PIECE_TYPE_QUEEN) {
+                return true;
+            }
+            if (nb->live_valid && (nb->occupied || nb->reported) &&
+                nb->live_energy >= royal_energy) {
+                return true;
+            }
+            if (s_logical_known && s_logical_empty[n] == 0 &&
+                (nb->occupied || nb->reported)) {
+                uint8_t lt = s_logical_type[n];
+                if (lt == (uint8_t)HALL_PIECE_TYPE_KING ||
+                    lt == (uint8_t)HALL_PIECE_TYPE_QUEEN) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 /**
  * Run one POC state-machine step for a single square.
  * @param sq        square index 0..63
@@ -951,6 +1009,7 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         st->stable_scans = 0;
         st->peak_energy = 0;
         st->settle_scans = 0;
+        st->prove_scans = 0;
         return 0;
     }
 
@@ -1020,25 +1079,52 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     st->live_dev0 = dev0;
     st->live_dev1 = dev1;
     st->live_valid = true;
-    /* One sample under the off threshold used to publish a lift. The king
-     * leaving (or a noisy scan) moves a neighbor for a few scans, the guide
-     * redrew the board, and the lamp path never runs that guide. Hold the
-     * latched piece through a neighbor mask and until the low reading has
-     * lasted a full settle. */
+    /* Lift stays two vacant scans. What changed is which reading counts as
+     * vacant: king bleed (empty d8, energy 15725, delta up to ~177) sits
+     * above DELTA_OFF (160) and below DELTA_ON (270), so a lifted square
+     * never opened. 18000 is under the weakest seated pawn (20098). */
     bool energy_present = energy >= HALL_POC_ENERGY_ON;
-    bool sensor_present = st->occupied
-                              ? (delta >= HALL_POC_DELTA_OFF || energy_present)
-                              : (delta >= HALL_POC_DELTA_ON || energy_present);
+    bool royal = hall_neighbor_is_royal(sq);
+    bool above = energy >= HALL_REOCCUPY_ENERGY;
+    /* A piece already published beside a king keeps its seat. A one-scan
+     * spike that never became reported must still earn the four scans. */
+    if (royal && st->occupied && st->reported && !st->lift_block && above &&
+        st->prove_scans < HALL_REOCCUPY_SCANS) {
+        st->prove_scans = HALL_REOCCUPY_SCANS;
+    }
+    bool strict = st->lift_block || royal;
+    bool sensor_present;
+    if (strict) {
+        if (above) {
+            if (st->prove_scans == 0 && st->stable_scans > 1) {
+                st->stable_scans = 1;
+            }
+            if (st->prove_scans < 255) {
+                st->prove_scans++;
+            }
+        } else if (st->prove_scans < HALL_REOCCUPY_SCANS) {
+            st->prove_scans = 0;
+        }
+        sensor_present = above && st->prove_scans >= HALL_REOCCUPY_SCANS;
+    } else if (st->occupied && !above) {
+        sensor_present = false;
+    } else {
+        sensor_present = st->occupied
+                             ? (delta >= HALL_POC_DELTA_OFF || energy_present)
+                             : (delta >= HALL_POC_DELTA_ON || energy_present);
+    }
     if (!st->occupied || sensor_present) {
         st->vacant_scans = 0;
     } else if (st->vacant_scans < 255) {
         st->vacant_scans++;
     }
-    bool present = sensor_present ||
+    /* Mask still rides through a dip of a piece that is really there.
+     * It must not keep a square that has already fallen through the gap. */
+    bool mask_hold = st->occupied && st->mask_scans > 0 && above;
+    bool present = sensor_present || mask_hold ||
                    (st->occupied &&
-                    (st->mask_scans > 0 ||
-                     st->vacant_scans < HALL_LIFT_CONFIRM_SCANS));
-    if (present != st->occupied) {
+                    st->vacant_scans < HALL_LIFT_CONFIRM_SCANS);
+    if (present != st->occupied && !(present && strict)) {
         st->stable_scans = 0;
     }
     bool hold_neighbor = st->mask_scans > 0;
@@ -1050,6 +1136,12 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     }
 
     if (!present) {
+        if (st->occupied && st->reported) {
+            st->lift_block = true;
+        }
+        if (st->occupied) {
+            st->prove_scans = 0;
+        }
         st->occupied = false;
         st->reported = false;
         st->peak_energy = 0;

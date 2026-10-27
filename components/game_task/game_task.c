@@ -361,19 +361,7 @@ bool game_active = false;
 // Enhanced error recovery state for smart error handling
 game_task_error_recovery_t error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
 
-// NON-BLOCKING BLINK SYSTEM
-typedef struct {
-  bool active;
-  uint8_t led_index;
-  uint32_t blink_count;
-  uint32_t max_blinks;
-  uint32_t last_toggle_time;
-  uint32_t blink_interval_ms;
-  bool led_state;
-} non_blocking_blink_state_t;
-
-static non_blocking_blink_state_t blink_state = {false, 0,   0,    10,
-                                                 0,     300, false};
+static uint8_t s_error_led = 255;
 
 // ============================================================================
 // STARTING POSITION CHECK SETTINGS
@@ -644,7 +632,6 @@ game_result_type_t current_result_type =
 
 
 // Error recovery functions
-void game_update_error_blink(void);
 void game_stop_error_blink(void);
 
 // ============================================================================
@@ -1841,12 +1828,11 @@ void game_task_squares_guard_freeze_move_flow(void) {
 
 
 /**
- * @brief Show blinking red LED for invalid move error
- * @param error_row Row of invalid position
- * @param error_col Column of invalid position
+ * @brief Short red pulse on an illegal square. The rest of the board stays.
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row,
                                              uint8_t error_col) {
+  uint8_t led;
   if (!chess_policy_error_recovery_enabled() ||
       (!chess_policy_error_recovery_led_red_blink() &&
        !chess_policy_error_recovery_led_red_persist())) {
@@ -1855,72 +1841,31 @@ void game_show_invalid_move_error_with_blink(uint8_t error_row,
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   game_hall_restore_guide_stop_leds();
 #endif
-  // Abort previous flashing
-  game_stop_error_blink();
-
-  ESP_LOGI(TAG, "🚨 Starting non-blocking blink at %c%d", 'a' + error_col,
-           error_row + 1);
-  led_clear_board_only();
-
-  blink_state.active = true;
-  blink_state.led_index = chess_pos_to_led_index(error_row, error_col);
-  blink_state.blink_count = 0;
-  blink_state.max_blinks = 10;
-  blink_state.last_toggle_time = esp_timer_get_time() / 1000;
-  blink_state.blink_interval_ms = 300;
-  blink_state.led_state = false;
-
-  // Run the first toggle
-  game_update_error_blink();
+  led = chess_pos_to_led_index(error_row, error_col);
+  if (s_error_led < 64U && s_error_led != led) {
+    uint8_t prev = s_error_led;
+    s_error_led = 255U;
+    led_target_pulse_cancel(prev);
+    led_target_set(prev, 0, 0, 0, LED_VIS_SNAP);
+  }
+  s_error_led = led;
+  if (chess_policy_error_recovery_led_red_persist()) {
+    led_target_set(led, 255, 0, 0, LED_VIS_SNAP);
+  }
+  led_target_pulse(led, 255, 0, 0);
+  ESP_LOGI(TAG, "Error pulse at %c%d", 'a' + error_col, error_row + 1);
 }
 
-/**
- * @brief Update non-blocking blink animation
- */
-void game_update_error_blink(void) {
-  if (!blink_state.active) {
+void game_stop_error_blink(void) {
+  uint8_t led;
+  if (s_error_led >= 64U) {
     return;
   }
-
-  uint32_t current_time = esp_timer_get_time() / 1000;
-
-  // Kontrola timeoutu pro toggle
-  if (current_time - blink_state.last_toggle_time >=
-      blink_state.blink_interval_ms) {
-    blink_state.blink_count++;
-
-    // Toggle LED
-    if (blink_state.led_state) {
-      // Turn off the LED
-      led_set_pixel_safe(blink_state.led_index, 0, 0, 0);
-      blink_state.led_state = false;
-    } else {
-      // Turn on the LED
-      led_set_pixel_safe(blink_state.led_index, 255, 0, 0); // Red
-      blink_state.led_state = true;
-    }
-
-    blink_state.last_toggle_time = current_time;
-
-    // Blinking termination check
-    if (blink_state.blink_count >= blink_state.max_blinks) {
-      blink_state.active = false;
-      // Leave the LED on at the end
-      led_set_pixel_safe(blink_state.led_index, 255, 0, 0);
-      ESP_LOGI(TAG, "✅ Error blink completed");
-    }
-  }
-}
-
-/**
- * @brief Stop error blink animation
- */
-void game_stop_error_blink(void) {
-  if (blink_state.active) {
-    blink_state.active = false;
-    led_set_pixel_safe(blink_state.led_index, 0, 0, 0); // Turn off the LED
-    ESP_LOGI(TAG, "🛑 Error blink interrupted by user action");
-  }
+  led = s_error_led;
+  s_error_led = 255U;
+  led_target_pulse_cancel(led);
+  led_target_set(led, 0, 0, 0, LED_VIS_SNAP);
+  ESP_LOGI(TAG, "Error pulse stopped");
 }
 
 /**
@@ -2297,6 +2242,8 @@ void game_task_start(void *pvParameters) {
       }
     }
     game_hall_position_service();
+    game_puzzle_service_hall_move();
+    game_opening_service_hall_move();
 #endif
 
     // BUG FIX 1: Automatic transition from WAITING_FOR_BOARD_SETUP to ACTIVE
@@ -2328,10 +2275,14 @@ void game_task_start(void *pvParameters) {
         // Update the promotion LED indication
         game_check_promotion_needed();
         
-        // Start the timer for the white player if it is active
+        // Hall starts the clock when the opening guide hands over.
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+        game_hall_opening_clock_on_play();
+#else
         if (game_is_timer_active()) {
           game_start_timer_move(true);
         }
+#endif
         
         // Highlight moving figures
         chess_policy_highlight_movable_if_enabled();

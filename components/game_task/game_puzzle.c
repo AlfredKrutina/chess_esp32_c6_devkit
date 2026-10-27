@@ -11,6 +11,7 @@
 #include "game_board_core.h"
 #include "game_task.h"
 #include "../squares_task/include/squares_task.h"
+#include "../squares_task/include/hall_i2c_squares.h"
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
 #include "game_hall_match.h"
@@ -716,4 +717,96 @@ const char *game_puzzle_feedback_message(void) {
   default:
     return "";
   }
+}
+
+void game_puzzle_service_hall_move(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  static uint32_t s_since;
+  static bool s_armed;
+  uint8_t occ[64];
+  uint8_t fr;
+  uint8_t fc;
+  uint8_t tr;
+  uint8_t tc;
+  uint32_t now;
+  piece_t mover;
+  chess_move_t move;
+  bool castle;
+  bool ep;
+  uint8_t rook_from = 0;
+  uint8_t rook_to = 0;
+  uint8_t sq;
+  if (!puzzle_active || puzzle_solved || puzzle_setup_active ||
+      puzzle_expected_from[0] == '\0' ||
+      !hall_i2c_squares_readings_usable()) {
+    s_armed = false;
+    return;
+  }
+  fr = puzzle_solution_from_row;
+  fc = puzzle_solution_from_col;
+  tr = puzzle_solution_to_row;
+  tc = puzzle_solution_to_col;
+  mover = board[fr][fc];
+  if (mover == PIECE_EMPTY) {
+    s_armed = false;
+    return;
+  }
+  castle = (mover == PIECE_WHITE_KING || mover == PIECE_BLACK_KING) &&
+           fr == tr && (fc > tc ? fc - tc : tc - fc) == 2;
+  ep = en_passant_available && tr == en_passant_target_row &&
+       tc == en_passant_target_col &&
+       (mover == PIECE_WHITE_PAWN || mover == PIECE_BLACK_PAWN);
+  if (castle) {
+    rook_from = (uint8_t)(fr * 8 + (tc > fc ? 7 : 0));
+    rook_to = (uint8_t)(fr * 8 + (tc > fc ? 5 : 3));
+  }
+  squares_get_state(occ);
+  for (sq = 0; sq < 64; sq++) {
+    bool want = board[sq / 8][sq % 8] != PIECE_EMPTY;
+    if (sq == (uint8_t)(fr * 8 + fc)) {
+      want = false;
+    }
+    if (sq == (uint8_t)(tr * 8 + tc)) {
+      want = true;
+    }
+    if (castle && sq == rook_from) {
+      want = false;
+    }
+    if (castle && sq == rook_to) {
+      want = true;
+    }
+    if (ep &&
+        sq == (uint8_t)(en_passant_victim_row * 8 + en_passant_victim_col)) {
+      want = false;
+    }
+    if ((occ[sq] != 0) != want) {
+      s_armed = false;
+      return;
+    }
+  }
+  now = (uint32_t)(esp_timer_get_time() / 1000);
+  if (!s_armed) {
+    s_armed = true;
+    s_since = now;
+    return;
+  }
+  if ((uint32_t)(now - s_since) < 150U) {
+    return;
+  }
+  s_armed = false;
+  memset(&move, 0, sizeof(move));
+  move.from_row = fr;
+  move.from_col = fc;
+  move.to_row = tr;
+  move.to_col = tc;
+  move.piece = mover;
+  move.captured_piece = board[tr][tc];
+  if (!game_execute_move(&move)) {
+    return;
+  }
+  game_puzzle_after_accepted_move();
+  game_send_response_to_uart("Puzzle move accepted.", false, NULL);
+#else
+  (void)0;
+#endif
 }

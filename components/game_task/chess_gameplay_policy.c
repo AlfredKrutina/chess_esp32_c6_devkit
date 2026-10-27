@@ -220,10 +220,11 @@ void chess_policy_refresh_idle_board_leds(void) {
     return;
   }
 
-  led_clear_board_only();
+  led_target_begin_fade(HINT_FADE_MS);
   chess_policy_highlight_movable_if_enabled();
 
   if (!game_is_king_in_check(current_player)) {
+    led_target_end();
     return;
   }
   int king_row = -1;
@@ -244,18 +245,12 @@ void chess_policy_refresh_idle_board_leds(void) {
   }
   if (king_row == -1 || king_col == -1 ||
       !game_led_guidance_show_check_anim()) {
+    led_target_end();
     return;
   }
-  uint8_t king_led_index =
-      chess_pos_to_led_index((uint8_t)king_row, (uint8_t)king_col);
-  led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                             .led_index = king_led_index,
-                             .red = 0,
-                             .green = 0,
-                             .blue = 0,
-                             .duration_ms = 0,
-                             .data = NULL};
-  led_execute_command_new(&check_cmd);
+  led_target_set(chess_pos_to_led_index((uint8_t)king_row, (uint8_t)king_col),
+                 255, 192, 203, LED_VIS_BREATHE);
+  led_target_end();
 }
 
 bool chess_policy_uart_error_detail_enabled(void) {

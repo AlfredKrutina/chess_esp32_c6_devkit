@@ -317,6 +317,9 @@ void led_force_immediate_update(
     void); // Force immediate update for critical operations
 static void led_privileged_batch_commit(
     void); // Optimized batch commit with privileged mutex sync
+static void led_render_targets(void);
+static void led_target_kick(void);
+static bool led_visual_busy(void);
 
 // LED layer management functions
 void led_clear_board_only(void);   // Clear only board LEDs (0-63)
@@ -395,6 +398,114 @@ static uint8_t s_led_compose;
 #define LED_PICTURE_SETTLE_MS 20
 static volatile bool s_held_picture;
 static volatile TickType_t s_picture_touch;
+
+/* Crossfade and one-shot error pulse. Breathe is one shared clock. */
+#define LED_FADE_MS 160U
+#define LED_PULSE_MS 240U
+#define LED_BREATHE_STEP_MS 88U
+#define LED_BREATHE_PERIOD_MS 2200U
+#define LED_BREATHE_FLOOR 102U /* 40% — the trough never goes to black */
+#define MOVE_COLLAPSE_MS 180U
+#define MOVE_COLLAPSE_FADE_MS 80U
+#define LED_BOARD_N 64
+
+static const uint8_t k_breathe_gain[16] = {
+    128, 152, 176, 198, 218, 234, 246, 255,
+    246, 234, 218, 198, 176, 152, 128, 140,
+};
+
+typedef struct {
+  uint8_t tr, tg, tb;
+  uint8_t mode;
+  uint8_t sr, sg, sb;
+  uint8_t pulse;
+  uint8_t pr, pg, pb;
+  uint16_t t0;
+  uint8_t out_r, out_g, out_b;
+  uint8_t touched;
+  /* HOME guide only. period 0 keeps the shared breathe. */
+  uint8_t br_floor;
+  uint16_t br_period;
+  uint16_t br_phase;
+  uint16_t br_fade_ms;
+  uint16_t br_delay;
+  uint8_t br_fading;
+} led_tgt_t;
+
+static led_tgt_t s_tgt[LED_BOARD_N];
+static uint16_t s_frame_fade;
+static bool s_hold_direct;
+static volatile uint8_t s_picture_open;
+/* Direct pixel writes (boot bloom, wave) bypass out_*. The next target frame
+ * must be pushed even when the target colour matches the cached out_*. */
+static volatile uint8_t s_hw_resync;
+static uint8_t s_target_write;
+static uint32_t s_pic_gen;
+static uint8_t s_force_hw;
+
+/* Triangle → smoothstep → gamma lift. Floor stays 40%; midtones are not dark. */
+static uint8_t led_breathe_gain_now(void) {
+  uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+  uint32_t half = LED_BREATHE_PERIOD_MS / 2U;
+  uint32_t t = now % LED_BREATHE_PERIOD_MS;
+  uint32_t tri;
+  uint32_t s;
+  uint32_t down;
+  uint32_t lifted;
+  if (t < half) {
+    tri = (t * 255U) / half;
+  } else {
+    tri = ((LED_BREATHE_PERIOD_MS - t) * 255U) / half;
+  }
+  s = (tri * tri * (765U - 2U * tri)) / 65025U;
+  down = 255U - s;
+  lifted = 255U - (down * down) / 255U;
+  return (uint8_t)(LED_BREATHE_FLOOR +
+                   ((255U - LED_BREATHE_FLOOR) * lifted) / 255U);
+}
+
+/* Same curve as the shared breathe, with a fixed phase and its own floor. */
+static uint8_t led_breathe_sq_gain(uint16_t period, uint16_t phase, uint8_t floor) {
+  uint32_t now;
+  uint32_t half;
+  uint32_t t;
+  uint32_t tri;
+  uint32_t s;
+  uint32_t down;
+  uint32_t lifted;
+  if (period < 2U || floor >= 255U) {
+    return 255U;
+  }
+  now = (uint32_t)(esp_timer_get_time() / 1000);
+  half = (uint32_t)period / 2U;
+  t = (now + (uint32_t)phase) % (uint32_t)period;
+  if (t < half) {
+    tri = (t * 255U) / half;
+  } else {
+    tri = (((uint32_t)period - t) * 255U) / half;
+  }
+  s = (tri * tri * (765U - 2U * tri)) / 65025U;
+  down = 255U - s;
+  lifted = 255U - (down * down) / 255U;
+  return (uint8_t)((uint32_t)floor + ((255U - floor) * lifted) / 255U);
+}
+
+static uint8_t led_smoothstep(uint16_t elapsed, uint16_t dur) {
+  uint32_t t;
+  if (dur == 0U || elapsed >= dur) {
+    return 255U;
+  }
+  t = ((uint32_t)elapsed * 255U) / dur;
+  return (uint8_t)((t * t * (765U - 2U * t)) / 65025U);
+}
+
+static uint8_t led_lerp_u8(uint8_t a, uint8_t b, uint8_t t) {
+  return (uint8_t)((int)a + (((int)b - (int)a) * (int)t) / 255);
+}
+
+static uint8_t led_scale_u8(uint8_t c, uint8_t gain) {
+  return (uint8_t)(((uint16_t)c * gain) / 255U);
+}
 
 // NEW: Duration management system
 static led_duration_state_t led_durations[CHESS_LED_COUNT_TOTAL] = {0};
@@ -562,8 +673,14 @@ static void led_set_pixel_channels(uint8_t led_index, uint8_t red, uint8_t green
                    ((uint32_t)green << 8) | blue;
 
   /* Same color is already on the strip. A refresh here is a full frame and
-   * the guide used to request one 30 times a second, which blinks under WiFi. */
-  if (led_states[led_index] == color) {
+   * the guide used to request one 30 times a second, which blinks under WiFi.
+   * A direct board write still leaves out_* stale, so the next target frame
+   * is sent in full. The target renderer sets s_target_write / s_force_hw. */
+  if (led_index < LED_BOARD_N && !s_target_write) {
+    s_hw_resync = 1U;
+    s_pic_gen++;
+  }
+  if (!s_force_hw && led_states[led_index] == color) {
     if (led_unified_mutex != NULL) {
       xSemaphoreGive(led_unified_mutex);
     }
@@ -2187,8 +2304,23 @@ void led_task_start(void *pvParameters) {
 
     loop_count++;
 
-    // Optimized cycle - 33ms for 30 FPS animations
-    vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(33));
+    /* 33 ms cadence, or sooner when a picture closes (lift snap). */
+    {
+      uint32_t woke = 0;
+      TickType_t now_tick = xTaskGetTickCount();
+      TickType_t step = pdMS_TO_TICKS(led_visual_busy() ? 16 : 33);
+      TickType_t next_tick = last_wake_time + step;
+      if (next_tick > now_tick) {
+        (void)xTaskNotifyWait(0, UINT32_MAX, &woke, next_tick - now_tick);
+      } else {
+        (void)xTaskNotifyWait(0, UINT32_MAX, &woke, 0);
+      }
+      if (woke != 0U) {
+        last_wake_time = xTaskGetTickCount();
+      } else {
+        last_wake_time = next_tick;
+      }
+    }
   }
 }
 
@@ -2198,7 +2330,7 @@ static bool endgame_animation_active = false;
 // ADVANCED CHESS ANIMATION IMPLEMENTATIONS
 // ============================================================================
 
-static float led_smoothstep(float t) {
+static float led_smoothstepf(float t) {
   if (t < 0.f) {
     return 0.f;
   }
@@ -2259,55 +2391,24 @@ static void led_blend_flush(uint16_t acc[64][3]) {
 }
 
 void led_anim_move_path(const led_command_t *cmd) {
-  if (!cmd || cmd->led_index >= 64)
+  uint8_t from_led;
+  uint8_t to_led;
+  uint8_t from_row;
+  uint8_t from_col;
+  uint8_t to_row;
+  uint8_t to_col;
+  if (!cmd || cmd->led_index >= 64) {
     return;
-
-  uint8_t from_led = cmd->led_index;
-  uint8_t to_led = (cmd->data ? *((uint8_t *)cmd->data) : 63);
-
-  ESP_LOGI(TAG, "🎬 Enhanced move path animation: %d -> %d", from_led, to_led);
-
-  uint8_t from_row, from_col, to_row, to_col;
+  }
+  from_led = cmd->led_index;
+  to_led = (cmd->data ? *((uint8_t *)cmd->data) : 63);
+  if (to_led >= 64) {
+    return;
+  }
   led_index_to_chess_pos(from_led, &from_row, &from_col);
   led_index_to_chess_pos(to_led, &to_row, &to_col);
-
-  static uint16_t acc[64][3];
-  const int frames = 12;
-  for (int frame = 0; frame < frames; frame++) {
-    memset(acc, 0, sizeof(acc));
-    float progress = (float)frame / (float)(frames - 1);
-    for (int trail = 0; trail < 4; trail++) {
-      float trail_progress = progress - (trail * 0.12f);
-      if (trail_progress < 0.f) {
-        continue;
-      }
-      if (trail_progress > 1.f) {
-        break;
-      }
-      float eased = led_smoothstep(trail_progress);
-      float row = (float)from_row + ((float)to_row - (float)from_row) * eased;
-      float col = (float)from_col + ((float)to_col - (float)from_col) * eased;
-      float bright = powf(fmaxf(0.f, 1.f - (trail * 0.22f)), 1.3f);
-      led_blend_add(acc, row, col, 0.f, 0.f, 255.f * bright);
-    }
-    led_blend_flush(acc);
-    vTaskDelay(pdMS_TO_TICKS(8));
-  }
-
-  const int breaths = 5;
-  for (int breath = 0; breath < breaths; breath++) {
-    float t = (float)breath / (float)(breaths - 1);
-    float level = sinf(t * (float)M_PI);
-    led_frame_begin();
-    led_clear_board_only();
-    led_set_pixel_safe(to_led, 0, 0, (uint8_t)(255.f * level));
-    led_frame_end();
-    led_force_immediate_update();
-    vTaskDelay(pdMS_TO_TICKS(8));
-  }
-
-  led_clear_board_only();
-  led_force_immediate_update();
+  ESP_LOGI(TAG, "🎬 Move trail: %d -> %d", from_led, to_led);
+  led_move_trail_start(from_row, from_col, to_row, to_col);
 }
 
 void led_anim_castle(const led_command_t *cmd) {
@@ -2364,7 +2465,7 @@ void led_anim_castle(const led_command_t *cmd) {
       if (trail_progress > 1.f) {
         break;
       }
-      float eased = led_smoothstep(trail_progress);
+      float eased = led_smoothstepf(trail_progress);
       float bright = fmaxf(0.f, 1.f - (trail * 0.28f));
       float king_row = (float)king_from_row +
                        ((float)king_to_row - (float)king_from_row) * eased;
@@ -2544,6 +2645,7 @@ typedef struct {
   float reveal;
   uint32_t last_update;
   bool initialized;
+  bool centre;
   uint8_t reason;
   uint8_t loops;
   piece_t winner_piece; // Store the actual winner piece for proper detection
@@ -2558,40 +2660,54 @@ bool led_board_show_active(void) {
 /**
  * @brief Initialize AVR-style wave endgame animation (according to old project)
  */
+static bool endgame_draw_reason(uint8_t reason) {
+  return reason == 10U || reason == 11U || reason == 12U || reason == 13U ||
+         reason == 22U;
+}
+
 void led_anim_endgame(const led_command_t *cmd) {
-  if (!cmd)
+  uint8_t sq;
+  uint8_t row;
+  uint8_t col;
+  if (!cmd) {
     return;
+  }
 
   ESP_LOGI(TAG, "🏆 Starting AVR-style wave endgame animation");
 
-  // Get winner king position from led_index
-  endgame_wave.win_king_led = cmd->led_index;
-  // Use led_index_to_chess_pos() instead of simple division (due to
-  // serpentine layoutu)
-  led_index_to_chess_pos(endgame_wave.win_king_led, &endgame_wave.win_king_row,
-                         &endgame_wave.win_king_col);
-
-  // Get the actual winner piece from the board for proper detection
-  endgame_wave.winner_piece =
-      game_get_piece(endgame_wave.win_king_row, endgame_wave.win_king_col);
-
-  // For simplicity, we'll just animate around the winner king
-  // The loser king position is not critical for the wave effect
+  /* Callers pass a row-major square (rank*8+file), not a chain LED index. */
+  sq = cmd->led_index;
+  if (sq >= 64U) {
+    sq = 28U;
+  }
+  row = (uint8_t)(sq / 8U);
+  col = (uint8_t)(sq % 8U);
+  endgame_wave.reason = game_endgame_reason();
+  endgame_wave.centre = endgame_draw_reason(endgame_wave.reason);
+  if (endgame_wave.centre) {
+    endgame_wave.win_king_row = 3U;
+    endgame_wave.win_king_col = 3U;
+    endgame_wave.win_king_led = chess_pos_to_led_index(3U, 3U);
+    endgame_wave.winner_piece = PIECE_EMPTY;
+  } else {
+    endgame_wave.win_king_row = row;
+    endgame_wave.win_king_col = col;
+    endgame_wave.win_king_led = chess_pos_to_led_index(row, col);
+    endgame_wave.winner_piece = game_get_piece(row, col);
+  }
   endgame_wave.lose_king_row = 0;
   endgame_wave.lose_king_col = 0;
 
   ESP_LOGI(TAG,
-           "🎯 Winner king at (%d,%d) piece=%d - wave animation around this "
-           "position",
+           "🎯 Wave origin (%d,%d) piece=%d centre=%d reason=%u",
            endgame_wave.win_king_row, endgame_wave.win_king_col,
-           endgame_wave.winner_piece);
+           endgame_wave.winner_piece, (int)endgame_wave.centre,
+           (unsigned)endgame_wave.reason);
 
-  // Initialize animation state. Radius and reveal grow inside the LED tick.
-  endgame_wave.reason = game_endgame_reason();
   endgame_wave.loops = 0;
   endgame_wave.radius = 0.f;
   endgame_wave.reveal = 0.f;
-  endgame_wave.last_update = xTaskGetTickCount();
+  endgame_wave.last_update = (uint32_t)(esp_timer_get_time() / 1000);
   endgame_wave.active = true;
   endgame_wave.initialized = true;
   led_board_restore_guide_yield();
@@ -2624,37 +2740,35 @@ static float endgame_amp(float radius) {
   return 1.f;
 }
 
+/* Radius 0.28 per 16 ms frame was one lap in ~914 ms. Half of that. */
+#define ENDGAME_WAVE_CYCLE_MS 1829U
+#define ENDGAME_WAVE_REVEAL_MS 400U
+
 void led_update_endgame_wave(void) {
+  uint32_t now;
+  uint32_t dt;
   if (!endgame_wave.active || !endgame_wave.initialized) {
     return;
   }
+  now = (uint32_t)(esp_timer_get_time() / 1000);
   if (game_ep_capture_waiting()) {
+    endgame_wave.last_update = now;
     return;
+  }
+  dt = (uint32_t)(now - endgame_wave.last_update);
+  endgame_wave.last_update = now;
+  if (dt > 500U) {
+    dt = 33U;
   }
 
-  /* 33 ms LED frame. Two soft rings, half a cycle apart, fade in at the
-   * king and out past the edge so the repeat does not jump. */
-  endgame_wave.radius += 0.28f;
-  if (endgame_wave.radius >= 16.f) {
+  /* Two soft rings, half a cycle apart. Speed follows the clock, not the
+   * LED loop period. */
+  endgame_wave.radius += (16.f * (float)dt) / (float)ENDGAME_WAVE_CYCLE_MS;
+  while (endgame_wave.radius >= 16.f) {
     endgame_wave.radius -= 16.f;
-    if (endgame_wave.loops < 255) {
-      endgame_wave.loops++;
-    }
-  }
-  if (endgame_wave.loops >= 2) {
-    led_clear_board_only();
-    bool on = ((xTaskGetTickCount() / pdMS_TO_TICKS(400)) % 2U) == 0U;
-    if (on) {
-      const uint8_t corners[4][2] = {{0, 0}, {0, 7}, {7, 0}, {7, 7}};
-      for (int i = 0; i < 4; i++) {
-        led_set_pixel_safe(chess_pos_to_led_index(corners[i][0], corners[i][1]),
-                           255, 255, 255);
-      }
-    }
-    return;
   }
   if (endgame_wave.reveal < 1.f) {
-    endgame_wave.reveal += 0.08f;
+    endgame_wave.reveal += (float)dt / (float)ENDGAME_WAVE_REVEAL_MS;
     if (endgame_wave.reveal > 1.f) {
       endgame_wave.reveal = 1.f;
     }
@@ -2662,26 +2776,29 @@ void led_update_endgame_wave(void) {
 
   float r0 = endgame_wave.radius;
   float r1 = r0 + 8.f;
+  float origin_row;
+  float origin_col;
   if (r1 >= 16.f) {
     r1 -= 16.f;
   }
   float a0 = endgame_amp(r0);
   float a1 = endgame_amp(r1);
 
-  led_clear_board_only();
-
   piece_t winner_king = endgame_wave.winner_piece;
   bool winner_is_white = (winner_king == PIECE_WHITE_KING);
+  origin_row = endgame_wave.centre ? 3.5f : (float)endgame_wave.win_king_row;
+  origin_col = endgame_wave.centre ? 3.5f : (float)endgame_wave.win_king_col;
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      float dx = (float)col - (float)endgame_wave.win_king_col;
-      float dy = (float)row - (float)endgame_wave.win_king_row;
+      float dx = (float)col - origin_col;
+      float dy = (float)row - origin_row;
       float dist = sqrtf(dx * dx + dy * dy);
       float intensity =
           fmaxf(endgame_ring(dist, r0) * a0, endgame_ring(dist, r1) * a1);
       intensity *= endgame_wave.reveal;
       if (intensity < 0.02f) {
+        led_set_pixel_safe(chess_pos_to_led_index(row, col), 0, 0, 0);
         continue;
       }
       if (intensity > 1.f) {
@@ -2694,7 +2811,7 @@ void led_update_endgame_wave(void) {
       uint8_t blue;
       uint8_t reason = endgame_wave.reason;
       if (reason == 10 || reason == 11 || reason == 12 || reason == 13 ||
-          reason == 20 || reason == 21) {
+          reason == 20 || reason == 21 || reason == 22) {
         uint8_t cr = 180, cg = 180, cb = 180;
         if (reason == 11) {
           cr = 255;
@@ -2716,6 +2833,10 @@ void led_update_endgame_wave(void) {
           cr = 255;
           cg = 60;
           cb = 0;
+        } else if (reason == 22) {
+          cr = 200;
+          cg = 220;
+          cb = 255;
         }
         led_set_pixel_safe(chess_pos_to_led_index(row, col),
                            (uint8_t)(cr * intensity), (uint8_t)(cg * intensity),
@@ -2746,9 +2867,11 @@ void led_update_endgame_wave(void) {
     }
   }
 
-  led_set_pixel_safe(endgame_wave.win_king_led,
-                     (uint8_t)(255.f * endgame_wave.reveal),
-                     (uint8_t)(215.f * endgame_wave.reveal), 0);
+  if (!endgame_wave.centre) {
+    led_set_pixel_safe(endgame_wave.win_king_led,
+                       (uint8_t)(255.f * endgame_wave.reveal),
+                       (uint8_t)(215.f * endgame_wave.reveal), 0);
+  }
 }
 
 /**
@@ -2834,14 +2957,10 @@ void led_anim_check(const led_command_t *cmd) {
   if (!cmd)
     return;
 
-  // Get king position from cmd->led_index (passed from game_task)
-  uint8_t king_led_index = cmd->led_index;
+  /* Pink on the king. Breathe; do not clear the rest of the board. */
+  led_target_set(cmd->led_index, 255, 192, 203, LED_VIS_BREATHE);
 
-  // Pink lighting on the king position (255, 192, 203) - static, permanent until
-  // next move
-  led_set_pixel_safe(king_led_index, 255, 192, 203);
-
-  ESP_LOGI(TAG, "⚠️ Check: Pink LED at king position %d", king_led_index);
+  ESP_LOGI(TAG, "Check: pink breathe at king LED %u", (unsigned)cmd->led_index);
 }
 
 void led_anim_checkmate(const led_command_t *cmd) {
@@ -2894,6 +3013,329 @@ static bool led_game_pixels_blocked(void) {
   return s_lamp_hold || led_gesture_anim_busy();
 }
 
+static bool led_tgt_lock(void) {
+  if (led_unified_mutex == NULL) {
+    return true;
+  }
+  return xSemaphoreTake(led_unified_mutex, LED_TASK_MUTEX_TIMEOUT_TICKS) ==
+         pdTRUE;
+}
+
+static void led_tgt_unlock(void) {
+  if (led_unified_mutex != NULL) {
+    xSemaphoreGive(led_unified_mutex);
+  }
+}
+
+static void led_target_kick(void) {
+  if (led_task_handle != NULL &&
+      xTaskGetCurrentTaskHandle() != led_task_handle) {
+    (void)xTaskNotify(led_task_handle, 1U, eSetBits);
+  }
+}
+
+static uint8_t s_cap[LED_BOARD_N];
+static uint8_t s_cap_n;
+
+void led_move_collapse_capture(void) {
+  uint8_t i;
+  s_cap_n = 0U;
+  if (!led_tgt_lock()) {
+    return;
+  }
+  for (i = 0; i < LED_BOARD_N; i++) {
+    led_tgt_t *t = &s_tgt[i];
+    if (t->tr != 0U || t->tg != 0U || t->tb != 0U) {
+      s_cap[s_cap_n] = i;
+      s_cap_n++;
+    }
+  }
+  led_tgt_unlock();
+}
+
+void led_move_trail_cancel(void) { s_cap_n = 0U; }
+
+void led_move_trail_start(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+                          uint8_t to_col) {
+  uint8_t dest;
+  uint8_t n;
+  uint8_t set[LED_BOARD_N];
+  uint8_t i;
+  uint8_t drow = 0;
+  uint8_t dcol = 0;
+  int maxd = 0;
+  int dist[LED_BOARD_N];
+  uint16_t span;
+  uint16_t now;
+  (void)from_row;
+  (void)from_col;
+  n = s_cap_n;
+  s_cap_n = 0U;
+  if (n == 0U || to_row > 7U || to_col > 7U) {
+    return;
+  }
+  if (n > LED_BOARD_N) {
+    n = LED_BOARD_N;
+  }
+  memcpy(set, s_cap, n);
+  dest = chess_pos_to_led_index(to_row, to_col);
+  for (i = 0; i < n; i++) {
+    if (set[i] == dest) {
+      break;
+    }
+  }
+  if (i == n && n < LED_BOARD_N) {
+    set[n] = dest;
+    n++;
+  }
+  led_index_to_chess_pos(dest, &drow, &dcol);
+  for (i = 0; i < n; i++) {
+    uint8_t row = 0;
+    uint8_t col = 0;
+    int dr;
+    int dc;
+    int d;
+    led_index_to_chess_pos(set[i], &row, &col);
+    dr = (int)row - (int)drow;
+    dc = (int)col - (int)dcol;
+    if (dr < 0) {
+      dr = -dr;
+    }
+    if (dc < 0) {
+      dc = -dc;
+    }
+    d = dr > dc ? dr : dc;
+    dist[i] = d;
+    if (d > maxd) {
+      maxd = d;
+    }
+  }
+  span = (uint16_t)(MOVE_COLLAPSE_MS - MOVE_COLLAPSE_FADE_MS);
+  now = (uint16_t)(esp_timer_get_time() / 1000);
+  if (!led_tgt_lock()) {
+    return;
+  }
+  for (i = 0; i < n; i++) {
+    led_tgt_t *t = &s_tgt[set[i]];
+    uint16_t delay = 0;
+    if (set[i] >= LED_BOARD_N) {
+      continue;
+    }
+    /* Already the post-move colour: leave a piece that stays lit alone. */
+    if (!t->br_fading && t->tr == t->out_r && t->tg == t->out_g &&
+        t->tb == t->out_b) {
+      continue;
+    }
+    if (maxd > 0) {
+      delay = (uint16_t)(((maxd - dist[i]) * (int)span) / maxd);
+    }
+    if (!t->br_fading) {
+      t->sr = t->out_r;
+      t->sg = t->out_g;
+      t->sb = t->out_b;
+      t->br_fading = 1U;
+    }
+    t->br_delay = delay;
+    t->br_fade_ms = MOVE_COLLAPSE_FADE_MS;
+    t->t0 = now;
+  }
+  led_tgt_unlock();
+  led_target_kick();
+}
+
+static void led_tgt_store(led_tgt_t *t, uint8_t r, uint8_t g, uint8_t b,
+                          uint8_t mode, bool mark, uint8_t floor,
+                          uint16_t period, uint16_t phase, uint16_t fade_ms) {
+  /* Same picture again must not restart a fade or the breathe phase. */
+  if (!t->pulse && t->mode == mode && t->tr == r && t->tg == g && t->tb == b &&
+      t->br_floor == floor && t->br_period == period && t->br_phase == phase &&
+      t->br_fade_ms == fade_ms) {
+    if (mark && s_picture_open) {
+      t->touched = 1U;
+    }
+    return;
+  }
+  t->pulse = 0U;
+  if (fade_ms != 0U) {
+    /* From the colour on the strip now, so a cut-off fade does not jump. */
+    t->sr = t->out_r;
+    t->sg = t->out_g;
+    t->sb = t->out_b;
+    t->t0 = (uint16_t)(esp_timer_get_time() / 1000);
+    t->br_fading = 1U;
+    t->br_delay = 0U;
+  } else if (mode == LED_VIS_FADE) {
+    t->sr = t->out_r;
+    t->sg = t->out_g;
+    t->sb = t->out_b;
+    t->t0 = (uint16_t)(esp_timer_get_time() / 1000);
+    t->br_fading = 0U;
+    t->br_delay = 0U;
+  } else {
+    t->br_fading = 0U;
+    t->br_delay = 0U;
+  }
+  t->tr = r;
+  t->tg = g;
+  t->tb = b;
+  t->mode = mode;
+  t->br_floor = floor;
+  t->br_period = period;
+  t->br_phase = phase;
+  t->br_fade_ms = fade_ms;
+  if (mark && s_picture_open) {
+    t->touched = 1U;
+  }
+}
+
+uint32_t led_board_picture_gen(void) { return s_pic_gen; }
+
+void led_target_begin(void) {
+  uint8_t i;
+  s_pic_gen++;
+  if (!led_tgt_lock()) {
+    s_picture_open = 1U;
+    return;
+  }
+  s_picture_open = 1U;
+  s_frame_fade = 0U;
+  for (i = 0; i < LED_BOARD_N; i++) {
+    s_tgt[i].touched = 0U;
+  }
+  led_tgt_unlock();
+}
+
+void led_target_begin_fade(uint16_t fade_ms) {
+  led_target_begin();
+  s_frame_fade = fade_ms;
+}
+
+void led_arm_direct_handover(void) {
+  uint8_t i;
+  s_hold_direct = true;
+  if (!led_tgt_lock()) {
+    return;
+  }
+  for (i = 0; i < LED_BOARD_N; i++) {
+    uint32_t color = led_states[i];
+    led_tgt_t *t = &s_tgt[i];
+    t->pulse = 0U;
+    t->br_fading = 0U;
+    t->br_fade_ms = 0U;
+    t->br_floor = 0U;
+    t->br_period = 0U;
+    t->br_phase = 0U;
+    t->mode = LED_VIS_SNAP;
+    t->tr = (uint8_t)((color >> 16) & 0xFFU);
+    t->tg = (uint8_t)((color >> 8) & 0xFFU);
+    t->tb = (uint8_t)(color & 0xFFU);
+    t->out_r = t->tr;
+    t->out_g = t->tg;
+    t->out_b = t->tb;
+  }
+  s_hw_resync = 0U;
+  led_tgt_unlock();
+}
+
+void led_release_direct_hold(void) { s_hold_direct = false; }
+
+void led_target_set(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue,
+                    led_vis_mode_t mode) {
+  if (led_index >= LED_BOARD_N) {
+    return;
+  }
+  s_pic_gen++;
+  if (!led_tgt_lock()) {
+    return;
+  }
+  led_tgt_store(&s_tgt[led_index], red, green, blue, (uint8_t)mode, true, 0, 0,
+                0, s_frame_fade);
+  led_tgt_unlock();
+}
+
+void led_target_set_breathe_sq(uint8_t led_index, uint8_t red, uint8_t green,
+                               uint8_t blue, uint8_t floor, uint16_t period_ms,
+                               uint16_t phase_ms, uint16_t fade_ms) {
+  if (led_index >= LED_BOARD_N || fade_ms == 0U) {
+    return;
+  }
+  s_pic_gen++;
+  if (!led_tgt_lock()) {
+    return;
+  }
+  led_tgt_store(&s_tgt[led_index], red, green, blue, LED_VIS_BREATHE, true,
+                floor, period_ms, phase_ms, fade_ms);
+  led_tgt_unlock();
+}
+
+void led_target_end(void) {
+  uint8_t i;
+  if (!led_tgt_lock()) {
+    s_picture_open = 0U;
+    s_frame_fade = 0U;
+    led_target_kick();
+    return;
+  }
+  if (!s_picture_open) {
+    s_frame_fade = 0U;
+    led_tgt_unlock();
+    return;
+  }
+  for (i = 0; i < LED_BOARD_N; i++) {
+    if (!s_tgt[i].touched) {
+      s_tgt[i].pulse = 0U;
+      /* Hint and guide frames ease off. A plain begin (pickup) snaps. */
+      led_tgt_store(&s_tgt[i], 0, 0, 0, LED_VIS_SNAP, false, 0, 0, 0,
+                    s_frame_fade);
+    }
+    s_tgt[i].touched = 0U;
+  }
+  s_picture_open = 0U;
+  s_frame_fade = 0U;
+  led_tgt_unlock();
+  led_target_kick();
+}
+
+bool led_target_is_open(void) { return s_picture_open != 0U; }
+
+void led_target_pulse(uint8_t led_index, uint8_t red, uint8_t green,
+                      uint8_t blue) {
+  led_tgt_t *t;
+  if (led_index >= LED_BOARD_N) {
+    return;
+  }
+  if (!led_tgt_lock()) {
+    return;
+  }
+  t = &s_tgt[led_index];
+  t->sr = t->out_r;
+  t->sg = t->out_g;
+  t->sb = t->out_b;
+  t->pr = red;
+  t->pg = green;
+  t->pb = blue;
+  t->pulse = 1U;
+  t->br_fading = 0U;
+  t->t0 = (uint16_t)(esp_timer_get_time() / 1000);
+  if (s_picture_open) {
+    t->touched = 1U;
+  }
+  led_tgt_unlock();
+  led_target_kick();
+}
+
+void led_target_pulse_cancel(uint8_t led_index) {
+  if (led_index >= LED_BOARD_N) {
+    return;
+  }
+  if (!led_tgt_lock()) {
+    return;
+  }
+  s_tgt[led_index].pulse = 0U;
+  led_tgt_unlock();
+  led_target_kick();
+}
+
 void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
                         uint8_t blue) {
   if (led_index >= CHESS_LED_COUNT_TOTAL)
@@ -2903,7 +3345,12 @@ void led_set_pixel_safe(uint8_t led_index, uint8_t red, uint8_t green,
     return;
   }
 
-  led_set_pixel_internal(led_index, red, green, blue);
+  /* Endgame writes the strip itself. Board squares otherwise only set targets. */
+  if (led_index >= LED_BOARD_N || endgame_wave.active) {
+    led_set_pixel_internal(led_index, red, green, blue);
+  } else {
+    led_target_set(led_index, red, green, blue, LED_VIS_SNAP);
+  }
   if (s_held_picture && led_task_handle != NULL &&
       xTaskGetCurrentTaskHandle() != led_task_handle) {
     s_picture_touch = xTaskGetTickCount();
@@ -2927,12 +3374,29 @@ void led_set_all_safe(uint8_t red, uint8_t green, uint8_t blue) {
 }
 
 void led_clear_board_only(void) {
-  if (led_game_pixels_blocked()) {
+  int i;
+  bool hold = false;
+  if (s_hold_direct || led_game_pixels_blocked()) {
     return;
   }
-  /* Another task's clear is the start of a picture, not a frame to send.
-   * Keep the picture open across the pixel writes that follow it. */
-  bool hold = false;
+  led_move_trail_cancel();
+  /* The wave owns the strip until it stops. A target clear would snap back. */
+  if (endgame_wave.active) {
+    for (i = 0; i < LED_BOARD_N; i++) {
+      led_set_pixel_internal((uint8_t)i, 0, 0, 0);
+    }
+    return;
+  }
+  for (i = 0; i < LED_BOARD_N; i++) {
+    led_target_set((uint8_t)i, 0, 0, 0, LED_VIS_SNAP);
+  }
+  if (s_picture_open) {
+    led_board_restore_guide_yield();
+    return;
+  }
+  /* Other task's clear opens one frame. Release drops it only while that
+   * count is 1, so the count has to be raised here or the hold never ends
+   * and led_render_targets stays dark after boot fade. */
   portENTER_CRITICAL(&s_led_compose_mux);
   hold = (s_led_compose == 0) && (led_task_handle != NULL) &&
          (xTaskGetCurrentTaskHandle() != led_task_handle);
@@ -2944,12 +3408,7 @@ void led_clear_board_only(void) {
     s_picture_touch = xTaskGetTickCount();
   }
   portEXIT_CRITICAL(&s_led_compose_mux);
-  for (int i = 0; i < 64; i++) {
-    led_set_pixel_internal(i, 0, 0, 0);
-  }
-  if (hold) {
-    s_picture_touch = xTaskGetTickCount();
-  } else {
+  if (!hold) {
     led_frame_end();
   }
   led_board_restore_guide_yield();
@@ -3107,10 +3566,6 @@ static uint8_t led_smoothstep_u8(uint8_t x) {
   uint32_t v = (uint32_t)x;
   uint32_t s = (v * v * (765U - 2U * v)) / (255U * 255U);
   return (uint8_t)s;
-}
-
-static uint8_t led_lerp_u8(uint8_t a, uint8_t b, uint8_t t) {
-  return (uint8_t)(((uint32_t)a * (255U - t) + (uint32_t)b * t) / 255U);
 }
 
 /**
@@ -3417,8 +3872,377 @@ void led_force_immediate_update(void) {
  * @brief Optimized batch commit with privileged mutex synchronization
  * This function provides maximum stability for LED updates
  */
+#define LED_TAKEBACK_MS 600U
+#define LED_RESIGN_SPREAD_MS 6000U
+#define LED_RESIGN_FADE_MS 400U
+
+static uint8_t s_tb_led[8];
+static uint8_t s_tb_n;
+static uint32_t s_tb_t0;
+static uint32_t s_tb_last;
+static uint32_t s_tb_phase;
+static bool s_tb_on;
+
+static bool s_ring_on;
+static bool s_ring_fade;
+static uint8_t s_ring_king_led;
+static uint8_t s_ring_n;
+static uint8_t s_ring_led[32];
+static uint8_t s_ring_cheb[32];
+static uint8_t s_ring_max;
+static uint32_t s_ring_t0;
+static uint32_t s_ring_fade_t0;
+
+void led_takeback_arm(const uint8_t *led_index, uint8_t count) {
+  uint8_t i;
+  uint8_t n = 0;
+  if (led_index == NULL || count == 0) {
+    led_takeback_clear();
+    return;
+  }
+  for (i = 0; i < count && n < 8; i++) {
+    if (led_index[i] < LED_BOARD_N) {
+      s_tb_led[n++] = led_index[i];
+    }
+  }
+  s_tb_n = n;
+  s_tb_t0 = (uint32_t)(esp_timer_get_time() / 1000);
+  s_tb_last = s_tb_t0;
+  s_tb_phase = 0;
+  s_tb_on = n > 0;
+  led_target_kick();
+}
+
+void led_takeback_clear(void) {
+  s_tb_on = false;
+  s_tb_n = 0;
+}
+
+static uint8_t led_takeback_gain(uint32_t now) {
+  uint32_t elapsed = (uint32_t)(now - s_tb_t0);
+  uint32_t period;
+  uint32_t dt;
+  if (elapsed > LED_TAKEBACK_MS) {
+    elapsed = LED_TAKEBACK_MS;
+  }
+  /* 1400 ms down to 280 ms across the hold. One cycle is 16 breathe steps. */
+  period = 1400U - ((1400U - 280U) * elapsed) / LED_TAKEBACK_MS;
+  if (period < 280U) {
+    period = 280U;
+  }
+  dt = (uint32_t)(now - s_tb_last);
+  s_tb_last = now;
+  if (dt > 80U) {
+    dt = 33U;
+  }
+  s_tb_phase += (dt * 16U * 256U) / period;
+  return k_breathe_gain[(s_tb_phase / 256U) & 15U];
+}
+
+static bool led_takeback_has(uint8_t led) {
+  uint8_t i;
+  for (i = 0; i < s_tb_n; i++) {
+    if (s_tb_led[i] == led) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void led_resign_ring_start(uint8_t king_row, uint8_t king_col, bool white_side) {
+  uint8_t row0 = white_side ? 0U : 4U;
+  uint8_t row1 = white_side ? 4U : 8U;
+  uint8_t row;
+  uint8_t col;
+  int kr = (int)king_row;
+  int kc = (int)king_col;
+  (void)white_side;
+  s_ring_king_led = chess_pos_to_led_index(king_row, king_col);
+  s_ring_n = 0;
+  s_ring_max = 1;
+  for (row = row0; row < row1; row++) {
+    for (col = 0; col < 8U; col++) {
+      int cheb = (int)row - kr;
+      int dc = (int)col - kc;
+      uint8_t led;
+      if (cheb < 0) {
+        cheb = -cheb;
+      }
+      if (dc < 0) {
+        dc = -dc;
+      }
+      if (dc > cheb) {
+        cheb = dc;
+      }
+      if ((uint8_t)cheb > s_ring_max) {
+        s_ring_max = (uint8_t)cheb;
+      }
+      if (s_ring_n >= 32) {
+        continue;
+      }
+      led = chess_pos_to_led_index(row, col);
+      s_ring_led[s_ring_n] = led;
+      s_ring_cheb[s_ring_n] = (uint8_t)cheb;
+      s_ring_n++;
+    }
+  }
+  s_ring_t0 = (uint32_t)(esp_timer_get_time() / 1000);
+  s_ring_fade = false;
+  s_ring_on = true;
+  led_target_kick();
+}
+
+void led_resign_ring_cancel(void) {
+  if (!s_ring_on) {
+    return;
+  }
+  if (!s_ring_fade) {
+    s_ring_fade = true;
+    s_ring_fade_t0 = (uint32_t)(esp_timer_get_time() / 1000);
+  }
+  led_target_kick();
+}
+
+void led_resign_ring_stop(void) {
+  s_ring_on = false;
+  s_ring_fade = false;
+}
+
+bool led_resign_ring_busy(void) { return s_ring_on; }
+
+static int led_ring_slot(uint8_t led) {
+  uint8_t i;
+  for (i = 0; i < s_ring_n; i++) {
+    if (s_ring_led[i] == led) {
+      return (int)i;
+    }
+  }
+  return -1;
+}
+
+static void led_overlay_square(uint8_t led, uint8_t tb_gain, uint32_t elapsed,
+                               uint32_t radius, uint8_t fade, uint8_t breathe,
+                               uint8_t *r, uint8_t *g, uint8_t *b) {
+  if (s_tb_on && led_takeback_has(led)) {
+    *r = 0;
+    *g = led_scale_u8(255, tb_gain);
+    *b = led_scale_u8(255, tb_gain);
+  }
+  if (!s_ring_on || endgame_wave.active) {
+    return;
+  }
+  {
+    int slot = led_ring_slot(led);
+    uint8_t rr;
+    uint8_t gg;
+    uint8_t bb;
+    if (slot < 0 && led != s_ring_king_led) {
+      return;
+    }
+    if (led == s_ring_king_led) {
+      rr = led_scale_u8(255, breathe);
+      gg = led_scale_u8(160, breathe);
+      bb = 0;
+    } else {
+      uint8_t cheb = s_ring_cheb[slot];
+      uint32_t t = (elapsed * 255U) / LED_RESIGN_SPREAD_MS;
+      uint8_t green;
+      uint8_t level = 0;
+      if (t > 255U) {
+        t = 255U;
+      }
+      green = (uint8_t)((140U * (255U - t)) / 255U);
+      if (cheb < radius) {
+        level = 56;
+      } else if (cheb == radius) {
+        level = 255;
+      }
+      rr = led_scale_u8(255, level);
+      gg = led_scale_u8(green, level);
+      bb = 0;
+    }
+    *r = (uint8_t)(((uint16_t)rr * (255U - fade) + (uint16_t)(*r) * fade) / 255U);
+    *g = (uint8_t)(((uint16_t)gg * (255U - fade) + (uint16_t)(*g) * fade) / 255U);
+    *b = (uint8_t)(((uint16_t)bb * (255U - fade) + (uint16_t)(*b) * fade) / 255U);
+  }
+}
+
+static void led_render_one(const led_tgt_t *t, uint16_t now16, uint8_t gain,
+                          uint8_t *r, uint8_t *g, uint8_t *b) {
+  uint16_t elapsed = (uint16_t)(now16 - t->t0);
+  if (t->pulse) {
+    uint16_t half = LED_PULSE_MS / 2U;
+    if (elapsed >= LED_PULSE_MS) {
+      *r = t->tr;
+      *g = t->tg;
+      *b = t->tb;
+      return;
+    }
+    if (elapsed < half) {
+      uint8_t u = led_smoothstep(elapsed, half);
+      *r = led_lerp_u8(t->sr, t->pr, u);
+      *g = led_lerp_u8(t->sg, t->pg, u);
+      *b = led_lerp_u8(t->sb, t->pb, u);
+      return;
+    }
+    {
+      uint8_t u = led_smoothstep((uint16_t)(elapsed - half), half);
+      *r = led_lerp_u8(t->pr, t->tr, u);
+      *g = led_lerp_u8(t->pg, t->tg, u);
+      *b = led_lerp_u8(t->pb, t->tb, u);
+    }
+    return;
+  }
+  if (t->mode == LED_VIS_FADE) {
+    uint8_t u = led_smoothstep(elapsed, LED_FADE_MS);
+    *r = led_lerp_u8(t->sr, t->tr, u);
+    *g = led_lerp_u8(t->sg, t->tg, u);
+    *b = led_lerp_u8(t->sb, t->tb, u);
+    return;
+  }
+  if (t->mode == LED_VIS_BREATHE) {
+    uint8_t gnow = gain;
+    if (t->br_period != 0U) {
+      gnow = led_breathe_sq_gain(t->br_period, t->br_phase, t->br_floor);
+    }
+    *r = led_scale_u8(t->tr, gnow);
+    *g = led_scale_u8(t->tg, gnow);
+    *b = led_scale_u8(t->tb, gnow);
+  } else {
+    *r = t->tr;
+    *g = t->tg;
+    *b = t->tb;
+  }
+  if (t->br_fading && t->br_fade_ms != 0U) {
+    uint16_t delay = t->br_delay;
+    uint8_t u;
+    if (elapsed < delay) {
+      *r = t->sr;
+      *g = t->sg;
+      *b = t->sb;
+    } else {
+      u = led_smoothstep((uint16_t)(elapsed - delay), t->br_fade_ms);
+      if (t->sr == 0U && t->sg == 0U && t->sb == 0U) {
+        *r = led_scale_u8(*r, u);
+        *g = led_scale_u8(*g, u);
+        *b = led_scale_u8(*b, u);
+      } else {
+        *r = led_lerp_u8(t->sr, *r, u);
+        *g = led_lerp_u8(t->sg, *g, u);
+        *b = led_lerp_u8(t->sb, *b, u);
+      }
+    }
+  }
+}
+
+static bool led_visual_busy(void) {
+  uint8_t i;
+  for (i = 0; i < LED_BOARD_N; i++) {
+    if (s_tgt[i].br_fading) {
+      return true;
+    }
+  }
+  return false;
+}
+
+static void led_render_targets(void) {
+  uint8_t rgb[LED_BOARD_N][3];
+  uint8_t dirty[LED_BOARD_N];
+  uint8_t gain;
+  uint16_t now16;
+  uint8_t i;
+  if (s_picture_open || s_held_picture || s_board_show > 0 ||
+      endgame_wave.active || s_forced_blackout || led_is_booting() ||
+      led_game_pixels_blocked()) {
+    return;
+  }
+  if (!led_tgt_lock()) {
+    return;
+  }
+  {
+    uint8_t force_now = s_hw_resync;
+    s_hw_resync = 0U;
+    s_force_hw = force_now;
+  }
+  gain = led_breathe_gain_now();
+  now16 = (uint16_t)(esp_timer_get_time() / 1000);
+  {
+    uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+    uint8_t tb_gain = 0;
+    uint32_t ring_elapsed = 0;
+    uint32_t ring_radius = 0;
+    uint8_t ring_fade = 0;
+    if (s_tb_on) {
+      tb_gain = led_takeback_gain(now_ms);
+    }
+    if (s_ring_on && !endgame_wave.active) {
+      uint32_t span;
+      ring_elapsed = (uint32_t)(now_ms - s_ring_t0);
+      if (ring_elapsed > LED_RESIGN_SPREAD_MS) {
+        ring_elapsed = LED_RESIGN_SPREAD_MS;
+      }
+      if (s_ring_fade) {
+        uint32_t fe = (uint32_t)(now_ms - s_ring_fade_t0);
+        if (fe >= LED_RESIGN_FADE_MS) {
+          s_ring_on = false;
+          s_ring_fade = false;
+        } else {
+          ring_fade = (uint8_t)((fe * 255U) / LED_RESIGN_FADE_MS);
+        }
+      }
+      span = s_ring_max == 0 ? 1U : s_ring_max;
+      ring_radius = (ring_elapsed * span) / LED_RESIGN_SPREAD_MS;
+    }
+    for (i = 0; i < LED_BOARD_N; i++) {
+    led_tgt_t *t = &s_tgt[i];
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    uint16_t elapsed = (uint16_t)(now16 - t->t0);
+    if (t->pulse && elapsed >= LED_PULSE_MS) {
+      t->pulse = 0U;
+    }
+    if (t->mode == LED_VIS_FADE && elapsed >= LED_FADE_MS && !t->pulse) {
+      t->mode = LED_VIS_SNAP;
+    }
+    led_render_one(t, now16, gain, &r, &g, &b);
+    if (t->br_fading && t->br_fade_ms != 0U &&
+        (uint16_t)(now16 - t->t0) >=
+            (uint16_t)(t->br_delay + t->br_fade_ms)) {
+      t->br_fading = 0U;
+    }
+    if (s_ring_on || s_tb_on) {
+      led_overlay_square(i, tb_gain, ring_elapsed, ring_radius, ring_fade, gain,
+                         &r, &g, &b);
+    }
+    dirty[i] = (s_force_hw || r != t->out_r || g != t->out_g || b != t->out_b)
+                   ? 1U
+                   : 0U;
+    if (dirty[i]) {
+      t->out_r = r;
+      t->out_g = g;
+      t->out_b = b;
+      rgb[i][0] = r;
+      rgb[i][1] = g;
+      rgb[i][2] = b;
+    }
+    }
+  }
+  led_tgt_unlock();
+  s_target_write = 1U;
+  for (i = 0; i < LED_BOARD_N; i++) {
+    if (!dirty[i]) {
+      continue;
+    }
+    led_set_pixel_channels(i, rgb[i][0], rgb[i][1], rgb[i][2], 0);
+  }
+  s_target_write = 0U;
+  s_force_hw = 0U;
+}
+
 static void led_privileged_batch_commit(void) {
   led_release_held_picture(false);
+  led_render_targets();
   led_commit_pending_changes();
 }
 
@@ -3762,13 +4586,16 @@ void led_ota_restore_board_after_update_abort(void) {
  * picture advances one smooth step per call (about 25 ms).
  * @note The function is safe - it checks initialization and simulation mode
  */
-/* Clock units per 25 ms boot tick. Rings overlap, so the bloom stays smooth. */
+/* Clock units per 25 ms. Rings overlap, so the bloom stays smooth. */
 #define BOOT_CLOCK_STEP 18u
+#define BOOT_FRAME_MS 25u
 #define BOOT_RING_GAP 22u
 #define BOOT_SQUARE_SPAN 110u
 #define BOOT_CLOCK_END ((7u * BOOT_RING_GAP) + BOOT_SQUARE_SPAN)
 
 static uint16_t s_boot_clock;
+static uint32_t s_boot_t0;
+static bool s_boot_timed;
 static bool s_boot_faded;
 
 static uint8_t boot_center_dist(uint8_t row, uint8_t col) {
@@ -3814,15 +4641,21 @@ bool led_boot_animation_step(uint8_t progress_percent) {
   }
 
   bool covered = false;
-  if (s_boot_clock < BOOT_CLOCK_END) {
-    uint32_t next = (uint32_t)s_boot_clock + BOOT_CLOCK_STEP;
-    if (next > BOOT_CLOCK_END) {
-      next = BOOT_CLOCK_END;
+  {
+    uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+    uint32_t elapsed;
+    uint32_t clock;
+    if (!s_boot_timed) {
+      s_boot_t0 = now;
+      s_boot_timed = true;
     }
-    s_boot_clock = (uint16_t)next;
+    elapsed = (uint32_t)(now - s_boot_t0);
+    clock = BOOT_CLOCK_STEP + (elapsed * BOOT_CLOCK_STEP) / BOOT_FRAME_MS;
+    if (clock > BOOT_CLOCK_END) {
+      clock = BOOT_CLOCK_END;
+    }
+    s_boot_clock = (uint16_t)clock;
     covered = (s_boot_clock >= BOOT_CLOCK_END);
-  } else {
-    covered = true;
   }
 
   boot_paint_board(s_boot_clock, 255);
@@ -3864,6 +4697,7 @@ void led_boot_animation_fade_out(void) {
 
   led_clear_board_only();
   s_boot_clock = 0;
+  s_boot_timed = false;
   led_booting_active = false;
   ESP_LOGI(TAG, "LED boot animation fade out completed");
 }

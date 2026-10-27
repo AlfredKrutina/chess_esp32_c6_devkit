@@ -9,6 +9,7 @@
 
 #include "../led_task/include/led_task.h"
 #include "../squares_task/include/squares_task.h"
+#include "../squares_task/include/hall_i2c_squares.h"
 #include "led_mapping.h"
 
 #include "esp_log.h"
@@ -792,4 +793,103 @@ void game_opening_export_status_json(char *buf, size_t buf_size, size_t *offset)
   if (n > 0 && (size_t)n < buf_size - *offset) {
     *offset += (size_t)n;
   }
+}
+
+void game_opening_service_hall_move(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  static uint32_t s_since;
+  static bool s_armed;
+  uint8_t occ[64];
+  uint8_t fr = 0;
+  uint8_t fc = 0;
+  uint8_t tr = 0;
+  uint8_t tc = 0;
+  uint32_t now;
+  piece_t mover;
+  chess_move_t move;
+  bool castle;
+  bool ep;
+  uint8_t rook_from = 0;
+  uint8_t rook_to = 0;
+  uint8_t sq;
+  if (!opening_state.active || opening_state.awaiting_checkpoint_ack ||
+      opening_state.expected_from[0] == '\0' ||
+      !hall_i2c_squares_readings_usable()) {
+    s_armed = false;
+    return;
+  }
+  if (!convert_notation_to_coords(opening_state.expected_from, &fr, &fc) ||
+      !convert_notation_to_coords(opening_state.expected_to, &tr, &tc)) {
+    s_armed = false;
+    return;
+  }
+  if (!game_opening_validate_expected_move(fr, fc, tr, tc)) {
+    s_armed = false;
+    return;
+  }
+  mover = board[fr][fc];
+  if (mover == PIECE_EMPTY) {
+    s_armed = false;
+    return;
+  }
+  castle = (mover == PIECE_WHITE_KING || mover == PIECE_BLACK_KING) && fr == tr &&
+           (fc > tc ? fc - tc : tc - fc) == 2;
+  ep = en_passant_available && tr == en_passant_target_row &&
+       tc == en_passant_target_col &&
+       (mover == PIECE_WHITE_PAWN || mover == PIECE_BLACK_PAWN);
+  if (castle) {
+    rook_from = (uint8_t)(fr * 8 + (tc > fc ? 7 : 0));
+    rook_to = (uint8_t)(fr * 8 + (tc > fc ? 5 : 3));
+  }
+  squares_get_state(occ);
+  for (sq = 0; sq < 64; sq++) {
+    bool want = board[sq / 8][sq % 8] != PIECE_EMPTY;
+    if (sq == (uint8_t)(fr * 8 + fc)) {
+      want = false;
+    }
+    if (sq == (uint8_t)(tr * 8 + tc)) {
+      want = true;
+    }
+    if (castle && sq == rook_from) {
+      want = false;
+    }
+    if (castle && sq == rook_to) {
+      want = true;
+    }
+    if (ep &&
+        sq == (uint8_t)(en_passant_victim_row * 8 + en_passant_victim_col)) {
+      want = false;
+    }
+    if ((occ[sq] != 0) != want) {
+      s_armed = false;
+      return;
+    }
+  }
+  now = (uint32_t)(esp_timer_get_time() / 1000);
+  if (!s_armed) {
+    s_armed = true;
+    s_since = now;
+    return;
+  }
+  if ((uint32_t)(now - s_since) < 150U) {
+    return;
+  }
+  s_armed = false;
+  memset(&move, 0, sizeof(move));
+  move.from_row = fr;
+  move.from_col = fc;
+  move.to_row = tr;
+  move.to_col = tc;
+  move.piece = mover;
+  move.captured_piece = board[tr][tc];
+  if (!game_execute_move(&move)) {
+    return;
+  }
+  if (opening_state.awaiting_opponent_physical) {
+    game_opening_advance_after_opponent_physical();
+  } else {
+    game_opening_advance_after_correct();
+  }
+  game_send_response_to_uart("Opening move accepted.", false, NULL);
+#endif
 }

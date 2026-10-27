@@ -783,10 +783,21 @@ static void game_ep_capture_show(void) {
 }
 
 void game_ep_capture_arm(uint8_t row, uint8_t col) {
-  s_ep_wait = true;
   s_ep_row = row;
   s_ep_col = col;
-  led_clear_board_only();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  {
+    uint8_t phys[64] = {0};
+    uint8_t sq = (uint8_t)(row * 8 + col);
+    squares_get_state(phys);
+    /* The move is committed only after the victim is already off the square. */
+    if (phys[sq] == 0) {
+      s_ep_wait = false;
+      return;
+    }
+  }
+#endif
+  s_ep_wait = true;
   game_ep_capture_show();
 }
 
@@ -808,8 +819,7 @@ void game_ep_capture_service(void) {
   if (phys[sq] == 0 && !in_hand) {
     s_ep_wait = false;
     if (current_game_state != GAME_STATE_FINISHED) {
-      led_clear_board_only();
-      chess_policy_highlight_movable_if_enabled();
+      chess_policy_refresh_idle_board_leds();
     }
     return;
   }

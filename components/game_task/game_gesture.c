@@ -708,17 +708,12 @@ static void handle_result(led_gesture_result_t result) {
       break;
     }
     s_new_game_after_boot = false;
+    led_arm_direct_handover();
     game_start_new_game();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-    if (game_hall_restore_guide_show_opening()) {
-      /* Empty board: starting homes glow. Sync fades them after 10 s
-       * unless a piece is put down. */
-    } else if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
-      game_hall_restore_guide_stop_leds();
+    if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
       game_hall_restore_guide_force_resync();
-    } else {
-      game_hall_restore_guide_stop_leds();
-      chess_policy_highlight_movable_if_enabled();
+      game_hall_restore_guide_sync();
     }
 #endif
     break;

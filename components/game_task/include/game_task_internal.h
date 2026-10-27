@@ -332,7 +332,6 @@ bool game_is_valid_square(int row, int col);
 bool game_is_own_piece(piece_t piece, player_t player);
 
 void game_stop_error_blink(void);
-void game_update_error_blink(void);
 void resignation_tick(void);
 
 void game_process_evaluate_command(const chess_move_command_t *cmd);

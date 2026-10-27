@@ -3,6 +3,7 @@
  * @brief Promotion anchor LED, detection, and physical button handling.
  */
 
+#include "sdkconfig.h"
 #include "game_task_internal.h"
 #include "game_task.h"
 #include "game_snapshot.h"
@@ -314,13 +315,25 @@ void game_check_promotion_needed(void) {
       printf("\r\n");
       printf("🎯 Choose promotion piece:\r\n");
       printf("\r\n");
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      printf("Place a queen, rook, bishop, or knight of your color on %c8.\r\n",
+             'a' + col);
+      printf("A king or queen magnet on that square is a queen.\r\n");
+      printf("The choice completes after the piece sits still for 2 seconds.\r\n");
+      printf("\r\n");
+#else
       printf("💡 PHYSICAL BUTTONS (press one):\r\n");
       printf("   • Button 0 (LED 64 🟢) → QUEEN  (most powerful)\r\n");
       printf("   • Button 1 (LED 65 🟢) → ROOK\r\n");
       printf("   • Button 2 (LED 66 🟢) → BISHOP\r\n");
       printf("   • Button 3 (LED 67 🟢) → KNIGHT\r\n");
       printf("\r\n");
+#endif
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      printf("📝 UART COMMANDS (optional):\r\n");
+#else
       printf("📝 UART COMMANDS (alternative):\r\n");
+#endif
       printf("   • PROMOTE %c%d=Q  → Queen\r\n", 'a' + col, 8);
       printf("   • PROMOTE %c%d=R  → Rook\r\n", 'a' + col, 8);
       printf("   • PROMOTE %c%d=B  → Bishop\r\n", 'a' + col, 8);
@@ -357,13 +370,25 @@ void game_check_promotion_needed(void) {
       printf("\r\n");
       printf("🎯 Choose promotion piece:\r\n");
       printf("\r\n");
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      printf("Place a queen, rook, bishop, or knight of your color on %c1.\r\n",
+             'a' + col);
+      printf("A king or queen magnet on that square is a queen.\r\n");
+      printf("The choice completes after the piece sits still for 2 seconds.\r\n");
+      printf("\r\n");
+#else
       printf("💡 PHYSICAL BUTTONS (press one):\r\n");
       printf("   • Button 0 (LED 68 🟢) → QUEEN  (most powerful)\r\n");
       printf("   • Button 1 (LED 69 🟢) → ROOK\r\n");
       printf("   • Button 2 (LED 70 🟢) → BISHOP\r\n");
       printf("   • Button 3 (LED 71 🟢) → KNIGHT\r\n");
       printf("\r\n");
+#endif
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      printf("📝 UART COMMANDS (optional):\r\n");
+#else
       printf("📝 UART COMMANDS (alternative):\r\n");
+#endif
       printf("   • PROMOTE %c%d=Q  → Queen\r\n", 'a' + col, 1);
       printf("   • PROMOTE %c%d=R  → Rook\r\n", 'a' + col, 1);
       printf("   • PROMOTE %c%d=B  → Bishop\r\n", 'a' + col, 1);

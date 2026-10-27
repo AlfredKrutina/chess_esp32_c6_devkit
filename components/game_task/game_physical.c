@@ -2748,25 +2748,6 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       // run in game_execute_move_enhanced()
 
       if (!is_castling && !is_castling_completion_before_move) {
-        // Run the move path animation BEFORE changing the player (according to the old
-        // projektu)
-        uint8_t from_led = chess_pos_to_led_index(move.from_row, move.from_col);
-        uint8_t to_led = chess_pos_to_led_index(move.to_row, move.to_col);
-        led_command_t move_path_cmd = {
-            .type = LED_CMD_ANIM_MOVE_PATH,
-            .led_index = from_led,
-            .red = 255,
-            .green = 255,
-            .blue = 0, // Yellow
-            .duration_ms = 1000,
-            .data = &to_led // Target position in data
-        };
-        led_execute_command_new(&move_path_cmd);
-
-        // STABILITY FIX: Animation runs asynchronously, we don't block processing
-        // Animations are started in led_task and run independently
-        // (vTaskDelay removed for better throughput)
-
         // PLAYER ALREADY CHANGED In game_execute_move() - use current player
         // Timer integration: End timer for previous player and start for new
         // player
@@ -2844,7 +2825,14 @@ void game_process_drop_command(const chess_move_command_t *cmd) {
       if (current_game_state == GAME_STATE_ACTIVE &&
           !game_is_castle_animation_active() && !game_is_castling_expected() &&
           !game_puzzle_suppress_move_hints()) {
-        chess_policy_highlight_movable_if_enabled();
+        chess_policy_refresh_idle_board_leds();
+      }
+      if (!promotion_state.pending &&
+          current_game_state != GAME_STATE_FINISHED) {
+        led_move_trail_start(move.from_row, move.from_col, move.to_row,
+                             move.to_col);
+      } else {
+        led_move_trail_cancel();
       }
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
       if (castling_state.in_progress) {
@@ -3519,25 +3507,6 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
         // game_process_drop_command LEDs turn off in
         // game_process_drop_command after a successful turn
 
-        // Run the move path animation BEFORE changing the player (according to the old
-        // projektu)
-        uint8_t from_led = chess_pos_to_led_index(move.from_row, move.from_col);
-        uint8_t to_led = chess_pos_to_led_index(move.to_row, move.to_col);
-        led_command_t move_path_cmd = {
-            .type = LED_CMD_ANIM_MOVE_PATH,
-            .led_index = from_led,
-            .red = 255,
-            .green = 255,
-            .blue = 0, // Yellow
-            .duration_ms = 1000,
-            .data = &to_led // Target position in data
-        };
-        led_execute_command_new(&move_path_cmd);
-
-        // STABILITY FIX: Animation runs asynchronously, we don't block processing
-        // Animations are started in led_task and run independently
-        // (vTaskDelay removed for better throughput)
-
         // PLAYER ALREADY CHANGED IN game_execute_move() - use current one
         // player
         player_t previous_player =
@@ -3635,8 +3604,10 @@ void game_process_chess_move(const chess_move_command_t *cmd) {
           ESP_LOGI(TAG, "🔓 Auto new game detection unblocked by valid move");
         }
 
-        // Show moving figures for the new player
-        chess_policy_highlight_movable_if_enabled();
+        // Show moving figures for the new player, then the from→to trail.
+        chess_policy_refresh_idle_board_leds();
+        led_move_trail_start(move.from_row, move.from_col, move.to_row,
+                             move.to_col);
       }
     } else {
       ESP_LOGE(TAG, "❌ Failed to execute UART move");

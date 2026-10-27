@@ -215,6 +215,20 @@ void game_squares_guard_handle_command(const chess_move_command_t *cmd) {
   }
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* In play, a multi-square anomaly must not freeze occupancy. The Hall
+   * guide walks the pieces back to the last legal position. */
+  if (hall_i2c_squares_readings_usable() &&
+      game_hall_restore_guide_in_play() &&
+      !game_task_squares_guard_mode_conflict_active() &&
+      (current_game_state == GAME_STATE_ACTIVE ||
+       current_game_state == GAME_STATE_PLAYING)) {
+    squares_abort_ambiguous_guard_baseline();
+    game_hall_position_enter_chaos_restore();
+    if (game_hall_position_in_chaos_restore()) {
+      game_squares_guard_enter_pause_from_hall_guide();
+    }
+    return;
+  }
   if (hall_i2c_squares_readings_usable() &&
       game_hall_position_mismatch_count() <= 4) {
     STAGING_LOGI(TAG, "Matrix guard left to Hall restore (mismatch<=4)");

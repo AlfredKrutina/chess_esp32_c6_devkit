@@ -484,6 +484,11 @@ void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
   game_opening_cancel();
   game_puzzle_cancel();
+  led_stop_endgame_animation();
+  led_release_direct_hold();
+  led_move_trail_cancel();
+  led_takeback_clear();
+  led_resign_ring_cancel();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   game_hall_restore_guide_force_resync();
 #endif
@@ -525,11 +530,14 @@ void game_start_new_game(void) {
   last_move_time = game_start_time;
   ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
 
-  // Start timer for white player if time control is active
+  // Start timer for white player if time control is active.
+  // Hall waits until the opening guide hands the board over to play.
+#if !CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   if (game_is_timer_active()) {
     ESP_LOGI(TAG, "Starting timer for white player at game start");
     game_start_timer_move(true); // Start timer for white
   }
+#endif
 
   // Initialize extended statistics
   white_time_total = 0;
@@ -559,7 +567,6 @@ void game_start_new_game(void) {
   if (total_games > 1) {
     // Restart the game - stop all animations
     unified_animation_stop_all();
-    led_stop_endgame_animation(); // Legacy endgame animations
     stop_endgame_animation();     // Stop NEW endgame animations system
     ESP_LOGI(TAG, "✅ All animations stopped for new game (restart)");
   } else {
@@ -586,7 +593,12 @@ void game_start_new_game(void) {
 
   vTaskDelay(pdMS_TO_TICKS(100));
   game_task_wdt_reset_safe();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* Opening guide, or yellow the moment the pieces already match the start. */
+  game_hall_restore_guide_sync();
+#else
   chess_policy_highlight_movable_if_enabled();
+#endif
   game_task_wdt_reset_safe();
   game_bump_revision_and_notify();
   game_snapshot_persist_after_valid_move();
@@ -607,6 +619,10 @@ bool game_start_new_game_from_fen(const char *fen) {
   ESP_LOGI(TAG, "Starting new game from FEN...");
   game_opening_cancel();
   game_puzzle_cancel();
+  led_stop_endgame_animation();
+  led_move_trail_cancel();
+  led_takeback_clear();
+  led_resign_ring_cancel();
   game_task_wdt_reset_safe();
   game_task_wdt_reset_safe();
 

@@ -289,6 +289,8 @@ game_state_t game_check_end_game_conditions(void) {
 
     // Stop timer (game over)
     timer_pause();
+    game_send_response_to_uart("Stalemate. The game is drawn.", false, NULL);
+    game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn in %" PRIu32 " moves", move_count);
     return GAME_STATE_FINISHED;
@@ -307,6 +309,8 @@ game_state_t game_check_end_game_conditions(void) {
 
     // Stop timer (game over)
     timer_pause();
+    game_send_response_to_uart("Draw by the 50-move rule.", false, NULL);
+    game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 DRAW! 50 moves without capture (50-move rule)");
     return GAME_STATE_FINISHED;
@@ -322,6 +326,8 @@ game_state_t game_check_end_game_conditions(void) {
 
     // Stop timer (game over)
     timer_pause();
+    game_send_response_to_uart("Draw by repetition.", false, NULL);
+    game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 DRAW! Position repeated (draw by repetition)");
     return GAME_STATE_FINISHED;
@@ -338,6 +344,8 @@ game_state_t game_check_end_game_conditions(void) {
 
     // Stop timer (game over)
     timer_pause();
+    game_send_response_to_uart("Draw by insufficient material.", false, NULL);
+    game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 DRAW! Insufficient material to checkmate");
     return GAME_STATE_FINISHED;

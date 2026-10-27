@@ -262,6 +262,68 @@ void led_set_forced_blackout(bool on);
 void led_clear_board_only(void);
 
 /**
+ * Board picture (squares 0-63). Buttons 64-72 are left alone.
+ * Unset squares snap off in the same frame. Lift overlays use LED_VIS_SNAP.
+ */
+typedef enum {
+  LED_VIS_SNAP = 0,
+  LED_VIS_FADE = 1,
+  LED_VIS_BREATHE = 2,
+} led_vis_mode_t;
+
+#define HINT_FADE_MS 180U
+
+void led_target_begin(void);
+/** Bumps when something other than the target renderer paints the board. */
+uint32_t led_board_picture_gen(void);
+/** Like begin, but squares ease from the colour on the strip. Pickup stays on begin. */
+void led_target_begin_fade(uint16_t fade_ms);
+/** Freeze targets to the direct-pixel picture so the next fade starts there. */
+void led_arm_direct_handover(void);
+void led_release_direct_hold(void);
+void led_target_set(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue,
+                    led_vis_mode_t mode);
+/** Guide breathe. period 0 is the shared phase. fade_ms crossfades from out_*. */
+void led_target_set_breathe_sq(uint8_t led_index, uint8_t red, uint8_t green,
+                               uint8_t blue, uint8_t floor, uint16_t period_ms,
+                               uint16_t phase_ms, uint16_t fade_ms);
+void led_target_end(void);
+bool led_target_is_open(void);
+/** One-shot ease to rgb and back to the square's target. Does not clear the board. */
+void led_target_pulse(uint8_t led_index, uint8_t red, uint8_t green,
+                      uint8_t blue);
+void led_target_pulse_cancel(uint8_t led_index);
+
+/**
+ * Remember the lit pickup squares. Call after the lift picture is set.
+ * led_move_trail_start then collapses them toward the post-move hints.
+ */
+void led_move_collapse_capture(void);
+/**
+ * After the next hint picture is set: pickup squares fade into it,
+ * farthest from the destination first. No capture → hints already crossfade.
+ */
+void led_move_trail_start(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+                          uint8_t to_col);
+void led_move_trail_cancel(void);
+
+/**
+ * Cyan takeback squares. The LED task speeds the shared breathe over 600 ms.
+ * Confirm is a 240 ms pulse back to whatever picture is set afterwards.
+ */
+void led_takeback_arm(const uint8_t *led_index, uint8_t count);
+void led_takeback_clear(void);
+
+/**
+ * Resignation ring on the resigning side. Spreads for 6 s (the hold's 4–10 s).
+ * Cancel fades it out over 400 ms. Stop drops it so the endgame wave can own the strip.
+ */
+void led_resign_ring_start(uint8_t king_row, uint8_t king_col, bool white_side);
+void led_resign_ring_cancel(void);
+void led_resign_ring_stop(void);
+bool led_resign_ring_busy(void);
+
+/**
  * @brief Clear only the button LEDs (64-72), keep the case
  */
 void led_clear_buttons_only(void);

@@ -20,6 +20,8 @@ typedef enum {
   GAME_HALL_POS_ONE_LEGAL,
   GAME_HALL_POS_PREVIOUS,
   GAME_HALL_POS_CAPTURE_PARTIAL,
+  GAME_HALL_POS_EP_PARTIAL,
+  GAME_HALL_POS_CASTLE_PARTIAL,
   GAME_HALL_POS_MOVE_PARTIAL,
   GAME_HALL_POS_RESTORE,
 } game_hall_pos_class_t;
@@ -52,6 +54,18 @@ void game_hall_position_on_matrix_event(const chess_move_command_t *cmd);
 
 /** True while lift or restore LEDs own the board. Idle redraw must wait. */
 bool game_hall_position_blocks_idle_leds(void);
+
+/** Next idle refresh may paint even while restore or chaos still owns the class. */
+void game_hall_position_arm_idle_handover(void);
+
+/**
+ * Scrambled board during play. Hold the clock and show the restore guide
+ * until the sensors match the last legal position. No-op outside an active game.
+ */
+void game_hall_position_enter_chaos_restore(void);
+
+/** True while the scramble guide is waiting for the last legal position. */
+bool game_hall_position_in_chaos_restore(void);
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
 

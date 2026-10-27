@@ -3,6 +3,7 @@
  * @brief King resignation timer, button LED animation, timeout finalize.
  */
 
+#include "sdkconfig.h"
 #include "game_task_internal.h"
 #include "game_task.h"
 #include "game_snapshot.h"
@@ -32,6 +33,11 @@ static const char *TAG = "GAME_RESIGN";
  * 5-9s: fade in LED order (Queen → Rook → Bishop → Knight on both sides).
  */
 static void resignation_update_button_leds(uint32_t elapsed_ms) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  /* This board has no promotion-button LEDs. The Hall path paints a ring. */
+  (void)elapsed_ms;
+  return;
+#else
   const uint32_t ORANGE_START_MS = 4000; // Color to orange up to 4 s
   if (elapsed_ms < ORANGE_START_MS)
     return;
@@ -62,6 +68,7 @@ static void resignation_update_button_leds(uint32_t elapsed_ms) {
     button_set_led_color(WHITE_BASE + i, r, g, b);
     button_set_led_color(BLACK_BASE + i, r, g, b);
   }
+#endif
 }
 
 /**
@@ -98,12 +105,23 @@ static void resignation_end_game(player_t loser) {
   if (resignation_state.active) {
     // Finalized cleanup (no cancel messages, do not restore king)
     resignation_stop(true);
-  } else {
+  }
+#if !CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  else {
     for (int i = 0; i < 8; i++) {
       button_set_led_color(64 + i, 0, 0, 0);
     }
   }
+#endif
   game_snapshot_persist_after_valid_move();
+}
+
+void game_resign_from_king_hold(player_t loser) {
+  char msg[24];
+  const char *who = (loser == PLAYER_WHITE) ? "White" : "Black";
+  snprintf(msg, sizeof(msg), "%s resigns.", who);
+  game_send_response_to_uart(msg, false, NULL);
+  resignation_end_game(loser);
 }
 
 bool game_agree_draw(void) {
@@ -119,6 +137,7 @@ bool game_agree_draw(void) {
   game_update_endgame_statistics(current_result_type);
   endgame_report_requested = true;
   timer_pause();
+  game_trigger_victory_animation(current_player);
   if (resignation_state.active) {
     resignation_stop(true);
   }

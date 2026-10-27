@@ -452,6 +452,9 @@ game_resign_result_t game_resign_check(uint8_t side);
  */
 bool game_resign_from_app(uint8_t side);
 
+/** Hall: own king held off its square for 10 s. No button LEDs. */
+void game_resign_from_king_hold(player_t loser);
+
 /** Agreed draw. Game task only. Same guards as resign of the side on move. */
 bool game_agree_draw(void);
 
@@ -506,6 +509,8 @@ bool game_puzzle_drop_is_expected(uint8_t from_row, uint8_t from_col,
 void game_puzzle_after_accepted_move(void);
 bool game_puzzle_hint(void);
 void game_puzzle_service_leds(void);
+/** Hall: accept the expected puzzle ply from a stable occupancy snapshot. */
+void game_puzzle_service_hall_move(void);
 bool game_puzzle_suppress_move_hints(void);
 const char *game_puzzle_staged_fen(void);
 const char *game_puzzle_title(void);
@@ -547,6 +552,8 @@ void game_opening_advance_after_opponent_physical(void);
 bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
                                          uint8_t to_row, uint8_t to_col);
 void game_opening_advance_after_correct(void);
+/** Hall: accept the expected trainer ply from a stable occupancy snapshot. */
+void game_opening_service_hall_move(void);
 bool game_opening_on_wrong_player_move(void);
 void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
                                    uint8_t to_row, uint8_t to_col);

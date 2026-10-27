@@ -165,8 +165,6 @@ static void game_send_board_to_uart(QueueHandle_t response_queue) {
 }
 
 void game_process_commands(void) {
-  // AKTUALIZOVAT non-blocking blink
-  game_update_error_blink();
   game_physical_undo_tick();
 
   // Update resignation visuals + timeout (safe task context)

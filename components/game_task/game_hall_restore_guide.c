@@ -4,6 +4,7 @@
  */
 
 #include "game_hall_restore_guide.h"
+#include "game_hall_position.h"
 #include "game_hall_match.h"
 #include "game_squares_guard.h"
 #include "game_task_internal.h"
@@ -162,7 +163,9 @@ static bool sensors_unchanged(const uint8_t digest[64]) {
 }
 
 static bool s_digest_valid;
+static uint32_t s_play_gen;
 static bool s_opening_done;
+static bool s_opening_clock_started;
 static uint32_t s_opening_deadline_ms;
 static uint8_t s_pending_digest[64];
 static uint32_t s_pending_since_ms;
@@ -699,15 +702,37 @@ void game_hall_restore_guide_request_sync(void) { s_sync_requested = true; }
 
 void game_hall_restore_guide_stop_leds(void);
 
+static void opening_clock_on_play(void) {
+  if (s_opening_clock_started) {
+    return;
+  }
+  if (!s_opening_done || game_get_move_count() != 0) {
+    return;
+  }
+  if (current_game_state != GAME_STATE_ACTIVE &&
+      current_game_state != GAME_STATE_PLAYING) {
+    return;
+  }
+  s_opening_clock_started = true;
+  if (game_is_timer_active()) {
+    (void)game_start_timer_move(current_player == PLAYER_WHITE);
+    ESP_LOGI(TAG, "Clock started after opening setup");
+  }
+}
+
+void game_hall_opening_clock_on_play(void) { opening_clock_on_play(); }
+
 void game_hall_restore_guide_end_for_play(void) {
   s_opening_done = true;
   game_hall_restore_guide_stop_leds();
+  opening_clock_on_play();
 }
 
 bool game_hall_restore_guide_in_play(void) { return s_opening_done; }
 
 void game_hall_restore_guide_force_resync(void) {
   s_opening_done = false;
+  s_opening_clock_started = false;
   s_digest_valid = false;
   s_sync_requested = true;
 }
@@ -785,6 +810,66 @@ void game_hall_restore_guide_stop_leds(void) {
   led_board_restore_guide_clear();
 }
 
+void game_hall_restore_guide_release(void) {
+  s_guide_led_active = false;
+  led_board_restore_guide_cancel();
+}
+
+static bool guide_digest_settled(const uint8_t digest[64], uint32_t now_ms) {
+  if (!s_pending_valid || !occupancy_same(digest, s_pending_digest)) {
+    memcpy(s_pending_digest, digest, 64);
+    s_pending_valid = true;
+    s_pending_since_ms = now_ms;
+    return false;
+  }
+  memcpy(s_pending_digest, digest, 64);
+  return (uint32_t)(now_ms - s_pending_since_ms) >= GUIDE_STABLE_MS;
+}
+
+static bool play_sensors_blocked(void) {
+  if (game_demo_show_active() || led_board_show_active() ||
+      led_lamp_board_held() || led_gesture_anim_busy() ||
+      !hall_i2c_squares_readings_usable() || mode_blocks_guide()) {
+    return true;
+  }
+  return false;
+}
+
+/** Jobs and marks against board[][]. aligned is true when nothing is left to move. */
+static bool compose_restore_plan(const uint8_t occ[64],
+                                 led_restore_guide_plan_t *plan, bool *aligned) {
+  hall_piece_slot_t expect[MAX_PIECES];
+  hall_piece_slot_t phys[MAX_PIECES];
+  restore_job_t jobs[MAX_JOBS];
+  uint8_t missing[LED_RESTORE_GUIDE_MAX_MISSING];
+  uint8_t extra[LED_RESTORE_GUIDE_MAX_EXTRA];
+  int expect_n = 0;
+  int phys_n = 0;
+  int job_n = 0;
+  uint8_t missing_n = 0;
+  uint8_t extra_n = 0;
+
+  *aligned = false;
+  memset(plan, 0, sizeof(*plan));
+  if (!collect_board(expect, &expect_n, phys, &phys_n, occ)) {
+    return false;
+  }
+  match_all(expect, expect_n, phys, phys_n, jobs, &job_n, missing, &missing_n,
+            extra, &extra_n);
+  if (board_fully_aligned(job_n, missing_n, extra_n)) {
+    *aligned = true;
+    return true;
+  }
+  merge_swap_pairs(jobs, &job_n);
+  pick_display_paths(jobs, job_n, missing, missing_n, plan);
+  plan->missing_count = missing_n;
+  memcpy(plan->missing_homes, missing, missing_n);
+  plan->extra_count = extra_n;
+  memcpy(plan->extra_squares, extra, extra_n);
+  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, occ, plan);
+  return true;
+}
+
 void game_hall_restore_guide_sync(void) {
   if (s_opening_done) {
     s_sync_requested = false;
@@ -810,18 +895,8 @@ void game_hall_restore_guide_sync(void) {
   }
   uint8_t occ[64];
   uint8_t digest[64];
-  hall_piece_slot_t expect[MAX_PIECES];
-  hall_piece_slot_t phys[MAX_PIECES];
-  restore_job_t jobs[MAX_JOBS];
-  uint8_t missing[LED_RESTORE_GUIDE_MAX_MISSING];
-  uint8_t extra[LED_RESTORE_GUIDE_MAX_EXTRA];
   led_restore_guide_plan_t plan;
-  int expect_n = 0;
-  int phys_n = 0;
-  int job_n = 0;
-  uint8_t missing_n = 0;
-  uint8_t extra_n = 0;
-  bool has_led_work = false;
+  bool aligned = false;
 
   if (s_in_sync) {
     return;
@@ -843,18 +918,8 @@ void game_hall_restore_guide_sync(void) {
 
   squares_get_state(occ);
   digest_sensors(occ, digest);
-  {
-    uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
-    if (!s_pending_valid || !occupancy_same(digest, s_pending_digest)) {
-      memcpy(s_pending_digest, digest, 64);
-      s_pending_valid = true;
-      s_pending_since_ms = now_ms;
-      goto out;
-    }
-    memcpy(s_pending_digest, digest, 64);
-    if ((uint32_t)(now_ms - s_pending_since_ms) < GUIDE_STABLE_MS) {
-      goto out;
-    }
+  if (!guide_digest_settled(digest, (uint32_t)(esp_timer_get_time() / 1000))) {
+    goto out;
   }
   if (s_opening_deadline_ms != 0) {
     uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
@@ -892,32 +957,19 @@ void game_hall_restore_guide_sync(void) {
     goto out;
   }
 
-  if (!collect_board(expect, &expect_n, phys, &phys_n, occ)) {
+  if (!compose_restore_plan(occ, &plan, &aligned)) {
     goto out;
   }
-
-  match_all(expect, expect_n, phys, phys_n, jobs, &job_n, missing, &missing_n,
-            extra, &extra_n);
-
-  if (board_fully_aligned(job_n, missing_n, extra_n)) {
+  if (aligned) {
     s_opening_done = true;
-    game_hall_restore_guide_stop_leds();
+    game_hall_restore_guide_release();
+    opening_clock_on_play();
     remember_digest(digest);
+    game_hall_position_arm_idle_handover();
+    chess_policy_refresh_idle_board_leds();
     goto out;
   }
-
-  merge_swap_pairs(jobs, &job_n);
-
-  memset(&plan, 0, sizeof(plan));
-  pick_display_paths(jobs, job_n, missing, missing_n, &plan);
-  plan.missing_count = missing_n;
-  memcpy(plan.missing_homes, missing, missing_n);
-  plan.extra_count = extra_n;
-  memcpy(plan.extra_squares, extra, extra_n);
-  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, occ, &plan);
-
-  has_led_work = plan.mark_count > 0;
-  if (!has_led_work) {
+  if (plan.mark_count == 0) {
     game_hall_restore_guide_stop_leds();
     remember_digest(digest);
     goto out;
@@ -929,68 +981,82 @@ void game_hall_restore_guide_sync(void) {
   s_guide_led_active = true;
   remember_digest(digest);
 
-  ESP_LOGI(TAG,
-           "[STAGING] restore guide: paths=%u missing=%u extra=%u jobs=%d",
-           (unsigned)plan.path_count, (unsigned)missing_n, (unsigned)extra_n,
-           job_n);
+  ESP_LOGI(TAG, "[STAGING] restore guide: paths=%u missing=%u extra=%u",
+           (unsigned)plan.path_count, (unsigned)plan.missing_count,
+           (unsigned)plan.extra_count);
 out:
   s_in_sync = false;
 }
 
-bool game_hall_restore_guide_show_play(void) {
-  uint8_t occ[64];
-  hall_piece_slot_t expect[MAX_PIECES];
-  hall_piece_slot_t phys[MAX_PIECES];
-  restore_job_t jobs[MAX_JOBS];
-  uint8_t missing[LED_RESTORE_GUIDE_MAX_MISSING];
-  uint8_t extra[LED_RESTORE_GUIDE_MAX_EXTRA];
+static bool apply_composed_plan(const uint8_t occ[64]) {
   led_restore_guide_plan_t plan;
-  int expect_n = 0;
-  int phys_n = 0;
-  int job_n = 0;
-  uint8_t missing_n = 0;
-  uint8_t extra_n = 0;
+  bool aligned = false;
 
-  if (s_in_sync || !s_opening_done) {
+  if (!compose_restore_plan(occ, &plan, &aligned)) {
     return false;
   }
-  if (game_demo_show_active() || led_board_show_active() ||
-      led_lamp_board_held() || led_gesture_anim_busy() ||
-      !hall_i2c_squares_readings_usable() || mode_blocks_guide()) {
-    return false;
-  }
-
-  s_in_sync = true;
-  squares_get_state(occ);
-  if (!collect_board(expect, &expect_n, phys, &phys_n, occ)) {
-    s_in_sync = false;
-    return false;
-  }
-  match_all(expect, expect_n, phys, phys_n, jobs, &job_n, missing, &missing_n,
-            extra, &extra_n);
-  if (board_fully_aligned(job_n, missing_n, extra_n)) {
-    game_hall_restore_guide_stop_leds();
-    s_in_sync = false;
+  if (aligned) {
+    game_hall_restore_guide_release();
+    game_hall_position_arm_idle_handover();
+    chess_policy_refresh_idle_board_leds();
     return true;
   }
-  merge_swap_pairs(jobs, &job_n);
-  memset(&plan, 0, sizeof(plan));
-  pick_display_paths(jobs, job_n, missing, missing_n, &plan);
-  plan.missing_count = missing_n;
-  memcpy(plan.missing_homes, missing, missing_n);
-  plan.extra_count = extra_n;
-  memcpy(plan.extra_squares, extra, extra_n);
-  fill_setup_marks(jobs, job_n, missing, missing_n, extra, extra_n, occ, &plan);
   if (plan.mark_count == 0 && plan.path_count == 0) {
-    game_hall_restore_guide_stop_leds();
-    s_in_sync = false;
+    s_guide_led_active = false;
+    led_board_restore_guide_blank();
     return true;
   }
   plan.active = true;
   led_board_restore_guide_apply(&plan);
   s_guide_led_active = true;
+  return true;
+}
+
+bool game_hall_restore_guide_show_play(void) {
+  uint8_t occ[64];
+
+  if (s_in_sync || !s_opening_done || play_sensors_blocked()) {
+    return false;
+  }
+  s_in_sync = true;
+  squares_get_state(occ);
+  if (!apply_composed_plan(occ)) {
+    s_in_sync = false;
+    return false;
+  }
   s_in_sync = false;
   return true;
+}
+
+void game_hall_restore_guide_sync_play(void) {
+  uint8_t occ[64];
+  uint8_t digest[64];
+  uint32_t now_ms;
+
+  if (s_in_sync || !s_opening_done || play_sensors_blocked()) {
+    return;
+  }
+#if HALL_DEBUG_LIGHT_WHERE_PIECE
+  return;
+#endif
+  squares_get_state(occ);
+  digest_sensors(occ, digest);
+  now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+  if (!guide_digest_settled(digest, now_ms)) {
+    return;
+  }
+  if (s_digest_valid && sensors_unchanged(digest) &&
+      s_play_gen == led_board_picture_gen()) {
+    return;
+  }
+  s_in_sync = true;
+  if (!apply_composed_plan(occ)) {
+    s_in_sync = false;
+    return;
+  }
+  remember_digest(digest);
+  s_play_gen = led_board_picture_gen();
+  s_in_sync = false;
 }
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */

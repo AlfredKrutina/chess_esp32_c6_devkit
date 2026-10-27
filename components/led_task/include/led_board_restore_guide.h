@@ -55,5 +55,7 @@ void led_board_restore_guide_tick(void);
 void led_board_restore_guide_yield(void);
 /** Drop the guide without painting, so a demo or a game can own the squares. */
 void led_board_restore_guide_cancel(void);
+/** Drop the plan and fade every square toward off. */
+void led_board_restore_guide_blank(void);
 
 #endif /* LED_BOARD_RESTORE_GUIDE_H */

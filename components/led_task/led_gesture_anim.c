@@ -26,6 +26,7 @@
 
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/portmacro.h"
 
@@ -45,6 +46,7 @@ typedef enum {
 static portMUX_TYPE s_mux = portMUX_INITIALIZER_UNLOCKED;
 static phase_t s_phase;
 static bool s_release;
+static volatile bool s_button_held;
 static led_gesture_result_t s_result;
 static uint32_t s_old[64];
 static uint32_t s_new[64];
@@ -68,6 +70,40 @@ static bool s_btn_owned;
 static bool s_btn_leave_dark;
 
 #define GESTURE_BUTTON_LED 72
+/* Nominal LED frame these gestures were timed at. Steps scale with dt. */
+#define GESTURE_FRAME_MS 33u
+
+static uint32_t s_dt_ms;
+static uint32_t s_anim_last;
+static uint32_t s_wave_acc;
+static uint32_t s_shut_acc;
+static uint32_t s_pair_acc;
+static uint32_t s_snake_acc;
+static uint32_t s_hold_acc;
+
+static void gesture_sample_dt(void) {
+  uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+  uint32_t dt;
+  if (s_anim_last == 0U) {
+    s_anim_last = now;
+    s_dt_ms = GESTURE_FRAME_MS;
+    return;
+  }
+  dt = (uint32_t)(now - s_anim_last);
+  s_anim_last = now;
+  if (dt == 0U || dt > 200U) {
+    dt = GESTURE_FRAME_MS;
+  }
+  s_dt_ms = dt;
+}
+
+static uint32_t frame_steps(uint32_t *acc) {
+  uint32_t n;
+  *acc += s_dt_ms;
+  n = *acc / GESTURE_FRAME_MS;
+  *acc %= GESTURE_FRAME_MS;
+  return n;
+}
 
 static void post_result(led_gesture_result_t result) {
   s_result = result;
@@ -143,6 +179,9 @@ static bool begin_phase(phase_t phase, bool keep_release) {
       s_release = false;
     }
     s_step = 0;
+    s_wave_acc = 0;
+    s_shut_acc = 0;
+    s_snake_acc = 0;
     s_shut_back = false;
     s_rev_alt = 0;
     s_snake_q8 = 0;
@@ -244,7 +283,11 @@ static void tick_wave(void) {
     return;
   }
   if (s_step < 250) {
-    s_step++;
+    uint32_t add = frame_steps(&s_wave_acc);
+    if (add > (uint32_t)(250 - s_step)) {
+      add = (uint32_t)(250 - s_step);
+    }
+    s_step = (uint8_t)(s_step + add);
   }
 }
 
@@ -261,12 +304,19 @@ static void snake_square(uint8_t step, uint8_t *row, uint8_t *col) {
 
 /* Head position is in 1/256 of a square. The crest eases in over 3 squares
  * and the tail fades out over 5, so the wipe is a soft brush. The head must
- * travel past a8 until that tail leaves the board black. ~3.4 s at 33 ms. */
+ * travel past a8 until that tail leaves the board black. ~1.7 s at 33 ms. */
 #define SWEEP_AHEAD_Q8 768
 #define SWEEP_BEHIND_Q8 1280
 #define SWEEP_CREST 0xFFE6B0u
 #define SNAKE_Q8_END (64u * 256u + SWEEP_BEHIND_Q8)
-#define SNAKE_Q8_FWD 170u
+#define SNAKE_Q8_FWD 340u
+
+static uint32_t snake_q8_delta(void) {
+  uint32_t num = s_snake_acc + s_dt_ms * SNAKE_Q8_FWD;
+  uint32_t step = num / GESTURE_FRAME_MS;
+  s_snake_acc = num % GESTURE_FRAME_MS;
+  return step;
+}
 
 static uint8_t sweep_glow(int dist_q8) {
   int reach = (dist_q8 >= 0) ? SWEEP_AHEAD_Q8 : SWEEP_BEHIND_Q8;
@@ -322,24 +372,29 @@ static void tick_snake_forward(void) {
     return;
   }
   if (s_snake_q8 >= SNAKE_Q8_END) {
-    for (uint8_t row = 0; row < 8; row++) {
-      for (uint8_t col = 0; col < 8; col++) {
-        paint_square(row, col, 0);
-      }
-    }
     ESP_LOGI(TAG, "[STAGING] new-game sweep finished");
     post_result(LED_GESTURE_SNAKE_DONE);
     return;
   }
   paint_new_game_sweep(s_snake_q8);
-  uint32_t next = (uint32_t)s_snake_q8 + SNAKE_Q8_FWD;
-  if (next > SNAKE_Q8_END) {
-    next = SNAKE_Q8_END;
+  {
+    uint32_t next = (uint32_t)s_snake_q8 + snake_q8_delta();
+    if (next > SNAKE_Q8_END) {
+      next = SNAKE_Q8_END;
+    }
+    s_snake_q8 = (uint16_t)next;
   }
-  s_snake_q8 = (uint16_t)next;
 }
 
 static void tick_snake_reverse(void) {
+  if (s_button_held) {
+    taskENTER_CRITICAL(&s_mux);
+    s_release = false;
+    taskEXIT_CRITICAL(&s_mux);
+    s_phase = PH_SNAKE_FWD;
+    tick_snake_forward();
+    return;
+  }
   taskENTER_CRITICAL(&s_mux);
   s_release = false;
   taskEXIT_CRITICAL(&s_mux);
@@ -351,10 +406,13 @@ static void tick_snake_reverse(void) {
     post_result(LED_GESTURE_SNAKE_CANCELLED);
     return;
   }
-  if (s_snake_q8 <= SNAKE_Q8_FWD) {
-    s_snake_q8 = 0;
-  } else {
-    s_snake_q8 = (uint16_t)(s_snake_q8 - SNAKE_Q8_FWD);
+  {
+    uint32_t delta = snake_q8_delta();
+    if ((uint32_t)s_snake_q8 <= delta) {
+      s_snake_q8 = 0;
+    } else {
+      s_snake_q8 = (uint16_t)(s_snake_q8 - delta);
+    }
   }
   paint_new_game_sweep(s_snake_q8);
 }
@@ -490,7 +548,14 @@ static void tick_shutdown(void) {
       post_result(LED_GESTURE_SHUTDOWN_CANCELLED);
       return;
     }
-    s_step--;
+    {
+      uint32_t add = frame_steps(&s_shut_acc);
+      if (add >= s_step) {
+        s_step = 0;
+      } else {
+        s_step = (uint8_t)(s_step - add);
+      }
+    }
     paint_shutdown(s_step);
     return;
   }
@@ -506,7 +571,14 @@ static void tick_shutdown(void) {
     return;
   }
   paint_shutdown(s_step);
-  s_step++;
+  {
+    uint32_t add = frame_steps(&s_shut_acc);
+    if ((uint32_t)s_step + add > 255U) {
+      s_step = 255;
+    } else {
+      s_step = (uint8_t)(s_step + add);
+    }
+  }
 }
 
 /** Light-blue field. amount is 0..140. The picture underneath stays saved. */
@@ -555,24 +627,35 @@ static void tick_pair_hold(void) {
   for (unsigned i = 0; i < sizeof(s_ble_logo) / sizeof(s_ble_logo[0]); i++) {
     paint_square(s_ble_logo[i][0], s_ble_logo[i][1], logo);
   }
-  s_pair_step++;
-  if (s_pair_step >= 96) {
-    s_pair_step = 0;
+  {
+    uint32_t add = frame_steps(&s_pair_acc);
+    s_pair_step = (uint8_t)((s_pair_step + add) % 96U);
   }
 }
 
 bool led_gesture_anim_busy(void) { return s_phase != PH_IDLE; }
 
-static volatile bool s_button_held;
 static bool s_hold_lit;
 
 static void hold_step(uint8_t target) {
+  uint32_t num = s_hold_acc + s_dt_ms * 48U;
+  uint32_t step = num / GESTURE_FRAME_MS;
+  s_hold_acc = num % GESTURE_FRAME_MS;
+  if (step > 255U) {
+    step = 255U;
+  }
   if (s_hold_level < target) {
     uint8_t room = (uint8_t)(target - s_hold_level);
-    s_hold_level = (uint8_t)(s_hold_level + (room > 48u ? 48u : room));
+    if (step > room) {
+      step = room;
+    }
+    s_hold_level = (uint8_t)(s_hold_level + step);
   } else if (s_hold_level > target) {
     uint8_t room = (uint8_t)(s_hold_level - target);
-    s_hold_level = (uint8_t)(s_hold_level - (room > 48u ? 48u : room));
+    if (step > room) {
+      step = room;
+    }
+    s_hold_level = (uint8_t)(s_hold_level - step);
   }
 }
 
@@ -683,6 +766,7 @@ static void paint_gesture_button(void) {
 }
 
 void led_gesture_anim_tick(void) {
+  gesture_sample_dt();
 #if CONFIG_CHESS_GESTURE_BUTTON
   /* Follow the pin here too. The button task owns the gesture timing, but
    * the button LED must turn orange even if that task has not published yet. */
@@ -764,6 +848,7 @@ bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward,
   s_phase = PH_WAVE;
   s_release = false;
   s_step = 0;
+  s_wave_acc = 0;
   s_wave_in = inward;
   s_rev_alt = 0;
   s_have_old = false;
@@ -789,6 +874,7 @@ bool led_gesture_start_pair_pulse(void) {
   taskENTER_CRITICAL(&s_mux);
   s_pair_hold = true;
   s_pair_step = 0;
+  s_pair_acc = 0;
   if (s_phase != PH_IDLE) {
     s_pair_captured = false;
   }

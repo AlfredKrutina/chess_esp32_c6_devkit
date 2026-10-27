@@ -8,6 +8,7 @@
 #ifndef GAME_HALL_RESTORE_GUIDE_H
 #define GAME_HALL_RESTORE_GUIDE_H
 
+#include "sdkconfig.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -42,6 +43,9 @@ void game_hall_restore_guide_force_resync(void);
 /** @brief Opening colors are done. A lifted piece is a move, not setup. */
 void game_hall_restore_guide_end_for_play(void);
 
+/** Start the clock once setup has handed the board to an active game. */
+void game_hall_opening_clock_on_play(void);
+
 /** @brief True after the opening guide has been retired for this game. */
 bool game_hall_restore_guide_in_play(void);
 
@@ -51,6 +55,14 @@ bool game_hall_restore_guide_in_play(void);
  * or the board is already aligned.
  */
 bool game_hall_restore_guide_show_play(void);
+
+/**
+ * @brief Live in-play guide back to board[][].
+ *
+ * Same jobs and paths as the opening sync, debounced the same way.
+ * Does not retire the opening, start the clock, or fade an empty board.
+ */
+void game_hall_restore_guide_sync_play(void);
 
 /**
  * @brief Light every starting home while the board is empty.
@@ -73,6 +85,9 @@ bool game_hall_restore_guide_take_sync_request(void);
  * The squares-guard pause layer is left as-is.
  */
 void game_hall_restore_guide_stop_leds(void);
+
+/** Drop the guide flag without fading squares to black. */
+void game_hall_restore_guide_release(void);
 
 #endif /* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */
 
