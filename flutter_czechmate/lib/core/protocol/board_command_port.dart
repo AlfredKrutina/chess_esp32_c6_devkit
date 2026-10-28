@@ -51,6 +51,18 @@ abstract class BoardCommandPort {
 
   Future<void> postLightGameMode();
 
+  Future<void> postLightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  });
+
   Future<void> postAutoLampTimeout(int seconds);
 
   Future<void> postOtaStart(String firmwareUrl);
@@ -155,6 +167,32 @@ class HttpBoardCommandPort implements BoardCommandPort {
   Future<void> postLightGameMode() => _api.postLightGameMode(baseUrl);
 
   @override
+  Future<void> postLightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) {
+    return _api.postLightPattern(
+      baseUrl,
+      on: on,
+      pen: pen,
+      ar: ar,
+      ag: ag,
+      ab: ab,
+      br: br,
+      bg: bg,
+      bb: bb,
+      clear: clear,
+    );
+  }
+
+  @override
   Future<void> postAutoLampTimeout(int seconds) =>
       _api.postAutoLampTimeout(baseUrl, seconds);
 
@@ -243,6 +281,31 @@ class BleBoardCommandPort implements BoardCommandPort {
 
   @override
   Future<void> postLightGameMode() => _ble.postLightGameMode();
+
+  @override
+  Future<void> postLightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) {
+    return _ble.postLightPattern(
+      on: on,
+      pen: pen,
+      ar: ar,
+      ag: ag,
+      ab: ab,
+      br: br,
+      bg: bg,
+      bb: bb,
+      clear: clear,
+    );
+  }
 
   @override
   Future<void> postAutoLampTimeout(int seconds) =>

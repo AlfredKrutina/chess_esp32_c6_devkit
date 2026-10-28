@@ -1773,6 +1773,35 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await _refreshAfterWifiCommand();
   }
 
+  Future<void> postBoardLightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) async {
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errLampNeedsBoard);
+    }
+    await port.postLightPattern(
+      on: on,
+      pen: pen,
+      ar: ar,
+      ag: ag,
+      ab: ab,
+      br: br,
+      bg: bg,
+      bb: bb,
+      clear: clear,
+    );
+    await _refreshAfterWifiCommand();
+  }
+
   Future<void> postBoardLightGameMode() async {
     final port = _commandPortOrNull();
     if (port == null) {

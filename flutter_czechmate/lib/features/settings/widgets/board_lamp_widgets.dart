@@ -92,6 +92,9 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
   double _b = 255;
   bool _lampOn = true;
   bool _busy = false;
+  int _pen = 0;
+  double _ar = 255, _ag = 255, _ab = 255;
+  double _br = 40, _bg = 90, _bb = 255;
 
   @override
   void initState() {
@@ -275,8 +278,100 @@ class _BoardLampBlockState extends ConsumerState<BoardLampBlock> {
                     ),
             child: Text(l10n.lampGameModeButton),
           ),
+          const SizedBox(height: 16),
+          Text(l10n.patternTitle,
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(l10n.patternHint),
+          const SizedBox(height: 8),
+          Text(l10n.patternColorA),
+          _rgbSliders(_ar, _ag, _ab, (r, g, b) {
+            setState(() {
+              _ar = r;
+              _ag = g;
+              _ab = b;
+            });
+          }),
+          Text(l10n.patternColorB),
+          _rgbSliders(_br, _bg, _bb, (r, g, b) {
+            setState(() {
+              _br = r;
+              _bg = g;
+              _bb = b;
+            });
+          }),
+          const SizedBox(height: 8),
+          SegmentedButton<int>(
+            segments: [
+              ButtonSegment(value: 0, label: Text(l10n.patternPenA)),
+              ButtonSegment(value: 1, label: Text(l10n.patternPenB)),
+            ],
+            selected: {_pen},
+            onSelectionChanged: _busy
+                ? null
+                : (s) {
+                    setState(() => _pen = s.first);
+                    _sendPattern(on: false);
+                  },
+          ),
+          const SizedBox(height: 8),
+          FilledButton(
+            onPressed: _busy ? null : () => _sendPattern(on: true),
+            child: Text(l10n.patternStart),
+          ),
+          OutlinedButton(
+            onPressed: _busy ? null : () => _sendPattern(on: true, clear: true),
+            child: Text(l10n.patternClear),
+          ),
         ],
       ],
+    );
+  }
+
+  Widget _rgbSliders(
+    double r,
+    double g,
+    double b,
+    void Function(double r, double g, double b) onChanged,
+  ) {
+    return Column(
+      children: [
+        Slider(
+          min: 0,
+          max: 255,
+          value: r.clamp(0, 255),
+          onChanged: _busy ? null : (v) => onChanged(v, g, b),
+        ),
+        Slider(
+          min: 0,
+          max: 255,
+          value: g.clamp(0, 255),
+          onChanged: _busy ? null : (v) => onChanged(r, v, b),
+        ),
+        Slider(
+          min: 0,
+          max: 255,
+          value: b.clamp(0, 255),
+          onChanged: _busy ? null : (v) => onChanged(r, g, v),
+        ),
+      ],
+    );
+  }
+
+  void _sendPattern({required bool on, bool clear = false}) {
+    _run(
+      () => ref.read(boardSessionNotifierProvider.notifier).postBoardLightPattern(
+            on: on,
+            pen: _pen,
+            ar: _ar.round(),
+            ag: _ag.round(),
+            ab: _ab.round(),
+            br: _br.round(),
+            bg: _bg.round(),
+            bb: _bb.round(),
+            clear: clear,
+          ),
+      successMessage: context.l10n.patternSent,
     );
   }
 }

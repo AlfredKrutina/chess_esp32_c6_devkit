@@ -5687,6 +5687,60 @@ abstract class AppLocalizations {
   /// **'Game lamp mode'**
   String get lampGameModeButton;
 
+  /// No description provided for @patternTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing'**
+  String get patternTitle;
+
+  /// No description provided for @patternHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Two colors. After you start, put a piece on a square to paint it. Switch the pen here.'**
+  String get patternHint;
+
+  /// No description provided for @patternColorA.
+  ///
+  /// In en, this message translates to:
+  /// **'Color A'**
+  String get patternColorA;
+
+  /// No description provided for @patternColorB.
+  ///
+  /// In en, this message translates to:
+  /// **'Color B'**
+  String get patternColorB;
+
+  /// No description provided for @patternPenA.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw with A'**
+  String get patternPenA;
+
+  /// No description provided for @patternPenB.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw with B'**
+  String get patternPenB;
+
+  /// No description provided for @patternStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw on the board'**
+  String get patternStart;
+
+  /// No description provided for @patternClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear drawing'**
+  String get patternClear;
+
+  /// No description provided for @patternSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing sent to the board.'**
+  String get patternSent;
+
   /// No description provided for @lampColorLabel.
   ///
   /// In en, this message translates to:

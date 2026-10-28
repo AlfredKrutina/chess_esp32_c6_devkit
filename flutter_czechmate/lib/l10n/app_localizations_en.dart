@@ -3192,6 +3192,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lampGameModeButton => 'Game lamp mode';
 
   @override
+  String get patternTitle => 'Drawing';
+
+  @override
+  String get patternHint =>
+      'Two colors. After you start, put a piece on a square to paint it. Switch the pen here.';
+
+  @override
+  String get patternColorA => 'Color A';
+
+  @override
+  String get patternColorB => 'Color B';
+
+  @override
+  String get patternPenA => 'Draw with A';
+
+  @override
+  String get patternPenB => 'Draw with B';
+
+  @override
+  String get patternStart => 'Draw on the board';
+
+  @override
+  String get patternClear => 'Clear drawing';
+
+  @override
+  String get patternSent => 'Drawing sent to the board.';
+
+  @override
   String get lampColorLabel => 'Color';
 
   @override

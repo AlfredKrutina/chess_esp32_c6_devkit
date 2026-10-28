@@ -609,6 +609,30 @@ class BleCzechmateClient {
     ));
   }
 
+  Future<void> postLightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) async {
+    await _writeCmd(BoardCommandPayload.bleLightPattern(
+      on: on,
+      pen: pen,
+      ar: ar,
+      ag: ag,
+      ab: ab,
+      br: br,
+      bg: bg,
+      bb: bb,
+      clear: clear,
+    ));
+  }
+
   /// Parity `POST /api/light/game_mode`.
   Future<void> postLightGameMode() async {
     await _writeCmd({'cmd': 'light_game_mode'});

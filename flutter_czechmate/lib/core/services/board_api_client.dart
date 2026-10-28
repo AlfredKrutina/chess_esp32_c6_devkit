@@ -449,6 +449,36 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
+  /// `POST /api/light/pattern` — two-color drawing shown on the board.
+  Future<void> postLightPattern(
+    String baseUrl, {
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) async {
+    final uri = _api(baseUrl, 'api/light/pattern');
+    final body = jsonEncode(BoardCommandPayload.lightPattern(
+      on: on,
+      pen: pen,
+      ar: ar,
+      ag: ag,
+      ab: ab,
+      br: br,
+      bg: bg,
+      bb: bb,
+      clear: clear,
+    ));
+    final res =
+        await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+  }
+
   /// `POST /api/light/game_mode` — LED by game mode.
   Future<void> postLightGameMode(String baseUrl) async {
     final uri = _api(baseUrl, 'api/light/game_mode');

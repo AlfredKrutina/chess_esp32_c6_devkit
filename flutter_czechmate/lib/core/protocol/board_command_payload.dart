@@ -208,6 +208,55 @@ class BoardCommandPayload {
         'b': b.clamp(0, 255),
       };
 
+  static Map<String, dynamic> lightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) =>
+      <String, dynamic>{
+        'on': on,
+        'pen': pen == 0 ? 0 : 1,
+        'ar': ar.clamp(0, 255),
+        'ag': ag.clamp(0, 255),
+        'ab': ab.clamp(0, 255),
+        'br': br.clamp(0, 255),
+        'bg': bg.clamp(0, 255),
+        'bb': bb.clamp(0, 255),
+        'clear': clear,
+      };
+
+  static Map<String, dynamic> bleLightPattern({
+    required bool on,
+    required int pen,
+    required int ar,
+    required int ag,
+    required int ab,
+    required int br,
+    required int bg,
+    required int bb,
+    bool clear = false,
+  }) =>
+      bleWrap(
+        'light_pattern',
+        lightPattern(
+          on: on,
+          pen: pen,
+          ar: ar,
+          ag: ag,
+          ab: ab,
+          br: br,
+          bg: bg,
+          bb: bb,
+          clear: clear,
+        ),
+      );
+
   static Map<String, dynamic> bleLightCommand({
     required bool state,
     required int r,

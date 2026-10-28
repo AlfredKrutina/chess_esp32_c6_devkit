@@ -3197,6 +3197,34 @@ class AppLocalizationsCs extends AppLocalizations {
   String get lampGameModeButton => 'Režim hry (LED podle partie)';
 
   @override
+  String get patternTitle => 'Kresba';
+
+  @override
+  String get patternHint =>
+      'Dvě barvy. Po startu polož figuru na pole a to se obarví. Pero přepneš tady.';
+
+  @override
+  String get patternColorA => 'Barva A';
+
+  @override
+  String get patternColorB => 'Barva B';
+
+  @override
+  String get patternPenA => 'Kreslit A';
+
+  @override
+  String get patternPenB => 'Kreslit B';
+
+  @override
+  String get patternStart => 'Kreslit na desce';
+
+  @override
+  String get patternClear => 'Smazat kresbu';
+
+  @override
+  String get patternSent => 'Kresba odeslána na desku.';
+
+  @override
   String get lampColorLabel => 'Barva';
 
   @override
